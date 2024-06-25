@@ -23,6 +23,7 @@ declare module 'vue' {
     AppLogo: typeof import('./components/app/Logo.vue')['default']
     AppOptions: typeof import('./components/app/Options.vue')['default']
     AppPaneLayout: typeof import('./components/app/PaneLayout.vue')['default']
+    AppPWAPrompt: typeof import('./components/app/PWAPrompt.vue')['default']
     AppShare: typeof import('./components/app/Share.vue')['default']
     AppShortcuts: typeof import('./components/app/Shortcuts.vue')['default']
     AppShortcutsEntry: typeof import('./components/app/ShortcutsEntry.vue')['default']

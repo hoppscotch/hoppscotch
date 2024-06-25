@@ -2,7 +2,10 @@
   <div class="whats-new">
     <p>Hoppscotch has been automatically updated to the latest version 🎉</p>
     <p>
-      <a href="#" style="display: flex; align-items: center; gap: 5px">
+      <button
+        style="display: flex; align-items: center; gap: 5px"
+        @click="openWhatsNew"
+      >
         See what’s new
         <span>
           <svg
@@ -18,7 +21,7 @@
             />
           </svg>
         </span>
-      </a>
+      </button>
     </p>
     <button class="headlessClose" @click="$emit('closeToast')">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -30,7 +33,18 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { platform } from "~/platform"
+
+// types
+const props = defineProps<{
+  notesUrl: string
+}>()
+
+const openWhatsNew = () => {
+  if (props.notesUrl) platform.io.openExternalLink(props.notesUrl)
+}
+</script>
 
 <style scoped>
 .whats-new {

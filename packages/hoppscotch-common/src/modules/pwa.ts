@@ -1,6 +1,6 @@
 import { HoppModule } from "."
 import { ref, onMounted } from "vue"
-import { usePwaPrompt } from "@composables/pwa"
+import { usePwaPrompt, useWhatsNewPrompt } from "@composables/pwa"
 import { registerSW } from "virtual:pwa-register"
 
 export type HoppPWARegistrationStatus =
@@ -73,6 +73,7 @@ export default <HoppModule>{
   onRootSetup() {
     onMounted(() => {
       usePwaPrompt()
+      useWhatsNewPrompt()
     })
   },
 }

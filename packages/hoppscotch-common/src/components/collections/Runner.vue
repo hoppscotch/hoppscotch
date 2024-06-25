@@ -98,7 +98,7 @@ const activeEnvironment = computed(() => {
   return null
 })
 
-const isCloudInstance = window.location.hostname === "domain.xyz"
+const isCloudInstance = window.location.hostname === "hoppscotch.io"
 
 const cliCommandGenerationDescription = computed(() => {
   if (isCloudInstance) {

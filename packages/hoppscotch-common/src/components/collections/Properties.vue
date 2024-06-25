@@ -29,8 +29,8 @@
           <HttpAuthorization
             v-model="editableCollection.auth"
             :is-collection-property="true"
-            :is-root-collection="editingProperties?.isRootCollection"
-            :inherited-properties="editingProperties?.inheritedProperties"
+            :is-root-collection="editingProperties.isRootCollection"
+            :inherited-properties="editingProperties.inheritedProperties"
             :source="source"
           />
           <div
@@ -66,7 +66,7 @@
               class="flex items-center justify-between py-2 px-4 rounded-md bg-primaryLight"
             >
               <div class="text-secondaryDark">
-                {{ editingProperties?.path }}
+                {{ editingProperties.path }}
               </div>
 
               <HoppButtonSecondary
@@ -146,7 +146,7 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     loadingState: boolean
-    editingProperties: EditingProperties | null
+    editingProperties: EditingProperties
     source: "REST" | "GraphQL"
     modelValue: string
     showDetails: boolean
@@ -154,7 +154,6 @@ const props = withDefaults(
   {
     show: false,
     loadingState: false,
-    editingProperties: null,
     showDetails: false,
   }
 )
@@ -190,9 +189,9 @@ watch(
     if (props.show && props.editingProperties) {
       const unsavedCollectionProperties: EditingProperties = {
         collection: updatedEditableCollection,
-        isRootCollection: props.editingProperties?.isRootCollection ?? false,
-        path: props.editingProperties?.path,
-        inheritedProperties: props.editingProperties?.inheritedProperties,
+        isRootCollection: props.editingProperties.isRootCollection ?? false,
+        path: props.editingProperties.path,
+        inheritedProperties: props.editingProperties.inheritedProperties,
       }
       persistenceService.setLocalConfig(
         "unsaved_collection_properties",
@@ -216,7 +215,7 @@ watch(
       activeTab.value = "headers"
     }
 
-    if (show && props.editingProperties?.collection) {
+    if (show && props.editingProperties.collection) {
       editableCollection.value.auth = clone(
         props.editingProperties.collection.auth as HoppCollectionAuth
       )
@@ -258,7 +257,7 @@ const hideModal = () => {
 }
 
 const copyCollectionID = () => {
-  copyToClipboard(props.editingProperties?.path ?? "")
+  copyToClipboard(props.editingProperties.path)
   copyIcon.value = IconCheck
 
   toast.success(`${t("state.copied_to_clipboard")}`)

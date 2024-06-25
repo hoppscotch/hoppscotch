@@ -5,7 +5,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 export {}
 
-declare module "vue" {
+declare module 'vue' {
   export interface GlobalComponents {
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
@@ -73,6 +73,7 @@ declare module "vue" {
     EnvironmentsMy: typeof import('./components/environments/my/index.vue')['default']
     EnvironmentsMyDetails: typeof import('./components/environments/my/Details.vue')['default']
     EnvironmentsMyEnvironment: typeof import('./components/environments/my/Environment.vue')['default']
+    EnvironmentsProperties: typeof import('./components/environments/Properties.vue')['default']
     EnvironmentsSelector: typeof import('./components/environments/Selector.vue')['default']
     EnvironmentsTeams: typeof import('./components/environments/teams/index.vue')['default']
     EnvironmentsTeamsDetails: typeof import('./components/environments/teams/Details.vue')['default']

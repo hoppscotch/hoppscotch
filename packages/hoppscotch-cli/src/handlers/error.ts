@@ -89,7 +89,7 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       ERROR_MSG = `The specified access token is invalid. Please provide a valid token: ${error.data}`;
       break;
     case "INVALID_ID":
-      ERROR_MSG = `The specified collection/environment (ID or file path) is invalid or inaccessible. Please ensure the supplied ID or file path is correc: ${error.data}`;
+      ERROR_MSG = `The specified collection/environment (ID or file path) is invalid or inaccessible. Please ensure the supplied ID or file path is correct: ${error.data}`;
       break;
     case "INVALID_SERVER_URL":
       ERROR_MSG = `Please provide a valid SH instance server URL: ${error.data}`;

@@ -207,6 +207,7 @@
       v-if="showInviteUserModal"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
+      @copy-invite-link="copyInviteLink"
     />
     <HoppSmartConfirmModal
       :show="confirmUsersToAdmin"
@@ -262,6 +263,7 @@ import {
 } from '~/helpers/backend/graphql';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconCheck from '~icons/lucide/check';
 import IconLeft from '~icons/lucide/chevron-left';
 import IconRight from '~icons/lucide/chevron-right';
@@ -451,11 +453,16 @@ const showInviteUserModal = ref(false);
 const sendInvitation = useMutation(InviteNewUserDocument);
 
 const sendInvite = async (email: string) => {
-  if (!email.trim()) {
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail) {
     toast.error(t('state.invalid_email'));
-    return;
+    return false;
+  } else if (trimmedEmail === '') {
+    toast.error(t('users.valid_email'));
+    return false;
   }
-  const variables = { inviteeEmail: email.trim() };
+
+  const variables = { inviteeEmail: trimmedEmail };
   const result = await sendInvitation.executeMutation(variables);
   if (result.error) {
     const { message } = result.error;
@@ -464,10 +471,21 @@ const sendInvite = async (email: string) => {
     compiledErrorMessage
       ? toast.error(t(compiledErrorMessage))
       : toast.error(t('state.email_failure'));
+
+    return false;
   } else {
     toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
+    return true;
   }
+};
+
+const copyInviteLink = async (email: string) => {
+  const result = await sendInvite(email);
+  if (!result) return;
+  const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+  copyToClipboard(baseURL);
+  toast.success(t('state.copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

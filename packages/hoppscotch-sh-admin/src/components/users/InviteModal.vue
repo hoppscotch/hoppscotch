@@ -9,14 +9,14 @@
         v-model="email"
         :label="t('users.email_address')"
         input-styles="floating-input"
-        @submit="sendInvite"
+        @submit="emit('send-invite', email)"
       />
     </template>
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
           :label="t('users.send_invite')"
-          @click="sendInvite"
+          @click="emit('send-invite', email)"
         />
         <HoppButtonSecondary
           :label="t('users.cancel')"
@@ -29,7 +29,7 @@
         :label="t('users.copy_link')"
         outline
         filled
-        @click="copyInviteLink"
+        @click="emit('copy-invite-link', email)"
       />
     </template>
   </HoppSmartModal>
@@ -38,38 +38,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { useToast } from '~/composables/toast';
-import { copyToClipboard } from '~/helpers/utils/clipboard';
 
 const t = useI18n();
-const toast = useToast();
 
 const emit = defineEmits<{
   (event: 'hide-modal'): void;
   (event: 'send-invite', email: string): void;
+  (event: 'copy-invite-link', email: string): void;
 }>();
 
 const email = ref('');
-
-const sendInvite = () => {
-  if (email.value.trim() === '') {
-    toast.error(t('users.valid_email'));
-    return;
-  }
-  emit('send-invite', email.value);
-};
-
-const baseURL = import.meta.env.VITE_BASE_URL ?? '';
-
-const copyInviteLink = () => {
-  if (email.value.trim() === '') {
-    toast.error(t('users.valid_email'));
-    return;
-  }
-  emit('send-invite', email.value);
-  copyToClipboard(baseURL);
-  toast.success(t('state.copied_to_clipboard'));
-};
 
 const hideModal = () => {
   emit('hide-modal');

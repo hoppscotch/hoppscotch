@@ -105,9 +105,7 @@
               </div>
             </td>
 
-            <td class="py-2 px-7">
-              {{ useTimeAgo(user.lastActiveOn).value }}
-            </td>
+            <td class="py-2 px-7">{{ lastActiveOn(user.lastActiveOn) }}</td>
 
             <td @click.stop class="flex justify-end w-20">
               <div class="mt-2 mr-5">
@@ -278,8 +276,11 @@ import IconX from '~icons/lucide/x';
 const t = useI18n();
 const toast = useToast();
 
+// Time and Date Helpers
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
+const lastActiveOn = (date: string | null) =>
+  date ? useTimeAgo(date).value : '';
 
 // Table Headings
 const headings = [

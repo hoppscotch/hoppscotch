@@ -30,6 +30,7 @@ const user: AuthUser = {
   currentGQLSession: {},
   currentRESTSession: {},
   lastLoggedOn: currentTime,
+  lastActiveOn: currentTime,
 };
 
 const PATCreatedOn = new Date();

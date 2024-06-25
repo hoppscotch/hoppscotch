@@ -43,6 +43,7 @@ const user: AuthUser = {
   currentGQLSession: {},
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
   lastLoggedOn: currentTime,
+  lastActiveOn: currentTime,
   createdOn: currentTime,
 };
 
@@ -56,6 +57,7 @@ const adminUser: AuthUser = {
   currentGQLSession: {},
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
   lastLoggedOn: currentTime,
+  lastActiveOn: currentTime,
   createdOn: currentTime,
 };
 
@@ -70,6 +72,7 @@ const users: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -82,6 +85,7 @@ const users: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -94,6 +98,7 @@ const users: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
 ];
@@ -109,6 +114,7 @@ const adminUsers: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -121,6 +127,7 @@ const adminUsers: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
   {
@@ -133,6 +140,7 @@ const adminUsers: AuthUser[] = [
     currentGQLSession: {},
     refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
     lastLoggedOn: currentTime,
+    lastActiveOn: currentTime,
     createdOn: currentTime,
   },
 ];

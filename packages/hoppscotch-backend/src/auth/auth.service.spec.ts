@@ -23,7 +23,6 @@ import * as argon2 from 'argon2';
 import * as E from 'fp-ts/Either';
 import { ConfigService } from '@nestjs/config';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUser = mockDeep<UserService>();
@@ -31,7 +30,6 @@ const mockJWT = mockDeep<JwtService>();
 const mockMailer = mockDeep<MailerService>();
 const mockConfigService = mockDeep<ConfigService>();
 const mockInfraConfigService = mockDeep<InfraConfigService>();
-const mockEventEmitter = mockDeep<EventEmitter2>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -39,9 +37,9 @@ const authService = new AuthService(
   mockUser,
   mockPrisma,
   mockJWT,
+  mockMailer,
   mockConfigService,
   mockInfraConfigService,
-  mockEventEmitter,
 );
 
 const currentTime = new Date();
@@ -54,6 +52,7 @@ const user: AuthUser = {
   isAdmin: false,
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
   lastLoggedOn: currentTime,
+  lastActiveOn: currentTime,
   createdOn: currentTime,
   currentGQLSession: {},
   currentRESTSession: {},

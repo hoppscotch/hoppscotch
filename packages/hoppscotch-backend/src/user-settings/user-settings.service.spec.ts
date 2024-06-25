@@ -28,6 +28,7 @@ const user: AuthUser = {
   currentGQLSession: {},
   currentRESTSession: {},
   lastLoggedOn: currentTime,
+  lastActiveOn: currentTime,
   createdOn: currentTime,
 };
 

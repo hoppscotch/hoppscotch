@@ -41,6 +41,7 @@ export type ServerConfigs = {
     name: string;
     enabled: boolean;
     fields: {
+      email_auth: boolean;
       mailer_smtp_url: string;
       mailer_from_address: string;
       mailer_smtp_enabled: boolean;
@@ -50,7 +51,7 @@ export type ServerConfigs = {
       mailer_smtp_password: string;
       mailer_smtp_secure: boolean;
       mailer_tls_reject_unauthorized: boolean;
-      mailer_use_advance_configs: boolean;
+      mailer_use_custom_configs: boolean;
     };
   };
 
@@ -152,16 +153,23 @@ export const MAIL_CONFIGS: Config[] = [
     key: 'mailer_from_address',
   },
   {
+    name: InfraConfigEnum.MailerSmtpEnable,
+    key: 'mailer_smtp_enabled',
+  },
+  {
+    name: InfraConfigEnum.MailerUseCustomConfigs,
+    key: 'mailer_use_custom_configs',
+  },
+];
+
+export const CUSTOM_MAIL_CONFIGS: Config[] = [
+  {
     name: InfraConfigEnum.MailerSmtpHost,
     key: 'mailer_smtp_host',
   },
   {
     name: InfraConfigEnum.MailerSmtpPort,
     key: 'mailer_smtp_port',
-  },
-  {
-    name: InfraConfigEnum.MailerSmtpEnable,
-    key: 'mailer_smtp_enabled',
   },
   {
     name: InfraConfigEnum.MailerSmtpUser,
@@ -179,10 +187,6 @@ export const MAIL_CONFIGS: Config[] = [
     name: InfraConfigEnum.MailerTlsRejectUnauthorized,
     key: 'mailer_tls_reject_unauthorized',
   },
-  {
-    name: InfraConfigEnum.MailerUseAdvanceConfigs,
-    key: 'mailer_use_advance_configs',
-  },
 ];
 
 const DATA_SHARING_CONFIGS: Omit<Config, 'key'>[] = [
@@ -196,5 +200,6 @@ export const ALL_CONFIGS = [
   MICROSOFT_CONFIGS,
   GITHUB_CONFIGS,
   MAIL_CONFIGS,
+  CUSTOM_MAIL_CONFIGS,
   DATA_SHARING_CONFIGS,
 ];

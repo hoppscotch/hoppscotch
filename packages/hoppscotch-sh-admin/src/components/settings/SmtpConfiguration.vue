@@ -19,31 +19,30 @@
         <div class="space-y-4 py-4">
           <div class="flex items-center">
             <HoppSmartToggle
-              :on="smtpConfigs.fields.mailer_smtp_enabled"
-              @change="
-                smtpConfigs.fields.mailer_smtp_enabled =
-                  !smtpConfigs.fields.mailer_smtp_enabled
-              "
+              :on="smtpConfigs.enabled"
+              @change="toggleSMTPConfigs"
             >
               {{ t('configs.mail_configs.enable_smtp') }}
             </HoppSmartToggle>
           </div>
 
-          <div v-if="smtpConfigs.fields.mailer_smtp_enabled" class="ml-12">
+          <div v-if="smtpConfigs.enabled" class="ml-12">
             <div class="flex flex-col items-start gap-5">
               <HoppSmartCheckbox
-                :on="smtpConfigs.enabled"
-                @change="smtpConfigs.enabled = !smtpConfigs.enabled"
+                :on="smtpConfigs.fields.email_auth"
+                @change="
+                  smtpConfigs.fields.email_auth = !smtpConfigs.fields.email_auth
+                "
               >
                 {{ t('configs.mail_configs.enable_email_auth') }}
               </HoppSmartCheckbox>
 
               <HoppSmartCheckbox
-                :on="smtpConfigs.fields.mailer_use_advance_configs"
+                :on="smtpConfigs.fields.mailer_use_custom_configs"
                 :title="t('configs.mail_configs.enable')"
                 @change="
-                  smtpConfigs.fields.mailer_use_advance_configs =
-                    !smtpConfigs.fields.mailer_use_advance_configs
+                  smtpConfigs.fields.mailer_use_custom_configs =
+                    !smtpConfigs.fields.mailer_use_custom_configs
                 "
               >
                 {{ t('configs.mail_configs.advanced_smtp') }}
@@ -165,8 +164,8 @@ const smtpConfigFields = reactive<Field[]>([
     key: 'mailer_tls_reject_unauthorized',
   },
   {
-    name: t('configs.mail_configs.use_advance_configs'),
-    key: 'mailer_use_advance_configs',
+    name: t('configs.mail_configs.use_custom_configs'),
+    key: 'mailer_use_custom_configs',
   },
 ]);
 
@@ -201,7 +200,7 @@ const fieldCondition = (field: Field) => {
     return true;
   }
 
-  if (smtpConfigs.value.fields.mailer_use_advance_configs) {
+  if (smtpConfigs.value.fields.mailer_use_custom_configs) {
     return (
       !basicFields.includes(field.key) && advancedFields.includes(field.key)
     );
@@ -216,4 +215,10 @@ const isCheckboxField = (field: Field) => {
 const toggleCheckbox = (field: Field) =>
   ((smtpConfigs.value.fields[field.key] as boolean) =
     !smtpConfigs.value.fields[field.key]);
+
+const toggleSMTPConfigs = () => {
+  smtpConfigs.value.fields.mailer_smtp_enabled =
+    !smtpConfigs.value.fields.mailer_smtp_enabled;
+  smtpConfigs.value.enabled = !smtpConfigs.value.enabled;
+};
 </script>

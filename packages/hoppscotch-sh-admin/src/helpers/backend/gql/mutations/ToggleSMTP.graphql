@@ -1,0 +1,3 @@
+mutation ToggleSMTP($status: ServiceStatus!) {
+  toggleSMTP(status: $status)
+}

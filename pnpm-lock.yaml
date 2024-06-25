@@ -964,12 +964,18 @@ importers:
       util:
         specifier: 0.12.5
         version: 0.12.5
+      verzod:
+        specifier: 0.2.2
+        version: 0.2.2(zod@3.22.4)
       vue:
         specifier: 3.3.9
         version: 3.3.9(typescript@4.9.5)
       workbox-window:
         specifier: 6.6.0
         version: 6.6.0
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@graphql-codegen/add':
         specifier: 5.0.0

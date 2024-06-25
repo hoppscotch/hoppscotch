@@ -15,6 +15,8 @@ mod mac;
 #[cfg(target_os = "windows")]
 mod win;
 
+mod interceptor;
+
 use tauri::Manager;
 
 fn main() {
@@ -23,6 +25,7 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(interceptor::init())
         .setup(|app| {
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]

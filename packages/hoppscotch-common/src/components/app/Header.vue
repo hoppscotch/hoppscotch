@@ -214,7 +214,7 @@
     <AppBanner
       v-if="bannerContent"
       :banner="bannerContent"
-      @dismiss="dismissOfflineBanner"
+      @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
     <TeamsInvite
@@ -244,14 +244,22 @@
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { WorkspaceService } from "~/services/workspace.service"
-import { useService } from "dioc/vue"
 import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { computed, reactive, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { platform } from "~/platform"
+import {
+  BANNER_PRIORITY_LOW,
+  BannerContent,
+  BannerService,
+} from "~/services/banner.service"
+import { WorkspaceService } from "~/services/workspace.service"
 import IconDownload from "~icons/lucide/download"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
@@ -259,14 +267,6 @@ import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
-import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
-import {
-  BannerService,
-  BannerContent,
-  BANNER_PRIORITY_HIGH,
-} from "~/services/banner.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -293,31 +293,38 @@ const mdAndLarger = breakpoints.greater("md")
 
 const banner = useService(BannerService)
 const bannerContent = computed(() => banner.content.value?.content)
-let bannerID: number | null = null
+let offlineBannerID: number | null = null
 
 const offlineBanner: BannerContent = {
   type: "warning",
   text: (t) => t("helpers.offline"),
   alternateText: (t) => t("helpers.offline_short"),
-  score: BANNER_PRIORITY_HIGH,
+  score: BANNER_PRIORITY_LOW,
   dismissible: true,
 }
 
+// Show the offline banner if the app is offline
 const network = reactive(useNetwork())
 const isOnline = computed(() => network.isOnline)
 
-// Show the offline banner if the user is offline
 watch(isOnline, () => {
   if (!isOnline.value) {
-    bannerID = banner.showBanner(offlineBanner)
+    offlineBannerID = banner.showBanner(offlineBanner)
     return
   }
-  if (banner.content && bannerID) {
-    banner.removeBanner(bannerID)
+  if (banner.content && offlineBannerID) {
+    banner.removeBanner(offlineBannerID)
   }
 })
 
-const dismissOfflineBanner = () => banner.removeBanner(bannerID!)
+const dismissBanner = () => {
+  if (banner.content.value) {
+    banner.removeBanner(banner.content.value.id)
+  } else if (offlineBannerID) {
+    banner.removeBanner(offlineBannerID)
+    offlineBannerID = null
+  }
+}
 
 const currentUser = useReadonlyStream(
   platform.auth.getProbableUserStream(),

@@ -330,7 +330,10 @@ export function useCodemirror(
       ),
 
       EditorView.domEventHandlers({
-        scroll(event) {
+        scroll(event, view) {
+          // HACK: This is a workaround to fix the issue in CodeMirror where the content doesn't load when the editor is not in view.
+          view.requestMeasure()
+
           if (event.target && options.contextMenuEnabled) {
             // Debounce to make the performance better
             debouncedTextSelection(30)()

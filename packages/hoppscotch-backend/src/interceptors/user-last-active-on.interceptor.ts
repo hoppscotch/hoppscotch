@@ -14,8 +14,6 @@ import { UserService } from 'src/user/user.service';
 export class UserLastActiveOnInterceptor implements NestInterceptor {
   constructor(private userService: UserService) {}
 
-  user: AuthUser; // 'user', who executed the request
-
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     if (context.getType() === 'http') {
       return this.restHandler(context, next);
@@ -26,17 +24,17 @@ export class UserLastActiveOnInterceptor implements NestInterceptor {
 
   restHandler(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    this.user = request.user;
+    const user: AuthUser = request.user;
 
     return next.handle().pipe(
       tap(() => {
-        if (this.user && typeof this.user === 'object') {
-          this.userService.updateUserLastActiveOn(this.user.uid);
+        if (user && typeof user === 'object') {
+          this.userService.updateUserLastActiveOn(user.uid);
         }
       }),
       catchError((error) => {
-        if (this.user && typeof this.user === 'object') {
-          this.userService.updateUserLastActiveOn(this.user.uid);
+        if (user && typeof user === 'object') {
+          this.userService.updateUserLastActiveOn(user.uid);
         }
         return throwError(() => error);
       }),
@@ -48,17 +46,17 @@ export class UserLastActiveOnInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Observable<any> {
     const contextObject = GqlExecutionContext.create(context).getContext();
-    this.user = contextObject.req.user;
+    const user: AuthUser = contextObject?.req?.user;
 
     return next.handle().pipe(
       tap(() => {
-        if (this.user && typeof this.user === 'object') {
-          this.userService.updateUserLastActiveOn(this.user.uid);
+        if (user && typeof user === 'object') {
+          this.userService.updateUserLastActiveOn(user.uid);
         }
       }),
       catchError((error) => {
-        if (this.user && typeof this.user === 'object') {
-          this.userService.updateUserLastActiveOn(this.user.uid);
+        if (user && typeof user === 'object') {
+          this.userService.updateUserLastActiveOn(user.uid);
         }
         return throwError(() => error);
       }),

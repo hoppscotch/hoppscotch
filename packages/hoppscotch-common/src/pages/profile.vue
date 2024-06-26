@@ -76,7 +76,7 @@
             styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
             render-inactive-tabs
           >
-            <HoppSmartTab :id="'sync'" :label="t('settings.account')">
+            <HoppSmartTab id="sync" :label="t('settings.account')">
               <div class="grid grid-cols-1">
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
@@ -177,13 +177,16 @@
                   </template>
                 </template>
 
-                <ProfileShortcodes />
-
                 <ProfileUserDelete />
               </div>
             </HoppSmartTab>
-            <HoppSmartTab :id="'teams'" :label="t('team.title')">
+
+            <HoppSmartTab id="teams" :label="t('team.title')">
               <Teams :modal="false" class="p-4" />
+            </HoppSmartTab>
+
+            <HoppSmartTab id="tokens" :label="t('access_tokens.tab_title')">
+              <AccessTokens />
             </HoppSmartTab>
           </HoppSmartTabs>
         </div>
@@ -193,24 +196,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed } from "vue"
+import * as E from "fp-ts/Either"
+import { computed, ref, watchEffect } from "vue"
 
 import { platform } from "~/platform"
 
-import { invokeAction } from "~/helpers/actions"
-import { useReadonlyStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
-import { useSetting } from "@composables/settings"
-import { useColorMode } from "@composables/theming"
 import { usePageHead } from "@composables/head"
+import { useI18n } from "@composables/i18n"
+import { useSetting } from "@composables/settings"
+import { useReadonlyStream } from "@composables/stream"
+import { useColorMode } from "@composables/theming"
+import { useToast } from "@composables/toast"
+import { invokeAction } from "~/helpers/actions"
 
 import { toggleSetting } from "~/newstore/settings"
 
-import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
-
-import * as E from "fp-ts/Either"
+import IconVerified from "~icons/lucide/verified"
 
 type ProfileTabs = "sync" | "teams"
 

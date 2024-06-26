@@ -108,6 +108,7 @@ export default defineConfig({
       dts: "../hoppscotch-common/src/components.d.ts",
       dirs: [
         "../hoppscotch-common/src/components",
+        "./src/components"
       ],
       directoryAsNamespace: true,
       resolvers: [

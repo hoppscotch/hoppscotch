@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2024.3.4",
+  "version": "2024.6.0",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -50,6 +50,7 @@
     "@graphql-codegen/typescript-urql-graphcache": "3.0.0",
     "@graphql-codegen/urql-introspection": "3.0.0",
     "@graphql-typed-document-node/core": "3.2.0",
+    "@iconify-json/lucide": "1.1.144",
     "@intlify/vite-plugin-vue-i18n": "7.0.0",
     "@rushstack/eslint-patch": "1.6.0",
     "@typescript-eslint/eslint-plugin": "6.13.2",

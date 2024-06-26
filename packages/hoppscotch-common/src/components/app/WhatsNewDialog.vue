@@ -1,12 +1,14 @@
 <template>
   <div class="whats-new">
-    <p>Hoppscotch has been automatically updated to the latest version 🎉</p>
+    <p>
+      {{ t("app.updated", { version: version }) }}
+    </p>
     <p>
       <button
         style="display: flex; align-items: center; gap: 5px"
         @click="openWhatsNew"
       >
-        See what’s new
+        {{ t("app.see_whats_new") }}
         <span>
           <svg
             width="8"
@@ -34,11 +36,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "~/composables/i18n"
 import { platform } from "~/platform"
+
+const t = useI18n()
 
 // types
 const props = defineProps<{
   notesUrl: string
+  version: string
 }>()
 
 const openWhatsNew = () => {

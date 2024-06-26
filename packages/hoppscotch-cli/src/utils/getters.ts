@@ -182,14 +182,14 @@ export const getResourceContents = async (
   }
 
   if (accessToken && !fileExistsInPath) {
-    try {
-      const hostname = serverUrl || "https://api.hoppscotch.io";
+    const resolvedServerUrl = serverUrl || "https://api.hoppscotch.io";
 
-      const separator = hostname.endsWith("/") ? "" : "/";
+    try {
+      const separator = resolvedServerUrl.endsWith("/") ? "" : "/";
       const resourcePath =
         resourceType === "collection" ? "collection" : "environment";
 
-      const url = `${hostname}${separator}v1/access-tokens/${resourcePath}/${pathOrId}`;
+      const url = `${resolvedServerUrl}${separator}v1/access-tokens/${resourcePath}/${pathOrId}`;
 
       const { data, headers } = await axios.get(url, {
         headers: {
@@ -225,7 +225,10 @@ export const getResourceContents = async (
         }
 
         if (axiosErr.code === "ECONNREFUSED") {
-          throw error({ code: "SERVER_CONNECTION_REFUSED", data: serverUrl });
+          throw error({
+            code: "SERVER_CONNECTION_REFUSED",
+            data: resolvedServerUrl,
+          });
         }
 
         if (
@@ -235,7 +238,7 @@ export const getResourceContents = async (
           axiosErr.code === "ERR_BAD_REQUEST" ||
           axiosErr.response?.status === 404
         ) {
-          throw error({ code: "INVALID_SERVER_URL", data: serverUrl });
+          throw error({ code: "INVALID_SERVER_URL", data: resolvedServerUrl });
         }
       } else {
         throw error({ code: "UNKNOWN_ERROR", data: err });

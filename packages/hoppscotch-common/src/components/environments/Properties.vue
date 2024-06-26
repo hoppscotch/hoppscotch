@@ -58,6 +58,7 @@
         <HoppButtonPrimary
           :label="t('action.copy')"
           :icon="copyIcon"
+          outline
           filled
           @click="copyEnvironmentID"
         />

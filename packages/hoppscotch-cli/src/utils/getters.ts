@@ -161,17 +161,17 @@ export const roundDuration = (
  * @param {string} [params.accessToken] - The access token for authorizing remote retrieval.
  * @param {string} [params.serverUrl] - The SH instance server URL for remote retrieval. Defaults to the cloud instance.
  * @param {"collection" | "environment"} params.resourceType - The type of the resource to retrieve.
- * @returns {Promise<HoppCollection | Environment>} A promise that resolves to the contents of the resource.
+ * @returns {Promise<unknown>} A promise that resolves to the contents of the resource.
  * @throws Will throw an error if the content type of the fetched resource is not `application/json`,
  *         if there is an issue with the access token, if the server connection is refused,
  *         or if the server URL is invalid.
  */
 export const getResourceContents = async (
   params: GetResourceContentsParams
-): Promise<HoppCollection | Environment> => {
+): Promise<unknown> => {
   const { pathOrId, accessToken, serverUrl, resourceType } = params;
 
-  let contents: HoppCollection | Environment | null = null;
+  let contents: unknown | null = null;
   let fileExistsInPath = false;
 
   try {
@@ -248,9 +248,7 @@ export const getResourceContents = async (
 
   // Fallback to reading from file if contents are not available
   if (contents === null) {
-    contents = (await readJsonFile(pathOrId, fileExistsInPath)) as
-      | HoppCollection
-      | Environment;
+    contents = await readJsonFile(pathOrId, fileExistsInPath);
   }
 
   return contents;

@@ -119,14 +119,14 @@ export async function parseCollectionData(
 ): Promise<HoppCollection[]> {
   const { token: accessToken, server: serverUrl } = options;
 
-  const contents = (await getResourceContents({
+  const contents = await getResourceContents({
     pathOrId,
     accessToken,
     serverUrl,
     resourceType: "collection",
-  })) as HoppCollection;
+  });
 
-  const maybeArrayOfCollections: HoppCollection[] = Array.isArray(contents)
+  const maybeArrayOfCollections: unknown[] = Array.isArray(contents)
     ? contents
     : [contents];
 

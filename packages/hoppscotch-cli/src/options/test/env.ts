@@ -23,12 +23,12 @@ import { getResourceContents } from "../../utils/getters";
 export async function parseEnvsData(options: TestCmdEnvironmentOptions) {
   const { env: pathOrId, token: accessToken, server: serverUrl } = options;
 
-  const contents = (await getResourceContents({
+  const contents = await getResourceContents({
     pathOrId,
     accessToken,
     serverUrl,
     resourceType: "environment",
-  })) as Environment;
+  });
 
   const envPairs: Array<HoppEnvPair | Record<string, string>> = [];
 

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import fs from "fs/promises";
 import { describe, expect, test, vi } from "vitest";
 
@@ -124,18 +124,6 @@ describe("getters", () => {
         },
         {
           description:
-            "Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`",
-          args,
-          axiosMock: {
-            message: "INVALID_CONTENT_TYPE",
-          },
-          expected: {
-            code: "INVALID_SERVER_URL",
-            data: args.serverUrl,
-          },
-        },
-        {
-          description:
             "Promise rejects with the code `INVALID_SERVER_URL` if the network call fails with the code `ENOTFOUND`",
           args,
           axiosMock: {
@@ -231,8 +219,48 @@ describe("getters", () => {
       ];
 
       test.each(cases)("$description", ({ args, axiosMock, expected }) => {
+        const { code, response } = axiosMock;
+        const axiosErrMessage = code ?? response?.data?.reason;
+
         vi.spyOn(axios, "get").mockImplementation(() =>
-          Promise.reject(axiosMock)
+          Promise.reject(
+            new AxiosError(
+              axiosErrMessage,
+              code,
+              undefined,
+              undefined,
+              response as AxiosResponse
+            )
+          )
+        );
+
+        expect(getResourceContents(args)).rejects.toEqual(expected);
+      });
+
+      test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", () => {
+        const expected = {
+          code: "INVALID_SERVER_URL",
+          data: args.serverUrl,
+        };
+
+        vi.spyOn(axios, "get").mockImplementation(() =>
+          Promise.resolve({
+            data: "",
+            headers: { "content-type": "text/html; charset=UTF-8" },
+          })
+        );
+
+        expect(getResourceContents(args)).rejects.toEqual(expected);
+      });
+
+      test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", () => {
+        const expected = {
+          code: "UNKNOWN_ERROR",
+          data: new TypeError("UNKNOWN_ERROR"),
+        };
+
+        vi.spyOn(axios, "get").mockImplementation(() =>
+          Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
         expect(getResourceContents(args)).rejects.toEqual(expected);

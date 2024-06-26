@@ -198,7 +198,7 @@ export const getResourceContents = async (
       });
 
       if (!headers["content-type"].includes("application/json")) {
-        throw new Error("INVALID_CONTENT_TYPE");
+        throw new AxiosError("INVALID_CONTENT_TYPE");
       }
 
       contents =
@@ -206,34 +206,39 @@ export const getResourceContents = async (
           ? transformWorkspaceCollection(data as WorkspaceCollection)
           : transformWorkspaceEnvironment(data as WorkspaceEnvironment);
     } catch (err) {
-      const axiosErr = err as AxiosError<{
-        reason?: "TOKEN_EXPIRED" | "TOKEN_INVALID" | "INVALID_ID";
-        message: string;
-        statusCode: number;
-      }>;
+      if (err instanceof AxiosError) {
+        const axiosErr: AxiosError<{
+          reason?: "TOKEN_EXPIRED" | "TOKEN_INVALID" | "INVALID_ID";
+          message: string;
+          statusCode: number;
+        }> = err;
 
-      const errReason = axiosErr.response?.data?.reason;
+        const errReason = axiosErr.response?.data?.reason;
 
-      if (errReason) {
-        throw error({
-          code: errReason,
-          data: ["TOKEN_EXPIRED", "TOKEN_INVALID"].includes(errReason)
-            ? accessToken
-            : pathOrId,
-        });
-      }
+        if (errReason) {
+          throw error({
+            code: errReason,
+            data: ["TOKEN_EXPIRED", "TOKEN_INVALID"].includes(errReason)
+              ? accessToken
+              : pathOrId,
+          });
+        }
 
-      if (axiosErr.code === "ECONNREFUSED") {
-        throw error({ code: "SERVER_CONNECTION_REFUSED", data: serverUrl });
-      }
+        if (axiosErr.code === "ECONNREFUSED") {
+          throw error({ code: "SERVER_CONNECTION_REFUSED", data: serverUrl });
+        }
 
-      if (
-        axiosErr.message === "INVALID_CONTENT_TYPE" ||
-        axiosErr.code === "ERR_INVALID_URL" ||
-        axiosErr.code === "ENOTFOUND" ||
-        axiosErr.response?.status === 404
-      ) {
-        throw error({ code: "INVALID_SERVER_URL", data: serverUrl });
+        if (
+          axiosErr.message === "INVALID_CONTENT_TYPE" ||
+          axiosErr.code === "ERR_INVALID_URL" ||
+          axiosErr.code === "ENOTFOUND" ||
+          axiosErr.code === "ERR_BAD_REQUEST" ||
+          axiosErr.response?.status === 404
+        ) {
+          throw error({ code: "INVALID_SERVER_URL", data: serverUrl });
+        }
+      } else {
+        throw error({ code: "UNKNOWN_ERROR", data: err });
       }
     }
   }

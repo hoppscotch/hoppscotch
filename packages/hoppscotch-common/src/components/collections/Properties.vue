@@ -87,20 +87,30 @@
       </HoppSmartTabs>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
+      <div class="flex gap-x-2">
         <HoppButtonPrimary
+          v-if="activeTabIsDetails"
+          :label="t('action.copy')"
+          :icon="copyIcon"
+          outline
+          filled
+          @click="copyCollectionID"
+        />
+        <HoppButtonPrimary
+          v-else
           :label="t('action.save')"
           :loading="loadingState"
           outline
           @click="saveEditedCollection"
         />
+
         <HoppButtonSecondary
-          :label="t('action.cancel')"
+          :label="activeTabIsDetails ? t('action.close') : t('action.cancel')"
           outline
           filled
           @click="hideModal"
         />
-      </span>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -117,7 +127,7 @@ import {
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { clone } from "lodash-es"
-import { ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -182,6 +192,8 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
+
+const activeTabIsDetails = computed(() => activeTab.value === "details")
 
 watch(
   editableCollection,

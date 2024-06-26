@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import {
-  transformWorkspaceCollection,
+  transformWorkspaceCollections,
   transformWorkspaceEnvironment,
 } from "../../utils/workspace-access";
 import {
@@ -20,7 +20,7 @@ describe("workspace-access", () => {
   describe("transformWorkspaceCollection", () => {
     test("Successfully transforms collection data with deeply nested collections and authorization/headers set at each level to the `HoppCollection` format", () => {
       expect(
-        transformWorkspaceCollection(
+        transformWorkspaceCollections(
           WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK
         )
       ).toEqual(TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK);
@@ -28,15 +28,17 @@ describe("workspace-access", () => {
 
     test("Successfully transforms collection data with multiple child collections and authorization/headers set at each level to the `HoppCollection` format", () => {
       expect(
-        transformWorkspaceCollection(
+        transformWorkspaceCollections(
           WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK
         )
-      ).toEqual(TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK);
+      ).toEqual([
+        TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK,
+      ]);
     });
 
     test("Adds the default value for `auth` & `header` fields while transforming collections without authorization/headers set at certain levels", () => {
       expect(
-        transformWorkspaceCollection(
+        transformWorkspaceCollections(
           WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
         )
       ).toEqual(

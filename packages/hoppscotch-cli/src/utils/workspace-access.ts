@@ -43,32 +43,6 @@ const transformWorkspaceRequests = (
 ): HoppRESTRequest[] => requests.map(({ request }) => JSON.parse(request));
 
 /**
- * Transforms the incoming list of workspace child collections to the `HoppCollection` type.
- *
- * @param {WorkspaceCollection[]} childCollections - An array of workspace collection objects to be transformed.
- * @returns {HoppCollection[]} The transformed array of collections conforming to the `HoppCollection` type.
- */
-const transformWorkspaceChildCollections = (
-  childCollections: WorkspaceCollection[]
-): HoppCollection[] => {
-  return childCollections.map(({ id, title, data, folders, requests }) => {
-    const parsedData = data ? JSON.parse(data) : {};
-    const { auth = { authType: "inherit", authActive: true }, headers = [] } =
-      parsedData;
-
-    return {
-      v: CollectionSchemaVersion,
-      id,
-      name: title,
-      folders: transformWorkspaceChildCollections(folders),
-      requests: transformWorkspaceRequests(requests),
-      auth,
-      headers,
-    };
-  });
-};
-
-/**
  * Transforms workspace environment data to the `HoppEnvironment` format.
  *
  * @param {WorkspaceEnvironment} workspaceEnvironment - The workspace environment object to transform.
@@ -97,28 +71,31 @@ export const transformWorkspaceEnvironment = (
     ...rest,
   };
 };
+
 /**
  * Transforms workspace collection data to the `HoppCollection` format.
  *
- * @param {WorkspaceCollection} collection - The workspace collection object to be transformed.
- * @returns {HoppCollection} The transformed collection object conforming to the `HoppCollection` type.
+ * @param {WorkspaceCollection[]} collections - An array of workspace collection objects to be transformed.
+ * @returns {HoppCollection[]} The transformed array of collections conforming to the `HoppCollection` type.
  */
-export const transformWorkspaceCollection = (
-  collection: WorkspaceCollection
-): HoppCollection => {
-  const { id, title, data, requests, folders } = collection;
+export const transformWorkspaceCollections = (
+  collections: WorkspaceCollection[]
+): HoppCollection[] => {
+  return collections.map((collection) => {
+    const { id, title, data, requests, folders } = collection;
 
-  const parsedData = data ? JSON.parse(data) : {};
-  const { auth = { authType: "inherit", authActive: true }, headers = [] } =
-    parsedData;
+    const parsedData = data ? JSON.parse(data) : {};
+    const { auth = { authType: "inherit", authActive: true }, headers = [] } =
+      parsedData;
 
-  return {
-    v: CollectionSchemaVersion,
-    id,
-    name: title,
-    folders: transformWorkspaceChildCollections(folders),
-    requests: transformWorkspaceRequests(requests),
-    auth,
-    headers,
-  };
+    return {
+      v: CollectionSchemaVersion,
+      id,
+      name: title,
+      folders: transformWorkspaceCollections(folders),
+      requests: transformWorkspaceRequests(requests),
+      auth,
+      headers,
+    };
+  });
 };

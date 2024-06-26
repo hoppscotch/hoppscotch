@@ -355,8 +355,8 @@ describe("getters", () => {
 
         vi.spyOn(
           workspaceAccessHelpers,
-          "transformWorkspaceCollection"
-        ).mockImplementation(() => sampleCollectionContents);
+          "transformWorkspaceCollections"
+        ).mockImplementation(() => [sampleCollectionContents]);
 
         const pathOrId = "valid-collection-id";
         const resourceType = "collection";
@@ -380,7 +380,7 @@ describe("getters", () => {
           }
         );
         expect(
-          workspaceAccessHelpers.transformWorkspaceCollection
+          workspaceAccessHelpers.transformWorkspaceCollections
         ).toBeCalled();
         expect(mutators.readJsonFile).not.toHaveBeenCalled();
       });

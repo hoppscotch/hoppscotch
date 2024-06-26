@@ -21,7 +21,7 @@ import { readJsonFile } from "./mutators";
 import {
   WorkspaceCollection,
   WorkspaceEnvironment,
-  transformWorkspaceCollection,
+  transformWorkspaceCollections,
   transformWorkspaceEnvironment,
 } from "./workspace-access";
 
@@ -203,7 +203,7 @@ export const getResourceContents = async (
 
       contents =
         resourceType === "collection"
-          ? transformWorkspaceCollection(data as WorkspaceCollection)
+          ? transformWorkspaceCollections([data] as WorkspaceCollection[])[0]
           : transformWorkspaceEnvironment(data as WorkspaceEnvironment);
     } catch (err) {
       if (err instanceof AxiosError) {

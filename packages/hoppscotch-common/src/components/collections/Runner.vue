@@ -27,7 +27,9 @@
               >
             </div>
 
-            <div class="p-4 rounded-md bg-primaryLight text-secondaryDark">
+            <div
+              class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
+            >
               {{ generatedCLICommand }}
             </div>
           </div>

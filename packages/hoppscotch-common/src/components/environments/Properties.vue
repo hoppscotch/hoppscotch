@@ -29,7 +29,7 @@
 
           <div class="p-4">
             <div
-              class="flex items-center justify-between py-2 px-4 rounded-md bg-primaryLight"
+              class="flex items-center justify-between py-2 px-4 rounded-md bg-primaryLight select-text"
             >
               <div class="text-secondaryDark">
                 {{ environmentID }}
@@ -58,7 +58,6 @@
         <HoppButtonPrimary
           :label="t('action.copy')"
           :icon="copyIcon"
-          outline
           filled
           @click="copyEnvironmentID"
         />

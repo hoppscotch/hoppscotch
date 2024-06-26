@@ -1,7 +1,7 @@
 <template>
   <div class="whats-new">
     <p>
-      {{ t("app.updated", { version: version }) }}
+      {{ t("app.updated_text", { version: version }) }}
     </p>
     <p>
       <button

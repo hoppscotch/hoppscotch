@@ -160,7 +160,9 @@ const userInfo = {
   lastActiveOn: {
     condition: lastActiveOn,
     label: t('users.last_active_on'),
-    value: lastActiveOn ? useTimeAgo(lastActiveOn).value : '',
+    value: lastActiveOn
+      ? useTimeAgo(lastActiveOn).value
+      : t('users.not_available'),
   },
 };
 

@@ -105,7 +105,7 @@
               </div>
             </td>
 
-            <td class="py-2 px-7">{{ lastActiveOn(user.lastActiveOn) }}</td>
+            <td class="py-2 px-7">{{ getLastActiveOn(user.lastActiveOn) }}</td>
 
             <td @click.stop class="flex justify-end w-20">
               <div class="mt-2 mr-5">
@@ -279,8 +279,8 @@ const toast = useToast();
 // Time and Date Helpers
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
-const lastActiveOn = (date: string | null) =>
-  date ? useTimeAgo(date).value : '';
+const getLastActiveOn = (date: string | null) =>
+  date ? useTimeAgo(date).value : t('users.not_available');
 
 // Table Headings
 const headings = [

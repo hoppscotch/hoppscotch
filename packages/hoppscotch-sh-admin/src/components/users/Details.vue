@@ -100,6 +100,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@urql/vue';
+import { useTimeAgo } from '@vueuse/core';
 import { format } from 'date-fns';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
@@ -133,7 +134,7 @@ const getCreatedDateAndTime = (date: string) =>
   format(new Date(date), 'd-MM-yyyy  hh:mm a');
 
 // User Info
-const { uid, displayName, email, createdOn } = props.user;
+const { uid, displayName, email, createdOn, lastActiveOn } = props.user;
 
 const userInfo = {
   uid: {
@@ -155,6 +156,13 @@ const userInfo = {
     condition: createdOn,
     label: t('users.created_on'),
     value: getCreatedDateAndTime(createdOn),
+  },
+  lastActiveOn: {
+    condition: lastActiveOn,
+    label: t('users.last_active_on'),
+    value: lastActiveOn
+      ? useTimeAgo(lastActiveOn).value
+      : t('users.not_available'),
   },
 };
 

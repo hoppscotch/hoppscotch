@@ -62,10 +62,10 @@
             </div>
           </template>
           <template #head>
-            <th class="px-6 py-2">{{ t('users.id') }}</th>
             <th class="px-6 py-2">{{ t('users.name') }}</th>
             <th class="px-6 py-2">{{ t('users.email') }}</th>
-            <th class="px-6 py-2">{{ t('users.date') }}</th>
+            <th class="px-6 py-2">{{ t('users.created_on') }}</th>
+            <th class="px-6 py-2">{{ t('users.last_active_on') }}</th>
             <!-- Empty header for Action Button -->
             <th class="w-20 px-6 py-2"></th>
           </template>
@@ -79,10 +79,6 @@
           </template>
 
           <template #body="{ row: user }">
-            <td class="py-2 px-7 max-w-[8rem] truncate">
-              {{ user.uid }}
-            </td>
-
             <td class="py-2 px-7">
               <div class="flex items-center space-x-2">
                 <span>
@@ -108,6 +104,8 @@
                 {{ getCreatedTime(user.createdOn) }}
               </div>
             </td>
+
+            <td class="py-2 px-7">{{ getLastActiveOn(user.lastActiveOn) }}</td>
 
             <td @click.stop class="flex justify-end w-20">
               <div class="mt-2 mr-5">
@@ -245,6 +243,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue';
+import { useTimeAgo } from '@vueuse/core';
 import { format } from 'date-fns';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -277,15 +276,18 @@ import IconX from '~icons/lucide/x';
 const t = useI18n();
 const toast = useToast();
 
+// Time and Date Helpers
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
+const getLastActiveOn = (date: string | null) =>
+  date ? useTimeAgo(date).value : t('users.not_available');
 
 // Table Headings
 const headings = [
-  { key: 'uid', label: t('users.id') },
   { key: 'displayName', label: t('users.name') },
   { key: 'email', label: t('users.email') },
-  { key: 'createdOn', label: t('users.date') },
+  { key: 'createdOn', label: t('users.created_on') },
+  { key: 'lastActiveOn', label: t('users.last_active_on') },
   { key: '', label: '' },
 ];
 

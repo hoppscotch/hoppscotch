@@ -7,6 +7,7 @@ query UsersListV2($searchString: String, $skip: Int, $take: Int) {
       isAdmin
       photoURL
       createdOn
+      lastActiveOn
     }
   }
 }

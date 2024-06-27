@@ -2,15 +2,9 @@ import { Global, Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerService } from './mailer.service';
-import { throwErr } from 'src/utils';
-import {
-  MAILER_SMTP_PASSWORD_UNDEFINED,
-  MAILER_SMTP_URL_UNDEFINED,
-  MAILER_SMTP_USER_UNDEFINED,
-} from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import { loadInfraConfiguration } from 'src/infra-config/helper';
-import { TransportType } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
+import { getMailerAddressFrom, getTransportOption } from './helper';
 
 @Global()
 @Module({
@@ -25,7 +19,7 @@ export class MailerModule {
 
     // If mailer SMTP is DISABLED, return the module without any configuration (service, listener, etc.)
     if (env.INFRA.MAILER_SMTP_ENABLE !== 'true') {
-      console.log('Mailer SMTP is disabled');
+      console.log('Mailer module is disabled');
       return {
         module: MailerModule,
       };
@@ -52,55 +46,6 @@ export class MailerModule {
           },
         }),
       ],
-    };
-  }
-}
-
-function isEnabled(value) {
-  return value === 'true';
-}
-function getMailerAddressFrom(env, config): string {
-  return (
-    env.INFRA.MAILER_ADDRESS_FROM ??
-    config.get('MAILER_ADDRESS_FROM') ??
-    throwErr(MAILER_SMTP_URL_UNDEFINED)
-  );
-}
-function getTransportOption(env, config): TransportType {
-  const useCustomConfigs = isEnabled(
-    env.INFRA.MAILER_USE_CUSTOM_CONFIGS ??
-      config.get('MAILER_USE_CUSTOM_CONFIGS'),
-  );
-
-  if (!useCustomConfigs) {
-    console.log('Using simple mailer configuration');
-    return (
-      env.INFRA.MAILER_SMTP_URL ??
-      config.get('MAILER_SMTP_URL') ??
-      throwErr(MAILER_SMTP_URL_UNDEFINED)
-    );
-  } else {
-    console.log('Using advanced mailer configuration');
-    return {
-      host: env.INFRA.MAILER_SMTP_HOST ?? config.get('MAILER_SMTP_HOST'),
-      port: +env.INFRA.MAILER_SMTP_PORT ?? +config.get('MAILER_SMTP_PORT'),
-      secure:
-        !!env.INFRA.MAILER_SMTP_SECURE ?? !!config.get('MAILER_SMTP_SECURE'),
-      auth: {
-        user:
-          env.INFRA.MAILER_SMTP_USER ??
-          config.get('MAILER_SMTP_USER') ??
-          throwErr(MAILER_SMTP_USER_UNDEFINED),
-        pass:
-          env.INFRA.MAILER_SMTP_PASSWORD ??
-          config.get('MAILER_SMTP_PASSWORD') ??
-          throwErr(MAILER_SMTP_PASSWORD_UNDEFINED),
-      },
-      tls: {
-        rejectUnauthorized:
-          !!env.INFRA.MAILER_TLS_REJECT_UNAUTHORIZED ??
-          !!config.get('MAILER_TLS_REJECT_UNAUTHORIZED'),
-      },
     };
   }
 }

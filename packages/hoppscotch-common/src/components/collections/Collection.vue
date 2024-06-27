@@ -221,7 +221,8 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { HoppCollection } from "@hoppscotch/data"
-import { VNodeRef, computed, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
+import { TippyComponent } from "vue-tippy"
 import { useReadonlyStream } from "~/composables/stream"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import {
@@ -292,15 +293,15 @@ const emit = defineEmits<{
   (event: "run-collection", collectionID: string): void
 }>()
 
-const tippyActions = ref<VNodeRef | null>(null)
-const requestAction = ref<VNodeRef | null>(null)
-const folderAction = ref<VNodeRef | null>(null)
-const edit = ref<VNodeRef | null>(null)
-const deleteAction = ref<VNodeRef | null>(null)
-const exportAction = ref<VNodeRef | null>(null)
-const options = ref<VNodeRef | null>(null)
-const propertiesAction = ref<VNodeRef | null>(null)
-const runCollectionAction = ref<VNodeRef | null>(null)
+const tippyActions = ref<HTMLDivElement | null>(null)
+const requestAction = ref<HTMLButtonElement | null>(null)
+const folderAction = ref<HTMLButtonElement | null>(null)
+const edit = ref<HTMLButtonElement | null>(null)
+const deleteAction = ref<HTMLButtonElement | null>(null)
+const exportAction = ref<HTMLButtonElement | null>(null)
+const options = ref<TippyComponent | null>(null)
+const propertiesAction = ref<HTMLButtonElement | null>(null)
+const runCollectionAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

@@ -8,7 +8,7 @@
     </div>
     <ErrorPage v-if="errorInfo !== null" :error="errorInfo" />
     <RouterView v-else />
-    <Toaster richColors />
+    <Toaster rich-colors />
   </div>
 </template>
 

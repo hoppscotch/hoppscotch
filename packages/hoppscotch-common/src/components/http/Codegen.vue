@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <label for="requestType" class="px-4 pb-4" v-if="!hideLabel">
+    <label v-if="!hideLabel" for="requestType" class="px-4 pb-4">
       {{ t("request.choose_language") }}
     </label>
     <tippy

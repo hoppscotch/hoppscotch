@@ -1,10 +1,8 @@
 import { toast as sonner } from "@hoppscotch/ui"
-import * as E from "fp-ts/Either"
 import { markRaw } from "vue"
 
 import WhatsNewDialog from "~/components/app/WhatsNewDialog.vue"
 import { getService } from "~/modules/dioc"
-import { InterceptorService } from "~/services/interceptor.service"
 import { PersistenceService } from "~/services/persistence"
 import { version as hoppscotchCommonPkgVersion } from "./../../package.json"
 
@@ -51,24 +49,13 @@ export const useWhatsNewDialog = async function () {
 }
 
 async function getReleaseNotes(v: string): Promise<string | undefined> {
-  const interceptorService = getService(InterceptorService)
-
-  const res = await interceptorService.runRequest({
-    url: `https://releases.hoppscotch.com/releases/${v}.json`,
-  }).response
-
-  if (E.isLeft(res) || res.right.status !== 200) {
-    return
-  }
-
-  if (!(res.right.data instanceof ArrayBuffer)) {
-    return
-  }
-
   try {
-    const data = JSON.parse(new TextDecoder().decode(res.right.data))
-    return data.release_notes
-  } catch (err) {
-    console.error(err)
+    const { release_notes } = await fetch(
+      `https://releases.hoppscotch.com/releases/${v}.json`
+    ).then((res) => res.json())
+
+    return release_notes
+  } catch (_) {
+    return undefined
   }
 }

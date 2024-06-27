@@ -111,13 +111,13 @@ onMounted(async () => {
       toggleDataSharingMutation
     );
 
-    const smtpResult = await toggleSMTPConfigs(toggleSMTPMutation);
-
-    if (!smtpResult) {
+    if (!dataSharingResult) {
       return triggerComponentUnMount();
     }
 
-    if (!dataSharingResult) {
+    const smtpResult = await toggleSMTPConfigs(toggleSMTPMutation);
+
+    if (!smtpResult) {
       return triggerComponentUnMount();
     }
   }

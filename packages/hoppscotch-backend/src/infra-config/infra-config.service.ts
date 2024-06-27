@@ -197,7 +197,20 @@ export class InfraConfigService implements OnModuleInit {
           configMap.MICROSOFT_TENANT
         );
       case AuthProvider.EMAIL:
-        return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
+        if (configMap.MAILER_SMTP_ENABLE !== 'true') return false;
+        if (configMap.MAILER_USE_CUSTOM_CONFIGS === 'true') {
+          return (
+            configMap.MAILER_SMTP_HOST &&
+            configMap.MAILER_SMTP_PORT &&
+            configMap.MAILER_SMTP_SECURE &&
+            configMap.MAILER_SMTP_USER &&
+            configMap.MAILER_SMTP_PASSWORD &&
+            configMap.MAILER_TLS_REJECT_UNAUTHORIZED &&
+            configMap.MAILER_ADDRESS_FROM
+          );
+        } else {
+          return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
+        }
       default:
         return false;
     }

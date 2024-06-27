@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import {
   AdminUserInvitationMailDescription,
   MailDescription,
@@ -7,10 +7,14 @@ import {
 import { throwErr } from 'src/utils';
 import { EMAIL_FAILED } from 'src/errors';
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailerService {
-  constructor(private readonly nestMailerService: NestMailerService) {}
+  constructor(
+    @Optional() private readonly nestMailerService: NestMailerService,
+    private readonly configService: ConfigService,
+  ) {}
 
   /**
    * Takes an input mail description and spits out the Email subject required for it
@@ -42,6 +46,8 @@ export class MailerService {
     to: string,
     mailDesc: MailDescription | UserMagicLinkMailDescription,
   ) {
+    if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
     try {
       await this.nestMailerService.sendMail({
         to,
@@ -50,6 +56,7 @@ export class MailerService {
         context: mailDesc.variables,
       });
     } catch (error) {
+      console.log('Error from sendEmail:', error);
       return throwErr(EMAIL_FAILED);
     }
   }
@@ -64,6 +71,8 @@ export class MailerService {
     to: string,
     mailDesc: AdminUserInvitationMailDescription,
   ) {
+    if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
     try {
       const res = await this.nestMailerService.sendMail({
         to,
@@ -73,6 +82,7 @@ export class MailerService {
       });
       return res;
     } catch (error) {
+      console.log('Error from sendUserInvitationEmail:', error);
       return throwErr(EMAIL_FAILED);
     }
   }

@@ -359,4 +359,23 @@ export class InfraResolver {
 
     return true;
   }
+
+  @Mutation(() => Boolean, {
+    description: 'Enable or Disable SMTP for sending emails',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async toggleSMTP(
+    @Args({
+      name: 'status',
+      type: () => ServiceStatus,
+      description: 'Toggle SMTP',
+    })
+    status: ServiceStatus,
+  ) {
+    const isUpdated = await this.infraConfigService.enableAndDisableSMTP(
+      status,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return true;
+  }
 }

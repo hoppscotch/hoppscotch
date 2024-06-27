@@ -679,6 +679,19 @@ export const MAILER_FROM_ADDRESS_UNDEFINED =
   'mailer/from_address_undefined' as const;
 
 /**
+ * MAILER_SMTP_USER environment variable is not defined
+ * (MailerModule)
+ */
+export const MAILER_SMTP_USER_UNDEFINED = 'mailer/smtp_user_undefined' as const;
+
+/**
+ * MAILER_SMTP_PASSWORD environment variable is not defined
+ * (MailerModule)
+ */
+export const MAILER_SMTP_PASSWORD_UNDEFINED =
+  'mailer/smtp_password_undefined' as const;
+
+/**
  * SharedRequest invalid request JSON format
  * (ShortcodeService)
  */

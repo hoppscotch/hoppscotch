@@ -42,6 +42,7 @@ const user: AuthUser = {
   isAdmin: false,
   refreshToken: null,
   lastLoggedOn: new Date(),
+  lastActiveOn: new Date(),
   createdOn: new Date(),
   currentGQLSession: null,
   currentRESTSession: null,

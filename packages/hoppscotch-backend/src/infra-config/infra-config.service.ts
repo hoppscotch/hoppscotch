@@ -43,6 +43,7 @@ export class InfraConfigService implements OnModuleInit {
     InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
     InfraConfigEnum.ANALYTICS_USER_ID,
     InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
+    InfraConfigEnum.MAILER_SMTP_ENABLE,
   ];
   // Following fields can not be fetched by `infraConfigs` Query. Use dedicated queries for these fields instead.
   EXCLUDE_FROM_FETCH_CONFIGS = [
@@ -196,7 +197,20 @@ export class InfraConfigService implements OnModuleInit {
           configMap.MICROSOFT_TENANT
         );
       case AuthProvider.EMAIL:
-        return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
+        if (configMap.MAILER_SMTP_ENABLE !== 'true') return false;
+        if (configMap.MAILER_USE_CUSTOM_CONFIGS === 'true') {
+          return (
+            configMap.MAILER_SMTP_HOST &&
+            configMap.MAILER_SMTP_PORT &&
+            configMap.MAILER_SMTP_SECURE &&
+            configMap.MAILER_SMTP_USER &&
+            configMap.MAILER_SMTP_PASSWORD &&
+            configMap.MAILER_TLS_REJECT_UNAUTHORIZED &&
+            configMap.MAILER_ADDRESS_FROM
+          );
+        } else {
+          return configMap.MAILER_SMTP_URL && configMap.MAILER_ADDRESS_FROM;
+        }
       default:
         return false;
     }
@@ -216,6 +230,47 @@ export class InfraConfigService implements OnModuleInit {
 
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
     return E.right(isUpdated.right.value === 'true');
+  }
+
+  /**
+   * Enable or Disable SMTP
+   * @param status Status to enable or disable
+   * @returns Either true or an error
+   */
+  async enableAndDisableSMTP(status: ServiceStatus) {
+    const isUpdated = await this.toggleServiceStatus(
+      InfraConfigEnum.MAILER_SMTP_ENABLE,
+      status,
+      true,
+    );
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+
+    if (status === ServiceStatus.DISABLE) {
+      this.enableAndDisableSSO([{ provider: AuthProvider.EMAIL, status }]);
+    }
+    return E.right(true);
+  }
+
+  /**
+   * Enable or Disable Service (i.e. ALLOW_AUDIT_LOGS, ALLOW_ANALYTICS_COLLECTION, ALLOW_DOMAIN_WHITELISTING, SITE_PROTECTION)
+   * @param configName Name of the InfraConfigEnum
+   * @param status Status to enable or disable
+   * @param restartEnabled If true, restart the app after updating the InfraConfig
+   * @returns Either true or an error
+   */
+  async toggleServiceStatus(
+    configName: InfraConfigEnum,
+    status: ServiceStatus,
+    restartEnabled = false,
+  ) {
+    const isUpdated = await this.update(
+      configName,
+      status === ServiceStatus.ENABLE ? 'true' : 'false',
+      restartEnabled,
+    );
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+
+    return E.right(true);
   }
 
   /**
@@ -317,6 +372,16 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Check if SMTP is enabled or not
+   * @returns boolean
+   */
+  isSMTPEnabled() {
+    return (
+      this.configService.get<string>('INFRA.MAILER_SMTP_ENABLE') === 'true'
+    );
+  }
+
+  /**
    * Reset all the InfraConfigs to their default values (from .env)
    */
   async reset() {
@@ -363,6 +428,20 @@ export class InfraConfigService implements OnModuleInit {
   ) {
     for (let i = 0; i < infraConfigs.length; i++) {
       switch (infraConfigs[i].name) {
+        case InfraConfigEnum.MAILER_SMTP_ENABLE:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
         case InfraConfigEnum.MAILER_SMTP_URL:
           const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
           if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
@@ -370,6 +449,32 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnum.MAILER_ADDRESS_FROM:
           const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
           if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_HOST:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_PORT:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_SECURE:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_USER:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_SMTP_PASSWORD:
+          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED:
+          if (
+            infraConfigs[i].value !== 'true' &&
+            infraConfigs[i].value !== 'false'
+          )
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         case InfraConfigEnum.GOOGLE_CLIENT_ID:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);

@@ -75,6 +75,7 @@ const dbAdminUsers: DbUser[] = [
     currentRESTSession: '',
     currentGQLSession: '',
     lastLoggedOn: new Date(),
+    lastActiveOn: new Date(),
     createdOn: new Date(),
   },
   {
@@ -87,6 +88,7 @@ const dbAdminUsers: DbUser[] = [
     currentRESTSession: '',
     currentGQLSession: '',
     lastLoggedOn: new Date(),
+    lastActiveOn: new Date(),
     createdOn: new Date(),
   },
 ];

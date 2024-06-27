@@ -19,7 +19,7 @@ export const useWhatsNewDialog = async function () {
   // Checking major version update. e.g. 2024.1 -> 2024.2
 
   const isUpdatedToLatestMajorVersion =
-    oldVersion?.split(".").slice(0, 2).join(".") === latestMajorVersion
+    oldVersion?.split(".").slice(0, 2).join(".") != latestMajorVersion // If the major version is different from the old version
 
   if (isUpdatedToLatestMajorVersion) {
     const notesUrl = await getReleaseNotes(latestMajorVersion)

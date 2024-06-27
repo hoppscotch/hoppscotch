@@ -36,7 +36,7 @@
     "@hoppscotch/codemirror-lang-graphql": "workspace:^",
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/js-sandbox": "workspace:^",
-    "@hoppscotch/ui": "0.1.0",
+    "@hoppscotch/ui": "0.2.0",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.0",
     "@unhead/vue": "1.8.8",

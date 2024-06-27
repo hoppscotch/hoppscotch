@@ -46,9 +46,9 @@
         {{ t("tab.code_snippet") }}
       </div>
       <HttpCodegen
+        v-if="selectedNavigationTab === 'codegen'"
         :hide-label="true"
         class="px-4 mt-4"
-        v-if="selectedNavigationTab === 'codegen'"
       />
     </HoppSmartTab>
   </HoppSmartTabs>

@@ -1,7 +1,7 @@
-import { watch } from "vue"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import { pwaNeedsRefresh, refreshAppForPWAUpdate } from "@modules/pwa"
+import { watch } from "vue"
 
 export const usePwaPrompt = function () {
   const toast = useToast()
@@ -11,28 +11,33 @@ export const usePwaPrompt = function () {
     pwaNeedsRefresh,
     (value) => {
       if (value) {
-        toast.show(`${t("app.new_version_found")}`, {
-          duration: 0,
-          action: [
-            {
-              text: `${t("action.dismiss")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: `${t("app.reload")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-                refreshAppForPWAUpdate()
-              },
-            },
-          ],
-        })
+        showUpdateToast()
       }
     },
     {
       immediate: true,
     }
   )
+
+  function showUpdateToast() {
+    toast.show(`${t("app.new_version_found")}`, {
+      position: "bottom-left",
+      duration: 0,
+      action: [
+        {
+          text: `${t("action.dismiss")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+        {
+          text: `${t("app.reload")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+            refreshAppForPWAUpdate()
+          },
+        },
+      ],
+    })
+  }
 }

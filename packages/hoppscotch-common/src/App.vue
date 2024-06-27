@@ -8,6 +8,7 @@
     </div>
     <ErrorPage v-if="errorInfo !== null" :error="errorInfo" />
     <RouterView v-else />
+    <Toaster rich-colors />
   </div>
 </template>
 
@@ -19,6 +20,7 @@ import { isLoadingInitialRoute } from "@modules/router"
 import { useI18n } from "@composables/i18n"
 import { APP_IS_IN_DEV_MODE } from "@helpers/dev"
 import { platform } from "./platform"
+import { Toaster } from "@hoppscotch/ui"
 
 const t = useI18n()
 

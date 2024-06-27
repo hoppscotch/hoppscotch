@@ -129,6 +129,7 @@
                     })
               }
             "
+            @run-collection="emit('run-collection', $event)"
             @click="
               () => {
                 handleCollectionClick({
@@ -218,6 +219,7 @@
                     })
               }
             "
+            @run-collection="emit('run-collection', $event)"
             @click="
               () => {
                 handleCollectionClick({
@@ -586,6 +588,7 @@ const emit = defineEmits<{
   (event: "expand-team-collection", payload: string): void
   (event: "display-modal-add"): void
   (event: "display-modal-import-export"): void
+  (event: "run-collection", collectionID: string): void
 }>()
 
 const getPath = (path: string) => {

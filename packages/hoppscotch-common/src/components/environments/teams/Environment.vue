@@ -40,7 +40,8 @@
             @keyup.d="duplicate!.$el.click()"
             @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
-            @keyup.escape="options!.tippy().hide()"
+            @keyup.p="propertiesAction!.$el.click()"
+            @keyup.escape="options!.tippy?.hide()"
           >
             <HoppSmartItem
               ref="edit"
@@ -94,6 +95,18 @@
                 }
               "
             />
+            <HoppSmartItem
+              ref="propertiesAction"
+              :icon="IconSettings2"
+              :label="t('action.properties')"
+              :shortcut="['P']"
+              @click="
+                () => {
+                  emit('show-environment-properties')
+                  hide()
+                }
+              "
+            />
           </div>
         </template>
       </tippy>
@@ -108,26 +121,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
 import { useToast } from "@composables/toast"
+import { HoppSmartItem } from "@hoppscotch/ui"
+import { useService } from "dioc/vue"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { ref } from "vue"
+import { TippyComponent } from "vue-tippy"
+
 import { useI18n } from "~/composables/i18n"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   deleteTeamEnvironment,
   createDuplicateEnvironment as duplicateEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
-import { GQLError } from "~/helpers/backend/GQLClient"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import IconEdit from "~icons/lucide/edit"
-import IconCopy from "~icons/lucide/copy"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import { TippyComponent } from "vue-tippy"
-import { HoppSmartItem } from "@hoppscotch/ui"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
-import { useService } from "dioc/vue"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 const toast = useToast()
@@ -139,6 +154,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
+  (e: "show-environment-properties"): void
 }>()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
@@ -156,6 +172,7 @@ const edit = ref<typeof HoppSmartItem>()
 const duplicate = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 const exportAsJsonEl = ref<typeof HoppSmartItem>()
+const propertiesAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   pipe(

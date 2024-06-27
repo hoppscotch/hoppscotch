@@ -191,7 +191,8 @@
     "save_as": "Save as",
     "save_to_collection": "Save to Collection",
     "select": "Select a Collection",
-    "select_location": "Select location"
+    "select_location": "Select location",
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -309,7 +310,9 @@
     "value": "Value",
     "variable": "Variable",
     "variables": "Variables",
-    "variable_list": "Variable List"
+    "variable_list": "Variable List",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -1062,5 +1065,18 @@
     "generate_new_token": "Generate new token",
     "generate_modal_title": "New Personal Access Token",
     "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   }
 }

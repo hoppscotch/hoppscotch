@@ -86,6 +86,9 @@
         :environment="environment"
         :is-viewer="team?.role === 'VIEWER'"
         @edit-environment="editEnvironment(environment)"
+        @show-environment-properties="
+          showEnvironmentProperties(environment.environment.id)
+        "
       />
     </div>
     <div v-if="loading" class="flex flex-col items-center justify-center p-4">
@@ -115,6 +118,12 @@
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
+    />
+    <EnvironmentsProperties
+      v-if="showEnvironmentsPropertiesModal"
+      v-model="environmentsPropertiesModalActiveTab"
+      :environment-i-d="selectedEnvironmentID!"
+      @hide-modal="showEnvironmentsPropertiesModal = false"
     />
   </div>
 </template>
@@ -148,6 +157,10 @@ const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
 const editingVariableName = ref("")
 const secretOptionSelected = ref(false)
+
+const showEnvironmentsPropertiesModal = ref(false)
+const environmentsPropertiesModalActiveTab = ref("details")
+const selectedEnvironmentID = ref<string | null>(null)
 
 const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
@@ -185,6 +198,11 @@ const getErrorMessage = (err: GQLError<string>) => {
     default:
       return t("error.something_went_wrong")
   }
+}
+
+const showEnvironmentProperties = (environmentID: string) => {
+  showEnvironmentsPropertiesModal.value = true
+  selectedEnvironmentID.value = environmentID
 }
 
 defineActionHandler(

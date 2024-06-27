@@ -1,7 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
 import { onMounted, ref } from 'vue';
-
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -14,10 +13,12 @@ import {
   ResetInfraConfigsMutation,
   ServiceStatus,
   ToggleAnalyticsCollectionMutation,
+  ToggleSmtpMutation,
   UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
 import {
   ALL_CONFIGS,
+  CUSTOM_MAIL_CONFIGS,
   ConfigSection,
   ConfigTransform,
   GITHUB_CONFIGS,
@@ -114,10 +115,24 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       },
       mailConfigs: {
         name: 'email',
-        enabled: allowedAuthProviders.value.includes(AuthProvider.Email),
+        enabled: getFieldValue(InfraConfigEnum.MailerSmtpEnable) === 'true',
         fields: {
+          email_auth: allowedAuthProviders.value.includes(AuthProvider.Email),
           mailer_smtp_url: getFieldValue(InfraConfigEnum.MailerSmtpUrl),
           mailer_from_address: getFieldValue(InfraConfigEnum.MailerAddressFrom),
+          mailer_smtp_host: getFieldValue(InfraConfigEnum.MailerSmtpHost),
+          mailer_smtp_port: getFieldValue(InfraConfigEnum.MailerSmtpPort),
+          mailer_smtp_user: getFieldValue(InfraConfigEnum.MailerSmtpUser),
+          mailer_smtp_password: getFieldValue(
+            InfraConfigEnum.MailerSmtpPassword
+          ),
+          mailer_smtp_secure:
+            getFieldValue(InfraConfigEnum.MailerSmtpSecure) === 'true',
+          mailer_tls_reject_unauthorized:
+            getFieldValue(InfraConfigEnum.MailerTlsRejectUnauthorized) ===
+            'true',
+          mailer_use_custom_configs:
+            getFieldValue(InfraConfigEnum.MailerUseCustomConfigs) === 'true',
         },
       },
       dataSharingConfigs: {
@@ -133,11 +148,19 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     workingConfigs.value = cloneDeep(currentConfigs.value);
   });
 
+  // Check if custom mail config is enabled
+  const isCustomMailConfigEnabled =
+    updatedConfigs?.mailConfigs.fields.mailer_use_custom_configs;
+
   /*
     Check if any of the config fields are empty
   */
-
-  const isFieldEmpty = (field: string) => field.trim() === '';
+  const isFieldEmpty = (field: string | boolean) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+    return field.trim() === '';
+  };
 
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
     const sections: Array<ConfigSection> = [
@@ -147,11 +170,55 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       config.mailConfigs,
     ];
 
-    return sections.some(
-      (section) =>
+    const hasSectionWithEmptyFields = sections.some((section) => {
+      if (
+        section.name === 'email' &&
+        !section.fields.mailer_use_custom_configs
+      ) {
+        return (
+          section.enabled &&
+          Object.entries(section.fields).some(
+            ([key, value]) =>
+              isFieldEmpty(value) &&
+              key !== 'mailer_smtp_host' &&
+              key !== 'mailer_smtp_port' &&
+              key !== 'mailer_smtp_user' &&
+              key !== 'mailer_smtp_password'
+          )
+        );
+      }
+
+      return (
         section.enabled && Object.values(section.fields).some(isFieldEmpty)
-    );
+      );
+    });
+
+    return hasSectionWithEmptyFields;
   };
+
+  // Extract the mail config fields (excluding the custom mail config fields)
+  const mailConfigFields = Object.fromEntries(
+    Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) => {
+      if (isCustomMailConfigEnabled) {
+        return MAIL_CONFIGS.some(
+          (x) =>
+            x.key === key &&
+            key !== 'mailer_smtp_url' &&
+            key !== 'mailer_smtp_enabled'
+        );
+      } else
+        return MAIL_CONFIGS.some(
+          (x) => x.key === key && key !== 'mailer_smtp_enabled'
+        );
+    })
+  );
+
+  // Extract the custom mail config fields
+  const customMailConfigFields = Object.fromEntries(
+    Object.entries(updatedConfigs?.mailConfigs.fields ?? {}).filter(([key]) =>
+      CUSTOM_MAIL_CONFIGS.some((x) => x.key === key)
+    )
+  );
 
   // Transforming the working configs back into the format required by the mutations
   const transformInfraConfigs = () => {
@@ -174,7 +241,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         config: MAIL_CONFIGS,
         enabled: updatedConfigs?.mailConfigs.enabled,
-        fields: updatedConfigs?.mailConfigs.fields,
+        fields: mailConfigFields,
+      },
+      {
+        config: CUSTOM_MAIL_CONFIGS,
+        enabled: isCustomMailConfigEnabled,
+        fields: customMailConfigFields,
       },
     ];
 
@@ -182,7 +254,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
     updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (enabled && fields) {
+        if (name === 'MAILER_SMTP_ENABLE') return;
+        else if (isCustomMailConfigEnabled && name === 'MAILER_SMTP_URL')
+          return;
+        else if (enabled && fields) {
           const value =
             typeof fields === 'string' ? fields : String(fields[key]);
           transformedConfigs.push({ name, value });
@@ -239,7 +314,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       },
       {
         provider: AuthProvider.Email,
-        status: updatedConfigs?.mailConfigs.enabled
+        status: updatedConfigs?.mailConfigs.fields.email_auth
           ? ServiceStatus.Enable
           : ServiceStatus.Disable,
       },
@@ -281,6 +356,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.reset.failure'
     );
 
+  // Toggle Data Sharing
   const updateDataSharingConfigs = (
     toggleDataSharingMutation: UseMutationResponse<ToggleAnalyticsCollectionMutation>
   ) =>
@@ -294,11 +370,26 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.data_sharing.update_failure'
     );
 
+  // Toggle SMTP
+  const toggleSMTPConfigs = (
+    toggleSMTP: UseMutationResponse<ToggleSmtpMutation>
+  ) =>
+    executeMutation(
+      toggleSMTP,
+      {
+        status: updatedConfigs?.mailConfigs.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      'configs.mail_configs.toggle_failure'
+    );
+
   return {
     currentConfigs,
     workingConfigs,
     updateAuthProvider,
     updateDataSharingConfigs,
+    toggleSMTPConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

@@ -6,9 +6,18 @@
       </button>
     </div>
 
-    <h3 class="text-lg font-bold text-accentContrast pt-6 pb-4">
-      {{ t('users.pending_invites') }}
-    </h3>
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-bold text-accentContrast pt-6 pb-4">
+        {{ t('users.pending_invites') }}
+      </h3>
+
+      <HoppButtonSecondary
+        :label="t('users.copy_link')"
+        outline
+        filled
+        @click="copyInviteLink"
+      />
+    </div>
 
     <div class="flex flex-col">
       <div class="relative py-2 overflow-x-auto">
@@ -107,6 +116,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconTrash from '~icons/lucide/trash';
 import {
   InvitedUsersDocument,
@@ -184,5 +194,12 @@ const deleteInvitation = async (email: string | null) => {
 
   confirmDeletion.value = false;
   inviteToBeDeleted.value = null;
+};
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+
+const copyInviteLink = () => {
+  copyToClipboard(baseURL);
+  toast.success(t('state.copied_to_clipboard'));
 };
 </script>

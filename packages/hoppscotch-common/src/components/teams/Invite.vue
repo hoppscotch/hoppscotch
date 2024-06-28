@@ -10,10 +10,18 @@
         <div class="mb-8 flex max-w-md flex-col items-center justify-center">
           <icon-lucide-users class="h-6 w-6 text-accent" />
           <h3 class="my-2 text-center text-lg">
-            {{ t("team.we_sent_invite_link") }}
+            {{
+              inviteMethod === "email"
+                ? t("team.we_sent_invite_link")
+                : t("team.invite_sent_smtp_disabled")
+            }}
           </h3>
           <p class="text-center">
-            {{ t("team.we_sent_invite_link_description") }}
+            {{
+              inviteMethod === "email"
+                ? t("team.we_sent_invite_link_description")
+                : t("team.invite_sent_smtp_disabled_description")
+            }}
           </p>
         </div>
         <div v-if="successInvites.length">
@@ -33,6 +41,20 @@
                   class="svg-icons mr-4 text-green-500"
                 />
                 <span class="truncate">{{ invitee.email }}</span>
+                <span class="flex items-center gap-1 ml-auto">
+                  <HoppButtonSecondary
+                    outline
+                    filled
+                    :icon="getCopyIcon(invitee.invitationID).value"
+                    class="rounded-md"
+                    :label="t('team.copy_invite_link')"
+                    @click="
+                      () => {
+                        copyInviteLink(invitee.invitationID)
+                      }
+                    "
+                  />
+                </span>
               </p>
             </div>
           </div>
@@ -107,6 +129,20 @@
                   :value="invitee.inviteeRole"
                   readonly
                 />
+                <div class="flex">
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    outline
+                    :icon="getCopyIcon(invitee.id).value"
+                    class="rounded-md"
+                    :title="t('team.copy_invite_link')"
+                    @click="
+                      () => {
+                        copyInviteLink(invitee.id)
+                      }
+                    "
+                  />
+                </div>
                 <div class="flex">
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
@@ -352,7 +388,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, reactive, computed } from "vue"
+import { watch, ref, reactive, computed, Ref, onMounted } from "vue"
 import * as T from "fp-ts/Task"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
@@ -386,7 +422,24 @@ import IconMailCheck from "~icons/lucide/mail-check"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
 import IconArrowLeft from "~icons/lucide/arrow-left"
+import IconCopy from "~icons/lucide/copy"
+import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
+import { refAutoReset } from "@vueuse/core"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { platform } from "~/platform"
+
+const copyIcons: Record<string, Ref<typeof IconCopy | typeof IconCheck>> = {}
+const getCopyIcon = (id: string) => {
+  if (!copyIcons[id]) {
+    copyIcons[id] = refAutoReset<typeof IconCopy | typeof IconCheck>(
+      IconCopy,
+      1000
+    )
+  }
+
+  return copyIcons[id]
+}
 
 const t = useI18n()
 
@@ -405,6 +458,20 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
+
+const inviteMethod = ref<"email" | "link">("email")
+
+onMounted(async () => {
+  const getIsSMTPEnabled = platform.infra?.getIsSMTPEnabled
+
+  if (getIsSMTPEnabled) {
+    const res = await getIsSMTPEnabled()
+
+    if (E.isRight(res)) {
+      inviteMethod.value = res.right ? "email" : "link"
+    }
+  }
+})
 
 const pendingInvites = useGQLQuery<
   GetPendingInvitesQuery,
@@ -496,6 +563,14 @@ const removeNewInvitee = (id: number) => {
   newInvites.value.splice(id, 1)
 }
 
+const copyInviteLink = (invitationID: string) => {
+  copyToClipboard(
+    `${import.meta.env.VITE_BASE_URL}/join-team?id=${invitationID}`
+  )
+
+  getCopyIcon(invitationID).value = IconCheck
+}
+
 type SendInvitesErrorType =
   | {
       email: Email
@@ -505,6 +580,7 @@ type SendInvitesErrorType =
   | {
       email: Email
       status: "success"
+      invitationID: string
     }
 
 const sendInvitesResult = ref<Array<SendInvitesErrorType>>([])
@@ -555,9 +631,10 @@ const sendInvites = async () => {
                 email: newInvites.value[i].key as Email,
                 error: err,
               }),
-              () => ({
+              (invitation) => ({
                 status: "success" as const,
                 email: newInvites.value[i].key as Email,
+                invitationID: invitation.id,
               })
             )
           )

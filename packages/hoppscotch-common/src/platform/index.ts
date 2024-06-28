@@ -11,6 +11,7 @@ import { InspectorsPlatformDef } from "./inspectors"
 import { ServiceClassInstance } from "dioc"
 import { IOPlatformDef } from "./io"
 import { SpotlightPlatformDef } from "./spotlight"
+import { InfraPlatformDef } from "./infra"
 import { Ref } from "vue"
 
 export type PlatformDef = {
@@ -52,6 +53,7 @@ export type PlatformDef = {
      */
     workspaceSwitcherLogin?: Ref<boolean>
   }
+  infra?: InfraPlatformDef
 }
 
 export let platform: PlatformDef

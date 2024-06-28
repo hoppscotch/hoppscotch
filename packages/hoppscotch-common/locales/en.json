@@ -1009,7 +1009,10 @@
     "success_invites": "Success invites",
     "title": "Workspaces",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
+    "invite_sent_smtp_disabled": "Invite links generated",
     "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the workspace.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
     "search_title": "Team Requests"
   },
   "team_environment": {

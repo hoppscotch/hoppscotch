@@ -17,10 +17,9 @@
           >
             <span>{{ t("collection_runner.environment_id") }}</span>
 
-            <!-- TODO: Make it point to the section about accessing environments via the ID -->
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/documentation/clients/cli"
+              to="https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-and-environments-on-cloud"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"

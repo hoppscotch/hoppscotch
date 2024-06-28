@@ -18,7 +18,7 @@ const CLI_BEFORE_ALL_TXT = `hopp: The ${accent(
 )}) ${chalk.black.bold.bgYellowBright(" ALPHA ")} \n`;
 
 const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
-  "https://docs.hoppscotch.io/documentation/clients/cli"
+  "https://docs.hoppscotch.io/documentation/clients/cli/overview"
 )}`;
 
 const program = new Command();

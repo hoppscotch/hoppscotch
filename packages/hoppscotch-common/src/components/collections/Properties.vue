@@ -51,10 +51,9 @@
           >
             <span>{{ t("collection_runner.collection_id") }}</span>
 
-            <!-- TODO: Make it point to the section about accessing collections via the ID -->
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/documentation/clients/cli"
+              to="https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-and-environments-on-cloud"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"

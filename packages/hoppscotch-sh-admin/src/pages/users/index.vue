@@ -255,6 +255,7 @@ import { usePagedQuery } from '~/composables/usePagedQuery';
 import {
   DemoteUsersByAdminDocument,
   InviteNewUserDocument,
+  IsSmtpEnabledDocument,
   MakeUsersAdminDocument,
   MetricsDocument,
   RemoveUsersByAdminDocument,
@@ -479,7 +480,7 @@ const sendInvite = async (email: string) => {
 
     return false;
   } else {
-    if (smtpEnabled) toast.success(t('state.email_success'));
+    if (smtpEnabled.value) toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
     return true;
   }
@@ -490,7 +491,7 @@ const copyInviteLink = async (email: string) => {
   if (!result) return;
   const baseURL = import.meta.env.VITE_BASE_URL ?? '';
   copyToClipboard(baseURL);
-  toast.success(t('state.copied_to_clipboard'));
+  toast.success(t('state.link_copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

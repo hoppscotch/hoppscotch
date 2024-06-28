@@ -163,6 +163,7 @@
     "github_signin_failure": "Failed to login with Github",
     "google_signin_failure": "Failed to login with Google",
     "invalid_email": "Please enter a valid email address",
+    "link_copied_to_clipboard": "Link copied to clipboard",
     "logged_out": "Logged out",
     "login_as_admin": "and login with an admin account.",
     "logout": "Logout",

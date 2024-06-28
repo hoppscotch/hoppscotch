@@ -1,12 +1,11 @@
 import { toast as sonner } from "@hoppscotch/ui"
 import { markRaw } from "vue"
-
 import WhatsNewDialog from "~/components/app/WhatsNewDialog.vue"
 import { getService } from "~/modules/dioc"
 import { PersistenceService } from "~/services/persistence"
 import { version as hoppscotchCommonPkgVersion } from "./../../package.json"
 
-export const useWhatsNewDialog = async function () {
+export function useWhatsNewDialog() {
   const persistenceService = getService(PersistenceService)
 
   const versionFromLocalStorage = persistenceService.getLocalConfig("hopp_v")
@@ -34,15 +33,20 @@ export const useWhatsNewDialog = async function () {
 
   // Show the release notes during a major version update
   if (majorVersionFromLocalStorage !== hoppscotchCommonPkgMajorVersion) {
-    const notesUrl = await getReleaseNotes(hoppscotchCommonPkgMajorVersion)
-    if (notesUrl) {
-      sonner.custom(markRaw(WhatsNewDialog), {
-        componentProps: {
-          notesUrl,
-          version: hoppscotchCommonPkgVersion,
-        },
-      })
-    }
+    setTimeout(async () => {
+      const notesUrl = await getReleaseNotes(hoppscotchCommonPkgMajorVersion)
+
+      if (notesUrl) {
+        sonner.custom(markRaw(WhatsNewDialog), {
+          componentProps: {
+            notesUrl,
+            version: hoppscotchCommonPkgVersion,
+          },
+          position: "bottom-left",
+          duration: Infinity,
+        })
+      }
+    }, 10000)
   }
 
   persistenceService.setLocalConfig("hopp_v", hoppscotchCommonPkgVersion)

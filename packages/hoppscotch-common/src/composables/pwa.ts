@@ -21,7 +21,7 @@ export const usePwaPrompt = function () {
 
   function showUpdateToast() {
     toast.show(`${t("app.new_version_found")}`, {
-      position: "bottom-left",
+      position: "bottom-center",
       duration: 0,
       action: [
         {

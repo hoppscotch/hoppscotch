@@ -37,7 +37,8 @@ export function getTransportOption(env, config): TransportType {
       host: env.INFRA.MAILER_SMTP_HOST ?? config.get('MAILER_SMTP_HOST'),
       port: +env.INFRA.MAILER_SMTP_PORT ?? +config.get('MAILER_SMTP_PORT'),
       secure:
-        !!env.INFRA.MAILER_SMTP_SECURE ?? !!config.get('MAILER_SMTP_SECURE'),
+        (env.INFRA.MAILER_SMTP_SECURE ?? config.get('MAILER_SMTP_SECURE')) ===
+        'true',
       auth: {
         user:
           env.INFRA.MAILER_SMTP_USER ??
@@ -50,8 +51,8 @@ export function getTransportOption(env, config): TransportType {
       },
       tls: {
         rejectUnauthorized:
-          !!env.INFRA.MAILER_TLS_REJECT_UNAUTHORIZED ??
-          !!config.get('MAILER_TLS_REJECT_UNAUTHORIZED'),
+          (env.INFRA.MAILER_TLS_REJECT_UNAUTHORIZED ??
+            config.get('MAILER_TLS_REJECT_UNAUTHORIZED')) === 'true',
       },
     };
   }

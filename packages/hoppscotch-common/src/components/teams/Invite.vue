@@ -47,7 +47,7 @@
                     filled
                     :icon="getCopyIcon(invitee.invitationID).value"
                     class="rounded-md"
-                    label="Copy Invite Link"
+                    :label="t('team.copy_invite_link')"
                     @click="
                       () => {
                         copyInviteLink(invitee.invitationID)

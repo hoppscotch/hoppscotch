@@ -15,6 +15,7 @@
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
+          :disabled="!smtpEnabled"
           :label="t('users.send_invite')"
           @click="emit('send-invite', email)"
         />
@@ -45,6 +46,10 @@ const emit = defineEmits<{
   (event: 'hide-modal'): void;
   (event: 'send-invite', email: string): void;
   (event: 'copy-invite-link', email: string): void;
+}>();
+
+defineProps<{
+  smtpEnabled: boolean;
 }>();
 
 const email = ref('');

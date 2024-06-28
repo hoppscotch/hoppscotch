@@ -205,6 +205,7 @@
 
     <UsersInviteModal
       v-if="showInviteUserModal"
+      :smtp-enabled="smtpEnabled"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
       @copy-invite-link="copyInviteLink"
@@ -254,6 +255,7 @@ import { usePagedQuery } from '~/composables/usePagedQuery';
 import {
   DemoteUsersByAdminDocument,
   InviteNewUserDocument,
+  IsSmtpEnabledDocument,
   MakeUsersAdminDocument,
   MetricsDocument,
   RemoveUsersByAdminDocument,
@@ -448,6 +450,10 @@ const router = useRouter();
 const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
   router.push('/users/' + user.uid);
 
+// Check if SMTP is enabled
+const { data: status } = useQuery({ query: IsSmtpEnabledDocument });
+const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
+
 // Send Invitation through Email
 const showInviteUserModal = ref(false);
 const sendInvitation = useMutation(InviteNewUserDocument);
@@ -474,7 +480,7 @@ const sendInvite = async (email: string) => {
 
     return false;
   } else {
-    toast.success(t('state.email_success'));
+    if (smtpEnabled.value) toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
     return true;
   }
@@ -485,7 +491,7 @@ const copyInviteLink = async (email: string) => {
   if (!result) return;
   const baseURL = import.meta.env.VITE_BASE_URL ?? '';
   copyToClipboard(baseURL);
-  toast.success(t('state.copied_to_clipboard'));
+  toast.success(t('state.link_copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

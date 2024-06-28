@@ -71,7 +71,7 @@ program
   .addHelpText(
     "after",
     `\nFor help, head on to ${accent(
-      "https://docs.hoppscotch.io/documentation/clients/cli#commands"
+      "https://docs.hoppscotch.io/documentation/clients/cli/overview#commands"
     )}`
   )
   .action(async (pathOrId, options) => await test(pathOrId, options)());

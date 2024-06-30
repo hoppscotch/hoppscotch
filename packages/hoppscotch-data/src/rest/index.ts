@@ -39,7 +39,14 @@ export {
 export { HoppRESTRequestVariables } from "./v/2"
 export { HoppRESTAuthAPIKey } from "./v/4"
 export { AuthCodeGrantTypeParams, HoppRESTAuthOAuth2 } from "./v/5"
-export { HoppRESTAuth, HoppRESTAuthAWSSignature } from "./v/6"
+export {
+  HoppRESTAuth,
+  HoppRESTAuthAWSSignature,
+  HoppRESTAuthHAWK,
+  HoppRESTAuthNTLM,
+  HoppRESTAuthAkamaiEdgeGrid,
+  HoppRESTAuthASAP,
+} from "./v/6"
 
 const versionedObject = z.object({
   // v is a stringified number

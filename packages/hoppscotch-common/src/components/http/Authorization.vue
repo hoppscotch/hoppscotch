@@ -149,6 +149,18 @@
         <div v-if="auth.authType === 'aws-signature'">
           <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'hawk'">
+          <HttpAuthorizationHAWK v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'ntlm'">
+          <HttpAuthorizationNTLM v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'akamai-edgegrid'">
+          <HttpAuthorizationAkamaiEG v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'asap'">
+          <HttpAuthorizationASAP v-model="auth" :envs="envs" />
+        </div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
@@ -257,6 +269,22 @@ const authTypes: AuthType[] = [
   {
     key: "aws-signature",
     label: "AWS Signature",
+  },
+  {
+    key: "asap",
+    label: "ASAP (Atlassian)",
+  },
+  {
+    key: "akamai-edgegrid",
+    label: "Akamai EdgeGrid",
+  },
+  {
+    key: "hawk",
+    label: "HAWK Authentication",
+  },
+  {
+    key: "ntlm",
+    label: "NTLM Auth",
   },
 ]
 

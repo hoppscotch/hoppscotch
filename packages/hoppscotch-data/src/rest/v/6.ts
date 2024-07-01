@@ -61,7 +61,17 @@ export const HoppRESTAuthAkamaiEdgeGrid = z.object({
 export const HoppRESTAuthASAP = z.object({
   authType: z.literal("asap"),
   algorithm: z
-    .enum(["RS256", "RS384", "RS512", "ES256", "ES384", "ES512"])
+    .enum([
+      "RS256",
+      "RS384",
+      "RS512",
+      "PS256",
+      "PS384",
+      "PS512",
+      "ES256",
+      "ES384",
+      "ES512",
+    ])
     .catch("RS256"),
   issuer: z.string(),
   audience: z.string(),
@@ -73,6 +83,12 @@ export const HoppRESTAuthASAP = z.object({
 })
 
 export type HoppRESTAuthAWSSignature = z.infer<typeof HoppRESTAuthAWSSignature>
+export type HoppRESTAuthHAWK = z.infer<typeof HoppRESTAuthHAWK>
+export type HoppRESTAuthNTLM = z.infer<typeof HoppRESTAuthNTLM>
+export type HoppRESTAuthAkamaiEdgeGrid = z.infer<
+  typeof HoppRESTAuthAkamaiEdgeGrid
+>
+export type HoppRESTAuthASAP = z.infer<typeof HoppRESTAuthASAP>
 
 export const HoppRESTAuth = z
   .discriminatedUnion("authType", [

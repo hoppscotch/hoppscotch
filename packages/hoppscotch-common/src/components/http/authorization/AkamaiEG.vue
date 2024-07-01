@@ -1,17 +1,25 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.accessKey"
+      v-model="auth.accessToken"
       :auto-complete-env="true"
-      placeholder="AccessKey"
+      placeholder="Access Token"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.secretKey"
+      v-model="auth.clientToken"
       :auto-complete-env="true"
-      placeholder="SecretKey"
+      placeholder="Client Token"
+      :envs="envs"
+    />
+  </div>
+  <div class="flex flex-1 border-b border-dividerLight">
+    <SmartEnvInput
+      v-model="auth.clientSecret"
+      :auto-complete-env="true"
+      placeholder="Client Secret"
       :envs="envs"
     />
   </div>
@@ -29,99 +37,51 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
-        v-model="auth.region"
+        v-model="auth.nonce"
         :auto-complete-env="true"
-        placeholder="AWS Region"
+        placeholder="Nonce"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
-        v-model="auth.serviceName"
+        v-model="auth.timestamp"
         :auto-complete-env="true"
-        placeholder="Service Name"
+        placeholder="Timestamp"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
-        v-model="auth.serviceToken"
+        v-model="auth.host"
         :auto-complete-env="true"
-        placeholder="Service Token"
+        placeholder="Host"
         :envs="envs"
       />
     </div>
-  </div>
-
-  <div class="flex items-center border-b border-dividerLight">
-    <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight">
-        {{ t("authorization.pass_key_by") }}
-      </label>
-      <tippy
-        interactive
-        trigger="click"
-        theme="popover"
-        :on-shown="() => authTippyActions.focus()"
-      >
-        <HoppSmartSelectWrapper>
-          <HoppButtonSecondary
-            :label="
-              auth.addTo
-                ? auth.addTo === 'HEADERS'
-                  ? t('authorization.pass_by_headers_label')
-                  : t('authorization.pass_by_query_params_label')
-                : t('state.none')
-            "
-            class="ml-2 rounded-none pr-8"
-          />
-        </HoppSmartSelectWrapper>
-        <template #content="{ hide }">
-          <div
-            ref="authTippyActions"
-            class="flex flex-col focus:outline-none"
-            tabindex="0"
-            @keyup.escape="hide()"
-          >
-            <HoppSmartItem
-              :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'HEADERS'"
-              :label="t('authorization.pass_by_headers_label')"
-              @click="
-                () => {
-                  auth.addTo = 'HEADERS'
-                  hide()
-                }
-              "
-            />
-            <HoppSmartItem
-              :icon="auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'QUERY_PARAMS'"
-              :label="t('authorization.pass_by_query_params_label')"
-              @click="
-                () => {
-                  auth.addTo = 'QUERY_PARAMS'
-                  hide()
-                }
-              "
-            />
-          </div>
-        </template>
-      </tippy>
-    </span>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.headersToSign"
+        :auto-complete-env="true"
+        placeholder="Headers to Sign"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.maxBody"
+        :auto-complete-env="true"
+        placeholder="Max Body Size"
+        :envs="envs"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import IconCircle from "~icons/lucide/circle"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAkamaiEdgeGrid } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import { ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
-
-const t = useI18n()
 
 const props = defineProps<{
   modelValue: HoppRESTAuthAkamaiEdgeGrid
@@ -133,6 +93,4 @@ const emit = defineEmits<{
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
-
-const authTippyActions = ref<any | null>(null)
 </script>

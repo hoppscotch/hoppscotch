@@ -1,63 +1,32 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.accessKey"
+      v-model="auth.issuer"
       :auto-complete-env="true"
-      placeholder="AccessKey"
+      placeholder="Issuer"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.secretKey"
+      v-model="auth.audience"
       :auto-complete-env="true"
-      placeholder="SecretKey"
+      placeholder="Audience"
+      :envs="envs"
+    />
+  </div>
+  <div class="flex flex-1 border-b border-dividerLight">
+    <SmartEnvInput
+      v-model="auth.keyId"
+      :auto-complete-env="true"
+      placeholder="Key ID"
       :envs="envs"
     />
   </div>
 
-  <!-- advanced config -->
-
-  <div>
-    <!-- label as advanced config here -->
-    <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
-      <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
-      </p>
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.region"
-        :auto-complete-env="true"
-        placeholder="AWS Region"
-        :envs="envs"
-      />
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.serviceName"
-        :auto-complete-env="true"
-        placeholder="Service Name"
-        :envs="envs"
-      />
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.serviceToken"
-        :auto-complete-env="true"
-        placeholder="Service Token"
-        :envs="envs"
-      />
-    </div>
-  </div>
-
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight">
-        {{ t("authorization.pass_key_by") }}
-      </label>
+      <label class="ml-4 text-secondaryLight"> Algorithm </label>
       <tippy
         interactive
         trigger="click"
@@ -66,13 +35,7 @@
       >
         <HoppSmartSelectWrapper>
           <HoppButtonSecondary
-            :label="
-              auth.addTo
-                ? auth.addTo === 'HEADERS'
-                  ? t('authorization.pass_by_headers_label')
-                  : t('authorization.pass_by_query_params_label')
-                : t('state.none')
-            "
+            :label="auth.algorithm"
             class="ml-2 rounded-none pr-8"
           />
         </HoppSmartSelectWrapper>
@@ -84,23 +47,14 @@
             @keyup.escape="hide()"
           >
             <HoppSmartItem
-              :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'HEADERS'"
-              :label="t('authorization.pass_by_headers_label')"
+              v-for="alg in algorithms"
+              :key="alg"
+              :icon="auth.algorithm === alg ? IconCircleDot : IconCircle"
+              :active="auth.algorithm === alg"
+              :label="alg"
               @click="
                 () => {
-                  auth.addTo = 'HEADERS'
-                  hide()
-                }
-              "
-            />
-            <HoppSmartItem
-              :icon="auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'QUERY_PARAMS'"
-              :label="t('authorization.pass_by_query_params_label')"
-              @click="
-                () => {
-                  auth.addTo = 'QUERY_PARAMS'
+                  auth.algorithm = alg
                   hide()
                 }
               "
@@ -109,6 +63,54 @@
         </template>
       </tippy>
     </span>
+  </div>
+
+  <div class="flex flex-1 border-b border-dividerLight items-center">
+    <label class="ml-4 text-secondaryLight"> Private Key </label>
+    <label :for="`attachment`" class="p-0">
+      <input
+        :id="`attachment`"
+        :name="`attachment`"
+        type="file"
+        multiple
+        class="cursor-pointer p-1 text-tiny text-secondaryLight transition file:mr-2 file:cursor-pointer file:rounded file:border-0 file:bg-primaryLight file:px-4 file:py-1 file:text-tiny file:text-secondary file:transition hover:text-secondaryDark hover:file:bg-primaryDark hover:file:text-secondaryDark"
+        @change="setPrivateKey($event)"
+      />
+    </label>
+  </div>
+  <pre>
+    {{ auth.privateKey }}
+  </pre>
+
+  <!-- advanced config -->
+
+  <div>
+    <!-- label as advanced config here -->
+    <div class="p-4">
+      <label class="text-secondaryLight"> Optional Configuration </label>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight h-[300px]">
+      <label class="ml-4 text-secondaryLight"> Additional Claims </label>
+      <div class="h-full relative">
+        <div ref="claimsRef" class="absolute inset-0"></div>
+      </div>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.subject"
+        :auto-complete-env="true"
+        placeholder="Subject"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.expiresIn"
+        :auto-complete-env="true"
+        placeholder="Expires In"
+        :envs="envs"
+      />
+    </div>
   </div>
 </template>
 
@@ -120,6 +122,11 @@ import { HoppRESTAuthASAP } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { useCodemirror } from "~/composables/codemirror"
+import { reactive } from "vue"
+import { Ref } from "vue"
+import { getEditorLangForMimeType } from "~/helpers/editorutils"
+import JSONLinter from "~/helpers/editor/linting/json"
 
 const t = useI18n()
 
@@ -133,6 +140,53 @@ const emit = defineEmits<{
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
+
+const claimsRef = ref<any | null>(null)
+const codemirrorValue: Ref<string | undefined> =
+  typeof auth.value.additionalClaims === "string"
+    ? ref(auth.value.additionalClaims)
+    : ref(undefined)
+
+useCodemirror(
+  claimsRef,
+  codemirrorValue,
+  reactive({
+    extendedEditorConfig: {
+      mode: getEditorLangForMimeType("application/json"),
+      placeholder: t("request.raw_body").toString(),
+    },
+    linter: JSONLinter,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
+
+const algorithms: HoppRESTAuthASAP["algorithm"][] = [
+  "RS256",
+  "RS384",
+  "RS512",
+  "PS256",
+  "PS384",
+  "PS512",
+  "ES256",
+  "ES384",
+  "ES512",
+]
+
+const setPrivateKey = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const result = e.target?.result
+    if (typeof result !== "string") return
+
+    auth.value.privateKey = result
+  }
+  reader.readAsText(file)
+}
 
 const authTippyActions = ref<any | null>(null)
 </script>

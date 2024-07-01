@@ -1,63 +1,24 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.accessKey"
+      v-model="auth.authId"
       :auto-complete-env="true"
-      placeholder="AccessKey"
+      placeholder="HAWK Auth ID"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
-      v-model="auth.secretKey"
+      v-model="auth.authKey"
       :auto-complete-env="true"
-      placeholder="SecretKey"
+      placeholder="HAWK Auth Key"
       :envs="envs"
     />
   </div>
 
-  <!-- advanced config -->
-
-  <div>
-    <!-- label as advanced config here -->
-    <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
-      <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
-      </p>
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.region"
-        :auto-complete-env="true"
-        placeholder="AWS Region"
-        :envs="envs"
-      />
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.serviceName"
-        :auto-complete-env="true"
-        placeholder="Service Name"
-        :envs="envs"
-      />
-    </div>
-    <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="auth.serviceToken"
-        :auto-complete-env="true"
-        placeholder="Service Token"
-        :envs="envs"
-      />
-    </div>
-  </div>
-
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight">
-        {{ t("authorization.pass_key_by") }}
-      </label>
+      <label class="ml-4 text-secondaryLight"> Algorithm </label>
       <tippy
         interactive
         trigger="click"
@@ -66,13 +27,7 @@
       >
         <HoppSmartSelectWrapper>
           <HoppButtonSecondary
-            :label="
-              auth.addTo
-                ? auth.addTo === 'HEADERS'
-                  ? t('authorization.pass_by_headers_label')
-                  : t('authorization.pass_by_query_params_label')
-                : t('state.none')
-            "
+            :label="auth.algorithm"
             class="ml-2 rounded-none pr-8"
           />
         </HoppSmartSelectWrapper>
@@ -84,23 +39,14 @@
             @keyup.escape="hide()"
           >
             <HoppSmartItem
-              :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'HEADERS'"
-              :label="t('authorization.pass_by_headers_label')"
+              v-for="alg in algorithms"
+              :key="alg"
+              :icon="auth.algorithm === alg ? IconCircleDot : IconCircle"
+              :active="auth.algorithm === alg"
+              :label="alg"
               @click="
                 () => {
-                  auth.addTo = 'HEADERS'
-                  hide()
-                }
-              "
-            />
-            <HoppSmartItem
-              :icon="auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle"
-              :active="auth.addTo === 'QUERY_PARAMS'"
-              :label="t('authorization.pass_by_query_params_label')"
-              @click="
-                () => {
-                  auth.addTo = 'QUERY_PARAMS'
+                  auth.algorithm = alg
                   hide()
                 }
               "
@@ -109,6 +55,72 @@
         </template>
       </tippy>
     </span>
+  </div>
+
+  <!-- advanced config -->
+
+  <div>
+    <!-- label as advanced config here -->
+    <div class="p-4">
+      <label class="text-secondaryLight"> Optional Config </label>
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.user"
+        :auto-complete-env="true"
+        :placeholder="t('authorization.username')"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.nonce"
+        :auto-complete-env="true"
+        placeholder="Nonce"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.ext"
+        :auto-complete-env="true"
+        placeholder="ext"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.app"
+        :auto-complete-env="true"
+        placeholder="app"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.dlg"
+        :auto-complete-env="true"
+        placeholder="dlg"
+        :envs="envs"
+      />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.timestamp"
+        :auto-complete-env="true"
+        placeholder="Timestamp"
+        :envs="envs"
+      />
+    </div>
+  </div>
+
+  <div class="px-4 mt-6">
+    <HoppSmartCheckbox
+      :on="auth.includePayloadHash"
+      @change="auth.includePayloadHash = !auth.includePayloadHash"
+    >
+      Include Payload Hash
+    </HoppSmartCheckbox>
   </div>
 </template>
 
@@ -133,6 +145,8 @@ const emit = defineEmits<{
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
+
+const algorithms: HoppRESTAuthHAWK["algorithm"][] = ["sha256", "sha1"]
 
 const authTippyActions = ref<any | null>(null)
 </script>

@@ -371,7 +371,7 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
-            key: "Ctrl-Enter",
+            key: "Cmd-Enter" /* macOS */ || "Ctrl-Enter" /* Windows */,
             preventDefault: true,
             run: () => true,
           },

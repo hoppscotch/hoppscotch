@@ -307,8 +307,8 @@ const jsonResponseBodyText = computed(() => {
           () =>
             JSONPath({
               path: filterQueryText.value,
-              json: parsedJSON,
-            }) as undefined,
+              json: parsedJSON as any,
+            }),
           (err): BodyParseError => ({
             type: "JSON_PATH_QUERY_FAILED",
             error: err as Error,

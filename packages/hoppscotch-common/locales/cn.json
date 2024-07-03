@@ -24,8 +24,10 @@
     "go_back": "返回",
     "go_forward": "前进",
     "group_by": "分组方式",
+    "hide_secret": "Hide secret",
     "label": "标签",
     "learn_more": "了解更多",
+    "download_here": "Download here",
     "less": "更少",
     "more": "更多",
     "new": "新增",
@@ -43,6 +45,7 @@
     "search": "搜索",
     "send": "发送",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "开始",
     "starting": "正在开始",
     "stop": "停止",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "输入命令或搜索内容……",
     "we_use_cookies": "我们使用 cookies",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "新增内容",
+    "see_whats_new": "See what’s new",
     "wiki": "帮助"
   },
   "auth": {
     "account_exists": "当前帐号已存在 - 登录以链接两个帐号",
     "all_sign_in_options": "所有登录选项",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "使用电子邮箱登录",
     "continue_with_github": "使用 GitHub 登录",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "使用 Google 登录",
     "continue_with_microsoft": "使用 Microsoft 登录",
     "email": "电子邮箱地址",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "传递方式",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "密码",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "令牌",
@@ -149,6 +177,7 @@
     "different_parent": "不能用不同的父类来重新排序集合",
     "edit": "编辑集合",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "请提供有效的集合名称",
     "invalid_root_move": "该集合已经在根级了",
     "moved": "移动完成",
@@ -165,6 +194,7 @@
     "save_to_collection": "保存至集合",
     "select": "选择一个集合",
     "select_location": "选择位置",
+    "details": "Details",
     "select_team": "选择一个团队",
     "team_collections": "团队集合"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "你确定要退出遥测服务吗？",
     "request_change": "你确定你要放弃当前的请求，未保存的修改将被丢失。",
     "save_unsaved_tab": "你想保存在此标签页中所作的修改吗？",
-    "sync": "您确定要同步该工作区吗？"
+    "sync": "您确定要同步该工作区吗？",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "添加至参数",
@@ -237,13 +268,16 @@
     "pending_invites": "此团队无待办邀请",
     "profile": "登录以查看你的个人资料",
     "protocols": "协议为空",
+    "request_variables": "This request does not have any request variables",
     "schema": "连接至 GraphQL 端点",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "订阅为空",
     "team_name": "团队名称为空",
     "teams": "团队为空",
     "tests": "没有针对该请求的测试",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "短链接为空"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "快速浏览环境",
     "replace_with_variable": "替换为变量",
     "scope": "范围",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "选择环境",
     "set": "设置环境",
     "set_as_environment": "设置为环境",
@@ -278,7 +314,10 @@
     "updated": "环境已更新",
     "value": "值",
     "variable": "变量",
-    "variable_list": "变量列表"
+    "variables": "Variables",
+    "variable_list": "变量列表",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "危险区域",
     "delete_account": "您的帐号目前为这些团队的拥有者：",
     "delete_account_description": "您在删除帐号前必须先将您自己从团队中移除、转移拥有权，或是删除团队。",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "空请求名称",
     "f12_details": "（F12 详情）",
     "gql_prettify_invalid_query": "无法美化无效的查询，处理查询语法错误并重试",
@@ -308,9 +348,14 @@
     "page_not_found": "找不到此頁面",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "代理错误",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "无法执行预请求脚本",
     "something_went_wrong": "发生了一些错误",
-    "test_script_fail": "无法执行请求脚本"
+    "test_script_fail": "无法执行请求脚本",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "导出为 JSON",
@@ -343,7 +388,8 @@
     "mutations": "变更",
     "schema": "模式",
     "subscriptions": "订阅",
-    "switch_connection": "切换连接"
+    "switch_connection": "切换连接",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -409,12 +455,17 @@
     "json_description": "从 Hoppscotch 的集合文件导入（JSON）",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "导入"
+    "title": "导入",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "查可能的错误",
     "environment": {
       "add_environment": "添加到环境",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "环境变量“{environment}”未找到。"
     },
     "header": {
@@ -550,6 +601,7 @@
     "raw_body": "原始请求体",
     "rename": "重命名请求",
     "renamed": "请求重命名",
+    "request_variables": "Request variables",
     "run": "运行",
     "save": "保存",
     "save_as": "另存为",
@@ -561,6 +613,7 @@
     "title": "请求",
     "type": "请求类型",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "变量",
     "view_my_links": "查看我的链接",
     "copy_link": "复制链接"
@@ -815,6 +868,13 @@
       "new": "创建新团队",
       "switch_to_personal": "切换到您的个人工作空间",
       "title": "团队"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -871,9 +931,9 @@
     "forum": "答疑解惑",
     "github": "在 Github 关注我们",
     "shortcuts": "更快浏览应用",
-    "team": "与团队保持联系",
     "title": "支持",
-    "twitter": "在 Twitter 关注我们"
+    "twitter": "在 Twitter 关注我们",
+    "team": "与团队保持联系"
   },
   "tab": {
     "authorization": "授权",
@@ -893,6 +953,9 @@
     "query": "查询",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "测试",
@@ -921,7 +984,6 @@
     "invite_tooltip": "邀请成员加入此工作区",
     "invited_to_team": "{owner} 邀请你加入 {team}",
     "join": "邀请已被接受",
-    "join_beta": "加入 Beta 计划以访问团队。",
     "join_team": "加入 {team}",
     "joined_team": "你已加入 {team}",
     "joined_team_description": "你现在是此团队的成员了",
@@ -954,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "团队",
     "we_sent_invite_link": "我们向所有受邀者发送了邀请链接！",
-    "we_sent_invite_link_description": "请所有受邀者检查他们的收件箱，点击链接以加入团队。"
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "请所有受邀者检查他们的收件箱，点击链接以加入团队。",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "加入 Beta 计划以访问团队。"
   },
   "team_environment": {
     "deleted": "已刪除环境",
@@ -981,8 +1048,49 @@
   "workspace": {
     "change": "切换工作空间",
     "personal": "我的工作空间",
+    "other_workspaces": "My Workspaces",
     "team": "团队工作空间",
     "title": "工作空间"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "操作",

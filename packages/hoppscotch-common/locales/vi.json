@@ -24,8 +24,10 @@
     "go_back": "Quay lại",
     "go_forward": "Tiến về phía trước",
     "group_by": "Nhóm theo",
+    "hide_secret": "Hide secret",
     "label": "Nhãn",
     "learn_more": "Tìm hiểu thêm",
+    "download_here": "Download here",
     "less": "Ít hơn",
     "more": "Thêm",
     "new": "Mới",
@@ -43,6 +45,7 @@
     "search": "Tìm kiếm",
     "send": "Gửi",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Bắt đầu",
     "starting": "Đang bắt đầu",
     "stop": "Dừng",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Nhập một lệnh hoặc tìm kiếm...",
     "we_use_cookies": "Chúng tôi sử dụng cookie",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Có gì mới?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "Tài khoản đã tồn tại với thông tin đăng nhập khác - Đăng nhập để liên kết hai tài khoản",
     "all_sign_in_options": "Tất cả các tùy chọn đăng nhập",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Tiếp tục bằng Email",
     "continue_with_github": "Tiếp tục bằng GitHub",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Tiếp tục bằng Google",
     "continue_with_microsoft": "Tiếp tục bằng Microsoft",
     "email": "Email",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Truyền qua",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Mật khẩu",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
@@ -149,6 +177,7 @@
     "different_parent": "Không thể sắp xếp lại bộ sưu tập với cha khác",
     "edit": "Chỉnh sửa bộ sưu tập",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Vui lòng cung cấp tên cho bộ sưu tập",
     "invalid_root_move": "Bộ sưu tập đã nằm trong thư mục gốc",
     "moved": "Di chuyển thành công",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Chọn một bộ sưu tập",
     "select_location": "Chọn vị trí",
+    "details": "Details",
     "select_team": "Chọn một nhóm",
     "team_collections": "Bộ sưu tập của nhóm"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Bạn có chắc chắn muốn tắt Telemetry?",
     "request_change": "Bạn có chắc chắn muốn hủy request hiện tại? Những thay đổi chưa được lưu sẽ bị mất.",
     "save_unsaved_tab": "Bạn có muốn lưu các thay đổi đã được thực hiện trong tab này?",
-    "sync": "Bạn có muốn khôi phục không gian làm việc từ đám mây? Điều này sẽ xóa bỏ tiến trình địa phương của bạn."
+    "sync": "Bạn có muốn khôi phục không gian làm việc từ đám mây? Điều này sẽ xóa bỏ tiến trình địa phương của bạn.",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "Không có lời mời đang chờ cho nhóm này",
     "profile": "Đăng nhập để xem hồ sơ của bạn",
     "protocols": "Danh sách giao thức trống rỗng",
+    "request_variables": "This request does not have any request variables",
     "schema": "Kết nối với điểm cuối GraphQL để xem lược đồ",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Danh sách đăng ký trống rỗng",
     "team_name": "Tên nhóm trống rỗng",
     "teams": "Bạn không thuộc bất kỳ nhóm nào",
     "tests": "Không có bài kiểm tra cho request này",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Danh sách mã ngắn trống rỗng"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Chọn môi trường",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Cập nhật môi trường thành công",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "Danh sách biến"
+    "variables": "Variables",
+    "variable_list": "Danh sách biến",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Vùng nguy hiểm",
     "delete_account": "Tài khoản của bạn hiện là chủ sở hữu trong các nhóm sau:",
     "delete_account_description": "Bạn phải xóa bản thân, chuyển quyền sở hữu hoặc xóa các nhóm này trước khi bạn có thể xóa tài khoản của mình.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Tên request trống",
     "f12_details": "(Nhấn F12 để xem chi tiết)",
     "gql_prettify_invalid_query": "Không thể định dạng đẹp một truy vấn không hợp lệ, giải quyết lỗi cú pháp truy vấn và thử lại",
@@ -296,6 +336,7 @@
     "incorrect_email": "Email không chính xác",
     "invalid_link": "Liên kết không hợp lệ",
     "invalid_link_description": "Liên kết bạn đã nhấp vào không hợp lệ hoặc đã hết hạn.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "JSON không hợp lệ",
     "json_prettify_invalid_body": "Không thể định dạng đẹp một phần thân không hợp lệ, giải quyết lỗi cú pháp JSON và thử lại",
     "network_error": "Có vẻ như có lỗi mạng. Vui lòng thử lại.",
@@ -307,17 +348,25 @@
     "page_not_found": "Không tìm thấy trang này",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Không thể thực thi kịch bản trước request",
     "something_went_wrong": "Đã xảy ra lỗi",
-    "test_script_fail": "Không thể thực thi kịch bản sau request"
+    "test_script_fail": "Không thể thực thi kịch bản sau request",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Xuất dưới dạng JSON",
     "create_secret_gist": "Tạo Gist bí mật",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist đã được tạo",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Đăng nhập bằng GitHub để tạo Gist bí mật",
-    "title": "Xuất"
+    "title": "Xuất",
+    "success": "Successfully exported",
+    "gist_created": "Gist đã được tạo"
   },
   "filter": {
     "all": "Tất cả",
@@ -339,7 +388,8 @@
     "mutations": "Mutations",
     "schema": "Schema",
     "subscriptions": "Subscriptions",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Nhập bộ sưu tập từ tệp JSON Hoppscotch",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Nhập"
+    "title": "Nhập",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "Nội dung thô",
     "rename": "Rename Request",
     "renamed": "Đã đổi tên",
+    "request_variables": "Request variables",
     "run": "Chạy",
     "save": "Lưu",
     "save_as": "Lưu như",
@@ -557,6 +613,7 @@
     "title": "Request",
     "type": "Loại request",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Biến",
     "view_my_links": "Xem các liên kết của tôi",
     "copy_link": "Sao chép liên kết"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "Hỏi câu hỏi và nhận câu trả lời",
     "github": "Theo dõi chúng tôi trên Github",
     "shortcuts": "Duyệt ứng dụng nhanh hơn",
-    "team": "Liên hệ với nhóm",
     "title": "Hỗ trợ",
-    "twitter": "Theo dõi chúng tôi trên Twitter"
+    "twitter": "Theo dõi chúng tôi trên Twitter",
+    "team": "Liên hệ với nhóm"
   },
   "tab": {
     "authorization": "Xác thực",
@@ -889,6 +953,9 @@
     "query": "Truy vấn",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Kiểm tra",
@@ -917,7 +984,6 @@
     "invite_tooltip": "Mời người khác vào không gian làm việc này",
     "invited_to_team": "{owner} đã mời bạn tham gia {team}",
     "join": "Đã chấp nhận lời mời",
-    "join_beta": "Tham gia chương trình beta để truy cập vào nhóm.",
     "join_team": "Tham gia {team}",
     "joined_team": "Bạn đã tham gia {team}",
     "joined_team_description": "Bạn hiện là thành viên của nhóm này",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "Nhóm",
     "we_sent_invite_link": "Chúng tôi đã gửi một liên kết mời đến tất cả người được mời!",
-    "we_sent_invite_link_description": "Yêu cầu tất cả người được mời kiểm tra hộp thư đến của họ. Nhấp vào liên kết để tham gia nhóm."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Yêu cầu tất cả người được mời kiểm tra hộp thư đến của họ. Nhấp vào liên kết để tham gia nhóm.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Tham gia chương trình beta để truy cập vào nhóm."
   },
   "team_environment": {
     "deleted": "Môi trường đã bị xóa",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Thay đổi không gian làm việc",
     "personal": "Không gian làm việc của tôi",
+    "other_workspaces": "My Workspaces",
     "team": "Không gian làm việc nhóm",
     "title": "Không gian làm việc"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Hành động",

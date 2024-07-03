@@ -24,8 +24,10 @@
     "go_back": "Повернутись",
     "go_forward": "Go forward",
     "group_by": "Групувати за",
+    "hide_secret": "Hide secret",
     "label": "Мітка",
     "learn_more": "Дізнатись більше",
+    "download_here": "Download here",
     "less": "Менше",
     "more": "Більше",
     "new": "Новий",
@@ -43,6 +45,7 @@
     "search": "Пошук",
     "send": "Надіслати",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Почати",
     "starting": "Розпочинається",
     "stop": "Зупити",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Введіть команду або виконайте пошук…",
     "we_use_cookies": "Ми використовуємо файли cookie",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Що нового?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "Обліковий запис існує з різними обліковими даними - увійдіть, щоб зв'язати обидва облікові записи",
     "all_sign_in_options": "Усі параметри входу",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Продовжити з електронною поштою",
     "continue_with_github": "Продовжити з GitHub",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Продовжити з Google",
     "continue_with_microsoft": "Продовжити з Microsoft",
     "email": "Електронна пошта",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Пропустити",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Пароль",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Токен",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Редагувати колекцію",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Укажіть дійсну назву колекції",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Виберіть колекцію",
     "select_location": "Виберіть місце розташування",
+    "details": "Details",
     "select_team": "Виберіть команду",
     "team_collections": "Колекції команд"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Ви впевнені, що хочете відмовитися від телеметрії?",
     "request_change": "Ви дійсно бажаєте скасувати поточний запит? Незбережені зміни будуть втрачені.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "Ви впевнені, що хочете синхронізувати цю робочу область?"
+    "sync": "Ви впевнені, що хочете синхронізувати цю робочу область?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "Немає запрошень в очікуванні для цієї команди",
     "profile": "Увійдіть для перегляду вашого профілю",
     "protocols": "Протоколи порожні",
+    "request_variables": "This request does not have any request variables",
     "schema": "Підключіться до кінцевої точки GraphQL",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Підписки порожні",
     "team_name": "Назва команди порожня",
     "teams": "Команди порожні",
     "tests": "Для цього запиту немає тестів",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Короткі коди порожні"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Виберіть середовище",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Оновлення середовища",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "Список змінних"
+    "variables": "Variables",
+    "variable_list": "Список змінних",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Небезпечна зона",
     "delete_account": "Ваш обліковий запис на разі володіє цими командами:",
     "delete_account_description": "Ви повинні або видалити себе, або передати право власності, або видалити ці команди, перш ніж ви зможете видалити свій обліковий запис.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Пуста назва запиту",
     "f12_details": "(F12 для деталей)",
     "gql_prettify_invalid_query": "Не вдалося попередньо визначити недійсний запит, вирішити синтаксичні помилки запиту та повторити спробу",
@@ -296,6 +336,7 @@
     "incorrect_email": "Невірна електронна адреса",
     "invalid_link": "Невірне посилання",
     "invalid_link_description": "Посилання, яке ви натиснули, є недійсним або застарілим.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Неправильний JSON",
     "json_prettify_invalid_body": "Не вдалося заздалегідь визначити недійсне тіло, вирішити синтаксичні помилки json і повторити спробу",
     "network_error": "Здається, виникла мережева помилка. Будь ласка, спробуйте ще раз.",
@@ -307,17 +348,25 @@
     "page_not_found": "Ця сторінка не знайдена",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Не вдалося виконати сценарій попереднього запиту",
     "something_went_wrong": "Щось пішло не так",
-    "test_script_fail": "Не вдалося виконати скрипт після запиту"
+    "test_script_fail": "Не вдалося виконати скрипт після запиту",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Експортувати як JSON",
     "create_secret_gist": "Створити секретний GitHub Gist",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist створений",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Увійдіть за допомогою GitHub, щоб створити секретний Gist",
-    "title": "Експортувати"
+    "title": "Експортувати",
+    "success": "Successfully exported",
+    "gist_created": "Gist створений"
   },
   "filter": {
     "all": "Всі",
@@ -339,7 +388,8 @@
     "mutations": "Мутації",
     "schema": "Схема",
     "subscriptions": "Підписки",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Імпортувати колекції з колекцій Hoppscotch JSON файлу",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Імпортувати"
+    "title": "Імпортувати",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "Сировина запиту",
     "rename": "Rename Request",
     "renamed": "Запит перейменовано",
+    "request_variables": "Request variables",
     "run": "Біжи",
     "save": "Зберегти",
     "save_as": "Зберегти як",
@@ -557,6 +613,7 @@
     "title": "Запит",
     "type": "Тип запиту",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Змінні",
     "view_my_links": "Переглянути мої посилання",
     "copy_link": "Скопіювати посилання"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "Задавайте питання і отримуйте відповіді",
     "github": "Слідкуйте за нами на Github",
     "shortcuts": "Швидше переглядайте програми",
-    "team": "Зв'яжіться з командою",
     "title": "Підтримка",
-    "twitter": "Слідкуйте за нами у Twitter"
+    "twitter": "Слідкуйте за нами у Twitter",
+    "team": "Зв'яжіться з командою"
   },
   "tab": {
     "authorization": "Авторизація",
@@ -889,6 +953,9 @@
     "query": "Запит",
     "schema": "Схема",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Тести",
@@ -917,7 +984,6 @@
     "invite_tooltip": "Запросити людей в це робоче середовище",
     "invited_to_team": "{owner} запросив вас приєднатися до {team}",
     "join": "Запрошення прийнято",
-    "join_beta": "Приєднуйтесь до бета -програми, щоб отримати доступ до команд.",
     "join_team": "Приєднатися до {team}",
     "joined_team": "Ви приєдналися до {team}",
     "joined_team_description": "Ви тепер учасник цієї команди",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "Команди",
     "we_sent_invite_link": "Ми надіслали запрошення всім запрошеним!",
-    "we_sent_invite_link_description": "Попросіть всіх запрошених перевірити свої поштові скриньки. Перейдіть за посиланням, щоб приєднатися до команди."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Попросіть всіх запрошених перевірити свої поштові скриньки. Перейдіть за посиланням, щоб приєднатися до команди.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Приєднуйтесь до бета -програми, щоб отримати доступ до команд."
   },
   "team_environment": {
     "deleted": "Середовище видалено",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Дії",

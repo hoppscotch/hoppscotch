@@ -24,8 +24,10 @@
     "go_back": "Tornar",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Etiquetar",
     "learn_more": "Aprèn més",
+    "download_here": "Download here",
     "less": "Menys",
     "more": "Més",
     "new": "Novetat",
@@ -43,6 +45,7 @@
     "search": "Cercar",
     "send": "Enviar",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Començar",
     "starting": "Starting",
     "stop": "Aturar",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Escriviu una comanda o cerqueu...",
     "we_use_cookies": "Utilitzem cookies",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Què hi ha de nou?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "El compte existeix amb credencials diferents - Inicieu sessió per enllaçar els dos comptes",
     "all_sign_in_options": "Totes les opcions d'inici de sessió",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Continuar amb el correu electrònic",
     "continue_with_github": "Continuar amb GitHub",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Continuar amb Google",
     "continue_with_microsoft": "Continuar amb Microsoft",
     "email": "Correu electrònic",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Passar per",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Contrasenya",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Editar la col·lecció",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Proporcioneu un nom vàlid per a la col·lecció",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Seleccionar una col·lecció",
     "select_location": "Seleccionar la ubicació",
+    "details": "Details",
     "select_team": "Seleccionar un equip",
     "team_collections": "Col·leccions per equips"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Està segur que vol desactivar Telemetry?",
     "request_change": "Està segur que vol descartar la sol·licitud actual, els canvis no desats es perdran.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "Està segur que vol sincronitzar aquest espai de treball?"
+    "sync": "Està segur que vol sincronitzar aquest espai de treball?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "No hi ha invitacions pendents per a aquest equip",
     "profile": "Inicia sessió per veure el vostre perfil",
     "protocols": "Els protocols estan buits",
+    "request_variables": "This request does not have any request variables",
     "schema": "Connecta't a un endpoint GraphQL",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "El nom de l'equip és buit",
     "teams": "Els equips estan buits",
     "tests": "No hi ha proves per a aquesta sol·licitud",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Els shortcodes estan buits"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Seleccioneu un entorn",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Entorn actualitzat",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "Llista de variables"
+    "variables": "Variables",
+    "variable_list": "Llista de variables",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Nom de la sol·licitud buida",
     "f12_details": "(F12 per obtenir més informació)",
     "gql_prettify_invalid_query": "No s'ha pogut definir una consulta no vàlida, resoldre els errors de sintaxi de la consulta i tornar-ho a provar",
@@ -296,6 +336,7 @@
     "incorrect_email": "Correu electrònic incorrecte",
     "invalid_link": "Enllaç invalid",
     "invalid_link_description": "L'enllaç en que heu fet clic no és vàlid o ha caducat.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "JSON no vàlid",
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resol els errors de sintaxi json i tornar-ho a provar",
     "network_error": "Sembla que hi ha un error de xarxa. Si us plau torna-ho a provar.",
@@ -307,17 +348,25 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament",
-    "test_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud"
+    "test_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Exporta com a JSON",
     "create_secret_gist": "Crear un Gist secret",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist creat",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Inicieu la sessió amb GitHub per crear un Gisst secret",
-    "title": "Exportar"
+    "title": "Exportar",
+    "success": "Successfully exported",
+    "gist_created": "Gist creat"
   },
   "filter": {
     "all": "All",
@@ -339,7 +388,8 @@
     "mutations": "Mutacions",
     "schema": "Esquema",
     "subscriptions": "Subscripcions",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Importar col·leccions des d'un fitxer JSON de col·leccions Hoppscotch",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Importació"
+    "title": "Importació",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "Cos de sol·licitud sense processar",
     "rename": "Rename Request",
     "renamed": "S'ha canviat el nom de la sol·licitud",
+    "request_variables": "Request variables",
     "run": "Executar",
     "save": "Guardar",
     "save_as": "Guardar com",
@@ -557,6 +613,7 @@
     "title": "Sol·licitud",
     "type": "Tipus de sol·licitud",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
     "view_my_links": "Visualitzar els meus enllaços",
     "copy_link": "Copia l'enllaç"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "Feu preguntes i obteniu respostes",
     "github": "Segueix-nos a Github",
     "shortcuts": "Navega per l'aplicació més ràpidament",
-    "team": "Poseu-vos en contacte amb l'equip",
     "title": "Suport",
-    "twitter": "Segueix-nos a Twitter"
+    "twitter": "Segueix-nos a Twitter",
+    "team": "Poseu-vos en contacte amb l'equip"
   },
   "tab": {
     "authorization": "Autorització",
@@ -889,6 +953,9 @@
     "query": "Consulta",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Proves",
@@ -917,7 +984,6 @@
     "invite_tooltip": "Invitar persones a aquest espai de treball",
     "invited_to_team": "{owner} t'ha invitat a unir-te a {team}",
     "join": "S'ha acceptat la invitació",
-    "join_beta": "Uneix-te al programa beta per accedir als equips.",
     "join_team": "Uneix-te a {team}",
     "joined_team": "T'has unit a {team}",
     "joined_team_description": "Ara ets membre d'aquest equip",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "Equips",
     "we_sent_invite_link": "Hem enviat un enllaç d'invitació a tots els convidats!",
-    "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Uneix-te al programa beta per accedir als equips."
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Accions",

@@ -24,8 +24,10 @@
     "go_back": "عد",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "ملصق",
     "learn_more": "اقرأ أكثر",
+    "download_here": "Download here",
     "less": "اقل",
     "more": "أكثر",
     "new": "جديد",
@@ -43,6 +45,7 @@
     "search": "بحث",
     "send": "ارسل",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "ابدأ",
     "starting": "Starting",
     "stop": "قف",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "اكتب أمرًا أو ابحث ...",
     "we_use_cookies": "نحن نستخدم ملفات تعريف الارتباط",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "ما هو الجديد؟",
+    "see_whats_new": "See what’s new",
     "wiki": "ويكي"
   },
   "auth": {
     "account_exists": "الحساب موجود ببيانات اعتماد مختلفة - تسجيل الدخول لربط كلا الحسابين",
     "all_sign_in_options": "كل خيارات تسجيل الدخول",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "تواصل مع البريد الإلكتروني",
     "continue_with_github": "تواصل مع جيثب",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "تواصل مع جوجل",
     "continue_with_microsoft": "Continue with Microsoft",
     "email": "بريد إلكتروني",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Pass by",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "كلمة المرور",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "رمز",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "تحرير المجموعة",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "حدد مجموعة",
     "select_location": "اختر موقعا",
+    "details": "Details",
     "select_team": "اختر فريقًا",
     "team_collections": "مجموعات الفريق"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "هل أنت متأكد أنك تريد الانسحاب من القياس عن بعد؟",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟"
+    "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "لاتوجد اي دعوات معلقة لهذا الفريق",
     "profile": "سجل الدخول لرؤية فريقك",
     "protocols": "البروتوكولات فارغة",
+    "request_variables": "This request does not have any request variables",
     "schema": "اتصل بنقطة نهاية GraphQL",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "اسم الفريق فارغ",
     "teams": "الفرق فارغة",
     "tests": "لا توجد اختبارات لهذا الطلب",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Shortcodes are empty"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "حدد البيئة",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "تحديث بيئة العمل",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "قائمة متغيرة"
+    "variables": "Variables",
+    "variable_list": "قائمة متغيرة",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "اسم الطلب فارغ",
     "f12_details": "(للحصول على تفاصيل F12)",
     "gql_prettify_invalid_query": "تعذر تحسين استعلام غير صالح وحل أخطاء بنية الاستعلام وحاول مرة أخرى",
@@ -296,6 +336,7 @@
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "تعذر تجميل جسم غير صالح وحل أخطاء بناء جملة json وحاول مرة أخرى",
     "network_error": "There seems to be a network error. Please try again.",
@@ -307,17 +348,25 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "تعذر تنفيذ نص الطلب المسبق",
     "something_went_wrong": "هناك خطأ ما",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "تصدير بتنسيق JSON",
     "create_secret_gist": "إنشاء جوهر سري",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "خلقت الجست",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء جوهر سري",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported",
+    "gist_created": "خلقت الجست"
   },
   "filter": {
     "all": "All",
@@ -339,7 +388,8 @@
     "mutations": "الطفرات",
     "schema": "مخطط",
     "subscriptions": "الاشتراكات",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "استيراد مجموعة من ملفHoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "يستورد"
+    "title": "يستورد",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "نص طلب خام",
     "rename": "Rename Request",
     "renamed": "تمت إعادة تسمية الطلب",
+    "request_variables": "Request variables",
     "run": "يركض",
     "save": "يحفظ",
     "save_as": "حفظ باسم",
@@ -557,6 +613,7 @@
     "title": "طلب",
     "type": "نوع الطلب",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "المتغيرات",
     "view_my_links": "View my links",
     "copy_link": "نسخ الوصلة"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "اسأل سؤالا وتلقى جوابا",
     "github": "Follow us on Github",
     "shortcuts": "تصفح التطبيق بشكل أسرع",
-    "team": "تواصل مع الفريق",
     "title": "يدعم",
-    "twitter": "تابعنا على تويتر"
+    "twitter": "تابعنا على تويتر",
+    "team": "تواصل مع الفريق"
   },
   "tab": {
     "authorization": "تفويض",
@@ -889,6 +953,9 @@
     "query": "استفسار",
     "schema": "مخطط",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "مقبس",
     "sse": "SSE",
     "tests": "الاختبارات",
@@ -917,7 +984,6 @@
     "invite_tooltip": "ادعو الناس الى العمل",
     "invited_to_team": "{owner} قادم بدعوتك للإنضمام الى {team}",
     "join": "تم قبول الدعوة",
-    "join_beta": "انضم إلى برنامج بيتا للوصول إلى الفرق.",
     "join_team": "انصم الى فريق {team}",
     "joined_team": "لقد انضممت الى فريق {team}",
     "joined_team_description": "انت الآن عضو في الفريق",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "فرق",
     "we_sent_invite_link": "لقد أرسلنا رابط دعوة لجميع المدعوين!",
-    "we_sent_invite_link_description": "اطلب من جميع المدعوين التحقق من صندوق الوارد الخاص بهم. انقر على الرابط للانضمام إلى الفريق."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "اطلب من جميع المدعوين التحقق من صندوق الوارد الخاص بهم. انقر على الرابط للانضمام إلى الفريق.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "انضم إلى برنامج بيتا للوصول إلى الفرق."
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Actions",

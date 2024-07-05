@@ -24,8 +24,10 @@
     "go_back": "돌아가기",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "이름",
     "learn_more": "더 알아보기",
+    "download_here": "Download here",
     "less": "접기",
     "more": "더보기",
     "new": "추가",
@@ -43,6 +45,7 @@
     "search": "검색",
     "send": "보내기",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "시작",
     "starting": "Starting",
     "stop": "정지",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "명령을 입력하거나 검색...",
     "we_use_cookies": "우리는 쿠키를 사용중입니다.",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "새로 바뀐 점",
+    "see_whats_new": "See what’s new",
     "wiki": "위키"
   },
   "auth": {
     "account_exists": "계정이 다른 자격 증명으로 존재합니다. 두 계정을 연결하려면 로그인하세요.",
     "all_sign_in_options": "모든 로그인 옵션",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "이메일로 계속하기",
     "continue_with_github": "GitHub로 계속하기",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Google로 계속하기",
     "continue_with_microsoft": "Continue with Microsoft",
     "email": "이메일",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "전달 방식",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "비밀번호",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "토큰",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "모음집 편집",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "모음집 이름을 바르게 입력하세요.",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "모음집 선택",
     "select_location": "위치 선택",
+    "details": "Details",
     "select_team": "팀 선택",
     "team_collections": "팀 모음집"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "진단 데이터를 보내지 않겠습니까?",
     "request_change": "현재 요청을 취소하시겠습니까? 저장되지 않은 변경사항은 삭제됩니다.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "이 작업 공간을 동기화하겠습니까?"
+    "sync": "이 작업 공간을 동기화하겠습니까?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "이 팀에는 대기 중인 초대가 없습니다.",
     "profile": "로그인하여 프로필을 확인합니다.",
     "protocols": "프로토콜이 비어 있습니다.",
+    "request_variables": "This request does not have any request variables",
     "schema": "스키마를 보려면 GraphQL 엔드포인트에 연결하세요.",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "팀 이름이 비어 있습니다.",
     "teams": "아무 팀에도 속하지 않았습니다.",
     "tests": "이 요청에 대한 테스트가 없습니다.",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Shortcodes are empty"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "환경 선택",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "환경 수정됨",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "변수 목록"
+    "variables": "Variables",
+    "variable_list": "변수 목록",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "빈 요청 이름",
     "f12_details": "(자세한 내용은 F12)",
     "gql_prettify_invalid_query": "잘못된 쿼리를 구문 강조할 수 없습니다. 쿼리 구문 오류를 해결하고 다시 시도하세요.",
@@ -296,6 +336,7 @@
     "incorrect_email": "잘못된 이메일 형식",
     "invalid_link": "잘못된 링크",
     "invalid_link_description": "잘못된 링크이거나 만료된 링크입니다.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "잘못된 본문을 구문 강조할 수 없습니다. json 구문 오류를 해결하고 다시 시도하세요.",
     "network_error": "네트워크 에러인 것 같습니다. 다시 시도하세요.",
@@ -307,17 +348,25 @@
     "page_not_found": "해당 페이지를 찾을 수 없습니다.",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "something_went_wrong": "문제가 발생했습니다.",
-    "test_script_fail": "테스트 스크립트를 실행할 수 없습니다."
+    "test_script_fail": "테스트 스크립트를 실행할 수 없습니다.",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "JSON으로 내보내기",
     "create_secret_gist": "Secret Gist 만들기",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist가 생성됨",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "GitHub에 로그인하여 secret gist 만들기",
-    "title": "내보내기"
+    "title": "내보내기",
+    "success": "Successfully exported",
+    "gist_created": "Gist가 생성됨"
   },
   "filter": {
     "all": "All",
@@ -339,7 +388,8 @@
     "mutations": "뮤테이션",
     "schema": "스키마",
     "subscriptions": "섭스크립션",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "호프스카치 모음집 JSON 파일을 가져옵니다.",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "가져오기"
+    "title": "가져오기",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "원시 요청 본문",
     "rename": "Rename Request",
     "renamed": "요청 이름이 변경됨",
+    "request_variables": "Request variables",
     "run": "실행",
     "save": "저장",
     "save_as": "다른 이름으로 저장",
@@ -557,6 +613,7 @@
     "title": "제목",
     "type": "요청 유형",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "변수",
     "view_my_links": "내 링크 보기",
     "copy_link": "링크 복사"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "질문하고 답변 받기",
     "github": "Follow us on Github",
     "shortcuts": "더 빠르게 앱 탐색",
-    "team": "팀에 연락하기",
     "title": "지원",
-    "twitter": "트위터에서 팔로우"
+    "twitter": "트위터에서 팔로우",
+    "team": "팀에 연락하기"
   },
   "tab": {
     "authorization": "인증",
@@ -889,6 +953,9 @@
     "query": "쿼리",
     "schema": "스키마",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "테스트",
@@ -917,7 +984,6 @@
     "invite_tooltip": "사람들을 이 작업 공간에 초대하기",
     "invited_to_team": "{owner}가 당신을 {team} 팀에 초대했습니다.",
     "join": "Invitation accepted",
-    "join_beta": "베타 프로그램에 참여하여 팀에 액세스하세요.",
     "join_team": "{team}에 합류",
     "joined_team": "{team}에 합류했습니다.",
     "joined_team_description": "이 팀의 구성원이 되었습니다.",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "팀",
     "we_sent_invite_link": "모든 초대 대상에게 초대 링크를 보냈습니다.",
-    "we_sent_invite_link_description": "초대 대상들이 이메일을 확인하도록 권하세요. 이메일 속 링크를 클릭하면 팀에 합류할 수 있습니다."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "초대 대상들이 이메일을 확인하도록 권하세요. 이메일 속 링크를 클릭하면 팀에 합류할 수 있습니다.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "베타 프로그램에 참여하여 팀에 액세스하세요."
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Actions",

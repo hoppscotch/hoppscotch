@@ -45,8 +45,8 @@
     "search": "Arama",
     "send": "Gönder",
     "share": "Paylaş",
-    "start": "Başla",
     "show_secret": "Show secret",
+    "start": "Başla",
     "starting": "Starting",
     "stop": "Dur",
     "to_close": "kapatmak için",
@@ -98,7 +98,9 @@
     "twitter": "Twitter",
     "type_a_command_search": "Bir komut yazın veya arayın…",
     "we_use_cookies": "Çerezleri kullanıyoruz",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Ne var ne yok?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
@@ -175,7 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Koleksiyonu düzenle",
     "import_or_create": "Koleksiyon oluşturun veya içe aktarın",
-    "import_collection":"Koleksiyonu İçe Aktar",
+    "import_collection": "Koleksiyonu İçe Aktar",
     "invalid_name": "Lütfen koleksiyon için geçerli bir ad girin",
     "invalid_root_move": "Collection already in the root",
     "moved": "Başarıyla taşındı",
@@ -191,7 +193,8 @@
     "save_as": "Farklı kaydet",
     "save_to_collection": "Save to Collection",
     "select": "Bir koleksiyon Seçin",
-    "select_location": "Konum seçin"
+    "select_location": "Konum seçin",
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -208,7 +211,8 @@
     "remove_telemetry": "Telemetriden çıkmak istediğinizden emin misiniz?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Bu sekmede yapılan değişiklikleri kaydetmek istiyor musunuz?",
-    "sync": "Bu çalışma alanını senkronize etmek istediğinizden emin misiniz?"
+    "sync": "Bu çalışma alanını senkronize etmek istediğinizden emin misiniz?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -270,7 +274,8 @@
     "subscription": "Subscriptions are empty",
     "team_name": "Takım adı boş",
     "teams": "Takımlar boş",
-    "tests": "Bu istek için test yok"
+    "tests": "Bu istek için test yok",
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Globale ekle",
@@ -307,7 +312,9 @@
     "value": "Değer",
     "variable": "Değişken",
     "variables": "Değişkenler",
-    "variable_list": "Değişken listesi"
+    "variable_list": "Değişken listesi",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -342,17 +349,20 @@
     "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "something_went_wrong": "Bir şeyler yanlış gitti",
     "test_script_fail": "Could not execute post-request script",
-    "reading_files": "Error while reading one or more files."
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "JSON olarak dışa aktar",
     "create_secret_gist": "Gizli Gist oluştur",
     "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
     "secret_gist_success": "Successfully exported as secret Gist",
-    "success": "Successfully exported",
-    "title": "Dışarı Aktar"
+    "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
+    "title": "Dışarı Aktar",
+    "success": "Successfully exported"
   },
   "filter": {
     "all": "Tümü",
@@ -415,8 +425,6 @@
     "environments_from_gist": "Import From Gist",
     "environments_from_gist_description": "Import Hoppscotch Environments From Gist",
     "failed": "İçe aktarılamadı",
-    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
-    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
     "from_file": "Import from File",
     "from_gist": "Gist'ten içe aktar",
     "from_gist_description": "Gist ile içe aktar",
@@ -443,8 +451,10 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "success": "Successfully imported",
-    "title": "İçe aktar"
+    "title": "İçe aktar",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
@@ -767,11 +777,6 @@
     "more": "Daha fazla göster",
     "sidebar": "Kenar çubuğunu göster"
   },
-  "site_protection": {
-      "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status",
-      "login_to_continue": "Login to continue",
-      "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance."
-  },
   "socketio": {
     "communication": "İletişim",
     "connection_not_authorized": "This SocketIO connection does not use any authentication.",
@@ -808,13 +813,6 @@
     "miscellaneous": {
       "invite": "Invite your friends to Hoppscotch",
       "title": "Miscellaneous"
-    },
-    "phrases": {
-        "create_environment": "Create environment",
-        "create_workspace": "Create workspace",
-        "import_collections": "Import collections",
-        "share_request": "Share request",
-        "try": "Try"
     },
     "request": {
       "save_as_new": "Save as new request",
@@ -864,6 +862,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -940,8 +945,10 @@
     "queries": "Sorgular",
     "query": "Sorgu",
     "schema": "Schema",
-    "share_tab_request": "Share tab request",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Testler",
@@ -998,12 +1005,15 @@
     "permissions": "İzinler",
     "same_target_destination": "Same target and destination",
     "saved": "Takım kaydedildi",
-    "search_title": "Team Requests",
     "select_a_team": "Takım seç",
     "success_invites": "Success invites",
     "title": "Başlık",
     "we_sent_invite_link": "Tüm davetlilere bir davet bağlantısı gönderdik!",
-    "we_sent_invite_link_description": "Tüm davetlilerden gelen kutularını kontrol etmelerini isteyin. Ekibe katılmak için bağlantıya tıklayın."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Tüm davetlilerden gelen kutularını kontrol etmelerini isteyin. Ekibe katılmak için bağlantıya tıklayın.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1029,10 +1039,50 @@
   },
   "workspace": {
     "change": "Change workspace",
-    "other_workspaces": "My Workspaces",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Actions",

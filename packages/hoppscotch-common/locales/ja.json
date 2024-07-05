@@ -24,8 +24,10 @@
     "go_back": "戻る",
     "go_forward": "Go forward",
     "group_by": "グループ化",
+    "hide_secret": "Hide secret",
     "label": "ラベル",
     "learn_more": "もっと詳しく",
+    "download_here": "Download here",
     "less": "表示を減らす",
     "more": "もっと見る",
     "new": "新規",
@@ -43,6 +45,7 @@
     "search": "検索",
     "send": "送信",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "はじめる",
     "starting": "開始中",
     "stop": "止める",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "コマンドもしくは検索ワードを入力…",
     "we_use_cookies": "Cookieを使用しています",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "新着情報",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "アカウントがそれぞれの認証情報で存在しています - ログインして両方のアカウントを連携する",
     "all_sign_in_options": "すべてのサインインオプション",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "メールアドレスで続行",
     "continue_with_github": "GitHubアカウントで続行",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Googleアカウントで続行",
     "continue_with_microsoft": "Microsoftアカウントで続行",
     "email": "メールアドレス",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "認証元: ",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "パスワード",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "トークン",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "コレクションの編集",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "コレクション名を入力してください",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "コレクションを選択",
     "select_location": "場所を選択",
+    "details": "Details",
     "select_team": "チームを選択",
     "team_collections": "チームコレクション"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "テレメトリをオプトアウトしてもよろしいですか？",
     "request_change": "現在のリクエストを削除してもよろしいですか？保存されていない変更は削除されます。",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "クラウドからワークスペースを復元しますか？この場合、ローカルの進行状況は破棄されます。"
+    "sync": "クラウドからワークスペースを復元しますか？この場合、ローカルの進行状況は破棄されます。",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "このチームに保留中の招待はありません",
     "profile": "ログインしてプロフィールを見る",
     "protocols": "プロトコルがありません",
+    "request_variables": "This request does not have any request variables",
     "schema": "GraphQLエンドポイントに接続する",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "サブスクリプションはありません",
     "team_name": "チーム名がありません",
     "teams": "チームに参加していません",
     "tests": "このリクエストのテストはありません",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "ショートコードはありません"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "環境変数を選択",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "環境変数を更新しました",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "環境変数リスト"
+    "variables": "Variables",
+    "variable_list": "環境変数リスト",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "危険",
     "delete_account": "あなたのアカウントは以下のチームのオーナーとなっています:",
     "delete_account_description": "アカウントを削除する前にチームを離脱するか、オーナーを委任するか、チームを削除してください。",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "リクエスト名がありません",
     "f12_details": "（詳細はF12キーを押してください）",
     "gql_prettify_invalid_query": "クエリを整形できませんでした。クエリの構文エラーを解決して再試行してください。",
@@ -296,6 +336,7 @@
     "incorrect_email": "メールアドレスが間違っています",
     "invalid_link": "リンクが無効です",
     "invalid_link_description": "クリックしたリンクは無効か期限切れです。",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "JSONが無効です",
     "json_prettify_invalid_body": "ボディを整形できませんでした。JSONの構文エラーを解決して再試行してください。",
     "network_error": "ネットワークエラーが発生したようです。もう一度お試しください。",
@@ -307,17 +348,25 @@
     "page_not_found": "このページは見つかりませんでした",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "リクエスト前のスクリプトを実行できませんでした",
     "something_went_wrong": "不明なエラーです",
-    "test_script_fail": "リクエスト後のスクリプトを実行できませんでした"
+    "test_script_fail": "リクエスト後のスクリプトを実行できませんでした",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "JSONとしてエクスポート",
     "create_secret_gist": "Secret Gistを作成",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gistが作成されました",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "GitHubにログインしてSecret Gistを作成",
-    "title": "エクスポート"
+    "title": "エクスポート",
+    "success": "Successfully exported",
+    "gist_created": "Gistが作成されました"
   },
   "filter": {
     "all": "全て",
@@ -339,7 +388,8 @@
     "mutations": "ミューテーション",
     "schema": "スキーマ",
     "subscriptions": "サブスクリプション",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Hoppscotchのコレクション (JSONファイル) からインポート",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "インポート"
+    "title": "インポート",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "生のリクエストボディ",
     "rename": "Rename Request",
     "renamed": "リクエストの名前を変更",
+    "request_variables": "Request variables",
     "run": "実行",
     "save": "保存",
     "save_as": "名前を付けて保存",
@@ -557,6 +613,7 @@
     "title": "リクエスト",
     "type": "リクエストの種類",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "変数",
     "view_my_links": "自分のリンクを見る",
     "copy_link": "リンクをコピー"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "質問をして答えを得る",
     "github": "GitHubでフォローする",
     "shortcuts": "アプリをより効率よく使いこなす",
-    "team": "チームと連絡を取る",
     "title": "サポート",
-    "twitter": "私たちのTwitterをフォローする"
+    "twitter": "私たちのTwitterをフォローする",
+    "team": "チームと連絡を取る"
   },
   "tab": {
     "authorization": "認証",
@@ -889,6 +953,9 @@
     "query": "クエリ",
     "schema": "スキーマ",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "テスト",
@@ -917,7 +984,6 @@
     "invite_tooltip": "このワークスペースに招待",
     "invited_to_team": "{owner}が{team}にあなたを招待しました",
     "join": "招待を了承しました",
-    "join_beta": "ベータプログラムに参加して、チームにアクセスする。",
     "join_team": "{team}に参加",
     "joined_team": "あなたは{team}に参加しました",
     "joined_team_description": "あなたはこのチームのメンバーです",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "チーム",
     "we_sent_invite_link": "招待者の皆様に、招待リンクを送信しました！",
-    "we_sent_invite_link_description": "招待者全員に受信トレイを確認するよう依頼します。リンクをクリックすると、チームに参加できます。"
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "招待者全員に受信トレイを確認するよう依頼します。リンクをクリックすると、チームに参加できます。",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "ベータプログラムに参加して、チームにアクセスする。"
   },
   "team_environment": {
     "deleted": "環境変数を削除しました",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "アクション",

@@ -24,8 +24,10 @@
     "go_back": "Vrať se",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Označení",
     "learn_more": "Další informace",
+    "download_here": "Download here",
     "less": "Less",
     "more": "Více",
     "new": "Nový",
@@ -43,6 +45,7 @@
     "search": "Vyhledávání",
     "send": "Poslat",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Zadejte příkaz nebo hledejte…",
     "we_use_cookies": "Používáme cookies",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Co je nového?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "Účet existuje s různými pověřeními - Přihlaste se a propojte oba účty",
     "all_sign_in_options": "Všechny možnosti přihlášení",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Pokračujte e -mailem",
     "continue_with_github": "Pokračujte na GitHubu",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Pokračovat s Google",
     "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mailem",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Pass by",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Heslo",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Žeton",
@@ -149,6 +177,7 @@
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Upravit sbírku",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Uveďte prosím platný název kolekce",
     "invalid_root_move": "Collection already in the root",
     "moved": "Moved Successfully",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Vyberte sbírku",
     "select_location": "Vyberte umístění",
+    "details": "Details",
     "select_team": "Vyberte tým",
     "team_collections": "Týmové sbírky"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Opravdu se chcete odhlásit z telemetrie?",
     "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "save_unsaved_tab": "Do you want to save changes made in this tab?",
-    "sync": "Opravdu chcete synchronizovat tento pracovní prostor?"
+    "sync": "Opravdu chcete synchronizovat tento pracovní prostor?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "There are no pending invites for this team",
     "profile": "Login to view your profile",
     "protocols": "Protokoly jsou prázdné",
+    "request_variables": "This request does not have any request variables",
     "schema": "Připojte se ke koncovému bodu GraphQL",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Subscriptions are empty",
     "team_name": "Název týmu prázdný",
     "teams": "Týmy jsou prázdné",
     "tests": "Pro tento požadavek neexistují žádné testy",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Shortcodes are empty"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Vyberte prostředí",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Environment updation",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "Seznam proměnných"
+    "variables": "Variables",
+    "variable_list": "Seznam proměnných",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Your account is currently an owner in these teams:",
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these teams before you can delete your account.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Název prázdného požadavku",
     "f12_details": "(F12 pro podrobnosti)",
     "gql_prettify_invalid_query": "Neplatný dotaz nelze předběžně upravit, vyřešit chyby syntaxe dotazu a zkusit to znovu",
@@ -296,6 +336,7 @@
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "Nelze předtifikovat neplatné tělo, vyřešit chyby syntaxe json a zkusit to znovu",
     "network_error": "There seems to be a network error. Please try again.",
@@ -307,17 +348,25 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Skript předběžného požadavku nelze spustit",
     "something_went_wrong": "Něco se pokazilo",
-    "test_script_fail": "Could not execute post-request script"
+    "test_script_fail": "Could not execute post-request script",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Exportovat jako JSON",
     "create_secret_gist": "Vytvořte tajnou podstatu",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Podstata vytvořena",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Přihlaste se pomocí GitHub a vytvořte tajný seznam",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported",
+    "gist_created": "Podstata vytvořena"
   },
   "filter": {
     "all": "All",
@@ -339,7 +388,8 @@
     "mutations": "Mutace",
     "schema": "Schéma",
     "subscriptions": "Předplatné",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Import"
+    "title": "Import",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "Raw Request Body",
     "rename": "Rename Request",
     "renamed": "Žádost přejmenována",
+    "request_variables": "Request variables",
     "run": "Běh",
     "save": "Uložit",
     "save_as": "Uložit jako",
@@ -557,6 +613,7 @@
     "title": "Žádost",
     "type": "Typ požadavku",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Proměnné",
     "view_my_links": "View my links",
     "copy_link": "Kopírovat odkaz"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "Ptejte se a získejte odpovědi",
     "github": "Follow us on Github",
     "shortcuts": "Procházejte aplikaci rychleji",
-    "team": "Spojte se s týmem",
     "title": "Podpěra, podpora",
-    "twitter": "Sleduj nás na Twitteru"
+    "twitter": "Sleduj nás na Twitteru",
+    "team": "Spojte se s týmem"
   },
   "tab": {
     "authorization": "Povolení",
@@ -889,6 +953,9 @@
     "query": "Dotaz",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Testy",
@@ -917,7 +984,6 @@
     "invite_tooltip": "Invite people to this workspace",
     "invited_to_team": "{owner} invited you to join {team}",
     "join": "Invitation accepted",
-    "join_beta": "Připojte se k beta programu a získejte přístup k týmům.",
     "join_team": "Join {team}",
     "joined_team": "You have joined {team}",
     "joined_team_description": "You are now a member of this team",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "Týmy",
     "we_sent_invite_link": "We sent an invite link to all invitees!",
-    "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Ask all invitees to check their inbox. Click on the link to join the team.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Připojte se k beta programu a získejte přístup k týmům."
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Change workspace",
     "personal": "My Workspace",
+    "other_workspaces": "My Workspaces",
     "team": "Team Workspace",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Actions",

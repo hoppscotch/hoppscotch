@@ -21,8 +21,8 @@ type FormDataValue =
   | {
       File: {
         filename: string,
-        data: Uint8Array
         data: number[],
+        mime: string
       }
     }
 
@@ -130,8 +130,8 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
           value: {
             File: {
               filename: value.name,
-              data: new Uint8Array(await value.arrayBuffer())
               data: Array.from(new Uint8Array(await value.arrayBuffer())),
+              mime: value.type,
             }
           }
         })

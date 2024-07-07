@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-1 flex-col">
+  <div>
     <div
       class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
@@ -18,14 +18,12 @@
         />
       </div>
     </div>
-    <div>
-      <img
-        class="flex max-w-full border-b border-dividerLight"
-        :src="imageSource"
-        loading="lazy"
-        :alt="imageSource"
-      />
-    </div>
+    <img
+      class="max-w-full"
+      :src="imageSource"
+      loading="lazy"
+      :alt="imageSource"
+    />
   </div>
 </template>
 

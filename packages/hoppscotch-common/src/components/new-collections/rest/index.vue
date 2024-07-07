@@ -485,7 +485,14 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/lib/Either"
 import { cloneDeep, isEqual } from "lodash-es"
-import { markRaw, nextTick, onMounted, ref, watchEffect } from "vue"
+import {
+  handleError,
+  markRaw,
+  nextTick,
+  onMounted,
+  ref,
+  watchEffect,
+} from "vue"
 import {
   EditingProperties,
   UpdatedCollectionProps,
@@ -1149,41 +1156,95 @@ const onRemoveRequest = async () => {
   displayConfirmModal(false)
 }
 
+const getCollectionAndRequestHandlesForTeam = async (requestID: string) => {
+  const requestHandle = await workspaceService.getRESTRequestHandle(
+    props.workspaceHandle,
+    requestID
+  )
+
+  if (E.isLeft(requestHandle)) {
+    return E.left("CANNOT_CREATE_REQUEST_HANDLE")
+  }
+
+  const requestHandleRef = requestHandle.right.get()
+
+  if (requestHandleRef.value.type === "invalid") {
+    return E.left("INVALID_REQUEST_HANDLE")
+  }
+
+  const collectionHandle = await workspaceService.getRESTCollectionHandle(
+    props.workspaceHandle,
+    requestHandleRef.value.data.collectionID
+  )
+
+  if (E.isLeft(collectionHandle)) {
+    return E.left("CANNOT_CREATE_COLLECTION_HANDLE")
+  }
+
+  return E.right({
+    requestHandle: requestHandle.right,
+    collectionHandle: collectionHandle.right,
+  })
+}
+
+const getCollectionAndRequestHandlesForPersonal = async (
+  requestIndex: string
+) => {
+  const collectionID = requestIndex.split("/").slice(0, -1).join("/")
+
+  const collectionHandle = await workspaceService.getRESTCollectionHandle(
+    props.workspaceHandle,
+    collectionID
+  )
+
+  if (E.isLeft(collectionHandle)) {
+    return E.left("CANNOT_CREATE_COLLECTION_HANDLE")
+  }
+
+  const requestHandle = await workspaceService.getRESTRequestHandle(
+    props.workspaceHandle,
+    requestIndex
+  )
+
+  if (E.isLeft(requestHandle)) {
+    return E.left("CANNOT_CREATE_REQUEST_HANDLE")
+  }
+
+  return E.right({
+    collectionHandle: collectionHandle.right,
+    requestHandle: requestHandle.right,
+  })
+}
+
 const selectRequest = async (requestIndexPath: string) => {
+  const workspaceHandleRef = props.workspaceHandle.get()
+
+  const isTeamsCollection =
+    workspaceHandleRef.value.type === "ok" &&
+    workspaceHandleRef.value.data.providerID === "TEAMS_WORKSPACE_PROVIDER"
+
   const collectionIndexPath = requestIndexPath.split("/").slice(0, -1).join("/")
   const requestIndex = requestIndexPath.split("/").slice(-1)[0]
 
   if (props.saveRequest) {
-    return emit("select", {
+    const emitPayload: Picked = {
       pickedType: "my-request",
       folderPath: collectionIndexPath,
       requestIndex: parseInt(requestIndex),
-    })
+    }
+
+    return emit("select", emitPayload)
   }
 
-  const collectionHandleResult = await workspaceService.getRESTCollectionHandle(
-    props.workspaceHandle,
-    collectionIndexPath
-  )
+  const handlesRes = isTeamsCollection
+    ? await getCollectionAndRequestHandlesForTeam(requestIndexPath)
+    : await getCollectionAndRequestHandlesForPersonal(requestIndexPath)
 
-  if (E.isLeft(collectionHandleResult)) {
-    // INVALID_WORKSPACE_HANDLE
+  if (E.isLeft(handlesRes)) {
     return
   }
 
-  const collectionHandle = collectionHandleResult.right
-
-  const requestHandleResult = await workspaceService.getRESTRequestHandle(
-    props.workspaceHandle,
-    requestIndexPath
-  )
-
-  if (E.isLeft(requestHandleResult)) {
-    // INVALID_COLLECTION_HANDLE | INVALID_REQUEST_ID | REQUEST_NOT_FOUND
-    return
-  }
-
-  const requestHandle = requestHandleResult.right
+  const { collectionHandle, requestHandle } = handlesRes.right
 
   const cascadingAuthHeadersHandleResult =
     await workspaceService.getRESTCollectionLevelAuthHeadersView(

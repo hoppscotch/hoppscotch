@@ -36,9 +36,10 @@ export interface WorkspaceProvider {
     workspaceHandle: Handle<Workspace>,
     requestID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceRequest>>>
+
   getRESTEnvironmentHandle(
     workspaceHandle: Handle<Workspace>,
-    environmentID: number
+    environmentID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>>
 
   getRESTCollectionLevelAuthHeadersView(

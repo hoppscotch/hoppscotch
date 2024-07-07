@@ -195,8 +195,8 @@ export class TeamSearchService extends Service {
     }[]
   >([])
 
-  searchResultsCollections: Record<string, _SearchCollection> = {}
-  searchResultsRequests: Record<string, _SearchRequest> = {}
+  searchResultsCollections: Ref<Record<string, _SearchCollection>> = ref({})
+  searchResultsRequests: Ref<Record<string, _SearchRequest>> = ref({})
 
   expandingCollections: Ref<string[]> = ref([])
   expandedCollections: Ref<string[]> = ref([])
@@ -210,8 +210,8 @@ export class TeamSearchService extends Service {
 
     this.teamsSearchResultsLoading.value = true
 
-    this.searchResultsCollections = {}
-    this.searchResultsRequests = {}
+    this.searchResultsCollections.value = {}
+    this.searchResultsRequests.value = {}
     this.expandedCollections.value = []
 
     const axiosPlatformConfig = platform.auth.axiosPlatformConfig?.() ?? {}
@@ -252,24 +252,24 @@ export class TeamSearchService extends Service {
           }
         })
         .forEach(({ collections, requests }) => {
-          this.searchResultsCollections = {
-            ...this.searchResultsCollections,
+          this.searchResultsCollections.value = {
+            ...this.searchResultsCollections.value,
             ...collections,
           }
-          this.searchResultsRequests = {
-            ...this.searchResultsRequests,
+          this.searchResultsRequests.value = {
+            ...this.searchResultsRequests.value,
             ...requests,
           }
         })
 
       const collectionFetchingPromises = Object.values(
-        this.searchResultsCollections
+        this.searchResultsCollections.value
       ).map((col) => {
         return getSingleCollection(col.id)
       })
 
       const requestFetchingPromises = Object.values(
-        this.searchResultsRequests
+        this.searchResultsRequests.value
       ).map((req) => {
         return getSingleRequest(req.id)
       })
@@ -286,7 +286,7 @@ export class TeamSearchService extends Service {
 
         if (!request) return
 
-        this.searchResultsRequests[request.id] = {
+        this.searchResultsRequests.value[request.id] = {
           id: request.id,
           title: request.title,
           request: JSON.parse(request.request) as TeamRequest["request"],
@@ -303,20 +303,20 @@ export class TeamSearchService extends Service {
 
         if (!collection) return
 
-        this.searchResultsCollections[collection.id].data =
+        this.searchResultsCollections.value[collection.id].data =
           collection.data ?? null
       })
 
       const collectionTree = convertToTeamTree(
-        Object.values(this.searchResultsCollections),
+        Object.values(this.searchResultsCollections.value),
         // asserting because we've already added the missing properties after fetching the full details
-        Object.values(this.searchResultsRequests) as TeamRequest[]
+        Object.values(this.searchResultsRequests.value) as TeamRequest[]
       )
 
       this.teamsSearchResults.value = collectionTree
 
       this.teamsSearchResultsFormattedForSpotlight.value = Object.values(
-        this.searchResultsRequests
+        this.searchResultsRequests.value
       ).map((request) => {
         return formatTeamsSearchResultsForSpotlight(
           {
@@ -325,7 +325,7 @@ export class TeamSearchService extends Service {
             method: request.request.method,
             id: request.id,
           },
-          Object.values(this.searchResultsCollections)
+          Object.values(this.searchResultsCollections.value)
         )
       })
     } catch (error) {
@@ -349,7 +349,7 @@ export class TeamSearchService extends Service {
 
     const defaultInheritedHeaders: HoppInheritedProperty["headers"] = []
 
-    const collection = Object.values(this.searchResultsCollections).find(
+    const collection = Object.values(this.searchResultsCollections.value).find(
       (col) => col.id === collectionID
     )
 
@@ -379,7 +379,7 @@ export class TeamSearchService extends Service {
       inheritedAuth: HoppRESTAuth
     }
   > => {
-    const collection = Object.values(this.searchResultsCollections).find(
+    const collection = Object.values(this.searchResultsCollections.value).find(
       (col) => col.id === collectionID
     )
 
@@ -422,7 +422,7 @@ export class TeamSearchService extends Service {
     string,
     Record<string, HoppInheritedProperty["headers"][number]>
   > => {
-    const collection = Object.values(this.searchResultsCollections).find(
+    const collection = Object.values(this.searchResultsCollections.value).find(
       (col) => col.id === collectionID
     )
 
@@ -466,7 +466,7 @@ export class TeamSearchService extends Service {
     if (this.expandingCollections.value.includes(collectionID)) return
 
     const collectionToExpand = Object.values(
-      this.searchResultsCollections
+      this.searchResultsCollections.value
     ).find((col) => col.id === collectionID)
 
     const isAlreadyExpanded =
@@ -510,7 +510,7 @@ export class TeamSearchService extends Service {
         requests: [],
       }))
       .forEach((child) => {
-        this.searchResultsCollections[child.id] = {
+        this.searchResultsCollections.value[child.id] = {
           ...child,
           parentID: collectionID,
           meta: {
@@ -528,7 +528,7 @@ export class TeamSearchService extends Service {
         request: JSON.parse(request.request) as TeamRequest["request"],
       }))
       .forEach((request) => {
-        this.searchResultsRequests[request.id] = {
+        this.searchResultsRequests.value[request.id] = {
           ...request,
           meta: {
             isSearchResult: false,
@@ -538,9 +538,9 @@ export class TeamSearchService extends Service {
       })
 
     this.teamsSearchResults.value = convertToTeamTree(
-      Object.values(this.searchResultsCollections),
+      Object.values(this.searchResultsCollections.value),
       // asserting because we've already added the missing properties after fetching the full details
-      Object.values(this.searchResultsRequests) as TeamRequest[]
+      Object.values(this.searchResultsRequests.value) as TeamRequest[]
     )
 
     // remove the collection after expanding

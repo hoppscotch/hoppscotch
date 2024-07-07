@@ -14,9 +14,12 @@ import {
   ExportAsJsonDocument,
   GetCollectionChildrenDocument,
   GetCollectionChildrenIDsDocument,
+  GetCollectionChildrenQuery,
   GetCollectionRequestsDocument,
+  GetCollectionRequestsQuery,
   GetCollectionTitleAndDataDocument,
   RootCollectionsOfTeamDocument,
+  RootCollectionsOfTeamQuery,
 } from "./graphql"
 
 export const BACKEND_PAGE_SIZE = 10
@@ -156,43 +159,168 @@ export const getTeamCollectionJSON = async (teamID: string) =>
     },
   })
 
-export const getCollectionChildren = async (
-  collectionID: string,
-  cursor?: string
-) => {
-  const res = await runGQLQuery({
-    query: GetCollectionChildrenDocument,
-    variables: {
-      collectionID: collectionID,
-      cursor,
-    },
-  })
+async function* _getCollectionChildren(collectionID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        GetCollectionChildrenQuery
+      > = await runGQLQuery({
+        query: GetCollectionChildrenDocument,
+        variables: {
+          collectionID,
+          cursor,
+        },
+      })
 
-  return res
+      if (E.isRight(result)) {
+        const childrenCount: number = result.right.collection!.children.length
+        const isLastPage = childrenCount < BACKEND_PAGE_SIZE
+
+        if (childrenCount > 0) {
+          cursor = result.right.collection?.children[childrenCount - 1]?.id
+        }
+
+        if (isLastPage) {
+          yield result
+          break
+        }
+      }
+
+      yield result
+    }
+  } catch (error) {
+    yield E.left(error)
+  }
 }
 
-export const getCollectionChildRequests = async (
-  collectionID: string,
-  cursor?: string
-) => {
-  const res = await runGQLQuery({
-    query: GetCollectionRequestsDocument,
-    variables: {
-      collectionID,
-      cursor,
-    },
-  })
+export async function getCollectionChildren(collectionID: string) {
+  let children: NonNullable<
+    GetCollectionChildrenQuery["collection"]
+  >["children"] = []
+  let hasErrors = false
 
-  return res
+  for await (const result of _getCollectionChildren(collectionID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    children = children.concat(result.right.collection?.children ?? [])
+  }
+
+  return hasErrors
+    ? E.left("ERROR_FETCHING_COLLECTION_CHILDREN")
+    : E.right(children)
 }
 
-export const getRootCollections = async (teamID: string) => {
-  const result = await runGQLQuery({
-    query: RootCollectionsOfTeamDocument,
-    variables: {
-      teamID,
-    },
-  })
+async function* _getCollectionChildRequests(collectionID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        GetCollectionRequestsQuery
+      > = await runGQLQuery({
+        query: GetCollectionRequestsDocument,
+        variables: {
+          collectionID,
+          cursor,
+        },
+      })
 
-  return result
+      if (E.isRight(result)) {
+        const requestCount: number = result.right.requestsInCollection.length
+        const isLastPage = requestCount < BACKEND_PAGE_SIZE
+
+        if (requestCount > 0) {
+          cursor = result.right.requestsInCollection[requestCount - 1]?.id
+        }
+
+        if (isLastPage) {
+          yield result
+          break
+        }
+      }
+
+      yield result
+    }
+  } catch (error) {
+    yield E.left(error)
+  }
 }
+
+export async function getCollectionChildRequests(collectionID: string) {
+  let requests: GetCollectionRequestsQuery["requestsInCollection"] = []
+  let hasErrors = false
+
+  for await (const result of _getCollectionChildRequests(collectionID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    const newRequests = result.right.requestsInCollection
+
+    requests = requests.concat(newRequests)
+  }
+
+  return hasErrors
+    ? E.left("ERROR_FETCHING_COLLECTION_REQUESTS")
+    : E.right(requests)
+}
+
+async function* _getRootCollections(teamID: string) {
+  let cursor: string | undefined = undefined
+  try {
+    while (true) {
+      const result: E.Either<
+        GQLError<string>,
+        RootCollectionsOfTeamQuery
+      > = await runGQLQuery({
+        query: RootCollectionsOfTeamDocument,
+        variables: {
+          teamID,
+          cursor,
+        },
+      })
+
+      if (E.isRight(result)) {
+        const collectionCount: number =
+          result.right.rootCollectionsOfTeam.length
+
+        const isLastPage = collectionCount < BACKEND_PAGE_SIZE
+        cursor = result.right.rootCollectionsOfTeam[collectionCount - 1]?.id
+
+        if (isLastPage) {
+          yield result
+          break
+        }
+      }
+
+      yield result
+    }
+  } catch (error) {
+    yield E.left(error)
+  }
+}
+
+export async function getRootCollections(teamID: string) {
+  let collections: RootCollectionsOfTeamQuery["rootCollectionsOfTeam"] = []
+
+  let hasErrors = false
+
+  for await (const result of _getRootCollections(teamID)) {
+    if (E.isLeft(result)) {
+      hasErrors = true
+      break
+    }
+
+    collections = collections.concat(result.right.rootCollectionsOfTeam)
+  }
+
+  return hasErrors ? E.left("ERROR_FETCHING_COLLECTIONS") : E.right(collections)
+}
+
+// TODO: extract pagination logic to a common function

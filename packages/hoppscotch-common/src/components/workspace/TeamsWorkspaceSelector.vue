@@ -14,16 +14,9 @@
       filled
       outline
       :icon="IconPlus"
-      @click="
-        () => {
-          console.log('hey')
-        }
-      "
     />
-
-    <!-- @click="displayModalAdd(true)" -->
   </HoppSmartPlaceholder>
-  <div v-else-if="!loading" class="flex flex-col">
+  <div class="flex flex-col">
     <div
       class="sticky top-0 z-10 flex items-center justify-between py-2 pl-2 mb-2 -top-2 bg-popover"
     >
@@ -37,6 +30,7 @@
         outline
         filled
         class="!p-0.75 rounded ml-8"
+        @click="isNewTeamModalOpen = true"
       />
       <!-- @click="displayModalAdd(true)" -->
     </div>
@@ -62,6 +56,11 @@
     <icon-lucide-help-circle class="mb-4 svg-icons" />
     {{ t("error.something_went_wrong") }}
   </div>
+  <TeamsAdd
+    v-if="isNewTeamModalOpen"
+    :show="true"
+    @hide-modal="isNewTeamModalOpen = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -88,6 +87,8 @@ import { HandleRef } from "~/services/new-workspace/handle"
 const t = useI18n()
 
 const colorMode = useColorMode()
+
+const isNewTeamModalOpen = ref(false)
 
 const workspaceService = useService(NewWorkspaceService)
 const personalWorkspaceProviderService = useService(
@@ -117,10 +118,7 @@ const teamsService = useService(TeamsWorkspaceProviderService)
 
 const workspaces = teamsService.getWorkspaces()
 
-console.group("TeamsWorkspaceSelector")
-console.log("workspaces", workspaces)
-console.groupEnd()
-
+window.teamsService = teamsService
 // const loading = computed(
 //   () => isTeamListLoading.value && myTeams.value.length === 0
 // )

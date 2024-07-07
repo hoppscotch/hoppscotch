@@ -28,7 +28,7 @@ export type WorkspaceRequest = {
 export type WorkspaceEnvironment = {
   providerID: string
   workspaceID: string
-  environmentID: number
+  environmentID: string
 
   name: string
 }

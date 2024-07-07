@@ -125,13 +125,15 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
           value: { Text: value }
         })
       } else {
+        const mime = value.type !== "" ? value.type : "application/octet-stream"
+
         entries.push({
           key,
           value: {
             File: {
               filename: value.name,
               data: Array.from(new Uint8Array(await value.arrayBuffer())),
-              mime: value.type,
+              mime,
             }
           }
         })

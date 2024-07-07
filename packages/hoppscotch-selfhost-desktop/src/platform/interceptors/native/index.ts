@@ -1,5 +1,5 @@
 import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
-import { Interceptor, InterceptorError, NetworkResponse, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
+import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
 import { Service } from "dioc"
 import { cloneDeep } from "lodash-es"
 import { invoke } from "@tauri-apps/api/tauri"
@@ -398,10 +398,12 @@ export class NativeInterceptorService extends Service implements Interceptor {
     const relevantCookies = this.cookieJarService.getCookiesForURL(
       new URL(processedReq.url!)
     )
-    console.log(relevantCookies)
-    processedReq.headers["Cookie"] = relevantCookies
-      .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-      .join(";")
+
+    if (relevantCookies.length > 0) {
+      processedReq.headers["Cookie"] = relevantCookies
+        .map((cookie) => `${cookie.name!}=${cookie.value!}`)
+        .join(";")
+    }
 
     const reqID = this.reqIDTicker++;
 

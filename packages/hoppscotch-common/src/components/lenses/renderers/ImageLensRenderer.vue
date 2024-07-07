@@ -18,12 +18,14 @@
         />
       </div>
     </div>
-    <img
-      class="flex max-w-full border-b border-dividerLight"
-      :src="imageSource"
-      loading="lazy"
-      :alt="imageSource"
-    />
+    <div>
+      <img
+        class="flex max-w-full border-b border-dividerLight"
+        :src="imageSource"
+        loading="lazy"
+        :alt="imageSource"
+      />
+    </div>
   </div>
 </template>
 

@@ -52,8 +52,6 @@ import {
   runMutation,
 } from "~/helpers/backend/GQLClient"
 import {
-  GetCollectionChildrenDocument,
-  GetMyTeamsDocument,
   ImportFromJsonDocument,
   ImportFromJsonMutation,
   ImportFromJsonMutationVariables,
@@ -97,7 +95,7 @@ import {
 import { fetchAllTeamEnvironments } from "~/helpers/teams/TeamEnvironmentAdapter"
 
 type TeamsWorkspaceCollection = WorkspaceCollection & {
-  parentCollectionID?: string
+  parentCollectionID: string | null
   order: string
   auth: HoppRESTAuth
   headers: HoppRESTHeader[]
@@ -141,6 +139,7 @@ export class TeamsWorkspaceProviderService
 
   onServiceInit() {
     this.workspaceService.registerWorkspaceProvider(this)
+    this.init()
   }
 
   public async init() {
@@ -191,15 +190,7 @@ export class TeamsWorkspaceProviderService
 
     this.workspaces.value.push(workspace)
 
-    return E.right({
-      get: () =>
-        computed(() => {
-          return {
-            data: workspace,
-            type: "ok" as const,
-          }
-        }),
-    })
+    return this.getWorkspaceHandle(workspaceID)
   }
 
   // this is temporary, i need this to populate root collections
@@ -257,13 +248,13 @@ export class TeamsWorkspaceProviderService
     )
 
     const initialData = await Promise.allSettled([
-      fetchRootCollections(workspaceHandle.value.data.workspaceID),
+      getRootCollections(workspaceHandle.value.data.workspaceID),
       fetchAllTeamEnvironments(workspaceHandle.value.data.workspaceID),
     ])
 
     const collections =
       initialData[0].status === "fulfilled" && E.isRight(initialData[0].value)
-        ? initialData[0].value.right.rootCollectionsOfTeam
+        ? initialData[0].value.right
         : []
 
     const environments =
@@ -288,6 +279,7 @@ export class TeamsWorkspaceProviderService
         order,
         auth,
         headers,
+        parentCollectionID: null,
       }
     })
 
@@ -327,8 +319,17 @@ export class TeamsWorkspaceProviderService
     const collectionID = res.right.createRootCollection.id
     const providerID = workspaceHandleRef.value.data.providerID
 
+    const doesCollectionExists = this.collections.value.some(
+      (collection) => collection.collectionID === collectionID
+    )
+
+    // subscription results can reach faster
+    if (doesCollectionExists) {
+      return this.getRESTCollectionHandle(workspaceHandle, collectionID)
+    }
+
     // add the new collection to the collections
-    const siblingCollections = this.collections.value
+    const siblingCollections = this.orderedCollections.value
       .filter((collection) => collection.parentCollectionID === null)
       .at(-1)
 
@@ -345,6 +346,7 @@ export class TeamsWorkspaceProviderService
         authActive: true,
       },
       headers: [],
+      parentCollectionID: null,
     })
 
     const createdCollectionHandle = await this.getRESTCollectionHandle(
@@ -400,6 +402,15 @@ export class TeamsWorkspaceProviderService
     const collectionID = res.right.createChildCollection.id
     const providerID = parentCollectionHandleRef.value.data.providerID
     const workspaceID = parentCollectionHandleRef.value.data.workspaceID
+
+    const doesCollectionExists = this.collections.value.some(
+      (collection) => collection.collectionID === collectionID
+    )
+
+    // subscription results can reach faster
+    if (doesCollectionExists) {
+      return this.getRESTCollectionHandle(parentCollectionHandle, collectionID)
+    }
 
     const lastSibling = this.collections.value
       .filter(
@@ -511,6 +522,15 @@ export class TeamsWorkspaceProviderService
     const requestID = res.right.createRequestInCollection.id
     const providerID = parentCollectionHandleRef.value.data.providerID
     const workspaceID = parentCollectionHandleRef.value.data.workspaceID
+
+    const doesRequestExists = this.requests.value.some(
+      (request) => request.requestID === requestID
+    )
+
+    // subscription results can reach faster
+    if (doesRequestExists) {
+      return this.getRequestHandle(parentCollectionHandle, requestID)
+    }
 
     const siblingRequests = this.requests.value.filter(
       (request) => request.collectionID === collectionID
@@ -754,9 +774,9 @@ export class TeamsWorkspaceProviderService
     if (isValidCollectionHandle(collectionHandleRef, this.providerID)) {
       isFetchingCollection.value = true
       // fetch the child collections
-      getCollectionChildren(collectionHandleRef.value.data.collectionID)
+      await getCollectionChildren(collectionHandleRef.value.data.collectionID)
         .then((children) => {
-          if (E.isLeft(children) || !children.right.collection?.children) {
+          if (E.isLeft(children)) {
             return
           }
 
@@ -771,7 +791,7 @@ export class TeamsWorkspaceProviderService
 
           // now push the new children
           this.collections.value.push(
-            ...children.right.collection?.children.map((collection) => {
+            ...children.right.map((collection) => {
               const collectionProperties = collection.data
                 ? JSON.parse(collection.data)
                 : null
@@ -820,7 +840,9 @@ export class TeamsWorkspaceProviderService
         })
 
       // fetch the child requests
-      getCollectionChildRequests(collectionHandleRef.value.data.collectionID)
+      await getCollectionChildRequests(
+        collectionHandleRef.value.data.collectionID
+      )
         .then((requests) => {
           if (E.isLeft(requests)) {
             return
@@ -837,7 +859,7 @@ export class TeamsWorkspaceProviderService
 
           // now push the new requests
           this.requests.value.push(
-            ...requests.right.requestsInCollection.map((request) => {
+            ...requests.right.map((request) => {
               const order = generateKeyBetween(previousOrder, null)
               previousOrder = order
 
@@ -961,8 +983,12 @@ export class TeamsWorkspaceProviderService
 
           let previousOrder: string | null = null
 
+          console.group("Root Collections Fetched")
+          console.log(collections.right)
+          console.groupEnd()
+
           this.collections.value.push(
-            ...collections.right.rootCollectionsOfTeam.map((collection) => {
+            ...collections.right.map((collection) => {
               const collectionProperties = collection.data
                 ? JSON.parse(collection.data)
                 : null
@@ -1001,6 +1027,7 @@ export class TeamsWorkspaceProviderService
                 order,
                 auth: auth,
                 headers: headers,
+                parentCollectionID: null,
               }
             })
           )
@@ -1145,7 +1172,7 @@ export class TeamsWorkspaceProviderService
               break
             }
 
-            const parentCollectionID: string | undefined =
+            const parentCollectionID: string | null =
               collectionToProcess.parentCollectionID
 
             if (!parentCollectionID) {
@@ -1180,7 +1207,7 @@ export class TeamsWorkspaceProviderService
                 }
               })
 
-            const parentCollectionID: string | undefined =
+            const parentCollectionID: string | null =
               collectionToProcessHeaders.parentCollectionID
 
             if (!parentCollectionID) {
@@ -1372,14 +1399,21 @@ export class TeamsWorkspaceProviderService
             }
           }
 
-          const teamsSearchResults = this.teamSearchService.searchTeams(
-            searchQuery.value,
-            workspaceHandleRef.value.data.workspaceID
-          )
+          const searchResults = computed(() => {
+            return this.teamSearchService.teamsSearchResults
+          })
+
+          const data: RESTSearchResultsView = {
+            loading: this.teamSearchService.teamsSearchResultsLoading,
+            results: searchResults,
+            providerID: this.providerID,
+            workspaceID: workspaceHandleRef.value.data.workspaceID,
+            onSessionEnd() {},
+          }
 
           return {
             type: "ok" as const,
-            data: teamsSearchResults,
+            data,
           }
         }),
     })
@@ -2051,7 +2085,7 @@ export class TeamsWorkspaceProviderService
         collectionID: result.right.teamCollectionAdded.id,
         providerID: this.providerID,
         workspaceID: workspaceID,
-        parentCollectionID: result.right.teamCollectionAdded.parent?.id,
+        parentCollectionID: result.right.teamCollectionAdded.parent?.id ?? null,
         order,
         auth: auth,
         headers: headers,
@@ -2544,78 +2578,12 @@ const importJSONToTeam = (collectionJSON: string, teamID: string) =>
     }
   )
 
-window.TeamsWorkspaceProviderService = TeamsWorkspaceProviderService
-
 // createWorkspace + selectWorkspace situation
 // cache the children of a collection
-// cursors
-// setup subscriptions for the change
-// take care of last item when returning the children
 
 // another drawback of the approch we're taking
 // not keeping one way for the source of truth -> i could update a collection & return a handle that does not exist
 // also every place we're issuing a collection/request handle, we need to test if its proper and works as expected when it comes to reactivity
-
-const testProvider = async () => {
-  const provider = new TeamsWorkspaceProviderService()
-
-  window.testProvider = provider
-
-  const workspace = await provider.createWorkspace("Teams Workspace 1")
-
-  if (E.isLeft(workspace)) {
-    return
-  }
-
-  const res = await provider.selectWorkspace(workspace.right)
-
-  if (E.isLeft(res)) {
-    console.log("Workspace Selection Failed")
-    return
-  }
-
-  if (workspace.right.value.type === "invalid") {
-    return
-  }
-
-  const workspaceID = workspace.right.value.data.workspaceID
-
-  const teamCollection = await provider.createRESTRootCollection(
-    workspace.right,
-    {
-      name: "Team Collection 1",
-    }
-  )
-
-  if (E.isLeft(teamCollection)) {
-    return
-  }
-
-  if (!isValidCollectionHandle(teamCollection.right, provider.providerID)) {
-    console.log("Invalid Collection Handle")
-    return
-  }
-
-  const childCollection = await provider.createRESTChildCollection(
-    teamCollection.right,
-    {
-      name: "Team Child Collection 1",
-    }
-  )
-
-  if (E.isLeft(childCollection)) {
-    return
-  }
-
-  if (!isValidCollectionHandle(childCollection.right, provider.providerID)) {
-    console.log("Invalid Collection Handle")
-    return
-  }
-
-  window.currentProvider = provider
-}
-
-window.testProvider = testProvider
 
 // TODO: throw an error if source and destination doesnt have the same parent
 export const reorderItems = <
@@ -2802,7 +2770,7 @@ function makeCollectionTree(
     (
       collection
     ): HoppCollection & {
-      parentCollectionID?: string
+      parentCollectionID: string | null
       id: string
       order: string
     } => ({
@@ -2914,3 +2882,6 @@ const parseInheritedData = (inheritedData?: string) => {
 // implementing the displaying of workspaces
 // right now, workspaceService.getWorkspaces is stuck in the loading state
 // you're debugging this issue
+
+// you're experimenting with an issue where there's some issue with generating the order of a new collection when the parentCollectionID is null / undefined
+// fix the types

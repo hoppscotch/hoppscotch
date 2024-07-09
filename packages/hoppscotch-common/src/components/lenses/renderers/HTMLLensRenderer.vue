@@ -22,7 +22,7 @@
             previewEnabled ? t('hide.preview') : t('response.preview_html')
           } <kbd>${getSpecialKey()}</kbd><kbd>Shift</kbd><kbd>P</kbd>`"
           :icon="!previewEnabled ? IconEye : IconEyeOff"
-          @click.prevent="togglePreview"
+          @click.prevent="doTogglePreview"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -76,8 +76,11 @@ import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { PersistenceService } from "~/services/persistence"
+import { useService } from "dioc/vue"
 
 const t = useI18n()
+const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
@@ -91,10 +94,22 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText
 )
+const defaultPreview =
+  persistenceService.getLocalConfig("lens_html_preview") === "true"
+
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
-  false,
+  defaultPreview,
   responseBodyText
 )
+
+const doTogglePreview = () => {
+  persistenceService.setLocalConfig(
+    "lens_html_preview",
+    previewEnabled.value ? "false" : "true"
+  )
+  togglePreview()
+}
+
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 useCodemirror(
@@ -112,7 +127,7 @@ useCodemirror(
   })
 )
 
-defineActionHandler("response.preview.toggle", () => togglePreview())
+defineActionHandler("response.preview.toggle", () => doTogglePreview())
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
 </script>

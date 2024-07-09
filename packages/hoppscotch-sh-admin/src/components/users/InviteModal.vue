@@ -15,8 +15,7 @@
     <template #footer>
       <span class="flex space-x-2">
         <HoppButtonPrimary
-          :disabled="!smtpEnabled"
-          :label="t('users.send_invite')"
+          :label="t('users.add_user')"
           @click="emit('send-invite', email)"
         />
         <HoppButtonSecondary
@@ -26,12 +25,6 @@
           @click="hideModal"
         />
       </span>
-      <HoppButtonSecondary
-        :label="t('users.copy_link')"
-        outline
-        filled
-        @click="emit('copy-invite-link', email)"
-      />
     </template>
   </HoppSmartModal>
 </template>

@@ -203,6 +203,47 @@
       </div>
     </div>
 
+    <HoppSmartModal
+      v-if="inviteSuccessModal"
+      dialog
+      :title="t('users.new_user_added')"
+      @close="inviteSuccessModal = false"
+    >
+      <template #body>
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('users.copy_link')"
+          :icon="IconCheck"
+          color="emerald"
+          class="w-min mx-auto m-3 p-3 bg-primaryDark rounded-full"
+          @click=""
+        />
+        <p class="text-center my-2">
+          {{
+            smtpEnabled
+              ? t('state.login_using_email')
+              : t('state.login_using_link')
+          }}
+        </p>
+        <div class="flex p-3 mx-10">
+          <input
+            v-model="baseURL"
+            class="input floating-input ml-5 rounded-r-none"
+            placeholder=""
+            type="text"
+            autocomplete="off"
+          />
+          <div class="bg-primaryDark rounded-r-sm">
+            <UiAutoResetIcon
+              :title="t('users.copy_link')"
+              :icon="{ default: IconCopy, temporary: IconCheck }"
+              @click="copyInviteLink"
+            />
+          </div>
+        </div>
+      </template>
+    </HoppSmartModal>
+
     <UsersInviteModal
       v-if="showInviteUserModal"
       :smtp-enabled="smtpEnabled"
@@ -267,6 +308,7 @@ import { getCompiledErrorMessage } from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
 import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconCheck from '~icons/lucide/check';
+import IconCopy from '~icons/lucide/copy';
 import IconLeft from '~icons/lucide/chevron-left';
 import IconRight from '~icons/lucide/chevron-right';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
@@ -453,6 +495,13 @@ const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
 // Check if SMTP is enabled
 const { data: status } = useQuery({ query: IsSmtpEnabledDocument });
 const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
+const inviteSuccessModal = ref(false);
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+const copyInviteLink = () => {
+  copyToClipboard(baseURL);
+  toast.success(t('state.link_copied_to_clipboard'));
+};
 
 // Send Invitation through Email
 const showInviteUserModal = ref(false);
@@ -482,16 +531,9 @@ const sendInvite = async (email: string) => {
   } else {
     if (smtpEnabled.value) toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
+    inviteSuccessModal.value = true;
     return true;
   }
-};
-
-const copyInviteLink = async (email: string) => {
-  const result = await sendInvite(email);
-  if (!result) return;
-  const baseURL = import.meta.env.VITE_BASE_URL ?? '';
-  copyToClipboard(baseURL);
-  toast.success(t('state.link_copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

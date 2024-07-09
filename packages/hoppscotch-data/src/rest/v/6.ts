@@ -20,6 +20,7 @@ export const HoppRESTAuthAWSSignature = z.object({
   region: z.string(),
   serviceName: z.string(),
   serviceToken: z.string().optional(),
+  signature: z.object({}).optional(),
   addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
 })
 

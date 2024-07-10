@@ -92,16 +92,18 @@ export const getComputedAuthHeaders = (
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${parse ? parseTemplateString(token, envVars) : token}`,
+      value: `Bearer ${
+        parse ? parseTemplateString(token, envVars, false, true) : token
+      }`,
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
     if (addTo === "HEADERS" && key) {
       headers.push({
         active: true,
-        key: parseTemplateString(key, envVars),
+        key: parseTemplateString(key, envVars, false, true),
         value: parse
-          ? parseTemplateString(request.auth.value ?? "", envVars)
+          ? parseTemplateString(request.auth.value ?? "", envVars, false, true)
           : request.auth.value ?? "",
       })
     }
@@ -251,10 +253,10 @@ export const resolvesEnvsInBody = (
           <FormDataKeyValue>{
             active: entry.active,
             isFile: entry.isFile,
-            key: parseTemplateString(entry.key, env.variables),
+            key: parseTemplateString(entry.key, env.variables, false, true),
             value: entry.isFile
               ? entry.value
-              : parseTemplateString(entry.value, env.variables),
+              : parseTemplateString(entry.value, env.variables, false, true),
           }
       ),
     }
@@ -262,13 +264,14 @@ export const resolvesEnvsInBody = (
 
   return {
     contentType: body.contentType,
-    body: parseTemplateString(body.body ?? "", env.variables),
+    body: parseTemplateString(body.body ?? "", env.variables, false, true),
   }
 }
 
 function getFinalBodyFromRequest(
   request: HoppRESTRequest,
-  envVariables: Environment["variables"]
+  envVariables: Environment["variables"],
+  showKeyIfSecret = false
 ): FormData | string | null {
   if (request.body.contentType === null) return null
 
@@ -289,8 +292,8 @@ function getFinalBodyFromRequest(
            * which will be resolved in further steps.
            */
           A.map(({ key, value }) => [
-            parseTemplateStringE(key, envVariables),
-            parseTemplateStringE(value, envVariables),
+            parseTemplateStringE(key, envVariables, false, showKeyIfSecret),
+            parseTemplateStringE(value, envVariables, false, showKeyIfSecret),
           ]),
 
           /**
@@ -349,12 +352,14 @@ function getFinalBodyFromRequest(
  *
  * @param request The request to source from
  * @param environment The environment to apply
+ * @param showKeyIfSecret Whether to show the key if the value is a secret
  *
  * @returns An object with extra fields defining a complete request
  */
 export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
-  environment: Environment
+  environment: Environment,
+  showKeyIfSecret = false
 ): EffectiveHoppRESTRequest {
   const effectiveFinalHeaders = pipe(
     getComputedHeaders(request, environment.variables).map((h) => h.header),
@@ -362,8 +367,18 @@ export function getEffectiveRESTRequest(
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
       active: true,
-      key: parseTemplateString(x.key, environment.variables),
-      value: parseTemplateString(x.value, environment.variables),
+      key: parseTemplateString(
+        x.key,
+        environment.variables,
+        false,
+        showKeyIfSecret
+      ),
+      value: parseTemplateString(
+        x.value,
+        environment.variables,
+        false,
+        showKeyIfSecret
+      ),
     }))
   )
 
@@ -373,8 +388,18 @@ export function getEffectiveRESTRequest(
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
       active: true,
-      key: parseTemplateString(x.key, environment.variables),
-      value: parseTemplateString(x.value, environment.variables),
+      key: parseTemplateString(
+        x.key,
+        environment.variables,
+        false,
+        showKeyIfSecret
+      ),
+      value: parseTemplateString(
+        x.value,
+        environment.variables,
+        false,
+        showKeyIfSecret
+      ),
     }))
   )
 
@@ -390,14 +415,17 @@ export function getEffectiveRESTRequest(
 
   const effectiveFinalBody = getFinalBodyFromRequest(
     request,
-    environment.variables
+    environment.variables,
+    showKeyIfSecret
   )
 
   return {
     ...request,
     effectiveFinalURL: parseTemplateString(
       request.endpoint,
-      environment.variables
+      environment.variables,
+      false,
+      showKeyIfSecret
     ),
     effectiveFinalHeaders,
     effectiveFinalParams,

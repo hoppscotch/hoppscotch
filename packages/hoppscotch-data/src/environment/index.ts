@@ -93,7 +93,8 @@ export function parseTemplateStringE(
   variables:
     | Environment["variables"]
     | { secret: true; value: string; key: string }[],
-  maskValue = false
+  maskValue = false,
+  showKeyIfSecret = false
 ) {
   if (!variables || !str) {
     return E.right(str)
@@ -101,12 +102,22 @@ export function parseTemplateStringE(
 
   let result = str
   let depth = 0
+  let isSecret = false
 
-  while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
+  while (
+    result.match(REGEX_ENV_VAR) != null &&
+    depth <= ENV_MAX_EXPAND_LIMIT &&
+    !isSecret
+  ) {
     result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
       const variable = variables.find((x) => x && x.key === p1)
 
       if (variable && "value" in variable) {
+        // Show the key if it is a secret and explicitly specified
+        if (variable.secret && showKeyIfSecret) {
+          isSecret = true
+          return `<<${p1}>>`
+        }
         // Mask the value if it is a secret and explicitly specified
         if (variable.secret && maskValue) {
           return "*".repeat(
@@ -144,10 +155,11 @@ export const parseTemplateString = (
   variables:
     | Environment["variables"]
     | { secret: true; value: string; key: string }[],
-  maskValue = false
+  maskValue = false,
+  showKeyIfSecret = false
 ) =>
   pipe(
-    parseTemplateStringE(str, variables, maskValue),
+    parseTemplateStringE(str, variables, maskValue, showKeyIfSecret),
     E.getOrElse(() => str)
   )
 

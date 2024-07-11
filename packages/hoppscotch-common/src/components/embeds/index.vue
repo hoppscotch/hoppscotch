@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col flex-1 min-h-screen">
     <header
-      class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
+      class="max-h-[3rem] flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
       <div class="flex items-center justify-between flex-1 space-x-2">
         <HoppButtonSecondary
@@ -19,66 +19,72 @@
         </div>
       </div>
     </header>
-    <div class="sticky top-0 z-10 flex-1">
-      <div
-        class="flex-none flex-shrink-0 p-4 bg-primary sm:flex sm:flex-shrink-0 sm:space-x-2"
-      >
+
+    <div class="min-h-[40%] flex flex-col flex-grow">
+      <div class="sticky top-0 z-10">
         <div
-          class="flex flex-1 overflow-hidden border divide-x rounded text-secondaryDark divide-divider min-w-[12rem] overflow-x-auto border-divider"
+          class="flex-none flex-shrink-0 p-4 bg-primary sm:flex sm:flex-shrink-0 sm:space-x-2"
         >
-          <span
-            class="flex items-center justify-center px-4 py-2 font-semibold transition rounded-l"
-          >
-            {{ tab.document.request.method }}
-          </span>
           <div
-            class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
+            class="flex flex-1 overflow-hidden border divide-x rounded text-secondaryDark divide-divider min-w-[12rem] overflow-x-auto border-divider"
           >
-            <SmartEnvInput
-              v-model="tab.document.request.endpoint"
-              :readonly="true"
-              :envs="tabRequestVariables"
-            />
+            <span
+              class="flex items-center justify-center px-4 py-2 font-semibold transition rounded-l"
+            >
+              {{ tab.document.request.method }}
+            </span>
+            <div
+              class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
+            >
+              <SmartEnvInput
+                v-model="tab.document.request.endpoint"
+                :readonly="true"
+                :envs="tabRequestVariables"
+              />
+            </div>
           </div>
-        </div>
-        <div class="flex mt-2 space-x-2 sm:mt-0">
-          <HoppButtonPrimary
-            id="send"
-            :title="`${t(
-              'action.send'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
-            :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-            class="flex-1 min-w-20"
-            outline
-            @click="!loading ? newSendRequest() : cancelRequest()"
-          />
-          <div class="flex">
-            <HoppButtonSecondary
+          <div class="flex mt-2 space-x-2 sm:mt-0">
+            <HoppButtonPrimary
+              id="send"
               :title="`${t(
-                'request.save'
-              )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
-              :label="t('request.save')"
-              filled
-              :icon="IconSave"
-              class="flex-1 rounded"
-              blank
+                'action.send'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+              :label="`${!loading ? t('action.send') : t('action.cancel')}`"
+              class="flex-1 min-w-20"
               outline
-              :to="sharedRequestURL"
+              @click="!loading ? newSendRequest() : cancelRequest()"
             />
+            <div class="flex">
+              <HoppButtonSecondary
+                :title="`${t(
+                  'request.save'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
+                :label="t('request.save')"
+                filled
+                :icon="IconSave"
+                class="flex-1 rounded"
+                blank
+                outline
+                :to="sharedRequestURL"
+              />
+            </div>
           </div>
         </div>
       </div>
+      <HttpRequestOptions
+        v-model="tab.document.request"
+        v-model:option-tab="selectedOptionTab"
+        :properties="properties"
+        :envs="tabRequestVariables"
+        class="flex flex-col flex-1"
+      />
     </div>
-    <HttpRequestOptions
-      v-model="tab.document.request"
-      v-model:option-tab="selectedOptionTab"
-      :properties="properties"
-      :envs="tabRequestVariables"
-    />
+
     <HttpResponse
       v-if="tab.document.response"
       :document="tab.document"
       :is-embed="true"
+      class="min-h-[60%] flex flex-col flex-1 border-t border-divider"
     />
   </div>
 </template>

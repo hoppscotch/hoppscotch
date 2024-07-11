@@ -1,52 +1,50 @@
 <template>
-  <div class="flex flex-col">
-    <div class="sticky top-0 z-10">
+  <div class="sticky top-0 z-10">
+    <div
+      class="flex-none flex-shrink-0 p-4 bg-primary sm:flex sm:flex-shrink-0 sm:space-x-2"
+    >
       <div
-        class="flex-none flex-shrink-0 p-4 bg-primary sm:flex sm:flex-shrink-0 sm:space-x-2"
+        class="flex flex-1 overflow-hidden border divide-x rounded text-secondaryDark divide-divider min-w-[12rem] overflow-x-auto border-divider"
       >
-        <div
-          class="flex flex-1 overflow-hidden border divide-x rounded text-secondaryDark divide-divider min-w-[12rem] overflow-x-auto border-divider"
+        <span
+          class="flex items-center justify-center px-4 py-2 font-semibold transition rounded-l"
         >
-          <span
-            class="flex items-center justify-center px-4 py-2 font-semibold transition rounded-l"
-          >
-            {{ tab.document.request.method }}
-          </span>
-          <div
-            class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
-          >
-            <SmartEnvInput
-              v-model="tab.document.request.endpoint"
-              :readonly="true"
-              :envs="tabRequestVariables"
-            />
-          </div>
-        </div>
-        <div class="flex mt-2 space-x-2 sm:mt-0">
-          <HoppButtonPrimary
-            id="send"
-            :title="`${t(
-              'action.send'
-            )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
-            :label="`${!loading ? t('action.send') : t('action.cancel')}`"
-            class="flex-1 min-w-20"
-            outline
-            @click="!loading ? newSendRequest() : cancelRequest()"
+          {{ tab.document.request.method }}
+        </span>
+        <div
+          class="flex items-center flex-1 flex-shrink-0 min-w-0 truncate rounded-r"
+        >
+          <SmartEnvInput
+            v-model="tab.document.request.endpoint"
+            :readonly="true"
+            :envs="tabRequestVariables"
           />
-          <div class="flex">
-            <HoppButtonSecondary
-              :title="`${t(
-                'request.save'
-              )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
-              :label="t('request.save')"
-              filled
-              :icon="IconSave"
-              class="flex-1 rounded"
-              blank
-              outline
-              :to="sharedRequestURL"
-            />
-          </div>
+        </div>
+      </div>
+      <div class="flex mt-2 space-x-2 sm:mt-0">
+        <HoppButtonPrimary
+          id="send"
+          :title="`${t(
+            'action.send'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
+          :label="`${!loading ? t('action.send') : t('action.cancel')}`"
+          class="flex-1 min-w-20"
+          outline
+          @click="!loading ? newSendRequest() : cancelRequest()"
+        />
+        <div class="flex">
+          <HoppButtonSecondary
+            :title="`${t(
+              'request.save'
+            )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
+            :label="t('request.save')"
+            filled
+            :icon="IconSave"
+            class="flex-1 rounded"
+            blank
+            outline
+            :to="sharedRequestURL"
+          />
         </div>
       </div>
     </div>

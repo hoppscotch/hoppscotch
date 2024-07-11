@@ -188,7 +188,7 @@ async function convertToRequestDef(
     method: axiosReq.method ?? "GET",
     endpoint: axiosReq.url ?? "",
     headers: Object.entries(axiosReq.headers ?? {})
-      .filter(([key, value]) => key.toLowerCase() !== "content-type" && value.toLowerCase() !== "multipart/form-data") // Removing header, because this header will be set by reqwest
+      .filter(([key, value]) => !(key.toLowerCase() === "content-type" && value.toLowerCase() === "multipart/form-data")) // Removing header, because this header will be set by reqwest
       .map(([key, value]): KeyValuePair => ({ key, value })),
     parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
       .map(([key, value]): KeyValuePair => ({ key, value })),

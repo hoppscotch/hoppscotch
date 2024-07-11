@@ -119,7 +119,7 @@
         />
       </div>
     </div>
-    <div class="h-full relative overflow-auto">
+    <div class="h-full relative overflow-auto flex flex-col flex-1">
       <div
         ref="jsonResponse"
         :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"

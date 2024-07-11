@@ -59,7 +59,7 @@
         />
       </div>
     </div>
-    <div class="h-full relative">
+    <div class="h-full relative flex flex-col flex-1">
       <div ref="rawBodyParameters" class="absolute inset-0"></div>
     </div>
   </div>

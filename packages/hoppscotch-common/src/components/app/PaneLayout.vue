@@ -22,7 +22,7 @@
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
           class="flex flex-col !overflow-auto"
-          min-size="25"
+          :min-size="isEmbed ? 12 : 25"
         >
           <slot name="primary" />
         </Pane>
@@ -77,6 +77,10 @@ const props = defineProps({
   layoutId: {
     type: String,
     default: null,
+  },
+  isEmbed: {
+    type: Boolean,
+    default: false,
   },
 })
 

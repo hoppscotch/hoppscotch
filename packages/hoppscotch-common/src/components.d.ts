@@ -69,6 +69,8 @@ declare module 'vue' {
     CookiesAllModal: typeof import('./components/cookies/AllModal.vue')['default']
     CookiesEditCookie: typeof import('./components/cookies/EditCookie.vue')['default']
     Embeds: typeof import('./components/embeds/index.vue')['default']
+    EmbedsHeader: typeof import('./components/embeds/Header.vue')['default']
+    EmbedsRequest: typeof import('./components/embeds/Request.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
     EnvironmentsAdd: typeof import('./components/environments/Add.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']

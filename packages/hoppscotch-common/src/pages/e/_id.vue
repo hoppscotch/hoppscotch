@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-center">
+  <div class="flex flex-col justify-center h-screen">
     <div
       v-if="sharedRequestDetails.loading"
       class="flex justify-center items-center py-5"

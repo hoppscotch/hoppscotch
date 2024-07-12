@@ -210,13 +210,8 @@
       @close="inviteSuccessModal = false"
     >
       <template #body>
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('users.copy_link')"
-          :icon="IconCheck"
-          color="emerald"
-          class="w-min mx-auto m-3 p-3 bg-primaryDark rounded-full"
-          @click=""
+        <icon-lucide-check
+          class="text-4xl text-emerald-500 w-min mx-auto m-3 p-3 bg-primaryDark rounded-full"
         />
         <p class="text-center my-2">
           {{
@@ -228,10 +223,11 @@
         <div class="flex p-3 mx-10">
           <input
             v-model="baseURL"
-            class="input floating-input ml-5 rounded-r-none"
+            class="input rounded-r-none"
             placeholder=""
             type="text"
             autocomplete="off"
+            disabled
           />
           <div class="bg-primaryDark rounded-r-sm">
             <UiAutoResetIcon

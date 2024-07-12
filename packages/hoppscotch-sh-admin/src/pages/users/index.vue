@@ -211,7 +211,7 @@
     >
       <template #body>
         <icon-lucide-check
-          class="text-4xl text-emerald-500 w-min mx-auto m-3 p-3 bg-primaryDark rounded-full"
+          class="text-4xl text-emerald-500 w-min mx-auto my-3 p-3 bg-primaryDark rounded-full"
         />
         <p class="text-center my-2">
           {{

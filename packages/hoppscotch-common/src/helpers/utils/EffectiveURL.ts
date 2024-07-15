@@ -69,10 +69,10 @@ export const getComputedAuthHeaders = (
   // TODO: Support a better b64 implementation than btoa ?
   if (request.auth.authType === "basic") {
     const username = parse
-      ? parseTemplateString(request.auth.username, envVars)
+      ? parseTemplateString(request.auth.username, envVars, false, true)
       : request.auth.username
     const password = parse
-      ? parseTemplateString(request.auth.password, envVars)
+      ? parseTemplateString(request.auth.password, envVars, false, true)
       : request.auth.password
 
     headers.push({
@@ -217,8 +217,8 @@ export const getComputedParams = (
         source: "auth" as const,
         param: {
           active: true,
-          key: parseTemplateString(req.auth.key, envVars),
-          value: parseTemplateString(req.auth.value, envVars),
+          key: parseTemplateString(req.auth.key, envVars, false, true),
+          value: parseTemplateString(req.auth.value, envVars, false, true),
         },
       },
     ]
@@ -232,7 +232,7 @@ export const getComputedParams = (
       param: {
         active: true,
         key: "access_token",
-        value: parseTemplateString(grantTypeInfo.token, envVars),
+        value: parseTemplateString(grantTypeInfo.token, envVars, false, true),
       },
     },
   ]
@@ -246,6 +246,11 @@ export const resolvesEnvsInBody = (
   if (!body.contentType) return body
 
   if (body.contentType === "multipart/form-data") {
+    if (!body.body)
+      return {
+        contentType: "",
+        body: [],
+      }
     return {
       contentType: "multipart/form-data",
       body: body.body.map(

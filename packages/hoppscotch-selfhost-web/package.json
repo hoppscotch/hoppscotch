@@ -28,7 +28,7 @@
     "@fontsource-variable/roboto-mono": "5.0.16",
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/data": "workspace:^",
-    "@hoppscotch/ui": "0.1.0",
+    "@hoppscotch/ui": "0.1.4",
     "@import-meta-env/unplugin": "0.4.10",
     "axios": "1.6.2",
     "buffer": "6.0.3",
@@ -37,7 +37,7 @@
     "rxjs": "7.8.1",
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
-    "vue": "3.3.9",
+    "vue": "3.4.27",
     "workbox-window": "7.0.0",
     "zod": "3.22.4"
   },

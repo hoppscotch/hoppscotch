@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div v-if="!activeWorkspaceHandle" class="p-4">
+    {{ t("workspace.no_workspace_selected") }}
+  </div>
+
+  <div v-else>
     <div
       class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"
     >
@@ -11,7 +15,13 @@
         @edit-environment="editEnvironment('Global')"
       />
     </div>
-    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy
+      v-show="environmentType.type === 'my-environments'"
+      @create-environment="createEnvironment"
+      @duplicate-environment="duplicateEnvironment"
+      @update-environment="updateEnvironment"
+      @delete-environment="removeEnvironment"
+    />
     <EnvironmentsTeams
       v-show="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
@@ -41,7 +51,7 @@
     :show="showConfirmRemoveEnvModal"
     :title="`${t('confirm.remove_environment')}`"
     @hide-modal="showConfirmRemoveEnvModal = false"
-    @resolve="removeSelectedEnvironment()"
+    @resolve="removeSelectedEnvironment"
   />
 </template>
 
@@ -49,10 +59,12 @@
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { Environment } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
+import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { isEqual } from "lodash-es"
 import { computed, ref, watch } from "vue"
+
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
@@ -60,7 +72,6 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
-  deleteEnvironment,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
@@ -68,6 +79,8 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { platform } from "~/platform"
+import { NewWorkspaceService } from "~/services/new-workspace"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 
 const t = useI18n()
@@ -100,12 +113,17 @@ const currentUser = useReadonlyStream(
 )
 
 const workspaceService = useService(WorkspaceService)
+const newWorkspaceService = useService(NewWorkspaceService)
+const secretEnvironmentService = useService(SecretEnvironmentService)
+
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
 const adapter = new TeamEnvironmentAdapter(undefined)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
 const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
+
+const activeWorkspaceHandle = newWorkspaceService.activeWorkspaceHandle
 
 const loading = computed(
   () => adapterLoading.value && teamEnvironmentList.value.length === 0
@@ -131,6 +149,7 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 
 const workspace = workspaceService.currentWorkspace
 
+// Future TODO: Replace with `newWorkspaceService` once legacy `workspaceService` is completely removed
 // Switch to my environments if workspace is personal and to team environments if workspace is team
 // also resets selected environment if workspace is personal and the previous selected environment was a team environment
 watch(workspace, (newWorkspace) => {
@@ -145,6 +164,22 @@ watch(workspace, (newWorkspace) => {
     updateSelectedTeam(newWorkspace)
   }
 })
+
+watch(
+  activeWorkspaceHandle,
+  (newActiveWorkspaceHandle) => {
+    // Clear environment selection while in no active workspace state
+    if (
+      !newActiveWorkspaceHandle ||
+      newActiveWorkspaceHandle.get().value.type === "invalid"
+    ) {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => currentUser.value,
@@ -184,15 +219,23 @@ const editEnvironment = (environmentIndex: "Global") => {
   displayModalEdit(true)
 }
 
-const removeSelectedEnvironment = () => {
+const removeSelectedEnvironment = async () => {
   const selectedEnvIndex = getSelectedEnvironmentIndex()
-  if (selectedEnvIndex?.type === "NO_ENV_SELECTED") return
 
-  if (selectedEnvIndex?.type === "MY_ENV") {
-    deleteEnvironment(selectedEnvIndex.index)
-    toast.success(`${t("state.deleted")}`)
+  if (
+    selectedEnvIndex?.type === "NO_ENV_SELECTED" ||
+    !activeWorkspaceHandle.value
+  ) {
+    return
   }
 
+  // TODO: Remove the check once the team workspace implementation is in place
+  if (selectedEnvIndex?.type === "MY_ENV") {
+    await removeEnvironment(selectedEnvIndex.index)
+    return
+  }
+
+  // TODO: Remove once the team workspace implementation is in place
   if (selectedEnvIndex?.type === "TEAM_ENV") {
     pipe(
       deleteTeamEnvironment(selectedEnvIndex.teamEnvID),
@@ -206,6 +249,181 @@ const removeSelectedEnvironment = () => {
       )
     )()
   }
+}
+
+const createEnvironment = async (newEnvironment: Environment) => {
+  if (!activeWorkspaceHandle.value) {
+    return
+  }
+
+  const environmentHandleResult =
+    await newWorkspaceService.createRESTEnvironment(
+      activeWorkspaceHandle.value,
+      newEnvironment
+    )
+
+  if (E.isLeft(environmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  // Workspace invalidated
+  if (environmentHandleResult.right.get().value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE | ENVIRONMENT_DOES_NOT_EXIST
+    return
+  }
+
+  const environmentsViewResult =
+    await newWorkspaceService.getRESTEnvironmentsView(
+      activeWorkspaceHandle.value
+    )
+
+  if (E.isRight(environmentsViewResult)) {
+    const environmentsViewHandle = environmentsViewResult.right
+    const environmentsViewHandleRef = environmentsViewHandle.get()
+
+    if (environmentsViewHandleRef.value.type === "ok") {
+      const { environments } = environmentsViewHandleRef.value.data
+
+      setSelectedEnvironmentIndex({
+        type: "MY_ENV",
+        index: environments.value.length - 1,
+      })
+    }
+  }
+
+  toast.success(t("environment.created"))
+}
+
+const duplicateEnvironment = async (environmentID: number) => {
+  if (!activeWorkspaceHandle.value) {
+    return
+  }
+
+  const environmentHandleResult =
+    await newWorkspaceService.getRESTEnvironmentHandle(
+      activeWorkspaceHandle.value,
+      environmentID
+    )
+
+  if (E.isLeft(environmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const environmentHandle = environmentHandleResult.right
+
+  const duplicatedEnvironmentHandleResult =
+    await newWorkspaceService.duplicateRESTEnvironment(environmentHandle)
+
+  if (E.isLeft(duplicatedEnvironmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const duplicatedEnvironmentHandleRef =
+    duplicatedEnvironmentHandleResult.right.get()
+
+  // Workspace invalidated
+  if (duplicatedEnvironmentHandleRef.value.type === "invalid") {
+    // INVALID_WORKSPACE_HANDLE | ENVIRONMENT_DOES_NOT_EXIST
+    return
+  }
+
+  toast.success(t("environment.duplicated"))
+}
+
+const updateEnvironment = async (
+  environmentID: number,
+  updatedEnvironment: Partial<Environment>
+) => {
+  if (!activeWorkspaceHandle.value) {
+    return
+  }
+
+  const environmentHandleResult =
+    await newWorkspaceService.getRESTEnvironmentHandle(
+      activeWorkspaceHandle.value,
+      environmentID
+    )
+
+  if (E.isLeft(environmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const environmentHandle = environmentHandleResult.right
+
+  const updatedEnvironmentHandleResult =
+    await newWorkspaceService.updateRESTEnvironment(
+      environmentHandle,
+      updatedEnvironment
+    )
+
+  if (E.isLeft(updatedEnvironmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  toast.success(t("environment.updated"))
+}
+
+const removeEnvironment = async (environmentID: number) => {
+  if (!activeWorkspaceHandle.value) {
+    return
+  }
+
+  const environmentHandleResult =
+    await newWorkspaceService.getRESTEnvironmentHandle(
+      activeWorkspaceHandle.value,
+      environmentID
+    )
+
+  if (E.isLeft(environmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE
+    return
+  }
+
+  const environmentHandle = environmentHandleResult.right
+
+  const deletedEnvironmentHandleResult =
+    await newWorkspaceService.removeRESTEnvironment(environmentHandle)
+
+  if (E.isLeft(deletedEnvironmentHandleResult)) {
+    // INVALID_WORKSPACE_HANDLE | team workspace n/w call failure
+    toast.error(
+      (deletedEnvironmentHandleResult.left.error as string) ??
+        "error.something_went_wrong"
+    )
+    return
+  }
+
+  const environmentsViewResult =
+    await newWorkspaceService.getRESTEnvironmentsView(
+      activeWorkspaceHandle.value
+    )
+
+  if (E.isRight(environmentsViewResult)) {
+    const environmentsViewHandleRef = environmentsViewResult.right.get()
+
+    if (environmentsViewHandleRef.value.type === "ok") {
+      const { environments } = environmentsViewHandleRef.value.data
+
+      const { id } = environments.value[environmentID]
+      secretEnvironmentService.deleteSecretEnvironment(id)
+    }
+  }
+
+  const activeWorkspaceHandleRef = activeWorkspaceHandle.value.get()
+
+  const isTeam =
+    activeWorkspaceHandleRef.value.type === "ok" &&
+    activeWorkspaceHandleRef.value.data.providerID ===
+      "TEAMS_WORKSPACE_PROVIDER"
+
+  isTeam
+    ? toast.success(t("team_environment.deleted"))
+    : toast.success(t("environment.deleted"))
 }
 
 const resetSelectedData = () => {

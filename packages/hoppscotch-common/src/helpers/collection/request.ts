@@ -1,11 +1,14 @@
 import {
+  GQL_REQ_SCHEMA_VERSION,
   HoppCollection,
   HoppGQLRequest,
   HoppRESTRequest,
+  RESTReqSchemaVersion,
 } from "@hoppscotch/data"
-import { getAffectedIndexes } from "./affectedIndex"
-import { RESTTabService } from "~/services/tab/rest"
+
 import { getService } from "~/modules/dioc"
+import { RESTTabService } from "~/services/tab/rest"
+import { getAffectedIndexes } from "./affectedIndex"
 
 /**
  * Resolve save context on reorder
@@ -29,30 +32,76 @@ export function resolveSaveContextOnRequestReorder(payload: {
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return
 
-  const affectedIndexes = getAffectedIndexes(
+  const affectedIndices = getAffectedIndexes(
     lastIndex,
     newIndex === -1 ? length! : newIndex
   )
 
   // if (newIndex === -1) remove it from the map because it will be deleted
-  if (newIndex === -1) affectedIndexes.delete(lastIndex)
+  if (newIndex === -1) affectedIndices.delete(lastIndex)
 
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath === folderPath &&
-      affectedIndexes.has(tab.document.saveContext.requestIndex)
-    )
+    if (tab.document.saveContext?.originLocation === "user-collection") {
+      return (
+        tab.document.saveContext.folderPath === folderPath &&
+        affectedIndices.has(tab.document.saveContext.requestIndex)
+      )
+    }
+
+    if (
+      tab.document.saveContext?.originLocation !== "workspace-user-collection"
+    ) {
+      return false
+    }
+
+    const requestHandleRef = tab.document.saveContext.requestHandle?.get()
+
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+      return false
+    }
+
+    const { requestID } = requestHandleRef.value.data
+    const collectionID = requestID.split("/").slice(0, -1).join("/")
+    const requestIndex = parseInt(requestID.split("/").slice(-1)[0])
+
+    return collectionID === folderPath && affectedIndices.has(requestIndex)
   })
 
   for (const tab of tabs) {
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      const newIndex = affectedIndexes.get(
+      const newIndex = affectedIndices.get(
         tab.value.document.saveContext?.requestIndex
       )!
       tab.value.document.saveContext.requestIndex = newIndex
     }
+
+    if (
+      tab.value.document.saveContext?.originLocation !==
+      "workspace-user-collection"
+    ) {
+      return
+    }
+
+    const requestHandleRef = tab.value.document.saveContext.requestHandle?.get()
+
+    if (!requestHandleRef || requestHandleRef.value.type === "invalid") {
+      return
+    }
+
+    const { requestID } = requestHandleRef.value.data
+
+    const requestIDArr = requestID.split("/")
+    const requestIndex = affectedIndices.get(
+      parseInt(requestIDArr[requestIDArr.length - 1])
+    )!
+
+    requestIDArr[requestIDArr.length - 1] = requestIndex.toString()
+
+    requestHandleRef.value.data.requestID = requestIDArr.join("/")
+    requestHandleRef.value.data.collectionID = requestIDArr
+      .slice(0, -1)
+      .join("/")
   }
 }
 
@@ -67,10 +116,11 @@ export function getRequestsByPath(
 
   if (pathArray.length === 1) {
     const latestVersionedRequests = currentCollection.requests.filter(
-      (req): req is HoppRESTRequest => req.v === "3"
+      (req): req is HoppRESTRequest | HoppGQLRequest =>
+        req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
     )
 
-    return latestVersionedRequests
+    return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
   }
   for (let i = 1; i < pathArray.length; i++) {
     const folder = currentCollection.folders[pathArray[i]]
@@ -78,8 +128,9 @@ export function getRequestsByPath(
   }
 
   const latestVersionedRequests = currentCollection.requests.filter(
-    (req): req is HoppRESTRequest => req.v === "3"
+    (req): req is HoppRESTRequest | HoppGQLRequest =>
+      req.v === RESTReqSchemaVersion || req.v === GQL_REQ_SCHEMA_VERSION
   )
 
-  return latestVersionedRequests
+  return latestVersionedRequests as HoppRESTRequest[] | HoppGQLRequest[]
 }

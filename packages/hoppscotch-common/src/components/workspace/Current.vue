@@ -3,7 +3,7 @@
     class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
   >
     <span class="truncate">
-      {{ currentWorkspace }}
+      {{ workspaceName ?? t("workspace.no_workspace") }}
     </span>
     <icon-lucide-chevron-right v-if="section" class="mx-2" />
     {{ section }}
@@ -14,29 +14,24 @@
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
+import { NewWorkspaceService } from "~/services/new-workspace"
 
-const props = defineProps<{
+defineProps<{
   section?: string
-  isOnlyPersonal?: boolean
 }>()
 
 const t = useI18n()
 
-const workspaceService = useService(WorkspaceService)
-const workspace = workspaceService.currentWorkspace
+const workspaceService = useService(NewWorkspaceService)
+const activeWorkspaceHandle = workspaceService.activeWorkspaceHandle
 
-const currentWorkspace = computed(() => {
-  if (props.isOnlyPersonal || workspace.value.type === "personal") {
-    return t("workspace.personal")
-  }
-  return teamWorkspaceName.value
-})
+const workspaceName = computed(() => {
+  const activeWorkspaceHandleRef = activeWorkspaceHandle.value?.get()
 
-const teamWorkspaceName = computed(() => {
-  if (workspace.value.type === "team" && workspace.value.teamName) {
-    return workspace.value.teamName
+  if (activeWorkspaceHandleRef?.value.type === "ok") {
+    return activeWorkspaceHandleRef.value.data.name
   }
-  return `${t("workspace.team")}`
+
+  return undefined
 })
 </script>

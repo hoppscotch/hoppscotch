@@ -176,7 +176,7 @@
                     :shortcut="['P']"
                     @click="
                       () => {
-                        emit('edit-properties')
+                        emit('edit-collection-properties')
                         hide()
                       }
                     "
@@ -282,7 +282,7 @@ const emit = defineEmits<{
   (event: "add-request"): void
   (event: "add-folder"): void
   (event: "edit-collection"): void
-  (event: "edit-properties"): void
+  (event: "edit-collection-properties"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void

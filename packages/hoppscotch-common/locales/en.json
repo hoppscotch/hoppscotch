@@ -282,7 +282,7 @@
     "added": "Environment addition",
     "create_new": "Create new environment",
     "created": "Environment created",
-    "deleted": "Environment deletion",
+    "deleted": "Environment deleted",
     "duplicated": "Environment duplicated",
     "edit": "Edit Environment",
     "empty_variables": "No variables",
@@ -1042,7 +1042,9 @@
     "personal": "Personal Workspace",
     "other_workspaces": "My Workspaces",
     "team": "Workspace",
-    "title": "Workspaces"
+    "title": "Workspaces",
+    "no_workspace": "No Workspace",
+    "no_workspace_selected": "No workspace selected."
   },
   "site_protection": {
     "login_to_continue": "Login to continue",

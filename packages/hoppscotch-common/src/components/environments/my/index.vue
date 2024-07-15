@@ -31,6 +31,8 @@
       :environment-index="index"
       :environment="environment"
       @edit-environment="editEnvironment(index)"
+      @duplicate-environment="emit('duplicate-environment', $event)"
+      @delete-environment="emit('delete-environment', $event)"
     />
     <HoppSmartPlaceholder
       v-if="!environments.length"
@@ -68,6 +70,11 @@
       :editing-environment-index="editingEnvironmentIndex"
       :editing-variable-name="editingVariableName"
       :is-secret-option-selected="secretOptionSelected"
+      @create-environment="emit('create-environment', $event)"
+      @update-environment="
+        (environmentID, updatedEnvironment) =>
+          emit('update-environment', environmentID, updatedEnvironment)
+      "
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -79,21 +86,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { environments$ } from "~/newstore/environments"
-import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
+import { Environment } from "@hoppscotch/data"
+import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
-import IconPlus from "~icons/lucide/plus"
+
+import { useColorMode } from "~/composables/theming"
+import { defineActionHandler } from "~/helpers/actions"
+import { environments$ } from "~/newstore/environments"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { Environment } from "@hoppscotch/data"
-import { defineActionHandler } from "~/helpers/actions"
+import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
 const colorMode = useColorMode()
 
 const environments = useReadonlyStream(environments$, [])
+
+const emit = defineEmits<{
+  (e: "create-environment", newEnvironment: Environment): void
+  (e: "duplicate-environment", environmentID: number): void
+  (
+    e: "update-environment",
+    environmentID: number,
+    updatedEnvironment: Partial<Environment>
+  ): void
+  (e: "delete-environment", environmentID: number): void
+}>()
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)

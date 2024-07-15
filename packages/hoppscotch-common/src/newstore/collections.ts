@@ -1,20 +1,20 @@
-import { pluck } from "rxjs/operators"
 import {
-  HoppGQLRequest,
-  HoppRESTRequest,
   HoppCollection,
-  makeCollection,
   HoppGQLAuth,
+  HoppGQLRequest,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+  HoppRESTRequest,
+  makeCollection,
 } from "@hoppscotch/data"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { cloneDeep } from "lodash-es"
-import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
+import { pluck } from "rxjs/operators"
+
+import { HoppGQLHeader } from "~/helpers/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { HoppRESTAuth } from "@hoppscotch/data"
-import { HoppRESTHeaders } from "@hoppscotch/data"
-import { HoppGQLHeader } from "~/helpers/graphql"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 const defaultRESTCollectionState = {
   state: [
@@ -319,6 +319,7 @@ const restCollectionDispatchers = defineDispatchers({
       )
       return {}
     }
+
     // We get the index path to the folder itself,
     // we have to find the folder containing the target folder,
     // so we pop the last path index
@@ -690,16 +691,10 @@ const restCollectionDispatchers = defineDispatchers({
 
     // if the destination is null, we are moving to the end of the list
     if (destinationRequestIndex === null) {
-      // move to the end of the list
+      // TODO: Verify if this can be safely removed
       targetLocation.requests.push(
         targetLocation.requests.splice(requestIndex, 1)[0]
       )
-
-      resolveSaveContextOnRequestReorder({
-        lastIndex: requestIndex,
-        newIndex: targetLocation.requests.length,
-        folderPath: destinationCollectionPath,
-      })
 
       return {
         state: newState,
@@ -707,12 +702,6 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
-
-    resolveSaveContextOnRequestReorder({
-      lastIndex: requestIndex,
-      newIndex: destinationRequestIndex,
-      folderPath: destinationCollectionPath,
-    })
 
     return {
       state: newState,

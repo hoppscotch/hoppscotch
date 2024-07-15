@@ -24,6 +24,7 @@
       :placeholder="t('count.key')"
       :auto-complete-env="true"
       :envs="envs"
+      :inspection-results="inspectionKeyResult"
       @change="
         updateEntity(index, {
           id: entityId,
@@ -39,6 +40,7 @@
       :placeholder="t('count.value')"
       :auto-complete-env="true"
       :envs="envs"
+      :inspection-results="inspectionValueResult"
       @change="
         updateEntity(index, {
           id: entityId,
@@ -103,10 +105,11 @@ import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import { useI18n } from "~/composables/i18n"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { InspectorResult } from "~/services/inspection"
 
 const t = useI18n()
 
-const props = defineProps<{
+defineProps<{
   total: number
   index: number
   entityId: number
@@ -114,6 +117,8 @@ const props = defineProps<{
   entityActive: boolean
   name: string
   value: string
+  inspectionKeyResult?: InspectorResult[]
+  inspectionValueResult?: InspectorResult[]
   description?: string
   envs?: AggregateEnvironment[]
 }>()

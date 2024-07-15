@@ -105,6 +105,8 @@ export const getComputedAuthHeaders = (
           : request.auth.value ?? "",
       })
     }
+  } else if (request.auth.authType === "aws-signature") {
+    // TODO: add headers for aws-signature authentication
   }
 
   return headers
@@ -197,16 +199,37 @@ export const getComputedParams = (
 ): ComputedParam[] => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
-  if (!req.auth || !req.auth.authActive) {
-    return []
-  }
+  if (!req.auth || !req.auth.authActive) return []
 
-  if (req.auth.authType !== "api-key" && req.auth.authType !== "oauth-2") {
+  if (
+    req.auth.authType !== "api-key" &&
+    req.auth.authType !== "oauth-2" &&
+    req.auth.authType !== "aws-signature"
+  )
     return []
-  }
 
-  if (req.auth.addTo !== "QUERY_PARAMS") {
-    return []
+  if (req.auth.addTo !== "QUERY_PARAMS") return []
+
+  if (req.auth.authType === "aws-signature") {
+    const { signature, addTo } = req.auth
+    const params: ComputedParam[] = []
+    if (addTo === "QUERY_PARAMS") {
+      if (signature) {
+        Object.keys(signature).forEach((x) => {
+          if (x) {
+            params.push({
+              source: "auth" as const,
+              param: {
+                active: true,
+                key: x,
+                value: signature[x as keyof typeof signature] ?? "",
+              },
+            })
+          }
+        })
+      }
+    }
+    return params
   }
 
   if (req.auth.authType === "api-key") {
@@ -222,18 +245,20 @@ export const getComputedParams = (
     ]
   }
 
-  const { grantTypeInfo } = req.auth
-
-  return [
-    {
-      source: "auth",
-      param: {
-        active: true,
-        key: "access_token",
-        value: parseTemplateString(grantTypeInfo.token, envVars),
+  if (req.auth.authType === "oauth-2") {
+    const { grantTypeInfo } = req.auth
+    return [
+      {
+        source: "auth",
+        param: {
+          active: true,
+          key: "access_token",
+          value: parseTemplateString(grantTypeInfo.token, envVars),
+        },
       },
-    },
-  ]
+    ]
+  }
+  return []
 }
 
 // Resolves environment variables in the body

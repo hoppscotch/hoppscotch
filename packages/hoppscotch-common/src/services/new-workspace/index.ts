@@ -189,7 +189,7 @@ export class NewWorkspaceService extends Service {
 
   public async getRESTEnvironmentHandle(
     workspaceHandle: Handle<Workspace>,
-    environmentID: number
+    environmentID: string
   ): Promise<
     E.Either<
       WorkspaceError<"INVALID_HANDLE" | "INVALID_PROVIDER">,

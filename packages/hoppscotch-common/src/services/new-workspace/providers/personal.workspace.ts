@@ -1311,7 +1311,7 @@ export class PersonalWorkspaceProviderService
 
   public getRESTEnvironmentHandle(
     workspaceHandle: Handle<Workspace>,
-    environmentID: number
+    environmentID: string
   ): Promise<E.Either<unknown, Handle<WorkspaceEnvironment>>> {
     const workspaceHandleRef = workspaceHandle.get()
 
@@ -1321,7 +1321,7 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_WORKSPACE_HANDLE" as const))
     }
 
-    const environment = this.restEnvironmentState.value[environmentID]
+    const environment = this.restEnvironmentState.value[parseInt(environmentID)]
 
     // Out of bounds check
     if (!environment) {
@@ -1842,7 +1842,7 @@ export class PersonalWorkspaceProviderService
 
     const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
       workspaceHandle,
-      this.restEnvironmentState.value.length - 1
+      (this.restEnvironmentState.value.length - 1).toString()
     )
 
     return createdEnvironmentHandle
@@ -1863,11 +1863,13 @@ export class PersonalWorkspaceProviderService
       return Promise.resolve(E.left("INVALID_ENVIRONMENT_HANDLE" as const))
     }
 
-    duplicateEnvironment(environmentHandleRef.value.data.environmentID)
+    duplicateEnvironment(
+      parseInt(environmentHandleRef.value.data.environmentID)
+    )
 
     const createdEnvironmentHandle = await this.getRESTEnvironmentHandle(
       this.getPersonalWorkspaceHandle(),
-      this.restEnvironmentState.value.length - 1
+      (this.restEnvironmentState.value.length - 1).toString()
     )
 
     return createdEnvironmentHandle
@@ -1893,7 +1895,7 @@ export class PersonalWorkspaceProviderService
 
     const existingEnvironment =
       this.restEnvironmentState.value[
-        environmentHandleRef.value.data.environmentID
+        parseInt(environmentHandleRef.value.data.environmentID)
       ]
 
     const { id: environmentSyncID } = existingEnvironment
@@ -1904,7 +1906,7 @@ export class PersonalWorkspaceProviderService
     }
 
     updateEnvironment(
-      environmentID,
+      parseInt(environmentID),
       environmentSyncID
         ? {
             ...newEnvironment,
@@ -1965,9 +1967,9 @@ export class PersonalWorkspaceProviderService
     }
 
     const { id: environmentSyncID } =
-      this.restEnvironmentState.value[environmentID]
+      this.restEnvironmentState.value[parseInt(environmentID)]
 
-    deleteEnvironment(environmentID, environmentSyncID)
+    deleteEnvironment(parseInt(environmentID), environmentSyncID)
 
     return Promise.resolve(E.right(undefined))
   }
@@ -2039,7 +2041,7 @@ export class PersonalWorkspaceProviderService
 
     const environment =
       this.restEnvironmentState.value[
-        environmentHandleRef.value.data.environmentID
+        parseInt(environmentHandleRef.value.data.environmentID)
       ]
 
     if (!environment) {

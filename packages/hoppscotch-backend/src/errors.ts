@@ -810,3 +810,21 @@ export const ACCESS_TOKEN_INVALID = 'TOKEN_INVALID';
  * (AccessTokenService)
  */
 export const ACCESS_TOKENS_INVALID_DATA_ID = 'INVALID_ID';
+
+/**
+ * The provided label for the infra-token is short (less than 3 characters)
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_LABEL_SHORT = 'infra_token/label_too_short';
+
+/**
+ * The provided expiryInDays value is not valid
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_EXPIRY_INVALID = 'infra_token/expiry_days_invalid';
+
+/**
+ * The provided Infra Token ID is invalid
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_NOT_FOUND = 'infra_token/infra_token_not_found';

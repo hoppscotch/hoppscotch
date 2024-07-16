@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAccessTokenDto } from './dto/create-access-token.dto';
 import { AuthUser } from 'src/types/AuthUser';
-import { isValidLength } from 'src/utils';
+import { calculateExpirationDate, isValidLength } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import {
   ACCESS_TOKEN_EXPIRY_INVALID,
@@ -19,17 +19,6 @@ export class AccessTokenService {
   TITLE_LENGTH = 3;
   VALID_TOKEN_DURATIONS = [7, 30, 60, 90];
   TOKEN_PREFIX = 'pat-';
-
-  /**
-   * Calculate the expiration date of the token
-   *
-   * @param expiresOn Number of days the token is valid for
-   * @returns Date object of the expiration date
-   */
-  private calculateExpirationDate(expiresOn: null | number) {
-    if (expiresOn === null) return null;
-    return new Date(Date.now() + expiresOn * 24 * 60 * 60 * 1000);
-  }
 
   /**
    * Validate the expiration date of the token
@@ -97,9 +86,7 @@ export class AccessTokenService {
       data: {
         userUid: user.uid,
         label: createAccessTokenDto.label,
-        expiresOn: this.calculateExpirationDate(
-          createAccessTokenDto.expiryInDays,
-        ),
+        expiresOn: calculateExpirationDate(createAccessTokenDto.expiryInDays),
       },
     });
 

@@ -97,6 +97,10 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "SERVER_CONNECTION_REFUSED":
       ERROR_MSG = `Unable to connect to the server. Please check your network connection or server instance URL and try again: ${error.data}`;
       break;
+    case "REPORT_EXPORT_FAILED":
+      const moreInfo = error.data ? `: ${error.data}` : S.empty;
+      ERROR_MSG = `Failed to export the report at ${error.path}${moreInfo}`;
+      break;
   }
 
   if (!S.isEmpty(ERROR_MSG)) {

@@ -3,6 +3,7 @@ export type TestCmdOptions = {
   delay?: string;
   token?: string;
   server?: string;
+  reporterJunit?: string;
 };
 
 // Consumed in the collection `file_path_or_id` argument action handler

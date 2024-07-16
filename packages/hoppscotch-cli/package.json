@@ -48,6 +48,7 @@
     "lodash-es": "4.17.21",
     "qs": "6.11.2",
     "verzod": "0.2.2",
+    "xmlbuilder2": "3.1.1",
     "zod": "3.22.4"
   },
   "devDependencies": {

@@ -65,6 +65,10 @@ program
     "personal access token to access collections/environments from a workspace"
   )
   .option("--server <server_url>", "server URL for SH instance")
+  .option(
+    "--reporter-junit [path]",
+    "generate JUnit report optionally specifying the path"
+  )
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")
@@ -74,7 +78,18 @@ program
       "https://docs.hoppscotch.io/documentation/clients/cli/overview#commands"
     )}`
   )
-  .action(async (pathOrId, options) => await test(pathOrId, options)());
+  .action(async (pathOrId, options) => {
+    const overrides: Record<string, unknown> = {};
+
+    // Choose `hopp-junit-report.xml` as the default value if `reporter-junit` flag is supplied without a value
+    if (options.reporterJunit === true) {
+      overrides.reporterJunit = "hopp-junit-report.xml";
+    }
+
+    const effectiveOptions = { ...options, ...overrides };
+
+    await test(pathOrId, effectiveOptions)();
+  });
 
 export const cli = async (args: string[]) => {
   try {

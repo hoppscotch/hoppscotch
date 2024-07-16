@@ -27,6 +27,7 @@ import {
 } from "./display";
 import { exceptionColors } from "./getters";
 import { getPreRequestMetrics } from "./pre-request";
+import { buildJUnitReport, generateJUnitReportExport } from "./reporters/junit";
 import {
   getRequestMetrics,
   preProcessRequest,
@@ -56,19 +57,22 @@ export const collectionsRunner = async (
     // Pop out top-most collection from stack to be processed.
     const { collection, path } = <CollectionStack>collectionStack.pop();
 
-      // Processing each request in collection
-      for (const request of collection.requests) {
-        const _request = preProcessRequest(request as HoppRESTRequest, collection);
-        const requestPath = `${path}/${_request.name}`;
-        const processRequestParams: ProcessRequestParams = {
-          path: requestPath,
-          request: _request,
-          envs,
-          delay,
-        };
+    // Processing each request in collection
+    for (const request of collection.requests) {
+      const _request = preProcessRequest(
+        request as HoppRESTRequest,
+        collection
+      );
+      const requestPath = `${path}/${_request.name}`;
+      const processRequestParams: ProcessRequestParams = {
+        path: requestPath,
+        request: _request,
+        envs,
+        delay,
+      };
 
-        // Request processing initiated message.
-        log(WARN(`\nRunning: ${chalk.bold(requestPath)}`));
+      // Request processing initiated message.
+      log(WARN(`\nRunning: ${chalk.bold(requestPath)}`));
 
       // Processing current request.
       const result = await processRequest(processRequestParams)();
@@ -78,34 +82,39 @@ export const collectionsRunner = async (
       envs.global = global;
       envs.selected = selected;
 
-        // Storing current request's report.
-        const requestReport = result.report;
-        requestsReport.push(requestReport);
-      }
-
-      // Pushing remaining folders realted collection to stack.
-      for (const folder of collection.folders) {
-        const updatedFolder: HoppCollection = { ...folder }
-
-        if (updatedFolder.auth?.authType === "inherit") {
-          updatedFolder.auth = collection.auth;
-        }
-
-        if (collection.headers?.length) {
-          // Filter out header entries present in the parent collection under the same name
-          // This ensures the folder headers take precedence over the collection headers
-          const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
-            return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
-          })
-          updatedFolder.headers.push(...filteredHeaders);
-        }
-
-        collectionStack.push({
-          path: `${path}/${updatedFolder.name}`,
-          collection: updatedFolder,
-        });
-      }
+      // Storing current request's report.
+      const requestReport = result.report;
+      requestsReport.push(requestReport);
     }
+
+    // Pushing remaining folders realted collection to stack.
+    for (const folder of collection.folders) {
+      const updatedFolder: HoppCollection = { ...folder };
+
+      if (updatedFolder.auth?.authType === "inherit") {
+        updatedFolder.auth = collection.auth;
+      }
+
+      if (collection.headers?.length) {
+        // Filter out header entries present in the parent collection under the same name
+        // This ensures the folder headers take precedence over the collection headers
+        const filteredHeaders = collection.headers.filter(
+          (collectionHeaderEntries) => {
+            return !updatedFolder.headers.some(
+              (folderHeaderEntries) =>
+                folderHeaderEntries.key === collectionHeaderEntries.key
+            );
+          }
+        );
+        updatedFolder.headers.push(...filteredHeaders);
+      }
+
+      collectionStack.push({
+        path: `${path}/${updatedFolder.name}`,
+        collection: updatedFolder,
+      });
+    }
+  }
 
   return requestsReport;
 };
@@ -134,7 +143,8 @@ const getCollectionStack = (collections: HoppCollection[]): CollectionStack[] =>
  * False, if errors occurred or test-cases failed.
  */
 export const collectionsRunnerResult = (
-  requestsReport: RequestReport[]
+  requestsReport: RequestReport[],
+  reporterJUnitExportPath?: string
 ): boolean => {
   const overallTestMetrics = <TestMetrics>{
     tests: { failed: 0, passed: 0 },
@@ -152,6 +162,9 @@ export const collectionsRunnerResult = (
   };
   let finalResult = true;
 
+  let totalErroredTestCases = 0;
+  let totalFailedTestCases = 0;
+
   // Printing requests-report details of failed-tests and errors
   for (const requestReport of requestsReport) {
     const { path, tests, errors, result, duration } = requestReport;
@@ -164,6 +177,19 @@ export const collectionsRunnerResult = (
     printFailedTestsReport(path, tests);
 
     printErrorsReport(path, errors);
+
+    if (reporterJUnitExportPath) {
+      const { failedRequestTestCases, erroredRequestTestCases } =
+        buildJUnitReport({
+          path,
+          tests,
+          errors,
+          duration: duration.test,
+        });
+
+      totalFailedTestCases += failedRequestTestCases;
+      totalErroredTestCases += erroredRequestTestCases;
+    }
 
     /**
      * Extracting current request report's test-metrics and updating
@@ -215,6 +241,19 @@ export const collectionsRunnerResult = (
   printTestsMetrics(overallTestMetrics);
   printRequestsMetrics(overallRequestMetrics);
   printPreRequestMetrics(overallPreRequestMetrics);
+
+  if (reporterJUnitExportPath) {
+    const totalTestCases =
+      overallTestMetrics.tests.failed + overallTestMetrics.tests.passed;
+
+    generateJUnitReportExport({
+      totalTestCases,
+      totalFailedTestCases,
+      totalErroredTestCases,
+      testDuration: overallTestMetrics.duration,
+      reporterJUnitExportPath,
+    });
+  }
 
   return finalResult;
 };

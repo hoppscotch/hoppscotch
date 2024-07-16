@@ -31,6 +31,7 @@ type HoppErrors = {
   INVALID_ID: HoppErrorData;
   INVALID_SERVER_URL: HoppErrorData;
   SERVER_CONNECTION_REFUSED: HoppErrorData;
+  REPORT_EXPORT_FAILED: HoppErrorPath & HoppErrorData;
 };
 
 export type HoppErrorCode = keyof HoppErrors;

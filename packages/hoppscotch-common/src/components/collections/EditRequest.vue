@@ -127,14 +127,4 @@ const autoRename = async () => {
     isAutoRenaming.value = false
   }
 }
-
-// TODO :
-// - get details from the actual tab to this API thing
-
-// Claude Chat References
-// https://claude.ai/chat/09bfa15e-1151-4886-94b8-55d9959b5297 - Initial Button Working
-
-// https://www.figma.com/design/Q66KyyZPapTAE1j4Zbvz7K/Untitled?node-id=0-1 - Figma file about implementation
-// https://github.com/Govind-S-B/HOPPSCOTCH-AI-EXPERIMENT---BATCH-A - Backend REPO
-// https://hoppscotch-aiwg-production.up.railway.app/ - Backend API
 </script>

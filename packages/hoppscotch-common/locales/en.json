@@ -1,5 +1,6 @@
 {
   "action": {
+    "auto_rename": "✨ Rename Request ✨",
     "add": "Add",
     "autoscroll": "Autoscroll",
     "cancel": "Cancel",

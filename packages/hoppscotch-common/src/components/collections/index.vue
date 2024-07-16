@@ -140,6 +140,7 @@
       v-model="editingRequestName"
       :show="showModalEditRequest"
       :loading-state="modalLoadingState"
+      :request-context="editingRequest"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
     />

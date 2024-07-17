@@ -70,7 +70,7 @@ export const buildJUnitReport = ({
     }
 
     // Append each error message with a newline for separation
-    systemErrContent += `${compiledError}\n`;
+    systemErrContent += `\n${" ".repeat(6)}${compiledError}`;
   });
 
   // There'll be a single `CDATA` element compiling all the error messages

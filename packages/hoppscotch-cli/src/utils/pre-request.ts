@@ -47,7 +47,10 @@ export const preRequestScriptRunner = (
     ),
     TE.map(
       ({ selected, global }) =>
-        <Environment>{ name: "Env", variables: [...selected, ...global] }
+        <Environment>{
+          name: "Env",
+          variables: [...(selected ?? []), ...(global ?? [])],
+        }
     ),
     TE.chainEitherKW((env) => getEffectiveRESTRequest(request, env)),
     TE.mapLeft((reason) =>

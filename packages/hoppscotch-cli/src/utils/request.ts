@@ -52,10 +52,11 @@ const processVariables = (variable: Environment["variables"][number]) => {
  * @param envs Global + selected envs used by requests with in collection
  * @returns Processed envs with each variable processed
  */
-const processEnvs = (envs: HoppEnvs) => {
+const processEnvs = (envs: Partial<HoppEnvs>) => {
+  // This can take the shape `{ global: undefined, selected: undefined }` when no environment is supplied
   const processedEnvs = {
-    global: envs.global.map(processVariables),
-    selected: envs.selected.map(processVariables),
+    global: envs.global?.map(processVariables),
+    selected: envs.selected?.map(processVariables),
   };
 
   return processedEnvs;

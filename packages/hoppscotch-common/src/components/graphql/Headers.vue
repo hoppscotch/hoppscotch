@@ -25,6 +25,7 @@
         @click="clearContent()"
       />
       <HoppButtonSecondary
+        v-if="bulkMode"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.linewrap')"
         :class="{ '!text-accent': WRAP_LINES }"

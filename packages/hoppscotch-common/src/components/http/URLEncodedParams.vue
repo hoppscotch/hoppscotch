@@ -44,7 +44,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" class="h-full relative">
+    <div v-if="bulkMode" class="h-full relative w-full flex flex-col flex-1">
       <div ref="bulkEditor" class="absolute inset-0"></div>
     </div>
     <div v-else>

@@ -33,7 +33,8 @@ export function getSuitableLenses(response: HoppRESTResponse): Lens[] {
     response.type === "loading" ||
     response.type === "network_fail" ||
     response.type === "script_fail" ||
-    response.type === "fail"
+    response.type === "fail" ||
+    response.type === "extension_error"
   )
     return []
 

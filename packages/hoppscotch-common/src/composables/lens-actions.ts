@@ -164,7 +164,8 @@ export function useResponseBody(response: HoppRESTResponse): {
       response.type === "loading" ||
       response.type === "network_fail" ||
       response.type === "script_fail" ||
-      response.type === "fail"
+      response.type === "fail" ||
+      response.type === "extension_error"
     )
       return ""
     if (typeof response.body === "string") return response.body

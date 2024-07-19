@@ -1,17 +1,18 @@
-import { computed, ComputedRef, ref, Ref } from "vue"
-import IconDownload from "~icons/lucide/download"
-import IconCopy from "~icons/lucide/copy"
-import IconCheck from "~icons/lucide/check"
-import { pipe } from "fp-ts/function"
-import * as S from "fp-ts/string"
-import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
-import { useToast } from "./toast"
-import { useI18n } from "./i18n"
-import { refAutoReset } from "@vueuse/core"
-import { copyToClipboard } from "@helpers/utils/clipboard"
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
-import { platform } from "~/platform"
+import { copyToClipboard } from "@helpers/utils/clipboard"
+import { refAutoReset } from "@vueuse/core"
+import { pipe } from "fp-ts/function"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+import * as S from "fp-ts/string"
+import { computed, ComputedRef, onMounted, ref, Ref } from "vue"
+
 import jsonToLanguage from "~/helpers/utils/json-to-language"
+import { platform } from "~/platform"
+import IconCheck from "~icons/lucide/check"
+import IconCopy from "~icons/lucide/copy"
+import IconDownload from "~icons/lucide/download"
+import { useI18n } from "./i18n"
+import { useToast } from "./toast"
 
 export function useCopyInterface(responseBodyText: Ref<string>) {
   const toast = useToast()
@@ -117,11 +118,17 @@ export function usePreview(
   const previewEnabled = ref(previewEnabledDefault)
   const url = ref("")
 
-  const togglePreview = () => {
-    previewEnabled.value = !previewEnabled.value
-    if (previewEnabled.value) {
-      if (previewFrame.value.getAttribute("data-previewing-url") === url.value)
-        return
+  // `previewFrame` is a template ref that gets attached to the `iframe` element when the component mounts
+  // Ensures the HTML content is rendered immediately after a request, persists between tab switches, and is not limited to preview toggles
+  onMounted(() => updatePreviewFrame())
+
+  // Prevent updating the `iframe` element attributes during preview toggle actions after they are set initially
+  const shouldUpdatePreviewFrame = computed(
+    () => previewFrame.value.getAttribute("data-previewing-url") !== url.value
+  )
+
+  const updatePreviewFrame = () => {
+    if (previewEnabled.value && shouldUpdatePreviewFrame.value) {
       // Use DOMParser to parse document HTML.
       const previewDocument = new DOMParser().parseFromString(
         responseBodyText.value,
@@ -130,10 +137,16 @@ export function usePreview(
       // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
       previewDocument.head.innerHTML =
         `<base href="${url.value}">` + previewDocument.head.innerHTML
+
       // Finally, set the iframe source to the resulting HTML.
       previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
       previewFrame.value.setAttribute("data-previewing-url", url.value)
     }
+  }
+
+  const togglePreview = () => {
+    previewEnabled.value = !previewEnabled.value
+    updatePreviewFrame()
   }
 
   return {

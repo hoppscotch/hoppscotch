@@ -110,11 +110,11 @@ export function usePreview(
   previewEnabledDefault: boolean,
   responseBodyText: Ref<string>
 ): {
-  previewFrame: any
+  previewFrame: Ref<HTMLIFrameElement | null>
   previewEnabled: Ref<boolean>
   togglePreview: () => void
 } {
-  const previewFrame = ref<any | null>(null)
+  const previewFrame: Ref<HTMLIFrameElement | null> = ref(null)
   const previewEnabled = ref(previewEnabledDefault)
   const url = ref("")
 
@@ -124,11 +124,15 @@ export function usePreview(
 
   // Prevent updating the `iframe` element attributes during preview toggle actions after they are set initially
   const shouldUpdatePreviewFrame = computed(
-    () => previewFrame.value.getAttribute("data-previewing-url") !== url.value
+    () => previewFrame.value?.getAttribute("data-previewing-url") !== url.value
   )
 
   const updatePreviewFrame = () => {
-    if (previewEnabled.value && shouldUpdatePreviewFrame.value) {
+    if (
+      previewEnabled.value &&
+      previewFrame.value &&
+      shouldUpdatePreviewFrame.value
+    ) {
       // Use DOMParser to parse document HTML.
       const previewDocument = new DOMParser().parseFromString(
         responseBodyText.value,

@@ -8,7 +8,7 @@
       </label>
       <div class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="response.body && !previewEnabled"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -44,8 +44,8 @@
         />
       </div>
     </div>
-    <div v-show="!previewEnabled" class="h-full">
-      <div ref="htmlResponse" class="flex flex-1 flex-col"></div>
+    <div v-show="!previewEnabled" class="h-full relative flex flex-col flex-1">
+      <div ref="htmlResponse" class="absolute inset-0"></div>
     </div>
     <iframe
       v-show="previewEnabled"

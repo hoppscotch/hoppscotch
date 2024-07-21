@@ -8,7 +8,7 @@
     :has-error="tokensListFetchErrored"
     :has-more-tokens="hasMoreTokens"
     :loading="tokensListLoading"
-    @delete-access-token="displayDeleteAccessTokenConfirmationModal"
+    @delete-access-token="displayDeleteInfraTokenConfirmationModal"
     @fetch-more-tokens="fetchAccessTokens"
   />
 
@@ -17,17 +17,19 @@
     :access-token="accessToken"
     :token-generate-action-loading="tokenGenerateActionLoading"
     @generate-access-token="generateAccessToken"
-    @hide-modal="hideAccessTokenGenerateModal"
+    @hide-modal="hideInfraTokenGenerateModal"
   />
 
   <HoppSmartConfirmModal
     :show="confirmDeleteAccessToken"
     :loading-state="tokenDeleteActionLoading"
     :title="
-      t('confirm.delete_access_token', { tokenLabel: tokenToDelete?.label })
+      t('state.confirm_delete_access_token', {
+        tokenLabel: tokenToDelete?.label,
+      })
     "
     @hide-modal="confirmDeleteAccessToken = false"
-    @resolve="deleteAccessToken"
+    @resolve="deleteInfraToken"
   />
 </template>
 
@@ -35,7 +37,7 @@
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import { useMutation } from '@urql/vue';
-import { Ref, onMounted, ref } from 'vue';
+import { Ref, ref, watch } from 'vue';
 import { usePagedQuery } from '~/composables/usePagedQuery';
 import {
   CreateInfraTokenDocument,
@@ -74,12 +76,12 @@ const {
   fetching: tokensListLoading,
   error: tokensListFetchErrored,
   list: tokensList,
-} = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, limit, {
-  take: 10,
+} = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, 10, {
   skip: 0,
+  take: 10,
 });
 
-onMounted(async () => {
+watch(tokensList.value, async () => {
   await fetchAccessTokens();
 });
 
@@ -128,7 +130,7 @@ const generateAccessToken = async ({
 
 const revokeInfraToken = useMutation(RevokeInfraTokenDocument);
 
-const deleteAccessToken = async () => {
+const deleteInfraToken = async () => {
   if (tokenToDelete.value === null) {
     toast.error(t('error.something_went_wrong'));
     return;
@@ -166,13 +168,13 @@ const deleteAccessToken = async () => {
   tokenToDelete.value = null;
 };
 
-const hideAccessTokenGenerateModal = () => {
+const hideInfraTokenGenerateModal = () => {
   // Reset the reactive state variable holding access token value and hide the modal
   accessToken.value = null;
   showAccessTokensGenerateModal.value = false;
 };
 
-const displayDeleteAccessTokenConfirmationModal = ({
+const displayDeleteInfraTokenConfirmationModal = ({
   tokenId,
   tokenLabel,
 }: {

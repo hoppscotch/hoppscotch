@@ -13,15 +13,15 @@
 
   <HoppSmartPlaceholder
     v-else-if="accessTokens.length === 0"
-    :src="`/images/states/${colorMode}/pack.svg`"
-    :alt="`${t('empty.access_tokens')}`"
-    :text="t('empty.access_tokens')"
+    :src="noTokensImage"
+    :alt="`${t('access_tokens.empty')}`"
+    :text="t('access_tokens.empty')"
     @drop.stop
   />
 
   <div
     v-else
-    class="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    class="grid gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ml-5"
   >
     <div
       v-for="{ id, label, lastUsedOn, expiresOn } in accessTokens"
@@ -85,13 +85,11 @@
 
 <script setup lang="ts">
 import { useI18n } from '~/composables/i18n';
-import { useColorMode } from '@vueuse/core';
 import { computed } from 'vue';
 
 import { shortDateTime } from '~/helpers/utils/date';
 import { AccessToken } from './index.vue';
 
-const colorMode = useColorMode();
 const t = useI18n();
 
 const props = defineProps<{
@@ -108,6 +106,10 @@ const emit = defineEmits<{
     { tokenId, tokenLabel }: { tokenId: string; tokenLabel: string }
   ): void;
 }>();
+
+const noTokensImage = `${
+  import.meta.env.VITE_ADMIN_URL
+}/assets/images/pack.svg`;
 
 const isInitialPageLoad = computed(() => props.loading && !props.hasMoreTokens);
 const initialPageLoadHasError = computed(

@@ -1,9 +1,9 @@
 <template>
-  <AccessTokensOverview
+  <TokensOverview
     @show-access-tokens-generate-modal="showAccessTokensGenerateModal = true"
   />
 
-  <AccessTokensList
+  <TokensList
     :access-tokens="accessTokens"
     :has-error="tokensListFetchErrored"
     :has-more-tokens="hasMoreTokens"
@@ -12,7 +12,7 @@
     @fetch-more-tokens="fetchAccessTokens"
   />
 
-  <AccessTokensGenerateModal
+  <TokensGenerateModal
     v-if="showAccessTokensGenerateModal"
     :access-token="accessToken"
     :token-generate-action-loading="tokenGenerateActionLoading"
@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from '@composables/i18n';
-import { useToast } from '@composables/toast';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 import { useMutation } from '@urql/vue';
 import { Ref, onMounted, ref } from 'vue';
 import { usePagedQuery } from '~/composables/usePagedQuery';
@@ -60,24 +60,19 @@ const hasMoreTokens = ref(false);
 const showAccessTokensGenerateModal = ref(false);
 const tokenDeleteActionLoading = ref(false);
 const tokenGenerateActionLoading = ref(false);
-// const tokensListFetchErrored = ref(false);
-// const tokensListLoading = ref(false);
 
 const accessToken: Ref<string | null> = ref(null);
 const tokenToDelete = ref<{ id: string; label: string } | null>(null);
 
 // const accessTokens: Ref<AccessToken[]> = ref([]);
-const accessTokens: Ref<InfraTokensQuery['infraTokens'][]> = ref([]);
+const accessTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
 
 const limit = 12;
 let offset = 0;
 
-const endpointPrefix = `${import.meta.env.VITE_BACKEND_API_URL}/access-tokens`;
-
 const {
   fetching: tokensListLoading,
   error: tokensListFetchErrored,
-  refetch,
   list: tokensList,
 } = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, limit, {
   take: 10,
@@ -89,7 +84,7 @@ onMounted(async () => {
 });
 
 const fetchAccessTokens = async () => {
-  accessTokens.value.push(tokensList!.value);
+  accessTokens.value.push(...tokensList.value);
 
   if (tokensList.value.length > 0) {
     offset += tokensList.value.length;

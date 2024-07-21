@@ -8,7 +8,7 @@
     class="flex flex-col items-center py-4"
   >
     <icon-lucide-help-circle class="mb-4 svg-icons" />
-    {{ t("error.something_went_wrong") }}
+    {{ t('error.something_went_wrong') }}
   </div>
 
   <HoppSmartPlaceholder
@@ -36,7 +36,7 @@
         <div class="space-y-1 text-secondaryLight">
           <div class="space-x-1">
             <span class="font-semibold"
-              >{{ t("access_tokens.last_used_on") }}:</span
+              >{{ t('access_tokens.last_used_on') }}:</span
             >
             <span>
               {{ shortDateTime(lastUsedOn, false) }}
@@ -45,7 +45,7 @@
 
           <div class="space-x-1">
             <span class="font-semibold"
-              >{{ t("access_tokens.expires_on") }}:</span
+              >{{ t('access_tokens.expires_on') }}:</span
             >
             <span>
               {{ getTokenExpiryText(expiresOn) }}
@@ -78,51 +78,52 @@
 
     <div v-else-if="hasError" class="flex flex-col items-center py-4">
       <icon-lucide-help-circle class="mb-4 svg-icons" />
-      {{ t("error.something_went_wrong") }}
+      {{ t('error.something_went_wrong') }}
     </div>
   </HoppSmartIntersection>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@vueuse/core"
-import { computed } from "vue"
+import { useI18n } from '~/composables/i18n';
+import { useColorMode } from '@vueuse/core';
+import { computed } from 'vue';
 
-import { shortDateTime } from "~/helpers/utils/date"
-import { AccessToken } from "./index.vue"
+import { shortDateTime } from '~/helpers/utils/date';
+import { AccessToken } from './index.vue';
 
-const colorMode = useColorMode()
-const t = useI18n()
+const colorMode = useColorMode();
+const t = useI18n();
 
 const props = defineProps<{
-  accessTokens: AccessToken[]
-  hasMoreTokens: boolean
-  loading: boolean
-  hasError: boolean
-}>()
+  accessTokens: AccessToken[];
+  hasMoreTokens: boolean;
+  loading: boolean;
+  hasError: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: "fetch-more-tokens"): void
+  (e: 'fetch-more-tokens'): void;
   (
-    e: "delete-access-token",
+    e: 'delete-access-token',
     { tokenId, tokenLabel }: { tokenId: string; tokenLabel: string }
-  ): void
-}>()
+  ): void;
+}>();
 
-const isInitialPageLoad = computed(() => props.loading && !props.hasMoreTokens)
+const isInitialPageLoad = computed(() => props.loading && !props.hasMoreTokens);
 const initialPageLoadHasError = computed(
   () => props.hasError && !props.hasMoreTokens
-)
+);
 
 const getTokenExpiryText = (tokenExpiresOn: string | null) => {
   if (!tokenExpiresOn) {
-    return t("access_tokens.no_expiration")
+    return t('access_tokens.no_expiration');
   }
 
-  const isTokenExpired = new Date(tokenExpiresOn).toISOString() > tokenExpiresOn
+  const isTokenExpired =
+    new Date(tokenExpiresOn).toISOString() > tokenExpiresOn;
 
   return isTokenExpired
-    ? t("access_tokens.expired")
-    : shortDateTime(tokenExpiresOn, false)
-}
+    ? t('access_tokens.expired')
+    : shortDateTime(tokenExpiresOn, false);
+};
 </script>

@@ -24,6 +24,9 @@
           class="py-8 px-4"
         />
       </HoppSmartTab>
+      <HoppSmartTab :id="'token'" label="Token">
+        <TokensToken />
+      </HoppSmartTab>
     </HoppSmartTabs>
   </div>
 
@@ -62,7 +65,7 @@ const showSaveChangesModal = ref(false);
 const initiateServerRestart = ref(false);
 
 // Tabs
-type OptionTabs = 'config';
+type OptionTabs = 'config' | 'token';
 const selectedOptionTab = ref<OptionTabs>('config');
 
 // Obtain the current and working configs from the useConfigHandler composable

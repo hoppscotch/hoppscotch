@@ -7,7 +7,7 @@
     <template #body>
       <template v-if="accessToken">
         <p class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600">
-          {{ t("access_tokens.copy_token_warning") }}
+          {{ t('access_tokens.copy_token_warning') }}
         </p>
 
         <div
@@ -26,7 +26,7 @@
       <div v-else class="space-y-4">
         <div class="space-y-2">
           <div class="font-semibold text-secondaryDark">
-            {{ t("action.label") }}
+            {{ t('action.label') }}
           </div>
           <HoppSmartInput
             v-model="accessTokenLabel"
@@ -36,7 +36,7 @@
 
         <div class="space-y-2">
           <label for="expiration" class="font-semibold text-secondaryDark">{{
-            t("access_tokens.expiration_label")
+            t('access_tokens.expiration_label')
           }}</label>
 
           <div class="grid items-center grid-cols-2 gap-x-2">
@@ -76,8 +76,8 @@
                     :aria-selected="expirationOption === expiration"
                     @click="
                       () => {
-                        expiration = expirationOption
-                        hide()
+                        expiration = expirationOption;
+                        hide();
                       }
                     "
                   />
@@ -91,12 +91,12 @@
 
         <div class="space-y-2">
           <div class="font-semibold text-secondaryDark">
-            {{ t("access_tokens.scope_label") }}
+            {{ t('access_tokens.scope_label') }}
           </div>
 
           <p class="text-secondaryLight">
-            {{ t("access_tokens.workspace_read_only_access") }}<br />
-            {{ t("access_tokens.personal_workspace_access_limitation") }}
+            {{ t('access_tokens.workspace_read_only_access') }}<br />
+            {{ t('access_tokens.personal_workspace_access_limitation') }}
           </p>
         </div>
       </div>
@@ -131,91 +131,91 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
-import { refAutoReset } from "@vueuse/core"
-import { VNodeRef, computed, ref } from "vue"
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
+import { refAutoReset } from '@vueuse/core';
+import { VNodeRef, computed, ref } from 'vue';
 
-import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { shortDateTime } from "~/helpers/utils/date"
+import { copyToClipboard } from '~/helpers/utils/clipboard';
+import { shortDateTime } from '~/helpers/utils/date';
 
-import IconCheck from "~icons/lucide/check"
-import IconCircle from "~icons/lucide/circle"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import IconCopy from "~icons/lucide/copy"
+import IconCheck from '~icons/lucide/check';
+import IconCircle from '~icons/lucide/circle';
+import IconCircleDot from '~icons/lucide/circle-dot';
+import IconCopy from '~icons/lucide/copy';
 
-const t = useI18n()
-const toast = useToast()
+const t = useI18n();
+const toast = useToast();
 
 const props = defineProps<{
-  tokenGenerateActionLoading: boolean
-  accessToken: string | null
-}>()
+  tokenGenerateActionLoading: boolean;
+  accessToken: string | null;
+}>();
 
 const emit = defineEmits<{
-  (e: "hide-modal"): void
+  (e: 'hide-modal'): void;
   (
-    e: "generate-access-token",
+    e: 'generate-access-token',
     { label, expiryInDays }: { label: string; expiryInDays: number | null }
-  ): void
-}>()
+  ): void;
+}>();
 
 // Template refs
-const tippyActions = ref<VNodeRef | null>(null)
+const tippyActions = ref<VNodeRef | null>(null);
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
-)
+);
 
-const accessTokenLabel = ref<string>("")
-const expiration = ref<string>("30 days")
+const accessTokenLabel = ref<string>('');
+const expiration = ref<string>('30 days');
 
 const expirationOptions: Record<string, number | null> = {
-  "7 days": 7,
-  "30 days": 30,
-  "60 days": 60,
-  "90 days": 90,
-  "No expiration": null,
-}
+  '7 days': 7,
+  '30 days': 30,
+  '60 days': 60,
+  '90 days': 90,
+  'No expiration': null,
+};
 
 const expirationDateText = computed(() => {
-  const chosenExpiryInDays = expirationOptions[expiration.value]
+  const chosenExpiryInDays = expirationOptions[expiration.value];
 
   if (chosenExpiryInDays === null) {
-    return t("access_tokens.no_expiration_verbose")
+    return t('access_tokens.no_expiration_verbose');
   }
 
-  const currentDate = new Date()
-  currentDate.setDate(currentDate.getDate() + chosenExpiryInDays)
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + chosenExpiryInDays);
 
-  const expirationDate = shortDateTime(currentDate, false)
-  return `${t("access_tokens.token_expires_on")} ${expirationDate}`
-})
+  const expirationDate = shortDateTime(currentDate, false);
+  return `${t('access_tokens.token_expires_on')} ${expirationDate}`;
+});
 
 const copyAccessToken = () => {
   if (!props.accessToken) {
-    toast.error("error.something_went_wrong")
-    return
+    toast.error('error.something_went_wrong');
+    return;
   }
 
-  copyToClipboard(props.accessToken)
-  copyIcon.value = IconCheck
+  copyToClipboard(props.accessToken);
+  copyIcon.value = IconCheck;
 
-  toast.success(`${t("state.copied_to_clipboard")}`)
-}
+  toast.success(`${t('state.copied_to_clipboard')}`);
+};
 
 const generateAccessToken = async () => {
   if (!accessTokenLabel.value) {
-    toast.error(t("access_tokens.invalid_label"))
-    return
+    toast.error(t('access_tokens.invalid_label'));
+    return;
   }
 
-  emit("generate-access-token", {
+  emit('generate-access-token', {
     label: accessTokenLabel.value,
     expiryInDays: expirationOptions[expiration.value],
-  })
-}
+  });
+};
 
-const hideModal = () => emit("hide-modal")
+const hideModal = () => emit('hide-modal');
 </script>

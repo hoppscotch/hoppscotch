@@ -25,7 +25,7 @@
         />
       </HoppSmartTab>
       <HoppSmartTab :id="'token'" label="Token">
-        <TokensToken />
+        <Tokens />
       </HoppSmartTab>
     </HoppSmartTabs>
   </div>

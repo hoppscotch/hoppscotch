@@ -84,16 +84,16 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from '~/composables/i18n';
 import { computed } from 'vue';
+import { useI18n } from '~/composables/i18n';
 
+import { InfraTokensQuery } from '~/helpers/backend/graphql';
 import { shortDateTime } from '~/helpers/utils/date';
-import { AccessToken } from './index.vue';
 
 const t = useI18n();
 
 const props = defineProps<{
-  accessTokens: AccessToken[];
+  accessTokens: InfraTokensQuery['infraTokens'];
   hasMoreTokens: boolean;
   loading: boolean;
   hasError: boolean;

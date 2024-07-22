@@ -202,7 +202,7 @@ const copyAccessToken = () => {
   copyToClipboard(props.accessToken);
   copyIcon.value = IconCheck;
 
-  toast.success(`${t('state.copied_to_clipboard')}`);
+  toast.success(t('state.copied_to_clipboard'));
 };
 
 const generateAccessToken = async () => {

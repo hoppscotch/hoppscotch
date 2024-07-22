@@ -121,9 +121,3 @@ useCodemirror(
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
 </script>
-
-<style lang="scss" scoped>
-:deep(.cm-panels) {
-  @apply top-lowerTertiaryStickyFold #{!important};
-}
-</style>

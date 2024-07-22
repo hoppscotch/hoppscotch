@@ -120,11 +120,7 @@
       </div>
     </div>
     <div class="h-full relative overflow-auto flex flex-col flex-1">
-      <div
-        ref="jsonResponse"
-        :class="toggleFilter ? 'responseToggleOn' : 'responseToggleOff'"
-        class="absolute inset-0 h-full"
-      ></div>
+      <div ref="jsonResponse" class="absolute inset-0 h-full"></div>
     </div>
     <div
       v-if="outlinePath"
@@ -433,13 +429,5 @@ defineActionHandler("response.copy", () => copyResponse())
   @apply py-1;
   @apply transition;
   @apply hover:text-secondary;
-}
-
-:deep(.responseToggleOff .cm-panels) {
-  @apply top-lowerTertiaryStickyFold #{!important};
-}
-
-:deep(.responseToggleOn .cm-panels) {
-  @apply top-lowerFourthStickyFold #{!important};
 }
 </style>

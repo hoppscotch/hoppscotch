@@ -1,24 +1,24 @@
 <template>
   <HoppSmartModal
     dialog
-    :title="t('access_tokens.generate_modal_title')"
+    :title="t('infra_tokens.generate_modal_title')"
     @close="hideModal"
   >
     <template #body>
-      <template v-if="accessToken">
+      <template v-if="infraToken">
         <p class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600">
-          {{ t('access_tokens.copy_token_warning') }}
+          {{ t('infra_tokens.copy_token_warning') }}
         </p>
 
         <div
           class="flex items-center justify-between p-4 mt-4 rounded-md bg-primaryLight"
         >
-          <div class="text-secondaryDark">{{ accessToken }}</div>
+          <div class="text-secondaryDark">{{ infraToken }}</div>
           <HoppButtonSecondary
             outline
             filled
             :icon="copyIcon"
-            @click="copyAccessToken"
+            @click="copyInfraToken"
           />
         </div>
       </template>
@@ -29,14 +29,14 @@
             {{ t('action.label') }}
           </div>
           <HoppSmartInput
-            v-model="accessTokenLabel"
-            :placeholder="t('access_tokens.token_purpose')"
+            v-model="infraTokenLabel"
+            :placeholder="t('infra_tokens.token_purpose')"
           />
         </div>
 
         <div class="space-y-2">
           <label for="expiration" class="font-semibold text-secondaryDark">{{
-            t('access_tokens.expiration_label')
+            t('infra_tokens.expiration_label')
           }}</label>
 
           <div class="grid items-center grid-cols-2 gap-x-2">
@@ -91,19 +91,19 @@
 
         <div class="space-y-2">
           <div class="font-semibold text-secondaryDark">
-            {{ t('access_tokens.scope_label') }}
+            {{ t('infra_tokens.scope_label') }}
           </div>
 
           <p class="text-secondaryLight">
-            {{ t('access_tokens.workspace_read_only_access') }}<br />
-            {{ t('access_tokens.personal_workspace_access_limitation') }}
+            {{ t('infra_tokens.workspace_read_only_access') }}<br />
+            {{ t('infra_tokens.personal_workspace_access_limitation') }}
           </p>
         </div>
       </div>
     </template>
     <template #footer>
       <HoppButtonSecondary
-        v-if="accessToken"
+        v-if="infraToken"
         :label="t('action.close')"
         outline
         filled
@@ -115,8 +115,8 @@
           :loading="tokenGenerateActionLoading"
           filled
           outline
-          :label="t('access_tokens.generate_token')"
-          @click="generateAccessToken"
+          :label="t('infra_tokens.generate_token')"
+          @click="generateInfraToken"
         />
 
         <HoppButtonSecondary
@@ -149,13 +149,13 @@ const toast = useToast();
 
 const props = defineProps<{
   tokenGenerateActionLoading: boolean;
-  accessToken: string | null;
+  infraToken: string | null;
 }>();
 
 const emit = defineEmits<{
   (e: 'hide-modal'): void;
   (
-    e: 'generate-access-token',
+    e: 'generate-infra-token',
     { label, expiryInDays }: { label: string; expiryInDays: number | null }
   ): void;
 }>();
@@ -168,7 +168,7 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   1000
 );
 
-const accessTokenLabel = ref<string>('');
+const infraTokenLabel = ref<string>('');
 const expiration = ref<string>('30 days');
 
 const expirationOptions: Record<string, number | null> = {
@@ -183,36 +183,36 @@ const expirationDateText = computed(() => {
   const chosenExpiryInDays = expirationOptions[expiration.value];
 
   if (chosenExpiryInDays === null) {
-    return t('access_tokens.no_expiration_verbose');
+    return t('infra_tokens.no_expiration_verbose');
   }
 
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + chosenExpiryInDays);
 
   const expirationDate = shortDateTime(currentDate, false);
-  return `${t('access_tokens.token_expires_on')} ${expirationDate}`;
+  return `${t('infra_tokens.token_expires_on')} ${expirationDate}`;
 });
 
-const copyAccessToken = () => {
-  if (!props.accessToken) {
+const copyInfraToken = () => {
+  if (!props.infraToken) {
     toast.error('error.something_went_wrong');
     return;
   }
 
-  copyToClipboard(props.accessToken);
+  copyToClipboard(props.infraToken);
   copyIcon.value = IconCheck;
 
   toast.success(t('state.copied_to_clipboard'));
 };
 
-const generateAccessToken = async () => {
-  if (!accessTokenLabel.value) {
-    toast.error(t('access_tokens.invalid_label'));
+const generateInfraToken = async () => {
+  if (!infraTokenLabel.value) {
+    toast.error(t('infra_tokens.invalid_label'));
     return;
   }
 
-  emit('generate-access-token', {
-    label: accessTokenLabel.value,
+  emit('generate-infra-token', {
+    label: infraTokenLabel.value,
     expiryInDays: expirationOptions[expiration.value],
   });
 };

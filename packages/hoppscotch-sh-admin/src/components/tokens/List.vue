@@ -12,10 +12,10 @@
   </div>
 
   <HoppSmartPlaceholder
-    v-else-if="accessTokens.length === 0"
+    v-else-if="infraTokens.length === 0"
     :src="noTokensImage"
-    :alt="`${t('access_tokens.empty')}`"
-    :text="t('access_tokens.empty')"
+    :alt="`${t('infra_tokens.empty')}`"
+    :text="t('infra_tokens.empty')"
     @drop.stop
   />
 
@@ -24,7 +24,7 @@
     class="grid gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ml-5"
   >
     <div
-      v-for="{ id, label, lastUsedOn, expiresOn } in accessTokens"
+      v-for="{ id, label, lastUsedOn, expiresOn } in infraTokens"
       :key="id"
       class="flex flex-col items-center gap-4 p-4 border rounded border-divider"
     >
@@ -36,7 +36,7 @@
         <div class="space-y-1 text-secondaryLight">
           <div class="space-x-1">
             <span class="font-semibold"
-              >{{ t('access_tokens.last_used_on') }}:</span
+              >{{ t('infra_tokens.last_used_on') }}:</span
             >
             <span>
               {{ shortDateTime(lastUsedOn, false) }}
@@ -45,7 +45,7 @@
 
           <div class="space-x-1">
             <span class="font-semibold"
-              >{{ t('access_tokens.expires_on') }}:</span
+              >{{ t('infra_tokens.expires_on') }}:</span
             >
             <span>
               {{ getTokenExpiryText(expiresOn) }}
@@ -58,7 +58,7 @@
           filled
           outline
           @click="
-            emit('delete-access-token', {
+            emit('delete-infra-token', {
               tokenId: id,
               tokenLabel: label,
             })
@@ -93,7 +93,7 @@ import { shortDateTime } from '~/helpers/utils/date';
 const t = useI18n();
 
 const props = defineProps<{
-  accessTokens: InfraTokensQuery['infraTokens'];
+  infraTokens: InfraTokensQuery['infraTokens'];
   hasMoreTokens: boolean;
   loading: boolean;
   hasError: boolean;
@@ -102,7 +102,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'fetch-more-tokens'): void;
   (
-    e: 'delete-access-token',
+    e: 'delete-infra-token',
     { tokenId, tokenLabel }: { tokenId: string; tokenLabel: string }
   ): void;
 }>();
@@ -118,14 +118,14 @@ const initialPageLoadHasError = computed(
 
 const getTokenExpiryText = (tokenExpiresOn: string | null) => {
   if (!tokenExpiresOn) {
-    return t('access_tokens.no_expiration');
+    return t('infra_tokens.no_expiration');
   }
 
   const isTokenExpired =
     new Date(tokenExpiresOn).toISOString() > tokenExpiresOn;
 
   return isTokenExpired
-    ? t('access_tokens.expired')
+    ? t('infra_tokens.expired')
     : shortDateTime(tokenExpiresOn, false);
 };
 </script>

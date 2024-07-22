@@ -1,7 +1,7 @@
 {
-  "access_tokens": {
+  "infra_tokens": {
     "tab_title": "Tokens",
-    "section_title": "Personal Access Tokens",
+    "section_title": "Infra Tokens",
     "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
     "last_used_on": "Last used on",
     "expires_on": "Expires on",
@@ -153,7 +153,7 @@
     "configure_auth": "Check out the documentation to configure auth providers.",
     "confirm_admin_to_user": "Do you want to remove admin status from this user?",
     "confirm_admins_to_users": "Do you want to remove admin status from selected users?",
-    "confirm_delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?",
+    "confirm_delete_infra_token": "Are you sure you want to delete the infra token {tokenLabel}?",
     "confirm_delete_invite": "Do you want to revoke the selected invite?",
     "confirm_delete_invites": "Do you want to revoke selected invites?",
     "confirm_user_deletion": "Confirm user deletion?",

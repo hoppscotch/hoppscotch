@@ -1,34 +1,34 @@
 <template>
   <TokensOverview
-    @show-access-tokens-generate-modal="showAccessTokensGenerateModal = true"
+    @show-infra-tokens-generate-modal="showInfraTokensGenerateModal = true"
   />
 
   <TokensList
-    :access-tokens="accessTokens"
+    :infra-tokens="infraTokens"
     :has-error="tokensListFetchErrored"
     :has-more-tokens="hasMoreTokens"
     :loading="tokensListLoading"
-    @delete-access-token="displayDeleteInfraTokenConfirmationModal"
-    @fetch-more-tokens="fetchAccessTokens"
+    @delete-infra-token="displayDeleteInfraTokenConfirmationModal"
+    @fetch-more-tokens="fetchInfraTokens"
   />
 
   <TokensGenerateModal
-    v-if="showAccessTokensGenerateModal"
-    :access-token="accessToken"
+    v-if="showInfraTokensGenerateModal"
+    :infra-token="infraToken"
     :token-generate-action-loading="tokenGenerateActionLoading"
-    @generate-access-token="generateAccessToken"
+    @generate-infra-token="generateInfraToken"
     @hide-modal="hideInfraTokenGenerateModal"
   />
 
   <HoppSmartConfirmModal
-    :show="confirmDeleteAccessToken"
+    :show="confirmDeleteInfraToken"
     :loading-state="tokenDeleteActionLoading"
     :title="
       t('state.confirm_delete_access_token', {
         tokenLabel: tokenToDelete?.label,
       })
     "
-    @hide-modal="confirmDeleteAccessToken = false"
+    @hide-modal="confirmDeleteInfraToken = false"
     @resolve="deleteInfraToken"
   />
 </template>
@@ -46,28 +46,19 @@ import {
   RevokeInfraTokenDocument,
 } from '~/helpers/backend/graphql';
 
-export type AccessToken = {
-  id: string;
-  label: string;
-  createdOn: string;
-  lastUsedOn: string;
-  expiresOn: string | null;
-};
-
 const t = useI18n();
 const toast = useToast();
 
-const confirmDeleteAccessToken = ref(false);
+const confirmDeleteInfraToken = ref(false);
 const hasMoreTokens = ref(false);
-const showAccessTokensGenerateModal = ref(false);
+const showInfraTokensGenerateModal = ref(false);
 const tokenDeleteActionLoading = ref(false);
 const tokenGenerateActionLoading = ref(false);
 
-const accessToken: Ref<string | null> = ref(null);
+const infraToken: Ref<string | null> = ref(null);
 const tokenToDelete = ref<{ id: string; label: string } | null>(null);
 
-// const accessTokens: Ref<AccessToken[]> = ref([]);
-const accessTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
+const infraTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
 
 const limit = 12;
 let offset = 0;
@@ -82,11 +73,11 @@ const {
 });
 
 watch(tokensList.value, async () => {
-  await fetchAccessTokens();
+  await fetchInfraTokens();
 });
 
-const fetchAccessTokens = async () => {
-  accessTokens.value.push(...tokensList.value);
+const fetchInfraTokens = async () => {
+  infraTokens.value.push(...tokensList.value);
 
   if (tokensList.value.length > 0) {
     offset += tokensList.value.length;
@@ -97,7 +88,7 @@ const fetchAccessTokens = async () => {
 
 const createInfraTokens = useMutation(CreateInfraTokenDocument);
 
-const generateAccessToken = async ({
+const generateInfraToken = async ({
   label,
   expiryInDays,
 }: {
@@ -115,10 +106,10 @@ const generateAccessToken = async ({
 
   if (result.error) {
     toast.error(t('error.generate_access_token'));
-    showAccessTokensGenerateModal.value = false;
+    showInfraTokensGenerateModal.value = false;
   } else {
-    accessTokens.value.unshift(result.data!.createInfraToken.info);
-    accessToken.value = result.data!.createInfraToken.token;
+    infraTokens.value.unshift(result.data!.createInfraToken.info);
+    infraToken.value = result.data!.createInfraToken.token;
     offset += 1;
 
     if (tokensListFetchErrored.value) {
@@ -148,14 +139,14 @@ const deleteInfraToken = async () => {
   if (result.error) {
     toast.error(t('error.delete_access_token'));
   } else {
-    accessTokens.value = accessTokens.value.filter(
+    infraTokens.value = infraTokens.value.filter(
       (token) => token.id !== tokenIdToDelete
     );
 
     offset = offset > 0 ? offset - 1 : offset;
 
     toast.success(
-      t('access_tokens.deletion_success', { label: tokenLabelToDelete })
+      t('infra_tokens.deletion_success', { label: tokenLabelToDelete })
     );
 
     if (tokensListFetchErrored.value) {
@@ -164,14 +155,14 @@ const deleteInfraToken = async () => {
   }
 
   tokenDeleteActionLoading.value = false;
-  confirmDeleteAccessToken.value = false;
+  confirmDeleteInfraToken.value = false;
   tokenToDelete.value = null;
 };
 
 const hideInfraTokenGenerateModal = () => {
   // Reset the reactive state variable holding access token value and hide the modal
-  accessToken.value = null;
-  showAccessTokensGenerateModal.value = false;
+  infraToken.value = null;
+  showInfraTokensGenerateModal.value = false;
 };
 
 const displayDeleteInfraTokenConfirmationModal = ({
@@ -181,7 +172,7 @@ const displayDeleteInfraTokenConfirmationModal = ({
   tokenId: string;
   tokenLabel: string;
 }) => {
-  confirmDeleteAccessToken.value = true;
+  confirmDeleteInfraToken.value = true;
 
   tokenToDelete.value = {
     id: tokenId,

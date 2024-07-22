@@ -24,7 +24,7 @@
           class="py-8 px-4"
         />
       </HoppSmartTab>
-      <HoppSmartTab :id="'token'" label="Token">
+      <HoppSmartTab :id="'token'" label="Tokens">
         <Tokens />
       </HoppSmartTab>
     </HoppSmartTabs>

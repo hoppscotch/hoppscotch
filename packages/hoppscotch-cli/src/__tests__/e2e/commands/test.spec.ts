@@ -528,7 +528,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       fs.rmdirSync(genPath, { recursive: true });
     });
 
-    test("report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
+    test("Report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
       const exportPath = "hopp-junit-report.xml";
 
       const COLL_PATH = getTestJsonFilePath("passes-coll.json", "collection");
@@ -547,7 +547,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       );
     });
 
-    test("generates a JUnit report at the default path", async () => {
+    test("Generates a JUnit report at the default path", async () => {
       const exportPath = "hopp-junit-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
@@ -576,7 +576,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("generates a JUnit report at the specified path", async () => {
+    test("Generates a JUnit report at the specified path", async () => {
       const exportPath = "outer-dir/inner-dir/report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
@@ -605,7 +605,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("generates a JUnit report for a collection with authorization/headers set at the collection level", async () => {
+    test("Generates a JUnit report for a collection with authorization/headers set at the collection level", async () => {
       const exportPath = "hopp-junit-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(
@@ -634,7 +634,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
 
-    test("generates a JUnit report for a collection referring to environment variables", async () => {
+    test("Generates a JUnit report for a collection referring to environment variables", async () => {
       const exportPath = "hopp-junit-report.xml";
 
       const COLL_PATH = getTestJsonFilePath(

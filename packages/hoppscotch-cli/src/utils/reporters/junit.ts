@@ -33,26 +33,27 @@ const rootEl = create({ version: "1.0", encoding: "UTF-8" }).ele("testsuites");
 
 /**
  * Builds a JUnit report based on the provided request report.
+ * Creates a test suite at the request level populating the XML document structure.
  *
  * @param {BuildJUnitReportArgs} options - The options to build the JUnit report.
  * @param {string} options.path - The path of the request.
  * @param {TestReport[]} options.tests - The test suites for the request.
  * @param {HoppCLIError[]} options.errors - The errors encountered during the request.
- * @param {number} options.duration - The duration of the request.
+ * @param {number} options.duration - Time taken to execute the test suite.
  * @returns {BuildJUnitReportResult} An object containing the number of failed and errored test cases.
  */
 export const buildJUnitReport = ({
   path,
   tests: testSuites,
   errors: requestTestSuiteErrors,
-  duration,
+  duration: testSuiteDuration,
 }: BuildJUnitReportArgs): BuildJUnitReportResult => {
   let requestTestSuiteError: XMLBuilder | null = null;
 
   // Create a test suite at the request level
   const requestTestSuite = rootEl.ele("testsuite", {
     name: path,
-    time: duration,
+    time: testSuiteDuration,
     timestamp: new Date().toISOString(),
   });
 
@@ -87,9 +88,11 @@ export const buildJUnitReport = ({
     requestTestCases += expectResults.length;
 
     expectResults.forEach(({ status, message }) => {
-      const testCase = requestTestSuite.ele("testcase", {
-        name: `${descriptor} - ${message}`,
-      });
+      const testCase = requestTestSuite
+        .ele("testcase", {
+          name: `${descriptor} - ${message}`,
+        })
+        .att("classname", path);
 
       if (status === "fail") {
         failedRequestTestCases += 1;

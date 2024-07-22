@@ -1,5 +1,5 @@
 import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
-import { Interceptor, InterceptorError, NetworkResponse, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
+import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
 import { Service } from "dioc"
 import { cloneDeep } from "lodash-es"
 import { invoke } from "@tauri-apps/api/tauri"
@@ -21,7 +21,8 @@ type FormDataValue =
   | {
       File: {
         filename: string,
-        data: Uint8Array
+        data: number[],
+        mime: string
       }
     }
 
@@ -124,12 +125,15 @@ async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null
           value: { Text: value }
         })
       } else {
+        const mime = value.type !== "" ? value.type : "application/octet-stream"
+
         entries.push({
           key,
           value: {
             File: {
               filename: value.name,
-              data: new Uint8Array(await value.arrayBuffer())
+              data: Array.from(new Uint8Array(await value.arrayBuffer())),
+              mime,
             }
           }
         })
@@ -184,6 +188,7 @@ async function convertToRequestDef(
     method: axiosReq.method ?? "GET",
     endpoint: axiosReq.url ?? "",
     headers: Object.entries(axiosReq.headers ?? {})
+      .filter(([key, value]) => !(key.toLowerCase() === "content-type" && value.toLowerCase() === "multipart/form-data")) // Removing header, because this header will be set by reqwest
       .map(([key, value]): KeyValuePair => ({ key, value })),
     parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
       .map(([key, value]): KeyValuePair => ({ key, value })),
@@ -394,9 +399,11 @@ export class NativeInterceptorService extends Service implements Interceptor {
       new URL(processedReq.url!)
     )
 
-    processedReq.headers["Cookie"] = relevantCookies
-      .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-      .join(";")
+    if (relevantCookies.length > 0) {
+      processedReq.headers["Cookie"] = relevantCookies
+        .map((cookie) => `${cookie.name!}=${cookie.value!}`)
+        .join(";")
+    }
 
     const reqID = this.reqIDTicker++;
 

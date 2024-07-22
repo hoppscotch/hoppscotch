@@ -320,7 +320,13 @@ function getFinalBodyFromRequest(
   if (request.body.contentType === "multipart/form-data") {
     return pipe(
       request.body.body ?? [],
-      A.filter((x) => (x.key !== "" || x.isFile) && x.active), // Remove empty keys
+      A.filter(
+        (x) =>
+          x.key !== "" &&
+          x.active &&
+          (typeof x.value === "string" ||
+            (x.value.length > 0 && x.value[0] instanceof File))
+      ), // Remove empty keys and unsetted file
 
       // Sort files down
       arraySort((a, b) => {

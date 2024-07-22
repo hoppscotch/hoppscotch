@@ -20,7 +20,8 @@ enum FormDataValue {
   Text(String),
   File {
     filename: String,
-    data: Vec<u8>
+    data: Vec<u8>,
+    mime: String
   }
 }
 
@@ -112,11 +113,12 @@ fn convert_bodydef_to_req_action(req: &RequestDef) -> Option<ReqBodyAction> {
       for entry in entries {
         form = match &entry.value {
           FormDataValue::Text(value) => form.text(entry.key.clone(), value.clone()),
-          FormDataValue::File { filename, data } =>
+          FormDataValue::File { filename, data, mime } =>
           form.part(
             entry.key.clone(),
             reqwest::multipart::Part::bytes(data.clone())
               .file_name(filename.clone())
+              .mime_str(mime.as_str()).expect("Error while setting File enum")
           ),
         }
       }

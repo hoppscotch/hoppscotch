@@ -71,6 +71,13 @@
                   collection: node.data.data.data,
                 })
             "
+            @duplicate-collection="
+              node.data.type === 'collections' &&
+                emit('duplicate-collection', {
+                  pathOrID: node.id,
+                  collectionSyncID: node.data.data.data.id,
+                })
+            "
             @edit-properties="
               node.data.type === 'collections' &&
                 emit('edit-properties', {
@@ -144,6 +151,13 @@
                 emit('edit-folder', {
                   folderPath: node.id,
                   folder: node.data.data.data,
+                })
+            "
+            @duplicate-collection="
+              node.data.type === 'folders' &&
+                emit('duplicate-collection', {
+                  pathOrID: node.id,
+                  collectionSyncID: node.data.data.data.id,
                 })
             "
             @edit-properties="
@@ -445,6 +459,13 @@ const emit = defineEmits<{
     payload: {
       folderPath: string
       folder: HoppCollection
+    }
+  ): void
+  (
+    event: "duplicate-collection",
+    payload: {
+      pathOrID: string
+      collectionSyncID?: string
     }
   ): void
   (

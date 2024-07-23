@@ -68,6 +68,9 @@ import {
   UpdateUserCollectionMutation,
   UpdateUserCollectionMutationVariables,
   UpdateUserCollectionDocument,
+  DuplicateUserCollectionDocument,
+  DuplicateUserCollectionMutation,
+  DuplicateUserCollectionMutationVariables,
 } from "../../api/generated/graphql"
 
 export const createRESTRootUserCollection = (title: string, data?: string) =>
@@ -191,6 +194,19 @@ export const moveUserCollection = (
   >(MoveUserCollectionDocument, {
     userCollectionID: sourceCollectionID,
     destCollectionID: destinationCollectionID,
+  })()
+
+export const duplicateUserCollection = (
+  collectionID: string,
+  reqType: ReqType
+) =>
+  runMutation<
+    DuplicateUserCollectionMutation,
+    DuplicateUserCollectionMutationVariables,
+    ""
+  >(DuplicateUserCollectionDocument, {
+    collectionID,
+    reqType,
   })()
 
 export const editUserRequest = (

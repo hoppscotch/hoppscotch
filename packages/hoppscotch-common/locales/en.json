@@ -194,7 +194,8 @@
     "save_to_collection": "Save to Collection",
     "select": "Select a Collection",
     "select_location": "Select location",
-    "details": "Details"
+    "details": "Details",
+    "duplicated": "Collection duplicated"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",

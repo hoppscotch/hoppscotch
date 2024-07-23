@@ -102,6 +102,7 @@
                   @keyup.r="requestAction?.$el.click()"
                   @keyup.n="folderAction?.$el.click()"
                   @keyup.e="edit?.$el.click()"
+                  @keyup.d="duplicateAction?.$el.click()"
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
@@ -141,6 +142,19 @@
                       () => {
                         emit('edit-collection')
                         hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="duplicateAction"
+                    :icon="IconCopy"
+                    :label="t('action.duplicate')"
+                    :loading="duplicateCollectionLoading"
+                    :shortcut="['D']"
+                    @click="
+                      () => {
+                        emit('duplicate-collection'),
+                          collectionsType === 'my-collections' ? hide() : null
                       }
                     "
                   />
@@ -230,6 +244,7 @@ import {
   currentReorderingStatus$,
 } from "~/newstore/reordering"
 import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
@@ -263,6 +278,7 @@ const props = withDefaults(
     hasNoTeamAccess?: boolean
     collectionMoveLoading?: string[]
     isLastItem?: boolean
+    duplicateCollectionLoading?: boolean
   }>(),
   {
     id: "",
@@ -274,6 +290,7 @@ const props = withDefaults(
     exportLoading: false,
     hasNoTeamAccess: false,
     isLastItem: false,
+    duplicateLoading: false,
   }
 )
 
@@ -283,6 +300,7 @@ const emit = defineEmits<{
   (event: "add-folder"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
+  (event: "duplicate-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -297,6 +315,7 @@ const tippyActions = ref<HTMLDivElement | null>(null)
 const requestAction = ref<HTMLButtonElement | null>(null)
 const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
+const duplicateAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -341,9 +360,9 @@ const collectionName = computed(() => {
 })
 
 watch(
-  () => props.exportLoading,
-  (val) => {
-    if (!val) {
+  () => [props.exportLoading, props.duplicateCollectionLoading],
+  ([newExportLoadingVal, newDuplicateCollectionLoadingVal]) => {
+    if (!newExportLoadingVal || !newDuplicateCollectionLoadingVal) {
       options.value!.tippy?.hide()
     }
   }

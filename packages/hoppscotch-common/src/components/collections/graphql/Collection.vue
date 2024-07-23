@@ -73,6 +73,7 @@
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
+                @keyup.d="duplicateAction.$el.click()"
                 @keyup.delete="deleteAction.$el.click()"
                 @keyup.escape="hide()"
               >
@@ -113,6 +114,21 @@
                     () => {
                       emit('edit-collection')
                       hide()
+                    }
+                  "
+                />
+                <HoppSmartItem
+                  ref="duplicateAction"
+                  :icon="IconCopy"
+                  :label="t('action.duplicate')"
+                  :shortcut="['D']"
+                  @click="
+                    () => {
+                      emit('duplicate-collection', {
+                        path: `${collectionIndex}`,
+                        collectionSyncID: collection.id,
+                      }),
+                        hide()
                     }
                   "
                 />
@@ -168,6 +184,7 @@
           @add-request="$emit('add-request', $event)"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
+          @duplicate-collection="$emit('duplicate-collection', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @edit-properties="
@@ -229,24 +246,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconSettings2 from "~icons/lucide/settings-2"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlCollection } from "~/newstore/collections"
-import { Picked } from "~/helpers/types/HoppPicked"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
+import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { computed, ref } from "vue"
+import { Picked } from "~/helpers/types/HoppPicked"
+import { removeGraphqlCollection } from "~/newstore/collections"
+import { GQLTabService } from "~/services/tab/graphql"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconFilePlus from "~icons/lucide/file-plus"
+import IconFolder from "~icons/lucide/folder"
+import IconFolderOpen from "~icons/lucide/folder-open"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const props = defineProps<{
   picked: Picked | null
@@ -272,6 +290,13 @@ const emit = defineEmits<{
   (e: "add-folder", i: any): void
   (e: "edit-folder", i: any): void
   (
+    e: "duplicate-collection",
+    payload: {
+      path: string
+      collectionSyncID?: string
+    }
+  ): void
+  (
     e: "edit-properties",
     payload: {
       collectionIndex: string | null
@@ -296,6 +321,7 @@ const options = ref<any | null>(null)
 const requestAction = ref<any | null>(null)
 const folderAction = ref<any | null>(null)
 const edit = ref<any | null>(null)
+const duplicateAction = ref<any | null>(null)
 const deleteAction = ref<any | null>(null)
 
 const showChildren = ref(false)

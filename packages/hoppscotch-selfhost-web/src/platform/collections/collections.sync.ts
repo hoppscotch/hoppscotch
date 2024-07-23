@@ -21,6 +21,7 @@ import {
   createRESTUserRequest,
   deleteUserCollection,
   deleteUserRequest,
+  duplicateUserCollection,
   editUserRequest,
   moveUserCollection,
   moveUserRequest,
@@ -29,6 +30,7 @@ import {
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
+import { ReqType } from "../../api/generated/graphql"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 export const restCollectionsMapper = createMapper<string, string>()
@@ -278,6 +280,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (sourceCollectionID) {
         await moveUserCollection(sourceCollectionID, destinationCollectionID)
       }
+    }
+  },
+  async duplicateCollection({ collectionSyncID }) {
+    if (collectionSyncID) {
+      await duplicateUserCollection(collectionSyncID, ReqType.Rest)
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

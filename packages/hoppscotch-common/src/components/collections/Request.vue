@@ -112,12 +112,11 @@
                   ref="duplicate"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
-                  :loading="duplicateLoading"
+                  :loading="duplicateRequestLoading"
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request'),
-                        collectionsType === 'my-collections' ? hide() : null
+                      emit('duplicate-request')
                     }
                   "
                 />
@@ -211,7 +210,7 @@ const props = defineProps({
     default: "my-collections",
     required: true,
   },
-  duplicateLoading: {
+  duplicateRequestLoading: {
     type: Boolean,
     default: false,
     required: false,
@@ -277,7 +276,7 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 })
 
 watch(
-  () => props.duplicateLoading,
+  () => props.duplicateRequestLoading,
   (val) => {
     if (!val) {
       options.value!.tippy.hide()

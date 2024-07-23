@@ -184,7 +184,7 @@ const expirationDateText = computed(() => {
 
 const copyInfraToken = () => {
   if (!props.infraToken) {
-    toast.error('error.something_went_wrong');
+    toast.error('state.something_went_wrong');
     return;
   }
 

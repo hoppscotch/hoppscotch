@@ -9,7 +9,7 @@
     :has-more-tokens="hasMoreTokens"
     :loading="tokensListLoading"
     @delete-infra-token="displayDeleteInfraTokenConfirmationModal"
-    @fetch-more-tokens="fetchInfraTokens"
+    @fetch-more-tokens="fetchMoreInfraTokens"
   />
 
   <TokensGenerateModal
@@ -61,8 +61,8 @@ const tokenToDelete = ref<{ id: string; label: string } | null>(null);
 
 const infraTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
 
+let offset = 0;
 const tokensPerPage = 2;
-let page = 1;
 
 const {
   fetching: tokensListLoading,
@@ -70,37 +70,22 @@ const {
   list: tokensList,
   refetch,
 } = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, tokensPerPage, {
-  skip: page - 1,
+  skip: offset,
   take: tokensPerPage,
 });
 
-watch(
-  tokensList.value,
-  async () => {
-    await fetchInfraTokens();
-  },
-  { once: true }
-);
+const fetchMoreInfraTokens = async () =>
+  await refetch({ skip: offset, take: tokensPerPage });
 
-const fetchInfraTokens = async () => {
-  console.log('Page:', page);
-
-  if (page !== 1) {
-    refetch({ skip: (page - 1) * tokensPerPage, take: tokensPerPage });
+// Update the infraTokens list whenever tokensList is fetched
+watch(tokensListLoading, (fetching) => {
+  if (fetching) return;
+  else {
+    infraTokens.value.push(...tokensList.value);
+    if (tokensList.value.length > 0) offset += tokensList.value.length;
+    hasMoreTokens.value = tokensList.value.length === tokensPerPage;
   }
-
-  console.log('Tokens:', ...tokensList.value);
-
-  infraTokens.value.push(...tokensList.value);
-
-  console.log('Length', tokensList.value.length);
-
-  if (tokensList.value.length > 0) {
-    page += 1;
-  }
-
-  hasMoreTokens.value = tokensList.value.length === tokensPerPage;
-};
+});
 
 const createInfraTokens = useMutation(CreateInfraTokenDocument);
 
@@ -132,7 +117,7 @@ const generateInfraToken = async ({
   } else {
     infraTokens.value.unshift(result.data!.createInfraToken.info);
     infraToken.value = result.data!.createInfraToken.token;
-    // offset += 1;
+    offset += 1;
 
     if (tokensListFetchErrored.value) {
       tokensListFetchErrored.value = false;
@@ -165,7 +150,7 @@ const deleteInfraToken = async () => {
       (token) => token.id !== tokenIdToDelete
     );
 
-    // offset = offset > 0 ? offset - 1 : offset;
+    offset = offset > 0 ? offset - 1 : offset;
 
     toast.success(
       t('infra_tokens.deletion_success', { label: tokenLabelToDelete })

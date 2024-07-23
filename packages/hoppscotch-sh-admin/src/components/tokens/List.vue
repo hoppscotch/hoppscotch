@@ -8,7 +8,7 @@
     class="flex flex-col items-center py-4"
   >
     <icon-lucide-help-circle class="mb-4 svg-icons" />
-    {{ t('error.something_went_wrong') }}
+    {{ t('state.something_went_wrong') }}
   </div>
 
   <HoppSmartPlaceholder

@@ -12,6 +12,7 @@
       </h3>
 
       <HoppButtonSecondary
+        v-if="pendingInvites?.length"
         :label="t('users.copy_link')"
         outline
         filled

@@ -203,48 +203,20 @@
       </div>
     </div>
 
-    <HoppSmartModal
-      v-if="inviteSuccessModal"
-      dialog
-      :title="t('users.new_user_added')"
-      @close="inviteSuccessModal = false"
-    >
-      <template #body>
-        <icon-lucide-check
-          class="text-4xl text-emerald-500 w-min mx-auto my-3 p-3 bg-primaryDark rounded-full"
-        />
-        <p class="text-center my-2">
-          {{
-            smtpEnabled
-              ? t('state.login_using_email')
-              : t('state.login_using_link')
-          }}
-        </p>
-        <div class="flex p-3 mx-10">
-          <input
-            v-model="baseURL"
-            class="input rounded-r-none"
-            placeholder=""
-            type="text"
-            autocomplete="off"
-            disabled
-          />
-          <div class="bg-primaryDark rounded-r-sm">
-            <UiAutoResetIcon
-              :title="t('users.copy_link')"
-              :icon="{ default: IconCopy, temporary: IconCheck }"
-              @click="copyInviteLink"
-            />
-          </div>
-        </div>
-      </template>
-    </HoppSmartModal>
-
+    <!-- Modals -->
     <UsersInviteModal
       v-if="showInviteUserModal"
       :smtp-enabled="smtpEnabled"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
+      @copy-invite-link="copyInviteLink"
+    />
+    <UsersSuccessInviteModal
+      v-if="inviteSuccessModal"
+      v-model:invite-success="inviteSuccessModal"
+      :baseURL="baseURL"
+      :smtp-enabled="smtpEnabled"
+      @hide-modal="inviteSuccessModal = false"
       @copy-invite-link="copyInviteLink"
     />
     <HoppSmartConfirmModal
@@ -304,7 +276,6 @@ import { getCompiledErrorMessage } from '~/helpers/errors';
 import { handleUserDeletion } from '~/helpers/userManagement';
 import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconCheck from '~icons/lucide/check';
-import IconCopy from '~icons/lucide/copy';
 import IconLeft from '~icons/lucide/chevron-left';
 import IconRight from '~icons/lucide/chevron-right';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';

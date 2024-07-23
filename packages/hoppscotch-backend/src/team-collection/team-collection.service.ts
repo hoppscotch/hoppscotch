@@ -1467,7 +1467,7 @@ export class TeamCollectionService {
       JSON.stringify([
         {
           ...collectionJSONObject.right,
-          name: `${collection.right.title} - duplicated`,
+          name: `${collection.right.title} - duplicate`,
         },
       ]),
       collection.right.teamID,

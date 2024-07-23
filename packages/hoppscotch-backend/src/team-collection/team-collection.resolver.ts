@@ -331,7 +331,7 @@ export class TeamCollectionResolver {
     return updatedTeamCollection.right;
   }
 
-  @Mutation(() => TeamCollection, {
+  @Mutation(() => Boolean, {
     description: 'Duplicate a Team Collection',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)

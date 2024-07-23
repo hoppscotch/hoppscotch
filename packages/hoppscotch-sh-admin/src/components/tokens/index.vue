@@ -24,7 +24,7 @@
     :show="confirmDeleteInfraToken"
     :loading-state="tokenDeleteActionLoading"
     :title="
-      t('state.confirm_delete_access_token', {
+      t('state.confirm_delete_infra_token', {
         tokenLabel: tokenToDelete?.label,
       })
     "
@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from '~/composables/i18n';
-import { useToast } from '~/composables/toast';
 import { useMutation } from '@urql/vue';
 import { Ref, ref, watch } from 'vue';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 import { usePagedQuery } from '~/composables/usePagedQuery';
 import {
   CreateInfraTokenDocument,
@@ -45,6 +45,7 @@ import {
   InfraTokensQuery,
   RevokeInfraTokenDocument,
 } from '~/helpers/backend/graphql';
+import { getCompiledErrorMessage } from '~/helpers/errors';
 
 const t = useI18n();
 const toast = useToast();
@@ -105,7 +106,13 @@ const generateInfraToken = async ({
   const result = await createInfraTokens.executeMutation(variables);
 
   if (result.error) {
-    toast.error(t('error.generate_access_token'));
+    const { message } = result.error;
+    const compiledErrorMessage = getCompiledErrorMessage(message);
+
+    compiledErrorMessage
+      ? toast.error(t(compiledErrorMessage))
+      : toast.error(t('state.generate_infra_token_failure'));
+
     showInfraTokensGenerateModal.value = false;
   } else {
     infraTokens.value.unshift(result.data!.createInfraToken.info);
@@ -123,7 +130,7 @@ const revokeInfraToken = useMutation(RevokeInfraTokenDocument);
 
 const deleteInfraToken = async () => {
   if (tokenToDelete.value === null) {
-    toast.error(t('error.something_went_wrong'));
+    toast.error(t('state.something_went_wrong'));
     return;
   }
 
@@ -137,7 +144,7 @@ const deleteInfraToken = async () => {
   });
 
   if (result.error) {
-    toast.error(t('error.delete_access_token'));
+    toast.error(t('state.delete_infra_token_failure'));
   } else {
     infraTokens.value = infraTokens.value.filter(
       (token) => token.id !== tokenIdToDelete

@@ -24,7 +24,7 @@
     class="grid gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ml-5"
   >
     <div
-      v-for="{ id, label, lastUsedOn, expiresOn } in infraTokens"
+      v-for="{ id, label, expiresOn } in infraTokens"
       :key="id"
       class="flex flex-col items-center gap-4 p-4 border rounded border-divider"
     >
@@ -34,15 +34,6 @@
 
       <div class="flex items-center justify-between w-full gap-x-4">
         <div class="space-y-1 text-secondaryLight">
-          <div class="space-x-1">
-            <span class="font-semibold"
-              >{{ t('infra_tokens.last_used_on') }}:</span
-            >
-            <span>
-              {{ shortDateTime(lastUsedOn, false) }}
-            </span>
-          </div>
-
           <div class="space-x-1">
             <span class="font-semibold"
               >{{ t('infra_tokens.expires_on') }}:</span
@@ -78,7 +69,7 @@
 
     <div v-else-if="hasError" class="flex flex-col items-center py-4">
       <icon-lucide-help-circle class="mb-4 svg-icons" />
-      {{ t('error.something_went_wrong') }}
+      {{ t('state.something_went_wrong') }}
     </div>
   </HoppSmartIntersection>
 </template>

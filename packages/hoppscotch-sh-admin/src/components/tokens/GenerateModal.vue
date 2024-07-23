@@ -131,10 +131,10 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from '~/composables/i18n';
-import { useToast } from '~/composables/toast';
 import { refAutoReset } from '@vueuse/core';
 import { VNodeRef, computed, ref } from 'vue';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 
 import { copyToClipboard } from '~/helpers/utils/clipboard';
 import { shortDateTime } from '~/helpers/utils/date';

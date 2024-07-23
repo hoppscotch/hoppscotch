@@ -61,30 +61,45 @@ const tokenToDelete = ref<{ id: string; label: string } | null>(null);
 
 const infraTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
 
-const limit = 12;
-let offset = 0;
+const tokensPerPage = 2;
+let page = 1;
 
 const {
   fetching: tokensListLoading,
   error: tokensListFetchErrored,
   list: tokensList,
-} = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, 10, {
-  skip: 0,
-  take: 10,
+  refetch,
+} = usePagedQuery(InfraTokensDocument, (x) => x.infraTokens, tokensPerPage, {
+  skip: page - 1,
+  take: tokensPerPage,
 });
 
-watch(tokensList.value, async () => {
-  await fetchInfraTokens();
-});
+watch(
+  tokensList.value,
+  async () => {
+    await fetchInfraTokens();
+  },
+  { once: true }
+);
 
 const fetchInfraTokens = async () => {
-  infraTokens.value.push(...tokensList.value);
+  console.log('Page:', page);
 
-  if (tokensList.value.length > 0) {
-    offset += tokensList.value.length;
+  if (page !== 1) {
+    refetch({ skip: (page - 1) * tokensPerPage, take: tokensPerPage });
   }
 
-  hasMoreTokens.value = tokensList.value.length === limit;
+  console.log('Tokens:', ...tokensList.value);
+
+  infraTokens.value.push(...tokensList.value);
+
+  console.log('Length', tokensList.value.length);
+
+  if (tokensList.value.length > 0) {
+    page += 1;
+  }
+
+  hasMoreTokens.value = tokensList.value.length === tokensPerPage;
 };
 
 const createInfraTokens = useMutation(CreateInfraTokenDocument);
@@ -117,7 +132,7 @@ const generateInfraToken = async ({
   } else {
     infraTokens.value.unshift(result.data!.createInfraToken.info);
     infraToken.value = result.data!.createInfraToken.token;
-    offset += 1;
+    // offset += 1;
 
     if (tokensListFetchErrored.value) {
       tokensListFetchErrored.value = false;
@@ -150,7 +165,7 @@ const deleteInfraToken = async () => {
       (token) => token.id !== tokenIdToDelete
     );
 
-    offset = offset > 0 ? offset - 1 : offset;
+    // offset = offset > 0 ? offset - 1 : offset;
 
     toast.success(
       t('infra_tokens.deletion_success', { label: tokenLabelToDelete })
@@ -167,7 +182,7 @@ const deleteInfraToken = async () => {
 };
 
 const hideInfraTokenGenerateModal = () => {
-  // Reset the reactive state variable holding access token value and hide the modal
+  // Reset the reactive state variable holding infra token value and hide the modal
   infraToken.value = null;
   showInfraTokensGenerateModal.value = false;
 };

@@ -88,17 +88,6 @@
             <span class="text-secondaryLight">{{ expirationDateText }}</span>
           </div>
         </div>
-
-        <div class="space-y-2">
-          <div class="font-semibold text-secondaryDark">
-            {{ t('infra_tokens.scope_label') }}
-          </div>
-
-          <p class="text-secondaryLight">
-            {{ t('infra_tokens.workspace_read_only_access') }}<br />
-            {{ t('infra_tokens.personal_workspace_access_limitation') }}
-          </p>
-        </div>
       </div>
     </template>
     <template #footer>

@@ -1168,7 +1168,7 @@ export class UserCollectionService {
       JSON.stringify([
         {
           ...collectionJSONObject.right,
-          name: `${collection.right.title} - duplicate`,
+          name: `${collection.right.title} - Duplicate`,
         },
       ]),
       userID,

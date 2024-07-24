@@ -55,14 +55,13 @@ const hasMoreTokens = ref(false);
 const showInfraTokensGenerateModal = ref(false);
 const tokenDeleteActionLoading = ref(false);
 const tokenGenerateActionLoading = ref(false);
-
-const infraToken: Ref<string | null> = ref(null);
 const tokenToDelete = ref<{ id: string; label: string } | null>(null);
 
+const infraToken: Ref<string | null> = ref(null);
 const infraTokens: Ref<InfraTokensQuery['infraTokens']> = ref([]);
 
 let offset = 0;
-const tokensPerPage = 2;
+const tokensPerPage = 12;
 
 const {
   fetching: tokensListLoading,

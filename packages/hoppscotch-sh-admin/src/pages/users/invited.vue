@@ -13,7 +13,7 @@
 
       <HoppButtonSecondary
         v-if="pendingInvites?.length"
-        :label="t('users.copy_link')"
+        :label="t('users.copy_invite_link')"
         outline
         filled
         @click="copyInviteLink"

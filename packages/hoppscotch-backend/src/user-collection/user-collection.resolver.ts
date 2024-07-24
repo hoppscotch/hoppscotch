@@ -404,6 +404,7 @@ export class UserCollectionResolver {
     @Args({
       name: 'reqType',
       description: 'Type of UserCollection',
+      type: () => ReqType,
     })
     reqType: ReqType,
   ) {

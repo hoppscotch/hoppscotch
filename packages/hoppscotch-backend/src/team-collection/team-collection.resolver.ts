@@ -331,6 +331,26 @@ export class TeamCollectionResolver {
     return updatedTeamCollection.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Duplicate a Team Collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  async duplicateTeamCollection(
+    @Args({
+      name: 'collectionID',
+      description: 'ID of the collection',
+    })
+    collectionID: string,
+  ) {
+    const duplicatedTeamCollection =
+      await this.teamCollectionService.duplicateTeamCollection(collectionID);
+
+    if (E.isLeft(duplicatedTeamCollection))
+      throwErr(duplicatedTeamCollection.left);
+    return duplicatedTeamCollection.right;
+  }
+
   // Subscriptions
 
   @Subscription(() => TeamCollection, {

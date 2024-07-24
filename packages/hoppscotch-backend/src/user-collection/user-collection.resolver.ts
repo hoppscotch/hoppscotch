@@ -390,6 +390,36 @@ export class UserCollectionResolver {
     return updatedUserCollection.right;
   }
 
+  @Mutation(() => Boolean, {
+    description: 'Duplicate a User Collection',
+  })
+  @UseGuards(GqlAuthGuard)
+  async duplicateUserCollection(
+    @GqlUser() user: AuthUser,
+    @Args({
+      name: 'collectionID',
+      description: 'ID of the collection',
+    })
+    collectionID: string,
+    @Args({
+      name: 'reqType',
+      description: 'Type of UserCollection',
+      type: () => ReqType,
+    })
+    reqType: ReqType,
+  ) {
+    const duplicatedUserCollection =
+      await this.userCollectionService.duplicateUserCollection(
+        collectionID,
+        user.uid,
+        reqType,
+      );
+
+    if (E.isLeft(duplicatedUserCollection))
+      throwErr(duplicatedUserCollection.left);
+    return duplicatedUserCollection.right;
+  }
+
   // Subscriptions
   @Subscription(() => UserCollection, {
     description: 'Listen for User Collection Creation',

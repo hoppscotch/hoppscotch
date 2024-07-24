@@ -1138,4 +1138,45 @@ export class UserCollectionService {
       return E.left(USER_COLL_NOT_FOUND);
     }
   }
+
+  /**
+   * Duplicate a User Collection
+   *
+   * @param collectionID The Collection ID
+   * @returns Boolean of duplication status
+   */
+  async duplicateUserCollection(
+    collectionID: string,
+    userID: string,
+    reqType: DBReqType,
+  ) {
+    const collection = await this.getUserCollection(collectionID);
+    if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
+
+    if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
+    if (collection.right.type !== reqType)
+      return E.left(USER_COLL_NOT_SAME_TYPE);
+
+    const collectionJSONObject = await this.exportUserCollectionToJSONObject(
+      collection.right.userUid,
+      collectionID,
+    );
+    if (E.isLeft(collectionJSONObject))
+      return E.left(collectionJSONObject.left);
+
+    const result = await this.importCollectionsFromJSON(
+      JSON.stringify([
+        {
+          ...collectionJSONObject.right,
+          name: `${collection.right.title} - Duplicate`,
+        },
+      ]),
+      userID,
+      collection.right.parentID,
+      reqType,
+    );
+    if (E.isLeft(result)) return E.left(result.left as string);
+
+    return E.right(true);
+  }
 }

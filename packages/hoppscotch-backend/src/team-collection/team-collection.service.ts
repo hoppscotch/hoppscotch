@@ -1446,4 +1446,35 @@ export class TeamCollectionService {
       return E.left(TEAM_COLL_NOT_FOUND);
     }
   }
+
+  /**
+   * Duplicate a Team Collection
+   *
+   * @param collectionID The Collection ID
+   * @returns Boolean of duplication status
+   */
+  async duplicateTeamCollection(collectionID: string) {
+    const collection = await this.getCollection(collectionID);
+    if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
+
+    const collectionJSONObject = await this.exportCollectionToJSONObject(
+      collection.right.teamID,
+      collectionID,
+    );
+    if (E.isLeft(collectionJSONObject)) return E.left(TEAM_INVALID_COLL_ID);
+
+    const result = await this.importCollectionsFromJSON(
+      JSON.stringify([
+        {
+          ...collectionJSONObject.right,
+          name: `${collection.right.title} - Duplicate`,
+        },
+      ]),
+      collection.right.teamID,
+      collection.right.parentID,
+    );
+    if (E.isLeft(result)) return E.left(result.left as string);
+
+    return E.right(true);
+  }
 }

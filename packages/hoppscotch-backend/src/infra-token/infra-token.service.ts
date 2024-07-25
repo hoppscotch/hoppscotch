@@ -17,7 +17,6 @@ export class InfraTokenService {
 
   TITLE_LENGTH = 3;
   VALID_TOKEN_DURATIONS = [7, 30, 60, 90];
-  TOKEN_PREFIX = 'it-';
 
   /**
    * Validate the expiration date of the token
@@ -87,7 +86,7 @@ export class InfraTokenService {
     });
 
     const res: CreateInfraTokenResponse = {
-      token: `${this.TOKEN_PREFIX}${createdInfraToken.token}`,
+      token: createdInfraToken.token,
       info: this.cast(createdInfraToken),
     };
 

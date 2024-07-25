@@ -15,6 +15,7 @@ import {
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
 } from 'src/errors';
 import {
+  encrypt,
   throwErr,
   validateSMTPEmail,
   validateSMTPUrl,
@@ -24,6 +25,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
   getDefaultInfraConfigs,
+  getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
 } from './helper';
@@ -62,10 +64,30 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
+      // Adding missing InfraConfigs to the database (with encrypted values)
       const propsToInsert = await getMissingInfraConfigEntries();
 
       if (propsToInsert.length > 0) {
         await this.prisma.infraConfig.createMany({ data: propsToInsert });
+      }
+
+      // Encrypting previous InfraConfigs that are required to be encrypted
+      const encryptionRequiredEntries =
+        await getEncryptionRequiredInfraConfigEntries();
+
+      if (encryptionRequiredEntries.length > 0) {
+        const dbOperations = encryptionRequiredEntries.map((dbConfig) => {
+          return this.prisma.infraConfig.update({
+            where: { name: dbConfig.name },
+            data: { value: encrypt(dbConfig.value), isEncrypted: true },
+          });
+        });
+
+        await Promise.allSettled(dbOperations);
+      }
+
+      // Restart the app if needed
+      if (propsToInsert.length > 0 || encryptionRequiredEntries.length > 0) {
         stopApp();
       }
     } catch (error) {
@@ -76,6 +98,7 @@ export class InfraConfigService implements OnModuleInit {
         // Prisma error code for 'Table does not exist'
         throwErr(DATABASE_TABLE_NOT_EXIST);
       } else {
+        console.log(error);
         throwErr(error);
       }
     }

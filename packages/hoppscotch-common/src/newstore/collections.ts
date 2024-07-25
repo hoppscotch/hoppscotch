@@ -512,11 +512,9 @@ const restCollectionDispatchers = defineDispatchers({
     const collection = navigateToFolderWithIndexPath(state, [...indexPaths])
 
     if (collection) {
-      const { id, ...rest } = collection
-
       const name = `${collection.name} - ${t("action.duplicate")}`
       const duplicatedCollection = {
-        ...cloneDeep(rest),
+        ...cloneDeep(collection),
         name,
       }
 
@@ -956,11 +954,9 @@ const gqlCollectionDispatchers = defineDispatchers({
     const collection = navigateToFolderWithIndexPath(state, [...indexPaths])
 
     if (collection) {
-      const { id, ...rest } = collection
-
       const name = `${collection.name} - ${t("action.duplicate")}`
       const duplicatedCollection = {
-        ...cloneDeep(rest),
+        ...cloneDeep(collection),
         name,
       }
 

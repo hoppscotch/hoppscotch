@@ -1,4 +1,6 @@
 import {
+  editRESTCollection,
+  editRESTFolder,
   graphqlCollectionStore,
   navigateToFolderWithIndexPath,
   removeDuplicateRESTCollectionOrFolder,
@@ -11,9 +13,7 @@ import {
 
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
-import { getSyncInitFunction } from "../../lib/sync"
-
-import { StoreSyncDefinitionOf } from "../../lib/sync"
+import { getSyncInitFunction, StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   createRESTChildUserCollection,
@@ -29,6 +29,7 @@ import {
   updateUserCollectionOrder,
 } from "./collections.api"
 
+import { getI18n } from "@hoppscotch/common/modules/i18n"
 import * as E from "fp-ts/Either"
 import { ReqType } from "../../api/generated/graphql"
 
@@ -282,9 +283,46 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  async duplicateCollection({ collectionSyncID }) {
+  async duplicateCollection({ path, collectionSyncID }) {
     if (collectionSyncID) {
+      const indexPaths = path.split("/").map((index) => parseInt(index))
+
       await duplicateUserCollection(collectionSyncID, ReqType.Rest)
+
+      // There'll be duplicate entries due to store update followed by GQL subscription during sync
+      removeDuplicateRESTCollectionOrFolder(collectionSyncID, path)
+
+      // After removal, the collection at the original path will have the ` - Duplicate` suffix
+      const originalCollection = navigateToFolderWithIndexPath(
+        restCollectionStore.value.state,
+        indexPaths
+      )
+
+      // The first occurrence of the duplicate entry is removed which corresponds to the original collection being duplicated
+      // Hence, removing the ` - Duplicate` suffix from the name
+      if (originalCollection) {
+        const isRootCollection = indexPaths.length == 1
+
+        const t = getI18n()
+
+        if (isRootCollection) {
+          editRESTCollection(parseInt(path), {
+            ...originalCollection,
+            name: originalCollection.name.replace(
+              ` - ${t("action.duplicate")}`,
+              ""
+            ),
+          })
+        } else {
+          editRESTFolder(path, {
+            ...originalCollection,
+            name: originalCollection.name.replace(
+              ` - ${t("action.duplicate")}`,
+              ""
+            ),
+          })
+        }
+      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

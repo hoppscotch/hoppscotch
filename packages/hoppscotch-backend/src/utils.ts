@@ -328,6 +328,8 @@ const algorithm = 'aes-256-cbc';
  * @returns The encrypted text
  */
 export function encrypt(text: string, key = process.env.DATA_ENCRYPTION_KEY) {
+  if (text === null || text === undefined) return text;
+
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
   let encrypted = cipher.update(text);
@@ -345,6 +347,10 @@ export function decrypt(
   encryptedData: string,
   key = process.env.DATA_ENCRYPTION_KEY,
 ) {
+  if (encryptedData === null || encryptedData === undefined) {
+    return encryptedData;
+  }
+
   const textParts = encryptedData.split(':');
   const iv = Buffer.from(textParts.shift(), 'hex');
   const encryptedText = Buffer.from(textParts.join(':'), 'hex');

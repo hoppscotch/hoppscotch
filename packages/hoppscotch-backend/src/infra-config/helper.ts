@@ -60,9 +60,11 @@ export async function loadInfraConfiguration() {
 
     let environmentObject: Record<string, any> = {};
     infraConfigs.forEach((infraConfig) => {
-      environmentObject[infraConfig.name] = infraConfig.isEncrypted
-        ? decrypt(infraConfig.value)
-        : infraConfig.value;
+      if (infraConfig.isEncrypted) {
+        environmentObject[infraConfig.name] = decrypt(infraConfig.value);
+      } else {
+        environmentObject[infraConfig.name] = infraConfig.value;
+      }
     });
 
     return { INFRA: environmentObject };

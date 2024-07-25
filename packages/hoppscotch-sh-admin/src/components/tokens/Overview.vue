@@ -1,5 +1,5 @@
 <template>
-  <div class="px-8 py-6 ml-5 space-y-4">
+  <div class="px-4 py-6 space-y-4 flex flex-col items-start">
     <div class="space-y-1">
       <h4 class="font-bold text-secondaryDark heading mt-2">
         {{ t('infra_tokens.section_title') }}

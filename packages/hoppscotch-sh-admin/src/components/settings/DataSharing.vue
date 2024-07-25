@@ -1,13 +1,13 @@
 <template>
-  <div class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b py-8">
-    <div class="px-8 md:col-span-1">
+  <div class="grid md:grid-cols-3 gap-8 md:gap-4 pt-8">
+    <div class="md:col-span-1">
       <h3 class="heading">{{ t('configs.data_sharing.title') }}</h3>
       <p class="my-1 text-secondaryLight">
         {{ t('configs.data_sharing.description') }}
       </p>
     </div>
 
-    <div class="mx-8 md:col-span-2">
+    <div class="sm:px-8 md:col-span-2">
       <h4 class="font-semibold text-secondaryDark">
         {{ t('configs.data_sharing.title') }}
       </h4>

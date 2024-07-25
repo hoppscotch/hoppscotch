@@ -362,7 +362,7 @@ const collectionName = computed(() => {
 watch(
   () => [props.exportLoading, props.duplicateCollectionLoading],
   ([newExportLoadingVal, newDuplicateCollectionLoadingVal]) => {
-    if (!newExportLoadingVal || !newDuplicateCollectionLoadingVal) {
+    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal) {
       options.value!.tippy?.hide()
     }
   }

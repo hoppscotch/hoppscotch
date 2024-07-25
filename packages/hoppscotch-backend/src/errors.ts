@@ -828,3 +828,22 @@ export const INFRA_TOKEN_EXPIRY_INVALID = 'infra_token/expiry_days_invalid';
  * (InfraTokenService)
  */
 export const INFRA_TOKEN_NOT_FOUND = 'infra_token/infra_token_not_found';
+
+/**
+ * Authorization missing in header (Check 'Authorization' Header)
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_HEADER_MISSING =
+  'infra_token/authorization_token_missing';
+
+/**
+ * Infra Token is invalid
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_INVALID_TOKEN = 'infra_token/invalid_token';
+
+/**
+ * Infra Token is expired
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_EXPIRED = 'infra_token/expired';

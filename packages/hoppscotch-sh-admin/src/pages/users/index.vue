@@ -203,11 +203,20 @@
       </div>
     </div>
 
+    <!-- Modals -->
     <UsersInviteModal
       v-if="showInviteUserModal"
       :smtp-enabled="smtpEnabled"
       @hide-modal="showInviteUserModal = false"
       @send-invite="sendInvite"
+      @copy-invite-link="copyInviteLink"
+    />
+    <UsersSuccessInviteModal
+      v-if="inviteSuccessModal"
+      v-model:invite-success="inviteSuccessModal"
+      :baseURL="baseURL"
+      :smtp-enabled="smtpEnabled"
+      @hide-modal="inviteSuccessModal = false"
       @copy-invite-link="copyInviteLink"
     />
     <HoppSmartConfirmModal
@@ -453,6 +462,13 @@ const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
 // Check if SMTP is enabled
 const { data: status } = useQuery({ query: IsSmtpEnabledDocument });
 const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
+const inviteSuccessModal = ref(false);
+
+const baseURL = import.meta.env.VITE_BASE_URL ?? '';
+const copyInviteLink = () => {
+  copyToClipboard(baseURL);
+  toast.success(t('state.link_copied_to_clipboard'));
+};
 
 // Send Invitation through Email
 const showInviteUserModal = ref(false);
@@ -482,16 +498,9 @@ const sendInvite = async (email: string) => {
   } else {
     if (smtpEnabled.value) toast.success(t('state.email_success'));
     showInviteUserModal.value = false;
+    inviteSuccessModal.value = true;
     return true;
   }
-};
-
-const copyInviteLink = async (email: string) => {
-  const result = await sendInvite(email);
-  if (!result) return;
-  const baseURL = import.meta.env.VITE_BASE_URL ?? '';
-  copyToClipboard(baseURL);
-  toast.success(t('state.link_copied_to_clipboard'));
 };
 
 // Make Multiple Users Admin

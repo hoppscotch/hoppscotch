@@ -6,13 +6,14 @@
       </button>
     </div>
 
-    <div class="flex justify-between items-center">
-      <h3 class="text-lg font-bold text-accentContrast pt-6 pb-4">
+    <div class="flex justify-between items-center py-6">
+      <h3 class="text-lg font-bold text-accentContrast">
         {{ t('users.pending_invites') }}
       </h3>
 
       <HoppButtonSecondary
-        :label="t('users.copy_link')"
+        v-if="pendingInvites?.length"
+        :label="t('users.copy_invite_link')"
         outline
         filled
         @click="copyInviteLink"

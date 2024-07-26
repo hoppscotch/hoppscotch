@@ -435,18 +435,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       )
 
       if (E.isRight(res)) {
-        const { exportCollectionsToJSON } = res.right
-
-        if (!JSON.parse(exportCollectionsToJSON).length) {
-          isHoppTeamCollectionExporterInProgress.value = false
-
-          return toast.error(t("error.no_collections_to_export"))
-        }
-
-        initializeDownloadCollection(
-          exportCollectionsToJSON,
-          "team-collections"
-        )
+        initializeDownloadCollection(res.right, "team-collections")
 
         platform.analytics?.logEvent({
           type: "HOPP_EXPORT_COLLECTION",
@@ -454,7 +443,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
           platform: "rest",
         })
       } else {
-        toast.error(res.left.error.toString())
+        toast.error(res.left)
       }
     }
 

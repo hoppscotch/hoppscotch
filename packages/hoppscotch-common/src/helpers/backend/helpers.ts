@@ -1,12 +1,14 @@
-import * as A from "fp-ts/Array"
-import * as E from "fp-ts/Either"
-import * as TE from "fp-ts/TaskEither"
-import { pipe, flow } from "fp-ts/function"
 import {
   HoppCollection,
+  HoppRESTRequest,
   makeCollection,
   translateToNewRequest,
 } from "@hoppscotch/data"
+import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
+import { flow, pipe } from "fp-ts/function"
+import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
@@ -16,6 +18,13 @@ import {
   GetCollectionRequestsDocument,
   GetCollectionTitleAndDataDocument,
 } from "./graphql"
+
+type TeamCollectionJSON = {
+  name: string
+  folders: TeamCollectionJSON[]
+  requests: HoppRESTRequest[]
+  data: string
+}
 
 export const BACKEND_PAGE_SIZE = 10
 
@@ -76,6 +85,27 @@ const getCollectionRequests = async (collID: string) => {
   }
 
   return E.right(reqList)
+}
+
+// Transforms the collection JSON string obtained with workspace level export to `HoppRESTCollection`
+const teamCollectionJSONToHoppRESTColl = (
+  coll: TeamCollectionJSON
+): HoppCollection => {
+  const data =
+    coll.data && coll.data !== "null"
+      ? JSON.parse(coll.data)
+      : {
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+        }
+
+  return makeCollection({
+    name: coll.name,
+    folders: coll.folders.map(teamCollectionJSONToHoppRESTColl),
+    requests: coll.requests,
+    auth: data.auth ?? { authType: "inherit", authActive: true },
+    headers: data.headers ?? [],
+  })
 }
 
 export const getCompleteCollectionTree = (
@@ -146,10 +176,26 @@ export const teamCollToHoppRESTColl = (
  * @param teamID - ID of the team
  * @returns Either of the JSON string of the collection or the error
  */
-export const getTeamCollectionJSON = async (teamID: string) =>
-  await runGQLQuery({
+export const getTeamCollectionJSON = async (teamID: string) => {
+  const data = await runGQLQuery({
     query: ExportAsJsonDocument,
     variables: {
       teamID,
     },
   })
+
+  if (E.isLeft(data)) {
+    return E.left(data.left.error.toString())
+  }
+
+  const collections = JSON.parse(data.right.exportCollectionsToJSON)
+
+  if (!collections.length) {
+    const t = getI18n()
+
+    return E.left(t("error.no_collections_to_export"))
+  }
+
+  const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
+  return E.right(JSON.stringify(hoppCollections))
+}

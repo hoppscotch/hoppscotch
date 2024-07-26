@@ -56,7 +56,7 @@ import { InfraTokenInterceptor } from 'src/interceptors/infra-token.interceptor'
 @UseGuards(ThrottlerBehindProxyGuard, InfraTokenGuard)
 @UseInterceptors(InfraTokenInterceptor)
 @Controller({ path: 'infra', version: '1' })
-export class UserExternalApiController {
+export class InfraTokensController {
   constructor(
     private readonly infraTokenService: InfraTokenService,
     private readonly adminService: AdminService,

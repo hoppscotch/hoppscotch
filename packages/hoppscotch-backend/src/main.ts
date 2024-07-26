@@ -8,7 +8,7 @@ import { emitGQLSchemaFile } from './gql-schema';
 import { checkEnvironmentAuthProvider } from './utils';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { UserExternalApiController } from './infra-token/user-external-api.controller';
+import { InfraTokensController } from './infra-token/infra-token.controller';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 
 function setupSwagger(app) {

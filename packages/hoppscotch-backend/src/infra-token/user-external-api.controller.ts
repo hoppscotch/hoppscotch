@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { AdminService } from 'src/admin/admin.service';
@@ -24,6 +25,8 @@ import {
   UpdateUserRequest,
   UpdateUserAdminStatusRequest,
   UpdateUserAdminStatusResponse,
+  CreateUserInvitationRequest,
+  CreateUserInvitationResponse,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -36,24 +39,63 @@ import {
 } from '@nestjs/swagger';
 import { throwHTTPErr } from 'src/utils';
 import { UserService } from 'src/user/user.service';
-import { USER_NOT_FOUND, USERS_NOT_FOUND } from 'src/errors';
+import {
+  INFRA_TOKEN_CREATOR_NOT_FOUND,
+  USER_NOT_FOUND,
+  USERS_NOT_FOUND,
+} from 'src/errors';
+import { InfraTokenService } from './infra-token.service';
+import { Request } from 'express';
 
 @ApiTags('User Management API')
 @ApiSecurity('infra-token')
 @UseGuards(ThrottlerBehindProxyGuard, InfraTokenGuard)
-@Controller({ path: 'api/v1/infra' })
+@Controller({ path: 'infra', version: '1' })
 export class UserExternalApiController {
   constructor(
+    private infraTokenService: InfraTokenService,
     private adminService: AdminService,
     private userService: UserService,
   ) {}
+
+  @Post('user-invitations')
+  async createUserInvitation(
+    @Body() dto: CreateUserInvitationRequest,
+    @Req() request: Request,
+  ) {
+    const createdInvitations =
+      await this.infraTokenService.createUserInvitation(
+        request.headers['authorization'].split(' ')[1],
+        dto,
+      );
+
+    if (E.isLeft(createdInvitations)) {
+      const statusCode =
+        (createdInvitations.left as string) === INFRA_TOKEN_CREATOR_NOT_FOUND
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.BAD_REQUEST;
+
+      throwHTTPErr({ message: createdInvitations.left, statusCode });
+    }
+
+    return plainToInstance(
+      CreateUserInvitationResponse,
+      { invitationLink: process.env.VITE_BASE_URL },
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
+  }
 
   @Get('user-invitations')
   @ApiOkResponse({
     description: 'Get pending user invitations',
     type: [GetUserInvitationResponse],
   })
-  async createUserInvitation(@Query() paginationQuery: OffsetPaginationArgs) {
+  async getPendingUserInvitation(
+    @Query() paginationQuery: OffsetPaginationArgs,
+  ) {
     const pendingInvitedUsers = await this.adminService.fetchInvitedUsers(
       paginationQuery,
     );

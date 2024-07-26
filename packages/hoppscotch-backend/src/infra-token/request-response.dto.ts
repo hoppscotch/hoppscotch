@@ -11,7 +11,20 @@ import {
 } from 'class-validator';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
-// GET api/v1/infra/user-invitations
+// POST v1/infra/user-invitations
+export class CreateUserInvitationRequest {
+  @Type(() => String)
+  @IsNotEmpty()
+  @ApiProperty()
+  inviteeEmail: string;
+}
+export class CreateUserInvitationResponse {
+  @ApiProperty()
+  @Expose()
+  invitationLink;
+}
+
+// GET v1/infra/user-invitations
 export class GetUserInvitationResponse {
   @ApiProperty()
   @Expose()
@@ -22,7 +35,7 @@ export class GetUserInvitationResponse {
   invitedOn: Date;
 }
 
-// DELETE api/v1/infra/user-invitations
+// DELETE v1/infra/user-invitations
 export class DeleteUserInvitationRequest {
   @IsArray()
   @ArrayMinSize(1)
@@ -37,7 +50,7 @@ export class DeleteUserInvitationResponse {
   message: string;
 }
 
-// POST api/v1/infra/users
+// POST v1/infra/users
 export class GetUsersRequestQuery extends OffsetPaginationArgs {
   @IsOptional()
   @IsString()
@@ -67,7 +80,7 @@ export class GetUserResponse {
   isAdmin: boolean;
 }
 
-// PATCH api/v1/infra/users/:uid
+// PATCH v1/infra/users/:uid
 export class UpdateUserRequest {
   @IsOptional()
   @IsString()
@@ -76,7 +89,7 @@ export class UpdateUserRequest {
   displayName: string;
 }
 
-// PATCH api/v1/infra/users/:uid/admin-status
+// PATCH v1/infra/users/:uid/admin-status
 export class UpdateUserAdminStatusRequest {
   @IsBoolean()
   @IsNotEmpty()

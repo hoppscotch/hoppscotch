@@ -5,15 +5,21 @@ import { CreateInfraTokenResponse, InfraToken } from './infra-token.model';
 import { calculateExpirationDate, isValidLength } from 'src/utils';
 import { Admin } from 'src/admin/admin.model';
 import {
+  INFRA_TOKEN_CREATOR_NOT_FOUND,
   INFRA_TOKEN_EXPIRY_INVALID,
   INFRA_TOKEN_LABEL_SHORT,
   INFRA_TOKEN_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
+import { CreateUserInvitationRequest } from './request-response.dto';
+import { AdminService } from 'src/admin/admin.service';
 
 @Injectable()
 export class InfraTokenService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private adminService: AdminService,
+  ) {}
 
   TITLE_LENGTH = 3;
   VALID_TOKEN_DURATIONS = [7, 30, 60, 90];
@@ -107,5 +113,28 @@ export class InfraTokenService {
       return E.left(INFRA_TOKEN_NOT_FOUND);
     }
     return E.right(true);
+  }
+
+  /**
+   * Create a user invitation using an infra token
+   * @param token token used to create the invitation
+   * @param dto CreateUserInvitationRequest
+   * @returns Either of error or InvitedUser
+   */
+  async createUserInvitation(token: string, dto: CreateUserInvitationRequest) {
+    const infraToken = await this.prisma.infraToken.findUnique({
+      where: { token },
+    });
+
+    const tokenCreator = await this.prisma.user.findUnique({
+      where: { uid: infraToken.creatorUid },
+    });
+    if (!tokenCreator) return E.left(INFRA_TOKEN_CREATOR_NOT_FOUND);
+
+    return this.adminService.inviteUserToSignInViaEmail(
+      tokenCreator.uid,
+      tokenCreator.email,
+      dto.inviteeEmail,
+    );
   }
 }

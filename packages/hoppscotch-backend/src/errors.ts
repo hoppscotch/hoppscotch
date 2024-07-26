@@ -847,3 +847,9 @@ export const INFRA_TOKEN_INVALID_TOKEN = 'infra_token/invalid_token';
  * (InfraTokenGuard)
  */
 export const INFRA_TOKEN_EXPIRED = 'infra_token/expired';
+
+/**
+ * Token creator not found
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_CREATOR_NOT_FOUND = 'infra_token/creator_not_found';

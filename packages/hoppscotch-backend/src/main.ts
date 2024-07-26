@@ -27,7 +27,6 @@ function setupSwagger(app) {
       },
       'infra-token',
     )
-    .addServer('http://localhost:3170', 'Local Server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

@@ -20,13 +20,13 @@ export class InfraTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const authorization = request.headers['authorization'];
 
-    if (!authorization) {
+    if (!authorization)
       throw new UnauthorizedException(INFRA_TOKEN_HEADER_MISSING);
-    }
 
-    const token = authorization.startsWith('Bearer ')
-      ? authorization.split(' ')[1]
-      : authorization;
+    if (!authorization.startsWith('Bearer '))
+      throw new UnauthorizedException(INFRA_TOKEN_INVALID_TOKEN);
+
+    const token = authorization.split(' ')[1];
 
     if (!token) throw new UnauthorizedException(INFRA_TOKEN_INVALID_TOKEN);
 

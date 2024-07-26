@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="flex flex-1 flex-col"
-    :class="{ eventFeildShown: showEventField }"
-  >
+  <div class="flex flex-1 flex-col">
     <div
       v-if="showEventField"
       class="sticky z-10 flex flex-shrink-0 items-center justify-center overflow-x-auto border-b border-dividerLight bg-primary"
@@ -130,8 +127,8 @@
         />
       </div>
     </div>
-    <div class="h-full">
-      <div ref="wsCommunicationBody" class="flex flex-1 flex-col"></div>
+    <div class="h-full relative overflow-auto flex flex-col flex-1">
+      <div ref="wsCommunicationBody" class="absolute inset-0"></div>
     </div>
   </div>
 </template>
@@ -276,18 +273,3 @@ const prettifyRequestBody = () => {
 
 defineActionHandler("request.send-cancel", sendMessage)
 </script>
-
-<style lang="scss" scoped>
-:deep(.cm-panels) {
-  @apply top-upperSecondaryStickyFold #{!important};
-}
-
-.eventFeildShown :deep(.cm-panels),
-.cmResponsePrimaryStickyFold :deep(.cm-panels) {
-  @apply top-upperTertiaryStickyFold #{!important};
-}
-
-.cmResponseSecondaryStickyFold :deep(.cm-panels) {
-  @apply top-upperFourthStickyFold #{!important};
-}
-</style>

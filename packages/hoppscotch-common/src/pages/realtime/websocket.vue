@@ -46,7 +46,6 @@
         >
           <RealtimeCommunication
             :is-connected="connectionState === 'CONNECTED'"
-            class="cmResponsePrimaryStickyFold"
             sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
           />

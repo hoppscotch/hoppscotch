@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2024.6.0",
+  "version": "2024.6.1",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -38,6 +38,7 @@
     "@hoppscotch/js-sandbox": "workspace:^",
     "@hoppscotch/ui": "0.2.0",
     "@hoppscotch/vue-toasted": "0.1.0",
+    "@hoppscotch/httpsnippet": "3.0.6",
     "@lezer/highlight": "1.2.0",
     "@unhead/vue": "1.8.8",
     "@urql/core": "4.2.0",
@@ -58,7 +59,6 @@
     "graphql": "16.8.1",
     "graphql-language-service-interface": "2.10.2",
     "graphql-tag": "2.12.6",
-    "httpsnippet": "3.0.1",
     "insomnia-importers": "3.6.0",
     "io-ts": "2.2.20",
     "js-yaml": "4.1.0",

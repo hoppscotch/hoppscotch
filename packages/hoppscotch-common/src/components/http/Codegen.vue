@@ -178,7 +178,7 @@ const requestCode = computed(() => {
       ...aggregateEnvs,
     ],
   }
-  const effectiveRequest = getEffectiveRESTRequest(request.value, env)
+  const effectiveRequest = getEffectiveRESTRequest(request.value, env, true)
 
   const result = generateCode(
     codegenType.value,

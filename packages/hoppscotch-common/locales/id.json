@@ -24,8 +24,10 @@
     "go_back": "Kembali",
     "go_forward": "Go forward",
     "group_by": "Group by",
+    "hide_secret": "Hide secret",
     "label": "Label",
     "learn_more": "Pelajari lebih lanjut",
+    "download_here": "Download here",
     "less": "Lebih sedikit",
     "more": "Lebih banyak",
     "new": "Baru",
@@ -43,6 +45,7 @@
     "search": "Cari",
     "send": "Kirim",
     "share": "Share",
+    "show_secret": "Show secret",
     "start": "Mulai",
     "starting": "Memulai",
     "stop": "Berhenti",
@@ -95,14 +98,18 @@
     "twitter": "Twitter",
     "type_a_command_search": "Ketik perintah atau cari…",
     "we_use_cookies": "Kami menggunakan cookie",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Apa yang baru?",
+    "see_whats_new": "See what’s new",
     "wiki": "Wiki"
   },
   "auth": {
     "account_exists": "Akun ada dengan kredensial berbeda - Masuk untuk menautkan kedua akun",
     "all_sign_in_options": "Semua opsi masuk",
+    "continue_with_auth_provider": "Continue with {provider}",
     "continue_with_email": "Lanjutkan dengan Surel",
     "continue_with_github": "Lanjutkan dengan GitHub",
+    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
     "continue_with_google": "Lanjutkan dengan Google",
     "continue_with_microsoft": "Lanjutkan dengan Microsoft",
     "email": "Surel",
@@ -135,9 +142,30 @@
       "redirect_no_token_endpoint": "No Token Endpoint Defined",
       "something_went_wrong_on_oauth_redirect": "Something went wrong during OAuth Redirect",
       "something_went_wrong_on_token_generation": "Something went wrong on token generation",
-      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed"
+      "token_generation_oidc_discovery_failed": "Failure on token generation: OpenID Connect Discovery Failed",
+      "grant_type": "Grant Type",
+      "grant_type_auth_code": "Authorization Code",
+      "token_fetched_successfully": "Token fetched successfully",
+      "token_fetch_failed": "Failed to fetch token",
+      "validation_failed": "Validation Failed, please check the form fields",
+      "label_authorization_endpoint": "Authorization Endpoint",
+      "label_client_id": "Client ID",
+      "label_client_secret": "Client Secret",
+      "label_code_challenge": "Code Challenge",
+      "label_code_challenge_method": "Code Challenge Method",
+      "label_code_verifier": "Code Verifier",
+      "label_scopes": "Scopes",
+      "label_token_endpoint": "Token Endpoint",
+      "label_use_pkce": "Use PKCE",
+      "label_implicit": "Implicit",
+      "label_password": "Password",
+      "label_username": "Username",
+      "label_auth_code": "Authorization Code",
+      "label_client_credentials": "Client Credentials"
     },
     "pass_key_by": "Lewat",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Kata Sandi",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
@@ -149,6 +177,7 @@
     "different_parent": "Tidak dapat mengubah urutan koleksi dengan induk yang berbeda",
     "edit": "Mengubah Koleksi",
     "import_or_create": "Import or create a collection",
+    "import_collection": "Import Collection",
     "invalid_name": "Berikan nama untuk Koleksi",
     "invalid_root_move": "Koleksi sudah berada di akar direktori",
     "moved": "Berhasil Dipindahkan",
@@ -165,6 +194,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Pilih Koleksi",
     "select_location": "Pilih lokasi",
+    "details": "Details",
     "select_team": "Pilih tim",
     "team_collections": "Koleksi Tim"
   },
@@ -183,7 +213,8 @@
     "remove_telemetry": "Apakah Anda yakin ingin menyisih dari Telemetri?",
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
     "save_unsaved_tab": "Apakah Anda ingin menyimpan perubahan yang dibuat di tab ini?",
-    "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda."
+    "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda.",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",
@@ -237,13 +268,16 @@
     "pending_invites": "Tidak ada undangan yang tertunda untuk tim ini",
     "profile": "Masuk untuk melihat profil Anda",
     "protocols": "Protokol kosong",
+    "request_variables": "This request does not have any request variables",
     "schema": "Hubungkan ke endpoint GraphQL untuk melihat skema",
+    "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
     "subscription": "Langganan kosong",
     "team_name": "Nama team kosong",
     "teams": "Kamu bukan di team manapun",
     "tests": "Tidak ada tes untuk permintaan ini",
+    "access_tokens": "Access tokens are empty",
     "shortcodes": "Shortcodes kosong"
   },
   "environment": {
@@ -270,6 +304,8 @@
     "quick_peek": "Environment Quick Peek",
     "replace_with_variable": "Replace with variable",
     "scope": "Scope",
+    "secrets": "Secrets",
+    "secret_value": "Secret value",
     "select": "Pilih environment",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
@@ -278,7 +314,10 @@
     "updated": "Environment diperbarui",
     "value": "Value",
     "variable": "Variable",
-    "variable_list": "Daftar Variable"
+    "variables": "Variables",
+    "variable_list": "Daftar Variable",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -289,6 +328,7 @@
     "danger_zone": "Danger zone",
     "delete_account": "Akun Anda saat ini merupakan pemilik dalam tim-tim ini:",
     "delete_account_description": "Anda harus menghapus diri Anda dari tim-tim ini, mentransfer kepemilikan, atau menghapus tim-tim ini sebelum Anda dapat menghapus akun Anda.",
+    "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Nama Permintaan Kosong",
     "f12_details": "(F12 untuk detailnya)",
     "gql_prettify_invalid_query": "Tidak dapat prettify kueri yang tidak valid, menyelesaikan kesalahan sintaksis kueri, dan coba lagi",
@@ -296,6 +336,7 @@
     "incorrect_email": "Surel Salah",
     "invalid_link": "Tautan tidak valid",
     "invalid_link_description": "Tautan yang Anda klik tidak valid atau kedaluwarsa.",
+    "invalid_embed_link": "The embed does not exist or is invalid.",
     "json_parsing_failed": "JSON tidak valid",
     "json_prettify_invalid_body": "Tidak dapat prettify body yang tidak valid, selesaikan kesalahan sintaks json dan coba lagi",
     "network_error": "Sepertinya ada kesalahan jaringan. Silakan coba lagi.",
@@ -307,17 +348,25 @@
     "page_not_found": "Halaman ini tidak dapat ditemukan",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Tidak dapat menjalankan pre-request script",
     "something_went_wrong": "Ada yang salah",
-    "test_script_fail": "Tidak dapat mengeksekusi post-request script"
+    "test_script_fail": "Tidak dapat mengeksekusi post-request script",
+    "reading_files": "Error while reading one or more files.",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Export sebagai JSON",
     "create_secret_gist": "Buat secret Gist",
+    "create_secret_gist_tooltip_text": "Export as secret Gist",
     "failed": "Something went wrong while exporting",
-    "gist_created": "Gist dibuat",
+    "secret_gist_success": "Successfully exported as secret Gist",
     "require_github": "Masuk dengan GitHub untuk membuat secret gist",
-    "title": "Export"
+    "title": "Export",
+    "success": "Successfully exported",
+    "gist_created": "Gist dibuat"
   },
   "filter": {
     "all": "All",
@@ -339,7 +388,8 @@
     "mutations": "Mutations",
     "schema": "Schema",
     "subscriptions": "Subscriptions",
-    "switch_connection": "Switch connection"
+    "switch_connection": "Switch connection",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"
@@ -405,12 +455,17 @@
     "json_description": "Impor Koleksi dari berkas JSON Koleksi Hoppscotch",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "title": "Impor"
+    "title": "Impor",
+    "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of 10MB. Only the first {files} selected will be imported",
+    "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of 10MB. Please select another file.",
+    "success": "Successfully imported"
   },
   "inspections": {
     "description": "Inspect possible errors",
     "environment": {
       "add_environment": "Add to Environment",
+      "add_environment_value": "Add value",
+      "empty_value": "Environment value is empty for the variable '{variable}' ",
       "not_found": "Environment variable “{environment}” not found."
     },
     "header": {
@@ -546,6 +601,7 @@
     "raw_body": "Raw Request Body",
     "rename": "Rename Request",
     "renamed": "Request berganti nama",
+    "request_variables": "Request variables",
     "run": "Jalankan",
     "save": "Menyimpan",
     "save_as": "Simpan sebagai",
@@ -557,6 +613,7 @@
     "title": "Request",
     "type": "Tipe Request",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Variables",
     "view_my_links": "Lihat tautan saya",
     "copy_link": "Salin tautan"
@@ -811,6 +868,13 @@
       "new": "Create new team",
       "switch_to_personal": "Switch to your personal workspace",
       "title": "Teams"
+    },
+    "phrases": {
+      "try": "Try",
+      "import_collections": "Import collections",
+      "create_environment": "Create environment",
+      "create_workspace": "Create workspace",
+      "share_request": "Share request"
     }
   },
   "sse": {
@@ -867,9 +931,9 @@
     "forum": "Ajukan pertanyaan dan dapatkan jawaban",
     "github": "Ikuti kami di GitHub",
     "shortcuts": "Jelajahi aplikasi lebih cepat",
-    "team": "Hubungi tim",
     "title": "Mendukung",
-    "twitter": "Ikuti kami di Twitter"
+    "twitter": "Ikuti kami di Twitter",
+    "team": "Hubungi tim"
   },
   "tab": {
     "authorization": "Authorization",
@@ -889,6 +953,9 @@
     "query": "Query",
     "schema": "Schema",
     "shared_requests": "Shared Requests",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
+    "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Tests",
@@ -917,7 +984,6 @@
     "invite_tooltip": "Undang orang ke ruang kerja ini",
     "invited_to_team": "{owner} mengundang Anda untuk bergabung {team}",
     "join": "Undangan diterima",
-    "join_beta": "Bergabunglah dengan program beta untuk mengakses tim.",
     "join_team": "Bergabung {team}",
     "joined_team": "Anda telah bergabung {team}",
     "joined_team_description": "Anda sekarang adalah anggota tim ini",
@@ -950,7 +1016,12 @@
     "success_invites": "Success invites",
     "title": "tim",
     "we_sent_invite_link": "Kami mengirim tautan undangan ke semua undangan!",
-    "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests",
+    "join_beta": "Bergabunglah dengan program beta untuk mengakses tim."
   },
   "team_environment": {
     "deleted": "Environment dihapus",
@@ -977,8 +1048,49 @@
   "workspace": {
     "change": "Beralih workspace",
     "personal": "Workspace Saya",
+    "other_workspaces": "My Workspaces",
     "team": "Workspace Tim",
     "title": "Workspaces"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   },
   "shortcodes": {
     "actions": "Tindakan",

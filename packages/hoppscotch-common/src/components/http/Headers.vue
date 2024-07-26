@@ -26,7 +26,7 @@
           @click="clearContent()"
         />
         <HoppButtonSecondary
-          v-if="bulkHeaders"
+          v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -49,7 +49,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" class="h-full relative w-full">
+    <div v-if="bulkMode" class="h-full relative w-full flex flex-col flex-1">
       <div ref="bulkEditor" class="absolute inset-0"></div>
     </div>
     <div v-else>

@@ -37,7 +37,7 @@
       "vue": "3.3.9"
     },
     "packageExtensions": {
-      "httpsnippet@3.0.1": {
+      "@hoppscotch/httpsnippet": {
         "dependencies": {
           "ajv": "6.12.3"
         }

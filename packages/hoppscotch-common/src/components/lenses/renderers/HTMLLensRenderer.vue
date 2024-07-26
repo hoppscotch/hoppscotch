@@ -8,7 +8,7 @@
       </label>
       <div class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="response.body && !previewEnabled"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -22,7 +22,7 @@
             previewEnabled ? t('hide.preview') : t('response.preview_html')
           } <kbd>${getSpecialKey()}</kbd><kbd>Shift</kbd><kbd>P</kbd>`"
           :icon="!previewEnabled ? IconEye : IconEyeOff"
-          @click.prevent="togglePreview"
+          @click.prevent="doTogglePreview"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -44,8 +44,8 @@
         />
       </div>
     </div>
-    <div v-show="!previewEnabled" class="h-full">
-      <div ref="htmlResponse" class="flex flex-1 flex-col"></div>
+    <div v-show="!previewEnabled" class="h-full relative flex flex-col flex-1">
+      <div ref="htmlResponse" class="absolute inset-0"></div>
     </div>
     <iframe
       v-show="previewEnabled"
@@ -59,25 +59,29 @@
 </template>
 
 <script setup lang="ts">
-import IconWrapText from "~icons/lucide/wrap-text"
-import IconEye from "~icons/lucide/eye"
-import IconEyeOff from "~icons/lucide/eye-off"
-import { ref, reactive } from "vue"
-import {
-  usePreview,
-  useResponseBody,
-  useCopyResponse,
-  useDownloadResponse,
-} from "@composables/lens-actions"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import {
+  useCopyResponse,
+  useDownloadResponse,
+  usePreview,
+  useResponseBody,
+} from "@composables/lens-actions"
+import { useService } from "dioc/vue"
+import { reactive, ref } from "vue"
+
+import { useNestedSetting } from "~/composables/settings"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { useNestedSetting } from "~/composables/settings"
+import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { PersistenceService } from "~/services/persistence"
+import IconEye from "~icons/lucide/eye"
+import IconEyeOff from "~icons/lucide/eye-off"
+import IconWrapText from "~icons/lucide/wrap-text"
 
 const t = useI18n()
+const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
@@ -91,10 +95,22 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText
 )
+const defaultPreview =
+  persistenceService.getLocalConfig("lens_html_preview") === "true"
+
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
-  false,
+  defaultPreview,
   responseBodyText
 )
+
+const doTogglePreview = () => {
+  persistenceService.setLocalConfig(
+    "lens_html_preview",
+    previewEnabled.value ? "false" : "true"
+  )
+  togglePreview()
+}
+
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 useCodemirror(
@@ -112,7 +128,7 @@ useCodemirror(
   })
 )
 
-defineActionHandler("response.preview.toggle", () => togglePreview())
+defineActionHandler("response.preview.toggle", () => doTogglePreview())
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
 </script>

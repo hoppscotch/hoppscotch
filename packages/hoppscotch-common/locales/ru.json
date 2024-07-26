@@ -17,7 +17,6 @@
     "dismiss": "Скрыть",
     "dont_save": "Не сохранять",
     "download_file": "Скачать файл",
-    "download_here": "Download here",
     "drag_to_reorder": "Перетягивайте для сортировки",
     "duplicate": "Дублировать",
     "edit": "Редактировать",
@@ -28,6 +27,7 @@
     "hide_secret": "Hide secret",
     "label": "Название",
     "learn_more": "Узнать больше",
+    "download_here": "Download here",
     "less": "Меньше",
     "more": "Больше",
     "new": "Создать новый",
@@ -98,7 +98,9 @@
     "twitter": "Twitter",
     "type_a_command_search": "Введите команду или выполните поиск…",
     "we_use_cookies": "Мы используем куки",
+    "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "Что нового?",
+    "see_whats_new": "See what’s new",
     "wiki": "Узнать больше"
   },
   "auth": {
@@ -161,9 +163,9 @@
       "label_auth_code": "Authorization Code",
       "label_client_credentials": "Client Credentials"
     },
-    "pass_by_headers_label": "Headers",
-    "pass_by_query_params_label": "Query Parameters",
     "pass_key_by": "Pass by",
+    "pass_by_query_params_label": "Query Parameters",
+    "pass_by_headers_label": "Headers",
     "password": "Пароль",
     "save_to_inherit": "Чтобы унаследовать аутентификации, нужно сохранить запрос в коллекции",
     "token": "Токен",
@@ -191,7 +193,8 @@
     "save_as": "Сохранить как",
     "save_to_collection": "Сохранить в коллекцию",
     "select": "Выбрать коллекцию",
-    "select_location": "Выберите местоположение"
+    "select_location": "Выберите местоположение",
+    "details": "Details"
   },
   "confirm": {
     "close_unsaved_tab": "Вы уверены, что хотите закрыть эту вкладку?",
@@ -208,7 +211,8 @@
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
     "request_change": "Вы уверены, что хотите сбросить текущий запрос, все не сохранённые данные будт утеряны?",
     "save_unsaved_tab": "Вы хотите сохранить изменения в этой вкладке?",
-    "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?"
+    "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?",
+    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
     "add_parameters": "Добавить в список параметров",
@@ -263,14 +267,15 @@
     "profile": "Войдите, чтобы просмотреть свой профиль",
     "protocols": "Протоколы пустые",
     "request_variables": "Этот запрос не содержит никаких переменных",
-    "secret_environments": "Секреты хранятся только на этом устройстве и не синхронизируются с сервером",
     "schema": "Подключиться к конечной точке GraphQL",
+    "secret_environments": "Секреты хранятся только на этом устройстве и не синхронизируются с сервером",
     "shared_requests": "Вы еще не делились запросами с другими",
     "shared_requests_logout": "Нужно войти, чтобы делиться запросами и управлять ими",
     "subscription": "Нет подписок",
     "team_name": "Название команды пусто",
     "teams": "Команды пустые",
-    "tests": "Для этого запроса нет тестов"
+    "tests": "Для этого запроса нет тестов",
+    "access_tokens": "Access tokens are empty"
   },
   "environment": {
     "add_to_global": "Добавить в глобальное окружение",
@@ -307,7 +312,9 @@
     "value": "Значение",
     "variable": "Переменная",
     "variables": "Переменные",
-    "variable_list": "Список переменных"
+    "variable_list": "Список переменных",
+    "properties": "Environment Properties",
+    "details": "Details"
   },
   "error": {
     "authproviders_load_error": "Unable to load auth providers",
@@ -338,11 +345,14 @@
     "page_not_found": "Эта страница не найдена",
     "please_install_extension": "Ничего страшного. Просто нужно установить специальное расширение в браузере.",
     "proxy_error": "Proxy error",
-    "reading_files": "Произошла ошибка при чтении файла или нескольких файлов",
     "same_profile_name": "Задано имя пользователя такое же как и было",
     "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так",
-    "test_script_fail": "Не удалось выполнить тестирование запроса"
+    "test_script_fail": "Не удалось выполнить тестирование запроса",
+    "reading_files": "Произошла ошибка при чтении файла или нескольких файлов",
+    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
+    "generate_access_token": "Something went wrong while generating the access token",
+    "delete_access_token": "Something went wrong while deleting the access token"
   },
   "export": {
     "as_json": "Экспорт как JSON",
@@ -374,7 +384,8 @@
     "mutations": "Мутации",
     "schema": "Схема",
     "subscriptions": "Подписки",
-    "switch_connection": "Изменить соединение"
+    "switch_connection": "Изменить соединение",
+    "url_placeholder": "Enter a GraphQL endpoint URL"
   },
   "graphql_collections": {
     "title": "Коллекции GraphQL"
@@ -414,8 +425,6 @@
     "environments_from_gist": "Импортировать из Gist",
     "environments_from_gist_description": "Импортировать переменные окружения Hoppscotch из Gist",
     "failed": "Ошибка импорта",
-    "file_size_limit_exceeded_warning_multiple_files": "Выбранные файлы превышают рекомендованный лимит в 10MB. Были импортированы только первые {files}",
-    "file_size_limit_exceeded_warning_single_file": "Размер выбранного в данный момент файла превышает рекомендуемый лимит в 10 МБ. Пожалуйста, выберите другой файл.",
     "from_file": "Импортировать из одного или нескольких файлов",
     "from_gist": "Импорт из Gist",
     "from_gist_description": "Импортировать через Gist URL",
@@ -442,8 +451,10 @@
     "json_description": "Импортировать из коллекции Hoppscotch",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
-    "success": "Успешно импортировано",
-    "title": "Импортировать"
+    "title": "Импортировать",
+    "file_size_limit_exceeded_warning_multiple_files": "Выбранные файлы превышают рекомендованный лимит в 10MB. Были импортированы только первые {files}",
+    "file_size_limit_exceeded_warning_single_file": "Размер выбранного в данный момент файла превышает рекомендуемый лимит в 10 МБ. Пожалуйста, выберите другой файл.",
+    "success": "Успешно импортировано"
   },
   "inspections": {
     "description": "Показать возможные ошибки",
@@ -598,6 +609,7 @@
     "title": "Запрос",
     "type": "Тип запроса",
     "url": "URL",
+    "url_placeholder": "Enter a URL or paste a cURL command",
     "variables": "Переменные",
     "view_my_links": "Посмотреть мои ссылки"
   },
@@ -765,11 +777,6 @@
     "more": "Показать больше",
     "sidebar": "Показать боковую панель"
   },
-  "site_protection": {
-    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status",
-    "login_to_continue": "Login to continue",
-    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance."
-  },
   "socketio": {
     "communication": "Коммуникация",
     "connection_not_authorized": "Это SocketIO соединение не использует какую-либо авторизацию.",
@@ -806,13 +813,6 @@
     "miscellaneous": {
       "invite": "Пригласить друзей в Hoppscotch",
       "title": "Другое"
-    },
-    "phrases": {
-      "create_environment": "Создать окружение",
-      "create_workspace": "Создать пространство",
-      "import_collections": "Импортировать коллекцию",
-      "share_request": "Поделиться запросом",
-      "try": "Попробовать"
     },
     "request": {
       "save_as_new": "Сохранить как новый запрос",
@@ -862,6 +862,13 @@
       "new": "Создать новую команду",
       "switch_to_personal": "Переключить на персональное пространство",
       "title": "Команды"
+    },
+    "phrases": {
+      "try": "Попробовать",
+      "import_collections": "Импортировать коллекцию",
+      "create_environment": "Создать окружение",
+      "create_workspace": "Создать пространство",
+      "share_request": "Поделиться запросом"
     }
   },
   "sse": {
@@ -939,6 +946,8 @@
     "query": "Запрос",
     "schema": "Схема",
     "shared_requests": "Запросы в общем доступе",
+    "codegen": "Generate Code",
+    "code_snippet": "Code snippet",
     "share_tab_request": "Поделиться запросом",
     "socketio": "Socket.IO",
     "sse": "SSE",
@@ -996,12 +1005,15 @@
     "permissions": "Разрешения",
     "same_target_destination": "Таже цель и конечная точка",
     "saved": "Команда сохранена",
-    "search_title": "Team Requests",
     "select_a_team": "Выбрать команду",
     "success_invites": "Принятые приглашения",
     "title": "Команды",
     "we_sent_invite_link": "Мы отправили все приглашения!",
-    "we_sent_invite_link_description": "Попросите тех, кого Вы пригласили, проверить их почтовые ящики. Им нужно перейди по ссылке, чтобы подтвердить вступление в эту команду."
+    "invite_sent_smtp_disabled": "Invite links generated",
+    "we_sent_invite_link_description": "Попросите тех, кого Вы пригласили, проверить их почтовые ящики. Им нужно перейди по ссылке, чтобы подтвердить вступление в эту команду.",
+    "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
+    "copy_invite_link": "Copy Invite Link",
+    "search_title": "Team Requests"
   },
   "team_environment": {
     "deleted": "Окружение удалено",
@@ -1031,5 +1043,45 @@
     "other_workspaces": "Пространства",
     "team": "Пространство команды",
     "title": "Рабочие пространства"
+  },
+  "site_protection": {
+    "login_to_continue": "Login to continue",
+    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
+    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+  },
+  "access_tokens": {
+    "tab_title": "Tokens",
+    "section_title": "Personal Access Tokens",
+    "section_description": "Personal access tokens currently helps you connect the CLI to your Hoppscotch account",
+    "last_used_on": "Last used on",
+    "expires_on": "Expires on",
+    "no_expiration": "No expiration",
+    "expired": "Expired",
+    "copy_token_warning": "Make sure to copy your personal access token now. You won't be able to see it again!",
+    "token_purpose": "What's this token for?",
+    "expiration_label": "Expiration",
+    "scope_label": "Scope",
+    "workspace_read_only_access": "Read-only access to workspace data.",
+    "personal_workspace_access_limitation": "Personal Access Tokens can't access your personal workspace.",
+    "generate_token": "Generate Token",
+    "invalid_label": "Please provide a label for the token",
+    "no_expiration_verbose": "This token will never expire!",
+    "token_expires_on": "This token will expire on",
+    "generate_new_token": "Generate new token",
+    "generate_modal_title": "New Personal Access Token",
+    "deletion_success": "The access token {label} has been deleted"
+  },
+  "collection_runner": {
+    "collection_id": "Collection ID",
+    "environment_id": "Environment ID",
+    "cli_collection_id_description": "This collection ID will be used by the CLI collection runner for Hoppscotch.",
+    "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
+    "include_active_environment": "Include active environment:",
+    "cli": "CLI",
+    "ui": "Runner (coming soon)",
+    "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
+    "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
+    "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
+    "run_collection": "Run collection"
   }
 }

@@ -143,7 +143,8 @@ const readableResponseSize = computed(() => {
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||
-    props.response.type === "fail"
+    props.response.type === "fail" ||
+    props.response.type === "extension_error"
   )
     return undefined
 
@@ -162,7 +163,8 @@ const statusCategory = computed(() => {
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||
-    props.response.type === "fail"
+    props.response.type === "fail" ||
+    props.response.type === "extension_error"
   )
     return {
       name: "error",

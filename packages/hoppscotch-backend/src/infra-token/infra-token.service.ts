@@ -148,10 +148,11 @@ export class InfraTokenService {
     });
     if (!tokenCreator) return E.left(INFRA_TOKEN_CREATOR_NOT_FOUND);
 
-    return this.adminService.inviteUserToSignInViaEmail(
+    const invitedUser = await this.adminService.inviteUserToSignInViaEmail(
       tokenCreator.uid,
       tokenCreator.email,
       dto.inviteeEmail,
     );
+    return E.right(invitedUser);
   }
 }

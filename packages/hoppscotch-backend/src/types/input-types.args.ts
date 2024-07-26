@@ -1,4 +1,5 @@
 import { ArgsType, Field, ID, InputType } from '@nestjs/graphql';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
@@ -26,6 +27,7 @@ export class OffsetPaginationArgs {
   @IsOptional()
   @IsNotEmpty()
   @Type(() => Number)
+  @ApiPropertyOptional()
   @Field({
     nullable: true,
     defaultValue: 0,
@@ -36,6 +38,7 @@ export class OffsetPaginationArgs {
   @IsOptional()
   @IsNotEmpty()
   @Type(() => Number)
+  @ApiPropertyOptional()
   @Field({
     nullable: true,
     defaultValue: 10,

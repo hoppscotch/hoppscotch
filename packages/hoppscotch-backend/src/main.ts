@@ -7,6 +7,36 @@ import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
 import { checkEnvironmentAuthProvider } from './utils';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UserExternalApiController } from './infra-token/user-external-api.controller';
+import { InfraTokenModule } from './infra-token/infra-token.module';
+
+function setupSwagger(app) {
+  const swaggerDocPath = '/api-docs';
+
+  const config = new DocumentBuilder()
+    .setTitle('Hoppscotch API Documentation')
+    .setDescription('APIs for external integration')
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+        scheme: 'bearer',
+        bearerFormat: 'Bearer',
+      },
+      'infra-token',
+    )
+    .addServer('http://localhost:3170', 'Local Server')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config, {
+    include: [InfraTokenModule],
+  });
+  SwaggerModule.setup(swaggerDocPath, app, document, {
+    swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -58,6 +88,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  await setupSwagger(app);
 
   await app.listen(configService.get('PORT') || 3170);
 

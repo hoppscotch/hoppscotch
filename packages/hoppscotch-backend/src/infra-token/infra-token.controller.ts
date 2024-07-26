@@ -9,7 +9,6 @@ import {
   Post,
   Query,
   UseGuards,
-  Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
@@ -48,8 +47,8 @@ import {
   USERS_NOT_FOUND,
 } from 'src/errors';
 import { InfraTokenService } from './infra-token.service';
-import { Request } from 'express';
 import { InfraTokenInterceptor } from 'src/interceptors/infra-token.interceptor';
+import { BearerToken } from 'src/decorators/bearer-token.decorator';
 
 @ApiTags('User Management API')
 @ApiSecurity('infra-token')
@@ -71,14 +70,11 @@ export class InfraTokensController {
   @ApiBadRequestResponse({ type: ExceptionResponse })
   @ApiNotFoundResponse({ type: ExceptionResponse })
   async createUserInvitation(
+    @BearerToken() token: string,
     @Body() dto: CreateUserInvitationRequest,
-    @Req() request: Request,
   ) {
     const createdInvitations =
-      await this.infraTokenService.createUserInvitation(
-        request.headers['authorization'].split(' ')[1],
-        dto,
-      );
+      await this.infraTokenService.createUserInvitation(token, dto);
 
     if (E.isLeft(createdInvitations)) {
       const statusCode =

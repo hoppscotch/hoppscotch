@@ -1,5 +1,7 @@
 import { ExecException } from "child_process";
-import { describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import fs from "fs";
+import path from "path";
 
 import { HoppErrorCode } from "../../../types/errors";
 import { getErrorCode, getTestJsonFilePath, runCLI } from "../../utils";
@@ -229,7 +231,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       expect(error).toBeNull();
     });
 
-    test("Works with shorth `-e` flag", async () => {
+    test("Works with short `-e` flag", async () => {
       const TESTS_PATH = getTestJsonFilePath(
         "env-flag-tests-coll.json",
         "collection"
@@ -504,6 +506,165 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
+    });
+  });
+
+  describe("Test`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path]", () => {
+    const genPath = path.resolve("hopp-cli-test");
+
+    // Helper function to replace dynamic values before generating test snapshots
+    // Currently scoped to JUnit report generation
+    const replaceDynamicValuesInStr = (input: string): string =>
+      input.replace(
+        /(time|timestamp)="[^"]+"/g,
+        (_, attr) => `${attr}="${attr}"`
+      );
+
+    beforeAll(() => {
+      fs.mkdirSync(genPath);
+    });
+
+    afterAll(() => {
+      fs.rmdirSync(genPath, { recursive: true });
+    });
+
+    test("Report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
+      const exportPath = "hopp-junit-report.xml";
+
+      const COLL_PATH = getTestJsonFilePath("passes-coll.json", "collection");
+
+      const args = `test ${COLL_PATH} --reporter-junit /non-existent-path/report.xml`;
+
+      const { stdout, stderr } = await runCLI(args, {
+        cwd: path.resolve("hopp-cli-test"),
+      });
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("REPORT_EXPORT_FAILED");
+
+      expect(stdout).not.toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
+    });
+
+    test("Generates a JUnit report at the default path", async () => {
+      const exportPath = "hopp-junit-report.xml";
+
+      const COLL_PATH = getTestJsonFilePath(
+        "test-junit-report-export-coll.json",
+        "collection"
+      );
+
+      const args = `test ${COLL_PATH} --reporter-junit`;
+
+      const { stdout } = await runCLI(args, {
+        cwd: path.resolve("hopp-cli-test"),
+      });
+
+      expect(stdout).not.toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+
+      expect(stdout).toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
+
+      const fileContents = fs
+        .readFileSync(path.resolve(genPath, exportPath))
+        .toString();
+
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
+    });
+
+    test("Generates a JUnit report at the specified path", async () => {
+      const exportPath = "outer-dir/inner-dir/report.xml";
+
+      const COLL_PATH = getTestJsonFilePath(
+        "test-junit-report-export-coll.json",
+        "collection"
+      );
+
+      const args = `test ${COLL_PATH} --reporter-junit ${exportPath}`;
+
+      const { stdout } = await runCLI(args, {
+        cwd: path.resolve("hopp-cli-test"),
+      });
+
+      expect(stdout).not.toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+
+      expect(stdout).toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
+
+      const fileContents = fs
+        .readFileSync(path.resolve(genPath, exportPath))
+        .toString();
+
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
+    });
+
+    test("Generates a JUnit report for a collection with authorization/headers set at the collection level", async () => {
+      const exportPath = "hopp-junit-report.xml";
+
+      const COLL_PATH = getTestJsonFilePath(
+        "collection-level-auth-headers-coll.json",
+        "collection"
+      );
+
+      const args = `test ${COLL_PATH} --reporter-junit`;
+
+      const { stdout } = await runCLI(args, {
+        cwd: path.resolve("hopp-cli-test"),
+      });
+
+      expect(stdout).toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+
+      expect(stdout).toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
+
+      const fileContents = fs
+        .readFileSync(path.resolve(genPath, exportPath))
+        .toString();
+
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
+    });
+
+    test("Generates a JUnit report for a collection referring to environment variables", async () => {
+      const exportPath = "hopp-junit-report.xml";
+
+      const COLL_PATH = getTestJsonFilePath(
+        "req-body-env-vars-coll.json",
+        "collection"
+      );
+      const ENV_PATH = getTestJsonFilePath(
+        "req-body-env-vars-envs.json",
+        "environment"
+      );
+
+      const args = `test ${COLL_PATH} --env ${ENV_PATH} --reporter-junit`;
+
+      const { stdout } = await runCLI(args, {
+        cwd: path.resolve("hopp-cli-test"),
+      });
+
+      expect(stdout).toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+
+      expect(stdout).toContain(
+        `Successfully exported the JUnit report to: ${exportPath}`
+      );
+
+      const fileContents = fs
+        .readFileSync(path.resolve(genPath, exportPath))
+        .toString();
+
+      expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
   });
 });

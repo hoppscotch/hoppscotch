@@ -52,10 +52,11 @@ const processVariables = (variable: Environment["variables"][number]) => {
  * @param envs Global + selected envs used by requests with in collection
  * @returns Processed envs with each variable processed
  */
-const processEnvs = (envs: HoppEnvs) => {
+const processEnvs = (envs: Partial<HoppEnvs>) => {
+  // This can take the shape `{ global: undefined, selected: undefined }` when no environment is supplied
   const processedEnvs = {
-    global: envs.global.map(processVariables),
-    selected: envs.selected.map(processVariables),
+    global: envs.global?.map(processVariables),
+    selected: envs.selected?.map(processVariables),
   };
 
   return processedEnvs;
@@ -270,7 +271,7 @@ export const processRequest =
 
       // Updating report for errors & current result
       report.errors.push(preRequestRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
     } else {
       // Updating effective-request and consuming updated envs after pre-request script execution
       ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
@@ -298,7 +299,7 @@ export const processRequest =
     if (E.isLeft(requestRunnerRes)) {
       // Updating report for errors & current result
       report.errors.push(requestRunnerRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
 
       printRequestRunner.fail();
     } else {
@@ -321,7 +322,7 @@ export const processRequest =
 
       // Updating report with current errors & result.
       report.errors.push(testRunnerRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
     } else {
       const { envs, testsReport, duration } = testRunnerRes.right;
       const _hasFailedTestCases = hasFailedTestCases(testsReport);

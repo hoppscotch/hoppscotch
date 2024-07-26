@@ -11,7 +11,7 @@ import { InfraTokenService } from 'src/infra-token/infra-token.service';
 
 @Injectable()
 export class InfraTokenInterceptor implements NestInterceptor {
-  constructor(private infraTokenService: InfraTokenService) {}
+  constructor(private readonly infraTokenService: InfraTokenService) {}
 
   intercept(context: ExecutionContext, handler: CallHandler): Observable<any> {
     const req = context.switchToHttp().getRequest();

@@ -14,7 +14,7 @@ import { throwErr } from 'src/utils';
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => InfraToken)
 export class InfraTokenResolver {
-  constructor(private infraTokenService: InfraTokenService) {}
+  constructor(private readonly infraTokenService: InfraTokenService) {}
 
   /* Query */
 

@@ -57,9 +57,9 @@ import { InfraTokenInterceptor } from 'src/interceptors/infra-token.interceptor'
 @Controller({ path: 'infra', version: '1' })
 export class UserExternalApiController {
   constructor(
-    private infraTokenService: InfraTokenService,
-    private adminService: AdminService,
-    private userService: UserService,
+    private readonly infraTokenService: InfraTokenService,
+    private readonly adminService: AdminService,
+    private readonly userService: UserService,
   ) {}
 
   @Post('user-invitations')

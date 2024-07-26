@@ -17,8 +17,8 @@ import { AdminService } from 'src/admin/admin.service';
 @Injectable()
 export class InfraTokenService {
   constructor(
-    private prisma: PrismaService,
-    private adminService: AdminService,
+    private readonly prisma: PrismaService,
+    private readonly adminService: AdminService,
   ) {}
 
   TITLE_LENGTH = 3;

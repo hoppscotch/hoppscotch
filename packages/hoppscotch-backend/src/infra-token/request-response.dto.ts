@@ -44,7 +44,7 @@ export class GetUsersRequestQuery extends OffsetPaginationArgs {
   @ApiPropertyOptional()
   searchString: string;
 }
-export class GetUsersResponse {
+export class GetUserResponse {
   @ApiProperty()
   @Expose()
   uid: string;
@@ -64,6 +64,15 @@ export class GetUsersResponse {
   @ApiProperty()
   @Expose()
   isAdmin: boolean;
+}
+
+// PATCH api/v1/infra/users/:uid
+export class UpdateUserRequest {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @ApiPropertyOptional()
+  displayName: string;
 }
 
 // Used for Swagger doc only, in codebase throwHTTPErr function is used to throw errors

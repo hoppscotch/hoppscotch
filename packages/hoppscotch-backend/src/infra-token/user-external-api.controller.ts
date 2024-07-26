@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -18,24 +20,31 @@ import {
   ExceptionResponse,
   GetUserInvitationResponse,
   GetUsersRequestQuery,
-  GetUsersResponse,
+  GetUserResponse,
+  UpdateUserRequest,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import {
   ApiBadRequestResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { throwHTTPErr } from 'src/utils';
+import { UserService } from 'src/user/user.service';
+import { USER_NOT_FOUND } from 'src/errors';
 
 @ApiTags('User Management API')
 @ApiSecurity('infra-token')
 @UseGuards(ThrottlerBehindProxyGuard, InfraTokenGuard)
 @Controller({ path: 'api/v1/infra' })
 export class UserExternalApiController {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private userService: UserService,
+  ) {}
 
   @Get('user-invitations')
   @ApiOkResponse({
@@ -84,15 +93,43 @@ export class UserExternalApiController {
   @Get('users')
   @ApiOkResponse({
     description: 'Get users list',
-    type: [GetUsersResponse],
+    type: [GetUserResponse],
   })
   async getUsers(@Query() query: GetUsersRequestQuery) {
-    const users = await this.adminService.fetchUsersV2(query.searchString, {
+    const users = await this.userService.fetchAllUsersV2(query.searchString, {
       take: query.take,
       skip: query.skip,
     });
 
-    return plainToInstance(GetUsersResponse, users, {
+    return plainToInstance(GetUserResponse, users, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
+  }
+
+  @Patch('users/:uid')
+  @ApiOkResponse({
+    description: 'Update user display name',
+    type: GetUserResponse,
+  })
+  @ApiBadRequestResponse({ type: ExceptionResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  async updateUser(@Param('uid') uid: string, @Body() body: UpdateUserRequest) {
+    const updatedUser = await this.userService.updateUserDisplayName(
+      uid,
+      body.displayName,
+    );
+
+    if (E.isLeft(updatedUser)) {
+      const statusCode =
+        (updatedUser.left as string) === USER_NOT_FOUND
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.BAD_REQUEST;
+
+      throwHTTPErr({ message: updatedUser.left, statusCode });
+    }
+
+    return plainToInstance(GetUserResponse, updatedUser.right, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });

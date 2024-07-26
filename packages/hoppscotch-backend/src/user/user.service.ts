@@ -412,8 +412,6 @@ export class UserService {
       orderBy: [{ isAdmin: 'desc' }, { displayName: 'asc' }],
     });
 
-    console.log('fetchedUsers', fetchedUsers);
-
     return fetchedUsers;
   }
 

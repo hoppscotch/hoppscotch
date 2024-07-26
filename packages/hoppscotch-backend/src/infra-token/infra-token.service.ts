@@ -153,6 +153,8 @@ export class InfraTokenService {
       tokenCreator.email,
       dto.inviteeEmail,
     );
+    if (E.isLeft(invitedUser)) return E.left(invitedUser.left);
+
     return E.right(invitedUser);
   }
 }

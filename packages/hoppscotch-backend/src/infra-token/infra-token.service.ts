@@ -47,7 +47,7 @@ export class InfraTokenService {
       label: dbInfraToken.label,
       createdOn: dbInfraToken.createdOn,
       expiresOn: dbInfraToken.expiresOn,
-      lastUsedOn: dbInfraToken.lastUsedOn,
+      lastUsedOn: dbInfraToken.updatedOn,
     };
   }
 
@@ -124,7 +124,7 @@ export class InfraTokenService {
     try {
       const infraToken = await this.prisma.infraToken.update({
         where: { token },
-        data: { lastUsedOn: new Date() },
+        data: { updatedOn: new Date() },
       });
       return E.right(this.cast(infraToken));
     } catch (error) {

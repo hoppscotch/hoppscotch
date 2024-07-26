@@ -240,5 +240,5 @@ model InfraToken {
   token      String    @unique @default(uuid())
   expiresOn  DateTime? @db.Timestamp(3)
   createdOn  DateTime  @default(now()) @db.Timestamp(3)
-  lastUsedOn DateTime  @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime  @default(now()) @db.Timestamp(3)
 }

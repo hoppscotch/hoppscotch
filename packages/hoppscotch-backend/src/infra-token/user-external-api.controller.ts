@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { AdminService } from 'src/admin/admin.service';
@@ -47,10 +48,12 @@ import {
 } from 'src/errors';
 import { InfraTokenService } from './infra-token.service';
 import { Request } from 'express';
+import { InfraTokenInterceptor } from 'src/interceptors/infra-token.interceptor';
 
 @ApiTags('User Management API')
 @ApiSecurity('infra-token')
 @UseGuards(ThrottlerBehindProxyGuard, InfraTokenGuard)
+@UseInterceptors(InfraTokenInterceptor)
 @Controller({ path: 'infra', version: '1' })
 export class UserExternalApiController {
   constructor(

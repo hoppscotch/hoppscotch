@@ -116,6 +116,23 @@ export class InfraTokenService {
   }
 
   /**
+   * Update the last used on of an infra token
+   * @param token token to update
+   * @returns Either of error or InfraToken
+   */
+  async updateLastUsedOn(token: string) {
+    try {
+      const infraToken = await this.prisma.infraToken.update({
+        where: { token },
+        data: { lastUsedOn: new Date() },
+      });
+      return E.right(this.cast(infraToken));
+    } catch (error) {
+      return E.left(INFRA_TOKEN_NOT_FOUND);
+    }
+  }
+
+  /**
    * Create a user invitation using an infra token
    * @param token token used to create the invitation
    * @param dto CreateUserInvitationRequest

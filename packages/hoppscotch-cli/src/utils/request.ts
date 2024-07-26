@@ -271,7 +271,7 @@ export const processRequest =
 
       // Updating report for errors & current result
       report.errors.push(preRequestRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
     } else {
       // Updating effective-request and consuming updated envs after pre-request script execution
       ({ effectiveRequest, updatedEnvs } = preRequestRes.right);
@@ -299,7 +299,7 @@ export const processRequest =
     if (E.isLeft(requestRunnerRes)) {
       // Updating report for errors & current result
       report.errors.push(requestRunnerRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
 
       printRequestRunner.fail();
     } else {
@@ -322,7 +322,7 @@ export const processRequest =
 
       // Updating report with current errors & result.
       report.errors.push(testRunnerRes.left);
-      report.result = report.result && false;
+      report.result = report.result;
     } else {
       const { envs, testsReport, duration } = testRunnerRes.right;
       const _hasFailedTestCases = hasFailedTestCases(testsReport);

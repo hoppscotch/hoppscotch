@@ -1,6 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 // GET api/v1/infra/user-invitations
 export class GetUserInvitationResponse {
@@ -26,6 +34,36 @@ export class DeleteUserInvitationResponse {
   @ApiProperty()
   @Expose()
   message: string;
+}
+
+// POST api/v1/infra/users
+export class GetUsersRequestQuery extends OffsetPaginationArgs {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @ApiPropertyOptional()
+  searchString: string;
+}
+export class GetUsersResponse {
+  @ApiProperty()
+  @Expose()
+  uid: string;
+
+  @ApiProperty()
+  @Expose()
+  displayName: string;
+
+  @ApiProperty()
+  @Expose()
+  email: string;
+
+  @ApiProperty()
+  @Expose()
+  photoURL: string;
+
+  @ApiProperty()
+  @Expose()
+  isAdmin: boolean;
 }
 
 // Used for Swagger doc only, in codebase throwHTTPErr function is used to throw errors

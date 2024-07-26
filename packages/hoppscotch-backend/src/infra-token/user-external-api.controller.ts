@@ -17,6 +17,8 @@ import {
   DeleteUserInvitationResponse,
   ExceptionResponse,
   GetUserInvitationResponse,
+  GetUsersRequestQuery,
+  GetUsersResponse,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -29,13 +31,13 @@ import {
 import { throwHTTPErr } from 'src/utils';
 
 @ApiTags('User Management API')
+@ApiSecurity('infra-token')
 @UseGuards(ThrottlerBehindProxyGuard, InfraTokenGuard)
 @Controller({ path: 'api/v1/infra' })
 export class UserExternalApiController {
   constructor(private adminService: AdminService) {}
 
   @Get('user-invitations')
-  @ApiSecurity('infra-token')
   @ApiOkResponse({
     description: 'Get pending user invitations',
     type: [GetUserInvitationResponse],
@@ -52,7 +54,6 @@ export class UserExternalApiController {
   }
 
   @Delete('user-invitations')
-  @ApiSecurity('infra-token')
   @ApiOkResponse({
     description: 'Delete a pending user invitation',
     type: DeleteUserInvitationResponse,
@@ -78,5 +79,22 @@ export class UserExternalApiController {
         enableImplicitConversion: true,
       },
     );
+  }
+
+  @Get('users')
+  @ApiOkResponse({
+    description: 'Get users list',
+    type: [GetUsersResponse],
+  })
+  async getUsers(@Query() query: GetUsersRequestQuery) {
+    const users = await this.adminService.fetchUsersV2(query.searchString, {
+      take: query.take,
+      skip: query.skip,
+    });
+
+    return plainToInstance(GetUsersResponse, users, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
   }
 }

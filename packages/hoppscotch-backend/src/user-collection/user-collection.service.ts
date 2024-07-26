@@ -25,7 +25,11 @@ import {
   UserCollectionExportJSONData,
 } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
-import { isValidLength, stringToJson } from 'src/utils';
+import {
+  isValidLength,
+  stringToJson,
+  transformCollectionData,
+} from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 
 @Injectable()
@@ -43,13 +47,15 @@ export class UserCollectionService {
    * @returns UserCollection model
    */
   private cast(collection: UserCollection) {
+    const data = transformCollectionData(collection.data);
+
     return <UserCollectionModel>{
       id: collection.id,
       title: collection.title,
       type: collection.type,
       parentID: collection.parentID,
       userID: collection.userUid,
-      data: !collection.data ? null : JSON.stringify(collection.data),
+      data,
     };
   }
 
@@ -871,6 +877,8 @@ export class UserCollectionService {
       },
     });
 
+    const data = transformCollectionData(collection.right.data);
+
     const result: CollectionFolder = {
       id: collection.right.id,
       name: collection.right.title,
@@ -882,7 +890,7 @@ export class UserCollectionService {
           ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
         };
       }),
-      data: JSON.stringify(collection.right.data),
+      data,
     };
 
     return E.right(result);

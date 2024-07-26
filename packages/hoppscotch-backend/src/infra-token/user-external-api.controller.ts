@@ -32,6 +32,7 @@ import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import {
   ApiBadRequestResponse,
+  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiSecurity,
@@ -59,6 +60,12 @@ export class UserExternalApiController {
   ) {}
 
   @Post('user-invitations')
+  @ApiCreatedResponse({
+    description: 'Create a user invitation',
+    type: CreateUserInvitationResponse,
+  })
+  @ApiBadRequestResponse({ type: ExceptionResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
   async createUserInvitation(
     @Body() dto: CreateUserInvitationRequest,
     @Req() request: Request,

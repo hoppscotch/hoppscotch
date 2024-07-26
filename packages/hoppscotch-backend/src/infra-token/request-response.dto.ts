@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -21,7 +22,7 @@ export class CreateUserInvitationRequest {
 export class CreateUserInvitationResponse {
   @ApiProperty()
   @Expose()
-  invitationLink;
+  invitationLink: string;
 }
 
 // GET v1/infra/user-invitations

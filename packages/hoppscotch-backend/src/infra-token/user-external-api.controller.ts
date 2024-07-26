@@ -30,6 +30,7 @@ import {
   CreateUserInvitationResponse,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import {
   ApiBadRequestResponse,
@@ -156,6 +157,28 @@ export class UserExternalApiController {
     });
 
     return plainToInstance(GetUserResponse, users, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
+  }
+
+  @Get('users/:uid')
+  @ApiOkResponse({
+    description: 'Get user details',
+    type: GetUserResponse,
+  })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  async getUser(@Param('uid') uid: string) {
+    const user = await this.userService.findUserById(uid);
+
+    if (O.isNone(user)) {
+      throwHTTPErr({
+        message: USER_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
+
+    return plainToInstance(GetUserResponse, user.value, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });

@@ -22,6 +22,8 @@ import {
   GetUsersRequestQuery,
   GetUserResponse,
   UpdateUserRequest,
+  UpdateUserAdminStatusRequest,
+  UpdateUserAdminStatusResponse,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -34,7 +36,7 @@ import {
 } from '@nestjs/swagger';
 import { throwHTTPErr } from 'src/utils';
 import { UserService } from 'src/user/user.service';
-import { USER_NOT_FOUND } from 'src/errors';
+import { USER_NOT_FOUND, USERS_NOT_FOUND } from 'src/errors';
 
 @ApiTags('User Management API')
 @ApiSecurity('infra-token')
@@ -133,5 +135,43 @@ export class UserExternalApiController {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+  }
+
+  @Patch('users/:uid/admin-status')
+  @ApiOkResponse({
+    description: 'Update user admin status',
+    type: UpdateUserAdminStatusResponse,
+  })
+  @ApiBadRequestResponse({ type: ExceptionResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  async updateUserAdminStatus(
+    @Param('uid') uid: string,
+    @Body() body: UpdateUserAdminStatusRequest,
+  ) {
+    let updatedUser;
+
+    if (body.isAdmin) {
+      updatedUser = await this.adminService.makeUsersAdmin([uid]);
+    } else {
+      updatedUser = await this.adminService.demoteUsersByAdmin([uid]);
+    }
+
+    if (E.isLeft(updatedUser)) {
+      const statusCode =
+        (updatedUser.left as string) === USERS_NOT_FOUND
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.BAD_REQUEST;
+
+      throwHTTPErr({ message: updatedUser.left as string, statusCode });
+    }
+
+    return plainToInstance(
+      UpdateUserAdminStatusResponse,
+      { message: updatedUser.right },
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
   }
 }

@@ -3,6 +3,7 @@ import { Expose, Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -73,6 +74,19 @@ export class UpdateUserRequest {
   @MinLength(1)
   @ApiPropertyOptional()
   displayName: string;
+}
+
+// PATCH api/v1/infra/users/:uid/admin-status
+export class UpdateUserAdminStatusRequest {
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty()
+  isAdmin: boolean;
+}
+export class UpdateUserAdminStatusResponse {
+  @ApiProperty()
+  @Expose()
+  message: string;
 }
 
 // Used for Swagger doc only, in codebase throwHTTPErr function is used to throw errors

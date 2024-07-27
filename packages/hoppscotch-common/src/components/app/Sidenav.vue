@@ -31,6 +31,7 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconGraphql from "~icons/hopp/graphql"
 import IconGlobe from "~icons/lucide/globe"
 import IconSettings from "~icons/lucide/settings"
+import IconFlows from "~icons/hopp/flows"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 
@@ -64,6 +65,12 @@ const primaryNavigation = [
     target: "/settings",
     svg: IconSettings,
     title: "navigation.settings",
+    exact: false,
+  },
+  {
+    target: "/flows",
+    svg: IconFlows,
+    title: "navigation.flows",
     exact: false,
   },
 ]

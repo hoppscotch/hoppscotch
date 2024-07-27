@@ -671,6 +671,9 @@ importers:
       '@types/postman-collection':
         specifier: 3.5.10
         version: 3.5.10
+      '@types/qs':
+        specifier: 6.9.12
+        version: 6.9.12
       '@types/splitpanes':
         specifier: 2.2.6
         version: 2.2.6(typescript@5.3.2)

@@ -276,11 +276,13 @@ export const resolvesEnvsInBody = (
   if (!body.contentType) return body
 
   if (body.contentType === "multipart/form-data") {
-    if (!body.body)
+    if (!body.body) {
       return {
-        contentType: "",
-        body: [],
+        contentType: null,
+        body: null,
       }
+    }
+
     return {
       contentType: "multipart/form-data",
       body: body.body.map(

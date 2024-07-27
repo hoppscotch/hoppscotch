@@ -1,12 +1,14 @@
 <template>
   <VueFlow :nodes="nodes" :edges="edges">
     <template #node-sendRequest="sendRequestProps">
-      <FlowsSendRequestNode
-        v-bind="sendRequestProps"
-        :collections="restCollections"
-      />
+      <FlowsSendRequestNode v-bind="sendRequestProps" :collections="restCollections" />
     </template>
-
+    <template #node-outputResponse="outputProps">
+      <FlowsOutputNode v-bind="outputProps" />
+    </template>
+    <template #node-selector="selectorProps">
+      <FlowsSelectorNode v-bind="selectorProps" />
+    </template>
     <Background />
   </VueFlow>
 </template>
@@ -36,6 +38,18 @@ const nodes = ref([
     position: { x: 400, y: 200 },
     data: { label: "Node 3" },
   },
+  {
+    id: "4",
+    type: "outputResponse",
+    position: { x: 600, y: 100 },
+    data: { label: "Node 4" },
+  },
+  {
+    id: "5",
+    type: "selector",
+    position: { x: 900, y: 50 },
+    data: { label: "Node 5" },
+  },
 ])
 
 const edges = ref([
@@ -48,6 +62,16 @@ const edges = ref([
     id: "e2->3",
     source: "2",
     target: "3",
+    targetHandle: "target-from",
+  }, {
+    id: "e2->4",
+    source: "2",
+    target: "4",
+    targetHandle: "target-from",
+  }, {
+    id: "e2->5",
+    source: "2",
+    target: "5",
     targetHandle: "target-from",
   },
 ])

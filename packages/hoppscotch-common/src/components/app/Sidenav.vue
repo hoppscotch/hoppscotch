@@ -73,6 +73,12 @@ const primaryNavigation = [
     title: "navigation.flows",
     exact: false,
   },
+  {
+    target: "/flows-neko",
+    svg: IconFlows,
+    title: "Flows (Neko)",
+    exact: false,
+  },
 ]
 </script>
 

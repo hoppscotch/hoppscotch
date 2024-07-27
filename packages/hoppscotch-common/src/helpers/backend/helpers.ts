@@ -1,5 +1,7 @@
 import {
   HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
   translateToNewRequest,
@@ -8,6 +10,8 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
+import { z } from "zod"
+
 import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
@@ -25,6 +29,8 @@ type TeamCollectionJSON = {
   requests: HoppRESTRequest[]
   data: string
 }
+
+type CollectionDataProps = { auth: HoppRESTAuth; headers: HoppRESTHeaders }
 
 export const BACKEND_PAGE_SIZE = 10
 
@@ -87,24 +93,65 @@ const getCollectionRequests = async (collID: string) => {
   return E.right(reqList)
 }
 
+// Pick the value from the parsed result if it is successful, otherwise, return the default value
+const parseWithDefaultValue = <T>(
+  parseResult: z.SafeParseReturnType<T, T>,
+  defaultValue: T
+): T => (parseResult.success ? parseResult.data : defaultValue)
+
+// Parse the incoming value for the `data` (authorization/headers) field and obtain the value in the expected format
+const parseCollectionData = (
+  data: string | Record<string, unknown> | null
+): CollectionDataProps => {
+  const defaultDataProps: CollectionDataProps = {
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+  }
+
+  if (!data) {
+    return defaultDataProps
+  }
+
+  let parsedData: CollectionDataProps | Record<string, unknown> | null
+
+  if (typeof data === "string") {
+    try {
+      parsedData = JSON.parse(data)
+    } catch {
+      return defaultDataProps
+    }
+  } else {
+    parsedData = data
+  }
+
+  const auth = parseWithDefaultValue<CollectionDataProps["auth"]>(
+    HoppRESTAuth.safeParse(parsedData?.auth),
+    defaultDataProps.auth
+  )
+
+  const headers = parseWithDefaultValue<CollectionDataProps["headers"]>(
+    HoppRESTHeaders.safeParse(parsedData?.headers),
+    defaultDataProps.headers
+  )
+
+  return {
+    auth,
+    headers,
+  }
+}
+
 // Transforms the collection JSON string obtained with workspace level export to `HoppRESTCollection`
 const teamCollectionJSONToHoppRESTColl = (
   coll: TeamCollectionJSON
 ): HoppCollection => {
-  const data =
-    coll.data && coll.data !== "null"
-      ? JSON.parse(coll.data)
-      : {
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-        }
+  const { auth, headers } = parseCollectionData(coll.data)
 
   return makeCollection({
     name: coll.name,
     folders: coll.folders.map(teamCollectionJSONToHoppRESTColl),
     requests: coll.requests,
-    auth: data.auth ?? { authType: "inherit", authActive: true },
-    headers: data.headers ?? [],
+    auth,
+    headers,
   })
 }
 

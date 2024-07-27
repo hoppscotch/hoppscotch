@@ -284,6 +284,79 @@ function setupUserCollectionCreatedSubscription() {
         return
       }
 
+      // Root collection
+      if (!parentCollectionID) {
+        const collectionInsertedViaStoreUpdateIdx =
+          collectionStore.value.state.findIndex(({ id }) =>
+            id?.endsWith("-duplicate-collection")
+          )
+
+        if (collectionInsertedViaStoreUpdateIdx !== -1) {
+          const collectionInsertedViaStoreUpdate =
+            collectionStore.value.state[collectionInsertedViaStoreUpdateIdx]
+
+          runDispatchWithOutSyncing(() => {
+            if (collectionType == ReqType.Rest) {
+              editRESTCollection(collectionInsertedViaStoreUpdateIdx, {
+                ...collectionInsertedViaStoreUpdate,
+                id: userCollectionBackendID,
+              })
+            } else {
+              editGraphqlCollection(collectionInsertedViaStoreUpdateIdx, {
+                ...collectionInsertedViaStoreUpdate,
+                id: userCollectionBackendID,
+              })
+            }
+          })
+
+          // Prevent adding the collection received from GQL subscription to the store
+          return
+        }
+      } else {
+        const parentCollectionPath = getCollectionPathFromCollectionID(
+          parentCollectionID,
+          collectionStore.value.state
+        )
+
+        if (parentCollectionPath) {
+          const parentCollection = navigateToFolderWithIndexPath(
+            collectionStore.value.state,
+            parentCollectionPath.split("/").map((index) => parseInt(index))
+          )
+
+          if (parentCollection) {
+            const collectionInsertedViaStoreUpdateIdx =
+              parentCollection.folders.findIndex(({ id }) =>
+                id.endsWith("-duplicate-collection")
+              )
+
+            if (collectionInsertedViaStoreUpdateIdx !== -1) {
+              runDispatchWithOutSyncing(() => {
+                const collectionInsertedViaStoreUpdate =
+                  parentCollection.folders[collectionInsertedViaStoreUpdateIdx]
+
+                const childCollectionPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
+
+                if (collectionType == ReqType.Rest) {
+                  editRESTFolder(childCollectionPath, {
+                    ...collectionInsertedViaStoreUpdate,
+                    id: userCollectionBackendID,
+                  })
+                } else {
+                  editGraphqlFolder(childCollectionPath, {
+                    ...collectionInsertedViaStoreUpdate,
+                    id: userCollectionBackendID,
+                  })
+                }
+              })
+
+              // Prevent adding the collection received from GQL subscription to the store
+              return
+            }
+          }
+        }
+      }
+
       const parentCollectionPath =
         parentCollectionID &&
         getCollectionPathFromCollectionID(

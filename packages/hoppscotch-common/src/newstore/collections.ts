@@ -513,9 +513,13 @@ const restCollectionDispatchers = defineDispatchers({
 
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
+
       const duplicatedCollection = {
         ...cloneDeep(collection),
         name,
+        ...(collection.id
+          ? { id: `${collection.id}-duplicate-collection` }
+          : {}),
       }
 
       if (isRootCollection) {
@@ -955,9 +959,13 @@ const gqlCollectionDispatchers = defineDispatchers({
 
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
+
       const duplicatedCollection = {
         ...cloneDeep(collection),
         name,
+        ...(collection.id
+          ? { id: `${collection.id}-duplicate-collection` }
+          : {}),
       }
 
       if (isRootCollection) {

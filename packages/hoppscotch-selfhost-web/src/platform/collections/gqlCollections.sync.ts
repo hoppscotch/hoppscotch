@@ -1,7 +1,4 @@
-import { getI18n } from "@hoppscotch/common/modules/i18n"
 import {
-  editGraphqlCollection,
-  editGraphqlFolder,
   graphqlCollectionStore,
   navigateToFolderWithIndexPath,
   removeDuplicateGraphqlCollectionOrFolder,
@@ -266,46 +263,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       await deleteUserCollection(folderID)
     }
   },
-  async duplicateCollection({ collectionSyncID, path }) {
+  async duplicateCollection({ collectionSyncID }) {
     if (collectionSyncID) {
-      const indexPaths = path.split("/").map((x) => parseInt(x))
-
       await duplicateUserCollection(collectionSyncID, ReqType.Gql)
-
-      // There'll be duplicate entries due to store update followed by GQL subscription during sync
-      removeDuplicateGraphqlCollectionOrFolder(collectionSyncID, path)
-
-      // After removal, the collection at the original path will have the ` - Duplicate` suffix
-      const originalCollection = navigateToFolderWithIndexPath(
-        graphqlCollectionStore.value.state,
-        indexPaths
-      )
-
-      // The first occurrence of the duplicate entry is removed which corresponds to the original collection being duplicated
-      // Hence, removing the ` - Duplicate` suffix from the name
-      if (originalCollection) {
-        const isRootCollection = indexPaths.length == 1
-
-        const t = getI18n()
-
-        if (isRootCollection) {
-          editGraphqlCollection(parseInt(path), {
-            ...originalCollection,
-            name: originalCollection.name.replace(
-              ` - ${t("action.duplicate")}`,
-              ""
-            ),
-          })
-        } else {
-          editGraphqlFolder(path, {
-            ...originalCollection,
-            name: originalCollection.name.replace(
-              ` - ${t("action.duplicate")}`,
-              ""
-            ),
-          })
-        }
-      }
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

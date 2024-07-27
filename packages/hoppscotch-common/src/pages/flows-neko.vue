@@ -1,14 +1,13 @@
 <template>
   <VueFlow :nodes="nodes" :edges="edges">
-    <template #node-block-menu="props">
-      <FlowsBlockMenu :id="props.id" :data="props.data" />
+    <template #node-block-menu="node">
+      <FlowsBlockMenu v-bind="node" />
     </template>
     <Background />
   </VueFlow>
 </template>
 
-<script setup>
-import { ref } from "vue"
+<script setup lang="ts">
 import { VueFlow } from "@vue-flow/core"
 import { Background } from "@vue-flow/background"
 import { useI18n } from "@composables/i18n"
@@ -17,7 +16,7 @@ import SendRequestNode from "~/components/flows/SendRequestNode.vue"
 
 const t = useI18n()
 
-const nodes = ref([
+const nodes = [
   {
     id: "0",
     type: "input",
@@ -30,21 +29,18 @@ const nodes = ref([
     data: {
       blocks: [
         {
-          id: 1,
           title: "Send Request",
           description: "Evaluating requests",
           icon: IconFlows,
           block: SendRequestNode,
         },
         {
-          id: 2,
           title: t("navigation.graphql"),
           description: "Short description",
           icon: IconFlows,
           block: SendRequestNode,
         },
         {
-          id: 3,
           title: t("navigation.realtime"),
           description: "Short description",
           icon: IconFlows,
@@ -54,15 +50,15 @@ const nodes = ref([
     },
     position: { x: 100, y: 100 },
   },
-])
+]
 
-const edges = ref([
+const edges = [
   {
     id: "0->1",
     source: "0",
     target: "1",
   },
-])
+]
 </script>
 
 <style>

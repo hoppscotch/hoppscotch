@@ -9,7 +9,7 @@
     <div v-if="filteredBlocks.length" class="search-results">
       <div
         v-for="block in filteredBlocks"
-        :key="block"
+        :key="block.id"
         class="search-result"
         @click="setBlockId(block.id)"
       >
@@ -26,21 +26,30 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  id: {
-    type: String,
-    required: true,
-  },
-  data: {
-    type: Object,
-    required: true,
-  },
-})
 import { ref, computed } from "vue"
+import { DefineComponent, FunctionalComponent, SVGAttributes } from "vue"
+interface IBlockData {
+  id?: number
+  title: string
+  description: string
+  icon: FunctionalComponent<SVGAttributes>
+  block: DefineComponent
+}
+interface IBlocks {
+  blocks: IBlockData[]
+}
+interface IBlockMenuProps {
+  id?: string
+  data: IBlocks
+}
+const props = defineProps<IBlockMenuProps>()
 const blockId = ref(0)
-const setBlockId = (value: number) => (blockId.value = value)
+const setBlockId = (value?: number) => value && (blockId.value = value)
 const filterText = ref("")
-const blocksList = props.data.blocks
+const blocksList = props.data.blocks.map((blockObj, idx) => ({
+  id: idx + 1,
+  ...blockObj,
+}))
 const filteredBlocks = computed(() => {
   if (!blocksList.length) return []
   const filterTextValue = filterText.value.toLowerCase()

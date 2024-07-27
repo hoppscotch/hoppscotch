@@ -1,23 +1,24 @@
 <template>
-  <div class="block-menu">
+  <component :is="blocksList[blockId - 1].block" v-if="blockId" />
+  <div v-else class="block-menu">
     <HoppSmartInput
       v-model="filterText"
       placeholder="Search for blocks or requests"
       class="search-input"
-    ></HoppSmartInput>
-    <div v-if="filteredNodes.length" class="search-results">
+    />
+    <div v-if="filteredBlocks.length" class="search-results">
       <div
-        v-for="node in filteredNodes"
-        :key="node"
-        :value="node"
+        v-for="block in filteredBlocks"
+        :key="block"
         class="search-result"
+        @click="setBlockId(block.id)"
       >
         <div class="search-result-icon">
-          <component :is="node.icon" class="svg-icons" />
+          <component :is="block.icon" class="svg-icons" />
         </div>
         <div>
-          <div>{{ node.title }}</div>
-          <div>{{ node.description }}</div>
+          <div>{{ block.title }}</div>
+          <div>{{ block.description }}</div>
         </div>
       </div>
     </div>
@@ -25,7 +26,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
 const props = defineProps({
   id: {
     type: String,
@@ -36,39 +36,45 @@ const props = defineProps({
     required: true,
   },
 })
-const nodesList = props.data.nodes
+import { ref, computed } from "vue"
+const blockId = ref(0)
+const setBlockId = (value: number) => (blockId.value = value)
 const filterText = ref("")
-const filteredNodes = computed(() => {
-  if (!nodesList.length) return []
+const blocksList = props.data.blocks
+const filteredBlocks = computed(() => {
+  if (!blocksList.length) return []
   const filterTextValue = filterText.value.toLowerCase()
   return filterTextValue.length
-    ? nodesList.filter((node) =>
-        node.title.toLowerCase().includes(filterTextValue)
+    ? blocksList.filter((block) =>
+        block.title.toLowerCase().includes(filterTextValue)
       )
-    : nodesList
+    : blocksList
 })
 </script>
 
 <style scoped lang="scss">
-.block-menu {
-  @apply bg-primary;
-}
-.search-result {
-  @apply flex items-center gap-4 border-0 rounded;
-  &:hover {
-    @apply bg-primaryDark;
-  }
-}
-.search-result-icon {
-  @apply p-4;
+.block-menu,
+.search-input,
+.search-results,
+.search-result,
+.search-result-icon,
+.clicked-result {
+  @apply p-2;
 }
 .block-menu,
 .search-result-icon {
   @apply border rounded border-current;
 }
-.block-menu,
-.search-input,
+.block-menu {
+  @apply bg-primary;
+}
 .search-result {
-  @apply p-2;
+  @apply flex items-center gap-2 border-0 rounded;
+  &:hover,
+  &.active {
+    @apply bg-primaryDark;
+    @apply text-secondaryDark;
+    @apply cursor-pointer;
+  }
 }
 </style>

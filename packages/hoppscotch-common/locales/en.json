@@ -1088,6 +1088,7 @@
   "flows": {
     "select_request": "Select a request",
     "success": "Success",
-    "failure": "Failure"
+    "failure": "Failure",
+    "start": "Start"
   }
 }

@@ -15,6 +15,9 @@
     <template #node-block-menu="blockMenuProps">
       <FlowsBlockMenu v-bind="blockMenuProps" />
     </template>
+    <template #node-start="startProps">
+      <FlowsStartNode v-bind="startProps" />
+    </template>
     <Background class="bg-primaryLight" />
 
     <Controls position="bottom-center">
@@ -68,8 +71,9 @@ const blockMenuNodeTemplate = (id: string, x: number, y: number) => ({
 const nodes = ref([
   {
     id: "1",
+    type: "start",
     position: { x: 0, y: 0 },
-    data: { label: "start", loading: true },
+    data: { loading: true },
   },
   {
     id: "2",
@@ -170,7 +174,7 @@ onEdgeUpdateEnd((data) => {
 })
 
 const start = () => {
-  updateNode("2", (node) => ({
+  updateNode("1", (node) => ({
     data: {
       ...node.data,
       loading: false,
@@ -187,6 +191,7 @@ const start = () => {
   height: 12px;
   width: 4px;
   border-radius: 4px;
+  border: none;
 
   @apply bg-accentLight;
 }

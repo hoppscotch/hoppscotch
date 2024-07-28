@@ -89,6 +89,7 @@ declare module 'vue' {
     FlowsOutputNode: typeof import('./components/flows/OutputNode.vue')['default']
     FlowsSelectorNode: typeof import('./components/flows/SelectorNode.vue')['default']
     FlowsSendRequestNode: typeof import('./components/flows/SendRequestNode.vue')['default']
+    FlowsStartNode: typeof import('./components/flows/StartNode.vue')['default']
     GraphqlAuthorization: typeof import('./components/graphql/Authorization.vue')['default']
     GraphqlField: typeof import('./components/graphql/Field.vue')['default']
     GraphqlHeaders: typeof import('./components/graphql/Headers.vue')['default']

@@ -16,7 +16,7 @@
         <div class="px-2 py-1">
             <HoppSmartInput v-model="searchKey" placeholder="Enter the key" class="search-input" />
         </div>
-        <span class="text-sky-700 font-semibold text-xs">{{ parseBody(searchKey) }}here</span>
+        <JsonViewer v-if="searchKey != ''" :data="parseBody(searchKey)" />
     </div>
     <Handle id="target-from" type="target" :position="Position.Left" :style="{
         top: handlePositions.from + 'px',
@@ -56,21 +56,48 @@ const isObject = (value: any): boolean => {
 };
 
 const parseBody = (expr) => {
-    console.log("HERE", body);
+    const arr = [
+        {
+            name: "xd",
+            age: 8
+        },
+        {
+            name: "no",
+            passport: {
+                id: 23
+            }
+        }
+    ];
 
     try {
-        let ret = body
-
-        for (const key of expr.split('.')) {
-            ret = ret[key]
+        let ret = arr;
+        if (isObject(expr)) {
+            for (const key of expr.split('.')) {
+                if (ret && key in ret) {
+                    ret = ret[key];
+                } else {
+                    return undefined;
+                }
+            }
+            return ret;
+        } else {
+            const keys = expr.split('.');
+            const lastKey = keys[keys.length - 1];
+            ret = arr;
+            for (const key of keys.slice(0, -1)) {
+                if (ret && key in ret) {
+                    ret = ret[key];
+                } else {
+                    return undefined;
+                }
+            }
+            return { [lastKey]: ret[lastKey] };
         }
-        console.log("HERE:", ret);
-
-        return ret;
     } catch (error) {
-        console.error("HERE:", error);
+        console.error("Error parsing expression:", error);
+        return undefined;
     }
-}
+};
 
 const handleConnections = useHandleConnections({
     id: "target-from",

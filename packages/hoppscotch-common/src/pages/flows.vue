@@ -164,7 +164,7 @@ const {
 } = useVueFlow()
 
 onConnect((connection) => {
-  console.log("onConnect", data)
+  console.log("onConnect", connection)
   addEdges(connection)
 })
 

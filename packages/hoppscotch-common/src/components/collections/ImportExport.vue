@@ -1,12 +1,18 @@
 <template>
-  <ImportExportBase
-    ref="collections-import-export"
-    modal-title="modal.collections"
-    :importer-modules="importerModules"
-    :exporter-modules="exporterModules"
-    @hide-modal="emit('hide-modal')"
-  />
-</template>
+  <div>
+    <ImportExportBase
+      ref="collections-import-export"
+      modal-title="modal.collections"
+      :importer-modules="importerModules"
+      :exporter-modules="exporterModules"
+      @hide-modal="emit('hide-modal')"
+    />
+    <div v-if="isPostmanImporterInProgress" class="loading-message">
+      Importing... 
+    </div>
+  </div>
+</template> 
+
 
 <script setup lang="ts">
 import { HoppCollection } from "@hoppscotch/data"
@@ -55,6 +61,11 @@ import { teamCollectionsExporter } from "~/helpers/import-export/export/teamColl
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { TeamWorkspace } from "~/services/workspace.service"
+
+
+
+const isPostmanImporterInProgress = ref(false);
+// added reactive var
 
 const t = useI18n()
 const toast = useToast()
@@ -294,7 +305,12 @@ const HoppPostmanImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     onImportFromFile: async (content) => {
+            // Loading state on
+      isPostmanImporterInProgress.value = true;
+
       const res = await hoppPostmanImporter(content)()
+
+      isPostmanImporterInProgress.value = false;
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)

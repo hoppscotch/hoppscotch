@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-primary rounded border border-dividerLight p-2"
+    class="bg-primary rounded border border-dividerLight p-2 w-56"
     :class="{
       'animate-pulse': data.loading,
     }"

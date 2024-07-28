@@ -121,14 +121,12 @@ const updateBlockMenuParent = (nodeId: string = "", handleId: string = "") => {
   handleId && handleId.length && (blockMenuParentHandleId = handleId)
 }
 const handleBlockMenuAdd = (event) => {
-  const blockMenuId = nodes.value.length + 1
+  const blockMenuId = (nodes.value.length + 1).toString()
   console.log(blockMenuId, blockMenuParentId, blockMenuParentHandleId)
   if (event.target.classList.contains("vue-flow__container")) {
     const { x, y } = screenToFlowCoordinate({ x: event.x, y: event.y })
-    nodes.value.push(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
-    addNodes(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
     const { off } = onNodesInitialized(() => {
-      updateNode(blockMenuId.toString(), (node) => ({
+      updateNode(blockMenuId, (node) => ({
         position: {
           x: node.position.x - node.dimensions.width / 2,
           y: node.position.y - node.dimensions.height / 2,
@@ -136,22 +134,16 @@ const handleBlockMenuAdd = (event) => {
       }))
       off()
     })
-    blockMenuParentId.length &&
-      addEdges({
-        id: `${blockMenuParentId}->${blockMenuId}`,
-        source: `${blockMenuParentId}`,
-        sourceHandle: `${blockMenuParentHandleId}`,
-        target: `${blockMenuId}`,
-        targetHandle: "target-from",
-      })
-    blockMenuParentId.length &&
-      edges.value.push({
-        id: `${blockMenuParentId}->${blockMenuId}`,
-        source: `${blockMenuParentId}`,
-        sourceHandle: `${blockMenuParentHandleId}`,
-        target: `${blockMenuId}`,
-        targetHandle: "target-from",
-      })
+    addNodes(blockMenuNodeTemplate(blockMenuId, x, y))
+    nodes.value.push(blockMenuNodeTemplate(blockMenuId, x, y))
+    const newEdge = {
+      id: `${blockMenuParentId}->${blockMenuId}`,
+      source: `${blockMenuParentId}`,
+      target: `${blockMenuId}`,
+    }
+    blockMenuParentHandleId.length &&
+      (newEdge.sourceHandle = `${blockMenuParentHandleId}`)
+    blockMenuParentId.length && addEdges(newEdge)
   }
 }
 

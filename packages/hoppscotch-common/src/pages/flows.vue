@@ -117,9 +117,8 @@ const handleBlockMenuAdd = (event) => {
   const blockMenuId = nodes.value.length + 1
   console.log(blockMenuId, currentParentNode)
   if (event.target.classList.contains("vue-flow__container")) {
-    nodes.value.push(
-      blockMenuNodeTemplate(blockMenuId.toString(), event.x, event.y)
-    )
+    const { x, y } = screenToFlowCoordinate({ x: event.x, y: event.y })
+    nodes.value.push(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
     currentParentNode !== "0" &&
       edges.value.push({
         id: `${currentParentNode}->${blockMenuId}`,
@@ -140,6 +139,7 @@ const {
   onEdgeUpdate,
   onEdgeUpdateStart,
   onEdgeUpdateEnd,
+  screenToFlowCoordinate,
 } = useVueFlow()
 
 onConnect((connection) => {

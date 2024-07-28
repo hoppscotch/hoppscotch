@@ -56,21 +56,8 @@ const isObject = (value: any): boolean => {
 };
 
 const parseBody = (expr) => {
-    const arr = [
-        {
-            name: "xd",
-            age: 8
-        },
-        {
-            name: "no",
-            passport: {
-                id: 23
-            }
-        }
-    ];
-
     try {
-        let ret = arr;
+        let ret = body;
         if (isObject(expr)) {
             for (const key of expr.split('.')) {
                 if (ret && key in ret) {

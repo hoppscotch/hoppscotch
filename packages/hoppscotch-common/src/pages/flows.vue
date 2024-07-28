@@ -47,90 +47,97 @@ import SendRequestNode from "~/components/flows/SendRequestNode.vue"
 import OutputNode from "~/components/flows/OutputNode.vue"
 import SelectorNode from "~/components/flows/SelectorNode.vue"
 
+const blockMenuNodeTemplate = (id: string, x: number, y: number) => ({
+  id,
+  type: "block-menu",
+  data: {
+    blocks: [
+      {
+        title: "Send Request",
+        description: "Evaluating requests",
+        icon: IconFlows,
+        block: SendRequestNode,
+      },
+      {
+        title: "Output",
+        description: "Short description",
+        icon: IconFlows,
+        block: OutputNode,
+      },
+      {
+        title: "Selector",
+        description: "Short description",
+        icon: IconFlows,
+        block: SelectorNode,
+      },
+    ],
+  },
+  position: { x, y },
+})
+
 const nodes = ref([
   {
-    id: "2",
-    position: { x: 100, y: 100 },
+    id: "1",
+    position: { x: 0, y: 0 },
     data: { label: "start", loading: true },
   },
   {
-    id: "3",
+    id: "2",
     type: "sendRequest",
     position: { x: 400, y: 200 },
     data: { loading: false, responseData: null },
   },
   {
-    id: "4",
+    id: "3",
     type: "outputResponse",
     position: { x: 600, y: 100 },
-    data: { label: "Node 4" },
+    data: {},
   },
   {
-    id: "5",
+    id: "4",
     type: "selector",
     position: { x: 900, y: 50 },
-    data: { label: "Node 5" },
-  },
-  {
-    id: "6",
-    type: "block-menu",
-    data: {
-      blocks: [
-        {
-          title: "Send Request",
-          description: "Evaluating requests",
-          icon: IconFlows,
-          block: SendRequestNode,
-        },
-        {
-          title: "Output",
-          description: "Short description",
-          icon: IconFlows,
-          block: OutputNode,
-        },
-        {
-          title: "Selector",
-          description: "Short description",
-          icon: IconFlows,
-          block: SelectorNode,
-        },
-      ],
-    },
-    position: { x: 160, y: 320 },
+    data: {},
   },
 ])
 
 const edges = ref([
   {
-    id: "e1->2",
+    id: "1->2",
     source: "1",
     target: "2",
   },
   {
-    id: "e2->3",
-    source: "2",
+    id: "1->3",
+    source: "1",
     target: "3",
-    targetHandle: "target-from",
   },
   {
-    id: "e2->4",
-    source: "2",
+    id: "1->4",
+    source: "1",
     target: "4",
-    targetHandle: "target-from",
-  },
-  {
-    id: "e2->5",
-    source: "2",
-    target: "5",
-    targetHandle: "target-from",
-  },
-  {
-    id: "e2->6",
-    source: "2",
-    target: "6",
-    targetHandle: "target-from",
   },
 ])
+
+let currentParentNode = "0"
+const updateBlockMenuParent = (nodeId: string) => {
+  currentParentNode = nodeId
+}
+const handleBlockMenuAdd = (event) => {
+  const blockMenuId = nodes.value.length + 1
+  console.log(blockMenuId, currentParentNode)
+  if (event.target.classList.contains("vue-flow__container")) {
+    nodes.value.push(
+      blockMenuNodeTemplate(blockMenuId.toString(), event.x, event.y)
+    )
+    currentParentNode !== "0" &&
+      edges.value.push({
+        id: `${currentParentNode}->${blockMenuId}`,
+        source: `${currentParentNode}`,
+        target: `${blockMenuId}`,
+      })
+  }
+}
 
 function onEdgeUpdateStart(data) {
   console.log("start update", data)
@@ -150,10 +157,12 @@ function onConnect(data) {
 
 function onConnectStart(data) {
   console.log("connect start", data)
+  updateBlockMenuParent(data.nodeId)
 }
 
 function onConnectEnd(data) {
   console.log("connect end", data)
+  handleBlockMenuAdd(data)
 }
 
 const restCollections = useReadonlyStream(restCollections$, [], "deep")

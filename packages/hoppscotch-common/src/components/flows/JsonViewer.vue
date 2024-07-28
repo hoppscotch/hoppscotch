@@ -77,7 +77,7 @@ const handlePositions = {
     offset: 28,
 };
 
-const getObjectLength = (obj: any): number => {
+const getObjectLength = (obj: JsonData): number => {
     if (Array.isArray(obj)) {
         return obj.length;
     } else if (isObject(obj)) {

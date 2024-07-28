@@ -4,17 +4,24 @@
     <div class="bg-primary rounded border border-dividerLight" :class="{
         'animate-pulse': nodeStatus === 2,
     }">
-        <div class="flex justify-start items-center gap-2 p-2">
-            <icon-lucide-link class="svg-icons text-slate-500" />
-            <span class="text-white font-semibold text-xs">Body</span>
+        <div class="flex justify-between items-center pr-2">
+            <div class="flex justify-start items-center gap-2 p-2">
+                <icon-lucide-mouse-pointer-click class="svg-icons text-slate-500" />
+                <span class="text-white font-semibold  text-xs">Body</span>
+            </div>
+            <span class="text-sky-700 font-semibold text-xs">{{ searchKey }}</span>
         </div>
         <div class="flex items-center whitespace-nowrap border-b border-dividerLight text-tiny text-secondaryLight">
         </div>
-        <div class="">
-            <JsonViewer :data="body" :selector=true />
+        <div class="px-2 py-1">
+            <HoppSmartInput v-model="searchKey" placeholder="Enter the key" class="search-input" />
         </div>
+        <span class="text-sky-700 font-semibold text-xs">{{ parseBody(searchKey) }}here</span>
     </div>
     <Handle id="target-from" type="target" :position="Position.Left" :style="{
+        top: handlePositions.from + 'px',
+    }" />
+    <Handle id="source-key" type="source" :position="Position.Right" :style="{
         top: handlePositions.from + 'px',
     }" />
 </template>
@@ -34,9 +41,36 @@ const props = defineProps<{
     }
 }>()
 
+const searchKey = ref("")
 const body = ref<Record<string, any>>(props.responseData?.body || {});
 const nodeStatus = ref(0);
-const { getNode, updateNodeData, getConnectedEdges } = useVueFlow()
+const { getNode, updateNodeData, getConnectedEdges } = useVueFlow();
+
+const formatValue = (value: any): string => {
+    if (typeof value === 'string') return `"${value}"`;
+    return String(value);
+};
+
+const isObject = (value: any): boolean => {
+    return value && typeof value === 'object';
+};
+
+const parseBody = (expr) => {
+    console.log("HERE", body);
+
+    try {
+        let ret = body
+
+        for (const key of expr.split('.')) {
+            ret = ret[key]
+        }
+        console.log("HERE:", ret);
+
+        return ret;
+    } catch (error) {
+        console.error("HERE:", error);
+    }
+}
 
 const handleConnections = useHandleConnections({
     id: "target-from",

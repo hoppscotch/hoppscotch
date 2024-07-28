@@ -16,13 +16,20 @@
       <FlowsBlockMenu v-bind="node" />
     </template>
     <Background />
+
+    <Controls position="bottom-center">
+      <ControlButton class="controls__play" @click="start">
+        <icon-lucide-play />
+      </ControlButton>
+    </Controls>
   </VueFlow>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { VueFlow } from "@vue-flow/core"
+import { ref, watchEffect } from "vue"
+import { VueFlow, useVueFlow } from "@vue-flow/core"
 import { Background } from "@vue-flow/background"
+import { Controls, ControlButton } from "@vue-flow/controls"
 import { restCollections$ } from "~/newstore/collections"
 import { useReadonlyStream } from "~/composables/stream"
 import IconFlows from "~icons/hopp/flows"
@@ -32,21 +39,15 @@ import SelectorNode from "~/components/flows/SelectorNode.vue"
 
 const nodes = ref([
   {
-    id: "1",
-    type: "input",
-    position: { x: 250, y: 5 },
-    data: { label: "Node 1" },
-  },
-  {
     id: "2",
     position: { x: 100, y: 100 },
-    data: { label: "Node 2" },
+    data: { label: "start", loading: false },
   },
   {
     id: "3",
     type: "sendRequest",
     position: { x: 400, y: 200 },
-    data: { label: "Node 3" },
+    data: { loading: false, responseData: null },
   },
   {
     id: "4",
@@ -122,6 +123,18 @@ const edges = ref([
 ])
 
 const restCollections = useReadonlyStream(restCollections$, [], "deep")
+
+const { updateNodeData } = useVueFlow()
+
+const start = () => {
+  updateNodeData("2", {
+    loading: true,
+  })
+}
+
+watchEffect(() => {
+  console.log("xd nodes", nodes)
+})
 </script>
 
 <style>
@@ -134,5 +147,9 @@ const restCollections = useReadonlyStream(restCollections$, [], "deep")
   border-radius: 4px;
 
   @apply bg-accentLight;
+}
+
+.controls__play {
+  @apply p-3 rounded cursor-pointer bg-primaryDark hover:bg-primaryLight;
 }
 </style>

@@ -178,15 +178,16 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue"
 import { useService } from "dioc/vue"
-import { Handle, Position } from "@vue-flow/core"
+import { Handle, Position, useVueFlow } from "@vue-flow/core"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
 import { WorkspaceService } from "~/services/workspace.service"
 
-defineProps<{
+const props = defineProps<{
+  id: string
   data: {
-    label: string
+    loading: boolean
   }
   collections: HoppCollection[]
 }>()
@@ -225,7 +226,46 @@ const handlePositions = {
   failure: 93,
 }
 
-watchEffect(() => {
-  console.log("xd", currentRequest.value)
+const { updateNodeData, getConnectedEdges } = useVueFlow()
+
+watchEffect(async () => {
+  const connections = getConnectedEdges(props.id)
+
+  console.log("xd connections", connections)
+
+  // if (props.data.loading && currentRequest.value) {
+  //   updateNodeData(props.id, {
+  //     loading: true,
+  //     responseData: null,
+  //   })
+
+  //   const request = currentRequest.value
+  //   const params = request.params.reduce(
+  //     (params, kvp) => ({
+  //       ...params,
+  //       [kvp.key]: kvp.value,
+  //     }),
+  //     {}
+  //   )
+
+  //   const response = await fetch(
+  //     request.endpoint + "?" + new URLSearchParams(params),
+  //     {
+  //       method: request.method,
+  //     }
+  //   )
+
+  //   const responseData = {
+  //     status: response.status,
+  //     statusText: response.statusText,
+  //     headers: response.headers,
+  //     body: await response.json(),
+  //   }
+
+  //   updateNodeData(props.id, {
+  //     loading: false,
+  //     responseData,
+  //   })
+  // }
 })
 </script>

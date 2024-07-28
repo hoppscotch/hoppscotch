@@ -36,9 +36,6 @@ import { Controls, ControlButton } from "@vue-flow/controls"
 import { restCollections$ } from "~/newstore/collections"
 import { useReadonlyStream } from "~/composables/stream"
 import IconFlows from "~icons/hopp/flows"
-import SendRequestNode from "~/components/flows/SendRequestNode.vue"
-import OutputNode from "~/components/flows/OutputNode.vue"
-import SelectorNode from "~/components/flows/SelectorNode.vue"
 
 const blockMenuNodeTemplate = (id: string, x: number, y: number) => ({
   id,
@@ -117,15 +114,18 @@ const edges = ref([
   },
 ])
 
-let currentParentNode = "0"
-const updateBlockMenuParent = (nodeId: string) => {
-  currentParentNode = nodeId
+let blockMenuParentId = ""
+let blockMenuParentHandleId = ""
+const updateBlockMenuParent = (nodeId: string = "", handleId: string = "") => {
+  nodeId && nodeId.length && (blockMenuParentId = nodeId)
+  handleId && handleId.length && (blockMenuParentHandleId = handleId)
 }
 const handleBlockMenuAdd = (event) => {
   const blockMenuId = nodes.value.length + 1
-  console.log(blockMenuId, currentParentNode)
+  console.log(blockMenuId, blockMenuParentId, blockMenuParentHandleId)
   if (event.target.classList.contains("vue-flow__container")) {
     const { x, y } = screenToFlowCoordinate({ x: event.x, y: event.y })
+    nodes.value.push(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
     addNodes(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
     const { off } = onNodesInitialized(() => {
       updateNode(blockMenuId.toString(), (node) => ({
@@ -136,11 +136,21 @@ const handleBlockMenuAdd = (event) => {
       }))
       off()
     })
-    currentParentNode !== "0" &&
+    blockMenuParentId.length &&
       addEdges({
-        id: `${currentParentNode}->${blockMenuId}`,
-        source: `${currentParentNode}`,
+        id: `${blockMenuParentId}->${blockMenuId}`,
+        source: `${blockMenuParentId}`,
+        sourceHandle: `${blockMenuParentHandleId}`,
         target: `${blockMenuId}`,
+        targetHandle: "target-from",
+      })
+    blockMenuParentId.length &&
+      edges.value.push({
+        id: `${blockMenuParentId}->${blockMenuId}`,
+        source: `${blockMenuParentId}`,
+        sourceHandle: `${blockMenuParentHandleId}`,
+        target: `${blockMenuId}`,
+        targetHandle: "target-from",
       })
   }
 }
@@ -168,7 +178,7 @@ onConnect((connection) => {
 
 onConnectStart((data) => {
   console.log("onConnectStart", data)
-  updateBlockMenuParent(data.nodeId)
+  updateBlockMenuParent(data.nodeId, data.handleId)
 })
 
 onConnectEnd((data) => {

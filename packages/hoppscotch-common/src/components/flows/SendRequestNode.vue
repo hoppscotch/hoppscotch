@@ -279,8 +279,7 @@ watch([nodesData], async () => {
   for (const edge of edges) {
     if (edge.targetHandle?.startsWith("target-param-")) {
       const paramKey = edge.targetHandle.substring("target-param-".length)
-      const sourceKey = edge.sourceHandle!.substring("source-".length)
-      overrideParams[paramKey] = edge.data[sourceKey]
+      overrideParams[paramKey] = edge.data
     } else if (edge.targetHandle === "target-from") {
       sourceLoading = edge.data.loading
     }

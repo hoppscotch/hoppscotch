@@ -100,6 +100,7 @@ const edges = ref([
     id: "1->2",
     source: "1",
     target: "2",
+    targetHandle: "target-from",
   },
   {
     id: "1->3",

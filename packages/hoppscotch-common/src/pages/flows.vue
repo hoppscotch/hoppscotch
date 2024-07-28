@@ -73,58 +73,9 @@ const nodes = ref([
     position: { x: 0, y: 0 },
     data: { loading: true },
   },
-  {
-    id: "2",
-    type: "sendRequest",
-    position: { x: 400, y: 200 },
-    data: { loading: false, responseData: null },
-  },
-  {
-    id: "3",
-    type: "outputResponse",
-    position: { x: 600, y: 100 },
-    data: {},
-  },
-  {
-    id: "4",
-    type: "selector",
-    position: { x: 900, y: 50 },
-    data: {},
-  },
-  {
-    id: "5",
-    type: "outputResponse",
-    position: { x: 300, y: 300 },
-    data: {},
-  },
 ])
 
-const edges = ref([
-  {
-    id: "1->2",
-    source: "1",
-    target: "2",
-    targetHandle: "target-from",
-  },
-  {
-    id: "1->3",
-    source: "1",
-    target: "3",
-    targetHandle: "target-from",
-  },
-  {
-    id: "1->4",
-    source: "1",
-    target: "4",
-    targetHandle: "target-from",
-  },
-  {
-    id: "2->5",
-    source: "2",
-    target: "5",
-    targetHandle: "target-from",
-  },
-])
+const edges = ref([])
 
 let blockMenuParentId = ""
 let blockMenuParentHandleId = ""

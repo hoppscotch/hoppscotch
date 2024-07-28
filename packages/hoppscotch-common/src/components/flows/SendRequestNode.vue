@@ -165,7 +165,7 @@
           <span class="text-tiny w-16">{{ param.key }}</span>
           <span
             class="text-tiny bg-primaryDark px-2 rounded w-16 text-center"
-            >{{ param.value }}</span
+            >{{ overrideParamsRef[param.key] ?? param.value }}</span
           >
 
           <Handle
@@ -265,6 +265,8 @@ const nodesData = useNodesData(() =>
   handleConnections.value.map((connection) => connection.source)
 )
 
+const overrideParamsRef = ref<any>({})
+
 watch([nodesData], async () => {
   const edges = getConnectedEdges(props.id).map((edge) => ({
     sourceHandle: edge.sourceHandle,
@@ -284,6 +286,8 @@ watch([nodesData], async () => {
       sourceLoading = edge.data.loading
     }
   }
+
+  overrideParamsRef.value = overrideParams
 
   if (!sourceLoading && !props.data.loading && currentRequest.value) {
     updateNodeData(props.id, {

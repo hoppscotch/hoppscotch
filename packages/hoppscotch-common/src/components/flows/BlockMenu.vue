@@ -1,6 +1,5 @@
 <template>
-  <component :is="blocksList[blockId - 1].block" v-if="blockId" />
-  <div v-else class="block-menu">
+  <div v-if="!blockId.value" class="block-menu">
     <HoppSmartInput
       v-model="filterText"
       placeholder="Search for blocks or requests"
@@ -27,24 +26,18 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { DefineComponent, FunctionalComponent, SVGAttributes } from "vue"
-interface IBlockData {
-  id?: number
-  title: string
-  description: string
-  icon: FunctionalComponent<SVGAttributes>
-  block: DefineComponent
-}
-interface IBlocks {
-  blocks: IBlockData[]
-}
 interface IBlockMenuProps {
-  id?: string
-  data: IBlocks
+  id: string
+  data: object
 }
 const props = defineProps<IBlockMenuProps>()
 const blockId = ref(0)
-const setBlockId = (value?: number) => value && (blockId.value = value)
+const setBlockId = (value?: number) => {
+  value && (blockId.value = value)
+  props.data.updateNodeCallBack(props.id, () => ({
+    type: blocksList[blockId.value - 1].type,
+  }))
+}
 const filterText = ref("")
 const blocksList = props.data.blocks.map((blockObj, idx) => ({
   id: idx + 1,

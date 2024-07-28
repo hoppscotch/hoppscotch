@@ -44,24 +44,25 @@ const blockMenuNodeTemplate = (id: string, x: number, y: number) => ({
   id,
   type: "block-menu",
   data: {
+    updateNodeCallBack: updateNode,
     blocks: [
       {
         title: "Send Request",
         description: "Evaluating requests",
         icon: IconFlows,
-        block: SendRequestNode,
+        type: "sendRequest",
       },
       {
         title: "Output",
         description: "Short description",
         icon: IconFlows,
-        block: OutputNode,
+        type: "outputResponse",
       },
       {
         title: "Selector",
         description: "Short description",
         icon: IconFlows,
-        block: SelectorNode,
+        type: "selector",
       },
     ],
   },
@@ -136,6 +137,7 @@ const handleBlockMenuAdd = (event) => {
 const restCollections = useReadonlyStream(restCollections$, [], "deep")
 
 const {
+  addNode,
   updateNode,
   addEdges,
   onConnect,

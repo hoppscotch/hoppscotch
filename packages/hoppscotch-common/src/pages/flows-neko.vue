@@ -13,6 +13,8 @@ import { Background } from "@vue-flow/background"
 import { useI18n } from "@composables/i18n"
 import IconFlows from "~icons/hopp/flows"
 import SendRequestNode from "~/components/flows/SendRequestNode.vue"
+import OutputNode from "~/components/flows/OutputNode.vue"
+import SelectorNode from "~/components/flows/SelectorNode.vue"
 
 const t = useI18n()
 
@@ -35,16 +37,16 @@ const nodes = [
           block: SendRequestNode,
         },
         {
-          title: t("navigation.graphql"),
+          title: "Output",
           description: "Short description",
           icon: IconFlows,
-          block: SendRequestNode,
+          block: OutputNode,
         },
         {
-          title: t("navigation.realtime"),
+          title: "Selector",
           description: "Short description",
           icon: IconFlows,
-          block: SendRequestNode,
+          block: SelectorNode,
         },
       ],
     },

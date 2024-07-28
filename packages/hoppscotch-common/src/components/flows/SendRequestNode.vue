@@ -119,7 +119,11 @@
         :position="Position.Right"
         :style="{
           top: 'auto',
-          bottom: handlePositions.success + 'px',
+          bottom:
+            handlePositions.paramBottom +
+            handlePositions.paramOffset * currentRequest.params.length +
+            handlePositions.success +
+            'px',
         }"
       />
 
@@ -129,7 +133,11 @@
         :position="Position.Right"
         :style="{
           top: 'auto',
-          bottom: handlePositions.failure + 'px',
+          bottom:
+            handlePositions.paramBottom +
+            handlePositions.paramOffset * currentRequest.params.length +
+            handlePositions.failure +
+            'px',
         }"
       />
 
@@ -148,7 +156,7 @@
           >
 
           <Handle
-            :id="`target-${param.key}`"
+            :id="`target-param-${param.key}`"
             type="target"
             :position="Position.Left"
             :style="{
@@ -176,9 +184,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from "vue"
+import { ref, computed, watch } from "vue"
 import { useService } from "dioc/vue"
-import { Handle, Position, useVueFlow } from "@vue-flow/core"
+import {
+  Handle,
+  Position,
+  useVueFlow,
+  useHandleConnections,
+  useNodesData,
+} from "@vue-flow/core"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
@@ -222,50 +236,75 @@ const handlePositions = {
   from: 24,
   paramBottom: 3,
   paramOffset: 24,
-  success: 114,
-  failure: 93,
+  success: 40,
+  failure: 18,
 }
 
 const { updateNodeData, getConnectedEdges } = useVueFlow()
 
-watchEffect(async () => {
-  const connections = getConnectedEdges(props.id)
+const handleConnections = useHandleConnections({
+  id: "target-from",
+  type: "target",
+})
 
-  console.log("xd connections", connections)
+const nodesData = useNodesData(() =>
+  handleConnections.value.map((connection) => connection.source)
+)
 
-  // if (props.data.loading && currentRequest.value) {
-  //   updateNodeData(props.id, {
-  //     loading: true,
-  //     responseData: null,
-  //   })
+watch([nodesData], async () => {
+  const edges = getConnectedEdges(props.id).map((edge) => ({
+    sourceHandle: edge.sourceHandle,
+    targetHandle: edge.targetHandle,
+    data: edge.sourceNode.data,
+  }))
 
-  //   const request = currentRequest.value
-  //   const params = request.params.reduce(
-  //     (params, kvp) => ({
-  //       ...params,
-  //       [kvp.key]: kvp.value,
-  //     }),
-  //     {}
-  //   )
+  const overrideParams: any = {}
 
-  //   const response = await fetch(
-  //     request.endpoint + "?" + new URLSearchParams(params),
-  //     {
-  //       method: request.method,
-  //     }
-  //   )
+  let sourceLoading
 
-  //   const responseData = {
-  //     status: response.status,
-  //     statusText: response.statusText,
-  //     headers: response.headers,
-  //     body: await response.json(),
-  //   }
+  for (const edge of edges) {
+    if (edge.targetHandle?.startsWith("target-param-")) {
+      const paramKey = edge.targetHandle.substring("target-param-".length)
+      const sourceKey = edge.sourceHandle!.substring("source-".length)
+      overrideParams[paramKey] = edge.data[sourceKey]
+    } else if (edge.targetHandle === "target-from") {
+      sourceLoading = edge.data.loading
+    }
+  }
 
-  //   updateNodeData(props.id, {
-  //     loading: false,
-  //     responseData,
-  //   })
-  // }
+  if (!sourceLoading && !props.data.loading && currentRequest.value) {
+    updateNodeData(props.id, {
+      loading: true,
+      responseData: null,
+    })
+
+    const request = currentRequest.value
+    const params = request.params.reduce(
+      (params, kvp) => ({
+        ...params,
+        [kvp.key]: overrideParams[kvp.key] ?? kvp.value,
+      }),
+      {}
+    )
+
+    const response = await fetch(
+      request.endpoint + "?" + new URLSearchParams(params),
+      {
+        method: request.method,
+      }
+    )
+
+    const responseData = {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+      body: await response.json(),
+    }
+
+    updateNodeData(props.id, {
+      loading: false,
+      responseData,
+    })
+  }
 })
 </script>

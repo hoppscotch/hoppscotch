@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue"
+import { ref } from "vue"
 import { VueFlow, useVueFlow } from "@vue-flow/core"
 import { Background } from "@vue-flow/background"
 import { Controls, ControlButton } from "@vue-flow/controls"
@@ -41,7 +41,7 @@ const nodes = ref([
   {
     id: "2",
     position: { x: 100, y: 100 },
-    data: { label: "start", loading: false },
+    data: { label: "start", loading: true },
   },
   {
     id: "3",
@@ -124,17 +124,20 @@ const edges = ref([
 
 const restCollections = useReadonlyStream(restCollections$, [], "deep")
 
-const { updateNodeData } = useVueFlow()
+const { updateNode, onConnect, addEdges } = useVueFlow()
+
+onConnect((connection) => {
+  addEdges(connection)
+})
 
 const start = () => {
-  updateNodeData("2", {
-    loading: true,
-  })
+  updateNode("2", (node) => ({
+    data: {
+      ...node.data,
+      loading: false,
+    },
+  }))
 }
-
-watchEffect(() => {
-  console.log("xd nodes", nodes)
-})
 </script>
 
 <style>

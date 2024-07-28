@@ -91,6 +91,12 @@ const nodes = ref([
     position: { x: 900, y: 50 },
     data: {},
   },
+  {
+    id: "5",
+    type: "outputResponse",
+    position: { x: 300, y: 300 },
+    data: {},
+  },
 ])
 
 const edges = ref([
@@ -110,6 +116,12 @@ const edges = ref([
     id: "1->4",
     source: "1",
     target: "4",
+    targetHandle: "target-from",
+  },
+  {
+    id: "2->5",
+    source: "2",
+    target: "5",
     targetHandle: "target-from",
   },
 ])

@@ -15,7 +15,7 @@
     <template #node-block-menu="blockMenuProps">
       <FlowsBlockMenu v-bind="blockMenuProps" />
     </template>
-    <Background class="bg-[#000000]" />
+    <Background class="bg-primaryLight" />
 
     <Controls position="bottom-center">
       <ControlButton class="controls__play" @click="start">

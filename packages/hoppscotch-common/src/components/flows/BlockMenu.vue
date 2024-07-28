@@ -65,7 +65,7 @@ const filteredBlocks = computed(() => {
 }
 .block-menu,
 .search-result-icon {
-  @apply border rounded border-current;
+  @apply border rounded border-dividerLight;
 }
 .block-menu {
   @apply bg-primary;

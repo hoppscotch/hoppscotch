@@ -103,6 +103,7 @@ const handleBlockMenuAdd = (event) => {
       id: `${blockMenuParentId}->${blockMenuId}`,
       source: `${blockMenuParentId}`,
       target: `${blockMenuId}`,
+      targetHandle: 'target-from'
     }
     blockMenuParentHandleId.length &&
       (newEdge.sourceHandle = `${blockMenuParentHandleId}`)

@@ -1,5 +1,10 @@
 <template>
-  <div class="bg-primary rounded border border-dividerLight p-2">
+  <div
+    class="bg-primary rounded border border-dividerLight p-2"
+    :class="{
+      'animate-pulse': data.loading,
+    }"
+  >
     <div>
       <button
         class="w-full flex gap-2 cursor-text items-center justify-between rounded bg-primaryDark px-2 py-1.5 text-secondaryLight transition hover:border-dividerDark hover:bg-primaryLight hover:text-secondary"

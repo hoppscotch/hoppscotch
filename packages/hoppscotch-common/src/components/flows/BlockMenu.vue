@@ -36,6 +36,9 @@ const setBlockId = (value?: number) => {
   value && (blockId.value = value)
   props.data.updateNodeCallBack(props.id, () => ({
     type: blocksList[blockId.value - 1].type,
+    data: {
+      loading: false
+    }
   }))
 }
 const filterText = ref("")

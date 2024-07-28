@@ -84,6 +84,7 @@ declare module 'vue' {
     EnvironmentsTeamsEnvironment: typeof import('./components/environments/teams/Environment.vue')['default']
     FirebaseLogin: typeof import('./components/firebase/Login.vue')['default']
     FirebaseLogout: typeof import('./components/firebase/Logout.vue')['default']
+    FlowsBlockMenu: typeof import('./components/flows/BlockMenu.vue')['default']
     FlowsJsonViewer: typeof import('./components/flows/JsonViewer.vue')['default']
     FlowsOutputNode: typeof import('./components/flows/OutputNode.vue')['default']
     FlowsSelectorNode: typeof import('./components/flows/SelectorNode.vue')['default']

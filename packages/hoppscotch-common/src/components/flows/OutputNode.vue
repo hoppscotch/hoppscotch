@@ -1,15 +1,25 @@
 <template>
   <NodeResizer min-width="300" min-height="100" />
 
-  <div class="bg-primary rounded border border-dividerLight">
+  <div class="bg-primary rounded border border-dividerLight" :class="{
+    'animate-pulse': nodeStatus === 2,
+  }">
     <div class="flex justify-start items-center gap-2 p-2">
-      <span
+      <span v-if="nodeStatus === 1"
         class="inline-flex items-center rounded-md bg-green-950 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
         :class="statusClass">{{ status }}</span>
-      <span class="text-white font-semibold text-xs">{{ statusText }}</span>
+      <span v-if="nodeStatus === 1" class="text-white font-semibold text-xs">{{ statusText }}</span>
+      <icon-lucide-eye v-if="nodeStatus != 1" class="svg-icons text-slate-500" />
+      <span v-if="nodeStatus != 1" class="text-white font-semibold text-xs">Output</span>
     </div>
     <div class="flex items-center whitespace-nowrap border-b border-dividerLight text-tiny text-secondaryLight"></div>
-    <div class="">
+    <div v-if="nodeStatus != 1" class="h-36 flex items-center justify-center">
+      <span v-if="nodeStatus === 0" class="text-slate-500 text-md">Response will be displayed here</span>
+      <span v-if="nodeStatus === 2" class="text-slate-500 text-md">Fetching response</span>
+      <span v-if="nodeStatus === 3" class="text-md text-slate-500 text-center px-4 font-light">Make sure you there will
+        be a output to displayed</span>
+    </div>
+    <div v-if="nodeStatus === 1" class="">
       <div class="">
         <button @click="toggleBody" class="flex px-1 py-2 gap-1 hover:bg-primaryDark w-full">
           <icon-lucide-chevron-up v-if="showBody" class="svg-icons text-slate-500" />
@@ -47,31 +57,36 @@
     </div>
   </div>
   <Handle id="target-from" type="target" :position="Position.Left" :style="{
-    top: handlePositions.from + 'px',
+    top: nodeStatus === 1 ? handlePositions.from : handlePositions.fromHeader + 'px',
   }" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import JsonViewer from './JsonViewer.vue';
-import { Handle, Position } from "@vue-flow/core";
-import { NodeResizer } from '@vue-flow/node-resizer'
+import {
+  Handle, Position, useHandleConnections, useNodesData, useVueFlow
+} from "@vue-flow/core";
+import { NodeResizer } from '@vue-flow/node-resizer';
+
+const { getNode, updateNodeData, getConnectedEdges } = useVueFlow()
 
 const props = defineProps<{
-  responseData?: {
-    status: number | string;
-    statusText: string;
-    headers: Record<string, string>;
-    body: Record<string, any>;
-  };
-}>();
+  id: string
+  data: {
+    loading: boolean
+  }
+  collections: HoppCollection[]
+}>()
 
-const status = ref<number | string>(props.responseData?.status || '');
-const statusText = ref(props.responseData?.statusText || '');
-const headers = ref<Record<string, string>>(props.responseData?.headers || {});
-const body = ref<Record<string, any>>(props.responseData?.body || {});
+const status = ref<number | string>();
+const statusText = ref('');
+const headers = ref<Record<string, string>>({});
+const body = ref<Record<string, any>>({});
 const showBody = ref(false);
 const showHeaders = ref(false);
+const nodeStatus = ref(0);
+
 
 const statusClass = computed(() => {
   if (typeof status.value === 'number' && status.value >= 200 && status.value < 300) {
@@ -91,27 +106,49 @@ const toggleHeaders = () => {
   showHeaders.value = !showHeaders.value;
 };
 
-const fetchSampleResponse = async () => {
-  try {
-    const response = await fetch('https://api.restful-api.dev/objects');
-    const data: ResponseData = await response.json();
-    status.value = response.status;
-    statusText.value = response.statusText === "" ? response.ok ? "OK" : "Not OK" : response.statusText;
-    headers.value = Object.fromEntries(response.headers.entries());
-    body.value = data;
-  } catch (error) {
-    status.value = 'ERROR';
-  }
-};
+const handleConnections = useHandleConnections({
+  id: "target-from",
+  type: "target",
+})
 
-onMounted(() => {
-  if (!props.responseData) {
-    fetchSampleResponse();
+const nodesData = useNodesData(() =>
+  handleConnections.value.map((connection) => connection.source)
+)
+
+watch([nodesData], async () => {
+  let sourceLoading;
+  let responseData;
+  const node = nodesData.value[0];
+
+  if (node) {
+    responseData = node.data.responseData;
+    sourceLoading = node.data.loading;
   }
-});
+
+  if (!sourceLoading && responseData) {
+    try {
+      nodeStatus.value = 1;//success
+      status.value = responseData.status;
+      statusText.value = responseData.statusText;
+      headers.value = responseData.headers;
+      body.value = responseData.body;
+    } catch (error) {
+      nodeStatus.value = 3;//error
+    }
+  } else if (sourceLoading) {
+    nodeStatus.value = 2;//loading
+  } else {
+    nodeStatus.value = 3;//error
+  }
+
+  updateNodeData(props.id, {
+    loading: false
+  })
+})
 
 const handlePositions = {
   from: 22,
+  fromHeader: 16,
 }
 
 </script>

@@ -87,11 +87,6 @@ const getObjectLength = (obj: any): number => {
     }
 };
 
-watchEffect(() => {
-    console.log('HERE:', getObjectLength(props.data
-    ));
-    console.log('HERE:', props.data);
-})
 </script>
 
 <style scoped>

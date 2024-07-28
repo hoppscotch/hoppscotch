@@ -1,5 +1,15 @@
 <template>
-  <VueFlow :nodes="nodes" :edges="edges">
+  <VueFlow
+    :nodes="nodes"
+    :edges="edges"
+    fit-view-on-init
+    @edge-update="onEdgeUpdate"
+    @edge-update-start="onEdgeUpdateStart"
+    @edge-update-end="onEdgeUpdateEnd"
+    @connect="onConnect"
+    @connect-start="onConnectStart"
+    @connect-end="onConnectEnd"
+  >
     <template #node-sendRequest="sendRequestProps">
       <FlowsSendRequestNode
         v-bind="sendRequestProps"
@@ -12,8 +22,8 @@
     <template #node-selector="selectorProps">
       <FlowsSelectorNode v-bind="selectorProps" />
     </template>
-    <template #node-block-menu="node">
-      <FlowsBlockMenu v-bind="node" />
+    <template #node-block-menu="blockMenuProps">
+      <FlowsBlockMenu v-bind="blockMenuProps" />
     </template>
     <Background class="bg-[#000000]" />
 
@@ -121,6 +131,30 @@ const edges = ref([
     targetHandle: "target-from",
   },
 ])
+
+function onEdgeUpdateStart(data) {
+  console.log("start update", data)
+}
+
+function onEdgeUpdateEnd(edge) {
+  console.log("end update", edge)
+}
+
+function onEdgeUpdate(data) {
+  console.log("edge update", data)
+}
+
+function onConnect(data) {
+  console.log("connect", data)
+}
+
+function onConnectStart(data) {
+  console.log("connect start", data)
+}
+
+function onConnectEnd(data) {
+  console.log("connect end", data)
+}
 
 const restCollections = useReadonlyStream(restCollections$, [], "deep")
 

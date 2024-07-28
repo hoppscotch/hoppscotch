@@ -107,7 +107,7 @@
       </template>
     </div>
 
-    <div v-if="currentRequest && currentRequest.params.length">
+    <div v-if="currentRequest">
       <div
         class="border-b border-dividerLight mb-3"
         :class="[showRequestSelector ? 'mt-1' : 'mt-3']"
@@ -128,6 +128,9 @@
             handlePositions.paramBottom +
             handlePositions.paramOffset * currentRequest.params.length +
             handlePositions.success +
+            (currentRequest.params.length == 0
+              ? handlePositions.noParamsOffset
+              : 0) +
             'px',
         }"
       />
@@ -142,10 +145,15 @@
             handlePositions.paramBottom +
             handlePositions.paramOffset * currentRequest.params.length +
             handlePositions.failure +
+            (currentRequest.params.length == 0
+              ? handlePositions.noParamsOffset
+              : 0) +
             'px',
         }"
       />
+    </div>
 
+    <div v-if="currentRequest && currentRequest.params.length">
       <div class="border-b border-dividerLight my-3" />
 
       <div class="flex flex-col gap-2">
@@ -243,6 +251,7 @@ const handlePositions = {
   paramOffset: 24,
   success: 40,
   failure: 18,
+  noParamsOffset: -16,
 }
 
 const { updateNodeData, getConnectedEdges } = useVueFlow()

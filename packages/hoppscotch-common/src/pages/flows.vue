@@ -1,13 +1,19 @@
 <template>
   <VueFlow :nodes="nodes" :edges="edges">
     <template #node-sendRequest="sendRequestProps">
-      <FlowsSendRequestNode v-bind="sendRequestProps" :collections="restCollections" />
+      <FlowsSendRequestNode
+        v-bind="sendRequestProps"
+        :collections="restCollections"
+      />
     </template>
     <template #node-outputResponse="outputProps">
       <FlowsOutputNode v-bind="outputProps" />
     </template>
     <template #node-selector="selectorProps">
       <FlowsSelectorNode v-bind="selectorProps" />
+    </template>
+    <template #node-block-menu="node">
+      <FlowsBlockMenu v-bind="node" />
     </template>
     <Background />
   </VueFlow>
@@ -19,6 +25,10 @@ import { VueFlow } from "@vue-flow/core"
 import { Background } from "@vue-flow/background"
 import { restCollections$ } from "~/newstore/collections"
 import { useReadonlyStream } from "~/composables/stream"
+import IconFlows from "~icons/hopp/flows"
+import SendRequestNode from "~/components/flows/SendRequestNode.vue"
+import OutputNode from "~/components/flows/OutputNode.vue"
+import SelectorNode from "~/components/flows/SelectorNode.vue"
 
 const nodes = ref([
   {
@@ -50,6 +60,33 @@ const nodes = ref([
     position: { x: 900, y: 50 },
     data: { label: "Node 5" },
   },
+  {
+    id: "6",
+    type: "block-menu",
+    data: {
+      blocks: [
+        {
+          title: "Send Request",
+          description: "Evaluating requests",
+          icon: IconFlows,
+          block: SendRequestNode,
+        },
+        {
+          title: "Output",
+          description: "Short description",
+          icon: IconFlows,
+          block: OutputNode,
+        },
+        {
+          title: "Selector",
+          description: "Short description",
+          icon: IconFlows,
+          block: SelectorNode,
+        },
+      ],
+    },
+    position: { x: 160, y: 320 },
+  },
 ])
 
 const edges = ref([
@@ -63,15 +100,23 @@ const edges = ref([
     source: "2",
     target: "3",
     targetHandle: "target-from",
-  }, {
+  },
+  {
     id: "e2->4",
     source: "2",
     target: "4",
     targetHandle: "target-from",
-  }, {
+  },
+  {
     id: "e2->5",
     source: "2",
     target: "5",
+    targetHandle: "target-from",
+  },
+  {
+    id: "e2->6",
+    source: "2",
+    target: "6",
     targetHandle: "target-from",
   },
 ])

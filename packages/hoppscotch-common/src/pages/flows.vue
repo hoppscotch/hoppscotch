@@ -1,15 +1,5 @@
 <template>
-  <VueFlow
-    :nodes="nodes"
-    :edges="edges"
-    fit-view-on-init
-    @edge-update="onEdgeUpdate"
-    @edge-update-start="onEdgeUpdateStart"
-    @edge-update-end="onEdgeUpdateEnd"
-    @connect="onConnect"
-    @connect-start="onConnectStart"
-    @connect-end="onConnectEnd"
-  >
+  <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init>
     <template #node-sendRequest="sendRequestProps">
       <FlowsSendRequestNode
         v-bind="sendRequestProps"
@@ -139,38 +129,44 @@ const handleBlockMenuAdd = (event) => {
   }
 }
 
-function onEdgeUpdateStart(data) {
-  console.log("start update", data)
-}
-
-function onEdgeUpdateEnd(edge) {
-  console.log("end update", edge)
-}
-
-function onEdgeUpdate(data) {
-  console.log("edge update", data)
-}
-
-function onConnect(data) {
-  console.log("connect", data)
-}
-
-function onConnectStart(data) {
-  console.log("connect start", data)
-  updateBlockMenuParent(data.nodeId)
-}
-
-function onConnectEnd(data) {
-  console.log("connect end", data)
-  handleBlockMenuAdd(data)
-}
-
 const restCollections = useReadonlyStream(restCollections$, [], "deep")
 
-const { updateNode, onConnect, addEdges } = useVueFlow()
+const {
+  updateNode,
+  addEdges,
+  onConnect,
+  onConnectStart,
+  onConnectEnd,
+  onEdgeUpdate,
+  onEdgeUpdateStart,
+  onEdgeUpdateEnd,
+} = useVueFlow()
 
 onConnect((connection) => {
+  console.log("connect", data)
   addEdges(connection)
+})
+
+onConnectStart((data) => {
+  console.log("connect", data)
+  updateBlockMenuParent(data.nodeId)
+})
+
+onConnectEnd((data) => {
+  console.log("connect", data)
+  handleBlockMenuAdd(data)
+})
+
+onEdgeUpdate((data) => {
+  console.log("connect", data)
+})
+
+onEdgeUpdateStart((data) => {
+  console.log("connect", data)
+})
+
+onEdgeUpdateEnd((data) => {
+  console.log("connect", data)
 })
 
 const start = () => {

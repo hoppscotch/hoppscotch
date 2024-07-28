@@ -20,7 +20,7 @@
     </template>
     <Background class="bg-primaryLight" />
 
-    <Controls position="bottom-center">
+    <Controls position="top-right">
       <ControlButton class="controls__play" @click="start">
         <icon-lucide-play />
       </ControlButton>

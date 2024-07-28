@@ -107,11 +107,13 @@ const edges = ref([
     id: "1->3",
     source: "1",
     target: "3",
+    targetHandle: "target-from",
   },
   {
     id: "1->4",
     source: "1",
     target: "4",
+    targetHandle: "target-from",
   },
 ])
 
@@ -125,6 +127,15 @@ const handleBlockMenuAdd = (event) => {
   if (event.target.classList.contains("vue-flow__container")) {
     const { x, y } = screenToFlowCoordinate({ x: event.x, y: event.y })
     addNodes(blockMenuNodeTemplate(blockMenuId.toString(), x, y))
+    const { off } = onNodesInitialized(() => {
+      updateNode(blockMenuId.toString(), (node) => ({
+        position: {
+          x: node.position.x - node.dimensions.width / 2,
+          y: node.position.y - node.dimensions.height / 2,
+        },
+      }))
+      off()
+    })
     currentParentNode !== "0" &&
       addEdges({
         id: `${currentParentNode}->${blockMenuId}`,
@@ -140,6 +151,7 @@ const {
   addNodes,
   updateNode,
   addEdges,
+  onNodesInitialized,
   onConnect,
   onConnectStart,
   onConnectEnd,

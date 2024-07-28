@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-primary rounded border border-dividerLight p-2"
+    class="bg-primary rounded border border-dividerLight p-2 w-56"
     :class="{
       'animate-pulse': data.loading,
     }"
@@ -279,8 +279,7 @@ watch([nodesData], async () => {
   for (const edge of edges) {
     if (edge.targetHandle?.startsWith("target-param-")) {
       const paramKey = edge.targetHandle.substring("target-param-".length)
-      const sourceKey = edge.sourceHandle!.substring("source-".length)
-      overrideParams[paramKey] = edge.data[sourceKey]
+      overrideParams[paramKey] = edge.data
     } else if (edge.targetHandle === "target-from") {
       sourceLoading = edge.data.loading
     }

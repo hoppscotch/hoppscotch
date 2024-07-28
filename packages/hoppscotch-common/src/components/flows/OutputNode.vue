@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import JsonViewer from './JsonViewer.vue';
 import {
   Handle, Position, useHandleConnections, useNodesData, useVueFlow
@@ -76,7 +76,6 @@ const props = defineProps<{
   data: {
     loading: boolean
   }
-  collections: HoppCollection[]
 }>()
 
 const status = ref<number | string>();

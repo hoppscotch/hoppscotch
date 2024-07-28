@@ -73,7 +73,7 @@ const formatValue = (value: any): string => {
 };
 
 const handlePositions = {
-    top: 45,
+    top: 38,
     offset: 28,
 };
 

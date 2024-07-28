@@ -1,11 +1,28 @@
 <template>
-  <ImportExportBase
-    ref="collections-import-export"
-    modal-title="modal.collections"
-    :importer-modules="importerModules"
-    :exporter-modules="exporterModules"
-    @hide-modal="emit('hide-modal')"
-  />
+  <div>
+    <ImportExportBase
+      ref="collections-import-export"
+      modal-title="modal.collections"
+      :importer-modules="importerModules"
+      :exporter-modules="exporterModules"
+      @hide-modal="emit('hide-modal')"
+    />
+    <div v-if="isPostmanImporterInProgress" class="loading-message">
+      Importing from Postman...
+    </div>
+    <div v-if="isInsomniaImporterInProgress" class="loading-message">
+      Importing from Insomnia...
+    </div>
+    <div v-if="isGistImporterInProgress" class="loading-message">
+      Importing from Gist...
+    </div>
+    <div v-if="isOpenAPIImporterInProgress" class="loading-message">
+      Importing from OpenAPI...
+    </div>
+    <div v-if="isRESTImporterInProgress" class="loading-message">
+      Importing from JSON...
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +73,12 @@ import { teamCollectionsExporter } from "~/helpers/import-export/export/teamColl
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { TeamWorkspace } from "~/services/workspace.service"
+
+const isPostmanImporterInProgress = ref(false)
+const isGistImporterInProgress = ref(false)
+const isInsomniaImporterInProgress = ref(false)
+const isOpenAPIImporterInProgress = ref(false)
+const isRESTImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
@@ -179,19 +202,24 @@ const HoppRESTImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     onImportFromFile: async (content) => {
-      const res = await hoppRESTImporter(content)()
+      isRESTImporterInProgress.value = true
+      try {
+        const res = await hoppRESTImporter(content)()
 
-      if (E.isRight(res)) {
-        handleImportToStore(res.right)
+        if (E.isRight(res)) {
+          handleImportToStore(res.right)
 
-        platform.analytics?.logEvent({
-          type: "HOPP_IMPORT_COLLECTION",
-          importer: "import.from_json",
-          platform: "rest",
-          workspaceType: isTeamWorkspace.value ? "team" : "personal",
-        })
-      } else {
-        showImportFailedError()
+          platform.analytics?.logEvent({
+            type: "HOPP_IMPORT_COLLECTION",
+            importer: "import.from_json",
+            platform: "rest",
+            workspaceType: isTeamWorkspace.value ? "team" : "personal",
+          })
+        } else {
+          showImportFailedError()
+        }
+      } finally {
+        isRESTImporterInProgress.value = false
       }
     },
   }),
@@ -238,19 +266,24 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
         caption: "import.from_file",
         acceptedFileTypes: ".json, .yaml, .yml",
         onImportFromFile: async (content) => {
-          const res = await hoppOpenAPIImporter(content)()
+          isOpenAPIImporterInProgress.val = true
+          try {
+            const res = await hoppOpenAPIImporter(content)()
 
-          if (E.isRight(res)) {
-            handleImportToStore(res.right)
+            if (E.isRight(res)) {
+              handleImportToStore(res.right)
 
-            platform.analytics?.logEvent({
-              platform: "rest",
-              type: "HOPP_IMPORT_COLLECTION",
-              importer: "import.from_openapi",
-              workspaceType: isTeamWorkspace.value ? "team" : "personal",
-            })
-          } else {
-            showImportFailedError()
+              platform.analytics?.logEvent({
+                platform: "rest",
+                type: "HOPP_IMPORT_COLLECTION",
+                importer: "import.from_openapi",
+                workspaceType: isTeamWorkspace.value ? "team" : "personal",
+              })
+            } else {
+              showImportFailedError()
+            }
+          } finally {
+            isOpenAPIImporterInProgress.value = false
           }
         },
       }),
@@ -262,7 +295,9 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       step: UrlSource({
         caption: "import.from_url",
         onImportFromURL: async (content) => {
-          const res = await hoppOpenAPIImporter([content])()
+          isOpenAPIImporterInProgress.value = true
+          try {
+            const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
             handleImportToStore(res.right)
@@ -276,11 +311,16 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           } else {
             showImportFailedError()
           }
+          } finally {
+            isOpenAPIImporterInProgress.value = false
+          }
+          
         },
       }),
     },
   ],
 }
+
 
 const HoppPostmanImporter: ImporterOrExporter = {
   metadata: {
@@ -295,19 +335,25 @@ const HoppPostmanImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     onImportFromFile: async (content) => {
-      const res = await hoppPostmanImporter(content)()
+      
+      isPostmanImporterInProgress.value = true
+      try {
+        const res = await hoppPostmanImporter(content)()
 
-      if (E.isRight(res)) {
-        handleImportToStore(res.right)
+        if (E.isRight(res)) {
+          handleImportToStore(res.right)
 
-        platform.analytics?.logEvent({
-          platform: "rest",
-          type: "HOPP_IMPORT_COLLECTION",
-          importer: "import.from_postman",
-          workspaceType: isTeamWorkspace.value ? "team" : "personal",
-        })
-      } else {
-        showImportFailedError()
+          platform.analytics?.logEvent({
+            platform: "rest",
+            type: "HOPP_IMPORT_COLLECTION",
+            importer: "import.from_postman",
+            workspaceType: isTeamWorkspace.value ? "team" : "personal",
+          })
+        } else {
+          showImportFailedError()
+        }
+      } finally {
+        isPostmanImporterInProgress.value = false
       }
     },
   }),
@@ -326,7 +372,9 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     onImportFromFile: async (content) => {
-      const res = await hoppInsomniaImporter(content)()
+      isInsomniaImporterInProgress.value  = true
+      try {
+        const res = await hoppInsomniaImporter(content)()
 
       if (E.isRight(res)) {
         handleImportToStore(res.right)
@@ -340,6 +388,9 @@ const HoppInsomniaImporter: ImporterOrExporter = {
       } else {
         showImportFailedError()
       }
+      } finally {
+        isInsomniaImporterInProgress.value = false
+      }   
     },
   }),
 }
@@ -356,7 +407,9 @@ const HoppGistImporter: ImporterOrExporter = {
   component: GistSource({
     caption: "import.from_url",
     onImportFromGist: async (content) => {
-      if (E.isLeft(content)) {
+      isGistImporterInProgress.value = true
+      try {
+        if (E.isLeft(content)) {
         showImportFailedError()
         return
       }
@@ -374,6 +427,9 @@ const HoppGistImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+      }
+      } finally {
+        isGistImporterInProgress.value = false
       }
     },
   }),
@@ -627,4 +683,18 @@ const getCollectionJSON = async () => {
 
   return E.left("INVALID_SELECTED_TEAM_OR_INVALID_COLLECTION_TYPE")
 }
+
+export default {
+  setup() {
+    return {
+      isPostmanImporterInProgress,
+      isGistImporterInProgress,
+      isInsomniaImporterInProgress,
+      isOpenAPIImporterInProgress,
+      isRESTImporterInProgress,
+      isMyCollectionImporterInProgress,
+    };
+  },
+};
+
 </script>

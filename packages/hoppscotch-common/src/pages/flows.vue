@@ -143,30 +143,30 @@ const {
 } = useVueFlow()
 
 onConnect((connection) => {
-  console.log("connect", data)
+  console.log("onConnect", data)
   addEdges(connection)
 })
 
 onConnectStart((data) => {
-  console.log("connect", data)
+  console.log("onConnectStart", data)
   updateBlockMenuParent(data.nodeId)
 })
 
 onConnectEnd((data) => {
-  console.log("connect", data)
+  console.log("onConnectEnd", data)
   handleBlockMenuAdd(data)
 })
 
 onEdgeUpdate((data) => {
-  console.log("connect", data)
+  console.log("onEdgeUpdate", data)
 })
 
 onEdgeUpdateStart((data) => {
-  console.log("connect", data)
+  console.log("onEdgeUpdateStart", data)
 })
 
 onEdgeUpdateEnd((data) => {
-  console.log("connect", data)
+  console.log("onEdgeUpdateEnd", data)
 })
 
 const start = () => {

@@ -161,6 +161,13 @@ export class AdminService {
    * @returns an Either of boolean or error string
    */
   async revokeUserInvitations(inviteeEmails: string[]) {
+    const areAllEmailsValid = inviteeEmails.every((email) =>
+      validateEmail(email),
+    );
+    if (!areAllEmailsValid) {
+      return E.left(INVALID_EMAIL);
+    }
+
     try {
       await this.prisma.invitedUsers.deleteMany({
         where: {

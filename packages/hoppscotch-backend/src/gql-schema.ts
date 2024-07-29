@@ -29,6 +29,7 @@ import { UserHistoryUserResolver } from './user-history/user.resolver';
 import { UserSettingsUserResolver } from './user-settings/user.resolver';
 import { InfraResolver } from './admin/infra.resolver';
 import { InfraConfigResolver } from './infra-config/infra-config.resolver';
+import { InfraTokenResolver } from './infra-token/infra-token.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -60,6 +61,7 @@ const RESOLVERS = [
   UserSettingsResolver,
   UserSettingsUserResolver,
   InfraConfigResolver,
+  InfraTokenResolver,
 ];
 
 /**

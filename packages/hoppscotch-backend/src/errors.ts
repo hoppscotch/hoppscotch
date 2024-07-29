@@ -810,3 +810,46 @@ export const ACCESS_TOKEN_INVALID = 'TOKEN_INVALID';
  * (AccessTokenService)
  */
 export const ACCESS_TOKENS_INVALID_DATA_ID = 'INVALID_ID';
+
+/**
+ * The provided label for the infra-token is short (less than 3 characters)
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_LABEL_SHORT = 'infra_token/label_too_short';
+
+/**
+ * The provided expiryInDays value is not valid
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_EXPIRY_INVALID = 'infra_token/expiry_days_invalid';
+
+/**
+ * The provided Infra Token ID is invalid
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_NOT_FOUND = 'infra_token/infra_token_not_found';
+
+/**
+ * Authorization missing in header (Check 'Authorization' Header)
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_HEADER_MISSING =
+  'infra_token/authorization_token_missing';
+
+/**
+ * Infra Token is invalid
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_INVALID_TOKEN = 'infra_token/invalid_token';
+
+/**
+ * Infra Token is expired
+ * (InfraTokenGuard)
+ */
+export const INFRA_TOKEN_EXPIRED = 'infra_token/expired';
+
+/**
+ * Token creator not found
+ * (InfraTokenService)
+ */
+export const INFRA_TOKEN_CREATOR_NOT_FOUND = 'infra_token/creator_not_found';

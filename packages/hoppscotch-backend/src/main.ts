@@ -2,11 +2,40 @@ import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
 import { checkEnvironmentAuthProvider } from './utils';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { InfraTokensController } from './infra-token/infra-token.controller';
+import { InfraTokenModule } from './infra-token/infra-token.module';
+
+function setupSwagger(app) {
+  const swaggerDocPath = '/api-docs';
+
+  const config = new DocumentBuilder()
+    .setTitle('Hoppscotch API Documentation')
+    .setDescription('APIs for external integration')
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+        scheme: 'bearer',
+        bearerFormat: 'Bearer',
+      },
+      'infra-token',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config, {
+    include: [InfraTokenModule],
+  });
+  SwaggerModule.setup(swaggerDocPath, app, document, {
+    swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -53,6 +82,14 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
   app.use(cookieParser());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
+
+  await setupSwagger(app);
+
   await app.listen(configService.get('PORT') || 3170);
 
   // Graceful shutdown

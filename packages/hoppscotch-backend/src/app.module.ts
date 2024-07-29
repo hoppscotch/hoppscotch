@@ -29,6 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
 import { AccessTokenModule } from './access-token/access-token.module';
 import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.interceptor';
+import { InfraTokenModule } from './infra-token/infra-token.module';
 
 @Module({
   imports: [
@@ -105,6 +106,7 @@ import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.
     ScheduleModule.forRoot(),
     HealthModule,
     AccessTokenModule,
+    InfraTokenModule,
   ],
   providers: [
     GQLComplexityPlugin,

@@ -232,3 +232,13 @@ model PersonalAccessToken {
   createdOn DateTime  @default(now()) @db.Timestamp(3)
   updatedOn DateTime  @updatedAt @db.Timestamp(3)
 }
+
+model InfraToken {
+  id         String    @id @default(cuid())
+  creatorUid String
+  label      String
+  token      String    @unique @default(uuid())
+  expiresOn  DateTime? @db.Timestamp(3)
+  createdOn  DateTime  @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime  @default(now()) @db.Timestamp(3)
+}

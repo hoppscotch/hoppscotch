@@ -63,7 +63,7 @@ const tokenToDelete = ref<{ id: string; label: string } | null>(null)
 
 const accessTokens: Ref<AccessToken[]> = ref([])
 
-const limit = 2
+const limit = 12
 let offset = 0
 
 const endpointPrefix = `${import.meta.env.VITE_BACKEND_API_URL}/access-tokens`

@@ -70,8 +70,13 @@
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
-                @keyup.d="duplicateAction.$el.click()"
+                @keyup.d="
+                  showDuplicateCollectionAction
+                    ? duplicateAction.$el.click()
+                    : null
+                "
                 @keyup.delete="deleteAction.$el.click()"
+                @keyup.p="propertiesAction.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -111,6 +116,7 @@
                   "
                 />
                 <HoppSmartItem
+                  v-if="showDuplicateCollectionAction"
                   ref="duplicateAction"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
@@ -236,8 +242,10 @@ import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
+import { useReadonlyStream } from "~/composables/stream"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
+import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
@@ -288,10 +296,16 @@ const folderAction = ref<any | null>(null)
 const edit = ref<any | null>(null)
 const duplicateAction = ref<any | null>(null)
 const deleteAction = ref<any | null>(null)
+const propertiesAction = ref<any | null>(null)
 
 const showChildren = ref(false)
 const dragging = ref(false)
 const confirmRemove = ref(false)
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const isSelected = computed(
   () =>
@@ -303,6 +317,17 @@ const collectionIcon = computed(() => {
   else if (!showChildren.value && !props.isFiltered) return IconFolder
   else if (showChildren.value || !props.isFiltered) return IconFolderOpen
   return IconFolder
+})
+
+const showDuplicateCollectionAction = computed(() => {
+  // Show if the user is not logged in
+  if (!currentUser.value) {
+    return true
+  }
+
+  // Duplicate collection action is disabled on SH until the issue with syncing is resolved
+  return !platform.platformFeatureFlags
+    .duplicateCollectionDisabledInPersonalWorkspace
 })
 
 const pick = () => {

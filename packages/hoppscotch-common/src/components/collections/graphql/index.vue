@@ -55,6 +55,7 @@
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @duplicate-collection="duplicateCollection($event)"
+        @edit-request="editRequest($event)"
         @duplicate-request="duplicateRequest($event)"
         @select-collection="$emit('use-collection', collection)"
         @edit-properties="editProperties($event)"

@@ -242,7 +242,7 @@ const emit = defineEmits<{
 
 const addGroupImagePath = `${
   import.meta.env.VITE_ADMIN_URL
-}/assets/images/add_group.svg`;
+}/images/add_group.svg`;
 
 // Get Users List to extract email ids of all users
 const { data } = useQuery({ query: MetricsDocument });

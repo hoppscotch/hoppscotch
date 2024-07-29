@@ -106,9 +106,7 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-const noTokensImage = `${
-  import.meta.env.VITE_ADMIN_URL
-}/assets/images/pack.svg`;
+const noTokensImage = `${import.meta.env.VITE_ADMIN_URL}/images/pack.svg`;
 
 const isInitialPageLoad = computed(() => props.loading && !props.hasMoreTokens);
 const initialPageLoadHasError = computed(

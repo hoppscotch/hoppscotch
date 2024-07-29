@@ -66,6 +66,7 @@ export type SettingsDef = {
   COLUMN_LAYOUT: boolean
 
   HAS_OPENED_SPOTLIGHT: boolean
+  ENABLE_AI_EXPERIMENTS: boolean
 }
 
 export const getDefaultSettings = (): SettingsDef => ({
@@ -113,6 +114,7 @@ export const getDefaultSettings = (): SettingsDef => ({
   COLUMN_LAYOUT: true,
 
   HAS_OPENED_SPOTLIGHT: false,
+  ENABLE_AI_EXPERIMENTS: false,
 })
 
 type ApplySettingPayload = {

@@ -6,13 +6,28 @@
     @close="hideModal"
   >
     <template #body>
-      <HoppSmartInput
-        v-model="editingName"
-        placeholder=" "
-        :label="t('action.label')"
-        input-styles="floating-input"
-        @submit="editRequest"
-      />
+      <div class="flex gap-1">
+        <HoppSmartInput
+          v-model="editingName"
+          class="flex-grow"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          @submit="editRequest"
+        />
+        <HoppButtonSecondary
+          v-if="showGenerateRequestNameButton"
+          v-tippy="{ theme: 'tooltip' }"
+          :icon="IconSparkle"
+          :disabled="isGenerateRequestNamePending"
+          class="rounded-md"
+          :class="{
+            'animate-pulse': isGenerateRequestNamePending,
+          }"
+          :title="t('ai_experiments.generate_request_name')"
+          @click="generateRequestName"
+        />
+      </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -37,6 +52,12 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
+import { computed, ref } from "vue"
+import IconSparkle from "~icons/lucide/sparkles"
+import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import { useSetting } from "~/composables/settings"
 
 const toast = useToast()
 const t = useI18n()
@@ -46,6 +67,7 @@ const props = withDefaults(
     show: boolean
     loadingState: boolean
     modelValue?: string
+    requestContext: HoppRESTRequest | null
   }>(),
   {
     show: false,
@@ -60,7 +82,43 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void
 }>()
 
+const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
+
 const editingName = useVModel(props, "modelValue")
+
+const isGenerateRequestNamePending = ref(false)
+
+const showGenerateRequestNameButton = computed(() => {
+  return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
+})
+
+const generateRequestName = async () => {
+  const generateRequestNameForPlatform =
+    platform.experiments?.aiExperiments?.generateRequestName
+
+  if (!props.requestContext || !generateRequestNameForPlatform) {
+    toast.error(t("request.generate_name_error"))
+    return
+  }
+
+  isGenerateRequestNamePending.value = true
+
+  const result = await generateRequestNameForPlatform(
+    JSON.stringify(props.requestContext)
+  )
+
+  if (result && E.isLeft(result)) {
+    toast.error(t("request.generate_name_error"))
+
+    isGenerateRequestNamePending.value = false
+
+    return
+  }
+
+  editingName.value = result.right
+
+  isGenerateRequestNamePending.value = false
+}
 
 const editRequest = () => {
   if (editingName.value.trim() === "") {

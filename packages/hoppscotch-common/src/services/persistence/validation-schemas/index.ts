@@ -68,6 +68,7 @@ const SettingsDefSchema = z.object({
   ),
 
   HAS_OPENED_SPOTLIGHT: z.optional(z.boolean()),
+  ENABLE_AI_EXPERIMENTS: z.optional(z.boolean()),
 })
 
 // Common properties shared across REST & GQL collections

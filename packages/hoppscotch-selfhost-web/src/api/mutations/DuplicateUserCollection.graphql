@@ -1,0 +1,3 @@
+mutation DuplicateUserCollection($collectionID: String!, $reqType: ReqType!) {
+  duplicateUserCollection(collectionID: $collectionID, reqType: $reqType)
+}

@@ -102,6 +102,11 @@
                   @keyup.r="requestAction?.$el.click()"
                   @keyup.n="folderAction?.$el.click()"
                   @keyup.e="edit?.$el.click()"
+                  @keyup.d="
+                    showDuplicateCollectionAction
+                      ? duplicateAction?.$el.click()
+                      : null
+                  "
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
@@ -141,6 +146,20 @@
                       () => {
                         emit('edit-collection')
                         hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="showDuplicateCollectionAction"
+                    ref="duplicateAction"
+                    :icon="IconCopy"
+                    :label="t('action.duplicate')"
+                    :loading="duplicateCollectionLoading"
+                    :shortcut="['D']"
+                    @click="
+                      () => {
+                        emit('duplicate-collection'),
+                          collectionsType === 'my-collections' ? hide() : null
                       }
                     "
                   />
@@ -229,7 +248,9 @@ import {
   changeCurrentReorderStatus,
   currentReorderingStatus$,
 } from "~/newstore/reordering"
+import { platform } from "~/platform"
 import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
@@ -263,6 +284,7 @@ const props = withDefaults(
     hasNoTeamAccess?: boolean
     collectionMoveLoading?: string[]
     isLastItem?: boolean
+    duplicateCollectionLoading?: boolean
   }>(),
   {
     id: "",
@@ -274,6 +296,7 @@ const props = withDefaults(
     exportLoading: false,
     hasNoTeamAccess: false,
     isLastItem: false,
+    duplicateLoading: false,
   }
 )
 
@@ -283,6 +306,7 @@ const emit = defineEmits<{
   (event: "add-folder"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
+  (event: "duplicate-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -297,6 +321,7 @@ const tippyActions = ref<HTMLDivElement | null>(null)
 const requestAction = ref<HTMLButtonElement | null>(null)
 const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
+const duplicateAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -313,6 +338,11 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   id: "",
   parentID: "",
 })
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work
@@ -340,10 +370,25 @@ const collectionName = computed(() => {
   return (props.data as TeamCollection).title
 })
 
+const showDuplicateCollectionAction = computed(() => {
+  // Show if the user is not logged in
+  if (!currentUser.value) {
+    return true
+  }
+
+  if (props.collectionsType === "team-collections") {
+    return true
+  }
+
+  // Duplicate collection action is disabled on SH until the issue with syncing is resolved
+  return !platform.platformFeatureFlags
+    .duplicateCollectionDisabledInPersonalWorkspace
+})
+
 watch(
-  () => props.exportLoading,
-  (val) => {
-    if (!val) {
+  () => [props.exportLoading, props.duplicateCollectionLoading],
+  ([newExportLoadingVal, newDuplicateCollectionLoadingVal]) => {
+    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal) {
       options.value!.tippy?.hide()
     }
   }

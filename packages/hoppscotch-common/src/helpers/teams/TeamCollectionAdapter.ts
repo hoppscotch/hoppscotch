@@ -324,10 +324,10 @@ export default class NewTeamCollectionAdapter {
 
       if (!parentCollection) return
 
+      // Prevent adding child collections to a collection that has not been expanded yet incoming from GQL subscription, during import, etc
+      // Hence, add entries to the pre-existing list without setting 'children' if it is `null'
       if (parentCollection.children !== null) {
         parentCollection.children.push(collection)
-      } else {
-        parentCollection.children = [collection]
       }
     }
 

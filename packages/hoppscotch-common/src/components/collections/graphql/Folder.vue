@@ -70,7 +70,13 @@
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
+                @keyup.d="
+                  showDuplicateCollectionAction
+                    ? duplicateAction.$el.click()
+                    : null
+                "
                 @keyup.delete="deleteAction.$el.click()"
+                @keyup.p="propertiesAction.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -106,6 +112,22 @@
                     () => {
                       emit('edit-folder', { folder, folderPath })
                       hide()
+                    }
+                  "
+                />
+                <HoppSmartItem
+                  v-if="showDuplicateCollectionAction"
+                  ref="duplicateAction"
+                  :icon="IconCopy"
+                  :label="t('action.duplicate')"
+                  :shortcut="['D']"
+                  @click="
+                    () => {
+                      emit('duplicate-collection', {
+                        path: folderPath,
+                        collectionSyncID: folder.id,
+                      }),
+                        hide()
                     }
                   "
                 />
@@ -162,6 +184,7 @@
           @add-request="emit('add-request', $event)"
           @add-folder="emit('add-folder', $event)"
           @edit-folder="emit('edit-folder', $event)"
+          @duplicate-collection="emit('duplicate-collection', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
           @edit-properties="
@@ -213,24 +236,27 @@
 </template>
 
 <script setup lang="ts">
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import IconSettings2 from "~icons/lucide/settings-2"
-import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { removeGraphqlFolder } from "~/newstore/collections"
-import { computed, ref } from "vue"
-import { useService } from "dioc/vue"
-import { GQLTabService } from "~/services/tab/graphql"
-import { Picked } from "~/helpers/types/HoppPicked"
+import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
+import { computed, ref } from "vue"
+import { useReadonlyStream } from "~/composables/stream"
+import { Picked } from "~/helpers/types/HoppPicked"
+import { removeGraphqlFolder } from "~/newstore/collections"
+import { platform } from "~/platform"
+import { GQLTabService } from "~/services/tab/graphql"
+import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconFilePlus from "~icons/lucide/file-plus"
+import IconFolder from "~icons/lucide/folder"
+import IconFolderOpen from "~icons/lucide/folder-open"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconSettings2 from "~icons/lucide/settings-2"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const toast = useToast()
 const t = useI18n()
@@ -255,6 +281,7 @@ const emit = defineEmits([
   "edit-request",
   "add-folder",
   "edit-folder",
+  "duplicate-collection",
   "duplicate-request",
   "edit-properties",
   "select-request",
@@ -267,11 +294,18 @@ const options = ref<any | null>(null)
 const requestAction = ref<any | null>(null)
 const folderAction = ref<any | null>(null)
 const edit = ref<any | null>(null)
+const duplicateAction = ref<any | null>(null)
 const deleteAction = ref<any | null>(null)
+const propertiesAction = ref<any | null>(null)
 
 const showChildren = ref(false)
 const dragging = ref(false)
 const confirmRemove = ref(false)
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const isSelected = computed(
   () =>
@@ -283,6 +317,17 @@ const collectionIcon = computed(() => {
   else if (!showChildren.value && !props.isFiltered) return IconFolder
   else if (showChildren.value || !props.isFiltered) return IconFolderOpen
   return IconFolder
+})
+
+const showDuplicateCollectionAction = computed(() => {
+  // Show if the user is not logged in
+  if (!currentUser.value) {
+    return true
+  }
+
+  // Duplicate collection action is disabled on SH until the issue with syncing is resolved
+  return !platform.platformFeatureFlags
+    .duplicateCollectionDisabledInPersonalWorkspace
 })
 
 const pick = () => {

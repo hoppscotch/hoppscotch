@@ -21,7 +21,11 @@ import {
   TEAM_MEMBER_NOT_FOUND,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
-import { escapeSqlLikeString, isValidLength } from 'src/utils';
+import {
+  escapeSqlLikeString,
+  isValidLength,
+  transformCollectionData,
+} from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import {
@@ -134,11 +138,13 @@ export class TeamCollectionService {
       },
     });
 
+    const data = transformCollectionData(collection.right.data);
+
     const result: CollectionFolder = {
       name: collection.right.title,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => x.request),
-      data: JSON.stringify(collection.right.data),
+      data,
     };
 
     return E.right(result);
@@ -309,11 +315,13 @@ export class TeamCollectionService {
    * @returns TeamCollection model
    */
   private cast(teamCollection: DBTeamCollection): TeamCollection {
+    const data = transformCollectionData(teamCollection.data);
+
     return <TeamCollection>{
       id: teamCollection.id,
       title: teamCollection.title,
       parentID: teamCollection.parentID,
-      data: !teamCollection.data ? null : JSON.stringify(teamCollection.data),
+      data,
     };
   }
 

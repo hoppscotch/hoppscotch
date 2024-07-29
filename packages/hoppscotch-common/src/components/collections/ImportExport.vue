@@ -418,7 +418,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_team_collections",
     name: "export.as_json",
-    title: "export.as_json_description",
+    title: "export.as_json",
     icon: IconUser,
     disabled: false,
     applicableTo: ["team-workspace"],
@@ -435,18 +435,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       )
 
       if (E.isRight(res)) {
-        const { exportCollectionsToJSON } = res.right
-
-        if (!JSON.parse(exportCollectionsToJSON).length) {
-          isHoppTeamCollectionExporterInProgress.value = false
-
-          return toast.error(t("error.no_collections_to_export"))
-        }
-
-        initializeDownloadCollection(
-          exportCollectionsToJSON,
-          "team-collections"
-        )
+        initializeDownloadCollection(res.right, "team-collections")
 
         platform.analytics?.logEvent({
           type: "HOPP_EXPORT_COLLECTION",
@@ -454,7 +443,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
           platform: "rest",
         })
       } else {
-        toast.error(res.left.error.toString())
+        toast.error(res.left)
       }
     }
 
@@ -492,11 +481,6 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
     }
 
     if (E.isRight(collectionJSON)) {
-      if (!JSON.parse(collectionJSON.right).length) {
-        isHoppGistCollectionExporterInProgress.value = false
-        return toast.error(t("error.no_collections_to_export"))
-      }
-
       const res = await gistExporter(collectionJSON.right, accessToken)
 
       if (E.isLeft(res)) {
@@ -513,6 +497,8 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
       })
 
       platform.io.openExternalLink(res.right)
+    } else {
+      toast.error(collectionJSON.left)
     }
 
     isHoppGistCollectionExporterInProgress.value = false
@@ -589,9 +575,7 @@ const getCollectionJSON = async () => {
       props.collectionsType.selectedTeam?.teamID
     )
 
-    return E.isRight(res)
-      ? E.right(res.right.exportCollectionsToJSON)
-      : E.left(res.left)
+    return E.isRight(res) ? E.right(res.right) : E.left(res.left)
   }
 
   if (props.collectionsType.type === "my-collections") {

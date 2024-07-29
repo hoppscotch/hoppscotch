@@ -1,0 +1,3 @@
+mutation DuplicateTeamCollection($collectionID: String!) {
+  duplicateTeamCollection(collectionID: $collectionID)
+}

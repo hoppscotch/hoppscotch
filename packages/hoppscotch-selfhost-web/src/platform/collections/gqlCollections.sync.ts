@@ -20,11 +20,13 @@ import {
   createGQLUserRequest,
   deleteUserCollection,
   deleteUserRequest,
+  duplicateUserCollection,
   editGQLUserRequest,
   updateUserCollection,
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
+import { ReqType } from "../../api/generated/graphql"
 import { moveOrReorderRequests } from "./collections.sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
@@ -259,6 +261,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async removeFolder({ folderID }) {
     if (folderID) {
       await deleteUserCollection(folderID)
+    }
+  },
+  async duplicateCollection({ collectionSyncID }) {
+    if (collectionSyncID) {
+      await duplicateUserCollection(collectionSyncID, ReqType.Gql)
     }
   },
   editRequest({ path, requestIndex, requestNew }) {

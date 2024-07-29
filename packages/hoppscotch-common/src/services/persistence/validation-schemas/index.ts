@@ -276,7 +276,8 @@ const HoppGQLSaveContextSchema = z.nullable(
       .object({
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
-        requestIndex: z.number(),
+        // TODO: Investigate why this field is not populated at times
+        requestIndex: z.optional(z.number()),
       })
       .strict(),
     z

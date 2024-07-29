@@ -284,6 +284,20 @@ function setupUserCollectionCreatedSubscription() {
         return
       }
 
+      // While duplicating a collection, the new entry added to the store has an ID with a suffix to be updated after the backend ID is received from the GQL subscription
+      // This is to prevent the new entry from being added to the store again when the GQL subscription
+      // The boolean return value indicates if the GQL subscription was fired because of a duplicate collection action and whether the collection should be added to the store
+      const shouldCreateCollection = issueBackendIDToDuplicatedCollection(
+        collectionStore,
+        collectionType,
+        userCollectionBackendID,
+        parentCollectionID
+      )
+
+      if (!shouldCreateCollection) {
+        return
+      }
+
       const parentCollectionPath =
         parentCollectionID &&
         getCollectionPathFromCollectionID(
@@ -827,4 +841,106 @@ function getRequestIndex(
   )
 
   return requestIndex
+}
+
+function issueBackendIDToDuplicatedCollection(
+  collectionStore: ReturnType<
+    typeof getStoreByCollectionType
+  >["collectionStore"],
+  collectionType: ReqType,
+  userCollectionBackendID: string,
+  parentCollectionID?: string
+): boolean {
+  // Collection added to store via duplicating is set an ID with a suffix to be updated after the backend ID is received from the GQL subscription
+  const collectionCreatedFromStoreIDSuffix = "-duplicate-collection"
+
+  // Duplicating a child collection
+  if (parentCollectionID) {
+    // Get the index path for the parent collection
+    const parentCollectionPath = getCollectionPathFromCollectionID(
+      parentCollectionID,
+      collectionStore.value.state
+    )
+
+    if (!parentCollectionPath) {
+      // Indicates the collection received from the GQL subscription should be created in the store
+      return true
+    }
+
+    const parentCollection = navigateToFolderWithIndexPath(
+      collectionStore.value.state,
+      parentCollectionPath.split("/").map((index) => parseInt(index))
+    )
+
+    if (!parentCollection) {
+      // Indicates the collection received from the GQL subscription should be created in the store
+      return true
+    }
+
+    // Grab the child collection inserted via store update with the ID suffix
+    const collectionInsertedViaStoreUpdateIdx =
+      parentCollection.folders.findIndex(({ id }) =>
+        id?.endsWith(collectionCreatedFromStoreIDSuffix)
+      )
+
+    // No entry indicates the GQL subscription was fired not because of a duplicate collection action
+    if (collectionInsertedViaStoreUpdateIdx === -1) {
+      // Indicates the collection received from the GQL subscription should be created in the store
+      return true
+    }
+    const collectionInsertedViaStoreUpdate =
+      parentCollection.folders[collectionInsertedViaStoreUpdateIdx]
+
+    const childCollectionPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
+
+    // Update the ID for the child collection already existing in store with the backend ID
+    runDispatchWithOutSyncing(() => {
+      if (collectionType == ReqType.Rest) {
+        editRESTFolder(childCollectionPath, {
+          ...collectionInsertedViaStoreUpdate,
+          id: userCollectionBackendID,
+        })
+      } else {
+        editGraphqlFolder(childCollectionPath, {
+          ...collectionInsertedViaStoreUpdate,
+          id: userCollectionBackendID,
+        })
+      }
+    })
+  } else {
+    // Duplicating a root collection
+
+    // Grab the collection inserted via store update with the ID suffix
+    const collectionInsertedViaStoreUpdateIdx =
+      collectionStore.value.state.findIndex(({ id }) =>
+        id?.endsWith(collectionCreatedFromStoreIDSuffix)
+      )
+
+    // No entry indicates the GQL subscription was fired not because of a duplicate collection action
+    if (collectionInsertedViaStoreUpdateIdx === -1) {
+      // Indicates the collection received from the GQL subscription should be created in the store
+      return true
+    }
+
+    const collectionInsertedViaStoreUpdate =
+      collectionStore.value.state[collectionInsertedViaStoreUpdateIdx]
+
+    // Update the ID for the collection already existing in store with the backend ID
+    runDispatchWithOutSyncing(() => {
+      if (collectionType == ReqType.Rest) {
+        editRESTCollection(collectionInsertedViaStoreUpdateIdx, {
+          ...collectionInsertedViaStoreUpdate,
+          id: userCollectionBackendID,
+        })
+      } else {
+        editGraphqlCollection(collectionInsertedViaStoreUpdateIdx, {
+          ...collectionInsertedViaStoreUpdate,
+          id: userCollectionBackendID,
+        })
+      }
+    })
+  }
+
+  // Prevent adding the collection received from GQL subscription to the store
+  return false
 }

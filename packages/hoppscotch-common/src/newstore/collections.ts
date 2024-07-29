@@ -1,20 +1,21 @@
-import { pluck } from "rxjs/operators"
 import {
-  HoppGQLRequest,
-  HoppRESTRequest,
   HoppCollection,
-  makeCollection,
   HoppGQLAuth,
+  HoppGQLRequest,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+  HoppRESTRequest,
+  makeCollection,
 } from "@hoppscotch/data"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { cloneDeep } from "lodash-es"
+import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
-import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { HoppRESTAuth } from "@hoppscotch/data"
-import { HoppRESTHeaders } from "@hoppscotch/data"
 import { HoppGQLHeader } from "~/helpers/graphql"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { getService } from "~/modules/dioc"
+import { getI18n } from "~/modules/i18n"
+import { RESTTabService } from "~/services/tab/rest"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 const defaultRESTCollectionState = {
   state: [
@@ -494,6 +495,50 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  duplicateCollection(
+    { state }: RESTCollectionStoreType,
+    // `collectionSyncID` is used to sync the duplicated collection in `collections.sync.ts`
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, collectionSyncID }: { path: string; collectionSyncID?: string }
+  ) {
+    const t = getI18n()
+
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const isRootCollection = indexPaths.length === 1
+
+    const collection = navigateToFolderWithIndexPath(state, [...indexPaths])
+
+    if (collection) {
+      const name = `${collection.name} - ${t("action.duplicate")}`
+
+      const duplicatedCollection = {
+        ...cloneDeep(collection),
+        name,
+        ...(collection.id
+          ? { id: `${collection.id}-duplicate-collection` }
+          : {}),
+      }
+
+      if (isRootCollection) {
+        newState.push(duplicatedCollection)
+      } else {
+        const parentCollectionIndexPath = indexPaths.slice(0, -1)
+
+        const parentCollection = navigateToFolderWithIndexPath(state, [
+          ...parentCollectionIndexPath,
+        ])
+        parentCollection?.folders.push(duplicatedCollection)
+      }
+    }
+
+    return {
+      state: newState,
+    }
+  },
+
   editRequest(
     { state }: RESTCollectionStoreType,
     {
@@ -896,6 +941,50 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
   },
 
+  duplicateCollection(
+    { state }: GraphqlCollectionStoreType,
+    // `collectionSyncID` is used to sync the duplicated collection in `gqlCollections.sync.ts`
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { path, collectionSyncID }: { path: string; collectionSyncID?: string }
+  ) {
+    const t = getI18n()
+
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const isRootCollection = indexPaths.length === 1
+
+    const collection = navigateToFolderWithIndexPath(state, [...indexPaths])
+
+    if (collection) {
+      const name = `${collection.name} - ${t("action.duplicate")}`
+
+      const duplicatedCollection = {
+        ...cloneDeep(collection),
+        name,
+        ...(collection.id
+          ? { id: `${collection.id}-duplicate-collection` }
+          : {}),
+      }
+
+      if (isRootCollection) {
+        newState.push(duplicatedCollection)
+      } else {
+        const parentCollectionIndexPath = indexPaths.slice(0, -1)
+
+        const parentCollection = navigateToFolderWithIndexPath(state, [
+          ...parentCollectionIndexPath,
+        ])
+        parentCollection?.folders.push(duplicatedCollection)
+      }
+    }
+
+    return {
+      state: newState,
+    }
+  },
+
   editRequest(
     { state }: GraphqlCollectionStoreType,
     {
@@ -1162,6 +1251,19 @@ export function moveRESTFolder(path: string, destinationPath: string | null) {
   })
 }
 
+export function duplicateRESTCollection(
+  path: string,
+  collectionSyncID?: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "duplicateCollection",
+    payload: {
+      path,
+      collectionSyncID,
+    },
+  })
+}
+
 export function removeDuplicateRESTCollectionOrFolder(
   id: string,
   collectionPath: string,
@@ -1358,6 +1460,19 @@ export function removeGraphqlFolder(path: string, folderID?: string) {
     payload: {
       path,
       folderID,
+    },
+  })
+}
+
+export function duplicateGraphQLCollection(
+  path: string,
+  collectionSyncID?: string
+) {
+  graphqlCollectionStore.dispatch({
+    dispatcher: "duplicateCollection",
+    payload: {
+      path,
+      collectionSyncID,
     },
   })
 }

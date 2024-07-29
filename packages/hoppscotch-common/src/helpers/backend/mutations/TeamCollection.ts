@@ -9,6 +9,9 @@ import {
   DeleteCollectionDocument,
   DeleteCollectionMutation,
   DeleteCollectionMutationVariables,
+  DuplicateTeamCollectionDocument,
+  DuplicateTeamCollectionMutation,
+  DuplicateTeamCollectionMutationVariables,
   ImportFromJsonDocument,
   ImportFromJsonMutation,
   ImportFromJsonMutationVariables,
@@ -139,4 +142,13 @@ export const updateTeamCollection = (
     collectionID,
     data,
     newTitle,
+  })
+
+export const duplicateTeamCollection = (collectionID: string) =>
+  runMutation<
+    DuplicateTeamCollectionMutation,
+    DuplicateTeamCollectionMutationVariables,
+    ""
+  >(DuplicateTeamCollectionDocument, {
+    collectionID,
   })

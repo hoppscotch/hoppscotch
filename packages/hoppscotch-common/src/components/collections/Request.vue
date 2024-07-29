@@ -20,7 +20,7 @@
       @dragover="handleDragOver($event)"
       @dragleave="resetDragState"
       @dragend="resetDragState"
-      @contextmenu.prevent="options?.tippy.show()"
+      @contextmenu.prevent="options?.tippy?.show()"
     >
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
@@ -112,12 +112,11 @@
                   ref="duplicate"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
-                  :loading="duplicateLoading"
+                  :loading="duplicateRequestLoading"
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request'),
-                        collectionsType === 'my-collections' ? hide() : null
+                      emit('duplicate-request')
                     }
                   "
                 />
@@ -211,7 +210,7 @@ const props = defineProps({
     default: "my-collections",
     required: true,
   },
-  duplicateLoading: {
+  duplicateRequestLoading: {
     type: Boolean,
     default: false,
     required: false,
@@ -259,7 +258,7 @@ const emit = defineEmits<{
   (event: "update-last-request-order", payload: DataTransfer): void
 }>()
 
-const tippyActions = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -277,10 +276,10 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 })
 
 watch(
-  () => props.duplicateLoading,
+  () => props.duplicateRequestLoading,
   (val) => {
     if (!val) {
-      options.value!.tippy.hide()
+      options.value!.tippy?.hide()
     }
   }
 )

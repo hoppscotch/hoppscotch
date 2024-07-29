@@ -61,6 +61,7 @@
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
+            :duplicate-collection-loading="duplicateCollectionLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
@@ -87,6 +88,12 @@
                 emit('edit-collection', {
                   collectionIndex: node.id,
                   collection: node.data.data.data,
+                })
+            "
+            @duplicate-collection="
+              node.data.type === 'collections' &&
+                emit('duplicate-collection', {
+                  pathOrID: node.data.data.data.id,
                 })
             "
             @edit-properties="
@@ -149,6 +156,7 @@
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
+            :duplicate-collection-loading="duplicateCollectionLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
@@ -174,6 +182,12 @@
               node.data.type === 'folders' &&
                 emit('edit-folder', {
                   folder: node.data.data.data,
+                })
+            "
+            @duplicate-collection="
+              node.data.type === 'folders' &&
+                emit('duplicate-collection', {
+                  pathOrID: node.data.data.data.id,
                 })
             "
             @edit-properties="
@@ -236,7 +250,7 @@
             :request-i-d="node.data.data.data.id"
             :parent-i-d="node.data.data.parentIndex"
             :collections-type="collectionsType.type"
-            :duplicate-loading="duplicateLoading"
+            :duplicate-request-loading="duplicateRequestLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :request-move-loading="requestMoveLoading"
@@ -445,7 +459,12 @@ const props = defineProps({
     default: false,
     required: false,
   },
-  duplicateLoading: {
+  duplicateRequestLoading: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  duplicateCollectionLoading: {
     type: Boolean,
     default: false,
     required: false,
@@ -495,6 +514,13 @@ const emit = defineEmits<{
     event: "edit-folder",
     payload: {
       folder: TeamCollection
+    }
+  ): void
+  (
+    event: "duplicate-collection",
+    payload: {
+      pathOrID: string
+      collectionSyncID?: string
     }
   ): void
   (

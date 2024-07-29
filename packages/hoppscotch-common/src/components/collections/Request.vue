@@ -20,7 +20,7 @@
       @dragover="handleDragOver($event)"
       @dragleave="resetDragState"
       @dragend="resetDragState"
-      @contextmenu.prevent="options?.tippy.show()"
+      @contextmenu.prevent="options?.tippy?.show()"
     >
       <div
         class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
@@ -258,7 +258,7 @@ const emit = defineEmits<{
   (event: "update-last-request-order", payload: DataTransfer): void
 }>()
 
-const tippyActions = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -279,7 +279,7 @@ watch(
   () => props.duplicateRequestLoading,
   (val) => {
     if (!val) {
-      options.value!.tippy.hide()
+      options.value!.tippy?.hide()
     }
   }
 )

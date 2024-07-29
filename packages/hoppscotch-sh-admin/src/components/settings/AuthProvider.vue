@@ -1,16 +1,13 @@
 <template>
-  <div
-    v-if="workingConfigs"
-    class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
-  >
-    <div class="pb-8 px-8 md:col-span-1">
+  <div v-if="workingConfigs" class="grid md:grid-cols-3 gap-8 md:gap-4">
+    <div class="md:col-span-1">
       <h3 class="heading">{{ t('configs.auth_providers.title') }}</h3>
       <p class="my-1 text-secondaryLight">
         {{ t('configs.auth_providers.description') }}
       </p>
     </div>
 
-    <div class="space-y-8 p-8 md:col-span-2">
+    <div class="space-y-8 sm:px-8 md:col-span-2">
       <section>
         <h4 class="font-semibold text-secondaryDark">
           {{ t('configs.auth_providers.title') }}

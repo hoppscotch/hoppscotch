@@ -36,6 +36,9 @@ export const AUTH_PROVIDER_NOT_SPECIFIED =
 export const BOTH_EMAILS_CANNOT_BE_SAME =
   '[GraphQL] email/both_emails_cannot_be_same' as const;
 
+export const INFRA_TOKEN_LABEL_SHORT =
+  '[GraphQL] infra_token/label_too_short' as const;
+
 type ErrorMessages = {
   message: string;
   alternateMessage?: string;
@@ -67,6 +70,9 @@ const ERROR_MESSAGES: Record<string, ErrorMessages> = {
   },
   [BOTH_EMAILS_CANNOT_BE_SAME]: {
     message: 'state.emails_cannot_be_same',
+  },
+  [INFRA_TOKEN_LABEL_SHORT]: {
+    message: 'state.infra_token_label_short',
   },
 };
 

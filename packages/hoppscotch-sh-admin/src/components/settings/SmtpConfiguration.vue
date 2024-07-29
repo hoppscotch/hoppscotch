@@ -1,16 +1,13 @@
 <template>
-  <div
-    v-if="smtpConfigs"
-    class="md:grid md:grid-cols-3 md:gap-4 border-divider border-b"
-  >
-    <div class="p-8 px-8 md:col-span-1">
+  <div v-if="smtpConfigs" class="grid md:grid-cols-3 gap-4 md:gap-4 pt-8">
+    <div class="md:col-span-1">
       <h3 class="heading">{{ t('configs.mail_configs.title') }}</h3>
       <p class="my-1 text-secondaryLight">
         {{ t('configs.mail_configs.description') }}
       </p>
     </div>
 
-    <div class="space-y-8 p-8 md:col-span-2">
+    <div class="space-y-8 sm:px-8 md:col-span-2">
       <section>
         <h4 class="font-semibold text-secondaryDark">
           {{ t('configs.mail_configs.title') }}

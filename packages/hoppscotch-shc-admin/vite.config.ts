@@ -1,4 +1,4 @@
-import { defineConfig } from "vite"
+import { PluginOption, defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import Icons from "unplugin-icons/vite"
@@ -22,14 +22,6 @@ export default defineConfig({
     alias: {
       "~": path.resolve(__dirname, "../hoppscotch-sh-admin/src"),
       "@modules": path.resolve(__dirname, "../hoppscotch-sh-admin/src/modules"),
-      "@hoppscotch/sh-admin/packages": path.resolve(
-        __dirname,
-        "node_modules/@hoppscotch/sh-admin/packages"
-      ),
-      "@intlify/unplugin-vue-i18n": path.resolve(
-        __dirname,
-        "../hoppscotch-sh-admin/node_modules/@intlify/unplugin-vue-i18n"
-      ),
     },
   },
   plugins: [
@@ -46,7 +38,7 @@ export default defineConfig({
       runtimeOnly: false,
       compositionOnly: true,
       include: [path.resolve(__dirname, "../hoppscotch-sh-admin/locales/**")],
-    }),
+    }) as unknown as PluginOption,
     Components({
       dts: "./src/components.d.ts",
       dirs: ["../hoppscotch-sh-admin/src/components"],
@@ -68,13 +60,13 @@ export default defineConfig({
           names: ["Tippy"],
         },
       ],
-    }),
+    }) as unknown as PluginOption,
     Icons({
       compiler: "vue3",
       customCollections: {
         auth: FileSystemIconLoader("../hoppscotch-sh-admin/assets/icons/auth"),
       },
-    }),
+    }) as unknown as PluginOption,
     Unfonts({
       fontsource: {
         families: [
@@ -92,12 +84,12 @@ export default defineConfig({
           },
         ],
       },
-    }),
+    }) as unknown as PluginOption,
     process.env.HOPP_ALLOW_RUNTIME_ENV
-      ? ImportMetaEnv.vite({
+      ? (ImportMetaEnv.vite({
           example: "../../.env.example",
           env: "../../.env",
-        })
-      : [],
+        }) as unknown as PluginOption)
+      : ([] as PluginOption[]),
   ],
 })

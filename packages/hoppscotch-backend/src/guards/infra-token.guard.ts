@@ -38,7 +38,7 @@ export class InfraTokenGuard implements CanActivate {
       throw new UnauthorizedException(INFRA_TOKEN_INVALID_TOKEN);
 
     const currentTime = DateTime.now().toISO();
-    if (currentTime > infraToken.expiresOn.toISOString()) {
+    if (currentTime > infraToken.expiresOn?.toISOString()) {
       throw new UnauthorizedException(INFRA_TOKEN_EXPIRED);
     }
 

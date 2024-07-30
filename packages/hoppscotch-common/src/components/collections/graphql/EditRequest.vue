@@ -48,14 +48,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
-import { editGraphqlRequest } from "~/newstore/collections"
-import { useSetting } from "~/composables/settings"
-import { platform } from "~/platform"
 import * as E from "fp-ts/Either"
+import { computed, ref, watch } from "vue"
+
+import { useSetting } from "~/composables/settings"
+import { useReadonlyStream } from "~/composables/stream"
+import { editGraphqlRequest } from "~/newstore/collections"
+import { platform } from "~/platform"
 import IconSparkle from "~icons/lucide/sparkles"
 
 const t = useI18n()
@@ -85,9 +87,19 @@ watch(
 
 const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
 const isGenerateRequestNamePending = ref(false)
 
 const showGenerateRequestNameButton = computed(() => {
+  // Request generation applies only to the authenticated state
+  if (!currentUser.value) {
+    return false
+  }
+
   return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
 })
 

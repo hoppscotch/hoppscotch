@@ -269,7 +269,10 @@ const openReqRenameModal = (tabID?: string) => {
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
-    reqName.value = tabs.currentActiveTab.value.document.request.name
+    const { id, document } = tabs.currentActiveTab.value
+
+    reqName.value = document.request.name
+    renameTabID.value = id
   }
   showRenamingReqNameModal.value = true
 }

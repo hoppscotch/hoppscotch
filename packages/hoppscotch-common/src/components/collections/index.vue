@@ -129,7 +129,6 @@
       :show="showModalEditCollection"
       :editing-collection-name="editingCollectionName ?? ''"
       :loading-state="modalLoadingState"
-      :request-context="editingRequest"
       @hide-modal="displayModalEditCollection(false)"
       @submit="updateEditingCollection"
     />

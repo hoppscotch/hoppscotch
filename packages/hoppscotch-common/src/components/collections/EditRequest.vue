@@ -51,13 +51,15 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
-import IconSparkle from "~icons/lucide/sparkles"
-import * as E from "fp-ts/Either"
-import { platform } from "~/platform"
 import { HoppRESTRequest } from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
+import * as E from "fp-ts/Either"
+import { computed, ref } from "vue"
+
 import { useSetting } from "~/composables/settings"
+import { useReadonlyStream } from "~/composables/stream"
+import { platform } from "~/platform"
+import IconSparkle from "~icons/lucide/sparkles"
 
 const toast = useToast()
 const t = useI18n()
@@ -86,9 +88,19 @@ const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
 const editingName = useVModel(props, "modelValue")
 
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
 const isGenerateRequestNamePending = ref(false)
 
 const showGenerateRequestNameButton = computed(() => {
+  // Request generation applies only to the authenticated state
+  if (!currentUser.value) {
+    return false
+  }
+
   return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
 })
 

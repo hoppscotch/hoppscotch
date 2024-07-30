@@ -115,6 +115,11 @@ const generateRequestName = async () => {
 
   isGenerateRequestNamePending.value = true
 
+  platform.analytics?.logEvent({
+    type: "EXPERIMENTS_GENERATE_REQUEST_NAME_WITH_AI",
+    platform: "rest",
+  })
+
   const result = await generateRequestNameForPlatform(
     JSON.stringify(props.requestContext)
   )

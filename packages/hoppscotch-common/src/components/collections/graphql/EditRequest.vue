@@ -6,13 +6,28 @@
     @close="hideModal"
   >
     <template #body>
-      <HoppSmartInput
-        v-model="requestUpdateData.name"
-        placeholder=" "
-        :label="t('action.label')"
-        input-styles="floating-input"
-        @submit="saveRequest"
-      />
+      <div class="flex gap-1">
+        <HoppSmartInput
+          v-model="requestUpdateData.name"
+          class="flex-grow"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          @submit="saveRequest"
+        />
+        <HoppButtonSecondary
+          v-if="showGenerateRequestNameButton"
+          v-tippy="{ theme: 'tooltip' }"
+          :icon="IconSparkle"
+          :disabled="isGenerateRequestNamePending"
+          class="rounded-md"
+          :class="{
+            'animate-pulse': isGenerateRequestNamePending,
+          }"
+          :title="t('ai_experiments.generate_request_name')"
+          @click="generateRequestName"
+        />
+      </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -33,11 +48,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { computed, ref, watch } from "vue"
+
+import { useSetting } from "~/composables/settings"
+import { useReadonlyStream } from "~/composables/stream"
 import { editGraphqlRequest } from "~/newstore/collections"
+import { platform } from "~/platform"
+import IconSparkle from "~icons/lucide/sparkles"
 
 const t = useI18n()
 const toast = useToast()
@@ -48,6 +69,7 @@ const props = defineProps<{
   requestIndex: number | null
   request: HoppGQLRequest | null
   editingRequestName: string
+  requestContext: HoppGQLRequest | null
 }>()
 
 const emit = defineEmits<{
@@ -62,6 +84,52 @@ watch(
     requestUpdateData.value.name = val
   }
 )
+
+const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
+const isGenerateRequestNamePending = ref(false)
+
+const showGenerateRequestNameButton = computed(() => {
+  // Request generation applies only to the authenticated state
+  if (!currentUser.value) {
+    return false
+  }
+
+  return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
+})
+
+const generateRequestName = async () => {
+  const generateRequestNameForPlatform =
+    platform.experiments?.aiExperiments?.generateRequestName
+
+  if (!props.requestContext || !generateRequestNameForPlatform) {
+    toast.error(t("request.generate_name_error"))
+    return
+  }
+
+  isGenerateRequestNamePending.value = true
+
+  const result = await generateRequestNameForPlatform(
+    JSON.stringify(props.requestContext)
+  )
+
+  if (result && E.isLeft(result)) {
+    toast.error(t("request.generate_name_error"))
+
+    isGenerateRequestNamePending.value = false
+
+    return
+  }
+
+  requestUpdateData.value.name = result.right
+
+  isGenerateRequestNamePending.value = false
+}
 
 const saveRequest = () => {
   if (!requestUpdateData.value.name) {

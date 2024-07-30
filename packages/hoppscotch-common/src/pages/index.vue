@@ -60,6 +60,7 @@
     </AppPaneLayout>
     <CollectionsEditRequest
       v-model="reqName"
+      :request-context="requestToRename"
       :show="showRenamingReqNameModal"
       @submit="renameReqName"
       @hide-modal="showRenamingReqNameModal = false"
@@ -118,7 +119,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -256,13 +257,22 @@ const onResolveConfirmCloseAllTabs = () => {
   confirmingCloseAllTabs.value = false
 }
 
+const requestToRename = computed(() => {
+  if (!renameTabID.value) return null
+  const tab = tabs.getTabRef(renameTabID.value)
+  return tab.value.document.request
+})
+
 const openReqRenameModal = (tabID?: string) => {
   if (tabID) {
     const tab = tabs.getTabRef(tabID)
     reqName.value = tab.value.document.request.name
     renameTabID.value = tabID
   } else {
-    reqName.value = tabs.currentActiveTab.value.document.request.name
+    const { id, document } = tabs.currentActiveTab.value
+
+    reqName.value = document.request.name
+    renameTabID.value = id
   }
   showRenamingReqNameModal.value = true
 }

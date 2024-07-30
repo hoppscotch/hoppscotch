@@ -62,6 +62,7 @@
     <CollectionsEditRequest
       v-model="editReqModalReqName"
       :show="showRenamingReqNameModalForTabID !== undefined"
+      :request-context="requestToRename"
       @submit="renameReqName"
       @hide-modal="showRenamingReqNameModalForTabID = undefined"
     />
@@ -183,6 +184,12 @@ onBeforeUnmount(() => {
 
 const editReqModalReqName = ref("")
 const showRenamingReqNameModalForTabID = ref<string>()
+
+const requestToRename = computed(() => {
+  if (!showRenamingReqNameModalForTabID.value) return null
+  const tab = tabs.getTabRef(showRenamingReqNameModalForTabID.value)
+  return tab.value.document.request
+})
 
 const openReqRenameModal = (tab: HoppTab<HoppGQLDocument>) => {
   editReqModalReqName.value = tab.document.request.name

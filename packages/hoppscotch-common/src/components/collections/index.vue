@@ -142,6 +142,7 @@
     <CollectionsEditRequest
       v-model="editingRequestName"
       :show="showModalEditRequest"
+      :request-context="editingRequest"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"

@@ -114,7 +114,7 @@ export const getDefaultSettings = (): SettingsDef => ({
   COLUMN_LAYOUT: true,
 
   HAS_OPENED_SPOTLIGHT: false,
-  ENABLE_AI_EXPERIMENTS: false,
+  ENABLE_AI_EXPERIMENTS: true,
 })
 
 type ApplySettingPayload = {

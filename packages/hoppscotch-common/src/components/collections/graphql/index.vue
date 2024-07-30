@@ -139,6 +139,7 @@
       :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :request-context="editingRequest"
       :editing-request-name="editingRequest ? editingRequest.name : ''"
       @hide-modal="displayModalEditRequest(false)"
     />

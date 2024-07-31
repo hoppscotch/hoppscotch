@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "type": "module",
@@ -20,11 +20,9 @@
     "debugger": "node debugger.js 9999",
     "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "pretest": "pnpm run build",
-    "test": "vitest run",
+    "test": "pnpm run build && vitest run",
     "do-typecheck": "pnpm exec tsc --noEmit",
-    "do-test": "pnpm run test",
-    "postinstall": "pnpm run build"
+    "do-test": "pnpm run test"
   },
   "keywords": [
     "cli",

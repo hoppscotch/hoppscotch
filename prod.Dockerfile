@@ -28,12 +28,9 @@ RUN apk add caddy
 
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
-COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
-COPY --from=backend_builder /dist/backend /dist/backend
-COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
-
-RUN chown -R hoppuser:hoppgroup /dist && \
-    chmod -R 755 /dist
+COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
+COPY --from=backend_builder --chown=hoppuser:hoppgroup --chmod=755 /dist/backend /dist/backend
+COPY --from=base_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
 
 # Remove the env file to avoid backend copying it in and using it
 ENV PRODUCTION="true"
@@ -55,15 +52,13 @@ RUN pnpm run generate
 
 FROM caddy:2-alpine AS app
 WORKDIR /site
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
-RUN apk add nodejs npm
-
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
-RUN chown -R hoppuser:hoppgroup /site && \
-    chmod -R 755 /site
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
+
+RUN apk add nodejs npm
 
 RUN npm install -g @import-meta-env/cli
 
@@ -81,17 +76,15 @@ RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
 FROM caddy:2-alpine AS sh_admin
 WORKDIR /site
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
+
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+
 RUN apk add nodejs npm
-
-RUN adduser -D hoppuser
-
-RUN chown -R hoppuser:hoppuser /site && \
-    chmod -R 755 /site
 
 RUN npm install -g @import-meta-env/cli
 
@@ -107,24 +100,21 @@ RUN apk add caddy
 
 RUN apk add tini curl
 
-RUN adduser -D hoppuser
+RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
 # Copy necessary files
 # Backend files
-COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
-COPY --from=backend_builder /dist/backend /dist/backend
-COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
+COPY --from=base_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
+COPY --from=backend_builder --chown=hoppuser:hoppgroup --chmod=755 /dist/backend /dist/backend
+COPY --from=base_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
 
 # FE Files
-COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --from=base_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
-
-RUN chown -R hoppuser:hoppuser /dist /site /usr/src/app && \
-    chmod -R 755 /site /dist /usr/src/app
 
 RUN npm install -g @import-meta-env/cli
 

@@ -228,10 +228,14 @@ export class InfraTokensController {
       throwHTTPErr({ message: deletedUser.left, statusCode });
     }
 
-    return plainToInstance(DeleteUserResponse, deletedUser.right, {
-      excludeExtraneousValues: true,
-      enableImplicitConversion: true,
-    });
+    return plainToInstance(
+      DeleteUserResponse,
+      { message: deletedUser.right },
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
   }
 
   @Patch('users/:uid/admin-status')

@@ -113,3 +113,10 @@ export class ExceptionResponse {
   @Expose()
   statusCode: number;
 }
+
+// Delete v1/infra/users/:uid
+export class DeleteUserResponse {
+  @ApiProperty()
+  @Expose()
+  message: string;
+}

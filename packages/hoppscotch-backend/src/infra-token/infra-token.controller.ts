@@ -27,6 +27,7 @@ import {
   UpdateUserAdminStatusResponse,
   CreateUserInvitationRequest,
   CreateUserInvitationResponse,
+  DeleteUserResponse,
 } from './request-response.dto';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
@@ -203,6 +204,31 @@ export class InfraTokensController {
     }
 
     return plainToInstance(GetUserResponse, updatedUser.right, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
+  }
+
+  @Delete('users/:uid')
+  @ApiOkResponse({
+    description: 'Delete a user from the instance',
+    type: DeleteUserResponse,
+  })
+  @ApiBadRequestResponse({ type: ExceptionResponse })
+  @ApiNotFoundResponse({ type: ExceptionResponse })
+  async deleteUser(@Param('uid') uid: string) {
+    const deletedUser = await this.adminService.removeUserAccount(uid);
+
+    if (E.isLeft(deletedUser)) {
+      const statusCode =
+        (deletedUser.left as string) === USER_NOT_FOUND
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.BAD_REQUEST;
+
+      throwHTTPErr({ message: deletedUser.left, statusCode });
+    }
+
+    return plainToInstance(DeleteUserResponse, deletedUser.right, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });

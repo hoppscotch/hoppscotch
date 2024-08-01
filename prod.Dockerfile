@@ -1,4 +1,4 @@
-FROM node:20-alpine3.19 as base_builder
+FROM node:20-alpine3.19 AS base_builder
 
 WORKDIR /usr/src/app
 
@@ -15,7 +15,7 @@ COPY . .
 RUN pnpm install -f --offline
 
 
-FROM base_builder as backend_builder
+FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
@@ -23,7 +23,7 @@ RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM node:20-alpine3.19 as backend
+FROM node:20-alpine3.19 AS backend
 RUN apk add caddy
 
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
@@ -49,11 +49,11 @@ CMD ["node", "prod_run.mjs"]
 EXPOSE 80
 EXPOSE 3170
 
-FROM base_builder as fe_builder
+FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
-FROM caddy:2-alpine as app
+FROM caddy:2-alpine AS app
 WORKDIR /site
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
@@ -73,13 +73,13 @@ EXPOSE 80
 EXPOSE 3000
 CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
 
-FROM base_builder as sh_admin_builder
+FROM base_builder AS sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
-FROM caddy:2-alpine as sh_admin
+FROM caddy:2-alpine AS sh_admin
 WORKDIR /site
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
@@ -101,7 +101,7 @@ EXPOSE 80
 EXPOSE 3100
 CMD ["node","/usr/prod_run.mjs"]
 
-FROM node:20-alpine3.19 as aio
+FROM node:20-alpine3.19 AS aio
 # Run this separately to use the cache from backend
 RUN apk add caddy
 

@@ -1,8 +1,6 @@
 # THIS IS NOT TO BE USED FOR PERSONAL DEPLOYMENTS!
 # Internal Docker Compose Image used for internal testing deployments
 
-version: "3.7"
-
 services:
   hoppscotch-db:
     image: postgres:15

@@ -1,7 +1,6 @@
 # To make it easier to self-host, we have a preset docker compose config that also
 # has a container with a Postgres instance running.
 # You can tweak around this file to match your instances
-version: "3.7"
 
 services:
   # This service runs the backend app in the port 3170

@@ -1,4 +1,4 @@
-import { Environment } from "@hoppscotch/data"
+import { Environment, GlobalEnvironment } from "@hoppscotch/data"
 import { cloneDeep, isEqual } from "lodash-es"
 import { combineLatest, Observable } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
@@ -31,7 +31,7 @@ const defaultEnvironmentsState = {
 
   // as a temp fix for identifying global env when syncing
   globalEnvID: undefined as string | undefined,
-  globals: [] as Environment["variables"],
+  globals: [] as GlobalEnvironment["variables"],
 
   selectedEnvironmentIndex: {
     type: "NO_ENV_SELECTED",
@@ -390,12 +390,19 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   map(([selectedEnv, globalVars]) => {
     const results: AggregateEnvironment[] = []
 
-    selectedEnv?.variables.forEach(({ key, value, secret }) =>
+    selectedEnv?.variables.forEach((variable) => {
+      const { key, secret } = variable
+      const value = "value" in variable ? variable.value : ""
+
       results.push({ key, value, secret, sourceEnv: selectedEnv.name })
-    )
-    globalVars.forEach(({ key, value, secret }) =>
+    })
+
+    globalVars.forEach((variable) => {
+      const { key, secret } = variable
+      const value = "value" in variable ? variable.value : ""
+
       results.push({ key, value, secret, sourceEnv: "Global" })
-    )
+    })
 
     return results
   }),

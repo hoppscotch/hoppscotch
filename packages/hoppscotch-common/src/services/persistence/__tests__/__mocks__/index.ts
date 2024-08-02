@@ -1,5 +1,6 @@
 import {
   Environment,
+  GlobalEnvironment,
   HoppCollection,
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
@@ -115,7 +116,7 @@ export const MQTT_REQUEST_MOCK = {
   clientID: "hoppscotch",
 }
 
-export const GLOBAL_ENV_MOCK: Environment["variables"] = [
+export const GLOBAL_ENV_MOCK: GlobalEnvironment["variables"] = [
   { key: "test-key", value: "test-value", secret: false },
 ]
 

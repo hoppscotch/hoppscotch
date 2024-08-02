@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { useReadonlyStream, useStream } from "@composables/stream"
-import { Environment } from "@hoppscotch/data"
+import { Environment, GlobalEnvironment } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -86,13 +86,13 @@ const environmentType = ref<EnvironmentsChooseType>({
   selectedTeam: undefined,
 })
 
-const globalEnv = useReadonlyStream(globalEnv$, [])
+const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
-const globalEnvironment = computed(() => ({
+const globalEnvironment = computed<GlobalEnvironment>(() => ({
   v: 1 as const,
   id: "Global",
   name: "Global",
-  variables: globalEnv.value,
+  variables: globalEnv.value.variables,
 }))
 
 const isPersonalEnvironmentType = computed(
@@ -252,7 +252,7 @@ defineActionHandler("modals.environment.delete-selected", () => {
 
 const additionalVars = ref<Environment["variables"]>([])
 
-const envVars = () => [...globalEnv.value, ...additionalVars.value]
+const envVars = () => [...globalEnv.value.variables, ...additionalVars.value]
 
 defineActionHandler(
   "modals.global.environment.update",

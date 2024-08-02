@@ -110,7 +110,7 @@ async function loadGlobalEnvironments() {
 
       runDispatchWithOutSyncing(() => {
         setGlobalEnvVariables(
-          result.success ? result.data.variables : globalEnvVariableEntries
+          result.success ? result.data : globalEnvVariableEntries
         )
         setGlobalEnvID(globalEnv.id)
       })

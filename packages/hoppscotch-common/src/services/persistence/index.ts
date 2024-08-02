@@ -628,7 +628,7 @@ export class PersistenceService extends Service {
   private setupGlobalEnvsPersistence() {
     const globalEnvKey = "globalEnv"
     let globalEnvData: GlobalEnvironment = JSON.parse(
-      window.localStorage.getItem(globalEnvKey) || "[]"
+      window.localStorage.getItem(globalEnvKey) || "{}"
     )
 
     // Validate data read from localStorage
@@ -643,7 +643,7 @@ export class PersistenceService extends Service {
       )
     }
 
-    setGlobalEnvVariables(globalEnvData.variables)
+    setGlobalEnvVariables(globalEnvData)
 
     globalEnv$.subscribe((vars) => {
       window.localStorage.setItem(globalEnvKey, JSON.stringify(vars))

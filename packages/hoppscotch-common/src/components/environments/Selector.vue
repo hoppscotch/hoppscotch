@@ -205,7 +205,7 @@
                 </span>
               </div>
               <div
-                v-for="(variable, index) in globalEnvs"
+                v-for="(variable, index) in globalEnvs.variables"
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
@@ -219,7 +219,10 @@
                   </template>
                 </span>
               </div>
-              <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
+              <div
+                v-if="globalEnvs.variables.length === 0"
+                class="text-secondaryLight"
+              >
                 {{ t("environment.empty_variables") }}
               </div>
             </div>
@@ -292,37 +295,36 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue"
-import IconCheck from "~icons/lucide/check"
-import IconLayers from "~icons/lucide/layers"
-import IconEye from "~icons/lucide/eye"
-import IconEdit from "~icons/lucide/edit"
-import IconGlobe from "~icons/lucide/globe"
+import { useColorMode } from "@composables/theming"
+import { Environment, GlobalEnvironment } from "@hoppscotch/data"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
-import { GQLError } from "~/helpers/backend/GQLClient"
 import { useReadonlyStream, useStream } from "~/composables/stream"
+import { invokeAction } from "~/helpers/actions"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   environments$,
   globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { useColorMode } from "@composables/theming"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { invokeAction } from "~/helpers/actions"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import { Environment } from "@hoppscotch/data"
-import { onMounted } from "vue"
 import { useLocalState } from "~/newstore/localstate"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
-import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 import {
   sortPersonalEnvironmentsAlphabetically,
   sortTeamEnvironmentsAlphabetically,
 } from "~/helpers/utils/sortEnvironmentsAlphabetically"
+import IconCheck from "~icons/lucide/check"
+import IconEdit from "~icons/lucide/edit"
+import IconEye from "~icons/lucide/eye"
+import IconGlobe from "~icons/lucide/globe"
+import IconLayers from "~icons/lucide/layers"
 
 type Scope =
   | {
@@ -600,7 +602,7 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
 }
 
-const globalEnvs = useReadonlyStream(globalEnv$, [])
+const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const environmentVariables = computed(() => {
   if (selectedEnv.value.variables) {

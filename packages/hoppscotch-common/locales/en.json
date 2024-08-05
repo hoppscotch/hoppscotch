@@ -242,6 +242,8 @@
     "header": "Header {count}",
     "message": "Message {count}",
     "parameter": "Parameter {count}",
+    "key": "Key {count}",
+    "description": "Description {count}",
     "protocol": "Protocol {count}",
     "value": "Value {count}",
     "variable": "Variable {count}"

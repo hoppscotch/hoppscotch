@@ -25,6 +25,7 @@ RUN pnpm exec prisma generate
 
 FROM node:20-alpine3.19 AS backend
 RUN apk add caddy
+RUN npm install -g pnpm
 
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
@@ -100,6 +101,8 @@ RUN apk add caddy
 
 RUN apk add tini curl
 
+RUN npm install -g pnpm
+
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
 # Copy necessary files
@@ -124,7 +127,7 @@ ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh .
 HEALTHCHECK --interval=2s CMD /bin/sh ./healthcheck.sh
 
-WORKDIR /dist
+WORKDIR /dist/backend
 
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170

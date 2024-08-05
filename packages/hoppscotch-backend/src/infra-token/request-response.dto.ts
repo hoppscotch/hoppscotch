@@ -79,6 +79,14 @@ export class GetUserResponse {
   @ApiProperty()
   @Expose()
   isAdmin: boolean;
+
+  @ApiProperty()
+  @Expose()
+  lastLoggedOn: Date;
+
+  @ApiProperty()
+  @Expose()
+  lastActiveOn: Date;
 }
 
 // PATCH v1/infra/users/:uid
@@ -112,4 +120,11 @@ export class ExceptionResponse {
   @ApiProperty()
   @Expose()
   statusCode: number;
+}
+
+// Delete v1/infra/users/:uid
+export class DeleteUserResponse {
+  @ApiProperty()
+  @Expose()
+  message: string;
 }

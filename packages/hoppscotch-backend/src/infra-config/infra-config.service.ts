@@ -152,12 +152,10 @@ export class InfraConfigService implements OnModuleInit {
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
     try {
-      const isEncrypted = (
-        await this.prisma.infraConfig.findUnique({
-          where: { name },
-          select: { isEncrypted: true },
-        })
-      ).isEncrypted;
+      const { isEncrypted } = await this.prisma.infraConfig.findUnique({
+        where: { name },
+        select: { isEncrypted: true },
+      });
 
       const infraConfig = await this.prisma.infraConfig.update({
         where: { name },

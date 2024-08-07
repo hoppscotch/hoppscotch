@@ -100,6 +100,12 @@ WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
 
 FROM node:20-alpine3.19 AS aio
+
+ENV PRODUCTION="true"
+ENV PORT=8080
+ENV APP_PORT=${PORT}
+ENV DB_URL=${DATABASE_URL}
+
 # Run this separately to use the cache from backend
 RUN apk add caddy
 

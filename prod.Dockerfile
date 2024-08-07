@@ -52,12 +52,11 @@ WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
 FROM caddy:2-alpine AS app
-WORKDIR /site
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
-COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /usr
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
-COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/dist/ .
+COPY --from=fe_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
 
 RUN apk add nodejs npm
 
@@ -67,7 +66,10 @@ USER hoppuser
 
 EXPOSE 80
 EXPOSE 3000
-CMD ["/bin/sh", "-c", "node /usr/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
+
+WORKDIR /site
+
+CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
 
 FROM base_builder AS sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
@@ -76,10 +78,9 @@ RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
 FROM caddy:2-alpine AS sh_admin
-WORKDIR /site
 RUN addgroup -S hoppgroup && adduser -S hoppuser -G hoppgroup
 
-COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /usr
+COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /site/prod_run.mjs
 COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
 COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
 COPY --from=sh_admin_builder --chown=hoppuser:hoppgroup --chmod=755 /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
@@ -93,7 +94,10 @@ USER hoppuser
 
 EXPOSE 80
 EXPOSE 3100
-CMD ["node","/usr/prod_run.mjs"]
+
+WORKDIR /site
+
+CMD ["node","/site/prod_run.mjs"]
 
 FROM node:20-alpine3.19 AS aio
 # Run this separately to use the cache from backend

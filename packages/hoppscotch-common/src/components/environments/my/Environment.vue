@@ -45,7 +45,7 @@
             tabindex="0"
             role="menu"
             @keyup.e="edit!.$el.click()"
-            @keyup.d="duplicate!.$el.click()"
+            @keyup.d="showDuplicateAction ? duplicate!.$el.click() : null"
             @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
@@ -67,13 +67,10 @@
               "
             />
             <HoppSmartItem
+              v-if="showDuplicateAction"
               ref="duplicate"
               :icon="IconCopy"
-              :label="
-                isGlobalEnvironment
-                  ? t('action.duplicate_to_personal_workspace')
-                  : t('action.duplicate')
-              "
+              :label="t('action.duplicate')"
               :shortcut="['D']"
               @click="
                 () => {
@@ -145,10 +142,16 @@ import IconTrash2 from "~icons/lucide/trash-2"
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  environment: Environment
-  environmentIndex: number | "Global" | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    environment: Environment
+    environmentIndex: number | "Global" | null
+    showDuplicateAction: boolean
+  }>(),
+  {
+    showDuplicateAction: true,
+  }
+)
 
 const emit = defineEmits<{
   (e: "edit-environment"): void

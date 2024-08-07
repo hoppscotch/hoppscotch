@@ -116,7 +116,7 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
-      :request-context="addRequestRequestContext"
+      :request-context="requestContext"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -791,7 +791,7 @@ const addRequest = (payload: {
   displayModalAddRequest(true)
 }
 
-const addRequestRequestContext = computed(() => {
+const requestContext = computed(() => {
   return tabs.currentActiveTab.value.document.request
 })
 

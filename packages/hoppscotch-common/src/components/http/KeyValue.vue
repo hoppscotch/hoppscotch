@@ -20,43 +20,54 @@
     </span>
     <SmartEnvInput
       :model-value="name"
-      @update:model-value="emit('update:name', $event)"
       :placeholder="t('count.key')"
       :auto-complete-env="true"
       :envs="envs"
       :inspection-results="inspectionKeyResult"
+      @update:model-value="emit('update:name', $event)"
       @change="
         updateEntity(index, {
           id: entityId,
           key: $event,
           value: value,
           active: entityActive,
+          description: description ?? '',
         })
       "
     />
     <SmartEnvInput
       :model-value="value"
-      @update:model-value="emit('update:value', $event)"
       :placeholder="t('count.value')"
       :auto-complete-env="true"
       :envs="envs"
       :inspection-results="inspectionValueResult"
+      @update:model-value="emit('update:value', $event)"
       @change="
         updateEntity(index, {
           id: entityId,
           key: name,
           value: $event,
           active: entityActive,
+          description: description ?? '',
         })
       "
     />
 
     <input
-      :model-value="description"
-      @update:model-value="emit('update:description', $event.target.value)"
+      :value="description"
       :placeholder="t('count.description')"
       class="flex flex-1 bg-transparent px-4"
       type="text"
+      @update:value="emit('update:description', $event.target.value)"
+      @input="
+        updateEntity(index, {
+          id: entityId,
+          key: name,
+          value,
+          active: entityActive,
+          description: ($event.target as HTMLInputElement).value,
+        })
+      "
     />
     <span>
       <HoppButtonSecondary

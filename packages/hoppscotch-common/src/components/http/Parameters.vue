@@ -60,14 +60,15 @@
       >
         <template #item="{ element: param, index }">
           <HttpKeyValue
+            v-model:name="param.key"
+            v-model:value="param.value"
+            v-model:description="param.description"
             :total="workingParams.length"
             :index="index"
             :entity-id="param.id"
             :entity-active="param.active"
             :envs="envs"
             :is-active="param.hasOwnProperty('active')"
-            v-model:name="param.key"
-            v-model:value="param.value"
             :inspection-key-result="
               getInspectorResult(parameterKeyResults, index)
             "
@@ -182,6 +183,7 @@ const workingParams = ref<Array<HoppRESTParam & { id: number }>>([
     key: "",
     value: "",
     active: true,
+    description: "",
   },
 ])
 
@@ -193,6 +195,7 @@ watch(workingParams, (paramsList) => {
       key: "",
       value: "",
       active: true,
+      description: "",
     })
   }
 })
@@ -265,8 +268,20 @@ watch(bulkParams, (newBulkParams) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(params.value, filteredBulkParams)) {
-    params.value = filteredBulkParams
+  let paramsWithoutDescriptionField = params.value.map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ({ description, ...rest }) => rest
+  )
+
+  if (!isEqual(paramsWithoutDescriptionField, filteredBulkParams)) {
+    paramsWithoutDescriptionField = filteredBulkParams
+
+    params.value.forEach((param, idx) => {
+      param = {
+        ...paramsWithoutDescriptionField[idx],
+        description: param.description,
+      }
+    })
   }
 })
 
@@ -276,6 +291,7 @@ const addParam = () => {
     key: "",
     value: "",
     active: true,
+    description: "",
   })
 }
 
@@ -332,6 +348,7 @@ const clearContent = () => {
       key: "",
       value: "",
       active: true,
+      description: "",
     },
   ]
 

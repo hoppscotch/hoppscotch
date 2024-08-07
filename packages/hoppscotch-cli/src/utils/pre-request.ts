@@ -162,12 +162,18 @@ export function getEffectiveRESTRequest(
   }
   const effectiveFinalBody = _effectiveFinalBody.right;
 
-  if (request.body.contentType)
+  if (
+    request.body.contentType &&
+    !effectiveFinalHeaders.some(
+      ({ key }) => key.toLowerCase() === "content-type"
+    )
+  ) {
     effectiveFinalHeaders.push({
       active: true,
-      key: "content-type",
+      key: "Content-Type",
       value: request.body.contentType,
     });
+  }
 
   // Parsing final-endpoint with applied ENVs.
   const _effectiveFinalURL = parseTemplateStringE(

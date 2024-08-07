@@ -149,6 +149,16 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
       expect(error).toBeNull();
     });
+
+    test("The `Content-Type` header takes priority over the value set at the request body", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "content-type-header-scenarios.json",
+        "collection"
+      )}`;
+      const { error } = await runCLI(args);
+
+      expect(error).toBeNull();
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

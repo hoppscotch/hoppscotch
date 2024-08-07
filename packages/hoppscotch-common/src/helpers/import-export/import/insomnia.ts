@@ -126,6 +126,7 @@ const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {
         isPKCE: false,
         tokenEndpoint: replaceVarTemplating(auth.accessTokenUrl ?? ""),
       },
+      addTo: "HEADERS",
     }
   else if (auth.type === "bearer")
     return {

@@ -8,7 +8,7 @@
     <template #body>
       <div class="flex gap-1">
         <HoppSmartInput
-          v-model="requestUpdateData.name"
+          v-model="editingName"
           class="flex-grow"
           placeholder=" "
           :label="t('action.label')"
@@ -16,7 +16,7 @@
           @submit="saveRequest"
         />
         <HoppButtonSecondary
-          v-if="showGenerateRequestNameButton"
+          v-if="canDoRequestNameGeneration"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconSparkle"
           :disabled="isGenerateRequestNamePending"
@@ -51,13 +51,9 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
-import * as E from "fp-ts/Either"
-import { computed, ref, watch } from "vue"
-
-import { useSetting } from "~/composables/settings"
-import { useReadonlyStream } from "~/composables/stream"
+import { ref, watch } from "vue"
+import { useRequestNameGeneration } from "~/composables/ai-experiments"
 import { editGraphqlRequest } from "~/newstore/collections"
-import { platform } from "~/platform"
 import IconSparkle from "~icons/lucide/sparkles"
 
 const t = useI18n()
@@ -76,75 +72,30 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const requestUpdateData = ref({ name: null as string | null })
+const editingName = ref("")
 
 watch(
   () => props.editingRequestName,
   (val) => {
-    requestUpdateData.value.name = val
+    editingName.value = val
   }
 )
 
-const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
-
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
-
-const isGenerateRequestNamePending = ref(false)
-
-const showGenerateRequestNameButton = computed(() => {
-  // Request generation applies only to the authenticated state
-  if (!currentUser.value) {
-    return false
-  }
-
-  return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
-})
-
-const generateRequestName = async () => {
-  const generateRequestNameForPlatform =
-    platform.experiments?.aiExperiments?.generateRequestName
-
-  if (!props.requestContext || !generateRequestNameForPlatform) {
-    toast.error(t("request.generate_name_error"))
-    return
-  }
-
-  isGenerateRequestNamePending.value = true
-
-  platform.analytics?.logEvent({
-    type: "EXPERIMENTS_GENERATE_REQUEST_NAME_WITH_AI",
-    platform: "gql",
-  })
-
-  const result = await generateRequestNameForPlatform(
-    JSON.stringify(props.requestContext)
-  )
-
-  if (result && E.isLeft(result)) {
-    toast.error(t("request.generate_name_error"))
-
-    isGenerateRequestNamePending.value = false
-
-    return
-  }
-
-  requestUpdateData.value.name = result.right
-
-  isGenerateRequestNamePending.value = false
-}
+const {
+  canDoRequestNameGeneration,
+  generateRequestName,
+  isGenerateRequestNamePending,
+} = useRequestNameGeneration(editingName)
 
 const saveRequest = () => {
-  if (!requestUpdateData.value.name) {
+  if (!editingName.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
 
   const requestUpdated = {
     ...(props.request as any),
-    name: requestUpdateData.value.name || (props.request as any).name,
+    name: editingName.value || (props.request as any).name,
   }
 
   editGraphqlRequest(props.folderPath, props.requestIndex, requestUpdated)
@@ -153,7 +104,7 @@ const saveRequest = () => {
 }
 
 const hideModal = () => {
-  requestUpdateData.value = { name: null }
+  editingName.value = ""
   emit("hide-modal")
 }
 </script>

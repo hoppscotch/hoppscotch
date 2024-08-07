@@ -116,6 +116,7 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
+      :request-context="addRequestRequestContext"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -789,6 +790,10 @@ const addRequest = (payload: {
   editingFolderPath.value = path
   displayModalAddRequest(true)
 }
+
+const addRequestRequestContext = computed(() => {
+  return tabs.currentActiveTab.value.document.request
+})
 
 const onAddRequest = (requestName: string) => {
   const newRequest = {

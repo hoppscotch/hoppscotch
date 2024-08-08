@@ -143,7 +143,7 @@ export async function getDefaultInfraConfigs(): Promise<
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
       value: process.env.GOOGLE_CLIENT_ID,
-      isEncrypted: false,
+      isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
@@ -163,7 +163,7 @@ export async function getDefaultInfraConfigs(): Promise<
     {
       name: InfraConfigEnum.GITHUB_CLIENT_ID,
       value: process.env.GITHUB_CLIENT_ID,
-      isEncrypted: false,
+      isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
@@ -183,7 +183,7 @@ export async function getDefaultInfraConfigs(): Promise<
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
       value: process.env.MICROSOFT_CLIENT_ID,
-      isEncrypted: false,
+      isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,

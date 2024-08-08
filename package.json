@@ -34,7 +34,13 @@
   },
   "pnpm": {
     "overrides": {
-      "vue": "3.3.9"
+      "vue": "3.3.9",
+      "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
+      "subscriptions-transport-ws>ws": "7.5.10",
+      "@nestjs/graphql>ws": "8.17.1",
+      "braces": "3.0.3",
+      "express": "4.19.2",
+      "pug": "3.0.3"
     },
     "packageExtensions": {
       "@hoppscotch/httpsnippet": {

@@ -21,6 +21,7 @@
     <SmartEnvInput
       :model-value="name"
       :placeholder="t('count.key')"
+      :auto-complete-source="keyAutoCompleteSource"
       :auto-complete-env="true"
       :envs="envs"
       :inspection-results="inspectionKeyResult"
@@ -132,6 +133,7 @@ defineProps<{
   inspectionValueResult?: InspectorResult[]
   description?: string
   envs?: AggregateEnvironment[]
+  keyAutoCompleteSource?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -143,7 +145,6 @@ const emit = defineEmits<{
 }>()
 
 function updateEntity(index: number, payload: any) {
-  console.log(payload)
   emit("updateEntity", {
     index,
     payload,

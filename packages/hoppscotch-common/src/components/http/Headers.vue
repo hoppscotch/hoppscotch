@@ -78,6 +78,7 @@
             :inspection-value-result="
               getInspectorResult(headerValueResults, index)
             "
+            :key-auto-complete-source="commonHeaders"
             @update-entity="updateHeader($event.index, $event.payload)"
             @delete-entity="deleteHeader($event)"
           />
@@ -234,10 +235,12 @@ import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
 import { computed, reactive, ref, toRefs, watch } from "vue"
 import draggable from "vuedraggable-es"
+
 import { useNestedSetting } from "~/composables/settings"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
+import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
   ComputedHeader,

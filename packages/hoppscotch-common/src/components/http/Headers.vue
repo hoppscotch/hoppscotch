@@ -106,16 +106,27 @@
                 tabindex="-1"
               />
             </span>
+
             <SmartEnvInput
               v-model="header.header.key"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
             <SmartEnvInput
               :model-value="mask(header)"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
+            <input
+              :value="header.header.description"
+              :placeholder="t('count.description')"
+              type="text"
+              readonly
+              class="flex flex-1 bg-transparent px-4"
+            />
+
             <span>
               <HoppButtonSecondary
                 v-if="header.source === 'auth'"
@@ -159,11 +170,13 @@
                 tabindex="-1"
               />
             </span>
+
             <SmartEnvInput
               v-model="header.header.key"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
             <SmartEnvInput
               :model-value="
                 header.source === 'auth' ? mask(header) : header.header.value
@@ -171,6 +184,15 @@
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
+            <input
+              :value="header.header.description"
+              :placeholder="t('count.description')"
+              type="text"
+              readonly
+              class="flex flex-1 bg-transparent px-4"
+            />
+
             <HoppButtonSecondary
               v-if="header.source === 'auth'"
               v-tippy="{ theme: 'tooltip' }"

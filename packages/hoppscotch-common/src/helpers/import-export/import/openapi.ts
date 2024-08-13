@@ -114,15 +114,14 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
     A.filterMap(
       flow(
         O.fromPredicate((param) => param.in === "header"),
-        O.map(
-          (header) =>
-            <HoppRESTParam>{
-              key: header.name,
-              value: "", // TODO: Can we do anything more ? (parse default values maybe)
-              active: true,
-              description: header.description ?? "",
-            }
-        )
+        O.map((header) => {
+          return <HoppRESTParam>{
+            key: header.name,
+            value: "", // TODO: Can we do anything more ? (parse default values maybe)
+            active: true,
+            description: header.description ?? "",
+          }
+        })
       )
     )
   )

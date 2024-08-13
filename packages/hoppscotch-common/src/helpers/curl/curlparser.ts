@@ -3,28 +3,30 @@
  * just adding the /browser import as a fix for now, which does not have type info on DefinitelyTyped.
  * remove/update this comment before merging the vue3 port.
  */
-import parser from "yargs-parser/browser"
-import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
-import { pipe, flow } from "fp-ts/function"
 import {
   FormDataKeyValue,
+  HoppRESTHeader,
+  HoppRESTParam,
   HoppRESTReqBody,
   makeRESTRequest,
 } from "@hoppscotch/data"
+import * as A from "fp-ts/Array"
+import { flow, pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import parser from "yargs-parser/browser"
 import { getAuthObject } from "./sub_helpers/auth"
 import { getHeaders, recordToHoppHeaders } from "./sub_helpers/headers"
 // import { getCookies } from "./sub_helpers/cookies"
-import { getQueries } from "./sub_helpers/queries"
-import { getMethod } from "./sub_helpers/method"
-import { concatParams, getURLObject } from "./sub_helpers/url"
-import { preProcessCurlCommand } from "./sub_helpers/preproc"
-import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
-import { getDefaultRESTRequest } from "../rest/default"
 import {
-  objHasProperty,
   objHasArrayProperty,
+  objHasProperty,
 } from "~/helpers/functional/object"
+import { getDefaultRESTRequest } from "../rest/default"
+import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
+import { getMethod } from "./sub_helpers/method"
+import { preProcessCurlCommand } from "./sub_helpers/preproc"
+import { getQueries } from "./sub_helpers/queries"
+import { concatParams, getURLObject } from "./sub_helpers/url"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
@@ -195,8 +197,10 @@ export const parseCurlCommand = (curlCommand: string) => {
     name: defaultRESTReq.name,
     endpoint: urlString,
     method: (method || defaultRESTReq.method).toUpperCase(),
-    params: queries ?? defaultRESTReq.params,
-    headers: hoppHeaders,
+    params:
+      (queries as HoppRESTParam[]) ??
+      (defaultRESTReq.params as HoppRESTParam[]),
+    headers: hoppHeaders as HoppRESTHeader[],
     preRequestScript: defaultRESTReq.preRequestScript,
     testScript: defaultRESTReq.testScript,
     auth,

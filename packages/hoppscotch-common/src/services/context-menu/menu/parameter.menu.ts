@@ -61,7 +61,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
       text = url.search.slice(1)
     }
 
-    const regex = /(\w+)=(\w+)/g
+    const regex = /([^&=]+)=([^&]+)/g
     const matches = text.matchAll(regex)
     const params: Param = {}
 

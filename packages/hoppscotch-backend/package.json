@@ -1,10 +1,14 @@
 {
   "name": "hoppscotch-backend",
-  "version": "2024.7.0",
+  "version": "2024.7.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "files": [
+    "prisma",
+    "dist"
+  ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -56,7 +60,7 @@
     "handlebars": "4.7.7",
     "io-ts": "2.2.16",
     "luxon": "3.2.1",
-    "nodemailer": "6.9.1",
+    "nodemailer": "6.9.14",
     "passport": "0.6.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",

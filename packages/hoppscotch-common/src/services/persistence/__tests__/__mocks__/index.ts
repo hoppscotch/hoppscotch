@@ -1,4 +1,8 @@
-import { Environment, HoppCollection } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppCollection,
+  RESTReqSchemaVersion,
+} from "@hoppscotch/data"
 
 import { HoppGQLDocument } from "~/helpers/graphql/document"
 import { HoppRESTDocument } from "~/helpers/rest/document"
@@ -25,7 +29,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     folders: [],
     requests: [
       {
-        v: "5",
+        v: RESTReqSchemaVersion,
         endpoint: "https://echo.hoppscotch.io",
         name: "Echo test",
         params: [],
@@ -138,7 +142,7 @@ export const REST_HISTORY_MOCK: RESTHistoryEntry[] = [
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
-      v: "5",
+      v: RESTReqSchemaVersion,
     },
     responseMeta: { duration: 807, statusCode: 200 },
     star: false,
@@ -194,7 +198,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
       tabID: "e6e8d800-caa8-44a2-a6a6-b4765a3167aa",
       doc: {
         request: {
-          v: "5",
+          v: RESTReqSchemaVersion,
           endpoint: "https://echo.hoppscotch.io",
           name: "Echo test",
           params: [],

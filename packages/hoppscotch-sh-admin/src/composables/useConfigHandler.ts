@@ -97,7 +97,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           fields: {
             client_id: getFieldValue(InfraConfigEnum.GithubClientId),
             client_secret: getFieldValue(InfraConfigEnum.GithubClientSecret),
-            callback_url: getFieldValue(InfraConfigEnum.GoogleCallbackUrl),
+            callback_url: getFieldValue(InfraConfigEnum.GithubCallbackUrl),
             scope: getFieldValue(InfraConfigEnum.GithubScope),
           },
         },

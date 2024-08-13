@@ -7,11 +7,12 @@
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
+        :show-duplicate-action="isPersonalEnvironmentType"
         class="border-b border-dividerLight"
         @edit-environment="editEnvironment('Global')"
       />
     </div>
-    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy v-show="isPersonalEnvironmentType" />
     <EnvironmentsTeams
       v-show="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
@@ -93,6 +94,10 @@ const globalEnvironment = computed(() => ({
   name: "Global",
   variables: globalEnv.value,
 }))
+
+const isPersonalEnvironmentType = computed(
+  () => environmentType.value.type === "my-environments"
+)
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),

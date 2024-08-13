@@ -12,6 +12,7 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "multipart/form-data": "multipart",
   "text/html": "html",
   "text/plain": "plain",
+  "text/xml": "xml",
 }
 
 type ContentTypeTitle =
@@ -33,6 +34,7 @@ export const segmentedContentTypes: SegmentedContentType[] = [
       "application/hal+json",
       "application/vnd.api+json",
       "application/xml",
+      "text/xml",
     ],
   },
   {

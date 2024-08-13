@@ -3,6 +3,7 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   HoppCollection,
+  RESTReqSchemaVersion,
 } from "@hoppscotch/data";
 
 import {
@@ -78,8 +79,7 @@ export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Workspa
           collectionID: "clx1ldkzs005t10f8rp5u60q7",
           teamID: "clws3hg58000011o8h07glsb1",
           title: "RequestA",
-          request:
-            '{"v":"5","id":"clpttpdq00003qp16kut6doqv","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"RequestA","method":"GET","params":[],"headers":[],"endpoint":"https://echo.hoppscotch.io","testScript":"pw.test(\\"Correctly inherits auth and headers from the root collection\\", ()=> {\\n    pw.expect(pw.response.body.headers[\\"x-test-header\\"]).toBe(\\"Set at root collection\\");\\n  pw.expect(pw.response.body.headers[\\"authorization\\"]).toBe(\\"Bearer BearerToken\\");\\n});","preRequestScript":"","requestVariables":[]}',
+          request: `{"v":"${RESTReqSchemaVersion}","id":"clpttpdq00003qp16kut6doqv","auth":{"authType":"inherit","authActive":true},"body":{"body":null,"contentType":null},"name":"RequestA","method":"GET","params":[],"headers":[],"endpoint":"https://echo.hoppscotch.io","testScript":"pw.test(\\"Correctly inherits auth and headers from the root collection\\", ()=> {\\n    pw.expect(pw.response.body.headers[\\"x-test-header\\"]).toBe(\\"Set at root collection\\");\\n  pw.expect(pw.response.body.headers[\\"authorization\\"]).toBe(\\"Bearer BearerToken\\");\\n});","preRequestScript":"","requestVariables":[]}`,
         },
       ],
     },
@@ -214,7 +214,7 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
       ],
       requests: [
         {
-          v: "5",
+          v: RESTReqSchemaVersion,
           id: "clpttpdq00003qp16kut6doqv",
           auth: {
             authType: "inherit",

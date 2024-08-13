@@ -6,13 +6,28 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <HoppSmartInput
-        v-model="editingName"
-        placeholder=" "
-        :label="t('action.label')"
-        input-styles="floating-input"
-        @submit="addRequest"
-      />
+      <div class="flex gap-1 items-center">
+        <HoppSmartInput
+          v-model="editingName"
+          class="flex-grow"
+          placeholder=" "
+          :label="t('action.label')"
+          input-styles="floating-input"
+          @submit="addRequest"
+        />
+        <HoppButtonSecondary
+          v-if="canDoRequestNameGeneration"
+          v-tippy="{ theme: 'tooltip' }"
+          :icon="IconSparkle"
+          :disabled="isGenerateRequestNamePending"
+          class="rounded-md"
+          :class="{
+            'animate-pulse': isGenerateRequestNamePending,
+          }"
+          :title="t('ai_experiments.generate_request_name')"
+          @click="generateRequestName(props.requestContext)"
+        />
+      </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
@@ -33,11 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
+import { ref, watch } from "vue"
+
+import { useRequestNameGeneration } from "~/composables/ai-experiments"
 import { GQLTabService } from "~/services/tab/graphql"
+import IconSparkle from "~icons/lucide/sparkles"
 
 const toast = useToast()
 const t = useI18n()
@@ -47,6 +66,7 @@ const tabs = useService(GQLTabService)
 const props = defineProps<{
   show: boolean
   folderPath?: string
+  requestContext: HoppRESTRequest | null
 }>()
 
 const emit = defineEmits<{
@@ -61,6 +81,12 @@ const emit = defineEmits<{
 }>()
 
 const editingName = ref("")
+
+const {
+  generateRequestName,
+  isGenerateRequestNamePending,
+  canDoRequestNameGeneration,
+} = useRequestNameGeneration(editingName)
 
 watch(
   () => props.show,

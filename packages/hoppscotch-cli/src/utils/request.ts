@@ -1,5 +1,10 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
-import axios, { Method } from "axios";
+import {
+  Environment,
+  HoppCollection,
+  HoppRESTRequest,
+  RESTReqSchemaVersion,
+} from "@hoppscotch/data";
+import axios, { AxiosResponse, Method } from "axios";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
@@ -55,8 +60,8 @@ const processVariables = (variable: Environment["variables"][number]) => {
 const processEnvs = (envs: Partial<HoppEnvs>) => {
   // This can take the shape `{ global: undefined, selected: undefined }` when no environment is supplied
   const processedEnvs = {
-    global: envs.global?.map(processVariables),
-    selected: envs.selected?.map(processVariables),
+    global: envs.global?.map(processVariables) ?? [],
+    selected: envs.selected?.map(processVariables) ?? [],
   };
 
   return processedEnvs;
@@ -92,9 +97,12 @@ export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
       }
     }
   }
-  if (req.body.contentType) {
-    config.headers["Content-Type"] = req.body.contentType;
-    switch (req.body.contentType) {
+
+  const resolvedContentType =
+    config.headers["Content-Type"] ?? req.body.contentType;
+
+  if (resolvedContentType) {
+    switch (resolvedContentType) {
       case "multipart/form-data": {
         // TODO: Parse Multipart Form Data
         // !NOTE: Temporary `config.supported` check
@@ -166,7 +174,7 @@ export const requestRunner =
       };
 
       if (axios.isAxiosError(e)) {
-        runnerResponse.endpoint = e.config.url ?? "";
+        runnerResponse.endpoint = e.config?.url ?? "";
 
         if (e.response) {
           const { data, status, statusText, headers } = e.response;
@@ -358,7 +366,7 @@ export const preProcessRequest = (
   const { headers: parentHeaders, auth: parentAuth } = collection;
 
   if (!tempRequest.v) {
-    tempRequest.v = "1";
+    tempRequest.v = RESTReqSchemaVersion;
   }
   if (!tempRequest.name) {
     tempRequest.name = "Untitled Request";

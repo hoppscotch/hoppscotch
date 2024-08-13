@@ -4,6 +4,7 @@ export const knownContentTypes = {
   "application/hal+json": "json",
   "application/vnd.api+json": "json",
   "application/xml": "xml",
+  "text/xml": "xml",
   "application/x-www-form-urlencoded": "multipart",
   "multipart/form-data": "multipart",
   "text/html": "html",
@@ -12,4 +13,6 @@ export const knownContentTypes = {
 
 export type ValidContentTypes = keyof typeof knownContentTypes
 
-export const ValidContentTypesList = Object.keys(knownContentTypes) as ValidContentTypes[]
+export const ValidContentTypesList = Object.keys(
+  knownContentTypes
+) as ValidContentTypes[]

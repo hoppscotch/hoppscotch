@@ -427,7 +427,7 @@ export class AdminService {
    * Remove a user account by UID
    * @param userUid User UID
    * @returns an Either of boolean or error
-   * @deprecated use removeUserAccounts instead
+   *
    */
   async removeUserAccount(userUid: string) {
     const user = await this.userService.findUserById(userUid);

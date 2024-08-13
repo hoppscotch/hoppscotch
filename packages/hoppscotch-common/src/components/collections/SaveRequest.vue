@@ -8,14 +8,29 @@
   >
     <template #body>
       <div class="flex flex-col">
-        <HoppSmartInput
-          v-model="requestName"
-          styles="relative flex"
-          placeholder=" "
-          :label="t('request.name')"
-          input-styles="floating-input"
-          @submit="saveRequestAs"
-        />
+        <div class="flex gap-1">
+          <HoppSmartInput
+            v-model="requestName"
+            class="flex-grow"
+            styles="relative flex"
+            placeholder=" "
+            :label="t('request.name')"
+            input-styles="floating-input"
+            @submit="saveRequestAs"
+          />
+          <HoppButtonSecondary
+            v-if="canDoRequestNameGeneration"
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconSparkle"
+            :disabled="isGenerateRequestNamePending"
+            class="rounded-md"
+            :class="{
+              'animate-pulse': isGenerateRequestNamePending,
+            }"
+            :title="t('ai_experiments.generate_request_name')"
+            @click="generateRequestName(requestContext)"
+          />
+        </div>
 
         <label class="p-4">
           {{ t("collection.select_location") }}
@@ -69,6 +84,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep } from "lodash-es"
 import { computed, nextTick, reactive, ref, watch } from "vue"
+import { useRequestNameGeneration } from "~/composables/ai-experiments"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createRequestInCollection,
@@ -86,6 +102,7 @@ import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamWorkspace } from "~/services/workspace.service"
+import IconSparkle from "~icons/lucide/sparkles"
 
 const t = useI18n()
 const toast = useToast()
@@ -144,7 +161,25 @@ const reqName = computed(() => {
   return gqlRequestName.value
 })
 
+const requestContext = computed(() => {
+  if (props.request) {
+    return props.request
+  }
+
+  if (props.mode === "rest") {
+    return RESTTabs.currentActiveTab.value.document.request
+  }
+
+  return GQLTabs.currentActiveTab.value.document.request
+})
+
 const requestName = ref(reqName.value)
+
+const {
+  canDoRequestNameGeneration,
+  generateRequestName,
+  isGenerateRequestNamePending,
+} = useRequestNameGeneration(requestName)
 
 watch(
   () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],

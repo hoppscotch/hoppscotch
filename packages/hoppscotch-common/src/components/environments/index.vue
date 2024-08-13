@@ -141,13 +141,22 @@ const workspace = workspaceService.currentWorkspace
 watch(workspace, (newWorkspace) => {
   if (newWorkspace.type === "personal") {
     switchToMyEnvironments()
-    if (selectedEnvironmentIndex.value.type !== "MY_ENV") {
-      setSelectedEnvironmentIndex({
-        type: "NO_ENV_SELECTED",
-      })
-    }
   } else if (newWorkspace.type === "team") {
     updateSelectedTeam(newWorkspace)
+  }
+
+  const newSharedWorkspaceID =
+    newWorkspace.type === "team" ? newWorkspace.teamID : undefined
+
+  //update the selected environment index to no env selected
+  //if the shared workspace is changed
+  if (
+    selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+    selectedEnvironmentIndex.value.teamID !== newSharedWorkspaceID
+  ) {
+    setSelectedEnvironmentIndex({
+      type: "NO_ENV_SELECTED",
+    })
   }
 })
 

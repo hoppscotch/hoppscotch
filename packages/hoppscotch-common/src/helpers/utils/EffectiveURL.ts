@@ -93,6 +93,7 @@ export const getComputedAuthHeaders = (
       active: true,
       key: "Authorization",
       value: `Basic ${btoa(`${username}:${password}`)}`,
+      description: "",
     })
   } else if (
     request.auth.authType === "bearer" ||
@@ -111,6 +112,7 @@ export const getComputedAuthHeaders = (
           ? parseTemplateString(token, envVars, false, showKeyIfSecret)
           : token
       }`,
+      description: "",
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
@@ -126,6 +128,7 @@ export const getComputedAuthHeaders = (
               showKeyIfSecret
             )
           : request.auth.value ?? "",
+        description: "",
       })
     }
   }
@@ -164,6 +167,7 @@ export const getComputedBodyHeaders = (
       active: true,
       key: "content-type",
       value: req.body.contentType,
+      description: "",
     },
   ]
 }
@@ -249,6 +253,7 @@ export const getComputedParams = (
           active: true,
           key: parseTemplateString(req.auth.key, envVars, false, true),
           value: parseTemplateString(req.auth.value, envVars, false, true),
+          description: "",
         },
       },
     ]
@@ -263,6 +268,7 @@ export const getComputedParams = (
         active: true,
         key: "access_token",
         value: parseTemplateString(grantTypeInfo.token, envVars, false, true),
+        description: "",
       },
     },
   ]

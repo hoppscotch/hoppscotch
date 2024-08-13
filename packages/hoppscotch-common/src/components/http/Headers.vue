@@ -233,7 +233,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { computed, reactive, ref, toRefs, watch } from "vue"
+import { computed, reactive, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useNestedSetting } from "~/composables/settings"
@@ -380,8 +380,18 @@ watch(
       )
     }
 
-    if (!isEqual(newHeadersList, filteredBulkHeaders)) {
-      bulkHeaders.value = rawKeyValueEntriesToString(newHeadersList)
+    const newHeadersListKeyValuePairs = newHeadersList.map(
+      ({ key, value, active }) => ({
+        key,
+        value,
+        active,
+      })
+    )
+
+    if (!isEqual(newHeadersListKeyValuePairs, filteredBulkHeaders)) {
+      bulkHeaders.value = rawKeyValueEntriesToString(
+        newHeadersListKeyValuePairs
+      )
     }
   },
   { immediate: true }
@@ -415,22 +425,20 @@ watch(bulkHeaders, (newBulkHeaders) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  const { headers } = toRefs(props.modelValue)
+  const headers = toRef(request.value, "headers")
 
-  let headersWithoutDescriptionField = headers.value.map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ({ description, ...rest }) => rest
-  )
+  const paramKeyValuePairs = headers.value.map(({ key, value, active }) => ({
+    key,
+    value,
+    active,
+  }))
 
-  if (!isEqual(headersWithoutDescriptionField, filteredBulkHeaders)) {
-    headersWithoutDescriptionField = filteredBulkHeaders
-
-    headers.value.forEach((header, idx) => {
-      header = {
-        ...headersWithoutDescriptionField[idx],
-        description: header.description,
-      }
-    })
+  if (!isEqual(paramKeyValuePairs, filteredBulkHeaders)) {
+    headers.value = filteredBulkHeaders.map((param, idx) => ({
+      ...param,
+      // Adding a new key-value pair in the bulk edit context won't have a corresponding entry under `headers.value`, hence the fallback
+      description: headers.value[idx]?.description ?? "",
+    }))
   }
 })
 

@@ -226,7 +226,7 @@ import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { flow, pipe } from "fp-ts/function"
 import { clone, cloneDeep, isEqual } from "lodash-es"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, reactive, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useNestedSetting } from "~/composables/settings"
@@ -296,6 +296,7 @@ const workingHeaders = ref<Array<GQLHeader & { id: number }>>([
     key: "",
     value: "",
     active: true,
+    description: "",
   },
 ])
 
@@ -310,13 +311,14 @@ watch(workingHeaders, (headersList) => {
       key: "",
       value: "",
       active: true,
+      description: "",
     })
   }
 })
 
 // Sync logic between headers and working headers
 watch(
-  props.modelValue.headers,
+  () => request.value.headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
     const filteredWorkingHeaders = pipe(
@@ -347,8 +349,18 @@ watch(
       )
     }
 
-    if (!isEqual(newHeadersList, filteredBulkHeaders)) {
-      bulkHeaders.value = rawKeyValueEntriesToString(newHeadersList)
+    const newHeadersListKeyValuePairs = newHeadersList.map(
+      ({ key, value, active }) => ({
+        key,
+        value,
+        active,
+      })
+    )
+
+    if (!isEqual(newHeadersListKeyValuePairs, filteredBulkHeaders)) {
+      bulkHeaders.value = rawKeyValueEntriesToString(
+        newHeadersListKeyValuePairs
+      )
     }
   },
   { immediate: true }
@@ -383,8 +395,20 @@ watch(bulkHeaders, (newBulkHeaders) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(request.value.headers, filteredBulkHeaders)) {
-    request.value.headers = filteredBulkHeaders
+  const headers = toRef(request.value, "headers")
+
+  const paramKeyValuePairs = headers.value.map(({ key, value, active }) => ({
+    key,
+    value,
+    active,
+  }))
+
+  if (!isEqual(paramKeyValuePairs, filteredBulkHeaders)) {
+    headers.value = filteredBulkHeaders.map((param, idx) => ({
+      ...param,
+      // Adding a new key-value pair in the bulk edit context won't have a corresponding entry under `request.value.headers`, hence the fallback
+      description: headers.value[idx]?.description ?? "",
+    }))
   }
 })
 
@@ -416,6 +440,7 @@ const addHeader = () => {
     key: "",
     value: "",
     active: true,
+    description: "",
   })
 }
 
@@ -472,6 +497,7 @@ const clearContent = () => {
       key: "",
       value: "",
       active: true,
+      description: "",
     },
   ]
 

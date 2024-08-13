@@ -233,8 +233,16 @@ watch(
       )
     }
 
-    if (!isEqual(newParamsList, filteredBulkParams)) {
-      bulkParams.value = rawKeyValueEntriesToString(newParamsList)
+    const newParamsListKeyValuePairs = newParamsList.map(
+      ({ key, value, active }) => ({
+        key,
+        value,
+        active,
+      })
+    )
+
+    if (!isEqual(newParamsListKeyValuePairs, filteredBulkParams)) {
+      bulkParams.value = rawKeyValueEntriesToString(newParamsListKeyValuePairs)
     }
   },
   { immediate: true }
@@ -268,20 +276,18 @@ watch(bulkParams, (newBulkParams) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  let paramsWithoutDescriptionField = params.value.map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ({ description, ...rest }) => rest
-  )
+  const paramKeyValuePairs = params.value.map(({ key, value, active }) => ({
+    key,
+    value,
+    active,
+  }))
 
-  if (!isEqual(paramsWithoutDescriptionField, filteredBulkParams)) {
-    paramsWithoutDescriptionField = filteredBulkParams
-
-    params.value.forEach((param, idx) => {
-      param = {
-        ...paramsWithoutDescriptionField[idx],
-        description: param.description,
-      }
-    })
+  if (!isEqual(paramKeyValuePairs, filteredBulkParams)) {
+    params.value = filteredBulkParams.map((param, idx) => ({
+      ...param,
+      // Adding a new key-value pair in the bulk edit context won't have a corresponding entry under `params.value`, hence the fallback
+      description: params.value[idx]?.description ?? "",
+    }))
   }
 })
 

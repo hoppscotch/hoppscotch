@@ -79,6 +79,7 @@ const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
               key: param.name,
               value: "", // TODO: Can we do anything more ? (parse default values maybe)
               active: true,
+              description: param.description ?? "",
             }
         )
       )
@@ -119,6 +120,7 @@ const parseOpenAPIHeaders = (params: OpenAPIParamsType[]): HoppRESTHeader[] =>
               key: header.name,
               value: "", // TODO: Can we do anything more ? (parse default values maybe)
               active: true,
+              description: header.description ?? "",
             }
         )
       )

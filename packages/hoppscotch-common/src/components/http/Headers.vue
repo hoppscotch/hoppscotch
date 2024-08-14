@@ -124,7 +124,7 @@
               :placeholder="t('count.description')"
               type="text"
               readonly
-              class="flex flex-1 bg-transparent px-4"
+              class="flex flex-1 px-4 bg-transparent text-secondaryLight"
             />
 
             <span>
@@ -190,7 +190,7 @@
               :placeholder="t('count.description')"
               type="text"
               readonly
-              class="flex flex-1 bg-transparent px-4"
+              class="flex flex-1 px-4 bg-transparent text-secondaryLight"
             />
 
             <HoppButtonSecondary
@@ -568,16 +568,21 @@ const inheritedProperties = computed(() => {
         header.inheritedHeader !== undefined &&
         header.inheritedHeader.active
     )
-    .map((header, index) => ({
-      inheritedFrom: props.inheritedProperties?.headers[index].parentName,
-      source: "headers",
-      id: `header-${index}`,
-      header: {
-        key: header.inheritedHeader?.key,
-        value: header.inheritedHeader?.value,
-        active: header.inheritedHeader?.active,
-      },
-    }))
+    .map((header, index) => {
+      const { key, value, active, description } = header.inheritedHeader
+
+      return {
+        inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+        source: "headers",
+        id: `header-${index}`,
+        header: {
+          key,
+          value,
+          active,
+          description,
+        },
+      }
+    })
 
   let auth = [] as {
     inheritedFrom: string

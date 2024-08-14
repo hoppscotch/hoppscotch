@@ -181,6 +181,7 @@ const contentTypeOverride = (tab: RESTOptionTabs) => {
       key: "Content-Type",
       value: "",
       active: true,
+      description: "",
     })
   }
 }

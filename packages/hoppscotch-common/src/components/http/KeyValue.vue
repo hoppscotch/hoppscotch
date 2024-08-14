@@ -1,6 +1,6 @@
 <template>
   <div
-    class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
+    class="flex border-b divide-x draggable-content group divide-dividerLight border-dividerLight"
   >
     <span>
       <HoppButtonSecondary
@@ -57,7 +57,7 @@
     <input
       :value="description"
       :placeholder="t('count.description')"
-      class="flex flex-1 bg-transparent px-4"
+      class="flex flex-1 px-4 bg-transparent"
       type="text"
       @update:value="emit('update:description', $event.target.value)"
       @input="

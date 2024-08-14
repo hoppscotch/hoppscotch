@@ -1,9 +1,13 @@
 import { defineVersion, entityReference } from "verzod"
 import { z } from "zod"
-import { HoppRESTRequest, HoppRESTAuth } from "../../rest"
-import { HoppGQLRequest, HoppGQLAuth, GQLHeader } from "../../graphql"
-import { V1_SCHEMA } from "./1"
+
+import { HoppGQLRequest } from "../../graphql"
+import { GQLHeader } from "../../graphql/v/1"
+import { HoppGQLAuth } from "../../graphql/v/5"
+import { HoppRESTRequest } from "../../rest"
 import { HoppRESTHeaders } from "../../rest/v/1"
+import { HoppRESTAuth } from "../../rest/v/5"
+import { V1_SCHEMA } from "./1"
 
 const baseCollectionSchema = z.object({
   v: z.literal(2),
@@ -31,9 +35,10 @@ type Output = z.output<typeof baseCollectionSchema> & {
   folders: Output[]
 }
 
-export const V2_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> = baseCollectionSchema.extend({
-  folders: z.lazy(() => z.array(V2_SCHEMA)),
-})
+export const V2_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
+  baseCollectionSchema.extend({
+    folders: z.lazy(() => z.array(V2_SCHEMA)),
+  })
 
 export default defineVersion({
   initial: false,

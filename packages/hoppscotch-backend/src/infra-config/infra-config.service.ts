@@ -15,6 +15,8 @@ import {
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
 } from 'src/errors';
 import {
+  decrypt,
+  encrypt,
   throwErr,
   validateSMTPEmail,
   validateSMTPUrl,
@@ -24,6 +26,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
   getDefaultInfraConfigs,
+  getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
 } from './helper';
@@ -62,10 +65,30 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
+      // Adding missing InfraConfigs to the database (with encrypted values)
       const propsToInsert = await getMissingInfraConfigEntries();
 
       if (propsToInsert.length > 0) {
         await this.prisma.infraConfig.createMany({ data: propsToInsert });
+      }
+
+      // Encrypting previous InfraConfigs that are required to be encrypted
+      const encryptionRequiredEntries =
+        await getEncryptionRequiredInfraConfigEntries();
+
+      if (encryptionRequiredEntries.length > 0) {
+        const dbOperations = encryptionRequiredEntries.map((dbConfig) => {
+          return this.prisma.infraConfig.update({
+            where: { name: dbConfig.name },
+            data: { value: encrypt(dbConfig.value), isEncrypted: true },
+          });
+        });
+
+        await Promise.allSettled(dbOperations);
+      }
+
+      // Restart the app if needed
+      if (propsToInsert.length > 0 || encryptionRequiredEntries.length > 0) {
         stopApp();
       }
     } catch (error) {
@@ -76,6 +99,7 @@ export class InfraConfigService implements OnModuleInit {
         // Prisma error code for 'Table does not exist'
         throwErr(DATABASE_TABLE_NOT_EXIST);
       } else {
+        console.log(error);
         throwErr(error);
       }
     }
@@ -87,9 +111,13 @@ export class InfraConfigService implements OnModuleInit {
    * @returns InfraConfig model
    */
   cast(dbInfraConfig: DBInfraConfig) {
+    const plainValue = dbInfraConfig.isEncrypted
+      ? decrypt(dbInfraConfig.value)
+      : dbInfraConfig.value;
+
     return <InfraConfig>{
       name: dbInfraConfig.name,
-      value: dbInfraConfig.value ?? '',
+      value: plainValue ?? '',
     };
   }
 
@@ -99,10 +127,16 @@ export class InfraConfigService implements OnModuleInit {
    */
   async getInfraConfigsMap() {
     const infraConfigs = await this.prisma.infraConfig.findMany();
+
     const infraConfigMap: Record<string, string> = {};
     infraConfigs.forEach((config) => {
-      infraConfigMap[config.name] = config.value;
+      if (config.isEncrypted) {
+        infraConfigMap[config.name] = decrypt(config.value);
+      } else {
+        infraConfigMap[config.name] = config.value;
+      }
     });
+
     return infraConfigMap;
   }
 
@@ -118,9 +152,14 @@ export class InfraConfigService implements OnModuleInit {
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
     try {
+      const { isEncrypted } = await this.prisma.infraConfig.findUnique({
+        where: { name },
+        select: { isEncrypted: true },
+      });
+
       const infraConfig = await this.prisma.infraConfig.update({
         where: { name },
-        data: { value },
+        data: { value: isEncrypted ? encrypt(value) : value },
       });
 
       if (restartEnabled) stopApp();
@@ -146,11 +185,23 @@ export class InfraConfigService implements OnModuleInit {
     if (E.isLeft(isValidate)) return E.left(isValidate.left);
 
     try {
+      const dbInfraConfig = await this.prisma.infraConfig.findMany({
+        select: { name: true, isEncrypted: true },
+      });
+
       await this.prisma.$transaction(async (tx) => {
         for (let i = 0; i < infraConfigs.length; i++) {
+          const isEncrypted = dbInfraConfig.find(
+            (p) => p.name === infraConfigs[i].name,
+          )?.isEncrypted;
+
           await tx.infraConfig.update({
             where: { name: infraConfigs[i].name },
-            data: { value: infraConfigs[i].value },
+            data: {
+              value: isEncrypted
+                ? encrypt(infraConfigs[i].value)
+                : infraConfigs[i].value,
+            },
           });
         }
       });

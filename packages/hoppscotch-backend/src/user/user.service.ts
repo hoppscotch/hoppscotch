@@ -16,7 +16,7 @@ import {
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { stringToJson, taskEitherValidateArraySeq } from 'src/utils';
+import { encrypt, stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
 import { User as DbUser } from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -208,8 +208,8 @@ export class UserService {
       data: {
         provider: profile.provider,
         providerAccountId: profile.id,
-        providerRefreshToken: refreshToken ? refreshToken : null,
-        providerAccessToken: accessToken ? accessToken : null,
+        providerRefreshToken: refreshToken ? encrypt(refreshToken) : null,
+        providerAccessToken: accessToken ? encrypt(accessToken) : null,
         user: {
           connect: {
             uid: user.uid,

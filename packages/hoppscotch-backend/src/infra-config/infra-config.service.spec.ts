@@ -28,6 +28,7 @@ const dbInfraConfigs: dbInfraConfig[] = [
     id: '3',
     name: InfraConfigEnum.GOOGLE_CLIENT_ID,
     value: 'abcdefghijkl',
+    isEncrypted: false,
     active: true,
     createdOn: INITIALIZED_DATE_CONST,
     updatedOn: INITIALIZED_DATE_CONST,
@@ -36,6 +37,7 @@ const dbInfraConfigs: dbInfraConfig[] = [
     id: '4',
     name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
     value: 'google',
+    isEncrypted: false,
     active: true,
     createdOn: INITIALIZED_DATE_CONST,
     updatedOn: INITIALIZED_DATE_CONST,
@@ -62,10 +64,15 @@ describe('InfraConfigService', () => {
       const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
       const value = 'true';
 
+      // @ts-ignore
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
+        isEncrypted: false,
+      });
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
         id: '',
         name,
         value,
+        isEncrypted: false,
         active: true,
         createdOn: new Date(),
         updatedOn: new Date(),
@@ -82,10 +89,15 @@ describe('InfraConfigService', () => {
       const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
       const value = 'true';
 
+      // @ts-ignore
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
+        isEncrypted: false,
+      });
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
         id: '',
         name,
         value,
+        isEncrypted: false,
         active: true,
         createdOn: new Date(),
         updatedOn: new Date(),
@@ -102,10 +114,15 @@ describe('InfraConfigService', () => {
       const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
       const value = 'true';
 
+      // @ts-ignore
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
+        isEncrypted: false,
+      });
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
         id: '',
         name,
         value,
+        isEncrypted: false,
         active: true,
         createdOn: new Date(),
         updatedOn: new Date(),
@@ -119,6 +136,11 @@ describe('InfraConfigService', () => {
     it('should pass correct params to prisma update', async () => {
       const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
       const value = 'true';
+
+      // @ts-ignore
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
+        isEncrypted: false,
+      });
 
       jest.spyOn(helper, 'stopApp').mockReturnValueOnce();
 
@@ -151,6 +173,7 @@ describe('InfraConfigService', () => {
         id: '',
         name,
         value,
+        isEncrypted: false,
         active: true,
         createdOn: new Date(),
         updatedOn: new Date(),

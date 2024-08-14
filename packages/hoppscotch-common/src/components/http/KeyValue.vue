@@ -144,14 +144,14 @@ const emit = defineEmits<{
   (e: "updateEntity", { index, payload }: { index: number; payload: any }): void
 }>()
 
-function updateEntity(index: number, payload: any) {
+const updateEntity = (index: number, payload: any) => {
   emit("updateEntity", {
     index,
     payload,
   })
 }
 
-function deleteEntity(index: number) {
+const deleteEntity = (index: number) => {
   emit("deleteEntity", index)
 }
 </script>

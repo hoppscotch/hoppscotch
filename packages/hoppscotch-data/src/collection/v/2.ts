@@ -9,7 +9,7 @@ import { HoppRESTHeaders } from "../../rest/v/1"
 import { HoppRESTAuth } from "../../rest/v/5"
 import { V1_SCHEMA } from "./1"
 
-const baseCollectionSchema = z.object({
+export const v2_baseCollectionSchema = z.object({
   v: z.literal(2),
   id: z.optional(z.string()), // For Firestore ID data
 
@@ -27,16 +27,16 @@ const baseCollectionSchema = z.object({
   headers: z.union([HoppRESTHeaders, z.array(GQLHeader)]),
 })
 
-type Input = z.input<typeof baseCollectionSchema> & {
+type Input = z.input<typeof v2_baseCollectionSchema> & {
   folders: Input[]
 }
 
-type Output = z.output<typeof baseCollectionSchema> & {
+type Output = z.output<typeof v2_baseCollectionSchema> & {
   folders: Output[]
 }
 
 export const V2_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
-  baseCollectionSchema.extend({
+  v2_baseCollectionSchema.extend({
     folders: z.lazy(() => z.array(V2_SCHEMA)),
   })
 

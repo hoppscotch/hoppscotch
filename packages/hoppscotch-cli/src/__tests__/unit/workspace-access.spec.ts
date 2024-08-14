@@ -15,9 +15,6 @@ import {
 } from "./fixtures/workspace-access.mock";
 
 import TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK from "../e2e/fixtures/collections/multiple-child-collections-auth-headers-coll.json";
-import { HoppCollection } from "@hoppscotch/data";
-import { entityReference } from "verzod";
-import { z } from "zod";
 
 describe("workspace-access", () => {
   describe("transformWorkspaceCollection", () => {

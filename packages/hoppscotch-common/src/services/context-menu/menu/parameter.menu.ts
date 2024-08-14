@@ -92,7 +92,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
     // add the parameters to the current request parameters
     tabService.currentActiveTab.value.document.request.params = [
       ...tabService.currentActiveTab.value.document.request.params,
-      ...queryParams,
+      ...queryParams.map((param) => ({ ...param, description: "" })),
     ]
 
     if (newURL) {

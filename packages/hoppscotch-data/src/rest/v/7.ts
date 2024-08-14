@@ -35,7 +35,7 @@ export default defineVersion({
   schema: V7_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V6_SCHEMA>) {
-    const params = old.headers.map((param) => {
+    const params = old.params.map((param) => {
       return {
         ...param,
         description: "",

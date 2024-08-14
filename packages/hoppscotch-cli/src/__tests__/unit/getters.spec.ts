@@ -61,6 +61,7 @@ describe("getters", () => {
               active: true,
               key: "<<UNKNOWN_KEY>>",
               value: "<<UNKNOWN_VALUE>>",
+              description: "",
             },
           ],
           environmentVariables
@@ -71,7 +72,7 @@ describe("getters", () => {
     test("Inactive list of meta-data", () => {
       expect(
         getEffectiveFinalMetaData(
-          [{ active: false, key: "KEY", value: "<<PARAM>>" }],
+          [{ active: false, key: "KEY", value: "<<PARAM>>", description: "" }],
           environmentVariables
         )
       ).toSubsetEqualRight([]);
@@ -80,7 +81,7 @@ describe("getters", () => {
     test("Active list of meta-data", () => {
       expect(
         getEffectiveFinalMetaData(
-          [{ active: true, key: "PARAM", value: "<<PARAM>>" }],
+          [{ active: true, key: "PARAM", value: "<<PARAM>>", description: "" }],
           environmentVariables
         )
       ).toSubsetEqualRight([

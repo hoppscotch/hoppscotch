@@ -12,7 +12,7 @@ import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
-import { HoppRESTReqBody } from "./v/6"
+import V6_VERSION, { HoppRESTReqBody } from "./v/6"
 
 import { HoppRESTHeaders, HoppRESTParams } from "./v/7"
 import V7_VERSION from "./v/7"
@@ -64,6 +64,7 @@ export const HoppRESTRequest = createVersionedEntity({
     3: V3_VERSION,
     4: V4_VERSION,
     5: V5_VERSION,
+    6: V6_VERSION,
     7: V7_VERSION,
   },
   getVersion(data) {

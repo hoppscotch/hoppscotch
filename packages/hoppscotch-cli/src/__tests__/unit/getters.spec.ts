@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from "vitest";
 
 import {
   CollectionSchemaVersion,
-  Environment,
   HoppCollection,
   getDefaultRESTRequest,
 } from "@hoppscotch/data";
@@ -13,6 +12,7 @@ import { DEFAULT_DURATION_PRECISION } from "../../utils/constants";
 import {
   getDurationInSeconds,
   getEffectiveFinalMetaData,
+  getResolvedVariables,
   getResourceContents,
 } from "../../utils/getters";
 import * as mutators from "../../utils/mutators";
@@ -43,13 +43,14 @@ describe("getters", () => {
   });
 
   describe("getEffectiveFinalMetaData", () => {
-    const DEFAULT_ENV = <Environment>{
-      name: "name",
-      variables: [{ key: "PARAM", value: "parsed_param" }],
-    };
+    const environmentVariables = [
+      { key: "PARAM", value: "parsed_param", secret: false },
+    ];
 
     test("Empty list of meta-data", () => {
-      expect(getEffectiveFinalMetaData([], DEFAULT_ENV)).toSubsetEqualRight([]);
+      expect(
+        getEffectiveFinalMetaData([], environmentVariables)
+      ).toSubsetEqualRight([]);
     });
 
     test("Non-empty active list of meta-data with unavailable ENV", () => {
@@ -62,7 +63,7 @@ describe("getters", () => {
               value: "<<UNKNOWN_VALUE>>",
             },
           ],
-          DEFAULT_ENV
+          environmentVariables
         )
       ).toSubsetEqualRight([{ active: true, key: "", value: "" }]);
     });
@@ -71,7 +72,7 @@ describe("getters", () => {
       expect(
         getEffectiveFinalMetaData(
           [{ active: false, key: "KEY", value: "<<PARAM>>" }],
-          DEFAULT_ENV
+          environmentVariables
         )
       ).toSubsetEqualRight([]);
     });
@@ -80,7 +81,7 @@ describe("getters", () => {
       expect(
         getEffectiveFinalMetaData(
           [{ active: true, key: "PARAM", value: "<<PARAM>>" }],
-          DEFAULT_ENV
+          environmentVariables
         )
       ).toSubsetEqualRight([
         { active: true, key: "PARAM", value: "parsed_param" },
@@ -384,6 +385,103 @@ describe("getters", () => {
         ).toBeCalled();
         expect(mutators.readJsonFile).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("getResolvedVariables", () => {
+    const requestVariables = [
+      {
+        key: "SHARED_KEY_I",
+        value: "request-variable-shared-value-I",
+        active: true,
+      },
+      {
+        key: "SHARED_KEY_II",
+        value: "",
+        active: true,
+      },
+      {
+        key: "REQUEST_VAR_III",
+        value: "request-variable-value-III",
+        active: true,
+      },
+      {
+        key: "REQUEST_VAR_IV",
+        value: "request-variable-value-IV",
+        active: false,
+      },
+      {
+        key: "REQUEST_VAR_V",
+        value: "request-variable-value-V",
+        active: false,
+      },
+    ];
+
+    const environmentVariables = [
+      {
+        key: "SHARED_KEY_I",
+        value: "environment-variable-shared-value-I",
+        secret: false,
+      },
+      {
+        key: "SHARED_KEY_II",
+        value: "environment-variable-shared-value-II",
+        secret: false,
+      },
+      {
+        key: "ENV_VAR_III",
+        value: "environment-variable-value-III",
+        secret: false,
+      },
+      {
+        key: "ENV_VAR_IV",
+        value: "environment-variable-value-IV",
+        secret: false,
+      },
+      {
+        key: "ENV_VAR_V",
+        value: "environment-variable-value-V",
+        secret: false,
+      },
+    ];
+
+    test("Filters request variables by active status and value fields, then remove environment variables sharing the same keys", () => {
+      const expected = [
+        {
+          key: "SHARED_KEY_I",
+          value: "request-variable-shared-value-I",
+          secret: false,
+        },
+        {
+          key: "REQUEST_VAR_III",
+          value: "request-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "SHARED_KEY_II",
+          value: "environment-variable-shared-value-II",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_III",
+          value: "environment-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_IV",
+          value: "environment-variable-value-IV",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_V",
+          value: "environment-variable-value-V",
+          secret: false,
+        },
+      ];
+
+      expect(
+        getResolvedVariables(requestVariables, environmentVariables)
+      ).toEqual(expected);
     });
   });
 });

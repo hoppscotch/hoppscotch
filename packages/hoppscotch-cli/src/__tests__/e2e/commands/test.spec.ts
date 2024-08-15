@@ -335,6 +335,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
             "secret-envs-persistence-scripting-envs.json",
             "environment"
           );
+
           const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
 
           const { error } = await runCLI(args);
@@ -343,6 +344,45 @@ describe("hopp test [options] <file_path_or_id>", () => {
       },
       { timeout: 20000 }
     );
+
+    describe("Request variables", () => {
+      test("Picks active request variables and ignores inactive entries", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "request-vars-coll.json",
+          "collection"
+        );
+
+        const args = `test ${COLL_PATH}`;
+
+        const { error } = await runCLI(args);
+        expect(error).toBeNull();
+      });
+
+      test("Supports the usage of request variables along with environment variables", async () => {
+        const env = {
+          ...process.env,
+          secretBasicAuthUsernameEnvVar: "username",
+          secretBasicAuthPasswordEnvVar: "password",
+        };
+
+        const COLL_PATH = getTestJsonFilePath(
+          "request-vars-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "request-vars-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+
+        const { error, stdout } = await runCLI(args, { env });
+        expect(stdout).toContain(
+          "https://echo.hoppscotch.io/********/********"
+        );
+        expect(error).toBeNull();
+      });
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", () => {

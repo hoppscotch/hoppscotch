@@ -1,8 +1,8 @@
 import {
-  Environment,
-  HoppCollection,
+  EnvironmentVariable,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTRequestVariables,
   parseTemplateStringE,
 } from "@hoppscotch/data";
 import axios, { AxiosError } from "axios";
@@ -58,12 +58,12 @@ export const getColorStatusCode = (
  * Replaces all template-string with their effective ENV values to generate effective
  * request headers/parameters meta-data.
  * @param metaData Headers/parameters on which ENVs will be applied.
- * @param environment Provides ENV variables for parsing template-string.
+ * @param resolvedVariables Provides ENV variables for parsing template-string.
  * @returns Active, non-empty-key, parsed headers/parameters pairs.
  */
 export const getEffectiveFinalMetaData = (
   metaData: HoppRESTHeader[] | HoppRESTParam[],
-  environment: Environment
+  resolvedVariables: EnvironmentVariable[]
 ) =>
   pipe(
     metaData,
@@ -72,11 +72,13 @@ export const getEffectiveFinalMetaData = (
      * Selecting only non-empty and active pairs.
      */
     A.filter(({ key, active }) => !S.isEmpty(key) && active),
-    A.map(({ key, value }) => ({
-      active: true,
-      key: parseTemplateStringE(key, environment.variables),
-      value: parseTemplateStringE(value, environment.variables),
-    })),
+    A.map(({ key, value }) => {
+      return {
+        active: true,
+        key: parseTemplateStringE(key, resolvedVariables),
+        value: parseTemplateStringE(value, resolvedVariables),
+      };
+    }),
     E.fromPredicate(
       /**
        * Check if every key-value is right either. Else return HoppCLIError with
@@ -252,4 +254,31 @@ export const getResourceContents = async (
   }
 
   return contents;
+};
+
+/**
+ * Processes incoming request variables and environment variables and returns a list
+ * where active request variables are picked and prioritised over the supplied environment variables.
+ * Falls back to environment variables for an empty request variable.
+ *
+ * @param {HoppRESTRequestVariables} requestVariables - Incoming request variables.
+ * @param {EnvironmentVariable[]} environmentVariables - Incoming environment variables.
+ * @returns {EnvironmentVariable[]} The resolved list of variables that conforms to the shape of environment variables.
+ */
+export const getResolvedVariables = (
+  requestVariables: HoppRESTRequestVariables,
+  environmentVariables: EnvironmentVariable[]
+): EnvironmentVariable[] => {
+  const activeRequestVariables = requestVariables
+    .filter(({ active, value }) => active && value)
+    .map(({ key, value }) => ({ key, value, secret: false }));
+
+  const requestVariableKeys = activeRequestVariables.map(({ key }) => key);
+
+  // Request variables have higher priority, hence filtering out environment variables with the same keys
+  const filteredEnvironmentVariables = environmentVariables.filter(
+    ({ key }) => !requestVariableKeys.includes(key)
+  );
+
+  return [...activeRequestVariables, ...filteredEnvironmentVariables];
 };

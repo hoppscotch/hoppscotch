@@ -4,7 +4,7 @@ import {
   HoppRESTRequest,
   RESTReqSchemaVersion,
 } from "@hoppscotch/data";
-import axios, { AxiosResponse, Method } from "axios";
+import axios, { Method } from "axios";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";

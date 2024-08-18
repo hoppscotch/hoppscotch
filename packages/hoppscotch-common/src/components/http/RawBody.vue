@@ -143,7 +143,7 @@ watch(rawParamsBody, (newVal) => {
 
 // propagate the edits from codemirror back to the body
 watch(codemirrorValue, (updatedValue) => {
-  if (updatedValue && updatedValue !== rawParamsBody.value) {
+  if (updatedValue !== undefined && updatedValue !== rawParamsBody.value) {
     rawParamsBody.value = updatedValue
   }
 })

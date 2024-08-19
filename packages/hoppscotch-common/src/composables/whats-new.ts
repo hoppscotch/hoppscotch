@@ -44,7 +44,8 @@ export function useWhatsNewDialog() {
           },
           position: "bottom-left",
           style: {
-            bottom: "32px",
+            bottom: "15px",
+            left: "30px",
           },
           duration: Infinity,
         })

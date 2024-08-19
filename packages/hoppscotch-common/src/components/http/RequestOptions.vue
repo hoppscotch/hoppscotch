@@ -16,6 +16,7 @@
       v-if="properties?.includes('bodyParams') ?? true"
       :id="'bodyParams'"
       :label="`${t('tab.body')}`"
+      :indicator="isBodyFilled"
     >
       <HttpBody
         v-model:headers="request.headers"
@@ -152,6 +153,10 @@ const newActiveRequestVariablesCount = computed(() => {
     (x) => x.active && (x.key || x.value)
   ).length
   return count ? count : null
+})
+
+const isBodyFilled = computed(() => {
+  return Boolean(request.value.body.body && request.value.body.body.length > 0)
 })
 
 defineActionHandler("request.open-tab", ({ tab }) => {

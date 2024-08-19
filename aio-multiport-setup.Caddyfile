@@ -1,6 +1,6 @@
 {
-  admin off
-  persist_config off
+	admin off
+	persist_config off
 }
 
 :3000 {

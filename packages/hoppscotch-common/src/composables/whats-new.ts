@@ -43,6 +43,10 @@ export function useWhatsNewDialog() {
             version: hoppscotchCommonPkgVersion,
           },
           position: "bottom-left",
+          style: {
+            bottom: "15px",
+            left: "30px",
+          },
           duration: Infinity,
         })
       }

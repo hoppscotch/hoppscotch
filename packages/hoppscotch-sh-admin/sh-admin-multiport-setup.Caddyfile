@@ -1,5 +1,6 @@
 {
   admin off
+  persist_config off
 }
 
 :80 :3100 {

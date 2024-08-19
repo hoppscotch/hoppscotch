@@ -163,16 +163,16 @@
       "label_auth_code": "رمز Authorization",
       "label_client_credentials": "بيانات اعتماد العميل"
     },
-  "pass_key_by": "تمرير بواسطة",
-  "pass_by_query_params_label": "معلمات الاستعلام",
-  "pass_by_headers_label": "الرؤوس",
-  "password": "كلمة المرور",
-  "save_to_inherit": "يرجى حفظ هذا الطلب في أي مجموعة لتوريث Authorization",
-  "token": "رمز الوصول",
-  "type": "نوع Authorization",
-  "username": "اسم المستخدم"
-},
- "collection": {
+    "pass_key_by": "تمرير بواسطة",
+    "pass_by_query_params_label": "معلمات الاستعلام",
+    "pass_by_headers_label": "الرؤوس",
+    "password": "كلمة المرور",
+    "save_to_inherit": "يرجى حفظ هذا الطلب في أي مجموعة لتوريث Authorization",
+    "token": "رمز الوصول",
+    "type": "نوع Authorization",
+    "username": "اسم المستخدم"
+  },
+  "collection": {
     "created": "تم إنشاء المجموعة",
     "different_parent": "لا يمكن إعادة ترتيب المجموعة مع والد مختلف",
     "edit": "تحرير المجموعة",
@@ -197,7 +197,7 @@
     "details": "تفاصيل",
     "select_team": "اختر فريقًا",
     "team_collections": "مجموعات الفريق"
-},
+  },
   "confirm": {
     "close_unsaved_tab": "هل أنت متأكد أنك تريد إغلاق هذه التبويبة؟",
     "close_unsaved_tabs": "هل أنت متأكد أنك تريد إغلاق جميع علامات التبويب سيتم فقدان {count} من التبويبات غير المحفوظة.",
@@ -215,12 +215,12 @@
     "save_unsaved_tab": "هل تريد حفظ التغييرات التي أجريتها في هذه التبويبة؟",
     "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟",
     "delete_access_token": "هل أنت متأكد أنك تريد حذف رمز الوصول {tokenLabel}؟"
-},
-"context_menu": {
-  "add_parameters": "إضافة إلى parameters",
-  "open_request_in_new_tab": "فتح الطلب في تبويبة جديدة",
-  "set_environment_variable": "تعيين كمتغير"
-},
+  },
+  "context_menu": {
+    "add_parameters": "إضافة إلى parameters",
+    "open_request_in_new_tab": "فتح الطلب في تبويبة جديدة",
+    "set_environment_variable": "تعيين كمتغير"
+  },
   "cookies": {
     "modal": {
       "cookie_expires": "تنتهي في",
@@ -280,45 +280,45 @@
     "access_tokens": "رموز الوصول فارغة",
     "shortcodes": "الرموز القصيرة فارغة"
   },
-    "environment": {
-      "add_to_global": "أضف إلى العام",
-      "added": "تمت إضافة البيئة",
-      "create_new": "إنشاء بيئة جديدة",
-      "created": "تم إنشاء البيئة",
-      "deleted": "تم حذف البيئة",
-      "duplicated": "تم تكرار البيئة",
-      "edit": "تحرير البيئة",
-      "empty_variables": "لا توجد متغيرات",
-      "global": "عام",
-      "global_variables": "المتغيرات العامة",
-      "import_or_create": "استيراد أو إنشاء بيئة",
-      "invalid_name": "يرجى كنابة اسم صحيح للبيئة",
-      "list": "متغيرات البيئة",
-      "my_environments": "البيئات الخاصة بي",
-      "name": "الاسم",
-      "nested_overflow": "المتغيرات البيئية المتداخلة محدودة بـ 10 مستويات",
-      "new": "بيئة جديدة",
-      "no_active_environment": "لا توجد بيئة نشطة",
-      "no_environment": "لا توجد بيئة",
-      "no_environment_description": "لم يتم اختيار أي بيئات. اختر ما تريد القيام به مع المتغيرات التالية.",
-      "quick_peek": "نظرة سريعة على البيئة",
-      "replace_with_variable": "استبدال بمتغير",
-      "scope": "نطاق",
-      "secrets": "الأسرار",
-      "secret_value": "القيمة السرية",
-      "select": "اختر البيئة",
-      "set": "تعيين البيئة",
-      "set_as_environment": "تعيين كبيئة",
-      "team_environments": "بيئات العمل",
-      "title": "البيئات",
-      "updated": "تم تحديث البيئة",
-      "value": "القيمة",
-      "variable": "متغير",
-      "variables": "المتغيرات",
-      "variable_list": "قائمة المتغيرات",
-      "properties": "خصائص البيئة",
-      "details": "التفاصيل"
-    },
+  "environment": {
+    "add_to_global": "أضف إلى العام",
+    "added": "تمت إضافة البيئة",
+    "create_new": "إنشاء بيئة جديدة",
+    "created": "تم إنشاء البيئة",
+    "deleted": "تم حذف البيئة",
+    "duplicated": "تم تكرار البيئة",
+    "edit": "تحرير البيئة",
+    "empty_variables": "لا توجد متغيرات",
+    "global": "عام",
+    "global_variables": "المتغيرات العامة",
+    "import_or_create": "استيراد أو إنشاء بيئة",
+    "invalid_name": "يرجى كنابة اسم صحيح للبيئة",
+    "list": "متغيرات البيئة",
+    "my_environments": "البيئات الخاصة بي",
+    "name": "الاسم",
+    "nested_overflow": "المتغيرات البيئية المتداخلة محدودة بـ 10 مستويات",
+    "new": "بيئة جديدة",
+    "no_active_environment": "لا توجد بيئة نشطة",
+    "no_environment": "لا توجد بيئة",
+    "no_environment_description": "لم يتم اختيار أي بيئات. اختر ما تريد القيام به مع المتغيرات التالية.",
+    "quick_peek": "نظرة سريعة على البيئة",
+    "replace_with_variable": "استبدال بمتغير",
+    "scope": "نطاق",
+    "secrets": "الأسرار",
+    "secret_value": "القيمة السرية",
+    "select": "اختر البيئة",
+    "set": "تعيين البيئة",
+    "set_as_environment": "تعيين كبيئة",
+    "team_environments": "بيئات العمل",
+    "title": "البيئات",
+    "updated": "تم تحديث البيئة",
+    "value": "القيمة",
+    "variable": "متغير",
+    "variables": "المتغيرات",
+    "variable_list": "قائمة المتغيرات",
+    "properties": "خصائص البيئة",
+    "details": "التفاصيل"
+  },
   "error": {
     "authproviders_load_error": "غير قادر على تحميل مقدمي Authorization",
     "browser_support_sse": "يبدو أن هذا المتصفح لا يدعم Server Sent Events.",
@@ -357,7 +357,7 @@
     "generate_access_token": "حدث خطأ أثناء توليد رمز الوصول",
     "delete_access_token": "حدث خطأ أثناء حذف رمز الوصول"
   },
-   "export": {
+  "export": {
     "as_json": "تصدير كملف JSON",
     "create_secret_gist": "إنشاء Gist سري",
     "create_secret_gist_tooltip_text": "تصدير كـ Gist سري",
@@ -460,7 +460,7 @@
     "file_size_limit_exceeded_warning_single_file": "الملف المختار حاليًا يتجاوز الحد الموصى به وهو 10MB. يرجى اختيار ملف آخر.",
     "success": "تم الاستيراد بنجاح"
   },
- "inspections": {
+  "inspections": {
     "description": "فحص الأخطاء المحتملة",
     "environment": {
       "add_environment": "إضافة إلى البيئة",
@@ -468,16 +468,16 @@
       "empty_value": "قيمة البيئة فارغة للمتغير '{variable}'",
       "not_found": "لم يتم العثور على متغير البيئة “{environment}”."
     },
-  "header": {
-    "cookie": "لا يسمح المتصفح لـ هوبسكوتش بتعيين عنوان كوكي. بينما نعمل على تطبيق هوبسكوتش لسطح المكتب (قريبًا)، يرجى استخدام عنوان Authorization بدلاً من ذلك."
-  },
-  "response": {
-    "401_error": "يرجى التحقق من بيانات اعتماد المصادقة الخاصة بك.",
-    "404_error": "يرجى التحقق من عنوان URL للطلب ونوع الطريقة.",
-    "cors_error": "يرجى التحقق من تكوين مشاركة الموارد عبر المواقع.",
-    "default_error": "يرجى التحقق من طلبك.",
-    "network_error": "يرجى التحقق من اتصال الشبكة الخاص بك."
-  },
+    "header": {
+      "cookie": "لا يسمح المتصفح لـ هوبسكوتش بتعيين عنوان كوكي. بينما نعمل على تطبيق هوبسكوتش لسطح المكتب (قريبًا)، يرجى استخدام عنوان Authorization بدلاً من ذلك."
+    },
+    "response": {
+      "401_error": "يرجى التحقق من بيانات اعتماد المصادقة الخاصة بك.",
+      "404_error": "يرجى التحقق من عنوان URL للطلب ونوع الطريقة.",
+      "cors_error": "يرجى التحقق من تكوين مشاركة الموارد عبر المواقع.",
+      "default_error": "يرجى التحقق من طلبك.",
+      "network_error": "يرجى التحقق من اتصال الشبكة الخاص بك."
+    },
     "title": "Inspector",
     "url": {
       "extension_not_installed": "الاضافة غير مثبتة",
@@ -492,7 +492,7 @@
     "column": "تصميم عمودي",
     "name": "التصميم",
     "row": "تصميم أفقي"
-},
+  },
   "modal": {
     "close_unsaved_tab": "لديك تغييرات غير محفوظة",
     "collections": "المجموعات",
@@ -501,37 +501,37 @@
     "edit_request": "تحرير الطلب",
     "import_export": "استيراد وتصدير",
     "share_request": "مشاركة الطلب"
-},
- "mqtt": {
-  "already_subscribed": "أنت مشترك بالفعل في هذا الموضوع.",
-  "clean_session": "جلسة نظيفة",
-  "clear_input": "مسح المدخلات",
-  "clear_input_on_send": "مسح المدخلات عند الإرسال",
-  "client_id": "رقم العميل",
-  "color": "اختر لونًا",
-  "communication": "تواصل",
-  "connection_config": "تكوين الاتصال",
-  "connection_not_authorized": "هذا الاتصال بـ MQTT لا يستخدم أي مصادقة.",
-  "invalid_topic": "يرجى تقديم موضوع للاشتراك",
-  "keep_alive": "الحفاظ على الاتصال",
-  "log": "سجل",
-  "lw_message": "رسالة آخر مشيئة",
-  "lw_qos": "آخر مشيئة QoS",
-  "lw_retain": "آخر مشيئة احتفاظ",
-  "lw_topic": "موضوع آخر مشيئة",
-  "message": "رسالة",
-  "new": "اشتراك جديد",
-  "not_connected": "يرجى بدء اتصال MQTT أولاً.",
-  "publish": "نشر",
-  "qos": "QoS",
-  "ssl": "SSL",
-  "subscribe": "اشتراك",
-  "topic": "موضوع",
-  "topic_name": "اسم الموضوع",
-  "topic_title": "نشر / اشتراك الموضوع",
-  "unsubscribe": "إلغاء الاشتراك",
-  "url": "URL"
-},
+  },
+  "mqtt": {
+    "already_subscribed": "أنت مشترك بالفعل في هذا الموضوع.",
+    "clean_session": "جلسة نظيفة",
+    "clear_input": "مسح المدخلات",
+    "clear_input_on_send": "مسح المدخلات عند الإرسال",
+    "client_id": "رقم العميل",
+    "color": "اختر لونًا",
+    "communication": "تواصل",
+    "connection_config": "تكوين الاتصال",
+    "connection_not_authorized": "هذا الاتصال بـ MQTT لا يستخدم أي مصادقة.",
+    "invalid_topic": "يرجى تقديم موضوع للاشتراك",
+    "keep_alive": "الحفاظ على الاتصال",
+    "log": "سجل",
+    "lw_message": "رسالة آخر مشيئة",
+    "lw_qos": "آخر مشيئة QoS",
+    "lw_retain": "آخر مشيئة احتفاظ",
+    "lw_topic": "موضوع آخر مشيئة",
+    "message": "رسالة",
+    "new": "اشتراك جديد",
+    "not_connected": "يرجى بدء اتصال MQTT أولاً.",
+    "publish": "نشر",
+    "qos": "QoS",
+    "ssl": "SSL",
+    "subscribe": "اشتراك",
+    "topic": "موضوع",
+    "topic_name": "اسم الموضوع",
+    "topic_title": "نشر / اشتراك الموضوع",
+    "unsubscribe": "إلغاء الاشتراك",
+    "url": "URL"
+  },
   "navigation": {
     "doc": "المستندات",
     "graphql": "GraphQL",
@@ -593,7 +593,7 @@
     "override": "Override",
     "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
-    "parameter_list":  "قائمة Parameters",
+    "parameter_list": "قائمة Parameters",
     "parameters": "Parameters",
     "path": "طريق",
     "payload": "Payload",
@@ -936,7 +936,7 @@
     "team": "تواصل مع الفريق"
   },
   "tab": {
-   "authorization": "Authorization",
+    "authorization": "Authorization",
     "body": "Body",
     "close": "إغلاق",
     "close_others": "إغلاق كل التبويبات الأخرى",
@@ -1057,7 +1057,7 @@
     "login_to_continue_description": "تحتاج إلى تسجيل الدخول للوصول إلى هذه النسخة من هوبسكوتش للمؤسسات.",
     "error_fetching_site_protection_status": "حدث خطأ أثناء جلب حالة حماية الموقع"
   },
-  "access_tokens":{
+  "access_tokens": {
     "tab_title": "الرموز",
     "section_title": "الرموز الشخصية",
     "section_description": "تساعدك الرموز الشخصية على ربط CLI بحسابك في هوبسكوتش",

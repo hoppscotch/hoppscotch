@@ -1,3 +1,7 @@
+{
+  admin off
+}
+
 :3000 {
 	respond 404
 }

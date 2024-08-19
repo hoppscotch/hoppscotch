@@ -1,3 +1,7 @@
+{
+  admin off
+}
+
 :3000 {
 	try_files {path} /
 	root * /site/selfhost-web

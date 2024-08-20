@@ -48,7 +48,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
  * @param showKeyIfSecret Whether to show the key if the value is a secret
  * @returns The list of headers
  */
-export const getComputedAuthHeaders = (
+export const getComputedAuthHeaders = async (
   envVars: Environment["variables"],
   req?:
     | HoppRESTRequest
@@ -133,7 +133,32 @@ export const getComputedAuthHeaders = (
       })
     }
   } else if (request.auth.authType === "aws-signature") {
-    // TODO: add headers for aws-signature authentication
+    const { addTo } = request.auth
+    if (addTo === "HEADERS") {
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+      const { method, endpoint } = req as HoppRESTRequest
+      const signer = new AwsV4Signer({
+        method: method,
+        datetime: amzDate,
+        accessKeyId: parseTemplateString(request.auth.accessKey, envVars),
+        secretAccessKey: parseTemplateString(request.auth.secretKey, envVars),
+        region:
+          parseTemplateString(request.auth.region, envVars) ?? "us-east-1",
+        service: parseTemplateString(request.auth.serviceName, envVars),
+        url: parseTemplateString(endpoint, envVars),
+      })
+
+      const sign = await signer.sign()
+
+      sign.headers.forEach((x, k) => {
+        headers.push({
+          active: true,
+          key: k,
+          value: x,
+        })
+      })
+    }
   }
 
   return headers
@@ -201,12 +226,14 @@ export const getComputedHeaders = async (
   showKeyIfSecret = false
 ): Promise<ComputedHeader[]> => {
   return [
-    ...getComputedAuthHeaders(
-      envVars,
-      req,
-      undefined,
-      parse,
-      showKeyIfSecret
+    ...(
+      await getComputedAuthHeaders(
+        envVars,
+        req,
+        undefined,
+        parse,
+        showKeyIfSecret
+      )
     ).map((header) => ({
       source: "auth" as const,
       header,
@@ -255,28 +282,26 @@ export const getComputedParams = async (
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
 
       const signer = new AwsV4Signer({
-        method: "GET",
+        method: req.method,
         datetime: amzDate,
         signQuery: true,
         accessKeyId: parseTemplateString(req.auth.accessKey, envVars),
         secretAccessKey: parseTemplateString(req.auth.secretKey, envVars),
-        region: parseTemplateString(req.auth.region, envVars),
+        region: parseTemplateString(req.auth.region, envVars) ?? "us-east-1",
         service: parseTemplateString(req.auth.serviceName, envVars),
         url: parseTemplateString(req.endpoint, envVars),
       })
-      const signature = await signer.sign()
+      const sign = await signer.sign()
 
-      if (signature) {
-        for (const [k, v] of signature.url.searchParams) {
-          params.push({
-            source: "auth" as const,
-            param: {
-              active: true,
-              key: k,
-              value: v,
-            },
-          })
-        }
+      for (const [k, v] of sign.url.searchParams) {
+        params.push({
+          source: "auth" as const,
+          param: {
+            active: true,
+            key: k,
+            value: v,
+          },
+        })
       }
     }
     return params

@@ -77,24 +77,27 @@
               :label="`${t('environment.my_environments')}`"
             >
               <HoppSmartItem
-                v-for="(gen, index) in myEnvironments"
+                v-for="{
+                  env,
+                  index,
+                } in alphabeticallySortedPersonalEnvironments"
                 :key="`gen-${index}`"
                 :icon="IconLayers"
-                :label="gen.name"
+                :label="env.name"
                 :info-icon="isEnvActive(index) ? IconCheck : undefined"
                 :active-info-icon="isEnvActive(index)"
                 @click="
                   () => {
                     handleEnvironmentChange(index, {
                       type: 'my-environment',
-                      environment: gen,
+                      environment: env,
                     })
                     hide()
                   }
                 "
               />
               <HoppSmartPlaceholder
-                v-if="myEnvironments.length === 0"
+                v-if="alphabeticallySortedPersonalEnvironments.length === 0"
                 :src="`/images/states/${colorMode.value}/blockchain.svg`"
                 :alt="`${t('empty.environments')}`"
                 :text="t('empty.environments')"
@@ -116,24 +119,24 @@
               </div>
               <div v-if="isTeamSelected" class="flex flex-col">
                 <HoppSmartItem
-                  v-for="(gen, index) in teamEnvironmentList"
+                  v-for="{ env, index } in alphabeticallySortedTeamEnvironments"
                   :key="`gen-team-${index}`"
                   :icon="IconLayers"
-                  :label="gen.environment.name"
-                  :info-icon="isEnvActive(gen.id) ? IconCheck : undefined"
-                  :active-info-icon="isEnvActive(gen.id)"
+                  :label="env.environment.name"
+                  :info-icon="isEnvActive(env.id) ? IconCheck : undefined"
+                  :active-info-icon="isEnvActive(env.id)"
                   @click="
                     () => {
                       handleEnvironmentChange(index, {
                         type: 'team-environment',
-                        environment: gen,
+                        environment: env,
                       })
                       hide()
                     }
                   "
                 />
                 <HoppSmartPlaceholder
-                  v-if="teamEnvironmentList.length === 0"
+                  v-if="alphabeticallySortedTeamEnvironments.length === 0"
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
                   :alt="`${t('empty.environments')}`"
                   :text="t('empty.environments')"
@@ -388,6 +391,33 @@ const teamEnvironmentList = useReadonlyStream(
   teamEnvListAdapter.teamEnvironmentList$,
   []
 )
+
+// Sort environments alphabetically by default
+const alphabeticallySortedPersonalEnvironments = computed(() => {
+  return [...myEnvironments.value]
+    .map((env, index) => ({
+      env,
+      index,
+    }))
+    .sort((a, b) =>
+      a.env.name
+        .toLocaleUpperCase()
+        .localeCompare(b.env.name.toLocaleUpperCase())
+    )
+})
+
+const alphabeticallySortedTeamEnvironments = computed(() => {
+  return [...teamEnvironmentList.value]
+    .map((env, index) => ({
+      env,
+      index,
+    }))
+    .sort((a, b) =>
+      a.env.environment.name
+        .toLocaleUpperCase()
+        .localeCompare(b.env.environment.name.toLocaleUpperCase())
+    )
+})
 
 const handleEnvironmentChange = (
   index: number,

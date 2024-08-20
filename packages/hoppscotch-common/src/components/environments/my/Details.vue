@@ -386,6 +386,11 @@ const saveEnvironment = () => {
     return
   }
 
+  if (editingName.value.length < 3) {
+    toast.error(`${t("environment.short_name")}`)
+    return
+  }
+
   const filteredVariables = pipe(
     vars.value,
     A.filterMap(

@@ -26,14 +26,14 @@
       </div>
     </div>
     <EnvironmentsMyEnvironment
-      v-for="(environment, index) in environments"
+      v-for="{ env, index } in alphabeticallySortedPersonalEnvironments"
       :key="`environment-${index}`"
       :environment-index="index"
-      :environment="environment"
+      :environment="env"
       @edit-environment="editEnvironment(index)"
     />
     <HoppSmartPlaceholder
-      v-if="!environments.length"
+      v-if="!alphabeticallySortedPersonalEnvironments.length"
       :src="`/images/states/${colorMode.value}/blockchain.svg`"
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { environments$ } from "~/newstore/environments"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
@@ -87,13 +87,26 @@ import { useI18n } from "~/composables/i18n"
 import IconPlus from "~icons/lucide/plus"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { Environment } from "@hoppscotch/data"
 import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 const colorMode = useColorMode()
 
 const environments = useReadonlyStream(environments$, [])
+
+// Sort environments alphabetically by default
+const alphabeticallySortedPersonalEnvironments = computed(() => {
+  return [...environments.value]
+    .map((env, index) => ({
+      env,
+      index,
+    }))
+    .sort((a, b) =>
+      a.env.name
+        .toLocaleUpperCase()
+        .localeCompare(b.env.name.toLocaleUpperCase())
+    )
+})
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -130,11 +143,10 @@ defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const envIndex: number = environments.value.findIndex(
-      (environment: Environment) => {
-        return environment.name === envName
-      }
-    )
+    const envIndex: number =
+      alphabeticallySortedPersonalEnvironments.value.findIndex(({ env }) => {
+        return env.name === envName
+      })
     if (envName !== "Global") {
       editEnvironment(envIndex)
       secretOptionSelected.value = isSecret ?? false

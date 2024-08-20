@@ -185,7 +185,7 @@ export function runRESTRequest$(
   const res = getFinalEnvsFromPreRequest(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
-  ).then((envs) => {
+  ).then(async (envs) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
     if (E.isLeft(envs)) {
@@ -254,7 +254,9 @@ export function runRESTRequest$(
       variables: finalEnvsWithNonEmptyValues,
     })
 
-    const [stream, cancelRun] = createRESTNetworkRequestStream(effectiveRequest)
+    const [stream, cancelRun] = createRESTNetworkRequestStream(
+      await effectiveRequest
+    )
     cancelFunc = cancelRun
 
     const subscription = stream

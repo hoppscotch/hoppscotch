@@ -253,8 +253,6 @@ import {
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
-import { useService } from "dioc/vue"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import { flow, pipe } from "fp-ts/function"
@@ -281,6 +279,8 @@ import {
   getAggregateEnvs,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { computedAsync, useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
@@ -545,13 +545,15 @@ const clearContent = () => {
 
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
-const computedHeaders = computed(() =>
-  getComputedHeaders(request.value, aggregateEnvs.value, false).map(
-    (header, index) => ({
-      id: `header-${index}`,
-      ...header,
-    })
-  )
+const computedHeaders = computedAsync(
+  async () =>
+    (await getComputedHeaders(request.value, aggregateEnvs.value, false)).map(
+      (header, index) => ({
+        id: `header-${index}`,
+        ...header,
+      })
+    ),
+  []
 )
 
 const inheritedProperties = computed(() => {

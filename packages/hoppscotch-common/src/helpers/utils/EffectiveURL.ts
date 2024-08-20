@@ -24,6 +24,7 @@ import {
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
+import { AwsV4Signer } from "aws4fetch"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -188,7 +189,7 @@ export type ComputedHeader = {
  * @param showKeyIfSecret Whether to show the key if the value is a secret
  * @returns The headers that are generated along with the source of that header
  */
-export const getComputedHeaders = (
+export const getComputedHeaders = async (
   req:
     | HoppRESTRequest
     | {
@@ -198,7 +199,7 @@ export const getComputedHeaders = (
   envVars: Environment["variables"],
   parse = true,
   showKeyIfSecret = false
-): ComputedHeader[] => {
+): Promise<ComputedHeader[]> => {
   return [
     ...getComputedAuthHeaders(
       envVars,
@@ -229,10 +230,10 @@ export type ComputedParam = {
  * @param envVars The environment variables active
  * @returns The params that are generated along with the source of that header
  */
-export const getComputedParams = (
+export const getComputedParams = async (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
-): ComputedParam[] => {
+): Promise<ComputedParam[]> => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
   if (!req.auth || !req.auth.authActive) return []
@@ -247,22 +248,35 @@ export const getComputedParams = (
   if (req.auth.addTo !== "QUERY_PARAMS") return []
 
   if (req.auth.authType === "aws-signature") {
-    const { signature, addTo } = req.auth
+    const { addTo } = req.auth
     const params: ComputedParam[] = []
     if (addTo === "QUERY_PARAMS") {
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+
+      const signer = new AwsV4Signer({
+        method: "GET",
+        datetime: amzDate,
+        signQuery: true,
+        accessKeyId: parseTemplateString(req.auth.accessKey, envVars),
+        secretAccessKey: parseTemplateString(req.auth.secretKey, envVars),
+        region: parseTemplateString(req.auth.region, envVars),
+        service: parseTemplateString(req.auth.serviceName, envVars),
+        url: parseTemplateString(req.endpoint, envVars),
+      })
+      const signature = await signer.sign()
+
       if (signature) {
-        Object.keys(signature).forEach((x) => {
-          if (x) {
-            params.push({
-              source: "auth" as const,
-              param: {
-                active: true,
-                key: x,
-                value: signature[x as keyof typeof signature] ?? "",
-              },
-            })
-          }
-        })
+        for (const [k, v] of signature.url.searchParams) {
+          params.push({
+            source: "auth" as const,
+            param: {
+              active: true,
+              key: k,
+              value: v,
+            },
+          })
+        }
       }
     }
     return params
@@ -429,18 +443,15 @@ function getFinalBodyFromRequest(
  *
  * @returns An object with extra fields defining a complete request
  */
-export function getEffectiveRESTRequest(
+export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment,
   showKeyIfSecret = false
-): EffectiveHoppRESTRequest {
+): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
-    getComputedHeaders(
-      request,
-      environment.variables,
-      true,
-      showKeyIfSecret
-    ).map((h) => h.header),
+    (await getComputedHeaders(request, environment.variables)).map(
+      (h) => h.header
+    ),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
@@ -461,7 +472,9 @@ export function getEffectiveRESTRequest(
   )
 
   const effectiveFinalParams = pipe(
-    getComputedParams(request, environment.variables).map((p) => p.param),
+    (await getComputedParams(request, environment.variables)).map(
+      (p) => p.param
+    ),
     A.concat(request.params),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
@@ -524,8 +537,8 @@ export function getEffectiveRESTRequest(
 export function getEffectiveRESTRequestStream(
   request$: Observable<HoppRESTRequest>,
   environment$: Observable<Environment>
-): Observable<EffectiveHoppRESTRequest> {
+): Observable<Promise<EffectiveHoppRESTRequest>> {
   return combineLatest([request$, environment$]).pipe(
-    map(([request, env]) => getEffectiveRESTRequest(request, env))
+    map(async ([request, env]) => await getEffectiveRESTRequest(request, env))
   )
 }

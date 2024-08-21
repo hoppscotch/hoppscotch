@@ -12,6 +12,7 @@ import { AuthProvider } from './auth/helper';
 import {
   ENV_EMPTY_AUTH_PROVIDERS,
   ENV_NOT_FOUND_KEY_AUTH_PROVIDERS,
+  ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY,
   ENV_NOT_SUPPORT_AUTH_PROVIDERS,
   JSON_INVALID,
 } from './errors';
@@ -328,6 +329,8 @@ const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
  * @returns The encrypted text
  */
 export function encrypt(text: string, key = process.env.DATA_ENCRYPTION_KEY) {
+  if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
+
   if (text === null || text === undefined) return text;
 
   const iv = crypto.randomBytes(16);
@@ -351,6 +354,8 @@ export function decrypt(
   encryptedData: string,
   key = process.env.DATA_ENCRYPTION_KEY,
 ) {
+  if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
+
   if (encryptedData === null || encryptedData === undefined) {
     return encryptedData;
   }

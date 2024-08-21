@@ -50,6 +50,12 @@ export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =
   '"VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file';
 
 /**
+ * Environment variable "DATA_ENCRYPTION_KEY" is not present in .env file
+ */
+export const ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY =
+  '"DATA_ENCRYPTION_KEY" is not present in .env file';
+
+/**
  * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
  */
 export const ENV_EMPTY_AUTH_PROVIDERS =

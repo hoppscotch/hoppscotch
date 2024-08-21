@@ -1,3 +1,8 @@
+{
+	admin off
+	persist_config off
+}
+
 :8080 {
 	try_files {path} /
 	root * /site

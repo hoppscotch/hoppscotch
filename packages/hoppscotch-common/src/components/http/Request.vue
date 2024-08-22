@@ -70,9 +70,11 @@
         :title="`${t(
           'action.send'
         )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
-        :label="`${!loading ? t('action.send') : t('action.cancel')}`"
+        :label="`${
+          !isTabResponseLoading ? t('action.send') : t('action.cancel')
+        }`"
         class="min-w-[5rem] flex-1 rounded-r-none"
-        @click="!loading ? newSendRequest() : cancelRequest()"
+        @click="!isTabResponseLoading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
         <tippy
@@ -301,6 +303,10 @@ const newMethod = computed(() => {
 const curlText = ref("")
 
 const loading = ref(false)
+
+const isTabResponseLoading = computed(
+  () => tab.value.document.response?.type === "loading"
+)
 
 const showCurlImportModal = ref(false)
 const showCodegenModal = ref(false)

@@ -87,4 +87,9 @@ export type HoppRESTDocument = {
    * (if any)
    */
   inheritedProperties?: HoppInheritedProperty
+
+  /**
+   * The function responsible for cancelling the tab request call
+   */
+  cancelFunction?: () => void
 }

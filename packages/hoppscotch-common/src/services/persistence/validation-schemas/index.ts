@@ -539,6 +539,7 @@ export const REST_TAB_STATE_SCHEMA = z
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validRestOperations)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
+            cancelFunction: z.optional(z.function()),
           })
           .strict(),
       })

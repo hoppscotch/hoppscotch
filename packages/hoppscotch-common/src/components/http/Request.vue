@@ -240,7 +240,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref, onUnmounted } from "vue"
+import { computed, ref, onUnmounted } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -324,8 +324,6 @@ const saveRequestAction = ref<any | null>(null)
 
 const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
 
-const requestCancelFunc: Ref<(() => void) | null> = ref(null)
-
 const userHistories = computed(() => {
   return history.value.map((history) => history.request.endpoint).slice(0, 10)
 })
@@ -357,7 +355,8 @@ const newSendRequest = async () => {
   const [cancel, streamPromise] = runRESTRequest$(tab)
   const streamResult = await streamPromise
 
-  requestCancelFunc.value = cancel
+  tab.value.document.cancelFunction = cancel
+
   if (E.isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
@@ -447,7 +446,7 @@ onUnmounted(() => {
 
 const cancelRequest = () => {
   loading.value = false
-  requestCancelFunc.value?.()
+  tab.value.document.cancelFunction?.()
 
   updateRESTResponse(null)
 }

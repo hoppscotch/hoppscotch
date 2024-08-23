@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<template>
+  <App />
+</template>
 
-<template></template>
-
-<style scoped></style>
+<script setup lang="ts">
+import App from "@hoppscotch/sh-admin/App.vue"
+</script>

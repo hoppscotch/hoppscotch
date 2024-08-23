@@ -1472,6 +1472,9 @@ importers:
 
   packages/hoppscotch-shc-admin:
     dependencies:
+      '@hoppscotch/common':
+        specifier: workspace:^
+        version: link:../hoppscotch-common
       '@hoppscotch/sh-admin':
         specifier: workspace:^
         version: link:../hoppscotch-sh-admin
@@ -1487,6 +1490,9 @@ importers:
       vue:
         specifier: 3.3.9
         version: 3.3.9(typescript@5.3.3)
+      vue-router:
+        specifier: 4.1.0
+        version: 4.1.0(vue@3.3.9(typescript@5.3.3))
     devDependencies:
       '@import-meta-env/unplugin':
         specifier: 0.4.8
@@ -1508,7 +1514,7 @@ importers:
         version: 0.26.0(@vue/compiler-sfc@3.3.10)(vite@5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0))
       vite-plugin-vue-layouts:
         specifier: 0.7.0
-        version: 0.7.0(vite@5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0))(vue-router@4.2.5(vue@3.3.9(typescript@5.3.3)))(vue@3.3.9(typescript@5.3.3))
+        version: 0.7.0(vite@5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0))(vue-router@4.1.0(vue@3.3.9(typescript@5.3.3)))(vue@3.3.9(typescript@5.3.3))
       vue-tsc:
         specifier: ^2.0.24
         version: 2.0.29(typescript@5.3.3)
@@ -27251,14 +27257,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-layouts@0.7.0(vite@5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0))(vue-router@4.2.5(vue@3.3.9(typescript@5.3.3)))(vue@3.3.9(typescript@5.3.3)):
+  vite-plugin-vue-layouts@0.7.0(vite@5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0))(vue-router@4.1.0(vue@3.3.9(typescript@5.3.3)))(vue@3.3.9(typescript@5.3.3)):
     dependencies:
       '@vue/compiler-sfc': 3.3.10
       debug: 4.3.4(supports-color@9.4.0)
       fast-glob: 3.3.2
       vite: 5.3.5(@types/node@18.18.8)(sass@1.69.5)(terser@5.31.0)
       vue: 3.3.9(typescript@5.3.3)
-      vue-router: 4.2.5(vue@3.3.9(typescript@5.3.3))
+      vue-router: 4.1.0(vue@3.3.9(typescript@5.3.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -27587,6 +27593,11 @@ snapshots:
       '@vue/devtools-api': 6.6.1
       vue: 3.3.9(typescript@4.9.3)
 
+  vue-router@4.1.0(vue@3.3.9(typescript@5.3.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.1
+      vue: 3.3.9(typescript@5.3.3)
+
   vue-router@4.2.5(vue@3.3.9(typescript@4.9.5)):
     dependencies:
       '@vue/devtools-api': 6.6.1
@@ -27596,11 +27607,6 @@ snapshots:
     dependencies:
       '@vue/devtools-api': 6.6.1
       vue: 3.3.9(typescript@5.3.2)
-
-  vue-router@4.2.5(vue@3.3.9(typescript@5.3.3)):
-    dependencies:
-      '@vue/devtools-api': 6.6.1
-      vue: 3.3.9(typescript@5.3.3)
 
   vue-sonner@1.1.3: {}
 

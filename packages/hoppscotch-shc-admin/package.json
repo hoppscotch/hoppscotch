@@ -13,7 +13,9 @@
     "unplugin-icons": "0.14.9",
     "unplugin-vue-components": "0.21.0",
     "vue": "^3.4.31",
-    "@hoppscotch/sh-admin": "workspace:^"
+    "@hoppscotch/sh-admin": "workspace:^",
+    "@hoppscotch/common": "workspace:^",
+    "vue-router": "4.1.0"
   },
   "devDependencies": {
     "@import-meta-env/unplugin": "0.4.8",

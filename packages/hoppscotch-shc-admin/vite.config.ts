@@ -22,6 +22,8 @@ export default defineConfig({
     alias: {
       "~": path.resolve(__dirname, "../hoppscotch-sh-admin/src"),
       "@modules": path.resolve(__dirname, "../hoppscotch-sh-admin/src/modules"),
+      "@hoppscotch/common": "@hoppscotch/common/src",
+      "@hoppscotch/sh-admin": "../hoppscotch-sh-admin/src",
     },
   },
   plugins: [

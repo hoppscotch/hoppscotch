@@ -1,5 +1,4 @@
-import { createApp } from "vue"
 import "./style.css"
-import App from "./App.vue"
+import { createHoppAdminApp } from "@hoppscotch/sh-admin/main"
 
-createApp(App).mount("#app")
+createHoppAdminApp("#app")

@@ -1,3 +1,8 @@
+{
+  admin off
+  persist_config off
+}
+
 :3000 {
 	respond 404
 }

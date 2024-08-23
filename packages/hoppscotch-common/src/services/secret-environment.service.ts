@@ -1,6 +1,5 @@
 import { Service } from "dioc"
-import { reactive } from "vue"
-import { computed } from "vue"
+import { reactive, computed } from "vue"
 
 /**
  * Defines a secret environment variable.

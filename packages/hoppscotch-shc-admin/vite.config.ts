@@ -18,6 +18,7 @@ export default defineConfig({
   server: {
     port: 3100,
   },
+  publicDir: path.resolve(__dirname, "../hoppscotch-sh-admin/public"),
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "../hoppscotch-sh-admin/src"),

@@ -40,6 +40,8 @@
         />
       </div>
     </div>
+
+    <component :is="additionalPluginComponents" />
   </div>
 </template>
 
@@ -52,10 +54,16 @@ import UsersIcon from '~icons/lucide/users';
 import LineChartIcon from '~icons/lucide/line-chart';
 import FolderTreeIcon from '~icons/lucide/folder-tree';
 import { useI18n } from '../composables/i18n';
+import { plugins } from '../plugins';
 
 const t = useI18n();
 
 // Get Metrics Data
 const { fetching, error, data } = useQuery({ query: MetricsDocument });
 const metrics = computed(() => data?.value?.infra);
+
+const additionalPluginComponents = computed(() => {
+  return plugins.components.find((component) => component.name === 'HoppButton')
+    ?.component;
+});
 </script>

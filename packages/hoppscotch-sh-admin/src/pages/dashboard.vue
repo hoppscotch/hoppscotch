@@ -41,7 +41,9 @@
       </div>
     </div>
 
-    <component :is="additionalPluginComponents" />
+    <div v-for="(component, index) in additionalPluginComponents" :key="index">
+      <component :is="component" />
+    </div>
   </div>
 </template>
 
@@ -63,9 +65,10 @@ const t = useI18n();
 const { fetching, error, data } = useQuery({ query: MetricsDocument });
 const metrics = computed(() => data?.value?.infra);
 
-const additionalPluginComponents = computed(() => {
-  return plugins.components.find(
-    (component) => component.name === REGISTERED_COMPONENTS.HoppButton
-  )?.component;
-});
+const additionalPluginComponents = computed(
+  () =>
+    plugins.components.find(
+      (component) => component.name === REGISTERED_COMPONENTS.HoppButton
+    )?.components
+);
 </script>

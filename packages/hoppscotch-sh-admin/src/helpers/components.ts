@@ -7,7 +7,7 @@ export enum REGISTERED_COMPONENTS {
 
 export type ComponentsDef = {
   name: REGISTERED_COMPONENTS;
-  components: Component | Component[];
+  components: Component[];
 };
 
 export type RegisteredComponentsDef = ComponentsDef[];

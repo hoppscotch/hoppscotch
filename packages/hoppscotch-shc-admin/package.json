@@ -13,6 +13,7 @@
     "@hoppscotch/sh-admin": "workspace:^",
     "@hoppscotch/ui": "0.1.3",
     "@intlify/unplugin-vue-i18n": "1.2.0",
+    "@vueuse/core": "11.0.1",
     "unplugin-icons": "0.14.9",
     "unplugin-vue-components": "0.21.0",
     "vue": "^3.4.31",

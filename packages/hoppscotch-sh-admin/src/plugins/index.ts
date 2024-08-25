@@ -1,57 +1,8 @@
-import { Component } from 'vue';
+import { RegisteredComponentsDef } from '~/helpers/components';
 
 export type PluginsDef = {
-  components: Array<{ name: string; component: Component }>;
+  components: RegisteredComponentsDef;
 };
-
-// export type PlatformDef = {
-//   ui?: UIPlatformDef
-//   addedHoppModules?: HoppModule[]
-//   addedServices?: Array<ServiceClassInstance<unknown>>
-//   auth: AuthPlatformDef('users.send_invite')
-//   analytics?: AnalyticsPlatformDef
-//   io: IOPlatformDef
-//   sync: {
-//     environments: EnvironmentsPlatformDef
-//     collections: CollectionsPlatformDef
-//     settings: SettingsPlatformDef
-//     history: HistoryPlatformDef
-//   }
-//   interceptors: InterceptorsPlatformDef
-//   additionalInspectors?: InspectorsPlatformDef
-//   spotlight?: SpotlightPlatformDef
-//   platformFeatureFlags: {
-//     exportAsGIST: boolean
-//     hasTelemetry: boolean
-
-//     /**
-//      *  Whether the platform supports cookies (affects whether the cookies footer item is shown)
-//      *  If a value is not given, then the value is assumed to be false
-//      */
-//     cookiesEnabled?: boolean
-
-//     /**
-//      * Whether the platform should prompt the user that cookies are being used.
-//      * This will result in the user being notified a cookies advisory and is meant for web apps.
-//      *
-//      * If a value is not given, then the value is assumed to be true
-//      */
-//     promptAsUsingCookies?: boolean
-
-//     /**
-//      * Whether to show the A/B testing workspace switcher click login flow or not
-//      */
-//     workspaceSwitcherLogin?: Ref<boolean>
-
-//     /**
-//      * There's an active issue wrt syncing in personal workspace under SH while duplicating a collection
-//      * This is a temporary flag to disable the same
-//      */
-//     duplicateCollectionDisabledInPersonalWorkspace?: boolean
-//   }
-//   infra?: InfraPlatformDef
-//   experiments?: ExperimentsPlatformDef
-// }
 
 export let plugins: PluginsDef;
 

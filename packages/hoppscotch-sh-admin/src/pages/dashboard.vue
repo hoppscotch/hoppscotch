@@ -55,6 +55,7 @@ import LineChartIcon from '~icons/lucide/line-chart';
 import FolderTreeIcon from '~icons/lucide/folder-tree';
 import { useI18n } from '../composables/i18n';
 import { plugins } from '../plugins';
+import { REGISTERED_COMPONENTS } from '../helpers/components';
 
 const t = useI18n();
 
@@ -63,7 +64,8 @@ const { fetching, error, data } = useQuery({ query: MetricsDocument });
 const metrics = computed(() => data?.value?.infra);
 
 const additionalPluginComponents = computed(() => {
-  return plugins.components.find((component) => component.name === 'HoppButton')
-    ?.component;
+  return plugins.components.find(
+    (component) => component.name === REGISTERED_COMPONENTS.HoppButton
+  )?.component;
 });
 </script>

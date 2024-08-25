@@ -1484,6 +1484,9 @@ importers:
       '@intlify/unplugin-vue-i18n':
         specifier: 1.2.0
         version: 1.2.0(rollup@2.79.1)(vue-i18n@9.8.0(vue@3.3.9(typescript@5.3.3)))
+      '@vueuse/core':
+        specifier: 11.0.1
+        version: 11.0.1(vue@3.3.9(typescript@5.3.3))
       unplugin-icons:
         specifier: 0.14.9
         version: 0.14.9(@vue/compiler-sfc@3.3.10)(vue-template-compiler@2.7.16)
@@ -5455,6 +5458,9 @@ packages:
   '@vueuse/core@10.7.0':
     resolution: {integrity: sha512-4EUDESCHtwu44ZWK3Gc/hZUVhVo/ysvdtwocB5vcauSV4B7NiGY5972WnsojB3vRNdxvAt7kzJWE2h9h7C9d5w==}
 
+  '@vueuse/core@11.0.1':
+    resolution: {integrity: sha512-YTrekI18WwEyP3h168Fir94G/HNC27wvXJI21Alm0sPOwvhihfkrvHIe+5PNJq+MpgWdRcsjvE/38JaoKrgZhQ==}
+
   '@vueuse/core@8.9.4':
     resolution: {integrity: sha512-B/Mdj9TK1peFyWaPof+Zf/mP9XuGAngaJZBwPaXBvU3aCTZlx3ltlrFFFyMV4iGBwsjSCeUCgZrtkEj9dS2Y3Q==}
     peerDependencies:
@@ -5475,6 +5481,9 @@ packages:
   '@vueuse/metadata@10.7.0':
     resolution: {integrity: sha512-GlaH7tKP2iBCZ3bHNZ6b0cl9g0CJK8lttkBNUX156gWvNYhTKEtbweWLm9rxCPIiwzYcr/5xML6T8ZUEt+DkvA==}
 
+  '@vueuse/metadata@11.0.1':
+    resolution: {integrity: sha512-dTFvuHFAjLYOiSd+t9Sk7xUiuL6jbfay/eX+g+jaipXXlwKur2VCqBCZX+jfu+2vROUGcUsdn3fJR9KkpadIOg==}
+
   '@vueuse/metadata@8.9.4':
     resolution: {integrity: sha512-IwSfzH80bnJMzqhaapqJl9JRIiyQU0zsRGEgnxN6jhq7992cPUJIRfV+JHRIZXjYqbwt07E1gTEp0R0zPJ1aqw==}
 
@@ -5486,6 +5495,9 @@ packages:
 
   '@vueuse/shared@10.7.0':
     resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
+
+  '@vueuse/shared@11.0.1':
+    resolution: {integrity: sha512-eAPf5CQB3HR0S76HqrhjBqFYstZfiHWZq8xF9EQmobGBkrhPfErJEhr8aMNQMqd6MkENIx2pblIEfJGlHpClug==}
 
   '@vueuse/shared@8.9.4':
     resolution: {integrity: sha512-wt+T30c4K6dGRMVqPddexEVLa28YwxW5OFIPmzUHICjphfAuBFTTdDoyqREZNDOFJZ44ARH1WWQNCUK8koJ+Ag==}
@@ -12378,6 +12390,17 @@ packages:
     resolution: {integrity: sha512-nPnUNCMqqHfxcCPLyLWvmgbNCgos3SwvPcl/CzAnMbqcjLtNZppsdI7bKX3EEj0Jbg6SGLQ9NanIvZaMI1bsUA==}
     deprecated: 'WARNING: This project has been renamed to @volar/vue-language-service. Install using @volar/vue-language-service instead.'
 
+  vue-demi@0.14.10:
+    resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
+    engines: {node: '>=12'}
+    hasBin: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: 3.3.9
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+
   vue-demi@0.14.7:
     resolution: {integrity: sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==}
     engines: {node: '>=12'}
@@ -18567,6 +18590,16 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
+  '@vueuse/core@11.0.1(vue@3.3.9(typescript@5.3.3))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 11.0.1
+      '@vueuse/shared': 11.0.1(vue@3.3.9(typescript@5.3.3))
+      vue-demi: 0.14.10(vue@3.3.9(typescript@5.3.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
   '@vueuse/core@8.9.4(vue@3.3.9(typescript@4.9.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.14
@@ -18617,6 +18650,8 @@ snapshots:
 
   '@vueuse/metadata@10.7.0': {}
 
+  '@vueuse/metadata@11.0.1': {}
+
   '@vueuse/metadata@8.9.4': {}
 
   '@vueuse/metadata@9.12.0': {}
@@ -18631,6 +18666,13 @@ snapshots:
   '@vueuse/shared@10.7.0(vue@3.3.9(typescript@5.3.2))':
     dependencies:
       vue-demi: 0.14.7(vue@3.3.9(typescript@5.3.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  '@vueuse/shared@11.0.1(vue@3.3.9(typescript@5.3.3))':
+    dependencies:
+      vue-demi: 0.14.10(vue@3.3.9(typescript@5.3.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -27626,6 +27668,10 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.11
       vscode-pug-languageservice: 0.27.24
       vscode-typescript-languageservice: 0.27.25
+
+  vue-demi@0.14.10(vue@3.3.9(typescript@5.3.3)):
+    dependencies:
+      vue: 3.3.9(typescript@5.3.3)
 
   vue-demi@0.14.7(vue@3.3.9(typescript@4.9.3)):
     dependencies:

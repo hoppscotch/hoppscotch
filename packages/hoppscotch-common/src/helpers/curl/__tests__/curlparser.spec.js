@@ -2,11 +2,7 @@
 // ^^^ Enables Type Checking by the TypeScript compiler
 
 import { describe, expect, test } from "vitest"
-import {
-  HoppRESTRequest,
-  makeRESTRequest,
-  rawKeyValueEntriesToString,
-} from "@hoppscotch/data"
+import { makeRESTRequest, rawKeyValueEntriesToString } from "@hoppscotch/data"
 import { parseCurlToHoppRESTReq } from ".."
 
 const samples = [

@@ -5,8 +5,6 @@
  */
 import {
   FormDataKeyValue,
-  HoppRESTHeader,
-  HoppRESTParam,
   HoppRESTReqBody,
   makeRESTRequest,
 } from "@hoppscotch/data"
@@ -197,10 +195,8 @@ export const parseCurlCommand = (curlCommand: string) => {
     name: defaultRESTReq.name,
     endpoint: urlString,
     method: (method || defaultRESTReq.method).toUpperCase(),
-    params:
-      (queries as HoppRESTParam[]) ??
-      (defaultRESTReq.params as HoppRESTParam[]),
-    headers: hoppHeaders as HoppRESTHeader[],
+    params: queries ?? defaultRESTReq.params,
+    headers: hoppHeaders,
     preRequestScript: defaultRESTReq.preRequestScript,
     testScript: defaultRESTReq.testScript,
     auth,

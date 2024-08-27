@@ -53,7 +53,7 @@
         >
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('app.copy_interface_type')"
+            :title="t('action.more')"
             :icon="IconMore"
           />
           <template #content="{ hide }">
@@ -64,15 +64,9 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-for="(language, index) in interfaceLanguages"
-                :key="index"
-                :label="language"
-                :icon="
-                  copiedInterfaceLanguage === language
-                    ? copyInterfaceIcon
-                    : IconCopy
-                "
-                @click="runCopyInterface(language)"
+                :label="t('response.generate_data_schema')"
+                :icon="IconNetwork"
+                @click="openDrawer"
               />
             </div>
           </template>
@@ -226,6 +220,16 @@
         />
       </div>
     </div>
+
+    <AppDrawer
+      max-width="500"
+      :is-open="isDrawerOpen"
+      background-color="#1C1C1E"
+      :speed="500"
+      @close="closeDrawer"
+    >
+      <HttpResponseInterface :show="isDrawerOpen" />
+    </AppDrawer>
   </div>
 </template>
 
@@ -234,7 +238,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconFilter from "~icons/lucide/filter"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import IconCopy from "~icons/lucide/copy"
+import IconNetwork from "~icons/lucide/network"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -254,13 +258,11 @@ import {
   useCopyResponse,
   useResponseBody,
   useDownloadResponse,
-  useCopyInterface,
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 
 const t = useI18n()
 
@@ -270,15 +272,16 @@ const props = defineProps<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
+const isDrawerOpen = ref(false)
+const openDrawer = () => {
+  isDrawerOpen.value = true
+}
+const closeDrawer = () => {
+  isDrawerOpen.value = false
+}
+
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
-const copiedInterfaceLanguage = ref("")
-
-const runCopyInterface = (language: string) => {
-  copyInterface(language).then(() => {
-    copiedInterfaceLanguage.value = language
-  })
-}
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
@@ -362,7 +365,6 @@ const filterResponseError = computed(() =>
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
-const { copyInterfaceIcon, copyInterface } = useCopyInterface(jsonBodyText)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText

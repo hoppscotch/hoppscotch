@@ -15,6 +15,7 @@ declare module "vue" {
     AppBanner: (typeof import("./components/app/Banner.vue"))["default"]
     AppContextMenu: (typeof import("./components/app/ContextMenu.vue"))["default"]
     AppDeveloperOptions: (typeof import("./components/app/DeveloperOptions.vue"))["default"]
+    AppDrawer: (typeof import("./components/app/Drawer.vue"))["default"]
     AppFooter: (typeof import("./components/app/Footer.vue"))["default"]
     AppGitHubStarButton: (typeof import("./components/app/GitHubStarButton.vue"))["default"]
     AppHeader: (typeof import("./components/app/Header.vue"))["default"]

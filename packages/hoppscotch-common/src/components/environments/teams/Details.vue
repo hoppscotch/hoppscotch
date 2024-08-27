@@ -481,7 +481,7 @@ const getErrorMessage = (err: GQLError<string>) => {
     case "team_environment/not_found":
       return t("team_environment.not_found")
     case "team_environment/short_name":
-      return t("team_environment.short_name")
+      return t("environment.short_name")
     default:
       return t("error.something_went_wrong")
   }

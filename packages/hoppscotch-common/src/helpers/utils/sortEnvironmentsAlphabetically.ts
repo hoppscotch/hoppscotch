@@ -3,53 +3,69 @@ import { TeamEnvironment } from "../teams/TeamEnvironment"
 
 type SortOrder = "asc" | "desc"
 
-/**
- * Sorts two strings alphabetically
- * @param a First string
- * @param b Second string
- * @param order Sorting order
- * @returns 1 if a comes before b, -1 if b comes before a
- */
-const sortAlphabetically = (a: string, b: string, order: SortOrder) => {
-  return order === "asc"
-    ? a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())
-    : b.toLocaleLowerCase().localeCompare(a.toLocaleLowerCase())
+type EnvironmentWithIndex<T> = {
+  env: T
+  index: number
 }
 
 /**
- * Returns an object with sorted personal environments and index
- * @param environments Array of personal environments
- * @param order Sorting order
- * @returns Object with sorted environment and index
+ * Sorts an array of environments alphabetically based on a specified name getter function.
+ *
+ * @template T - The type of the environments array elements.
+ * @param {T[]} environments - The array of environments to be sorted.
+ * @param {SortOrder} order - The sort order, either "asc" for ascending or "desc" for descending.
+ * @param {(env: T) => string} getName - The function that retrieves the name from an environment entry.
+ * @returns {EnvironmentWithIndex<T>[]} - The sorted array of environments with their original indices.
+ */
+const sortEnvironmentsAlphabetically = <T>(
+  environments: T[],
+  order: SortOrder,
+  getName: (env: T) => string
+): EnvironmentWithIndex<T>[] => {
+  return [...environments]
+    .map((env, index) => ({
+      env,
+      index,
+    }))
+    .sort((a, b) => {
+      const comparison = getName(a.env)
+        .toLocaleLowerCase()
+        .localeCompare(getName(b.env).toLocaleLowerCase())
+
+      return order === "asc" ? comparison : -comparison
+    })
+}
+
+/**
+ * Returns an object with sorted personal environments and index.
+ * @param {Environment[]} environments Array of personal environments.
+ * @param {SortOrder} order Sorting order.
+ * @returns {EnvironmentWithIndex<Environment>[]} Object with sorted environments and their index.
  */
 export const sortPersonalEnvironmentsAlphabetically = (
   environments: Environment[],
   order: SortOrder
-) => {
-  return [...environments]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) => sortAlphabetically(a.env.name, b.env.name, order))
+): EnvironmentWithIndex<Environment>[] => {
+  return sortEnvironmentsAlphabetically<Environment>(
+    environments,
+    order,
+    (env) => env.name
+  )
 }
 
 /**
- * Returns an object with sorted team environments and index
- * @param environments Array of team environments
- * @param order Sorting order
- * @returns Object with sorted environment and index
+ * Returns an object with sorted team environments and index.
+ * @param environments Array of team environments.
+ * @param order Sorting order.
+ * @returns {EnvironmentWithIndex<TeamEnvironment>[]} Object with sorted environments and their index.
  */
 export const sortTeamEnvironmentsAlphabetically = (
   environments: TeamEnvironment[],
   order: SortOrder
-) => {
-  return [...environments]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) =>
-      sortAlphabetically(a.env.environment.name, b.env.environment.name, order)
-    )
+): EnvironmentWithIndex<TeamEnvironment>[] => {
+  return sortEnvironmentsAlphabetically<TeamEnvironment>(
+    environments,
+    order,
+    (env) => env.environment.name
+  )
 }

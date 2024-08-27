@@ -4,6 +4,7 @@
     dialog
     :title="t('collection.properties')"
     :full-width-body="true"
+    styles="sm:max-w-2xl"
     @close="hideModal"
   >
     <template #body>

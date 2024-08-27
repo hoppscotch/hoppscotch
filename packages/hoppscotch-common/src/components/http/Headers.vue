@@ -64,101 +64,24 @@
         drag-class="cursor-grabbing"
       >
         <template #item="{ element: header, index }">
-          <div
-            class="draggable-content group flex divide-x divide-dividerLight border-b border-dividerLight"
-          >
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{
-                  theme: 'tooltip',
-                  delay: [500, 20],
-                  content:
-                    index !== workingHeaders?.length - 1
-                      ? t('action.drag_to_reorder')
-                      : null,
-                }"
-                :icon="IconGripVertical"
-                class="opacity-0"
-                :class="{
-                  'draggable-handle cursor-grab group-hover:opacity-100':
-                    index !== workingHeaders?.length - 1,
-                }"
-                tabindex="-1"
-              />
-            </span>
-            <SmartEnvInput
-              v-model="header.key"
-              :placeholder="`${t('count.header', { count: index + 1 })}`"
-              :auto-complete-source="commonHeaders"
-              :env-index="index"
-              :inspection-results="getInspectorResult(headerKeyResults, index)"
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateHeader(index, {
-                  id: header.id,
-                  key: $event,
-                  value: header.value,
-                  active: header.active,
-                })
-              "
-            />
-            <SmartEnvInput
-              v-model="header.value"
-              :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :inspection-results="
-                getInspectorResult(headerValueResults, index)
-              "
-              :env-index="index"
-              :auto-complete-env="true"
-              :envs="envs"
-              @change="
-                updateHeader(index, {
-                  id: header.id,
-                  key: header.key,
-                  value: $event,
-                  active: header.active,
-                })
-              "
-            />
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                    : t('action.turn_off')
-                "
-                :icon="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? IconCheckCircle
-                      : IconCircle
-                    : IconCheckCircle
-                "
-                color="green"
-                @click="
-                  updateHeader(index, {
-                    id: header.id,
-                    key: header.key,
-                    value: header.value,
-                    active: !header.active,
-                  })
-                "
-              />
-            </span>
-            <span>
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                :icon="IconTrash"
-                color="red"
-                @click="deleteHeader(index)"
-              />
-            </span>
-          </div>
+          <HttpKeyValue
+            v-model:name="header.key"
+            v-model:value="header.value"
+            v-model:description="header.description"
+            :total="workingHeaders.length"
+            :index="index"
+            :entity-id="header.id"
+            :entity-active="header.active"
+            :envs="envs"
+            :is-active="header.hasOwnProperty('active')"
+            :inspection-key-result="getInspectorResult(headerKeyResults, index)"
+            :inspection-value-result="
+              getInspectorResult(headerValueResults, index)
+            "
+            :key-auto-complete-source="commonHeaders"
+            @update-entity="updateHeader($event.index, $event.payload)"
+            @delete-entity="deleteHeader($event)"
+          />
         </template>
       </draggable>
 
@@ -183,16 +106,27 @@
                 tabindex="-1"
               />
             </span>
+
             <SmartEnvInput
               v-model="header.header.key"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
             <SmartEnvInput
               :model-value="mask(header)"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
+            <input
+              :value="header.header.description"
+              :placeholder="t('count.description')"
+              type="text"
+              readonly
+              class="flex flex-1 px-4 bg-transparent text-secondaryLight"
+            />
+
             <span>
               <HoppButtonSecondary
                 v-if="header.source === 'auth'"
@@ -236,11 +170,13 @@
                 tabindex="-1"
               />
             </span>
+
             <SmartEnvInput
               v-model="header.header.key"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
             <SmartEnvInput
               :model-value="
                 header.source === 'auth' ? mask(header) : header.header.value
@@ -248,6 +184,15 @@
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               readonly
             />
+
+            <input
+              :value="header.header.description"
+              :placeholder="t('count.description')"
+              type="text"
+              readonly
+              class="flex flex-1 px-4 bg-transparent text-secondaryLight"
+            />
+
             <HoppButtonSecondary
               v-if="header.source === 'auth'"
               v-tippy="{ theme: 'tooltip' }"
@@ -289,23 +234,11 @@
 </template>
 
 <script setup lang="ts">
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconEdit from "~icons/lucide/edit"
-import IconPlus from "~icons/lucide/plus"
-import IconGripVertical from "~icons/lucide/grip-vertical"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconCircle from "~icons/lucide/circle"
-import IconTrash from "~icons/lucide/trash"
-import IconLock from "~icons/lucide/lock"
-import IconEye from "~icons/lucide/eye"
-import IconEyeOff from "~icons/lucide/eye-off"
-import IconArrowUpRight from "~icons/lucide/arrow-up-right"
-import IconWrapText from "~icons/lucide/wrap-text"
-import IconInfo from "~icons/lucide/info"
+import { useCodemirror } from "@composables/codemirror"
+import { useI18n } from "@composables/i18n"
+import { useReadonlyStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
-import { computed, reactive, ref, watch } from "vue"
-import { isEqual, cloneDeep } from "lodash-es"
+import { useToast } from "@composables/toast"
 import {
   HoppRESTAuth,
   HoppRESTHeader,
@@ -314,38 +247,47 @@ import {
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { flow, pipe } from "fp-ts/function"
-import * as RA from "fp-ts/ReadonlyArray"
-import * as E from "fp-ts/Either"
-import * as O from "fp-ts/Option"
+import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import { flow, pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import { cloneDeep, isEqual } from "lodash-es"
+import { computed, reactive, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
-import { RESTOptionTabs } from "./RequestOptions.vue"
-import { useCodemirror } from "@composables/codemirror"
-import { commonHeaders } from "~/helpers/headers"
-import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import { useToast } from "@composables/toast"
+
+import { useNestedSetting } from "~/composables/settings"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
+import { commonHeaders } from "~/helpers/headers"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
   ComputedHeader,
-  getComputedHeaders,
   getComputedAuthHeaders,
+  getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
 } from "~/newstore/environments"
-import { useVModel } from "@vueuse/core"
-import { useService } from "dioc/vue"
+import { toggleNestedSetting } from "~/newstore/settings"
 import { InspectionService, InspectorResult } from "~/services/inspection"
 import { RESTTabService } from "~/services/tab/rest"
-import { useNestedSetting } from "~/composables/settings"
-import { toggleNestedSetting } from "~/newstore/settings"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import IconArrowUpRight from "~icons/lucide/arrow-up-right"
+import IconEdit from "~icons/lucide/edit"
+import IconEye from "~icons/lucide/eye"
+import IconEyeOff from "~icons/lucide/eye-off"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconInfo from "~icons/lucide/info"
+import IconLock from "~icons/lucide/lock"
+import IconPlus from "~icons/lucide/plus"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconWrapText from "~icons/lucide/wrap-text"
+import { RESTOptionTabs } from "./RequestOptions.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -407,6 +349,7 @@ const workingHeaders = ref<Array<WorkingHeader>>([
     key: "",
     value: "",
     active: true,
+    description: "",
   },
 ])
 
@@ -421,6 +364,7 @@ watch(workingHeaders, (headersList) => {
       key: "",
       value: "",
       active: true,
+      description: "",
     })
   }
 })
@@ -458,8 +402,18 @@ watch(
       )
     }
 
-    if (!isEqual(newHeadersList, filteredBulkHeaders)) {
-      bulkHeaders.value = rawKeyValueEntriesToString(newHeadersList)
+    const newHeadersListKeyValuePairs = newHeadersList.map(
+      ({ key, value, active }) => ({
+        key,
+        value,
+        active,
+      })
+    )
+
+    if (!isEqual(newHeadersListKeyValuePairs, filteredBulkHeaders)) {
+      bulkHeaders.value = rawKeyValueEntriesToString(
+        newHeadersListKeyValuePairs
+      )
     }
   },
   { immediate: true }
@@ -493,8 +447,20 @@ watch(bulkHeaders, (newBulkHeaders) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(props.modelValue, filteredBulkHeaders)) {
-    request.value.headers = filteredBulkHeaders
+  const headers = toRef(request.value, "headers")
+
+  const paramKeyValuePairs = headers.value.map(({ key, value, active }) => ({
+    key,
+    value,
+    active,
+  }))
+
+  if (!isEqual(paramKeyValuePairs, filteredBulkHeaders)) {
+    headers.value = filteredBulkHeaders.map((param, idx) => ({
+      ...param,
+      // Adding a new key-value pair in the bulk edit context won't have a corresponding entry under `headers.value`, hence the fallback
+      description: headers.value[idx]?.description ?? "",
+    }))
   }
 })
 
@@ -504,6 +470,7 @@ const addHeader = () => {
     key: "",
     value: "",
     active: true,
+    description: "",
   })
 }
 
@@ -563,6 +530,7 @@ const clearContent = () => {
       key: "",
       value: "",
       active: true,
+      description: "",
     },
   ]
 
@@ -600,16 +568,21 @@ const inheritedProperties = computed(() => {
         header.inheritedHeader !== undefined &&
         header.inheritedHeader.active
     )
-    .map((header, index) => ({
-      inheritedFrom: props.inheritedProperties?.headers[index].parentName,
-      source: "headers",
-      id: `header-${index}`,
-      header: {
-        key: header.inheritedHeader?.key,
-        value: header.inheritedHeader?.value,
-        active: header.inheritedHeader?.active,
-      },
-    }))
+    .map((header, index) => {
+      const { key, value, active, description } = header.inheritedHeader
+
+      return {
+        inheritedFrom: props.inheritedProperties?.headers[index].parentName,
+        source: "headers",
+        id: `header-${index}`,
+        header: {
+          key,
+          value,
+          active,
+          description,
+        },
+      }
+    })
 
   let auth = [] as {
     inheritedFrom: string

@@ -136,6 +136,7 @@ declare module 'vue' {
     HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']
     HttpHeaders: typeof import('./components/http/Headers.vue')['default']
     HttpImportCurl: typeof import('./components/http/ImportCurl.vue')['default']
+    HttpKeyValue: typeof import('./components/http/KeyValue.vue')['default']
     HttpOAuth2Authorization: typeof import('./components/http/OAuth2Authorization.vue')['default']
     HttpParameters: typeof import('./components/http/Parameters.vue')['default']
     HttpPreRequestScript: typeof import('./components/http/PreRequestScript.vue')['default']

@@ -15,7 +15,7 @@ export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Workspa
   [
     {
       id: "clx1ldkzs005t10f8rp5u60q7",
-      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true}]}',
+      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true,"description":""}]}',
       title: "CollectionA",
       parentID: null,
       folders: [
@@ -245,6 +245,7 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
           key: "X-Test-Header",
           value: "Set at root collection",
           active: true,
+          description: "",
         },
       ],
     },
@@ -547,12 +548,12 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
 export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: HoppCollection[] =
   [
     {
-      v: 2,
+      v: CollectionSchemaVersion,
       id: "clx1kxvao005m10f8luqivrf1",
       name: "Collection with no authorization/headers set",
       folders: [
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1kygjt005n10f8m1nkhjux",
           name: "folder-1",
           folders: [],
@@ -584,7 +585,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
           headers: [],
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1kym98005o10f8qg17t9o2",
           name: "folder-2",
           folders: [],
@@ -622,7 +623,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
           ],
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1l2bu6005r10f8daynohge",
           name: "folder-3",
           folders: [],
@@ -634,7 +635,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
           headers: [],
         },
         {
-          v: 2,
+          v: CollectionSchemaVersion,
           id: "clx1l2eaz005s10f8loetbbeb",
           name: "folder-4",
           folders: [],

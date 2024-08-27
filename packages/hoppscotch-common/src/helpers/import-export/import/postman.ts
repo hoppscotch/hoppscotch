@@ -1,34 +1,35 @@
 import {
-  Collection as PMCollection,
-  Item,
-  ItemGroup,
-  QueryParam,
-  RequestAuthDefinition,
-  VariableDefinition,
-  Variable,
-} from "postman-collection"
-import {
+  FormDataKeyValue,
+  HoppCollection,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTRequest,
-  makeRESTRequest,
-  HoppCollection,
-  makeCollection,
-  ValidContentTypes,
-  knownContentTypes,
-  FormDataKeyValue,
   HoppRESTRequestVariable,
+  knownContentTypes,
+  makeCollection,
+  makeRESTRequest,
+  ValidContentTypes,
 } from "@hoppscotch/data"
-import { pipe, flow } from "fp-ts/function"
-import * as S from "fp-ts/string"
 import * as A from "fp-ts/Array"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import * as S from "fp-ts/string"
 import * as TE from "fp-ts/TaskEither"
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { PMRawLanguage } from "~/types/pm-coll-exts"
+import {
+  DescriptionDefinition,
+  Item,
+  ItemGroup,
+  Collection as PMCollection,
+  QueryParam,
+  RequestAuthDefinition,
+  Variable,
+  VariableDefinition,
+} from "postman-collection"
 import { stringArrayJoin } from "~/helpers/functional/array"
+import { PMRawLanguage } from "~/types/pm-coll-exts"
+import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -64,14 +65,29 @@ const readPMCollection = (def: string) =>
     )
   )
 
+const parseDescription = (descField?: string | DescriptionDefinition) => {
+  if (!descField) {
+    return ""
+  }
+
+  if (typeof descField === "string") {
+    return descField
+  }
+
+  return descField.content
+}
+
 const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
   pipe(
     item.request.headers.all(),
     A.map((header) => {
+      const description = parseDescription(header.description)
+
       return <HoppRESTHeader>{
         key: replacePMVarTemplating(header.key),
         value: replacePMVarTemplating(header.value),
         active: !header.disabled,
+        description,
       }
     })
   )
@@ -84,10 +100,13 @@ const getHoppReqParams = (item: Item): HoppRESTParam[] => {
         param.key !== undefined && param.key !== null && param.key.length > 0
     ),
     A.map((param) => {
+      const description = parseDescription(param.description)
+
       return <HoppRESTHeader>{
         key: replacePMVarTemplating(param.key),
         value: replacePMVarTemplating(param.value ?? ""),
         active: !param.disabled,
+        description,
       }
     })
   )

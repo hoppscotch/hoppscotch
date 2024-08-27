@@ -5,10 +5,10 @@ import {
   HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTRequest,
+  HoppRESTRequestVariable,
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
-  HoppRESTRequestVariable,
 } from "@hoppscotch/data"
 
 import * as A from "fp-ts/Array"
@@ -16,6 +16,7 @@ import * as TE from "fp-ts/TaskEither"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
 import { ImportRequest, convert } from "insomnia-importers"
+import { Header, Parameter } from "insomnia-importers/dist/src/entities"
 
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { replaceInsomniaTemplating } from "./insomniaEnv"
@@ -36,10 +37,13 @@ type InsomniaPathParameter = {
 }
 
 type InsomniaFolderResource = ImportRequest & { _type: "request_group" }
-type InsomniaRequestResource = ImportRequest & {
+type InsomniaRequestResource = Omit<ImportRequest, "headers" | "parameters"> & {
   _type: "request"
 } & {
   pathParameters?: InsomniaPathParameter[]
+} & {
+  headers: (Header & { description: string })[]
+  parameters: (Parameter & { description: string })[]
 }
 
 const parseInsomniaDoc = (content: string) =>
@@ -192,6 +196,7 @@ const getHoppReqHeaders = (req: InsomniaRequestResource): HoppRESTHeader[] =>
     key: replaceVarTemplating(header.name),
     value: replaceVarTemplating(header.value),
     active: !header.disabled,
+    description: header.description ?? "",
   })) ?? []
 
 const getHoppReqParams = (req: InsomniaRequestResource): HoppRESTParam[] =>
@@ -199,6 +204,7 @@ const getHoppReqParams = (req: InsomniaRequestResource): HoppRESTParam[] =>
     key: replaceVarTemplating(param.name),
     value: replaceVarTemplating(param.value ?? ""),
     active: !(param.disabled ?? false),
+    description: param.description ?? "",
   })) ?? []
 
 const getHoppReqVariables = (

@@ -319,6 +319,10 @@ import { useLocalState } from "~/newstore/localstate"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
+import {
+  sortPersonalEnvironmentsAlphabetically,
+  sortTeamEnvironmentsAlphabetically,
+} from "~/helpers/utils/sortEnvironmentsAlphabetically"
 
 type Scope =
   | {
@@ -393,31 +397,13 @@ const teamEnvironmentList = useReadonlyStream(
 )
 
 // Sort environments alphabetically by default
-const alphabeticallySortedPersonalEnvironments = computed(() => {
-  return [...myEnvironments.value]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) =>
-      a.env.name
-        .toLocaleUpperCase()
-        .localeCompare(b.env.name.toLocaleUpperCase())
-    )
-})
+const alphabeticallySortedPersonalEnvironments = computed(() =>
+  sortPersonalEnvironmentsAlphabetically(myEnvironments.value, "asc")
+)
 
-const alphabeticallySortedTeamEnvironments = computed(() => {
-  return [...teamEnvironmentList.value]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) =>
-      a.env.environment.name
-        .toLocaleUpperCase()
-        .localeCompare(b.env.environment.name.toLocaleUpperCase())
-    )
-})
+const alphabeticallySortedTeamEnvironments = computed(() =>
+  sortTeamEnvironmentsAlphabetically(teamEnvironmentList.value, "asc")
+)
 
 const handleEnvironmentChange = (
   index: number,

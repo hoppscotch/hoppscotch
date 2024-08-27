@@ -88,6 +88,7 @@ import IconPlus from "~icons/lucide/plus"
 import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { defineActionHandler } from "~/helpers/actions"
+import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -95,18 +96,9 @@ const colorMode = useColorMode()
 const environments = useReadonlyStream(environments$, [])
 
 // Sort environments alphabetically by default
-const alphabeticallySortedPersonalEnvironments = computed(() => {
-  return [...environments.value]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) =>
-      a.env.name
-        .toLocaleUpperCase()
-        .localeCompare(b.env.name.toLocaleUpperCase())
-    )
-})
+const alphabeticallySortedPersonalEnvironments = computed(() =>
+  sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
+)
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)

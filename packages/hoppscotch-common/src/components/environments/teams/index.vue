@@ -145,6 +145,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
 import { TeamWorkspace } from "~/services/workspace.service"
+import { sortTeamEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 
 const t = useI18n()
 
@@ -158,18 +159,10 @@ const props = defineProps<{
 }>()
 
 // Sort environments alphabetically by default
-const alphabeticallySortedTeamEnvironments = computed(() => {
-  return [...props.teamEnvironments]
-    .map((env, index) => ({
-      env,
-      index,
-    }))
-    .sort((a, b) =>
-      a.env.environment.name
-        .toLocaleUpperCase()
-        .localeCompare(b.env.environment.name.toLocaleUpperCase())
-    )
-})
+
+const alphabeticallySortedTeamEnvironments = computed(() =>
+  sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+)
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)

@@ -385,7 +385,6 @@ describe("hopp test [options] <file_path_or_id>", () => {
       test("Supports the usage of request variables along with environment variables", async () => {
         const env = {
           ...process.env,
-          secretBasicAuthUsernameEnvVar: "username",
           secretBasicAuthPasswordEnvVar: "password",
         };
 
@@ -404,6 +403,30 @@ describe("hopp test [options] <file_path_or_id>", () => {
         expect(stdout).toContain(
           "https://echo.hoppscotch.io/********/********"
         );
+        expect(error).toBeNull();
+      });
+    });
+
+    describe("AWS Signature Authorization type", () => {
+      test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
+        const env = {
+          ...process.env,
+          secretKey: "test-secret-key",
+          serviceToken: "test-token",
+        };
+
+        const COLL_PATH = getTestJsonFilePath(
+          "aws-signature-auth-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "aws-signature-auth-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+        const { error } = await runCLI(args, { env });
+
         expect(error).toBeNull();
       });
     });

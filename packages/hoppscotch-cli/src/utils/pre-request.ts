@@ -16,6 +16,7 @@ import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import qs from "qs";
+import { AwsV4Signer } from "aws4fetch";
 
 import { EffectiveHoppRESTRequest } from "../interfaces/request";
 import { HoppCLIError, error } from "../types/errors";
@@ -53,7 +54,13 @@ export const preRequestScriptRunner = (
           variables: [...(selected ?? []), ...(global ?? [])],
         }
     ),
-    TE.chainEitherKW((env) => getEffectiveRESTRequest(request, env)),
+    TE.chainW((env) =>
+      TE.tryCatch(
+        () => getEffectiveRESTRequest(request, env),
+        (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
+      )
+    ),
+    TE.chainEitherKW((effectiveRequest) => effectiveRequest),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)
         ? reason
@@ -72,12 +79,14 @@ export const preRequestScriptRunner = (
  *
  * @returns An object with extra fields defining a complete request
  */
-export function getEffectiveRESTRequest(
+export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
-): E.Either<
-  HoppCLIError,
-  { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
+): Promise<
+  E.Either<
+    HoppCLIError,
+    { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
+  >
 > {
   const envVariables = environment.variables;
 
@@ -168,6 +177,59 @@ export function getEffectiveRESTRequest(
           key: parseTemplateString(key, resolvedVariables),
           value: parseTemplateString(value, resolvedVariables),
           description: "",
+        });
+      }
+    } else if (request.auth.authType === "aws-signature") {
+      const { addTo } = request.auth;
+
+      const currentDate = new Date();
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
+      const { method, endpoint } = request;
+
+      const signer = new AwsV4Signer({
+        method,
+        datetime: amzDate,
+        signQuery: addTo === "QUERY_PARAMS",
+        accessKeyId: parseTemplateString(
+          request.auth.accessKey,
+          resolvedVariables
+        ),
+        secretAccessKey: parseTemplateString(
+          request.auth.secretKey,
+          resolvedVariables
+        ),
+        region:
+          parseTemplateString(request.auth.region, resolvedVariables) ??
+          "us-east-1",
+        service: parseTemplateString(
+          request.auth.serviceName,
+          resolvedVariables
+        ),
+        url: parseTemplateString(endpoint, resolvedVariables),
+        sessionToken:
+          request.auth.serviceToken &&
+          parseTemplateString(request.auth.serviceToken, resolvedVariables),
+      });
+
+      const sign = await signer.sign();
+
+      if (addTo === "HEADERS") {
+        sign.headers.forEach((value, key) => {
+          effectiveFinalHeaders.push({
+            active: true,
+            key,
+            value,
+            description: "",
+          });
+        });
+      } else if (addTo === "QUERY_PARAMS") {
+        sign.url.searchParams.forEach((value, key) => {
+          effectiveFinalParams.push({
+            active: true,
+            key,
+            value,
+            description: "",
+          });
         });
       }
     }

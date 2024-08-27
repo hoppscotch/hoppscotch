@@ -319,6 +319,9 @@ importers:
 
   packages/hoppscotch-cli:
     dependencies:
+      aws4fetch:
+        specifier: 1.0.19
+        version: 1.0.19
       axios:
         specifier: 1.7.5
         version: 1.7.5

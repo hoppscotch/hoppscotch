@@ -72,5 +72,5 @@ type RequestOptionTabs =
   | "share-request"
   | "codegen"
 
-const selectedNavigationTab = ref<RequestOptionTabs>("codegen")
+const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 </script>

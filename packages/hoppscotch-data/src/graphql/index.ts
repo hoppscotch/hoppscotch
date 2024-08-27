@@ -15,7 +15,7 @@ export {
 } from "./v/2"
 export { GQLHeader } from "./v/6"
 
-export { HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/5"
+export { HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/6"
 
 export { HoppGQLAuthAPIKey } from "./v/4"
 

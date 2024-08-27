@@ -13,12 +13,10 @@ import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
 import V6_VERSION, { HoppRESTReqBody } from "./v/6"
+import V7_VERSION, { HoppRESTAuth } from "./v/7"
 
 import { HoppRESTHeaders, HoppRESTParams } from "./v/7"
-import V7_VERSION from "./v/7"
-
 import { HoppRESTRequestVariables } from "./v/2"
-import { HoppRESTAuth } from "./v/5"
 
 export * from "./content-types"
 
@@ -37,11 +35,8 @@ export {
   PasswordGrantTypeParams,
 } from "./v/3"
 
-export {
-  AuthCodeGrantTypeParams,
-  HoppRESTAuth,
-  HoppRESTAuthOAuth2,
-} from "./v/5"
+export { AuthCodeGrantTypeParams } from "./v/5"
+export { HoppRESTAuthOAuth2, HoppRESTAuth } from "./v/7"
 
 export { HoppRESTAuthAPIKey } from "./v/4"
 
@@ -159,6 +154,7 @@ export function safelyExtractRESTRequest(
       const result = HoppRESTAuth.safeParse(x.auth)
 
       if (result.success) {
+        //  @ts-ignore
         req.auth = result.data
       }
     }

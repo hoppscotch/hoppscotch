@@ -83,7 +83,9 @@
     </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
-        v-for="{ env, index } in alphabeticallySortedTeamEnvironments"
+        v-for="{ env, index } in JSON.parse(
+          JSON.stringify(alphabeticallySortedTeamEnvironments)
+        )"
         :key="`environment-${index}`"
         :environment="env"
         :is-viewer="team?.role === 'VIEWER'"
@@ -116,7 +118,9 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
-      :team-environments="alphabeticallySortedTeamEnvironments"
+      :team-environments="
+        alphabeticallySortedTeamEnvironments.map(({ env }) => env)
+      "
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"

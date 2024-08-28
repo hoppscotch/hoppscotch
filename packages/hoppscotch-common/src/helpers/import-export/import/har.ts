@@ -29,7 +29,7 @@ export const harImporter = (
     const requests = harToHoppscotchRequestConverter(har)
 
     const collection = makeCollection({
-      name: "Har Importer Collection",
+      name: "Imported from HAR",
       folders: [],
       requests: requests,
       auth: {
@@ -89,6 +89,9 @@ const convertPostDataToHoppBody = (
 
   if (isValidContentType(postData.mimeType)) {
     contentType = postData.mimeType
+  } else if (postData.mimeType.startsWith("multipart/form-data")) {
+    // some har files will have formdata formatted like multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+    contentType = "multipart/form-data"
   }
 
   // all the contentTypes except application/x-www-form-urlencoded && multipart/form-data will have text content
@@ -100,12 +103,32 @@ const convertPostDataToHoppBody = (
     contentType === "application/xml" ||
     contentType === "text/html" ||
     contentType === "text/xml" ||
-    contentType === "text/plain" ||
-    contentType === "application/x-www-form-urlencoded"
+    contentType === "text/plain"
   ) {
     const body: HoppRESTReqBody = {
       body: postData.text ?? "",
       contentType,
+    }
+
+    return body
+  }
+
+  if (contentType === "application/x-www-form-urlencoded") {
+    let bodyContent: string = ""
+
+    if (postData.text) {
+      bodyContent = formatXWWWFormUrlencodedForHoppscotch(postData.text)
+    } else if (postData.params) {
+      bodyContent = postData.params
+        .map((param) => {
+          return `${param.name}:${param.value}`
+        })
+        .join("\n")
+    }
+
+    const body: HoppRESTReqBody = {
+      contentType: "application/x-www-form-urlencoded",
+      body: bodyContent,
     }
 
     return body
@@ -146,7 +169,20 @@ const isValidContentType = (
 ): contentType is ValidContentTypes =>
   (ValidContentTypesList as string[]).includes(contentType)
 
-// Helper schemas
+const formatXWWWFormUrlencodedForHoppscotch = (text: string) => {
+  const params = new URLSearchParams(text)
+  const result = []
+
+  for (const [key, value] of params) {
+    result.push(`${key}:${value}`)
+  }
+
+  return result.join("\n")
+}
+
+// <------har zod schema defs------>
+// we only define parts of the schema that we need
+
 const recordSchema = z.object({
   name: z.string(),
   value: z.string(),
@@ -200,11 +236,10 @@ const entrySchema = z.object({
 
 const logSchema = z.object({
   entries: z.array(entrySchema),
-  comment: z.string().optional(),
 })
 
-export const harSchema = z.object({
+const harSchema = z.object({
   log: logSchema,
 })
 
-export type HAR = z.infer<typeof harSchema>
+type HAR = z.infer<typeof harSchema>

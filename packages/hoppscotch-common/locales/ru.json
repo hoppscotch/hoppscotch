@@ -450,7 +450,7 @@
     "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
     "json_description": "Импортировать из коллекции Hoppscotch",
     "postman_environment": "Postman Environment",
-    "postman_environment_description": "Import Postman Environment from a JSON file",
+    "postman_environment_description": "Импортировать переменные окружения Postman из JSON файла",
     "title": "Импортировать",
     "file_size_limit_exceeded_warning_multiple_files": "Выбранные файлы превышают рекомендованный лимит в 10MB. Были импортированы только первые {files}",
     "file_size_limit_exceeded_warning_single_file": "Размер выбранного в данный момент файла превышает рекомендуемый лимит в 10 МБ. Пожалуйста, выберите другой файл",

@@ -448,6 +448,8 @@
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
+    "from_har": "Import from HAR",
+    "from_har_description": "Import from HAR file",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
     "hoppscotch_environment": "Hoppscotch Environment",
     "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",

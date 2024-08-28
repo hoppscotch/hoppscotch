@@ -24,6 +24,7 @@ import {
   hoppPostmanImporter,
   toTeamsImporter,
   hoppOpenAPIImporter,
+  harImporter,
 } from "~/helpers/import-export/import/importers"
 
 import { defineStep } from "~/composables/step-components"
@@ -505,6 +506,38 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
   },
 }
 
+const HARImporter: ImporterOrExporter = {
+  metadata: {
+    id: "har",
+    name: "import.from_har",
+    title: "import.from_har_description",
+    icon: IconFile,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace"],
+  },
+  component: FileSource({
+    caption: "import.from_file",
+    acceptedFileTypes: ".har",
+    onImportFromFile: async (content) => {
+      const res = await harImporter(content)
+
+      if (E.isLeft(res)) {
+        showImportFailedError()
+        return
+      }
+
+      handleImportToStore(res.right)
+
+      platform.analytics?.logEvent({
+        type: "HOPP_IMPORT_COLLECTION",
+        importer: "import.from_har",
+        platform: "rest",
+        workspaceType: isTeamWorkspace.value ? "team" : "personal",
+      })
+    },
+  }),
+}
+
 const importerModules = computed(() => {
   const enabledImporters = [
     HoppRESTImporter,
@@ -513,6 +546,7 @@ const importerModules = computed(() => {
     HoppPostmanImporter,
     HoppInsomniaImporter,
     HoppGistImporter,
+    HARImporter,
   ]
 
   const isTeams = props.collectionsType.type === "team-collections"

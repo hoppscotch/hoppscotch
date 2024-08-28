@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@vueuse/core"
+import { useColorMode } from "@composables/theming"
 import { computed } from "vue"
 
 import { shortDateTime } from "~/helpers/utils/date"

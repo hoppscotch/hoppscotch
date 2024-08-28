@@ -36,6 +36,28 @@ export const HoppRESTAuthOAuth2 = z.object({
 
 export type HoppRESTAuthOAuth2 = z.infer<typeof HoppRESTAuthOAuth2>
 
+export const HoppRESTParams = z.array(
+  z.object({
+    key: z.string().catch(""),
+    value: z.string().catch(""),
+    active: z.boolean().catch(true),
+    description: z.string().catch(""),
+  })
+)
+
+export type HoppRESTParams = z.infer<typeof HoppRESTParams>
+
+export const HoppRESTHeaders = z.array(
+  z.object({
+    key: z.string().catch(""),
+    value: z.string().catch(""),
+    active: z.boolean().catch(true),
+    description: z.string().catch(""),
+  })
+)
+
+export type HoppRESTHeaders = z.infer<typeof HoppRESTHeaders>
+
 // in this new version, we add a new auth type for AWS Signature
 // this auth type is used for AWS Signature V5 authentication
 // it requires the user to provide the access key id, secret access key, region, service name, and service token

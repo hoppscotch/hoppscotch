@@ -118,10 +118,7 @@ import IconCircleDot from "~icons/lucide/circle-dot"
 import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import { onMounted, ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
-import { generateAWSSignature } from "~/helpers/auth/aws-sign"
-import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
 
 const t = useI18n()
 
@@ -137,24 +134,4 @@ const emit = defineEmits<{
 const auth = useVModel(props, "modelValue", emit)
 
 const authTippyActions = ref<any | null>(null)
-
-onMounted(() => {
-  generateSignature()
-})
-
-function generateSignature() {
-  const params = { ...auth.value }
-  const unwrappedParams = replaceTemplateStringsInObjectValues(params)
-
-  generateAWSSignature(
-    unwrappedParams.accessKey,
-    unwrappedParams.secretKey,
-    unwrappedParams.region,
-    unwrappedParams.serviceName,
-    unwrappedParams.serviceToken
-  ).then((signature) => {
-    auth.value.signature = signature
-    console.log("Generated Signature: ", signature)
-  })
-}
 </script>

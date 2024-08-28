@@ -1,7 +1,7 @@
 <template>
   <div
     class="group flex items-stretch"
-    @contextmenu.prevent="options!.tippy.show()"
+    @contextmenu.prevent="options!.tippy?.show()"
   >
     <span
       class="flex cursor-pointer items-center justify-center px-4"
@@ -212,6 +212,8 @@ const getErrorMessage = (err: GQLError<string>) => {
   switch (err.error) {
     case "team_environment/not_found":
       return t("team_environment.not_found")
+    case "team_environment/short_name":
+      return t("environment.short_name")
     default:
       return t("error.something_went_wrong")
   }

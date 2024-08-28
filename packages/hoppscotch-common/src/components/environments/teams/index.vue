@@ -44,7 +44,11 @@
       </div>
     </div>
     <HoppSmartPlaceholder
-      v-if="!loading && !teamEnvironments.length && !adapterError"
+      v-if="
+        !loading &&
+        !alphabeticallySortedTeamEnvironments.length &&
+        !adapterError
+      "
       :src="`/images/states/${colorMode.value}/blockchain.svg`"
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
@@ -79,15 +83,15 @@
     </HoppSmartPlaceholder>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
-        v-for="(environment, index) in JSON.parse(
-          JSON.stringify(teamEnvironments)
+        v-for="{ env, index } in JSON.parse(
+          JSON.stringify(alphabeticallySortedTeamEnvironments)
         )"
         :key="`environment-${index}`"
-        :environment="environment"
+        :environment="env"
         :is-viewer="team?.role === 'VIEWER'"
-        @edit-environment="editEnvironment(environment)"
+        @edit-environment="editEnvironment(env)"
         @show-environment-properties="
-          showEnvironmentProperties(environment.environment.id)
+          showEnvironmentProperties(env.environment.id)
         "
       />
     </div>
@@ -114,7 +118,9 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
-      :team-environments="teamEnvironments"
+      :team-environments="
+        alphabeticallySortedTeamEnvironments.map(({ env }) => env)
+      "
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
@@ -139,6 +145,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import { defineActionHandler } from "~/helpers/actions"
 import { TeamWorkspace } from "~/services/workspace.service"
+import { sortTeamEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 
 const t = useI18n()
 
@@ -150,6 +157,12 @@ const props = defineProps<{
   adapterError: GQLError<string> | null
   loading: boolean
 }>()
+
+// Sort environments alphabetically by default
+
+const alphabeticallySortedTeamEnvironments = computed(() =>
+  sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+)
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -209,11 +222,12 @@ defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const teamEnvToEdit = props.teamEnvironments.find(
-      (environment) => environment.environment.name === envName
+    const teamEnvToEdit = alphabeticallySortedTeamEnvironments.value.find(
+      ({ env }) => env.environment.name === envName
     )
     if (teamEnvToEdit) {
-      editEnvironment(teamEnvToEdit)
+      const { env } = teamEnvToEdit
+      editEnvironment(env)
       secretOptionSelected.value = isSecret ?? false
     }
   }

@@ -309,6 +309,7 @@
     "select": "Select environment",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
+    "short_name": "Environment needs to have minimum 3 characters",
     "team_environments": "Workspace Environments",
     "title": "Environments",
     "updated": "Environment updated",

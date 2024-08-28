@@ -918,9 +918,7 @@ const setAccessTokenInActiveContext = (
     // we also make sure the grantTypes supporting refreshTokens are
     if (
       refreshToken &&
-      (auth.value.grantTypeInfo.grantType === "AUTHORIZATION_CODE" ||
-        auth.value.grantTypeInfo.grantType === "PASSWORD" ||
-        auth.value.grantTypeInfo.grantType === "CLIENT_CREDENTIALS")
+      auth.value.grantTypeInfo.grantType === "AUTHORIZATION_CODE"
     ) {
       auth.value.grantTypeInfo = {
         ...auth.value.grantTypeInfo,

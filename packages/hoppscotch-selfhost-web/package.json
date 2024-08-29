@@ -30,7 +30,7 @@
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/ui": "0.1.0",
     "@import-meta-env/unplugin": "0.4.10",
-    "axios": "1.6.2",
+    "axios": "1.7.5",
     "buffer": "6.0.3",
     "fp-ts": "2.16.1",
     "process": "0.11.10",

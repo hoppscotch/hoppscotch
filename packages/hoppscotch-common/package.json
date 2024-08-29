@@ -48,7 +48,7 @@
     "@vitejs/plugin-legacy": "4.1.1",
     "@vueuse/core": "10.7.0",
     "acorn-walk": "8.3.0",
-    "axios": "1.6.2",
+    "axios": "1.7.5",
     "buffer": "6.0.3",
     "cookie-es": "1.0.0",
     "dioc": "3.0.2",

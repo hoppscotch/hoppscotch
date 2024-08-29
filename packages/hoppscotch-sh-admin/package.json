@@ -25,7 +25,7 @@
     "@urql/exchange-auth": "2.1.6",
     "@urql/vue": "1.1.2",
     "@vueuse/core": "9.12.0",
-    "axios": "0.21.4",
+    "axios": "1.7.5",
     "cors": "2.8.5",
     "date-fns": "2.29.3",
     "express": "4.18.2",

@@ -40,7 +40,8 @@
       "@nestjs/graphql>ws": "8.17.1",
       "braces": "3.0.3",
       "express": "4.19.2",
-      "pug": "3.0.3"
+      "pug": "3.0.3",
+      "micromatch@<4.0.8": "4.0.8"
     },
     "packageExtensions": {
       "@hoppscotch/httpsnippet": {

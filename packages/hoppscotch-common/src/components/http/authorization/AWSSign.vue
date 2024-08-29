@@ -119,6 +119,7 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { ref } from "vue"
 
 const t = useI18n()
 

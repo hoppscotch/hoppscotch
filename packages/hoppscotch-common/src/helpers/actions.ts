@@ -61,6 +61,7 @@ export type HoppAction =
   | "settings.theme.dark" // Use dark theme
   | "settings.theme.black" // Use black theme
   | "response.preview.toggle" // Toggle response preview
+  | "response.schema.toggle" // Toggle response data schema
   | "response.file.download" // Download response as file
   | "response.copy" // Copy response to clipboard
   | "modals.login.toggle" // Login to Hoppscotch

@@ -66,7 +66,12 @@
               <HoppSmartItem
                 :label="t('response.generate_data_schema')"
                 :icon="IconNetwork"
-                @click="openDrawer"
+                @click="
+                  () => {
+                    invokeAction('response.schema.toggle')
+                    hide()
+                  }
+                "
               />
             </div>
           </template>
@@ -220,16 +225,6 @@
         />
       </div>
     </div>
-
-    <AppDrawer
-      max-width="500"
-      :is-open="isDrawerOpen"
-      background-color="#1C1C1E"
-      :speed="500"
-      @close="closeDrawer"
-    >
-      <HttpResponseInterface :show="isDrawerOpen" />
-    </AppDrawer>
   </div>
 </template>
 
@@ -259,7 +254,7 @@ import {
   useResponseBody,
   useDownloadResponse,
 } from "@composables/lens-actions"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -271,14 +266,6 @@ const props = defineProps<{
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
-
-const isDrawerOpen = ref(false)
-const openDrawer = () => {
-  isDrawerOpen.value = true
-}
-const closeDrawer = () => {
-  isDrawerOpen.value = false
-}
 
 const toggleFilter = ref(false)
 const filterQueryText = ref("")

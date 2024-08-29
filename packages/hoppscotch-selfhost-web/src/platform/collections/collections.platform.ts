@@ -48,8 +48,10 @@ import {
 } from "@hoppscotch/common/newstore/collections"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
+  GQLHeader,
   HoppCollection,
   HoppGQLRequest,
+  HoppRESTHeaders,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
@@ -100,12 +102,20 @@ type ExportedUserCollectionGQL = {
   data: string
 }
 
+function migrateHeaders(headers: HoppRESTHeaders | GQLHeader[]) {
+  return headers.map((header) => ({
+    ...header,
+    description: "description" in header ? header.description : "",
+  }))
+}
+
 function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
+
     const data =
       restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
@@ -113,9 +123,10 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: false },
             headers: [],
           }
+
     return {
       id: restCollection.id,
-      v: 2,
+      v: 3,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -156,10 +167,11 @@ function exportedCollectionToHoppCollection(
         }
       }),
       auth: data.auth,
-      headers: data.headers,
+      headers: migrateHeaders(data.headers),
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
+
     const data =
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
@@ -170,7 +182,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: gqlCollection.id,
-      v: 2,
+      v: 3,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -188,7 +200,7 @@ function exportedCollectionToHoppCollection(
         })
       ) as HoppGQLRequest[],
       auth: data.auth,
-      headers: data.headers,
+      headers: migrateHeaders(data.headers),
     }
   }
 }
@@ -349,17 +361,17 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 2,
+                v: 3,
                 auth: data.auth,
-                headers: data.headers,
+                headers: migrateHeaders(data.headers),
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 2,
+                v: 3,
                 auth: data.auth,
-                headers: data?.headers,
+                headers: migrateHeaders(data.headers),
               })
 
           const localIndex = collectionStore.value.state.length - 1

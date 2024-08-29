@@ -32,8 +32,6 @@ import { getDurationInSeconds, getMetaDataPairs } from "./getters";
 import { preRequestScriptRunner } from "./pre-request";
 import { getTestScriptParams, hasFailedTestCases, testRunner } from "./test";
 
-// !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
-
 /**
  * Processes given variable, which includes checking for secret variables
  * and getting value from system environment
@@ -75,46 +73,20 @@ const processEnvs = (envs: Partial<HoppEnvs>) => {
  */
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
-    supported: true,
     displayUrl: req.effectiveFinalDisplayURL,
   };
+
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
+
   const reqParams = finalParams(req);
   const reqHeaders = finalHeaders(req);
+
   config.url = finalEndpoint(req);
   config.method = req.method as Method;
   config.params = getMetaDataPairs(reqParams);
   config.headers = getMetaDataPairs(reqHeaders);
-  if (req.auth.authActive) {
-    switch (req.auth.authType) {
-      case "oauth-2": {
-        // TODO: OAuth2 Request Parsing
-        // !NOTE: Temporary `config.supported` check
-        config.supported = false;
-      }
-      default: {
-        break;
-      }
-    }
-  }
 
-  const resolvedContentType =
-    config.headers["Content-Type"] ?? req.body.contentType;
-
-  if (resolvedContentType) {
-    switch (resolvedContentType) {
-      case "multipart/form-data": {
-        // TODO: Parse Multipart Form Data
-        // !NOTE: Temporary `config.supported` check
-        config.supported = false;
-        break;
-      }
-      default: {
-        config.data = finalBody(req);
-        break;
-      }
-    }
-  }
+  config.data = finalBody(req);
 
   return config;
 };
@@ -149,13 +121,6 @@ export const requestRunner =
         duration: 0,
       };
 
-      // !NOTE: Temporary `config.supported` check
-      if ((config as RequestConfig).supported === false) {
-        status = 501;
-        runnerResponse.status = status;
-        runnerResponse.statusText = responseErrors[status];
-      }
-
       const end = hrtime(start);
       const duration = getDurationInSeconds(end);
       runnerResponse.duration = duration;
@@ -182,10 +147,6 @@ export const requestRunner =
           runnerResponse.statusText = statusText;
           runnerResponse.status = status;
           runnerResponse.headers = headers;
-        } else if ((e.config as RequestConfig).supported === false) {
-          status = 501;
-          runnerResponse.status = status;
-          runnerResponse.statusText = responseErrors[status];
         } else if (e.request) {
           return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
         }

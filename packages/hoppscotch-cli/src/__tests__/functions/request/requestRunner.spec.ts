@@ -15,7 +15,6 @@ describe("requestRunner", () => {
   };
 
   beforeEach(() => {
-    SAMPLE_REQUEST_CONFIG.supported = false;
     SAMPLE_REQUEST_CONFIG.url = "https://example.com";
     SAMPLE_REQUEST_CONFIG.method = "GET";
     jest.clearAllMocks();
@@ -70,7 +69,6 @@ describe("requestRunner", () => {
 
   it("Should handle axios-error with request info.", () => {
     jest.spyOn(axios, "isAxiosError").mockReturnValue(true);
-    SAMPLE_REQUEST_CONFIG.supported = true;
     (axios as unknown as jest.Mock).mockRejectedValueOnce(<AxiosError>{
       name: "name",
       message: "message",
@@ -91,7 +89,6 @@ describe("requestRunner", () => {
   });
 
   it("Should successfully execute.", () => {
-    SAMPLE_REQUEST_CONFIG.supported = true;
     (axios as unknown as jest.Mock).mockResolvedValue(<AxiosResponse>{
       data: "data",
       status: 200,

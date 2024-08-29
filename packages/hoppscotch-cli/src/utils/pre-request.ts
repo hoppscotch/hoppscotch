@@ -123,12 +123,14 @@ export function getEffectiveRESTRequest(
         active: true,
         key: "Authorization",
         value: `Basic ${btoa(`${username}:${password}`)}`,
+        description: "",
       });
     } else if (request.auth.authType === "bearer") {
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",
         value: `Bearer ${parseTemplateString(request.auth.token, resolvedVariables)}`,
+        description: "",
       });
     } else if (request.auth.authType === "oauth-2") {
       const { addTo } = request.auth;
@@ -138,6 +140,7 @@ export function getEffectiveRESTRequest(
           active: true,
           key: "Authorization",
           value: `Bearer ${parseTemplateString(request.auth.grantTypeInfo.token, resolvedVariables)}`,
+          description: "",
         });
       } else if (addTo === "QUERY_PARAMS") {
         effectiveFinalParams.push({
@@ -147,6 +150,7 @@ export function getEffectiveRESTRequest(
             request.auth.grantTypeInfo.token,
             resolvedVariables
           ),
+          description: "",
         });
       }
     } else if (request.auth.authType === "api-key") {
@@ -156,12 +160,14 @@ export function getEffectiveRESTRequest(
           active: true,
           key: parseTemplateString(key, resolvedVariables),
           value: parseTemplateString(value, resolvedVariables),
+          description: "",
         });
       } else if (addTo === "QUERY_PARAMS") {
         effectiveFinalParams.push({
           active: true,
           key: parseTemplateString(key, resolvedVariables),
           value: parseTemplateString(value, resolvedVariables),
+          description: "",
         });
       }
     }
@@ -187,6 +193,7 @@ export function getEffectiveRESTRequest(
       active: true,
       key: "Content-Type",
       value: request.body.contentType,
+      description: "",
     });
   }
 

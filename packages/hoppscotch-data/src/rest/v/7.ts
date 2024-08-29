@@ -6,7 +6,6 @@ import {
   HoppRESTAuthBearer,
   HoppRESTAuthInherit,
   HoppRESTAuthNone,
-  HoppRESTHeaders,
 } from "./1"
 import { V6_SCHEMA } from "./6"
 
@@ -91,15 +90,6 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-export const HoppRESTParams = z.array(
-  z.object({
-    key: z.string().catch(""),
-    value: z.string().catch(""),
-    active: z.boolean().catch(true),
-    description: z.string().catch(""),
-  })
-)
-
 export const HoppRESTAuthHAWK = z.object({
   authType: z.literal("hawk"),
   authId: z.string(),
@@ -160,12 +150,6 @@ export const HoppRESTAuthASAP = z.object({
 })
 
 export type HoppRESTAuthAWSSignature = z.infer<typeof HoppRESTAuthAWSSignature>
-export type HoppRESTAuthHAWK = z.infer<typeof HoppRESTAuthHAWK>
-export type HoppRESTAuthNTLM = z.infer<typeof HoppRESTAuthNTLM>
-export type HoppRESTAuthAkamaiEdgeGrid = z.infer<
-  typeof HoppRESTAuthAkamaiEdgeGrid
->
-export type HoppRESTAuthASAP = z.infer<typeof HoppRESTAuthASAP>
 
 export const V7_SCHEMA = V6_SCHEMA.extend({
   v: z.literal("7"),

@@ -8,7 +8,7 @@ import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 
 import V0_VERSION from "./v/0"
 import V1_VERSION, { HoppRESTHeaders } from "./v/1"
-import V2_VERSION from "./v/2"
+import V2_VERSION, { HoppRESTRequestVariables } from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
@@ -16,8 +16,6 @@ import V6_VERSION, { HoppRESTReqBody } from "./v/6"
 import V7_VERSION, { HoppRESTAuth } from "./v/7"
 
 import { HoppRESTParams } from "./v/7"
-
-import { HoppRESTRequestVariables } from "./v/2"
 
 export * from "./content-types"
 
@@ -41,8 +39,8 @@ export { HoppRESTHeaders } from "./v/1"
 export { HoppRESTRequestVariables } from "./v/2"
 export { HoppRESTAuthAPIKey } from "./v/4"
 
-export { HoppRESTReqBody } from "./v/6"
 export { AuthCodeGrantTypeParams } from "./v/5"
+export { HoppRESTReqBody } from "./v/6"
 export {
   HoppRESTAuth,
   HoppRESTAuthAWSSignature,

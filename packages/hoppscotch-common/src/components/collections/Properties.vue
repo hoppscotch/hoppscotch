@@ -17,6 +17,7 @@
           <HttpHeaders
             v-model="editableCollection"
             :is-collection-property="true"
+            @change-tab="changeOptionTab"
           />
           <div
             class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
@@ -136,6 +137,7 @@ import { PersistenceService } from "~/services/persistence"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import { RESTOptionTabs } from "../http/RequestOptions.vue"
 
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
@@ -266,6 +268,10 @@ const saveEditedCollection = () => {
 const hideModal = () => {
   persistenceService.removeLocalConfig("unsaved_collection_properties")
   emit("hide-modal")
+}
+
+const changeOptionTab = (e: RESTOptionTabs) => {
+  activeTab.value = e
 }
 
 const copyCollectionID = () => {

@@ -70,14 +70,19 @@ const harToHoppscotchRequestConverter = (har: HAR) => {
       ? convertPostDataToHoppBody(entry.request.postData)
       : { body: null, contentType: null }
 
+    const { method, url } = entry.request
+
+    const parsedUrl = new URL(url)
+    const urlWithoutQueryParams = parsedUrl.origin + parsedUrl.pathname
+
     return {
       ...getDefaultRESTRequest(),
-      endpoint: entry.request.url,
+      endpoint: urlWithoutQueryParams,
       params,
       body,
       headers,
-      method: entry.request.method,
-      name: entry.request.url,
+      method,
+      name: url,
     }
   })
 }

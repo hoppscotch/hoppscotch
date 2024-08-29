@@ -354,7 +354,9 @@ const saveEnvironment = async () => {
   isLoading.value = true
 
   if (!editingName.value) {
+    isLoading.value = false
     toast.error(`${t("environment.invalid_name")}`)
+
     return
   }
 

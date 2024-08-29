@@ -95,6 +95,11 @@ ENV PORT=8080
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
 
+# Open Containers Initiative (OCI) labels - useful for bots like Renovate
+LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch" \
+  org.opencontainers.image.url="https://docs.hoppscotch.io" \
+  org.opencontainers.image.licenses="MIT"
+
 # Run this separately to use the cache from backend
 RUN apk add caddy
 

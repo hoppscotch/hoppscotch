@@ -428,7 +428,7 @@ onMounted(() => {
     return
   }
 
-  const { context, source, token }: PersistedOAuthConfig =
+  const { context, source, token, refresh_token }: PersistedOAuthConfig =
     JSON.parse(localOAuthTempConfig)
 
   if (source === "GraphQL") {
@@ -452,6 +452,10 @@ onMounted(() => {
         const grantTypeInfo = auth.grantTypeInfo
 
         grantTypeInfo && (grantTypeInfo.token = token ?? "")
+
+        if (refresh_token && grantTypeInfo.grantType === "AUTHORIZATION_CODE") {
+          grantTypeInfo.refreshToken = refresh_token
+        }
       }
 
       editingProperties.value = unsavedCollectionProperties

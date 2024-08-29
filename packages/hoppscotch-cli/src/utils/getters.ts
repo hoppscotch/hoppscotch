@@ -72,11 +72,12 @@ export const getEffectiveFinalMetaData = (
      * Selecting only non-empty and active pairs.
      */
     A.filter(({ key, active }) => !S.isEmpty(key) && active),
-    A.map(({ key, value }) => {
+    A.map(({ key, value, description }) => {
       return {
         active: true,
         key: parseTemplateStringE(key, resolvedVariables),
         value: parseTemplateStringE(value, resolvedVariables),
+        description,
       };
     }),
     E.fromPredicate(
@@ -91,9 +92,14 @@ export const getEffectiveFinalMetaData = (
       /**
        * Filtering and mapping only right-eithers for each key-value as [string, string].
        */
-      A.filterMap(({ key, value }) =>
+      A.filterMap(({ key, value, description }) =>
         E.isRight(key) && E.isRight(value)
-          ? O.some({ active: true, key: key.right, value: value.right })
+          ? O.some({
+              active: true,
+              key: key.right,
+              value: value.right,
+              description,
+            })
           : O.none
       )
     )

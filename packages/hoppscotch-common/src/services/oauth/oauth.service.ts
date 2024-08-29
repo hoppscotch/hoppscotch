@@ -22,6 +22,7 @@ export type PersistedOAuthConfig = {
     state: string
   }
   token?: string
+  refresh_token?: string
 }
 
 const persistenceService = getService(PersistenceService)
@@ -66,6 +67,7 @@ export function createFlowConfig<
   Flow extends string,
   AuthParams extends Record<string, unknown>,
   InitFuncReturnObject extends Record<string, unknown>,
+  RefreshTokenParams extends Record<string, unknown>,
 >(
   flow: Flow,
   params: ZodType<AuthParams>,
@@ -81,8 +83,14 @@ export function createFlowConfig<
       string,
       {
         access_token: string
+        refresh_token?: string
       }
     >
+  >,
+  refreshToken?: (
+    params: RefreshTokenParams
+  ) => Promise<
+    E.Either<string, { access_token: string; refresh_token?: string }>
   >
 ) {
   return {
@@ -90,6 +98,7 @@ export function createFlowConfig<
     params,
     init,
     onRedirectReceived,
+    refreshToken,
   }
 }
 

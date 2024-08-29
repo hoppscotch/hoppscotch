@@ -97,6 +97,11 @@ onMounted(async () => {
       ...persistedOAuthConfig,
       token: tokenInfo.right.access_token,
     }
+
+    if (tokenInfo.right.refresh_token) {
+      authConfig.refresh_token = tokenInfo.right.refresh_token
+    }
+
     persistenceService.setLocalConfig(
       "oauth_temp_config",
       JSON.stringify(authConfig)
@@ -117,6 +122,14 @@ onMounted(async () => {
   ) {
     tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       tokenInfo.right.access_token
+
+    if (
+      tabService.currentActiveTab.value.document.request.auth.grantTypeInfo
+        .grantType === "AUTHORIZATION_CODE"
+    ) {
+      tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.refreshToken =
+        tokenInfo.right.refresh_token
+    }
 
     toast.success(t("authorization.oauth.token_fetched_successfully"))
   }

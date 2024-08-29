@@ -159,6 +159,30 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
       expect(error).toBeNull();
     });
+
+    describe("OAuth 2 Authorization type with Authorization Code Grant Type", () => {
+      test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
+        const args = `test ${getTestJsonFilePath(
+          "oauth2-auth-code-coll.json",
+          "collection"
+        )}`;
+        const { error } = await runCLI(args);
+
+        expect(error).toBeNull();
+      });
+    });
+
+    describe("multipart/form-data content type", () => {
+      test("Successfully derives the relevant headers based and sends the form data in the request body", async () => {
+        const args = `test ${getTestJsonFilePath(
+          "oauth2-auth-code-coll.json",
+          "collection"
+        )}`;
+        const { error } = await runCLI(args);
+
+        expect(error).toBeNull();
+      });
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

@@ -20,8 +20,7 @@ export interface RequestStack {
  * @property {boolean} supported - Boolean check for supported or unsupported requests.
  */
 export interface RequestConfig extends AxiosRequestConfig {
-  supported: boolean;
-  displayUrl?: string
+  displayUrl?: string;
 }
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -32,7 +31,17 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    */
   effectiveFinalURL: string;
   effectiveFinalDisplayURL?: string;
-  effectiveFinalHeaders: { key: string; value: string; active: boolean }[];
-  effectiveFinalParams: { key: string; value: string; active: boolean }[];
+  effectiveFinalHeaders: {
+    key: string;
+    value: string;
+    active: boolean;
+    description: string;
+  }[];
+  effectiveFinalParams: {
+    key: string;
+    value: string;
+    active: boolean;
+    description: string;
+  }[];
   effectiveFinalBody: FormData | string | null;
 }

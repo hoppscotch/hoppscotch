@@ -126,6 +126,7 @@
   },
   "authorization": {
     "generate_token": "Generate Token",
+    "refresh_token": "Refresh Token",
     "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
     "include_in_url": "Include in URL",
     "inherited_from": "Inherited {auth} from parent collection {collection} ",
@@ -148,6 +149,9 @@
       "token_fetched_successfully": "Token fetched successfully",
       "token_fetch_failed": "Failed to fetch token",
       "validation_failed": "Validation Failed, please check the form fields",
+      "no_refresh_token_present": "No Refresh Token present. Please run the token generation flow again",
+      "refresh_token_request_failed": "Refresh token request failed",
+      "token_refreshed_successfully": "Token refreshed successfully",
       "label_authorization_endpoint": "Authorization Endpoint",
       "label_client_id": "Client ID",
       "label_client_secret": "Client Secret",

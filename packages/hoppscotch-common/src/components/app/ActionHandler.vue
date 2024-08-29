@@ -2,7 +2,11 @@
   <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
   <AppShare :show="showShare" @hide-modal="showShare = false" />
   <FirebaseLogin v-if="showLogin" @hide-modal="showLogin = false" />
-  <HttpResponseInterface :show="isDrawerOpen" @close="isDrawerOpen = false" />
+  <HttpResponseInterface
+    v-if="isDrawerOpen"
+    :show="isDrawerOpen"
+    @close="isDrawerOpen = false"
+  />
 </template>
 
 <script setup lang="ts">

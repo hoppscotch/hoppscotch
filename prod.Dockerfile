@@ -119,8 +119,8 @@ COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 RUN npm install -g @import-meta-env/cli
 
 ENTRYPOINT [ "tini", "--" ]
-COPY --chmod=755 healthcheck.sh .
-HEALTHCHECK --interval=2s CMD /bin/sh ./healthcheck.sh
+COPY --chmod=755 healthcheck.sh /
+HEALTHCHECK --interval=2s CMD /bin/sh /healthcheck.sh
 
 WORKDIR /dist/backend
 

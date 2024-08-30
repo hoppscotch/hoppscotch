@@ -288,7 +288,8 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
         params[key] = value
       }
     } else if (auth.authType === "aws-signature") {
-      const { accessKey, secretKey, region, serviceName, addTo } = auth
+      const { accessKey, secretKey, region, serviceName, addTo, serviceToken } =
+        auth
 
       const currentDate = new Date()
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
@@ -301,6 +302,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
         region: region ?? "us-east-1",
         service: serviceName,
         url,
+        sessionToken: serviceToken,
       })
 
       const sign = await signer.sign()

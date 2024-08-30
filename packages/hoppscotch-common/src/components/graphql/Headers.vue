@@ -591,6 +591,7 @@ const getComputedAuthHeaders = async (
         region: request.auth.region ?? "us-east-1",
         service: request.auth.serviceName,
         url,
+        sessionToken: request.auth.serviceToken,
       })
 
       const sign = await signer.sign()

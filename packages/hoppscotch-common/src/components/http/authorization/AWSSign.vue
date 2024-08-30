@@ -128,7 +128,6 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: HoppRESTAuthAWSSignature
   envs?: AggregateEnvironment[]
-  source: "REST" | "GQL"
 }>()
 
 const emit = defineEmits<{

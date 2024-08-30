@@ -150,7 +150,7 @@
           <HttpAuthorizationApiKey v-model="auth" />
         </div>
         <div v-if="auth.authType === 'aws-signature'">
-          <HttpAuthorizationAWSSign v-model="auth" source="GQL" />
+          <HttpAuthorizationAWSSign v-model="auth" />
         </div>
       </div>
       <div

@@ -147,7 +147,7 @@
           <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'aws-signature'">
-          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" source="REST" />
+          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
       </div>
       <div

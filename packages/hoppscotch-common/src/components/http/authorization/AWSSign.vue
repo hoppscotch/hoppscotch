@@ -32,7 +32,10 @@
       <SmartEnvInput
         v-model="auth.region"
         :auto-complete-env="true"
-        :placeholder="t('authorization.aws_signature.aws_region')"
+        :placeholder="`${t('authorization.aws_signature.aws_region')} (${t(
+          'app.default',
+          { value: 'us-east-1' }
+        )})`"
         :envs="envs"
       />
     </div>
@@ -52,7 +55,8 @@
         :envs="envs"
       />
     </div>
-    <div class="flex items-center !border-b border-dividerLight">
+
+    <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
         <label class="ml-4 text-secondaryLight">
           {{ t("authorization.pass_key_by") }}
@@ -61,17 +65,11 @@
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => authTippyActions.focus()"
+          :on-shown="() => authTippyActions?.focus()"
         >
           <HoppSmartSelectWrapper>
             <HoppButtonSecondary
-              :label="
-                auth.addTo
-                  ? auth.addTo === 'HEADERS'
-                    ? t('authorization.pass_by_headers_label')
-                    : t('authorization.pass_by_query_params_label')
-                  : t('state.none')
-              "
+              :label="passBy"
               class="ml-2 rounded-none pr-8"
             />
           </HoppSmartSelectWrapper>
@@ -83,25 +81,16 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                :icon="auth.addTo === 'HEADERS' ? IconCircleDot : IconCircle"
-                :active="auth.addTo === 'HEADERS'"
-                :label="t('authorization.pass_by_headers_label')"
-                @click="
-                  () => {
-                    auth.addTo = 'HEADERS'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
+                v-for="addToTarget in addToTargets"
+                :key="addToTarget.id"
+                :label="addToTarget.label"
                 :icon="
-                  auth.addTo === 'QUERY_PARAMS' ? IconCircleDot : IconCircle
+                  auth.addTo === addToTarget.id ? IconCircleDot : IconCircle
                 "
-                :active="auth.addTo === 'QUERY_PARAMS'"
-                :label="t('authorization.pass_by_query_params_label')"
+                :active="auth.addTo === addToTarget.id"
                 @click="
                   () => {
-                    auth.addTo = 'QUERY_PARAMS'
+                    auth.addTo = addToTarget.id
                     hide()
                   }
                 "
@@ -115,13 +104,13 @@
 </template>
 
 <script setup lang="ts">
-import IconCircle from "~icons/lucide/circle"
-import IconCircleDot from "~icons/lucide/circle-dot"
 import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
+import { computed, ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
-import { ref } from "vue"
+import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
 
 const t = useI18n()
 
@@ -137,4 +126,22 @@ const emit = defineEmits<{
 const auth = useVModel(props, "modelValue", emit)
 
 const authTippyActions = ref<any | null>(null)
+
+const addToTargets = [
+  {
+    id: "HEADERS" as const,
+    label: "Headers",
+  },
+  {
+    id: "QUERY_PARAMS" as const,
+    label: "Query Params",
+  },
+]
+
+const passBy = computed(() => {
+  return (
+    addToTargets.find((target) => target.id === auth.value.addTo)?.label ||
+    t("state.none")
+  )
+})
 </script>

@@ -170,20 +170,18 @@
 </template>
 
 <script setup lang="ts">
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconExternalLink from "~icons/lucide/external-link"
-import IconCircleDot from "~icons/lucide/circle-dot"
-import IconCircle from "~icons/lucide/circle"
-import { computed, ref } from "vue"
-import { HoppRESTAuth, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
-import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
+import { pluckRef } from "@composables/ref"
 import { useColorMode } from "@composables/theming"
 import { useVModel } from "@vueuse/core"
-import { onMounted } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
+import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
+import IconExternalLink from "~icons/lucide/external-link"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 
@@ -228,6 +226,22 @@ type AuthType = {
   handler?: () => void
 }
 
+const selectAPIKeyAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "api-key",
+    addTo: "HEADERS",
+  } as HoppRESTAuth
+}
+
+const selectAWSSignatureAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "aws-signature",
+    addTo: "HEADERS",
+  } as HoppRESTAuth
+}
+
 const authTypes: AuthType[] = [
   {
     key: "inherit",
@@ -253,10 +267,12 @@ const authTypes: AuthType[] = [
   {
     key: "api-key",
     label: "API Key",
+    handler: selectAPIKeyAuthType,
   },
   {
     key: "aws-signature",
     label: "AWS Signature",
+    handler: selectAWSSignatureAuthType,
   },
 ]
 

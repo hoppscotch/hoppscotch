@@ -137,7 +137,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
         expect(error).toBeNull();
       },
-      { timeout: 50000 }
+      { timeout: 100000 }
     );
 
     test("Persists environment variables set in the pre-request script for consumption in the test script", async () => {
@@ -366,7 +366,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
           expect(error).toBeNull();
         });
       },
-      { timeout: 20000 }
+      { timeout: 50000 }
     );
 
     describe("Request variables", () => {

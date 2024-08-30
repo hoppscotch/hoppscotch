@@ -46,7 +46,7 @@
           >
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="t('app.copy_interface_type')"
+              :title="t('action.more')"
               :icon="IconMore"
             />
             <template #content="{ hide }">
@@ -57,15 +57,14 @@
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
-                  v-for="(language, index) in interfaceLanguages"
-                  :key="index"
-                  :label="language"
-                  :icon="
-                    copiedInterfaceLanguage === language
-                      ? copyInterfaceIcon
-                      : IconCopy
+                  :label="t('response.generate_data_schema')"
+                  :icon="IconNetwork"
+                  @click="
+                    () => {
+                      invokeAction('response.schema.toggle')
+                      hide()
+                    }
                   "
-                  @click="runCopyInterface(language)"
                 />
               </div>
             </template>
@@ -95,19 +94,17 @@
 
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
-import IconCopy from "~icons/lucide/copy"
+import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import { computed, reactive, ref } from "vue"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLResponseEvent } from "~/helpers/graphql/connection"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
 import {
-  useCopyInterface,
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
@@ -158,19 +155,10 @@ useCodemirror(
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseString)
-const { copyInterfaceIcon, copyInterface } = useCopyInterface(responseString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   responseString
 )
-
-const copiedInterfaceLanguage = ref("")
-
-const runCopyInterface = (language: string) => {
-  copyInterface(language).then(() => {
-    copiedInterfaceLanguage.value = language
-  })
-}
 
 defineActionHandler(
   "response.file.download",

@@ -133,6 +133,7 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import jsonToLanguage from "~/helpers/utils/json-to-language"
 import { watch } from "vue"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
 
@@ -144,14 +145,44 @@ const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const tabs = useService(RESTTabService)
+const restTabs = useService(RESTTabService)
+const gqlTabs = useService(GQLTabService)
+
+function getCurrentPageCategory(): "graphql" | "rest" | "other" {
+  try {
+    const url = new URL(window.location.href)
+
+    if (url.pathname.startsWith("/graphql")) {
+      return "graphql"
+    } else if (url.pathname === "/") {
+      return "rest"
+    }
+    return "other"
+  } catch (e) {
+    return "other"
+  }
+}
+
 const selectedInterface = ref<(typeof interfaceLanguages)[number]>("TypeScript")
 const response = computed(() => {
-  const res = tabs.currentActiveTab.value.document.response
-  if (res?.type === "success" || res?.type === "fail") {
-    return getResponseBodyText(res.body)
+  let response = ""
+  const pageCategory = getCurrentPageCategory()
+
+  if (pageCategory === "rest") {
+    const res = restTabs.currentActiveTab.value.document.response
+    if (res?.type === "success" || res?.type === "fail") {
+      response = getResponseBodyText(res.body)
+    }
   }
-  return ""
+
+  if (pageCategory === "graphql") {
+    const res = gqlTabs.currentActiveTab.value.document.response
+    if (res && res.length === 1 && res[0].type === "response" && res[0].data) {
+      response = JSON.stringify(JSON.parse(res[0].data), null, 2)
+    }
+  }
+
+  return response
 })
 const errorState = ref(false)
 

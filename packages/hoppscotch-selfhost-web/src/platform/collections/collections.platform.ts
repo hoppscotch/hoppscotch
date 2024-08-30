@@ -52,6 +52,7 @@ import {
   HoppCollection,
   HoppGQLRequest,
   HoppRESTHeaders,
+  HoppRESTParam,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
@@ -102,10 +103,12 @@ type ExportedUserCollectionGQL = {
   data: string
 }
 
-function migrateHeaders(headers: HoppRESTHeaders | GQLHeader[]) {
-  return headers.map((header) => ({
-    ...header,
-    description: "description" in header ? header.description : "",
+function addDescriptionField(
+  candidate: HoppRESTHeaders | GQLHeader[] | HoppRESTParam[]
+) {
+  return candidate.map((item) => ({
+    ...item,
+    description: "description" in item ? item.description : "",
   }))
 }
 
@@ -151,23 +154,27 @@ function exportedCollectionToHoppCollection(
           testScript,
           requestVariables,
         } = request
+
+        const resolvedParams = addDescriptionField(params)
+        const resolvedHeaders = addDescriptionField(headers)
+
         return {
           v,
           id,
           name,
           endpoint,
           method,
-          params,
-          requestVariables: requestVariables,
+          params: resolvedParams,
+          requestVariables,
           auth,
-          headers,
+          headers: resolvedHeaders,
           body,
           preRequestScript,
           testScript,
         }
       }),
       auth: data.auth,
-      headers: migrateHeaders(data.headers),
+      headers: addDescriptionField(data.headers),
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -187,20 +194,29 @@ function exportedCollectionToHoppCollection(
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: gqlCollection.requests.map(
-        ({ v, auth, headers, name, id, query, url, variables }) => ({
+      requests: gqlCollection.requests.map((request) => {
+        const requestParsedResult = HoppGQLRequest.safeParse(request)
+        if (requestParsedResult.type === "ok") {
+          return requestParsedResult.value
+        }
+
+        const { v, auth, headers, name, id, query, url, variables } = request
+
+        const resolvedHeaders = addDescriptionField(headers)
+
+        return {
           id,
           v,
           auth,
-          headers,
+          headers: resolvedHeaders,
           name,
           query,
           url,
           variables,
-        })
-      ) as HoppGQLRequest[],
+        }
+      }),
       auth: data.auth,
-      headers: migrateHeaders(data.headers),
+      headers: addDescriptionField(data.headers),
     }
   }
 }
@@ -363,7 +379,7 @@ function setupUserCollectionCreatedSubscription() {
                 requests: [],
                 v: 3,
                 auth: data.auth,
-                headers: migrateHeaders(data.headers),
+                headers: addDescriptionField(data.headers),
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
@@ -371,7 +387,7 @@ function setupUserCollectionCreatedSubscription() {
                 requests: [],
                 v: 3,
                 auth: data.auth,
-                headers: migrateHeaders(data.headers),
+                headers: addDescriptionField(data.headers),
               })
 
           const localIndex = collectionStore.value.state.length - 1

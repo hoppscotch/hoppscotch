@@ -44,12 +44,7 @@
         :envs="envs"
       />
     </div>
-    <div
-      class="flex flex-1"
-      :class="{
-        '!border-b border-dividerLight': source === 'GQL',
-      }"
-    >
+    <div class="flex flex-1">
       <SmartEnvInput
         v-model="auth.serviceToken"
         :auto-complete-env="true"

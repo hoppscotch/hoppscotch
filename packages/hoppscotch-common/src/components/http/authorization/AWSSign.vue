@@ -34,7 +34,7 @@
         :auto-complete-env="true"
         :placeholder="`${t(
           'authorization.aws_signature.aws_region'
-        )} (default: es-east-1)`"
+        )} (default: us-east-1)`"
         :envs="envs"
       />
     </div>

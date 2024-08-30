@@ -120,10 +120,7 @@
       </div>
     </div>
 
-    <div
-      v-if="source === 'REST'"
-      class="flex items-center border-b border-dividerLight"
-    >
+    <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
         <label class="ml-4 text-secondaryLight">
           {{ t("authorization.pass_key_by") }}

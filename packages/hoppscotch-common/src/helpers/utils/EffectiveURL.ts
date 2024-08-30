@@ -146,7 +146,9 @@ export const getComputedAuthHeaders = async (
         region:
           parseTemplateString(request.auth.region, envVars) ?? "us-east-1",
         service: parseTemplateString(request.auth.serviceName, envVars),
-        sessionToken: parseTemplateString(request.auth.serviceToken, envVars),
+        sessionToken:
+          request.auth.serviceToken &&
+          parseTemplateString(request.auth.serviceToken, envVars),
         url: parseTemplateString(endpoint, envVars),
       })
 
@@ -291,7 +293,9 @@ export const getComputedParams = async (
         secretAccessKey: parseTemplateString(req.auth.secretKey, envVars),
         region: parseTemplateString(req.auth.region, envVars) ?? "us-east-1",
         service: parseTemplateString(req.auth.serviceName, envVars),
-        sessionToken: parseTemplateString(req.auth.serviceToken, envVars),
+        sessionToken:
+          req.auth.serviceToken &&
+          parseTemplateString(req.auth.serviceToken, envVars),
         url: parseTemplateString(req.endpoint, envVars),
       })
       const sign = await signer.sign()

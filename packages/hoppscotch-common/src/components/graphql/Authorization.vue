@@ -246,6 +246,22 @@ const selectOAuth2AuthType = () => {
   }
 }
 
+const selectAPIKeyAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "api-key",
+    addTo: "HEADERS",
+  } as HoppGQLAuth
+}
+
+const selectAWSSignatureAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "aws-signature",
+    addTo: "HEADERS",
+  } as HoppGQLAuth
+}
+
 const authTypes: AuthType[] = [
   {
     key: "inherit",
@@ -271,10 +287,12 @@ const authTypes: AuthType[] = [
   {
     key: "api-key",
     label: "API Key",
+    handler: selectAPIKeyAuthType,
   },
   {
     key: "aws-signature",
     label: "AWS Signature",
+    handler: selectAWSSignatureAuthType,
   },
 ]
 

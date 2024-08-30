@@ -127,19 +127,15 @@
               :icon="masking ? IconEye : IconEyeOff"
               @click="toggleMask()"
             />
-            <HoppButtonSecondary
-              v-else
-              v-tippy="{ theme: 'tooltip' }"
-              :icon="IconArrowUpRight"
-              :title="t('request.go_to_authorization_tab')"
-              class="cursor-auto text-primary hover:text-primary"
-            />
+            <div v-else class="aspect-square w-8"></div>
           </span>
+
           <span>
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :icon="IconArrowUpRight"
               :title="t('request.go_to_authorization_tab')"
+              @click="changeTab"
             />
           </span>
         </div>
@@ -235,6 +231,7 @@ import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
 import {
   GQLHeader,
+  HoppGQLAuth,
   HoppGQLRequest,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
@@ -267,6 +264,7 @@ import IconLock from "~icons/lucide/lock"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
+import { GQLOptionTabs } from "./RequestOptions.vue"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -281,6 +279,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLRequest): void
+  (e: "change-tab", value: GQLOptionTabs): void
 }>()
 
 const request = useVModel(props, "modelValue", emit)
@@ -645,7 +644,7 @@ const inheritedProperties = computed(() => {
 
   const computedAuthHeader = getComputedAuthHeaders(
     request.value,
-    props.inheritedProperties.auth.inheritedAuth
+    props.inheritedProperties.auth.inheritedAuth as HoppGQLAuth
   )[0]
 
   if (
@@ -678,8 +677,5 @@ const mask = (header: any) => {
   return header.header.value
 }
 
-// const changeTab = (tab: ComputedHeader["source"]) => {
-//   if (tab === "auth") emit("change-tab", "authorization")
-//   else emit("change-tab", "bodyParams")
-// }
+const changeTab = () => emit("change-tab", "authorization")
 </script>

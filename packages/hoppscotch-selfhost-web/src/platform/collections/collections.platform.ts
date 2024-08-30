@@ -48,8 +48,11 @@ import {
 } from "@hoppscotch/common/newstore/collections"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
+  GQLHeader,
   HoppCollection,
   HoppGQLRequest,
+  HoppRESTHeaders,
+  HoppRESTParam,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
@@ -100,12 +103,22 @@ type ExportedUserCollectionGQL = {
   data: string
 }
 
+function addDescriptionField(
+  candidate: HoppRESTHeaders | GQLHeader[] | HoppRESTParam[]
+) {
+  return candidate.map((item) => ({
+    ...item,
+    description: "description" in item ? item.description : "",
+  }))
+}
+
 function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
+
     const data =
       restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
@@ -113,9 +126,10 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: false },
             headers: [],
           }
+
     return {
       id: restCollection.id,
-      v: 2,
+      v: 3,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -140,26 +154,31 @@ function exportedCollectionToHoppCollection(
           testScript,
           requestVariables,
         } = request
+
+        const resolvedParams = addDescriptionField(params)
+        const resolvedHeaders = addDescriptionField(headers)
+
         return {
           v,
           id,
           name,
           endpoint,
           method,
-          params,
-          requestVariables: requestVariables,
+          params: resolvedParams,
+          requestVariables,
           auth,
-          headers,
+          headers: resolvedHeaders,
           body,
           preRequestScript,
           testScript,
         }
       }),
       auth: data.auth,
-      headers: data.headers,
+      headers: addDescriptionField(data.headers),
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
+
     const data =
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
@@ -170,25 +189,34 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: gqlCollection.id,
-      v: 2,
+      v: 3,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: gqlCollection.requests.map(
-        ({ v, auth, headers, name, id, query, url, variables }) => ({
+      requests: gqlCollection.requests.map((request) => {
+        const requestParsedResult = HoppGQLRequest.safeParse(request)
+        if (requestParsedResult.type === "ok") {
+          return requestParsedResult.value
+        }
+
+        const { v, auth, headers, name, id, query, url, variables } = request
+
+        const resolvedHeaders = addDescriptionField(headers)
+
+        return {
           id,
           v,
           auth,
-          headers,
+          headers: resolvedHeaders,
           name,
           query,
           url,
           variables,
-        })
-      ) as HoppGQLRequest[],
+        }
+      }),
       auth: data.auth,
-      headers: data.headers,
+      headers: addDescriptionField(data.headers),
     }
   }
 }
@@ -349,17 +377,17 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 2,
+                v: 3,
                 auth: data.auth,
-                headers: data.headers,
+                headers: addDescriptionField(data.headers),
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 2,
+                v: 3,
                 auth: data.auth,
-                headers: data?.headers,
+                headers: addDescriptionField(data.headers),
               })
 
           const localIndex = collectionStore.value.state.length - 1

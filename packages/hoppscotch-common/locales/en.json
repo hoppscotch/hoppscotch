@@ -641,7 +641,9 @@
     "title": "Response",
     "video": "Video",
     "waiting_for_connection": "waiting for connection",
-    "xml": "XML"
+    "xml": "XML",
+    "generate_data_schema": "Generate Data Schema",
+    "data_schema": "Data Schema"
   },
   "settings": {
     "accent_color": "Accent color",

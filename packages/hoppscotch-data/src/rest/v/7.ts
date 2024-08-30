@@ -72,6 +72,8 @@ export const HoppRESTAuthAWSSignature = z.object({
   addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
 })
 
+export type HoppRESTAuthAWSSignature = z.infer<typeof HoppRESTAuthAWSSignature>
+
 export const HoppRESTAuth = z
   .discriminatedUnion("authType", [
     HoppRESTAuthNone,
@@ -90,74 +92,11 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-export const HoppRESTAuthHAWK = z.object({
-  authType: z.literal("hawk"),
-  authId: z.string(),
-  authKey: z.string(),
-  algorithm: z.enum(["sha1", "sha256"]).catch("sha256"),
-  user: z.string().optional(),
-  nonce: z.string().optional(),
-  ext: z.string().optional(),
-  app: z.string().optional(),
-  dlg: z.string().optional(),
-  timestamp: z.string().optional(),
-  includePayloadHash: z.boolean().optional(),
-})
-
-export const HoppRESTAuthNTLM = z.object({
-  authType: z.literal("ntlm"),
-  username: z.string(),
-  password: z.string(),
-  domain: z.string().optional(),
-  workstation: z.string().optional(),
-  retryingRequest: z.boolean().optional(),
-})
-
-export const HoppRESTAuthAkamaiEdgeGrid = z.object({
-  authType: z.literal("akamai-edgegrid"),
-  accessToken: z.string(),
-  clientToken: z.string(),
-  clientSecret: z.string(),
-  nonce: z.string().optional(),
-  timestamp: z.string().optional(),
-  host: z.string(),
-  maxBody: z.number().optional(),
-  headersToSign: z.string().optional(),
-})
-
-export const HoppRESTAuthASAP = z.object({
-  authType: z.literal("asap"),
-  algorithm: z
-    .enum([
-      "RS256",
-      "RS384",
-      "RS512",
-      "PS256",
-      "PS384",
-      "PS512",
-      "ES256",
-      "ES384",
-      "ES512",
-    ])
-    .catch("RS256"),
-  issuer: z.string(),
-  audience: z.string(),
-  keyId: z.string().optional(),
-  privateKey: z.string(),
-  subject: z.string().optional(),
-  additionalClaims: z.record(z.string()).optional(),
-  expiresIn: z.number().optional(),
-})
-
-export type HoppRESTAuthAWSSignature = z.infer<typeof HoppRESTAuthAWSSignature>
-
 export const V7_SCHEMA = V6_SCHEMA.extend({
   v: z.literal("7"),
   params: HoppRESTParams,
   headers: HoppRESTHeaders,
   auth: HoppRESTAuth,
-  headers: HoppRESTHeaders,
-  params: HoppRESTParams,
 })
 
 export default defineVersion({

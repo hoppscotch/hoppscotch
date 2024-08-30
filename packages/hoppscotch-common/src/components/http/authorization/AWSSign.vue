@@ -123,7 +123,7 @@ import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAWSSignature } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { AggregateEnvironment } from "~/newstore/environments"
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 
 const t = useI18n()
 
@@ -137,6 +137,12 @@ const emit = defineEmits<{
 }>()
 
 const auth = useVModel(props, "modelValue", emit)
+
+onMounted(() => {
+  if (auth.value.addTo === undefined) {
+    auth.value.addTo = "HEADERS"
+  }
+})
 
 const authTippyActions = ref<any | null>(null)
 </script>

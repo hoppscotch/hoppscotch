@@ -32,7 +32,9 @@
       <SmartEnvInput
         v-model="auth.region"
         :auto-complete-env="true"
-        :placeholder="t('authorization.aws_signature.aws_region')"
+        :placeholder="`${t(
+          'authorization.aws_signature.aws_region'
+        )} (default: es-east-1)`"
         :envs="envs"
       />
     </div>

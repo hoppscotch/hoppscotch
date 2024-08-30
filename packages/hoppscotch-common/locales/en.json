@@ -180,7 +180,9 @@
       "secret_key": "Secret Key",
       "service_name": "Service Name",
       "aws_region": "AWS Region",
-      "service_token": "Service Token"
+      "service_token": "Service Token",
+      "advance_config": "Advanced Configuration",
+      "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided"
     }
   },
   "collection": {

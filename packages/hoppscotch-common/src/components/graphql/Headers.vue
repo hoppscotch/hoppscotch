@@ -231,7 +231,6 @@ import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
 import {
   GQLHeader,
-  HoppGQLAuth,
   HoppGQLRequest,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,

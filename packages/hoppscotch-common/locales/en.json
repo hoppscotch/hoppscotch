@@ -101,7 +101,8 @@
     "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "What's new?",
     "see_whats_new": "See what’s new",
-    "wiki": "Wiki"
+    "wiki": "Wiki",
+    "default": "default: {value}"
   },
   "auth": {
     "account_exists": "Account exists with different credential - Login to link both accounts",

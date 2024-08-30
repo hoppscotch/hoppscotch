@@ -25,7 +25,7 @@
             />
           </HoppSmartSelectWrapper>
           <template #content="{ hide }">
-            <div
+            <!-- <div
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
@@ -94,6 +94,27 @@
                 @click="
                   () => {
                     auth.authType = 'api-key'
+                    hide()
+                  }
+                "
+              />
+            </div> -->
+
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-for="item in authTypes"
+                :key="item.key"
+                :label="item.label"
+                :icon="item.key === authType ? IconCircleDot : IconCircle"
+                :active="item.key === authType"
+                @click="
+                  () => {
+                    item.handler ? item.handler() : (auth.authType = item.key)
                     hide()
                   }
                 "
@@ -199,6 +220,9 @@
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" />
         </div>
+        <div v-if="auth.authType === 'aws-signature'">
+          <HttpAuthorizationAWSSign v-model="auth" source="GQL" />
+        </div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
@@ -237,6 +261,12 @@ import IconTrash2 from "~icons/lucide/trash-2"
 
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 
+type AuthType = {
+  key: HoppGQLAuth["authType"]
+  label: string
+  handler?: () => void
+}
+
 const t = useI18n()
 
 const colorMode = useColorMode()
@@ -263,26 +293,6 @@ onMounted(() => {
 
 const auth = useVModel(props, "modelValue", emit)
 
-const AUTH_KEY_NAME = {
-  basic: "Basic Auth",
-  bearer: "Bearer",
-  "oauth-2": "OAuth 2.0",
-  "api-key": "API key",
-  none: "None",
-  inherit: "Inherit",
-} as const
-
-const authType = pluckRef(auth, "authType")
-
-const authName = computed(() =>
-  AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
-)
-
-const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
-  if (!type) return "None"
-  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
-}
-
 const selectOAuth2AuthType = () => {
   const defaultGrantTypeInfo: HoppGQLAuthOAuth2["grantTypeInfo"] = {
     ...getDefaultAuthCodeOauthFlowParams(),
@@ -305,6 +315,59 @@ const selectOAuth2AuthType = () => {
     addTo: "HEADERS",
     grantTypeInfo: grantTypeInfo,
   }
+}
+
+const authTypes: AuthType[] = [
+  {
+    key: "inherit",
+    label: "Inherit",
+  },
+  {
+    key: "none",
+    label: "None",
+  },
+  {
+    key: "basic",
+    label: "Basic Auth",
+  },
+  {
+    key: "bearer",
+    label: "Bearer",
+  },
+  {
+    key: "oauth-2",
+    label: "OAuth 2.0",
+    handler: selectOAuth2AuthType,
+  },
+  {
+    key: "api-key",
+    label: "API Key",
+  },
+  {
+    key: "aws-signature",
+    label: "AWS Signature",
+  },
+]
+
+const AUTH_KEY_NAME: Record<HoppGQLAuth["authType"], string> = {
+  basic: "Basic Auth",
+  bearer: "Bearer",
+  "oauth-2": "OAuth 2.0",
+  "api-key": "API key",
+  none: "None",
+  inherit: "Inherit",
+  "aws-signature": "AWS Signature",
+}
+
+const authType = pluckRef(auth, "authType")
+
+const authName = computed(() =>
+  AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
+)
+
+const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
 }
 
 const authActive = pluckRef(auth, "authActive")

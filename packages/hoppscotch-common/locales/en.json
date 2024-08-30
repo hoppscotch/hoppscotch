@@ -174,7 +174,14 @@
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "aws_signature": {
+      "access_key": "Access Key",
+      "secret_key": "Secret Key",
+      "service_name": "Service Name",
+      "aws_region": "AWS Region",
+      "service_token": "Service Token"
+    }
   },
   "collection": {
     "created": "Collection created",

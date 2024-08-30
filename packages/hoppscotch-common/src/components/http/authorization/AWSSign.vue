@@ -3,7 +3,7 @@
     <SmartEnvInput
       v-model="auth.accessKey"
       :auto-complete-env="true"
-      placeholder="AccessKey"
+      :placeholder="t('authorization.aws_signature.access_key')"
       :envs="envs"
     />
   </div>
@@ -11,7 +11,7 @@
     <SmartEnvInput
       v-model="auth.secretKey"
       :auto-complete-env="true"
-      placeholder="SecretKey"
+      :placeholder="t('authorization.aws_signature.secret_key')"
       :envs="envs"
     />
   </div>
@@ -31,7 +31,7 @@
       <SmartEnvInput
         v-model="auth.region"
         :auto-complete-env="true"
-        placeholder="AWS Region"
+        :placeholder="t('authorization.aws_signature.aws_region')"
         :envs="envs"
       />
     </div>
@@ -39,7 +39,7 @@
       <SmartEnvInput
         v-model="auth.serviceName"
         :auto-complete-env="true"
-        placeholder="Service Name"
+        :placeholder="t('authorization.aws_signature.service_name')"
         :envs="envs"
       />
     </div>
@@ -47,13 +47,16 @@
       <SmartEnvInput
         v-model="auth.serviceToken"
         :auto-complete-env="true"
-        placeholder="Service Token"
+        :placeholder="t('authorization.aws_signature.service_token')"
         :envs="envs"
       />
     </div>
   </div>
 
-  <div class="flex items-center border-b border-dividerLight">
+  <div
+    v-if="source === 'REST'"
+    class="flex items-center border-b border-dividerLight"
+  >
     <span class="flex items-center">
       <label class="ml-4 text-secondaryLight">
         {{ t("authorization.pass_key_by") }}
@@ -126,6 +129,7 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: HoppRESTAuthAWSSignature
   envs?: AggregateEnvironment[]
+  source: "REST" | "GQL"
 }>()
 
 const emit = defineEmits<{

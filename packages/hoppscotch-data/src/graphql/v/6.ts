@@ -1,33 +1,21 @@
 import { defineVersion } from "verzod"
 import { z } from "zod"
-import { V5_SCHEMA } from "./5"
-import { HoppRESTAuthOAuth2 } from "./../../rest/v/7"
+import { HoppRESTAuthAWSSignature } from "./../../rest/v/7"
 import {
+  HoppGQLAuthAPIKey,
   HoppGQLAuthBasic,
   HoppGQLAuthBearer,
   HoppGQLAuthInherit,
   HoppGQLAuthNone,
 } from "./2"
-import { HoppGQLAuthAPIKey } from "./4"
+import { HoppGQLAuthOAuth2, V5_SCHEMA } from "./5"
 
 export { HoppRESTAuthOAuth2 as HoppGQLAuthOAuth2 } from "../../rest/v/7"
 
-export const HoppGQLAuth = z
-  .discriminatedUnion("authType", [
-    HoppGQLAuthNone,
-    HoppGQLAuthInherit,
-    HoppGQLAuthBasic,
-    HoppGQLAuthBearer,
-    HoppGQLAuthAPIKey,
-    HoppRESTAuthOAuth2, // both rest and gql have the same auth type for oauth2
-  ])
-  .and(
-    z.object({
-      authActive: z.boolean(),
-    })
-  )
+// Both REST & GQL have the same schema definition for AWS Signature Authorization type
+export const HoppGQLAuthAWSSignature = HoppRESTAuthAWSSignature
 
-export type HoppGQLAuth = z.infer<typeof HoppGQLAuth>
+export type HoppGQLAuthAWSSignature = z.infer<typeof HoppGQLAuthAWSSignature>
 
 export const GQLHeader = z.object({
   key: z.string().catch(""),
@@ -38,10 +26,28 @@ export const GQLHeader = z.object({
 
 export type GQLHeader = z.infer<typeof GQLHeader>
 
+export const HoppGQLAuth = z
+  .discriminatedUnion("authType", [
+    HoppGQLAuthNone,
+    HoppGQLAuthInherit,
+    HoppGQLAuthBasic,
+    HoppGQLAuthBearer,
+    HoppGQLAuthOAuth2,
+    HoppGQLAuthAPIKey,
+    HoppGQLAuthAWSSignature,
+  ])
+  .and(
+    z.object({
+      authActive: z.boolean(),
+    })
+  )
+
+export type HoppGQLAuth = z.infer<typeof HoppGQLAuth>
+
 export const V6_SCHEMA = V5_SCHEMA.extend({
   v: z.literal(6),
-  headers: z.array(GQLHeader).catch([]),
   auth: HoppGQLAuth,
+  headers: z.array(GQLHeader).catch([]),
 })
 
 export default defineVersion({

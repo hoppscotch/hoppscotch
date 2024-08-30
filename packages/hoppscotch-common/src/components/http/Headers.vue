@@ -556,7 +556,7 @@ const computedHeaders = computedAsync(
   []
 )
 
-const inheritedProperties = computed(() => {
+const inheritedProperties = computedAsync(async () => {
   if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
     return []
 
@@ -603,12 +603,12 @@ const inheritedProperties = computed(() => {
     }
   }[]
 
-  const computedAuthHeader = getComputedAuthHeaders(
+  const [computedAuthHeader] = await getComputedAuthHeaders(
     aggregateEnvs.value,
     request.value,
     props.inheritedProperties.auth.inheritedAuth,
     false
-  )[0]
+  )
 
   if (
     computedAuthHeader &&

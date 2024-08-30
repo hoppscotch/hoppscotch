@@ -13,11 +13,10 @@ export {
   HoppGQLAuthInherit,
   HoppGQLAuthNone,
 } from "./v/2"
-export { GQLHeader } from "./v/6"
-
-export { HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/6"
 
 export { HoppGQLAuthAPIKey } from "./v/4"
+
+export { GQLHeader, HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/6"
 
 export const GQL_REQ_SCHEMA_VERSION = 6
 

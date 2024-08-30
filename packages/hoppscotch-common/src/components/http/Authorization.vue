@@ -116,11 +116,11 @@
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
-              class="px-4"
               v-model="auth.token"
               placeholder="Token"
               :auto-complete-env="true"
               :envs="envs"
+              class="px-4"
             />
           </div>
         </div>
@@ -147,7 +147,7 @@
           <HttpAuthorizationApiKey v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'aws-signature'">
-          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
+          <HttpAuthorizationAWSSign v-model="auth" :envs="envs" source="REST" />
         </div>
       </div>
       <div

@@ -63,10 +63,10 @@ export type HoppRESTHeaders = z.infer<typeof HoppRESTHeaders>
 
 export const HoppRESTAuthAWSSignature = z.object({
   authType: z.literal("aws-signature"),
-  accessKey: z.string(),
-  secretKey: z.string(),
-  region: z.string(),
-  serviceName: z.string(),
+  accessKey: z.string().catch(""),
+  secretKey: z.string().catch(""),
+  region: z.string().catch(""),
+  serviceName: z.string().catch(""),
   serviceToken: z.string().optional(),
   signature: z.object({}).optional(),
   addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
@@ -156,6 +156,8 @@ export const V7_SCHEMA = V6_SCHEMA.extend({
   params: HoppRESTParams,
   headers: HoppRESTHeaders,
   auth: HoppRESTAuth,
+  headers: HoppRESTHeaders,
+  params: HoppRESTParams,
 })
 
 export default defineVersion({

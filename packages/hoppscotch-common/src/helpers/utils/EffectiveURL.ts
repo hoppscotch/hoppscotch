@@ -156,6 +156,7 @@ export const getComputedAuthHeaders = async (
           active: true,
           key: k,
           value: x,
+          description: "",
         })
       })
     }
@@ -300,6 +301,7 @@ export const getComputedParams = async (
             active: true,
             key: k,
             value: v,
+            description: "",
           },
         })
       }
@@ -330,6 +332,7 @@ export const getComputedParams = async (
           active: true,
           key: "access_token",
           value: parseTemplateString(grantTypeInfo.token, envVars),
+          description: "",
         },
       },
     ]

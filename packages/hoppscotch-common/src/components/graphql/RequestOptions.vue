@@ -37,6 +37,7 @@
         <GraphqlHeaders
           v-model="request"
           :inherited-properties="inheritedProperties"
+          @change-tab="changeOptionTab"
         />
       </HoppSmartTab>
       <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
@@ -261,6 +262,11 @@ const saveRequest = () => {
 const clearGQLQuery = () => {
   request.value.query = ""
 }
+
+const changeOptionTab = (e: GQLOptionTabs) => {
+  selectedOptionTab.value = e
+}
+
 defineActionHandler("request.send-cancel", runQuery)
 defineActionHandler("request.save", saveRequest)
 defineActionHandler("request.save-as", () => {

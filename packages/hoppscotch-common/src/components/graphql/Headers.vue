@@ -231,26 +231,25 @@ import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
 import {
   GQLHeader,
-  HoppGQLAuth,
   HoppGQLRequest,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
+import { computedAsync, useVModel } from "@vueuse/core"
+import { AwsV4Signer } from "aws4fetch"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { flow, pipe } from "fp-ts/function"
 import { clone, cloneDeep, isEqual } from "lodash-es"
-import { computed, reactive, ref, toRef, watch } from "vue"
+import { reactive, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { useNestedSetting } from "~/composables/settings"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
-import { HoppGQLHeader } from "~/helpers/graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -524,7 +523,7 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const getComputedAuthHeaders = (
+const getComputedAuthHeaders = async (
   req?: HoppGQLRequest,
   auth?: HoppGQLRequest["auth"]
 ) => {
@@ -537,7 +536,7 @@ const getComputedAuthHeaders = (
 
   if (!request.auth || !request.auth.authActive) return []
 
-  const headers: HoppGQLHeader[] = []
+  const headers: GQLHeader[] = []
 
   // TODO: Support a better b64 implementation than btoa ?
   if (request.auth.authType === "basic") {
@@ -548,6 +547,7 @@ const getComputedAuthHeaders = (
       active: true,
       key: "Authorization",
       value: `Basic ${btoa(`${username}:${password}`)}`,
+      description: "",
     })
   } else if (
     request.auth.authType === "bearer" ||
@@ -563,6 +563,7 @@ const getComputedAuthHeaders = (
       active: true,
       key: "Authorization",
       value: `Bearer ${token}`,
+      description: "",
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
@@ -572,6 +573,35 @@ const getComputedAuthHeaders = (
         active: true,
         key,
         value: request.auth.value ?? "",
+        description: "",
+      })
+    }
+  } else if (request.auth.authType === "aws-signature") {
+    const { addTo } = request.auth
+    if (addTo === "HEADERS") {
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+
+      const { url } = req as HoppGQLRequest
+
+      const signer = new AwsV4Signer({
+        datetime: amzDate,
+        accessKeyId: request.auth.accessKey,
+        secretAccessKey: request.auth.secretKey,
+        region: request.auth.region ?? "us-east-1",
+        service: request.auth.serviceName,
+        url,
+      })
+
+      const sign = await signer.sign()
+
+      sign.headers.forEach((x, k) => {
+        headers.push({
+          active: true,
+          key: k,
+          value: x,
+          description: "",
+        })
       })
     }
   }
@@ -579,23 +609,23 @@ const getComputedAuthHeaders = (
   return headers
 }
 
-const getComputedHeaders = (req: HoppGQLRequest) => {
+const getComputedHeaders = async (req: HoppGQLRequest) => {
   return [
-    ...getComputedAuthHeaders(req).map((header) => ({
+    ...(await getComputedAuthHeaders(req)).map((header) => ({
       source: "auth" as const,
       header,
     })),
   ]
 }
 
-const computedHeaders = computed(() =>
-  getComputedHeaders(request.value).map((header, index) => ({
+const computedHeaders = computedAsync(async () =>
+  (await getComputedHeaders(request.value)).map((header, index) => ({
     id: `header-${index}`,
     ...header,
   }))
 )
 
-const inheritedProperties = computed(() => {
+const inheritedProperties = computedAsync(async () => {
   if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
     return []
 
@@ -642,10 +672,10 @@ const inheritedProperties = computed(() => {
     }
   }[]
 
-  const computedAuthHeader = getComputedAuthHeaders(
+  const [computedAuthHeader] = await getComputedAuthHeaders(
     request.value,
-    props.inheritedProperties.auth.inheritedAuth as HoppGQLAuth
-  )[0]
+    props.inheritedProperties.auth.inheritedAuth
+  )
 
   if (
     computedAuthHeader &&

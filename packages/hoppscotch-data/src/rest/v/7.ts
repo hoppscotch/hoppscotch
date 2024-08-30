@@ -1,6 +1,12 @@
-import { defineVersion } from "verzod"
 import { z } from "zod"
-
+import { defineVersion } from "verzod"
+import {
+  HoppRESTAuthAPIKey,
+  HoppRESTAuthBasic,
+  HoppRESTAuthBearer,
+  HoppRESTAuthInherit,
+  HoppRESTAuthNone,
+} from "./1"
 import { V6_SCHEMA } from "./6"
 
 import { AuthCodeGrantTypeParams as AuthCodeGrantTypeParamsOld } from "./5"
@@ -10,13 +16,6 @@ import {
   ImplicitOauthFlowParams,
   PasswordGrantTypeParams,
 } from "./3"
-import {
-  HoppRESTAuthAPIKey,
-  HoppRESTAuthBasic,
-  HoppRESTAuthBearer,
-  HoppRESTAuthInherit,
-  HoppRESTAuthNone,
-} from "./1"
 
 // Add refreshToken to all grant types except Implicit
 export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
@@ -35,23 +34,6 @@ export const HoppRESTAuthOAuth2 = z.object({
 })
 
 export type HoppRESTAuthOAuth2 = z.infer<typeof HoppRESTAuthOAuth2>
-
-export const HoppRESTAuth = z
-  .discriminatedUnion("authType", [
-    HoppRESTAuthNone,
-    HoppRESTAuthInherit,
-    HoppRESTAuthBasic,
-    HoppRESTAuthBearer,
-    HoppRESTAuthOAuth2,
-    HoppRESTAuthAPIKey,
-  ])
-  .and(
-    z.object({
-      authActive: z.boolean(),
-    })
-  )
-
-export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
 export const HoppRESTParams = z.array(
   z.object({
@@ -74,6 +56,41 @@ export const HoppRESTHeaders = z.array(
 )
 
 export type HoppRESTHeaders = z.infer<typeof HoppRESTHeaders>
+
+// in this new version, we add a new auth type for AWS Signature
+// this auth type is used for AWS Signature V5 authentication
+// it requires the user to provide the access key id, secret access key, region, service name, and service token
+
+export const HoppRESTAuthAWSSignature = z.object({
+  authType: z.literal("aws-signature"),
+  accessKey: z.string().catch(""),
+  secretKey: z.string().catch(""),
+  region: z.string().catch(""),
+  serviceName: z.string().catch(""),
+  serviceToken: z.string().optional(),
+  signature: z.object({}).optional(),
+  addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
+})
+
+export type HoppRESTAuthAWSSignature = z.infer<typeof HoppRESTAuthAWSSignature>
+
+export const HoppRESTAuth = z
+  .discriminatedUnion("authType", [
+    HoppRESTAuthNone,
+    HoppRESTAuthInherit,
+    HoppRESTAuthBasic,
+    HoppRESTAuthBearer,
+    HoppRESTAuthOAuth2,
+    HoppRESTAuthAPIKey,
+    HoppRESTAuthAWSSignature,
+  ])
+  .and(
+    z.object({
+      authActive: z.boolean(),
+    })
+  )
+
+export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
 export const V7_SCHEMA = V6_SCHEMA.extend({
   v: z.literal("7"),

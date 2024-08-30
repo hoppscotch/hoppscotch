@@ -32,68 +32,14 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-if="!isRootCollection"
-                label="Inherit"
-                :icon="authName === 'Inherit' ? IconCircleDot : IconCircle"
-                :active="authName === 'Inherit'"
+                v-for="item in authTypes"
+                :key="item.key"
+                :label="item.label"
+                :icon="item.key === authType ? IconCircleDot : IconCircle"
+                :active="item.key === authType"
                 @click="
                   () => {
-                    auth.authType = 'inherit'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                label="None"
-                :icon="authName === 'None' ? IconCircleDot : IconCircle"
-                :active="authName === 'None'"
-                @click="
-                  () => {
-                    auth.authType = 'none'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                label="Basic Auth"
-                :icon="authName === 'Basic Auth' ? IconCircleDot : IconCircle"
-                :active="authName === 'Basic Auth'"
-                @click="
-                  () => {
-                    auth.authType = 'basic'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                label="Bearer Token"
-                :icon="authName === 'Bearer' ? IconCircleDot : IconCircle"
-                :active="authName === 'Bearer'"
-                @click="
-                  () => {
-                    auth.authType = 'bearer'
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                label="OAuth 2.0"
-                :icon="authName === 'OAuth 2.0' ? IconCircleDot : IconCircle"
-                :active="authName === 'OAuth 2.0'"
-                @click="
-                  () => {
-                    selectOAuth2AuthType()
-                    hide()
-                  }
-                "
-              />
-              <HoppSmartItem
-                label="API key"
-                :icon="authName === 'API key' ? IconCircleDot : IconCircle"
-                :active="authName === 'API key'"
-                @click="
-                  () => {
-                    auth.authType = 'api-key'
+                    item.handler ? item.handler() : (auth.authType = item.key)
                     hide()
                   }
                 "
@@ -168,13 +114,17 @@
         </div>
         <div v-if="auth.authType === 'inherit'" class="p-4">
           <span v-if="inheritedProperties?.auth">
-            Inherited
-            {{ getAuthName(inheritedProperties.auth.inheritedAuth.authType) }}
-            from Parent Collection {{ inheritedProperties?.auth.parentName }}
+            {{
+              t("authorization.inherited_from", {
+                auth: getAuthName(
+                  inheritedProperties.auth.inheritedAuth.authType
+                ),
+                collection: inheritedProperties?.auth.parentName,
+              })
+            }}
           </span>
           <span v-else>
-            Please save this request in any collection to inherit the
-            authorization
+            {{ t("authorization.save_to_inherit") }}
           </span>
         </div>
         <div v-if="auth.authType === 'bearer'">
@@ -194,10 +144,13 @@
               placeholder="Token"
             />
           </div>
-          <HttpOAuth2Authorization v-model="auth" source="GraphQL" />
+          <HttpAuthorizationOAuth2 v-model="auth" source="GraphQL" />
         </div>
         <div v-if="auth.authType === 'api-key'">
           <HttpAuthorizationApiKey v-model="auth" />
+        </div>
+        <div v-if="auth.authType === 'aws-signature'">
+          <HttpAuthorizationAWSSign v-model="auth" />
         </div>
       </div>
       <div
@@ -237,6 +190,12 @@ import IconTrash2 from "~icons/lucide/trash-2"
 
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 
+type AuthType = {
+  key: HoppGQLAuth["authType"]
+  label: string
+  handler?: () => void
+}
+
 const t = useI18n()
 
 const colorMode = useColorMode()
@@ -263,26 +222,6 @@ onMounted(() => {
 
 const auth = useVModel(props, "modelValue", emit)
 
-const AUTH_KEY_NAME = {
-  basic: "Basic Auth",
-  bearer: "Bearer",
-  "oauth-2": "OAuth 2.0",
-  "api-key": "API key",
-  none: "None",
-  inherit: "Inherit",
-} as const
-
-const authType = pluckRef(auth, "authType")
-
-const authName = computed(() =>
-  AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
-)
-
-const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
-  if (!type) return "None"
-  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
-}
-
 const selectOAuth2AuthType = () => {
   const defaultGrantTypeInfo: HoppGQLAuthOAuth2["grantTypeInfo"] = {
     ...getDefaultAuthCodeOauthFlowParams(),
@@ -305,6 +244,59 @@ const selectOAuth2AuthType = () => {
     addTo: "HEADERS",
     grantTypeInfo: grantTypeInfo,
   }
+}
+
+const authTypes: AuthType[] = [
+  {
+    key: "inherit",
+    label: "Inherit",
+  },
+  {
+    key: "none",
+    label: "None",
+  },
+  {
+    key: "basic",
+    label: "Basic Auth",
+  },
+  {
+    key: "bearer",
+    label: "Bearer",
+  },
+  {
+    key: "oauth-2",
+    label: "OAuth 2.0",
+    handler: selectOAuth2AuthType,
+  },
+  {
+    key: "api-key",
+    label: "API Key",
+  },
+  {
+    key: "aws-signature",
+    label: "AWS Signature",
+  },
+]
+
+const AUTH_KEY_NAME: Record<HoppGQLAuth["authType"], string> = {
+  basic: "Basic Auth",
+  bearer: "Bearer",
+  "oauth-2": "OAuth 2.0",
+  "api-key": "API key",
+  none: "None",
+  inherit: "Inherit",
+  "aws-signature": "AWS Signature",
+}
+
+const authType = pluckRef(auth, "authType")
+
+const authName = computed(() =>
+  AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
+)
+
+const getAuthName = (type: HoppGQLAuth["authType"] | undefined) => {
+  if (!type) return "None"
+  return AUTH_KEY_NAME[type] ? AUTH_KEY_NAME[type] : "None"
 }
 
 const authActive = pluckRef(auth, "authActive")

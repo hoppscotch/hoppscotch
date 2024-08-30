@@ -1,5 +1,6 @@
 import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
+import { AwsV4Signer } from "aws4fetch"
 import * as E from "fp-ts/Either"
 import {
   GraphQLEnumType,
@@ -285,6 +286,33 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
         finalHeaders[key] = value
       } else if (addTo === "QUERY_PARAMS") {
         params[key] = value
+      }
+    } else if (auth.authType === "aws-signature") {
+      const { accessKey, secretKey, region, serviceName, addTo } = auth
+
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+
+      const signer = new AwsV4Signer({
+        datetime: amzDate,
+        signQuery: addTo === "QUERY_PARAMS",
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        region: region ?? "us-east-1",
+        service: serviceName,
+        url,
+      })
+
+      const sign = await signer.sign()
+
+      if (addTo === "HEADERS") {
+        sign.headers.forEach((v, k) => {
+          finalHeaders[k] = v
+        })
+      } else if (addTo === "QUERY_PARAMS") {
+        for (const [k, v] of sign.url.searchParams) {
+          params[k] = v
+        }
       }
     }
   }

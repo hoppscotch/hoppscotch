@@ -253,17 +253,17 @@ import {
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
-import { useService } from "dioc/vue"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { computed, reactive, ref, toRef, watch } from "vue"
+import { reactive, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
+import { computedAsync, useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
@@ -545,16 +545,18 @@ const clearContent = () => {
 
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
-const computedHeaders = computed(() =>
-  getComputedHeaders(request.value, aggregateEnvs.value, false).map(
-    (header, index) => ({
-      id: `header-${index}`,
-      ...header,
-    })
-  )
+const computedHeaders = computedAsync(
+  async () =>
+    (await getComputedHeaders(request.value, aggregateEnvs.value, false)).map(
+      (header, index) => ({
+        id: `header-${index}`,
+        ...header,
+      })
+    ),
+  []
 )
 
-const inheritedProperties = computed(() => {
+const inheritedProperties = computedAsync(async () => {
   if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
     return []
 
@@ -601,12 +603,12 @@ const inheritedProperties = computed(() => {
     }
   }[]
 
-  const computedAuthHeader = getComputedAuthHeaders(
+  const [computedAuthHeader] = await getComputedAuthHeaders(
     aggregateEnvs.value,
     request.value,
     props.inheritedProperties.auth.inheritedAuth,
     false
-  )[0]
+  )
 
   if (
     computedAuthHeader &&

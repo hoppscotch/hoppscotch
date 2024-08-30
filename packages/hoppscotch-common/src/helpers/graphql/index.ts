@@ -4,18 +4,6 @@ import * as N from "fp-ts/number"
 import * as S from "fp-ts/string"
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "./eq"
 
-export type HoppGQLParam = {
-  key: string
-  value: string
-  active: boolean
-}
-
-export type HoppGQLHeader = {
-  key: string
-  value: string
-  active: boolean
-}
-
 export type FormDataKeyValue = {
   key: string
   active: boolean

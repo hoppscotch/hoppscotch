@@ -174,7 +174,16 @@
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "aws_signature": {
+      "access_key": "Access Key",
+      "secret_key": "Secret Key",
+      "service_name": "Service Name",
+      "aws_region": "AWS Region",
+      "service_token": "Service Token",
+      "advance_config": "Advanced Configuration",
+      "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided"
+    }
   },
   "collection": {
     "created": "Collection created",

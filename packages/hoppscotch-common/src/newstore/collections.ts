@@ -10,7 +10,7 @@ import {
 import { cloneDeep } from "lodash-es"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
-import { HoppGQLHeader } from "~/helpers/graphql"
+import { GQLHeader } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
@@ -117,7 +117,7 @@ export function cascadeParentCollectionForHeaderAuth(
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
     const parentFolderHeaders = parentFolder.headers as
       | HoppRESTHeaders
-      | HoppGQLHeader[]
+      | GQLHeader[]
 
     // check if the parent folder has authType 'inherit' and if it is the root folder
     if (

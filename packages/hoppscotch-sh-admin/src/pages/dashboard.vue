@@ -41,7 +41,10 @@
       </div>
     </div>
 
-    <div v-for="(component, index) in additionalPluginComponents" :key="index">
+    <div
+      v-for="(component, index) in plugins.ui.additionalMetricItems"
+      :key="index"
+    >
       <component :is="component" />
     </div>
   </div>
@@ -57,18 +60,10 @@ import LineChartIcon from '~icons/lucide/line-chart';
 import FolderTreeIcon from '~icons/lucide/folder-tree';
 import { useI18n } from '../composables/i18n';
 import { plugins } from '../plugins';
-import { REGISTERED_COMPONENTS } from '../helpers/components';
 
 const t = useI18n();
 
 // Get Metrics Data
 const { fetching, error, data } = useQuery({ query: MetricsDocument });
 const metrics = computed(() => data?.value?.infra);
-
-const additionalPluginComponents = computed(
-  () =>
-    plugins.components.find(
-      (component) => component.name === REGISTERED_COMPONENTS.HoppButton
-    )?.components
-);
 </script>

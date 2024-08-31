@@ -1,7 +1,10 @@
-import { RegisteredComponentsDef } from '~/helpers/components';
+import { Component } from 'vue';
 
 export type PluginsDef = {
-  components: RegisteredComponentsDef;
+  ui: {
+    additionalConfigurationsItems: Component[];
+    additionalMetricItems: Component[];
+  };
 };
 
 export let plugins: PluginsDef;

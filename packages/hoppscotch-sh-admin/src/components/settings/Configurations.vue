@@ -3,10 +3,12 @@
     <SettingsAuthProvider v-model:config="workingConfigs" />
     <SettingsSmtpConfiguration v-model:config="workingConfigs" />
     <SettingsDataSharing v-model:config="workingConfigs" />
-    <div v-for="(component, index) in additionalConfigComponents" :key="index">
+    <div
+      v-for="(component, index) in plugins.ui.additionalConfigurationsItems"
+      :key="index"
+    >
       <component :is="component" v-model:config="workingConfigs" />
     </div>
-    <!-- <SettingsComponent v-model:config="workingConfigs" :pluginComponents="additionalConfigComponents" /> -->
     <SettingsReset />
   </div>
 </template>
@@ -14,9 +16,7 @@
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
 import { ServerConfigs } from '~/helpers/configs';
-import { computed } from 'vue';
 import { plugins } from '~/plugins';
-import { REGISTERED_COMPONENTS } from '~/helpers/components';
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -27,11 +27,4 @@ const emit = defineEmits<{
 }>();
 
 const workingConfigs = useVModel(props, 'config', emit);
-
-const additionalConfigComponents = computed(
-  () =>
-    plugins.components.find(
-      (c) => c.name === REGISTERED_COMPONENTS.Configurations
-    )?.components
-);
 </script>

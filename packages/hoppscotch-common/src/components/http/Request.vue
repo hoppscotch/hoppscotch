@@ -119,7 +119,7 @@
                 :shortcut="['S']"
                 @click="
                   () => {
-                    invokeAction('response.schema.toggle')
+                    showCodegenModal = !showCodegenModal
                     hide()
                   }
                 "
@@ -218,6 +218,11 @@
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
+    <HttpCodegenModal
+      v-if="showCodegenModal"
+      :show="showCodegenModal"
+      @hide-modal="showCodegenModal = false"
+    />
     <CollectionsSaveRequest
       v-if="showSaveRequestModal"
       mode="rest"
@@ -304,6 +309,7 @@ const isTabResponseLoading = computed(
 )
 
 const showCurlImportModal = ref(false)
+const showCodegenModal = ref(false)
 const showSaveRequestModal = ref(false)
 
 // Template refs
@@ -592,6 +598,9 @@ defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
 defineActionHandler("request.import-curl", () => {
   showCurlImportModal.value = true
+})
+defineActionHandler("request.show-code", () => {
+  showCodegenModal.value = true
 })
 
 const isCustomMethod = computed(() => {

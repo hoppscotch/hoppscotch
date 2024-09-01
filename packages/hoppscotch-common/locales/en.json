@@ -292,7 +292,8 @@
     "team_name": "Workspace name empty",
     "teams": "You don't belong to any workspaces",
     "tests": "There are no tests for this request",
-    "access_tokens": "Access tokens are empty"
+    "access_tokens": "Access tokens are empty",
+    "response": "No response received"
   },
   "environment": {
     "add_to_global": "Add to Global",

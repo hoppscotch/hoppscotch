@@ -5,7 +5,7 @@
     @close="close()"
   >
     <template #content>
-      <div class="flex flex-col px-4 flex-1 overflow-y-auto">
+      <div v-if="response" class="flex flex-col px-4 flex-1 overflow-y-auto">
         <div class="flex flex-col">
           <tippy
             interactive
@@ -110,6 +110,14 @@
           </div>
         </div>
       </div>
+
+      <HoppSmartPlaceholder
+        v-else
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('empty.response')}`"
+        :text="`${t('empty.response')}`"
+      >
+      </HoppSmartPlaceholder>
     </template>
   </HoppSmartSlideOver>
 </template>
@@ -134,8 +142,10 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import jsonToLanguage from "~/helpers/utils/json-to-language"
 import { watch } from "vue"
 import { GQLTabService } from "~/services/tab/graphql"
+import { useColorMode } from "~/composables/theming"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 defineProps<{
   show: boolean
@@ -189,7 +199,10 @@ const errorState = ref(false)
 const interfaceCode = ref("")
 
 const setInterfaceCode = async () => {
-  const res = await jsonToLanguage(selectedInterface.value, response.value)
+  const res = await jsonToLanguage(
+    selectedInterface.value,
+    response.value || "{}"
+  ) // to avoid possible errors empty object is passed
   interfaceCode.value = res.lines.join("\n")
 }
 

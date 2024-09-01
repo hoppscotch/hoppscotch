@@ -247,7 +247,7 @@ export function runRESTRequest$(
       combineEnvVariables(finalEnvs)
     )
 
-    const effectiveRequest = getEffectiveRESTRequest(finalRequest, {
+    const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
       v: 1,
       name: "Env",
@@ -321,7 +321,7 @@ export function runRESTRequest$(
                 {
                   name: env.name,
                   v: 1,
-                  id: env.id ?? "",
+                  id: "id" in env ? env.id : "",
                   variables: updatedRunResult.envs.selected,
                 }
               )

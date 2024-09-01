@@ -135,6 +135,7 @@ import { platform } from "~/platform"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
+import { asyncComputed } from "@vueuse/core"
 
 const t = useI18n()
 
@@ -156,7 +157,7 @@ const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
 
-const requestCode = computed(() => {
+const requestCode = asyncComputed(async () => {
   const aggregateEnvs = getAggregateEnvs()
   const requestVariables = request.value.requestVariables.map(
     (requestVariable) => {
@@ -178,10 +179,19 @@ const requestCode = computed(() => {
       ...aggregateEnvs,
     ],
   }
-  const effectiveRequest = getEffectiveRESTRequest(request.value, env, true)
+
+  // Calculating this before to keep the reactivity as asyncComputed will lose
+  // reactivity tracking after the await point
+  const lang = codegenType.value
+
+  const effectiveRequest = await getEffectiveRESTRequest(
+    request.value,
+    env,
+    true
+  )
 
   const result = generateCode(
-    codegenType.value,
+    lang,
     makeRESTRequest({
       ...effectiveRequest,
       body: resolvesEnvsInBody(effectiveRequest.body, env),

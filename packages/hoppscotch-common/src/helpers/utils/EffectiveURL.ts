@@ -1,30 +1,32 @@
+import {
+  Environment,
+  FormDataKeyValue,
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTHeaders,
+  HoppRESTParam,
+  HoppRESTParams,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+  parseBodyEnvVariables,
+  parseRawKeyValueEntriesE,
+  parseTemplateString,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
+import { AwsV4Signer } from "aws4fetch"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
 import qs from "qs"
-import { flow, pipe } from "fp-ts/function"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
-import {
-  FormDataKeyValue,
-  HoppRESTReqBody,
-  HoppRESTRequest,
-  parseTemplateString,
-  parseBodyEnvVariables,
-  Environment,
-  HoppRESTHeader,
-  HoppRESTParam,
-  parseRawKeyValueEntriesE,
-  parseTemplateStringE,
-  HoppRESTAuth,
-  HoppRESTHeaders,
-} from "@hoppscotch/data"
+
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
-import { AwsV4Signer } from "aws4fetch"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -33,8 +35,8 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    * This contains path, params and environment variables all applied to it
    */
   effectiveFinalURL: string
-  effectiveFinalHeaders: { key: string; value: string }[]
-  effectiveFinalParams: { key: string; value: string }[]
+  effectiveFinalHeaders: HoppRESTHeaders
+  effectiveFinalParams: HoppRESTParams
   effectiveFinalBody: FormData | string | null
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
@@ -502,6 +504,7 @@ export async function getEffectiveRESTRequest(
         false,
         showKeyIfSecret
       ),
+      description: x.description,
     }))
   )
 
@@ -525,6 +528,7 @@ export async function getEffectiveRESTRequest(
         false,
         showKeyIfSecret
       ),
+      description: x.description,
     }))
   )
 

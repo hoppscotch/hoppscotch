@@ -259,6 +259,10 @@ const selectAWSSignatureAuthType = () => {
     ...auth.value,
     authType: "aws-signature",
     addTo: "HEADERS",
+    accessKey: "",
+    secretKey: "",
+    region: "",
+    serviceName: "",
   } as HoppGQLAuth
 }
 

@@ -144,7 +144,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
     )
 
     if (E.isLeft(message)) {
-      toast.error(t("state.download_failed"))
+      toast.error(t("export.failed"))
       return
     }
 

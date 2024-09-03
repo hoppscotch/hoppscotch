@@ -144,11 +144,11 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
     )
 
     if (E.isLeft(message)) {
-      toast.error(t("export.failed"))
+      toast.error(t("state.download_failed"))
       return
     }
 
-    toast.success(message.right)
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",

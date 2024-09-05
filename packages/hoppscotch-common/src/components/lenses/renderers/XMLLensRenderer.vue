@@ -89,7 +89,8 @@ const responseType = computed(() =>
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
-  responseBodyText
+  responseBodyText,
+  `${props.response.req.name} - response`
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

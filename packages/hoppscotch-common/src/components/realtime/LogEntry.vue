@@ -326,7 +326,8 @@ const { copyIcon, copyResponse } = useCopyResponse(logPayload)
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  logPayload
+  logPayload,
+  "Response"
 )
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

@@ -72,7 +72,8 @@ const responseType = computed(() =>
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
-  computed(() => props.response.body)
+  computed(() => props.response.body),
+  `${props.response.req.name} - response`
 )
 
 defineActionHandler("response.file.download", () => downloadResponse())

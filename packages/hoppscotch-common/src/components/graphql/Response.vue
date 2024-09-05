@@ -157,7 +157,8 @@ useCodemirror(
 const { copyIcon, copyResponse } = useCopyResponse(responseString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  responseString
+  responseString,
+  "Response"
 )
 
 defineActionHandler(

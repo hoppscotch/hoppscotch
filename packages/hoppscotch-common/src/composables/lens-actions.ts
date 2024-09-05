@@ -1,9 +1,6 @@
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
-import { pipe } from "fp-ts/function"
-import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
-import * as S from "fp-ts/string"
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue"
 
 import jsonToLanguage from "~/helpers/utils/json-to-language"
@@ -58,7 +55,8 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export function useDownloadResponse(
   contentType: string,
-  responseBody: Ref<string | ArrayBuffer>
+  responseBody: Ref<string | ArrayBuffer>,
+  filename: string
 ) {
   const downloadIcon = refAutoReset(IconDownload, 1000)
 
@@ -67,24 +65,6 @@ export function useDownloadResponse(
 
   const downloadResponse = async () => {
     const dataToWrite = responseBody.value
-
-    // Guess extension and filename
-    const file = new Blob([dataToWrite], { type: contentType })
-    const url = URL.createObjectURL(file)
-
-    const filename = pipe(
-      url,
-      S.split("/"),
-      RNEA.last,
-      S.split("#"),
-      RNEA.head,
-      S.split("?"),
-      RNEA.head
-    )
-
-    URL.revokeObjectURL(url)
-
-    console.log(filename)
 
     // TODO: Look at the mime type and determine extension ?
     const result = await platform.io.saveFileWithDialog({

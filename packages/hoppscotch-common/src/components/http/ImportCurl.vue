@@ -183,7 +183,11 @@ const handlePaste = async () => {
 }
 
 const { copyIcon, copyResponse } = useCopyResponse(curl)
-const { downloadIcon, downloadResponse } = useDownloadResponse("", curl)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "",
+  curl,
+  "cURL command"
+)
 
 const clearContent = () => {
   curl.value = ""

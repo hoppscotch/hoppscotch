@@ -259,5 +259,9 @@ const filteredCodegenDefinitions = computed(() => {
 })
 
 const { copyIcon, copyResponse } = useCopyResponse(requestCode)
-const { downloadIcon, downloadResponse } = useDownloadResponse("", requestCode)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "",
+  requestCode,
+  `${request.value.name} - code`
+)
 </script>

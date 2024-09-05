@@ -354,7 +354,8 @@ const filterResponseError = computed(() =>
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  jsonBodyText
+  jsonBodyText,
+  `${props.response.req.name} - response`
 )
 
 // Template refs

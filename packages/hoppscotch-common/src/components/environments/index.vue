@@ -7,8 +7,11 @@
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
-        :show-duplicate-action="isPersonalEnvironmentType"
+        :duplicate-global-environment-loading="
+          duplicateGlobalEnvironmentLoading
+        "
         class="border-b border-dividerLight"
+        @duplicate-global-environment="duplicateGlobalEnvironment"
         @edit-environment="editEnvironment('Global')"
       />
     </div>
@@ -52,16 +55,21 @@ import { Environment, GlobalEnvironment } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { isEqual } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { deleteTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import {
+  createTeamEnvironment,
+  deleteTeamEnvironment,
+} from "~/helpers/backend/mutations/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
+  createEnvironment,
   deleteEnvironment,
+  getGlobalVariables,
   getSelectedEnvironmentIndex,
   globalEnv$,
   selectedEnvironmentIndex$,
@@ -189,6 +197,7 @@ const editingEnvironmentIndex = ref<"Global" | null>(null)
 const editingVariableName = ref("")
 const editingVariableValue = ref("")
 const secretOptionSelected = ref(false)
+const duplicateGlobalEnvironmentLoading = ref(false)
 
 const position = ref({ top: 0, left: 0 })
 
@@ -208,6 +217,44 @@ const editEnvironment = (environmentIndex: "Global") => {
   action.value = "edit"
   editingVariableName.value = ""
   displayModalEdit(true)
+}
+
+const duplicateGlobalEnvironment = async (
+  envVariables: EnvironmentVariable[]
+) => {
+  if (workspace.value.type === "team") {
+    duplicateGlobalEnvironmentLoading.value = true
+
+    await pipe(
+      await createTeamEnvironment(
+        JSON.stringify(envVariables),
+        workspace.value.teamID,
+        `Global - ${t("action.duplicate")}`
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          console.error(err)
+
+          // TODO: Expose the below helper function from team context and add loading state for Global environment context menu
+          toast.error(`${getErrorMessage(err)}`)
+
+          duplicateGlobalEnvironmentLoading.value = false
+        },
+        () => {
+          toast.success(t("environment.duplicated"))
+          duplicateGlobalEnvironmentLoading.value = false
+        }
+      )
+    )()
+
+    return
+  }
+
+  createEnvironment(
+    `Global - ${t("action.duplicate")}`,
+    cloneDeep(getGlobalVariables())
+  )
+  toast.success(`${t("environment.duplicated")}`)
 }
 
 const removeSelectedEnvironment = () => {

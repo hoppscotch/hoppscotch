@@ -59,6 +59,7 @@
               :icon="IconEdit"
               :label="`${t('action.edit')}`"
               :shortcut="['E']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   emit('edit-environment')
@@ -72,18 +73,15 @@
               :icon="IconCopy"
               :label="t('action.duplicate')"
               :shortcut="['D']"
-              @click="
-                () => {
-                  duplicateEnvironments()
-                  hide()
-                }
-              "
+              :loading="duplicateGlobalEnvironmentLoading"
+              @click="duplicateEnvironments"
             />
             <HoppSmartItem
               ref="exportAsJsonEl"
               :icon="IconEdit"
               :label="`${t('export.as_json')}`"
               :shortcut="['J']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   exportEnvironmentAsJSON()
@@ -97,6 +95,7 @@
               :icon="IconTrash2"
               :label="`${t('action.delete')}`"
               :shortcut="['⌫']"
+              :disabled="duplicateGlobalEnvironmentLoading"
               @click="
                 () => {
                   confirmRemove = true
@@ -120,20 +119,17 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { Environment } from "@hoppscotch/data"
+import { Environment, EnvironmentVariable } from "@hoppscotch/data"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { useService } from "dioc/vue"
-import { cloneDeep } from "lodash-es"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import * as E from "fp-ts/Either"
 
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import {
-  createEnvironment,
   deleteEnvironment,
   duplicateEnvironment,
-  getGlobalVariables,
 } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
@@ -149,19 +145,31 @@ const props = withDefaults(
     environment: Environment
     environmentIndex: number | "Global" | null
     showDuplicateAction: boolean
+    duplicateGlobalEnvironmentLoading?: boolean
   }>(),
   {
     showDuplicateAction: true,
+    duplicateGlobalEnvironmentLoading: false,
   }
 )
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
+  (e: "duplicate-global-environment", envVariables: EnvironmentVariable[]): void
 }>()
 
 const confirmRemove = ref(false)
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+
+watch(
+  () => props.duplicateGlobalEnvironmentLoading,
+  (newDuplicateGlobalEnvironmentLoadingVal) => {
+    if (!newDuplicateGlobalEnvironmentLoadingVal) {
+      options.value!.tippy?.hide()
+    }
+  }
+)
 
 const isGlobalEnvironment = computed(() => props.environmentIndex === "Global")
 
@@ -191,14 +199,16 @@ const removeEnvironment = () => {
 }
 
 const duplicateEnvironments = () => {
-  if (props.environmentIndex === null) return
-  if (isGlobalEnvironment.value) {
-    createEnvironment(
-      `Global - ${t("action.duplicate")}`,
-      cloneDeep(getGlobalVariables())
-    )
-  } else duplicateEnvironment(props.environmentIndex as number)
+  if (props.environmentIndex === null) {
+    return
+  }
 
+  if (isGlobalEnvironment.value) {
+    emit("duplicate-global-environment", props.environment.variables)
+    return
+  }
+
+  duplicateEnvironment(props.environmentIndex as number)
   toast.success(`${t("environment.duplicated")}`)
 }
 </script>

@@ -240,7 +240,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { computed, ref, onUnmounted } from "vue"
+import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -267,6 +267,9 @@ import { HoppRESTDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
+import { flow, pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
 
 const t = useI18n()
 const interceptorService = useService(InterceptorService)
@@ -306,6 +309,87 @@ const loading = ref(false)
 
 const isTabResponseLoading = computed(
   () => tab.value.document.response?.type === "loading"
+)
+
+let paramsUpdatedBy: "endpoint" | "parameters" | null = null
+
+watch(
+  () => tab.value.document.request.endpoint,
+  (endpoint) => {
+    if (paramsUpdatedBy === "parameters") {
+      paramsUpdatedBy = null
+      return false
+    }
+
+    const splitByHash = endpoint.split("#")
+    const splitByParams = splitByHash[0].split("?")
+
+    splitByParams.splice(0, 1)
+    const params = splitByParams.join("?").split("&")
+
+    paramsUpdatedBy = "endpoint"
+    tabs.currentActiveTab.value.document.request.params = pipe(
+      params,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e !== ""),
+          O.map((x: string) => {
+            const parts = x.split("=")
+            const key = parts[0]
+            let value = ""
+            if (parts.length > 1) {
+              parts.splice(0, 1)
+
+              value = parts.join("=")
+            }
+
+            return { key, value, active: true }
+          })
+        )
+      )
+    )
+  }
+)
+
+watch(
+  () => tab.value.document.request.params,
+  (newParamsList) => {
+    if (paramsUpdatedBy === "endpoint") {
+      paramsUpdatedBy = null
+      return false
+    }
+
+    const filteredURLParams = pipe(
+      newParamsList,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== "" && e.active !== false),
+          O.map((e) => e.key + (e.value.length > 0 ? "=" + e.value : ""))
+        )
+      )
+    )
+
+    const endpoint = tab.value.document.request.endpoint
+    const splitByHash = endpoint.split("#")
+    let url = splitByHash[0]
+    url = url.split("?")[0]
+
+    splitByHash.splice(0, 1)
+
+    let hash = splitByHash.join("")
+    if (hash !== "") {
+      hash = "#" + hash
+    }
+
+    let url_params = filteredURLParams.join("&")
+    if (filteredURLParams.length > 0) {
+      url_params = "?" + url_params
+    }
+
+    const new_url = `${url}${url_params}${hash}`
+    paramsUpdatedBy = "parameters"
+    tabs.currentActiveTab.value.document.request.endpoint = new_url
+  }
 )
 
 const showCurlImportModal = ref(false)

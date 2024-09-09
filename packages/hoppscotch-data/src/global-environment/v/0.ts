@@ -1,5 +1,3 @@
-//global environment version 0
-
 import { z } from "zod"
 import { defineVersion } from "verzod"
 

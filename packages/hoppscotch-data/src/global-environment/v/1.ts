@@ -1,5 +1,3 @@
-//global environment version 1
-
 import { z } from "zod"
 import { defineVersion } from "verzod"
 import { V0_SCHEMA } from "./0"
@@ -24,7 +22,6 @@ export const V1_SCHEMA = z.object({
 export default defineVersion({
   initial: false,
   schema: V1_SCHEMA,
-  //add modifications to adapt v0 schema to v1 - hence the error in up
   up(old: z.infer<typeof V0_SCHEMA>) {
     const variables = old.map((variable) => {
       if ("value" in variable) {

@@ -147,7 +147,7 @@
                 class="flex flex-col items-center py-4"
               >
                 <icon-lucide-help-circle class="svg-icons mb-4" />
-                {{ getErrorMessage(teamAdapterError) }}
+                {{ t(getEnvActionErrorMessage(teamAdapterError)) }}
               </div>
             </HoppSmartTab>
           </HoppSmartTabs>
@@ -302,6 +302,7 @@ import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
+import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { useReadonlyStream, useStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -590,6 +591,7 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
+<<<<<<< HEAD
 const getErrorMessage = (err: GQLError<string>) => {
   if (err.type === "network_error") {
     return t("error.network_error")
@@ -603,6 +605,9 @@ const getErrorMessage = (err: GQLError<string>) => {
 }
 
 const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+=======
+const globalEnvs = useReadonlyStream(globalEnv$, [])
+>>>>>>> 6e3b8ac3 (refactor: helper function abstracting error messages)
 
 const environmentVariables = computed(() => {
   if (selectedEnv.value.variables) {

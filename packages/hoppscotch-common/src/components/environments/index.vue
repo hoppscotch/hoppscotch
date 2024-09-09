@@ -65,6 +65,7 @@ import {
   createTeamEnvironment,
   deleteTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
+import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   createEnvironment,
@@ -226,7 +227,7 @@ const duplicateGlobalEnvironment = async (
     duplicateGlobalEnvironmentLoading.value = true
 
     await pipe(
-      await createTeamEnvironment(
+      createTeamEnvironment(
         JSON.stringify(envVariables),
         workspace.value.teamID,
         `Global - ${t("action.duplicate")}`
@@ -235,9 +236,7 @@ const duplicateGlobalEnvironment = async (
         (err: GQLError<string>) => {
           console.error(err)
 
-          // TODO: Expose the below helper function from team context and add loading state for Global environment context menu
-          toast.error(`${getErrorMessage(err)}`)
-
+          toast.error(t(getEnvActionErrorMessage(err)))
           duplicateGlobalEnvironmentLoading.value = false
         },
         () => {

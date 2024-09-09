@@ -136,6 +136,7 @@ import {
   deleteTeamEnvironment,
   createDuplicateEnvironment as duplicateEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
+import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
@@ -183,7 +184,7 @@ const removeEnvironment = () => {
     TE.match(
       (err: GQLError<string>) => {
         console.error(err)
-        toast.error(`${getErrorMessage(err)}`)
+        toast.error(t(getEnvActionErrorMessage(err)))
       },
       () => {
         toast.success(`${t("team_environment.deleted")}`)
@@ -199,26 +200,12 @@ const duplicateEnvironments = () => {
     TE.match(
       (err: GQLError<string>) => {
         console.error(err)
-        toast.error(`${getErrorMessage(err)}`)
+        toast.error(t(getEnvActionErrorMessage(err)))
       },
       () => {
         toast.success(`${t("environment.duplicated")}`)
       }
     )
   )()
-}
-
-const getErrorMessage = (err: GQLError<string>) => {
-  if (err.type === "network_error") {
-    return t("error.network_error")
-  }
-  switch (err.error) {
-    case "team_environment/not_found":
-      return t("team_environment.not_found")
-    case "team_environment/short_name":
-      return t("environment.short_name")
-    default:
-      return t("error.something_went_wrong")
-  }
 }
 </script>

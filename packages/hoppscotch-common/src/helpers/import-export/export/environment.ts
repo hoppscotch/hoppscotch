@@ -1,9 +1,11 @@
 import { Environment } from "@hoppscotch/data"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { platform } from "~/platform"
 
-const getEnvironmentJson = (
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { initializeDownloadFile } from "."
+
+const getEnvironmentJSON = (
   environmentObj: TeamEnvironment | Environment,
   environmentIndex?: number | "Global" | null
 ) => {
@@ -22,33 +24,20 @@ const getEnvironmentJson = (
     : undefined
 }
 
-export const exportAsJSON = (
+export const exportAsJSON = async (
   environmentObj: Environment | TeamEnvironment,
   environmentIndex?: number | "Global" | null
-): boolean => {
-  const dataToWrite = getEnvironmentJson(environmentObj, environmentIndex)
+): Promise<E.Right<string> | E.Left<string>> => {
+  const environmentJSON = getEnvironmentJSON(environmentObj, environmentIndex)
 
-  if (!dataToWrite) return false
+  if (!environmentJSON) {
+    return E.left("state.download_failed")
+  }
 
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const url = URL.createObjectURL(file)
+  const message = await initializeDownloadFile(
+    environmentJSON,
+    JSON.parse(environmentJSON).name
+  )
 
-  URL.revokeObjectURL(url)
-
-  platform.io.saveFileWithDialog({
-    data: dataToWrite,
-    contentType: "application/json",
-    // Extracts the path from url, removes fragment identifier and query parameters if any, appends the ".json" extension, and assigns it
-    suggestedFilename: `${
-      url.split("/").pop()!.split("#")[0].split("?")[0]
-    }.json`,
-    filters: [
-      {
-        name: "JSON file",
-        extensions: ["json"],
-      },
-    ],
-  })
-
-  return true
+  return message
 }

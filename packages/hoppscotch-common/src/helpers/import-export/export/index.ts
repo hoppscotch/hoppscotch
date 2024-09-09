@@ -1,32 +1,36 @@
 import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
 
 /**
- * Create a downloadable file from a collection and prompts the user to download it.
- * @param collectionJSON - JSON string of the collection
+ * Create a downloadable file from a collection/environment and prompts the user to download it.
+ * @param contentsJSON - JSON string of the collection
  * @param name - Name of the collection set as the file name
+ * @returns {Promise<E.Right<string> | E.Left<string>>} - Returns a promise that resolves to an `Either` with `i18n` key for the status message
  */
-export const initializeDownloadCollection = (
-  collectionJSON: string,
+export const initializeDownloadFile = async (
+  contentsJSON: string,
   name: string | null
 ) => {
-  const file = new Blob([collectionJSON], { type: "application/json" })
-  const a = document.createElement("a")
+  const file = new Blob([contentsJSON], { type: "application/json" })
   const url = URL.createObjectURL(file)
-  a.href = url
 
-  if (name) {
-    a.download = `${name}.json`
-  } else {
-    a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  const fileName = name ?? url.split("/").pop()!.split("#")[0].split("?")[0]
+
+  const result = await platform.io.saveFileWithDialog({
+    data: contentsJSON,
+    contentType: "application/json",
+    suggestedFilename: `${fileName}.json`,
+    filters: [
+      {
+        name: "Hoppscotch Collection/Environment JSON file",
+        extensions: ["json"],
+      },
+    ],
+  })
+
+  if (result.type === "unknown" || result.type === "saved") {
+    return E.right("state.download_started")
   }
 
-  document.body.appendChild(a)
-  a.click()
-
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
-
-  return E.right("state.download_started")
+  return E.left("state.download_failed")
 }

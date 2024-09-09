@@ -45,7 +45,7 @@
             tabindex="0"
             role="menu"
             @keyup.e="edit!.$el.click()"
-            @keyup.d="showDuplicateAction ? duplicate!.$el.click() : null"
+            @keyup.d="duplicate!.$el.click()"
             @keyup.j="exportAsJsonEl!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
@@ -68,7 +68,6 @@
               "
             />
             <HoppSmartItem
-              v-if="showDuplicateAction"
               ref="duplicate"
               :icon="IconCopy"
               :label="t('action.duplicate')"
@@ -119,7 +118,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { Environment, EnvironmentVariable } from "@hoppscotch/data"
+import { Environment } from "@hoppscotch/data"
 import { HoppSmartItem } from "@hoppscotch/ui"
 import { useService } from "dioc/vue"
 import { computed, ref, watch } from "vue"
@@ -144,18 +143,16 @@ const props = withDefaults(
   defineProps<{
     environment: Environment
     environmentIndex: number | "Global" | null
-    showDuplicateAction: boolean
     duplicateGlobalEnvironmentLoading?: boolean
   }>(),
   {
-    showDuplicateAction: true,
     duplicateGlobalEnvironmentLoading: false,
   }
 )
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
-  (e: "duplicate-global-environment", envVariables: EnvironmentVariable[]): void
+  (e: "duplicate-global-environment"): void
 }>()
 
 const confirmRemove = ref(false)
@@ -204,7 +201,7 @@ const duplicateEnvironments = () => {
   }
 
   if (isGlobalEnvironment.value) {
-    emit("duplicate-global-environment", props.environment.variables)
+    emit("duplicate-global-environment")
     return
   }
 

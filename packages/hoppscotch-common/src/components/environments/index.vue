@@ -220,15 +220,13 @@ const editEnvironment = (environmentIndex: "Global") => {
   displayModalEdit(true)
 }
 
-const duplicateGlobalEnvironment = async (
-  envVariables: EnvironmentVariable[]
-) => {
+const duplicateGlobalEnvironment = async () => {
   if (workspace.value.type === "team") {
     duplicateGlobalEnvironmentLoading.value = true
 
     await pipe(
       createTeamEnvironment(
-        JSON.stringify(envVariables),
+        JSON.stringify(globalEnvironment.value.variables),
         workspace.value.teamID,
         `Global - ${t("action.duplicate")}`
       ),

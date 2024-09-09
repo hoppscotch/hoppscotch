@@ -50,6 +50,7 @@ import * as E from "fp-ts/Either"
 
 type ExtendedEditorConfig = {
   mode: string
+  useLang: boolean
   placeholder: string
   readOnly: boolean
   lineWrapping: boolean
@@ -355,7 +356,9 @@ export function useCodemirror(
       ),
       language.of(
         getEditorLanguage(
-          options.extendedEditorConfig.mode ?? "",
+          options.extendedEditorConfig.useLang
+            ? (options.extendedEditorConfig.mode as any) ?? ""
+            : "",
           options.linter ?? undefined,
           options.completer ?? undefined
         )
@@ -461,7 +464,9 @@ export function useCodemirror(
       view.value?.dispatch({
         effects: language.reconfigure(
           getEditorLanguage(
-            (options.extendedEditorConfig.mode as any) ?? "",
+            options.extendedEditorConfig.useLang
+              ? (options.extendedEditorConfig.mode as any) ?? ""
+              : "",
             options.linter ?? undefined,
             options.completer ?? undefined
           )

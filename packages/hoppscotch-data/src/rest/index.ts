@@ -42,7 +42,7 @@ export {
   HoppRESTHeaders,
   HoppRESTParams,
 } from "./v/7"
-export { HoppRESTAuthDigest } from "./v/8"
+export { HoppRESTAuth, HoppRESTAuthDigest } from "./v/8"
 
 export {
   ClientCredentialsGrantTypeParams,

@@ -76,7 +76,7 @@
               @click="
                 () => {
                   duplicateEnvironments()
-                  hide()
+                  !showContextMenuLoadingState && hide()
                 }
               "
             />
@@ -149,9 +149,11 @@ const props = withDefaults(
     environment: Environment
     environmentIndex: number | "Global" | null
     duplicateGlobalEnvironmentLoading?: boolean
+    showContextMenuLoadingState?: boolean
   }>(),
   {
     duplicateGlobalEnvironmentLoading: false,
+    showContextMenuLoadingState: false,
   }
 )
 
@@ -168,7 +170,7 @@ watch(
   () => props.duplicateGlobalEnvironmentLoading,
   (newDuplicateGlobalEnvironmentLoadingVal) => {
     if (!newDuplicateGlobalEnvironmentLoadingVal) {
-      options.value!.tippy?.hide()
+      options?.value?.tippy?.hide()
     }
   }
 )

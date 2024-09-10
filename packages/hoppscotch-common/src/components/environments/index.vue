@@ -10,6 +10,7 @@
         :duplicate-global-environment-loading="
           duplicateGlobalEnvironmentLoading
         "
+        :show-context-menu-loading-state="workspace.type === 'team'"
         class="border-b border-dividerLight"
         @duplicate-global-environment="duplicateGlobalEnvironment"
         @edit-environment="editEnvironment('Global')"
@@ -235,14 +236,14 @@ const duplicateGlobalEnvironment = async () => {
           console.error(err)
 
           toast.error(t(getEnvActionErrorMessage(err)))
-          duplicateGlobalEnvironmentLoading.value = false
         },
         () => {
           toast.success(t("environment.duplicated"))
-          duplicateGlobalEnvironmentLoading.value = false
         }
       )
     )()
+
+    duplicateGlobalEnvironmentLoading.value = false
 
     return
   }
@@ -251,6 +252,7 @@ const duplicateGlobalEnvironment = async () => {
     `Global - ${t("action.duplicate")}`,
     cloneDeep(getGlobalVariables())
   )
+
   toast.success(`${t("environment.duplicated")}`)
 }
 

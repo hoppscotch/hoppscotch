@@ -254,7 +254,6 @@ export function useCodemirror(
 
   function handleTextSelection() {
     const selection = view.value?.state.selection.main
-    console.log("selection", selection)
     if (selection) {
       const { from, to } = selection
 

@@ -73,7 +73,12 @@
               :label="t('action.duplicate')"
               :shortcut="['D']"
               :loading="duplicateGlobalEnvironmentLoading"
-              @click="duplicateEnvironments"
+              @click="
+                () => {
+                  duplicateEnvironments()
+                  hide()
+                }
+              "
             />
             <HoppSmartItem
               ref="exportAsJsonEl"

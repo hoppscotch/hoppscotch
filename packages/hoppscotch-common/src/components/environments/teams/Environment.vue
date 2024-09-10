@@ -128,6 +128,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { ref } from "vue"
 import { TippyComponent } from "vue-tippy"
+import * as E from "fp-ts/Either"
 
 import { useI18n } from "~/composables/i18n"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -161,10 +162,12 @@ const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const confirmRemove = ref(false)
 
-const exportEnvironmentAsJSON = () =>
-  exportAsJSON(props.environment)
-    ? toast.success(t("state.download_started"))
-    : toast.error(t("state.download_failed"))
+const exportEnvironmentAsJSON = async () => {
+  const message = await exportAsJSON(props.environment)
+  E.isRight(message)
+    ? toast.success(t(message.right))
+    : toast.error(t(message.left))
+}
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)

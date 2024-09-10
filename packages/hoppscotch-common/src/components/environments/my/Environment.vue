@@ -126,6 +126,8 @@ import { useService } from "dioc/vue"
 import { cloneDeep } from "lodash-es"
 import { computed, ref } from "vue"
 import { TippyComponent } from "vue-tippy"
+import * as E from "fp-ts/Either"
+
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import {
   createEnvironment,
@@ -163,11 +165,13 @@ const secretEnvironmentService = useService(SecretEnvironmentService)
 
 const isGlobalEnvironment = computed(() => props.environmentIndex === "Global")
 
-const exportEnvironmentAsJSON = () => {
+const exportEnvironmentAsJSON = async () => {
   const { environment, environmentIndex } = props
-  exportAsJSON(environment, environmentIndex)
-    ? toast.success(t("state.download_started"))
-    : toast.error(t("state.download_failed"))
+
+  const message = await exportAsJSON(environment, environmentIndex)
+  E.isRight(message)
+    ? toast.success(t(message.right))
+    : toast.error(t(message.left))
 }
 
 const tippyActions = ref<HTMLDivElement | null>(null)

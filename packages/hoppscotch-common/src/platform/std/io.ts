@@ -13,15 +13,17 @@ export const browserIODef: IOPlatformDef = {
     const url = URL.createObjectURL(file)
 
     a.href = url
-    a.download = pipe(
-      url,
-      S.split("/"),
-      RNEA.last,
-      S.split("#"),
-      RNEA.head,
-      S.split("?"),
-      RNEA.head
-    )
+    a.download =
+      opts.suggestedFilename ??
+      pipe(
+        url,
+        S.split("/"),
+        RNEA.last,
+        S.split("#"),
+        RNEA.head,
+        S.split("?"),
+        RNEA.head
+      )
 
     document.body.appendChild(a)
     a.click()

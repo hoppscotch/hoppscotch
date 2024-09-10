@@ -73,7 +73,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
-import { computed, reactive, Ref, ref, watch } from "vue"
+import { computed, markRaw, reactive, Ref, ref, watch } from "vue"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
 import { HoppRESTReqBody, ValidContentTypes } from "@hoppscotch/data"
@@ -90,6 +90,7 @@ import xmlFormat from "xml-formatter"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import * as LJSON from "lossless-json"
+import { jsonc } from "@shopify/lang-jsonc"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -155,9 +156,11 @@ useCodemirror(
     extendedEditorConfig: {
       lineWrapping: WRAP_LINES,
       mode: rawInputEditorLang,
+      useLang: false,
       placeholder: t("request.raw_body").toString(),
     },
     linter: langLinter,
+    additionalExts: [markRaw(jsonc())],
     completer: null,
     environmentHighlights: true,
   })

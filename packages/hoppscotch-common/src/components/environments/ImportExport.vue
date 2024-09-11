@@ -60,6 +60,10 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
+const isPostmanImporterInProgress = ref(false)
+const isInsomniaImporterInProgress = ref(false)
+const isRESTImporterInProgress = ref(false)
+
 const isEnvironmentGistExportInProgress = ref(false)
 
 const isTeamEnvironment = computed(() => {
@@ -91,23 +95,27 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
     acceptedFileTypes: "application/json",
     caption: "import.hoppscotch_environment_description",
     onImportFromFile: async (environments) => {
+      isRESTImporterInProgress.value = true
+
       const res = await hoppEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: workspaceType.value,
-      })
-
-      emit("hide-modal")
+      isRESTImporterInProgress.value = false
     },
+    isLoading: isRESTImporterInProgress,
   }),
 }
 
@@ -124,23 +132,27 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
     acceptedFileTypes: "application/json",
     caption: "import.postman_environment_description",
     onImportFromFile: async (environments) => {
+      isPostmanImporterInProgress.value = true
+
       const res = await postmanEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: workspaceType.value,
-      })
-
-      emit("hide-modal")
+      isPostmanImporterInProgress.value = false
     },
+    isLoading: isPostmanImporterInProgress,
   }),
 }
 
@@ -157,30 +169,34 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
     acceptedFileTypes: "application/json",
     caption: "import.insomnia_environment_description",
     onImportFromFile: async (environments) => {
+      isInsomniaImporterInProgress.value = true
+
       const res = await insomniaEnvImporter(environments)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        const globalEnvs = res.right.filter(
+          (env) => env.name === "Base Environment"
+        )
+        const otherEnvs = res.right.filter(
+          (env) => env.name !== "Base Environment"
+        )
+
+        await handleImportToStore(otherEnvs, globalEnvs)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      const globalEnvs = res.right.filter(
-        (env) => env.name === "Base Environment"
-      )
-      const otherEnvs = res.right.filter(
-        (env) => env.name !== "Base Environment"
-      )
-
-      handleImportToStore(otherEnvs, globalEnvs)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: workspaceType.value,
-      })
-
-      emit("hide-modal")
+      isInsomniaImporterInProgress.value = false
     },
+    isLoading: isInsomniaImporterInProgress,
   }),
 }
 

@@ -94,6 +94,7 @@
             key: name,
             value: value,
             active: isActive ? !entityActive : false,
+            description: description ?? '',
           })
         "
       />
@@ -119,6 +120,14 @@ import { useI18n } from "~/composables/i18n"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { InspectorResult } from "~/services/inspection"
 
+type Entity = {
+  id: number
+  key: string
+  value: string
+  active: boolean
+  description: string
+}
+
 const t = useI18n()
 
 defineProps<{
@@ -141,10 +150,13 @@ const emit = defineEmits<{
   (e: "update:value", value: string): void
   (e: "update:description", value: string): void
   (e: "deleteEntity", value: number): void
-  (e: "updateEntity", { index, payload }: { index: number; payload: any }): void
+  (
+    e: "updateEntity",
+    { index, payload }: { index: number; payload: Entity }
+  ): void
 }>()
 
-const updateEntity = (index: number, payload: any) => {
+const updateEntity = (index: number, payload: Entity) => {
   emit("updateEntity", {
     index,
     payload,

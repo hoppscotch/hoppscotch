@@ -98,7 +98,7 @@ const showImportFailedError = () => {
 const handleImportToStore = async (collections: HoppCollection[]) => {
   const importResult =
     props.collectionsType.type === "my-collections"
-      ? await importToPersonalWorkspace(collections)
+      ? importToPersonalWorkspace(collections)
       : await importToTeamsWorkspace(collections)
 
   if (E.isRight(importResult)) {

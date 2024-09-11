@@ -401,15 +401,17 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
       "hoppscotch-personal-collections"
     )
 
-    E.isRight(message)
-      ? toast.success(t(message.right))
-      : toast.error(t(message.left))
+    if (E.isRight(message)) {
+      toast.success(t("state.download_started"))
 
-    platform.analytics?.logEvent({
-      type: "HOPP_EXPORT_COLLECTION",
-      exporter: "json",
-      platform: "rest",
-    })
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "json",
+        platform: "rest",
+      })
+    } else {
+      toast.error(t(message.left))
+    }
 
     isHoppMyCollectionExporterInProgress.value = false
   },

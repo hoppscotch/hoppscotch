@@ -148,7 +148,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
       return
     }
 
-    toast.success(message.right)
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",

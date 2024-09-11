@@ -239,11 +239,11 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     )
 
     if (E.isLeft(message)) {
-      toast.error(t(message.left))
+      toast.error(t("export.failed"))
       return
     }
 
-    toast.success(t(message.right))
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_ENVIRONMENT",

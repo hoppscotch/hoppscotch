@@ -28,7 +28,7 @@
     "axios": "1.7.5",
     "cors": "2.8.5",
     "date-fns": "2.29.3",
-    "express": "4.18.2",
+    "express": "4.20.0",
     "express-graphql": "0.12.0",
     "fp-ts": "2.13.1",
     "graphql": "16.6.0",

@@ -39,8 +39,11 @@
       "subscriptions-transport-ws>ws": "7.5.10",
       "@nestjs/graphql>ws": "8.17.1",
       "braces": "3.0.3",
-      "express": "4.19.2",
+      "express": "4.20.0",
+      "send": "0.19.0",
       "pug": "3.0.3",
+      "body-parser": "1.20.3",
+      "path-to-regexp@3.2.0": "3.3.0",
       "micromatch@<4.0.8": "4.0.8"
     },
     "packageExtensions": {

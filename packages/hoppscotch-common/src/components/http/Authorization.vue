@@ -149,6 +149,9 @@
         <div v-if="auth.authType === 'aws-signature'">
           <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'digest'">
+          <HttpAuthorizationDigest v-model="auth" :envs="envs" />
+        </div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
@@ -235,6 +238,15 @@ const selectAPIKeyAuthType = () => {
   } as HoppRESTAuth
 }
 
+const selectDigestAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "digest",
+    username: "",
+    password: "",
+  } as HoppRESTAuth
+}
+
 const selectAWSSignatureAuthType = () => {
   auth.value = {
     ...auth.value,
@@ -259,6 +271,11 @@ const authTypes: AuthType[] = [
   {
     key: "basic",
     label: "Basic Auth",
+  },
+  {
+    key: "digest",
+    label: "Digest Auth",
+    handler: selectDigestAuthType,
   },
   {
     key: "bearer",

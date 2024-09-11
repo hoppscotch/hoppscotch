@@ -58,6 +58,8 @@ export const HoppRESTAuthDigest = z.object({
   disableRetry: z.boolean().catch(false),
 })
 
+export type HoppRESTAuthDigest = z.infer<typeof HoppRESTAuthDigest>
+
 export const HoppRESTAuth = z
   .discriminatedUnion("authType", [
     HoppRESTAuthNone,
@@ -67,6 +69,7 @@ export const HoppRESTAuth = z
     HoppRESTAuthOAuth2,
     HoppRESTAuthAPIKey,
     HoppRESTAuthAWSSignature,
+    HoppRESTAuthDigest,
   ])
   .and(
     z.object({

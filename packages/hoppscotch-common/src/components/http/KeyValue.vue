@@ -94,6 +94,7 @@
             key: name,
             value: value,
             active: isActive ? !entityActive : false,
+            description: description ?? '',
           })
         "
       />

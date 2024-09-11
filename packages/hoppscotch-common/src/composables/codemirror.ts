@@ -242,11 +242,27 @@ export function useCodemirror(
     ? new HoppEnvironmentPlugin(subscribeToStream, view)
     : null
 
+  const closeContextMenu = () => {
+    invokeAction("contextmenu.open", {
+      position: {
+        top: 0,
+        left: 0,
+      },
+      text: null,
+    })
+  }
+
   function handleTextSelection() {
     const selection = view.value?.state.selection.main
     if (selection) {
       const { from, to } = selection
-      if (from === to) return
+
+      // If the selection is empty, hide the context menu
+      if (from === to) {
+        closeContextMenu()
+        return
+      }
+
       const text = view.value?.state.doc.sliceString(from, to)
       const coords = view.value?.coordsAtPos(from)
       const top = coords?.top ?? 0
@@ -260,13 +276,7 @@ export function useCodemirror(
           text,
         })
       } else {
-        invokeAction("contextmenu.open", {
-          position: {
-            top,
-            left,
-          },
-          text: null,
-        })
+        closeContextMenu()
       }
     }
   }

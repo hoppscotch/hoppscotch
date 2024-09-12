@@ -1,11 +1,11 @@
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
-import jsonParse from "~/helpers/jsonParse"
+import jsoncParse from "~/helpers/jsoncParse"
 
 const linter: LinterDefinition = (text) => {
   try {
     const jsonString = removeComments(text)
-    jsonParse(jsonString)
+    jsoncParse(jsonString)
     return Promise.resolve([])
   } catch (e: any) {
     return Promise.resolve([

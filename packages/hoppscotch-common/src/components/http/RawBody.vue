@@ -73,7 +73,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
-import { computed, markRaw, reactive, Ref, ref, watch } from "vue"
+import { computed, reactive, Ref, ref, watch } from "vue"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
 import { HoppRESTReqBody, ValidContentTypes } from "@hoppscotch/data"
@@ -84,13 +84,12 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
-import jsonLinter from "~/helpers/editor/linting/json"
+import jsonLinter from "~/helpers/editor/linting/jsonc"
 import { readFileAsText } from "~/helpers/functional/files"
 import xmlFormat from "xml-formatter"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import * as LJSON from "lossless-json"
-import { jsonc } from "@shopify/lang-jsonc"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -156,11 +155,9 @@ useCodemirror(
     extendedEditorConfig: {
       lineWrapping: WRAP_LINES,
       mode: rawInputEditorLang,
-      useLang: false,
       placeholder: t("request.raw_body").toString(),
     },
     linter: langLinter,
-    additionalExts: [markRaw(jsonc())],
     completer: null,
     environmentHighlights: true,
   })

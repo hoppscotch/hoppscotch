@@ -36,4 +36,8 @@ function removeComments(jsonString: string): string {
   return jsonString
 }
 
+export const jsoncToJSON = (jsonc: string) => {
+  return JSON.stringify(JSON.parse(removeComments(jsonc)), null, 2)
+}
+
 export default linter

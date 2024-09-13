@@ -383,6 +383,12 @@
     "title": "Export",
     "success": "Successfully exported"
   },
+  "filename": {
+    "cookie_key_value_pairs": "Cookie",
+    "codegen": "{request_name} - code",
+    "lens": "{request_name} - response",
+    "realtime": "Response"
+  },
   "filter": {
     "all": "All",
     "none": "None",

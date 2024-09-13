@@ -187,9 +187,9 @@ function saveCookieChange() {
 
 const { copyIcon, copyResponse } = useCopyResponse(rawCookieString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
-  "",
+  "text/plain",
   rawCookieString,
-  "cookie"
+  t("filename.cookie_key_value_pairs")
 )
 
 function clearContent() {

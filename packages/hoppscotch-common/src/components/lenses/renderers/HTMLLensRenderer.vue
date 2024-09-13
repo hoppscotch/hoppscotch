@@ -94,7 +94,9 @@ const { responseBodyText } = useResponseBody(props.response)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
-  `${props.response.req.name} - response`
+  t("filename.lens", {
+    request_name: props.response.req.name,
+  })
 )
 const defaultPreview =
   persistenceService.getLocalConfig("lens_html_preview") === "true"

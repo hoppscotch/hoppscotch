@@ -262,6 +262,8 @@ const { copyIcon, copyResponse } = useCopyResponse(requestCode)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "",
   requestCode,
-  `${request.value.name} - code`
+  t("filename.codegen", {
+    request_name: request.value.name,
+  })
 )
 </script>

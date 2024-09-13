@@ -355,7 +355,9 @@ const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText,
-  `${props.response.req.name} - response`
+  t("filename.lens", {
+    request_name: props.response.req.name,
+  })
 )
 
 // Template refs

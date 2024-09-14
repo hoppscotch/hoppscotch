@@ -244,6 +244,7 @@ const selectDigestAuthType = () => {
     authType: "digest",
     username: "",
     password: "",
+    algorithm: "MD5",
   } as HoppRESTAuth
 }
 

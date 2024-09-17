@@ -62,6 +62,8 @@ const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
 const isPersonalCollectionImporterInProgress = ref(false)
+const isHarImporterInProgress = ref(false)
+const isGistImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
@@ -282,10 +284,12 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       step: UrlSource({
         caption: "import.from_url",
         onImportFromURL: async (content) => {
+          isOpenAPIImporterInProgress.value = true
+
           const res = await hoppOpenAPIImporter([content])()
 
           if (E.isRight(res)) {
-            handleImportToStore(res.right)
+            await handleImportToStore(res.right)
 
             platform.analytics?.logEvent({
               platform: "rest",
@@ -296,7 +300,10 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
           } else {
             showImportFailedError()
           }
+
+          isOpenAPIImporterInProgress.value = false
         },
+        isLoading: isOpenAPIImporterInProgress,
       }),
     },
   ],
@@ -391,10 +398,12 @@ const HoppGistImporter: ImporterOrExporter = {
         return
       }
 
+      isGistImporterInProgress.value = true
+
       const res = await hoppRESTImporter(content.right)()
 
       if (E.isRight(res)) {
-        handleImportToStore(res.right)
+        await handleImportToStore(res.right)
 
         platform.analytics?.logEvent({
           platform: "rest",
@@ -405,7 +414,10 @@ const HoppGistImporter: ImporterOrExporter = {
       } else {
         showImportFailedError()
       }
+
+      isGistImporterInProgress.value = false
     },
+    isLoading: isGistImporterInProgress,
   }),
 }
 
@@ -558,22 +570,26 @@ const HARImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".har",
     onImportFromFile: async (content) => {
+      isHarImporterInProgress.value = true
+
       const res = await harImporter(content)
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_COLLECTION",
+          importer: "import.from_har",
+          platform: "rest",
+          workspaceType: isTeamWorkspace.value ? "team" : "personal",
+        })
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_COLLECTION",
-        importer: "import.from_har",
-        platform: "rest",
-        workspaceType: isTeamWorkspace.value ? "team" : "personal",
-      })
+      isHarImporterInProgress.value = false
     },
+    isLoading: isHarImporterInProgress,
   }),
 }
 

@@ -63,6 +63,7 @@ const currentUser = useReadonlyStream(
 const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
+const isGistImporterInProgress = ref(false)
 
 const isEnvironmentGistExportInProgress = ref(false)
 
@@ -217,21 +218,26 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
         return
       }
 
+      isGistImporterInProgress.value = true
+
       const res = await hoppEnvImporter(environments.right)()
 
-      if (E.isLeft(res)) {
+      if (E.isRight(res)) {
+        await handleImportToStore(res.right)
+
+        platform.analytics?.logEvent({
+          type: "HOPP_IMPORT_ENVIRONMENT",
+          platform: "rest",
+          workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        })
+        emit("hide-modal")
+      } else {
         showImportFailedError()
-        return
       }
 
-      handleImportToStore(res.right)
-      platform.analytics?.logEvent({
-        type: "HOPP_IMPORT_ENVIRONMENT",
-        platform: "rest",
-        workspaceType: workspaceType.value,
-      })
-      emit("hide-modal")
+      isGistImporterInProgress.value = false
     },
+    isLoading: isGistImporterInProgress,
   }),
 }
 

@@ -125,6 +125,7 @@ export const getGqlArg = <ArgName extends string>(
  * The choice is yours, but beware... once you start, there is no turning back.
  *
  * PLEASE, NO ONE KNOWS HOW THIS WORKS...
+ * -- Balu, whispering from the great beyond... probably still trying to understand this damn thing.
  *
  * Sequences an array of TaskEither values while maintaining an array of all the error values
  * @param arr Array of TaskEithers

@@ -30,6 +30,11 @@ import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
 
+import {
+  DigestAuthParams,
+  fetchInitialDigestAuthInfo,
+  generateDigestAuthHeader,
+} from "../auth/digest"
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -102,6 +107,36 @@ export const getComputedAuthHeaders = async (
     })
   } else if (request.auth.authType === "digest") {
     // TODO: Implement Digest Auth
+
+    // Step 1: Fetch the initial auth info (nonce, realm, etc.)
+    const authInfo = await fetchInitialDigestAuthInfo(
+      parseTemplateString(request.endpoint, envVars),
+      request.method
+    )
+
+    // Step 2: Set up the parameters for the digest authentication header
+    const digestAuthParams: DigestAuthParams = {
+      username: parseTemplateString(request.auth.username, envVars),
+      password: parseTemplateString(request.auth.password, envVars),
+      realm: authInfo.realm,
+      nonce: authInfo.nonce,
+      uri: parseTemplateString(request.endpoint, envVars),
+      method: request.method,
+      qop: authInfo.qop,
+      opaque: authInfo.opaque,
+    }
+
+    // Step 3: Generate the Authorization header
+    const authHeaderValue = generateDigestAuthHeader(digestAuthParams)
+
+    console.log("Digest Auth Header:", authHeaderValue)
+
+    headers.push({
+      active: true,
+      key: "Authorization",
+      value: authHeaderValue,
+      description: "",
+    })
   } else if (
     request.auth.authType === "bearer" ||
     (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")

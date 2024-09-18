@@ -103,10 +103,7 @@ export class TeamCollectionService {
    * @param collectionID The Collection ID
    * @returns A JSON string containing all the contents of a collection
    */
-  private async exportCollectionToJSONObject(
-    teamID: string,
-    collectionID: string,
-  ) {
+  async exportCollectionToJSONObject(teamID: string, collectionID: string) {
     const collection = await this.getCollection(collectionID);
     if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
 

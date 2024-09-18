@@ -470,4 +470,14 @@ export class UserCollectionResolver {
   userCollectionOrderUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/order_updated`);
   }
+
+  @Subscription(() => UserCollection, {
+    description: 'Listen to when a User Collection has been duplicated',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  userCollectionDuplicated(@GqlUser() user: AuthUser) {
+    return this.pubSub.asyncIterator(`user_coll/${user.uid}/duplicated`);
+  }
 }

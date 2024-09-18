@@ -46,7 +46,11 @@ export type TopicDef = {
     topic: `user_history/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserHistory;
   [
-    topic: `user_coll/${string}/${'created' | 'updated' | 'moved'}`
+    topic: `user_coll/${string}/${
+      | 'created'
+      | 'updated'
+      | 'moved'
+      | 'duplicated'}`
   ]: UserCollection;
   [topic: `user_coll/${string}/${'deleted'}`]: UserCollectionRemovedData;
   [topic: `user_coll/${string}/${'order_updated'}`]: UserCollectionReorderData;

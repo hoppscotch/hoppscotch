@@ -73,3 +73,20 @@ export class UserCollectionExportJSONData {
   })
   collectionType: ReqType;
 }
+
+@ObjectType()
+export class UserCollectionDuplicatedData {
+  @Field(() => ID, {
+    description: 'ID of duplicated User Collection',
+  })
+  id: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
+}
+
+registerEnumType(ReqType, {
+  name: 'CollType',
+});

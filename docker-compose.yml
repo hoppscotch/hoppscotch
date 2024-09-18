@@ -111,7 +111,7 @@ services:
     build:
       dockerfile: packages/hoppscotch-backend/Dockerfile
       context: .
-      target: prod
+      target: dev
     env_file:
       - ./.env
     restart: always
@@ -121,7 +121,7 @@ services:
       - PORT=3000
     volumes:
       # Uncomment the line below when modifying code. Only applicable when using the "dev" target.
-      # - ./packages/hoppscotch-backend/:/usr/src/app
+      - ./packages/hoppscotch-backend/:/usr/src/app
       - /usr/src/app/node_modules/
     depends_on:
       hoppscotch-db:

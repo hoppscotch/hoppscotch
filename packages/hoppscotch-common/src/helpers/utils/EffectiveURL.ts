@@ -100,6 +100,8 @@ export const getComputedAuthHeaders = async (
       value: `Basic ${btoa(`${username}:${password}`)}`,
       description: "",
     })
+  } else if (request.auth.authType === "digest") {
+    // TODO: Implement Digest Auth
   } else if (
     request.auth.authType === "bearer" ||
     (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")

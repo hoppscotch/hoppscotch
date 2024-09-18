@@ -27,7 +27,6 @@ import { map } from "rxjs/operators"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
-
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -98,6 +97,8 @@ export const getComputedAuthHeaders = async (
       value: `Basic ${btoa(`${username}:${password}`)}`,
       description: "",
     })
+  } else if (request.auth.authType === "digest") {
+    // TODO: Implement Digest Auth
   } else if (
     request.auth.authType === "bearer" ||
     (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")

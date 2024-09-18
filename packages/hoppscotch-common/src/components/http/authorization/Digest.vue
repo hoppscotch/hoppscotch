@@ -2,18 +2,17 @@
   <div class="flex flex-1 border-b border-dividerLight">
     <SmartEnvInput
       v-model="auth.username"
-      :auto-complete-env="true"
       :placeholder="t('authorization.username')"
+      :auto-complete-env="true"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
-    <input
+    <SmartEnvInput
       v-model="auth.password"
-      name="password"
       :placeholder="t('authorization.password')"
-      class="flex flex-1 bg-transparent px-4 py-2"
-      type="password"
+      :auto-complete-env="true"
+      :envs="envs"
     />
   </div>
 
@@ -124,7 +123,7 @@
       />
     </div>
 
-    <div class="px-4 mt-4">
+    <div class="px-4 mt-4 pb-6">
       <HoppSmartCheckbox
         :on="auth.disableRetry"
         @change="auth.disableRetry = !auth.disableRetry"

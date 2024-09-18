@@ -56,9 +56,11 @@
     },
     "windows": [
       {
+        "label": "main",
+        "title": "Hoppscotch",
+        "visible": false,
         "fullscreen": false,
         "resizable": true,
-        "title": "Hoppscotch",
         "width": 800,
         "height": 600,
         "fileDropEnabled": false

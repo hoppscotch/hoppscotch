@@ -16,6 +16,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { UserCollectionService } from './user-collection.service';
 import {
   UserCollection,
+  UserCollectionDuplicatedData,
   UserCollectionExportJSONData,
   UserCollectionRemovedData,
   UserCollectionReorderData,
@@ -36,6 +37,7 @@ import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { any } from 'jest-mock-extended';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => UserCollection)
@@ -471,7 +473,7 @@ export class UserCollectionResolver {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/order_updated`);
   }
 
-  @Subscription(() => UserCollection, {
+  @Subscription(() => UserCollectionDuplicatedData, {
     description: 'Listen to when a User Collection has been duplicated',
     resolve: (value) => value,
   })

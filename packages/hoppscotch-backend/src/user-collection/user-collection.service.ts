@@ -23,6 +23,7 @@ import { Prisma, UserCollection, ReqType as DBReqType } from '@prisma/client';
 import {
   UserCollection as UserCollectionModel,
   UserCollectionExportJSONData,
+  UserCollectionDuplicatedData,
 } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
 import {
@@ -1035,6 +1036,7 @@ export class UserCollectionService {
     userID: string,
     destCollectionID: string | null,
     reqType: DBReqType,
+    isCollectionDuplication = true,
   ) {
     // Check to see if jsonString is valid
     const collectionsList = stringToJson<CollectionFolder[]>(jsonString);
@@ -1086,6 +1088,17 @@ export class UserCollectionService {
         }),
       ),
     );
+
+    if (!isCollectionDuplication) {
+      const collectionData = await this.fetchCollectionData(
+        userCollections[0].id,
+      );
+      if (!E.isLeft(collectionData))
+        this.pubsub.publish(
+          `user_coll/${userID}/duplicated`,
+          collectionData.right,
+        );
+    }
 
     userCollections.forEach((collection) =>
       this.pubsub.publish(`user_coll/${userID}/created`, this.cast(collection)),
@@ -1182,9 +1195,55 @@ export class UserCollectionService {
       userID,
       collection.right.parentID,
       reqType,
+      false,
     );
     if (E.isLeft(result)) return E.left(result.left as string);
 
     return E.right(true);
+  }
+
+  /**
+   * Generates a JSON containing all the contents of a collection
+   *
+   * @param collection Collection whose details we want to fetch
+   * @returns A JSON string containing all the contents of a collection
+   */
+  private async fetchCollectionData(collectionID: string) {
+    const collection = await this.getUserCollection(collectionID);
+    if (E.isLeft(collection)) return E.left(collection.left);
+
+    const childCollections = await this.prisma.userCollection.findMany({
+      where: { parentID: collection.right.id },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const requests = await this.prisma.userRequest.findMany({
+      where: { collectionID: collection.right.id },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const childCollectionData = await Promise.all(
+      childCollections.map(async (child) => {
+        const result = await this.fetchCollectionData(child.id);
+        if (E.isLeft(result)) return E.left(result.left);
+        return result.right;
+      }),
+    );
+
+    return E.right(<UserCollectionDuplicatedData>{
+      id: collection.right.id,
+      title: collection.right.title,
+      data: collection.right.data,
+      type: collection.right.type,
+      parentID: collection.right.parentID,
+      userID: collection.right.userUid,
+      childCollections: childCollectionData,
+      requests: requests.map((request) => {
+        return {
+          ...request,
+          request: JSON.stringify(request.request),
+        };
+      }),
+    });
   }
 }

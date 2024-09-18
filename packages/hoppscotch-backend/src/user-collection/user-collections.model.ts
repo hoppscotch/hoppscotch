@@ -1,5 +1,7 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { User } from '@prisma/client';
 import { ReqType } from 'src/types/RequestTypes';
+import { UserRequest } from 'src/user-request/user-request.model';
 
 @ObjectType()
 export class UserCollection {
@@ -77,14 +79,46 @@ export class UserCollectionExportJSONData {
 @ObjectType()
 export class UserCollectionDuplicatedData {
   @Field(() => ID, {
-    description: 'ID of duplicated User Collection',
+    description: 'ID of the user collection',
   })
   id: string;
+
+  @Field({
+    description: 'Displayed title of the user collection',
+  })
+  title: string;
+
+  @Field({
+    description: 'JSON string representing the collection data',
+    nullable: true,
+  })
+  data: string;
 
   @Field(() => ReqType, {
     description: 'Type of the user collection',
   })
   type: ReqType;
+
+  @Field({
+    description: 'Parent ID of the duplicated User Collection',
+    nullable: true,
+  })
+  parentID: string | null;
+
+  @Field({
+    description: 'User ID of the duplicated User Collection',
+  })
+  userID: string;
+
+  @Field(() => [UserCollectionDuplicatedData], {
+    description: 'Child collections of the duplicated User Collection',
+  })
+  childCollections: UserCollectionDuplicatedData[];
+
+  @Field(() => [UserRequest], {
+    description: 'Requests of the duplicated User Collection',
+  })
+  requests: UserRequest[];
 }
 
 registerEnumType(ReqType, {

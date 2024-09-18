@@ -16,6 +16,7 @@ mod mac;
 mod win;
 
 mod interceptor;
+mod interop;
 
 use tauri::Manager;
 
@@ -23,7 +24,31 @@ fn main() {
     tauri_plugin_deep_link::prepare("io.hoppscotch.desktop");
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .invoke_handler(tauri::generate_handler![
+            interop::startup::init::interop_startup_init
+        ])
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(
+                    // NOTE:
+                    // The app (window labeled "main") manages its visible state via `interop_startup_init`.
+                    // See `tauri.conf.json`:
+                    // ```json
+                    // {
+                    //   "label": "main",
+                    //   "title": "Hoppscotch",
+                    //   ...
+                    //   ...
+                    //   "visible": false, // This is the important part.
+                    //   ...
+                    //   ...
+                    // }
+                    // ```
+                    tauri_plugin_window_state::StateFlags::all()
+                        & !tauri_plugin_window_state::StateFlags::VISIBLE,
+                )
+                .build(),
+        )
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(interceptor::init())
         .setup(|app| {

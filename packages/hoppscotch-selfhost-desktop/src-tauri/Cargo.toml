@@ -21,7 +21,6 @@ tauri = { version = "1.5.3", features = [
   "shell-open",
   "window-start-dragging",
   "http-multipart",
-  "devtools"
 ] }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-deep-link = { git = "https://github.com/FabianLars/tauri-plugin-deep-link", branch = "main" }
@@ -34,6 +33,12 @@ serde = { version = "1.0.203", features = ["derive"] }
 dashmap = "5.5.3"
 tokio = { version = "1.38.0", features = ["macros"] }
 tokio-util = "0.7.11"
+log = "0.4.22"
+thiserror = "1.0.63"
+
+[dev-dependencies]
+tauri = { version = "1.5.3", features = ["devtools", "test"] }
+env_logger = "0.11.5"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.25.0"

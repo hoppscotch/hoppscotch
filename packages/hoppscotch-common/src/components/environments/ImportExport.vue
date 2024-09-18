@@ -13,36 +13,36 @@ import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
+import { ImporterOrExporter } from "~/components/importExport/types"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { ImporterOrExporter } from "~/components/importExport/types"
+import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { hoppEnvImporter } from "~/helpers/import-export/import/hoppEnv"
 
 import {
-  appendEnvironments,
   addGlobalEnvVariable,
+  appendEnvironments,
   environments$,
 } from "~/newstore/environments"
 
-import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
-import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
+import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconPostman from "~icons/hopp/postman"
-import IconInsomnia from "~icons/hopp/insomnia"
-import IconUser from "~icons/lucide/user"
-import { initializeDownloadCollection } from "~/helpers/import-export/export"
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { platform } from "~/platform"
+import IconInsomnia from "~icons/hopp/insomnia"
+import IconPostman from "~icons/hopp/postman"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconUser from "~icons/lucide/user"
 
 const t = useI18n()
 const toast = useToast()
@@ -67,18 +67,16 @@ const isTeamEnvironment = computed(() => {
 })
 
 const environmentJson = computed(() => {
-  if (
-    props.environmentType === "TEAM_ENV" &&
-    props.teamEnvironments !== undefined
-  ) {
-    const teamEnvironments = props.teamEnvironments.map(
-      (x) => x.environment as Environment
-    )
-    return teamEnvironments
+  if (isTeamEnvironment.value && props.teamEnvironments) {
+    return props.teamEnvironments.map((x) => x.environment)
   }
 
   return myEnvironments.value
 })
+
+const workspaceType = computed(() =>
+  isTeamEnvironment.value ? "team" : "personal"
+)
 
 const HoppEnvironmentsImport: ImporterOrExporter = {
   metadata: {
@@ -105,7 +103,7 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
         platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        workspaceType: workspaceType.value,
       })
 
       emit("hide-modal")
@@ -138,7 +136,7 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
         platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        workspaceType: workspaceType.value,
       })
 
       emit("hide-modal")
@@ -178,7 +176,7 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
         platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        workspaceType: workspaceType.value,
       })
 
       emit("hide-modal")
@@ -214,7 +212,7 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_ENVIRONMENT",
         platform: "rest",
-        workspaceType: isTeamEnvironment.value ? "team" : "personal",
+        workspaceType: workspaceType.value,
       })
       emit("hide-modal")
     },
@@ -230,22 +228,22 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
-  action: () => {
+  action: async () => {
     if (!environmentJson.value.length) {
       return toast.error(t("error.no_environments_to_export"))
     }
 
-    const message = initializeDownloadCollection(
+    const message = await initializeDownloadFile(
       environmentsExporter(environmentJson.value),
-      "Environments"
+      `hoppscotch-${workspaceType.value}-environments`
     )
 
     if (E.isLeft(message)) {
-      toast.error(t(message.left))
+      toast.error(t("export.failed"))
       return
     }
 
-    toast.success(t(message.right))
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_ENVIRONMENT",

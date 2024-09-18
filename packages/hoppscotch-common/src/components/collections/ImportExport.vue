@@ -48,7 +48,7 @@ import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
 
 import { platform } from "~/platform"
 
-import { initializeDownloadCollection } from "~/helpers/import-export/export"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { myCollectionsExporter } from "~/helpers/import-export/export/myCollections"
 import { teamCollectionsExporter } from "~/helpers/import-export/export/teamCollections"
@@ -389,26 +389,28 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     applicableTo: ["personal-workspace"],
     isLoading: isHoppMyCollectionExporterInProgress,
   },
-  action: () => {
+  action: async () => {
     if (!myCollections.value.length) {
       return toast.error(t("error.no_collections_to_export"))
     }
 
     isHoppMyCollectionExporterInProgress.value = true
 
-    const message = initializeDownloadCollection(
+    const message = await initializeDownloadFile(
       myCollectionsExporter(myCollections.value),
-      "Collections"
+      "hoppscotch-personal-collections"
     )
 
     if (E.isRight(message)) {
-      toast.success(t(message.right))
+      toast.success(t("state.download_started"))
 
       platform.analytics?.logEvent({
         type: "HOPP_EXPORT_COLLECTION",
         exporter: "json",
         platform: "rest",
       })
+    } else {
+      toast.error(t(message.left))
     }
 
     isHoppMyCollectionExporterInProgress.value = false
@@ -436,7 +438,14 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
       )
 
       if (E.isRight(res)) {
-        initializeDownloadCollection(res.right, "team-collections")
+        const message = await initializeDownloadFile(
+          res.right,
+          "hoppscotch-team-collections"
+        )
+
+        E.isRight(message)
+          ? toast.success(t(message.right))
+          : toast.error(t(message.left))
 
         platform.analytics?.logEvent({
           type: "HOPP_EXPORT_COLLECTION",

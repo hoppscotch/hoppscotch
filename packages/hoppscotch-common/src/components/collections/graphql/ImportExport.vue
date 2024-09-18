@@ -21,7 +21,7 @@ import { GistSource } from "~/helpers/import-export/import/import-sources/GistSo
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"
-import { initializeDownloadCollection } from "~/helpers/import-export/export"
+import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { useReadonlyStream } from "~/composables/stream"
 
 import { platform } from "~/platform"
@@ -133,14 +133,14 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
-  action: () => {
+  action: async () => {
     if (!gqlCollections.value.length) {
       return toast.error(t("error.no_collections_to_export"))
     }
 
-    const message = initializeDownloadCollection(
+    const message = await initializeDownloadFile(
       gqlCollectionsExporter(gqlCollections.value),
-      "GQLCollections"
+      "hoppscotch-gql-collections"
     )
 
     if (E.isLeft(message)) {
@@ -148,7 +148,7 @@ const GqlCollectionsHoppExporter: ImporterOrExporter = {
       return
     }
 
-    toast.success(message.right)
+    toast.success(t("state.download_started"))
 
     platform.analytics?.logEvent({
       type: "HOPP_EXPORT_COLLECTION",

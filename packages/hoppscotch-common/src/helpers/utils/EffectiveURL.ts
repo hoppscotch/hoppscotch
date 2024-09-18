@@ -27,6 +27,8 @@ import { map } from "rxjs/operators"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
+import { isJSONContentType } from "./contenttypes"
+import { removeComments } from "../editor/linting/jsonc"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -379,9 +381,14 @@ export const resolvesEnvsInBody = (
     }
   }
 
+  let bodyContent = ""
+
+  if (isJSONContentType(body.contentType))
+    bodyContent = removeComments(body.body)
+
   return {
     contentType: body.contentType,
-    body: parseTemplateString(body.body ?? "", env.variables, false, true),
+    body: parseTemplateString(bodyContent, env.variables, false, true),
   }
 }
 

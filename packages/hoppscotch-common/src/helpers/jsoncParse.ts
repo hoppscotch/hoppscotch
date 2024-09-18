@@ -85,19 +85,14 @@ export type JSONObjectMember = {
   value: JSONValue
 }
 
-type JSONParseOptions = {
-  allowComments?: boolean // Optional flag to allow or disallow comments
-}
-
 export default function jsonParse(
-  str: string,
-  options: JSONParseOptions = {}
+  str: string
 ): JSONObjectValue | JSONArrayValue {
   string = str
   strLen = str.length
   start = end = lastEnd = -1
   ch()
-  lex(options.allowComments || false) // Pass the allowComments flag to lex()
+  lex() // Pass the allowComments flag to lex()
   try {
     const ast = parseObj()
     expect("EOF")
@@ -181,7 +176,7 @@ function parseVal(): JSONValue {
     case "Null":
       // eslint-disable-next-line no-case-declarations
       const token = curToken()
-      lex(false)
+      lex()
       return token
   }
   return expect("Value") as never
@@ -198,7 +193,7 @@ function curToken(): JSONPrimitiveValue {
 
 function expect(str: string) {
   if (kind === str) {
-    lex(false)
+    lex()
     return
   }
 
@@ -227,7 +222,7 @@ function syntaxError(message: string): SyntaxError {
 
 function skip(k: string) {
   if (kind === k) {
-    lex(false)
+    lex()
     return true
   }
 }
@@ -239,48 +234,41 @@ function ch() {
   }
 }
 
-function lex(allowComments: boolean) {
+function lex() {
   lastEnd = end
 
   // Skip whitespace and comments
   while (true) {
     // Skip whitespace (space, tab, newline, etc.)
     while (code === 9 || code === 10 || code === 13 || code === 32) {
-      // Tab, LF, CR, Space
       ch()
     }
 
-    if (allowComments) {
-      // Check for single-line comment (//)
-      if (code === 47 && string.charCodeAt(end + 1) === 47) {
-        // 47 is '/'
-        ch() // Move past the first '/'
-        ch() // Move past the second '/'
-        while (code !== 10 && code !== 13 && code !== 0) {
-          // Skip until newline (LF, CR) or EOF
-          ch()
-        }
-        continue // After skipping the comment, recheck for more whitespace/comments
+    // Check for single-line comment (//)
+    if (code === 47 && string.charCodeAt(end + 1) === 47) {
+      // 47 is '/'
+      while (code !== 10 && code !== 13 && code !== 0) {
+        // Skip until newline or EOF
+        ch()
       }
+      continue // After skipping the comment, recheck for more whitespace/comments
+    }
 
-      // Check for multi-line comment (/* */)
-      if (code === 47 && string.charCodeAt(end + 1) === 42) {
-        // 42 is '*'
-        ch() // Move past the first '/'
-        ch() // Move past the '*'
-        while (
-          code !== 0 &&
-          !(code === 42 && string.charCodeAt(end + 1) === 47)
-        ) {
-          // Look for '*/'
-          ch()
-        }
-        if (code === 42) {
-          ch() // Skip the '*'
-          ch() // Move past the closing '/'
-        }
-        continue // After skipping the comment, recheck for more whitespace/comments
+    // Check for multi-line comment (/* */)
+    if (code === 47 && string.charCodeAt(end + 1) === 42) {
+      // 42 is '*'
+      ch() // Skip the '*'
+      ch() // Move past the opening '/*'
+      while (
+        code !== 0 &&
+        !(code === 42 && string.charCodeAt(end + 1) === 47)
+      ) {
+        // Look for '*/'
+        ch()
       }
+      ch() // Skip the '*'
+      ch() // Move past the closing '*/'
+      continue // After skipping the comment, recheck for more whitespace/comments
     }
 
     break // Exit loop when no more comments or whitespace

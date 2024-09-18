@@ -4,8 +4,7 @@ import jsoncParse from "~/helpers/jsoncParse"
 
 const linter: LinterDefinition = (text) => {
   try {
-    const jsonString = removeComments(text)
-    jsoncParse(jsonString)
+    jsoncParse(text)
     return Promise.resolve([])
   } catch (e: any) {
     return Promise.resolve([
@@ -28,16 +27,13 @@ const linter: LinterDefinition = (text) => {
 const singleLineCommentPattern = /\/\/.*$/gm
 const multiLineCommentPattern = /\/\*[\s\S]*?\*\//gm
 
-function removeComments(jsonString: string): string {
+export function removeComments(jsonString: string): string {
   // Remove single-line comments
   jsonString = jsonString.replace(singleLineCommentPattern, "")
   // Remove multi-line comments
   jsonString = jsonString.replace(multiLineCommentPattern, "")
-  return jsonString
-}
 
-export const jsoncToJSON = (jsonc: string) => {
-  return JSON.stringify(JSON.parse(removeComments(jsonc)), null, 2)
+  return JSON.stringify(JSON.parse(jsonString))
 }
 
 export default linter

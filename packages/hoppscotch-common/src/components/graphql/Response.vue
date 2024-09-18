@@ -158,7 +158,7 @@ const { copyIcon, copyResponse } = useCopyResponse(responseString)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   responseString,
-  "Response"
+  t("filename.graphql_response")
 )
 
 defineActionHandler(

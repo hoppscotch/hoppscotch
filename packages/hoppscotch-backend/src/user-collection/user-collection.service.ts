@@ -1228,7 +1228,7 @@ export class UserCollectionService {
       orderBy: { orderIndex: 'asc' },
     });
 
-    const childCollectionData = await Promise.all(
+    const childCollectionDataList = await Promise.all(
       childCollections.map(async (child) => {
         const result = await this.fetchCollectionData(child.id);
         if (E.isLeft(result)) return E.left(result.left);
@@ -1236,7 +1236,7 @@ export class UserCollectionService {
       }),
     );
 
-    const failedChildData = childCollectionData.find(E.isLeft);
+    const failedChildData = childCollectionDataList.find(E.isLeft);
     if (failedChildData) return E.left(failedChildData.left);
 
     return E.right(<UserCollectionDuplicatedData>{
@@ -1246,7 +1246,11 @@ export class UserCollectionService {
       type: collection.right.type,
       parentID: collection.right.parentID,
       userID: collection.right.userUid,
-      childCollections: JSON.stringify(childCollectionData),
+      childCollections: JSON.stringify(
+        childCollectionDataList.map((childCollection) => {
+          if (E.isRight(childCollection)) return childCollection.right;
+        }),
+      ),
       requests: requests.map((request) => {
         return {
           ...request,

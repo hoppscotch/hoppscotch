@@ -110,10 +110,10 @@ export class UserCollectionDuplicatedData {
   })
   userID: string;
 
-  @Field(() => [UserCollectionDuplicatedData], {
+  @Field({
     description: 'Child collections of the duplicated User Collection',
   })
-  childCollections: UserCollectionDuplicatedData[];
+  childCollections: string;
 
   @Field(() => [UserRequest], {
     description: 'Requests of the duplicated User Collection',

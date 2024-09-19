@@ -1036,7 +1036,7 @@ export class UserCollectionService {
     userID: string,
     destCollectionID: string | null,
     reqType: DBReqType,
-    isCollectionDuplication = true,
+    isCollectionDuplication = false,
   ) {
     // Check to see if jsonString is valid
     const collectionsList = stringToJson<CollectionFolder[]>(jsonString);
@@ -1089,20 +1089,24 @@ export class UserCollectionService {
       ),
     );
 
-    if (!isCollectionDuplication) {
+    if (isCollectionDuplication) {
       const collectionData = await this.fetchCollectionData(
         userCollections[0].id,
       );
-      if (!E.isLeft(collectionData))
+      if (E.isRight(collectionData)) {
         this.pubsub.publish(
           `user_coll/${userID}/duplicated`,
           collectionData.right,
         );
+      }
+    } else {
+      userCollections.forEach((collection) =>
+        this.pubsub.publish(
+          `user_coll/${userID}/created`,
+          this.cast(collection),
+        ),
+      );
     }
-
-    userCollections.forEach((collection) =>
-      this.pubsub.publish(`user_coll/${userID}/created`, this.cast(collection)),
-    );
 
     return E.right(true);
   }
@@ -1195,7 +1199,7 @@ export class UserCollectionService {
       userID,
       collection.right.parentID,
       reqType,
-      false,
+      true,
     );
     if (E.isLeft(result)) return E.left(result.left as string);
 
@@ -1208,7 +1212,9 @@ export class UserCollectionService {
    * @param collection Collection whose details we want to fetch
    * @returns A JSON string containing all the contents of a collection
    */
-  private async fetchCollectionData(collectionID: string) {
+  private async fetchCollectionData(
+    collectionID: string,
+  ): Promise<E.Left<string> | E.Right<UserCollectionDuplicatedData>> {
     const collection = await this.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
@@ -1226,9 +1232,12 @@ export class UserCollectionService {
       childCollections.map(async (child) => {
         const result = await this.fetchCollectionData(child.id);
         if (E.isLeft(result)) return E.left(result.left);
-        return result.right;
+        return E.right(result.right);
       }),
     );
+
+    const failedChildData = childCollectionData.find(E.isLeft);
+    if (failedChildData) return E.left(failedChildData.left);
 
     return E.right(<UserCollectionDuplicatedData>{
       id: collection.right.id,
@@ -1237,7 +1246,7 @@ export class UserCollectionService {
       type: collection.right.type,
       parentID: collection.right.parentID,
       userID: collection.right.userUid,
-      childCollections: childCollectionData,
+      childCollections: JSON.stringify(childCollectionData),
       requests: requests.map((request) => {
         return {
           ...request,

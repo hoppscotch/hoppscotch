@@ -58,9 +58,12 @@ const initPasswordOauthFlow = async ({
   const formData = new URLSearchParams()
   formData.append("grant_type", "password")
   formData.append("client_id", clientID)
-  formData.append("client_secret", clientSecret)
   formData.append("username", username)
   formData.append("password", password)
+
+  if (clientSecret) {
+    formData.append("client_secret", clientSecret)
+  }
 
   if (scopes) {
     formData.append("scope", scopes)

@@ -24,7 +24,6 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
     return (
       params.authEndpoint.length >= 1 &&
       params.clientID.length >= 1 &&
-      params.clientSecret.length >= 1 &&
       (!params.scopes || params.scopes.length >= 1)
     )
   },

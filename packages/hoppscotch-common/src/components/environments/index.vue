@@ -112,6 +112,12 @@ const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
 const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
 
+const selectedEnvironmentIndex = useStream(
+  selectedEnvironmentIndex$,
+  { type: "NO_ENV_SELECTED" },
+  setSelectedEnvironmentIndex
+)
+
 const loading = computed(
   () => adapterLoading.value && teamEnvironmentList.value.length === 0
 )
@@ -138,29 +144,33 @@ const workspace = workspaceService.currentWorkspace
 
 // Switch to my environments if workspace is personal and to team environments if workspace is team
 // also resets selected environment if workspace is personal and the previous selected environment was a team environment
-watch(workspace, (newWorkspace) => {
-  const { type: newWorkspaceType } = newWorkspace
+watch(
+  workspace,
+  (newWorkspace) => {
+    const { type: newWorkspaceType } = newWorkspace
 
-  if (newWorkspaceType === "personal") {
-    switchToMyEnvironments()
-  } else {
-    updateSelectedTeam(newWorkspace)
-  }
+    if (newWorkspaceType === "personal") {
+      switchToMyEnvironments()
+    } else {
+      updateSelectedTeam(newWorkspace)
+    }
 
-  const newTeamID =
-    newWorkspaceType === "team" ? newWorkspace.teamID : undefined
+    const newTeamID =
+      newWorkspaceType === "team" ? newWorkspace.teamID : undefined
 
-  // Set active environment to the `No environment` state
-  // if navigating away from a team workspace
-  if (
-    selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-    selectedEnvironmentIndex.value.teamID !== newTeamID
-  ) {
-    setSelectedEnvironmentIndex({
-      type: "NO_ENV_SELECTED",
-    })
-  }
-})
+    // Set active environment to the `No environment` state
+    // if navigating away from a team workspace
+    if (
+      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+      selectedEnvironmentIndex.value.teamID !== newTeamID
+    ) {
+      setSelectedEnvironmentIndex({
+        type: "NO_ENV_SELECTED",
+      })
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => currentUser.value,
@@ -254,12 +264,6 @@ defineActionHandler(
     editEnvironment("Global")
     editingVariableName.value = "Global"
   }
-)
-
-const selectedEnvironmentIndex = useStream(
-  selectedEnvironmentIndex$,
-  { type: "NO_ENV_SELECTED" },
-  setSelectedEnvironmentIndex
 )
 
 /* Checking if there are any changes in the selected team environment when there are any updates

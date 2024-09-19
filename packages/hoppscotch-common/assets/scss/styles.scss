@@ -612,16 +612,14 @@ details[open] summary .indicator {
 
 .predefined-variable-highlight {
   color: inherit;
-  @apply border-2;
 
   &.predefined-variable-valid {
-    @apply hover:text-accentContrast #{!important};
-    @apply hover:bg-accentDark;
-    @apply border-accent;
+    @apply bg-yellow-500;
+    @apply hover:bg-yellow-600;
   }
 
   &.predefined-variable-invalid {
     @apply hover:bg-red-300;
-    @apply border-red-300;
+    @apply bg-red-300;
   }
 }

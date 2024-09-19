@@ -12,6 +12,7 @@ import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { browserIODef } from "@hoppscotch/common/platform/std/io"
 import { InfraPlatform } from "@platform/infra/infra.platform"
+import * as E from "fp-ts/Either"
 
 createHoppApp("#app", {
   ui: {

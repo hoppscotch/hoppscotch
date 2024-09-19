@@ -11,6 +11,8 @@ declare module 'vue' {
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
     AccessTokensOverview: typeof import('./components/accessTokens/Overview.vue')['default']
+    AiexperimentsMergeView: typeof import('./components/aiexperiments/MergeView.vue')['default']
+    AiexperimentsModifyBodyModal: typeof import('./components/aiexperiments/ModifyBodyModal.vue')['default']
     AppActionHandler: typeof import('./components/app/ActionHandler.vue')['default']
     AppBanner: typeof import('./components/app/Banner.vue')['default']
     AppContextMenu: typeof import('./components/app/ContextMenu.vue')['default']

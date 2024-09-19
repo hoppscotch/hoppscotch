@@ -28,12 +28,6 @@
               />
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
-                :title="t('action.download_file')"
-                :icon="downloadIcon"
-                @click="downloadResponse"
-              />
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip', allowHTML: true }"
                 :title="t('action.copy')"
                 :icon="copyIcon"
                 @click="copyResponse"
@@ -84,10 +78,7 @@ import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { parseCurlToHoppRESTReq } from "~/helpers/curl"
-import {
-  useCopyResponse,
-  useDownloadResponse,
-} from "~/composables/lens-actions"
+import { useCopyResponse } from "~/composables/lens-actions"
 
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
@@ -183,7 +174,6 @@ const handlePaste = async () => {
 }
 
 const { copyIcon, copyResponse } = useCopyResponse(curl)
-const { downloadIcon, downloadResponse } = useDownloadResponse("", curl)
 
 const clearContent = () => {
   curl.value = ""

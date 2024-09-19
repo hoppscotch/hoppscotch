@@ -259,5 +259,11 @@ const filteredCodegenDefinitions = computed(() => {
 })
 
 const { copyIcon, copyResponse } = useCopyResponse(requestCode)
-const { downloadIcon, downloadResponse } = useDownloadResponse("", requestCode)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "",
+  requestCode,
+  t("filename.codegen", {
+    request_name: request.value.name,
+  })
+)
 </script>

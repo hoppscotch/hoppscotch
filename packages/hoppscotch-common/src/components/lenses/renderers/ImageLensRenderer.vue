@@ -67,7 +67,10 @@ const responseType = computed(() =>
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
-  computed(() => props.response.body)
+  computed(() => props.response.body),
+  t("filename.lens", {
+    request_name: props.response.req.name,
+  })
 )
 
 watch(props.response, () => {

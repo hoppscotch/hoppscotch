@@ -383,6 +383,13 @@
     "title": "Export",
     "success": "Successfully exported"
   },
+  "filename": {
+    "cookie_key_value_pairs": "Cookie",
+    "codegen": "{request_name} - code",
+    "graphql_response": "GraphQL-Response",
+    "lens": "{request_name} - response",
+    "realtime_response": "Realtime-Response"
+  },
   "filter": {
     "all": "All",
     "none": "None",

@@ -135,12 +135,14 @@ const responseName = computed(() => {
   return props.response.name
 })
 
+const filename = t("filename.lens", {
+  request_name: responseName.value,
+})
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   responseBodyText,
-  t("filename.lens", {
-    request_name: responseName.value,
-  })
+  `${filename}.xml`
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

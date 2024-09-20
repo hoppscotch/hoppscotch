@@ -30,24 +30,14 @@
     </div>
 
     <p v-if="showFileSizeLimitExceededWarning" class="text-red-500 ml-10">
-      <template v-if="importFilesCount">
-        {{
-          t("import.file_size_limit_exceeded_warning_multiple_files", {
-            files:
-              importFilesCount === 1 ? "file" : `${importFilesCount} files`,
-          })
-        }}
-      </template>
-
-      <template v-else>
-        {{ t("import.file_size_limit_exceeded_warning_single_file") }}
-      </template>
+      {{ fileSizeLimitedExceededWarning }}
     </p>
+
     <div>
       <HoppButtonPrimary
         class="w-full"
         :label="t('import.title')"
-        :disabled="!hasFile || showFileSizeLimitExceededWarning"
+        :disabled="disableImportCTA"
         @click="emit('importFromFile', fileContent)"
       />
     </div>
@@ -55,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 
@@ -80,6 +70,30 @@ const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
 const emit = defineEmits<{
   (e: "importFromFile", content: string[]): void
 }>()
+
+/**
+ * Disable the import button if:
+ * 1. No file is selected
+ * 2. The only file chosen exceeds the file size limit
+ */
+const disableImportCTA = computed(
+  () =>
+    !hasFile.value ||
+    (showFileSizeLimitExceededWarning.value && importFilesCount.value === 0)
+)
+
+const fileSizeLimitedExceededWarning = computed(() => {
+  if (importFilesCount.value >= 1) {
+    return t("import.file_size_limit_exceeded_warning_multiple_files", {
+      files:
+        importFilesCount.value === 1
+          ? "file"
+          : `${importFilesCount.value} files`,
+    })
+  }
+
+  return t("import.file_size_limit_exceeded_warning_single_file")
+})
 
 const onFileChange = async () => {
   // Reset the state on entering the handler to avoid any stale state

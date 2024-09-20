@@ -55,7 +55,7 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     folders: [],
     requests: [
       {
-        v: 6,
+        v: 7,
         name: "Echo test",
         url: "https://echo.hoppscotch.io/graphql",
         headers: [],
@@ -156,7 +156,7 @@ export const GQL_HISTORY_MOCK: GQLHistoryEntry[] = [
   {
     v: 1,
     request: {
-      v: 6,
+      v: 7,
       name: "Untitled",
       url: "https://echo.hoppscotch.io/graphql",
       query: "query Request { url }",
@@ -177,7 +177,7 @@ export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
       tabID: "5edbe8d4-65c9-4381-9354-5f1bf05d8ccc",
       doc: {
         request: {
-          v: 6,
+          v: 7,
           name: "Untitled",
           url: "https://echo.hoppscotch.io/graphql",
           headers: [],

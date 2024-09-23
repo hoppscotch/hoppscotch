@@ -303,12 +303,15 @@ export function runRESTRequest$(
             tab.value.document.testResults =
               translateToSandboxTestResults(updatedRunResult)
 
-            setGlobalEnvVariables(
-              updateEnvironmentsWithSecret(
-                runResult.right.envs.global,
-                "global"
-              )
+            const globalEnvVariables = updateEnvironmentsWithSecret(
+              runResult.right.envs.global,
+              "global"
             )
+
+            setGlobalEnvVariables({
+              v: 1,
+              variables: globalEnvVariables,
+            })
             if (
               environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
             ) {

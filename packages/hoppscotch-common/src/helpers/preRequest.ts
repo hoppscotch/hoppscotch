@@ -17,8 +17,6 @@ const unsecretEnvironments = (
   selected: Environment,
   global: Environment["variables"]
 ) => {
-  console.log("UNSECRET ENVS:", { global, selected })
-
   const resolvedGlobalWithSecrets = global.map((globalVar, index) => {
     const secretVar = secretEnvironmentService.getSecretEnvironmentVariable(
       "Global",

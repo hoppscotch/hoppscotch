@@ -8,6 +8,7 @@ use model::AppState;
 use tauri::{Manager, State};
 use uuid::Uuid;
 
+// TODO: Generate OTP on startup, so perhaps this shouldn't be a command.
 #[tauri::command]
 async fn validate_otp(
     otp: String,

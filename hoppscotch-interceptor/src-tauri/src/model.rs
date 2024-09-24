@@ -7,6 +7,7 @@ use tokio_util::sync::CancellationToken;
 
 #[derive(Default)]
 pub(crate) struct AppState {
+    // TODO: Single auth-key? Multitency perhaps isn't the goal of this agent.
     pub(crate) auth_keys: RwLock<HashMap<String, String>>,
     pub(crate) registration_key: RwLock<Option<String>>,
     pub(crate) cancellation_tokens: RwLock<HashMap<usize, CancellationToken>>,

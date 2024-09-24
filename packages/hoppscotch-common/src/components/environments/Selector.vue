@@ -302,13 +302,16 @@ import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
-import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { useReadonlyStream, useStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
-import { GQLError } from "~/helpers/backend/GQLClient"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import {
+  sortPersonalEnvironmentsAlphabetically,
+  sortTeamEnvironmentsAlphabetically,
+} from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import {
   environments$,
   globalEnv$,
@@ -317,10 +320,6 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { WorkspaceService } from "~/services/workspace.service"
-import {
-  sortPersonalEnvironmentsAlphabetically,
-  sortTeamEnvironmentsAlphabetically,
-} from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
 import IconEye from "~icons/lucide/eye"
@@ -591,23 +590,7 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-<<<<<<< HEAD
-const getErrorMessage = (err: GQLError<string>) => {
-  if (err.type === "network_error") {
-    return t("error.network_error")
-  }
-  switch (err.error) {
-    case "team_environment/not_found":
-      return t("team_environment.not_found")
-    default:
-      return t("error.something_went_wrong")
-  }
-}
-
 const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
-=======
-const globalEnvs = useReadonlyStream(globalEnv$, [])
->>>>>>> 6e3b8ac3 (refactor: helper function abstracting error messages)
 
 const environmentVariables = computed(() => {
   if (selectedEnv.value.variables) {

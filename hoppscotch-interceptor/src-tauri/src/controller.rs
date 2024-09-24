@@ -16,8 +16,8 @@ use warp::{
     reply::{json, with_status, Reply},
 };
 
-pub async fn get_registration_key(state: Arc<AppState>) -> Result<impl Reply, Rejection> {
-    todo!()
+pub async fn get_registration_key(_state: Arc<AppState>) -> Result<impl Reply, Rejection> {
+    Ok(json(&json!({ "todo": "todo" })))
 }
 
 pub async fn get_auth_key(
@@ -41,11 +41,7 @@ pub async fn get_auth_key(
 
     let auth_key = Uuid::new_v4().to_string();
 
-    state
-        .auth_keys
-        .write()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
-        .insert(reg_key, auth_key.clone());
+    state.auth_keys.insert(reg_key, auth_key.clone());
 
     Ok(with_status(
         json(&json!({ "auth_key": auth_key })),
@@ -141,8 +137,8 @@ async fn execute_request(
 async fn is_authenticated(state: &Arc<AppState>, auth_header: &str) -> Result<bool, Rejection> {
     Ok(state
         .auth_keys
-        .read()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
+        .clone()
+        .into_read_only()
         .values()
         .any(|v| v == auth_header))
 }
@@ -246,18 +242,12 @@ pub(crate) async fn run_request(
 
     state
         .cancellation_tokens
-        .write()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
         .insert(req.req_id, cancel_token.clone());
 
     let result = tokio::select! {
         _ = cancel_token.cancelled() => Err(warp::reject::custom(RunRequestError::RequestCancelled)),
         result = execute_request(req_builder) => {
-            state
-                .cancellation_tokens
-                .write()
-                .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
-                .remove(&req.req_id);
+            state.cancellation_tokens.remove(&req.req_id);
             result.map_err(warp::reject::custom)
         }
     };
@@ -270,26 +260,16 @@ pub async fn cancel_request(
     auth_header: String,
     state: Arc<AppState>,
 ) -> Result<impl Reply, Rejection> {
-    if !state
-        .auth_keys
-        .read()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
-        .values()
-        .any(|v| v == &auth_header)
-    {
-        return Ok(warp::reply::with_status(
-            warp::reply::json(&json!({"error": "Unauthorized"})),
+    if !is_authenticated(&state, &auth_header).await? {
+        return Ok(with_status(
+            json(&RunRequestError::Unauthorized),
             StatusCode::UNAUTHORIZED,
         ));
     }
 
-    let mut tokens = state
-        .cancellation_tokens
-        .write()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?;
-
-    if let Some(token) = tokens.remove(&req_id) {
+    if let Some((_, token)) = state.cancellation_tokens.remove(&req_id) {
         token.cancel();
+
         Ok(warp::reply::with_status(
             warp::reply::json(&json!({"message": "Request cancelled successfully"})),
             StatusCode::OK,

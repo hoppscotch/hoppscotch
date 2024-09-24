@@ -32,7 +32,7 @@ pub async fn run() {
         });
     });
 
-    let tauri_app_state = app_state.clone();
+    let tauri_app_state = app_state;
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(debug_assertions)]

@@ -5,35 +5,12 @@ mod server;
 mod tray;
 
 use model::AppState;
-use tauri::{Manager, State};
-use uuid::Uuid;
-
-// TODO: Generate OTP on startup, so perhaps this shouldn't be a command.
-#[tauri::command]
-async fn validate_otp(
-    otp: String,
-    expected_otp: String,
-    state: State<'_, AppState>,
-) -> Result<String, String> {
-    todo!()
-}
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
     let app_state = AppState::new();
 
-    let (tx, rx) = tokio::sync::oneshot::channel();
-
-    let server_app_state = app_state.clone();
-    std::thread::spawn(move || {
-        let runtime = tokio::runtime::Runtime::new().unwrap();
-        runtime.block_on(async {
-            server::run_server(server_app_state).await;
-            let _ = tx.send(());
-        });
-    });
-
-    let tauri_app_state = app_state;
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(debug_assertions)]
@@ -41,10 +18,14 @@ pub async fn run() {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
             }
+
+            let server_state = app_state.clone();
+            tauri::async_runtime::spawn(async move { server::run_server(server_state).await });
+
             Ok(())
         })
-        .manage(tauri_app_state)
-        .invoke_handler(tauri::generate_handler![validate_otp,])
+        .manage(app_state)
+        .invoke_handler(tauri::generate_handler![validate_otp])
         .setup(|app| {
             #[cfg(all(desktop))]
             {
@@ -56,6 +37,4 @@ pub async fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-
-    let _ = rx.await;
 }

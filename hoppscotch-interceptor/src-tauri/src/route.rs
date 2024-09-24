@@ -1,6 +1,6 @@
 use crate::{
     controller,
-    model::{AppState, RequestDef},
+    model::{AppState, RegistrationKey, RequestDef},
 };
 use std::sync::Arc;
 use warp::Filter;
@@ -24,7 +24,7 @@ pub fn route(
 
     let auth_key = warp::post()
         .and(warp::path("request-auth-key"))
-        .and(warp::body::json())
+        .and(warp::body::json::<RegistrationKey>())
         .and(state.clone())
         .and_then(controller::get_auth_key);
 

@@ -24,6 +24,11 @@ impl AppState {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub(crate) struct RegistrationKey {
+    pub(crate) reg_key: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct KeyValuePair {
     pub(crate) key: String,
     pub(crate) value: String,

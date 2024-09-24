@@ -1,6 +1,6 @@
 use crate::model::{
-    AppState, BodyDef, ClientCertDef, FormDataValue, KeyValuePair, ReqBodyAction, RequestDef,
-    RunRequestError, RunRequestResponse,
+    AppState, BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RegistrationKey, ReqBodyAction,
+    RequestDef, RunRequestError, RunRequestResponse,
 };
 use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue},
@@ -21,15 +21,18 @@ pub async fn get_registration_key(state: Arc<AppState>) -> Result<impl Reply, Re
 }
 
 pub async fn get_auth_key(
-    registration_key: String,
+    registration_key: RegistrationKey,
     state: Arc<AppState>,
 ) -> Result<impl Reply, Rejection> {
-    let reg_key = state
+    let RegistrationKey { reg_key } = registration_key;
+
+    if state
         .registration_key
         .read()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?;
-
-    if reg_key.as_ref() != Some(&registration_key) {
+        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
+        .as_ref()
+        != Some(&reg_key)
+    {
         return Ok(with_status(
             json(&json!({ "error": "Invalid registration key" })),
             StatusCode::BAD_REQUEST,
@@ -42,7 +45,7 @@ pub async fn get_auth_key(
         .auth_keys
         .write()
         .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
-        .insert(registration_key, auth_key.clone());
+        .insert(reg_key, auth_key.clone());
 
     Ok(with_status(
         json(&json!({ "auth_key": auth_key })),

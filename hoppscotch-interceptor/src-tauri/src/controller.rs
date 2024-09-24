@@ -39,12 +39,13 @@ pub async fn get_auth_key(
         ));
     }
 
-    let auth_key = Uuid::new_v4().to_string();
-
-    state.auth_keys.insert(reg_key, auth_key.clone());
+    let auth_key = state
+        .auth_keys
+        .entry(reg_key)
+        .or_insert(Uuid::new_v4().to_string());
 
     Ok(with_status(
-        json(&json!({ "auth_key": auth_key })),
+        json(&json!({ "auth_key": *auth_key })),
         StatusCode::OK,
     ))
 }

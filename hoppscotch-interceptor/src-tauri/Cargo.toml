@@ -1,0 +1,27 @@
+[package]
+name = "hoppscotch-interceptor"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "hoppscotch_interceptor_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc.0", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2.0.0-rc"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.40.0", features = ["full"] }
+dashmap = "6.1.0"
+reqwest = { version = "0.12.7", features = ["native-tls", "multipart"] }
+warp = "0.3.7"
+tokio-util = "0.7.12"
+uuid = { version = "1.10.0", features = [ "v4", "fast-rng" ] }

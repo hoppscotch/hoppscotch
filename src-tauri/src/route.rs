@@ -11,6 +11,11 @@ pub fn route(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let state = warp::any().map(move || state.clone());
 
+    let cors = warp::cors()
+        .allow_origin("http://localhost:1420")
+        .allow_headers(vec!["content-type", "authorization"])
+        .allow_methods(vec!["GET", "POST", "OPTIONS"]);
+
     let handshake = warp::get()
         .and(warp::path("handshake"))
         .and_then(controller::handshake);
@@ -45,4 +50,5 @@ pub fn route(
         .or(verify_otp)
         .or(request)
         .or(cancel_request)
+        .with(cors)
 }

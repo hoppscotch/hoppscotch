@@ -26,3 +26,4 @@ warp = "0.3.7"
 tokio-util = "0.7.12"
 uuid = { version = "1.10.0", features = [ "v4", "fast-rng" ] }
 chrono = "0.4.38"
+rand = "0.8.5"

@@ -6,28 +6,50 @@ mod tray;
 
 use std::sync::Arc;
 
-use chrono::Utc;
+use chrono::{Duration, Utc};
+use rand::Rng;
 use tauri::Manager;
 
 use model::AppState;
 use tokio_util::sync::CancellationToken;
 
 #[tauri::command]
+async fn generate_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<String, String> {
+    let otp: String = rand::thread_rng()
+        .sample_iter(&rand::distributions::Alphanumeric)
+        .take(6)
+        .map(char::from)
+        .collect();
+
+    let expiry = Utc::now() + Duration::minutes(5);
+    state.set_otp(otp.clone(), expiry);
+
+    Ok(otp)
+}
+
+#[tauri::command]
 async fn validate_otp(
     otp: String,
     state: tauri::State<'_, Arc<AppState>>,
 ) -> Result<String, String> {
-    let app_state = state.inner();
-    let current_otp = app_state.current_otp.read().unwrap();
-    if let Some((stored_otp, expiry)) = &*current_otp {
-        if *stored_otp == otp && Utc::now() < *expiry {
-            Ok("OTP validated successfully".to_string())
-        } else {
-            Err("Invalid or expired OTP".to_string())
-        }
+    if state.validate_otp(&otp) {
+        let auth_token: String = rand::thread_rng()
+            .sample_iter(&rand::distributions::Alphanumeric)
+            .take(32)
+            .map(char::from)
+            .collect();
+        let token_expiry = Utc::now() + Duration::hours(1);
+        state.set_auth_token(auth_token.clone(), token_expiry);
+        Ok(auth_token)
     } else {
-        Err("No OTP generated".to_string())
+        Err("Invalid or expired OTP".to_string())
     }
+}
+
+#[tauri::command]
+async fn revoke_auth_token(state: tauri::State<'_, Arc<AppState>>) -> Result<(), String> {
+    state.clear_auth_token();
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -64,7 +86,7 @@ pub fn run() {
         })
         .manage(app_state)
         .manage(cancellation_token)
-        .invoke_handler(tauri::generate_handler![validate_otp])
+        .invoke_handler(tauri::generate_handler![generate_otp, validate_otp])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
                 let state: tauri::State<CancellationToken> = window.state();

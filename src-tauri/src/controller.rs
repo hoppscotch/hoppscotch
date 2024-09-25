@@ -2,6 +2,7 @@ use crate::model::{
     AppState, BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RegistrationKey, ReqBodyAction,
     RequestDef, RunRequestError, RunRequestResponse,
 };
+use chrono::{Duration, Utc};
 use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue},
     Certificate, ClientBuilder, Identity,
@@ -26,26 +27,21 @@ pub async fn get_auth_key(
 ) -> Result<impl Reply, Rejection> {
     let RegistrationKey { reg_key } = registration_key;
 
-    if state
-        .registration_key
-        .read()
-        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?
-        .as_ref()
-        != Some(&reg_key)
-    {
+    if state.validate_registration_key(reg_key) {
         return Ok(with_status(
             json(&json!({ "error": "Invalid registration key" })),
             StatusCode::BAD_REQUEST,
         ));
     }
 
-    let auth_key = state
-        .auth_keys
-        .entry(reg_key)
-        .or_insert(Uuid::new_v4().to_string());
+    let expiry = Utc::now() + Duration::minutes(5);
+    let (auth_key, expiry) = state
+        .set_auth_token(Uuid::new_v4().to_string(), expiry)
+        .ok_or(RunRequestError::InternalError)
+        .map_err(|_| warp::reject::custom(RunRequestError::InternalError))?;
 
     Ok(with_status(
-        json(&json!({ "auth_key": *auth_key })),
+        json(&json!({ "auth_key": auth_key, "expiry": expiry.to_string() })),
         StatusCode::OK,
     ))
 }
@@ -136,12 +132,7 @@ async fn execute_request(
 }
 
 async fn is_authenticated(state: &Arc<AppState>, auth_header: &str) -> Result<bool, Rejection> {
-    Ok(state
-        .auth_keys
-        .clone()
-        .into_read_only()
-        .values()
-        .any(|v| v == auth_header))
+    Ok(state.validate_auth_token(auth_header))
 }
 
 fn get_identity_from_req(req: &RequestDef) -> Result<Option<Identity>, reqwest::Error> {
@@ -241,14 +232,12 @@ pub(crate) async fn run_request(
 
     let cancel_token = CancellationToken::new();
 
-    state
-        .cancellation_tokens
-        .insert(req.req_id, cancel_token.clone());
+    state.add_cancellation_token(req.req_id, cancel_token.clone());
 
     let result = tokio::select! {
         _ = cancel_token.cancelled() => Err(warp::reject::custom(RunRequestError::RequestCancelled)),
         result = execute_request(req_builder) => {
-            state.cancellation_tokens.remove(&req.req_id);
+            state.remove_cancellation_token(req.req_id);
             result.map_err(warp::reject::custom)
         }
     };
@@ -268,7 +257,7 @@ pub async fn cancel_request(
         ));
     }
 
-    if let Some((_, token)) = state.cancellation_tokens.remove(&req_id) {
+    if let Some((_, token)) = state.remove_cancellation_token(req_id) {
         token.cancel();
 
         Ok(warp::reply::with_status(

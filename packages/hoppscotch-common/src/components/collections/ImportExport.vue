@@ -30,6 +30,7 @@ import {
 import { defineStep } from "~/composables/step-components"
 
 import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
+import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
@@ -62,6 +63,7 @@ const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
 const isPersonalCollectionImporterInProgress = ref(false)
+const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
 
@@ -233,6 +235,34 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
       })
 
       isPersonalCollectionImporterInProgress.value = false
+    },
+  })),
+}
+
+const HoppAllCollectionImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_all_collection",
+    name: "import.from_all_collections",
+    title: "import.from_all_collections_description",
+    icon: IconUser,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace"],
+  },
+  component: defineStep("all_collection_import", AllCollectionImport, () => ({
+    loading: isAllCollectionImporterInProgress.value,
+    async onImportCollection(content) {
+      isAllCollectionImporterInProgress.value = true
+
+      await handleImportToStore([content])
+
+      // our analytics consider this as an export event, so keeping compatibility with that
+      platform.analytics?.logEvent({
+        type: "HOPP_EXPORT_COLLECTION",
+        exporter: "import_to_teams",
+        platform: "rest",
+      })
+
+      isAllCollectionImporterInProgress.value = false
     },
   })),
 }
@@ -597,6 +627,7 @@ const importerModules = computed(() => {
   const enabledImporters = [
     HoppRESTImporter,
     HoppMyCollectionImporter,
+    HoppAllCollectionImporter,
     HoppOpenAPIImporter,
     HoppPostmanImporter,
     HoppInsomniaImporter,

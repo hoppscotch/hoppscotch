@@ -18,9 +18,13 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": ">=2.0.0-rc.0",
-    "@vitejs/plugin-vue": "^5.0.5",
+    "@types/node": "^22.7.0",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.2.2",
-    "vite": "^5.3.1",
+    "vite": "^5.4.7",
     "vue-tsc": "^2.0.22"
   }
 }

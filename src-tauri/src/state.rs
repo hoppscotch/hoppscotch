@@ -1,5 +1,6 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use dashmap::DashMap;
+use rand::Rng;
 use std::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
@@ -19,6 +20,19 @@ impl AppState {
             cancellation_tokens: DashMap::new(),
             current_otp: RwLock::new(None),
         }
+    }
+
+    pub(crate) fn gen_new_otp(&self) -> Result<String, String> {
+        let otp: String = rand::thread_rng()
+            .sample_iter(&rand::distributions::Alphanumeric)
+            .take(6)
+            .map(char::from)
+            .collect();
+
+        let expiry = Utc::now() + Duration::minutes(5);
+        self.set_otp(otp.clone(), expiry);
+
+        Ok(otp)
     }
 
     pub(crate) fn remove_cancellation_token(

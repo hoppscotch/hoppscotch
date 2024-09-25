@@ -16,16 +16,7 @@ use tokio_util::sync::CancellationToken;
 
 #[tauri::command]
 async fn generate_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<String, String> {
-    let otp: String = rand::thread_rng()
-        .sample_iter(&rand::distributions::Alphanumeric)
-        .take(6)
-        .map(char::from)
-        .collect();
-
-    let expiry = Utc::now() + Duration::minutes(5);
-    state.set_otp(otp.clone(), expiry);
-
-    Ok(otp)
+    state.gen_new_otp()
 }
 
 #[tauri::command]

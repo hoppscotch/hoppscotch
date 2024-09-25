@@ -147,7 +147,7 @@
                 class="flex flex-col items-center py-4"
               >
                 <icon-lucide-help-circle class="svg-icons mb-4" />
-                {{ getErrorMessage(teamAdapterError) }}
+                {{ t(getEnvActionErrorMessage(teamAdapterError)) }}
               </div>
             </HoppSmartTab>
           </HoppSmartTabs>
@@ -304,10 +304,14 @@ import { TippyComponent } from "vue-tippy"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream, useStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
-import { GQLError } from "~/helpers/backend/GQLClient"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import {
+  sortPersonalEnvironmentsAlphabetically,
+  sortTeamEnvironmentsAlphabetically,
+} from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import {
   environments$,
   globalEnv$,
@@ -316,10 +320,6 @@ import {
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 import { WorkspaceService } from "~/services/workspace.service"
-import {
-  sortPersonalEnvironmentsAlphabetically,
-  sortTeamEnvironmentsAlphabetically,
-} from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
 import IconEye from "~icons/lucide/eye"
@@ -589,18 +589,6 @@ onMounted(() => {
 // Template refs
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
-
-const getErrorMessage = (err: GQLError<string>) => {
-  if (err.type === "network_error") {
-    return t("error.network_error")
-  }
-  switch (err.error) {
-    case "team_environment/not_found":
-      return t("team_environment.not_found")
-    default:
-      return t("error.something_went_wrong")
-  }
-}
 
 const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 

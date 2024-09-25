@@ -5,8 +5,12 @@ use tokio_util::sync::CancellationToken;
 use crate::route;
 use crate::state::AppState;
 
-pub async fn run_server(state: Arc<AppState>, cancellation_token: CancellationToken) {
-    let routes = route::route(state);
+pub async fn run_server(
+    state: Arc<AppState>,
+    cancellation_token: CancellationToken,
+    app_handle: tauri::AppHandle,
+) {
+    let routes = route::route(state, app_handle);
 
     let server = warp::serve(routes);
 

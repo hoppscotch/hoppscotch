@@ -1,7 +1,9 @@
 use crate::{
+    app_handle_ext::AppHandleExt,
     model::{
-        AuthKeyResponse, BodyDef, ClientCertDef, FormDataValue, HandshakeResponse, KeyValuePair,
-        OTPRequest, ReqBodyAction, RequestDef, RunRequestError, RunRequestResponse,
+        AuthKeyResponse, BodyDef, ClientCertDef, ConfirmedOTPRequest, FormDataValue,
+        HandshakeResponse, KeyValuePair, OTPReceiveRequest, ReqBodyAction, RequestDef,
+        RunRequestError, RunRequestResponse,
     },
     state::AppState,
 };
@@ -30,21 +32,25 @@ pub async fn handshake() -> Result<impl Reply, Rejection> {
     ))
 }
 
-pub async fn get_otp(state: Arc<AppState>) -> Result<impl Reply, Rejection> {
-    match state.gen_new_otp() {
-        Ok(otp) => Ok(with_status(json(&json!({ "otp": otp })), StatusCode::OK)),
-        Err(_) => Ok(with_status(
-            json(&json!({ "error": "Failed to generate OTP" })),
-            StatusCode::INTERNAL_SERVER_ERROR,
-        )),
-    }
+pub async fn receive_otp<T: AppHandleExt>(
+    otp_request: OTPReceiveRequest,
+    state: Arc<AppState>,
+    app_handle: T,
+) -> Result<impl Reply, Rejection> {
+    state.set_otp(otp_request.otp.clone());
+    app_handle.emit("otp_received", otp_request.otp).unwrap();
+
+    Ok(with_status(
+        json(&json!({ "message": "OTP received and stored" })),
+        StatusCode::OK,
+    ))
 }
 
 pub async fn verify_otp(
-    otp_request: OTPRequest,
+    confirmed_otp: ConfirmedOTPRequest,
     state: Arc<AppState>,
 ) -> Result<impl Reply, Rejection> {
-    if state.validate_otp(&otp_request.otp) {
+    if state.validate_otp(&confirmed_otp.otp) {
         let auth_key = Uuid::new_v4().to_string();
         let expiry = Utc::now() + Duration::hours(1);
         state.set_auth_token(auth_key.clone(), expiry);
@@ -285,45 +291,15 @@ fn parse_root_certs(req: &RequestDef) -> Result<Vec<Certificate>, reqwest::Error
 
 #[cfg(test)]
 mod tests {
-    use crate::route;
 
     use super::*;
-    use warp::{test::request, Reply};
+    use warp::Reply;
 
     #[tokio::test]
     async fn test_handshake() {
         let response = handshake().await.unwrap();
         let result = response.into_response();
         assert_eq!(result.status(), StatusCode::OK);
-    }
-
-    #[tokio::test]
-    async fn test_get_otp() {
-        let state = Arc::new(AppState::new());
-        let response = get_otp(state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::OK);
-    }
-
-    #[tokio::test]
-    async fn test_verify_otp() {
-        let state = Arc::new(AppState::new());
-        let otp = state.gen_new_otp().unwrap();
-        let otp_request = OTPRequest { otp: otp.clone() };
-        let response = verify_otp(otp_request, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::OK);
-    }
-
-    #[tokio::test]
-    async fn test_verify_invalid_otp() {
-        let state = Arc::new(AppState::new());
-        let otp_request = OTPRequest {
-            otp: "invalid".to_string(),
-        };
-        let response = verify_otp(otp_request, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]
@@ -438,129 +414,5 @@ mod tests {
         let response = cancel_request(req_id, auth_key, state).await.unwrap();
         let result = response.into_response();
         assert_eq!(result.status(), StatusCode::NOT_FOUND);
-    }
-
-    #[tokio::test]
-    async fn test_run_request_success() {
-        let state = Arc::new(AppState::new());
-        let routes = route::route(state.clone());
-
-        let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-        let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-        let otp = otp_body["otp"].as_str().unwrap();
-
-        let verify_resp = request()
-            .method("POST")
-            .path("/verify-otp")
-            .json(&json!({ "otp": otp }))
-            .reply(&routes)
-            .await;
-
-        let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-        let auth_key = auth_resp.auth_key;
-
-        let mut server = mockito::Server::new_async().await;
-
-        let mock = server
-            .mock("GET", "/test")
-            .with_status(200)
-            .with_header("content-type", "application/json")
-            .with_body(r#"{"message": "success"}"#)
-            .create_async()
-            .await;
-
-        let req_body = json!({
-            "req_id": 1,
-            "method": "GET",
-            "endpoint": format!("{}/test", server.url()),
-            "parameters": [],
-            "headers": [],
-            "body": null,
-            "validate_certs": false,
-            "root_cert_bundle_files": [],
-            "client_cert": null
-        });
-
-        let request_resp = request()
-            .method("POST")
-            .path("/request")
-            .header("Authorization", &auth_key)
-            .json(&req_body)
-            .reply(&routes)
-            .await;
-
-        assert_eq!(request_resp.status(), 200);
-
-        let run_request_resp: RunRequestResponse =
-            serde_json::from_slice(request_resp.body()).unwrap();
-
-        assert_eq!(run_request_resp.status, 200);
-        assert!(!run_request_resp.data.is_empty());
-
-        mock.assert_async().await;
-    }
-
-    #[tokio::test]
-    async fn test_run_request_with_body() {
-        let state = Arc::new(AppState::new());
-        let routes = route::route(state.clone());
-
-        let (addr, server) = warp::serve(routes).bind_ephemeral(([127, 0, 0, 1], 0));
-        tokio::spawn(server);
-
-        let client = reqwest::Client::new();
-
-        let otp_resp = client
-            .get(&format!("http://{}/otp", addr))
-            .send()
-            .await
-            .unwrap();
-        let otp_body: serde_json::Value = otp_resp.json().await.unwrap();
-        let otp = otp_body["otp"].as_str().unwrap();
-
-        let verify_resp = client
-            .post(&format!("http://{}/verify-otp", addr))
-            .json(&json!({ "otp": otp }))
-            .send()
-            .await
-            .unwrap();
-        let auth_resp: AuthKeyResponse = verify_resp.json().await.unwrap();
-        let auth_key = auth_resp.auth_key;
-
-        let mut mock_server = mockito::Server::new_async().await;
-        let mock = mock_server
-            .mock("POST", "/test")
-            .match_body(mockito::Matcher::Json(json!({"key": "value"})))
-            .with_status(200)
-            .with_body(r#"{"message": "received"}"#)
-            .create_async()
-            .await;
-
-        let req_body = json!({
-            "req_id": 1,
-            "method": "POST",
-            "endpoint": format!("{}/test", mock_server.url()),
-            "parameters": [],
-            "headers": [],
-            "body": {
-                "Text": "{\"key\":\"value\"}"
-            },
-            "validate_certs": false,
-            "root_cert_bundle_files": [],
-            "client_cert": null
-        });
-
-        // Send request
-        let request_resp = client
-            .post(&format!("http://{}/request", addr))
-            .header("Authorization", &auth_key)
-            .json(&req_body)
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(request_resp.status(), 200);
-
-        mock.assert_async().await;
     }
 }

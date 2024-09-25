@@ -1,6 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
 use dashmap::DashMap;
-use rand::Rng;
 use std::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
@@ -20,28 +19,8 @@ impl AppState {
         }
     }
 
-    pub fn gen_new_otp(&self) -> Result<String, String> {
-        let otp: String = rand::thread_rng()
-            .sample_iter(&rand::distributions::Alphanumeric)
-            .take(6)
-            .map(char::from)
-            .collect();
-
+    pub fn set_otp(&self, otp: String) {
         let expiry = Utc::now() + Duration::minutes(5);
-        self.set_otp(otp.clone(), expiry);
-
-        Ok(otp)
-    }
-
-    pub fn remove_cancellation_token(&self, req_id: usize) -> Option<(usize, CancellationToken)> {
-        self.cancellation_tokens.remove(&req_id)
-    }
-
-    pub fn add_cancellation_token(&self, req_id: usize, cancellation_tokens: CancellationToken) {
-        self.cancellation_tokens.insert(req_id, cancellation_tokens);
-    }
-
-    pub fn set_otp(&self, otp: String, expiry: DateTime<Utc>) {
         let mut current_otp = self.current_otp.write().unwrap();
         *current_otp = Some((otp, expiry));
     }
@@ -53,6 +32,14 @@ impl AppState {
         } else {
             false
         }
+    }
+
+    pub fn remove_cancellation_token(&self, req_id: usize) -> Option<(usize, CancellationToken)> {
+        self.cancellation_tokens.remove(&req_id)
+    }
+
+    pub fn add_cancellation_token(&self, req_id: usize, cancellation_tokens: CancellationToken) {
+        self.cancellation_tokens.insert(req_id, cancellation_tokens);
     }
 
     pub fn set_auth_token(&self, token: String, expiry: DateTime<Utc>) {
@@ -76,21 +63,6 @@ impl AppState {
 mod tests {
     use super::*;
     use chrono::Duration;
-
-    #[test]
-    fn test_gen_new_otp() {
-        let state = AppState::new();
-        let otp = state.gen_new_otp().unwrap();
-        assert_eq!(otp.len(), 6);
-    }
-
-    #[test]
-    fn test_validate_otp() {
-        let state = AppState::new();
-        let otp = state.gen_new_otp().unwrap();
-        assert!(state.validate_otp(&otp));
-        assert!(!state.validate_otp("invalid"));
-    }
 
     #[test]
     fn test_auth_token() {

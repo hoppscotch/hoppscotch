@@ -8,7 +8,12 @@ pub struct HandshakeResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct OTPRequest {
+pub struct OTPReceiveRequest {
+    pub otp: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ConfirmedOTPRequest {
     pub otp: String,
 }
 

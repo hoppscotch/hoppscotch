@@ -4,6 +4,7 @@ pub mod route;
 pub mod server;
 pub mod state;
 pub mod tray;
+pub mod app_handle_ext;
 
 use state::AppState;
 use std::sync::Arc;
@@ -29,10 +30,12 @@ pub fn run() {
 
             let server_state = server_state.clone();
             let server_cancellation_token = server_cancellation_token.clone();
+            let app_handle = app.handle();
 
+            let app_handle = app_handle.clone();
             std::thread::spawn(move || {
                 tauri::async_runtime::block_on(async move {
-                    server::run_server(server_state, server_cancellation_token).await;
+                    server::run_server(server_state, server_cancellation_token, app_handle).await;
                 });
             });
 

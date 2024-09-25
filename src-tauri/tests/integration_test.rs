@@ -1,5 +1,8 @@
 use hoppscotch_interceptor_lib::{
-    model::{AuthKeyResponse, HandshakeResponse, KeyValuePair, RunRequestResponse},
+    model::{
+        AuthKeyResponse, ConfirmedOTPRequest, HandshakeResponse, KeyValuePair, OTPReceiveRequest,
+        RunRequestResponse,
+    },
     route,
     state::AppState,
 };
@@ -15,7 +18,10 @@ async fn setup() -> (
 ) {
     let _ = env_logger::builder().is_test(true).try_init();
     let state = Arc::new(AppState::new());
-    let routes = route::route(state.clone());
+
+    let mock_app_handle = hoppscotch_interceptor_lib::app_handle_ext::MockAppHandle;
+
+    let routes = route::route(state.clone(), mock_app_handle);
 
     (state, routes)
 }
@@ -38,18 +44,21 @@ async fn test_full_flow_success() {
     let handshake_body: HandshakeResponse = serde_json::from_slice(handshake_resp.body()).unwrap();
     assert_eq!(handshake_body.status, "success");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    assert_eq!(otp_resp.status(), 200);
+    let otp = "123456".to_string();
+    let receive_otp_resp = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
-    assert_eq!(otp.len(), 6);
+    info!("Receive OTP response: {:?}", receive_otp_resp);
+    assert_eq!(receive_otp_resp.status(), 200);
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp: otp.clone() })
         .reply(&routes)
         .await;
 
@@ -116,10 +125,20 @@ async fn test_invalid_otp() {
 
     info!("Starting invalid OTP test");
 
+    let valid_otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: valid_otp })
+        .reply(&routes)
+        .await;
+
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": "invalid" }))
+        .json(&ConfirmedOTPRequest {
+            otp: "invalid".to_string(),
+        })
         .reply(&routes)
         .await;
 
@@ -167,19 +186,21 @@ async fn test_request_with_parameters_and_headers() {
 
     info!("Starting request with parameters and headers test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
-    info!("Verify OTP response: {:?}", verify_resp);
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
     let auth_key = auth_resp.auth_key;
 
@@ -238,19 +259,21 @@ async fn test_request_with_body() {
 
     info!("Starting request with body test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
-    info!("Verify OTP response: {:?}", verify_resp);
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
     let auth_key = auth_resp.auth_key;
 
@@ -300,10 +323,13 @@ async fn test_otp_expiration() {
 
     info!("Starting OTP expiration test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     {
         let mut current_otp = state.current_otp.write().unwrap();
@@ -315,7 +341,7 @@ async fn test_otp_expiration() {
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
@@ -331,19 +357,21 @@ async fn test_cancel_nonexistent_request() {
 
     info!("Starting cancel nonexistent request test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
-    info!("Verify OTP response: {:?}", verify_resp);
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
     let auth_key = auth_resp.auth_key;
 
@@ -366,19 +394,21 @@ async fn test_request_with_invalid_url() {
 
     info!("Starting request with invalid URL test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    info!("OTP response: {:?}", otp_resp);
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
-    info!("Verify OTP response: {:?}", verify_resp);
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
     let auth_key = auth_resp.auth_key;
 
@@ -414,14 +444,18 @@ async fn test_request_with_typically_forbidden_headers() {
 
     info!("Starting request with typically forbidden headers test");
 
-    let otp_resp = request().method("GET").path("/otp").reply(&routes).await;
-    let otp_body: serde_json::Value = serde_json::from_slice(otp_resp.body()).unwrap();
-    let otp = otp_body["otp"].as_str().unwrap();
+    let otp = "123456".to_string();
+    let _ = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
 
     let verify_resp = request()
         .method("POST")
         .path("/verify-otp")
-        .json(&json!({ "otp": otp }))
+        .json(&ConfirmedOTPRequest { otp })
         .reply(&routes)
         .await;
 
@@ -540,4 +574,49 @@ async fn test_request_with_typically_forbidden_headers() {
     }
 
     info!("Request with typically forbidden headers test completed");
+}
+
+#[tokio::test]
+async fn test_otp_flow() {
+    let (_, routes) = setup().await;
+
+    info!("Starting OTP flow test");
+
+    let otp = "123456".to_string();
+    let receive_otp_resp = request()
+        .method("POST")
+        .path("/receive-otp")
+        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
+
+    info!("Receive OTP response: {:?}", receive_otp_resp);
+    assert_eq!(receive_otp_resp.status(), 200);
+
+    let verify_resp = request()
+        .method("POST")
+        .path("/verify-otp")
+        .json(&ConfirmedOTPRequest { otp: otp.clone() })
+        .reply(&routes)
+        .await;
+
+    info!("Verify correct OTP response: {:?}", verify_resp);
+    assert_eq!(verify_resp.status(), 200);
+
+    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
+    assert!(!auth_resp.auth_key.is_empty());
+
+    let incorrect_verify_resp = request()
+        .method("POST")
+        .path("/verify-otp")
+        .json(&ConfirmedOTPRequest {
+            otp: "wrong_otp".to_string(),
+        })
+        .reply(&routes)
+        .await;
+
+    info!("Verify incorrect OTP response: {:?}", incorrect_verify_resp);
+    assert_eq!(incorrect_verify_resp.status(), 400);
+
+    info!("OTP flow test completed");
 }

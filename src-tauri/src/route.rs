@@ -1,6 +1,6 @@
 use crate::{
     controller,
-    model::{RegistrationKey, RequestDef},
+    model::{OTPRequest, RequestDef},
     state::AppState,
 };
 use std::sync::Arc;
@@ -11,24 +11,27 @@ pub fn route(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let state = warp::any().map(move || state.clone());
 
+    let handshake = warp::get()
+        .and(warp::path("handshake"))
+        .and_then(controller::handshake);
+
+    let get_otp = warp::get()
+        .and(warp::path("otp"))
+        .and(state.clone())
+        .and_then(controller::get_otp);
+
+    let verify_otp = warp::post()
+        .and(warp::path("verify-otp"))
+        .and(warp::body::json::<OTPRequest>())
+        .and(state.clone())
+        .and_then(controller::verify_otp);
+
     let request = warp::post()
         .and(warp::path("request"))
         .and(warp::body::json::<RequestDef>())
         .and(warp::header::<String>("Authorization"))
         .and(state.clone())
         .and_then(controller::run_request);
-
-    // NOTE: Shouldn't registration be done by OTP and Tauri commands?
-    // let registration_key = warp::get()
-    //     .and(warp::path("request-registration-key"))
-    //     .and(state.clone())
-    //     .and_then(controller::get_registration_key);
-
-    let auth_key = warp::post()
-        .and(warp::path("request-auth-key"))
-        .and(warp::body::json::<RegistrationKey>())
-        .and(state.clone())
-        .and_then(controller::get_auth_key);
 
     let cancel_request = warp::post()
         .and(warp::path("cancel-request"))
@@ -37,8 +40,9 @@ pub fn route(
         .and(state.clone())
         .and_then(controller::cancel_request);
 
-    request
-        // .or(registration_key)
-        .or(auth_key)
+    handshake
+        .or(get_otp)
+        .or(verify_otp)
+        .or(request)
         .or(cancel_request)
 }

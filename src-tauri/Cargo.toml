@@ -25,5 +25,10 @@ reqwest = { version = "0.12.7", features = ["native-tls", "multipart"] }
 warp = "0.3.7"
 tokio-util = "0.7.12"
 uuid = { version = "1.10.0", features = [ "v4", "fast-rng" ] }
-chrono = "0.4.38"
+chrono = { version = "0.4", features = ["serde"] }
 rand = "0.8.5"
+log = "0.4.22"
+env_logger = "0.11.5"
+
+[dev-dependencies]
+mockito = "1.5.0"

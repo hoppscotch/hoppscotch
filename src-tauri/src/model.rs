@@ -1,24 +1,37 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct RegistrationKey {
-    pub(crate) reg_key: String,
+pub struct HandshakeResponse {
+    pub status: String,
+    pub message: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct KeyValuePair {
-    pub(crate) key: String,
-    pub(crate) value: String,
+pub struct OTPRequest {
+    pub otp: String,
 }
 
-pub(crate) enum ReqBodyAction {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthKeyResponse {
+    pub auth_key: String,
+    pub expiry: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct KeyValuePair {
+    pub key: String,
+    pub value: String,
+}
+
+pub enum ReqBodyAction {
     Body(reqwest::Body),
     UrlEncodedForm(Vec<(String, String)>),
     MultipartForm(reqwest::multipart::Form),
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) enum FormDataValue {
+pub enum FormDataValue {
     Text(String),
     File {
         filename: String,
@@ -28,33 +41,33 @@ pub(crate) enum FormDataValue {
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct FormDataEntry {
-    pub(crate) key: String,
-    pub(crate) value: FormDataValue,
+pub struct FormDataEntry {
+    pub key: String,
+    pub value: FormDataValue,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) enum BodyDef {
+pub enum BodyDef {
     Text(String),
     URLEncoded(Vec<KeyValuePair>),
     FormData(Vec<FormDataEntry>),
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct RequestDef {
-    pub(crate) req_id: usize,
-    pub(crate) method: String,
-    pub(crate) endpoint: String,
-    pub(crate) parameters: Vec<KeyValuePair>,
-    pub(crate) headers: Vec<KeyValuePair>,
-    pub(crate) body: Option<BodyDef>,
-    pub(crate) validate_certs: bool,
-    pub(crate) root_cert_bundle_files: Vec<Vec<u8>>,
-    pub(crate) client_cert: Option<ClientCertDef>,
+pub struct RequestDef {
+    pub req_id: usize,
+    pub method: String,
+    pub endpoint: String,
+    pub parameters: Vec<KeyValuePair>,
+    pub headers: Vec<KeyValuePair>,
+    pub body: Option<BodyDef>,
+    pub validate_certs: bool,
+    pub root_cert_bundle_files: Vec<Vec<u8>>,
+    pub client_cert: Option<ClientCertDef>,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) enum ClientCertDef {
+pub enum ClientCertDef {
     PEMCert {
         certificate_pem: Vec<u8>,
         key_pem: Vec<u8>,
@@ -65,18 +78,18 @@ pub(crate) enum ClientCertDef {
     },
 }
 
-#[derive(Debug, Serialize)]
-pub(crate) struct RunRequestResponse {
-    pub(crate) status: u16,
-    pub(crate) status_text: String,
-    pub(crate) headers: Vec<KeyValuePair>,
-    pub(crate) data: Vec<u8>,
-    pub(crate) time_start_ms: u128,
-    pub(crate) time_end_ms: u128,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RunRequestResponse {
+    pub status: u16,
+    pub status_text: String,
+    pub headers: Vec<KeyValuePair>,
+    pub data: Vec<u8>,
+    pub time_start_ms: u128,
+    pub time_end_ms: u128,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) enum RunRequestError {
+pub enum RunRequestError {
     InternalError,
     Unauthorized,
     RequestCancelled,

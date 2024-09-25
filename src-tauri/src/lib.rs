@@ -1,51 +1,19 @@
-mod controller;
-mod model;
-mod route;
-mod server;
-mod state;
-mod tray;
-
-use std::sync::Arc;
-
-use chrono::{Duration, Utc};
-use rand::Rng;
-use tauri::Manager;
+pub mod controller;
+pub mod model;
+pub mod route;
+pub mod server;
+pub mod state;
+pub mod tray;
 
 use state::AppState;
+use std::sync::Arc;
+use tauri::Manager;
 use tokio_util::sync::CancellationToken;
-
-#[tauri::command]
-async fn generate_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<String, String> {
-    state.gen_new_otp()
-}
-
-#[tauri::command]
-async fn validate_otp(
-    otp: String,
-    state: tauri::State<'_, Arc<AppState>>,
-) -> Result<String, String> {
-    if state.validate_otp(&otp) {
-        let auth_token: String = rand::thread_rng()
-            .sample_iter(&rand::distributions::Alphanumeric)
-            .take(32)
-            .map(char::from)
-            .collect();
-        let token_expiry = Utc::now() + Duration::hours(1);
-        state.set_auth_token(auth_token.clone(), token_expiry);
-        Ok(auth_token)
-    } else {
-        Err("Invalid or expired OTP".to_string())
-    }
-}
-
-#[tauri::command]
-async fn revoke_auth_token(state: tauri::State<'_, Arc<AppState>>) -> Result<(), String> {
-    state.clear_auth_token();
-    Ok(())
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    env_logger::init();
+
     let app_state = Arc::new(AppState::new());
     let server_state = app_state.clone();
     let cancellation_token = CancellationToken::new();
@@ -78,11 +46,6 @@ pub fn run() {
         })
         .manage(app_state)
         .manage(cancellation_token)
-        .invoke_handler(tauri::generate_handler![
-            generate_otp,
-            validate_otp,
-            revoke_auth_token
-        ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
                 let state: tauri::State<CancellationToken> = window.state();

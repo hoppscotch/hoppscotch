@@ -4,8 +4,31 @@ mod route;
 mod server;
 mod tray;
 
-use model::AppState;
+use std::sync::Arc;
+
+use chrono::Utc;
 use tauri::Manager;
+
+use model::AppState;
+use tokio_util::sync::CancellationToken;
+
+#[tauri::command]
+async fn validate_otp(
+    otp: String,
+    state: tauri::State<'_, Arc<AppState>>,
+) -> Result<String, String> {
+    let app_state = state.inner();
+    let current_otp = app_state.current_otp.read().unwrap();
+    if let Some((stored_otp, expiry)) = &*current_otp {
+        if *stored_otp == otp && Utc::now() < *expiry {
+            Ok("OTP validated successfully".to_string())
+        } else {
+            Err("Invalid or expired OTP".to_string())
+        }
+    } else {
+        Err("No OTP generated".to_string())
+    }
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

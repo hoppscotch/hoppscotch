@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -9,15 +10,17 @@ pub(crate) struct AppState {
     pub(crate) auth_keys: DashMap<String, String>,
     pub(crate) registration_key: RwLock<Option<String>>,
     pub(crate) cancellation_tokens: DashMap<usize, CancellationToken>,
+    pub(crate) current_otp: RwLock<Option<(String, DateTime<Utc>)>>,
 }
 
 impl AppState {
-    pub(crate) fn new() -> Arc<Self> {
-        Arc::new(Self {
+    pub(crate) fn new() -> Self {
+        Self {
             auth_keys: DashMap::new(),
             registration_key: RwLock::new(None),
             cancellation_tokens: DashMap::new(),
-        })
+            current_otp: RwLock::new(None),
+        }
     }
 }
 

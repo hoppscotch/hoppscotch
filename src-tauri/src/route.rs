@@ -34,6 +34,7 @@ pub fn route<T: AppHandleExt + Clone + 'static>(
         .and(warp::path("verify-otp"))
         .and(warp::body::json::<ConfirmedOTPRequest>())
         .and(state.clone())
+        .and(app_handle.clone())
         .and_then(controller::verify_otp);
 
     let request = warp::post()

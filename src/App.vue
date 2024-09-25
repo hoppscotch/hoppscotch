@@ -24,7 +24,7 @@
       </p>
       <p>
         <span class="font-semibold">Expiry:</span>
-        {{ authExpiry }}
+        {{ formatExpiry(authExpiry) }}
       </p>
     </div>
     <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
@@ -34,7 +34,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { listen } from "@tauri-apps/api/event";
-import { Resource, invoke } from "@tauri-apps/api/core";
 
 const otp = ref("");
 const error = ref("");
@@ -47,13 +46,22 @@ onMounted(async () => {
     await listen("otp_received", (event) => {
       otp.value = event.payload;
     });
+
+    await listen("authenticated", (event) => {
+      authenticated.value = true;
+      authKey.value = event.payload.auth_key;
+      authExpiry.value = event.payload.expiry;
+    });
   } catch (err) {
-    error.value = "Failed to set up event listener.";
+    error.value = "Failed to set up event listeners.";
   }
 });
 
 function copyOTP() {
-  // TODO: Show a "Copied!" message?
   navigator.clipboard.writeText(otp.value);
+}
+
+function formatExpiry(isoString) {
+  return new Date(isoString).toLocaleString();
 }
 </script>

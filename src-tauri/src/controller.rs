@@ -46,13 +46,22 @@ pub async fn receive_otp<T: AppHandleExt>(
     ))
 }
 
-pub async fn verify_otp(
+pub async fn verify_otp<T: AppHandleExt>(
     confirmed_otp: ConfirmedOTPRequest,
     state: Arc<AppState>,
+    app_handle: T,
 ) -> Result<impl Reply, Rejection> {
     if state.validate_otp(&confirmed_otp.otp) {
         let auth_key = Uuid::new_v4().to_string();
         let expiry = Utc::now() + Duration::hours(1);
+
+        let auth_payload = json!({
+            "auth_key": auth_key,
+            "expiry": expiry
+        });
+
+        app_handle.emit("authenticated", &auth_payload).unwrap();
+
         state.set_auth_token(auth_key.clone(), expiry);
 
         Ok(with_status(

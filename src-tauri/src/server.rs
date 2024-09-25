@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use tokio_util::sync::CancellationToken;
 
-use crate::model::AppState;
 use crate::route;
+use crate::state::AppState;
 
 pub async fn run_server(state: Arc<AppState>, cancellation_token: CancellationToken) {
     let routes = route::route(state);

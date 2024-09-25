@@ -1,6 +1,9 @@
-use crate::model::{
-    AppState, BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RegistrationKey, ReqBodyAction,
-    RequestDef, RunRequestError, RunRequestResponse,
+use crate::{
+    model::{
+        BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RegistrationKey, ReqBodyAction,
+        RequestDef, RunRequestError, RunRequestResponse,
+    },
+    state::AppState,
 };
 use chrono::{Duration, Utc};
 use reqwest::{
@@ -16,10 +19,6 @@ use warp::{
     reject::Rejection,
     reply::{json, with_status, Reply},
 };
-
-pub async fn get_registration_key(_state: Arc<AppState>) -> Result<impl Reply, Rejection> {
-    Ok(json(&json!({ "todo": "todo" })))
-}
 
 pub async fn get_auth_key(
     registration_key: RegistrationKey,

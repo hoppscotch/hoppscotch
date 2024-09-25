@@ -1,6 +1,7 @@
 use crate::{
     controller,
-    model::{AppState, RegistrationKey, RequestDef},
+    model::{RegistrationKey, RequestDef},
+    state::AppState,
 };
 use std::sync::Arc;
 use warp::Filter;
@@ -17,10 +18,11 @@ pub fn route(
         .and(state.clone())
         .and_then(controller::run_request);
 
-    let registration_key = warp::get()
-        .and(warp::path("request-registration-key"))
-        .and(state.clone())
-        .and_then(controller::get_registration_key);
+    // NOTE: Shouldn't registration be done by OTP and Tauri commands?
+    // let registration_key = warp::get()
+    //     .and(warp::path("request-registration-key"))
+    //     .and(state.clone())
+    //     .and_then(controller::get_registration_key);
 
     let auth_key = warp::post()
         .and(warp::path("request-auth-key"))
@@ -35,5 +37,8 @@ pub fn route(
         .and(state.clone())
         .and_then(controller::cancel_request);
 
-    request.or(registration_key).or(auth_key).or(cancel_request)
+    request
+        // .or(registration_key)
+        .or(auth_key)
+        .or(cancel_request)
 }

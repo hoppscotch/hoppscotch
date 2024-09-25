@@ -2,6 +2,7 @@ mod controller;
 mod model;
 mod route;
 mod server;
+mod state;
 mod tray;
 
 use std::sync::Arc;
@@ -10,7 +11,7 @@ use chrono::{Duration, Utc};
 use rand::Rng;
 use tauri::Manager;
 
-use model::AppState;
+use state::AppState;
 use tokio_util::sync::CancellationToken;
 
 #[tauri::command]
@@ -86,7 +87,11 @@ pub fn run() {
         })
         .manage(app_state)
         .manage(cancellation_token)
-        .invoke_handler(tauri::generate_handler![generate_otp, validate_otp])
+        .invoke_handler(tauri::generate_handler![
+            generate_otp,
+            validate_otp,
+            revoke_auth_token
+        ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
                 let state: tauri::State<CancellationToken> = window.state();

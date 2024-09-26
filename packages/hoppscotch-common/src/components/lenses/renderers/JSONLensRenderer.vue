@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="response.type === 'success' || response.type === 'fail'"
-    class="flex flex-1 flex-col"
-  >
+  <div v-if="showResponse" class="flex flex-1 flex-col">
     <div
       class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
     >
@@ -34,6 +31,22 @@
           )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
           :icon="downloadIcon"
           @click="downloadResponse"
+        />
+        <HoppButtonSecondary
+          v-if="response.body && !isEditable"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="
+            isSavable
+              ? `${t(
+                  'action.save_as_example'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>E</kbd>`
+              : t('response.please_save_request')
+          "
+          :icon="IconSave"
+          :class="{
+            'opacity-75 cursor-not-allowed select-none': !isSavable,
+          }"
+          @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -234,6 +247,7 @@ import IconFilter from "~icons/lucide/filter"
 import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconNetwork from "~icons/lucide/network"
+import IconSave from "~icons/lucide/save"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -258,12 +272,34 @@ import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse | HoppRESTRequestResponse
+  isSavable: boolean
+  isEditable: boolean
 }>()
+
+const emit = defineEmits<{
+  (e: "save-as-example"): void
+}>()
+
+const showResponse = computed(() => {
+  if ("type" in props.response) {
+    return props.response.type === "success" || props.response.type === "fail"
+  }
+
+  return "body" in props.response
+})
+
+// const isHttpResponse = computed(() => {
+//   return (
+//     "type" in props.response &&
+//     (props.response.type === "success" || props.response.type === "fail")
+//   )
+// })
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -276,7 +312,7 @@ type BodyParseError =
 
 const responseJsonObject = computed(() =>
   pipe(
-    responseBodyText.value,
+    responseBodyText.value ?? (props.response as HoppRESTRequestResponse).body,
     E.tryCatchK(
       LJSON.parse,
       (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
@@ -351,6 +387,12 @@ const filterResponseError = computed(() =>
   )
 )
 
+const saveAsExample = () => {
+  console.log("saveAsExample")
+  emit("save-as-example")
+  // invokeAction("response.file.download")
+}
+
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
@@ -372,7 +414,7 @@ const { cursor } = useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "application/ld+json",
-      readOnly: true,
+      readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
     linter: null,
@@ -408,6 +450,9 @@ const toggleFilterState = () => {
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.save-as-example", () => {
+  props.isSavable ? saveAsExample() : null
+})
 </script>
 
 <style lang="scss" scoped>

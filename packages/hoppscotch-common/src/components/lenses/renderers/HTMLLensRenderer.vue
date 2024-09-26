@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 py-1"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
@@ -32,6 +32,22 @@
           )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
           :icon="downloadIcon"
           @click="downloadResponse"
+        />
+        <HoppButtonSecondary
+          v-if="response.body"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="
+            isSavable
+              ? `${t(
+                  'action.save_as_example'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>E</kbd>`
+              : t('response.please_save_request')
+          "
+          :icon="IconSave"
+          :class="{
+            'opacity-75 cursor-not-allowed select-none': !isSavable,
+          }"
+          @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
           v-if="response.body"
@@ -79,12 +95,19 @@ import { PersistenceService } from "~/services/persistence"
 import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
+import IconSave from "~icons/lucide/save"
 
 const t = useI18n()
 const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
+  isSavable: boolean
+  isEditable: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "save-as-example"): void
 }>()
 
 const htmlResponse = ref<any | null>(null)
@@ -116,13 +139,17 @@ const doTogglePreview = () => {
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
+const saveAsExample = () => {
+  emit("save-as-example")
+}
+
 useCodemirror(
   htmlResponse,
   responseBodyText,
   reactive({
     extendedEditorConfig: {
       mode: "htmlmixed",
-      readOnly: true,
+      readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
     linter: null,
@@ -134,6 +161,9 @@ useCodemirror(
 defineActionHandler("response.preview.toggle", () => doTogglePreview())
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.save-as-example", () => {
+  props.isSavable ? saveAsExample() : null
+})
 </script>
 
 <style lang="scss" scoped>

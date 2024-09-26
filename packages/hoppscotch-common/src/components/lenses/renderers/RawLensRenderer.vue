@@ -67,6 +67,7 @@ const t = useI18n()
 
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
+  isEditable: boolean
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
@@ -112,7 +113,7 @@ useCodemirror(
   reactive({
     extendedEditorConfig: {
       mode: "text/plain",
-      readOnly: true,
+      readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
     linter: null,

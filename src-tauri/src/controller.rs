@@ -259,7 +259,6 @@ mod tests {
             req_id: 1,
             method: "GET".to_string(),
             endpoint: "http://example.com".to_string(),
-            parameters: vec![],
             headers: vec![],
             body: None,
             validate_certs: false,

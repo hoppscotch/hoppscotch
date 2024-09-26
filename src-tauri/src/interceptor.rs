@@ -394,7 +394,6 @@ mod tests {
             req_id: 1,
             method: "GET".to_string(),
             endpoint: format!("{}/test", server.url()),
-            parameters: vec![],
             headers: vec![],
             body: None,
             validate_certs: false,
@@ -432,7 +431,6 @@ mod tests {
             req_id: 1,
             method: "GET".to_string(),
             endpoint: format!("{}/test", server.url()),
-            parameters: vec![],
             headers: vec![KeyValuePair {
                 key: "X-Custom-Header".to_string(),
                 value: "TestValue".to_string(),
@@ -464,7 +462,6 @@ mod tests {
             req_id: 1,
             method: "POST".to_string(),
             endpoint: format!("{}/test", server.url()),
-            parameters: vec![],
             headers: vec![],
             body: Some(BodyDef::Text("test_body".to_string())),
             validate_certs: false,
@@ -494,7 +491,6 @@ mod tests {
             req_id: 1,
             method: "POST".to_string(),
             endpoint: format!("{}/test", server.url()),
-            parameters: vec![],
             headers: vec![],
             body: Some(BodyDef::URLEncoded(vec![
                 KeyValuePair {
@@ -525,7 +521,6 @@ mod tests {
             req_id: 1,
             method: "GET".to_string(),
             endpoint: "invalid_url".to_string(),
-            parameters: vec![],
             headers: vec![],
             body: None,
             validate_certs: false,
@@ -556,7 +551,6 @@ mod tests {
             req_id: 1,
             method: "POST".to_string(),
             endpoint: format!("{}/test", server.url()),
-            parameters: vec![],
             headers: vec![],
             body: Some(BodyDef::FormData(vec![
                 FormDataEntry {

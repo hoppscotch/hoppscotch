@@ -57,7 +57,6 @@ pub struct RequestDef {
     pub req_id: usize,
     pub method: String,
     pub endpoint: String,
-    pub parameters: Vec<KeyValuePair>,
     pub headers: Vec<KeyValuePair>,
     pub body: Option<BodyDef>,
     pub validate_certs: bool,

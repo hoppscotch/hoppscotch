@@ -16,6 +16,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { UserCollectionService } from './user-collection.service';
 import {
   UserCollection,
+  UserCollectionDuplicatedData,
   UserCollectionExportJSONData,
   UserCollectionRemovedData,
   UserCollectionReorderData,
@@ -469,5 +470,15 @@ export class UserCollectionResolver {
   @UseGuards(GqlAuthGuard)
   userCollectionOrderUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/order_updated`);
+  }
+
+  @Subscription(() => UserCollectionDuplicatedData, {
+    description: 'Listen to when a User Collection has been duplicated',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  userCollectionDuplicated(@GqlUser() user: AuthUser) {
+    return this.pubSub.asyncIterator(`user_coll/${user.uid}/duplicated`);
   }
 }

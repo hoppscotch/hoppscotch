@@ -149,7 +149,10 @@ const gqlRequestName = computedWithControl(
 
 const restRequestName = computedWithControl(
   () => RESTTabs.currentActiveTab.value,
-  () => RESTTabs.currentActiveTab.value.document.request.name
+  () =>
+    RESTTabs.currentActiveTab.value.document.type === "request"
+      ? RESTTabs.currentActiveTab.value.document.request.name
+      : ""
 )
 
 const reqName = computed(() => {
@@ -166,7 +169,10 @@ const requestContext = computed(() => {
     return props.request
   }
 
-  if (props.mode === "rest") {
+  if (
+    props.mode === "rest" &&
+    RESTTabs.currentActiveTab.value.document.type === "request"
+  ) {
     return RESTTabs.currentActiveTab.value.document.request
   }
 
@@ -184,7 +190,10 @@ const {
 watch(
   () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],
   () => {
-    if (props.mode === "rest") {
+    if (
+      props.mode === "rest" &&
+      RESTTabs.currentActiveTab.value.document.type === "request"
+    ) {
       requestName.value =
         RESTTabs.currentActiveTab.value?.document.request.name ?? ""
     } else {
@@ -249,8 +258,14 @@ const saveRequestAs = async () => {
 
   const requestUpdated =
     props.mode === "rest"
-      ? cloneDeep(RESTTabs.currentActiveTab.value.document.request)
+      ? cloneDeep(
+          RESTTabs.currentActiveTab.value.document.type === "request"
+            ? RESTTabs.currentActiveTab.value.document.request
+            : null
+        )
       : cloneDeep(GQLTabs.currentActiveTab.value.document.request)
+
+  if (!requestUpdated) return
 
   requestUpdated.name = requestName.value
 
@@ -263,13 +278,17 @@ const saveRequestAs = async () => {
       requestUpdated
     )
 
+    if (RESTTabs.currentActiveTab.value.document.type !== "request") return
+
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      type: "request",
       saveContext: {
         originLocation: "user-collection",
         folderPath: `${picked.value.collectionIndex}`,
         requestIndex: insertionIndex,
+        exampleID: undefined,
       },
     }
 
@@ -303,6 +322,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      type: "request",
       saveContext: {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
@@ -341,6 +361,7 @@ const saveRequestAs = async () => {
     RESTTabs.currentActiveTab.value.document = {
       request: requestUpdated,
       isDirty: false,
+      type: "request",
       saveContext: {
         originLocation: "user-collection",
         folderPath: picked.value.folderPath,
@@ -541,6 +562,7 @@ const updateTeamCollectionOrFolder = (
         RESTTabs.currentActiveTab.value.document = {
           request: requestUpdated,
           isDirty: false,
+          type: "request",
           saveContext: {
             originLocation: "team-collection",
             requestID: createRequestInCollection.id,

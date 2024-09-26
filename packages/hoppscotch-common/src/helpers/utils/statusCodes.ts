@@ -99,3 +99,15 @@ export function getStatusCodeReasonPhrase(
 
   return statusCodes[code] ?? "Unknown"
 }
+
+// return the status code like
+//  code • status
+export const getFullStatusCodePhrase = () => {
+  return Object.keys(statusCodes).map((code) => {
+    return `${code} • ${statusCodes[code]}`
+  })
+}
+
+export const getStatusCodePhrase = (code: number, statusText?: string) => {
+  return `${code} • ${getStatusCodeReasonPhrase(code, statusText)}`
+}

@@ -140,9 +140,13 @@ export function usePreview(
   }
 }
 
-export function useResponseBody(response: HoppRESTResponse): {
-  responseBodyText: ComputedRef<string>
-} {
+export function useResponseBody(response: HoppRESTResponse | null):
+  | {
+      responseBodyText: ComputedRef<string>
+    }
+  | undefined {
+  if (!response) return
+
   const responseBodyText = computed(() => {
     if (
       response.type === "loading" ||

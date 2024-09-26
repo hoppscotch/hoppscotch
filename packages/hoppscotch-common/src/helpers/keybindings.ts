@@ -67,6 +67,7 @@ export const bindings: {
   "ctrl-shift-p": "response.preview.toggle",
   "ctrl-j": "response.file.download",
   "ctrl-.": "response.copy",
+  "ctrl-e": "response.save-as-example",
   "ctrl-shift-l": "editor.format",
 }
 

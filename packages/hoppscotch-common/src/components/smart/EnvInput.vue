@@ -376,17 +376,23 @@ const envVars = computed(() => {
       }
     })
   }
+
+  const requestVariables =
+    tabs.currentActiveTab.value.document.type === "example-response"
+      ? tabs.currentActiveTab.value.document.response.originalRequest
+          .requestVariables
+      : tabs.currentActiveTab.value.document.request.requestVariables
+
   return [
-    ...tabs.currentActiveTab.value.document.request.requestVariables.map(
-      ({ active, key, value }) =>
-        active
-          ? {
-              key,
-              value,
-              sourceEnv: "RequestVariable",
-              secret: false,
-            }
-          : ({} as AggregateEnvironment)
+    ...requestVariables.map(({ active, key, value }) =>
+      active
+        ? {
+            key,
+            value,
+            sourceEnv: "RequestVariable",
+            secret: false,
+          }
+        : ({} as AggregateEnvironment)
     ),
     ...aggregateEnvs.value,
   ]

@@ -6,7 +6,7 @@ import {
 } from "@hoppscotch/data"
 
 import { HoppGQLDocument } from "~/helpers/graphql/document"
-import { HoppRESTDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/rest/document"
 import { GQLHistoryEntry, RESTHistoryEntry } from "~/newstore/history"
 import { SettingsDef, getDefaultSettings } from "~/newstore/settings"
 import { SecretVariable } from "~/services/secret-environment.service"
@@ -41,6 +41,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
         testScript: "",
         body: { contentType: null, body: null },
         requestVariables: [],
+        responses: {},
       },
     ],
     auth: { authType: "none", authActive: true },
@@ -145,6 +146,7 @@ export const REST_HISTORY_MOCK: RESTHistoryEntry[] = [
       testScript: "",
       requestVariables: [],
       v: RESTReqSchemaVersion,
+      responses: {},
     },
     responseMeta: { duration: 807, statusCode: 200 },
     star: false,
@@ -193,7 +195,7 @@ export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
   ],
 }
 
-export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
+export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRequestDocument> = {
   lastActiveTabID: "e6e8d800-caa8-44a2-a6a6-b4765a3167aa",
   orderedDocs: [
     {
@@ -211,8 +213,10 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRESTDocument> = {
           testScript: "",
           body: { contentType: null, body: null },
           requestVariables: [],
+          responses: {},
         },
         isDirty: false,
+        type: "request",
         saveContext: {
           originLocation: "user-collection",
           folderPath: "0",

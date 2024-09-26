@@ -1,7 +1,7 @@
 use crate::{
     app_handle_ext::AppHandleExt,
     controller,
-    model::{ConfirmedOTPRequest, OTPReceiveRequest, RequestDef},
+    model::{ConfirmedRegistrationRequest, RegistrationReceiveRequest, RequestDef},
     state::AppState,
 };
 use std::sync::Arc;
@@ -23,19 +23,19 @@ pub fn route<T: AppHandleExt + Clone + 'static>(
         .and(warp::path("handshake"))
         .and_then(controller::handshake);
 
-    let receive_otp = warp::post()
-        .and(warp::path("receive-otp"))
-        .and(warp::body::json::<OTPReceiveRequest>())
+    let receive_registration = warp::post()
+        .and(warp::path("receive-registration"))
+        .and(warp::body::json::<RegistrationReceiveRequest>())
         .and(state.clone())
         .and(app_handle.clone())
-        .and_then(controller::receive_otp);
+        .and_then(controller::receive_registration);
 
-    let verify_otp = warp::post()
-        .and(warp::path("verify-otp"))
-        .and(warp::body::json::<ConfirmedOTPRequest>())
+    let verify_registration = warp::post()
+        .and(warp::path("verify-registration"))
+        .and(warp::body::json::<ConfirmedRegistrationRequest>())
         .and(state.clone())
         .and(app_handle.clone())
-        .and_then(controller::verify_otp);
+        .and_then(controller::verify_registration);
 
     let request = warp::post()
         .and(warp::path("request"))
@@ -52,8 +52,8 @@ pub fn route<T: AppHandleExt + Clone + 'static>(
         .and_then(controller::cancel_request);
 
     handshake
-        .or(receive_otp)
-        .or(verify_otp)
+        .or(receive_registration)
+        .or(verify_registration)
         .or(request)
         .or(cancel_request)
         .with(cors)

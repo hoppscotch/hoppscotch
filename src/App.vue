@@ -2,19 +2,19 @@
   <div id="app" class="font-sans max-w-md mx-auto p-6">
     <h1 class="text-3xl font-bold mb-6 text-center">Hoppscotch Interceptor</h1>
     <div v-if="!authenticated" class="space-y-4">
-      <h2 class="text-xl font-semibold">Your OTP</h2>
-      <div v-if="otp" class="flex items-center space-x-2">
+      <h2 class="text-xl font-semibold">Your Registration</h2>
+      <div v-if="registration" class="flex items-center space-x-2">
         <input
-          v-model="otp"
+          v-model="registration"
           readonly
           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          @click="copyOTP"
+          @click="copyRegistration"
           class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >Copy</button>
       </div>
-      <p v-else class="text-sm text-gray-600">Waiting for OTP from web application...</p>
+      <p v-else class="text-sm text-gray-600">Waiting for Registration from web application...</p>
     </div>
     <div v-else class="space-y-2">
       <h2 class="text-xl font-semibold text-green-600">Authenticated!</h2>
@@ -35,7 +35,7 @@
 import { ref, onMounted } from "vue";
 import { listen } from "@tauri-apps/api/event";
 
-const otp = ref("");
+const registration = ref("");
 const error = ref("");
 const authenticated = ref(false);
 const authKey = ref("");
@@ -43,8 +43,8 @@ const authExpiry = ref("");
 
 onMounted(async () => {
   try {
-    await listen("otp_received", (event) => {
-      otp.value = event.payload;
+    await listen("registration_received", (event) => {
+      registration.value = event.payload;
     });
 
     await listen("authenticated", (event) => {
@@ -57,8 +57,8 @@ onMounted(async () => {
   }
 });
 
-function copyOTP() {
-  navigator.clipboard.writeText(otp.value);
+function copyRegistration() {
+  navigator.clipboard.writeText(registration.value);
 }
 
 function formatExpiry(isoString) {

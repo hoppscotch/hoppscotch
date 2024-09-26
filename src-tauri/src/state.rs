@@ -7,7 +7,7 @@ use tokio_util::sync::CancellationToken;
 pub struct AppState {
     pub auth_tokens: DashMap<String, DateTime<Utc>>,
     pub cancellation_tokens: DashMap<usize, CancellationToken>,
-    pub current_otp: RwLock<Option<(String, DateTime<Utc>)>>,
+    pub current_registration: RwLock<Option<(String, DateTime<Utc>)>>,
 }
 
 impl AppState {
@@ -15,20 +15,20 @@ impl AppState {
         Self {
             auth_tokens: DashMap::new(),
             cancellation_tokens: DashMap::new(),
-            current_otp: RwLock::new(None),
+            current_registration: RwLock::new(None),
         }
     }
 
-    pub fn set_otp(&self, otp: String) {
+    pub fn set_registration(&self, registration: String) {
         let expiry = Utc::now() + Duration::minutes(5);
-        let mut current_otp = self.current_otp.write().unwrap();
-        *current_otp = Some((otp, expiry));
+        let mut current_registration = self.current_registration.write().unwrap();
+        *current_registration = Some((registration, expiry));
     }
 
-    pub fn validate_otp(&self, otp: &str) -> bool {
-        let current_otp = self.current_otp.read().unwrap();
-        if let Some((stored_otp, expiry)) = &*current_otp {
-            *stored_otp == otp && Utc::now() < *expiry
+    pub fn validate_registration(&self, registration: &str) -> bool {
+        let current_registration = self.current_registration.read().unwrap();
+        if let Some((stored_registration, expiry)) = &*current_registration {
+            *stored_registration == registration && Utc::now() < *expiry
         } else {
             false
         }

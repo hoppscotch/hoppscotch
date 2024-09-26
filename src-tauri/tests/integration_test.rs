@@ -1,7 +1,7 @@
 use hoppscotch_interceptor_lib::{
     model::{
-        AuthKeyResponse, ConfirmedOTPRequest, HandshakeResponse, KeyValuePair, OTPReceiveRequest,
-        RunRequestResponse,
+        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, KeyValuePair,
+        RegistrationReceiveRequest, RunRequestResponse,
     },
     route,
     state::AppState,
@@ -44,25 +44,32 @@ async fn test_full_flow_success() {
     let handshake_body: HandshakeResponse = serde_json::from_slice(handshake_resp.body()).unwrap();
     assert_eq!(handshake_body.status, "success");
 
-    let otp = "123456".to_string();
-    let receive_otp_resp = request()
+    let registration = "123456".to_string();
+    let receive_registration_resp = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
-    info!("Receive OTP response: {:?}", receive_otp_resp);
-    assert_eq!(receive_otp_resp.status(), 200);
+    info!(
+        "Receive Registration response: {:?}",
+        receive_registration_resp
+    );
+    assert_eq!(receive_registration_resp.status(), 200);
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp: otp.clone() })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
-    info!("Verify OTP response: {:?}", verify_resp);
+    info!("Verify Registration response: {:?}", verify_resp);
     assert_eq!(verify_resp.status(), 200);
 
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
@@ -120,32 +127,34 @@ async fn test_full_flow_success() {
 }
 
 #[tokio::test]
-async fn test_invalid_otp() {
+async fn test_invalid_registration() {
     let (_, routes) = setup().await;
 
-    info!("Starting invalid OTP test");
+    info!("Starting invalid Registration test");
 
-    let valid_otp = "123456".to_string();
+    let valid_registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: valid_otp })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: valid_registration,
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest {
-            otp: "invalid".to_string(),
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest {
+            registration: "invalid".to_string(),
         })
         .reply(&routes)
         .await;
 
-    info!("Invalid OTP response: {:?}", verify_resp);
+    info!("Invalid Registration response: {:?}", verify_resp);
     assert_eq!(verify_resp.status(), 400);
 
-    info!("Invalid OTP test completed");
+    info!("Invalid Registration test completed");
 }
 
 #[tokio::test]
@@ -186,18 +195,20 @@ async fn test_request_with_parameters_and_headers() {
 
     info!("Starting request with parameters and headers test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
@@ -259,18 +270,20 @@ async fn test_request_with_body() {
 
     info!("Starting request with body test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
@@ -318,37 +331,39 @@ async fn test_request_with_body() {
 }
 
 #[tokio::test]
-async fn test_otp_expiration() {
+async fn test_registration_expiration() {
     let (state, routes) = setup().await;
 
-    info!("Starting OTP expiration test");
+    info!("Starting Registration expiration test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     {
-        let mut current_otp = state.current_otp.write().unwrap();
-        if let Some((_, expiry)) = current_otp.as_mut() {
+        let mut current_registration = state.current_registration.write().unwrap();
+        if let Some((_, expiry)) = current_registration.as_mut() {
             *expiry = chrono::Utc::now() - chrono::Duration::minutes(6);
         }
     }
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
-    info!("Verify expired OTP response: {:?}", verify_resp);
+    info!("Verify expired Registration response: {:?}", verify_resp);
     assert_eq!(verify_resp.status(), 400);
 
-    info!("OTP expiration test completed");
+    info!("Registration expiration test completed");
 }
 
 #[tokio::test]
@@ -357,18 +372,20 @@ async fn test_cancel_nonexistent_request() {
 
     info!("Starting cancel nonexistent request test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
@@ -394,18 +411,20 @@ async fn test_request_with_invalid_url() {
 
     info!("Starting request with invalid URL test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
@@ -444,18 +463,20 @@ async fn test_request_with_typically_forbidden_headers() {
 
     info!("Starting request with typically forbidden headers test");
 
-    let otp = "123456".to_string();
+    let registration = "123456".to_string();
     let _ = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest { registration })
         .reply(&routes)
         .await;
 
@@ -577,30 +598,37 @@ async fn test_request_with_typically_forbidden_headers() {
 }
 
 #[tokio::test]
-async fn test_otp_flow() {
+async fn test_registration_flow() {
     let (_, routes) = setup().await;
 
-    info!("Starting OTP flow test");
+    info!("Starting Registration flow test");
 
-    let otp = "123456".to_string();
-    let receive_otp_resp = request()
+    let registration = "123456".to_string();
+    let receive_registration_resp = request()
         .method("POST")
-        .path("/receive-otp")
-        .json(&OTPReceiveRequest { otp: otp.clone() })
+        .path("/receive-registration")
+        .json(&RegistrationReceiveRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
-    info!("Receive OTP response: {:?}", receive_otp_resp);
-    assert_eq!(receive_otp_resp.status(), 200);
+    info!(
+        "Receive Registration response: {:?}",
+        receive_registration_resp
+    );
+    assert_eq!(receive_registration_resp.status(), 200);
 
     let verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest { otp: otp.clone() })
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest {
+            registration: registration.clone(),
+        })
         .reply(&routes)
         .await;
 
-    info!("Verify correct OTP response: {:?}", verify_resp);
+    info!("Verify correct Registration response: {:?}", verify_resp);
     assert_eq!(verify_resp.status(), 200);
 
     let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
@@ -608,15 +636,18 @@ async fn test_otp_flow() {
 
     let incorrect_verify_resp = request()
         .method("POST")
-        .path("/verify-otp")
-        .json(&ConfirmedOTPRequest {
-            otp: "wrong_otp".to_string(),
+        .path("/verify-registration")
+        .json(&ConfirmedRegistrationRequest {
+            registration: "wrong_registration".to_string(),
         })
         .reply(&routes)
         .await;
 
-    info!("Verify incorrect OTP response: {:?}", incorrect_verify_resp);
+    info!(
+        "Verify incorrect Registration response: {:?}",
+        incorrect_verify_resp
+    );
     assert_eq!(incorrect_verify_resp.status(), 400);
 
-    info!("OTP flow test completed");
+    info!("Registration flow test completed");
 }

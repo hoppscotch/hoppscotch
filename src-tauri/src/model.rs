@@ -8,13 +8,13 @@ pub struct HandshakeResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct OTPReceiveRequest {
-    pub otp: String,
+pub struct RegistrationReceiveRequest {
+    pub registration: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ConfirmedOTPRequest {
-    pub otp: String,
+pub struct ConfirmedRegistrationRequest {
+    pub registration: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

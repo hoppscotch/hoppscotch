@@ -1,8 +1,8 @@
 use crate::{
     app_handle_ext::AppHandleExt,
     model::{
-        AuthKeyResponse, BodyDef, ClientCertDef, ConfirmedOTPRequest, FormDataValue,
-        HandshakeResponse, KeyValuePair, OTPReceiveRequest, ReqBodyAction, RequestDef,
+        AuthKeyResponse, BodyDef, ClientCertDef, ConfirmedRegistrationRequest, FormDataValue,
+        HandshakeResponse, KeyValuePair, RegistrationReceiveRequest, ReqBodyAction, RequestDef,
         RunRequestError, RunRequestResponse,
     },
     state::AppState,
@@ -32,26 +32,28 @@ pub async fn handshake() -> Result<impl Reply, Rejection> {
     ))
 }
 
-pub async fn receive_otp<T: AppHandleExt>(
-    otp_request: OTPReceiveRequest,
+pub async fn receive_registration<T: AppHandleExt>(
+    registration_request: RegistrationReceiveRequest,
     state: Arc<AppState>,
     app_handle: T,
 ) -> Result<impl Reply, Rejection> {
-    state.set_otp(otp_request.otp.clone());
-    app_handle.emit("otp_received", otp_request.otp).unwrap();
+    state.set_registration(registration_request.registration.clone());
+    app_handle
+        .emit("registration_received", registration_request.registration)
+        .unwrap();
 
     Ok(with_status(
-        json(&json!({ "message": "OTP received and stored" })),
+        json(&json!({ "message": "Registration received and stored" })),
         StatusCode::OK,
     ))
 }
 
-pub async fn verify_otp<T: AppHandleExt>(
-    confirmed_otp: ConfirmedOTPRequest,
+pub async fn verify_registration<T: AppHandleExt>(
+    confirmed_registration: ConfirmedRegistrationRequest,
     state: Arc<AppState>,
     app_handle: T,
 ) -> Result<impl Reply, Rejection> {
-    if state.validate_otp(&confirmed_otp.otp) {
+    if state.validate_registration(&confirmed_registration.registration) {
         let auth_key = Uuid::new_v4().to_string();
         let expiry = Utc::now() + Duration::hours(1);
 
@@ -70,7 +72,7 @@ pub async fn verify_otp<T: AppHandleExt>(
         ))
     } else {
         Ok(with_status(
-            json(&json!({ "error": "Invalid or expired OTP" })),
+            json(&json!({ "error": "Invalid or expired Registration" })),
             StatusCode::BAD_REQUEST,
         ))
     }

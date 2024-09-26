@@ -1,10 +1,10 @@
 <template>
   <div
-    class="py-1 flex items-center w-full flex-1 justify-between cursor-pointer group"
+    class="flex items-center w-full flex-1 justify-between cursor-pointer group"
     @contextmenu.prevent="options?.tippy?.show()"
   >
     <div
-      class="pointer-events-auto flex min-w-0 flex-1 cursor-pointer items-center justify-center"
+      class="pointer-events-auto flex min-w-0 flex-1 space-x-2 cursor-pointer items-center justify-center"
       @click="selectResponse()"
     >
       <IconFileVolume />

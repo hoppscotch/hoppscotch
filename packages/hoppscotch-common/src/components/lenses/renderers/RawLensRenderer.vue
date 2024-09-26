@@ -70,6 +70,13 @@ const props = defineProps<{
   isEditable: boolean
 }>()
 
+const emit = defineEmits<{
+  (
+    e: "update:response",
+    val: HoppRESTResponse & { type: "success" | "fail" }
+  ): void
+}>()
+
 const { responseBodyText } = useResponseBody(props.response)
 
 const rawResponseBody = computed(() =>
@@ -119,6 +126,10 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
+    onChange: (update: string) => {
+      console.log("update", update)
+      emit("update:response", { ...props.response, body: update })
+    },
   })
 )
 

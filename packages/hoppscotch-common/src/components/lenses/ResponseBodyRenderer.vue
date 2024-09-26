@@ -13,7 +13,7 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
-        :response="doc.response"
+        v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
         @save-as-example="$emit('save-as-example')"

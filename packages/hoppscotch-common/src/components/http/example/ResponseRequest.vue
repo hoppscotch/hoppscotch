@@ -97,6 +97,12 @@ import { HoppSavedExampleDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import IconSave from "~icons/lucide/save"
+import { editRESTRequest, restCollections$ } from "~/newstore/collections"
+import { useReadonlyStream } from "~/composables/stream"
+import { getRequestsByPath } from "~/helpers/collection/request"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import { useToast } from "@composables/toast"
+import { cloneDeep } from "lodash-es"
 
 const t = useI18n()
 
@@ -112,6 +118,8 @@ const methods = [
   "TRACE",
   "CUSTOM",
 ]
+
+const toast = useToast()
 
 const props = defineProps<{ modelValue: HoppTab<HoppSavedExampleDocument> }>()
 const emit = defineEmits(["update:modelValue"])
@@ -153,7 +161,56 @@ const tryExampleResponse = () => {
   })
 }
 
-const saveExample = () => {}
+const myCollections = useReadonlyStream(restCollections$, [], "deep")
+
+const saveExample = () => {
+  const saveCtx = tab.value.document.saveContext
+
+  if (!saveCtx) {
+    return
+  }
+  if (saveCtx.originLocation === "user-collection") {
+    const response = cloneDeep(tab.value.document.response)
+
+    const request = cloneDeep(
+      getRequestsByPath(myCollections.value, saveCtx.folderPath)[
+        saveCtx.requestIndex
+      ] as HoppRESTRequest
+    )
+
+    if (!request) return
+
+    console.log("//req", request)
+
+    // Convert object to entries array (preserving order)
+    //const entries = Object.entries(request.responses)
+
+    const responseName = response.name
+
+    console.log("response-name", responseName)
+
+    request.responses[responseName] = response
+
+    // const updatedEntries = entries.map(([key, value]) =>
+    //   key === responseName ? [responseName, response] : [key, value]
+    // )
+
+    console.log("saveExample -> response", response)
+
+    // Convert the array back into an object
+    //request.responses = Object.fromEntries(updatedEntries)
+
+    console.log("saveExample -> updatedEntries", request.responses)
+
+    try {
+      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, request)
+    } catch (e) {
+      console.error(e)
+    }
+
+    toast.success(`${t("request.saved")}`)
+  }
+}
 
 // Template refs
 const methodTippyActions = ref<any | null>(null)

@@ -12,7 +12,7 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
-        :response="doc.response"
+        v-model:response="doc.response"
         :is-savable="false"
         :is-editable="true"
         @save-as-example="$emit('save-as-example')"
@@ -74,6 +74,7 @@ const validLenses = computed(() => {
   return getSuitableLenses(doc.value.response)
 })
 
+//the seleted lense tabs get updated when editing the raw response
 watch(
   validLenses,
   (newLenses: Lens[]) => {

@@ -67,7 +67,7 @@ export function getRequestsByPath(
 
   if (pathArray.length === 1) {
     const latestVersionedRequests = currentCollection.requests.filter(
-      (req): req is HoppRESTRequest => req.v === "3"
+      (req): req is HoppRESTRequest => req.v === "8"
     )
 
     return latestVersionedRequests
@@ -78,7 +78,7 @@ export function getRequestsByPath(
   }
 
   const latestVersionedRequests = currentCollection.requests.filter(
-    (req): req is HoppRESTRequest => req.v === "3"
+    (req): req is HoppRESTRequest => req.v === "8"
   )
 
   return latestVersionedRequests

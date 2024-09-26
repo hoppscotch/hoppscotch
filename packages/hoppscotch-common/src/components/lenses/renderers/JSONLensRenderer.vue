@@ -8,7 +8,7 @@
       </label>
       <div class="flex items-center">
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -16,7 +16,7 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.filter')"
           :icon="IconFilter"
@@ -24,7 +24,7 @@
           @click.prevent="toggleFilterState"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -33,7 +33,7 @@
           @click="downloadResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body && !isEditable"
+          v-if="showResponse && !isEditable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="
             isSavable
@@ -49,7 +49,7 @@
           @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -58,7 +58,7 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="response.body"
+          v-if="showResponse"
           interactive
           trigger="click"
           theme="popover"
@@ -122,7 +122,7 @@
           <span>{{ filterResponseError.error }}</span>
         </div>
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
@@ -284,6 +284,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
+  (e: "update:response", val: HoppRESTRequestResponse): void
 }>()
 
 const showResponse = computed(() => {
@@ -294,14 +295,14 @@ const showResponse = computed(() => {
   return "body" in props.response
 })
 
-// const isHttpResponse = computed(() => {
-//   return (
-//     "type" in props.response &&
-//     (props.response.type === "success" || props.response.type === "fail")
-//   )
-// })
+console.log("props.response", props.response, showResponse.value)
 
-const { responseBodyText } = useResponseBody(props.response)
+const isHttpResponse = computed(() => {
+  return (
+    "type" in props.response &&
+    (props.response.type === "success" || props.response.type === "fail")
+  )
+})
 
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
@@ -310,18 +311,30 @@ type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
   | { type: "JSON_PATH_QUERY_FAILED"; error: Error }
 
-const responseJsonObject = computed(() =>
-  pipe(
-    responseBodyText.value ?? (props.response as HoppRESTRequestResponse).body,
-    E.tryCatchK(
-      LJSON.parse,
-      (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
+const responseJsonObject = computed(() => {
+  if (isHttpResponse.value) {
+    const { responseBodyText } = useResponseBody(
+      props.response as HoppRESTResponse
     )
-  )
-)
+
+    return pipe(
+      responseBodyText.value,
+      E.tryCatchK(
+        LJSON.parse,
+        (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
+      )
+    )
+  }
+
+  return undefined
+})
 
 const jsonResponseBodyText = computed(() => {
-  if (filterQueryText.value.length > 0) {
+  const { responseBodyText } = useResponseBody(
+    props.response as HoppRESTResponse
+  )
+
+  if (filterQueryText.value.length > 0 && responseJsonObject.value) {
     return pipe(
       responseJsonObject.value,
       E.chain((parsedJSON) =>
@@ -343,15 +356,19 @@ const jsonResponseBodyText = computed(() => {
   return E.right(responseBodyText.value)
 })
 
-const jsonBodyText = computed(() =>
-  pipe(
+const jsonBodyText = computed(() => {
+  const { responseBodyText } = useResponseBody(
+    props.response as HoppRESTResponse
+  )
+
+  return pipe(
     jsonResponseBodyText.value,
     E.getOrElse(() => responseBodyText.value),
     O.tryCatchK(LJSON.parse),
     O.map((val) => LJSON.stringify(val, undefined, 2)),
     O.getOrElse(() => responseBodyText.value)
   )
-)
+})
 
 const ast = computed(() =>
   pipe(
@@ -388,9 +405,7 @@ const filterResponseError = computed(() =>
 )
 
 const saveAsExample = () => {
-  console.log("saveAsExample")
   emit("save-as-example")
-  // invokeAction("response.file.download")
 }
 
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
@@ -420,6 +435,10 @@ const { cursor } = useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
+    onChange: (update: string) => {
+      console.log("update", update)
+      emit("update:response", { ...props.response, body: update })
+    },
   })
 )
 

@@ -37,7 +37,6 @@ import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-import { any } from 'jest-mock-extended';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => UserCollection)

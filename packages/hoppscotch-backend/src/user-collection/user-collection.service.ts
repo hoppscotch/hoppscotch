@@ -1218,45 +1218,47 @@ export class UserCollectionService {
     const collection = await this.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
-    const childCollections = await this.prisma.userCollection.findMany({
-      where: { parentID: collection.right.id },
-      orderBy: { orderIndex: 'asc' },
-    });
+    const { id, title, data, type, parentID, userUid } = collection.right;
+    const orderIndex = 'asc';
 
-    const requests = await this.prisma.userRequest.findMany({
-      where: { collectionID: collection.right.id },
-      orderBy: { orderIndex: 'asc' },
-    });
+    const [childCollections, requests] = await Promise.all([
+      this.prisma.userCollection.findMany({
+        where: { parentID: id },
+        orderBy: { orderIndex },
+      }),
+      this.prisma.userRequest.findMany({
+        where: { collectionID: id },
+        orderBy: { orderIndex },
+      }),
+    ]);
 
     const childCollectionDataList = await Promise.all(
-      childCollections.map(async (child) => {
-        const result = await this.fetchCollectionData(child.id);
-        if (E.isLeft(result)) return E.left(result.left);
-        return E.right(result.right);
-      }),
+      childCollections.map(({ id }) => this.fetchCollectionData(id)),
     );
 
     const failedChildData = childCollectionDataList.find(E.isLeft);
     if (failedChildData) return E.left(failedChildData.left);
 
-    return E.right(<UserCollectionDuplicatedData>{
-      id: collection.right.id,
-      title: collection.right.title,
-      data: collection.right.data,
-      type: collection.right.type,
-      parentID: collection.right.parentID,
-      userID: collection.right.userUid,
-      childCollections: JSON.stringify(
-        childCollectionDataList.map((childCollection) => {
-          if (E.isRight(childCollection)) return childCollection.right;
-        }),
+    const childCollectionsJSONStr = JSON.stringify(
+      (childCollectionDataList as E.Right<UserCollectionDuplicatedData>[]).map(
+        (childCollection) => childCollection.right,
       ),
-      requests: requests.map((request) => {
-        return {
-          ...request,
-          request: JSON.stringify(request.request),
-        };
-      }),
+    );
+
+    const transformedRequests = requests.map((requestObj) => ({
+      ...requestObj,
+      request: JSON.stringify(requestObj.request),
+    }));
+
+    return E.right(<UserCollectionDuplicatedData>{
+      id,
+      title,
+      data,
+      type,
+      parentID,
+      userID: userUid,
+      childCollections: childCollectionsJSONStr,
+      requests: transformedRequests,
     });
   }
 }

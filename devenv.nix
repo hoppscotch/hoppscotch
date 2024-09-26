@@ -6,6 +6,8 @@
     git
     openssl
     postgresql_16
+    jq
+    xxd
     # BE and Tauri stuff
     libsoup_3
     webkitgtk_4_1

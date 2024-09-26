@@ -51,7 +51,7 @@ pub async fn verify_registration<T: AppHandleExt>(
 ) -> Result<impl Reply, Rejection> {
     if state.validate_registration(&confirmed_registration.registration) {
         let auth_key = Uuid::new_v4().to_string();
-        let expiry = Utc::now() + Duration::hours(1);
+        let expiry = Utc::now() + Duration::hours(24);
 
         let auth_payload = json!({
             "auth_key": auth_key,
@@ -306,7 +306,7 @@ mod tests {
         let state = Arc::new(AppState::new());
         let req_id = 1;
         let auth_token = "valid_token".to_string();
-        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(1));
+        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(24));
 
         let result = cancel_request(req_id, auth_token, state).await.unwrap();
         let (parts, body) = result.into_response().into_parts();
@@ -325,7 +325,7 @@ mod tests {
         let state = Arc::new(AppState::new());
         let req_id = 1;
         let auth_token = "valid_token".to_string();
-        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(1));
+        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(24));
 
         state.add_cancellation_token(req_id, CancellationToken::new());
 

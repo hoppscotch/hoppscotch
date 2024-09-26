@@ -68,7 +68,7 @@ mod tests {
     fn test_auth_token() {
         let state = AppState::new();
         let token = "test_token".to_string();
-        let expiry = Utc::now() + Duration::hours(1);
+        let expiry = Utc::now() + Duration::hours(24);
         state.set_auth_token(token.clone(), expiry);
         assert!(state.validate_auth_token(&token));
         assert!(!state.validate_auth_token("invalid"));

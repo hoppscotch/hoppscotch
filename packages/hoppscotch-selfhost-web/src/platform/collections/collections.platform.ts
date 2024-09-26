@@ -153,6 +153,7 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           requestVariables,
+          responses,
         } = request
 
         const resolvedParams = addDescriptionField(params)
@@ -171,6 +172,7 @@ function exportedCollectionToHoppCollection(
           body,
           preRequestScript,
           testScript,
+          responses,
         }
       }),
       auth: data.auth,

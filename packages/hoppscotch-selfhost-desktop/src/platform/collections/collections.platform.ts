@@ -131,6 +131,7 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           requestVariables,
+          responses,
         } = request
         return {
           v,
@@ -139,12 +140,13 @@ function exportedCollectionToHoppCollection(
           endpoint,
           method,
           params,
-          requestVariables: requestVariables,
           auth,
           headers,
           body,
           preRequestScript,
           testScript,
+          requestVariables,
+          responses,
         }
       }),
     }

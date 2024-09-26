@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0-rc",
-  "productName": "hoppscotch-interceptor",
+  "productName": "Hoppscotch Agent",
   "version": "0.1.0",
-  "identifier": "io.hoppscotch.interceptor",
+  "identifier": "io.hoppscotch.agent",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "hoppscotch-interceptor",
-        "width": 800,
-        "height": 600
+        "title": "Hoppscotch Agent",
+        "width": 600,
+        "height": 400,
+        "center": true,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "focus": true,
+        "alwaysOnTop": false
       }
     ],
     "security": {

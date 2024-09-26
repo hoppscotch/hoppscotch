@@ -1,67 +1,58 @@
 <template>
-  <div id="app" class="font-sans max-w-md mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center">Hoppscotch Interceptor</h1>
-    <div v-if="!authenticated" class="space-y-4">
-      <h2 class="text-xl font-semibold">Your Registration</h2>
-      <div v-if="registration" class="flex items-center space-x-2">
-        <input
-          v-model="registration"
-          readonly
-          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          @click="copyRegistration"
-          class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >Copy</button>
-      </div>
-      <p v-else class="text-sm text-gray-600">Waiting for Registration from web application...</p>
-    </div>
-    <div v-else class="space-y-2">
-      <h2 class="text-xl font-semibold text-green-600">Authenticated!</h2>
-      <p>
-        <span class="font-semibold">Auth Key:</span>
-        {{ authKey }}
+  <div class="font-sans min-h-screen flex flex-col">
+    <div class="p-5 flex flex-col flex-grow gap-y-2">
+      <h1 class="font-bold text-lg text-white">Agent Registration Request</h1>
+
+      <p class="tracking-wide">
+        An app is trying to register against the Hoppscotch Agent. If this was intentional, copy the given token into
+        the app to complete the registration process. Please close the window if you did not initiate this request.
       </p>
-      <p>
-        <span class="font-semibold">Expiry:</span>
-        {{ formatExpiry(authExpiry) }}
+
+      <p class="font-bold text-5xl tracking-wider text-center pt-10 text-white">
+        {{ codeText }}
       </p>
     </div>
-    <p v-if="error" class="mt-4 text-red-600">{{ error }}</p>
+
+    <div class="border-t border-divider p-5 flex justify-between">
+      <HoppButtonSecondary
+        label="Copy Code"
+        outline
+        filled
+        :icon="copyIcon"
+        @click="copyCode"
+      />
+
+      <HoppButtonPrimary
+        label="Close"
+        outline
+        @click="closeWindow"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { listen } from "@tauri-apps/api/event";
+import { ref, markRaw } from "vue"
+import { HoppButtonPrimary, HoppButtonSecondary } from "@hoppscotch/ui"
+import IconCopy from "~icons/lucide/copy"
+import IconCheck from "~icons/lucide/check"
+import { useClipboard, refAutoReset } from "@vueuse/core"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
-const registration = ref("");
-const error = ref("");
-const authenticated = ref(false);
-const authKey = ref("");
-const authExpiry = ref("");
+const { copy } = useClipboard()
 
-onMounted(async () => {
-  try {
-    await listen("registration_received", (event) => {
-      registration.value = event.payload;
-    });
+const codeText = ref("654321")
 
-    await listen("authenticated", (event) => {
-      authenticated.value = true;
-      authKey.value = event.payload.auth_key;
-      authExpiry.value = event.payload.expiry;
-    });
-  } catch (err) {
-    error.value = "Failed to set up event listeners.";
-  }
-});
+const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
 
-function copyRegistration() {
-  navigator.clipboard.writeText(registration.value);
+function copyCode() {
+  copyIcon.value = markRaw(IconCheck)
+  copy(codeText.value)
 }
 
-function formatExpiry(isoString) {
-  return new Date(isoString).toLocaleString();
+function closeWindow() {
+  const currentWindow = getCurrentWindow()
+
+  currentWindow.close()
 }
 </script>

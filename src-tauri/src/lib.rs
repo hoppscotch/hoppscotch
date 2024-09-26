@@ -24,12 +24,6 @@ pub fn run() {
 
     tauri::Builder::default()
         .setup(move |app| {
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
-            }
-
             let server_state = server_state.clone();
             let server_cancellation_token = server_cancellation_token.clone();
             let app_handle = app.handle();
@@ -45,6 +39,10 @@ pub fn run() {
                 let handle = app.handle();
                 tray::create_tray(handle)?;
             }
+
+            // Removes the window from populating the macOS dock
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
             Ok(())
         })

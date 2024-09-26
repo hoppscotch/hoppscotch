@@ -15,7 +15,7 @@ pub fn route<T: AppHandleExt + Clone + 'static>(
     let app_handle = warp::any().map(move || app_handle.clone());
 
     let cors = warp::cors()
-        .allow_origin("http://localhost:1420")
+        .allow_any_origin()
         .allow_headers(vec!["content-type", "authorization"])
         .allow_methods(vec!["GET", "POST", "OPTIONS"]);
 

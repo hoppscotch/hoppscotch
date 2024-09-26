@@ -57,10 +57,13 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app_handle, event| match event {
-            tauri::RunEvent::ExitRequested { api, .. } => {
+            tauri::RunEvent::ExitRequested { api, code, .. } => {
                 let state = app_handle.state::<CancellationToken>();
                 state.cancel();
-                api.prevent_exit();
+
+                if code.is_none() || matches!(code, Some(0)) {
+                    api.prevent_exit()
+                }
             }
             _ => {}
         });

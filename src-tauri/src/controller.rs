@@ -1,17 +1,13 @@
 use crate::{
     app_handle_ext::AppHandleExt,
+    interceptor,
     model::{
-        AuthKeyResponse, BodyDef, ClientCertDef, ConfirmedRegistrationRequest, FormDataValue,
-        HandshakeResponse, KeyValuePair, RegistrationReceiveRequest, ReqBodyAction, RequestDef,
-        RunRequestError, RunRequestResponse,
+        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
+        RegistrationReceiveRequest, RequestDef, RunRequestError,
     },
     state::AppState,
 };
 use chrono::{Duration, Utc};
-use reqwest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
-    Certificate, ClientBuilder, Identity,
-};
 use serde_json::json;
 use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
@@ -90,76 +86,30 @@ pub async fn run_request(
         ));
     }
 
-    let method = reqwest::Method::from_bytes(req.method.as_bytes())
-        .map_err(|_| warp::reject::custom(RunRequestError::InvalidMethod))?;
-
-    let endpoint_url = reqwest::Url::parse(&req.endpoint)
-        .map_err(|_| warp::reject::custom(RunRequestError::InvalidUrl))?;
-
-    let headers = req
-        .headers
-        .iter()
-        .map(|KeyValuePair { key, value }| {
-            Ok((
-                key.parse::<HeaderName>().map_err(|_| ())?,
-                value.parse::<HeaderValue>().map_err(|_| ())?,
-            ))
-        })
-        .collect::<Result<HeaderMap, ()>>()
-        .map_err(|_| warp::reject::custom(RunRequestError::InvalidHeaders))?;
-
-    let body_action = convert_bodydef_to_req_action(&req);
-
-    let client_identity = get_identity_from_req(&req)
-        .map_err(|_| warp::reject::custom(RunRequestError::ClientCertError))?;
-
-    let root_certs =
-        parse_root_certs(&req).map_err(|_| warp::reject::custom(RunRequestError::RootCertError))?;
-
-    let mut client_builder = ClientBuilder::new().danger_accept_invalid_certs(!req.validate_certs);
-
-    for root_cert in root_certs {
-        client_builder = client_builder.add_root_certificate(root_cert);
-    }
-
-    if let Some(identity) = client_identity {
-        client_builder = client_builder.identity(identity);
-    }
-
-    let client = client_builder
-        .build()
-        .map_err(|e| warp::reject::custom(RunRequestError::RequestRunError(e.to_string())))?;
-
-    let mut req_builder = client
-        .request(method, endpoint_url)
-        .query(
-            &req.parameters
-                .iter()
-                .map(|KeyValuePair { key, value }| (key, value))
-                .collect::<Vec<_>>(),
-        )
-        .headers(headers);
-
-    req_builder = match body_action {
-        None => req_builder,
-        Some(ReqBodyAction::Body(body)) => req_builder.body(body),
-        Some(ReqBodyAction::UrlEncodedForm(entries)) => req_builder.form(&entries),
-        Some(ReqBodyAction::MultipartForm(form)) => req_builder.multipart(form),
-    };
-
     let cancel_token = CancellationToken::new();
-
     state.add_cancellation_token(req.req_id, cancel_token.clone());
 
+    let req_id = req.req_id;
+    let cancel_token_clone = cancel_token.clone();
+
     let result = tokio::select! {
-        _ = cancel_token.cancelled() => Err(warp::reject::custom(RunRequestError::RequestCancelled)),
-        result = execute_request(req_builder) => {
-            state.remove_cancellation_token(req.req_id);
-            result.map_err(warp::reject::custom)
+        res = tokio::task::spawn_blocking(move || interceptor::run_request_task(&req, cancel_token_clone)) => {
+            match res {
+                Ok(task_result) => task_result,
+                Err(_) => Err(RunRequestError::InternalError),
+            }
+        },
+        _ = cancel_token.cancelled() => {
+            Err(RunRequestError::RequestCancelled)
         }
     };
 
-    Ok(with_status(json(&result?), StatusCode::OK))
+    state.remove_cancellation_token(req_id);
+
+    match result {
+        Ok(response) => Ok(with_status(json(&response), StatusCode::OK)),
+        Err(error) => Ok(with_status(json(&error), StatusCode::INTERNAL_SERVER_ERROR)),
+    }
 }
 
 pub async fn cancel_request(
@@ -189,241 +139,205 @@ pub async fn cancel_request(
     }
 }
 
-fn convert_bodydef_to_req_action(req: &RequestDef) -> Option<ReqBodyAction> {
-    match &req.body {
-        None => None,
-        Some(BodyDef::Text(text)) => Some(ReqBodyAction::Body(text.clone().into())),
-        Some(BodyDef::URLEncoded(entries)) => Some(ReqBodyAction::UrlEncodedForm(
-            entries
-                .iter()
-                .map(|KeyValuePair { key, value }| (key.clone(), value.clone()))
-                .collect(),
-        )),
-        Some(BodyDef::FormData(entries)) => {
-            let form = entries
-                .iter()
-                .fold(
-                    reqwest::multipart::Form::new(),
-                    |form, entry| match &entry.value {
-                        FormDataValue::Text(value) => form.text(entry.key.clone(), value.clone()),
-                        FormDataValue::File {
-                            filename,
-                            data,
-                            mime,
-                        } => form.part(
-                            entry.key.clone(),
-                            reqwest::multipart::Part::bytes(data.clone())
-                                .file_name(filename.clone())
-                                .mime_str(mime.as_str())
-                                .expect("Error while setting File enum"),
-                        ),
-                    },
-                );
-            Some(ReqBodyAction::MultipartForm(form))
-        }
-    }
-}
-
-async fn execute_request(
-    req_builder: reqwest::RequestBuilder,
-) -> Result<RunRequestResponse, RunRequestError> {
-    let start_time_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_millis();
-
-    let response = req_builder
-        .send()
-        .await
-        .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
-
-    let res_status = response.status();
-    let res_headers = response.headers().clone();
-
-    let res_body_bytes = response
-        .bytes()
-        .await
-        .map_err(|err| RunRequestError::RequestRunError(err.to_string()))?;
-
-    let end_time_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_millis();
-
-    let response_status = res_status.as_u16();
-    let response_status_text = res_status
-        .canonical_reason()
-        .unwrap_or("Unknown Status")
-        .to_owned();
-
-    let response_headers = res_headers
-        .iter()
-        .map(|(key, value)| KeyValuePair {
-            key: key.as_str().to_owned(),
-            value: value.to_str().unwrap_or("").to_owned(),
-        })
-        .collect();
-
-    Ok(RunRequestResponse {
-        status: response_status,
-        status_text: response_status_text,
-        headers: response_headers,
-        data: res_body_bytes.into(),
-        time_start_ms: start_time_ms,
-        time_end_ms: end_time_ms,
-    })
-}
-
-fn get_identity_from_req(req: &RequestDef) -> Result<Option<Identity>, reqwest::Error> {
-    let result = match &req.client_cert {
-        None => return Ok(None),
-        Some(ClientCertDef::PEMCert {
-            certificate_pem,
-            key_pem,
-        }) => Identity::from_pkcs8_pem(certificate_pem, key_pem),
-        Some(ClientCertDef::PFXCert {
-            certificate_pfx,
-            password,
-        }) => Identity::from_pkcs12_der(certificate_pfx, password),
-    };
-    Ok(Some(result?))
-}
-
-fn parse_root_certs(req: &RequestDef) -> Result<Vec<Certificate>, reqwest::Error> {
-    let mut result = vec![];
-
-    for cert_bundle_file in &req.root_cert_bundle_files {
-        let mut certs = Certificate::from_pem_bundle(&cert_bundle_file)?;
-        result.append(&mut certs);
-    }
-
-    Ok(result)
-}
-
 #[cfg(test)]
 mod tests {
-
     use super::*;
-    use warp::Reply;
+    use crate::app_handle_ext::MockAppHandle;
+    use chrono::Utc;
+    use std::sync::Arc;
+    use warp::http::StatusCode;
+    use warp::hyper::body::to_bytes;
 
     #[tokio::test]
     async fn test_handshake() {
-        let response = handshake().await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::OK);
+        let result = handshake().await.unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::OK);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert_eq!(json["status"], "success");
+        assert!(json["message"]
+            .as_str()
+            .unwrap()
+            .contains("Interceptor ready"));
+    }
+
+    #[tokio::test]
+    async fn test_receive_registration() {
+        let state = Arc::new(AppState::new());
+        let app_handle = MockAppHandle;
+        let registration_request = RegistrationReceiveRequest {
+            registration: "test_registration".to_string(),
+        };
+
+        let result = receive_registration(registration_request, state.clone(), app_handle)
+            .await
+            .unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::OK);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert!(json["message"]
+            .as_str()
+            .unwrap()
+            .contains("Registration received and stored"));
+
+        let current_registration = state.current_registration.read().unwrap();
+        assert!(current_registration.is_some());
+        assert_eq!(
+            current_registration.as_ref().unwrap().0,
+            "test_registration"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_verify_registration_valid() {
+        let state = Arc::new(AppState::new());
+        let app_handle = MockAppHandle;
+
+        state.set_registration("valid_registration".to_string());
+
+        let confirmed_registration = ConfirmedRegistrationRequest {
+            registration: "valid_registration".to_string(),
+        };
+
+        let result = verify_registration(confirmed_registration, state.clone(), app_handle)
+            .await
+            .unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::OK);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert!(json["auth_key"].is_string());
+        assert!(json["expiry"].is_string());
+
+        let auth_key = json["auth_key"].as_str().unwrap();
+        assert!(state.validate_auth_token(auth_key));
+    }
+
+    #[tokio::test]
+    async fn test_verify_registration_invalid() {
+        let state = Arc::new(AppState::new());
+        let app_handle = MockAppHandle;
+
+        state.set_registration("valid_registration".to_string());
+
+        let confirmed_registration = ConfirmedRegistrationRequest {
+            registration: "invalid_registration".to_string(),
+        };
+
+        let result = verify_registration(confirmed_registration, state.clone(), app_handle)
+            .await
+            .unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::BAD_REQUEST);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert_eq!(json["error"], "Invalid or expired Registration");
     }
 
     #[tokio::test]
     async fn test_run_request_unauthorized() {
         let state = Arc::new(AppState::new());
-        let auth_key = "invalid_auth_key".to_string();
-
         let req = RequestDef {
             req_id: 1,
             method: "GET".to_string(),
-            endpoint: "https://example.com".to_string(),
+            endpoint: "http://example.com".to_string(),
             parameters: vec![],
             headers: vec![],
             body: None,
             validate_certs: false,
             root_cert_bundle_files: vec![],
             client_cert: None,
+            proxy: None,
         };
 
-        let response = run_request(req, auth_key, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::UNAUTHORIZED);
-    }
+        let result = run_request(req, "invalid_token".to_string(), state)
+            .await
+            .unwrap();
+        let (parts, body) = result.into_response().into_parts();
 
-    #[tokio::test]
-    async fn test_run_request_invalid_method() {
-        let state = Arc::new(AppState::new());
-        let auth_key = "test_auth_key".to_string();
-        let expiry = Utc::now() + Duration::hours(1);
-        state.set_auth_token(auth_key.clone(), expiry);
+        assert_eq!(parts.status, StatusCode::UNAUTHORIZED);
 
-        let req = RequestDef {
-            req_id: 1,
-            method: "INVALID".to_string(),
-            endpoint: "https://example.com".to_string(),
-            parameters: vec![],
-            headers: vec![],
-            body: None,
-            validate_certs: false,
-            root_cert_bundle_files: vec![],
-            client_cert: None,
-        };
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
 
-        let response = run_request(req, auth_key, state).await.unwrap();
-        let result = response.into_response();
-
-        // NOTE: `StatusCode::OK` mean the agent returned good response,
-        // even if the actual request might have failed.
-        assert_eq!(result.status(), StatusCode::OK);
-    }
-
-    #[tokio::test]
-    async fn test_run_request_invalid_url() {
-        let state = Arc::new(AppState::new());
-        let auth_key = "test_auth_key".to_string();
-        let expiry = Utc::now() + Duration::hours(1);
-        state.set_auth_token(auth_key.clone(), expiry);
-
-        let req = RequestDef {
-            req_id: 1,
-            method: "GET".to_string(),
-            endpoint: "invalid_url".to_string(),
-            parameters: vec![],
-            headers: vec![],
-            body: None,
-            validate_certs: false,
-            root_cert_bundle_files: vec![],
-            client_cert: None,
-        };
-
-        let response = run_request(req, auth_key, state).await;
-
-        assert!(response.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_cancel_request_success() {
-        let state = Arc::new(AppState::new());
-        let auth_key = "test_auth_key".to_string();
-        let expiry = Utc::now() + Duration::hours(1);
-        state.set_auth_token(auth_key.clone(), expiry);
-
-        let req_id = 1;
-        let cancel_token = CancellationToken::new();
-        state.add_cancellation_token(req_id, cancel_token);
-
-        let response = cancel_request(req_id, auth_key, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::OK);
+        assert_eq!(json, serde_json::json!(RunRequestError::Unauthorized));
     }
 
     #[tokio::test]
     async fn test_cancel_request_unauthorized() {
         let state = Arc::new(AppState::new());
-        let auth_key = "invalid_auth_key".to_string();
         let req_id = 1;
 
-        let response = cancel_request(req_id, auth_key, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::UNAUTHORIZED);
+        let result = cancel_request(req_id, "invalid_token".to_string(), state)
+            .await
+            .unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::UNAUTHORIZED);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert_eq!(json, serde_json::json!(RunRequestError::Unauthorized));
     }
 
     #[tokio::test]
     async fn test_cancel_request_not_found() {
         let state = Arc::new(AppState::new());
-        let auth_key = "test_auth_key".to_string();
-        let expiry = Utc::now() + Duration::hours(1);
-        state.set_auth_token(auth_key.clone(), expiry);
+        let req_id = 1;
+        let auth_token = "valid_token".to_string();
+        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(1));
 
-        let req_id = 999; // Non-existent request ID
+        let result = cancel_request(req_id, auth_token, state).await.unwrap();
+        let (parts, body) = result.into_response().into_parts();
 
-        let response = cancel_request(req_id, auth_key, state).await.unwrap();
-        let result = response.into_response();
-        assert_eq!(result.status(), StatusCode::NOT_FOUND);
+        assert_eq!(parts.status, StatusCode::NOT_FOUND);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert_eq!(json["error"], "Request not found or already completed");
+    }
+
+    #[tokio::test]
+    async fn test_cancel_request_success() {
+        let state = Arc::new(AppState::new());
+        let req_id = 1;
+        let auth_token = "valid_token".to_string();
+        state.set_auth_token(auth_token.clone(), Utc::now() + chrono::Duration::hours(1));
+
+        state.add_cancellation_token(req_id, CancellationToken::new());
+
+        let result = cancel_request(req_id, auth_token, state).await.unwrap();
+        let (parts, body) = result.into_response().into_parts();
+
+        assert_eq!(parts.status, StatusCode::OK);
+
+        let body_bytes = to_bytes(body).await.unwrap();
+        let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_str).unwrap();
+
+        assert_eq!(json["message"], "Request cancelled successfully");
     }
 }

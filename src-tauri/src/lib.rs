@@ -1,10 +1,12 @@
 pub mod app_handle_ext;
 pub mod controller;
+pub mod interceptor;
 pub mod model;
 pub mod route;
 pub mod server;
 pub mod state;
 pub mod tray;
+pub mod util;
 
 use state::AppState;
 use std::sync::Arc;

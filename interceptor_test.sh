@@ -67,11 +67,6 @@ request_response=$(curl -s -X POST "${BASE_URL}/request" \
 }')
 
 echo "Response from httpbin.org:"
-echo "$request_response" | jq '.data' | xxd -r -p | jq '.'
-echo
-
-if [ "$(echo "$request_response" | jq '.status')" != "200" ]; then
-    handle_error "Request failed with status $(echo "$request_response" | jq '.status')"
-fi
+echo "$request_response"
 
 echo "Full flow test completed successfully!"

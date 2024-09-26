@@ -23,16 +23,10 @@ pub struct AuthKeyResponse {
     pub expiry: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyValuePair {
     pub key: String,
     pub value: String,
-}
-
-pub enum ReqBodyAction {
-    Body(reqwest::Body),
-    UrlEncodedForm(Vec<(String, String)>),
-    MultipartForm(reqwest::multipart::Form),
 }
 
 #[derive(Debug, Deserialize)]
@@ -69,6 +63,12 @@ pub struct RequestDef {
     pub validate_certs: bool,
     pub root_cert_bundle_files: Vec<Vec<u8>>,
     pub client_cert: Option<ClientCertDef>,
+    pub proxy: Option<ProxyConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProxyConfig {
+    pub url: String,
 }
 
 #[derive(Debug, Deserialize)]

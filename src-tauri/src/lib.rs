@@ -1,10 +1,10 @@
+pub mod app_handle_ext;
 pub mod controller;
 pub mod model;
 pub mod route;
 pub mod server;
 pub mod state;
 pub mod tray;
-pub mod app_handle_ext;
 
 use state::AppState;
 use std::sync::Arc;
@@ -32,11 +32,10 @@ pub fn run() {
             let server_cancellation_token = server_cancellation_token.clone();
             let app_handle = app.handle();
 
-            let app_handle = app_handle.clone();
-            std::thread::spawn(move || {
-                tauri::async_runtime::block_on(async move {
-                    server::run_server(server_state, server_cancellation_token, app_handle).await;
-                });
+            let server_app_handle = app_handle.clone();
+            tauri::async_runtime::spawn(async move {
+                server::run_server(server_state, server_cancellation_token, server_app_handle)
+                    .await;
             });
 
             #[cfg(all(desktop))]
@@ -50,16 +49,19 @@ pub fn run() {
         .manage(app_state)
         .manage(cancellation_token)
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::Destroyed = event {
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
                 let state: tauri::State<CancellationToken> = window.state();
                 state.cancel();
             }
         })
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
-        .run(|_app_handle, event| {
-            if let tauri::RunEvent::ExitRequested { api, .. } = event {
+        .run(|app_handle, event| match event {
+            tauri::RunEvent::ExitRequested { api, .. } => {
+                let state = app_handle.state::<CancellationToken>();
+                state.cancel();
                 api.prevent_exit();
             }
+            _ => {}
         });
 }

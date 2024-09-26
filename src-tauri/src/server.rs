@@ -21,4 +21,6 @@ pub async fn run_server(
     println!("Server running on http://{}", addr);
 
     server.await;
+
+    println!("Server shut down");
 }

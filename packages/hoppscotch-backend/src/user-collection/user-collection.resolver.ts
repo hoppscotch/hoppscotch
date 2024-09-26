@@ -196,8 +196,6 @@ export class UserCollectionResolver {
       type: () => ID,
       name: 'collectionID',
       description: 'ID of the user collection',
-      nullable: true,
-      defaultValue: null,
     })
     collectionID: string,
   ) {

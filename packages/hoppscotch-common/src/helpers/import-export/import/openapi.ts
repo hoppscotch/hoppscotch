@@ -126,6 +126,7 @@ const parseOpenAPIV3Responses = (
       | OpenAPIV3.ResponseObject
       | OpenAPIV31.ResponseObject
 
+    // add support for schema key as well
     const contentType = Object.keys(response.content ?? {})[0]
     const body = response.content?.[contentType]
 
@@ -170,6 +171,7 @@ const parseOpenAPIV2Responses = (
   for (const [key, value] of Object.entries(responses)) {
     const response = value as OpenAPIV2.ResponseObject
 
+    // add support for schema key as well
     const contentType = Object.keys(response.examples ?? {})[0]
     const body = response.examples?.[contentType]
 

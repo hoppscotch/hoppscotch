@@ -1,5 +1,6 @@
+import { defineVersion } from "verzod"
 import { z } from "zod"
-import { HoppRESTAuthOAuth2 } from "./../../rest/v/7"
+
 import {
   HoppGQLAuthBasic,
   HoppGQLAuthBearer,
@@ -8,7 +9,7 @@ import {
 } from "./2"
 import { HoppGQLAuthAPIKey } from "./4"
 import { HoppGQLAuthAWSSignature, V6_SCHEMA } from "./6"
-import { defineVersion } from "verzod"
+import { HoppRESTAuthOAuth2 } from "./../../rest/v/7"
 
 export { HoppRESTAuthOAuth2 as HoppGQLAuthOAuth2 } from "../../rest/v/7"
 
@@ -42,7 +43,7 @@ export default defineVersion({
     return {
       ...old,
       v: 7 as const,
-      // no need to update anything for HoppRESTAuth, because we loosened the previous schema by making clientSecret optional
+      // no need to update anything for HoppGQLAuth, because we loosened the previous schema by making `clientSecret` optional
     }
   },
 })

@@ -13,10 +13,8 @@ import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
 import V6_VERSION, { HoppRESTReqBody } from "./v/6"
-import V7_VERSION from "./v/7"
+import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
 import V8_VERSION, { HoppRESTAuth } from "./v/8"
-
-import { HoppRESTParams, HoppRESTHeaders } from "./v/7"
 
 export * from "./content-types"
 
@@ -28,17 +26,17 @@ export {
   HoppRESTAuthNone,
   HoppRESTReqBodyFormData,
 } from "./v/1"
-export { ImplicitOauthFlowParams } from "./v/3"
-
-export {
-  ClientCredentialsGrantTypeParams,
-  PasswordGrantTypeParams,
-} from "./v/8"
 
 export { HoppRESTRequestVariables } from "./v/2"
+
+export { ImplicitOauthFlowParams } from "./v/3"
+
 export { HoppRESTAuthAPIKey } from "./v/4"
 
+export { AuthCodeGrantTypeParams } from "./v/5"
+
 export { HoppRESTReqBody } from "./v/6"
+
 export {
   HoppRESTAuthAWSSignature,
   HoppRESTHeaders,
@@ -46,9 +44,10 @@ export {
 } from "./v/7"
 
 export {
+  ClientCredentialsGrantTypeParams,
   HoppRESTAuth,
   HoppRESTAuthOAuth2,
-  AuthCodeGrantTypeParams,
+  PasswordGrantTypeParams,
 } from "./v/8"
 
 const versionedObject = z.object({

@@ -1,14 +1,6 @@
+import { defineVersion } from "verzod"
 import { z } from "zod"
-import {
-  ClientCredentialsGrantTypeParams as ClientCredentialsGrantTypeParamsOld,
-  PasswordGrantTypeParams as PasswordGrantTypeParamsOld,
-  ImplicitOauthFlowParams,
-} from "./3"
-import {
-  AuthCodeGrantTypeParams as AuthCodeGrantTypeParamsOld,
-  HoppRESTAuthAWSSignature,
-  V7_SCHEMA,
-} from "./7"
+
 import {
   HoppRESTAuthAPIKey,
   HoppRESTAuthBasic,
@@ -16,11 +8,18 @@ import {
   HoppRESTAuthInherit,
   HoppRESTAuthNone,
 } from "./1"
-import { defineVersion } from "verzod"
 
-export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
-  clientSecret: z.string().optional(),
-})
+import {
+  ClientCredentialsGrantTypeParams as ClientCredentialsGrantTypeParamsOld,
+  ImplicitOauthFlowParams,
+  PasswordGrantTypeParams as PasswordGrantTypeParamsOld,
+} from "./3"
+
+import {
+  AuthCodeGrantTypeParams,
+  HoppRESTAuthAWSSignature,
+  V7_SCHEMA,
+} from "./7"
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
@@ -74,7 +73,7 @@ export default defineVersion({
     return {
       ...old,
       v: "8" as const,
-      // no need to update anything for HoppRESTAuth, because we loosened the previous schema by making clientSecret optional
+      // no need to update anything for HoppRESTAuth, because we loosened the previous schema by making `clientSecret` optional
     }
   },
 })

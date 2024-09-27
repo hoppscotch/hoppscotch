@@ -836,7 +836,7 @@ export class UserCollectionService {
    * @param collectionID The Collection ID
    * @returns A JSON string containing all the contents of a collection
    */
-  private async exportUserCollectionToJSONObject(
+  async exportUserCollectionToJSONObject(
     userUID: string,
     collectionID: string,
   ): Promise<E.Left<string> | E.Right<CollectionFolder>> {

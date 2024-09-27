@@ -186,6 +186,30 @@ export class UserCollectionResolver {
     return jsonString.right;
   }
 
+  @Query(() => String, {
+    description:
+      'Returns a JSON string of all the contents of a User Collection',
+  })
+  @UseGuards(GqlAuthGuard)
+  async exportUserCollectionToJSON(
+    @GqlUser() user: AuthUser,
+    @Args({
+      type: () => ID,
+      name: 'collectionID',
+      description: 'ID of the user collection',
+    })
+    collectionID: string,
+  ) {
+    const jsonString =
+      await this.userCollectionService.exportUserCollectionToJSONObject(
+        user.uid,
+        collectionID,
+      );
+
+    if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
+    return JSON.stringify(jsonString.right);
+  }
+
   // Mutations
   @Mutation(() => UserCollection, {
     description: 'Creates root REST user collection(no parent user collection)',

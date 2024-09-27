@@ -43,7 +43,7 @@ fi
 echo "4: Send Request"
 request_response=$(curl -s -X POST "${BASE_URL}/request" \
     -H "Content-Type: application/json" \
-    -H "Authorization: $auth_key" \
+    -H "Authorization: Bearer $auth_key" \
     -d '{
     "req_id": 1,
     "method": "GET",

@@ -46,9 +46,11 @@ const props = defineProps<{
   isEditable: boolean
 }>()
 
-const headers = useVModel(props, "modelValue")
+const emit = defineEmits<{
+  (e: "update:modelValue"): void
+}>()
 
-defineEmits(["update:modelValue"])
+const headers = useVModel(props, "modelValue", emit)
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,

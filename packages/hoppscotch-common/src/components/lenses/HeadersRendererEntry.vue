@@ -6,7 +6,11 @@
       <span v-if="!isEditable" class="select-all truncate rounded-sm py-2 pl-4">
         {{ headerKey }}
       </span>
-      <SmartEnvInput v-else :model-value="headerKey" />
+      <SmartEnvInput
+        v-else
+        :model-value="headerKey"
+        @update:model-value="emit('update:headerKey', $event)"
+      />
     </span>
     <span
       class="flex min-w-0 flex-1 justify-between transition group-hover:text-secondaryDark"
@@ -14,7 +18,11 @@
       <span v-if="!isEditable" class="select-all truncate rounded-sm py-2 pl-4">
         {{ headerValue }}
       </span>
-      <SmartEnvInput v-else :model-value="headerValue" />
+      <SmartEnvInput
+        v-else
+        :model-value="headerValue"
+        @update:model-value="emit('update:headerValue', $event)"
+      />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"

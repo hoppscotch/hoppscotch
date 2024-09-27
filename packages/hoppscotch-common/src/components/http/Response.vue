@@ -28,6 +28,9 @@ import {
 import { editRESTRequest } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import * as E from "fp-ts/Either"
 
 const t = useI18n()
 const toast = useToast()
@@ -114,9 +117,8 @@ const onSaveAsExample = () => {
 
     if (!saveCtx) return
 
+    const req = doc.value.request
     if (saveCtx.originLocation === "user-collection") {
-      const req = doc.value.request
-
       try {
         editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
 
@@ -124,6 +126,22 @@ const onSaveAsExample = () => {
       } catch (e) {
         console.error(e)
       }
+    } else {
+      runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: req.name,
+          request: JSON.stringify(req),
+        },
+      })().then((result) => {
+        if (E.isLeft(result)) {
+          toast.error(`${t("profile.no_permission")}`)
+        } else {
+          doc.value.isDirty = false
+
+          toast.success(`${t("request.saved")}`)
+        }
+      })
     }
   }
 }

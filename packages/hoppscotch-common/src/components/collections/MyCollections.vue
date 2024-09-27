@@ -105,7 +105,8 @@
               })
             "
             @dragging="
-              (isDraging) => highlightChildren(isDraging ? node.id : null)
+              (isDraging: boolean) =>
+                highlightChildren(isDraging ? node.id : null)
             "
             @toggle-children="
               () => {
@@ -187,7 +188,8 @@
               })
             "
             @dragging="
-              (isDraging) => highlightChildren(isDraging ? node.id : null)
+              (isDraging: boolean) =>
+                highlightChildren(isDraging ? node.id : null)
             "
             @toggle-children="
               () => {

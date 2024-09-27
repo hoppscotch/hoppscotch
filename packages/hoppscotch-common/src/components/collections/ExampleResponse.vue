@@ -201,7 +201,6 @@ const isActiveExample = computed(() => {
     return (
       active.value?.originLocation === "team-collection" &&
       active.value?.requestID === saveCtx.requestID &&
-      active.value?.collectionID === saveCtx.collectionID &&
       active.value?.exampleID === saveCtx.exampleID
     )
   }

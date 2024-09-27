@@ -83,6 +83,7 @@
       @collection-click="handleCollectionClick"
       @duplicate-collection="duplicateCollection"
       @duplicate-request="duplicateRequest"
+      @duplicate-response="duplicateResponse"
       @drop-request="dropRequest"
       @drop-collection="dropCollection"
       @display-modal-add="displayModalAdd(true)"
@@ -90,15 +91,18 @@
       @edit-collection="editCollection"
       @edit-folder="editFolder"
       @edit-request="editRequest"
+      @edit-response="editResponse"
       @edit-properties="editProperties"
       @export-data="exportData"
       @expand-team-collection="expandTeamCollection"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
       @remove-request="removeRequest"
+      @remove-response="removeResponse"
       @run-collection="runCollectionHandler"
       @share-request="shareRequest"
       @select-request="selectRequest"
+      @select-response="selectResponse"
       @select="selectPicked"
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
@@ -1303,6 +1307,50 @@ const updateEditingResponse = (newName: string) => {
     }
 
     displayModalEditResponse(false)
+  } else if (hasTeamWriteAccess.value) {
+    modalLoadingState.value = true
+
+    const requestID = editingRequestID.value
+
+    if (!requestID) return
+
+    const data = {
+      request: JSON.stringify(request),
+      title: request.name,
+    }
+
+    pipe(
+      updateTeamRequest(requestID, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          toast.success(t("request.renamed"))
+          displayModalEditResponse(false)
+        }
+      )
+    )()
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+      exampleID: editingResponseID.value ?? undefined,
+    })
+
+    if (possibleTab && possibleTab.value.document.type === "example-response") {
+      possibleTab.value.document.response.name = newName
+      nextTick(() => {
+        possibleTab.value.document.isDirty = false
+        possibleTab.value.document.saveContext = {
+          originLocation: "team-collection",
+          requestID,
+          exampleID: responsePath ? responsePath + "/" + newName : newName,
+        }
+      })
+    }
   }
 }
 
@@ -1380,6 +1428,30 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
   if (collectionsType.value.type === "my-collections") {
     editRESTRequest(folderPath, parseInt(requestIndex), updatedRequest)
     toast.success(t("response.duplicated"))
+  } else if (hasTeamWriteAccess.value) {
+    duplicateRequestLoading.value = true
+
+    if (!collectionsType.value.selectedTeam) return
+
+    const data = {
+      request: JSON.stringify(updatedRequest),
+      title: request.name,
+    }
+
+    pipe(
+      updateTeamRequest(requestIndex, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          toast.success(t("response.duplicated"))
+          displayModalEditResponse(false)
+        }
+      )
+    )()
   }
 }
 
@@ -1679,6 +1751,8 @@ const onRemoveResponse = () => {
 
     if (folderPath === null || requestIndex === null) return
 
+    editRESTRequest(folderPath, requestIndex, requestUpdated)
+
     const possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
@@ -1708,10 +1782,62 @@ const onRemoveResponse = () => {
       }
     }
 
-    editRESTRequest(folderPath, requestIndex, requestUpdated)
-
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
+  } else if (hasTeamWriteAccess.value) {
+    const requestID = editingRequestID.value
+
+    if (!requestID) return
+
+    modalLoadingState.value = true
+
+    const data = {
+      request: JSON.stringify(requestUpdated),
+      title: request.name,
+    }
+
+    pipe(
+      updateTeamRequest(requestID, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          toast.success(t("state.deleted"))
+          displayConfirmModal(false)
+        }
+      )
+    )()
+
+    const possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+      exampleID: responseID ?? undefined,
+    })
+
+    // If there is a tab attached to this request, close it and set the active tab to the first one
+    if (possibleTab && possibleTab.value.document.type === "example-response") {
+      const activeTabs = tabs.getActiveTabs()
+
+      // if the last tab is the one we are closing, we need to create a new tab
+      if (
+        activeTabs.value.length === 1 &&
+        activeTabs.value[0].id === possibleTab.value.id
+      ) {
+        tabs.createNewTab({
+          request: getDefaultRESTRequest(),
+          isDirty: false,
+          type: "request",
+          saveContext: undefined,
+        })
+        tabs.closeTab(possibleTab.value.id)
+      } else {
+        tabs.closeTab(possibleTab.value.id)
+        tabs.setActiveTab(activeTabs.value[0].id)
+      }
+    }
   }
 }
 
@@ -1836,6 +1962,31 @@ const selectResponse = (payload: {
           originLocation: "user-collection",
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
+          exampleID: responseID,
+        },
+      })
+    }
+  } else {
+    const possibleTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID: requestIndex,
+      exampleID: responseID,
+    })
+
+    if (possibleTab) {
+      tabs.setActiveTab(possibleTab.value.id)
+    } else {
+      tabs.createNewTab({
+        response: {
+          ...cloneDeep(response),
+          name: responseName,
+        },
+        isDirty: false,
+        type: "example-response",
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: requestIndex,
+          collectionID: folderPath,
           exampleID: responseID,
         },
       })

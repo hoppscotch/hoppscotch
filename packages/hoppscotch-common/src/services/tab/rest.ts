@@ -55,7 +55,8 @@ export class RESTTabService extends TabService<HoppTabDocument> {
       if (ctx?.originLocation === "team-collection") {
         if (
           tab.document.saveContext?.originLocation === "team-collection" &&
-          tab.document.saveContext.requestID === ctx.requestID
+          tab.document.saveContext.requestID === ctx.requestID &&
+          tab.document.saveContext.exampleID === ctx.exampleID
         ) {
           return this.getTabRef(tab.id)
         }

@@ -1543,6 +1543,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
+ "thiserror",
  "tokio",
  "tokio-util",
  "tower 0.5.1",

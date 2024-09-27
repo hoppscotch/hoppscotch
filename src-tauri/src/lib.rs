@@ -1,5 +1,6 @@
 pub mod app_handle_ext;
 pub mod controller;
+pub mod error;
 pub mod interceptor;
 pub mod model;
 pub mod route;

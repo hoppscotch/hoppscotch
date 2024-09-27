@@ -11,9 +11,10 @@ use std::sync::Arc;
 
 use crate::{
     app_handle_ext::AppHandleExt,
+    error::{AppError, AppResult},
     model::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-        RegistrationReceiveRequest, RequestDef, RunRequestError,
+        RegistrationReceiveRequest, RequestDef, RunRequestError, RunRequestResponse,
     },
     state::AppState,
 };
@@ -21,71 +22,62 @@ use chrono::{Duration, Utc};
 use serde_json::json;
 use uuid::Uuid;
 
-pub async fn handshake() -> (StatusCode, Json<HandshakeResponse>) {
-    (
-        StatusCode::OK,
-        Json(HandshakeResponse {
-            status: "success".to_string(),
-            message: "Interceptor ready! Hopp in, we've got requests to catch!".to_string(),
-        }),
-    )
+pub async fn handshake() -> AppResult<Json<HandshakeResponse>> {
+    Ok(Json(HandshakeResponse {
+        status: "success".to_string(),
+        message: "Interceptor ready! Hopp in, we've got requests to catch!".to_string(),
+    }))
 }
 
 pub async fn receive_registration<T: AppHandleExt>(
     State((state, app_handle)): State<(Arc<AppState>, T)>,
     Json(registration_request): Json<RegistrationReceiveRequest>,
-) -> (StatusCode, Json<serde_json::Value>) {
+) -> AppResult<Json<serde_json::Value>> {
     state.set_registration(registration_request.registration.clone());
     app_handle
         .emit("registration_received", registration_request.registration)
-        .unwrap();
+        .map_err(|_| AppError::InternalServerError)?;
 
-    (
-        StatusCode::OK,
-        Json(json!({ "message": "Registration received and stored" })),
-    )
+    Ok(Json(
+        json!({ "message": "Registration received and stored" }),
+    ))
 }
 
 pub async fn verify_registration<T: AppHandleExt>(
     State((state, app_handle)): State<(Arc<AppState>, T)>,
     Json(confirmed_registration): Json<ConfirmedRegistrationRequest>,
-) -> (StatusCode, Json<serde_json::Value>) {
-    if state.validate_registration(&confirmed_registration.registration) {
-        let auth_key = Uuid::new_v4().to_string();
-        let expiry = Utc::now() + Duration::hours(24);
+) -> AppResult<Json<AuthKeyResponse>> {
+    state
+        .validate_registration(&confirmed_registration.registration)
+        .then_some(())
+        .ok_or(AppError::InvalidRegistration)?;
 
-        let auth_payload = json!({
-            "auth_key": auth_key,
-            "expiry": expiry
-        });
+    let auth_key = Uuid::new_v4().to_string();
+    let expiry = Utc::now() + Duration::hours(24);
 
-        app_handle.emit("authenticated", &auth_payload).unwrap();
+    let auth_payload = json!({
+        "auth_key": auth_key,
+        "expiry": expiry
+    });
 
-        state.set_auth_token(auth_key.clone(), expiry);
+    app_handle
+        .emit("authenticated", &auth_payload)
+        .map_err(|_| AppError::InternalServerError)?;
 
-        (
-            StatusCode::OK,
-            Json(json!(AuthKeyResponse { auth_key, expiry })),
-        )
-    } else {
-        (
-            StatusCode::BAD_REQUEST,
-            Json(json!({ "error": "Invalid or expired Registration" })),
-        )
-    }
+    state.set_auth_token(auth_key.clone(), expiry);
+
+    Ok(Json(AuthKeyResponse { auth_key, expiry }))
 }
 
 pub async fn run_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Json(req): Json<RequestDef>,
-) -> (StatusCode, Json<serde_json::Value>) {
-    if !state.validate_auth_token(auth_header.token()) {
-        return (
-            StatusCode::UNAUTHORIZED,
-            Json(json!(RunRequestError::Unauthorized)),
-        );
-    }
+) -> AppResult<Json<RunRequestResponse>> {
+    state
+        .validate_auth_token(auth_header.token())
+        .then_some(())
+        .ok_or(AppError::Unauthorized)?;
 
     let cancel_token = tokio_util::sync::CancellationToken::new();
     state.add_cancellation_token(req.req_id, cancel_token.clone());
@@ -110,21 +102,18 @@ pub async fn run_request<T>(
     let result = tokio::select! {
         res = tokio::task::spawn_blocking(move || crate::interceptor::run_request_task(&req, cancel_token_clone)) => {
             match res {
-                Ok(task_result) => task_result,
-                Err(_) => Err(RunRequestError::InternalError),
+                Ok(task_result) => task_result.map_err(|_| AppError::InternalServerError),
+                Err(_) => Err(AppError::InternalServerError),
             }
         },
         _ = cancel_token.cancelled() => {
-            Err(RunRequestError::RequestCancelled)
+            Err(AppError::BadRequest("Request cancelled".to_string()))
         }
     };
 
     state.remove_cancellation_token(req_id);
 
-    match result {
-        Ok(response) => (StatusCode::OK, Json(json!(response))),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!(error))),
-    }
+    Ok(Json(result?))
 }
 
 pub async fn cancel_request<T>(
@@ -182,10 +171,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_handshake() {
-        let (status, json_response) = handshake().await;
-        assert_eq!(status, StatusCode::OK);
+        let result = handshake().await;
+        assert!(result.is_ok());
 
-        let handshake_response: &HandshakeResponse = &json_response.0;
+        let json_response = result.unwrap();
+        let handshake_response: &HandshakeResponse = &json_response;
 
         assert_eq!(handshake_response.status, "success");
         assert_eq!(

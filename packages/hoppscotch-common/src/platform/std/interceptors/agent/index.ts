@@ -274,6 +274,7 @@ export type ClientCertificateEntry = z.infer<typeof ClientCertificateEntry>
 const CA_STORE_PERSIST_KEY = "agent_interceptor_ca_store"
 const CLIENT_CERTS_PERSIST_KEY = "agent_interceptor_client_certs_store"
 const VALIDATE_SSL_KEY = "agent_interceptor_validate_ssl"
+const AUTH_KEY_PERSIST_KEY = "agent_interceptor_auth_key"
 
 export class AgentInterceptorService extends Service implements Interceptor {
   public static readonly ID = "AGENT_INTERCEPTOR_SERVICE"
@@ -314,7 +315,11 @@ export class AgentInterceptorService extends Service implements Interceptor {
     // Register the Root UI Extension
     this.uiExtensionService.addRootUIExtension(AgentRootUIExtension)
 
-    // TODO: Load Auth key from Persistence
+    const persistedAuthKey =
+      this.persistenceService.getLocalConfig(AUTH_KEY_PERSIST_KEY)
+    if (persistedAuthKey) {
+      this.authKey.value = persistedAuthKey
+    }
 
     // Load SSL Validation
     const persistedValidateSSL: unknown = JSON.parse(
@@ -462,6 +467,14 @@ export class AgentInterceptorService extends Service implements Interceptor {
         CLIENT_CERTS_PERSIST_KEY,
         JSON.stringify(storableValue)
       )
+    })
+
+    watch(this.authKey, (newAuthKey) => {
+      if (newAuthKey) {
+        this.persistenceService.setLocalConfig(AUTH_KEY_PERSIST_KEY, newAuthKey)
+      } else {
+        this.persistenceService.removeLocalConfig(AUTH_KEY_PERSIST_KEY)
+      }
     })
 
     // Show registration UI if there is no auth key present

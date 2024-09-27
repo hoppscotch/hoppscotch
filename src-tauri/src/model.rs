@@ -104,5 +104,3 @@ pub enum RunRequestError {
     InvalidHeaders,
     RequestRunError(String),
 }
-
-impl warp::reject::Reject for RunRequestError {}

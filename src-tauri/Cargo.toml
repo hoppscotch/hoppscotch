@@ -21,7 +21,9 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.40.0", features = ["full"] }
 dashmap = "6.1.0"
-warp = "0.3.7"
+axum = { version = "0.7.6" }
+axum-extra = { version = "0.9.4", features = ["typed-header"] }
+tower-http = { version = "0.6.1", features = ["cors"] }
 tokio-util = "0.7.12"
 uuid = { version = "1.10.0", features = [ "v4", "fast-rng" ] }
 chrono = { version = "0.4", features = ["serde"] }
@@ -36,3 +38,5 @@ url-escape = "0.1.1"
 [dev-dependencies]
 mockito = "1.5.0"
 tauri = { version = "2.0.0-rc.0", features = ["test"] }
+tower = { version = "0.5.1", features = ["full"] }
+hyper = { version = "1.4.1", features = ["full"] }

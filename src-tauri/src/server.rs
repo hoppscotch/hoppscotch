@@ -1,6 +1,7 @@
+use axum::Router;
 use std::sync::Arc;
-
 use tokio_util::sync::CancellationToken;
+use tower_http::cors::CorsLayer;
 
 use crate::route;
 use crate::state::AppState;
@@ -10,17 +11,24 @@ pub async fn run_server(
     cancellation_token: CancellationToken,
     app_handle: tauri::AppHandle,
 ) {
-    let routes = route::route(state, app_handle);
+    let cors = CorsLayer::very_permissive();
 
-    let server = warp::serve(routes);
+    let app = Router::new()
+        .merge(route::route(state, app_handle))
+        .layer(cors);
 
-    let (addr, server) = server.bind_with_graceful_shutdown(([127, 0, 0, 1], 9119), async move {
-        cancellation_token.cancelled().await;
-    });
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 9119));
 
     println!("Server running on http://{}", addr);
 
-    server.await;
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+
+    axum::serve(listener, app.into_make_service())
+        .with_graceful_shutdown(async move {
+            cancellation_token.cancelled().await;
+        })
+        .await
+        .unwrap();
 
     println!("Server shut down");
 }

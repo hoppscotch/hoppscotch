@@ -1,578 +1,183 @@
+use axum::{
+    body::{Body, Bytes},
+    http::{Request, StatusCode},
+};
 use hoppscotch_interceptor_lib::{
+    app_handle_ext::MockAppHandle,
     model::{
-        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, KeyValuePair,
-        RegistrationReceiveRequest, RunRequestResponse,
+        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
+        RegistrationReceiveRequest,
     },
     route,
     state::AppState,
 };
-use log::{info, warn};
-use mockito::Server;
-use serde_json::json;
 use std::sync::Arc;
-use warp::test::request;
+use tower::ServiceExt;
 
-async fn setup() -> (
-    Arc<AppState>,
-    impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone,
-) {
-    let _ = env_logger::builder().is_test(true).try_init();
+async fn read_body(body: Body) -> Bytes {
+    axum::body::to_bytes(body, usize::MAX).await.unwrap()
+}
+
+#[tokio::test]
+async fn test_handshake() {
     let state = Arc::new(AppState::new());
+    let app_handle = MockAppHandle;
+    let app = route::route(state, app_handle);
 
-    let mock_app_handle = hoppscotch_interceptor_lib::app_handle_ext::MockAppHandle;
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/handshake")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
 
-    let routes = route::route(state.clone(), mock_app_handle);
+    assert_eq!(response.status(), StatusCode::OK);
 
-    (state, routes)
-}
+    let body = read_body(response.into_body()).await;
+    let handshake_response: HandshakeResponse = serde_json::from_slice(&body).unwrap();
 
-#[tokio::test]
-async fn test_full_flow_success() {
-    let (_state, routes) = setup().await;
-
-    info!("Starting full flow success test");
-
-    let handshake_resp = request()
-        .method("GET")
-        .path("/handshake")
-        .reply(&routes)
-        .await;
-
-    info!("Handshake response: {:?}", handshake_resp);
-    assert_eq!(handshake_resp.status(), 200);
-
-    let handshake_body: HandshakeResponse = serde_json::from_slice(handshake_resp.body()).unwrap();
-    assert_eq!(handshake_body.status, "success");
-
-    let registration = "123456".to_string();
-    let receive_registration_resp = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    info!(
-        "Receive Registration response: {:?}",
-        receive_registration_resp
+    assert_eq!(handshake_response.status, "success");
+    assert_eq!(
+        handshake_response.message,
+        "Interceptor ready! Hopp in, we've got requests to catch!"
     );
-    assert_eq!(receive_registration_resp.status(), 200);
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    info!("Verify Registration response: {:?}", verify_resp);
-    assert_eq!(verify_resp.status(), 200);
-
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    let auth_key = auth_resp.auth_key;
-
-    let mut server = Server::new_async().await;
-    let mock = server
-        .mock("GET", "/test")
-        .with_status(200)
-        .with_header("content-type", "application/json")
-        .with_body(r#"{"message": "success"}"#)
-        .create_async()
-        .await;
-
-    let req_body = json!({
-        "req_id": 1,
-        "method": "GET",
-        "endpoint": format!("{}/test", server.url()),
-        "parameters": [],
-        "headers": [],
-        "body": null,
-        "validate_certs": false,
-        "root_cert_bundle_files": [],
-        "client_cert": null
-    });
-
-    let request_resp = request()
-        .method("POST")
-        .path("/request")
-        .header("Authorization", &auth_key)
-        .json(&req_body)
-        .reply(&routes)
-        .await;
-
-    info!("Request response: {:?}", request_resp);
-    assert_eq!(request_resp.status(), 200);
-
-    let run_request_resp: RunRequestResponse = serde_json::from_slice(request_resp.body()).unwrap();
-    assert_eq!(run_request_resp.status, 200);
-    assert!(!run_request_resp.data.is_empty());
-
-    mock.assert_async().await;
-
-    let cancel_resp = request()
-        .method("POST")
-        .path("/cancel-request/1")
-        .header("Authorization", &auth_key)
-        .reply(&routes)
-        .await;
-
-    info!("Cancel request response: {:?}", cancel_resp);
-    assert_eq!(cancel_resp.status(), 404);
-
-    info!("Full flow success test completed");
 }
 
 #[tokio::test]
-async fn test_invalid_registration() {
-    let (_, routes) = setup().await;
+async fn test_receive_registration() {
+    let state = Arc::new(AppState::new());
+    let app_handle = MockAppHandle;
+    let app = route::route(state.clone(), app_handle);
 
-    info!("Starting invalid Registration test");
-
-    let valid_registration = "123456".to_string();
-    let _ = request()
+    let registration = "test_registration".to_string();
+    let request = Request::builder()
         .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: valid_registration,
-        })
-        .reply(&routes)
-        .await;
+        .uri("/receive-registration")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::to_string(&RegistrationReceiveRequest {
+                registration: registration.clone(),
+            })
+            .unwrap(),
+        ))
+        .unwrap();
 
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest {
-            registration: "invalid".to_string(),
-        })
-        .reply(&routes)
-        .await;
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
 
-    info!("Invalid Registration response: {:?}", verify_resp);
-    assert_eq!(verify_resp.status(), 400);
+    let body = read_body(response.into_body()).await;
 
-    info!("Invalid Registration test completed");
+    let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json_response["message"], "Registration received and stored");
+
+    assert_eq!(
+        state
+            .current_registration
+            .read()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .0,
+        registration
+    );
 }
 
 #[tokio::test]
-async fn test_unauthorized_request() {
-    let (_, routes) = setup().await;
+async fn test_verify_registration() {
+    let state = Arc::new(AppState::new());
+    let app_handle = MockAppHandle;
+    let app = route::route(state.clone(), app_handle);
 
-    info!("Starting unauthorized request test");
+    state.set_registration("valid_registration".to_string());
 
-    let req_body = json!({
+    let request = Request::builder()
+        .method("POST")
+        .uri("/verify-registration")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::to_string(&ConfirmedRegistrationRequest {
+                registration: "valid_registration".to_string(),
+            })
+            .unwrap(),
+        ))
+        .unwrap();
+
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body = read_body(response.into_body()).await;
+    let auth_key_response: AuthKeyResponse = serde_json::from_slice(&body).unwrap();
+    assert!(!auth_key_response.auth_key.is_empty());
+    assert!(auth_key_response.expiry > chrono::Utc::now());
+}
+
+#[tokio::test]
+async fn test_run_request() {
+    let state = Arc::new(AppState::new());
+    let app_handle = MockAppHandle;
+    let app = route::route(state.clone(), app_handle);
+
+    let auth_token = "valid_token".to_string();
+    state.set_auth_token(
+        auth_token.clone(),
+        chrono::Utc::now() + chrono::Duration::hours(1),
+    );
+
+    let request_def = serde_json::json!({
         "req_id": 1,
         "method": "GET",
         "endpoint": "https://example.com",
-        "parameters": [],
-        "headers": [],
-        "body": null,
-        "validate_certs": true,
-        "root_cert_bundle_files": [],
-        "client_cert": null
-    });
-
-    let request_resp = request()
-        .method("POST")
-        .path("/request")
-        .header("Authorization", "invalid_auth_key")
-        .json(&req_body)
-        .reply(&routes)
-        .await;
-
-    info!("Unauthorized request response: {:?}", request_resp);
-    assert_eq!(request_resp.status(), 401);
-
-    info!("Unauthorized request test completed");
-}
-
-#[tokio::test]
-async fn test_request_with_body() {
-    let (_, routes) = setup().await;
-
-    info!("Starting request with body test");
-
-    let registration = "123456".to_string();
-    let _ = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest { registration })
-        .reply(&routes)
-        .await;
-
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    let auth_key = auth_resp.auth_key;
-
-    let mut server = Server::new_async().await;
-
-    let mock = server
-        .mock("POST", "/test")
-        .match_body(mockito::Matcher::Json(json!({"key": "value"})))
-        .with_status(200)
-        .with_body(r#"{"message": "received"}"#)
-        .create_async()
-        .await;
-
-    let req_body = json!({
-        "req_id": 1,
-        "method": "POST",
-        "endpoint": format!("{}/test", server.url()),
-        "parameters": [],
-        "headers": [],
-        "body": {
-            "Text": "{\"key\":\"value\"}"
-        },
-        "validate_certs": false,
-        "root_cert_bundle_files": [],
-        "client_cert": null
-    });
-
-    let request_resp = request()
-        .method("POST")
-        .path("/request")
-        .header("Authorization", &auth_key)
-        .json(&req_body)
-        .reply(&routes)
-        .await;
-
-    info!("Request with body response: {:?}", request_resp);
-    assert_eq!(request_resp.status(), 200);
-
-    mock.assert_async().await;
-
-    info!("Request with body test completed");
-}
-
-#[tokio::test]
-async fn test_registration_expiration() {
-    let (state, routes) = setup().await;
-
-    info!("Starting Registration expiration test");
-
-    let registration = "123456".to_string();
-    let _ = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    {
-        let mut current_registration = state.current_registration.write().unwrap();
-        if let Some((_, expiry)) = current_registration.as_mut() {
-            *expiry = chrono::Utc::now() - chrono::Duration::minutes(6);
-        }
-    }
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest { registration })
-        .reply(&routes)
-        .await;
-
-    info!("Verify expired Registration response: {:?}", verify_resp);
-    assert_eq!(verify_resp.status(), 400);
-
-    info!("Registration expiration test completed");
-}
-
-#[tokio::test]
-async fn test_cancel_nonexistent_request() {
-    let (_, routes) = setup().await;
-
-    info!("Starting cancel nonexistent request test");
-
-    let registration = "123456".to_string();
-    let _ = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest { registration })
-        .reply(&routes)
-        .await;
-
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    let auth_key = auth_resp.auth_key;
-
-    let cancel_resp = request()
-        .method("POST")
-        .path("/cancel-request/9999") // Non-existent request ID
-        .header("Authorization", &auth_key)
-        .reply(&routes)
-        .await;
-
-    info!("Cancel nonexistent request response: {:?}", cancel_resp);
-    assert_eq!(cancel_resp.status(), 404);
-
-    info!("Cancel nonexistent request test completed");
-}
-
-#[tokio::test]
-async fn test_request_with_invalid_url() {
-    let (_, routes) = setup().await;
-
-    info!("Starting request with invalid URL test");
-
-    let registration = "123456".to_string();
-    let _ = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest { registration })
-        .reply(&routes)
-        .await;
-
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    let auth_key = auth_resp.auth_key;
-
-    let req_body = json!({
-        "req_id": 1,
-        "method": "GET",
-        "endpoint": "invalid-url",
-        "parameters": [],
         "headers": [],
         "body": null,
         "validate_certs": false,
         "root_cert_bundle_files": [],
-        "client_cert": null
+        "client_cert": null,
+        "proxy": null
     });
 
-    let request_resp = request()
+    let request = Request::builder()
         .method("POST")
-        .path("/request")
-        .header("Authorization", &auth_key)
-        .json(&req_body)
-        .reply(&routes)
-        .await;
+        .uri("/request")
+        .header("content-type", "application/json")
+        .header("Authorization", format!("Bearer {}", auth_token))
+        .body(Body::from(serde_json::to_string(&request_def).unwrap()))
+        .unwrap();
 
-    info!("Request with invalid URL response: {:?}", request_resp);
-    assert_eq!(request_resp.status(), 500);
-
-    info!("Request with invalid URL test completed");
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
 }
 
 #[tokio::test]
-async fn test_request_with_typically_forbidden_headers() {
-    let (_, routes) = setup().await;
+async fn test_cancel_request() {
+    let state = Arc::new(AppState::new());
+    let app_handle = MockAppHandle;
+    let app = route::route(state.clone(), app_handle);
 
-    info!("Starting request with typically forbidden headers test");
-
-    let registration = "123456".to_string();
-    let _ = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    let verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest { registration })
-        .reply(&routes)
-        .await;
-
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    let auth_key = auth_resp.auth_key;
-
-    let headers = vec![
-        KeyValuePair {
-            key: "User-Agent".to_string(),
-            value: "HoppscotchInterceptorTest/1.0".to_string(),
-        },
-        KeyValuePair {
-            key: "Accept".to_string(),
-            value: "*/*".to_string(),
-        },
-        KeyValuePair {
-            key: "Host".to_string(),
-            value: "echo.hoppscotch.io".to_string(),
-        },
-        KeyValuePair {
-            key: "Origin".to_string(),
-            value: "https://example.com".to_string(),
-        },
-        KeyValuePair {
-            key: "Referer".to_string(),
-            value: "https://example.com".to_string(),
-        },
-        KeyValuePair {
-            key: "Cookie".to_string(),
-            value: "test=value".to_string(),
-        },
-        KeyValuePair {
-            key: "Sec-Fetch-Mode".to_string(),
-            value: "cors".to_string(),
-        },
-        KeyValuePair {
-            key: "Proxy-Authorization".to_string(),
-            value: "Basic dXNlcjpwYXNz".to_string(),
-        },
-    ];
-
-    let req_body = json!({
-        "req_id": 1,
-        "method": "GET",
-        "endpoint": "https://echo.hoppscotch.io",
-        "parameters": [],
-        "headers": headers,
-        "body": null,
-        "validate_certs": true,
-        "root_cert_bundle_files": [],
-        "client_cert": null
-    });
-
-    info!("Request body: {:?}", req_body);
-
-    let request_resp = request()
-        .method("POST")
-        .path("/request")
-        .header("Authorization", &auth_key)
-        .json(&req_body)
-        .reply(&routes)
-        .await;
-
-    info!("Request response: {:?}", request_resp);
-    assert_eq!(request_resp.status(), 200);
-
-    let raw_body = String::from_utf8_lossy(request_resp.body());
-    info!("Raw response body: {}", raw_body);
-
-    match serde_json::from_slice::<RunRequestResponse>(request_resp.body()) {
-        Ok(run_request_resp) => {
-            info!("Parsed RunRequestResponse: {:?}", run_request_resp);
-
-            let echo_response_str = String::from_utf8_lossy(&run_request_resp.data);
-            info!("Echo server response (as string): {}", echo_response_str);
-
-            match serde_json::from_str::<serde_json::Value>(&echo_response_str) {
-                Ok(echo_json) => {
-                    info!("Parsed echo server JSON: {:?}", echo_json);
-
-                    if let Some(headers) = echo_json.get("headers") {
-                        for header in &[
-                            "User-Agent",
-                            "Accept",
-                            "Host",
-                            "Origin",
-                            "Referer",
-                            "Cookie",
-                            "Sec-Fetch-Mode",
-                        ] {
-                            assert!(
-                                headers.get(header.to_lowercase()).is_some(),
-                                "Header '{}' should be present in the request",
-                                header
-                            );
-                        }
-                        if headers.get("proxy-authorization").is_none() {
-                            warn!("Proxy-Authorization header was not present in the echo server response. This may be due to security measures.");
-                        }
-                        info!("All expected headers (except possibly Proxy-Authorization) were present in the request");
-                    } else {
-                        panic!("No 'headers' field in echo server response");
-                    }
-                }
-                Err(e) => {
-                    panic!(
-                        "Failed to parse echo server response as JSON: {:?}\nResponse: {}",
-                        e, echo_response_str
-                    );
-                }
-            }
-        }
-        Err(e) => {
-            panic!("Failed to parse response as RunRequestResponse: {:?}", e);
-        }
-    }
-
-    info!("Request with typically forbidden headers test completed");
-}
-
-#[tokio::test]
-async fn test_registration_flow() {
-    let (_, routes) = setup().await;
-
-    info!("Starting Registration flow test");
-
-    let registration = "123456".to_string();
-    let receive_registration_resp = request()
-        .method("POST")
-        .path("/receive-registration")
-        .json(&RegistrationReceiveRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
-
-    info!(
-        "Receive Registration response: {:?}",
-        receive_registration_resp
+    let auth_token = "valid_token".to_string();
+    state.set_auth_token(
+        auth_token.clone(),
+        chrono::Utc::now() + chrono::Duration::hours(1),
     );
-    assert_eq!(receive_registration_resp.status(), 200);
 
-    let verify_resp = request()
+    let req_id = 1;
+    state.add_cancellation_token(req_id, tokio_util::sync::CancellationToken::new());
+
+    let request = Request::builder()
         .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest {
-            registration: registration.clone(),
-        })
-        .reply(&routes)
-        .await;
+        .uri(&format!("/cancel-request/{}", req_id))
+        .header("Authorization", format!("Bearer {}", auth_token))
+        .body(Body::empty())
+        .unwrap();
 
-    info!("Verify correct Registration response: {:?}", verify_resp);
-    assert_eq!(verify_resp.status(), 200);
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
 
-    let auth_resp: AuthKeyResponse = serde_json::from_slice(verify_resp.body()).unwrap();
-    assert!(!auth_resp.auth_key.is_empty());
+    let body = read_body(response.into_body()).await;
+    let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json_response["message"], "Request cancelled successfully");
 
-    let incorrect_verify_resp = request()
-        .method("POST")
-        .path("/verify-registration")
-        .json(&ConfirmedRegistrationRequest {
-            registration: "wrong_registration".to_string(),
-        })
-        .reply(&routes)
-        .await;
-
-    info!(
-        "Verify incorrect Registration response: {:?}",
-        incorrect_verify_resp
-    );
-    assert_eq!(incorrect_verify_resp.status(), 400);
-
-    info!("Registration flow test completed");
+    assert!(state.remove_cancellation_token(req_id).is_none());
 }

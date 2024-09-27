@@ -295,8 +295,6 @@ const showResponse = computed(() => {
   return "body" in props.response
 })
 
-console.log("props.response", props.response, showResponse.value)
-
 const isHttpResponse = computed(() => {
   return (
     "type" in props.response &&
@@ -445,7 +443,6 @@ const { cursor } = useCodemirror(
     completer: null,
     environmentHighlights: true,
     onChange: (update: string) => {
-      console.log("update", update)
       emit("update:response", { ...props.response, body: update })
     },
   })

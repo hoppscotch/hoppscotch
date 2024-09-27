@@ -11,12 +11,13 @@ import * as E from "fp-ts/Either"
 import { ref, watch } from "vue"
 import { z } from "zod"
 import { PersistenceService } from "~/services/persistence"
-import { CACertStore, ClientCertsStore } from "./persisted-data"
-import axios, {
-  AxiosRequestConfig,
-  AxiosResponse,
-  CancelTokenSource,
-} from "axios"
+import {
+  CACertStore,
+  ClientCertsStore,
+  ClientCertStore,
+  StoredClientCert,
+} from "./persisted-data"
+import axios, { CancelTokenSource } from "axios"
 import SettingsAgentInterceptor from "~/components/settings/Agent.vue"
 import AgentRootUIExtension from "~/components/interceptors/agent/RootExt.vue"
 import { UIExtensionService } from "~/services/ui-extension.service"
@@ -297,6 +298,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
   private persistenceService = this.bind(PersistenceService)
   private uiExtensionService = this.bind(UIExtensionService)
 
+  public isAgentRunning = ref(false)
+
   private reqIDTicker = 0
   private cancelTokens: Map<number, CancelTokenSource> = new Map()
 
@@ -313,8 +316,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
   public validateCerts = ref(true)
 
   public showRegistrationModal = ref(false)
-
   public authKey = ref<string | null>(null)
+  private registrationOTP = ref<string | null>(null)
 
   override onServiceInit() {
     // Register the Root UI Extension
@@ -490,13 +493,90 @@ export class AgentInterceptorService extends Service implements Interceptor {
           currentInterceptor?.interceptorID === this.interceptorID &&
           authKey === null
         ) {
-          this.showRegistrationModal.value = true
+          this.initiateRegistration()
         }
       },
       {
         immediate: true,
       }
     )
+  }
+
+  public async checkAgentStatus(): Promise<void> {
+    try {
+      await this.performHandshake()
+      this.isAgentRunning.value = true
+    } catch (error) {
+      this.isAgentRunning.value = false
+    }
+  }
+
+  public isAuthKeyPresent(): boolean {
+    return this.authKey.value !== null
+  }
+
+  private generateOTP(): string {
+    // This generates a 6-digit numeric OTP
+    return Math.floor(100000 + Math.random() * 900000).toString()
+  }
+
+  public async performHandshake(): Promise<void> {
+    const handshakeResponse = await axios.get("http://localhost:9119/handshake")
+    if (handshakeResponse.data.status !== "success") {
+      throw new Error("Handshake failed")
+    }
+  }
+
+  public async initiateRegistration() {
+    try {
+      // Generate OTP and send registration request
+      this.registrationOTP.value = this.generateOTP()
+      const registrationResponse = await axios.post(
+        "http://localhost:9119/receive-registration",
+        {
+          registration: this.registrationOTP.value,
+        }
+      )
+
+      if (
+        registrationResponse.data.message !== "Registration received and stored"
+      ) {
+        throw new Error("Registration failed")
+      }
+
+      // Registration successful, modal will handle showing the OTP input
+    } catch (error) {
+      console.error("Registration initiation failed:", error)
+      throw error // Re-throw to let the modal handle the error
+    }
+  }
+
+  public async verifyRegistration(userEnteredOTP: string) {
+    if (userEnteredOTP !== this.registrationOTP.value) {
+      throw new Error("Invalid OTP")
+    }
+
+    try {
+      const verificationResponse = await axios.post(
+        "http://localhost:9119/verify-registration",
+        {
+          registration: this.registrationOTP.value,
+        }
+      )
+
+      const newAuthKey = verificationResponse.data.auth_key
+      if (typeof newAuthKey === "string") {
+        this.authKey.value = newAuthKey
+        this.persistenceService.setLocalConfig(AUTH_KEY_PERSIST_KEY, newAuthKey)
+      } else {
+        throw new Error("Invalid auth key received")
+      }
+      this.showRegistrationModal.value = false
+      this.registrationOTP.value = null
+    } catch (error) {
+      console.error("Verification failed:", error)
+      throw new Error("Verification failed")
+    }
   }
 
   public runRequest(

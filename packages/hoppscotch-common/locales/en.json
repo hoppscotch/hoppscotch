@@ -36,6 +36,7 @@
     "paste": "Paste",
     "prettify": "Prettify",
     "properties": "Properties",
+    "register": "Register",
     "remove": "Remove",
     "rename": "Rename",
     "restore": "Restore",
@@ -55,11 +56,22 @@
     "turn_off": "Turn off",
     "turn_on": "Turn on",
     "undo": "Undo",
+    "verify": "Verify",
     "yes": "Yes"
   },
   "add": {
     "new": "Add new",
     "star": "Add star"
+  },
+  "agent": {
+    "registration_instruction": "Please click 'register' to start the registration process for the Hoppscotch Agent.",
+    "enter_otp_instruction": "An OTP has been generated. Please enter it below to complete the registration.",
+    "enter_otp": "Enter OTP",
+    "otp_label": "One-Time Password",
+    "processing": "Processing your request...",
+    "not_running": "The Hoppscotch Agent is not running. Please start the agent and click 'Retry'.",
+    "not_running_title": "Agent not running",
+    "registration_title": "Agent registration"
   },
   "app": {
     "chat_with_us": "Chat with us",

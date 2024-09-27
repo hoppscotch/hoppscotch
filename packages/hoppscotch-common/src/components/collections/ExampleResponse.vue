@@ -7,7 +7,13 @@
       class="pointer-events-auto flex min-w-0 flex-1 space-x-2 cursor-pointer items-center justify-center"
       @click="selectResponse()"
     >
-      <IconFileVolume />
+      <span
+        class="pointer-events-none flex w-12 items-center justify-center truncate"
+      >
+        <span class="truncate text-tiny font-semibold">
+          {{ response.originalRequest.method }}
+        </span>
+      </span>
 
       <span
         class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
@@ -109,7 +115,6 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
-import IconFileVolume from "~icons/lucide/file-volume-2"
 import { ref, PropType, computed } from "vue"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"

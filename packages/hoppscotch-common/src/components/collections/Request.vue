@@ -172,24 +172,29 @@
       @dragend="resetDragState"
     ></div>
 
-    <div v-if="isResponseVisible" class="pl-8 flex flex-col">
-      <CollectionsExampleResponse
-        v-for="[key, value] of Object.entries(request.responses)"
-        :key="key"
-        :response-name="key"
-        :response="value"
-        :save-context="{
-          requestID: requestID,
-          exampleID: `${requestID}/${key}`,
-          parentID: parentID,
-          collectionsType: collectionsType,
-          saveRequest: saveRequest,
-        }"
-        @edit-response="emit('edit-response', $event)"
-        @remove-response="emit('remove-response', $event)"
-        @duplicate-response="emit('duplicate-response', $event)"
-        @select-response="emit('select-response', $event)"
-      />
+    <div v-if="isResponseVisible" class="flex">
+      <div
+        class="ml-[.6rem] flex w-0.5 transform cursor-nsResize bg-dividerLight transition hover:scale-x-125 hover:bg-dividerDark"
+      ></div>
+      <div class="flex flex-col w-full pl-3">
+        <CollectionsExampleResponse
+          v-for="[key, value] of Object.entries(request.responses)"
+          :key="key"
+          :response-name="key"
+          :response="value"
+          :save-context="{
+            requestID: requestID,
+            exampleID: `${requestID}/${key}`,
+            parentID: parentID,
+            collectionsType: collectionsType,
+            saveRequest: saveRequest,
+          }"
+          @edit-response="emit('edit-response', $event)"
+          @remove-response="emit('remove-response', $event)"
+          @duplicate-response="emit('duplicate-response', $event)"
+          @select-response="emit('select-response', $event)"
+        />
+      </div>
     </div>
   </div>
 </template>

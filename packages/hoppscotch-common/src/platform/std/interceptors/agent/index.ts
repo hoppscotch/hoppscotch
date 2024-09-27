@@ -197,10 +197,25 @@ async function convertToRequestDef(
     ? clientCertificates.get(clientCertDomain)
     : null
 
+  const urlObj = new URL(axiosReq.url ?? "")
+
+  // If there are parameters in axiosReq.params, add them to the URL.
+  if (axiosReq.params) {
+    const params = new URLSearchParams(urlObj.search) // Taking in existing params if are any.
+
+    Object.entries(axiosReq.params as Record<string, string>).forEach(
+      ([key, value]) => {
+        params.append(key, value)
+      }
+    )
+
+    urlObj.search = params.toString() // Now put back all the params in the URL.
+  }
+
   return {
     req_id: reqID,
     method: axiosReq.method ?? "GET",
-    endpoint: axiosReq.url ?? "",
+    endpoint: urlObj.toString(), // This is the updated URL with parms.
     headers: Object.entries(axiosReq.headers ?? {})
       .filter(
         ([key, value]) =>
@@ -208,12 +223,10 @@ async function convertToRequestDef(
             key.toLowerCase() === "content-type" &&
             value.toLowerCase() === "multipart/form-data"
           )
-      ) // Removing header, because this header will be set by reqwest
+      ) // Removing header, because this header will be set by agent.
       .map(([key, value]): KeyValuePair => ({ key, value })),
 
-    // TODO: Parameters need to be injected into the URL
-    // parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
-    //   .map(([key, value]): KeyValuePair => ({ key, value })),
+    // NOTE: Injected parameters are already part of the URL
 
     body: await processBody(axiosReq),
     root_cert_bundle_files: caCertificates.map((cert) =>

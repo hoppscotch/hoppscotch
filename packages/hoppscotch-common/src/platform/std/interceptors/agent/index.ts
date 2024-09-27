@@ -154,7 +154,7 @@ async function processBody(
     return { FormData: entries }
   }
 
-  throw new Error("Native Process Body: Unhandled Axios Request Configuration")
+  throw new Error("Agent Process Body: Unhandled Axios Request Configuration")
 }
 
 function getURLDomain(url: string): string | null {
@@ -271,9 +271,9 @@ export const ClientCertificateEntry = z.object({
 
 export type ClientCertificateEntry = z.infer<typeof ClientCertificateEntry>
 
-const CA_STORE_PERSIST_KEY = "native_interceptor_ca_store"
-const CLIENT_CERTS_PERSIST_KEY = "native_interceptor_client_certs_store"
-const VALIDATE_SSL_KEY = "native_interceptor_validate_ssl"
+const CA_STORE_PERSIST_KEY = "agent_interceptor_ca_store"
+const CLIENT_CERTS_PERSIST_KEY = "agent_interceptor_client_certs_store"
+const VALIDATE_SSL_KEY = "agent_interceptor_validate_ssl"
 
 export class AgentInterceptorService extends Service implements Interceptor {
   public static readonly ID = "AGENT_INTERCEPTOR_SERVICE"

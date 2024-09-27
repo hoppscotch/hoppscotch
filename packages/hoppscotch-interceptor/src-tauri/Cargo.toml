@@ -1,0 +1,43 @@
+[package]
+name = "hoppscotch-interceptor"
+version = "0.1.0"
+description = "A cross-platform HTTP request interceptor for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
+authors = ["CuriousCorrelation", "AndrewBastin"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "hoppscotch_interceptor_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc.0", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2.0.0-rc"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.40.0", features = ["full"] }
+dashmap = "6.1.0"
+axum = { version = "0.7.6" }
+axum-extra = { version = "0.9.4", features = ["typed-header"] }
+tower-http = { version = "0.6.1", features = ["cors"] }
+tokio-util = "0.7.12"
+uuid = { version = "1.10.0", features = [ "v4", "fast-rng" ] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8.5"
+log = "0.4.22"
+env_logger = "0.11.5"
+curl = { version = "0.4.46", features = ["ntlm", "static-curl", "static-ssl"] }
+openssl = "0.10.66"
+openssl-sys = "0.9.103"
+url-escape = "0.1.1"
+thiserror = "1.0.64"
+
+[dev-dependencies]
+mockito = "1.5.0"
+tauri = { version = "2.0.0-rc.0", features = ["test"] }
+tower = { version = "0.5.1", features = ["full"] }
+hyper = { version = "1.4.1", features = ["full"] }

@@ -3,7 +3,10 @@
     class="group flex divide-x divide-dividerLight border-b border-dividerLight"
   >
     <span class="flex min-w-0 flex-1 transition group-hover:text-secondaryDark">
-      <span v-if="!isEditable" class="select-all truncate rounded-sm py-2 pl-4">
+      <span
+        v-if="!isEntryEditable"
+        class="select-all truncate rounded-sm py-2 pl-4"
+      >
         {{ headerKey }}
       </span>
       <SmartEnvInput
@@ -15,7 +18,10 @@
     <span
       class="flex min-w-0 flex-1 justify-between transition group-hover:text-secondaryDark"
     >
-      <span v-if="!isEditable" class="select-all truncate rounded-sm py-2 pl-4">
+      <span
+        v-if="!isEntryEditable"
+        class="select-all truncate rounded-sm py-2 pl-4"
+      >
         {{ headerValue }}
       </span>
       <SmartEnvInput
@@ -31,7 +37,7 @@
         @click="copyHeader(headerValue)"
       />
       <HoppButtonSecondary
-        v-if="isEditable"
+        v-if="isEntryEditable"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.delete')"
         :icon="IconTrash"
@@ -50,12 +56,13 @@ import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { computed } from "vue"
 
 const t = useI18n()
 
 const toast = useToast()
 
-defineProps<{
+const props = defineProps<{
   headerKey: string
   headerValue: string
   isEditable: boolean
@@ -66,6 +73,12 @@ const emit = defineEmits<{
   (e: "update:headerValue", value: string): void
   (e: "delete-header", key: string): void
 }>()
+
+// we can allow editing only if the header is not content-type
+// because editing content-type can break lense
+const isEntryEditable = computed(
+  () => props.isEditable && props.headerKey.toLowerCase() !== "content-type"
+)
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,

@@ -19,10 +19,10 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="maybeHeaders"
+      v-if="doc.response.headers"
       id="headers"
       :label="t('response.headers')"
-      :info="`${maybeHeaders.length}`"
+      :info="`${doc.response.headers.length}`"
       class="flex flex-1 flex-col"
     >
       <LensesHeadersRenderer
@@ -68,20 +68,15 @@ const t = useI18n()
 
 const selectedLensTab = ref("")
 
-const maybeHeaders = computed(() => {
-  return doc.value.response.headers
-})
-
 const validLenses = computed(() => {
   if (!doc.value.response) return []
   return getSuitableLenses(doc.value.response)
 })
 
-//the seleted lense tabs get updated when editing the raw response
 watch(
   validLenses,
   (newLenses: Lens[]) => {
-    if (newLenses.length === 0) return
+    if (newLenses.length === 0 || selectedLensTab.value) return
 
     selectedLensTab.value = newLenses[0].renderer
   },

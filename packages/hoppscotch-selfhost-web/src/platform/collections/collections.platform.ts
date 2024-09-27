@@ -129,7 +129,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: restCollection.id,
-      v: 3,
+      v: 4,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -189,7 +189,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: gqlCollection.id,
-      v: 3,
+      v: 4,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -377,7 +377,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 3,
+                v: 4,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })
@@ -385,7 +385,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 3,
+                v: 4,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })

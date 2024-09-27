@@ -12,7 +12,11 @@ import { ref, watch } from "vue"
 import { z } from "zod"
 import { PersistenceService } from "~/services/persistence"
 import { CACertStore, ClientCertsStore } from "./persisted-data"
-import axios from "axios"
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  CancelTokenSource,
+} from "axios"
 import SettingsAgentInterceptor from "~/components/settings/Agent.vue"
 import AgentRootUIExtension from "~/components/interceptors/agent/RootExt.vue"
 import { UIExtensionService } from "~/services/ui-extension.service"
@@ -294,6 +298,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
   private uiExtensionService = this.bind(UIExtensionService)
 
   private reqIDTicker = 0
+  private cancelTokens: Map<number, CancelTokenSource> = new Map()
 
   public settingsPageEntry = {
     entryTitle: () => "Agent", // TODO: i18n this
@@ -513,9 +518,27 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
     const reqID = this.reqIDTicker++
 
+    const cancelTokenSource = axios.CancelToken.source()
+    this.cancelTokens.set(reqID, cancelTokenSource)
+
     return {
       cancel: () => {
-        // TODO: Implement
+        const cancelTokenSource = this.cancelTokens.get(reqID)
+        if (cancelTokenSource) {
+          cancelTokenSource.cancel("Request cancelled")
+          this.cancelTokens.delete(reqID)
+          axios
+            .post(
+              `http://localhost:9119/cancel-request/${reqID}`,
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${this.authKey.value}`,
+                },
+              }
+            )
+            .catch((error) => console.error("Error cancelling request:", error))
+        }
       },
       response: (async () => {
         const requestDef = await convertToRequestDef(
@@ -534,6 +557,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
               headers: {
                 Authorization: `Bearer ${this.authKey.value}`,
               },
+              cancelToken: cancelTokenSource.token,
             }
           )
 

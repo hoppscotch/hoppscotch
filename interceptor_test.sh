@@ -48,9 +48,6 @@ request_response=$(curl -s -X POST "${BASE_URL}/request" \
     "req_id": 1,
     "method": "GET",
     "endpoint": "https://httpbin.org/headers",
-    "parameters": [
-        {"key": "test_param", "value": "test_value"}
-    ],
     "headers": [
         {"key": "User-Agent", "value": "Hoppscotch/2024.9.0"},
         {"key": "Accept", "value": "application/json"},

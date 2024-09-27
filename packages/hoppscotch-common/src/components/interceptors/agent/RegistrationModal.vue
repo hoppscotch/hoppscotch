@@ -10,14 +10,18 @@
     <template #body>
       <div class="space-y-4">
         <template v-if="status === 'agent_not_running'">
-          <p class="text-secondaryLight">{{ t('agent.not_running') }}</p>
+          <p class="text-secondaryLight">{{ t("agent.not_running") }}</p>
         </template>
         <template v-else-if="status === 'registration_required'">
           <template v-if="registrationStatus === 'initial'">
-            <p class="text-secondaryLight">{{ t('agent.registration_instruction') }}</p>
+            <p class="text-secondaryLight">
+              {{ t("agent.registration_instruction") }}
+            </p>
           </template>
           <template v-else-if="registrationStatus === 'otp_required'">
-            <p class="text-secondaryLight">{{ t('agent.enter_otp_instruction') }}</p>
+            <p class="text-secondaryLight">
+              {{ t("agent.enter_otp_instruction") }}
+            </p>
             <HoppSmartInput
               v-model="userEnteredOTP"
               :placeholder="t('agent.enter_otp')"
@@ -32,7 +36,7 @@
                 class="animate-spin"
                 disabled
               />
-              <p class="text-secondaryLight">{{ t('agent.processing') }}</p>
+              <p class="text-secondaryLight">{{ t("agent.processing") }}</p>
             </div>
           </template>
         </template>
@@ -83,18 +87,18 @@ const userEnteredOTP = ref("")
 
 const props = defineProps<{
   show: boolean
-  status: 'agent_not_running' | 'registration_required' | 'hidden'
-  registrationStatus: 'initial' | 'otp_required' | 'loading'
+  status: "agent_not_running" | "registration_required" | "hidden"
+  registrationStatus: "initial" | "otp_required" | "loading"
 }>()
 
 const modalTitle = computed(() => {
   switch (props.status) {
-    case 'agent_not_running':
-      return t('agent.not_running_title')
-    case 'registration_required':
-      return t('agent.registration_title')
+    case "agent_not_running":
+      return t("agent.not_running_title")
+    case "registration_required":
+      return t("agent.registration_title")
     default:
-      return ''
+      return ""
   }
 })
 

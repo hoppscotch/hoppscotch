@@ -18,6 +18,20 @@ pub enum AppError {
     InternalServerError,
     #[error("Invalid request: {0}")]
     BadRequest(String),
+    #[error("Client certificate error")]
+    ClientCertError,
+    #[error("Root certificate error")]
+    RootCertError,
+    #[error("Invalid method")]
+    InvalidMethod,
+    #[error("Invalid URL")]
+    InvalidUrl,
+    #[error("Invalid headers")]
+    InvalidHeaders,
+    #[error("Request run error: {0}")]
+    RequestRunError(String),
+    #[error("Request cancelled")]
+    RequestCancelled,
 }
 
 impl IntoResponse for AppError {
@@ -28,6 +42,13 @@ impl IntoResponse for AppError {
             AppError::RequestNotFound => (StatusCode::NOT_FOUND, self.to_string()),
             AppError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+            AppError::ClientCertError => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::RootCertError => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::InvalidMethod => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::InvalidUrl => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::InvalidHeaders => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::RequestRunError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            AppError::RequestCancelled => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
         let body = Json(json!({

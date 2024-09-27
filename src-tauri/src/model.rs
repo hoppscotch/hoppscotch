@@ -91,16 +91,3 @@ pub struct RunRequestResponse {
     pub time_start_ms: u128,
     pub time_end_ms: u128,
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum RunRequestError {
-    InternalError,
-    Unauthorized,
-    RequestCancelled,
-    ClientCertError,
-    RootCertError,
-    InvalidMethod,
-    InvalidUrl,
-    InvalidHeaders,
-    RequestRunError(String),
-}

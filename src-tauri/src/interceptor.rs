@@ -1,8 +1,6 @@
 use crate::{
-    model::{
-        BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RequestDef, RunRequestError,
-        RunRequestResponse,
-    },
+    error::AppError,
+    model::{BodyDef, ClientCertDef, FormDataValue, KeyValuePair, RequestDef, RunRequestResponse},
     util::get_status_text,
 };
 use curl::easy::{Easy, List};
@@ -14,34 +12,34 @@ use tokio_util::sync::CancellationToken;
 pub(crate) fn run_request_task(
     req: &RequestDef,
     cancel_token: CancellationToken,
-) -> Result<RunRequestResponse, RunRequestError> {
+) -> Result<RunRequestResponse, AppError> {
     let mut curl_handle = Easy::new();
 
     curl_handle
         .progress(true)
-        .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
     curl_handle
         .custom_request(&req.method)
-        .map_err(|_| RunRequestError::InvalidMethod)?;
+        .map_err(|_| AppError::InvalidMethod)?;
 
     curl_handle
         .url(&req.endpoint)
-        .map_err(|_| RunRequestError::InvalidUrl)?;
+        .map_err(|_| AppError::InvalidUrl)?;
 
     curl_handle
         .http_headers(get_headers_list(&req)?)
-        .map_err(|_| RunRequestError::InvalidHeaders)?;
+        .map_err(|_| AppError::InvalidHeaders)?;
 
     apply_body_to_curl_handle(&mut curl_handle, &req)?;
 
     curl_handle
         .ssl_verify_peer(req.validate_certs)
-        .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
     curl_handle
         .ssl_verify_host(req.validate_certs)
-        .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
     apply_client_cert_to_curl_handle(&mut curl_handle, &req)?;
 
@@ -72,11 +70,11 @@ pub(crate) fn run_request_task(
 
                 Ok(())
             })
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
         transfer
             .progress_function(|_, _, _, _| !cancel_token.is_cancelled())
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
         transfer
             .header_function(|header| {
@@ -91,14 +89,14 @@ pub(crate) fn run_request_task(
 
                 true
             })
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
         transfer
             .write_function(|data| {
                 response_body.extend_from_slice(data);
                 Ok(data.len())
             })
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
         let start_time_ms = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -107,7 +105,7 @@ pub(crate) fn run_request_task(
 
         transfer
             .perform()
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
 
         let end_time_ms = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -119,7 +117,7 @@ pub(crate) fn run_request_task(
 
     let response_status = curl_handle
         .response_code()
-        .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?
+        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?
         as u16;
 
     let response_status_text = get_status_text(response_status).to_string();
@@ -134,28 +132,25 @@ pub(crate) fn run_request_task(
     })
 }
 
-fn get_headers_list(req: &RequestDef) -> Result<List, RunRequestError> {
+fn get_headers_list(req: &RequestDef) -> Result<List, AppError> {
     let mut result = List::new();
 
     for KeyValuePair { key, value } in &req.headers {
         result
             .append(&format!("{}: {}", key, value))
-            .map_err(|err| RunRequestError::RequestRunError(err.description().to_string()))?;
+            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
     }
 
     Ok(result)
 }
 
-fn apply_body_to_curl_handle(
-    curl_handle: &mut Easy,
-    req: &RequestDef,
-) -> Result<(), RunRequestError> {
+fn apply_body_to_curl_handle(curl_handle: &mut Easy, req: &RequestDef) -> Result<(), AppError> {
     match &req.body {
         Some(BodyDef::Text(text)) => {
             curl_handle
                 .post_fields_copy(text.as_bytes())
                 .map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Error while setting body: {}",
                         err.description()
                     ))
@@ -181,7 +176,7 @@ fn apply_body_to_curl_handle(
                 };
 
                 part.add().map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Error while setting body: {}",
                         err.description()
                     ))
@@ -189,7 +184,7 @@ fn apply_body_to_curl_handle(
             }
 
             curl_handle.httppost(form).map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Error while setting body: {}",
                     err.description()
                 ))
@@ -211,7 +206,7 @@ fn apply_body_to_curl_handle(
             curl_handle
                 .post_fields_copy(data.as_bytes())
                 .map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Error while setting body: {}",
                         err.description()
                     ))
@@ -223,38 +218,35 @@ fn apply_body_to_curl_handle(
     Ok(())
 }
 
-fn apply_client_cert_to_curl_handle(
-    handle: &mut Easy,
-    req: &RequestDef,
-) -> Result<(), RunRequestError> {
+fn apply_client_cert_to_curl_handle(handle: &mut Easy, req: &RequestDef) -> Result<(), AppError> {
     match &req.client_cert {
         Some(ClientCertDef::PEMCert {
             certificate_pem,
             key_pem,
         }) => {
             handle.ssl_cert_type("PEM").map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed setting PEM Cert Type: {}",
                     err.description()
                 ))
             })?;
 
             handle.ssl_cert_blob(certificate_pem).map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed setting PEM Cert Blob: {}",
                     err.description()
                 ))
             })?;
 
             handle.ssl_key_type("PEM").map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed setting PEM key type: {}",
                     err.description()
                 ))
             })?;
 
             handle.ssl_key_blob(key_pem).map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed setting PEM Cert blob: {}",
                     err.description()
                 ))
@@ -265,14 +257,14 @@ fn apply_client_cert_to_curl_handle(
             password,
         }) => {
             let pkcs12 = Pkcs12::from_der(&certificate_pfx).map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed to parse PFX certificate from DER: {}",
                     err
                 ))
             })?;
 
             let parsed = pkcs12.parse2(password).map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed to parse PFX certificate with provided password: {}",
                     err
                 ))
@@ -280,48 +272,48 @@ fn apply_client_cert_to_curl_handle(
 
             if let (Some(cert), Some(key)) = (parsed.cert, parsed.pkey) {
                 let certificate_pem = cert.to_pem().map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed to convert PFX certificate to PEM format: {}",
                         err
                     ))
                 })?;
 
                 let key_pem = key.private_key_to_pem_pkcs8().map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed to convert PFX private key to PEM format: {}",
                         err
                     ))
                 })?;
 
                 handle.ssl_cert_type("PEM").map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed setting PEM Cert Type for converted PFX: {}",
                         err.description()
                     ))
                 })?;
 
                 handle.ssl_cert_blob(&certificate_pem).map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed setting PEM Cert Blob for converted PFX: {}",
                         err.description()
                     ))
                 })?;
 
                 handle.ssl_key_type("PEM").map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed setting PEM key type for converted PFX: {}",
                         err.description()
                     ))
                 })?;
 
                 handle.ssl_key_blob(&key_pem).map_err(|err| {
-                    RunRequestError::RequestRunError(format!(
+                    AppError::RequestRunError(format!(
                         "Failed setting PEM key blob for converted PFX: {}",
                         err.description()
                     ))
                 })?;
             } else {
-                return Err(RunRequestError::RequestRunError(
+                return Err(AppError::RequestRunError(
                     "PFX certificate parsing succeeded, but either cert or private key is missing"
                         .to_string(),
                 ));
@@ -348,25 +340,19 @@ fn get_x509_certs_from_root_cert_bundle(req: &RequestDef) -> Vec<X509> {
         .collect()
 }
 
-fn apply_proxy_config_to_curl_handle(
-    handle: &mut Easy,
-    req: &RequestDef,
-) -> Result<(), RunRequestError> {
+fn apply_proxy_config_to_curl_handle(handle: &mut Easy, req: &RequestDef) -> Result<(), AppError> {
     if let Some(proxy_config) = &req.proxy {
         handle
             .proxy_auth(curl::easy::Auth::new().auto(true))
             .map_err(|err| {
-                RunRequestError::RequestRunError(format!(
+                AppError::RequestRunError(format!(
                     "Failed to set proxy Auth Mode: {}",
                     err.description()
                 ))
             })?;
 
         handle.proxy(&proxy_config.url).map_err(|err| {
-            RunRequestError::RequestRunError(format!(
-                "Failed to set proxy URL: {}",
-                err.description()
-            ))
+            AppError::RequestRunError(format!("Failed to set proxy URL: {}", err.description()))
         })?;
     }
 

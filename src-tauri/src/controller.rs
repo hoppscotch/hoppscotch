@@ -1,6 +1,5 @@
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
     Json,
 };
 use axum_extra::{
@@ -14,7 +13,7 @@ use crate::{
     error::{AppError, AppResult},
     model::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-        RegistrationReceiveRequest, RequestDef, RunRequestError, RunRequestResponse,
+        RegistrationReceiveRequest, RequestDef, RunRequestResponse,
     },
     state::AppState,
 };
@@ -34,6 +33,7 @@ pub async fn receive_registration<T: AppHandleExt>(
     Json(registration_request): Json<RegistrationReceiveRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     state.set_registration(registration_request.registration.clone());
+
     app_handle
         .emit("registration_received", registration_request.registration)
         .map_err(|_| AppError::InternalServerError)?;
@@ -102,44 +102,35 @@ pub async fn run_request<T>(
     let result = tokio::select! {
         res = tokio::task::spawn_blocking(move || crate::interceptor::run_request_task(&req, cancel_token_clone)) => {
             match res {
-                Ok(task_result) => task_result.map_err(|_| AppError::InternalServerError),
+                Ok(task_result) => task_result,
                 Err(_) => Err(AppError::InternalServerError),
             }
         },
         _ = cancel_token.cancelled() => {
-            Err(AppError::BadRequest("Request cancelled".to_string()))
+            Err(AppError::RequestCancelled)
         }
     };
 
     state.remove_cancellation_token(req_id);
 
-    Ok(Json(result?))
+    result.map(Json)
 }
 
 pub async fn cancel_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Path(req_id): Path<usize>,
-) -> (StatusCode, Json<serde_json::Value>) {
-    if !state.validate_auth_token(auth_header.token()) {
-        return (
-            StatusCode::UNAUTHORIZED,
-            Json(json!(RunRequestError::Unauthorized)),
-        );
-    }
+) -> AppResult<Json<serde_json::Value>> {
+    state
+        .validate_auth_token(auth_header.token())
+        .then_some(())
+        .ok_or(AppError::Unauthorized)?;
 
     if let Some((_, token)) = state.remove_cancellation_token(req_id) {
         token.cancel();
-
-        (
-            StatusCode::OK,
-            Json(json!({"message": "Request cancelled successfully"})),
-        )
+        Ok(Json(json!({"message": "Request cancelled successfully"})))
     } else {
-        (
-            StatusCode::NOT_FOUND,
-            Json(json!({"error": "Request not found or already completed"})),
-        )
+        Err(AppError::RequestNotFound)
     }
 }
 
@@ -150,7 +141,7 @@ mod tests {
         app_handle_ext::MockAppHandle,
         model::{
             AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-            RegistrationReceiveRequest, RunRequestError,
+            RegistrationReceiveRequest,
         },
         state::AppState,
     };
@@ -366,8 +357,8 @@ mod tests {
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         let body = read_body(response.into_body()).await;
-        let error_response: RunRequestError = serde_json::from_slice(&body).unwrap();
-        assert!(matches!(error_response, RunRequestError::Unauthorized));
+        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(error_response["error"], "Unauthorized");
     }
 
     #[tokio::test]
@@ -431,8 +422,8 @@ mod tests {
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         let body = read_body(response.into_body()).await;
-        let error_response: RunRequestError = serde_json::from_slice(&body).unwrap();
-        assert!(matches!(error_response, RunRequestError::Unauthorized));
+        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(error_response["error"], "Unauthorized");
     }
 
     #[tokio::test]
@@ -463,9 +454,9 @@ mod tests {
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
         let body = read_body(response.into_body()).await;
-        let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
         assert_eq!(
-            json_response["error"],
+            error_response["error"],
             "Request not found or already completed"
         );
     }

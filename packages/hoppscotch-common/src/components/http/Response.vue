@@ -17,15 +17,20 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, nextTick, ref } from "vue"
+import { computed, ref } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
-import { invokeAction } from "~/helpers/actions"
 import {
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
 } from "@hoppscotch/data"
+import { editRESTRequest } from "~/newstore/collections"
+import { useToast } from "@composables/toast"
+import { useI18n } from "@composables/i18n"
+
+const t = useI18n()
+const toast = useToast()
 
 const props = defineProps<{
   document: HoppRequestDocument
@@ -105,10 +110,21 @@ const onSaveAsExample = () => {
 
     showSaveResponseName.value = false
 
-    nextTick(() => {
-      // Save the request after adding the response
-      invokeAction("request.save")
-    })
+    const saveCtx = doc.value.saveContext
+
+    if (!saveCtx) return
+
+    if (saveCtx.originLocation === "user-collection") {
+      const req = doc.value.request
+
+      try {
+        editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+
+        toast.success(`${t("response.saved")}`)
+      } catch (e) {
+        console.error(e)
+      }
+    }
   }
 }
 </script>

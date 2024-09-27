@@ -1,5 +1,5 @@
 <template>
-  <HttpExampleResponseMeta :response="doc.response" :is-embed="isEmbed" />
+  <HttpExampleResponseMeta v-model:response="doc.response" />
   <HttpExampleLenseBodyRenderer v-model:document="doc" />
 </template>
 

@@ -103,6 +103,7 @@ import { getRequestsByPath } from "~/helpers/collection/request"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useToast } from "@composables/toast"
 import { cloneDeep } from "lodash-es"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -180,27 +181,9 @@ const saveExample = () => {
 
     if (!request) return
 
-    console.log("//req", request)
-
-    // Convert object to entries array (preserving order)
-    //const entries = Object.entries(request.responses)
-
     const responseName = response.name
 
-    console.log("response-name", responseName)
-
     request.responses[responseName] = response
-
-    // const updatedEntries = entries.map(([key, value]) =>
-    //   key === responseName ? [responseName, response] : [key, value]
-    // )
-
-    console.log("saveExample -> response", response)
-
-    // Convert the array back into an object
-    //request.responses = Object.fromEntries(updatedEntries)
-
-    console.log("saveExample -> updatedEntries", request.responses)
 
     try {
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, request)
@@ -208,7 +191,7 @@ const saveExample = () => {
       console.error(e)
     }
 
-    toast.success(`${t("request.saved")}`)
+    toast.success(`${t("response.saved")}`)
   }
 }
 
@@ -234,4 +217,6 @@ const isCustomMethod = computed(() => {
 })
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
+
+defineActionHandler("request.save", saveExample)
 </script>

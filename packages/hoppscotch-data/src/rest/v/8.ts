@@ -61,7 +61,7 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-const V8_SCHEMA = V7_SCHEMA.extend({
+export const V8_SCHEMA = V7_SCHEMA.extend({
   v: z.literal("8"),
   auth: HoppRESTAuth,
 })

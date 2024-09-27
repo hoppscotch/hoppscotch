@@ -76,7 +76,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: "update:response",
-    val: HoppRESTResponse & { type: "success" | "fail" }
+    val:
+      | (HoppRESTResponse & { type: "success" | "fail" })
+      | HoppRESTRequestResponse
   ): void
 }>()
 

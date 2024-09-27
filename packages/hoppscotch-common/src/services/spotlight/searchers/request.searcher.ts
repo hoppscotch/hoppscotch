@@ -279,7 +279,7 @@ export class RequestSpotlightSearcherService extends StaticSpotlightSearcherServ
         })
         break
       case "save_request":
-        invokeAction("request.save")
+        invokeAction("request-response.save")
         break
       case "rename_request":
         invokeAction("request.rename")

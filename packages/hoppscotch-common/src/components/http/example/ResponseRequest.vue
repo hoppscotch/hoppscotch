@@ -174,6 +174,7 @@ const saveExample = async () => {
   if (!saveCtx) {
     return
   }
+
   const response = cloneDeep(tab.value.document.response)
   if (saveCtx.originLocation === "user-collection") {
     const request = cloneDeep(
@@ -260,5 +261,5 @@ const isCustomMethod = computed(() => {
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
 
-defineActionHandler("request.save", saveExample)
+defineActionHandler("request-response.save", saveExample)
 </script>

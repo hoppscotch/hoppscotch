@@ -16,7 +16,7 @@ export type HoppAction =
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
   | "request.reset" // Clear request data
   | "request.share-request" // Share Request
-  | "request.save" // Save to Collections
+  | "request-response.save" // Save Request or Response
   | "request.save-as" // Save As
   | "request.rename" // Rename request on REST or GraphQL
   | "request.method.next" // Select Next Method
@@ -64,6 +64,7 @@ export type HoppAction =
   | "response.schema.toggle" // Toggle response data schema
   | "response.file.download" // Download response as file
   | "response.copy" // Copy response to clipboard
+  | "response.save" // Save response
   | "response.save-as-example" // Save response as example
   | "modals.login.toggle" // Login to Hoppscotch
   | "history.clear" // Clear REST History

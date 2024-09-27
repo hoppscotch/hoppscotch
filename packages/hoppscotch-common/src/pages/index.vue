@@ -325,7 +325,7 @@ const onCloseConfirmSaveTab = () => {
  */
 const onResolveConfirmSaveTab = () => {
   if (tabs.currentActiveTab.value.document.saveContext) {
-    invokeAction("request.save")
+    invokeAction("request-response.save")
 
     if (confirmingCloseForTabID.value) {
       tabs.closeTab(confirmingCloseForTabID.value)

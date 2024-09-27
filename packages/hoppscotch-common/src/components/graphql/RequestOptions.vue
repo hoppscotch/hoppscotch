@@ -270,7 +270,7 @@ const changeOptionTab = (e: GQLOptionTabs) => {
 }
 
 defineActionHandler("request.send-cancel", runQuery)
-defineActionHandler("request.save", saveRequest)
+defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true
 })

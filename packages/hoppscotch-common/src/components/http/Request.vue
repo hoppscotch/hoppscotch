@@ -583,7 +583,7 @@ defineActionHandler("request.reset", clearContent)
 defineActionHandler("request.share-request", shareRequest)
 defineActionHandler("request.method.next", cycleDownMethod)
 defineActionHandler("request.method.prev", cycleUpMethod)
-defineActionHandler("request.save", saveRequest)
+defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", (req) => {
   showSaveRequestModal.value = true
   if (req?.requestType === "rest" && req.request) {

@@ -111,7 +111,6 @@ async fn test_verify_registration() {
     let body = read_body(response.into_body()).await;
     let auth_key_response: AuthKeyResponse = serde_json::from_slice(&body).unwrap();
     assert!(!auth_key_response.auth_key.is_empty());
-    assert!(auth_key_response.expiry > chrono::Utc::now());
 }
 
 #[tokio::test]
@@ -121,10 +120,7 @@ async fn test_run_request() {
     let app = route::route(state.clone(), app_handle);
 
     let auth_token = "valid_token".to_string();
-    state.set_auth_token(
-        auth_token.clone(),
-        chrono::Utc::now() + chrono::Duration::hours(1),
-    );
+    state.set_auth_token(auth_token.clone());
 
     let request_def = serde_json::json!({
         "req_id": 1,
@@ -157,10 +153,7 @@ async fn test_cancel_request() {
     let app = route::route(state.clone(), app_handle);
 
     let auth_token = "valid_token".to_string();
-    state.set_auth_token(
-        auth_token.clone(),
-        chrono::Utc::now() + chrono::Duration::hours(1),
-    );
+    state.set_auth_token(auth_token.clone());
 
     let req_id = 1;
     state.add_cancellation_token(req_id, tokio_util::sync::CancellationToken::new());

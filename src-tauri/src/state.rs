@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use std::sync::RwLock;
 use tokio_util::sync::CancellationToken;
@@ -20,15 +20,15 @@ impl AppState {
     }
 
     pub fn set_registration(&self, registration: String) {
-        let expiry = Utc::now() + Duration::minutes(5);
+        let created_at = Utc::now();
         let mut current_registration = self.current_registration.write().unwrap();
-        *current_registration = Some((registration, expiry));
+        *current_registration = Some((registration, created_at));
     }
 
     pub fn validate_registration(&self, registration: &str) -> bool {
         let current_registration = self.current_registration.read().unwrap();
-        if let Some((stored_registration, expiry)) = &*current_registration {
-            *stored_registration == registration && Utc::now() < *expiry
+        if let Some((stored_registration, _created_at)) = &*current_registration {
+            *stored_registration == registration
         } else {
             false
         }
@@ -42,16 +42,12 @@ impl AppState {
         self.cancellation_tokens.insert(req_id, cancellation_tokens);
     }
 
-    pub fn set_auth_token(&self, token: String, expiry: DateTime<Utc>) {
-        self.auth_tokens.insert(token, expiry);
+    pub fn set_auth_token(&self, token: String) {
+        self.auth_tokens.insert(token, Utc::now());
     }
 
     pub fn validate_auth_token(&self, token: &str) -> bool {
-        if let Some(expiry) = self.auth_tokens.get(token) {
-            Utc::now() < *expiry
-        } else {
-            false
-        }
+        self.auth_tokens.contains_key(token)
     }
 
     pub fn remove_auth_token(&self, token: &str) {
@@ -62,25 +58,14 @@ impl AppState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Duration;
 
     #[test]
     fn test_auth_token() {
         let state = AppState::new();
         let token = "test_token".to_string();
-        let expiry = Utc::now() + Duration::hours(24);
-        state.set_auth_token(token.clone(), expiry);
+        state.set_auth_token(token.clone());
         assert!(state.validate_auth_token(&token));
         assert!(!state.validate_auth_token("invalid"));
-    }
-
-    #[test]
-    fn test_auth_token_expiry() {
-        let state = AppState::new();
-        let token = "test_token".to_string();
-        let expiry = Utc::now() - Duration::seconds(1); // Expired token
-        state.set_auth_token(token.clone(), expiry);
-        assert!(!state.validate_auth_token(&token));
     }
 
     #[test]

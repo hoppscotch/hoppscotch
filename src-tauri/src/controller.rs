@@ -17,7 +17,7 @@ use crate::{
     },
     state::AppState,
 };
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -53,20 +53,23 @@ pub async fn verify_registration<T: AppHandleExt>(
         .ok_or(AppError::InvalidRegistration)?;
 
     let auth_key = Uuid::new_v4().to_string();
-    let expiry = Utc::now() + Duration::hours(24);
+    let created_at = Utc::now();
 
     let auth_payload = json!({
         "auth_key": auth_key,
-        "expiry": expiry
+        "created_at": created_at
     });
 
     app_handle
         .emit("authenticated", &auth_payload)
         .map_err(|_| AppError::InternalServerError)?;
 
-    state.set_auth_token(auth_key.clone(), expiry);
+    state.set_auth_token(auth_key.clone());
 
-    Ok(Json(AuthKeyResponse { auth_key, expiry }))
+    Ok(Json(AuthKeyResponse {
+        auth_key,
+        created_at,
+    }))
 }
 
 pub async fn run_request<T>(
@@ -151,7 +154,6 @@ mod tests {
         routing::post,
         Router,
     };
-    use chrono::{Duration, Utc};
     use std::sync::Arc;
     use tower::ServiceExt;
     use uuid::Uuid;
@@ -251,7 +253,6 @@ mod tests {
         let body = read_body(response.into_body()).await;
         let auth_key_response: AuthKeyResponse = serde_json::from_slice(&body).unwrap();
         assert!(!auth_key_response.auth_key.is_empty());
-        assert!(auth_key_response.expiry > Utc::now());
     }
 
     #[tokio::test]
@@ -298,7 +299,7 @@ mod tests {
             .with_state((state.clone(), app_handle));
 
         let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone(), Utc::now() + Duration::hours(1));
+        state.set_auth_token(auth_token.clone());
 
         let request_def = serde_json::json!({
             "req_id": 1,
@@ -374,7 +375,7 @@ mod tests {
             .with_state((state.clone(), app_handle));
 
         let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone(), Utc::now() + Duration::hours(1));
+        state.set_auth_token(auth_token.clone());
 
         let req_id = 1;
         state.add_cancellation_token(req_id, tokio_util::sync::CancellationToken::new());
@@ -439,7 +440,7 @@ mod tests {
             .with_state((state.clone(), app_handle));
 
         let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone(), Utc::now() + Duration::hours(1));
+        state.set_auth_token(auth_token.clone());
 
         let req_id = 999; // Non-existent request ID
 

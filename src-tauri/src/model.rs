@@ -20,7 +20,7 @@ pub struct ConfirmedRegistrationRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthKeyResponse {
     pub auth_key: String,
-    pub expiry: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

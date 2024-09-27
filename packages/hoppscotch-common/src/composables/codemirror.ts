@@ -420,6 +420,8 @@ export function useCodemirror(
         doc: parseDoc(value.value, options.extendedEditorConfig.mode ?? ""),
         extensions,
       }),
+      // scroll to top when mounting
+      scrollTo: EditorView.scrollIntoView(0),
     })
 
     options.onInit?.(view.value)

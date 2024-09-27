@@ -17,10 +17,10 @@
 import { watch, ref } from "vue"
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
-import { isEqualHoppRESTRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
 import { HoppSavedExampleDocument } from "~/helpers/rest/document"
 import { RESTOptionTabs } from "../RequestOptions.vue"
+import { isEqual } from "lodash-es"
 
 const props = defineProps<{ modelValue: HoppTab<HoppSavedExampleDocument> }>()
 
@@ -33,18 +33,15 @@ const tab = useVModel(props, "modelValue", emit)
 const optionTabPreference = ref<RESTOptionTabs>("params")
 
 // TODO: Come up with a better dirty check
-let oldRequest = cloneDeep(tab.value.document.response.originalRequest)
+let oldResponse = cloneDeep(tab.value.document.response)
 watch(
-  () => tab.value.document.response.originalRequest,
+  () => tab.value.document.response,
   (updatedValue) => {
-    if (
-      !tab.value.document.isDirty &&
-      !isEqualHoppRESTRequest(oldRequest, updatedValue)
-    ) {
+    if (!tab.value.document.isDirty && !isEqual(oldResponse, updatedValue)) {
       tab.value.document.isDirty = true
     }
 
-    oldRequest = cloneDeep(updatedValue)
+    oldResponse = cloneDeep(updatedValue)
   },
   { deep: true }
 )

@@ -79,11 +79,14 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { objFieldMatches } from "~/helpers/functional/object"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse & { type: "success" | "fail" }
+  response:
+    | (HoppRESTResponse & { type: "success" | "fail" })
+    | HoppRESTRequestResponse
   isEditable: boolean
   isSavable: boolean
 }>()
@@ -94,27 +97,49 @@ const emit = defineEmits<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const responseType = computed(() =>
-  pipe(
-    props.response,
-    O.fromPredicate(objFieldMatches("type", ["fail", "success"] as const)),
-    O.chain(
-      // Try getting content-type
-      flow(
-        (res) => res.headers,
-        A.findFirst((h) => h.key.toLowerCase() === "content-type"),
-        O.map(flow((h) => h.value, S.split(";"), RNEA.head, S.toLowerCase))
-      )
-    ),
-    O.getOrElse(() => "text/plain")
+const isHttpResponse = computed(() => {
+  return (
+    "type" in props.response &&
+    (props.response.type === "success" || props.response.type === "fail")
   )
-)
+})
+
+const responseType = computed(() => {
+  if (isHttpResponse.value) {
+    return pipe(
+      props.response,
+      O.fromPredicate(objFieldMatches("type", ["fail", "success"] as const)),
+      O.chain(
+        // Try getting content-type
+        flow(
+          (res) => res.headers,
+          A.findFirst((h) => h.key.toLowerCase() === "content-type"),
+          O.map(flow((h) => h.value, S.split(";"), RNEA.head, S.toLowerCase))
+        )
+      ),
+      O.getOrElse(() => "text/plain")
+    )
+  }
+
+  return "text/plain"
+})
+
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
+
+  return props.response.name
+})
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   responseBodyText,
   t("filename.lens", {
-    request_name: props.response.req.name,
+    request_name: responseName.value,
   })
 )
 

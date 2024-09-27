@@ -187,6 +187,7 @@ const saveExample = () => {
 
     try {
       editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, request)
+      tab.value.document.isDirty = false
     } catch (e) {
       console.error(e)
     }

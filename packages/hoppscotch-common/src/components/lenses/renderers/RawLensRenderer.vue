@@ -62,11 +62,14 @@ import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse & { type: "success" | "fail" }
+  response:
+    | (HoppRESTResponse & { type: "success" | "fail" })
+    | HoppRESTRequestResponse
   isEditable: boolean
 }>()
 
@@ -101,11 +104,22 @@ const responseType = computed(() =>
   )
 )
 
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success" || props.response.type === "fail") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
+
+  return props.response.name
+})
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   rawResponseBody,
   t("filename.lens", {
-    request_name: props.response.req.name,
+    request_name: responseName.value,
   })
 )
 

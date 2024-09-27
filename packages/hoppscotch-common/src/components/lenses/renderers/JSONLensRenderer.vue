@@ -329,11 +329,20 @@ const responseJsonObject = computed(() => {
   return undefined
 })
 
-const jsonResponseBodyText = computed(() => {
-  const { responseBodyText } = useResponseBody(
-    props.response as HoppRESTResponse
-  )
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
 
+  return props.response.name
+})
+
+const { responseBodyText } = useResponseBody(props.response)
+
+const jsonResponseBodyText = computed(() => {
   if (filterQueryText.value.length > 0 && responseJsonObject.value) {
     return pipe(
       responseJsonObject.value,
@@ -413,7 +422,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText,
   t("filename.lens", {
-    request_name: props.response.req.name,
+    request_name: responseName.value,
   })
 )
 

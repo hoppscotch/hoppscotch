@@ -84,7 +84,7 @@ import {
   useResponseBody,
 } from "@composables/lens-actions"
 import { useService } from "dioc/vue"
-import { reactive, ref } from "vue"
+import { reactive, ref, computed } from "vue"
 
 import { useNestedSetting } from "~/composables/settings"
 import { defineActionHandler } from "~/helpers/actions"
@@ -96,12 +96,15 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 const t = useI18n()
 const persistenceService = useService(PersistenceService)
 
 const props = defineProps<{
-  response: HoppRESTResponse & { type: "success" | "fail" }
+  response:
+    | (HoppRESTResponse & { type: "success" | "fail" })
+    | HoppRESTRequestResponse
   isSavable: boolean
   isEditable: boolean
 }>()
@@ -113,12 +116,23 @@ const emit = defineEmits<{
 const htmlResponse = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success" || props.response.type === "fail") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
+
+  return props.response.name
+})
+
 const { responseBodyText } = useResponseBody(props.response)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
   t("filename.lens", {
-    request_name: props.response.req.name,
+    request_name: responseName.value,
   })
 )
 const defaultPreview =

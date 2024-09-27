@@ -1,14 +1,14 @@
 [package]
-name = "hoppscotch-interceptor"
+name = "hoppscotch-agent"
 version = "0.1.0"
-description = "A cross-platform HTTP request interceptor for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
+description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
 authors = ["CuriousCorrelation", "AndrewBastin"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "hoppscotch_interceptor_lib"
+name = "hoppscotch_agent_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

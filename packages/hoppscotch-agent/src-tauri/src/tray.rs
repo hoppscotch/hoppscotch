@@ -9,7 +9,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
     let menu = Menu::with_items(app, &[&quit_i])?;
 
     let _ = TrayIconBuilder::with_id("hopp-tray")
-        .tooltip("Hoppscotch Interceptor")
+        .tooltip("Hoppscotch Agent")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
         .menu_on_left_click(true)

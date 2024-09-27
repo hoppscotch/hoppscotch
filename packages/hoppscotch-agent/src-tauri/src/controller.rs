@@ -24,7 +24,7 @@ use uuid::Uuid;
 pub async fn handshake() -> AppResult<Json<HandshakeResponse>> {
     Ok(Json(HandshakeResponse {
         status: "success".to_string(),
-        message: "Interceptor ready! Hopp in, we've got requests to catch!".to_string(),
+        message: "Agent ready! Hopp in, we've got requests to catch!".to_string(),
     }))
 }
 
@@ -173,7 +173,7 @@ mod tests {
         assert_eq!(handshake_response.status, "success");
         assert_eq!(
             handshake_response.message,
-            "Interceptor ready! Hopp in, we've got requests to catch!"
+            "Agent ready! Hopp in, we've got requests to catch!"
         );
     }
 

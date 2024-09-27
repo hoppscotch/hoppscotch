@@ -2,7 +2,7 @@ use axum::{
     body::{Body, Bytes},
     http::{Request, StatusCode},
 };
-use hoppscotch_interceptor_lib::{
+use hoppscotch_agent_lib::{
     app_handle_ext::MockAppHandle,
     model::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
@@ -42,7 +42,7 @@ async fn test_handshake() {
     assert_eq!(handshake_response.status, "success");
     assert_eq!(
         handshake_response.message,
-        "Interceptor ready! Hopp in, we've got requests to catch!"
+        "Agent ready! Hopp in, we've got requests to catch!"
     );
 }
 

@@ -506,7 +506,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
             requestDef,
             {
               headers: {
-                Authorization: this.authKey.value,
+                Authorization: `Bearer ${this.authKey.value}`,
               },
             }
           )

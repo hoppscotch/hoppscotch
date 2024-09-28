@@ -13,9 +13,13 @@
 <script setup lang="ts">
 import { useService } from "dioc/vue"
 import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { useToast } from "@composables/toast"
+import { InterceptorService } from "~/services/interceptor.service"
 
+// TODO: Move as much as logic as possible to AgentInterceptorService
+
+const interceptorService = useService(InterceptorService) // TODO: Try to remove dependency to InterceptorService
 const agentService = useService(AgentInterceptorService)
 const showModal = ref(false)
 const toast = useToast()
@@ -31,9 +35,18 @@ const registrationStatus = ref<"initial" | "otp_required" | "loading">(
 )
 
 async function checkAgentStatus() {
-  await agentService.checkAgentStatus()
-  updateModalVisibility()
+  if (
+    interceptorService.currentInterceptor.value?.interceptorID ===
+    agentService.interceptorID
+  ) {
+    await agentService.checkAgentStatus()
+    updateModalVisibility()
+  }
 }
+
+watch(interceptorService.currentInterceptor, () => {
+  checkAgentStatus()
+})
 
 function updateModalVisibility() {
   showModal.value = modalStatus.value !== "hidden"
@@ -44,7 +57,6 @@ function updateModalVisibility() {
 
 onMounted(async () => {
   await checkAgentStatus()
-  updateModalVisibility()
 })
 
 function hideModal() {

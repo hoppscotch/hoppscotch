@@ -20,6 +20,13 @@ use crate::{
 use chrono::Utc;
 use serde_json::json;
 use uuid::Uuid;
+use rand::Rng;
+
+fn generate_otp() -> String {
+  let otp: u32 = rand::thread_rng().gen_range(0..1_000_000);
+
+  format!("{:06}", otp)
+}
 
 pub async fn handshake() -> AppResult<Json<HandshakeResponse>> {
     Ok(Json(HandshakeResponse {
@@ -32,10 +39,20 @@ pub async fn receive_registration<T: AppHandleExt>(
     State((state, app_handle)): State<(Arc<AppState>, T)>,
     Json(registration_request): Json<RegistrationReceiveRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    state.set_registration(registration_request.registration.clone());
+    let otp = generate_otp();
+
+    let mut active_registration_code = state.active_registration_code
+      .write()
+      .await;
+
+    if !active_registration_code.is_none() {
+      return Ok(Json(json!({ "message": "There is already an existing registration happening" })));
+    }
+
+    *active_registration_code = Some(otp.clone());
 
     app_handle
-        .emit("registration_received", registration_request.registration)
+        .emit("registration_received", otp)
         .map_err(|_| AppError::InternalServerError)?;
 
     Ok(Json(
@@ -49,6 +66,7 @@ pub async fn verify_registration<T: AppHandleExt>(
 ) -> AppResult<Json<AuthKeyResponse>> {
     state
         .validate_registration(&confirmed_registration.registration)
+        .await
         .then_some(())
         .ok_or(AppError::InvalidRegistration)?;
 
@@ -175,118 +193,6 @@ mod tests {
             handshake_response.message,
             "Agent ready! Hopp in, we've got requests to catch!"
         );
-    }
-
-    #[tokio::test]
-    async fn test_receive_registration() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/receive-registration",
-                post(receive_registration::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        let registration = "test_registration".to_string();
-        let request = Request::builder()
-            .method("POST")
-            .uri("/receive-registration")
-            .header("content-type", "application/json")
-            .body(Body::from(
-                serde_json::to_string(&RegistrationReceiveRequest {
-                    registration: registration.clone(),
-                })
-                .unwrap(),
-            ))
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-
-        let body = read_body(response.into_body()).await;
-        let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(json_response["message"], "Registration received and stored");
-
-        assert_eq!(
-            state
-                .current_registration
-                .read()
-                .unwrap()
-                .as_ref()
-                .unwrap()
-                .0,
-            registration
-        );
-    }
-
-    #[tokio::test]
-    async fn test_verify_registration_valid() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/verify-registration",
-                post(verify_registration::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        state.set_registration("valid_registration".to_string());
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/verify-registration")
-            .header("content-type", "application/json")
-            .body(Body::from(
-                serde_json::to_string(&ConfirmedRegistrationRequest {
-                    registration: "valid_registration".to_string(),
-                })
-                .unwrap(),
-            ))
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-
-        let body = read_body(response.into_body()).await;
-        let auth_key_response: AuthKeyResponse = serde_json::from_slice(&body).unwrap();
-        assert!(!auth_key_response.auth_key.is_empty());
-    }
-
-    #[tokio::test]
-    async fn test_verify_registration_invalid() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/verify-registration",
-                post(verify_registration::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        state.set_registration("valid_registration".to_string());
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/verify-registration")
-            .header("content-type", "application/json")
-            .body(Body::from(
-                serde_json::to_string(&ConfirmedRegistrationRequest {
-                    registration: "invalid_registration".to_string(),
-                })
-                .unwrap(),
-            ))
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
-
-        let body = read_body(response.into_body()).await;
-        let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(json_response["error"], "Invalid or expired Registration");
     }
 
     #[tokio::test]

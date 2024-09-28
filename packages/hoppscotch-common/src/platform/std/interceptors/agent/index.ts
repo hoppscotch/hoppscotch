@@ -493,7 +493,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
           currentInterceptor?.interceptorID === this.interceptorID &&
           authKey === null
         ) {
-          this.initiateRegistration()
+          this.showRegistrationModal.value = true
         }
       },
       {
@@ -552,15 +552,11 @@ export class AgentInterceptorService extends Service implements Interceptor {
   }
 
   public async verifyRegistration(userEnteredOTP: string) {
-    if (userEnteredOTP !== this.registrationOTP.value) {
-      throw new Error("Invalid OTP")
-    }
-
     try {
       const verificationResponse = await axios.post(
         "http://localhost:9119/verify-registration",
         {
-          registration: this.registrationOTP.value,
+          registration: userEnteredOTP,
         }
       )
 

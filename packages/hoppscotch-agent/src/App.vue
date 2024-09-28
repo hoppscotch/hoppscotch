@@ -34,6 +34,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import { useClipboard, refAutoReset } from "@vueuse/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
+import { invoke } from "@tauri-apps/api/core"
 import { listen } from '@tauri-apps/api/event'
 
 const { copy } = useClipboard()
@@ -51,12 +52,19 @@ function closeWindow() {
 }
 
 onMounted(async () => {
+  const currentWindow = getCurrentWindow()
+
+  currentWindow.setFocus(true);
+  currentWindow.setAlwaysOnTop(true);
+
+  otpCode.value = await invoke("get_otp", {})
+
   await listen('registration_received', (event) => {
     otpCode.value = event.payload
   })
 
   await listen('authenticated', () => {
-    setTimeout(closeWindow, 3000)
+    closeWindow()
   })
 })
 </script>

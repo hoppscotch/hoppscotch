@@ -20,7 +20,8 @@
         "maximizable": false,
         "minimizable": false,
         "focus": true,
-        "alwaysOnTop": false
+        "alwaysOnTop": true,
+        "create": false
       }
     ],
     "security": {

@@ -1,36 +1,32 @@
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use std::sync::RwLock;
 use tokio_util::sync::CancellationToken;
+use tokio::sync::RwLock;
 
 #[derive(Default)]
 pub struct AppState {
     pub auth_tokens: DashMap<String, DateTime<Utc>>,
+
+    /// The active registration code that is being registered.
+    pub active_registration_code: RwLock<Option<String>>,
+
+    /// Cancellation Tokens for the running requests
     pub cancellation_tokens: DashMap<usize, CancellationToken>,
-    pub current_registration: RwLock<Option<(String, DateTime<Utc>)>>,
 }
 
 impl AppState {
     pub fn new() -> Self {
         Self {
             auth_tokens: DashMap::new(),
+            active_registration_code: RwLock::new(None),
             cancellation_tokens: DashMap::new(),
-            current_registration: RwLock::new(None),
         }
     }
 
-    pub fn set_registration(&self, registration: String) {
-        let created_at = Utc::now();
-        let mut current_registration = self.current_registration.write().unwrap();
-        *current_registration = Some((registration, created_at));
-    }
-
-    pub fn validate_registration(&self, registration: &str) -> bool {
-        let current_registration = self.current_registration.read().unwrap();
-        if let Some((stored_registration, _created_at)) = &*current_registration {
-            *stored_registration == registration
-        } else {
-            false
+    pub async fn validate_registration(&self, registration: &str) -> bool {
+        match *self.active_registration_code.read().await {
+          Some(ref code) => code == registration,
+          None => false
         }
     }
 

@@ -399,16 +399,17 @@ function envAutoCompletion(context: CompletionContext) {
       info: env?.value ?? "",
       apply: env?.key ? `<<${env.key}>>` : "",
     }))
-    .filter((x) => x)
+    .filter(Boolean)
 
   const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
   const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
-  const tagBefore = /<<\w*$/.exec(textBefore)
+  const tagBefore = /<<\$?\w*$/.exec(textBefore) // Update regex to match <<$ as well
+
   if (!tagBefore && !context.explicit) return null
   return {
     from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
     options: options,
-    validFor: /^(<<\w*)?$/,
+    validFor: /^(<<\$?\w*)?$/,
   }
 }
 

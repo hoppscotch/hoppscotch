@@ -2,6 +2,7 @@ import {
   Environment,
   GlobalEnvironment,
   GlobalEnvironmentVariable,
+  HOPP_SUPPORTED_PREDEFINED_VARIABLES,
 } from "@hoppscotch/data"
 import { cloneDeep, isEqual } from "lodash-es"
 import { combineLatest, Observable } from "rxjs"
@@ -408,23 +409,43 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
   map(([selectedEnv, globalVars]) => {
-    const results: AggregateEnvironment[] = []
+    const effectiveAggregateEnvs: AggregateEnvironment[] = []
+
+    // Ensure pre-defined variables are prioritised over other environment variables with the same name
+    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, value }) => {
+      effectiveAggregateEnvs.push({
+        key,
+        value: value(),
+        secret: false,
+        sourceEnv: selectedEnv?.name ?? "Global",
+      })
+    })
+
+    const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
 
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
       const value = "value" in variable ? variable.value : ""
 
-      results.push({ key, value, secret, sourceEnv: selectedEnv.name })
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({
+          key,
+          value,
+          secret,
+          sourceEnv: selectedEnv.name,
+        })
+      }
     })
-
-    globalVars.variables.forEach((variable) => {
+    globalVars.forEach((variable) => {
       const { key, secret } = variable
       const value = "value" in variable ? variable.value : ""
 
-      results.push({ key, value, secret, sourceEnv: "Global" })
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({ key, value, secret, sourceEnv: "Global" })
+      }
     })
 
-    return results
+    return effectiveAggregateEnvs
   }),
   distinctUntilChanged(isEqual)
 )

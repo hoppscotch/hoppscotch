@@ -140,14 +140,3 @@ export class HoppPredefinedVariablesPlugin {
     ])
   }
 }
-
-export class HoppReactivePredefinedVariablesPlugin {
-  private compartment = new Compartment()
-
-  get extension() {
-    return this.compartment.of([
-      cursorTooltipField(),
-      predefinedVariableHighlightStyle(),
-    ])
-  }
-}

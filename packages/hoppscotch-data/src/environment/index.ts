@@ -67,7 +67,7 @@ export function parseBodyEnvVariablesE(
       )
 
       if (foundPredefinedVar) {
-        return foundPredefinedVar.value()
+        return foundPredefinedVar.getValue()
       }
 
       const foundEnv = env.find((envVar) => envVar.key === variableName)
@@ -126,7 +126,7 @@ export function parseTemplateStringE(
       )
 
       if (foundPredefinedVar) {
-        return foundPredefinedVar.value()
+        return foundPredefinedVar.getValue()
       }
 
       const variable = variables.find((x) => x && x.key === p1)

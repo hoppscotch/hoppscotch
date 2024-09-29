@@ -408,14 +408,14 @@ export type AggregateEnvironment = {
 export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
-  map(([selectedEnv, globalVars]) => {
+  map(([selectedEnv, globalEnv]) => {
     const effectiveAggregateEnvs: AggregateEnvironment[] = []
 
     // Ensure pre-defined variables are prioritised over other environment variables with the same name
-    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, value }) => {
+    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
       effectiveAggregateEnvs.push({
         key,
-        value: value(),
+        value: getValue(),
         secret: false,
         sourceEnv: selectedEnv?.name ?? "Global",
       })
@@ -436,7 +436,8 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
         })
       }
     })
-    globalVars.forEach((variable) => {
+
+    globalEnv.variables.forEach((variable) => {
       const { key, secret } = variable
       const value = "value" in variable ? variable.value : ""
 
@@ -524,7 +525,7 @@ export function getAggregateEnvsWithSecrets() {
 
 export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
   combineLatest([currentEnvironment$, globalEnv$]).pipe(
-    map(([selectedEnv, globalVars]) => {
+    map(([selectedEnv, globalEnv]) => {
       const results: AggregateEnvironment[] = []
       selectedEnv?.variables.map((x, index) => {
         let value
@@ -544,7 +545,7 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
         })
       })
 
-      globalVars.variables.map((x, index) => {
+      globalEnv.variables.map((x, index) => {
         let value
         if (x.secret) {
           value = secretEnvironmentService.getSecretEnvironmentVariableValue(

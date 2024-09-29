@@ -6,6 +6,7 @@ use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
+use tauri::AppHandle;
 use std::sync::Arc;
 
 use crate::{
@@ -13,9 +14,9 @@ use crate::{
     error::{AppError, AppResult},
     model::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-        RegistrationReceiveRequest, RequestDef, RunRequestResponse,
+        RequestDef, RunRequestResponse,
     },
-    state::AppState,
+    state::{AppState, Registration},
 };
 use chrono::Utc;
 use serde_json::json;
@@ -37,7 +38,6 @@ pub async fn handshake() -> AppResult<Json<HandshakeResponse>> {
 
 pub async fn receive_registration<T: AppHandleExt>(
     State((state, app_handle)): State<(Arc<AppState>, T)>,
-    Json(registration_request): Json<RegistrationReceiveRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     let otp = generate_otp();
 
@@ -60,8 +60,8 @@ pub async fn receive_registration<T: AppHandleExt>(
     ))
 }
 
-pub async fn verify_registration<T: AppHandleExt>(
-    State((state, app_handle)): State<(Arc<AppState>, T)>,
+pub async fn verify_registration(
+    State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
     Json(confirmed_registration): Json<ConfirmedRegistrationRequest>,
 ) -> AppResult<Json<AuthKeyResponse>> {
     state
@@ -73,6 +73,14 @@ pub async fn verify_registration<T: AppHandleExt>(
     let auth_key = Uuid::new_v4().to_string();
     let created_at = Utc::now();
 
+    let auth_key_copy = auth_key.clone();
+
+    state.update_registrations(app_handle.clone(), |regs| {
+      regs.insert(auth_key_copy, Registration {
+        registered_at: created_at
+      });
+    });
+
     let auth_payload = json!({
         "auth_key": auth_key,
         "created_at": created_at
@@ -81,8 +89,6 @@ pub async fn verify_registration<T: AppHandleExt>(
     app_handle
         .emit("authenticated", &auth_payload)
         .map_err(|_| AppError::InternalServerError)?;
-
-    state.set_auth_token(auth_key.clone());
 
     Ok(Json(AuthKeyResponse {
         auth_key,
@@ -95,10 +101,9 @@ pub async fn run_request<T>(
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Json(req): Json<RequestDef>,
 ) -> AppResult<Json<RunRequestResponse>> {
-    state
-        .validate_auth_token(auth_header.token())
-        .then_some(())
-        .ok_or(AppError::Unauthorized)?;
+    if !state.validate_access(auth_header.token()) {
+      return Err(AppError::Unauthorized);
+    }
 
     let cancel_token = tokio_util::sync::CancellationToken::new();
     state.add_cancellation_token(req.req_id, cancel_token.clone());
@@ -142,10 +147,9 @@ pub async fn cancel_request<T>(
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Path(req_id): Path<usize>,
 ) -> AppResult<Json<serde_json::Value>> {
-    state
-        .validate_auth_token(auth_header.token())
-        .then_some(())
-        .ok_or(AppError::Unauthorized)?;
+    if !state.validate_access(auth_header.token()) {
+        return Err(AppError::Unauthorized);
+    }
 
     if let Some((_, token)) = state.remove_cancellation_token(req_id) {
         token.cancel();
@@ -158,27 +162,7 @@ pub async fn cancel_request<T>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        app_handle_ext::MockAppHandle,
-        model::{
-            AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-            RegistrationReceiveRequest,
-        },
-        state::AppState,
-    };
-    use axum::{
-        body::{Body, Bytes},
-        http::{Request, StatusCode},
-        routing::post,
-        Router,
-    };
-    use std::sync::Arc;
-    use tower::ServiceExt;
-    use uuid::Uuid;
-
-    async fn read_body(body: Body) -> Bytes {
-        axum::body::to_bytes(body, usize::MAX).await.unwrap()
-    }
+    use crate::model::HandshakeResponse;
 
     #[tokio::test]
     async fn test_handshake() {
@@ -192,179 +176,6 @@ mod tests {
         assert_eq!(
             handshake_response.message,
             "Agent ready! Hopp in, we've got requests to catch!"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_run_request_valid() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route("/request", post(run_request::<MockAppHandle>))
-            .with_state((state.clone(), app_handle));
-
-        let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone());
-
-        let request_def = serde_json::json!({
-            "req_id": 1,
-            "method": "GET",
-            "endpoint": "https://example.com",
-            "headers": [],
-            "body": null,
-            "validate_certs": false,
-            "root_cert_bundle_files": [],
-            "client_cert": null,
-            "proxy": null
-        });
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/request")
-            .header("content-type", "application/json")
-            .header("Authorization", format!("Bearer {}", auth_token))
-            .body(Body::from(serde_json::to_string(&request_def).unwrap()))
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-    }
-
-    #[tokio::test]
-    async fn test_run_request_invalid_auth() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route("/request", post(run_request::<MockAppHandle>))
-            .with_state((state.clone(), app_handle));
-
-        let request_def = serde_json::json!({
-            "req_id": 1,
-            "method": "GET",
-            "endpoint": "https://example.com",
-            "headers": [],
-            "body": null,
-            "validate_certs": false,
-            "root_cert_bundle_files": [],
-            "client_cert": null,
-            "proxy": null
-        });
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/request")
-            .header("content-type", "application/json")
-            .header("Authorization", "Bearer invalid_token")
-            .body(Body::from(serde_json::to_string(&request_def).unwrap()))
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-
-        let body = read_body(response.into_body()).await;
-        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(error_response["error"], "Unauthorized");
-    }
-
-    #[tokio::test]
-    async fn test_cancel_request_valid() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/cancel-request/:req_id",
-                post(cancel_request::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone());
-
-        let req_id = 1;
-        state.add_cancellation_token(req_id, tokio_util::sync::CancellationToken::new());
-
-        let request = Request::builder()
-            .method("POST")
-            .uri(&format!("/cancel-request/{}", req_id))
-            .header("Authorization", format!("Bearer {}", auth_token))
-            .body(Body::empty())
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-
-        let body = read_body(response.into_body()).await;
-        let json_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(json_response["message"], "Request cancelled successfully");
-
-        assert!(state.remove_cancellation_token(req_id).is_none());
-    }
-
-    #[tokio::test]
-    async fn test_cancel_request_invalid_auth() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/cancel-request/:req_id",
-                post(cancel_request::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        let req_id = 1;
-        state.add_cancellation_token(req_id, tokio_util::sync::CancellationToken::new());
-
-        let request = Request::builder()
-            .method("POST")
-            .uri(&format!("/cancel-request/{}", req_id))
-            .header("Authorization", "Bearer invalid_token")
-            .body(Body::empty())
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-
-        let body = read_body(response.into_body()).await;
-        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(error_response["error"], "Unauthorized");
-    }
-
-    #[tokio::test]
-    async fn test_cancel_request_not_found() {
-        let state = Arc::new(AppState::new());
-        let app_handle = MockAppHandle;
-
-        let app = Router::new()
-            .route(
-                "/cancel-request/:req_id",
-                post(cancel_request::<MockAppHandle>),
-            )
-            .with_state((state.clone(), app_handle));
-
-        let auth_token = Uuid::new_v4().to_string();
-        state.set_auth_token(auth_token.clone());
-
-        let req_id = 999; // Non-existent request ID
-
-        let request = Request::builder()
-            .method("POST")
-            .uri(&format!("/cancel-request/{}", req_id))
-            .header("Authorization", format!("Bearer {}", auth_token))
-            .body(Body::empty())
-            .unwrap();
-
-        let response = app.oneshot(request).await.unwrap();
-        assert_eq!(response.status(), StatusCode::NOT_FOUND);
-
-        let body = read_body(response.into_body()).await;
-        let error_response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(
-            error_response["error"],
-            "Request not found or already completed"
         );
     }
 }

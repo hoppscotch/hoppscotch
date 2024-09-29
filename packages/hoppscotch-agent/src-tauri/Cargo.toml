@@ -20,7 +20,7 @@ tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.40.0", features = ["full"] }
-dashmap = "6.1.0"
+dashmap = { version = "6.1.0", features = ["serde"] }
 axum = { version = "0.7.6" }
 axum-extra = { version = "0.9.4", features = ["typed-header"] }
 tower-http = { version = "0.6.1", features = ["cors"] }
@@ -35,6 +35,7 @@ openssl = "0.10.66"
 openssl-sys = "0.9.103"
 url-escape = "0.1.1"
 thiserror = "1.0.64"
+tauri-plugin-store = "2.0.0-rc.3"
 
 [dev-dependencies]
 mockito = "1.5.0"

@@ -29,22 +29,24 @@ async fn get_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<Option<String
 pub fn run() {
     env_logger::init();
 
-    let app_state = Arc::new(AppState::new());
-    let server_state = app_state.clone();
     let cancellation_token = CancellationToken::new();
     let server_cancellation_token = cancellation_token.clone();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .setup(move |app| {
             let app_handle = app.app_handle();
 
-            let server_state = server_state.clone();
+            let app_state = Arc::new(AppState::new(app_handle.clone()));
+
+            app.manage(app_state.clone());
+
             let server_cancellation_token = server_cancellation_token.clone();
 
             let server_app_handle = app_handle.clone();
 
             tauri::async_runtime::spawn(async move {
-                server::run_server(server_state, server_cancellation_token, server_app_handle)
+                server::run_server(app_state, server_cancellation_token, server_app_handle)
                     .await;
             });
 
@@ -77,7 +79,6 @@ pub fn run() {
 
             Ok(())
         })
-        .manage(app_state)
         .manage(cancellation_token)
         .on_window_event(|window, event| {
           match &event {

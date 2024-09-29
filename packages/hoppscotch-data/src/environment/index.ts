@@ -120,6 +120,15 @@ export function parseTemplateStringE(
     !isSecret
   ) {
     result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
+      // Prioritise predefined variable values over normal environment variables processing.
+      const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+        (preVar) => preVar.key === p1
+      )
+
+      if (foundPredefinedVar) {
+        return foundPredefinedVar.value()
+      }
+
       const variable = variables.find((x) => x && x.key === p1)
 
       if (variable && "value" in variable) {

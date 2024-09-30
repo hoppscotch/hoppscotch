@@ -151,7 +151,6 @@ const hoppLang = (
 
 const getLanguage = (langMime: string): Language | null => {
   if (isJSONContentType(langMime)) {
-    console.log("isJSONContentType")
     return jsoncLanguage
   } else if (langMime === "application/javascript") {
     return javascriptLanguage

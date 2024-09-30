@@ -1,7 +1,7 @@
 use axum::Router;
 use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::CorsLayer;
 
 use crate::route;
 use crate::state::AppState;

@@ -51,7 +51,11 @@ export {
   PasswordGrantTypeParams,
 } from "./v/8"
 
-export { HoppRESTResponseOriginalRequest, HoppRESTRequestResponse } from "./v/9"
+export {
+  HoppRESTResponseOriginalRequest,
+  HoppRESTRequestResponse,
+  HoppRESTRequestResponses,
+} from "./v/9"
 
 const versionedObject = z.object({
   // v is a stringified number

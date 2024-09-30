@@ -18,6 +18,8 @@ import {
   makeCollection,
   HoppRESTRequestVariable,
   HoppRESTRequest,
+  HoppRESTRequestResponses,
+  HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -27,10 +29,6 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { cloneDeep, isNumber } from "lodash-es"
-import {
-  HoppRESTRequestResponses,
-  HoppRESTResponseOriginalRequest,
-} from "@hoppscotch/data/dist/rest/v/8"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
@@ -763,7 +761,7 @@ const convertPathToHoppReqs = (
           ),
 
           responses: parseOpenAPIResponses(doc, info, {
-            name: "",
+            name: info.operationId ?? info.summary ?? "Untitled Request",
             auth: parseOpenAPIAuth(doc, info),
             body: parseOpenAPIBody(doc, info),
             endpoint,

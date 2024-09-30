@@ -831,7 +831,7 @@ const onAddRequest = (requestName: string) => {
   const request =
     tabs.currentActiveTab.value.document.type === "request"
       ? tabs.currentActiveTab.value.document.request
-      : null
+      : getDefaultRESTRequest()
 
   if (!request) return
 
@@ -1256,8 +1256,6 @@ const updateEditingResponse = (newName: string) => {
     .slice(0, -1)
     .join("/")
 
-  console.log("last-path", responsePath)
-
   if (!responseOldName) return
 
   if (responseOldName !== newName) {
@@ -1281,28 +1279,46 @@ const updateEditingResponse = (newName: string) => {
 
     if (folderPath === null || requestIndex === null) return
 
-    const possibleActiveTab = tabs.getTabRefWithSaveContext({
+    const possibleExampleActiveTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex,
       folderPath,
       exampleID: editingResponseID.value ?? undefined,
     })
 
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+
     editRESTRequest(folderPath, requestIndex, request)
 
     if (
-      possibleActiveTab &&
-      possibleActiveTab.value.document.type === "example-response"
+      possibleExampleActiveTab &&
+      possibleExampleActiveTab.value.document.type === "example-response"
     ) {
-      possibleActiveTab.value.document.response.name = newName
+      possibleExampleActiveTab.value.document.response.name = newName
       nextTick(() => {
-        possibleActiveTab.value.document.isDirty = false
-        possibleActiveTab.value.document.saveContext = {
+        possibleExampleActiveTab.value.document.isDirty = false
+        possibleExampleActiveTab.value.document.saveContext = {
           originLocation: "user-collection",
           folderPath: folderPath,
           requestIndex: requestIndex,
           exampleID: responsePath ? responsePath + "/" + newName : newName,
         }
+      })
+    }
+
+    // update the request tab responses if it's open
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        request.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
       })
     }
 
@@ -1334,21 +1350,41 @@ const updateEditingResponse = (newName: string) => {
       )
     )()
 
-    const possibleTab = tabs.getTabRefWithSaveContext({
+    const possibleActiveResponseTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID,
       exampleID: editingResponseID.value ?? undefined,
     })
 
-    if (possibleTab && possibleTab.value.document.type === "example-response") {
-      possibleTab.value.document.response.name = newName
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
+    if (
+      possibleActiveResponseTab &&
+      possibleActiveResponseTab.value.document.type === "example-response"
+    ) {
+      possibleActiveResponseTab.value.document.response.name = newName
       nextTick(() => {
-        possibleTab.value.document.isDirty = false
-        possibleTab.value.document.saveContext = {
+        possibleActiveResponseTab.value.document.isDirty = false
+        possibleActiveResponseTab.value.document.saveContext = {
           originLocation: "team-collection",
           requestID,
           exampleID: responsePath ? responsePath + "/" + newName : newName,
         }
+      })
+    }
+
+    // update the request tab responses if it's open
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        request.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
       })
     }
   }
@@ -1428,6 +1464,24 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
   if (collectionsType.value.type === "my-collections") {
     editRESTRequest(folderPath, parseInt(requestIndex), updatedRequest)
     toast.success(t("response.duplicated"))
+
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex: parseInt(requestIndex),
+      folderPath,
+    })
+
+    // update the request tab responses if it's open
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        updatedRequest.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
+      })
+    }
   } else if (hasTeamWriteAccess.value) {
     duplicateRequestLoading.value = true
 
@@ -1452,6 +1506,23 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
         }
       )
     )()
+
+    // update the request tab responses if it's open
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID: requestIndex,
+    })
+
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        updatedRequest.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
+      })
+    }
   }
 }
 
@@ -1753,21 +1824,30 @@ const onRemoveResponse = () => {
 
     editRESTRequest(folderPath, requestIndex, requestUpdated)
 
-    const possibleTab = tabs.getTabRefWithSaveContext({
+    const possibleActiveResponseTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
       requestIndex,
       exampleID: responseID ?? undefined,
     })
 
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+
     // If there is a tab attached to this request, close it and set the active tab to the first one
-    if (possibleTab && possibleTab.value.document.type === "example-response") {
+    if (
+      possibleActiveResponseTab &&
+      possibleActiveResponseTab.value.document.type === "example-response"
+    ) {
       const activeTabs = tabs.getActiveTabs()
 
       // if the last tab is the one we are closing, we need to create a new tab
       if (
         activeTabs.value.length === 1 &&
-        activeTabs.value[0].id === possibleTab.value.id
+        activeTabs.value[0].id === possibleActiveResponseTab.value.id
       ) {
         tabs.createNewTab({
           request: getDefaultRESTRequest(),
@@ -1775,11 +1855,23 @@ const onRemoveResponse = () => {
           type: "request",
           saveContext: undefined,
         })
-        tabs.closeTab(possibleTab.value.id)
+        tabs.closeTab(possibleActiveResponseTab.value.id)
       } else {
-        tabs.closeTab(possibleTab.value.id)
+        tabs.closeTab(possibleActiveResponseTab.value.id)
         tabs.setActiveTab(activeTabs.value[0].id)
       }
+    }
+
+    // update the request tab responses if it's open
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        requestUpdated.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
+      })
     }
 
     toast.success(t("state.deleted"))
@@ -1811,20 +1903,28 @@ const onRemoveResponse = () => {
       )
     )()
 
-    const possibleTab = tabs.getTabRefWithSaveContext({
+    const possibleActiveResponseTab = tabs.getTabRefWithSaveContext({
       originLocation: "team-collection",
       requestID,
       exampleID: responseID ?? undefined,
     })
 
+    const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
     // If there is a tab attached to this request, close it and set the active tab to the first one
-    if (possibleTab && possibleTab.value.document.type === "example-response") {
+    if (
+      possibleActiveResponseTab &&
+      possibleActiveResponseTab.value.document.type === "example-response"
+    ) {
       const activeTabs = tabs.getActiveTabs()
 
       // if the last tab is the one we are closing, we need to create a new tab
       if (
         activeTabs.value.length === 1 &&
-        activeTabs.value[0].id === possibleTab.value.id
+        activeTabs.value[0].id === possibleActiveResponseTab.value.id
       ) {
         tabs.createNewTab({
           request: getDefaultRESTRequest(),
@@ -1832,11 +1932,23 @@ const onRemoveResponse = () => {
           type: "request",
           saveContext: undefined,
         })
-        tabs.closeTab(possibleTab.value.id)
+        tabs.closeTab(possibleActiveResponseTab.value.id)
       } else {
-        tabs.closeTab(possibleTab.value.id)
+        tabs.closeTab(possibleActiveResponseTab.value.id)
         tabs.setActiveTab(activeTabs.value[0].id)
       }
+    }
+
+    // update the request tab responses if it's open
+    if (
+      possibleRequestActiveTab &&
+      possibleRequestActiveTab.value.document.type === "request"
+    ) {
+      possibleRequestActiveTab.value.document.request.responses =
+        requestUpdated.responses
+      nextTick(() => {
+        possibleRequestActiveTab.value.document.isDirty = false
+      })
     }
   }
 }

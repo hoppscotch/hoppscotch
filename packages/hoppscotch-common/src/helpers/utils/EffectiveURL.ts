@@ -473,8 +473,13 @@ function getFinalBodyFromRequest(
     )
   }
 
+  let bodyContent = request.body.body ?? ""
+
+  if (isJSONContentType(request.body.contentType))
+    bodyContent = removeComments(request.body.body)
+
   // body can be null if the content-type is not set
-  return parseBodyEnvVariables(request.body.body ?? "", envVariables)
+  return parseBodyEnvVariables(bodyContent, envVariables)
 }
 
 /**

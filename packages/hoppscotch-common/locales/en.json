@@ -600,6 +600,7 @@
   },
   "request": {
     "added": "Request added",
+    "add": "Add Request",
     "authorization": "Authorization",
     "body": "Request Body",
     "choose_language": "Choose language",

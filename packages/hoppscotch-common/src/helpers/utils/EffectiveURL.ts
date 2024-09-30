@@ -126,7 +126,7 @@ export const getComputedAuthHeaders = async (
       nonce: request.auth.nonce
         ? parseTemplateString(authInfo.nonce, envVars)
         : authInfo.nonce,
-      uri: parseTemplateString(endpoint, envVars),
+      endpoint: parseTemplateString(endpoint, envVars),
       method,
       algorithm: request.auth.algorithm ?? authInfo.algorithm,
       qop: request.auth.qop

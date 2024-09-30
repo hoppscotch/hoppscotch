@@ -1314,9 +1314,6 @@ const updateEditingResponse = (newName: string) => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         request.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
 
     displayModalEditResponse(false)
@@ -1382,9 +1379,6 @@ const updateEditingResponse = (newName: string) => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         request.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
   }
 }
@@ -1477,9 +1471,6 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         updatedRequest.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
   } else if (hasTeamWriteAccess.value) {
     duplicateRequestLoading.value = true
@@ -1518,9 +1509,6 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         updatedRequest.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
   }
 }
@@ -1868,9 +1856,6 @@ const onRemoveResponse = () => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         requestUpdated.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
 
     toast.success(t("state.deleted"))
@@ -1945,9 +1930,6 @@ const onRemoveResponse = () => {
     ) {
       possibleRequestActiveTab.value.document.request.responses =
         requestUpdated.responses
-      nextTick(() => {
-        possibleRequestActiveTab.value.document.isDirty = false
-      })
     }
   }
 }

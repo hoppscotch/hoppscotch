@@ -261,7 +261,7 @@ const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   1000
 )
 
-const globalVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 type SelectedEnv = "variables" | "secret"
 
@@ -319,7 +319,7 @@ const liveEnvs = computed(() => {
   }
   return [
     ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
-    ...globalVars.value.variables.map((x) => ({ ...x, source: "Global" })),
+    ...globalEnv.value.variables.map((x) => ({ ...x, source: "Global" })),
   ]
 })
 

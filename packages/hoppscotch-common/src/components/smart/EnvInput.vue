@@ -78,6 +78,7 @@ import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
+import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
 import { useReadonlyStream } from "@composables/stream"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { platform } from "~/platform"
@@ -103,6 +104,7 @@ const props = withDefaults(
     focus?: boolean
     selectTextOnMount?: boolean
     environmentHighlights?: boolean
+    predefinedVariablesHighlights?: boolean
     readonly?: boolean
     autoCompleteSource?: string[]
     inspectionResults?: InspectorResult[] | undefined
@@ -118,6 +120,7 @@ const props = withDefaults(
     focus: false,
     readonly: false,
     environmentHighlights: true,
+    predefinedVariablesHighlights: true,
     autoCompleteSource: undefined,
     inspectionResult: undefined,
     inspectionResults: undefined,
@@ -396,20 +399,22 @@ function envAutoCompletion(context: CompletionContext) {
       info: env?.value ?? "",
       apply: env?.key ? `<<${env.key}>>` : "",
     }))
-    .filter((x) => x)
+    .filter(Boolean)
 
   const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
   const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
-  const tagBefore = /<<\w*$/.exec(textBefore)
+  const tagBefore = /<<\$?\w*$/.exec(textBefore) // Update regex to match <<$ as well
+
   if (!tagBefore && !context.explicit) return null
   return {
     from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
     options: options,
-    validFor: /^(<<\w*)?$/,
+    validFor: /^(<<\$?\w*)?$/,
   }
 }
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
+const predefinedVariablePlugin = new HoppPredefinedVariablesPlugin()
 
 function handleTextSelection() {
   const selection = view.value?.state.selection.main
@@ -490,6 +495,7 @@ const getExtensions = (readonly: boolean): Extension => {
       position: "absolute",
     }),
     props.environmentHighlights ? envTooltipPlugin : [],
+    props.predefinedVariablesHighlights ? predefinedVariablePlugin : [],
     placeholderExt(props.placeholder),
     EditorView.domEventHandlers({
       paste(ev) {

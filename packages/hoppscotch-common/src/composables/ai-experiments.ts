@@ -38,6 +38,8 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
   })
 
+  const lastTraceID = ref<string | null>(null)
+
   const generateRequestName = async (
     requestContext: HoppRESTRequest | HoppGQLRequest | null
   ) => {
@@ -66,6 +68,7 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     }
 
     targetNameRef.value = result.right.request_name
+    lastTraceID.value = result.right.trace_id
 
     isGenerateRequestNamePending.value = false
   }
@@ -74,6 +77,7 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     generateRequestName,
     isGenerateRequestNamePending,
     canDoRequestNameGeneration,
+    lastTraceID,
   }
 }
 

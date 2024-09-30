@@ -52,20 +52,61 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="`${t('action.save')}`"
-          :loading="modalLoadingState"
-          outline
-          @click="saveRequestAs"
-        />
-        <HoppButtonSecondary
-          :label="`${t('action.cancel')}`"
-          outline
-          filled
-          @click="hideModal"
-        />
-      </span>
+      <div class="flex justify-between items-center w-full">
+        <div class="flex space-x-2">
+          <HoppButtonPrimary
+            :label="`${t('action.save')}`"
+            :loading="modalLoadingState"
+            outline
+            @click="saveRequestAs"
+          />
+          <HoppButtonSecondary
+            :label="`${t('action.cancel')}`"
+            outline
+            filled
+            @click="hideModal"
+          />
+        </div>
+
+        <div
+          v-if="lastTraceID && !submittedFeedback"
+          class="flex items-center gap-2"
+        >
+          <p>{{ t("ai_experiments.feedback_cta_request_name") }}</p>
+          <template v-if="!isSubmitFeedbackPending">
+            <HoppButtonSecondary
+              :icon="IconThumbsUp"
+              outline
+              @click="
+                async () => {
+                  if (lastTraceID) {
+                    await submitFeedback('positive', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
+            />
+            <HoppButtonSecondary
+              :icon="IconThumbsDown"
+              outline
+              @click="
+                () => {
+                  if (lastTraceID) {
+                    submitFeedback('negative', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
+            />
+          </template>
+          <template v-else>
+            <HoppSmartSpinner />
+          </template>
+        </div>
+        <div v-if="submittedFeedback">
+          <p>{{ t("ai_experiments.feedback_thank_you") }}</p>
+        </div>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -84,7 +125,10 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep } from "lodash-es"
 import { computed, nextTick, reactive, ref, watch } from "vue"
-import { useRequestNameGeneration } from "~/composables/ai-experiments"
+import {
+  useRequestNameGeneration,
+  useSubmitFeedback,
+} from "~/composables/ai-experiments"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createRequestInCollection,
@@ -103,6 +147,8 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
+import IconThumbsDown from "~icons/lucide/thumbs-down"
+import IconThumbsUp from "~icons/lucide/thumbs-up"
 
 const t = useI18n()
 const toast = useToast()
@@ -185,7 +231,21 @@ const {
   canDoRequestNameGeneration,
   generateRequestName,
   isGenerateRequestNamePending,
+  lastTraceID,
 } = useRequestNameGeneration(requestName)
+
+watch(
+  () => props.show,
+  (newVal) => {
+    if (!newVal) {
+      submittedFeedback.value = false
+      lastTraceID.value = null
+    }
+  }
+)
+
+const submittedFeedback = ref(false)
+const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 
 watch(
   () => [RESTTabs.currentActiveTab.value, GQLTabs.currentActiveTab.value],

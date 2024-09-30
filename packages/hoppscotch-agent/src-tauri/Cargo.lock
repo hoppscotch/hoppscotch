@@ -203,6 +203,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
+name = "auto-launch"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f012b8cc0c850f34117ec8252a44418f2e34a2cf501de89e29b241ae5f79471"
+dependencies = [
+ "dirs 4.0.0",
+ "thiserror",
+ "winreg 0.10.1",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -885,11 +896,31 @@ dependencies = [
 
 [[package]]
 name = "dirs"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
+dependencies = [
+ "dirs-sys 0.3.7",
+]
+
+[[package]]
+name = "dirs"
 version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
 dependencies = [
- "dirs-sys",
+ "dirs-sys 0.4.1",
+]
+
+[[package]]
+name = "dirs-sys"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
+dependencies = [
+ "libc",
+ "redox_users",
+ "winapi",
 ]
 
 [[package]]
@@ -980,7 +1011,7 @@ dependencies = [
  "rustc_version",
  "toml 0.8.2",
  "vswhom",
- "winreg",
+ "winreg 0.52.0",
 ]
 
 [[package]]
@@ -1648,6 +1679,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-autostart",
  "tauri-plugin-shell",
  "tauri-plugin-store",
  "thiserror",
@@ -3739,7 +3771,7 @@ checksum = "eb3c3b1c7ac5b72d59da307b84af900a0098c74c9d7369f65018cd8ec0eb50fb"
 dependencies = [
  "anyhow",
  "bytes",
- "dirs",
+ "dirs 5.0.1",
  "dunce",
  "embed_plist",
  "futures-util",
@@ -3791,7 +3823,7 @@ checksum = "6ff5713e81e02e0b99f5219b275abbd7d2c0cc0f30180e25b1b650e08feeac63"
 dependencies = [
  "anyhow",
  "cargo_toml",
- "dirs",
+ "dirs 5.0.1",
  "glob",
  "heck 0.5.0",
  "json-patch",
@@ -3861,6 +3893,21 @@ dependencies = [
  "tauri-utils",
  "toml 0.8.2",
  "walkdir",
+]
+
+[[package]]
+name = "tauri-plugin-autostart"
+version = "2.0.0-rc.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "992fef0cc6ef3637a8b336c9bf9758b8e718db934afd744846422c1da877dac0"
+dependencies = [
+ "auto-launch",
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+ "thiserror",
 ]
 
 [[package]]
@@ -4314,7 +4361,7 @@ checksum = "044d7738b3d50f288ddef035b793228740ad4d927f5466b0af55dc15e7e03cfe"
 dependencies = [
  "core-graphics",
  "crossbeam-channel",
- "dirs",
+ "dirs 5.0.1",
  "libappindicator",
  "muda",
  "objc2",
@@ -5091,6 +5138,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "winreg"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
+dependencies = [
+ "winapi",
 ]
 
 [[package]]

@@ -17,6 +17,7 @@ tauri-build = { version = "2.0.0-rc", features = [] }
 [dependencies]
 tauri = { version = "2.0.0-rc.0", features = ["tray-icon", "image-png"] }
 tauri-plugin-shell = "2.0.0-rc"
+tauri-plugin-autostart = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.40.0", features = ["full"] }

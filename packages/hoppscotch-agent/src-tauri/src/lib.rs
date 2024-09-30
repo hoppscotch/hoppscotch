@@ -37,6 +37,26 @@ pub fn run() {
         .setup(move |app| {
             let app_handle = app.app_handle();
 
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_autostart::MacosLauncher;
+                use tauri_plugin_autostart::ManagerExt;
+
+                let _ = app.handle().plugin(tauri_plugin_autostart::init(
+                    MacosLauncher::LaunchAgent,
+                    None
+                ));
+
+                let autostart_manager = app.autolaunch();
+
+                println!("autostart enabled: {}", autostart_manager.is_enabled().unwrap());
+
+                if !autostart_manager.is_enabled().unwrap() {
+                    let _ = autostart_manager.enable();
+                    println!("autostart updated: {}", autostart_manager.is_enabled().unwrap());
+                }
+            }
+
             let app_state = Arc::new(AppState::new(app_handle.clone()));
 
             app.manage(app_state.clone());

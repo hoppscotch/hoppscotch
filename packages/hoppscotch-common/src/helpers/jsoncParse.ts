@@ -117,11 +117,12 @@ function parseObj(): JSONObjectValue {
   const nodeStart = start
   const members = []
   expect("{")
-  if (!skip("}")) {
-    do {
-      members.push(parseMember())
-    } while (skip(","))
-    expect("}")
+  while (!skip("}")) {
+    members.push(parseMember())
+    if (!skip(",")) {
+      expect("}")
+      break
+    }
   }
   return {
     kind: "Object",
@@ -150,11 +151,12 @@ function parseArr(): JSONArrayValue {
   const nodeStart = start
   const values: JSONValue[] = []
   expect("[")
-  if (!skip("]")) {
-    do {
-      values.push(parseVal())
-    } while (skip(","))
-    expect("]")
+  while (!skip("]")) {
+    values.push(parseVal())
+    if (!skip(",")) {
+      expect("]")
+      break
+    }
   }
   return {
     kind: "Array",

@@ -1,4 +1,4 @@
-// import crypto from "crypto"
+import { md5 } from "js-md5"
 import * as E from "fp-ts/Either"
 
 import { getService } from "~/modules/dioc"
@@ -7,95 +7,51 @@ import { InterceptorService } from "~/services/interceptor.service"
 export interface DigestAuthParams {
   username: string
   password: string
-  realm?: string
-  nonce?: string
+  realm: string
+  nonce: string
   uri: string
   method: string
-  qop?: string
+  algorithm: string
+  qop: string
   nc?: string
   opaque?: string
   cnonce?: string // client nonce (optional but typically required in qop='auth')
 }
 
-const randomBytes = (size: number) => {
-  let bytes = new Uint8Array(size)
-  if (typeof window !== "undefined" && window.crypto) {
-    bytes = window.crypto.getRandomValues(bytes)
-  }
-  return Buffer.from(bytes)
-}
-
-export function generateDigestAuthHeader(params: DigestAuthParams): string {
+// Function to generate Digest Auth Header
+export async function generateDigestAuthHeader(params: DigestAuthParams) {
   const {
     username,
     password,
-    realm = "",
-    nonce = "",
+    realm,
+    nonce,
     uri,
     method,
+    algorithm = "MD5",
     qop,
-    nc = "00000001", // Nonce count (incrementing in case of multiple requests)
+    nc = "00000001",
     opaque,
-    cnonce = randomBytes(16).toString("hex"), // client nonce
+    cnonce,
   } = params
 
-  // HA1 = MD5(username:realm:password)
-  // const ha1 = crypto
-  //   .createHash("md5")
-  //   .update(`${username}:${realm}:${password}`)
-  //   .digest("hex")
+  // Generate client nonce if not provided
+  const generatedCnonce = cnonce || md5(`${Math.random()}`)
 
-  const ha1 = crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`${username}:${realm}:${password}`)
-  )
+  // Step 1: Hash the username, realm, and password
+  const ha1 = md5(`${username}:${realm}:${password}`)
 
-  // HA2 = MD5(method:uri)
-  // const ha2 = crypto.createHash("md5").update(`${method}:${uri}`).digest("hex")
-  const ha2 = crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`${method}:${uri}`)
-  )
+  // Step 2: Hash the method and URI
+  const ha2 = md5(`${method}:${uri}`)
 
-  // Response calculation
-  let response
-  if (qop) {
-    // qop = 'auth' is typically used
-    // response = crypto
-    //   .createHash("md5")
-    //   .update(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
-    //   .digest("hex")
+  // Step 3: Compute the response hash
+  const response = md5(`${ha1}:${nonce}:${nc}:${generatedCnonce}:${qop}:${ha2}`)
 
-    response = crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
-    )
-  } else {
-    // Without qop
-    // response = crypto
-    //   .createHash("md5")
-    //   .update(`${ha1}:${nonce}:${ha2}`)
-    //   .digest("hex")
-    response = crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(`${ha1}:${nonce}:${ha2}`)
-    )
+  // Build the Digest header
+  let authHeader = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", algorithm="${algorithm}", response="${response}", qop=${qop}, nc=${nc}, cnonce="${generatedCnonce}"`
+
+  if (opaque) {
+    authHeader += `, opaque="${opaque}"`
   }
-
-  // Construct the Authorization header
-  const authHeader = [
-    `Digest username="${username}"`,
-    `realm="${realm}"`,
-    `nonce="${nonce}"`,
-    `uri="${uri}"`,
-    `response="${response}"`,
-    qop ? `qop=${qop}` : "",
-    qop ? `nc=${nc}` : "",
-    qop ? `cnonce="${cnonce}"` : "",
-    opaque ? `opaque="${opaque}"` : "",
-  ]
-    .filter(Boolean) // Remove empty strings
-    .join(", ")
 
   return authHeader
 }
@@ -103,8 +59,9 @@ export function generateDigestAuthHeader(params: DigestAuthParams): string {
 export interface DigestAuthInfo {
   realm: string
   nonce: string
-  qop?: string
+  qop: string
   opaque?: string
+  algorithm: string
 }
 
 export async function fetchInitialDigestAuthInfo(
@@ -116,28 +73,29 @@ export async function fetchInitialDigestAuthInfo(
     const initialResponse = await service.runRequest({
       url,
       method,
-      maxRedirects: 0,
-      // withCredentials: true,
     }).response
 
     if (E.isLeft(initialResponse))
-      throw new Error(`Unexpected response: ${initialResponse.left.toString()}`)
+      throw new Error(`Unexpected response: ${initialResponse.left}`)
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
     if (initialResponse.right.status === 401) {
-      console.log("Initial response:", initialResponse.right)
-      // const authHeader = initialResponse.right.headers.get("www-authenticate")
       const authHeader = initialResponse.right.headers["www-authenticate"]
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader)
-        console.log("WWW-Authenticate header:", authParams)
-        if (authParams && authParams.realm) {
+        if (
+          authParams &&
+          authParams.realm &&
+          authParams.nonce &&
+          authParams.qop
+        ) {
           return {
             realm: authParams.realm,
             nonce: authParams.nonce,
             qop: authParams.qop,
             opaque: authParams.opaque,
+            algorithm: authParams.algorithm,
           }
         }
       }
@@ -165,8 +123,6 @@ function parseDigestAuthHeader(
     const parts = match.split("=")
     authParams[parts[0]] = parts[1].replace(/"/g, "")
   })
-
-  console.log("Parsed auth params:", authParams)
 
   return authParams
 }

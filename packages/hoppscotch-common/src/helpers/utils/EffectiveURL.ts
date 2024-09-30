@@ -116,22 +116,29 @@ export const getComputedAuthHeaders = async (
       method
     )
 
-    console.log("Digest Auth Info:", authInfo)
-
     // Step 2: Set up the parameters for the digest authentication header
     const digestAuthParams: DigestAuthParams = {
       username: parseTemplateString(request.auth.username, envVars),
       password: parseTemplateString(request.auth.password, envVars),
-      realm: authInfo.realm,
-      nonce: authInfo.nonce,
+      realm: request.auth.realm
+        ? parseTemplateString(request.auth.realm, envVars)
+        : authInfo.realm,
+      nonce: request.auth.nonce
+        ? parseTemplateString(authInfo.nonce, envVars)
+        : authInfo.nonce,
       uri: parseTemplateString(endpoint, envVars),
       method,
-      qop: authInfo.qop,
-      opaque: authInfo.opaque,
+      algorithm: request.auth.algorithm ?? authInfo.algorithm,
+      qop: request.auth.qop
+        ? parseTemplateString(request.auth.qop, envVars)
+        : authInfo.qop,
+      opaque: request.auth.opaque
+        ? parseTemplateString(request.auth.opaque, envVars)
+        : authInfo.opaque,
     }
 
     // Step 3: Generate the Authorization header
-    const authHeaderValue = generateDigestAuthHeader(digestAuthParams)
+    const authHeaderValue = await generateDigestAuthHeader(digestAuthParams)
 
     console.log("Digest Auth Header:", authHeaderValue)
 

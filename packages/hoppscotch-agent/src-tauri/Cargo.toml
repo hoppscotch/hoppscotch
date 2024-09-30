@@ -36,6 +36,9 @@ openssl-sys = "0.9.103"
 url-escape = "0.1.1"
 thiserror = "1.0.64"
 tauri-plugin-store = "2.0.0-rc.3"
+x25519-dalek = { version = "2.0.1", features = ["getrandom"] }
+base16 = "0.2.1"
+aes-gcm = { version = "0.10.3", features = ["aes"] }
 
 [dev-dependencies]
 mockito = "1.5.0"

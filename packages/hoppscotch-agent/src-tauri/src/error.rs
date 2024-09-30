@@ -8,8 +8,10 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AppError {
-    #[error("Invalid or expired Registration")]
+    #[error("Invalid Registration")]
     InvalidRegistration,
+    #[error("Invalid Client Public Key")]
+    InvalidClientPublicKey,
     #[error("Unauthorized")]
     Unauthorized,
     #[error("Request not found or already completed")]
@@ -38,6 +40,7 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
             AppError::InvalidRegistration => (StatusCode::BAD_REQUEST, self.to_string()),
+            AppError::InvalidClientPublicKey => (StatusCode::BAD_REQUEST, self.to_string()),
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
             AppError::RequestNotFound => (StatusCode::NOT_FOUND, self.to_string()),
             AppError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),

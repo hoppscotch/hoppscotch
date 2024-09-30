@@ -1,12 +1,13 @@
 use axum::{
-    extract::{Path, State},
-    Json,
+    body::Bytes, extract::{Path, State}, Json,
+    http::HeaderMap
 };
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
 use tauri::AppHandle;
+use x25519_dalek::{EphemeralSecret, PublicKey};
 use std::sync::Arc;
 
 use crate::{
@@ -16,7 +17,7 @@ use crate::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
         RequestDef, RunRequestResponse,
     },
-    state::{AppState, Registration},
+    state::{AppState, Registration}, util::EncryptedJson,
 };
 use chrono::Utc;
 use serde_json::json;
@@ -75,9 +76,25 @@ pub async fn verify_registration(
 
     let auth_key_copy = auth_key.clone();
 
+    let agent_secret_key = EphemeralSecret::random();
+    let agent_public_key = PublicKey::from(&agent_secret_key);
+
+    let their_public_key = {
+        let public_key_slice: &[u8; 32] = &base16::decode(&confirmed_registration.client_public_key_b16)
+          .map_err(|_| AppError::InvalidClientPublicKey)?
+          [0..32]
+          .try_into()
+          .map_err(|_| AppError::InvalidClientPublicKey)?;
+
+        PublicKey::from(public_key_slice.to_owned())
+    };
+
+    let shared_secret = agent_secret_key.diffie_hellman(&their_public_key);
+
     state.update_registrations(app_handle.clone(), |regs| {
       regs.insert(auth_key_copy, Registration {
-        registered_at: created_at
+        registered_at: created_at,
+        shared_secret_b16: base16::encode_lower(shared_secret.as_bytes())
       });
     });
 
@@ -93,17 +110,26 @@ pub async fn verify_registration(
     Ok(Json(AuthKeyResponse {
         auth_key,
         created_at,
+        agent_public_key_b16: base16::encode_lower(agent_public_key.as_bytes()),
     }))
 }
 
 pub async fn run_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
-    Json(req): Json<RequestDef>,
-) -> AppResult<Json<RunRequestResponse>> {
-    if !state.validate_access(auth_header.token()) {
-      return Err(AppError::Unauthorized);
-    }
+    headers: HeaderMap,
+    body: Bytes
+) -> AppResult<EncryptedJson<RunRequestResponse>> {
+    let nonce = headers.get("X-Hopp-Nonce")
+      .ok_or(AppError::Unauthorized)?
+      .to_str()
+      .map_err(|_| AppError::Unauthorized)?;
+
+    let req: RequestDef = state.validate_access_and_get_data(auth_header.token(), nonce, &body)
+        .ok_or(AppError::Unauthorized)?;
+
+    let reg_info = state.get_registration_info(auth_header.token())
+        .ok_or(AppError::Unauthorized)?;
 
     let cancel_token = tokio_util::sync::CancellationToken::new();
     state.add_cancellation_token(req.req_id, cancel_token.clone());
@@ -139,7 +165,12 @@ pub async fn run_request<T>(
 
     state.remove_cancellation_token(req_id);
 
-    result.map(Json)
+    result.map(|val| {
+      EncryptedJson {
+        key_b16: reg_info.shared_secret_b16,
+        data: val
+      }
+    })
 }
 
 pub async fn cancel_request<T>(

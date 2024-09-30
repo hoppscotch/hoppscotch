@@ -21,6 +21,8 @@ import axios, { CancelTokenSource } from "axios"
 import SettingsAgentInterceptor from "~/components/settings/Agent.vue"
 import AgentRootUIExtension from "~/components/interceptors/agent/RootExt.vue"
 import { UIExtensionService } from "~/services/ui-extension.service"
+import { x25519 } from "@noble/curves/ed25519"
+import { base16 } from "@scure/base"
 
 type KeyValuePair = {
   key: string
@@ -280,6 +282,7 @@ const CA_STORE_PERSIST_KEY = "agent_interceptor_ca_store"
 const CLIENT_CERTS_PERSIST_KEY = "agent_interceptor_client_certs_store"
 const VALIDATE_SSL_KEY = "agent_interceptor_validate_ssl"
 const AUTH_KEY_PERSIST_KEY = "agent_interceptor_auth_key"
+const SHARED_SECRET_PERSIST_KEY = "agent_interceptor_shared_secret"
 
 export class AgentInterceptorService extends Service implements Interceptor {
   public static readonly ID = "AGENT_INTERCEPTOR_SERVICE"
@@ -317,6 +320,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
   public showRegistrationModal = ref(false)
   public authKey = ref<string | null>(null)
+  public sharedSecretB16 = ref<string | null>(null)
   private registrationOTP = ref<string | null>(null)
 
   override onServiceInit() {
@@ -327,6 +331,13 @@ export class AgentInterceptorService extends Service implements Interceptor {
       this.persistenceService.getLocalConfig(AUTH_KEY_PERSIST_KEY)
     if (persistedAuthKey) {
       this.authKey.value = persistedAuthKey
+    }
+
+    const sharedSecret = this.persistenceService.getLocalConfig(
+      SHARED_SECRET_PERSIST_KEY
+    )
+    if (sharedSecret) {
+      this.sharedSecretB16.value = sharedSecret
     }
 
     // Load SSL Validation
@@ -531,6 +542,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
     try {
       // Generate OTP and send registration request
       this.registrationOTP.value = this.generateOTP()
+
       const registrationResponse = await axios.post(
         "http://localhost:9119/receive-registration",
         {
@@ -553,26 +565,105 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
   public async verifyRegistration(userEnteredOTP: string) {
     try {
+      const myPrivateKey = x25519.utils.randomPrivateKey()
+      const myPublicKey = x25519.getPublicKey(myPrivateKey)
+
+      const myPublicKeyB16 = base16.encode(myPublicKey).toLowerCase()
+
       const verificationResponse = await axios.post(
         "http://localhost:9119/verify-registration",
         {
           registration: userEnteredOTP,
+          client_public_key_b16: myPublicKeyB16,
         }
       )
 
       const newAuthKey = verificationResponse.data.auth_key
+      const agentPublicKeyB16: string =
+        verificationResponse.data.agent_public_key_b16
+
+      const agentPublicKey = base16.decode(agentPublicKeyB16.toUpperCase())
+
+      const sharedSecret = x25519.getSharedSecret(myPrivateKey, agentPublicKey)
+      const sharedSecretB16 = base16.encode(sharedSecret).toLowerCase()
+
       if (typeof newAuthKey === "string") {
         this.authKey.value = newAuthKey
+        this.sharedSecretB16.value = sharedSecretB16
         this.persistenceService.setLocalConfig(AUTH_KEY_PERSIST_KEY, newAuthKey)
+        this.persistenceService.setLocalConfig(
+          SHARED_SECRET_PERSIST_KEY,
+          sharedSecretB16
+        )
       } else {
         throw new Error("Invalid auth key received")
       }
+
       this.showRegistrationModal.value = false
       this.registrationOTP.value = null
     } catch (error) {
       console.error("Verification failed:", error)
       throw new Error("Verification failed")
     }
+  }
+
+  private async getEncryptedRequestDef(
+    def: RequestDef
+  ): Promise<[string, ArrayBuffer]> {
+    const defJSON = JSON.stringify(def)
+    const defJSONBytes = new TextEncoder().encode(defJSON)
+
+    const nonce = window.crypto.getRandomValues(new Uint8Array(12))
+    const nonceB16 = base16.encode(nonce).toLowerCase()
+
+    const sharedSecretKeyBytes = base16.decode(
+      this.sharedSecretB16.value!.toUpperCase()
+    )
+
+    const sharedSecretKey = await window.crypto.subtle.importKey(
+      "raw",
+      sharedSecretKeyBytes,
+      "AES-GCM",
+      true,
+      ["encrypt", "decrypt"]
+    )
+
+    const encryptedDef = await window.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: nonce },
+      sharedSecretKey,
+      defJSONBytes
+    )
+
+    return [nonceB16, encryptedDef]
+  }
+
+  private async getDecryptedResponse<T>(
+    nonceB16: string,
+    responseData: ArrayBuffer
+  ) {
+    const sharedSecretKeyBytes = base16.decode(
+      this.sharedSecretB16.value!.toUpperCase()
+    )
+
+    const sharedSecretKey = await window.crypto.subtle.importKey(
+      "raw",
+      sharedSecretKeyBytes,
+      "AES-GCM",
+      true,
+      ["encrypt", "decrypt"]
+    )
+
+    const nonce = base16.decode(nonceB16.toUpperCase())
+
+    const plainTextDefBytes = await window.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: nonce },
+      sharedSecretKey,
+      responseData
+    )
+
+    const plainText = new TextDecoder().decode(plainTextDefBytes)
+
+    return JSON.parse(plainText) as T
   }
 
   public runRequest(
@@ -625,19 +716,31 @@ export class AgentInterceptorService extends Service implements Interceptor {
           this.validateCerts.value
         )
 
+        const [nonceB16, encryptedDef] =
+          await this.getEncryptedRequestDef(requestDef)
+
         try {
-          const http_response = await axios.post<RunRequestResponse>(
+          const http_response = await axios.post(
             "http://localhost:9119/request",
-            requestDef,
+            encryptedDef,
             {
               headers: {
                 Authorization: `Bearer ${this.authKey.value}`,
+                "X-Hopp-Nonce": nonceB16,
+                "Content-Type": "application/octet-stream",
               },
               cancelToken: cancelTokenSource.token,
+              responseType: "arraybuffer",
             }
           )
 
-          const response = http_response.data
+          const responseNonceB16: string = http_response.headers["x-hopp-nonce"]
+          const encryptedResponseBytes = http_response.data
+
+          const response = await this.getDecryptedResponse<RunRequestResponse>(
+            responseNonceB16,
+            encryptedResponseBytes
+          )
 
           // TODO: Run it against a Zod Schema validation
 

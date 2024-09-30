@@ -1,7 +1,7 @@
 use axum::Router;
 use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::route;
 use crate::state::AppState;
@@ -11,7 +11,7 @@ pub async fn run_server(
     cancellation_token: CancellationToken,
     app_handle: tauri::AppHandle,
 ) {
-    let cors = CorsLayer::very_permissive();
+    let cors = CorsLayer::permissive();
 
     let app = Router::new()
         .merge(route::route(state, app_handle))

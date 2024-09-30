@@ -10,12 +10,24 @@ pub struct HandshakeResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfirmedRegistrationRequest {
     pub registration: String,
+
+    /// base16 (lowercase) encoded public key shared by the client
+    /// to the agent so that the agent can establish a shared secret
+    /// which will be used to encrypt traffic between agent
+    /// and client after registration
+    pub client_public_key_b16: String
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthKeyResponse {
     pub auth_key: String,
     pub created_at: DateTime<Utc>,
+
+    /// base16 (lowercase) encoded public key shared by the
+    /// agent so that the client can establish a shared secret
+    /// which will be used to encrypt traffic between agent
+    /// and client after registration
+    pub agent_public_key_b16: String
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

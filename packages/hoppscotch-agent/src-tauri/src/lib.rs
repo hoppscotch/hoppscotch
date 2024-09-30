@@ -102,7 +102,6 @@ pub fn run() {
         .expect("error while building tauri application")
         .run(|app_handle, event| match event {
             tauri::RunEvent::ExitRequested { api, code, .. } => {
-                dbg!(code);
                 if code.is_none() || matches!(code, Some(0)) {
                     api.prevent_exit()
                 } else if code.is_some() {

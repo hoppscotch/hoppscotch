@@ -9,7 +9,7 @@ export interface DigestAuthParams {
   password: string
   realm: string
   nonce: string
-  uri: string
+  endpoint: string
   method: string
   algorithm: string
   qop: string
@@ -25,7 +25,7 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     password,
     realm,
     nonce,
-    uri,
+    endpoint,
     method,
     algorithm = "MD5",
     qop,
@@ -33,6 +33,8 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     opaque,
     cnonce,
   } = params
+
+  const uri = endpoint.replace(/(^\w+:|^)\/\//, "")
 
   // Generate client nonce if not provided
   const generatedCnonce = cnonce || md5(`${Math.random()}`)

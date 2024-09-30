@@ -33,7 +33,13 @@ export function removeComments(jsonString: string): string {
   // Remove multi-line comments
   jsonString = jsonString.replace(multiLineCommentPattern, "")
 
+  jsonString = removeTrailingCommas(jsonString)
+
   return JSON.stringify(JSON.parse(jsonString))
+}
+
+export function removeTrailingCommas(jsonString: string): string {
+  return jsonString.replace(/,(?=\s*?[\]}])/g, "")
 }
 
 export default linter

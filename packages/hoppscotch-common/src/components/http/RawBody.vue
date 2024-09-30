@@ -42,6 +42,13 @@
           :icon="prettifyIcon"
           @click="prettifyRequestBody"
         />
+        <HoppButtonSecondary
+          v-if="shouldEnableAIFeatures"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('ai_experiments.modify_with_ai')"
+          :icon="IconSparkles"
+          @click="showModifyBodyModal"
+        />
         <label for="payload">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -62,6 +69,13 @@
     <div class="h-full relative flex flex-col flex-1">
       <div ref="rawBodyParameters" class="absolute inset-0"></div>
     </div>
+
+    <AiexperimentsModifyBodyModal
+      v-if="isModifyBodyModalOpen"
+      :current-body="codemirrorValue ?? ''"
+      @close-modal="isModifyBodyModalOpen = false"
+      @update-body="(updatedBody) => (codemirrorValue = updatedBody)"
+    ></AiexperimentsModifyBodyModal>
   </div>
 </template>
 
@@ -73,6 +87,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
+import IconSparkles from "~icons/lucide/sparkles"
 import { computed, reactive, Ref, ref, watch } from "vue"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
@@ -90,6 +105,7 @@ import xmlFormat from "xml-formatter"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import * as LJSON from "lossless-json"
+import { useAIExperiments } from "~/composables/ai-experiments"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -202,6 +218,14 @@ const prettifyRequestBody = () => {
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }
+
+const isModifyBodyModalOpen = ref(false)
+
+const showModifyBodyModal = () => {
+  isModifyBodyModalOpen.value = true
+}
+
+const { shouldEnableAIFeatures } = useAIExperiments()
 
 const prettifyXML = (xml: string) => {
   return xmlFormat(xml, {

@@ -42,12 +42,12 @@ export {
   HoppRESTHeaders,
   HoppRESTParams,
 } from "./v/7"
-export { HoppRESTAuth, HoppRESTAuthDigest } from "./v/8"
 
 export {
   ClientCredentialsGrantTypeParams,
   HoppRESTAuth,
   HoppRESTAuthOAuth2,
+  HoppRESTAuthDigest,
   PasswordGrantTypeParams,
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,

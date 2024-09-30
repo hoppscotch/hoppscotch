@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 py-1"
+      :class="{ 'py-2': !responseBodyText }"
     >
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
@@ -25,6 +26,22 @@
           @click="downloadResponse"
         />
         <HoppButtonSecondary
+          v-if="showResponse && !isEditable"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="
+            isSavable
+              ? `${t(
+                  'action.save_as_example'
+                )} <kbd>${getSpecialKey()}</kbd><kbd>E</kbd>`
+              : t('response.please_save_request')
+          "
+          :icon="IconSave"
+          :class="{
+            'opacity-75 cursor-not-allowed select-none': !isSavable,
+          }"
+          @click="isSavable ? saveAsExample() : null"
+        />
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
@@ -43,6 +60,7 @@
 
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
+import IconSave from "~icons/lucide/save"
 import { ref, computed, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -71,6 +89,7 @@ const props = defineProps<{
     | (HoppRESTResponse & { type: "success" | "fail" })
     | HoppRESTRequestResponse
   isEditable: boolean
+  isSavable: boolean
 }>()
 
 const emit = defineEmits<{
@@ -80,15 +99,33 @@ const emit = defineEmits<{
       | (HoppRESTResponse & { type: "success" | "fail" })
       | HoppRESTRequestResponse
   ): void
+  (e: "save-as-example"): void
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
 
+const isHttpResponse = computed(() => {
+  return (
+    "type" in props.response &&
+    (props.response.type === "success" || props.response.type === "fail")
+  )
+})
+
 const rawResponseBody = computed(() =>
-  props.response.type === "fail" || props.response.type === "success"
-    ? props.response.body
-    : new ArrayBuffer(0)
+  isHttpResponse.value ? props.response.body : new ArrayBuffer(0)
 )
+
+const showResponse = computed(() => {
+  if ("type" in props.response) {
+    return props.response.type === "success" || props.response.type === "fail"
+  }
+
+  return "body" in props.response
+})
+
+const saveAsExample = () => {
+  emit("save-as-example")
+}
 
 const responseType = computed(() =>
   pipe(
@@ -143,7 +180,6 @@ useCodemirror(
     completer: null,
     environmentHighlights: true,
     onChange: (update: string) => {
-      console.log("update", update)
       emit("update:response", { ...props.response, body: update })
     },
   })

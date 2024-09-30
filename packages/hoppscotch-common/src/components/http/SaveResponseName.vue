@@ -67,7 +67,7 @@ const editingName = useVModel(props, "modelValue")
 
 const editRequest = () => {
   if (editingName.value.trim() === "") {
-    toast.error(t("request.invalid_name"))
+    toast.error(t("response.invalid_name"))
     return
   }
 

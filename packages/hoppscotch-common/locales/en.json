@@ -1144,6 +1144,8 @@
     "accept_change": "Accept Change",
     "feedback_success": "Feedback submitted successfully",
     "feedback_failure": "Failed to submit feedback",
-    "feedback_thank_you": "Thank you for your feedback!"
+    "feedback_thank_you": "Thank you for your feedback!",
+    "feedback_cta_text_long": "Rate the generation, helps us to improve",
+    "feedback_cta_request_name": "Did you like name generated?"
   }
 }

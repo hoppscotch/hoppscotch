@@ -82,7 +82,7 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
           v-if="lastTraceID && !submittedFeedback"
           class="flex items-center gap-2"
         >
-          <p>Rate the generation, helps us to improve</p>
+          <p>{{ t("ai_experiments.feedback_cta_text_long") }}</p>
           <template v-if="!isSubmitFeedbackPending">
             <HoppButtonSecondary
               :icon="IconThumbsUp"

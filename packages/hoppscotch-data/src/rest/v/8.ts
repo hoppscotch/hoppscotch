@@ -18,8 +18,14 @@ import {
 import {
   AuthCodeGrantTypeParams,
   HoppRESTAuthAWSSignature,
+  HoppRESTHeaders,
+  HoppRESTParams,
   V7_SCHEMA,
 } from "./7"
+
+import { StatusCodes } from "../../utils/statusCodes"
+import { HoppRESTReqBody } from "./6"
+import { HoppRESTRequestVariables } from "./2"
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
@@ -61,9 +67,70 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-const V8_SCHEMA = V7_SCHEMA.extend({
+const ValidCodes = z.union(
+  Object.keys(StatusCodes).map((code) => z.literal(parseInt(code))) as [
+    z.ZodLiteral<number>,
+    z.ZodLiteral<number>,
+    ...z.ZodLiteral<number>[]
+  ]
+)
+
+const HoppRESTResponseHeaders = z.array(
+  z.object({
+    key: z.string(),
+    value: z.string(),
+  })
+)
+
+export type HoppRESTResponseHeader = z.infer<typeof HoppRESTResponseHeaders>
+
+/**
+ * The original request that was made to get this response
+ * Only the necessary fields are saved
+ */
+export const HoppRESTResponseOriginalRequest = z.object({
+  v: z.literal("1"),
+  name: z.string(),
+  method: z.string(),
+  endpoint: z.string(),
+  headers: HoppRESTHeaders,
+  params: HoppRESTParams,
+  body: HoppRESTReqBody,
+  auth: HoppRESTAuth,
+  requestVariables: HoppRESTRequestVariables,
+})
+
+export type HoppRESTResponseOriginalRequest = z.infer<
+  typeof HoppRESTResponseOriginalRequest
+>
+
+export const HoppRESTRequestResponse = z.object({
+  name: z.string(),
+  originalRequest: HoppRESTResponseOriginalRequest,
+  status: z.string(),
+  code: z.optional(ValidCodes),
+  headers: HoppRESTResponseHeaders,
+  body: z.string(),
+})
+
+export type HoppRESTRequestResponse = z.infer<typeof HoppRESTRequestResponse>
+
+/**
+ * The responses saved for a request
+ * The key is the name of the response saved by the user
+ * The value is the response
+ */
+export const HoppRESTRequestResponses = z.record(
+  z.string(),
+  HoppRESTRequestResponse
+)
+
+export type HoppRESTRequestResponses = z.infer<typeof HoppRESTRequestResponses>
+
+export const V8_SCHEMA = V7_SCHEMA.extend({
   v: z.literal("8"),
   auth: HoppRESTAuth,
+  responses: HoppRESTRequestResponses,
 })
 
 export default defineVersion({
@@ -74,6 +141,7 @@ export default defineVersion({
       ...old,
       v: "8" as const,
       // no need to update anything for HoppRESTAuth, because we loosened the previous schema by making `clientSecret` optional
+      responses: {},
     }
   },
 })

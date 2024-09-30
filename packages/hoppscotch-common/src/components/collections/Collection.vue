@@ -62,7 +62,7 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFilePlus"
-            :title="t('request.new')"
+            :title="t('request.add')"
             class="hidden group-hover:inline-flex"
             @click="emit('add-request')"
           />

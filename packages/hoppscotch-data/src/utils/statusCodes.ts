@@ -1,4 +1,4 @@
-const statusCodes: {
+export const StatusCodes: {
   [key: number]: string
 } = {
   // 1xx Informational
@@ -83,7 +83,7 @@ const statusCodes: {
   511: "Network Authentication Required", // (RFC 6585) The client needs to authenticate to gain network access. Intended for use by intercepting proxies used to control access to the network (e.g. "captive portals" used to require agreement to Terms of Service before granting full Internet access via a Wi-Fi hotspot).[17]
   598: "Network read timeout error", // (Unknown) This status code is not specified in any RFCs, but is used by Microsoft Corp. HTTP proxies to signal a network read timeout behind the proxy to a client in front of the proxy.
   599: "Network connect timeout error", // (Unknown) This status code is not specified in any RFCs, but is used by Microsoft Corp. HTTP proxies to signal a network connect timeout behind the proxy to a client in front of the proxy.
-}
+} as const
 
 export function getStatusCodeReasonPhrase(
   code: number,
@@ -97,40 +97,5 @@ export function getStatusCodeReasonPhrase(
       : trimmedStatusText
   }
 
-  return statusCodes[code] ?? "Unknown"
-}
-
-// return the status code like
-//  code • status
-export const getFullStatusCodePhrase = () => {
-  return Object.keys(statusCodes).map((code) => {
-    return `${code} • ${statusCodes[code]}`
-  })
-}
-
-// return all status codes and their phrases
-// like code • phrase
-export const getStatusCodePhrase = (
-  code: number | undefined,
-  statusText: string
-) => {
-  if (!code) return statusText
-  return `${code} • ${getStatusCodeReasonPhrase(code, statusText)}`
-}
-
-// return the status code and status
-// like { code, status }
-export const getStatusAndCode = (status: string) => {
-  const statusAndCode = status.split(" • ")
-  return {
-    code: Number(statusAndCode[0]),
-    status: statusAndCode[1],
-  }
-}
-
-// check if the status code is valid
-export const isValidStatusCode = (status: string) => {
-  const allPhrases = getFullStatusCodePhrase()
-
-  return allPhrases.includes(status)
+  return StatusCodes[code] ?? "Unknown"
 }

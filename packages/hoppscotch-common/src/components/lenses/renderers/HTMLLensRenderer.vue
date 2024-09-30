@@ -127,7 +127,7 @@ useCodemirror(
     },
     linter: null,
     completer: null,
-    environmentHighlights: false,
+    environmentHighlights: true,
   })
 )
 

@@ -112,7 +112,6 @@ useCodemirror(
     linter: null,
     completer: null,
     environmentHighlights: true,
-    predefinedVariablesHighlights: true,
   })
 )
 

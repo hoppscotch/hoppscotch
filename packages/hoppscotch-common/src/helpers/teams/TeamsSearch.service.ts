@@ -16,6 +16,7 @@ import {
   getSingleRequest,
   getCollectionChildRequests,
   TeamRequest,
+  getCollectionChildCollections,
 } from "./TeamRequest"
 
 type CollectionSearchMeta = {

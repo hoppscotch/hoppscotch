@@ -107,7 +107,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import * as E from "fp-ts/Either"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import { getSingleRequest } from "~/helpers/teams/TeamsSearch.service"
+import { getSingleRequest } from "~/helpers/teams/TeamRequest"
 
 const t = useI18n()
 

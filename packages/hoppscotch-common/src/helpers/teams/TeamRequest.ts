@@ -1,6 +1,7 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { runGQLQuery } from "../backend/GQLClient"
 import {
+  GetCollectionChildrenDocument,
   GetCollectionRequestsDocument,
   GetSingleRequestDocument,
 } from "../backend/graphql"
@@ -28,5 +29,13 @@ export const getSingleRequest = (requestID: string) =>
     query: GetSingleRequestDocument,
     variables: {
       requestID,
+    },
+  })
+
+export const getCollectionChildCollections = (collectionID: string) =>
+  runGQLQuery({
+    query: GetCollectionChildrenDocument,
+    variables: {
+      collectionID,
     },
   })

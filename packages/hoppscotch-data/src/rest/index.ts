@@ -47,6 +47,7 @@ export {
   ClientCredentialsGrantTypeParams,
   HoppRESTAuth,
   HoppRESTAuthOAuth2,
+  HoppRESTAuthDigest,
   PasswordGrantTypeParams,
 } from "./v/8"
 

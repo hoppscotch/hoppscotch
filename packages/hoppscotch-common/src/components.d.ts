@@ -186,6 +186,7 @@ declare module 'vue' {
     ImportExportBase: typeof import('./components/importExport/Base.vue')['default']
     ImportExportImportExportList: typeof import('./components/importExport/ImportExportList.vue')['default']
     ImportExportImportExportSourcesList: typeof import('./components/importExport/ImportExportSourcesList.vue')['default']
+    ImportExportImportExportStepsAllCollectionImport: typeof import('./components/importExport/ImportExportSteps/AllCollectionImport.vue')['default']
     ImportExportImportExportStepsFileImport: typeof import('./components/importExport/ImportExportSteps/FileImport.vue')['default']
     ImportExportImportExportStepsMyCollectionImport: typeof import('./components/importExport/ImportExportSteps/MyCollectionImport.vue')['default']
     ImportExportImportExportStepsUrlImport: typeof import('./components/importExport/ImportExportSteps/UrlImport.vue')['default']

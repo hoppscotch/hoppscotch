@@ -4,6 +4,9 @@
     "autoscroll": "Autoscroll",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
+    "choose_workspace": "Choose a workspace",
+    "choose_collection": "Choose a collection",
+    "select_workspace": "Select a workspace",
     "clear": "Clear",
     "clear_all": "Clear all",
     "clear_history": "Clear all History",
@@ -460,6 +463,8 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Import from Personal Collections",
     "from_my_collections_description": "Import from Personal Collections file",
+    "from_all_collections": "Import from Another Workspace",
+    "from_all_collections_description": "Import any collection from Another Workspace to the current workspace",
     "from_openapi": "Import from OpenAPI",
     "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
     "from_postman": "Import from Postman",
@@ -947,7 +952,9 @@
     "subscribed_success": "Successfully subscribed to topic: {topic}",
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
     "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
-    "waiting_send_request": "Waiting to send request"
+    "waiting_send_request": "Waiting to send request",
+    "loading_workspaces": "Loading workspaces",
+    "loading_collections_in_workspace": "Loading collections in workspace"
   },
   "support": {
     "changelog": "Read more about latest releases",

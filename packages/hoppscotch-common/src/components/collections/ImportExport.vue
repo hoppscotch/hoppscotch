@@ -215,7 +215,7 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
     name: "import.from_all_collections",
     title: "import.from_all_collections_description",
     icon: IconUser,
-    disabled: false,
+    disabled: !currentUser.value,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   component: defineStep("all_collection_import", AllCollectionImport, () => ({
@@ -607,6 +607,10 @@ const importerModules = computed(() => {
   const isTeams = props.collectionsType.type === "team-collections"
 
   return enabledImporters.filter((importer) => {
+    if (importer.metadata.disabled) {
+      return false
+    }
+
     return isTeams
       ? importer.metadata.applicableTo.includes("team-workspace")
       : importer.metadata.applicableTo.includes("personal-workspace")

@@ -8,10 +8,13 @@
       @click="selectResponse()"
     >
       <span
-        class="pointer-events-none flex w-12 items-center justify-center truncate"
+        class="pointer-events-none flex w-10 px-2 items-center justify-start truncate relative"
       >
-        <span class="truncate text-tiny font-semibold">
-          {{ response.originalRequest.method }}
+        <span
+          class="truncate text-tiny font-semibold relative"
+          :class="statusCategory.className"
+        >
+          {{ response.code ?? response.status }}
         </span>
       </span>
 
@@ -122,6 +125,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { HoppRESTSaveContext } from "~/helpers/rest/document"
+import findStatusGroup from "@helpers/findStatusGroup"
 
 const t = useI18n()
 
@@ -162,6 +166,10 @@ type ResponsePayload = {
   responseName: string
   responseID: string
 }
+
+const statusCategory = computed(() => {
+  return findStatusGroup(props.response.code ?? 0)
+})
 
 const emit = defineEmits<{
   (event: "edit-response", payload: ResponsePayload): void

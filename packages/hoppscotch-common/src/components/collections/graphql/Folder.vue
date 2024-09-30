@@ -70,11 +70,7 @@
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
-                @keyup.d="
-                  showDuplicateCollectionAction
-                    ? duplicateAction.$el.click()
-                    : null
-                "
+                @keyup.d="duplicateAction.$el.click()"
                 @keyup.delete="deleteAction.$el.click()"
                 @keyup.p="propertiesAction.$el.click()"
                 @keyup.escape="hide()"
@@ -116,7 +112,6 @@
                   "
                 />
                 <HoppSmartItem
-                  v-if="showDuplicateCollectionAction"
                   ref="duplicateAction"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
@@ -317,17 +312,6 @@ const collectionIcon = computed(() => {
   else if (!showChildren.value && !props.isFiltered) return IconFolder
   else if (showChildren.value || !props.isFiltered) return IconFolderOpen
   return IconFolder
-})
-
-const showDuplicateCollectionAction = computed(() => {
-  // Show if the user is not logged in
-  if (!currentUser.value) {
-    return true
-  }
-
-  // Duplicate collection action is disabled on SH until the issue with syncing is resolved
-  return !platform.platformFeatureFlags
-    .duplicateCollectionDisabledInPersonalWorkspace
 })
 
 const pick = () => {

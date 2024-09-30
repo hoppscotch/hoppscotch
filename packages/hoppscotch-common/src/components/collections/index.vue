@@ -340,6 +340,7 @@ const editingFolderPath = ref<string | null>(null)
 const editingRequest = ref<HoppRESTRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
+const editingResponseOldName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
 const editingResponseID = ref<string | null>(null)
@@ -1233,6 +1234,9 @@ const editResponse = (payload: ResponseConfigPayload) => {
   editingRequestName.value = request.name ?? ""
   editingResponseID.value = responseID
   editingResponseName.value = responseName
+
+  //need to store the old name for updating the response key
+  editingResponseOldName.value = responseName
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
     editingRequestIndex.value = parseInt(requestIndex)
@@ -1246,15 +1250,7 @@ const updateEditingResponse = (newName: string) => {
   const request = cloneDeep(editingRequest.value)
   if (!request) return
 
-  const responseOldName =
-    editingResponseID.value?.split("/")[
-      editingResponseID.value?.split("/").length - 1
-    ]
-
-  const responsePath = editingResponseID.value
-    ?.split("/")
-    .slice(0, -1)
-    .join("/")
+  const responseOldName = editingResponseOldName.value
 
   if (!responseOldName) return
 
@@ -1299,13 +1295,14 @@ const updateEditingResponse = (newName: string) => {
       possibleExampleActiveTab.value.document.type === "example-response"
     ) {
       possibleExampleActiveTab.value.document.response.name = newName
+
       nextTick(() => {
         possibleExampleActiveTab.value.document.isDirty = false
         possibleExampleActiveTab.value.document.saveContext = {
           originLocation: "user-collection",
           folderPath: folderPath,
           requestIndex: requestIndex,
-          exampleID: responsePath ? responsePath + "/" + newName : newName,
+          exampleID: editingResponseID.value!,
         }
       })
     }
@@ -1323,6 +1320,8 @@ const updateEditingResponse = (newName: string) => {
     }
 
     displayModalEditResponse(false)
+
+    toast.success(t("response.renamed"))
   } else if (hasTeamWriteAccess.value) {
     modalLoadingState.value = true
 
@@ -1344,7 +1343,7 @@ const updateEditingResponse = (newName: string) => {
         },
         () => {
           modalLoadingState.value = false
-          toast.success(t("request.renamed"))
+          toast.success(t("response.renamed"))
           displayModalEditResponse(false)
         }
       )
@@ -1371,7 +1370,7 @@ const updateEditingResponse = (newName: string) => {
         possibleActiveResponseTab.value.document.saveContext = {
           originLocation: "team-collection",
           requestID,
-          exampleID: responsePath ? responsePath + "/" + newName : newName,
+          exampleID: editingResponseID.value!,
         }
       })
     }
@@ -2423,6 +2422,13 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
       } else {
         moveRESTFolder(collectionIndexDragged, null)
         toast.success(`${t("collection.moved")}`)
+
+        const rootLength = myCollections.value.length
+
+        updateSaveContextForAffectedRequests(
+          collectionIndexDragged,
+          `${rootLength - 1}`
+        )
       }
 
       draggingToRoot.value = false

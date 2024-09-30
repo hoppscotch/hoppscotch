@@ -79,7 +79,7 @@ export function resolveSaveContextOnCollectionReorder(
 }
 
 /**
- * Resolve save context for affected requests on drop folder from one  to another
+ * Resolve save context for affected requests on drop folder from one to another
  * @param oldFolderPath
  * @param newFolderPath
  * @returns

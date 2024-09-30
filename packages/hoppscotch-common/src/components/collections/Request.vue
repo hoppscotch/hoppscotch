@@ -178,13 +178,15 @@
       ></div>
       <div class="flex flex-col w-full pl-3">
         <CollectionsExampleResponse
-          v-for="[key, value] of Object.entries(request.responses)"
+          v-for="[index, [key, value]] of Object.entries(
+            Object.entries(request.responses)
+          )"
           :key="key"
           :response-name="key"
           :response="value"
           :save-context="{
             requestID: requestID,
-            exampleID: `${requestID}/${key}`,
+            exampleID: index,
             parentID: parentID,
             collectionsType: collectionsType,
             saveRequest: saveRequest,

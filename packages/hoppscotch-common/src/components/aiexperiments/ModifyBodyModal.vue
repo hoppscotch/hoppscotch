@@ -96,20 +96,22 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
                 }
               "
             />
+
             <HoppButtonSecondary
               :icon="IconThumbsDown"
               outline
               @click="submitFeedback('negative', lastTraceID)"
             />
           </template>
-          <template v-else>
-            <HoppSmartSpinner />
-          </template>
+
+          <HoppSmartSpinner v-else />
         </div>
+
         <div v-if="submittedFeedback">
           <p>{{ t("ai_experiments.feedback_thank_you") }}</p>
         </div>
-        <div class="ml-auto">
+
+        <div class="ml-auto space-x-2">
           <HoppButtonSecondary
             :label="t('action.cancel')"
             outline

@@ -29,7 +29,6 @@ import {
 
 import { defineStep } from "~/composables/step-components"
 
-import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -62,7 +61,6 @@ const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
-const isPersonalCollectionImporterInProgress = ref(false)
 const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
@@ -211,34 +209,6 @@ const HoppRESTImporter: ImporterOrExporter = {
   }),
 }
 
-const HoppMyCollectionImporter: ImporterOrExporter = {
-  metadata: {
-    id: "hopp_my_collection",
-    name: "import.from_my_collections",
-    title: "import.from_my_collections_description",
-    icon: IconUser,
-    disabled: false,
-    applicableTo: ["team-workspace"],
-  },
-  component: defineStep("my_collection_import", MyCollectionImport, () => ({
-    loading: isPersonalCollectionImporterInProgress.value,
-    async onImportFromMyCollection(content) {
-      isPersonalCollectionImporterInProgress.value = true
-
-      await handleImportToStore([content])
-
-      // our analytics consider this as an export event, so keeping compatibility with that
-      platform.analytics?.logEvent({
-        type: "HOPP_EXPORT_COLLECTION",
-        exporter: "import_to_teams",
-        platform: "rest",
-      })
-
-      isPersonalCollectionImporterInProgress.value = false
-    },
-  })),
-}
-
 const HoppAllCollectionImporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_all_collection",
@@ -381,7 +351,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     name: "import.from_insomnia",
     title: "import.from_insomnia_description",
     icon: IconInsomnia,
-    disabled: true,
+    disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: FileSource({
@@ -417,7 +387,7 @@ const HoppGistImporter: ImporterOrExporter = {
     name: "import.from_gist",
     title: "import.from_gist_description",
     icon: IconGithub,
-    disabled: true,
+    disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: GistSource({
@@ -626,7 +596,6 @@ const HARImporter: ImporterOrExporter = {
 const importerModules = computed(() => {
   const enabledImporters = [
     HoppRESTImporter,
-    HoppMyCollectionImporter,
     HoppAllCollectionImporter,
     HoppOpenAPIImporter,
     HoppPostmanImporter,

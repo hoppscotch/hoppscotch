@@ -43,7 +43,13 @@
 
     <div v-if="!hasNoTeamAccess" class="flex">
       <span>
-        <tippy ref="options" interactive trigger="click" theme="popover">
+        <tippy
+          ref="options"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => tippyActions!.focus()"
+        >
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.more')"

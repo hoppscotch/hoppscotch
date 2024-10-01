@@ -30,10 +30,14 @@ fn generate_otp() -> String {
   format!("{:06}", otp)
 }
 
-pub async fn handshake() -> AppResult<Json<HandshakeResponse>> {
+pub async fn handshake(
+  State((_, app_handle)): State<(Arc<AppState>, AppHandle)>
+) -> AppResult<Json<HandshakeResponse>> {
     Ok(Json(HandshakeResponse {
         status: "success".to_string(),
-        message: "Agent ready! Hopp in, we've got requests to catch!".to_string(),
+        __hoppscotch__agent__: true,
+        agent_version: app_handle.package_info().version.to_string()
+
     }))
 }
 

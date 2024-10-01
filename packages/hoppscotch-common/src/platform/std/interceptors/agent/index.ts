@@ -575,7 +575,10 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
   public async performHandshake(): Promise<void> {
     const handshakeResponse = await axios.get("http://localhost:9119/handshake")
-    if (handshakeResponse.data.status !== "success") {
+    if (
+      handshakeResponse.data.status !== "success" &&
+      handshakeResponse.data.__hoppscotch__agent__ === true
+    ) {
       throw new Error("Handshake failed")
     }
   }

@@ -3,8 +3,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HandshakeResponse {
+    #[allow(non_snake_case)]
+    pub __hoppscotch__agent__: bool,
+
     pub status: String,
-    pub message: String,
+    pub agent_version: String
 }
 
 #[derive(Debug, Serialize, Deserialize)]

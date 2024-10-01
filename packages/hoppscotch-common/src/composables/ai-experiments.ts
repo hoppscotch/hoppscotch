@@ -186,8 +186,6 @@ export const useSubmitFeedback = () => {
 
     isSubmitFeedbackPending.value = false
 
-    toast.success(t("ai_experiments.feedback_success"))
-
     return E.right(undefined)
   }
 

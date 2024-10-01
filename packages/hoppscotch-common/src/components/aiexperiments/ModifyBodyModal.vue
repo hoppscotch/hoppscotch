@@ -48,11 +48,19 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
               'ai_experiments.generate_or_modify_request_body_input_placeholder'
             )}`"
             class="flex flex-1 bg-transparent px-6 text-base text-secondaryDark"
+            @keypress="
+              (e) => {
+                if (e.key === 'Enter') {
+                  modifyRequestBody()
+                }
+              }
+            "
           />
 
           <HoppButtonSecondary
             :icon="IconArrowRight"
-            class="mr-6 rounded-md"
+            class="mr-6 rounded-md flex flex-col-reverse"
+            :label="t('ai_experiments.generate')"
             outline
             filled
             :loading="isModifyRequestBodyPending"

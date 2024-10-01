@@ -49,10 +49,10 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             )}`"
             class="flex flex-1 bg-transparent px-6 text-base text-secondaryDark"
             @keypress="
-              (e) => {
+              async (e) => {
                 if (e.key === 'Enter') {
+                  await modifyRequestBody()
                   submittedFeedback = false
-                  modifyRequestBody()
                 }
               }
             "
@@ -67,9 +67,9 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             :loading="isModifyRequestBodyPending"
             :disabled="!userPrompt || isModifyRequestBodyPending"
             @click="
-              () => {
+              async () => {
+                await modifyRequestBody()
                 submittedFeedback = false
-                modifyRequestBody()
               }
             "
           />

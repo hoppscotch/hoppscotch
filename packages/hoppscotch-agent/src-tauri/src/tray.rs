@@ -1,12 +1,19 @@
 use std::sync::Arc;
-
 use tauri::{
+    image::Image,
     menu::{MenuBuilder, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Manager
+    AppHandle,
+    Manager
 };
-
+use lazy_static::lazy_static;
 use crate::state::AppState;
+
+const TRAY_ICON_DATA: &'static [u8] = include_bytes!("../icons/tray_icon.png");
+
+lazy_static! {
+  static ref TRAY_ICON: Image<'static> = Image::from_bytes(TRAY_ICON_DATA).unwrap();
+}
 
 pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -35,7 +42,14 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
 
     let _ = TrayIconBuilder::with_id("hopp-tray")
         .tooltip("Hoppscotch Agent")
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(
+            if cfg!(target_os = "macos") {
+              TRAY_ICON.clone()
+            } else {
+              app.default_window_icon().unwrap().clone()
+            }
+        )
+        .icon_as_template(cfg!(target_os = "macos"))
         .menu(&menu)
         .menu_on_left_click(true)
         .on_menu_event(move |app, event| match event.id.as_ref() {

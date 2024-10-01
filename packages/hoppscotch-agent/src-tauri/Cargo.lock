@@ -1955,6 +1955,7 @@ dependencies = [
  "env_logger",
  "http",
  "hyper",
+ "lazy_static",
  "log",
  "mockito",
  "openssl",

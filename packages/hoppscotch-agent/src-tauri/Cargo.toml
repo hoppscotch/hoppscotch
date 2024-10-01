@@ -43,6 +43,7 @@ aes-gcm = { version = "0.10.3", features = ["aes"] }
 tauri-plugin-updater = "2.0.0-rc.3"
 tauri-plugin-dialog = "2.0.0-rc.7"
 http = "1.1.0"
+lazy_static = "1.5.0"
 
 [dev-dependencies]
 mockito = "1.5.0"

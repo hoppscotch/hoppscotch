@@ -29,11 +29,6 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     },
   },
   {
-    key: "$nowISO",
-    description: "Current date and time in ISO-8601 format.",
-    getValue: () => new Date().toISOString(),
-  },
-  {
     key: "$timestamp",
     description: "The current UNIX timestamp in seconds.",
     getValue: () => Math.floor(Date.now() / 1000).toString(),

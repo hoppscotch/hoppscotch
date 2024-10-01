@@ -3,9 +3,9 @@
     <div class="p-5 flex flex-col flex-grow gap-y-2">
       <h1 class="font-bold text-lg text-white">Agent Registration Request</h1>
       <p class="tracking-wide">
-        An app is trying to register against the Hoppscotch Agent. If this was intentional, copy the given token into
+        An app is trying to register against the Hoppscotch Agent. If this was intentional, copy the given code into
         the app to complete the registration process. Please close the window if you did not initiate this request.
-        Do not close this window until the OTP is entered. Once done, this window will close by itself.
+        Do not close this window until the verification code is entered. Once done, this window will close by itself.
       </p>
       <p class="font-bold text-5xl tracking-wider text-center pt-10 text-white">
         {{ otpCode }}

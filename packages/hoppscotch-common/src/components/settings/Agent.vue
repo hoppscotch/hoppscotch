@@ -5,7 +5,7 @@
         :on="allowSSLVerification"
         @change="allowSSLVerification = !allowSSLVerification"
       />
-      Verify SSL Certificates
+      {{ t("agent.verify_ssl_certs") }}
     </div>
 
     <div class="flex space-x-4">
@@ -19,7 +19,7 @@
       -->
       <HoppButtonSecondary
         :icon="IconLucideFileKey"
-        :label="'Client Certificates'"
+        :label="t('agent.client_certs')"
         outline
         @click="showClientCertificatesModal = true"
       />
@@ -41,7 +41,7 @@
     <div class="pt-4 space-y-4">
       <div class="flex items-center">
         <HoppSmartToggle :on="allowProxy" @change="allowProxy = !allowProxy" />
-        Use HTTP Proxy
+        {{ t("agent.use_http_proxy") }}
       </div>
 
       <HoppSmartInput
@@ -55,9 +55,7 @@
       />
 
       <p class="my-1 text-secondaryLight">
-        Hoppscotch Agent supports HTTP/HTTPS/SOCKS proxies along with NTLM and
-        Basic Auth in those proxies. Include the username and password for the
-        proxy authentication in the URL itself.
+        {{ t("agent.proxy_capabilities") }}
       </p>
     </div>
   </div>

@@ -2,7 +2,7 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    :title="'Client Certificates'"
+    :title="t('agent.client_certs')"
     @close="emit('hide-modal')"
   >
     <template #body>
@@ -54,7 +54,7 @@
         <HoppButtonSecondary
           class="mx-4"
           :icon="IconPlus"
-          :label="'Add Certificate File'"
+          :label="t('agent.add_cert_file')"
           filled
           outline
           @click="showAddModal = true"
@@ -64,9 +64,9 @@
 
     <template #footer>
       <div class="flex space-x-2">
-        <HoppButtonPrimary :label="'Save'" @click="save" />
+        <HoppButtonPrimary :label="t('action.save')" @click="save" />
         <HoppButtonSecondary
-          :label="'Cancel'"
+          :label="t('action.cancel')"
           filled
           outline
           @click="emit('hide-modal')"

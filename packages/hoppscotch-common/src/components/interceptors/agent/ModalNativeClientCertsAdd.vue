@@ -2,7 +2,7 @@
   <HoppSmartModal
     v-if="show"
     dialog
-    :title="'Add Client Certificate'"
+    :title="t('agent.add_client_cert')"
     @close="emit('hide-modal')"
   >
     <template #body>
@@ -12,7 +12,7 @@
           :autofocus="false"
           styles="flex-1"
           placeholder=" "
-          :label="'Domain'"
+          :label="t('agent.domain')"
           input-styles="input floating-input"
         />
 
@@ -20,14 +20,14 @@
           <HoppSmartTab :id="'pem'" :label="'PEM'">
             <div class="p-4 space-y-4">
               <div class="flex flex-col space-y-2">
-                <label> Certificate </label>
+                <label> {{ t("agent.cert") }} </label>
                 <HoppButtonSecondary
                   :icon="pemCert?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pemCert?.type === 'loading'"
                   :label="
                     pemCert?.type === 'loaded'
                       ? pemCert.filename
-                      : 'Add Certifcate File'
+                      : t('agent.add_cert_file')
                   "
                   filled
                   outline
@@ -35,12 +35,14 @@
                 />
               </div>
               <div class="flex flex-col space-y-2">
-                <label> Key </label>
+                <label> {{ t("agent.key") }} </label>
                 <HoppButtonSecondary
                   :icon="pemKey?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pemKey?.type === 'loading'"
                   :label="
-                    pemKey?.type === 'loaded' ? pemKey.filename : 'Add Key File'
+                    pemKey?.type === 'loaded'
+                      ? pemKey.filename
+                      : t('agent.add_key_file')
                   "
                   filled
                   outline
@@ -50,17 +52,17 @@
             </div>
           </HoppSmartTab>
 
-          <HoppSmartTab :id="'pfx'" :label="'PFX/PKCS12'">
+          <HoppSmartTab :id="'pfx'" :label="t('agent.pfx_or_pkcs')">
             <div class="p-4 space-y-6">
               <div class="flex flex-col space-y-2">
-                <label> PFX/PKCS12 File </label>
+                <label> {{ t("agent.pfx_or_pkcs_file") }} </label>
                 <HoppButtonSecondary
                   :icon="pfxCert?.type === 'loaded' ? IconFile : IconPlus"
                   :loading="pfxCert?.type === 'loading'"
                   :label="
                     pfxCert?.type === 'loaded'
                       ? pfxCert.filename
-                      : 'Add PFX/PKCS12 File'
+                      : t('agent.add_pfx_or_pkcs_file')
                   "
                   filled
                   outline
@@ -72,7 +74,7 @@
                 <HoppSmartInput
                   v-model="pfxPassword"
                   :type="showPfxPassword ? 'text' : 'password'"
-                  :label="'Password'"
+                  :label="t('authorization.password')"
                   input-styles="floating-input !border-0 "
                   :placeholder="' '"
                 >
@@ -80,7 +82,9 @@
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
                       :title="
-                        showPfxPassword ? 'Hide Password' : 'Show Password'
+                        showPfxPassword
+                          ? t('hide.password')
+                          : t('show.password')
                       "
                       :icon="showPfxPassword ? IconEye : IconEyeOff"
                       @click="showPfxPassword = !showPfxPassword"
@@ -97,12 +101,12 @@
     <template #footer>
       <div class="flex space-x-2">
         <HoppButtonPrimary
-          :label="'Save'"
+          :label="t('action.save')"
           :disabled="!isValidCertificate || anyFileSelectorIsLoading"
           @click="save"
         />
         <HoppButtonSecondary
-          :label="'Cancel'"
+          :label="t('action.cancel')"
           filled
           outline
           @click="emit('hide-modal')"
@@ -121,6 +125,7 @@ import IconFile from "~icons/lucide/file"
 import { ref, watch, computed } from "vue"
 import { useFileDialog } from "@vueuse/core"
 import { useToast } from "@composables/toast"
+import { useI18n } from "@composables/i18n"
 import { ClientCertificateEntry } from "~/platform/std/interceptors/agent"
 
 const toast = useToast()
@@ -139,6 +144,8 @@ type FileSelectorState =
   | null
   | { type: "loading" }
   | { type: "loaded"; filename: string; data: Uint8Array }
+
+const t = useI18n()
 
 const domain = ref("")
 

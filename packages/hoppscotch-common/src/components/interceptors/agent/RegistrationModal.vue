@@ -24,7 +24,7 @@
             </p>
             <HoppSmartInput
               v-model="userEnteredOTP"
-              :placeholder="t('agent.enter_otp')"
+              placeholder=" "
               :label="t('agent.otp_label')"
               input-styles="input floating-input"
             />

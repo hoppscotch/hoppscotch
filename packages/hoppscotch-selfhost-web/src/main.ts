@@ -42,7 +42,6 @@ createHoppApp("#app", {
   platformFeatureFlags: {
     exportAsGIST: false,
     hasTelemetry: false,
-    duplicateCollectionDisabledInPersonalWorkspace: true,
   },
   infra: InfraPlatform,
 })

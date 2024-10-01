@@ -8,10 +8,12 @@ pub mod server;
 pub mod state;
 pub mod tray;
 pub mod util;
+pub mod updater;
 
 use state::AppState;
+use tauri_plugin_updater::UpdaterExt;
 use std::sync::Arc;
-use tauri::{Listener, Manager, WebviewWindowBuilder};
+use tauri::{Listener, Manager, Url, WebviewWindowBuilder};
 use tokio_util::sync::CancellationToken;
 
 #[tauri::command]
@@ -55,7 +57,40 @@ pub fn run() {
                     let _ = autostart_manager.enable();
                     println!("autostart updated: {}", autostart_manager.is_enabled().unwrap());
                 }
-            }
+            };
+
+            #[cfg(desktop)]
+            {
+                // We use env variables to define the pubkey for installer to check
+                let updater_pub_key = option_env!("UPDATER_PUB_KEY");
+                let updater_url = option_env!("UPDATER_URL");
+
+                if let (Some(pub_key), Some(updater_url)) = (updater_pub_key, updater_url) {
+                    let _ = app.handle()
+                        .plugin(tauri_plugin_updater::Builder::new() .build());
+
+                    let _ = app.handle()
+                        .plugin(tauri_plugin_dialog::init());
+
+                    let updater_url: Url = updater_url.parse().unwrap();
+
+                    let updater = app.updater_builder()
+                        .pubkey(pub_key)
+                        .endpoints(
+                          vec![updater_url]
+                        )
+                        .build()
+                        .unwrap();
+
+                    let app_handle_ref = app_handle.clone();
+
+                    tauri::async_runtime::spawn_blocking(|| {
+                        tauri::async_runtime::block_on(async {
+                          updater::check_and_install_updates(app_handle_ref, updater).await;
+                        })
+                    });
+                }
+            };
 
             let app_state = Arc::new(AppState::new(app_handle.clone()));
 

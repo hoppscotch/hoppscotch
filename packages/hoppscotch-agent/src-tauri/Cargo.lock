@@ -1953,6 +1953,7 @@ dependencies = [
  "curl",
  "dashmap",
  "env_logger",
+ "http",
  "hyper",
  "log",
  "mockito",

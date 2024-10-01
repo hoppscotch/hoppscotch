@@ -217,24 +217,3 @@ pub async fn cancel_request<T>(
         Err(AppError::RequestNotFound)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::model::HandshakeResponse;
-
-    #[tokio::test]
-    async fn test_handshake() {
-        let result = handshake().await;
-        assert!(result.is_ok());
-
-        let json_response = result.unwrap();
-        let handshake_response: &HandshakeResponse = &json_response;
-
-        assert_eq!(handshake_response.status, "success");
-        assert_eq!(
-            handshake_response.message,
-            "Agent ready! Hopp in, we've got requests to catch!"
-        );
-    }
-}

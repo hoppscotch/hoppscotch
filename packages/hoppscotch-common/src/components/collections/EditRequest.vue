@@ -73,9 +73,9 @@
               :icon="IconThumbsDown"
               outline
               @click="
-                () => {
+                async () => {
                   if (lastTraceID) {
-                    submitFeedback('negative', lastTraceID)
+                    await submitFeedback('negative', lastTraceID)
                     submittedFeedback = true
                   }
                 }

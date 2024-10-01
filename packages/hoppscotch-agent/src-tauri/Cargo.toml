@@ -33,7 +33,7 @@ log = "0.4.22"
 env_logger = "0.11.5"
 curl = { version = "0.4.46", features = ["ntlm", "static-curl", "static-ssl"] }
 openssl = { version = "0.10.66", features = ["vendored"] }
-openssl-sys = "0.9.103"
+openssl-sys = { version = "0.9.103", features = ["vendored"] }
 url-escape = "0.1.1"
 thiserror = "1.0.64"
 tauri-plugin-store = "2.0.0-rc.3"

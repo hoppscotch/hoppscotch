@@ -51,6 +51,7 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             @keypress="
               (e) => {
                 if (e.key === 'Enter') {
+                  submittedFeedback = false
                   modifyRequestBody()
                 }
               }
@@ -65,7 +66,12 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             filled
             :loading="isModifyRequestBodyPending"
             :disabled="!userPrompt || isModifyRequestBodyPending"
-            @click="modifyRequestBody"
+            @click="
+              () => {
+                submittedFeedback = false
+                modifyRequestBody()
+              }
+            "
           />
         </div>
 
@@ -108,7 +114,14 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             <HoppButtonSecondary
               :icon="IconThumbsDown"
               outline
-              @click="submitFeedback('negative', lastTraceID)"
+              @click="
+                async () => {
+                  if (lastTraceID) {
+                    await submitFeedback('negative', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
             />
           </template>
 

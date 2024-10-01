@@ -237,10 +237,8 @@ import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
-import { useReadonlyStream } from "~/composables/stream"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
-import { platform } from "~/platform"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
@@ -296,11 +294,6 @@ const propertiesAction = ref<any | null>(null)
 const showChildren = ref(false)
 const dragging = ref(false)
 const confirmRemove = ref(false)
-
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
 
 const isSelected = computed(
   () =>

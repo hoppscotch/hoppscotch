@@ -25,7 +25,12 @@
             'animate-pulse': isGenerateRequestNamePending,
           }"
           :title="t('ai_experiments.generate_request_name')"
-          @click="generateRequestName"
+          @click="
+            async () => {
+              await generateRequestName(props.requestContext)
+              submittedFeedback = false
+            }
+          "
         />
       </div>
     </template>

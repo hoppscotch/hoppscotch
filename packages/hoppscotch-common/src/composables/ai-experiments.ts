@@ -122,7 +122,7 @@ export const useModifyRequestBody = (
     isModifyRequestBodyPending.value = true
 
     if (!modifyRequestBodyForPlatform) {
-      toast.error(t("request.modify_request_body_error"))
+      toast.error(t("ai_experiments.modify_request_body_error"))
       isModifyRequestBodyPending.value = false
       return
     }
@@ -133,7 +133,7 @@ export const useModifyRequestBody = (
     )
 
     if (result && E.isLeft(result)) {
-      toast.error(t("request.modify_request_body_error"))
+      toast.error(t("ai_experiments.modify_request_body_error"))
       isModifyRequestBodyPending.value = false
       return
     }
@@ -185,8 +185,6 @@ export const useSubmitFeedback = () => {
     }
 
     isSubmitFeedbackPending.value = false
-
-    toast.success(t("ai_experiments.feedback_success"))
 
     return E.right(undefined)
   }

@@ -48,16 +48,30 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
               'ai_experiments.generate_or_modify_request_body_input_placeholder'
             )}`"
             class="flex flex-1 bg-transparent px-6 text-base text-secondaryDark"
+            @keypress="
+              async (e) => {
+                if (e.key === 'Enter') {
+                  await modifyRequestBody()
+                  submittedFeedback = false
+                }
+              }
+            "
           />
 
           <HoppButtonSecondary
             :icon="IconArrowRight"
-            class="mr-6 rounded-md"
+            class="mr-6 rounded-md flex flex-col-reverse"
+            :label="t('ai_experiments.generate')"
             outline
             filled
             :loading="isModifyRequestBodyPending"
             :disabled="!userPrompt || isModifyRequestBodyPending"
-            @click="modifyRequestBody"
+            @click="
+              async () => {
+                await modifyRequestBody()
+                submittedFeedback = false
+              }
+            "
           />
         </div>
 
@@ -100,7 +114,14 @@ const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
             <HoppButtonSecondary
               :icon="IconThumbsDown"
               outline
-              @click="submitFeedback('negative', lastTraceID)"
+              @click="
+                async () => {
+                  if (lastTraceID) {
+                    await submitFeedback('negative', lastTraceID)
+                    submittedFeedback = true
+                  }
+                }
+              "
             />
           </template>
 

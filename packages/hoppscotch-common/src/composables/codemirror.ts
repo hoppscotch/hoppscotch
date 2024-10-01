@@ -25,7 +25,7 @@ import { linter } from "@codemirror/lint"
 import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
 import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { xmlLanguage } from "@codemirror/lang-xml"
-import { jsonLanguage } from "@codemirror/lang-json"
+import { jsoncLanguage } from "@shopify/lang-jsonc"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { html } from "@codemirror/legacy-modes/mode/xml"
 import { shell } from "@codemirror/legacy-modes/mode/shell"
@@ -51,6 +51,7 @@ import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppP
 
 type ExtendedEditorConfig = {
   mode: string
+  useLang: boolean
   placeholder: string
   readOnly: boolean
   lineWrapping: boolean
@@ -158,7 +159,7 @@ const hoppLang = (
 
 const getLanguage = (langMime: string): Language | null => {
   if (isJSONContentType(langMime)) {
-    return jsonLanguage
+    return jsoncLanguage
   } else if (langMime === "application/javascript") {
     return javascriptLanguage
   } else if (langMime === "graphql") {
@@ -227,6 +228,8 @@ export function useCodemirror(
 
   // Set default value for contextMenuEnabled if not provided
   options.contextMenuEnabled = options.contextMenuEnabled ?? true
+  options.extendedEditorConfig.useLang =
+    options.extendedEditorConfig.useLang ?? true
 
   const additionalExts = new Compartment()
   const language = new Compartment()
@@ -371,7 +374,9 @@ export function useCodemirror(
       ),
       language.of(
         getEditorLanguage(
-          options.extendedEditorConfig.mode ?? "",
+          options.extendedEditorConfig.useLang
+            ? (options.extendedEditorConfig.mode as any) ?? ""
+            : "",
           options.linter ?? undefined,
           options.completer ?? undefined
         )
@@ -480,7 +485,9 @@ export function useCodemirror(
       view.value?.dispatch({
         effects: language.reconfigure(
           getEditorLanguage(
-            (options.extendedEditorConfig.mode as any) ?? "",
+            options.extendedEditorConfig.useLang
+              ? (options.extendedEditorConfig.mode as any) ?? ""
+              : "",
             options.linter ?? undefined,
             options.completer ?? undefined
           )

@@ -99,7 +99,7 @@ import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
-import jsonLinter from "~/helpers/editor/linting/json"
+import jsoncLinter from "~/helpers/editor/linting/jsonc"
 import { readFileAsText } from "~/helpers/functional/files"
 import xmlFormat from "xml-formatter"
 import { useNestedSetting } from "~/composables/settings"
@@ -140,7 +140,7 @@ const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(body.value.contentType)
 )
 const langLinter = computed(() =>
-  isJSONContentType(body.value.contentType) ? jsonLinter : null
+  isJSONContentType(body.value.contentType) ? jsoncLinter : null
 )
 
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpRequestBody")

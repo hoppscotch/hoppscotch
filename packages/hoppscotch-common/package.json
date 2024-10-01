@@ -41,6 +41,7 @@
     "@hoppscotch/ui": "0.2.0",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.0",
+    "@shopify/lang-jsonc": "1.0.0",
     "@unhead/vue": "1.8.8",
     "@urql/core": "4.2.0",
     "@urql/devtools": "2.0.3",

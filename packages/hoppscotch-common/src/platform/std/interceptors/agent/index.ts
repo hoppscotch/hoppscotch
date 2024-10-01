@@ -64,7 +64,7 @@ type ClientCertDef =
     }
 
 // TODO: Figure out a way to autogen this from the interceptor definition on the Rust side
-type RequestDef = {
+export type RequestDef = {
   req_id: number
 
   method: string
@@ -196,7 +196,8 @@ async function convertToRequestDef(
   reqID: number,
   caCertificates: CACertificateEntry[],
   clientCertificates: Map<string, ClientCertificateEntry>,
-  validateCerts: boolean
+  validateCerts: boolean,
+  proxyInfo: RequestDef["proxy"]
 ): Promise<RequestDef> {
   const clientCertDomain = getURLDomain(axiosReq.url!)
 
@@ -241,6 +242,7 @@ async function convertToRequestDef(
     ),
     validate_certs: validateCerts,
     client_cert: clientCert ? convertClientCertToDefCert(clientCert) : null,
+    proxy: proxyInfo,
   }
 }
 
@@ -283,6 +285,7 @@ const CLIENT_CERTS_PERSIST_KEY = "agent_interceptor_client_certs_store"
 const VALIDATE_SSL_KEY = "agent_interceptor_validate_ssl"
 const AUTH_KEY_PERSIST_KEY = "agent_interceptor_auth_key"
 const SHARED_SECRET_PERSIST_KEY = "agent_interceptor_shared_secret"
+const PROXY_INFO_PERSIST_KEY = "agent_interceptor_proxy_info"
 
 export class AgentInterceptorService extends Service implements Interceptor {
   public static readonly ID = "AGENT_INTERCEPTOR_SERVICE"
@@ -323,6 +326,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
   public sharedSecretB16 = ref<string | null>(null)
   private registrationOTP = ref<string | null>(null)
 
+  public proxyInfo = ref<RequestDef["proxy"]>(undefined)
+
   override onServiceInit() {
     // Register the Root UI Extension
     this.uiExtensionService.addRootUIExtension(AgentRootUIExtension)
@@ -338,6 +343,16 @@ export class AgentInterceptorService extends Service implements Interceptor {
     )
     if (sharedSecret) {
       this.sharedSecretB16.value = sharedSecret
+    }
+
+    const persistedProxyInfo = this.persistenceService.getLocalConfig(
+      PROXY_INFO_PERSIST_KEY
+    )
+    if (persistedProxyInfo && persistedProxyInfo !== "null") {
+      try {
+        const proxyInfo = JSON.parse(persistedProxyInfo)
+        this.proxyInfo.value = proxyInfo
+      } catch (e) {}
     }
 
     // Load SSL Validation
@@ -494,6 +509,13 @@ export class AgentInterceptorService extends Service implements Interceptor {
       } else {
         this.persistenceService.removeLocalConfig(AUTH_KEY_PERSIST_KEY)
       }
+    })
+
+    watch(this.proxyInfo, (newProxyInfo) => {
+      this.persistenceService.setLocalConfig(
+        PROXY_INFO_PERSIST_KEY,
+        JSON.stringify(newProxyInfo) ?? "null"
+      )
     })
 
     // Show registration UI if there is no auth key present
@@ -758,7 +780,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
           reqID,
           this.caCertificates.value,
           this.clientCertificates.value,
-          this.validateCerts.value
+          this.validateCerts.value,
+          this.proxyInfo.value
         )
 
         const [nonceB16, encryptedDef] =

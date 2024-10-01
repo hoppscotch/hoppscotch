@@ -35,7 +35,7 @@ export function removeComments(jsonString: string): string {
 
   jsonString = removeTrailingCommas(jsonString)
 
-  return JSON.stringify(JSON.parse(jsonString))
+  return jsonString
 }
 
 export function removeTrailingCommas(jsonString: string): string {

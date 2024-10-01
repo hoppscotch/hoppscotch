@@ -173,6 +173,30 @@ pub async fn run_request<T>(
     })
 }
 
+/// Provides a way for registered clients to check if their
+/// registration still holds, this route is supposed to return
+/// an encrypted `true` value if the given auth_key is good.
+/// Since its encrypted with the shared secret established during
+/// registration, the client also needs the shared secret to verify
+/// if the read fails, or the auth_key didn't validate and this route returns
+/// undefined, we can count on the registration not being valid anymore.
+pub async fn registered_handshake<T>(
+  State((state, _)): State<(Arc<AppState>, T)>,
+  TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>
+) -> AppResult<EncryptedJson<serde_json::Value>> {
+    let reg_info = state.get_registration_info(auth_header.token());
+
+    match reg_info {
+      Some(reg) => Ok(
+        EncryptedJson {
+          key_b16: reg.shared_secret_b16,
+          data: json!(true)
+        }
+      ),
+      None => Err(AppError::Unauthorized)
+    }
+}
+
 pub async fn cancel_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,

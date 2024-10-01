@@ -21,6 +21,9 @@ pub fn route(
             "/verify-registration",
             post(controller::verify_registration),
         )
+        .route("/registered-handshake",
+            get(controller::registered_handshake::<AppHandle>)
+        )
         .route("/request", post(controller::run_request))
         .route("/cancel-request/:req_id", post(controller::cancel_request))
         .with_state((state, app_handle))

@@ -511,6 +511,48 @@ export class AgentInterceptorService extends Service implements Interceptor {
         immediate: true,
       }
     )
+
+    // Verify if the agent registration still holds, else revoke the registration
+    if (this.authKey.value) {
+      ;(async () => {
+        try {
+          const nonce = window.crypto.getRandomValues(new Uint8Array(12))
+          const nonceB16 = base16.encode(nonce).toLowerCase()
+
+          const response = await axios.get(
+            "http://localhost:9119/registered-handshake",
+            {
+              headers: {
+                Authorization: `Bearer ${this.authKey.value}`,
+                "X-Hopp-Nonce": nonceB16,
+              },
+              responseType: "arraybuffer",
+            }
+          )
+
+          const responseNonceB16: string = response.headers["x-hopp-nonce"]
+          const encryptedResponseBytes = response.data
+
+          const parsedData = await this.getDecryptedResponse<unknown>(
+            responseNonceB16,
+            encryptedResponseBytes
+          )
+
+          // This should decrypt directly into `true` else registration failed
+          if (parsedData !== true) {
+            throw "handshake-mismatch"
+          }
+        } catch (e) {
+          if (e === "handshake-mismatch") {
+            this.sharedSecretB16.value = null
+            this.authKey.value = null
+          } else if (axios.isAxiosError(e) && e.status === 401) {
+            this.sharedSecretB16.value = null
+            this.authKey.value = null
+          }
+        }
+      })()
+    }
   }
 
   public async checkAgentStatus(): Promise<void> {

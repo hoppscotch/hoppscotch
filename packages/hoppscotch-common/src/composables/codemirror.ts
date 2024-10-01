@@ -47,6 +47,7 @@ import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
 import * as E from "fp-ts/Either"
+import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
 
 type ExtendedEditorConfig = {
   mode: string
@@ -64,12 +65,19 @@ type CodeMirrorOptions = {
   // NOTE: This property is not reactive
   environmentHighlights: boolean
 
+  /**
+   * Whether or not to highlight predefined variables, such as: `<<$guid>>`.
+   * - These are special variables that starts with a dolar sign.
+   */
+  predefinedVariablesHighlights?: boolean
+
   additionalExts?: Extension[]
 
   contextMenuEnabled?: boolean
 
   // callback on editor update
   onUpdate?: (view: ViewUpdate) => void
+  onChange?: (value: string) => void
 
   // callback on view initialization
   onInit?: (view: EditorView) => void
@@ -254,6 +262,10 @@ export function useCodemirror(
       text: null,
     })
   }
+  const predefinedVariable: HoppPredefinedVariablesPlugin | null =
+    options.predefinedVariablesHighlights
+      ? new HoppPredefinedVariablesPlugin()
+      : null
 
   function handleTextSelection() {
     const selection = view.value?.state.selection.main
@@ -329,8 +341,12 @@ export function useCodemirror(
               cachedValue.value = update.state.doc
                 .toJSON()
                 .join(update.state.lineBreak)
-              if (!options.extendedEditorConfig.readOnly)
+              if (!options.extendedEditorConfig.readOnly) {
                 value.value = cachedValue.value
+                if (options.onChange) {
+                  options.onChange(cachedValue.value)
+                }
+              }
             }
           }
         }
@@ -401,6 +417,7 @@ export function useCodemirror(
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)
+    if (predefinedVariable) extensions.push(predefinedVariable.extension)
 
     view.value = new EditorView({
       parent: el,
@@ -408,6 +425,8 @@ export function useCodemirror(
         doc: parseDoc(value.value, options.extendedEditorConfig.mode ?? ""),
         extensions,
       }),
+      // scroll to top when mounting
+      scrollTo: EditorView.scrollIntoView(0),
     })
 
     options.onInit?.(view.value)

@@ -2,6 +2,7 @@ import {
   Environment,
   GlobalEnvironment,
   GlobalEnvironmentVariable,
+  HOPP_SUPPORTED_PREDEFINED_VARIABLES,
 } from "@hoppscotch/data"
 import { cloneDeep, isEqual } from "lodash-es"
 import { combineLatest, Observable } from "rxjs"
@@ -407,24 +408,45 @@ export type AggregateEnvironment = {
 export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
-  map(([selectedEnv, globalVars]) => {
-    const results: AggregateEnvironment[] = []
+  map(([selectedEnv, globalEnv]) => {
+    const effectiveAggregateEnvs: AggregateEnvironment[] = []
+
+    // Ensure pre-defined variables are prioritised over other environment variables with the same name
+    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
+      effectiveAggregateEnvs.push({
+        key,
+        value: getValue(),
+        secret: false,
+        sourceEnv: selectedEnv?.name ?? "Global",
+      })
+    })
+
+    const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
 
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
       const value = "value" in variable ? variable.value : ""
 
-      results.push({ key, value, secret, sourceEnv: selectedEnv.name })
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({
+          key,
+          value,
+          secret,
+          sourceEnv: selectedEnv.name,
+        })
+      }
     })
 
-    globalVars.variables.forEach((variable) => {
+    globalEnv.variables.forEach((variable) => {
       const { key, secret } = variable
       const value = "value" in variable ? variable.value : ""
 
-      results.push({ key, value, secret, sourceEnv: "Global" })
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({ key, value, secret, sourceEnv: "Global" })
+      }
     })
 
-    return results
+    return effectiveAggregateEnvs
   }),
   distinctUntilChanged(isEqual)
 )
@@ -503,7 +525,7 @@ export function getAggregateEnvsWithSecrets() {
 
 export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
   combineLatest([currentEnvironment$, globalEnv$]).pipe(
-    map(([selectedEnv, globalVars]) => {
+    map(([selectedEnv, globalEnv]) => {
       const results: AggregateEnvironment[] = []
       selectedEnv?.variables.map((x, index) => {
         let value
@@ -523,7 +545,7 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
         })
       })
 
-      globalVars.variables.map((x, index) => {
+      globalEnv.variables.map((x, index) => {
         let value
         if (x.secret) {
           value = secretEnvironmentService.getSecretEnvironmentVariableValue(

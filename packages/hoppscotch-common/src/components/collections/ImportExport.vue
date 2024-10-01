@@ -29,7 +29,7 @@ import {
 
 import { defineStep } from "~/composables/step-components"
 
-import MyCollectionImport from "~/components/importExport/ImportExportSteps/MyCollectionImport.vue"
+import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
@@ -61,7 +61,7 @@ const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
-const isPersonalCollectionImporterInProgress = ref(false)
+const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
 
@@ -209,19 +209,19 @@ const HoppRESTImporter: ImporterOrExporter = {
   }),
 }
 
-const HoppMyCollectionImporter: ImporterOrExporter = {
+const HoppAllCollectionImporter: ImporterOrExporter = {
   metadata: {
-    id: "hopp_my_collection",
-    name: "import.from_my_collections",
-    title: "import.from_my_collections_description",
+    id: "hopp_all_collection",
+    name: "import.from_all_collections",
+    title: "import.from_all_collections_description",
     icon: IconUser,
-    disabled: false,
-    applicableTo: ["team-workspace"],
+    disabled: !currentUser.value,
+    applicableTo: ["personal-workspace", "team-workspace"],
   },
-  component: defineStep("my_collection_import", MyCollectionImport, () => ({
-    loading: isPersonalCollectionImporterInProgress.value,
-    async onImportFromMyCollection(content) {
-      isPersonalCollectionImporterInProgress.value = true
+  component: defineStep("all_collection_import", AllCollectionImport, () => ({
+    loading: isAllCollectionImporterInProgress.value,
+    async onImportCollection(content) {
+      isAllCollectionImporterInProgress.value = true
 
       await handleImportToStore([content])
 
@@ -232,7 +232,7 @@ const HoppMyCollectionImporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      isPersonalCollectionImporterInProgress.value = false
+      isAllCollectionImporterInProgress.value = false
     },
   })),
 }
@@ -351,7 +351,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     name: "import.from_insomnia",
     title: "import.from_insomnia_description",
     icon: IconInsomnia,
-    disabled: true,
+    disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: FileSource({
@@ -387,7 +387,7 @@ const HoppGistImporter: ImporterOrExporter = {
     name: "import.from_gist",
     title: "import.from_gist_description",
     icon: IconGithub,
-    disabled: true,
+    disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
   component: GistSource({
@@ -596,7 +596,7 @@ const HARImporter: ImporterOrExporter = {
 const importerModules = computed(() => {
   const enabledImporters = [
     HoppRESTImporter,
-    HoppMyCollectionImporter,
+    HoppAllCollectionImporter,
     HoppOpenAPIImporter,
     HoppPostmanImporter,
     HoppInsomniaImporter,
@@ -607,6 +607,10 @@ const importerModules = computed(() => {
   const isTeams = props.collectionsType.type === "team-collections"
 
   return enabledImporters.filter((importer) => {
+    if (importer.metadata.disabled) {
+      return false
+    }
+
     return isTeams
       ? importer.metadata.applicableTo.includes("team-workspace")
       : importer.metadata.applicableTo.includes("personal-workspace")

@@ -14,7 +14,7 @@ import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
 import V6_VERSION, { HoppRESTReqBody } from "./v/6"
 import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
-import V8_VERSION, { HoppRESTAuth } from "./v/8"
+import V8_VERSION, { HoppRESTAuth, HoppRESTRequestResponses } from "./v/8"
 
 export * from "./content-types"
 
@@ -48,6 +48,9 @@ export {
   HoppRESTAuth,
   HoppRESTAuthOAuth2,
   PasswordGrantTypeParams,
+  HoppRESTResponseOriginalRequest,
+  HoppRESTRequestResponse,
+  HoppRESTRequestResponses,
 } from "./v/8"
 
 const versionedObject = z.object({
@@ -106,6 +109,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
     (arr) => arr.filter((v: any) => v.key !== "" && v.value !== ""),
     lodashIsEqualEq
   ),
+  responses: lodashIsEqualEq,
 })
 
 export const RESTReqSchemaVersion = "8"
@@ -188,6 +192,14 @@ export function safelyExtractRESTRequest(
         req.requestVariables = result.data
       }
     }
+
+    if ("responses" in x) {
+      const result = HoppRESTRequestResponses.safeParse(x.responses)
+
+      if (result.success) {
+        req.responses = result.data
+      }
+    }
   }
 
   return req
@@ -221,6 +233,7 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
       body: null,
     },
     requestVariables: [],
+    responses: {},
   }
 }
 

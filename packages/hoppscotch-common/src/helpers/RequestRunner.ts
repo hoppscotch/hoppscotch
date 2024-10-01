@@ -29,7 +29,7 @@ import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
 } from "./preRequest"
-import { HoppRESTDocument } from "./rest/document"
+import { HoppRequestDocument } from "./rest/document"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
@@ -166,7 +166,7 @@ const filterNonEmptyEnvironmentVariables = (
 }
 
 export function runRESTRequest$(
-  tab: Ref<HoppTab<HoppRESTDocument>>
+  tab: Ref<HoppTab<HoppRequestDocument>>
 ): [
   () => void,
   Promise<

@@ -243,7 +243,6 @@ import {
   changeCurrentReorderStatus,
   currentReorderingStatus$,
 } from "~/newstore/reordering"
-import { platform } from "~/platform"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
@@ -333,11 +332,6 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   id: "",
   parentID: "",
 })
-
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
 
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work

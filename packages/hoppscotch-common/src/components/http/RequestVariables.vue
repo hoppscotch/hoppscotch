@@ -251,6 +251,21 @@ const workingRequestVariables = ref<
   },
 ])
 
+// Rule: Working Request variable always have last element is always an empty param
+watch(workingRequestVariables, (variableList) => {
+  if (
+    variableList.length > 0 &&
+    variableList[variableList.length - 1].key !== ""
+  ) {
+    workingRequestVariables.value.push({
+      id: idTicker.value++,
+      key: "",
+      value: "",
+      active: true,
+    })
+  }
+})
+
 // Sync logic between params and working/bulk params
 watch(
   requestVariables,
@@ -321,21 +336,6 @@ watch(bulkVariables, (newBulkParams) => {
 
   if (!isEqual(requestVariables.value, filteredBulkRequestVariables)) {
     requestVariables.value = filteredBulkRequestVariables
-  }
-})
-
-// Rule: Working Request variable always have last element is always an empty param
-watch(workingRequestVariables, (variableList) => {
-  if (
-    variableList.length > 0 &&
-    variableList[variableList.length - 1].key !== ""
-  ) {
-    workingRequestVariables.value.push({
-      id: idTicker.value++,
-      key: "",
-      value: "",
-      active: true,
-    })
   }
 })
 

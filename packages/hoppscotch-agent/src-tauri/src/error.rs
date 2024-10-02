@@ -34,6 +34,12 @@ pub enum AppError {
     RequestRunError(String),
     #[error("Request cancelled")]
     RequestCancelled,
+    #[error("Failed to clear registrations")]
+    RegistrationClearError,
+    #[error("Failed to insert registrations")]
+    RegistrationInsertError,
+    #[error("Failed to save registrations to store")]
+    RegistrationSaveError,
 }
 
 impl IntoResponse for AppError {
@@ -52,6 +58,10 @@ impl IntoResponse for AppError {
             AppError::InvalidHeaders => (StatusCode::BAD_REQUEST, self.to_string()),
             AppError::RequestRunError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::RequestCancelled => (StatusCode::BAD_REQUEST, self.to_string()),
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal Server Error".to_string(),
+            ),
         };
 
         let body = Json(json!({

@@ -97,12 +97,12 @@ pub async fn verify_registration(
 
     let shared_secret = agent_secret_key.diffie_hellman(&their_public_key);
 
-    state.update_registrations(app_handle.clone(), |regs| {
+    let _ = state.update_registrations(app_handle.clone(), |regs| {
       regs.insert(auth_key_copy, Registration {
         registered_at: created_at,
         shared_secret_b16: base16::encode_lower(shared_secret.as_bytes())
       });
-    });
+    })?;
 
     let auth_payload = json!({
         "auth_key": auth_key,

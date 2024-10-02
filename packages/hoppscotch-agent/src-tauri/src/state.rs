@@ -7,6 +7,8 @@ use tauri_plugin_store::StoreBuilder;
 use tokio_util::sync::CancellationToken;
 use tokio::sync::RwLock;
 
+use crate::error::AppError;
+
 /// Describes one registered app instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Registration {
@@ -63,27 +65,28 @@ impl AppState {
 
     /// Provides you an opportunity to update the registrations list
     /// and also persists the data to the disk
-    pub fn update_registrations(
-      &self,
-      app_handle: tauri::AppHandle,
-      update_func: impl FnOnce(&DashMap<String, Registration>)
-    ) {
+        pub fn update_registrations(
+        &self,
+        app_handle: tauri::AppHandle,
+        update_func: impl FnOnce(&DashMap<String, Registration>)
+    ) -> Result<(), AppError> {
+        update_func(&self.registrations);
 
-      update_func(&self.registrations);
+        let mut store = StoreBuilder::new("app_data.bin")
+            .build(app_handle);
 
-      let mut store = StoreBuilder::new("app_data.bin")
-          .build(app_handle);
+        let _ = store.load();
 
-      let _ = store.load();
+        store.delete("registrations")
+            .map_err(|_| AppError::RegistrationClearError)?;
 
-      store.delete("registrations")
-        .expect("Failed clearing registrations for update");
+        store.insert("registrations".into(), serde_json::to_value(self.registrations.clone()).unwrap())
+            .map_err(|_| AppError::RegistrationInsertError)?;
 
-      store.insert("registrations".into(), serde_json::to_value(self.registrations.clone()).unwrap())
-        .expect("Failed setting registrations for update");
+        store.save()
+            .map_err(|_| AppError::RegistrationSaveError)?;
 
-      store.save()
-        .expect("Failed saving registrations to store for update");
+        Ok(())
     }
 
     pub async fn validate_registration(&self, registration: &str) -> bool {

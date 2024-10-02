@@ -6,7 +6,7 @@
     @hide-modal="hideModal"
     @register="register"
     @verify="verifyOTP"
-    @retry-connection="checkAgentStatus"
+    @retry-connection="checkAgentStatus(true)"
   />
 </template>
 
@@ -34,13 +34,17 @@ const registrationStatus = ref<"initial" | "otp_required" | "loading">(
   "initial"
 )
 
-async function checkAgentStatus() {
+async function checkAgentStatus(isRetry = false) {
   if (
     interceptorService.currentInterceptor.value?.interceptorID ===
     agentService.interceptorID
   ) {
     await agentService.checkAgentStatus()
     updateModalVisibility()
+
+    if (isRetry && !agentService.isAgentRunning.value) {
+      toast.error("Agent is not running.")
+    }
   }
 }
 

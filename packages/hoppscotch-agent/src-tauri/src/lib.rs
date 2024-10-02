@@ -1,4 +1,3 @@
-pub mod app_handle_ext;
 pub mod controller;
 pub mod error;
 pub mod interceptor;
@@ -7,24 +6,18 @@ pub mod route;
 pub mod server;
 pub mod state;
 pub mod tray;
-pub mod util;
 pub mod updater;
+pub mod util;
 
 use state::AppState;
-use tauri_plugin_updater::UpdaterExt;
 use std::sync::Arc;
 use tauri::{Listener, Manager, Url, WebviewWindowBuilder};
+use tauri_plugin_updater::UpdaterExt;
 use tokio_util::sync::CancellationToken;
 
 #[tauri::command]
 async fn get_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<Option<String>, ()> {
-  Ok(
-    state
-      .active_registration_code
-      .read()
-      .await
-      .clone()
-  )
+    Ok(state.active_registration_code.read().await.clone())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -1,28 +1,30 @@
 use axum::{
-    body::Bytes, extract::{Path, State}, Json,
-    http::HeaderMap
+    body::Bytes,
+    extract::{Path, State},
+    http::HeaderMap,
+    Json,
 };
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
-use tauri::AppHandle;
-use x25519_dalek::{EphemeralSecret, PublicKey};
 use std::sync::Arc;
+use tauri::{AppHandle, Emitter};
+use x25519_dalek::{EphemeralSecret, PublicKey};
 
 use crate::{
-    app_handle_ext::AppHandleExt,
     error::{AppError, AppResult},
     model::{
-        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse,
-        RequestDef, RunRequestResponse,
+        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, RequestDef,
+        RunRequestResponse,
     },
-    state::{AppState, Registration}, util::EncryptedJson,
+    state::{AppState, Registration},
+    util::EncryptedJson,
 };
 use chrono::Utc;
+use rand::Rng;
 use serde_json::json;
 use uuid::Uuid;
-use rand::Rng;
 
 fn generate_otp() -> String {
   let otp: u32 = rand::thread_rng().gen_range(0..1_000_000);
@@ -41,17 +43,17 @@ pub async fn handshake(
     }))
 }
 
-pub async fn receive_registration<T: AppHandleExt>(
-    State((state, app_handle)): State<(Arc<AppState>, T)>,
+pub async fn receive_registration(
+    State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
 ) -> AppResult<Json<serde_json::Value>> {
     let otp = generate_otp();
 
-    let mut active_registration_code = state.active_registration_code
-      .write()
-      .await;
+    let mut active_registration_code = state.active_registration_code.write().await;
 
     if !active_registration_code.is_none() {
-      return Ok(Json(json!({ "message": "There is already an existing registration happening" })));
+        return Ok(Json(
+            json!({ "message": "There is already an existing registration happening" }),
+        ));
     }
 
     *active_registration_code = Some(otp.clone());
@@ -184,20 +186,18 @@ pub async fn run_request<T>(
 /// registration, the client also needs the shared secret to verify
 /// if the read fails, or the auth_key didn't validate and this route returns
 /// undefined, we can count on the registration not being valid anymore.
-pub async fn registered_handshake<T>(
-  State((state, _)): State<(Arc<AppState>, T)>,
-  TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>
+pub async fn registered_handshake(
+    State((state, _)): State<(Arc<AppState>, AppHandle)>,
+    TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
 ) -> AppResult<EncryptedJson<serde_json::Value>> {
     let reg_info = state.get_registration_info(auth_header.token());
 
     match reg_info {
-      Some(reg) => Ok(
-        EncryptedJson {
-          key_b16: reg.shared_secret_b16,
-          data: json!(true)
-        }
-      ),
-      None => Err(AppError::Unauthorized)
+        Some(reg) => Ok(EncryptedJson {
+            key_b16: reg.shared_secret_b16,
+            data: json!(true),
+        }),
+        None => Err(AppError::Unauthorized),
     }
 }
 

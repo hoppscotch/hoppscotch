@@ -1878,16 +1878,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
-name = "hdrhistogram"
-version = "7.5.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "765c9198f173dd59ce26ff9f95ef0aafd0a0fe01fb9d72841bc5066a4c06511d"
-dependencies = [
- "byteorder",
- "num-traits",
-]
-
-[[package]]
 name = "headers"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1954,7 +1944,6 @@ dependencies = [
  "dashmap",
  "env_logger",
  "http",
- "hyper",
  "lazy_static",
  "log",
  "mockito",
@@ -1973,7 +1962,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-util",
- "tower 0.5.1",
  "tower-http",
  "url-escape",
  "uuid",
@@ -4906,13 +4894,9 @@ checksum = "2873938d487c3cfb9aed7546dc9f2711d867c9f90c46b889989a2cb84eba6b4f"
 dependencies = [
  "futures-core",
  "futures-util",
- "hdrhistogram",
- "indexmap 2.5.0",
  "pin-project-lite",
- "slab",
  "sync_wrapper 0.1.2",
  "tokio",
- "tokio-util",
  "tower-layer",
  "tower-service",
  "tracing",

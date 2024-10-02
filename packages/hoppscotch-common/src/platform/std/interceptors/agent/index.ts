@@ -23,6 +23,7 @@ import AgentRootUIExtension from "~/components/interceptors/agent/RootExt.vue"
 import { UIExtensionService } from "~/services/ui-extension.service"
 import { x25519 } from "@noble/curves/ed25519"
 import { base16 } from "@scure/base"
+import { invokeAction } from "~/helpers/actions"
 
 type KeyValuePair = {
   key: string
@@ -775,6 +776,19 @@ export class AgentInterceptorService extends Service implements Interceptor {
         }
       },
       response: (async () => {
+        await this.checkAgentStatus()
+
+        if (!this.isAgentRunning.value || !this.authKey.value) {
+          invokeAction("agent.open-registration-modal")
+
+          return E.left(<InterceptorError>{
+            humanMessage: {
+              heading: (t) => t("error.network_fail"),
+              description: (t) => t("helpers.network_fail"),
+            },
+          })
+        }
+
         const requestDef = await convertToRequestDef(
           processedReq,
           reqID,

@@ -78,6 +78,7 @@ export type HoppAction =
   | "share.request" // Share REST request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
+  | "agent.open-registration-modal" // Open Hoppscotch Agent registration modal
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on

@@ -16,6 +16,7 @@ import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
 import { ref, onMounted, computed, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { InterceptorService } from "~/services/interceptor.service"
+import { defineActionHandler } from "~/helpers/actions"
 
 // TODO: Move as much as logic as possible to AgentInterceptorService
 
@@ -89,4 +90,11 @@ async function verifyOTP(otp: string) {
     registrationStatus.value = "otp_required"
   }
 }
+
+defineActionHandler("agent.open-registration-modal", () => {
+  if (!showModal.value) {
+    showModal.value = true
+    registrationStatus.value = "initial"
+  }
+})
 </script>

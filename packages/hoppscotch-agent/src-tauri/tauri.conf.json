@@ -28,7 +28,7 @@
       "csp": null
     }
   },
-  "bundle": {
+      "bundle": {
     "active": true,
     "targets": "all",
     "icon": [
@@ -39,5 +39,13 @@
       "icons/icon.ico"
     ],
     "createUpdaterArtifacts": true
+  },
+  "plugins" : {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI1MjZGQTNFRjA1NEFFMDEKUldRQnJsVHdQdm9tSlNMLzNxKzJOM24wdC9SYUZHckFpeUZoWW1xb1dtdVpSa2dWMkRGdkV2WmsK",
+      "endpoints": [
+        "https://releases.hoppscotch.com/hoppscotch-agent.json"
+      ]
+    }
   }
 }

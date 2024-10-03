@@ -533,7 +533,7 @@ export const REST_TAB_STATE_SCHEMA = z
           z.object({
             // !Versioned entity
             request: entityReference(HoppRESTRequest),
-            type: z.literal("request"),
+            type: z.literal("request").catch("request"),
             isDirty: z.boolean(),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             response: z.optional(z.nullable(HoppRESTResponseSchema)),
@@ -544,7 +544,7 @@ export const REST_TAB_STATE_SCHEMA = z
             cancelFunction: z.optional(z.function()),
           }),
           z.object({
-            type: z.literal("example-response"),
+            type: z.literal("example-response").catch("example-response"),
             response: HoppRESTRequestResponse,
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),

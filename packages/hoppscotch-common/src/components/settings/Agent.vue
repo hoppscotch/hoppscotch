@@ -17,12 +17,14 @@
         @click="showCACertificatesModal = true"
       />
       -->
+      <!--
       <HoppButtonSecondary
         :icon="IconLucideFileKey"
         :label="t('agent.client_certs')"
         outline
         @click="showClientCertificatesModal = true"
       />
+      -->
     </div>
 
     <!--
@@ -32,11 +34,12 @@
     />
     -->
 
-    <!-- TODO: Port over the modals -->
+    <!--
     <InterceptorsAgentModalNativeClientCertificates
       :show="showClientCertificatesModal"
       @hide-modal="showClientCertificatesModal = false"
     />
+    -->
 
     <div class="pt-4 space-y-4">
       <div class="flex items-center">
@@ -65,7 +68,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { useI18n } from "@composables/i18n"
-import IconLucideFileKey from "~icons/lucide/file-key"
+// import IconLucideFileKey from "~icons/lucide/file-key"
 import { useService } from "dioc/vue"
 import {
   RequestDef,
@@ -82,7 +85,7 @@ const agentInterceptorService = useService(AgentInterceptorService)
 const allowSSLVerification = agentInterceptorService.validateCerts
 
 // const showCACertificatesModal = ref(false)
-const showClientCertificatesModal = ref(false)
+// const showClientCertificatesModal = ref(false)
 
 const allowProxy = ref(false)
 const proxyURL = ref("")

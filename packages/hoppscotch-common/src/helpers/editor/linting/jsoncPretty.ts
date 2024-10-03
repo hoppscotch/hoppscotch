@@ -67,22 +67,21 @@ function formatComments(
         return inline
           ? ` //${space}${comment.value}`
           : `\n${indentation}//${space}${comment.value}`
-      } else {
-        const space = options.commentSpace ? " " : ""
-        const commentLines = comment.value.split("\n")
-
-        if (commentLines.length === 1) {
-          return inline
-            ? ` /*${space}${comment.value}${space}*/`
-            : `\n${indentation}/*${space}${comment.value}${space}*/`
-        }
-
-        return (
-          `\n${indentation}/*\n` +
-          commentLines.map((line) => `${indentation} * ${line}`).join("\n") +
-          `\n${indentation} */`
-        )
       }
+      const space = options.commentSpace ? " " : ""
+      const commentLines = comment.value.split("\n")
+
+      if (commentLines.length === 1) {
+        return inline
+          ? ` /*${space}${comment.value}${space}*/`
+          : `\n${indentation}/*${space}${comment.value}${space}*/`
+      }
+
+      return (
+        `\n${indentation}/*\n` +
+        commentLines.map((line) => `${indentation} * ${line}`).join("\n") +
+        `\n${indentation} */`
+      )
     })
     .join("")
 }

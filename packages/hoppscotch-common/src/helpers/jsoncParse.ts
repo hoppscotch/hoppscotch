@@ -128,80 +128,121 @@ export default function jsonParse(
   }
 }
 
-// Modified parseObj to handle comments
 function parseObj(): JSONObjectValue {
   const nodeStart = start
-  const members = []
-  const comments = [...pendingComments] // Capture any comments before the object
+  const members: JSONObjectMember[] = []
+  const comments = [...pendingComments] // Capture comments before the object
   pendingComments = []
 
   expect("{")
 
+  let first = true
   while (!skip("}")) {
-    if (pendingComments.length > 0) {
-      // Add comments to the previous member if it exists
-      if (members.length > 0) {
-        members[members.length - 1].comments = [
-          ...(members[members.length - 1].comments || []),
-          ...pendingComments,
-        ]
-      }
-      pendingComments = []
-    }
+    if (!first) {
+      // Expect a comma between members
+      expect(",")
 
-    members.push(parseMember())
-    if (!skip(",")) {
-      expect("}")
-      break
+      // After comma, check for closing brace (handling trailing comma)
+      if (skip("}")) {
+        break
+      }
     }
+    first = false
+
+    // Capture any comments before the member
+    const memberComments = [...pendingComments]
+    pendingComments = []
+
+    const member = parseMember()
+    if (memberComments.length > 0) {
+      member.comments = memberComments
+    }
+    members.push(member)
   }
+
+  // Capture any trailing comments inside the object
+  const trailingComments = [...pendingComments]
+  pendingComments = []
 
   return {
     kind: "Object",
     start: nodeStart,
     end: lastEnd,
     members,
-    comments: comments.length > 0 ? comments : undefined,
-  }
-}
-
-function parseMember(): JSONObjectMember {
-  const nodeStart = start
-  const key = kind === "String" ? (curToken() as JSONStringValue) : null
-  expect("String")
-  expect(":")
-  const value = parseVal()
-  return {
-    kind: "Member",
-    start: nodeStart,
-    end: lastEnd,
-    key: key!,
-    value,
+    comments:
+      comments.length > 0 || trailingComments.length > 0
+        ? [...comments, ...trailingComments]
+        : undefined,
   }
 }
 
 function parseArr(): JSONArrayValue {
   const nodeStart = start
   const values: JSONValue[] = []
-  const comments = [...pendingComments] // Capture any comments before the array
+  const comments = [...pendingComments] // Capture comments before the array
   pendingComments = []
 
   expect("[")
 
+  let first = true
   while (!skip("]")) {
-    values.push(parseVal())
-    if (!skip(",")) {
-      expect("]")
-      break
+    if (!first) {
+      // Expect a comma between values
+      expect(",")
+
+      // After comma, check for closing bracket (handling trailing comma)
+      if (skip("]")) {
+        break
+      }
     }
+    first = false
+
+    // Add value and attach any pending comments to it
+    const value = parseVal()
+    if (pendingComments.length > 0 && typeof value === "object") {
+      ;(value as JSONObjectValue).comments = [
+        ...((value as JSONObjectValue).comments || []),
+        ...pendingComments,
+      ]
+      pendingComments = []
+    }
+    values.push(value)
   }
+
+  // Capture any trailing comments inside the array
+  const trailingComments = [...pendingComments]
+  pendingComments = []
 
   return {
     kind: "Array",
     start: nodeStart,
     end: lastEnd,
     values,
-    comments: comments.length > 0 ? comments : undefined,
+    comments:
+      comments.length > 0 || trailingComments.length > 0
+        ? [...comments, ...trailingComments]
+        : undefined,
+  }
+}
+
+function parseMember(): JSONObjectMember {
+  const nodeStart = start
+  const memberComments = [...pendingComments] // Capture comments before the member
+  pendingComments = []
+
+  const key = kind === "String" ? (curToken() as JSONStringValue) : null
+  expect("String")
+  expect(":")
+
+  const value = parseVal()
+
+  return {
+    kind: "Member",
+    start: nodeStart,
+    end: lastEnd,
+    key: key!,
+    value,
+    comments: memberComments.length > 0 ? memberComments : undefined,
   }
 }
 

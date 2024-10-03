@@ -104,8 +104,8 @@ import { readFileAsText } from "~/helpers/functional/files"
 import xmlFormat from "xml-formatter"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
-import * as LJSON from "lossless-json"
 import { useAIExperiments } from "~/composables/ai-experiments"
+import { prettifyJSONC } from "~/helpers/editor/linting/jsoncPretty"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -205,8 +205,7 @@ const prettifyRequestBody = () => {
   let prettifyBody = ""
   try {
     if (body.value.contentType.endsWith("json")) {
-      const jsonObj = LJSON.parse(rawParamsBody.value as string)
-      prettifyBody = LJSON.stringify(jsonObj, undefined, 2) as string
+      prettifyBody = prettifyJSONC(rawParamsBody.value as string)
     } else if (body.value.contentType === "application/xml") {
       prettifyBody = prettifyXML(rawParamsBody.value as string)
     }

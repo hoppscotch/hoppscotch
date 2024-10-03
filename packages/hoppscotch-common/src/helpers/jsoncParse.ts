@@ -25,6 +25,16 @@ type JSONEOFValue = {
   end: number
 }
 
+// First, add the new comment types
+type JSONCommentKind = "SingleLineComment" | "MultiLineComment"
+
+export type JSONCommentValue = {
+  kind: JSONCommentKind
+  start: number
+  end: number
+  value: string
+}
+
 type JSONNullValue = {
   kind: "Null"
   start: number
@@ -65,6 +75,7 @@ export type JSONObjectValue = {
   end: number
   // eslint-disable-next-line no-use-before-define
   members: JSONObjectMember[]
+  comments?: JSONCommentValue[] // optional comments array
 }
 
 export type JSONArrayValue = {
@@ -73,6 +84,7 @@ export type JSONArrayValue = {
   end: number
   // eslint-disable-next-line no-use-before-define
   values: JSONValue[]
+  comments?: JSONCommentValue[] // optional comments array
 }
 
 export type JSONValue = JSONObjectValue | JSONArrayValue | JSONPrimitiveValue
@@ -83,26 +95,7 @@ export type JSONObjectMember = {
   end: number
   key: JSONStringValue
   value: JSONValue
-}
-
-export default function jsonParse(
-  str: string
-): JSONObjectValue | JSONArrayValue {
-  string = str
-  strLen = str.length
-  start = end = lastEnd = -1
-  ch()
-  lex() // Pass the allowComments flag to lex()
-  try {
-    const ast = parseObj()
-    expect("EOF")
-    return ast
-  } catch (e) {
-    // Try parsing expecting a root array
-    const ast = parseArr()
-    expect("EOF")
-    return ast
-  }
+  comments?: JSONCommentValue[] // optional comments array
 }
 
 let string: string
@@ -112,57 +105,144 @@ let end: number
 let lastEnd: number
 let code: number
 let kind: string
+let pendingComments: JSONCommentValue[] = []
+
+export default function jsonParse(
+  str: string
+): JSONObjectValue | JSONArrayValue {
+  string = str
+  strLen = str.length
+  start = end = lastEnd = -1
+  pendingComments = [] // Reset pending comments
+  ch()
+  lex()
+  try {
+    const ast = parseObj()
+    expect("EOF")
+    return ast
+  } catch (e) {
+    pendingComments = [] // Reset pending comments
+    const ast = parseArr()
+    expect("EOF")
+    return ast
+  }
+}
 
 function parseObj(): JSONObjectValue {
   const nodeStart = start
-  const members = []
+  const members: JSONObjectMember[] = []
+  const comments = [...pendingComments] // Capture comments before the object
+  pendingComments = []
+
   expect("{")
+
+  let first = true
   while (!skip("}")) {
-    members.push(parseMember())
-    if (!skip(",")) {
-      expect("}")
-      break
+    if (!first) {
+      // Expect a comma between members
+      expect(",")
+
+      // After comma, check for closing brace (handling trailing comma)
+      if (skip("}")) {
+        break
+      }
     }
+    first = false
+
+    // Capture any comments before the member
+    const memberComments = [...pendingComments]
+    pendingComments = []
+
+    const member = parseMember()
+    if (memberComments.length > 0) {
+      member.comments = memberComments
+    }
+    members.push(member)
   }
+
+  // Capture any trailing comments inside the object
+  const trailingComments = [...pendingComments]
+  pendingComments = []
+
   return {
     kind: "Object",
     start: nodeStart,
     end: lastEnd,
     members,
-  }
-}
-
-function parseMember(): JSONObjectMember {
-  const nodeStart = start
-  const key = kind === "String" ? (curToken() as JSONStringValue) : null
-  expect("String")
-  expect(":")
-  const value = parseVal()
-  return {
-    kind: "Member",
-    start: nodeStart,
-    end: lastEnd,
-    key: key!,
-    value,
+    comments:
+      comments.length > 0 || trailingComments.length > 0
+        ? [...comments, ...trailingComments]
+        : undefined,
   }
 }
 
 function parseArr(): JSONArrayValue {
   const nodeStart = start
   const values: JSONValue[] = []
+  const comments = [...pendingComments] // Capture comments before the array
+  pendingComments = []
+
   expect("[")
+
+  let first = true
   while (!skip("]")) {
-    values.push(parseVal())
-    if (!skip(",")) {
-      expect("]")
-      break
+    if (!first) {
+      // Expect a comma between values
+      expect(",")
+
+      // After comma, check for closing bracket (handling trailing comma)
+      if (skip("]")) {
+        break
+      }
     }
+    first = false
+
+    // Add value and attach any pending comments to it
+    const value = parseVal()
+    if (pendingComments.length > 0 && typeof value === "object") {
+      ;(value as JSONObjectValue).comments = [
+        ...((value as JSONObjectValue).comments || []),
+        ...pendingComments,
+      ]
+      pendingComments = []
+    }
+    values.push(value)
   }
+
+  // Capture any trailing comments inside the array
+  const trailingComments = [...pendingComments]
+  pendingComments = []
+
   return {
     kind: "Array",
     start: nodeStart,
     end: lastEnd,
     values,
+    comments:
+      comments.length > 0 || trailingComments.length > 0
+        ? [...comments, ...trailingComments]
+        : undefined,
+  }
+}
+
+function parseMember(): JSONObjectMember {
+  const nodeStart = start
+  const memberComments = [...pendingComments] // Capture comments before the member
+  pendingComments = []
+
+  const key = kind === "String" ? (curToken() as JSONStringValue) : null
+  expect("String")
+  expect(":")
+
+  const value = parseVal()
+
+  return {
+    kind: "Member",
+    start: nodeStart,
+    end: lastEnd,
+    key: key!,
+    value,
+    comments: memberComments.length > 0 ? memberComments : undefined,
   }
 }
 
@@ -239,41 +319,65 @@ function ch() {
 function lex() {
   lastEnd = end
 
-  // Skip whitespace and comments
   while (true) {
-    // Skip whitespace (space, tab, newline, etc.)
+    // Skip whitespace
     while (code === 9 || code === 10 || code === 13 || code === 32) {
       ch()
     }
 
-    // Check for single-line comment (//)
+    // Handle single-line comments
     if (code === 47 && string.charCodeAt(end + 1) === 47) {
-      // 47 is '/'
+      const commentStart = end
+      ch() // Skip first '/'
+      ch() // Skip second '/'
+
+      let commentText = ""
       while (code !== 10 && code !== 13 && code !== 0) {
-        // Skip until newline or EOF
+        commentText += String.fromCharCode(code)
         ch()
       }
-      continue // After skipping the comment, recheck for more whitespace/comments
+
+      pendingComments.push({
+        kind: "SingleLineComment",
+        start: commentStart,
+        end,
+        value: commentText.trim(),
+      })
+      continue
     }
 
-    // Check for multi-line comment (/* */)
+    // Handle multi-line comments
     if (code === 47 && string.charCodeAt(end + 1) === 42) {
-      // 42 is '*'
-      ch() // Skip the '*'
-      ch() // Move past the opening '/*'
+      const commentStart = end
+      ch() // Skip '/'
+      ch() // Skip '*'
+
+      let commentText = ""
       while (
         code !== 0 &&
         !(code === 42 && string.charCodeAt(end + 1) === 47)
       ) {
-        // Look for '*/'
+        commentText += String.fromCharCode(code)
         ch()
       }
-      ch() // Skip the '*'
-      ch() // Move past the closing '*/'
-      continue // After skipping the comment, recheck for more whitespace/comments
+
+      if (code === 0) {
+        throw syntaxError("Unterminated multi-line comment")
+      }
+
+      ch() // Skip '*'
+      ch() // Skip '/'
+
+      pendingComments.push({
+        kind: "MultiLineComment",
+        start: commentStart,
+        end,
+        value: commentText.trim(),
+      })
+      continue
     }
 
-    break // Exit loop when no more comments or whitespace
+    break
   }
 
   if (code === 0) {

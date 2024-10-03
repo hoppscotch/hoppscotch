@@ -9,19 +9,23 @@
   >
     <template #body>
       <div class="space-y-4">
-        <template v-if="status === 'agent_not_running'">
-          <p class="text-secondaryLight">{{ t("agent.not_running") }}</p>
-        </template>
+        <p v-if="status === 'agent_not_running'" class="text-secondaryLight">
+          {{ t("agent.not_running") }}
+        </p>
+
         <template v-else-if="status === 'registration_required'">
-          <template v-if="registrationStatus === 'initial'">
-            <p class="text-secondaryLight">
-              {{ t("agent.registration_instruction") }}
-            </p>
-          </template>
+          <p
+            v-if="registrationStatus === 'initial'"
+            class="text-secondaryLight"
+          >
+            {{ t("agent.registration_instruction") }}
+          </p>
+
           <template v-else-if="registrationStatus === 'otp_required'">
             <p class="text-secondaryLight">
               {{ t("agent.enter_otp_instruction") }}
             </p>
+
             <HoppSmartInput
               v-model="userEnteredOTP"
               placeholder=" "
@@ -29,42 +33,27 @@
               input-styles="input floating-input"
             />
           </template>
-          <template v-else-if="registrationStatus === 'loading'">
-            <div class="flex items-center space-x-2">
-              <HoppButtonSecondary
-                :icon="IconLoader"
-                class="animate-spin"
-                disabled
-              />
-              <p class="text-secondaryLight">{{ t("agent.processing") }}</p>
-            </div>
-          </template>
+
+          <div
+            v-else-if="isRegistrationLoading"
+            class="flex items-center space-x-2"
+          >
+            <HoppSmartSpinner />
+
+            <p class="text-secondaryLight">{{ t("agent.processing") }}</p>
+          </div>
         </template>
       </div>
     </template>
+
     <template #footer>
       <div class="flex justify-start flex-1">
-        <template v-if="status === 'agent_not_running'">
-          <HoppButtonPrimary
-            :label="t('action.retry')"
-            :loading="loading"
-            @click="retryConnection"
-          />
-        </template>
-        <template v-else-if="status === 'registration_required'">
-          <HoppButtonPrimary
-            v-if="registrationStatus === 'initial'"
-            :label="t('action.register')"
-            :loading="registrationStatus === 'loading'"
-            @click="register"
-          />
-          <HoppButtonPrimary
-            v-if="registrationStatus === 'otp_required'"
-            :label="t('action.verify')"
-            :loading="registrationStatus === 'loading'"
-            @click="verify"
-          />
-        </template>
+        <HoppButtonPrimary
+          :label="primaryButtonLabel"
+          :loading="isRegistrationLoading"
+          @click="primaryActionHandler"
+        />
+
         <HoppButtonSecondary
           :label="t('action.cancel')"
           class="ml-2"
@@ -78,9 +67,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue"
+
 import { useI18n } from "~/composables/i18n"
-import { ref, computed } from "vue"
-import IconLoader from "~icons/lucide/loader"
 
 const t = useI18n()
 const userEnteredOTP = ref("")
@@ -89,6 +78,13 @@ const props = defineProps<{
   show: boolean
   status: "agent_not_running" | "registration_required" | "hidden"
   registrationStatus: "initial" | "otp_required" | "loading"
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "register"): void
+  (e: "verify", otp: string): void
+  (e: "retry-connection"): void
 }>()
 
 const modalTitle = computed(() => {
@@ -102,26 +98,49 @@ const modalTitle = computed(() => {
   }
 })
 
-const emit = defineEmits<{
-  (e: "hide-modal"): void
-  (e: "register"): void
-  (e: "verify", otp: string): void
-  (e: "retry-connection"): void
-}>()
+const isRegistrationLoading = computed(
+  () => props.registrationStatus === "loading"
+)
 
-function hideModal() {
-  emit("hide-modal")
+const primaryButtonLabel = computed(() => {
+  if (isRegistrationLoading.value) {
+    return t("state.loading")
+  }
+
+  if (props.status === "agent_not_running") {
+    return t("action.retry")
+  }
+
+  if (props.status === "registration_required") {
+    if (props.registrationStatus === "initial") {
+      return t("action.register")
+    }
+
+    if (props.registrationStatus === "otp_required") {
+      return t("action.verify")
+    }
+  }
+
+  return ""
+})
+
+const primaryActionHandler = () => {
+  if (props.status === "agent_not_running") {
+    return emit("retry-connection")
+  }
+
+  if (props.status === "registration_required") {
+    if (props.registrationStatus === "initial") {
+      return emit("register")
+    }
+
+    if (props.registrationStatus === "otp_required") {
+      return emit("verify", userEnteredOTP.value)
+    }
+  }
+
+  return null
 }
 
-function register() {
-  emit("register")
-}
-
-function verify() {
-  emit("verify", userEnteredOTP.value)
-}
-
-function retryConnection() {
-  emit("retry-connection")
-}
+const hideModal = () => emit("hide-modal")
 </script>

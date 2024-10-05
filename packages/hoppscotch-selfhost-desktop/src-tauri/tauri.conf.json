@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Hoppscotch",
-    "version": "24.9.0"
+    "version": "24.9.1"
   },
   "tauri": {
     "allowlist": {

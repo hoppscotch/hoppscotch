@@ -7,11 +7,13 @@ import {
 } from "../../../services/interceptor.service"
 import axios, { AxiosRequestConfig, CancelToken } from "axios"
 import { cloneDeep } from "lodash-es"
+import { useSetting } from "@composables/settings"
 
 export const preProcessRequest = (
   req: AxiosRequestConfig
 ): AxiosRequestConfig => {
   const reqClone = cloneDeep(req)
+  const encodeMode = useSetting("ENCODE_MODE")
 
   // If the parameters are URLSearchParams, inject them to URL instead
   // This prevents issues of marshalling the URLSearchParams to the proxy
@@ -21,6 +23,16 @@ export const preProcessRequest = (
 
       for (const [key, value] of reqClone.params.entries()) {
         url.searchParams.append(key, value)
+        if (encodeMode.value === "encode") {
+          // always encode the value
+          url.searchParams.set(key, encodeURIComponent(value))
+        } else if (
+          encodeMode.value === "auto" &&
+          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value)
+        ) {
+          // If the value contains special characters, encode it
+          url.searchParams.set(key, encodeURIComponent(value))
+        }
       }
 
       reqClone.url = url.toString()

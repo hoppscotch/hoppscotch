@@ -121,6 +121,30 @@
         </div>
       </div>
 
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="p-8 md:col-span-1">
+          <h3 class="heading">
+            <!-- {{ t("settings.others") }} -->
+            Others
+          </h3>
+          <p class="my-1 text-secondaryLight">
+            <!-- {{ t("settings.others_description") }} -->
+            Other settings used in the application
+          </p>
+        </div>
+        <div class="space-y-8 p-8 md:col-span-2">
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              <!-- {{ t("settings.others") }} -->
+              Others
+            </h4>
+            <div class="mt-4">
+              <SmartEncodingPicker />
+            </div>
+          </section>
+        </div>
+      </div>
+
       <template v-if="platform.ui?.additionalSettingsSections?.length">
         <template
           v-for="item in platform.ui?.additionalSettingsSections"

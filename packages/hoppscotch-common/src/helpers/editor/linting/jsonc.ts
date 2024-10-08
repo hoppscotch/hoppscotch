@@ -25,7 +25,17 @@ const linter: LinterDefinition = (text) => {
  * @returns The JSON string without comments.
  */
 export function removeComments(jsonString: string): string {
-  return stripComments(jsonString)
+  return stripComments(removeTrailingCommas(jsonString))
+}
+
+/**
+ * Removes trailing commas from a JSON string.
+ * @param jsonString
+ * @returns
+ */
+
+export function removeTrailingCommas(jsonString: string): string {
+  return jsonString.replace(/,(?=\s*?[\]}])/g, "")
 }
 
 export default linter

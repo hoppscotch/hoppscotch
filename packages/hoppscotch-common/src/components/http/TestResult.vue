@@ -17,8 +17,8 @@
         <div>
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('export.title')"
-            :icon="IconShare"
+            :title="t('action.download_file')"
+            :icon="IconDownload"
             @click="share"
           />
           <HoppButtonSecondary
@@ -228,7 +228,7 @@ import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconClose from "~icons/lucide/x"
-import IconShare from "~icons/lucide/share"
+import IconDownload from "~icons/lucide/download"
 
 import { GlobalEnvironment } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"

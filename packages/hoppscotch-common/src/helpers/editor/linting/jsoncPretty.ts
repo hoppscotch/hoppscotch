@@ -16,7 +16,7 @@ const DEFAULT_OPTIONS: Required<PrettifyOptions> = {
   indent: 2,
   maxLength: 80,
   commentSpace: true,
-  trailingComma: true,
+  trailingComma: false,
 }
 
 function prettify(

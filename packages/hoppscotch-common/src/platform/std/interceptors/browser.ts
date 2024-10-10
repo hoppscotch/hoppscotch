@@ -9,6 +9,15 @@ import axios, { AxiosRequestConfig, CancelToken } from "axios"
 import { cloneDeep } from "lodash-es"
 import { useSetting } from "@composables/settings"
 
+// Helper function to check if a string is already encoded
+function isEncoded(value: string): boolean {
+  try {
+    return value !== decodeURIComponent(value)
+  } catch (e) {
+    return false // in case of malformed URI sequence
+  }
+}
+
 export const preProcessRequest = (
   req: AxiosRequestConfig
 ): AxiosRequestConfig => {
@@ -22,18 +31,24 @@ export const preProcessRequest = (
       const url = new URL(reqClone.url ?? "")
 
       for (const [key, value] of reqClone.params.entries()) {
-        url.searchParams.append(key, value)
+        let finalValue = value
         if (
           encodeMode.value === "encode" ||
           (encodeMode.value === "auto" &&
             /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value))
         ) {
-          // Encode the value if the mode is "encode" or if it's "auto" and the value contains special characters
-          url.searchParams.set(key, encodeURIComponent(value))
+          // Check if the value is already encoded (e.g., contains % symbols)
+          if (!isEncoded(value)) {
+            finalValue = encodeURIComponent(value)
+          }
         }
+
+        // Set the parameter with the final value
+        url.searchParams.set(key, finalValue)
       }
 
-      reqClone.url = url.toString()
+      // decode the URL to prevent double encoding
+      reqClone.url = decodeURIComponent(url.toString())
     } catch (e) {
       // making this a non-empty block, so we can make the linter happy.
       // we should probably use, allowEmptyCatch, or take the time to do something with the caught errors :)
@@ -51,11 +66,9 @@ async function runRequest(
 ): RequestRunResult["response"] {
   const timeStart = Date.now()
 
-  const processedReq = preProcessRequest(req)
-
   try {
     const res = await axios({
-      ...processedReq,
+      ...req,
       cancelToken,
       responseType: "arraybuffer",
     })

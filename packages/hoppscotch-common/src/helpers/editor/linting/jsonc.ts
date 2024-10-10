@@ -1,7 +1,7 @@
+import { parse } from "jsonc-parser"
+import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
-import jsoncParse from "~/helpers/jsoncParse"
-import { stripComments } from "jsonc-parser"
 
 const linter: LinterDefinition = (text) => {
   try {
@@ -24,8 +24,9 @@ const linter: LinterDefinition = (text) => {
  * @param jsonString The JSON string with comments.
  * @returns The JSON string without comments.
  */
-export function removeComments(jsonString: string): string {
-  return stripComments(jsonString)
+
+export function stripComments(jsonString: string) {
+  return JSON.stringify(parse(jsonString))
 }
 
 export default linter

@@ -1,16 +1,16 @@
 <template>
-  <div class="my-1 text-secondaryLight">
-    <!-- {{ settings.encoding_description }} -->
-    Use encoding for parameters in requests
-  </div>
   <div class="flex flex-col">
-    <div v-for="(mode, index) of modes" :key="`mode-${index}`" class="flex">
+    <div
+      v-for="(mode, index) of modes"
+      :key="`mode-${index}`"
+      class="flex w-fit"
+    >
       <HoppSmartRadio
-        v-b-tooltip.hover
+        v-tippy="{ theme: 'tooltip' }"
         :value="`index`"
         :label="mode"
         :selected="mode === active"
-        :class="'!px-0 hover:bg-transparent'"
+        :class="'!px-0 hover:bg-transparent capitalize'"
         :title="tooltip(mode)"
         @change="change(mode)"
       />

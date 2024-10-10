@@ -7,12 +7,12 @@
     >
       <HoppSmartRadio
         v-tippy="{ theme: 'tooltip' }"
-        :value="`index`"
-        :label="mode"
-        :selected="mode === active"
-        :class="'!px-0 hover:bg-transparent capitalize'"
-        :title="tooltip(mode)"
-        @change="change(mode)"
+        :value="mode"
+        :label="t(getEncodingModeName(mode))"
+        :title="t(getEncodeingModeTooltip(mode))"
+        :selected="mode === activeMode"
+        :class="'!px-0 hover:bg-transparent'"
+        @change="changeMode(mode)"
       />
     </div>
   </div>
@@ -21,24 +21,40 @@
 <script setup lang="ts">
 import { EncodeModes, EncodeMode, applySetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const modes = EncodeModes
-const active = useSetting("ENCODE_MODE")
+const activeMode = useSetting("ENCODE_MODE")
 
-const change = (mode: EncodeMode) => {
+const changeMode = (mode: EncodeMode) => {
   applySetting("ENCODE_MODE", mode)
 }
 
-const tooltip = (mode: EncodeMode) => {
-  switch (mode.toLowerCase()) {
+const getEncodingModeName = (mode: string) => {
+  switch (mode) {
     case "encode":
-      return "Always encode the parameters in the request."
+      return "settings.encode_mode"
     case "disable":
-      return "Never encode the parameters in the request."
+      return "settings.disable_mode"
     case "auto":
-      return "Encode the parameters in the request only if some special characters are present."
+      return "settings.auto_mode"
     default:
-      return "Unknown"
+      return "settings.encode_mode"
+  }
+}
+
+const getEncodeingModeTooltip = (mode: string) => {
+  switch (mode) {
+    case "encode":
+      return "settings.encode_mode_tooltip"
+    case "disable":
+      return "settings.disable_mode_tooltip"
+    case "auto":
+      return "settings.auto_mode_tooltip"
+    default:
+      return "settings.encode_mode_tooltip"
   }
 }
 </script>

@@ -23,14 +23,12 @@ export const preProcessRequest = (
 
       for (const [key, value] of reqClone.params.entries()) {
         url.searchParams.append(key, value)
-        if (encodeMode.value === "encode") {
-          // always encode the value
-          url.searchParams.set(key, encodeURIComponent(value))
-        } else if (
-          encodeMode.value === "auto" &&
-          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value)
+        if (
+          encodeMode.value === "encode" ||
+          (encodeMode.value === "auto" &&
+            /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value))
         ) {
-          // If the value contains special characters, encode it
+          // Encode the value if the mode is "encode" or if it's "auto" and the value contains special characters
           url.searchParams.set(key, encodeURIComponent(value))
         }
       }

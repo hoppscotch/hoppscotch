@@ -34,6 +34,7 @@
   },
   "pnpm": {
     "overrides": {
+      "cookie": "0.7.2",
       "vue": "3.3.9",
       "subscriptions-transport-ws>ws": "7.5.10",
       "braces": "3.0.3",

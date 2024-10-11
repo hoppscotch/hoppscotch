@@ -2,7 +2,7 @@ import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { platform } from "~/platform"
 import * as E from "fp-ts/Either"
 
-export const ExportTestResults = async (testResults: HoppTestResult) => {
+export const exportTestResults = async (testResults: HoppTestResult) => {
   const contentsJSON = JSON.stringify(testResults, null, 2)
   const file = new Blob([contentsJSON], { type: "application/json" })
   const url = URL.createObjectURL(file)

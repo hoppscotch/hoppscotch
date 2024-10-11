@@ -19,7 +19,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.download_file')"
             :icon="IconDownload"
-            @click="share"
+            @click="downloadTestResult"
           />
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -222,7 +222,7 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { ExportTestResults } from "~/helpers/import-export/export/testResults"
+import { exportTestResults } from "~/helpers/import-export/export/testResults"
 
 import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
@@ -318,8 +318,8 @@ const addEnvToGlobal = () => {
   })
 }
 
-const share = () => {
+const downloadTestResult = () => {
   if (!testResults.value) return
-  ExportTestResults(testResults.value)
+  exportTestResults(testResults.value)
 }
 </script>

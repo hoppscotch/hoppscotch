@@ -7,6 +7,7 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import * as E from "fp-ts/Either"
 import { useRoute } from "vue-router"
+import { invokeAction } from "~/helpers/actions"
 
 export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const toast = useToast()
@@ -30,11 +31,6 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
   const canDoRequestNameGeneration = computed(() => {
-    // Request generation applies only to the authenticated state
-    if (!currentUser.value) {
-      return false
-    }
-
     return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
   })
 
@@ -43,6 +39,11 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
   const generateRequestName = async (
     requestContext: HoppRESTRequest | HoppGQLRequest | null
   ) => {
+    if (!currentUser.value) {
+      invokeAction("modals.login.toggle")
+      return
+    }
+
     if (!requestContext || !generateRequestNameForPlatform) {
       toast.error(t("request.generate_name_error"))
       return
@@ -82,19 +83,9 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
 }
 
 export const useAIExperiments = () => {
-  const currentUser = useReadonlyStream(
-    platform.auth.getCurrentUserStream(),
-    platform.auth.getCurrentUser()
-  )
-
   const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 
   const shouldEnableAIFeatures = computed(() => {
-    // Request generation applies only to the authenticated state
-    if (!currentUser.value) {
-      return false
-    }
-
     return ENABLE_AI_EXPERIMENTS.value && !!platform.experiments?.aiExperiments
   })
 

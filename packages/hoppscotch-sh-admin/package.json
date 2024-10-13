@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.1.0",
-    "@fontsource-variable/material-symbols-rounded": "5.1.1",
+    "@fontsource-variable/material-symbols-rounded": "5.1.2",
     "@fontsource-variable/roboto-mono": "5.1.0",
     "@graphql-typed-document-node/core": "3.2.0",
     "@hoppscotch/ui": "0.2.1",

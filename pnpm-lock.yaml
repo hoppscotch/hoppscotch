@@ -1371,8 +1371,8 @@ importers:
         specifier: 5.1.0
         version: 5.1.0
       '@fontsource-variable/material-symbols-rounded':
-        specifier: 5.1.1
-        version: 5.1.1
+        specifier: 5.1.2
+        version: 5.1.2
       '@fontsource-variable/roboto-mono':
         specifier: 5.1.0
         version: 5.1.0
@@ -3182,6 +3182,9 @@ packages:
 
   '@fontsource-variable/material-symbols-rounded@5.1.1':
     resolution: {integrity: sha512-a5V7gdfZkbxEyK2aUVbfyUBtskcDqPl7Bd/a015eGuDY2IktWNFeUBjom5q6Oouqq+k6Awsxs3Ezyp9zoeEg2g==}
+
+  '@fontsource-variable/material-symbols-rounded@5.1.2':
+    resolution: {integrity: sha512-twPi3k83tKmXw2r4VkqMLRMDvIxZlospGydYjVqfMbKPkj6VzAmc2Aw4Pweb7Tg6n04a7LuP/V+gAdyYdgBZPA==}
 
   '@fontsource-variable/material-symbols-rounded@5.1.3':
     resolution: {integrity: sha512-d0veYThfkhNkLKOGEaMtalfkPSvKOs6yHmkyA4nOUwDS6wcMiQt8exXbqtpXIVI61aUJoBKHP2lChHx+su4DLg==}
@@ -10647,7 +10650,6 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
-
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.11.2:
@@ -14795,6 +14797,8 @@ snapshots:
   '@fontsource-variable/material-symbols-rounded@5.0.16': {}
 
   '@fontsource-variable/material-symbols-rounded@5.1.1': {}
+
+  '@fontsource-variable/material-symbols-rounded@5.1.2': {}
 
   '@fontsource-variable/material-symbols-rounded@5.1.3': {}
 

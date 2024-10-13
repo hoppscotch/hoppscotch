@@ -1375,8 +1375,8 @@ importers:
         specifier: 5.1.0
         version: 5.1.0
       '@fontsource-variable/material-symbols-rounded':
-        specifier: 5.1.1
-        version: 5.1.1
+        specifier: 5.1.2
+        version: 5.1.2
       '@fontsource-variable/roboto-mono':
         specifier: 5.1.0
         version: 5.1.0
@@ -3114,6 +3114,9 @@ packages:
 
   '@fontsource-variable/material-symbols-rounded@5.1.1':
     resolution: {integrity: sha512-a5V7gdfZkbxEyK2aUVbfyUBtskcDqPl7Bd/a015eGuDY2IktWNFeUBjom5q6Oouqq+k6Awsxs3Ezyp9zoeEg2g==}
+
+  '@fontsource-variable/material-symbols-rounded@5.1.2':
+    resolution: {integrity: sha512-twPi3k83tKmXw2r4VkqMLRMDvIxZlospGydYjVqfMbKPkj6VzAmc2Aw4Pweb7Tg6n04a7LuP/V+gAdyYdgBZPA==}
 
   '@fontsource-variable/roboto-mono@5.0.16':
     resolution: {integrity: sha512-f4/XARRCSW8aG9qR7fF+lqIMsS/xJ46fKySdlQ3BaFLzEXeioeQylkHS6DoOF+2MPZUylLQFpmnpC0q22Orp0g==}
@@ -14868,6 +14871,8 @@ snapshots:
   '@fontsource-variable/material-symbols-rounded@5.0.16': {}
 
   '@fontsource-variable/material-symbols-rounded@5.1.1': {}
+
+  '@fontsource-variable/material-symbols-rounded@5.1.2': {}
 
   '@fontsource-variable/roboto-mono@5.0.16': {}
 

@@ -39,6 +39,7 @@ declare module 'vue' {
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
     SettingsAuthProvider: typeof import('./components/settings/AuthProvider.vue')['default']
     SettingsConfigurations: typeof import('./components/settings/Configurations.vue')['default']
     SettingsDataSharing: typeof import('./components/settings/DataSharing.vue')['default']

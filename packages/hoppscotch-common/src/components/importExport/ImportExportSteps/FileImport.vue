@@ -33,6 +33,7 @@
       <template v-if="importFilesCount">
         {{
           t("import.file_size_limit_exceeded_warning_multiple_files", {
+            sizeLimit: ALLOWED_FILE_SIZE_LIMIT,
             files:
               importFilesCount === 1 ? "file" : `${importFilesCount} files`,
           })
@@ -40,7 +41,11 @@
       </template>
 
       <template v-else>
-        {{ t("import.file_size_limit_exceeded_warning_single_file") }}
+        {{
+          t("import.file_size_limit_exceeded_warning_single_file", {
+            sizeLimit: ALLOWED_FILE_SIZE_LIMIT,
+          })
+        }}
       </template>
     </p>
     <div>

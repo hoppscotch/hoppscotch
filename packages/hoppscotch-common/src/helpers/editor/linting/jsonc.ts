@@ -1,4 +1,4 @@
-import { parse } from "jsonc-parser"
+import { Node, parseTree, stripComments as stripComments_ } from "jsonc-parser"
 import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
@@ -19,6 +19,45 @@ const linter: LinterDefinition = (text) => {
   }
 }
 
+function convertNodeToJSON(node: Node): string {
+  switch (node.type) {
+    case "string":
+      return JSON.stringify(node.value)
+    case "null":
+      return "null"
+    case "array":
+      return `[${node
+        .children!.map((child) => convertNodeToJSON(child))
+        .join(",")}]`
+    case "number":
+      return JSON.stringify(node.value)
+    case "boolean":
+      return JSON.stringify(node.value)
+    case "object":
+      return `{${node
+        .children!.map((child) => convertNodeToJSON(child))
+        .join(",")}}`
+    case "property":
+      return `${JSON.stringify(node.children![0].value)}:${convertNodeToJSON(
+        node.children![1]
+      )}`
+  }
+}
+
+function stripCommentsAndCommas(text: string): string {
+  const tree = parseTree(text, undefined, {
+    allowEmptyContent: true,
+    allowTrailingComma: true,
+  })
+
+  // If we couldn't parse the tree, return the original text
+  if (!tree) {
+    return text
+  }
+
+  return convertNodeToJSON(tree)
+}
+
 /**
  * Removes comments from a JSON string.
  * @param jsonString The JSON string with comments.
@@ -26,7 +65,7 @@ const linter: LinterDefinition = (text) => {
  */
 
 export function stripComments(jsonString: string) {
-  return JSON.stringify(parse(jsonString))
+  return stripCommentsAndCommas(stripComments_(jsonString))
 }
 
 export default linter

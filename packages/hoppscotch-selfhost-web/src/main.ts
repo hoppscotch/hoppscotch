@@ -42,6 +42,7 @@ createHoppApp("#app", {
   platformFeatureFlags: {
     exportAsGIST: false,
     hasTelemetry: false,
+    collectionImportSizeLimit: 50,
   },
   infra: InfraPlatform,
 })

@@ -53,6 +53,11 @@ export type PlatformDef = {
      * Whether to show the A/B testing workspace switcher click login flow or not
      */
     workspaceSwitcherLogin?: Ref<boolean>
+
+    /**
+     * Assign an import size limit when importing collections
+     */
+    collectionImportSizeLimit?: number
   }
   infra?: InfraPlatformDef
   experiments?: ExperimentsPlatformDef

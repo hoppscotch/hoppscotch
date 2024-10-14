@@ -59,6 +59,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { computed, ref } from "vue"
+import { platform } from "~/platform"
 
 const props = withDefaults(
   defineProps<{
@@ -74,7 +75,8 @@ const props = withDefaults(
 const t = useI18n()
 const toast = useToast()
 
-const ALLOWED_FILE_SIZE_LIMIT = 10 // 10 MB
+const ALLOWED_FILE_SIZE_LIMIT =
+  platform.platformFeatureFlags.collectionImportSizeLimit ?? 10 // Default to 10 MB
 
 const importFilesCount = ref(0)
 

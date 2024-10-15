@@ -20,6 +20,7 @@
     },
     {
       "key": "secretKey",
+      "value": "",
       "secret": true
     },
     {
@@ -29,6 +30,7 @@
     },
     {
       "key": "serviceToken",
+      "value": "",
       "secret": true
     }
   ]

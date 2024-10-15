@@ -2,12 +2,11 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "test"],
-  "permissions": [
-    "core:default",
-    "shell:allow-open",
-    "core:window:allow-close",
-    "core:window:allow-set-focus",
-    "core:window:allow-set-always-on-top"
-  ]
+  "windows_0": "main",
+  "windows_1": "test",
+  "permissions_0": "core:default",
+  "permissions_1": "shell:allow-open",
+  "permissions_2": "core:window:allow-close",
+  "permissions_3": "core:window:allow-set-focus",
+  "permissions_4": "core:window:allow-set-always-on-top"
 }

@@ -3,7 +3,8 @@
   "variables": [
     {
       "key": "baseURL",
-      "value": "https://echo.hoppscotch.io"
+      "value": "https://echo.hoppscotch.io",
+      "secret": false
     }
   ]
 }

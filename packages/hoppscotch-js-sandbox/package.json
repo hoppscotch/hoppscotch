@@ -3,84 +3,61 @@
   "version": "2.1.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
   "type": "module",
-  "files": [
-    "dist",
-    "index.d.ts"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts"
-    },
-    "./web": {
-      "import": "./dist/web.js",
-      "require": "./dist/web.cjs",
-      "types": "./dist/web.d.ts"
-    },
-    "./node": {
-      "import": "./dist/node.js",
-      "require": "./dist/node.cjs",
-      "types": "./dist/node.d.ts"
-    }
+  "files": ["dist", "index.d.ts"],
+  "exports.": {
+    "types": "./dist/types/index.d.ts"
+  },
+  "exports./web": {
+    "import": "./dist/web.js",
+    "require": "./dist/web.cjs",
+    "types": "./dist/web.d.ts"
+  },
+  "exports./node": {
+    "import": "./dist/node.js",
+    "require": "./dist/node.cjs",
+    "types": "./dist/node.d.ts"
   },
   "types": "./index.d.ts",
-  "engines": {
-    "node": ">=14",
-    "pnpm": ">=3"
-  },
-  "scripts": {
-    "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
-    "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
-    "test": "vitest run",
-    "build": "vite build && tsc --emitDeclarationOnly",
-    "clean": "pnpm tsc --build --clean",
-    "postinstall": "pnpm run build",
-    "prepublish": "pnpm run build",
-    "do-lint": "pnpm run lint",
-    "do-lintfix": "pnpm run lintfix",
-    "do-typecheck": "pnpm exec tsc --noEmit",
-    "do-build-prod": "pnpm run build",
-    "do-test": "pnpm run test"
-  },
-  "keywords": [
-    "hoppscotch",
-    "sandbox",
-    "js-sandbox",
-    "apis",
-    "test-runner"
-  ],
+  "engines.node": ">=14",
+  "engines.pnpm": ">=3",
+  "scripts.lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
+  "scripts.lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
+  "scripts.test": "vitest run",
+  "scripts.build": "vite build && tsc --emitDeclarationOnly",
+  "scripts.clean": "pnpm tsc --build --clean",
+  "scripts.postinstall": "pnpm run build",
+  "scripts.prepublish": "pnpm run build",
+  "scripts.do-lint": "pnpm run lint",
+  "scripts.do-lintfix": "pnpm run lintfix",
+  "scripts.do-typecheck": "pnpm exec tsc --noEmit",
+  "scripts.do-build-prod": "pnpm run build",
+  "scripts.do-test": "pnpm run test",
+  "keywords": ["hoppscotch", "sandbox", "js-sandbox", "apis", "test-runner"],
   "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
-  "dependencies": {
-    "@hoppscotch/data": "workspace:^",
-    "@types/lodash-es": "4.17.12",
-    "fp-ts": "2.12.1",
-    "lodash": "4.17.21",
-    "lodash-es": "4.17.21"
-  },
-  "devDependencies": {
-    "@digitak/esrun": "3.2.8",
-    "@relmify/jest-fp-ts": "2.0.2",
-    "@types/jest": "27.5.2",
-    "@types/lodash": "4.14.182",
-    "@types/node": "17.0.45",
-    "@typescript-eslint/eslint-plugin": "5.30.6",
-    "@typescript-eslint/parser": "5.30.6",
-    "eslint": "8.19.0",
-    "eslint-config-prettier": "8.6.0",
-    "eslint-plugin-prettier": "4.2.1",
-    "io-ts": "2.2.16",
-    "prettier": "2.8.4",
-    "ts-jest": "27.1.5",
-    "typescript": "4.9.5",
-    "vite": "5.0.5",
-    "vitest": "0.34.6"
-  },
-  "peerDependencies": {
-    "isolated-vm": "4.7.2"
-  },
-  "peerDependenciesMeta": {
-    "isolated-vm": {
-      "optional": true
-    }
+  "dependencies.@hoppscotch/data": "workspace:^",
+  "dependencies.@types/lodash-es": "4.17.12",
+  "dependencies.fp-ts": "2.12.1",
+  "dependencies.lodash": "4.17.21",
+  "dependencies.lodash-es": "4.17.21",
+  "devDependencies.@digitak/esrun": "3.2.8",
+  "devDependencies.@relmify/jest-fp-ts": "2.0.2",
+  "devDependencies.@types/jest": "27.5.2",
+  "devDependencies.@types/lodash": "4.14.182",
+  "devDependencies.@types/node": "17.0.45",
+  "devDependencies.@typescript-eslint/eslint-plugin": "5.30.6",
+  "devDependencies.@typescript-eslint/parser": "5.30.6",
+  "devDependencies.eslint": "8.19.0",
+  "devDependencies.eslint-config-prettier": "8.6.0",
+  "devDependencies.eslint-plugin-prettier": "4.2.1",
+  "devDependencies.io-ts": "2.2.16",
+  "devDependencies.prettier": "2.8.4",
+  "devDependencies.ts-jest": "27.1.5",
+  "devDependencies.typescript": "4.9.5",
+  "devDependencies.vite": "5.0.5",
+  "devDependencies.vitest": "0.34.6",
+  "peerDependencies.isolated-vm": "4.7.2",
+  "peerDependenciesMeta.isolated-vm": {
+    "optional": true
   }
 }

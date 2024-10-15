@@ -16,15 +16,15 @@
     },
     {
       "key": "fullName",
-      "value": "<<firstName>> <<lastName>>"
+      "value": "John Doe"
     },
     {
       "key": "recursiveVarX",
-      "value": "<<recursiveVarY>>"
+      "value": "Hello"
     },
     {
       "key": "recursiveVarY",
-      "value": "<<salutation>>"
+      "value": "Hello"
     },
     {
       "key": "salutation",
@@ -32,7 +32,7 @@
     },
     {
       "key": "greetText",
-      "value": "<<salutation>> <<fullName>>"
+      "value": "Hello John Doe"
     }
   ]
 }

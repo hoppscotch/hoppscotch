@@ -1,51 +1,18 @@
 {
-  "!name": "pw-extra",
-  "console": {
-    "assert": {
-      "!type": "fn(assertion: bool, text: string)"
-    },
-    "clear": {
-      "!type": "fn()"
-    },
-    "count": {
-      "!type": "fn(label?: string)"
-    },
-    "debug": "console.log",
-    "dir": {
-      "!type": "fn(object: ?)"
-    },
-    "error": {
-      "!type": "fn(...msg: ?)"
-    },
-    "group": {
-      "!type": "fn(label?: string)"
-    },
-    "groupCollapsed": {
-      "!type": "fn(label?: string)"
-    },
-    "groupEnd": {
-      "!type": "fn()"
-    },
-    "info": {
-      "!type": "fn(...msg: ?)"
-    },
-    "log": {
-      "!type": "fn(...msg: ?)"
-    },
-    "table": {
-      "!type": "fn(data: []|?, columns?: [])"
-    },
-    "time": {
-      "!type": "fn(label: string)"
-    },
-    "timeEnd": {
-      "!type": "fn(label: string)"
-    },
-    "trace": {
-      "!type": "fn()"
-    },
-    "warn": {
-      "!type": "fn(...msg: ?)"
-    }
-  }
+  "console.assert": "fn(assertion: bool, text: string)",
+  "console.clear": "fn()",
+  "console.count": "fn(label?: string)",
+  "console.debug": "console.log",
+  "console.dir": "fn(object: ?)",
+  "console.error": "fn(...msg: ?)",
+  "console.group": "fn(label?: string)",
+  "console.groupCollapsed": "fn(label?: string)",
+  "console.groupEnd": "fn()",
+  "console.info": "fn(...msg: ?)",
+  "console.log": "fn(...msg: ?)",
+  "console.table": "fn(data: []|?, columns?: [])",
+  "console.time": "fn(label: string)",
+  "console.timeEnd": "fn(label: string)",
+  "console.trace": "fn()",
+  "console.warn": "fn(...msg: ?)"
 }

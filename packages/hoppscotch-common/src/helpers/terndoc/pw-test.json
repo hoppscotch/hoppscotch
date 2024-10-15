@@ -1,32 +1,23 @@
 {
-  "!name": "pw-test",
-  "!define": {
-    "Expectation": {
-      "not": "Expectation",
-      "toBe": "fn(value: ?)",
-      "toBeLevel2xx": "fn()",
-      "toBeLevel3xx": "fn()",
-      "toBeLevel4xx": "fn()",
-      "toBeLevel5xx": "fn()",
-      "toBeType": "fn(type: string)",
-      "toHaveLength": "fn(length: number)",
-      "toInclude": "fn(value: ?)"
-    }
-  },
-  "pw": {
-    "expect": "fn(value: ?) -> Expectation",
-    "response": {
-      "status": "number",
-      "headers": "?",
-      "body": "?"
-    },
-    "env": {
-      "set": "fn(key: string, value: string)",
-      "unset": "fn(key: string)",
-      "get": "fn(key: string) -> string",
-      "getResolve": "fn(key: string) -> string",
-      "resolve": "fn(value: string) -> string"
-    },
-    "test": "fn(name: string, func: fn())"
+  "pw-test": {
+    "!define.Expectation.not": "Expectation",
+    "!define.Expectation.toBe": "fn(value: ?)",
+    "!define.Expectation.toBeLevel2xx": "fn()",
+    "!define.Expectation.toBeLevel3xx": "fn()",
+    "!define.Expectation.toBeLevel4xx": "fn()",
+    "!define.Expectation.toBeLevel5xx": "fn()",
+    "!define.Expectation.toBeType": "fn(type: string)",
+    "!define.Expectation.toHaveLength": "fn(length: number)",
+    "!define.Expectation.toInclude": "fn(value: ?)",
+    "pw.expect": "fn(value: ?) -> Expectation",
+    "pw.response.status": "number",
+    "pw.response.headers": "?",
+    "pw.response.body": "?",
+    "pw.env.set": "fn(key: string, value: string)",
+    "pw.env.unset": "fn(key: string)",
+    "pw.env.get": "fn(key: string) -> string",
+    "pw.env.getResolve": "fn(key: string) -> string",
+    "pw.env.resolve": "fn(value: string) -> string",
+    "pw.test": "fn(name: string, func: fn())"
   }
 }

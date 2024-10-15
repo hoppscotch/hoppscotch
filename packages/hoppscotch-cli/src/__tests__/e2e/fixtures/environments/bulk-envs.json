@@ -5,11 +5,13 @@
     "variables": [
       {
         "key": "firstName",
-        "value": "John"
+        "value": "John",
+        "secret": false
       },
       {
         "key": "lastName",
-        "value": "Doe"
+        "value": "Doe",
+        "secret": false
       }
     ]
   },
@@ -25,6 +27,7 @@
       },
       {
         "key": "secretVar",
+        "value": "",
         "secret": true
       }
     ]

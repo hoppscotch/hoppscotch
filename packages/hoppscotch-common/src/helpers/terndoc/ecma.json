@@ -1,780 +1,678 @@
 {
-  "!name": "ecmascript",
-  "!define": {
-    "Error.prototype": "Error.prototype",
-    "propertyDescriptor": {
-      "enumerable": "bool",
-      "configurable": "bool",
-      "value": "?",
-      "writable": "bool",
-      "get": "fn() -> ?",
-      "set": "fn(value: ?)",
-      "unset": "fn(value: ?)"
+    "ecmascript": {
+      "!define.Error.prototype": "Error.prototype",
+      "!define.propertyDescriptor.enumerable": "bool",
+      "!define.propertyDescriptor.configurable": "bool",
+      "!define.propertyDescriptor.value": "?",
+      "!define.propertyDescriptor.writable": "bool",
+      "!define.propertyDescriptor.get": "fn() -> ?",
+      "!define.propertyDescriptor.set": "fn(value: ?)",
+      "!define.propertyDescriptor.unset": "fn(value: ?)",
+      "!define.Promise.prototype.catch.!type": "fn(onRejected: fn(reason: ?)) -> !this",
+      "!define.Promise.prototype.then.!type": "fn(onFulfilled: fn(value: ?), onRejected: fn(reason: ?)) -> !custom:Promise_then",
+      "!define.Promise.prototype.then.!effects": ["call !0 !this.:t"],
+      "!define.Promise.prototype.finally.!type": "fn(onFinally: fn()) -> !custom:Promise_then",
+      "!define.Promise_reject.!type": "fn(reason: ?) -> !this",
+      "!define.iter_prototype.:Symbol.iterator": "fn() -> !this",
+      "!define.iter.!proto": "iter_prototype",
+      "!define.iter.next.!type": "fn() -> +iter_result[value=!this.:t]",
+      "!define.iter_result.done": "bool",
+      "!define.iter_result.value": "?",
+      "!define.generator_prototype.!proto": "iter_prototype",
+      "!define.generator_prototype.next": "fn(value?: ?) -> iter_result",
+      "!define.generator_prototype.return": "fn(value?: ?) -> iter_result",
+      "!define.generator_prototype.throw": "fn(exception: +Error)",
+      "!define.async_iter_prototype.:Symbol.asyncIterator": "fn() -> !this",
+      "!define.async_iter.!proto": "async_iter_prototype",
+      "!define.async_iter.next.!type": "fn() -> +Promise[:t=+iter_result[value=!this.:t]]",
+      "!define.async_generator_prototype.!proto": "async_iter_prototype",
+      "!define.async_generator_prototype.next": "fn(value?: ?) -> +Promise[:t=iter_result]",
+      "!define.async_generator_prototype.return": "fn(value?: ?) -> +Promise[:t=iter_result]",
+      "!define.async_generator_prototype.throw": "fn(exception: +Error)",
+      "!define.Proxy_handler.getPrototypeOf": "fn(target: ?)",
+      "!define.Proxy_handler.setPrototypeOf": "fn(target: ?, prototype: ?)",
+      "!define.Proxy_handler.isExtensible": "fn(target: ?)",
+      "!define.Proxy_handler.preventExtensions": "fn(target: ?)",
+      "!define.Proxy_handler.getOwnPropertyDescriptor": "fn(target: ?, property: string) -> propertyDescriptor",
+      "!define.Proxy_handler.defineProperty": "fn(target: ?, property: string, descriptor: propertyDescriptor)",
+      "!define.Proxy_handler.has": "fn(target: ?, property: string)",
+      "!define.Proxy_handler.get": "fn(target: ?, property: string)",
+      "!define.Proxy_handler.set": "fn(target: ?, property: string, value: ?)",
+      "!define.Proxy_handler.deleteProperty": "fn(target: ?, property: string)",
+      "!define.Proxy_handler.enumerate": "fn(target: ?)",
+      "!define.Proxy_handler.ownKeys": "fn(target: ?)",
+      "!define.Proxy_handler.apply": "fn(target: ?, self: ?, arguments: [?])",
+      "!define.Proxy_handler.construct": "fn(target: ?, arguments: [?])",
+      "!define.Proxy_revocable.proxy": "+Proxy",
+      "!define.Proxy_revocable.revoke": "fn()",
+      "!define.TypedArray.!type": "fn(size: number)",
+      "!define.TypedArray.from.!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> number, thisArg?: ?) -> +TypedArray",
+      "!define.TypedArray.from.!effects": ["call !1 this=!2 !0.<i> number"],
+      "!define.TypedArray.of.!type": "fn(elements: number) -> +TypedArray",
+      "!define.TypedArray.BYTES_PER_ELEMENT.!type": "number",
+      "!define.TypedArray.name.!type": "string",
+      "!define.TypedArray.prototype.<i>": "number",
+      "!define.TypedArray.prototype.buffer.!type": "+ArrayBuffer",
+      "!define.TypedArray.prototype.byteLength.!type": "number",
+      "!define.TypedArray.prototype.byteOffset.!type": "number",
+      "!define.TypedArray.prototype.copyWithin.!type": "fn(target: number, start: number, end?: number) -> ?",
+      "!define.TypedArray.prototype.entries.!type": "fn() -> +iter[:t=number]",
+      "!define.TypedArray.prototype.every.!type": "fn(callback: fn(element: number, index: number, array: TypedArray) -> bool, thisArg?: ?) -> bool",
+      "!define.TypedArray.prototype.every.!effects": ["call !0 this=!1 number number !this"],
+      "!define.TypedArray.prototype.fill.!type": "fn(value: number, start?: number, end?: number)",
+      "!define.TypedArray.prototype.filter.!type": "fn(test: fn(element: number, i: number) -> bool, context?: ?) -> !this",
+      "!define.TypedArray.prototype.filter.!effects": ["call !0 this=!1 number number"],
+      "!define.TypedArray.prototype.find.!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
+      "!define.TypedArray.prototype.find.!effects": ["call !0 this=!1 number number !this"],
+      "!define.TypedArray.prototype.findIndex.!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
+      "!define.TypedArray.prototype.findIndex.!effects": ["call !0 this=!1 number number !this"],
+      "!define.TypedArray.prototype.forEach.!type": "fn(callback: fn(value: number, key: number, array: +TypedArray), thisArg?: ?)",
+      "!define.TypedArray.prototype.forEach.!effects": ["call !0 this=!1 number number !this"],
+      "!define.TypedArray.prototype.indexOf.!type": "fn(searchElement: number, fromIndex?: number) -> number",
+      "!define.TypedArray.prototype.join.!type": "fn(separator?: string) -> string",
+      "!define.TypedArray.prototype.keys.!type": "fn() -> +iter[:t=number]",
+      "!define.TypedArray.prototype.lastIndexOf.!type": "fn(searchElement: number, fromIndex?: number) -> number",
+      "!define.TypedArray.prototype.length.!type": "number",
+      "!define.TypedArray.prototype.map.!type": "fn(f: fn(element: number, i: number) -> number, context?: ?) -> +TypedArray",
+      "!define.TypedArray.prototype.map.!effects": ["call !0 this=!1 number number"],
+      "!define.TypedArray.prototype.reduce.!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
+      "!define.TypedArray.prototype.reduce.!effects": ["call !0 !1 number number"],
+      "!define.TypedArray.prototype.reduceRight.!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
+      "!define.TypedArray.prototype.reduceRight.!effects": ["call !0 !1 number number"],
+      "!define.TypedArray.prototype.reverse.!type": "fn()",
+      "!define.TypedArray.prototype.set.!type": "fn(array: [number], offset?: number)",
+      "!define.TypedArray.prototype.slice.!type": "fn(from: number, to?: number) -> +TypedArray",
+      "!define.TypedArray.prototype.some.!type": "fn(test: fn(elt: number, i: number) -> bool, context?: ?) -> bool",
+      "!define.TypedArray.prototype.some.!effects": ["call !0 this=!1 number number"],
+      "!define.TypedArray.prototype.sort.!type": "fn(compare?: fn(a: number, b: number) -> number)",
+      "!define.TypedArray.prototype.sort.!effects": ["call !0 number number"],
+      "!define.TypedArray.prototype.subarray.!type": "fn(begin?: number, end?: number) -> +TypedArray",
+      "!define.TypedArray.prototype.values.!type": "fn() -> +iter[:t=number]",
+      "!define.TypedArray.prototype.:Symbol.iterator.!type": "fn() -> +iter[:t=number]"
     },
-    "Promise.prototype": {
-      "catch": {
-        "!type": "fn(onRejected: fn(reason: ?)) -> !this"
+    "Infinity": {
+      "!type": "number"
+    },
+    "undefined": {
+      "!type": "?"
+    },
+    "NaN": {
+      "!type": "number"
+    },
+    "Object": {
+      "!type": "fn()",
+      "getPrototypeOf": {
+        "!type": "fn(obj: ?) -> ?"
       },
-      "then": {
-        "!type": "fn(onFulfilled: fn(value: ?), onRejected: fn(reason: ?)) -> !custom:Promise_then",
-        "!effects": ["call !0 !this.:t"]
+      "create": {
+        "!type": "fn(proto: ?) -> !custom:Object_create"
       },
-      "finally": {
-        "!type": "fn(onFinally: fn()) -> !custom:Promise_then"
+      "defineProperty": {
+        "!type": "fn(obj: ?, prop: string, desc: propertyDescriptor) -> !custom:Object_defineProperty"
+      },
+      "defineProperties": {
+        "!type": "fn(obj: ?, props: ?) -> !custom:Object_defineProperties"
+      },
+      "getOwnPropertyDescriptor": {
+        "!type": "fn(obj: ?, prop: string) -> propertyDescriptor"
+      },
+      "keys": {
+        "!type": "fn(obj: ?) -> [string]"
+      },
+      "getOwnPropertyNames": {
+        "!type": "fn(obj: ?) -> [string]"
+      },
+      "seal": {
+        "!type": "fn(obj: ?)"
+      },
+      "isSealed": {
+        "!type": "fn(obj: ?) -> bool"
+      },
+      "freeze": {
+        "!type": "fn(obj: ?) -> !0"
+      },
+      "isFrozen": {
+        "!type": "fn(obj: ?) -> bool"
+      },
+      "preventExtensions": {
+        "!type": "fn(obj: ?)"
+      },
+      "isExtensible": {
+        "!type": "fn(obj: ?) -> bool"
+      },
+      "assign": {
+        "!type": "fn(target: ?, source: ?, source?: ?) -> !0",
+        "!effects": ["copy !1 !0", "copy !2 !0", "copy !3 !0"]
+      },
+      "getOwnPropertySymbols": {
+        "!type": "fn(obj: ?) -> !custom:getOwnPropertySymbols"
+      },
+      "is": {
+        "!type": "fn(value1: ?, value2: ?) -> bool"
+      },
+      "setPrototypeOf": {
+        "!type": "fn(obj: ?, prototype: ?)"
+      },
+      "prototype": {
+        "!stdProto": "Object",
+        "toString": {
+          "!type": "fn() -> string"
+        },
+        "toLocaleString": {
+          "!type": "fn() -> string"
+        },
+        "valueOf": {
+          "!type": "fn() -> number"
+        },
+        "hasOwnProperty": {
+          "!type": "fn(prop: string) -> bool"
+        },
+        "propertyIsEnumerable": {
+          "!type": "fn(prop: string) -> bool"
+        },
+        "isPrototypeOf": {
+          "!type": "fn(obj: ?) -> bool"
+        }
       }
     },
-    "Promise_reject": {
-      "!type": "fn(reason: ?) -> !this"
-    },
-    "iter_prototype": {
-      ":Symbol.iterator": "fn() -> !this"
-    },
-    "iter": {
-      "!proto": "iter_prototype",
-      "next": {
-        "!type": "fn() -> +iter_result[value=!this.:t]"
+    "Function": {
+      "!type": "fn(body: string) -> fn()",
+      "prototype": {
+        "!stdProto": "Function",
+        "apply": {
+          "!type": "fn(this: ?, args: [?])",
+          "!effects": ["call and return !this this=!0 !1.<i> !1.<i> !1.<i>"]
+        },
+        "call": {
+          "!type": "fn(this: ?, args?: ?) -> !this.!ret",
+          "!effects": ["call and return !this this=!0 !1 !2 !3 !4"]
+        },
+        "bind": {
+          "!type": "fn(this: ?, args?: ?) -> !custom:Function_bind"
+        },
+        "prototype": "?"
       }
     },
-    "iter_result": {
-      "done": "bool",
-      "value": "?"
-    },
-    "generator_prototype": {
-      "!proto": "iter_prototype",
-      "next": "fn(value?: ?) -> iter_result",
-      "return": "fn(value?: ?) -> iter_result",
-      "throw": "fn(exception: +Error)"
-    },
-    "async_iter_prototype": {
-      ":Symbol.asyncIterator": "fn() -> !this"
-    },
-    "async_iter": {
-      "!proto": "async_iter_prototype",
-      "next": {
-        "!type": "fn() -> +Promise[:t=+iter_result[value=!this.:t]]"
-      }
-    },
-    "async_generator_prototype": {
-      "!proto": "async_iter_prototype",
-      "next": "fn(value?: ?) -> +Promise[:t=iter_result]",
-      "return": "fn(value?: ?) -> +Promise[:t=iter_result]",
-      "throw": "fn(exception: +Error)"
-    },
-    "Proxy_handler": {
-      "getPrototypeOf": "fn(target: ?)",
-      "setPrototypeOf": "fn(target: ?, prototype: ?)",
-      "isExtensible": "fn(target: ?)",
-      "preventExtensions": "fn(target: ?)",
-      "getOwnPropertyDescriptor": "fn(target: ?, property: string) -> propertyDescriptor",
-      "defineProperty": "fn(target: ?, property: string, descriptor: propertyDescriptor)",
-      "has": "fn(target: ?, property: string)",
-      "get": "fn(target: ?, property: string)",
-      "set": "fn(target: ?, property: string, value: ?)",
-      "deleteProperty": "fn(target: ?, property: string)",
-      "enumerate": "fn(target: ?)",
-      "ownKeys": "fn(target: ?)",
-      "apply": "fn(target: ?, self: ?, arguments: [?])",
-      "construct": "fn(target: ?, arguments: [?])"
-    },
-    "Proxy_revocable": {
-      "proxy": "+Proxy",
-      "revoke": "fn()"
-    },
-    "TypedArray": {
-      "!type": "fn(size: number)",
+    "Array": {
+      "!type": "fn(size: number) -> !custom:Array_ctor",
+      "isArray": {
+        "!type": "fn(value: ?) -> bool"
+      },
       "from": {
-        "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> number, thisArg?: ?) -> +TypedArray",
+        "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> ?, thisArg?: ?) -> [!0.<i>]",
         "!effects": ["call !1 this=!2 !0.<i> number"]
       },
       "of": {
-        "!type": "fn(elements: number) -> +TypedArray"
-      },
-      "BYTES_PER_ELEMENT": {
-        "!type": "number"
-      },
-      "name": {
-        "!type": "string"
+        "!type": "fn(elementN: ?) -> [!0]"
       },
       "prototype": {
-        "<i>": "number",
-        "buffer": {
-          "!type": "+ArrayBuffer"
-        },
-        "byteLength": {
+        "!stdProto": "Array",
+        "length": {
           "!type": "number"
         },
-        "byteOffset": {
-          "!type": "number"
-        },
-        "copyWithin": {
-          "!type": "fn(target: number, start: number, end?: number) -> ?"
-        },
-        "entries": {
-          "!type": "fn() -> +iter[:t=number]"
-        },
-        "every": {
-          "!type": "fn(callback: fn(element: number, index: number, array: TypedArray) -> bool, thisArg?: ?) -> bool",
-          "!effects": ["call !0 this=!1 number number !this"]
-        },
-        "fill": {
-          "!type": "fn(value: number, start?: number, end?: number)"
-        },
-        "filter": {
-          "!type": "fn(test: fn(element: number, i: number) -> bool, context?: ?) -> !this",
-          "!effects": ["call !0 this=!1 number number"]
-        },
-        "find": {
-          "!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
-          "!effects": ["call !0 this=!1 number number !this"]
-        },
-        "findIndex": {
-          "!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
-          "!effects": ["call !0 this=!1 number number !this"]
-        },
-        "forEach": {
-          "!type": "fn(callback: fn(value: number, key: number, array: +TypedArray), thisArg?: ?)",
-          "!effects": ["call !0 this=!1 number number !this"]
-        },
-        "indexOf": {
-          "!type": "fn(searchElement: number, fromIndex?: number) -> number"
+        "concat": {
+          "!type": "fn(other: [?]) -> !this"
         },
         "join": {
           "!type": "fn(separator?: string) -> string"
         },
-        "keys": {
-          "!type": "fn() -> +iter[:t=number]"
+        "splice": {
+          "!type": "fn(pos: number, amount: number, newelt?: ?) -> [?]"
         },
-        "lastIndexOf": {
-          "!type": "fn(searchElement: number, fromIndex?: number) -> number"
+        "pop": {
+          "!type": "fn() -> !this.<i>"
         },
-        "length": {
-          "!type": "number"
+        "push": {
+          "!type": "fn(newelt: ?) -> number",
+          "!effects": ["propagate !0 !this.<i>"]
         },
-        "map": {
-          "!type": "fn(f: fn(element: number, i: number) -> number, context?: ?) -> +TypedArray",
-          "!effects": ["call !0 this=!1 number number"]
+        "shift": {
+          "!type": "fn() -> !this.<i>"
         },
-        "reduce": {
-          "!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
-          "!effects": ["call !0 !1 number number"]
+        "unshift": {
+          "!type": "fn(newelt: ?) -> number",
+          "!effects": ["propagate !0 !this.<i>"]
         },
-        "reduceRight": {
-          "!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
-          "!effects": ["call !0 !1 number number"]
+        "slice": {
+          "!type": "fn(from?: number, to?: number) -> !this"
         },
         "reverse": {
           "!type": "fn()"
         },
-        "set": {
-          "!type": "fn(array: [number], offset?: number)"
+        "sort": {
+          "!type": "fn(compare?: fn(a: ?, b: ?) -> number)",
+          "!effects": ["call !0 !this.<i> !this.<i>"]
         },
-        "slice": {
-          "!type": "fn(from: number, to?: number) -> +TypedArray"
+        "indexOf": {
+          "!type": "fn(elt: ?, from?: number) -> number"
+        },
+        "lastIndexOf": {
+          "!type": "fn(elt: ?, from?: number) -> number"
+        },
+        "every": {
+          "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
+          "!effects": ["call !0 this=!1 !this.<i> number !this"]
         },
         "some": {
-          "!type": "fn(test: fn(elt: number, i: number) -> bool, context?: ?) -> bool",
-          "!effects": ["call !0 this=!1 number number"]
+          "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
+          "!effects": ["call !0 this=!1 !this.<i> number !this"]
         },
-        "sort": {
-          "!type": "fn(compare?: fn(a: number, b: number) -> number)",
-          "!effects": ["call !0 number number"]
+        "filter": {
+          "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> !this",
+          "!effects": ["call !0 this=!1 !this.<i> number !this"]
         },
-        "subarray": {
-          "!type": "fn(begin?: number, end?: number) -> +TypedArray"
+        "forEach": {
+          "!type": "fn(f: fn(elt: ?, i: number, array: +Array), context?: ?)",
+          "!effects": ["call !0 this=!1 !this.<i> number !this"]
+        },
+        "map": {
+          "!type": "fn(f: fn(elt: ?, i: number, array: +Array) -> ?, context?: ?) -> [!0.!ret]",
+          "!effects": ["call !0 this=!1 !this.<i> number !this"]
+        },
+        "reduce": {
+          "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
+          "!effects": ["call !0 !1 !this.<i> number !this"]
+        },
+        "reduceRight": {
+          "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
+          "!effects": ["call !0 !1 !this.<i> number !this"]
+        },
+        "copyWithin": {
+          "!type": "fn(target: number, start: number, end?: number) -> !this"
+        },
+        "entries": {
+          "!type": "fn() -> +iter[:t=[number, !this.<i>]]"
+        },
+        "fill": {
+          "!type": "fn(value: ?, start?: number, end?: number) -> !this"
+        },
+        "find": {
+          "!type": "fn(callback: fn(element: ?, index: number, array: [?]) -> bool, thisArg?: ?) -> !this.<i>",
+          "!effects": ["call !0 this=!2 !this.<i> number"]
+        },
+        "findIndex": {
+          "!type": "fn(callback: fn(element: ?, index: number, array: [?]), thisArg?: ?) -> number",
+          "!effects": ["call !0 this=!2 !this.<i> number"]
+        },
+        "keys": {
+          "!type": "fn() -> +iter[:t=number]"
         },
         "values": {
-          "!type": "fn() -> +iter[:t=number]"
+          "!type": "fn() -> +iter[:t=!this.<i>]"
         },
         ":Symbol.iterator": {
-          "!type": "fn() -> +iter[:t=number]"
+          "!type": "fn() -> +iter[:t=!this.<i>]"
+        },
+        "includes": {
+          "!type": "fn(value: ?, fromIndex?: number) -> bool"
         }
       }
-    }
-  },
-  "Infinity": {
-    "!type": "number"
-  },
-  "undefined": {
-    "!type": "?"
-  },
-  "NaN": {
-    "!type": "number"
-  },
-  "Object": {
-    "!type": "fn()",
-    "getPrototypeOf": {
-      "!type": "fn(obj: ?) -> ?"
-    },
-    "create": {
-      "!type": "fn(proto: ?) -> !custom:Object_create"
-    },
-    "defineProperty": {
-      "!type": "fn(obj: ?, prop: string, desc: propertyDescriptor) -> !custom:Object_defineProperty"
-    },
-    "defineProperties": {
-      "!type": "fn(obj: ?, props: ?) -> !custom:Object_defineProperties"
-    },
-    "getOwnPropertyDescriptor": {
-      "!type": "fn(obj: ?, prop: string) -> propertyDescriptor"
-    },
-    "keys": {
-      "!type": "fn(obj: ?) -> [string]"
-    },
-    "getOwnPropertyNames": {
-      "!type": "fn(obj: ?) -> [string]"
-    },
-    "seal": {
-      "!type": "fn(obj: ?)"
-    },
-    "isSealed": {
-      "!type": "fn(obj: ?) -> bool"
-    },
-    "freeze": {
-      "!type": "fn(obj: ?) -> !0"
-    },
-    "isFrozen": {
-      "!type": "fn(obj: ?) -> bool"
-    },
-    "preventExtensions": {
-      "!type": "fn(obj: ?)"
-    },
-    "isExtensible": {
-      "!type": "fn(obj: ?) -> bool"
-    },
-    "assign": {
-      "!type": "fn(target: ?, source: ?, source?: ?) -> !0",
-      "!effects": ["copy !1 !0", "copy !2 !0", "copy !3 !0"]
-    },
-    "getOwnPropertySymbols": {
-      "!type": "fn(obj: ?) -> !custom:getOwnPropertySymbols"
-    },
-    "is": {
-      "!type": "fn(value1: ?, value2: ?) -> bool"
-    },
-    "setPrototypeOf": {
-      "!type": "fn(obj: ?, prototype: ?)"
-    },
-    "prototype": {
-      "!stdProto": "Object",
-      "toString": {
-        "!type": "fn() -> string"
+    },  
+    "String": {
+      "!type": "fn(value: ?) -> string",
+      "fromCharCode": {
+        "!type": "fn(code: number) -> string"
       },
-      "toLocaleString": {
-        "!type": "fn() -> string"
+      "fromCodePoint": {
+        "!type": "fn(point: number, point?: number) -> string"
       },
-      "valueOf": {
-        "!type": "fn() -> number"
+      "raw": {
+        "!type": "fn(template: [string], substitutions: ?, templateString: ?) -> string"
       },
-      "hasOwnProperty": {
-        "!type": "fn(prop: string) -> bool"
-      },
-      "propertyIsEnumerable": {
-        "!type": "fn(prop: string) -> bool"
-      },
-      "isPrototypeOf": {
-        "!type": "fn(obj: ?) -> bool"
+      "prototype": {
+        "!stdProto": "String",
+        "length": {
+          "!type": "number"
+        },
+        "<i>": "string",
+        "charAt": {
+          "!type": "fn(i: number) -> string"
+        },
+        "charCodeAt": {
+          "!type": "fn(i: number) -> number"
+        },
+        "indexOf": {
+          "!type": "fn(char: string, from?: number) -> number"
+        },
+        "lastIndexOf": {
+          "!type": "fn(char: string, from?: number) -> number"
+        },
+        "substring": {
+          "!type": "fn(from: number, to?: number) -> string"
+        },
+        "substr": {
+          "!type": "fn(from: number, length?: number) -> string"
+        },
+        "slice": {
+          "!type": "fn(from: number, to?: number) -> string"
+        },
+        "padStart": {
+          "!type": "fn(targetLength: number, padString?: string) -> string"
+        },
+        "padEnd": {
+          "!type": "fn(targetLength: number, padString?: string) -> string"
+        },
+        "trim": {
+          "!type": "fn() -> string"
+        },
+        "trimStart": {
+          "!type": "fn() -> string"
+        },
+        "trimLeft": "String.prototype.trimStart",
+        "trimEnd": {
+          "!type": "fn() -> string"
+        },
+        "trimRight": "String.prototype.trimEnd",
+        "toUpperCase": {
+          "!type": "fn() -> string"
+        },
+        "toLowerCase": {
+          "!type": "fn() -> string"
+        },
+        "toLocaleUpperCase": {
+          "!type": "fn() -> string"
+        },
+        "toLocaleLowerCase": {
+          "!type": "fn() -> string"
+        },
+        "split": {
+          "!type": "fn(pattern?: string|+RegExp, limit?: number) -> [string]"
+        },
+        "concat": {
+          "!type": "fn(other: string) -> string"
+        },
+        "localeCompare": {
+          "!type": "fn(other: string) -> number"
+        },
+        "match": {
+          "!type": "fn(pattern: +RegExp) -> [string]"
+        },
+        "replace": {
+          "!type": "fn(pattern: string|+RegExp, replacement: string) -> string"
+        },
+        "search": {
+          "!type": "fn(pattern: +RegExp) -> number"
+        },
+        "codePointAt": {
+          "!type": "fn(pos: number) -> number"
+        },
+        "endsWith": {
+          "!type": "fn(searchString: string, position?: number) -> bool"
+        },
+        "includes": {
+          "!type": "fn(searchString: string, position?: number) -> bool"
+        },
+        "normalize": {
+          "!type": "fn(form: string) -> string"
+        },
+        "repeat": {
+          "!type": "fn(count: number) -> string"
+        },
+        "startsWith": {
+          "!type": "fn(searchString: string, position?: number) -> bool"
+        },
+        ":Symbol.iterator": {
+          "!type": "fn() -> +iter[:t=string]"
+        }
       }
-    }
-  },
-  "Function": {
-    "!type": "fn(body: string) -> fn()",
-    "prototype": {
-      "!stdProto": "Function",
-      "apply": {
-        "!type": "fn(this: ?, args: [?])",
-        "!effects": ["call and return !this this=!0 !1.<i> !1.<i> !1.<i>"]
-      },
-      "call": {
-        "!type": "fn(this: ?, args?: ?) -> !this.!ret",
-        "!effects": ["call and return !this this=!0 !1 !2 !3 !4"]
-      },
-      "bind": {
-        "!type": "fn(this: ?, args?: ?) -> !custom:Function_bind"
-      },
-      "prototype": "?"
-    }
-  },
-  "Array": {
-    "!type": "fn(size: number) -> !custom:Array_ctor",
-    "isArray": {
-      "!type": "fn(value: ?) -> bool"
-    },
-    "from": {
-      "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> ?, thisArg?: ?) -> [!0.<i>]",
-      "!effects": ["call !1 this=!2 !0.<i> number"]
-    },
-    "of": {
-      "!type": "fn(elementN: ?) -> [!0]"
-    },
-    "prototype": {
-      "!stdProto": "Array",
-      "length": {
+    },    
+    "Number": {
+      "!type": "fn(value: ?) -> number",
+      "MAX_VALUE": {
         "!type": "number"
       },
-      "concat": {
-        "!type": "fn(other: [?]) -> !this"
-      },
-      "join": {
-        "!type": "fn(separator?: string) -> string"
-      },
-      "splice": {
-        "!type": "fn(pos: number, amount: number, newelt?: ?) -> [?]"
-      },
-      "pop": {
-        "!type": "fn() -> !this.<i>"
-      },
-      "push": {
-        "!type": "fn(newelt: ?) -> number",
-        "!effects": ["propagate !0 !this.<i>"]
-      },
-      "shift": {
-        "!type": "fn() -> !this.<i>"
-      },
-      "unshift": {
-        "!type": "fn(newelt: ?) -> number",
-        "!effects": ["propagate !0 !this.<i>"]
-      },
-      "slice": {
-        "!type": "fn(from?: number, to?: number) -> !this"
-      },
-      "reverse": {
-        "!type": "fn()"
-      },
-      "sort": {
-        "!type": "fn(compare?: fn(a: ?, b: ?) -> number)",
-        "!effects": ["call !0 !this.<i> !this.<i>"]
-      },
-      "indexOf": {
-        "!type": "fn(elt: ?, from?: number) -> number"
-      },
-      "lastIndexOf": {
-        "!type": "fn(elt: ?, from?: number) -> number"
-      },
-      "every": {
-        "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": ["call !0 this=!1 !this.<i> number !this"]
-      },
-      "some": {
-        "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": ["call !0 this=!1 !this.<i> number !this"]
-      },
-      "filter": {
-        "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> !this",
-        "!effects": ["call !0 this=!1 !this.<i> number !this"]
-      },
-      "forEach": {
-        "!type": "fn(f: fn(elt: ?, i: number, array: +Array), context?: ?)",
-        "!effects": ["call !0 this=!1 !this.<i> number !this"]
-      },
-      "map": {
-        "!type": "fn(f: fn(elt: ?, i: number, array: +Array) -> ?, context?: ?) -> [!0.!ret]",
-        "!effects": ["call !0 this=!1 !this.<i> number !this"]
-      },
-      "reduce": {
-        "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": ["call !0 !1 !this.<i> number !this"]
-      },
-      "reduceRight": {
-        "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": ["call !0 !1 !this.<i> number !this"]
-      },
-      "copyWithin": {
-        "!type": "fn(target: number, start: number, end?: number) -> !this"
-      },
-      "entries": {
-        "!type": "fn() -> +iter[:t=[number, !this.<i>]]"
-      },
-      "fill": {
-        "!type": "fn(value: ?, start?: number, end?: number) -> !this"
-      },
-      "find": {
-        "!type": "fn(callback: fn(element: ?, index: number, array: [?]) -> bool, thisArg?: ?) -> !this.<i>",
-        "!effects": ["call !0 this=!2 !this.<i> number"]
-      },
-      "findIndex": {
-        "!type": "fn(callback: fn(element: ?, index: number, array: [?]), thisArg?: ?) -> number",
-        "!effects": ["call !0 this=!2 !this.<i> number"]
-      },
-      "keys": {
-        "!type": "fn() -> +iter[:t=number]"
-      },
-      "values": {
-        "!type": "fn() -> +iter[:t=!this.<i>]"
-      },
-      ":Symbol.iterator": {
-        "!type": "fn() -> +iter[:t=!this.<i>]"
-      },
-      "includes": {
-        "!type": "fn(value: ?, fromIndex?: number) -> bool"
-      }
-    }
-  },
-  "String": {
-    "!type": "fn(value: ?) -> string",
-    "fromCharCode": {
-      "!type": "fn(code: number) -> string"
-    },
-    "fromCodePoint": {
-      "!type": "fn(point: number, point?: number) -> string"
-    },
-    "raw": {
-      "!type": "fn(template: [string], substitutions: ?, templateString: ?) -> string"
-    },
-    "prototype": {
-      "!stdProto": "String",
-      "length": {
+      "MIN_VALUE": {
         "!type": "number"
       },
-      "<i>": "string",
-      "charAt": {
-        "!type": "fn(i: number) -> string"
-      },
-      "charCodeAt": {
-        "!type": "fn(i: number) -> number"
-      },
-      "indexOf": {
-        "!type": "fn(char: string, from?: number) -> number"
-      },
-      "lastIndexOf": {
-        "!type": "fn(char: string, from?: number) -> number"
-      },
-      "substring": {
-        "!type": "fn(from: number, to?: number) -> string"
-      },
-      "substr": {
-        "!type": "fn(from: number, length?: number) -> string"
-      },
-      "slice": {
-        "!type": "fn(from: number, to?: number) -> string"
-      },
-      "padStart": {
-        "!type": "fn(targetLength: number, padString?: string) -> string"
-      },
-      "padEnd": {
-        "!type": "fn(targetLength: number, padString?: string) -> string"
-      },
-      "trim": {
-        "!type": "fn() -> string"
-      },
-      "trimStart": {
-        "!type": "fn() -> string"
-      },
-      "trimLeft": "String.prototype.trimStart",
-      "trimEnd": {
-        "!type": "fn() -> string"
-      },
-      "trimRight": "String.prototype.trimEnd",
-      "toUpperCase": {
-        "!type": "fn() -> string"
-      },
-      "toLowerCase": {
-        "!type": "fn() -> string"
-      },
-      "toLocaleUpperCase": {
-        "!type": "fn() -> string"
-      },
-      "toLocaleLowerCase": {
-        "!type": "fn() -> string"
-      },
-      "split": {
-        "!type": "fn(pattern?: string|+RegExp, limit?: number) -> [string]"
-      },
-      "concat": {
-        "!type": "fn(other: string) -> string"
-      },
-      "localeCompare": {
-        "!type": "fn(other: string) -> number"
-      },
-      "match": {
-        "!type": "fn(pattern: +RegExp) -> [string]"
-      },
-      "replace": {
-        "!type": "fn(pattern: string|+RegExp, replacement: string) -> string"
-      },
-      "search": {
-        "!type": "fn(pattern: +RegExp) -> number"
-      },
-      "codePointAt": {
-        "!type": "fn(pos: number) -> number"
-      },
-      "endsWith": {
-        "!type": "fn(searchString: string, position?: number) -> bool"
-      },
-      "includes": {
-        "!type": "fn(searchString: string, position?: number) -> bool"
-      },
-      "normalize": {
-        "!type": "fn(form: string) -> string"
-      },
-      "repeat": {
-        "!type": "fn(count: number) -> string"
-      },
-      "startsWith": {
-        "!type": "fn(searchString: string, position?: number) -> bool"
-      },
-      ":Symbol.iterator": {
-        "!type": "fn() -> +iter[:t=string]"
-      }
-    }
-  },
-  "Number": {
-    "!type": "fn(value: ?) -> number",
-    "MAX_VALUE": {
-      "!type": "number"
-    },
-    "MIN_VALUE": {
-      "!type": "number"
-    },
-    "POSITIVE_INFINITY": {
-      "!type": "number"
-    },
-    "NEGATIVE_INFINITY": {
-      "!type": "number"
-    },
-    "prototype": {
-      "!stdProto": "Number",
-      "toString": {
-        "!type": "fn(radix?: number) -> string"
-      },
-      "toFixed": {
-        "!type": "fn(digits: number) -> string"
-      },
-      "toExponential": {
-        "!type": "fn(digits: number) -> string"
-      },
-      "toPrecision": {
-        "!type": "fn(digits: number) -> string"
-      }
-    },
-    "EPSILON": {
-      "!type": "number"
-    },
-    "MAX_SAFE_INTEGER": {
-      "!type": "number"
-    },
-    "MIN_SAFE_INTEGER": {
-      "!type": "number"
-    },
-    "isFinite": {
-      "!type": "fn(testValue: ?) -> bool"
-    },
-    "isInteger": {
-      "!type": "fn(testValue: ?) -> bool"
-    },
-    "isNaN": {
-      "!type": "fn(testValue: ?) -> bool"
-    },
-    "isSafeInteger": {
-      "!type": "fn(testValue: ?) -> bool"
-    },
-    "parseFloat": {
-      "!type": "fn(string: string) -> number"
-    },
-    "parseInt": {
-      "!type": "fn(string: string, radix?: number) -> number"
-    }
-  },
-  "Boolean": {
-    "!type": "fn(value: ?) -> bool",
-    "prototype": {
-      "!stdProto": "Boolean"
-    }
-  },
-  "RegExp": {
-    "!type": "fn(source: string, flags?: string)",
-    "prototype": {
-      "!stdProto": "RegExp",
-      "exec": {
-        "!type": "fn(input: string) -> [string]"
-      },
-      "test": {
-        "!type": "fn(input: string) -> bool"
-      },
-      "global": {
-        "!type": "bool"
-      },
-      "ignoreCase": {
-        "!type": "bool"
-      },
-      "multiline": {
-        "!type": "bool"
-      },
-      "source": {
-        "!type": "string"
-      },
-      "lastIndex": {
+      "POSITIVE_INFINITY": {
         "!type": "number"
       },
-      "flags": {
-        "!type": "string"
+      "NEGATIVE_INFINITY": {
+        "!type": "number"
       },
-      "sticky": {
-        "!type": "bool"
+      "prototype": {
+        "!stdProto": "Number",
+        "toString": {
+          "!type": "fn(radix?: number) -> string"
+        },
+        "toFixed": {
+          "!type": "fn(digits: number) -> string"
+        },
+        "toExponential": {
+          "!type": "fn(digits: number) -> string"
+        },
+        "toPrecision": {
+          "!type": "fn(digits: number) -> string"
+        }
       },
-      "unicode": {
-        "!type": "bool"
-      }
-    }
-  },
-  "Date": {
-    "!type": "fn(ms: number)",
-    "parse": {
-      "!type": "fn(source: string) -> +Date"
-    },
-    "UTC": {
-      "!type": "fn(year: number, month: number, date: number, hour?: number, min?: number, sec?: number, ms?: number) -> number"
-    },
-    "now": {
-      "!type": "fn() -> number"
-    },
-    "prototype": {
-      "toUTCString": {
-        "!type": "fn() -> string"
+      "EPSILON": {
+        "!type": "number"
       },
-      "toISOString": {
-        "!type": "fn() -> string"
+      "MAX_SAFE_INTEGER": {
+        "!type": "number"
       },
-      "toDateString": {
-        "!type": "fn() -> string"
+      "MIN_SAFE_INTEGER": {
+        "!type": "number"
       },
-      "toGMTString": {
-        "!type": "fn() -> string"
+      "isFinite": {
+        "!type": "fn(testValue: ?) -> bool"
       },
-      "toTimeString": {
-        "!type": "fn() -> string"
+      "isInteger": {
+        "!type": "fn(testValue: ?) -> bool"
       },
-      "toLocaleDateString": {
-        "!type": "fn() -> string"
+      "isNaN": {
+        "!type": "fn(testValue: ?) -> bool"
       },
-      "toLocaleFormat": {
-        "!type": "fn(formatString: string) -> string"
+      "isSafeInteger": {
+        "!type": "fn(testValue: ?) -> bool"
       },
-      "toLocaleString": {
-        "!type": "fn(locales?: string, options?: ?) -> string"
+      "parseFloat": {
+        "!type": "fn(string: string) -> number"
       },
-      "toLocaleTimeString": {
-        "!type": "fn() -> string"
-      },
-      "toSource": {
-        "!type": "fn() -> string"
-      },
-      "toString": {
-        "!type": "fn() -> string"
-      },
-      "valueOf": {
-        "!type": "fn() -> number"
-      },
-      "getTime": {
-        "!type": "fn() -> number"
-      },
-      "getFullYear": {
-        "!type": "fn() -> number"
-      },
-      "getYear": {
-        "!type": "fn() -> number"
-      },
-      "getMonth": {
-        "!type": "fn() -> number"
-      },
-      "getUTCMonth": {
-        "!type": "fn() -> number"
-      },
-      "getDate": {
-        "!type": "fn() -> number"
-      },
-      "getUTCDate": {
-        "!type": "fn() -> number"
-      },
-      "getDay": {
-        "!type": "fn() -> number"
-      },
-      "getUTCDay": {
-        "!type": "fn() -> number"
-      },
-      "getUTCFullYear": {
-        "!type": "fn() -> number"
-      },
-      "getHours": {
-        "!type": "fn() -> number"
-      },
-      "getUTCHours": {
-        "!type": "fn() -> number"
-      },
-      "getMinutes": {
-        "!type": "fn() -> number"
-      },
-      "getUTCMinutes": {
-        "!type": "fn() -> number"
-      },
-      "getSeconds": {
-        "!type": "fn() -> number"
-      },
-      "getUTCSeconds": {
-        "!type": "fn() -> number"
-      },
-      "getMilliseconds": {
-        "!type": "fn() -> number"
-      },
-      "getUTCMilliseconds": {
-        "!type": "fn() -> number"
-      },
-      "getTimezoneOffset": {
-        "!type": "fn() -> number"
-      },
-      "setTime": {
-        "!type": "fn(date: +Date) -> number"
-      },
-      "setFullYear": {
-        "!type": "fn(year: number) -> number"
-      },
-      "setUTCFullYear": {
-        "!type": "fn(year: number) -> number"
-      },
-      "setYear": {
-        "!type": "fn(yearValue: number) -> number"
-      },
-      "setMonth": {
-        "!type": "fn(month: number) -> number"
-      },
-      "setUTCMonth": {
-        "!type": "fn(month: number) -> number"
-      },
-      "setDate": {
-        "!type": "fn(day: number) -> number"
-      },
-      "setUTCDate": {
-        "!type": "fn(day: number) -> number"
-      },
-      "setHours": {
-        "!type": "fn(hour: number) -> number"
-      },
-      "setUTCHours": {
-        "!type": "fn(hour: number) -> number"
-      },
-      "setMinutes": {
-        "!type": "fn(min: number) -> number"
-      },
-      "setUTCMinutes": {
-        "!type": "fn(min: number) -> number"
-      },
-      "setSeconds": {
-        "!type": "fn(sec: number) -> number"
-      },
-      "setUTCSeconds": {
-        "!type": "fn(sec: number) -> number"
-      },
-      "setMilliseconds": {
-        "!type": "fn(ms: number) -> number"
-      },
-      "setUTCMilliseconds": {
-        "!type": "fn(ms: number) -> number"
-      },
-      "toJSON": {
-        "!type": "fn() -> string"
+      "parseInt": {
+        "!type": "fn(string: string, radix?: number) -> number"
       }
     },
-    "nested_overflow": "nested environment variables are limited to 10 levels"
-  },
+    "Boolean": {
+      "!type": "fn(value: ?) -> bool",
+      "prototype": {
+        "!stdProto": "Boolean"
+      }
+    },
+    "RegExp": {
+      "!type": "fn(source: string, flags?: string)",
+      "prototype": {
+        "!stdProto": "RegExp",
+        "exec": {
+          "!type": "fn(input: string) -> [string]"
+        },
+        "test": {
+          "!type": "fn(input: string) -> bool"
+        },
+        "global": {
+          "!type": "bool"
+        },
+        "ignoreCase": {
+          "!type": "bool"
+        },
+        "multiline": {
+          "!type": "bool"
+        },
+        "source": {
+          "!type": "string"
+        },
+        "lastIndex": {
+          "!type": "number"
+        },
+        "flags": {
+          "!type": "string"
+        },
+        "sticky": {
+          "!type": "bool"
+        },
+        "unicode": {
+          "!type": "bool"
+        }
+      }
+    },
+    "Date": {
+      "!type": "fn(ms: number)",
+      "parse": {
+        "!type": "fn(source: string) -> +Date"
+      },
+      "UTC": {
+        "!type": "fn(year: number, month: number, date: number, hour?: number, min?: number, sec?: number, ms?: number) -> number"
+      },
+      "now": {
+        "!type": "fn() -> number"
+      },
+      "prototype": {
+        "toUTCString": {
+          "!type": "fn() -> string"
+        },
+        "toISOString": {
+          "!type": "fn() -> string"
+        },
+        "toDateString": {
+          "!type": "fn() -> string"
+        },
+        "toGMTString": {
+          "!type": "fn() -> string"
+        },
+        "toTimeString": {
+          "!type": "fn() -> string"
+        },
+        "toLocaleDateString": {
+          "!type": "fn() -> string"
+        },
+        "toLocaleFormat": {
+          "!type": "fn(formatString: string) -> string"
+        },
+        "toLocaleString": {
+          "!type": "fn(locales?: string, options?: ?) -> string"
+        },
+        "toLocaleTimeString": {
+          "!type": "fn() -> string"
+        },
+        "toSource": {
+          "!type": "fn() -> string"
+        },
+        "toString": {
+          "!type": "fn() -> string"
+        },
+        "valueOf": {
+          "!type": "fn() -> number"
+        },
+        "getTime": {
+          "!type": "fn() -> number"
+        },
+        "getFullYear": {
+          "!type": "fn() -> number"
+        },
+        "getYear": {
+          "!type": "fn() -> number"
+        },
+        "getMonth": {
+          "!type": "fn() -> number"
+        },
+        "getUTCMonth": {
+          "!type": "fn() -> number"
+        },
+        "getDate": {
+          "!type": "fn() -> number"
+        },
+        "getUTCDate": {
+          "!type": "fn() -> number"
+        },
+        "getDay": {
+          "!type": "fn() -> number"
+        },
+        "getUTCDay": {
+          "!type": "fn() -> number"
+        },
+        "getUTCFullYear": {
+          "!type": "fn() -> number"
+        },
+        "getHours": {
+          "!type": "fn() -> number"
+        },
+        "getUTCHours": {
+          "!type": "fn() -> number"
+        },
+        "getMinutes": {
+          "!type": "fn() -> number"
+        },
+        "getUTCMinutes": {
+          "!type": "fn() -> number"
+        },
+        "getSeconds": {
+          "!type": "fn() -> number"
+        },
+        "getUTCSeconds": {
+          "!type": "fn() -> number"
+        },
+        "getMilliseconds": {
+          "!type": "fn() -> number"
+        },
+        "getUTCMilliseconds": {
+          "!type": "fn() -> number"
+        },
+        "getTimezoneOffset": {
+          "!type": "fn() -> number"
+        },
+        "setTime": {
+          "!type": "fn(date: +Date) -> number"
+        },
+        "setFullYear": {
+          "!type": "fn(year: number) -> number"
+        },
+        "setUTCFullYear": {
+          "!type": "fn(year: number) -> number"
+        },
+        "setYear": {
+          "!type": "fn(yearValue: number) -> number"
+        },
+        "setMonth": {
+          "!type": "fn(month: number) -> number"
+        },
+        "setUTCMonth": {
+          "!type": "fn(month: number) -> number"
+        },
+        "setDate": {
+          "!type": "fn(day: number) -> number"
+        },
+        "setUTCDate": {
+          "!type": "fn(day: number) -> number"
+        },
+        "setHours": {
+          "!type": "fn(hour: number) -> number"
+        },
+        "setUTCHours": {
+          "!type": "fn(hour: number) -> number"
+        },
+        "setMinutes": {
+          "!type": "fn(min: number) -> number"
+        },
+        "setUTCMinutes": {
+          "!type": "fn(min: number) -> number"
+        },
+        "setSeconds": {
+          "!type": "fn(sec: number) -> number"
+        },
+        "setUTCSeconds": {
+          "!type": "fn(sec: number) -> number"
+        },
+        "setMilliseconds": {
+          "!type": "fn(ms: number) -> number"
+        },
+        "setUTCMilliseconds": {
+          "!type": "fn(ms: number) -> number"
+        },
+        "toJSON": {
+          "!type": "fn() -> string"
+        }
+      }
+    },  
   "error": {
     "!type": "fn(message: string)",
     "prototype": {

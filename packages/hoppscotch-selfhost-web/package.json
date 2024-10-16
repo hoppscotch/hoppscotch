@@ -37,10 +37,10 @@
     "rxjs": "7.8.1",
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
-    "verzod": "0.2.2",
-    "vue": "3.5.12",
+    "verzod": "0.2.3",
+    "vue": "3.3.9",
     "workbox-window": "7.1.0",
-    "zod": "3.22.4"
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@graphql-codegen/add": "5.0.3",
@@ -59,21 +59,21 @@
     "@urql/exchange-graphcache": "6.5.1",
     "@vitejs/plugin-legacy": "5.4.2",
     "@vitejs/plugin-vue": "5.1.4",
-    "@vue/eslint-config-typescript": "12.0.0",
+    "@vue/eslint-config-typescript": "13.0.0",
     "autoprefixer": "10.4.20",
     "cross-env": "7.0.3",
-    "eslint": "8.55.0",
+    "eslint": "8.57.0",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-vue": "9.29.0",
     "npm-run-all": "4.1.5",
     "postcss": "8.4.47",
     "prettier-plugin-tailwindcss": "0.6.8",
     "tailwindcss": "3.4.13",
-    "typescript": "5.4.5",
+    "typescript": "5.3.3",
     "unplugin-fonts": "1.1.1",
     "unplugin-icons": "0.19.3",
     "unplugin-vue-components": "0.27.4",
-    "vite": "5.4.8",
+    "vite": "5.4.9",
     "vite-plugin-fonts": "0.7.0",
     "vite-plugin-html-config": "2.0.2",
     "vite-plugin-inspect": "0.8.7",
@@ -82,6 +82,6 @@
     "vite-plugin-pwa": "0.20.5",
     "vite-plugin-static-copy": "2.0.0",
     "vite-plugin-vue-layouts": "0.11.0",
-    "vue-tsc": "1.8.24"
+    "vue-tsc": "2.1.6"
   }
 }

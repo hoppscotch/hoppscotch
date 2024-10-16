@@ -22,7 +22,7 @@
 
     <Embeds
       v-else-if="tab"
-      v-model:modelTab="tab"
+      v-model:model-tab="tab"
       :properties="properties"
       :shared-request-i-d="sharedRequestID"
     />

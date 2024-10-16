@@ -7,8 +7,8 @@ services:
     user: postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_DB: hoppscotch
+      POSTGRES_PASSWORD: JumpAroundTheRoom0103
+      POSTGRES_DB: test
     healthcheck:
       test:
         [
@@ -26,7 +26,7 @@ services:
       context: .
       target: aio
     environment:
-      - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
+      - DATABASE_URL=postgresql://postgres:JumpAroundTheRoom0103@192.168.56.1:5432/test
       - ENABLE_SUBPATH_BASED_ACCESS=true
     env_file:
       - ./.env

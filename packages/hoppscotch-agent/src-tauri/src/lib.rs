@@ -73,7 +73,7 @@ pub fn run() {
                   });
             };
 
-            let app_state = Arc::new(AppState::new(app_handle.clone()));
+            let app_state = Arc::new(AppState::new(app_handle.clone())?);
 
             app.manage(app_state.clone());
 

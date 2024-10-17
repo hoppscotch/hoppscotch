@@ -80,8 +80,7 @@ const props = withDefaults(
 const t = useI18n()
 const toast = useToast()
 
-const ALLOWED_FILE_SIZE_LIMIT =
-  platform.platformFeatureFlags.collectionImportSizeLimit ?? 10 // Default to 10 MB
+const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 10 // Default to 10 MB
 
 const importFilesCount = ref(0)
 

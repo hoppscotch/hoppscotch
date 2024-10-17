@@ -38,7 +38,7 @@
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
     "verzod": "0.2.3",
-    "vue": "3.3.9",
+    "vue": "3.5.12",
     "workbox-window": "7.1.0",
     "zod": "3.23.8"
   },

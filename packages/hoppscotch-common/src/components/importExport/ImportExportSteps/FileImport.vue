@@ -33,6 +33,7 @@
       <template v-if="importFilesCount">
         {{
           t("import.file_size_limit_exceeded_warning_multiple_files", {
+            sizeLimit: ALLOWED_FILE_SIZE_LIMIT,
             files:
               importFilesCount === 1 ? "file" : `${importFilesCount} files`,
           })
@@ -40,7 +41,11 @@
       </template>
 
       <template v-else>
-        {{ t("import.file_size_limit_exceeded_warning_single_file") }}
+        {{
+          t("import.file_size_limit_exceeded_warning_single_file", {
+            sizeLimit: ALLOWED_FILE_SIZE_LIMIT,
+          })
+        }}
       </template>
     </p>
     <div>
@@ -59,6 +64,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { computed, ref } from "vue"
+import { platform } from "~/platform"
 
 const props = withDefaults(
   defineProps<{
@@ -74,7 +80,7 @@ const props = withDefaults(
 const t = useI18n()
 const toast = useToast()
 
-const ALLOWED_FILE_SIZE_LIMIT = 10 // 10 MB
+const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 10 // Default to 10 MB
 
 const importFilesCount = ref(0)
 

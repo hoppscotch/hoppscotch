@@ -1,19 +1,20 @@
-import { AuthPlatformDef } from "./auth"
-import { UIPlatformDef } from "./ui"
-import { EnvironmentsPlatformDef } from "./environments"
-import { CollectionsPlatformDef } from "./collections"
-import { SettingsPlatformDef } from "./settings"
-import { HistoryPlatformDef } from "./history"
-import { AnalyticsPlatformDef } from "./analytics"
-import { InterceptorsPlatformDef } from "./interceptors"
-import { HoppModule } from "~/modules"
-import { InspectorsPlatformDef } from "./inspectors"
 import { ServiceClassInstance } from "dioc"
-import { IOPlatformDef } from "./io"
-import { SpotlightPlatformDef } from "./spotlight"
-import { InfraPlatformDef } from "./infra"
-import { ExperimentsPlatformDef } from "./experiments"
 import { Ref } from "vue"
+import { HoppModule } from "~/modules"
+import { AnalyticsPlatformDef } from "./analytics"
+import { AuthPlatformDef } from "./auth"
+import { CollectionsPlatformDef } from "./collections"
+import { EnvironmentsPlatformDef } from "./environments"
+import { ExperimentsPlatformDef } from "./experiments"
+import { HistoryPlatformDef } from "./history"
+import { InfraPlatformDef } from "./infra"
+import { InspectorsPlatformDef } from "./inspectors"
+import { InterceptorsPlatformDef } from "./interceptors"
+import { IOPlatformDef } from "./io"
+import { LimitsPlatformDef } from "./limits"
+import { SettingsPlatformDef } from "./settings"
+import { SpotlightPlatformDef } from "./spotlight"
+import { UIPlatformDef } from "./ui"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -54,6 +55,7 @@ export type PlatformDef = {
      */
     workspaceSwitcherLogin?: Ref<boolean>
   }
+  limits?: LimitsPlatformDef
   infra?: InfraPlatformDef
   experiments?: ExperimentsPlatformDef
 }

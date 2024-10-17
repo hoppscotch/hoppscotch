@@ -43,5 +43,8 @@ createHoppApp("#app", {
     exportAsGIST: false,
     hasTelemetry: false,
   },
+  limits: {
+    collectionImportSizeLimit: 50,
+  },
   infra: InfraPlatform,
 })

@@ -1383,7 +1383,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "24.9.2"
+version = "24.9.3"
 dependencies = [
  "cocoa 0.25.0",
  "dashmap",

@@ -2,7 +2,7 @@
 name = "hoppscotch-agent"
 version = "0.1.1"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
-authors = ["CuriousCorrelation", "AndrewBastin"]
+authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -31,7 +31,7 @@ chrono = { version = "0.4", features = ["serde"] }
 rand = "0.8.5"
 log = "0.4.22"
 env_logger = "0.11.5"
-curl = { version = "0.4.46", features = ["ntlm", "static-curl", "static-ssl"] }
+curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", features = ["ntlm"] }
 openssl = { version = "0.10.66", features = ["vendored"] }
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 url-escape = "0.1.1"

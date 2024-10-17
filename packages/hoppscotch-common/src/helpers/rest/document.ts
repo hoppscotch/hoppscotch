@@ -83,6 +83,37 @@ export type HoppCollectionSaveContext =
     }
   | null
 
+export type HoppTestRunnerSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "user-collection"
+      /**
+       * Path to the request folder
+       */
+      folderPath: string
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "team-collection"
+      /**
+       * ID of the team
+       */
+      teamID?: string
+      /**
+       * ID of the collection loaded
+       */
+      collectionID?: string
+      /**
+       * ID of the request in the team
+       */
+      requestID: string
+    }
+  | null
+
 export type HoppTestRunnerDocument = {
   /**
    * The document type
@@ -92,12 +123,12 @@ export type HoppTestRunnerDocument = {
   /**
    * The collection as it is in the document
    */
-  collection: HoppCollection<HoppRESTRequest>
+  collection: HoppCollection
 
   /**
    * The request as it is in the document
    */
-  result?: HoppCollection<HoppRESTRequest>
+  result?: HoppCollection
 
   /**
    * Info about where this request should be saved.
@@ -195,8 +226,7 @@ export type HoppSavedExampleDocument = {
 /**
  * Defines a live 'document' (something that is open and being edited) in the app
  */
-export type HoppTabDocument = HoppSavedExampleDocument | HoppRequestDocument
-/**
- * Defines a live 'document' (something that is open and being edited) in the app
- */
-export type HoppRESTDocument = HoppCollectionDocument | HoppRequestDocument
+export type HoppTabDocument =
+  | HoppSavedExampleDocument
+  | HoppRequestDocument
+  | HoppTestRunnerDocument

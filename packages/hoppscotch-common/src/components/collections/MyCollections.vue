@@ -508,8 +508,9 @@ const emit = defineEmits<{
   (
     event: "run-collection",
     payload: {
+      collectionID: string
       collectionIndex: string
-      collection: HoppCollection<HoppRESTRequest>
+      collection: HoppCollection
     }
   ): void
   (

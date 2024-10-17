@@ -252,18 +252,6 @@
 </template>
 
 <script setup lang="ts">
-import IconPlaySquare from "~icons/lucide/play-square"
-import IconCheckCircle from "~icons/lucide/check-circle"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconDownload from "~icons/lucide/download"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconEdit from "~icons/lucide/edit"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import { ref, computed, watch } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"

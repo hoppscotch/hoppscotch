@@ -45,31 +45,21 @@
                 </svg>
               </span>
             </template>
-            <HttpRequestTab
-              v-if="tab.document.type === 'request'"
-              :model-value="tab"
-              @update:model-value="onTabUpdate"
-            />
             <HttpExampleResponseTab
               v-if="tab.document.type === 'example-response'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
-            <HttpCollectionRunner
-              v-if="tab.document.type === 'collection'"
-              :model-value="tab"
-              @update:model-value="onTabUpdate"
-            />
-            <CollectionsRunner
+            <!-- Render TabContents -->
+            <HttpTestRunner
               v-if="tab.document.type === 'test-runner'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
-
             <!-- When document.type === 'request' the tab type is HoppTab<HoppRequestDocument>-->
             <HttpRequestTab
               v-if="tab.document.type === 'request'"
-              :model-value="tab as HoppTab<HoppRequestDocument>"
+              :model-value="tab"
               @update:model-value="onTabUpdate"
             />
             <!-- END Render TabContents -->
@@ -248,6 +238,8 @@ const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   } else if (tab.document.type === "test-runner") {
     console.log(tab.document.collection.name)
     return tab.document.collection.name
+  } else if (tab.document.type === "example-response") {
+    return tab.document.response.name
   }
 }
 
@@ -296,14 +288,6 @@ const duplicateTab = (tabID: string) => {
 const onResolveConfirmCloseAllTabs = () => {
   if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
-}
-
-const getTabName = (tab: HoppTab<HoppTabDocument>) => {
-  if (tab.document.type === "request") {
-    return tab.document.request.name
-  } else if (tab.document.type === "example-response") {
-    return tab.document.response.name
-  }
 }
 
 const requestToRename = computed(() => {

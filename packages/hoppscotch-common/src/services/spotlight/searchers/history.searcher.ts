@@ -20,7 +20,6 @@ import { useStreamStatic } from "~/composables/stream"
 import { activeActions$, invokeAction } from "~/helpers/actions"
 import { map } from "rxjs/operators"
 import { HoppRequestDocument } from "~/helpers/rest/document"
-import { HoppTabDocument } from "~/helpers/rest/document"
 
 /**
  * This searcher is responsible for searching through the history.

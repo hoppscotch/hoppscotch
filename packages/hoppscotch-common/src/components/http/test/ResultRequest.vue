@@ -64,7 +64,7 @@ const emit = defineEmits<{
 }>()
 
 const requestLabelColor = computed(() =>
-  getMethodLabelColorClassOf(props.request)
+  getMethodLabelColorClassOf(props.request.method)
 )
 
 const selectRequest = () => {

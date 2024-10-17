@@ -1,9 +1,14 @@
 import {
   Environment,
   HoppRESTHeaders,
+  HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
+import {
+  SandboxTestResult,
+  TestDescriptor,
+  TestResult,
+} from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
@@ -69,7 +74,7 @@ export const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (variables: {
+export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
     global: Environment["variables"]
@@ -248,8 +253,8 @@ export function runRESTRequest$(
     )
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
-      id: "env-id",
       v: 1,
+      id: "env",
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -279,6 +284,9 @@ export function runRESTRequest$(
           )
 
           if (E.isRight(runResult)) {
+            // set the response in the tab so that multiple tabs can run request simultaneously
+            tab.value.document.response = res
+
             const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
               cloneDeep(runResult.right.envs.global),
               "global"
@@ -374,17 +382,50 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsFromTestScript(runResult: TestResult) {
-  setGlobalEnvVariables(runResult.envs.global)
+function updateEnvsFromTestScript(
+  tab: Ref<HoppTab<HoppRequestDocument>>,
+  runResult: TestResult
+) {
+  const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
+    cloneDeep(runResult.right.envs.global),
+    "global"
+  )
 
+  const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
+    cloneDeep(runResult.right.envs.selected),
+    "selected"
+  )
+
+  const updatedRunResult = {
+    ...runResult.right,
+    envs: {
+      global: updatedGlobalEnvVariables,
+      selected: updatedSelectedEnvVariables,
+    },
+  }
+
+  tab.value.document.testResults =
+    translateToSandboxTestResults(updatedRunResult)
+
+  const globalEnvVariables = updateEnvironmentsWithSecret(
+    runResult.right.envs.global,
+    "global"
+  )
+
+  setGlobalEnvVariables({
+    v: 1,
+    variables: globalEnvVariables,
+  })
   if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
     const env = getEnvironment({
       type: "MY_ENV",
       index: environmentsStore.value.selectedEnvironmentIndex.index,
     })
     updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
-      ...env,
-      variables: runResult.envs.selected,
+      name: env.name,
+      v: 1,
+      id: "id" in env ? env.id : "",
+      variables: updatedRunResult.envs.selected,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -394,7 +435,7 @@ function updateEnvsFromTestScript(runResult: TestResult) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(runResult.envs.selected),
+        JSON.stringify(updatedRunResult.envs.selected),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )
@@ -402,7 +443,10 @@ function updateEnvsFromTestScript(runResult: TestResult) {
   }
 }
 
-export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
+export function runTestRunnerRequest(
+  tab: Ref<HoppTab<HoppRequestDocument>>,
+  request: HoppRESTRequest
+): Promise<
   | E.Left<"script_fail">
   | E.Right<{
       response: HoppRESTResponse
@@ -413,15 +457,20 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
   return getFinalEnvsFromPreRequest(
     request.preRequestScript,
     getCombinedEnvVariables()
-  ).then((envs) => {
+  ).then(async (envs) => {
     if (E.isLeft(envs)) {
       console.error(envs.left)
       return E.left("script_fail" as const)
     }
 
-    const effectiveRequest = getEffectiveRESTRequest(request, {
+    const effectiveRequest = await getEffectiveRESTRequest(request, {
+      id: "env-id",
+      v: 1,
       name: "Env",
-      variables: combineEnvVariables(envs.right),
+      variables: combineEnvVariables({
+        environments: envs.right,
+        requestVariables: [],
+      }),
     })
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
@@ -431,6 +480,11 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
       .toPromise()
       .then(async (res) => {
         if (res?.type === "success" || res?.type === "fail") {
+          executedResponses$.next(
+            // @ts-expect-error Typescript can't figure out this inference for some reason
+            res
+          )
+
           const runResult = await runTestScript(
             res.req.testScript,
             envs.right,
@@ -446,9 +500,7 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
               runResult.right
             )
 
-            setGlobalEnvVariables(runResult.right.envs.global)
-
-            updateEnvsFromTestScript(runResult.right)
+            updateEnvsFromTestScript(tab, runResult.right)
 
             return E.right({
               response: res,

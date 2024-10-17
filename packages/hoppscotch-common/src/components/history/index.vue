@@ -301,7 +301,6 @@ const useHistory = (entry: RESTHistoryEntry) => {
     type: "request",
     request: entry.request,
     isDirty: false,
-    type: "request",
   })
 }
 

@@ -132,7 +132,7 @@ export const getComputedAuthHeaders = async (
               false,
               showKeyIfSecret
             )
-          : request.auth.value ?? "",
+          : (request.auth.value ?? ""),
         description: "",
       })
     }

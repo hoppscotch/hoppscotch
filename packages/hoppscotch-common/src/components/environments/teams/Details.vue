@@ -311,10 +311,10 @@ watch(
             env: {
               key: e.key,
               value: e.secret
-                ? secretEnvironmentService.getSecretEnvironmentVariable(
+                ? (secretEnvironmentService.getSecretEnvironmentVariable(
                     editingID.value ?? "",
                     index
-                  )?.value ?? ""
+                  )?.value ?? "")
                 : e.value,
               secret: e.secret,
             },

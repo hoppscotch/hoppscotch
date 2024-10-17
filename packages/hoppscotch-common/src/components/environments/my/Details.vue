@@ -352,12 +352,12 @@ watch(
           env: {
             key: e.key,
             value: e.secret
-              ? secretEnvironmentService.getSecretEnvironmentVariable(
+              ? (secretEnvironmentService.getSecretEnvironmentVariable(
                   props.editingEnvironmentIndex === "Global"
                     ? "Global"
                     : workingEnvID.value,
                   index
-                )?.value ?? ""
+                )?.value ?? "")
               : e.value,
             secret: e.secret,
           },

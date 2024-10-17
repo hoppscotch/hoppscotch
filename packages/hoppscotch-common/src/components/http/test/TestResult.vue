@@ -8,19 +8,6 @@
           haveEnvVariables)
       "
     >
-      <div
-        class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
-      >
-        <label class="truncate font-semibold text-secondaryLight">
-          {{ t("test.report") }}
-        </label>
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.clear')"
-          :icon="IconTrash2"
-          @click="clearContent()"
-        />
-      </div>
       <div class="divide-y-4 divide-dividerLight border-b border-dividerLight">
         <div v-if="haveEnvVariables" class="flex flex-col">
           <details class="flex flex-col divide-y divide-dividerLight" open>
@@ -41,7 +28,7 @@
             <div class="divide-y divide-dividerLight">
               <div
                 v-if="noEnvSelected && !globalHasAdditions"
-                class="flex bg-bannerInfo p-4 text-secondaryDark"
+                class="flex bg-info p-4 text-secondaryDark"
                 role="alert"
               >
                 <icon-lucide-alert-triangle class="svg-icons mr-4" />
@@ -77,13 +64,6 @@
                 :key="`env-${env.key}-${index}`"
                 :env="env"
                 status="updations"
-                global
-              />
-              <HttpTestResultEnv
-                v-for="(env, index) in testResults.envDiff.global.deletions"
-                :key="`env-${env.key}-${index}`"
-                :env="env"
-                status="deletions"
                 global
               />
               <HttpTestResultEnv
@@ -162,19 +142,20 @@
     </div>
     <HoppSmartPlaceholder
       v-else-if="testResults && testResults.scriptError"
-      :src="`/images/states/${colorMode.value}/upload_error.svg`"
+      :src="`/images/states/${colorMode.value}/youre_lost.svg`"
       :alt="`${t('error.test_script_fail')}`"
       :heading="t('error.test_script_fail')"
       :text="t('helpers.test_script_fail')"
-    />
-    <HoppSmartPlaceholder
-      v-else
-      :src="`/images/states/${colorMode.value}/validation.svg`"
-      :alt="`${t('empty.tests')}`"
-      :heading="t('empty.tests')"
-      :text="t('helpers.tests')"
     >
-      <template #body>
+    </HoppSmartPlaceholder>
+    <template v-else>
+      <HoppSmartPlaceholder
+        v-if="showEmptyMessage"
+        :src="`/images/states/${colorMode.value}/validation.svg`"
+        :alt="`${t('empty.tests')}`"
+        :heading="t('empty.tests')"
+        :text="t('helpers.tests')"
+      >
         <HoppButtonSecondary
           outline
           :label="`${t('action.learn_more')}`"
@@ -182,9 +163,10 @@
           blank
           :icon="IconExternalLink"
           reverse
+          class="my-4"
         />
-      </template>
-    </HoppSmartPlaceholder>
+      </HoppSmartPlaceholder>
+    </template>
     <EnvironmentsMyDetails
       :show="showMyEnvironmentDetailsModal"
       action="new"
@@ -204,27 +186,25 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useReadonlyStream, useStream } from "@composables/stream"
+import { computed, Ref, ref } from "vue"
 import { isEqual } from "lodash-es"
-import { computed, ref } from "vue"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { useReadonlyStream, useStream } from "@composables/stream"
+import { useI18n } from "@composables/i18n"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
+  setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
-import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
-import IconTrash2 from "~icons/lucide/trash-2"
+import IconCheck from "~icons/lucide/check"
 import IconClose from "~icons/lucide/x"
 
-import { GlobalEnvironment } from "@hoppscotch/data"
+import { useColorMode } from "~/composables/theming"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { useColorMode } from "~/composables/theming"
-import { invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 
 const props = withDefaults(
@@ -289,7 +269,12 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
-const globalEnvVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
+  Array<{
+    key: string
+    value: string
+  }>
+>
 
 const noEnvSelected = computed(
   () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"
@@ -299,18 +284,16 @@ const globalHasAdditions = computed(() => {
   if (!testResults.value?.envDiff.selected.additions) return false
   return (
     testResults.value.envDiff.selected.additions.every(
-      (x) =>
-        globalEnvVars.value.variables.findIndex((y) => isEqual(x, y)) !== -1
+      (x) => globalEnvVars.value.findIndex((y) => isEqual(x, y)) !== -1
     ) ?? false
   )
 })
 
 const addEnvToGlobal = () => {
   if (!testResults.value?.envDiff.selected.additions) return
-
-  invokeAction("modals.global.environment.update", {
-    variables: testResults.value.envDiff.selected.additions,
-    isSecret: false,
-  })
+  setGlobalEnvVariables([
+    ...globalEnvVars.value,
+    ...testResults.value.envDiff.selected.additions,
+  ])
 }
 </script>

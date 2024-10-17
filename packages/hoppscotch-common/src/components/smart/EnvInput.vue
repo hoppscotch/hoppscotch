@@ -381,7 +381,9 @@ const envVars = computed(() => {
     tabs.currentActiveTab.value.document.type === "example-response"
       ? tabs.currentActiveTab.value.document.response.originalRequest
           .requestVariables
-      : tabs.currentActiveTab.value.document.request.requestVariables
+      : tabs.currentActiveTab.value.document.type === "request"
+        ? tabs.currentActiveTab.value.document.request.requestVariables
+        : []
 
   return [
     ...requestVariables.map(({ active, key, value }) =>

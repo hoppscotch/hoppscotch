@@ -55,6 +55,8 @@ export class ExtensionInspectorService extends Service implements Inspector {
     return computed(() => {
       const results: InspectorResult[] = []
 
+      if (!req.value) return results
+
       const url = req.value.endpoint
       const localHostURLs = ["localhost", "127.0.0.1"]
 

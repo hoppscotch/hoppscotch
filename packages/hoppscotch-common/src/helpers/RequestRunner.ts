@@ -1,9 +1,14 @@
 import {
   Environment,
   HoppRESTHeaders,
+  HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
+import {
+  SandboxTestResult,
+  TestDescriptor,
+  TestResult,
+} from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
@@ -42,7 +47,7 @@ import { getService } from "~/modules/dioc"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
-const getTestableBody = (
+export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
 ) => {
   const contentTypeHeader = res.headers.find(
@@ -69,7 +74,7 @@ const getTestableBody = (
   return x
 }
 
-const combineEnvVariables = (variables: {
+export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
     global: Environment["variables"]
@@ -248,8 +253,8 @@ export function runRESTRequest$(
     )
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
-      id: "env-id",
       v: 1,
+      id: "env",
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -279,6 +284,9 @@ export function runRESTRequest$(
           )
 
           if (E.isRight(runResult)) {
+            // set the response in the tab so that multiple tabs can run request simultaneously
+            tab.value.document.response = res
+
             const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
               cloneDeep(runResult.right.envs.global),
               "global"
@@ -372,6 +380,165 @@ export function runRESTRequest$(
   })
 
   return [cancel, res]
+}
+
+function updateEnvsFromTestScript(
+  tab: Ref<HoppTab<HoppRequestDocument>>,
+  runResult: TestResult
+) {
+  const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
+    cloneDeep(runResult.right.envs.global),
+    "global"
+  )
+
+  const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
+    cloneDeep(runResult.right.envs.selected),
+    "selected"
+  )
+
+  const updatedRunResult = {
+    ...runResult.right,
+    envs: {
+      global: updatedGlobalEnvVariables,
+      selected: updatedSelectedEnvVariables,
+    },
+  }
+
+  tab.value.document.testResults =
+    translateToSandboxTestResults(updatedRunResult)
+
+  const globalEnvVariables = updateEnvironmentsWithSecret(
+    runResult.right.envs.global,
+    "global"
+  )
+
+  setGlobalEnvVariables({
+    v: 1,
+    variables: globalEnvVariables,
+  })
+  if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
+    const env = getEnvironment({
+      type: "MY_ENV",
+      index: environmentsStore.value.selectedEnvironmentIndex.index,
+    })
+    updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
+      name: env.name,
+      v: 1,
+      id: "id" in env ? env.id : "",
+      variables: updatedRunResult.envs.selected,
+    })
+  } else if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
+  ) {
+    const env = getEnvironment({
+      type: "TEAM_ENV",
+    })
+    pipe(
+      updateTeamEnvironment(
+        JSON.stringify(updatedRunResult.envs.selected),
+        environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
+        env.name
+      )
+    )()
+  }
+}
+
+export function runTestRunnerRequest(
+  tab: Ref<HoppTab<HoppRequestDocument>>,
+  request: HoppRESTRequest
+): Promise<
+  | E.Left<"script_fail">
+  | E.Right<{
+      response: HoppRESTResponse
+      testResult: HoppTestResult
+    }>
+  | undefined
+> {
+  return getFinalEnvsFromPreRequest(
+    request.preRequestScript,
+    getCombinedEnvVariables()
+  ).then(async (envs) => {
+    if (E.isLeft(envs)) {
+      console.error(envs.left)
+      return E.left("script_fail" as const)
+    }
+
+    const effectiveRequest = await getEffectiveRESTRequest(request, {
+      id: "env-id",
+      v: 1,
+      name: "Env",
+      variables: combineEnvVariables({
+        environments: envs.right,
+        requestVariables: [],
+      }),
+    })
+
+    const [stream] = createRESTNetworkRequestStream(effectiveRequest)
+
+    const requestResult = stream
+      .pipe(filter((res) => res.type === "success" || res.type === "fail"))
+      .toPromise()
+      .then(async (res) => {
+        if (res?.type === "success" || res?.type === "fail") {
+          executedResponses$.next(
+            // @ts-expect-error Typescript can't figure out this inference for some reason
+            res
+          )
+
+          const runResult = await runTestScript(
+            res.req.testScript,
+            envs.right,
+            {
+              status: res.statusCode,
+              body: getTestableBody(res),
+              headers: res.headers,
+            }
+          )
+
+          if (E.isRight(runResult)) {
+            const sandboxTestResult = translateToSandboxTestResults(
+              runResult.right
+            )
+
+            updateEnvsFromTestScript(tab, runResult.right)
+
+            return E.right({
+              response: res,
+              testResult: sandboxTestResult,
+            })
+          } else {
+            const sandboxTestResult = {
+              description: "",
+              expectResults: [],
+              tests: [],
+              envDiff: {
+                global: {
+                  additions: [],
+                  deletions: [],
+                  updations: [],
+                },
+                selected: {
+                  additions: [],
+                  deletions: [],
+                  updations: [],
+                },
+              },
+              scriptError: true,
+            }
+            return E.right({
+              response: res,
+              testResult: sandboxTestResult,
+            })
+          }
+        }
+      })
+
+    if (requestResult) {
+      return requestResult
+    }
+
+    return E.left("script_fail")
+  })
 }
 
 const getAddedEnvVariables = (

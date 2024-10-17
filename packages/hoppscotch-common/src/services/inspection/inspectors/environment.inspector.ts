@@ -77,10 +77,12 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     const currentTabRequest =
       currentTab.document.type === "request"
         ? currentTab.document.request
-        : currentTab.document.response.originalRequest
+        : currentTab.document.type === "example-response"
+          ? currentTab.document.response.originalRequest
+          : null
 
     const environmentVariables = [
-      ...currentTabRequest.requestVariables,
+      ...(currentTabRequest?.requestVariables ?? []),
       ...this.aggregateEnvsWithSecrets.value,
     ]
 
@@ -191,11 +193,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             const currentTabRequest =
               currentTab.document.type === "request"
                 ? currentTab.document.request
-                : currentTab.document.response.originalRequest
+                : currentTab.document.type === "example-response"
+                  ? currentTab.document.response.originalRequest
+                  : null
 
             const environmentVariables =
               this.filterNonEmptyEnvironmentVariables([
-                ...currentTabRequest.requestVariables.map((env) => ({
+                ...(currentTabRequest?.requestVariables ?? []).map((env) => ({
                   ...env,
                   secret: false,
                   sourceEnv: "RequestVariable",
@@ -299,6 +303,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   ) {
     return computed(() => {
       const results: InspectorResult[] = []
+
+      if (!req.value) return results
 
       const headers = req.value.headers
 

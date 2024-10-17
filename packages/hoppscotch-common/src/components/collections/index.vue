@@ -33,6 +33,7 @@
       :filter-text="filterTexts"
       :save-request="saveRequest"
       :picked="picked"
+      @run-collection="runCollectionHandler"
       @add-folder="addFolder"
       @add-request="addRequest"
       @edit-request="editRequest"
@@ -207,6 +208,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  getDefaultRESTRequest,
   HoppCollection,
   HoppRESTAuth,
   HoppRESTHeaders,
@@ -292,7 +294,6 @@ import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
-import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 const t = useI18n()
 const toast = useToast()
@@ -837,7 +838,9 @@ const onAddRequest = (requestName: string) => {
   if (!request) return
 
   const newRequest = {
-    ...cloneDeep(request),
+    ...(tabs.currentActiveTab.value.document.type === "request"
+      ? cloneDeep(tabs.currentActiveTab.value.document.request)
+      : getDefaultRESTRequest()),
     name: requestName,
   }
 
@@ -849,9 +852,9 @@ const onAddRequest = (requestName: string) => {
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
 
     tabs.createNewTab({
+      type: "request",
       request: newRequest,
       isDirty: false,
-      type: "request",
       saveContext: {
         originLocation: "user-collection",
         folderPath: path,
@@ -904,9 +907,9 @@ const onAddRequest = (requestName: string) => {
           const { auth, headers } =
             teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
           tabs.createNewTab({
+            type: "request",
             request: newRequest,
             isDirty: false,
-            type: "request",
             saveContext: {
               originLocation: "team-collection",
               requestID: createRequestInCollection.id,
@@ -1973,13 +1976,13 @@ const selectRequest = (selectedRequest: {
       requestID: requestIndex,
     })
 
-    if (possibleTab) {
+    if (possibleTab && possibleTab.value.document.type === "request") {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
-        type: "request",
         saveContext: {
           originLocation: "team-collection",
           requestID: requestIndex,
@@ -2004,9 +2007,9 @@ const selectRequest = (selectedRequest: {
     } else {
       // If not, open the request in a new tab
       tabs.createNewTab({
+        type: "request",
         request: cloneDeep(request),
         isDirty: false,
-        type: "request",
         saveContext: {
           originLocation: "user-collection",
           folderPath: folderPath!,
@@ -2866,25 +2869,52 @@ const setCollectionProperties = (newCollection: {
   displayModalEditProperties(false)
 }
 
-const runCollectionHandler = (collectionID: string) => {
-  selectedCollectionID.value = collectionID
-  showCollectionsRunnerModal.value = true
+const runCollectionHandler = (payload: {
+  collectionID: string
+  collectionIndex: string
+  collection: HoppCollection
+}) => {
+  // TODO: fix collection runner in tabs
 
-  const activeWorkspace = workspace.value
-  const currentEnv = selectedEnvironmentIndex.value
-
-  if (["NO_ENV_SELECTED", "MY_ENV"].includes(currentEnv.type)) {
-    activeEnvironmentID.value = null
-    return
+  const possibleTab = tabs.getTabRefWithSaveContext(
+    {
+      originLocation: "user-collection",
+      folderPath: payload.collectionIndex!!,
+    },
+    "collection"
+  )
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+  } else {
+    tabs.createNewTab({
+      type: "test-runner",
+      collection: payload.collection,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: payload.collectionIndex!,
+      },
+    })
   }
 
-  if (activeWorkspace.type === "team" && currentEnv.type === "TEAM_ENV") {
-    activeEnvironmentID.value = teamEnvironmentList.value.find(
-      (env) =>
-        env.teamID === activeWorkspace.teamID &&
-        env.environment.id === currentEnv.environment.id
-    )?.environment.id
-  }
+  // selectedCollectionID.value = collectionID
+  // showCollectionsRunnerModal.value = true
+
+  // const activeWorkspace = workspace.value
+  // const currentEnv = selectedEnvironmentIndex.value
+
+  // if (["NO_ENV_SELECTED", "MY_ENV"].includes(currentEnv.type)) {
+  //   activeEnvironmentID.value = null
+  //   return
+  // }
+
+  // if (activeWorkspace.type === "team" && currentEnv.type === "TEAM_ENV") {
+  //   activeEnvironmentID.value = teamEnvironmentList.value.find(
+  //     (env) =>
+  //       env.teamID === activeWorkspace.teamID &&
+  //       env.environment.id === currentEnv.environment.id
+  //   )?.environment.id
+  // }
 }
 
 const resolveConfirmModal = (title: string | null) => {

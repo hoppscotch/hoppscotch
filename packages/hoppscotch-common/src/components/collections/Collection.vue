@@ -81,6 +81,13 @@
             class="hidden group-hover:inline-flex"
             @click="emit('run-collection', props.id)"
           />
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :icon="IconPlaySquare"
+            :title="t('collection.run')"
+            class="hidden group-hover:inline-flex"
+            @click="emit('run-collection')"
+          />
           <span>
             <tippy
               ref="options"
@@ -129,6 +136,18 @@
                     @click="
                       () => {
                         emit('add-folder')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="folderAction"
+                    :icon="IconPlaySquare"
+                    :label="t('collection.run')"
+                    :shortcut="['N']"
+                    @click="
+                      () => {
+                        emit('run-collection')
                         hide()
                       }
                     "
@@ -298,6 +317,7 @@ const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
+  (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void

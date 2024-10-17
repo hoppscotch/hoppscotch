@@ -157,10 +157,8 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      if (tabs.currentActiveTab.value.document.type === "example-response")
-        return
-
-      editingName.value = tabs.currentActiveTab.value.document.request.name
+      if (tabs.currentActiveTab.value.document.type === "request")
+        editingName.value = tabs.currentActiveTab.value.document.request.name
     }
   }
 )

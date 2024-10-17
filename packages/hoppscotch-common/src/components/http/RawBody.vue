@@ -106,6 +106,9 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { useAIExperiments } from "~/composables/ai-experiments"
 import { prettifyJSONC } from "~/helpers/editor/linting/jsoncPretty"
+import { useReadonlyStream } from "~/composables/stream"
+import { platform } from "~/platform"
+import { invokeAction } from "~/helpers/actions"
 
 type PossibleContentTypes = Exclude<
   ValidContentTypes,
@@ -220,7 +223,17 @@ const prettifyRequestBody = () => {
 
 const isModifyBodyModalOpen = ref(false)
 
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
 const showModifyBodyModal = () => {
+  if (!currentUser.value) {
+    invokeAction("modals.login.toggle")
+    return
+  }
+
   isModifyBodyModalOpen.value = true
 }
 

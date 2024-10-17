@@ -20,4 +20,5 @@ export type ImporterOrExporter = {
   }[]
   component?: ReturnType<typeof defineStep>
   action?: (...args: any[]) => any
+  onSelect?: () => boolean
 }

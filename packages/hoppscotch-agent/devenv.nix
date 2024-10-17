@@ -21,6 +21,8 @@
     nodePackages_latest.vls
     nodePackages_latest.prisma
     prisma-engines
+    # Cargo
+    cargo-edit
   ];
 
   # https://devenv.sh/basics/

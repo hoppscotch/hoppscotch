@@ -18,6 +18,7 @@ import {
   decrypt,
   encrypt,
   throwErr,
+  validatePrompt,
   validateSMTPEmail,
   validateSMTPUrl,
   validateUrl,
@@ -245,7 +246,8 @@ export class InfraConfigService implements OnModuleInit {
           configMap.MICROSOFT_CLIENT_SECRET &&
           configMap.MICROSOFT_CALLBACK_URL &&
           configMap.MICROSOFT_SCOPE &&
-          configMap.MICROSOFT_TENANT
+          configMap.MICROSOFT_TENANT &&
+          configMap.MICROSOFT_PROMPT
         );
       case AuthProvider.EMAIL:
         if (configMap.MAILER_SMTP_ENABLE !== 'true') return false;
@@ -568,6 +570,10 @@ export class InfraConfigService implements OnModuleInit {
           break;
         case InfraConfigEnum.MICROSOFT_TENANT:
           if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          break;
+        case InfraConfigEnum.MICROSOFT_PROMPT:
+          if (!validatePrompt(infraConfigs[i].value))
+            return E.left(INFRA_CONFIG_INVALID_INPUT);
           break;
         default:
           break;

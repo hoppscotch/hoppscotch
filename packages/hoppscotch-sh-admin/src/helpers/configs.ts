@@ -33,6 +33,7 @@ export type ServerConfigs = {
         callback_url: string;
         scope: string;
         tenant: string;
+        prompt: string;
       };
     };
   };
@@ -121,6 +122,10 @@ export const MICROSOFT_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.MicrosoftTenant,
     key: 'tenant',
+  },
+  {
+    name: InfraConfigEnum.MicrosoftPrompt,
+    key: 'prompt',
   },
 ];
 

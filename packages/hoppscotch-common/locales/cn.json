@@ -224,10 +224,10 @@
   "cookies": {
     "modal": {
       "cookie_expires": "过期时间",
-      "cookie_name": "Cookie 名称",
+      "cookie_name": "名称",
       "cookie_path": "路径",
       "cookie_string": "Cookie 字符串",
-      "cookie_value": "Cookie 值",
+      "cookie_value": "值",
       "empty_domain": "域名为空",
       "empty_domains": "域名列表为空",
       "enter_cookie_string": "输入 Cookie 字符串",
@@ -235,7 +235,7 @@
       "managed_tab": "管理",
       "new_domain_name": "新域名",
       "no_cookies_in_domain": "该域名没有 Cookie",
-      "raw_tab": "Raw",
+      "raw_tab": "原始内容",
       "set": "设置一个 Cookie"
     }
   },
@@ -693,7 +693,7 @@
   },
   "shared_requests": {
     "button": "按钮",
-    "button_info": "为你的网站、博客或者 README 创建一个“在 Hoppscotch 中运行”按钮。",
+    "button_info": "为你的网站、博客或者 README 创建一个“Run in Hoppscotch”按钮。",
     "copy_html": "复制 HTML",
     "copy_link": "复制链接",
     "copy_markdown": "复制 Markdown",

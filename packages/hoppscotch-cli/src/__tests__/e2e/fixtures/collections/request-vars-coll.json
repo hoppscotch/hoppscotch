@@ -4,53 +4,38 @@
   "folders": [],
   "requests": [
     {
-      "v": "6",
+      "v": 6,
       "auth": {
         "authType": "inherit",
         "authActive": true
       },
       "body": {
-        "body": "{\n  \"<<httpBodyRawKey>>\": \"<<httpBodyRawValue>>\"\n}",
+        "body": "{\"http-body-raw-key\": \"http-body-raw-value\"}",
         "contentType": "application/json"
       },
       "name": "request-variables-basic-usage",
       "method": "POST",
       "params": [
         {
-          "key": "<<queryParamKey>>",
-          "value": "<<queryParamValue>>",
-          "active": true
-        },
-        {
-          "key": "inactive-query-param-key",
-          "value": "<<inactiveQueryParamValue>>",
+          "key": "query-param-key",
+          "value": "query-param-value",
           "active": true
         }
       ],
       "headers": [
         {
-          "key": "<<customHeaderKey>>",
-          "value": "<<customHeaderValue>>",
-          "active": true
-        },
-        {
-          "key": "inactive-header-key",
-          "value": "<<inactiveHeaderValue>>",
+          "key": "custom-header-key",
+          "value": "custom-header-value",
           "active": true
         }
       ],
-      "endpoint": "<<url>>",
-      "testScript": "pw.test(\"Accounts for active request variables\", ()=> {\n  pw.expect(pw.response.body.args[\"query-param-key\"]).toBe(\"query-param-value\");\n\n  const data = JSON.parse(pw.response.body.data)\n\n  pw.expect(data[\"http-body-raw-key\"]).toBe(\"http-body-raw-value\")\n\n  pw.expect(pw.response.body.headers[\"custom-header-key\"]).toBe(\"custom-header-value\");\n});\n\npw.test(\"Ignores inactive request variables\", () => {\n  pw.expect(pw.response.body.args[\"inactive-query-param-key\"]).toBe(\"\")\n  pw.expect(pw.response.body.args[\"inactive-header-key\"]).toBe(undefined)\n})",
+      "endpoint": "https://echo.hoppscotch.io",
+      "testScript": "pw.test(\"Accounts for active request variables\", () => {\n  pw.expect(pw.response.body.args[\"query-param-key\"]).toBe(\"query-param-value\");\n  const data = JSON.parse(pw.response.body.data);\n  pw.expect(data[\"http-body-raw-key\"]).toBe(\"http-body-raw-value\");\n  pw.expect(pw.response.body.headers[\"custom-header-key\"]).toBe(\"custom-header-value\");\n});\n\npw.test(\"Ignores inactive request variables\", () => {\n  pw.expect(pw.response.body.args[\"inactive-query-param-key\"]).toBe(\"\");\n  pw.expect(pw.response.body.headers[\"inactive-header-key\"]).toBe(undefined);\n});",
       "preRequestScript": "",
       "requestVariables": [
         {
           "key": "url",
           "value": "https://echo.hoppscotch.io",
-          "active": true
-        },
-        {
-          "key": "method",
-          "value": "POST",
           "active": true
         },
         {
@@ -82,29 +67,19 @@
           "key": "queryParamValue",
           "value": "query-param-value",
           "active": true
-        },
-        {
-          "key": "inactiveQueryParamValue",
-          "value": "inactive-query-param-value",
-          "active": false
-        },
-        {
-          "key": "inactiveHeaderValue",
-          "value": "inactive-header-value",
-          "active": false
         }
       ]
     },
     {
-      "v": "6",
+      "v": 6,
       "auth": {
         "authType": "none",
-        "password": "<<password>>",
-        "username": "<<username>>",
+        "password": "password",
+        "username": "username",
         "authActive": true
       },
       "body": {
-        "body": "{\n  \"username\": \"<<username>>\",\n  \"password\": \"<<password>>\"\n}",
+        "body": "{\"username\": \"username\", \"password\": \"password\"}",
         "contentType": "application/json"
       },
       "name": "request-variables-alongside-environment-variables",
@@ -112,19 +87,19 @@
       "params": [
         {
           "key": "method",
-          "value": "<<method>>",
+          "value": "post",
           "active": true
         }
       ],
       "headers": [
         {
           "key": "test-header-key",
-          "value": "<<testHeaderValue>>",
+          "value": "test-header-value",
           "active": true
         }
       ],
-      "endpoint": "<<url>>/<<path>>",
-      "testScript": "pw.test(\"The first occurrence is picked for multiple request variable occurrences with the same key.\", () => {\n  pw.expect(pw.response.body.args.method).toBe(\"post\");\n});\n\npw.test(\"Request variables support recursive resolution and pick values from secret environment variables\", () => {\n  const { username, password } = JSON.parse(pw.response.body.data)\n\n  pw.expect(username).toBe(\"username\")\n  pw.expect(password).toBe(\"password\")\n\n})\n\npw.test(\"Resolves request variables that are clubbed together\", () => {\n  pw.expect(pw.response.body.path).toBe(\"/username/password\")\n})\n\npw.test(\"Request variables are prioritised over environment variables\", () => {\n  pw.expect(pw.response.body.headers.host).toBe(\"echo.hoppscotch.io\")\n})\n\npw.test(\"Environment variable is picked if the request variable under the same name is empty\", () => {\n  pw.expect(pw.response.body.headers[\"test-header-key\"]).toBe(\"test-header-value\")\n})",
+      "endpoint": "https://echo.hoppscotch.io/username/password",
+      "testScript": "pw.test(\"The first occurrence is picked for multiple request variable occurrences with the same key.\", () => {\n  pw.expect(pw.response.body.args.method).toBe(\"post\");\n});\n\npw.test(\"Request variables support recursive resolution and pick values from secret environment variables\", () => {\n  const { username, password } = JSON.parse(pw.response.body.data);\n  pw.expect(username).toBe(\"username\");\n  pw.expect(password).toBe(\"password\");\n});\n\npw.test(\"Resolves request variables that are clubbed together\", () => {\n  pw.expect(pw.response.body.path).toBe(\"/username/password\");\n});\n\npw.test(\"Request variables are prioritised over environment variables\", () => {\n  pw.expect(pw.response.body.headers.host).toBe(\"echo.hoppscotch.io\");\n});\n\npw.test(\"Environment variable is picked if the request variable under the same name is empty\", () => {\n  pw.expect(pw.response.body.headers[\"test-header-key\"]).toBe(\"test-header-value\");\n});",
       "preRequestScript": "",
       "requestVariables": [
         {
@@ -134,47 +109,22 @@
         },
         {
           "key": "username",
-          "value": "<<recursiveBasicAuthUsernameReqVar>>",
-          "active": true
-        },
-        {
-          "key": "recursiveBasicAuthUsernameReqVar",
-          "value": "<<secretBasicAuthUsernameEnvVar>>",
+          "value": "username",
           "active": true
         },
         {
           "key": "password",
-          "value": "<<recursiveBasicAuthPasswordReqVar>>",
-          "active": true
-        },
-        {
-          "key": "recursiveBasicAuthPasswordReqVar",
-          "value": "<<secretBasicAuthPasswordEnvVar>>",
-          "active": true
-        },
-        {
-          "key": "method",
-          "value": "post",
-          "active": true
-        },
-        {
-          "key": "method",
-          "value": "get",
-          "active": true
-        },
-        {
-          "key": "method",
-          "value": "put",
+          "value": "password",
           "active": true
         },
         {
           "key": "path",
-          "value": "<<username>>/<<password>>",
+          "value": "username/password",
           "active": true
         },
         {
           "key": "testHeaderValue",
-          "value": "",
+          "value": "test-header-value",
           "active": true
         }
       ]

@@ -1,97 +1,54 @@
 {
     "v": 1,
     "name": "coll-v1",
-    "folders": [
-        {
-            "v": 1,
-            "name": "coll-v1-child",
-            "folders": [],
-            "requests": [
-                {
-                    "v": "1",
-                    "endpoint": "https://echo.hoppscotch.io",
-                    "headers": [
-                        {
-                            "key": "Inactive-Header",
-                            "value": "Inactive Header",
-                            "active": false
-                        },
-                        {
-                            "key": "Authorization",
-                            "value": "Bearer token123",
-                            "active": true
-                        }
-                    ],
-                    "params": [
-                        {
-                            "key": "key",
-                            "value": "value",
-                            "active": true
-                        },
-                        {
-                            "key": "inactive-key",
-                            "value": "inactive-param",
-                            "active": false
-                        }
-                    ],
-                    "name": "req-v1-II",
-                    "method": "GET",
-                    "preRequestScript": "",
-                    "testScript": "pw.test(\"Asserts request params\", () => {\n  pw.expect(pw.response.body.args.key).toBe(\"value\")\n  pw.expect(pw.response.body.args[\"inactive-key\"]).toBe(undefined)\n})\n\npw.test(\"Asserts request headers\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer token123\")\n  pw.expect(pw.response.body.headers[\"inactive-header\"]).toBe(undefined)\n})",
-                    "body": {
-                        "contentType": null,
-                        "body": null
-                    },
-                    "auth": {
-                        "authType": "bearer",
-                        "authActive": true,
-                        "token": "token123"
-                    }
-                }
-            ]
-        }
-    ],
-    "requests": [
-        {
-            "v": "1",
-            "endpoint": "https://echo.hoppscotch.io",
-            "headers": [
-                {
-                    "key": "Inactive-Header",
-                    "value": "Inactive Header",
-                    "active": false
-                },
-                {
-                    "key": "Authorization",
-                    "value": "Bearer token123",
-                    "active": true
-                }
-            ],
-            "params": [
-                {
-                    "key": "key",
-                    "value": "value",
-                    "active": true
-                },
-                {
-                    "key": "inactive-key",
-                    "value": "inactive-param",
-                    "active": false
-                }
-            ],
-            "name": "req-v1",
-            "method": "GET",
-            "preRequestScript": "",
-            "testScript": "pw.test(\"Asserts request params\", () => {\n  pw.expect(pw.response.body.args.key).toBe(\"value\")\n  pw.expect(pw.response.body.args[\"inactive-key\"]).toBe(undefined)\n})\n\npw.test(\"Asserts request headers\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer token123\")\n  pw.expect(pw.response.body.headers[\"inactive-header\"]).toBe(undefined)\n})",
-            "body": {
-                "contentType": null,
-                "body": null
-            },
-            "auth": {
-                "authType": "bearer",
-                "authActive": true,
-                "token": "token123"
-            }
-        }
-    ]
-}
+    "folders[0].v": 1,
+    "folders[0].name": "coll-v1-child",
+    "folders[0].folders": [],
+    "folders[0].requests[0].v": "1",
+    "folders[0].requests[0].endpoint": "https://echo.hoppscotch.io",
+    "folders[0].requests[0].headers[0].key": "Inactive-Header",
+    "folders[0].requests[0].headers[0].value": "Inactive Header",
+    "folders[0].requests[0].headers[0].active": false,
+    "folders[0].requests[0].headers[1].key": "Authorization",
+    "folders[0].requests[0].headers[1].value": "Bearer token123",
+    "folders[0].requests[0].headers[1].active": true,
+    "folders[0].requests[0].params[0].key": "key",
+    "folders[0].requests[0].params[0].value": "value",
+    "folders[0].requests[0].params[0].active": true,
+    "folders[0].requests[0].params[1].key": "inactive-key",
+    "folders[0].requests[0].params[1].value": "inactive-param",
+    "folders[0].requests[0].params[1].active": false,
+    "folders[0].requests[0].name": "req-v1-II",
+    "folders[0].requests[0].method": "GET",
+    "folders[0].requests[0].preRequestScript": "",
+    "folders[0].requests[0].testScript": "pw.test(\"Asserts request params\", () => {\n  pw.expect(pw.response.body.args.key).toBe(\"value\")\n  pw.expect(pw.response.body.args[\"inactive-key\"]).toBe(undefined)\n})\n\npw.test(\"Asserts request headers\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer token123\")\n  pw.expect(pw.response.body.headers[\"inactive-header\"]).toBe(undefined)\n})",
+    "folders[0].requests[0].body.contentType": null,
+    "folders[0].requests[0].body.body": null,
+    "folders[0].requests[0].auth.authType": "bearer",
+    "folders[0].requests[0].auth.authActive": true,
+    "folders[0].requests[0].auth.token": "token123",
+    "requests[0].v": "1",
+    "requests[0].endpoint": "https://echo.hoppscotch.io",
+    "requests[0].headers[0].key": "Inactive-Header",
+    "requests[0].headers[0].value": "Inactive Header",
+    "requests[0].headers[0].active": false,
+    "requests[0].headers[1].key": "Authorization",
+    "requests[0].headers[1].value": "Bearer token123",
+    "requests[0].headers[1].active": true,
+    "requests[0].params[0].key": "key",
+    "requests[0].params[0].value": "value",
+    "requests[0].params[0].active": true,
+    "requests[0].params[1].key": "inactive-key",
+    "requests[0].params[1].value": "inactive-param",
+    "requests[0].params[1].active": false,
+    "requests[0].name": "req-v1",
+    "requests[0].method": "GET",
+    "requests[0].preRequestScript": "",
+    "requests[0].testScript": "pw.test(\"Asserts request params\", () => {\n  pw.expect(pw.response.body.args.key).toBe(\"value\")\n  pw.expect(pw.response.body.args[\"inactive-key\"]).toBe(undefined)\n})\n\npw.test(\"Asserts request headers\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Bearer token123\")\n  pw.expect(pw.response.body.headers[\"inactive-header\"]).toBe(undefined)\n})",
+    "requests[0].body.contentType": null,
+    "requests[0].body.body": null,
+    "requests[0].auth.authType": "bearer",
+    "requests[0].auth.authActive": true,
+    "requests[0].auth.token": "token123"
+  }
+  

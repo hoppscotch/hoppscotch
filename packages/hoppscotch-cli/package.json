@@ -5,65 +5,47 @@
   "homepage": "https://hoppscotch.io",
   "type": "module",
   "main": "dist/index.js",
-  "bin": {
-    "hopp": "bin/hopp.js"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "debugger": "node debugger.js 9999",
-    "prepublish": "pnpm exec tsup",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "test": "pnpm run build && vitest run",
-    "do-typecheck": "pnpm exec tsc --noEmit",
-    "do-test": "pnpm run test"
-  },
-  "keywords": [
-    "cli",
-    "hoppscotch",
-    "hopp-cli"
-  ],
+  "bin_hopp": "bin/hopp.js",
+  "publishConfig_access": "public",
+  "engines_node": ">=18",
+  "scripts_build": "pnpm exec tsup",
+  "scripts_dev": "pnpm exec tsup --watch",
+  "scripts_debugger": "node debugger.js 9999",
+  "scripts_prepublish": "pnpm exec tsup",
+  "scripts_prettier-format": "prettier --config .prettierrc 'src//*.ts' --write",
+  "scripts_test": "pnpm run build && vitest run",
+  "scripts_do-typecheck": "pnpm exec tsc --noEmit",
+  "scripts_do-test": "pnpm run test",
+  "keywords_0": "cli",
+  "keywords_1": "hoppscotch",
+  "keywords_2": "hopp-cli",
   "author": "Hoppscotch (support@hoppscotch.io)",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hoppscotch/hoppscotch.git"
-  },
-  "bugs": {
-    "url": "https://github.com/hoppscotch/hoppscotch/issues",
-    "email": "support@hoppscotch.io"
-  },
+  "repository_type": "git",
+  "repository_url": "https://github.com/hoppscotch/hoppscotch.git",
+  "bugs_url": "https://github.com/hoppscotch/hoppscotch/issues",
+  "bugs_email": "support@hoppscotch.io",
   "license": "MIT",
   "private": false,
-  "dependencies": {
-    "axios": "1.7.5",
-    "aws4fetch": "1.0.19",
-    "chalk": "5.3.0",
-    "commander": "11.1.0",
-    "isolated-vm": "4.7.2",
-    "lodash-es": "4.17.21",
-    "qs": "6.11.2",
-    "verzod": "0.2.2",
-    "xmlbuilder2": "3.1.1",
-    "zod": "3.22.4"
-  },
-  "devDependencies": {
-    "@hoppscotch/data": "workspace:^",
-    "@hoppscotch/js-sandbox": "workspace:^",
-    "@relmify/jest-fp-ts": "2.1.1",
-    "@swc/core": "1.4.2",
-    "@types/lodash-es": "4.17.12",
-    "@types/qs": "6.9.12",
-    "fp-ts": "2.16.2",
-    "prettier": "3.2.5",
-    "qs": "6.11.2",
-    "tsup": "8.0.2",
-    "typescript": "5.3.3",
-    "vitest": "0.34.6"
-  }
+  "dependencies_axios": "1.7.5",
+  "dependencies_aws4fetch": "1.0.19",
+  "dependencies_chalk": "5.3.0",
+  "dependencies_commander": "11.1.0",
+  "dependencies_isolated-vm": "4.7.2",
+  "dependencies_lodash-es": "4.17.21",
+  "dependencies_qs": "6.11.2",
+  "dependencies_verzod": "0.2.2",
+  "dependencies_xmlbuilder2": "3.1.1",
+  "dependencies_zod": "3.22.4",
+  "devDependencies_@hoppscotch/data": "workspace:^",
+  "devDependencies_@hoppscotch/js-sandbox": "workspace:^",
+  "devDependencies_@relmify/jest-fp-ts": "2.1.1",
+  "devDependencies_@swc/core": "1.4.2",
+  "devDependencies_@types/lodash-es": "4.17.12",
+  "devDependencies_@types/qs": "6.9.12",
+  "devDependencies_fp-ts": "2.16.2",
+  "devDependencies_prettier": "3.2.5",
+  "devDependencies_qs": "6.11.2",
+  "devDependencies_tsup": "8.0.2",
+  "devDependencies_typescript": "5.3.3",
+  "devDependencies_vitest": "0.34.6"
 }

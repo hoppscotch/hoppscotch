@@ -1,12 +1,9 @@
 {
-  "!name": "pw-pre",
-  "pw": {
-    "env": {
-      "set": "fn(key: string, value: string)",
-      "unset": "fn(key: string)",
-      "get": "fn(key: string) -> string",
-      "getResolve": "fn(key: string) -> string",
-      "resolve": "fn(value: string) -> string"
-    }
+  "pw-pre": {
+    "pw.env.set": "fn(key: string, value: string)",
+    "pw.env.unset": "fn(key: string)",
+    "pw.env.get": "fn(key: string) -> string",
+    "pw.env.getResolve": "fn(key: string) -> string",
+    "pw.env.resolve": "fn(value: string) -> string"
   }
 }

@@ -1,7 +1,5 @@
-[
-  {
-    "v": 1,
-    "name": "tests",
-    "folders": []
-  }
-]
+{
+  "v": 1,
+  "name": "tests",
+  "folders": []
+}

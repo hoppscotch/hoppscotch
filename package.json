@@ -5,54 +5,38 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "prepare": "husky install",
-    "dev": "pnpm -r do-dev",
-    "gen-gql": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' pnpm -r generate-gql-sdl",
-    "generate": "pnpm -r do-build-prod",
-    "start": "http-server packages/hoppscotch-selfhost-web/dist -p 3000",
-    "lint": "pnpm -r do-lint",
-    "typecheck": "pnpm -r do-typecheck",
-    "lintfix": "pnpm -r do-lintfix",
-    "pre-commit": "pnpm -r do-lint && pnpm -r do-typecheck",
-    "test": "pnpm -r do-test",
-    "generate-ui": "pnpm -r do-build-ui"
-  },
-  "workspaces": [
-    "./packages/*"
-  ],
-  "devDependencies": {
-    "@commitlint/cli": "16.3.0",
-    "@commitlint/config-conventional": "16.2.4",
-    "@hoppscotch/ui": "0.2.0",
-    "@types/node": "17.0.27",
-    "cross-env": "7.0.3",
-    "http-server": "14.1.1",
-    "husky": "7.0.4",
-    "lint-staged": "12.4.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "vue": "3.3.9",
-      "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
-      "subscriptions-transport-ws>ws": "7.5.10",
-      "@nestjs/graphql>ws": "8.17.1",
-      "braces": "3.0.3",
-      "express": "4.20.0",
-      "send": "0.19.0",
-      "pug": "3.0.3",
-      "body-parser": "1.20.3",
-      "path-to-regexp@3.2.0": "3.3.0",
-      "micromatch@<4.0.8": "4.0.8",
-      "dset@3.1.3": "3.1.4"
-    },
-    "packageExtensions": {
-      "@hoppscotch/httpsnippet": {
-        "dependencies": {
-          "ajv": "6.12.3"
-        }
-      }
-    }
-  }
+  "scripts.preinstall": "npx only-allow pnpm",
+  "scripts.prepare": "husky install",
+  "scripts.dev": "pnpm -r do-dev",
+  "scripts.gen-gql": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' pnpm -r generate-gql-sdl",
+  "scripts.generate": "pnpm -r do-build-prod",
+  "scripts.start": "http-server packages/hoppscotch-selfhost-web/dist -p 3000",
+  "scripts.lint": "pnpm -r do-lint",
+  "scripts.typecheck": "pnpm -r do-typecheck",
+  "scripts.lintfix": "pnpm -r do-lintfix",
+  "scripts.pre-commit": "pnpm -r do-lint && pnpm -r do-typecheck",
+  "scripts.test": "pnpm -r do-test",
+  "scripts.generate-ui": "pnpm -r do-build-ui",
+  "workspaces.0": "./packages/*",
+  "devDependencies.@commitlint/cli": "16.3.0",
+  "devDependencies.@commitlint/config-conventional": "16.2.4",
+  "devDependencies.@hoppscotch/ui": "0.2.0",
+  "devDependencies.@types/node": "17.0.27",
+  "devDependencies.cross-env": "7.0.3",
+  "devDependencies.http-server": "14.1.1",
+  "devDependencies.husky": "7.0.4",
+  "devDependencies.lint-staged": "12.4.0",
+  "pnpm.overrides.vue": "3.3.9",
+  "pnpm.overrides.@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
+  "pnpm.overrides.subscriptions-transport-ws>ws": "7.5.10",
+  "pnpm.overrides.@nestjs/graphql>ws": "8.17.1",
+  "pnpm.overrides.braces": "3.0.3",
+  "pnpm.overrides.express": "4.20.0",
+  "pnpm.overrides.send": "0.19.0",
+  "pnpm.overrides.pug": "3.0.3",
+  "pnpm.overrides.body-parser": "1.20.3",
+  "pnpm.overrides.path-to-regexp@3.2.0": "3.3.0",
+  "pnpm.overrides.micromatch@<4.0.8": "4.0.8",
+  "pnpm.overrides.dset@3.1.3": "3.1.4",
+  "pnpm.packageExtensions.@hoppscotch/httpsnippet.dependencies.ajv": "6.12.3"
 }

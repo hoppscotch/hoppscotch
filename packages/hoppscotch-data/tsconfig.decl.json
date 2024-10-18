@@ -1,17 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
-    "lib": ["esnext", "DOM"],
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationDir": "./dist"
-  },
-  "include": ["src/**/*.ts"]
+  "compilerOptions.target": "es2017",
+  "compilerOptions.module": "esnext",
+  "compilerOptions.lib": ["esnext", "DOM"],
+  "compilerOptions.moduleResolution": "node",
+  "compilerOptions.esModuleInterop": true,
+  "compilerOptions.strict": true,
+  "compilerOptions.strictNullChecks": true,
+  "compilerOptions.skipLibCheck": true,
+  "compilerOptions.resolveJsonModule": true,
+  "compilerOptions.declaration": true,
+  "compilerOptions.emitDeclarationOnly": true,
+  "compilerOptions.declarationDir": "./dist",
+  "include": ["src//*.ts"]
 }

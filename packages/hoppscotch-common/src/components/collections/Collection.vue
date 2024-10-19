@@ -460,6 +460,12 @@ const orderUpdateCollectionEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     emit("update-collection-order", e.dataTransfer)
+
+    props.data.requests = props.data.requests?.map((request, index) => ({
+      ...request,
+      index,
+    }))
+    
     resetDragState()
   }
 }

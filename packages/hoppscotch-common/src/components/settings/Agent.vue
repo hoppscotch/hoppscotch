@@ -23,7 +23,7 @@
       />
     </div>
 
-    <ModalsNativeCACertificates
+    <InterceptorsAgentModalNativeCACertificates
       :show="showCACertificatesModal"
       @hide-modal="showCACertificatesModal = false"
     />

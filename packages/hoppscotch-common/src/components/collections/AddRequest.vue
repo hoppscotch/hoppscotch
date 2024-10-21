@@ -170,6 +170,9 @@ const addRequest = () => {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
+  if (props.loadingState) {
+    return
+  }
   emit("add-request", editingName.value)
 }
 

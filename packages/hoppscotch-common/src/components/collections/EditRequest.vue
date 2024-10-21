@@ -158,7 +158,9 @@ const editRequest = () => {
     toast.error(t("request.invalid_name"))
     return
   }
-
+  if (props.loadingState) {
+    return
+  }
   emit("submit", editingName.value)
 }
 

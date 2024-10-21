@@ -73,6 +73,9 @@ const addFolder = () => {
     toast.error(t("folder.invalid_name"))
     return
   }
+  if (props.loadingState) {
+    return
+  }
   emit("add-folder", editingName.value)
 }
 

@@ -73,7 +73,9 @@ const saveCollection = () => {
     toast.error(t("collection.invalid_name"))
     return
   }
-
+  if (props.loadingState) {
+    return
+  }
   emit("submit", editingName.value)
 }
 

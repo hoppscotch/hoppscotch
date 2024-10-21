@@ -22,7 +22,7 @@
     "@intlify/unplugin-vue-i18n": "5.2.0",
     "@types/cors": "2.8.17",
     "@urql/exchange-auth": "2.2.0",
-    "@urql/vue": "1.4.1",
+    "@urql/vue": "1.4.0",
     "@vueuse/core": "11.1.0",
     "axios": "1.7.7",
     "cors": "2.8.5",

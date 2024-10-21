@@ -137,7 +137,10 @@ const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Invited Users
-const { fetching, error, data } = useQuery({ query: InvitedUsersDocument });
+const { fetching, error, data } = useQuery({
+  query: InvitedUsersDocument,
+  variables: {},
+});
 
 // Table Headings
 const headings = [

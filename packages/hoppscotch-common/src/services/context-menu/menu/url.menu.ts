@@ -58,7 +58,6 @@ export class URLMenuService extends Service implements ContextMenu {
       type: "request",
       request: request,
       isDirty: false,
-      type: "request",
     })
   }
 

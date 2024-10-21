@@ -33,7 +33,9 @@ log = "0.4.22"
 env_logger = "0.11.5"
 curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", features = ["ntlm"] }
 openssl = { version = "0.10.66", features = ["vendored"] }
-openssl-sys = { version = "0.9.103", features = ["vendored"] }
+# NOTE: This crate follows `openssl-sys` from https://github.com/CuriousCorrelation/curl-rust.git
+# to avoid issues from version mismatch when compiling from source.
+openssl-sys = { version = "0.9.64", features = ["vendored"] }
 url-escape = "0.1.1"
 thiserror = "1.0.64"
 tauri-plugin-store = "2.1.0"

@@ -13,114 +13,334 @@ pub(crate) fn run_request_task(
     req: &RequestDef,
     cancel_token: CancellationToken,
 ) -> Result<RunRequestResponse, AppError> {
+    log::info!(
+        "Starting request task: [Method: {}] [URL: {}] [Validate Certs: {}] [Has Body: {}] [Proxy Enabled: {}]",
+        req.method,
+        req.endpoint,
+        req.validate_certs,
+        req.body.is_some(),
+        req.proxy.is_some()
+    );
+
     let mut curl_handle = Easy::new();
+    log::debug!("Initialized new curl handle with default settings");
 
-    curl_handle
-        .progress(true)
-        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+    match curl_handle.progress(true) {
+        Ok(_) => log::debug!("Progress tracking enabled for request monitoring"),
+        Err(err) => {
+            log::error!(
+                "Critical failure enabling progress tracking: {}\nError details: {:?}",
+                err,
+                err
+            );
+            return Err(AppError::RequestRunError(err.description().to_string()));
+        }
+    }
 
-    curl_handle
-        .custom_request(&req.method)
-        .map_err(|_| AppError::InvalidMethod)?;
+    match curl_handle.custom_request(&req.method) {
+        Ok(_) => log::debug!("HTTP method set: {}", req.method),
+        Err(err) => {
+            log::error!("Failed to set HTTP method '{}'. Error: {}", req.method, err);
+            return Err(AppError::InvalidMethod);
+        }
+    }
 
-    curl_handle
-        .url(&req.endpoint)
-        .map_err(|_| AppError::InvalidUrl)?;
+    match curl_handle.url(&req.endpoint) {
+        Ok(_) => log::debug!("Target URL configured: {}", req.endpoint),
+        Err(err) => {
+            log::error!(
+                "URL configuration failed for '{}'\nError: {}",
+                req.endpoint,
+                err
+            );
+            return Err(AppError::InvalidUrl);
+        }
+    }
 
-    curl_handle
-        .http_headers(get_headers_list(&req)?)
-        .map_err(|_| AppError::InvalidHeaders)?;
+    let headers = match get_headers_list(&req) {
+        Ok(headers) => {
+            log::debug!("Generated headers list");
+            headers
+        }
+        Err(err) => {
+            log::error!("Header generation failed:\nError: {:?}", err);
+            return Err(err);
+        }
+    };
 
-    apply_body_to_curl_handle(&mut curl_handle, &req)?;
+    match curl_handle.http_headers(headers) {
+        Ok(_) => log::debug!("Successfully configured request headers"),
+        Err(err) => {
+            log::error!("Failed to set HTTP headers: {}", err);
+            return Err(AppError::InvalidHeaders);
+        }
+    }
 
-    curl_handle
-        .ssl_verify_peer(req.validate_certs)
-        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+    if let Err(err) = apply_body_to_curl_handle(&mut curl_handle, &req) {
+        log::error!(
+            "Request body application failed:\nError: {:?}\nContent-Type: {:?}",
+            err,
+            req.headers
+                .iter()
+                .find(|h| h.key.to_lowercase() == "content-type")
+                .map(|h| &h.value)
+        );
+        return Err(err);
+    }
+    log::debug!("Request body configured successfully");
 
-    curl_handle
-        .ssl_verify_host(req.validate_certs)
-        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+    match curl_handle.ssl_verify_peer(req.validate_certs) {
+        Ok(_) => log::debug!(
+            "SSL peer verification setting applied: {}",
+            req.validate_certs
+        ),
+        Err(err) => {
+            log::error!(
+                "SSL peer verification configuration failed: {}\nRequested setting: {}",
+                err,
+                req.validate_certs
+            );
+            return Err(AppError::RequestRunError(err.description().to_string()));
+        }
+    }
 
-    apply_client_cert_to_curl_handle(&mut curl_handle, &req)?;
+    match curl_handle.ssl_verify_host(req.validate_certs) {
+        Ok(_) => log::debug!(
+            "SSL host verification setting applied: {}",
+            req.validate_certs
+        ),
+        Err(err) => {
+            log::error!(
+                "SSL host verification configuration failed: {}\nRequested setting: {}",
+                err,
+                req.validate_certs
+            );
+            return Err(AppError::RequestRunError(err.description().to_string()));
+        }
+    }
 
-    apply_proxy_config_to_curl_handle(&mut curl_handle, &req)?;
+    if let Err(err) = apply_client_cert_to_curl_handle(&mut curl_handle, &req) {
+        log::error!(
+            "Client certificate configuration failed:\nError: {:?}\nCert Info: {:#?}",
+            err,
+            req.client_cert.as_ref()
+        );
+        return Err(err);
+    }
+    log::debug!("Client certificate configuration successful");
+
+    if let Err(err) = apply_proxy_config_to_curl_handle(&mut curl_handle, &req) {
+        log::error!(
+            "Proxy configuration failed:\nError: {:?}\nProxy Info: {:?}",
+            err,
+            req.proxy.as_ref()
+        );
+        return Err(err);
+    }
+    log::debug!("Proxy configuration applied successfully");
 
     let mut response_body = Vec::new();
     let mut response_headers = Vec::new();
-
     let (start_time_ms, end_time_ms) = {
         let mut transfer = curl_handle.transfer();
+        log::debug!("Created curl transfer object for request execution");
 
-        transfer
-            .ssl_ctx_function(|ssl_ctx_ptr| {
-                let cert_list = get_x509_certs_from_root_cert_bundle(&req);
+        match transfer.ssl_ctx_function(|ssl_ctx_ptr| {
+            let cert_list = match get_x509_certs_from_root_cert_bundle_safe(&req) {
+                Ok(certs) => {
+                    log::debug!("Found {} certificates in root bundle", certs.len());
+                    certs
+                }
+                Err(e) => {
+                    log::error!("Failed to load certificates from bundle: {:?}", e);
+                    return Ok(());
+                }
+            };
 
-                if !cert_list.is_empty() {
-                    let mut ssl_ctx_builder =
-                        unsafe { SslContextBuilder::from_ptr(ssl_ctx_ptr as *mut SSL_CTX) };
+            if !cert_list.is_empty() {
+                let mut ssl_ctx_builder =
+                    unsafe { SslContextBuilder::from_ptr(ssl_ctx_ptr as *mut SSL_CTX) };
 
-                    let cert_store = ssl_ctx_builder.cert_store_mut();
+                let cert_store = ssl_ctx_builder.cert_store_mut();
 
-                    for cert in cert_list {
-                        if let Err(e) = cert_store.add_cert(cert) {
-                            eprintln!("Failed writing cert into cert store: {}", e);
-                        }
+                for (index, cert) in cert_list.iter().enumerate() {
+                    log::debug!(
+                        "Processing certificate {}: Subject: {:?}, Not Before: {:?}, Not After: {:?}",
+                        index,
+                        cert.subject_name(),
+                        cert.not_before(),
+                        cert.not_after()
+                    );
+
+                    if let Err(e) = cert_store.add_cert(cert.clone()) {
+                        log::warn!(
+                            "Failed to add certificate {} to store\nError: {}\nCert details: {:?}",
+                            index,
+                            e,
+                            cert.subject_name()
+                        );
+                    } else {
+                        log::debug!(
+                            "Successfully added certificate {} to store\nSubject: {:?}",
+                            index,
+                            cert.subject_name()
+                        );
                     }
                 }
 
-                Ok(())
-            })
-            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+                // SAFETY: We need to prevent Rust from dropping the `SslContextBuilder` because
+                // the underlying `SSL_CTX` pointer is owned and managed by curl, not us.
+                // From curl docs: "libcurl does not guarantee the lifetime of the passed in
+                // object once this callback function has returned"
+                // and `SslContextBuilder` is just a safe wrapper around curl's `SSL_CTX` from
+                // `openssl_sys::SSL_CTX`.
+                // If dropped, Rust would try to free the `SSL_CTX` which curl still needs.
+                //
+                // This intentional "leak" is safe because:
+                // - We're only leaking the thin Rust wrapper
+                // - Curl manages the actual `SSL_CTX` memory
+                // - Curl will free the `SSL_CTX` during connection cleanup
+                //
+                // See: https://curl.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html
+                std::mem::forget(ssl_ctx_builder);
+            }
 
-        transfer
-            .progress_function(|_, _, _, _| !cancel_token.is_cancelled())
-            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+            Ok(())
+        }) {
+            Ok(_) => log::debug!("SSL context function configured successfully"),
+            Err(err) => {
+                log::error!("SSL context function setup failed: {}", err);
+                return Err(AppError::RequestRunError(err.description().to_string()));
+            }
+        }
 
-        transfer
-            .header_function(|header| {
-                let header = String::from_utf8_lossy(header).into_owned();
+        match transfer.progress_function(|dltotal, dlnow, ultotal, ulnow| {
+            let cancelled = cancel_token.is_cancelled();
+            if cancelled {
+                log::warn!(
+                    "Request cancelled by user\nDownload: {}/{} bytes\nUpload: {}/{} bytes",
+                    dlnow,
+                    dltotal,
+                    ulnow,
+                    ultotal
+                );
+            } else {
+                log::debug!(
+                    "Progress - Download: {}/{} bytes, Upload: {}/{} bytes",
+                    dlnow,
+                    dltotal,
+                    ulnow,
+                    ultotal
+                );
+            }
+            !cancelled
+        }) {
+            Ok(_) => log::debug!("Progress monitoring function configured"),
+            Err(err) => {
+                log::error!("Progress function setup failed: {}", err);
+                return Err(AppError::RequestRunError(err.description().to_string()));
+            }
+        }
 
-                if let Some((key, value)) = header.split_once(':') {
-                    response_headers.push(KeyValuePair {
-                        key: key.trim().to_string(),
-                        value: value.trim().to_string(),
-                    });
-                }
+        match transfer.header_function(|header| {
+            let header = String::from_utf8_lossy(header).into_owned();
+            if let Some((key, value)) = header.split_once(':') {
+                log::debug!("Received header: [{}] = [{}]", key.trim(), value.trim());
+                response_headers.push(KeyValuePair {
+                    key: key.trim().to_string(),
+                    value: value.trim().to_string(),
+                });
+            } else {
+                log::debug!("Received header line (no key-value): {}", header.trim());
+            }
+            true
+        }) {
+            Ok(_) => log::debug!("Header processing function configured"),
+            Err(err) => {
+                log::error!("Header function setup failed: {}", err);
+                return Err(AppError::RequestRunError(err.description().to_string()));
+            }
+        }
 
-                true
-            })
-            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
-
-        transfer
-            .write_function(|data| {
-                response_body.extend_from_slice(data);
-                Ok(data.len())
-            })
-            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+        match transfer.write_function(|data| {
+            let chunk_size = data.len();
+            response_body.extend_from_slice(data);
+            log::debug!(
+                "Received response chunk: {} bytes (Total size so far: {} bytes)",
+                chunk_size,
+                response_body.len()
+            );
+            Ok(chunk_size)
+        }) {
+            Ok(_) => log::debug!("Response body processing function configured"),
+            Err(err) => {
+                log::error!("Write function setup failed: {}", err);
+                return Err(AppError::RequestRunError(err.description().to_string()));
+            }
+        }
 
         let start_time_ms = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_millis();
+        log::info!(
+            "Initiating request transfer at timestamp: {}",
+            start_time_ms
+        );
 
-        transfer
-            .perform()
-            .map_err(|err| AppError::RequestRunError(err.description().to_string()))?;
+        if let Err(err) = transfer.perform() {
+            log::error!(
+                "Request transfer failed:\nError: {}\nTime elapsed: {}ms",
+                err,
+                SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis()
+                    - start_time_ms,
+            );
+            return Err(AppError::RequestRunError(err.description().to_string()));
+        }
 
         let end_time_ms = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_millis();
 
+        log::info!(
+            "Request transfer completed:\nDuration: {}ms",
+            end_time_ms - start_time_ms,
+        );
+
         (start_time_ms, end_time_ms)
     };
 
-    let response_status = curl_handle
-        .response_code()
-        .map_err(|err| AppError::RequestRunError(err.description().to_string()))?
-        as u16;
+    let response_status = match curl_handle.response_code() {
+        Ok(status) => {
+            let status = status as u16;
+            log::info!(
+                "Response status code: {} ({})",
+                status,
+                get_status_text(status)
+            );
+            status
+        }
+        Err(err) => {
+            log::error!("Failed to retrieve response code: {}", err);
+            return Err(AppError::RequestRunError(err.description().to_string()));
+        }
+    };
 
     let response_status_text = get_status_text(response_status).to_string();
+    log::info!(
+        "Request completed successfully:\nStatus: {} ({})\nDuration: {}ms\n\
+         Response size: {} bytes\nHeaders: {} received\nEndpoint: {}",
+        response_status,
+        response_status_text,
+        end_time_ms - start_time_ms,
+        response_body.len(),
+        response_headers.len(),
+        req.endpoint
+    );
 
     Ok(RunRequestResponse {
         status: response_status,
@@ -325,19 +545,21 @@ fn apply_client_cert_to_curl_handle(handle: &mut Easy, req: &RequestDef) -> Resu
     Ok(())
 }
 
-fn get_x509_certs_from_root_cert_bundle(req: &RequestDef) -> Vec<X509> {
-    req.root_cert_bundle_files
-        .iter()
-        .map(|pem_bundle| openssl::x509::X509::stack_from_pem(pem_bundle))
-        .filter_map(|certs| {
-            if let Ok(certs) = certs {
-                Some(certs)
-            } else {
-                None
+fn get_x509_certs_from_root_cert_bundle_safe(
+    req: &RequestDef,
+) -> Result<Vec<X509>, openssl::error::ErrorStack> {
+    let mut certs = Vec::new();
+
+    for pem_bundle in &req.root_cert_bundle_files {
+        match openssl::x509::X509::stack_from_pem(pem_bundle) {
+            Ok(mut bundle_certs) => certs.append(&mut bundle_certs),
+            Err(e) => {
+                log::warn!("Failed to parse certificate bundle: {:?}", e);
             }
-        })
-        .flatten()
-        .collect()
+        }
+    }
+
+    Ok(certs)
 }
 
 fn apply_proxy_config_to_curl_handle(handle: &mut Easy, req: &RequestDef) -> Result<(), AppError> {

@@ -456,7 +456,7 @@
     "postman_environment": "Entorno de Postman",
     "postman_environment_description": "Importar entorno de Postman desde un archivo JSON",
     "title": "Importar",
-    "file_size_limit_exceeded_warning_multiple_files": "Los archivos seleccionados exceden el límite recomendado de 10MB. Sólo se importarán los primeros {ficheros} seleccionados.",
+    "file_size_limit_exceeded_warning_multiple_files": "Los archivos seleccionados exceden el límite recomendado de 10MB. Sólo se importarán los primeros {files} seleccionados.",
     "file_size_limit_exceeded_warning_single_file": "El archivo seleccionado supera el límite recomendado de 10 MB. Por favor, selecciona otro archivo.",
     "success": "Importado con éxito"
   },

@@ -26,7 +26,7 @@ export const preProcessRequest = (
       for (const [key, value] of reqClone.params.entries()) {
         let finalValue = value
         if (
-          encodeMode.value === "encode" ||
+          encodeMode.value === "enable" ||
           (encodeMode.value === "auto" &&
             /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value))
         ) {

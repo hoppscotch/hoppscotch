@@ -20,7 +20,7 @@ export const HoppAccentColors = [
   "pink",
 ] as const
 
-export const EncodeModes = ["encode", "disable", "auto"] as const
+export const EncodeModes = ["enable", "disable", "auto"] as const
 
 export type EncodeMode = (typeof EncodeModes)[number]
 
@@ -112,7 +112,7 @@ export const getDefaultSettings = (): SettingsDef => ({
   },
   THEME_COLOR: "indigo",
   BG_COLOR: "system",
-  ENCODE_MODE: "encode",
+  ENCODE_MODE: "enable",
   TELEMETRY_ENABLED: true,
   EXPAND_NAVIGATION: false,
   SIDEBAR: true,

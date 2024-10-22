@@ -9,7 +9,7 @@
         v-tippy="{ theme: 'tooltip', maxWidth: 500 }"
         :value="mode"
         :label="t(getEncodingModeName(mode))"
-        :title="t(getEncodeingModeTooltip(mode))"
+        :title="t(getEncodingModeTooltip(mode))"
         :selected="mode === activeMode"
         :class="'!px-0 hover:bg-transparent'"
         @change="changeMode(mode)"
@@ -34,27 +34,27 @@ const changeMode = (mode: EncodeMode) => {
 
 const getEncodingModeName = (mode: string) => {
   switch (mode) {
-    case "encode":
-      return "settings.encode_mode"
+    case "enable":
+      return "action.enable"
     case "disable":
-      return "settings.disable_mode"
+      return "action.disable"
     case "auto":
-      return "settings.auto_mode"
+      return "settings.auto_encode_mode"
     default:
       return "settings.encode_mode"
   }
 }
 
-const getEncodeingModeTooltip = (mode: string) => {
+const getEncodingModeTooltip = (mode: string) => {
   switch (mode) {
-    case "encode":
-      return "settings.encode_mode_tooltip"
+    case "enable":
+      return "settings.enable_encode_mode_tooltip"
     case "disable":
-      return "settings.disable_mode_tooltip"
+      return "settings.disable_encode_mode_tooltip"
     case "auto":
-      return "settings.auto_mode_tooltip"
+      return "settings.auto_encode_mode_tooltip"
     default:
-      return "settings.encode_mode_tooltip"
+      return "settings.enable_encode_mode_tooltip"
   }
 }
 </script>

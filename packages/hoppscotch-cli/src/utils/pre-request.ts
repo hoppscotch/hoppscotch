@@ -26,6 +26,11 @@ import { isHoppCLIError } from "./checks";
 import { arrayFlatMap, arraySort, tupleToRecord } from "./functions/array";
 import { getEffectiveFinalMetaData, getResolvedVariables } from "./getters";
 import { toFormData } from "./mutators";
+import {
+  DigestAuthParams,
+  fetchInitialDigestAuthInfo,
+  generateDigestAuthHeader,
+} from "./auth/digest";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -232,6 +237,49 @@ export async function getEffectiveRESTRequest(
           });
         });
       }
+    } else if (request.auth.authType === "digest") {
+      // TODO: Implement Digest Auth
+
+      const { method, endpoint } = request as HoppRESTRequest;
+
+      // Step 1: Fetch the initial auth info (nonce, realm, etc.)
+      const authInfo = await fetchInitialDigestAuthInfo(
+        parseTemplateString(endpoint, resolvedVariables),
+        method
+      );
+
+      // Step 2: Set up the parameters for the digest authentication header
+      const digestAuthParams: DigestAuthParams = {
+        username: parseTemplateString(request.auth.username, resolvedVariables),
+        password: parseTemplateString(request.auth.password, resolvedVariables),
+        realm: request.auth.realm
+          ? parseTemplateString(request.auth.realm, resolvedVariables)
+          : authInfo.realm,
+        nonce: request.auth.nonce
+          ? parseTemplateString(authInfo.nonce, resolvedVariables)
+          : authInfo.nonce,
+        endpoint: parseTemplateString(endpoint, resolvedVariables),
+        method,
+        algorithm: request.auth.algorithm ?? authInfo.algorithm,
+        qop: request.auth.qop
+          ? parseTemplateString(request.auth.qop, resolvedVariables)
+          : authInfo.qop,
+        opaque: request.auth.opaque
+          ? parseTemplateString(request.auth.opaque, resolvedVariables)
+          : authInfo.opaque,
+      };
+
+      // Step 3: Generate the Authorization header
+      const authHeaderValue = await generateDigestAuthHeader(digestAuthParams);
+
+      console.log("Digest Auth Header:", authHeaderValue);
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: authHeaderValue,
+        description: "",
+      });
     }
   }
 

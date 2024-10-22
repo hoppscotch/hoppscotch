@@ -44,7 +44,7 @@ export const preProcessRequest = (
         }
 
         // Set the parameter with the final value
-        url.searchParams.set(key, finalValue)
+        url.searchParams.append(key, finalValue)
       }
 
       // decode the URL to prevent double encoding

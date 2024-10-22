@@ -163,7 +163,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             invokeActionType = "modals.my.environment.edit"
           }
 
-          if (tooltipEnv?.sourceEnv === "RequestVariable") {
+          if (
+            tooltipEnv?.sourceEnv === "RequestVariable" &&
+            restTabs.currentActiveTab.value.document.type === "request"
+          ) {
             restTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
           } else {

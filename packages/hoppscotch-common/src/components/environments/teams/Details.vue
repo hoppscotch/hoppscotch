@@ -352,6 +352,10 @@ const removeEnvironmentVariable = (id: number) => {
 const isLoading = ref(false)
 
 const saveEnvironment = async () => {
+  if (isLoading.value) {
+    return
+  }
+
   isLoading.value = true
 
   if (!editingName.value) {

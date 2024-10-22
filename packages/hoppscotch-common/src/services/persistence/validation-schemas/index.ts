@@ -43,7 +43,7 @@ const SettingsDefSchema = z.object({
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
-  ENCODE_MODE: EncodeMode,
+  ENCODE_MODE: EncodeMode.catch("encode"),
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),
   SIDEBAR: z.boolean(),

@@ -430,6 +430,28 @@ describe("hopp test [options] <file_path_or_id>", () => {
         expect(error).toBeNull();
       });
     });
+
+    describe("Digest auth type", () => {
+      test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
+        const env = {
+          ...process.env,
+        };
+
+        const COLL_PATH = getTestJsonFilePath(
+          "digest-auth-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "digest-auth-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+        const { error } = await runCLI(args, { env });
+
+        expect(error).toBeNull();
+      });
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", () => {

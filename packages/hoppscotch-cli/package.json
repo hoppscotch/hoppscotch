@@ -46,6 +46,7 @@
     "chalk": "5.3.0",
     "commander": "12.1.0",
     "isolated-vm": "5.0.1",
+    "js-md5": "0.8.3",
     "lodash-es": "4.17.21",
     "qs": "6.13.0",
     "verzod": "0.2.3",

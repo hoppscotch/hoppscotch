@@ -383,6 +383,7 @@
     "gql_prettify_invalid_query": "Couldn't prettify an invalid query, solve query syntax errors and try again",
     "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
+    "invalid_file_type": "Invalid file type for `{filename}`.",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
     "invalid_embed_link": "The embed does not exist or is invalid.",

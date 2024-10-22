@@ -29,8 +29,8 @@
               </div>
 
               <HoppButtonSecondary
-                :icon="certificate.enabled ? IconCheckCircle : IconCircle"
                 v-tippy="{ theme: 'tooltip' }"
+                :icon="certificate.enabled ? IconCheckCircle : IconCircle"
                 :title="
                   certificate.enabled
                     ? t('action.turn_off')
@@ -41,8 +41,8 @@
               />
 
               <HoppButtonSecondary
-                :icon="IconTrash"
                 v-tippy="{ theme: 'tooltip' }"
+                :icon="IconTrash"
                 :title="t('action.remove')"
                 color="red"
                 @click="deleteEntry(domain)"

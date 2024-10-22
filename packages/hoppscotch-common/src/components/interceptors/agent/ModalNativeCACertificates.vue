@@ -23,8 +23,8 @@
 
             <div class="flex items-center">
               <HoppButtonSecondary
-                :icon="certificate.enabled ? IconCheckCircle : IconCircle"
                 v-tippy="{ theme: 'tooltip' }"
+                :icon="certificate.enabled ? IconCheckCircle : IconCircle"
                 :title="
                   certificate.enabled
                     ? t('action.turn_off')
@@ -35,8 +35,8 @@
               />
 
               <HoppButtonSecondary
-                :icon="IconTrash"
                 v-tippy="{ theme: 'tooltip' }"
+                :icon="IconTrash"
                 :title="t('action.remove')"
                 @click="deleteEntry(index)"
               />
@@ -90,8 +90,11 @@ import {
   CACertificateEntry,
   AgentInterceptorService,
 } from "~/platform/std/interceptors/agent"
+import { useToast } from "@composables/toast"
+import { hasValidExtension } from "~/helpers/utils/file-extension"
 
 const t = useI18n()
+const toast = useToast()
 
 const props = defineProps<{
   show: boolean
@@ -114,6 +117,12 @@ const {
   multiple: true,
 })
 
+const ALLOWED_EXTENSIONS = [".crt", ".cer", ".pem"]
+
+function isValidCertType(filename: string): boolean {
+  return hasValidExtension(filename, ALLOWED_EXTENSIONS)
+}
+
 // When files are selected, add them to the list of certificates and reset the file list
 onSelectedFilesChange(async (files) => {
   if (files) {
@@ -121,6 +130,11 @@ onSelectedFilesChange(async (files) => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
+
+      if (!isValidCertType(file.name)) {
+        toast.error(t("error.invalid_file_type", { filename: file.name }))
+        continue
+      }
 
       const data = new Uint8Array(await file.arrayBuffer())
 

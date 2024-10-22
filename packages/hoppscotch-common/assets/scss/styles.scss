@@ -562,7 +562,8 @@ details[open] summary .indicator {
 
 //  set a grayscale filter on the environment variable and predefined variable when it's commented
 .cm-comment {
-  .env-highlight {
+  .env-highlight,
+  .predefined-variable-highlight {
     filter: grayscale(1);
   }
 }

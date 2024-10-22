@@ -38,8 +38,12 @@ function convertNodeToJSON(node: Node): string {
         .children!.map((child) => convertNodeToJSON(child))
         .join(",")}}`
     case "property":
-      return `${JSON.stringify(node.children![0].value)}:${convertNodeToJSON(
-        node.children![1]
+      if (!node.children || node.children.length !== 2) {
+        return ""
+      }
+
+      return `${JSON.stringify(node.children[0].value)}:${convertNodeToJSON(
+        node.children[1]
       )}`
   }
 }

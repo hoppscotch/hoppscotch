@@ -97,7 +97,8 @@ export const getDefaultSettings = (): SettingsDef => ({
   CURRENT_INTERCEPTOR_ID: "",
 
   // TODO: Interceptor related settings should move under the interceptor systems
-  PROXY_URL: "https://proxy.hoppscotch.io/",
+  // Use environment variable for PROXY_URL or fallback to default value
+  PROXY_URL: process.env.PROXY_URL || "https://proxy.hoppscotch.io/",
   URL_EXCLUDES: {
     auth: true,
     httpUser: true,

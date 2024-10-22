@@ -17,7 +17,7 @@
         <div>
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.download_file')"
+            :title="t('action.download_test_report')"
             :icon="IconDownload"
             @click="downloadTestResult"
           />

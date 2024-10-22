@@ -177,6 +177,7 @@ useCodemirror(
     completer: null,
     environmentHighlights: true,
     predefinedVariablesHighlights: true,
+    commentHighlights: true,
   })
 )
 

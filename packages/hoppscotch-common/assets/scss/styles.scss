@@ -560,9 +560,30 @@ details[open] summary .indicator {
   }
 }
 
-.env-highlight {
-  @apply text-accentContrast;
+//  set a grayscale filter on the environment variable and predefined variable when it's commented
+.cm-comment {
+  .env-highlight {
+    filter: grayscale(1);
+  }
+}
 
+.env-highlight,
+.predefined-variable-highlight {
+  // forcing the text colour to be white inside a higlighted environment variable and predefined variable
+  @apply text-accentContrast #{!important};
+  span {
+    @apply text-accentContrast #{!important};
+  }
+
+  // setting the text colour to be visible when it's selected and common item is highlighted
+  .cm-selectionMatch {
+    span {
+      @apply text-secondaryDark #{!important};
+    }
+  }
+}
+
+.env-highlight {
   &.request-variable-highlight {
     @apply bg-amber-500;
     @apply hover:bg-amber-600;
@@ -581,6 +602,18 @@ details[open] summary .indicator {
   &.environment-not-found-highlight {
     @apply bg-red-500;
     @apply hover:bg-red-600;
+  }
+}
+
+.predefined-variable-highlight {
+  &.predefined-variable-valid {
+    @apply bg-yellow-500;
+    @apply hover:bg-yellow-600;
+  }
+
+  &.predefined-variable-invalid {
+    @apply hover:bg-red-300;
+    @apply bg-red-300;
   }
 }
 
@@ -608,18 +641,4 @@ details[open] summary .indicator {
 
 .gql-operation-highlight {
   @apply opacity-100;
-}
-
-.predefined-variable-highlight {
-  color: inherit;
-
-  &.predefined-variable-valid {
-    @apply bg-yellow-500;
-    @apply hover:bg-yellow-600;
-  }
-
-  &.predefined-variable-invalid {
-    @apply hover:bg-red-300;
-    @apply bg-red-300;
-  }
 }

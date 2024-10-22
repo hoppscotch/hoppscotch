@@ -7,12 +7,13 @@ import { TestRunnerConfig } from "~/components/http/test/Runner.vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { RESTTabService } from "../tab/rest"
 
 export type TestRunState = {
   status: "idle" | "running" | "stopped"
   totalRequests: number
   totalTime: number
-  result: HoppCollection<TestRunnerRequest>
+  result: HoppCollection
 }
 
 export type TestRunnerOptions = {
@@ -52,16 +53,15 @@ function delay(timeMS: number) {
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
 
-  constructor() {
-    super()
-  }
+  private readonly restTab = this.bind(RESTTabService)
 
   private async runTestRequest(
     state: Ref<TestRunState>,
     request: TestRunnerRequest,
     options: TestRunnerOptions
   ) {
-    const results = await runTestRunnerRequest(request)
+    const tab = this.restTab.getActiveTab()
+    const results = await runTestRunnerRequest(tab, request)
     if (results && E.isRight(results)) {
       const { response, testResult } = results.right
       // Use response and testResult
@@ -102,7 +102,7 @@ export class TestRunnerService extends Service {
   }
 
   public runTests(
-    collection: HoppCollection<TestRunnerRequest>,
+    collection: HoppCollection,
     options: TestRunnerOptions
   ): Ref<TestRunState> {
     const state = ref<TestRunState>({

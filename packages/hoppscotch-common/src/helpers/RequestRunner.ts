@@ -34,7 +34,7 @@ import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
 } from "./preRequest"
-import { HoppRequestDocument } from "./rest/document"
+import { HoppRequestDocument, HoppTabDocument } from "./rest/document"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
@@ -383,32 +383,36 @@ export function runRESTRequest$(
 }
 
 function updateEnvsFromTestScript(
-  tab: Ref<HoppTab<HoppRequestDocument>>,
-  runResult: TestResult
+  tab: Ref<HoppTab<HoppTabDocument>>,
+  runResult: SandboxTestResult
 ) {
   const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
-    cloneDeep(runResult.right.envs.global),
+    // cloneDeep(runResult.right.envs.global),
+    [],
     "global"
   )
 
   const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
-    cloneDeep(runResult.right.envs.selected),
+    // cloneDeep(runResult.right.envs.selected),
+    [],
     "selected"
   )
 
+  // TODO: fix test results assignment to the corresponding tab
   const updatedRunResult = {
-    ...runResult.right,
+    // ...runResult.right,
     envs: {
       global: updatedGlobalEnvVariables,
       selected: updatedSelectedEnvVariables,
     },
   }
 
-  tab.value.document.testResults =
-    translateToSandboxTestResults(updatedRunResult)
+  // tab.value.document.testResults =
+  //   translateToSandboxTestResults(updatedRunResult)
 
   const globalEnvVariables = updateEnvironmentsWithSecret(
-    runResult.right.envs.global,
+    // runResult.right.envs.global,
+    [],
     "global"
   )
 
@@ -444,7 +448,7 @@ function updateEnvsFromTestScript(
 }
 
 export function runTestRunnerRequest(
-  tab: Ref<HoppTab<HoppRequestDocument>>,
+  tab: Ref<HoppTab<HoppTabDocument>>,
   request: HoppRESTRequest
 ): Promise<
   | E.Left<"script_fail">

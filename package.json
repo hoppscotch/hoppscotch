@@ -25,7 +25,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "19.5.0",
-    "@hoppscotch/ui": "0.2.1",
+    "@hoppscotch/ui": "0.2.2",
     "@types/node": "22.7.6",
     "cross-env": "7.0.3",
     "http-server": "14.1.1",

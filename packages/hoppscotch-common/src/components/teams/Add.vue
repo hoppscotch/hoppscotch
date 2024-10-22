@@ -66,6 +66,7 @@ const addNewTeam = async () => {
   if (isLoading.value) {
     return
   }
+
   isLoading.value = true
   await pipe(
     TeamNameCodec.decode(editingName.value),

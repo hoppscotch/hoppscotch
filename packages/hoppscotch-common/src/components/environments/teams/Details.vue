@@ -355,6 +355,7 @@ const saveEnvironment = async () => {
   if (isLoading.value) {
     return
   }
+
   isLoading.value = true
 
   if (!editingName.value) {

@@ -13,7 +13,7 @@ import SettingsExtension from "~/components/settings/Extension.vue"
 import InterceptorsExtensionSubtitle from "~/components/interceptors/ExtensionSubtitle.vue"
 import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
 import { until } from "@vueuse/core"
-import { preProcessRequest } from "./browser"
+import { preProcessRequest } from "./helpers"
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {

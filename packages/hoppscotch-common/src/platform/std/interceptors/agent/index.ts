@@ -23,7 +23,7 @@ import { UIExtensionService } from "~/services/ui-extension.service"
 import { x25519 } from "@noble/curves/ed25519"
 import { base16 } from "@scure/base"
 import { invokeAction } from "~/helpers/actions"
-import { preProcessRequest } from "../browser"
+import { preProcessRequest } from "../helpers"
 
 type KeyValuePair = {
   key: string

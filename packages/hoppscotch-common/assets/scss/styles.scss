@@ -577,6 +577,7 @@ details[open] summary .indicator {
 
   // setting the text colour to be visible when it's selected and common item is highlighted
   .cm-selectionMatch {
+    @apply text-secondaryDark #{!important};
     span {
       @apply text-secondaryDark #{!important};
     }

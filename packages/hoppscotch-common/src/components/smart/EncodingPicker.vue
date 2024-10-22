@@ -6,7 +6,7 @@
       class="flex w-fit"
     >
       <HoppSmartRadio
-        v-tippy="{ theme: 'tooltip' }"
+        v-tippy="{ theme: 'tooltip', maxWidth: 500 }"
         :value="mode"
         :label="t(getEncodingModeName(mode))"
         :title="t(getEncodeingModeTooltip(mode))"

@@ -42,6 +42,10 @@ export const HoppRESTReqBody = z.union([
     showIndividualContentType: z.boolean().optional().catch(false),
   }),
   z.object({
+    contentType: z.literal("application/octet-stream"),
+    body: z.instanceof(File).nullable(),
+  }),
+  z.object({
     contentType: z.union([
       z.literal("application/json"),
       z.literal("application/ld+json"),
@@ -50,6 +54,7 @@ export const HoppRESTReqBody = z.union([
       z.literal("application/xml"),
       z.literal("text/xml"),
       z.literal("application/x-www-form-urlencoded"),
+      z.literal("binary"),
       z.literal("text/html"),
       z.literal("text/plain"),
     ]),

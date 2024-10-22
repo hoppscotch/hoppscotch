@@ -666,7 +666,8 @@
     "content_type_titles": {
       "others": "Others",
       "structured": "Structured",
-      "text": "Text"
+      "text": "Text",
+      "binary": "Binary"
     },
     "show_content_type": "Show Content Type",
     "different_collection": "Cannot reorder requests from different collections",

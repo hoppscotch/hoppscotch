@@ -35,6 +35,7 @@
                 @click="
                   () => {
                     body.contentType = null
+                    body.body = null
                     hide()
                   }
                 "
@@ -106,6 +107,10 @@
       v-else-if="body.contentType === 'application/x-www-form-urlencoded'"
       v-model="body"
       :envs="envs"
+    />
+    <HttpBodyBinary
+      v-else-if="body.contentType === 'application/octet-stream'"
+      v-model="body"
     />
     <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
     <HoppSmartPlaceholder

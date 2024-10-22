@@ -259,7 +259,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import { cloneDeep, isEqual } from "lodash-es"
-import { reactive, ref, toRef, watch } from "vue"
+import { reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
 import { computedAsync, useVModel } from "@vueuse/core"
@@ -546,16 +546,22 @@ const clearContent = () => {
 
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
-const computedHeaders = computedAsync(
-  async () =>
-    (await getComputedHeaders(request.value, aggregateEnvs.value, false)).map(
-      (header, index) => ({
-        id: `header-${index}`,
-        ...header,
-      })
-    ),
-  []
-)
+const computedHeaders: Ref<
+  {
+    source: "auth" | "body"
+    header: HoppRESTHeader
+    id: string
+  }[]
+> = ref([])
+
+watch([props.modelValue, aggregateEnvs], async () => {
+  computedHeaders.value = (
+    await getComputedHeaders(props.modelValue, aggregateEnvs.value, false)
+  ).map((header, index) => ({
+    id: `header-${index}`,
+    ...header,
+  }))
+})
 
 const inheritedProperties = computedAsync(async () => {
   if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)

@@ -22,10 +22,10 @@
 
           <section>
             <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.parameter_encoding") }}
+              {{ t("settings.query_parameters_encoding") }}
             </h4>
             <div class="my-1 text-secondaryLight">
-              {{ t("settings.parameter_encoding_description") }}
+              {{ t("settings.query_parameters_encoding_description") }}
             </div>
             <div class="mt-4">
               <SmartEncodingPicker />

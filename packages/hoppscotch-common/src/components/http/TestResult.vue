@@ -14,12 +14,20 @@
         <label class="truncate font-semibold text-secondaryLight">
           {{ t("test.report") }}
         </label>
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.clear')"
-          :icon="IconTrash2"
-          @click="clearContent()"
-        />
+        <div>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.download_test_report')"
+            :icon="IconDownload"
+            @click="downloadTestResult"
+          />
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.clear')"
+            :icon="IconTrash2"
+            @click="clearContent()"
+          />
+        </div>
       </div>
       <div class="divide-y-4 divide-dividerLight border-b border-dividerLight">
         <div v-if="haveEnvVariables" class="flex flex-col">
@@ -214,11 +222,13 @@ import {
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import { exportTestResults } from "~/helpers/import-export/export/testResults"
 
 import IconCheck from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconClose from "~icons/lucide/x"
+import IconDownload from "~icons/lucide/download"
 
 import { GlobalEnvironment } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
@@ -306,5 +316,10 @@ const addEnvToGlobal = () => {
     variables: testResults.value.envDiff.selected.additions,
     isSecret: false,
   })
+}
+
+const downloadTestResult = () => {
+  if (!testResults.value) return
+  exportTestResults(testResults.value)
 }
 </script>

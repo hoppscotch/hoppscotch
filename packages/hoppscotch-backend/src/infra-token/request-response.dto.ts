@@ -134,6 +134,10 @@ export class DeleteUserResponse {
 export class GetUserWorkspacesResponse {
   @ApiProperty()
   @Expose()
+  id: string;
+
+  @ApiProperty()
+  @Expose()
   name: string;
 
   @ApiProperty({ enum: TeamMemberRole })

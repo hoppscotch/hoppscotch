@@ -637,6 +637,7 @@ export class UserService {
       const memberCount = t.members.length;
 
       workspaces.push({
+        id: t.id,
         name: t.name,
         my_role: t.members.find((m) => m.userUid === userUid)?.role,
         owner_count: ownerCount,

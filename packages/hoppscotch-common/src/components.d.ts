@@ -230,6 +230,7 @@ declare module 'vue' {
     SmartAccentModePicker: typeof import('./components/smart/AccentModePicker.vue')['default']
     SmartChangeLanguage: typeof import('./components/smart/ChangeLanguage.vue')['default']
     SmartColorModePicker: typeof import('./components/smart/ColorModePicker.vue')['default']
+    SmartEncodingPicker: typeof import('./components/smart/EncodingPicker.vue')['default']
     SmartEnvInput: typeof import('./components/smart/EnvInput.vue')['default']
     TabPrimary: typeof import('./components/tab/Primary.vue')['default']
     TabSecondary: typeof import('./components/tab/Secondary.vue')['default']

@@ -6,7 +6,6 @@ import {
   RequestRunResult,
 } from "~/services/interceptor.service"
 import { Service } from "dioc"
-import { cloneDeep } from "lodash-es"
 import * as E from "fp-ts/Either"
 import { ref, watch } from "vue"
 import { z } from "zod"
@@ -24,6 +23,7 @@ import { UIExtensionService } from "~/services/ui-extension.service"
 import { x25519 } from "@noble/curves/ed25519"
 import { base16 } from "@scure/base"
 import { invokeAction } from "~/helpers/actions"
+import { preProcessRequest } from "../helpers"
 
 type KeyValuePair = {
   key: string
@@ -97,33 +97,6 @@ type RunRequestResponse = {
 // HACK: To solve the AxiosRequestConfig being different between @hoppscotch/common
 // and the axios present in this package
 type AxiosRequestConfig = Parameters<Interceptor["runRequest"]>[0]
-
-export const preProcessRequest = (
-  req: AxiosRequestConfig
-): AxiosRequestConfig => {
-  const reqClone = cloneDeep(req)
-
-  // If the parameters are URLSearchParams, inject them to URL instead
-  // This prevents issues of marshalling the URLSearchParams to the proxy
-  if (reqClone.params instanceof URLSearchParams) {
-    try {
-      const url = new URL(reqClone.url ?? "")
-
-      for (const [key, value] of reqClone.params.entries()) {
-        url.searchParams.append(key, value)
-      }
-
-      reqClone.url = url.toString()
-    } catch (e) {
-      // making this a non-empty block, so we can make the linter happy.
-      // we should probably use, allowEmptyCatch, or take the time to do something with the caught errors :)
-    }
-
-    reqClone.params = {}
-  }
-
-  return reqClone
-}
 
 async function processBody(
   axiosReq: AxiosRequestConfig

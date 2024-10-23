@@ -375,7 +375,7 @@ export function useCodemirror(
       language.of(
         getEditorLanguage(
           options.extendedEditorConfig.useLang
-            ? (options.extendedEditorConfig.mode as any) ?? ""
+            ? ((options.extendedEditorConfig.mode as any) ?? "")
             : "",
           options.linter ?? undefined,
           options.completer ?? undefined
@@ -486,7 +486,7 @@ export function useCodemirror(
         effects: language.reconfigure(
           getEditorLanguage(
             options.extendedEditorConfig.useLang
-              ? (options.extendedEditorConfig.mode as any) ?? ""
+              ? ((options.extendedEditorConfig.mode as any) ?? "")
               : "",
             options.linter ?? undefined,
             options.completer ?? undefined

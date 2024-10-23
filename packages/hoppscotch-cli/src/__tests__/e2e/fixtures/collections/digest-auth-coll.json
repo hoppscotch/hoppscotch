@@ -8,6 +8,7 @@
       "id": "cm0dm70cw000687bnxi830zz7",
       "auth": {
         "authType": "digest",
+        "authActive": true,
         "username": "<<username>>",
         "password": "<<password>>",
         "realm": "",

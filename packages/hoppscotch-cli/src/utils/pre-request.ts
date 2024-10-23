@@ -272,8 +272,6 @@ export async function getEffectiveRESTRequest(
       // Step 3: Generate the Authorization header
       const authHeaderValue = await generateDigestAuthHeader(digestAuthParams);
 
-      console.log("Digest Auth Header:", authHeaderValue);
-
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",

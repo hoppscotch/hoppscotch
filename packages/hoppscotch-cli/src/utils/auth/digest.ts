@@ -1,5 +1,5 @@
 import { md5 } from "js-md5";
-import * as E from "fp-ts/Either";
+import axios from "axios";
 
 export interface DigestAuthParams {
   username: string;
@@ -71,18 +71,15 @@ export async function fetchInitialDigestAuthInfo(
 ): Promise<DigestAuthInfo> {
   console.log("Fetching initial digest auth info...");
   try {
-    const service = getService(InterceptorService);
-    const initialResponse = await service.runRequest({
+    const initialResponse = await axios.request({
       url,
       method,
-    }).response;
-
-    if (E.isLeft(initialResponse))
-      throw new Error(`Unexpected response: ${initialResponse.left}`);
+      validateStatus: () => true, // Allow handling of all status codes
+    });
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.right.status === 401) {
-      const authHeader = initialResponse.right.headers["www-authenticate"];
+    if (initialResponse.status === 401) {
+      const authHeader = initialResponse.headers["www-authenticate"];
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader);
@@ -105,7 +102,7 @@ export async function fetchInitialDigestAuthInfo(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       );
     } else {
-      throw new Error(`Unexpected response: ${initialResponse.right.status}`);
+      throw new Error(`Unexpected response: ${initialResponse.status}`);
     }
   } catch (error) {
     console.error("Error fetching initial digest auth info:", error);

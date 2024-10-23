@@ -135,6 +135,7 @@ declare module 'vue' {
     HttpAuthorizationASAP: typeof import('./components/http/authorization/ASAP.vue')['default']
     HttpAuthorizationAWSSign: typeof import('./components/http/authorization/AWSSign.vue')['default']
     HttpAuthorizationBasic: typeof import('./components/http/authorization/Basic.vue')['default']
+    HttpAuthorizationDigest: typeof import('./components/http/authorization/Digest.vue')['default']
     HttpAuthorizationHAWK: typeof import('./components/http/authorization/HAWK.vue')['default']
     HttpAuthorizationNTLM: typeof import('./components/http/authorization/NTLM.vue')['default']
     HttpAuthorizationOAuth2: typeof import('./components/http/authorization/OAuth2.vue')['default']

@@ -41,11 +41,12 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "axios": "1.7.5",
     "aws4fetch": "1.0.19",
+    "axios": "1.7.5",
     "chalk": "5.3.0",
     "commander": "11.1.0",
     "isolated-vm": "4.7.2",
+    "js-md5": "0.8.3",
     "lodash-es": "4.17.21",
     "qs": "6.11.2",
     "verzod": "0.2.2",

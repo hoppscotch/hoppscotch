@@ -49,6 +49,23 @@ export const HoppRESTAuthOAuth2 = z.object({
 
 export type HoppRESTAuthOAuth2 = z.infer<typeof HoppRESTAuthOAuth2>
 
+// in this new version, we add a new auth type for Digest authentication
+export const HoppRESTAuthDigest = z.object({
+  authType: z.literal("digest"),
+  username: z.string().catch(""),
+  password: z.string().catch(""),
+  realm: z.string().catch(""),
+  nonce: z.string().catch(""),
+  algorithm: z.enum(["MD5", "MD5-sess"]).catch("MD5"),
+  qop: z.enum(["auth", "auth-int"]).catch("auth"),
+  nc: z.string().catch(""),
+  cnonce: z.string().catch(""),
+  opaque: z.string().catch(""),
+  disableRetry: z.boolean().catch(false),
+})
+
+export type HoppRESTAuthDigest = z.infer<typeof HoppRESTAuthDigest>
+
 export const HoppRESTAuth = z
   .discriminatedUnion("authType", [
     HoppRESTAuthNone,
@@ -58,6 +75,7 @@ export const HoppRESTAuth = z
     HoppRESTAuthOAuth2,
     HoppRESTAuthAPIKey,
     HoppRESTAuthAWSSignature,
+    HoppRESTAuthDigest,
   ])
   .and(
     z.object({

@@ -39,7 +39,9 @@
                 :active="item.key === authType"
                 @click="
                   () => {
-                    item.handler ? item.handler() : (auth.authType = item.key)
+                    item.handler
+                      ? item.handler()
+                      : (auth = { ...auth, authType: item.key } as HoppRESTAuth)
                     hide()
                   }
                 "
@@ -187,7 +189,12 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
-import { HoppRESTAuth, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
+import {
+  HoppRESTAuth,
+  HoppRESTAuthAWSSignature,
+  HoppRESTAuthDigest,
+  HoppRESTAuthOAuth2,
+} from "@hoppscotch/data"
 
 const t = useI18n()
 
@@ -238,25 +245,41 @@ const selectAPIKeyAuthType = () => {
   } as HoppRESTAuth
 }
 
-const selectDigestAuthType = () => {
-  auth.value = {
-    ...auth.value,
-    authType: "digest",
-    username: "",
-    password: "",
-    algorithm: "MD5",
-  } as HoppRESTAuth
-}
-
 const selectAWSSignatureAuthType = () => {
+  const {
+    accessKey = "",
+    secretKey = "",
+    region = "",
+    serviceName = "",
+    addTo = "HEADERS",
+  } = auth.value as HoppRESTAuthAWSSignature
+
   auth.value = {
     ...auth.value,
     authType: "aws-signature",
-    addTo: "HEADERS",
-    accessKey: "",
-    secretKey: "",
-    region: "",
-    serviceName: "",
+    addTo,
+    accessKey,
+    secretKey,
+    region,
+    serviceName,
+  }
+}
+
+const selectDigestAuthType = () => {
+  const {
+    username = "",
+    password = "",
+    algorithm = "MD5",
+  } = auth.value as HoppRESTAuthDigest
+
+  console.error(`Auth is `, auth.value)
+
+  auth.value = {
+    ...auth.value,
+    authType: "digest",
+    username,
+    password,
+    algorithm,
   } as HoppRESTAuth
 }
 

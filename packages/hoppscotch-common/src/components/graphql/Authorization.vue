@@ -39,7 +39,9 @@
                 :active="item.key === authType"
                 @click="
                   () => {
-                    item.handler ? item.handler() : (auth.authType = item.key)
+                    item.handler
+                      ? item.handler()
+                      : (auth = { ...auth, authType: item.key } as HoppGQLAuth)
                     hide()
                   }
                 "
@@ -176,7 +178,11 @@
 import { useI18n } from "@composables/i18n"
 import { pluckRef } from "@composables/ref"
 import { useColorMode } from "@composables/theming"
-import { HoppGQLAuth, HoppGQLAuthOAuth2 } from "@hoppscotch/data"
+import {
+  HoppGQLAuth,
+  HoppGQLAuthOAuth2,
+  HoppGQLAuthAWSSignature,
+} from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed, onMounted, ref } from "vue"
 
@@ -255,15 +261,23 @@ const selectAPIKeyAuthType = () => {
 }
 
 const selectAWSSignatureAuthType = () => {
+  const {
+    accessKey = "",
+    secretKey = "",
+    region = "",
+    serviceName = "",
+    addTo = "HEADERS",
+  } = auth.value as HoppGQLAuthAWSSignature
+
   auth.value = {
     ...auth.value,
     authType: "aws-signature",
-    addTo: "HEADERS",
-    accessKey: "",
-    secretKey: "",
-    region: "",
-    serviceName: "",
-  } as HoppGQLAuth
+    addTo,
+    accessKey,
+    secretKey,
+    region,
+    serviceName,
+  }
 }
 
 const authTypes: AuthType[] = [

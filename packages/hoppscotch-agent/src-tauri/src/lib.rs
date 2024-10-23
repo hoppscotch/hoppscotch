@@ -1,6 +1,5 @@
 pub mod controller;
 pub mod error;
-pub mod interceptor;
 pub mod model;
 pub mod route;
 pub mod server;

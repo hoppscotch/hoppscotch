@@ -1941,15 +1941,12 @@ dependencies = [
  "axum-extra",
  "base16",
  "chrono",
- "curl",
  "dashmap",
  "env_logger",
- "http",
+ "hoppscotch-relay",
  "lazy_static",
  "log",
  "mockito",
- "openssl",
- "openssl-sys",
  "rand 0.8.5",
  "serde",
  "serde_json",
@@ -1964,9 +1961,25 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tower-http",
- "url-escape",
  "uuid",
  "x25519-dalek",
+]
+
+[[package]]
+name = "hoppscotch-relay"
+version = "0.1.1"
+dependencies = [
+ "curl",
+ "env_logger",
+ "http",
+ "log",
+ "openssl",
+ "openssl-sys",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio-util",
+ "url-escape",
 ]
 
 [[package]]

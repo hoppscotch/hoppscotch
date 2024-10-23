@@ -8,16 +8,14 @@ use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
+use hoppscotch_relay::{RequestWithMetadata, ResponseWithMetadata};
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
 use x25519_dalek::{EphemeralSecret, PublicKey};
 
 use crate::{
     error::{AppError, AppResult},
-    model::{
-        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, RequestDef,
-        RunRequestResponse,
-    },
+    model::{AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse},
     state::{AppState, Registration},
     util::EncryptedJson,
 };
@@ -27,19 +25,18 @@ use serde_json::json;
 use uuid::Uuid;
 
 fn generate_otp() -> String {
-  let otp: u32 = rand::thread_rng().gen_range(0..1_000_000);
+    let otp: u32 = rand::thread_rng().gen_range(0..1_000_000);
 
-  format!("{:06}", otp)
+    format!("{:06}", otp)
 }
 
 pub async fn handshake(
-  State((_, app_handle)): State<(Arc<AppState>, AppHandle)>
+    State((_, app_handle)): State<(Arc<AppState>, AppHandle)>,
 ) -> AppResult<Json<HandshakeResponse>> {
     Ok(Json(HandshakeResponse {
         status: "success".to_string(),
         __hoppscotch__agent__: true,
-        agent_version: app_handle.package_info().version.to_string()
-
+        agent_version: app_handle.package_info().version.to_string(),
     }))
 }
 
@@ -86,11 +83,11 @@ pub async fn verify_registration(
     let agent_public_key = PublicKey::from(&agent_secret_key);
 
     let their_public_key = {
-        let public_key_slice: &[u8; 32] = &base16::decode(&confirmed_registration.client_public_key_b16)
-          .map_err(|_| AppError::InvalidClientPublicKey)?
-          [0..32]
-          .try_into()
-          .map_err(|_| AppError::InvalidClientPublicKey)?;
+        let public_key_slice: &[u8; 32] =
+            &base16::decode(&confirmed_registration.client_public_key_b16)
+                .map_err(|_| AppError::InvalidClientPublicKey)?[0..32]
+                .try_into()
+                .map_err(|_| AppError::InvalidClientPublicKey)?;
 
         PublicKey::from(public_key_slice.to_owned())
     };
@@ -98,10 +95,13 @@ pub async fn verify_registration(
     let shared_secret = agent_secret_key.diffie_hellman(&their_public_key);
 
     let _ = state.update_registrations(app_handle.clone(), |regs| {
-      regs.insert(auth_key_copy, Registration {
-        registered_at: created_at,
-        shared_secret_b16: base16::encode_lower(shared_secret.as_bytes())
-      });
+        regs.insert(
+            auth_key_copy,
+            Registration {
+                registered_at: created_at,
+                shared_secret_b16: base16::encode_lower(shared_secret.as_bytes()),
+            },
+        );
     })?;
 
     let auth_payload = json!({
@@ -124,25 +124,28 @@ pub async fn run_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     headers: HeaderMap,
-    body: Bytes
-) -> AppResult<EncryptedJson<RunRequestResponse>> {
-    let nonce = headers.get("X-Hopp-Nonce")
-      .ok_or(AppError::Unauthorized)?
-      .to_str()
-      .map_err(|_| AppError::Unauthorized)?;
+    body: Bytes,
+) -> AppResult<EncryptedJson<ResponseWithMetadata>> {
+    let nonce = headers
+        .get("X-Hopp-Nonce")
+        .ok_or(AppError::Unauthorized)?
+        .to_str()
+        .map_err(|_| AppError::Unauthorized)?;
 
-    let req: RequestDef = state.validate_access_and_get_data(auth_header.token(), nonce, &body)
+    let req: RequestWithMetadata = state
+        .validate_access_and_get_data(auth_header.token(), nonce, &body)
         .ok_or(AppError::Unauthorized)?;
 
-    let reg_info = state.get_registration_info(auth_header.token())
+    let req_id = req.req_id;
+
+    let reg_info = state
+        .get_registration_info(auth_header.token())
         .ok_or(AppError::Unauthorized)?;
 
     let cancel_token = tokio_util::sync::CancellationToken::new();
     state.add_cancellation_token(req.req_id, cancel_token.clone());
 
-    let req_id = req.req_id;
     let cancel_token_clone = cancel_token.clone();
-
     // Execute the HTTP request in a blocking thread pool and handles cancellation.
     //
     // It:
@@ -158,9 +161,9 @@ pub async fn run_request<T>(
     // - `spawn_blocking` moves this operation to a thread pool designed for
     //   blocking tasks, so other async operations to continue unblocked.
     let result = tokio::select! {
-        res = tokio::task::spawn_blocking(move || crate::interceptor::run_request_task(&req, cancel_token_clone)) => {
+        res = tokio::task::spawn_blocking(move || hoppscotch_relay::run_request_task(&req, cancel_token_clone)) => {
             match res {
-                Ok(task_result) => task_result,
+                Ok(task_result) => Ok(task_result?),
                 Err(_) => Err(AppError::InternalServerError),
             }
         },
@@ -171,11 +174,9 @@ pub async fn run_request<T>(
 
     state.remove_cancellation_token(req_id);
 
-    result.map(|val| {
-      EncryptedJson {
+    result.map(|val| EncryptedJson {
         key_b16: reg_info.shared_secret_b16,
-        data: val
-      }
+        data: val,
     })
 }
 

@@ -1,7 +1,9 @@
-import { md5 } from "js-md5"
 import * as E from "fp-ts/Either"
+import { md5 } from "js-md5"
 
+import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"
+import { getI18n } from "~/modules/i18n"
 import { InterceptorService } from "~/services/interceptor.service"
 
 export interface DigestAuthParams {
@@ -68,8 +70,12 @@ export interface DigestAuthInfo {
 
 export async function fetchInitialDigestAuthInfo(
   url: string,
-  method: string
+  method: string,
+  disableRetry: boolean
 ): Promise<DigestAuthInfo> {
+  const toast = useToast()
+  const t = getI18n()
+
   try {
     const service = getService(InterceptorService)
     const initialResponse = await service.runRequest({
@@ -81,7 +87,7 @@ export async function fetchInitialDigestAuthInfo(
       throw new Error(`Unexpected response: ${initialResponse.left}`)
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.right.status === 401) {
+    if (initialResponse.right.status === 401 && !disableRetry) {
       const authHeader = initialResponse.right.headers["www-authenticate"]
 
       if (authHeader) {
@@ -104,11 +110,19 @@ export async function fetchInitialDigestAuthInfo(
       throw new Error(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       )
+    } else if (initialResponse.right.status === 401 && disableRetry) {
+      throw new Error(
+        `401 Unauthorized received. Retry is disabled as specified, so no further attempts will be made.`
+      )
     } else {
       throw new Error(`Unexpected response: ${initialResponse.right.status}`)
     }
   } catch (error) {
-    console.error("Error fetching initial digest auth info:", error)
+    const errMsg = error instanceof Error ? error.message : error
+
+    toast.error(t("authorization.digest.initial_fetch_failed"))
+    console.error(`Failed to fetch initial Digest Auth info: ${errMsg}`)
+
     throw error // Re-throw the error to handle it further up the chain if needed
   }
 }

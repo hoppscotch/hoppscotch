@@ -18,13 +18,15 @@
 
   <!-- advanced config -->
 
-  <div>
+  <div class="flex flex-col divide-y divide-dividerLight">
     <!-- label as advanced config here -->
-    <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
-      <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
+    <div class="p-4 flex flex-col space-y-1">
+      <label>
+        {{ t("authorization.advance_config") }}
+      </label>
+
+      <p class="text-secondaryLight">
+        {{ t("authorization.advance_config_description") }}
       </p>
     </div>
 
@@ -32,7 +34,10 @@
       <SmartEnvInput
         v-model="auth.realm"
         :auto-complete-env="true"
-        placeholder="Realm (e.g. testrealm@example.com)"
+        :placeholder="`${t(
+          'authorization.digest.realm'
+        )} (e.g. testrealm@example.com)
+        `"
         :envs="envs"
       />
     </div>
@@ -41,14 +46,16 @@
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
-        placeholder="Nonce"
+        :placeholder="t('authorization.digest.nonce')"
         :envs="envs"
       />
     </div>
 
     <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
-        <label class="ml-4 text-secondaryLight"> Algorithm </label>
+        <label class="ml-4 text-secondaryLight">
+          {{ t("authorization.digest.algorithm") }}
+        </label>
         <tippy
           interactive
           trigger="click"
@@ -91,7 +98,8 @@
       <SmartEnvInput
         v-model="auth.qop"
         :auto-complete-env="true"
-        placeholder="qop (e.g. auth-int)"
+        :placeholder="`${t('authorization.digest.qop')} (e.g. auth-int)
+        `"
         :envs="envs"
       />
     </div>
@@ -100,7 +108,8 @@
       <SmartEnvInput
         v-model="auth.nc"
         :auto-complete-env="true"
-        placeholder="Nonce Count (e.g. 00000001)"
+        :placeholder="`${t('authorization.digest.nonce_count')} (e.g. 00000001)
+        `"
         :envs="envs"
       />
     </div>
@@ -109,7 +118,8 @@
       <SmartEnvInput
         v-model="auth.cnonce"
         :auto-complete-env="true"
-        placeholder="Client Nonce (e.g. Oa4f113b)"
+        :placeholder="`${t('authorization.digest.client_nonce')} (e.g. Oa4f113b)
+        `"
         :envs="envs"
       />
     </div>
@@ -118,7 +128,7 @@
       <SmartEnvInput
         v-model="auth.opaque"
         :auto-complete-env="true"
-        placeholder="Opaque"
+        :placeholder="t('authorization.digest.opaque')"
         :envs="envs"
       />
     </div>
@@ -128,7 +138,7 @@
         :on="auth.disableRetry"
         @change="auth.disableRetry = !auth.disableRetry"
       >
-        Disable Retrying Requset
+        {{ t("authorization.digest.disable_retry") }}
       </HoppSmartCheckbox>
     </div>
   </div>

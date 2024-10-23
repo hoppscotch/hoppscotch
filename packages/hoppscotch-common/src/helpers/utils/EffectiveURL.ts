@@ -106,14 +106,13 @@ export const getComputedAuthHeaders = async (
       description: "",
     })
   } else if (request.auth.authType === "digest") {
-    // TODO: Implement Digest Auth
-
     const { method, endpoint } = request as HoppRESTRequest
 
     // Step 1: Fetch the initial auth info (nonce, realm, etc.)
     const authInfo = await fetchInitialDigestAuthInfo(
       parseTemplateString(endpoint, envVars),
-      method
+      method,
+      request.auth.disableRetry
     )
 
     // Step 2: Set up the parameters for the digest authentication header

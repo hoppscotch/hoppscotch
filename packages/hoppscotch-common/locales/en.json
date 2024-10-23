@@ -209,14 +209,25 @@
     "token": "Token",
     "type": "Authorization Type",
     "username": "Username",
+    "advance_config": "Advanced Configuration",
+    "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided",
     "aws_signature": {
       "access_key": "Access Key",
       "secret_key": "Secret Key",
       "service_name": "Service Name",
       "aws_region": "AWS Region",
-      "service_token": "Service Token",
-      "advance_config": "Advanced Configuration",
-      "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided"
+      "service_token": "Service Token"
+    },
+    "digest": {
+      "initial_fetch_failed": "Fetching initial digest authorization information failed. Please check console more context.",
+      "realm": "Realm",
+      "nonce": "Nonce",
+      "algorithm": "Algorithm",
+      "qop": "qop",
+      "nonce_count": "Nonce Count",
+      "client_nonce": "Client Nonce",
+      "opaque": "Opaque",
+      "disable_retry": "Disable Retrying Request"
     }
   },
   "collection": {

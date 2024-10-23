@@ -1,5 +1,7 @@
-import { md5 } from "js-md5";
 import axios from "axios";
+import { md5 } from "js-md5";
+
+import { exceptionColors } from "../getters";
 
 export interface DigestAuthParams {
   username: string;
@@ -15,8 +17,32 @@ export interface DigestAuthParams {
   cnonce?: string; // client nonce (optional but typically required in qop='auth')
 }
 
+export interface DigestAuthInfo {
+  realm: string;
+  nonce: string;
+  qop: string;
+  opaque?: string;
+  algorithm: string;
+}
+
+// Utility function to parse Digest auth header values
+const parseDigestAuthHeader = (
+  header: string
+): { [key: string]: string } | null => {
+  const matches = header.match(/([a-z0-9]+)="([^"]+)"/gi);
+  if (!matches) return null;
+
+  const authParams: { [key: string]: string } = {};
+  matches.forEach((match) => {
+    const parts = match.split("=");
+    authParams[parts[0]] = parts[1].replace(/"/g, "");
+  });
+
+  return authParams;
+};
+
 // Function to generate Digest Auth Header
-export async function generateDigestAuthHeader(params: DigestAuthParams) {
+export const generateDigestAuthHeader = async (params: DigestAuthParams) => {
   const {
     username,
     password,
@@ -55,21 +81,13 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
   }
 
   return authHeader;
-}
+};
 
-export interface DigestAuthInfo {
-  realm: string;
-  nonce: string;
-  qop: string;
-  opaque?: string;
-  algorithm: string;
-}
-
-export async function fetchInitialDigestAuthInfo(
+export const fetchInitialDigestAuthInfo = async (
   url: string,
-  method: string
-): Promise<DigestAuthInfo> {
-  console.log("Fetching initial digest auth info...");
+  method: string,
+  disableRetry: boolean
+): Promise<DigestAuthInfo> => {
   try {
     const initialResponse = await axios.request({
       url,
@@ -78,7 +96,7 @@ export async function fetchInitialDigestAuthInfo(
     });
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.status === 401) {
+    if (initialResponse.status === 401 && !disableRetry) {
       const authHeader = initialResponse.headers["www-authenticate"];
 
       if (authHeader) {
@@ -101,27 +119,21 @@ export async function fetchInitialDigestAuthInfo(
       throw new Error(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       );
+    } else if (initialResponse.status === 401 && disableRetry) {
+      throw new Error(
+        `401 Unauthorized received. Retry is disabled as specified, so no further attempts will be made.`
+      );
     } else {
       throw new Error(`Unexpected response: ${initialResponse.status}`);
     }
   } catch (error) {
-    console.error("Error fetching initial digest auth info:", error);
+    const errMsg = error instanceof Error ? error.message : error;
+
+    console.error(
+      exceptionColors.FAIL(
+        `\n Error fetching initial digest auth info: ${errMsg} \n`
+      )
+    );
     throw error; // Re-throw the error to handle it further up the chain if needed
   }
-}
-
-// Utility function to parse Digest auth header values
-function parseDigestAuthHeader(
-  header: string
-): { [key: string]: string } | null {
-  const matches = header.match(/([a-z0-9]+)="([^"]+)"/gi);
-  if (!matches) return null;
-
-  const authParams: { [key: string]: string } = {};
-  matches.forEach((match) => {
-    const parts = match.split("=");
-    authParams[parts[0]] = parts[1].replace(/"/g, "");
-  });
-
-  return authParams;
-}
+};

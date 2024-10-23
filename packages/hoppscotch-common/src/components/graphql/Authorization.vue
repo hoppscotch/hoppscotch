@@ -119,7 +119,8 @@
             {{
               t("authorization.inherited_from", {
                 auth: getAuthName(
-                  inheritedProperties.auth.inheritedAuth.authType
+                  (inheritedProperties.auth.inheritedAuth as HoppGQLAuth)
+                    .authType
                 ),
                 collection: inheritedProperties?.auth.parentName,
               })

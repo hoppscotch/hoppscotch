@@ -1,6 +1,19 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Single instance payload.
+#[derive(Clone, Serialize)]
+pub struct Payload {
+    args: Vec<String>,
+    cwd: String,
+}
+
+impl Payload {
+    pub fn new(args: Vec<String>, cwd: String) -> Self {
+        Self { args, cwd }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HandshakeResponse {
     #[allow(non_snake_case)]

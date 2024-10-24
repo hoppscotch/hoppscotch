@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0-rc",
-  "productName": "Hoppscotch Agent",
+  "productName": "Hoppscotch Agent Portable",
   "version": "0.1.1",
   "identifier": "io.hoppscotch.agent",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Hoppscotch Agent",
+        "title": "Hoppscotch Agent Portable",
         "width": 600,
         "height": 400,
         "center": true,
@@ -29,7 +29,7 @@
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -38,14 +38,11 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "createUpdaterArtifacts": true
+    "createUpdaterArtifacts": false
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRBQzgxQjc3MzJCMjZENEMKUldSTWJiSXlkeHZJU3EvQW1abFVlREVhRDNlM0ZhOVJYaHN4M0FpbXZhcUFzSVdVbG84RWhPa1AK",
-      "endpoints": [
-        "https://releases.hoppscotch.com/hoppscotch-agent.json"
-      ]
+      "active": false
     }
   }
 }

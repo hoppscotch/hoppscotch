@@ -1,4 +1,5 @@
 pub mod controller;
+pub mod dialog;
 pub mod error;
 pub mod model;
 pub mod route;
@@ -7,6 +8,7 @@ pub mod state;
 pub mod tray;
 pub mod updater;
 pub mod util;
+pub mod webview;
 
 use log::{error, info};
 use std::sync::Arc;
@@ -25,6 +27,8 @@ async fn get_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<Option<String
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     env_logger::init();
+
+    webview::init_webview();
 
     let cancellation_token = CancellationToken::new();
     let server_cancellation_token = cancellation_token.clone();

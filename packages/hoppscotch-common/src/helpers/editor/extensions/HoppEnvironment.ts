@@ -41,9 +41,9 @@ const restTabs = getService(RESTTabService)
 
 /**
  * Check if the cursor is inside a comment
- * @param state - Editor state
- * @param pos - Position of the cursor
- * @return - Boolean value indicating if the cursor is inside a comment
+ * @param state Editor state
+ * @param pos Position of the cursor
+ * @return Boolean value indicating if the cursor is inside a comment
  */
 const isComment = (state: EditorState, pos: number) => {
   const tree = syntaxTree(state)

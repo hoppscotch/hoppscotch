@@ -1,5 +1,3 @@
-pub mod error;
-
 /// The WebView2 Runtime is a critical dependency for Tauri applications on Windows.
 /// We need to check for its presence, see [Source: GitHub Issue #59 - Portable windows build](https://github.com/tauri-apps/tauri-action/issues/59#issuecomment-827142638)
 ///
@@ -37,6 +35,8 @@ pub mod error;
 ///
 /// Our implementation uses Approach 1, checking both the 32-bit (WOW6432Node) and 64-bit registry locations
 /// to make sure we have critical dependencis compatibility with different system architectures.
+pub mod error;
+
 use std::{io, ops::Not};
 
 use native_dialog::MessageType;
@@ -164,7 +164,7 @@ fn get_filename_from_response(response: &reqwest::Response) -> Option<String> {
 
 #[cfg(not(windows))]
 async fn install() -> Result<(), WebViewError> {
-    Err(WebViewError::InstallationError(
+    Err(WebViewError::Installation(
         "Unable to auto-install WebView. Please refer to https://v2.tauri.app/references/webview-versions/".to_string(),
     ))
 }
@@ -205,8 +205,8 @@ pub fn init_webview() {
     if is_available().not() {
         dialog::panic(
             "Unable to setup WebView:\n\n\
-                Please install it manually and relaunch the application.\n\
-                https://developer.microsoft.com/microsoft-edge/webview2/#download-section",
+             Please install it manually and relaunch the application.\n\
+             https://developer.microsoft.com/microsoft-edge/webview2/#download-section",
         );
     }
 }

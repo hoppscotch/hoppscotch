@@ -560,11 +560,11 @@ details[open] summary .indicator {
   }
 }
 
-//  set a grayscale filter on the environment variable and predefined variable when it's commented
-.cm-comment {
-  .env-highlight,
-  .predefined-variable-highlight {
-    filter: grayscale(1);
+// add a gray filter to the comment text in the environment variables and predefined variables
+.env-highlight,
+.predefined-variable-highlight {
+  &:has(.cm-comment) {
+    filter: grayscale(1) !important;
   }
 }
 

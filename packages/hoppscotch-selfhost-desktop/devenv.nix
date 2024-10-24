@@ -7,7 +7,7 @@
     postgresql_16
     # BE and Tauri stuff
     libsoup
-    webkitgtk
+    webkitgtk_4_0
     # FE and Node stuff
     nodejs_22
     nodePackages_latest.typescript-language-server

@@ -39,14 +39,15 @@ pub mod error;
 /// to make sure we have critical dependencis compatibility with different system architectures.
 use std::{io, ops::Not};
 
-use error::WebViewError;
 use native_dialog::MessageType;
 
 use crate::{dialog, util};
+use error::WebViewError;
 
 #[cfg(windows)]
 use {
     std::io::Cursor,
+    std::process::Command,
     tauri_plugin_http::reqwest,
     tempfile::TempDir,
     winreg::{
@@ -54,6 +55,10 @@ use {
         RegKey,
     },
 };
+
+const TAURI_WEBVIEW_REF: &str = "https://v2.tauri.app/references/webview-versions/";
+const WINDOWS_WEBVIEW_REF: &str =
+    "https://developer.microsoft.com/microsoft-edge/webview2/#download-section";
 
 fn is_available() -> bool {
     #[cfg(windows)]
@@ -82,10 +87,6 @@ fn is_available() -> bool {
 }
 
 fn open_install_website() -> Result<(), WebViewError> {
-    const TAURI_WEBVIEW_REF: &str = "https://v2.tauri.app/references/webview-versions/";
-    const WINDOWS_WEBVIEW_REF: &str =
-        "https://developer.microsoft.com/microsoft-edge/webview2/#download-section";
-
     let url = if cfg!(windows) {
         WINDOWS_WEBVIEW_REF
     } else {
@@ -102,8 +103,6 @@ fn open_install_website() -> Result<(), WebViewError> {
 
 #[cfg(windows)]
 async fn install() -> Result<(), WebViewError> {
-    use std::process::Command;
-
     const WEBVIEW2_BOOTSTRAPPER_URL: &str = "https://go.microsoft.com/fwlink/p/?LinkId=2124703";
     const DEFAULT_FILENAME: &str = "MicrosoftEdgeWebview2Setup.exe";
 
@@ -177,8 +176,8 @@ pub fn init_webview() {
 
     if dialog::confirm(
         "WebView Error",
-        "WebView is required for this application to work.\
-            \n\nDo you want to install it?",
+        "WebView is required for this application to work.\n\n\
+         Do you want to install it?",
         MessageType::Error,
     )
     .not()
@@ -188,27 +187,26 @@ pub fn init_webview() {
         std::process::exit(1);
     }
 
-    tauri::async_runtime::block_on(async move {
-        if let Err(e) = install().await {
-            dialog::error(&format!(
-                "Failed to install WebView:\n{}\n\n\
-                 Please install it manually from webpage that should open when you click 'Ok'.\n\
-                 If that doesn't work, please visit Microsoft Edge Webview2's download section.",
-                e
-            ));
+    if let Err(e) = tauri::async_runtime::block_on(install()) {
+        dialog::error(&format!(
+            "Failed to install WebView: {}\n\n\
+             Please install it manually from webpage that should open when you click 'Ok'.\n\n\
+             If that doesn't work, please visit Microsoft Edge Webview2 download section.",
+            e
+        ));
 
-            if let Err(e) = open_install_website() {
-                log::warn!("Failed to launch WebView website:\n{}", e);
-            }
-            std::process::exit(1)
+        if let Err(e) = open_install_website() {
+            log::warn!("Failed to launch WebView website:\n{}", e);
         }
-    });
+
+        std::process::exit(1);
+    }
 
     if is_available().not() {
         dialog::panic(
-            "Unable to setup WebView!\n\n\
-                Please install it manually and relaunch the application.\
-                \nhttps://developer.microsoft.com/microsoft-edge/webview2/#download-section",
+            "Unable to setup WebView:\n\n\
+                Please install it manually and relaunch the application.\n\
+                https://developer.microsoft.com/microsoft-edge/webview2/#download-section",
         );
     }
 }

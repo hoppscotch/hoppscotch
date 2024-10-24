@@ -1,4 +1,5 @@
 import { runMutation } from "../GQLClient"
+import { v4 as uuidv4 } from 'uuid'
 import {
   CreateChildCollectionDocument,
   CreateChildCollectionMutation,
@@ -120,14 +121,48 @@ export const updateOrderRESTTeamCollection = (
     destCollID,
   })
 
-export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
-  runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
-    ImportFromJsonDocument,
-    {
-      jsonString: collectionJSON,
-      teamID,
+export const importJSONToTeam = async (collectionJSON: string, teamID: string) => {
+  try {
+    // Parse the JSON content
+    let collections: any[] = JSON.parse(collectionJSON)
+
+    // Ensure collections is an array
+    if (!Array.isArray(collections)) {
+      collections = [collections]
     }
-  )
+
+    // Process each collection
+    const processedCollections = collections.map((collection) => {
+      // Remove IDs to let backend assign new ones
+      return {
+        ...collection,
+        id: undefined,
+        requests: collection.requests
+          ? collection.requests.map((request: any) => ({
+              ...request,
+              id: undefined,
+            }))
+          : [],
+      }
+    })
+
+    // Convert back to JSON
+    const processedCollectionJSON = JSON.stringify(processedCollections)
+
+    // Proceed with the mutation
+    return runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
+      ImportFromJsonDocument,
+      {
+        jsonString: processedCollectionJSON,
+        teamID,
+      }
+    )
+  } catch (error) {
+    console.error("Error importing collections to team:", error)
+    throw error
+  }
+}
+
 
 export const updateTeamCollection = (
   collectionID: string,

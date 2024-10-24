@@ -1065,10 +1065,10 @@ export class UserCollectionService {
       ? await this.getRootCollectionsCount(userID)
       : await this.getChildCollectionsCount(destCollectionID);
 
-    // Generate Prisma Query Object for all child collections in collectionsList
+    let collectionOrderIndex = count;
     const queryList = collectionsList.right.map((x) =>
-      this.generatePrismaQueryObj(x, userID, count + 1, reqType),
-    );
+      this.generatePrismaQueryObj(x, userID, ++collectionOrderIndex, reqType),
+    );      
 
     const parent = destCollectionID
       ? {

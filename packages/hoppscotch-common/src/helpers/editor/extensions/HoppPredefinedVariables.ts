@@ -1,4 +1,4 @@
-import { Compartment } from "@codemirror/state"
+import { Compartment, EditorState } from "@codemirror/state"
 import {
   Decoration,
   MatchDecorator,
@@ -7,6 +7,7 @@ import {
 } from "@codemirror/view"
 import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
+import { syntaxTree } from "@codemirror/language"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
@@ -15,16 +16,37 @@ const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT =
 const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_VALID = "predefined-variable-valid"
 const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_INVALID = "predefined-variable-invalid"
 
+/**
+ * Check if the cursor is inside a comment
+ * @param state - Editor state
+ * @param pos - Position of the cursor
+ * @return - Boolean value indicating if the cursor is inside a comment
+ */
+const isComment = (state: EditorState, pos: number) => {
+  const tree = syntaxTree(state)
+  return tree.resolveInner(pos).name.endsWith("Comment")
+}
+
 const getMatchDecorator = () => {
   return new MatchDecorator({
     regexp: HOPP_PREDEFINED_VARIABLES_REGEX,
-    decoration: (m) => checkPredefinedVariable(m[0]),
+    decoration: (m, view, pos) => {
+      // Don't highlight if the cursor is inside a comment
+      if (isComment(view.state, pos)) {
+        return null
+      }
+      return checkPredefinedVariable(m[0])
+    },
   })
 }
 
 const cursorTooltipField = () =>
   hoverTooltip(
     (view, pos, side) => {
+      // Don't show tooltip if the cursor is inside a comment
+      if (isComment(view.state, pos)) {
+        return null
+      }
       const { from, to, text } = view.state.doc.lineAt(pos)
 
       // TODO: When Codemirror 6 allows this to work (not make the

@@ -48,7 +48,6 @@ import { useDebounceFn } from "@vueuse/core"
 
 import * as E from "fp-ts/Either"
 import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
-import { HoppCommentPlugin } from "~/helpers/editor/extensions/HoppComments"
 
 type ExtendedEditorConfig = {
   mode: string
@@ -71,11 +70,6 @@ type CodeMirrorOptions = {
    * - These are special variables that starts with a dolar sign.
    */
   predefinedVariablesHighlights?: boolean
-
-  /**
-   * Add a 'cm-comment' class to comment line in the editor.
-   */
-  commentHighlights?: boolean
 
   additionalExts?: Extension[]
 
@@ -259,10 +253,6 @@ export function useCodemirror(
     ? new HoppEnvironmentPlugin(subscribeToStream, view)
     : null
 
-  const commentVariable = options.commentHighlights
-    ? new HoppCommentPlugin()
-    : null
-
   const closeContextMenu = () => {
     invokeAction("contextmenu.open", {
       position: {
@@ -428,7 +418,6 @@ export function useCodemirror(
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)
     if (predefinedVariable) extensions.push(predefinedVariable.extension)
-    if (commentVariable) extensions.push(commentVariable.extension)
 
     view.value = new EditorView({
       parent: el,

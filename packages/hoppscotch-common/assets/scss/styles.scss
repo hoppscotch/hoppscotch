@@ -568,6 +568,10 @@ details[open] summary .indicator {
   }
 }
 
+.cm-comment {
+  color: var(--editor-meta-color);
+}
+
 .env-highlight,
 .predefined-variable-highlight {
   // forcing the text colour to be white inside a higlighted environment variable and predefined variable

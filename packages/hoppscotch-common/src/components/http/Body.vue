@@ -107,6 +107,10 @@
       v-model="body"
       :envs="envs"
     />
+    <HttpBodyBinary
+      v-else-if="body.contentType === 'application/octet-stream'"
+      v-model="body"
+    />
     <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
     <HoppSmartPlaceholder
       v-if="body.contentType == null"

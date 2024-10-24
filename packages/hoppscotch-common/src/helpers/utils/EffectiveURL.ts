@@ -39,7 +39,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: HoppRESTHeaders
   effectiveFinalParams: HoppRESTParams
-  effectiveFinalBody: FormData | string | null
+  effectiveFinalBody: FormData | string | null | Blob
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
 
@@ -197,6 +197,28 @@ export const getComputedBodyHeaders = (
 
   // Body should have a non-null content-type
   if (!req.body || req.body.contentType === null) return []
+
+  if (req.body && req.body.contentType === "application/octet-stream") {
+    const filename = (req.body.body as File).name
+    const fileType = (req.body.body as File).type
+
+    const contentType = fileType ? fileType : "application/octet-stream"
+
+    return [
+      {
+        active: true,
+        key: "content-type",
+        value: contentType,
+        description: "",
+      },
+      {
+        active: true,
+        key: "Content-Disposition",
+        value: `attachment; filename="${filename}"`,
+        description: "",
+      },
+    ]
+  }
 
   return [
     {
@@ -357,6 +379,10 @@ export const resolvesEnvsInBody = (
 ): HoppRESTReqBody => {
   if (!body.contentType) return body
 
+  if (body.contentType === "application/octet-stream") {
+    return body
+  }
+
   if (body.contentType === "multipart/form-data") {
     if (!body.body) {
       return {
@@ -396,7 +422,7 @@ function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"],
   showKeyIfSecret = false
-): FormData | string | null {
+): FormData | Blob | string | null {
   if (request.body.contentType === null) return null
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
@@ -471,6 +497,10 @@ function getFinalBodyFromRequest(
       ),
       toFormData
     )
+  }
+
+  if (request.body.contentType === "application/octet-stream") {
+    return request.body.body
   }
 
   let bodyContent = request.body.body ?? ""

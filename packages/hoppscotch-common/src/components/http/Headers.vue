@@ -548,12 +548,12 @@ const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computedAsync(
   async () =>
-    (await getComputedHeaders(request.value, aggregateEnvs.value, false)).map(
-      (header, index) => ({
-        id: `header-${index}`,
-        ...header,
-      })
-    ),
+    (
+      await getComputedHeaders(props.modelValue, aggregateEnvs.value, false)
+    ).map((header, index) => ({
+      id: `header-${index}`,
+      ...header,
+    })),
   []
 )
 

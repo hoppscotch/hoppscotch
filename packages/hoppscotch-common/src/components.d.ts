@@ -193,6 +193,7 @@ declare module 'vue' {
     ImportExportImportExportStepsFileImport: typeof import('./components/importExport/ImportExportSteps/FileImport.vue')['default']
     ImportExportImportExportStepsMyCollectionImport: typeof import('./components/importExport/ImportExportSteps/MyCollectionImport.vue')['default']
     ImportExportImportExportStepsUrlImport: typeof import('./components/importExport/ImportExportSteps/UrlImport.vue')['default']
+    InterceptorsAgentModalNativeCACertificates: typeof import('./components/interceptors/agent/ModalNativeCACertificates.vue')['default']
     InterceptorsAgentModalNativeClientCertificates: typeof import('./components/interceptors/agent/ModalNativeClientCertificates.vue')['default']
     InterceptorsAgentModalNativeClientCertsAdd: typeof import('./components/interceptors/agent/ModalNativeClientCertsAdd.vue')['default']
     InterceptorsAgentRegistrationModal: typeof import('./components/interceptors/agent/RegistrationModal.vue')['default']

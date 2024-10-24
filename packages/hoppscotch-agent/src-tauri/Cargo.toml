@@ -2,7 +2,7 @@
 name = "hoppscotch-agent"
 version = "0.1.1"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
-authors = ["CuriousCorrelation", "AndrewBastin"]
+authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -31,18 +31,14 @@ chrono = { version = "0.4", features = ["serde"] }
 rand = "0.8.5"
 log = "0.4.22"
 env_logger = "0.11.5"
-curl = { version = "0.4.47", features = ["ntlm", "static-curl", "static-ssl"] }
-openssl = { version = "0.10.68", features = ["vendored"] }
-openssl-sys = { version = "0.9.104", features = ["vendored"] }
-url-escape = "0.1.1"
+hoppscotch-relay = { path = "../../hoppscotch-relay" }
 thiserror = "1.0.64"
-tauri-plugin-store = "2.0.1"
+tauri-plugin-store = "2.1.0"
 x25519-dalek = { version = "2.0.1", features = ["getrandom"] }
 base16 = "0.2.1"
 aes-gcm = { version = "0.10.3", features = ["aes"] }
 tauri-plugin-updater = "2.0.2"
 tauri-plugin-dialog = "2.0.1"
-http = "1.1.0"
 lazy_static = "1.5.0"
 
 [dev-dependencies]

@@ -1,6 +1,5 @@
 pub mod controller;
 pub mod error;
-pub mod interceptor;
 pub mod model;
 pub mod route;
 pub mod server;
@@ -73,7 +72,7 @@ pub fn run() {
                   });
             };
 
-            let app_state = Arc::new(AppState::new(app_handle.clone()));
+            let app_state = Arc::new(AppState::new(app_handle.clone())?);
 
             app.manage(app_state.clone());
 

@@ -7,7 +7,7 @@ use tauri_plugin_store::StoreBuilder;
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
-use crate::error::AppError;
+use crate::error::{AppError, AppResult};
 
 /// Describes one registered app instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,10 +34,10 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(app_handle: tauri::AppHandle) -> Self {
-        let store = StoreBuilder::new(&app_handle, "app_data.bin").build();
+    pub fn new(app_handle: tauri::AppHandle) -> AppResult<Self> {
+        let store = StoreBuilder::new(&app_handle, "app_data.bin").build()?;
 
-        let _ = store.load();
+        let _ = store.reload();
 
         // Try loading and parsing registrations from the store, if that failed,
         // load the default list
@@ -46,11 +46,11 @@ impl AppState {
             .and_then(|val| serde_json::from_value(val.clone()).ok())
             .unwrap_or_else(|| DashMap::new());
 
-        Self {
+        Ok(Self {
             active_registration_code: RwLock::new(None),
             cancellation_tokens: DashMap::new(),
             registrations,
-        }
+        })
     }
 
     /// Gets you a readonly reference to the registrations list
@@ -70,9 +70,9 @@ impl AppState {
     ) -> Result<(), AppError> {
         update_func(&self.registrations);
 
-        let store = StoreBuilder::new(&app_handle, "app_data.bin").build();
+        let store = StoreBuilder::new(&app_handle, "app_data.bin").build()?;
 
-        let _ = store.load()?;
+        let _ = store.reload()?;
 
         let _ = store
             .delete("registrations")

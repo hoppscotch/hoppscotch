@@ -47,7 +47,8 @@ const restTabs = getService(RESTTabService)
  */
 const isComment = (state: EditorState, pos: number) => {
   const tree = syntaxTree(state)
-  return tree.resolveInner(pos).name.endsWith("Comment")
+  const name = tree.resolveInner(pos).name
+  return name.endsWith("Comment") || name.endsWith("comment")
 }
 
 /**

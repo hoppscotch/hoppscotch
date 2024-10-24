@@ -378,13 +378,8 @@ export const baseHighlightStyle = HighlightStyle.define([
     color: editorOperatorColor,
   },
   {
-    tag: [t.meta],
+    tag: [t.meta, t.comment],
     color: editorMetaColor,
-  },
-  {
-    tag: [t.comment],
-    color: editorMetaColor,
-    class: "cm-comment",
   },
   { tag: t.strong, fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },

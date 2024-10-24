@@ -42,7 +42,7 @@ use std::{io, ops::Not};
 use error::WebViewError;
 use native_dialog::MessageType;
 
-use crate::dialog;
+use crate::{dialog, util};
 
 #[cfg(windows)]
 use {
@@ -92,8 +92,11 @@ fn open_install_website() -> Result<(), WebViewError> {
         TAURI_WEBVIEW_REF
     };
 
-    crate::util::open_link(url).map(|_| ()).ok_or_else(|| {
-        WebViewError::UrlOpen(io::Error::new(io::ErrorKind::Other, "Failed to open URL"))
+    util::open_link(url).map(|_| ()).ok_or_else(|| {
+        WebViewError::UrlOpen(io::Error::new(
+            io::ErrorKind::Other,
+            "Failed to open browser to WebView download section",
+        ))
     })
 }
 
@@ -172,7 +175,7 @@ pub fn init_webview() {
 
     if dialog::confirm(
         "WebView Error",
-        "WebView is *required* for this application to work.\
+        "WebView is required for this application to work.\
             \n\nDo you want to install it?",
         MessageType::Error,
     )
@@ -186,8 +189,9 @@ pub fn init_webview() {
     tauri::async_runtime::block_on(async move {
         if let Err(e) = install().await {
             dialog::error(&format!(
-                "Failed to install WebView:\n{}\n\nPlease install it manually from\
-                 \nhttps://developer.microsoft.com/microsoft-edge/webview2/#download-section",
+                "Failed to install WebView:\n{}\n\n\
+                 Please install it manually from webpage that should open when you click 'Ok'.\n\
+                 If that doesn't work, please visit Microsoft Edge Webview2's download section.",
                 e
             ));
 

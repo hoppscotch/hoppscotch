@@ -89,6 +89,14 @@ const chooseImporterOrExporter = defineStep(
         (i) => i.metadata.id === id
       )
 
+      if (selectedImporter?.onSelect) {
+        const res = selectedImporter.onSelect()
+
+        if (res) {
+          return
+        }
+      }
+
       if (selectedImporter?.supported_sources) goToNextStep()
       else if (selectedImporter?.component)
         goToStep(selectedImporter.component.id)

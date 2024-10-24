@@ -46,11 +46,11 @@ native-dialog = "0.7.0"
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.13.0" }
-winreg = { version = "0.52.0", optional = true }
+winreg = { version = "0.52.0" }
 
 [dev-dependencies]
 mockito = "1.5.0"
 
 [features]
 default = ["tauri-plugin-autostart"]
-portable = ["winreg"]
+portable = []

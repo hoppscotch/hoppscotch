@@ -17,7 +17,7 @@ tauri-build = { version = "2.0.1", features = [] }
 [dependencies]
 tauri = { version = "2.0.4", features = ["tray-icon", "image-png"] }
 tauri-plugin-shell = "2.0.1"
-tauri-plugin-autostart = "2.0.1"
+tauri-plugin-autostart = { version = "2.0.1", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.40.0", features = ["full"] }
@@ -42,11 +42,15 @@ tauri-plugin-dialog = "2.0.1"
 lazy_static = "1.5.0"
 tauri-plugin-single-instance = "2.0.1"
 tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
-tempfile = "3.13.0"
+tempfile = { version = "3.13.0", optional = true }
 native-dialog = "0.7.0"
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.52.0"
+winreg = { version = "0.52.0", optional = true }
 
 [dev-dependencies]
 mockito = "1.5.0"
+
+[features]
+default = ["tauri-plugin-autostart"]
+portable = ["winreg"]

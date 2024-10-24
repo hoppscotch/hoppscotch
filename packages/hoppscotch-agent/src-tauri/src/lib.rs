@@ -28,6 +28,9 @@ async fn get_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<Option<String
 pub fn run() {
     env_logger::init();
 
+    // The installer takes care of installing `WebView`,
+    // this check is only required for portable variant.
+    #[cfg(all(feature = "portable", windows))]
     webview::init_webview();
 
     let cancellation_token = CancellationToken::new();
@@ -55,7 +58,7 @@ pub fn run() {
         .setup(move |app| {
             let app_handle = app.app_handle();
 
-            #[cfg(desktop)]
+            #[cfg(all(desktop, not(feature = "portable")))]
             {
                 use tauri_plugin_autostart::MacosLauncher;
                 use tauri_plugin_autostart::ManagerExt;

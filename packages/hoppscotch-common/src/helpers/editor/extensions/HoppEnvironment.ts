@@ -1,5 +1,5 @@
 import { watch, Ref } from "vue"
-import { Compartment } from "@codemirror/state"
+import { Compartment, EditorState } from "@codemirror/state"
 import {
   Decoration,
   EditorView,
@@ -24,6 +24,7 @@ import IconEdit from "~icons/lucide/edit?raw"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getService } from "~/modules/dioc"
 import { RESTTabService } from "~/services/tab/rest"
+import { syntaxTree } from "@codemirror/language"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -37,6 +38,18 @@ const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const restTabs = getService(RESTTabService)
+
+/**
+ * Check if the cursor is inside a comment
+ * @param state Editor state
+ * @param pos Position of the cursor
+ * @return Boolean value indicating if the cursor is inside a comment
+ */
+const isComment = (state: EditorState, pos: number) => {
+  const tree = syntaxTree(state)
+  const name = tree.resolveInner(pos).name
+  return name.endsWith("Comment") || name.endsWith("comment")
+}
 
 /**
  * Transforms the environment list to a list with unique keys with value
@@ -66,6 +79,10 @@ const filterNonEmptyEnvironmentVariables = (
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
     (view, pos, side) => {
+      // Check if the current position is inside a comment then disable the tooltip
+      if (isComment(view.state, pos)) {
+        return null
+      }
       const { from, to, text } = view.state.doc.lineAt(pos)
 
       // TODO: When Codemirror 6 allows this to work (not make the
@@ -163,7 +180,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             invokeActionType = "modals.my.environment.edit"
           }
 
-          if (tooltipEnv?.sourceEnv === "RequestVariable") {
+          if (
+            tooltipEnv?.sourceEnv === "RequestVariable" &&
+            restTabs.currentActiveTab.value.document.type === "request"
+          ) {
             restTabs.currentActiveTab.value.document.optionTabPreference =
               "requestVariables"
           } else {
@@ -229,7 +249,13 @@ function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
 const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
   new MatchDecorator({
     regexp: HOPP_ENVIRONMENT_REGEX,
-    decoration: (m) => checkEnv(m[0], aggregateEnvs),
+    decoration: (m, view, pos) => {
+      // Check if the current position is inside a comment then disable the highlight
+      if (isComment(view.state, pos)) {
+        return null
+      }
+      return checkEnv(m[0], aggregateEnvs)
+    },
   })
 
 export const environmentHighlightStyle = (

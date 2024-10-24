@@ -128,10 +128,12 @@ async fn install() -> Result<(), WebViewError> {
     let installer_path = tmp_dir.path().join(filename);
 
     let content = response.bytes().await?;
-    let mut file = std::fs::File::create(&installer_path)?;
-    io::copy(&mut Cursor::new(content), &mut file)?;
+    {
+        let mut file = std::fs::File::create(&installer_path)?;
+        io::copy(&mut Cursor::new(content), &mut file)?;
+    }
 
-    let status = Command::new(installer_path).args(["/install"]).status()?;
+    let status = Command::new(&installer_path).args(["/install"]).status()?;
 
     if !status.success() {
         return Err(WebViewError::Installation(format!(

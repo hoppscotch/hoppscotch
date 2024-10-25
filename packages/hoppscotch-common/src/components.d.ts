@@ -8,7 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     '(chore': fix broken runner for user collection)
-    '(feat': test runner stop and delay)
+    '(feat': collection runner config in modal)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
@@ -136,6 +136,7 @@ declare module 'vue' {
     HoppSmartTree: typeof import('@hoppscotch/ui')['HoppSmartTree']
     HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
     HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
+    HoppTestRunnerModal: (typeof import("@hoppscotch/ui"))["HoppTestRunnerModal"]
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
     HttpAuthorizationAkamaiEG: typeof import('./components/http/authorization/AkamaiEG.vue')['default']
     HttpAuthorizationApiKey: typeof import('./components/http/authorization/ApiKey.vue')['default']
@@ -186,6 +187,7 @@ declare module 'vue' {
     HttpTestRunner: typeof import('./components/http/test/Runner.vue')['default']
     HttpTestRunnerConfig: typeof import('./components/http/test/RunnerConfig.vue')['default']
     HttpTestRunnerMeta: (typeof import("./components/http/test/RunnerMeta.vue"))["default"]
+    HttpTestRunnerModal: typeof import('./components/http/test/RunnerModal.vue')['default']
     HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpTestSelectRequest: (typeof import("./components/http/test/SelectRequest.vue"))["default"]

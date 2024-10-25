@@ -194,7 +194,7 @@
     />
 
     <!-- `selectedCollectionID` is guaranteed to be a string when `showCollectionsRunnerModal` is `true` -->
-    <CollectionsRunner
+    <HttpTestRunnerModal
       v-if="showCollectionsRunnerModal"
       :collection-i-d="selectedCollectionID!"
       :environment-i-d="activeEnvironmentID"
@@ -2875,46 +2875,41 @@ const runCollectionHandler = (payload: {
   collection: HoppCollection
 }) => {
   // TODO: fix collection runner in tabs
-
-  const possibleTab = tabs.getTabRefWithSaveContext(
-    {
-      originLocation: "user-collection",
-      folderPath: payload.collectionIndex!!,
-    },
-    "collection"
-  )
-  if (possibleTab) {
-    tabs.setActiveTab(possibleTab.value.id)
-  } else {
-    tabs.createNewTab({
-      type: "test-runner",
-      collection: payload.collection,
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: payload.collectionIndex!,
-      },
-    })
+  // const possibleTab = tabs.getTabRefWithSaveContext(
+  //   {
+  //     originLocation: "user-collection",
+  //     folderPath: payload.collectionIndex!!,
+  //   },
+  //   "collection"
+  // )
+  // if (possibleTab) {
+  //   tabs.setActiveTab(possibleTab.value.id)
+  // } else {
+  //   tabs.createNewTab({
+  //     type: "test-runner",
+  //     collection: payload.collection,
+  //     isDirty: false,
+  //     saveContext: {
+  //       originLocation: "user-collection",
+  //       folderPath: payload.collectionIndex!,
+  //     },
+  //   })
+  // }
+  selectedCollectionID.value = payload.collectionID
+  showCollectionsRunnerModal.value = true
+  const activeWorkspace = workspace.value
+  const currentEnv = selectedEnvironmentIndex.value
+  if (["NO_ENV_SELECTED", "MY_ENV"].includes(currentEnv.type)) {
+    activeEnvironmentID.value = null
+    return
   }
-
-  // selectedCollectionID.value = collectionID
-  // showCollectionsRunnerModal.value = true
-
-  // const activeWorkspace = workspace.value
-  // const currentEnv = selectedEnvironmentIndex.value
-
-  // if (["NO_ENV_SELECTED", "MY_ENV"].includes(currentEnv.type)) {
-  //   activeEnvironmentID.value = null
-  //   return
-  // }
-
-  // if (activeWorkspace.type === "team" && currentEnv.type === "TEAM_ENV") {
-  //   activeEnvironmentID.value = teamEnvironmentList.value.find(
-  //     (env) =>
-  //       env.teamID === activeWorkspace.teamID &&
-  //       env.environment.id === currentEnv.environment.id
-  //   )?.environment.id
-  // }
+  if (activeWorkspace.type === "team" && currentEnv.type === "TEAM_ENV") {
+    activeEnvironmentID.value = teamEnvironmentList.value.find(
+      (env) =>
+        env.teamID === activeWorkspace.teamID &&
+        env.environment.id === currentEnv.environment.id
+    )?.environment.id
+  }
 }
 
 const resolveConfirmModal = (title: string | null) => {

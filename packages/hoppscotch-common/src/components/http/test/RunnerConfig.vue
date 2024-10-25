@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { SmartTreeAdapter } from "@hoppscotch/ui/helpers/treeAdapter.ts"
+import { SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { useVModel } from "@vueuse/core"
 import { ref, toRef } from "vue"
 import { useI18n } from "~/composables/i18n"
@@ -133,6 +133,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconMousePointer from "~icons/lucide/mouse-pointer-square"
 import IconMouseSquare from "~icons/lucide/mouse-pointer-square-dashed"
 import { TestRunnerConfig } from "./Runner.vue"
+import { HoppTabDocument } from "~/helpers/rest/document"
 
 const t = useI18n()
 const props = defineProps<{

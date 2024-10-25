@@ -1,5 +1,4 @@
-import { watch, Ref } from "vue"
-import { Compartment, EditorState } from "@codemirror/state"
+import { Compartment } from "@codemirror/state"
 import {
   Decoration,
   EditorView,
@@ -7,9 +6,13 @@ import {
   ViewPlugin,
   hoverTooltip,
 } from "@codemirror/view"
-import * as E from "fp-ts/Either"
-import { parseTemplateStringE } from "@hoppscotch/data"
 import { StreamSubscriberFunc } from "@composables/stream"
+import { parseTemplateStringE } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { Ref, watch } from "vue"
+
+import { invokeAction } from "~/helpers/actions"
+import { getService } from "~/modules/dioc"
 import {
   AggregateEnvironment,
   aggregateEnvsWithSecrets$,
@@ -17,14 +20,12 @@ import {
   getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
-import { invokeAction } from "~/helpers/actions"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { RESTTabService } from "~/services/tab/rest"
+import IconEdit from "~icons/lucide/edit?raw"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
-import IconEdit from "~icons/lucide/edit?raw"
-import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
-import { syntaxTree } from "@codemirror/language"
+import { isComment } from "./helpers"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -38,18 +39,6 @@ const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const restTabs = getService(RESTTabService)
-
-/**
- * Check if the cursor is inside a comment
- * @param state Editor state
- * @param pos Position of the cursor
- * @return Boolean value indicating if the cursor is inside a comment
- */
-const isComment = (state: EditorState, pos: number) => {
-  const tree = syntaxTree(state)
-  const name = tree.resolveInner(pos).name
-  return name.endsWith("Comment") || name.endsWith("comment")
-}
 
 /**
  * Transforms the environment list to a list with unique keys with value

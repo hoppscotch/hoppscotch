@@ -1,13 +1,14 @@
-import { Compartment, EditorState } from "@codemirror/state"
+import { Compartment } from "@codemirror/state"
 import {
   Decoration,
   MatchDecorator,
   ViewPlugin,
   hoverTooltip,
 } from "@codemirror/view"
-import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
-import { syntaxTree } from "@codemirror/language"
+
+import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
+import { isComment } from "./helpers"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
@@ -15,18 +16,6 @@ const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 predefined-variable-highlight"
 const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_VALID = "predefined-variable-valid"
 const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_INVALID = "predefined-variable-invalid"
-
-/**
- * Check if the cursor is inside a comment
- * @param state Editor state
- * @param pos Position of the cursor
- * @return Boolean value indicating if the cursor is inside a comment
- */
-const isComment = (state: EditorState, pos: number) => {
-  const tree = syntaxTree(state)
-  const name = tree.resolveInner(pos).name
-  return name.endsWith("Comment") || name.endsWith("comment")
-}
 
 const getMatchDecorator = () => {
   return new MatchDecorator({

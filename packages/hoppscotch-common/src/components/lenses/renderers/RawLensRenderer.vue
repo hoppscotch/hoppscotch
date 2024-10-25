@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 flex-col">
     <div
-      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4 py-1"
+      class="sticky top-lowerSecondaryStickyFold z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       :class="{ 'py-2': !responseBodyText }"
     >
       <label class="truncate font-semibold text-secondaryLight">
@@ -180,7 +180,10 @@ useCodemirror(
     completer: null,
     environmentHighlights: true,
     onChange: (update: string) => {
-      emit("update:response", { ...props.response, body: update })
+      emit("update:response", {
+        ...props.response,
+        body: update,
+      } as HoppRESTRequestResponse)
     },
   })
 )

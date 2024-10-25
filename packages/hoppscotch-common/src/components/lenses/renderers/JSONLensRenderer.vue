@@ -285,7 +285,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
-  (e: "update:response", val: HoppRESTRequestResponse): void
+  (e: "update:response", val: HoppRESTRequestResponse | HoppRESTResponse): void
 }>()
 
 const showResponse = computed(() => {
@@ -444,7 +444,10 @@ const { cursor } = useCodemirror(
     completer: null,
     environmentHighlights: true,
     onChange: (update: string) => {
-      emit("update:response", { ...props.response, body: update })
+      emit("update:response", {
+        ...props.response,
+        body: update,
+      } as HoppRESTRequestResponse)
     },
   })
 )

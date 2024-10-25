@@ -130,6 +130,8 @@ HEALTHCHECK --interval=2s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 
 CMD ["node", "/usr/src/app/aio_run.mjs"]
+
+# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_AIO_PORT variable can be used to assign a user-specified port
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

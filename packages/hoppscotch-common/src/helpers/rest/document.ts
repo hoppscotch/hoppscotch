@@ -114,6 +114,14 @@ export type HoppTestRunnerSaveContext =
     }
   | null
 
+export type TestRunnerConfig = {
+  iterations: number
+  delay: number
+  stopOnError: boolean
+  persistResponses: boolean
+  keepVariableValues: boolean
+}
+
 export type HoppTestRunnerDocument = {
   /**
    * The document type
@@ -129,6 +137,11 @@ export type HoppTestRunnerDocument = {
    * The request as it is in the document
    */
   result?: HoppCollection
+
+  /**
+   * The test runner configuration
+   */
+  config: TestRunnerConfig
 
   /**
    * Info about where this request should be saved.

@@ -223,7 +223,6 @@ const addNewTab = () => {
     type: "request",
     request: getDefaultRESTRequest(),
     isDirty: false,
-    type: "request",
   })
 
   tabs.setActiveTab(tab.id)
@@ -236,7 +235,7 @@ const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
     return tab.document.request.name
   } else if (tab.document.type === "test-runner") {
-    return tab.document.collection.name
+    return "tab.document.collection.name"
   } else if (tab.document.type === "example-response") {
     return tab.document.response.name
   }

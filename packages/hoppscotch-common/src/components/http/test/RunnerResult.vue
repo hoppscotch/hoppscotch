@@ -46,8 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { SmartTreeAdapter } from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { HoppCollection } from "@hoppscotch/data"
+import { SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { ref, computed, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
@@ -56,13 +56,13 @@ import {
   TestRunnerService,
 } from "~/services/test-runner/test-runner.service"
 import { useService } from "dioc/vue"
-import { TestRunnerConfig } from "./Runner.vue"
+import { TestRunnerConfig } from "~/helpers/rest/document"
 
 const t = useI18n()
 const testRunnerService = useService(TestRunnerService)
 
 const props = defineProps<{
-  collection: HoppCollection<HoppRESTRequest>
+  collection: HoppCollection
   config: TestRunnerConfig
   stopRunning: boolean
 }>()
@@ -85,7 +85,7 @@ const runnerState = testRunnerService.runTests(props.collection, {
   stopRef: stopRunningTest,
 })
 
-const result = ref<HoppCollection<TestRunnerRequest>[]>([])
+const result = ref<HoppCollection[]>([])
 
 watch(
   () => runnerState.value,

@@ -196,6 +196,7 @@
     <!-- `selectedCollectionID` is guaranteed to be a string when `showCollectionsRunnerModal` is `true` -->
     <HttpTestRunnerModal
       v-if="showCollectionsRunnerModal"
+      :collection="selectedCollection"
       :collection-i-d="selectedCollectionID!"
       :environment-i-d="activeEnvironmentID"
       :selected-environment-index="selectedEnvironmentIndex"
@@ -694,6 +695,7 @@ const showTeamModalAdd = ref(false)
 
 const showCollectionsRunnerModal = ref(false)
 const selectedCollectionID = ref<string | null>(null)
+const selectedCollection = ref<HoppCollection | null>(null)
 const activeEnvironmentID = ref<string | null | undefined>(null)
 
 const displayModalAdd = (show: boolean) => {
@@ -2874,28 +2876,9 @@ const runCollectionHandler = (payload: {
   collectionIndex: string
   collection: HoppCollection
 }) => {
-  // TODO: fix collection runner in tabs
-  // const possibleTab = tabs.getTabRefWithSaveContext(
-  //   {
-  //     originLocation: "user-collection",
-  //     folderPath: payload.collectionIndex!!,
-  //   },
-  //   "collection"
-  // )
-  // if (possibleTab) {
-  //   tabs.setActiveTab(possibleTab.value.id)
-  // } else {
-  //   tabs.createNewTab({
-  //     type: "test-runner",
-  //     collection: payload.collection,
-  //     isDirty: false,
-  //     saveContext: {
-  //       originLocation: "user-collection",
-  //       folderPath: payload.collectionIndex!,
-  //     },
-  //   })
-  // }
+  // TODO: improve collection handler
   selectedCollectionID.value = payload.collectionID
+  selectedCollection.value = payload.collection
   showCollectionsRunnerModal.value = true
   const activeWorkspace = workspace.value
   const currentEnv = selectedEnvironmentIndex.value

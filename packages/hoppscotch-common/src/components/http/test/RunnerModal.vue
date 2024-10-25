@@ -123,7 +123,7 @@
           :label="`${t('test.run')}`"
           :icon="IconPlay"
           outline
-          @click="copyCLICommandToClipboard"
+          @click="runTests"
         />
         <HoppButtonPrimary
           v-else
@@ -155,14 +155,20 @@ import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconPlay from "~icons/lucide/play"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { TestRunnerConfig } from "./Runner.vue"
+import { useService } from "dioc/vue"
+import { RESTTabService } from "~/services/tab/rest"
+import { HoppCollection } from "@hoppscotch/data"
+import { TestRunnerConfig } from "~/helpers/rest/document"
 
 const t = useI18n()
 const toast = useToast()
+const tabs = useService(RESTTabService)
 
 const props = defineProps<{
   collectionID: string
+  collectionIndex?: string
   environmentID?: string | null
+  collection: HoppCollection
   selectedEnvironmentIndex: SelectedEnvironmentIndex
 }>()
 
@@ -180,6 +186,33 @@ const config = ref<TestRunnerConfig>({
   persistResponses: false,
   keepVariableValues: false,
 })
+
+const runTests = () => {
+  // TODO: fix collection runner in tabs
+  const possibleTab = tabs.getTabRefWithSaveContext(
+    {
+      originLocation: "user-collection",
+      folderPath: props.collectionIndex!!,
+    },
+    "collection"
+  )
+  if (possibleTab) {
+    tabs.setActiveTab(possibleTab.value.id)
+  } else {
+    tabs.createNewTab({
+      type: "test-runner",
+      collection: props.collection,
+      isDirty: false,
+      config: config.value,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: props.collectionIndex!,
+      },
+    })
+  }
+
+  emit("hide-modal")
+}
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,

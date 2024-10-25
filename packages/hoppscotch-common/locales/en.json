@@ -1155,6 +1155,7 @@
     "script": "Script",
     "snippets": "Snippets",
     "run": "Run",
+    "run_again": "Run again",
     "stop": "Stop",
     "new_run": "New Run",
     "iterations": "Iterations",

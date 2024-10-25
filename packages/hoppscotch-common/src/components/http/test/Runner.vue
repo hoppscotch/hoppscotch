@@ -26,16 +26,16 @@
           </template>
         </div>
         <HoppButtonPrimary
-          v-if="!showResult"
-          :label="t('test.run')"
-          class="w-32"
-          @click="runTests()"
-        />
-        <HoppButtonPrimary
           v-if="showResult && !stopRunningTest"
           :label="t('test.stop')"
           class="w-32"
           @click="stopRunning()"
+        />
+        <HoppButtonPrimary
+          v-else
+          :label="t('test.run_again')"
+          class="w-32"
+          @click="runTests()"
         />
         <HoppButtonSecondary
           :icon="IconPlus"
@@ -56,7 +56,7 @@
       </div>
 
       <div v-else class="flex flex-col flex-1">
-        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" />
+        <!-- <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" /> -->
       </div>
     </template>
     <template #secondary>
@@ -68,20 +68,15 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
-import { HoppTestRunnerDocument } from "~/helpers/rest/document"
+import { computed, onMounted, ref } from "vue"
+import {
+  HoppTestRunnerDocument,
+  TestRunnerConfig,
+} from "~/helpers/rest/document"
 import { HoppTab } from "~/services/tab"
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
-
-export type TestRunnerConfig = {
-  iterations: number
-  delay: number
-  stopOnError: boolean
-  persistResponses: boolean
-  keepVariableValues: boolean
-}
 
 const testRunnerConfig = ref<TestRunnerConfig>({
   iterations: 1,
@@ -116,6 +111,12 @@ const runTests = () => {
 
 const showResult = ref(false)
 const stopRunningTest = ref(false)
+
+onMounted(() => {
+  if (tab.value.document.type === "test-runner") {
+    showResult.value = true
+  }
+})
 
 const stopRunning = () => {
   stopRunningTest.value = true

@@ -1,0 +1,4 @@
+URL,HOST,BODY_VALUE,BODY_KEY
+https://echo.hoppscotch.io,echo.hoppscotch.io,body_value1,body_key1
+https://echo.hoppscotch.io,echo.hoppscotch.io,body_value2,body_key2
+https://echo.hoppscotch.io,echo.hoppscotch.io,body_value3,body_key3

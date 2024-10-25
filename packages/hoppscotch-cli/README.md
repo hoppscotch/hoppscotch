@@ -51,6 +51,22 @@ hopp [options or commands] arguments
 
 		Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
 
+   ##### `-i <no_of_iterations>` / `--iterations <no_of_iterations>`
+
+   - Accepts the number of iterations to run the collection
+
+   ##### `-data <file_path>` / `--data <file_path>`
+
+   - Accepts the path to data.csv with contents in below format:
+
+     ```text
+     key1,key2,key3
+     value1,value2,value3
+     value4,value5,value6
+     ```
+    For every iteration the values will be replaced with the respective keys in the environment. For iteration 1 the value1,value2,value3 will be replaced and for iteration 2 value4,value5,value6 will be replaced and so on.
+
+
 ## Install
 - Before you install Hoppscotch CLI you need to make sure you have the dependencies it requires to run.
   - **Windows & macOS**: You will need `node-gyp` installed. Find instructions here: https://github.com/nodejs/node-gyp

@@ -7,7 +7,7 @@ import { round } from "lodash-es";
 
 import { CollectionRunnerParam } from "../types/collections";
 import {
-  CollectionStack,
+  CollectionQueue,
   HoppEnvs,
   ProcessRequestParams,
   RequestReport,
@@ -43,93 +43,104 @@ const { WARN, FAIL } = exceptionColors;
  * @param param Data of hopp-collection with hopp-requests, envs to be processed.
  * @returns List of report for each processed request.
  */
+
 export const collectionsRunner = async (
   param: CollectionRunnerParam
 ): Promise<RequestReport[]> => {
-  const envs: HoppEnvs = param.envs;
+  let envs: HoppEnvs = param.envs;
   const delay = param.delay ?? 0;
   const requestsReport: RequestReport[] = [];
-  const collectionStack: CollectionStack[] = getCollectionStack(
-    param.collections
-  );
+  const collectionQueue: CollectionQueue[] = getCollectionQueue(param.collections);
+  const transformedData = param.transformedData;
+  const iterations = param.iterations ?? 1;
+  const originalSelected = [...envs.selected];
 
-  while (collectionStack.length) {
-    // Pop out top-most collection from stack to be processed.
-    const { collection, path } = <CollectionStack>collectionStack.pop();
-
-    // Processing each request in collection
-    for (const request of collection.requests) {
-      const _request = preProcessRequest(
-        request as HoppRESTRequest,
-        collection
-      );
-      const requestPath = `${path}/${_request.name}`;
-      const processRequestParams: ProcessRequestParams = {
-        path: requestPath,
-        request: _request,
-        envs,
-        delay,
-      };
-
-      // Request processing initiated message.
-      log(WARN(`\nRunning: ${chalk.bold(requestPath)}`));
-
-      // Processing current request.
-      const result = await processRequest(processRequestParams)();
-
-      // Updating global & selected envs with new envs from processed-request output.
-      const { global, selected } = result.envs;
-      envs.global = global;
-      envs.selected = selected;
-
-      // Storing current request's report.
-      const requestReport = result.report;
-      requestsReport.push(requestReport);
+  for (let i = 0; i < iterations; i++) {
+    // Reset envs to the original value at the start of each iteration
+    envs.selected = [...originalSelected];
+    // Set the current item of transformedData to envs
+    if (transformedData) {
+      const dataItem = i < transformedData.length ? transformedData[i] : transformedData[transformedData.length - 1];
+      for (const dataPair of dataItem) {
+        // Remove the matching key in envs.selected
+        envs.selected = envs.selected.filter(envPair => envPair.key !== dataPair.key);
+      }
+      envs.selected = envs.selected.concat(dataItem);
     }
 
-    // Pushing remaining folders realted collection to stack.
-    for (const folder of collection.folders) {
-      const updatedFolder: HoppCollection = { ...folder };
-
-      if (updatedFolder.auth?.authType === "inherit") {
-        updatedFolder.auth = collection.auth;
-      }
-
-      if (collection.headers?.length) {
-        // Filter out header entries present in the parent collection under the same name
-        // This ensures the folder headers take precedence over the collection headers
-        const filteredHeaders = collection.headers.filter(
-          (collectionHeaderEntries) => {
-            return !updatedFolder.headers.some(
-              (folderHeaderEntries) =>
-                folderHeaderEntries.key === collectionHeaderEntries.key
-            );
-          }
-        );
-        updatedFolder.headers.push(...filteredHeaders);
-      }
-
-      collectionStack.push({
-        path: `${path}/${updatedFolder.name}`,
-        collection: updatedFolder,
-      });
+    for (const { collection, path } of collectionQueue) {
+      await processCollection(collection, path, envs, delay, requestsReport);
     }
   }
 
   return requestsReport;
 };
 
+const processCollection = async (
+  collection: HoppCollection,
+  path: string,
+  envs: HoppEnvs,
+  delay: number,
+  requestsReport: RequestReport[]
+) => {
+  // Process each request in the collection
+  for (const request of collection.requests) {
+    const _request = preProcessRequest(request as HoppRESTRequest, collection);
+    const requestPath = `${path}/${_request.name}`;
+    const processRequestParams: ProcessRequestParams = {
+      path: requestPath,
+      request: _request,
+      envs,
+      delay,
+    };
+
+    // Request processing initiated message.
+    log(WARN(`\nRunning: ${chalk.bold(requestPath)}`));
+
+    // Processing current request.
+    const result = await processRequest(processRequestParams)();
+
+    // Updating global & selected envs with new envs from processed-request output.
+    const { global, selected } = result.envs;
+    envs.global = global;
+    envs.selected = selected;
+
+    // Storing current request's report.
+    const requestReport = result.report;
+    requestsReport.push(requestReport);
+  }
+
+  // Process each folder in the collection
+  for (const folder of collection.folders) {
+    const updatedFolder: HoppCollection = { ...folder };
+
+    if (updatedFolder.auth?.authType === "inherit") {
+      updatedFolder.auth = collection.auth;
+    }
+
+    if (collection.headers?.length) {
+      // Filter out header entries present in the parent collection under the same name
+      // This ensures the folder headers take precedence over the collection headers
+      const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
+        return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
+      })
+      updatedFolder.headers.push(...filteredHeaders);
+    }
+
+    await processCollection(updatedFolder, `${path}/${updatedFolder.name}`, envs, delay, requestsReport);
+  }
+};
 /**
  * Transforms collections to generate collection-stack which describes each collection's
  * path within collection & the collection itself.
  * @param collections Hopp-collection objects to be mapped to collection-stack type.
  * @returns Mapped collections to collection-stack.
  */
-const getCollectionStack = (collections: HoppCollection[]): CollectionStack[] =>
+const getCollectionQueue = (collections: HoppCollection[]): CollectionQueue[] =>
   pipe(
     collections,
     A.map(
-      (collection) => <CollectionStack>{ collection, path: collection.name }
+      (collection) => <CollectionQueue>{ collection, path: collection.name }
     )
   );
 

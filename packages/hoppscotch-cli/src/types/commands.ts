@@ -4,6 +4,8 @@ export type TestCmdOptions = {
   token?: string;
   server?: string;
   reporterJunit?: string;
+  iterations?: number;
+  data?: string;
 };
 
 // Consumed in the collection `file_path_or_id` argument action handler

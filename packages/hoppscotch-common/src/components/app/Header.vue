@@ -198,6 +198,11 @@
                       :shortcut="['S']"
                       @click="hide()"
                     />
+                    <FirebaseSwitch
+                      ref="switch"
+                      :shortcut="['K']"
+                      @confirm-logout="hide()"
+                    />
                     <FirebaseLogout
                       ref="logout"
                       :shortcut="['L']"

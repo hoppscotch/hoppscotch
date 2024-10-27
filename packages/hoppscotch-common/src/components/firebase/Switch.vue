@@ -24,7 +24,7 @@
   import { useToast } from "@composables/toast"
   import { useI18n } from "@composables/i18n"
   import { platform } from "~/platform"
-  import { defineActionHandler } from "~/helpers/actions"
+  import { defineActionHandler, invokeAction } from "~/helpers/actions"
   
   defineProps({
     outline: {
@@ -59,11 +59,18 @@
   
   const openLoginModal = () => {
     emit("confirm-switch")
+    console.log("Opened Login Modal")
+    invokeAction("modals.switch.toggle")
     chooseLogin.value = true
+    console.log(chooseLogin.value)
   }
   
   defineActionHandler("user.switch", () => {
     openLoginModal()
+  })
+
+  defineActionHandler("modals.switch.toggle", () => {
+    chooseLogin.value = !chooseLogin.value
   })
   </script>
   

@@ -70,6 +70,7 @@ export type HoppAction =
   | "history.clear" // Clear REST History
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
+  | "user.switch" // Switch user account
   | "editor.format" // Format editor content
   | "modals.team.delete" // Delete team
   | "workspace.switch" // Switch workspace

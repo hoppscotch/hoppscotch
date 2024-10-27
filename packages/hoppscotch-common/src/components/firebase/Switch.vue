@@ -1,5 +1,5 @@
 <template>
-    <div class="flex" @click="openLogoutModal()">
+    <div class="flex" @click="openLoginModal()">
       <HoppSmartItem
         ref="switchItem"
         :icon="IconLogOut"
@@ -62,7 +62,7 @@
     chooseLogin.value = true
   }
   
-  defineActionHandler("user.logout", () => {
+  defineActionHandler("user.switch", () => {
     openLoginModal()
   })
   </script>

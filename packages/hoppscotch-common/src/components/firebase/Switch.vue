@@ -8,9 +8,9 @@
         :shortcut="shortcut"
       />
       <HoppSmartModal
+        v-if="chooseLogin"
         dialog
         :title="`${t('auth.login_to_hoppscotch')}`"
-        :show="chooseLogin"
         styles="sm:max-w-md"
         @close="hideModal"
       >

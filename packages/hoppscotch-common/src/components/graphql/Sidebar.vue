@@ -171,7 +171,28 @@
     >
       <History :page="'graphql'" />
     </HoppSmartTab>
-  </HoppSmartTabs>
+    <!-- tab for the functionality to pull graphql queries from the documentation -->
+    <HoppSmartTab 
+      :id="'codegen'"
+      :icon="IconCode"
+      :label="`${t('tab.codegen')}`"
+    >
+    <div class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight">
+      <span class="truncate"> {{ t("request.title") }} </span>
+      <icon-lucide-chevron-right class="mx-2" />
+      {{ t("tab.code_snippet") }}
+    </div>
+    <!-- button for generating a query from the documentation -->
+    <div class="px-4 mt-4">
+      <HoppButtonSecondary
+        :title="t('action.loadSchema')"
+        :icon="IconCode"
+        @click="loadSchema"
+      >
+        {{ t("action.loadSchema") }}
+      </HoppButtonSecondary>
+    </div>
+  </HoppSmartTab>
 </template>
 
 <script setup lang="ts">
@@ -184,8 +205,9 @@ import IconCheck from "~icons/lucide/check"
 import IconClock from "~icons/lucide/clock"
 import IconCopy from "~icons/lucide/copy"
 import IconBox from "~icons/lucide/box"
+import IconCode from "~icons/lucide/code"
 import { computed, nextTick, reactive, ref } from "vue"
-import { GraphQLField, GraphQLType, getNamedType } from "graphql"
+import { GraphQLField, GraphQLSchema, GraphQLType, getNamedType } from "graphql"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "@helpers/utils/clipboard"
@@ -202,6 +224,9 @@ import {
 import { platform } from "~/platform"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { max_nesting_depth } from "~/newstore/settings"
+import { generateQuery } from "@helpers/graphql/queryBuilder"
+import { fetchGraphQLSchema } from "~/newstore/settings"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -401,6 +426,34 @@ const copySchema = () => {
   copyToClipboard(schemaString.value)
   copySchemaIcon.value = IconCheck
 }
+
+// defines the schema and generatedQuery variables for use below
+let schema: GraphQLSchema | null = null;
+const generatedQuery = ref<string | null>(null);
+
+// function to load the graphql schema
+async function loadSchema() {
+  try {
+    // connect to the documentation endpoint
+    schema = await fetchGraphQLSchema('https://narutoql.up.railway.app/graphql');
+    if (schema) {
+      try {
+        generatedQuery.value = generateQuery(schema, max_nesting_depth.value);
+      } catch (error) {
+        console.error("Error generating query:", error);
+        generatedQuery.value = ("error.could_not_generate_query");
+      }
+    } else {
+      console.error("Schema could not be loaded");
+      generatedQuery.value = ("error.could_not_load_schema");
+    }
+  }
+  // error handling 
+  catch (error) {
+    console.error("Error: failed to fetch schema:", error);
+  }
+}
+
 </script>
 
 <style lang="scss" scoped>

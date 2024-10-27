@@ -72,7 +72,7 @@
   
   const openLoginModal = () => {
     emit("confirm-switch")
-    console.log("Opened Login Modal 2")
+    console.log("Opened Login Modal 3")
     invokeAction("modals.switch.toggle")
     //chooseLogin.value = true
     console.log(chooseLogin.value)
@@ -91,6 +91,7 @@
   //mode.value = "sign-i"
   toast.clear()
   chooseLogin.value = false
+  console.log("HIDE MODAL")
   emit("hide-modal")
 }
   </script>

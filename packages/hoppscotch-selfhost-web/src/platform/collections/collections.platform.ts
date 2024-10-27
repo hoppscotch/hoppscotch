@@ -139,47 +139,59 @@ function exportedCollectionToHoppCollection(
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: restCollection.requests.map((request) => {
-        const requestParsedResult = HoppRESTRequest.safeParse(request)
-        if (requestParsedResult.type === "ok") {
-          return requestParsedResult.value
-        }
+      requests: restCollection.requests
+        .map((request) => {
+          const requestParsedResult = HoppRESTRequest.safeParse(request)
+          let parsedRequest: HoppRESTRequest
 
-        const {
-          v,
-          id,
-          auth,
-          body,
-          endpoint,
-          headers,
-          method,
-          name,
-          params,
-          preRequestScript,
-          testScript,
-          requestVariables,
-          responses,
-        } = request
+          if (requestParsedResult.success) {
+            parsedRequest = requestParsedResult.data
+          } else {
+            // Handle parsing failure (use your existing parsing logic)
+            const {
+              v,
+              id,
+              auth,
+              body,
+              endpoint,
+              headers,
+              method,
+              name,
+              params,
+              preRequestScript,
+              testScript,
+              requestVariables,
+              responses,
+            } = request
 
-        const resolvedParams = addDescriptionField(params)
-        const resolvedHeaders = addDescriptionField(headers)
+            const resolvedParams = addDescriptionField(params)
+            const resolvedHeaders = addDescriptionField(headers)
 
-        return {
-          v,
-          id,
-          name,
-          endpoint,
-          method,
-          params: resolvedParams,
-          requestVariables,
-          auth,
-          headers: resolvedHeaders,
-          body,
-          preRequestScript,
-          testScript,
-          responses,
-        }
-      }),
+            parsedRequest = {
+              v,
+              id,
+              name,
+              endpoint,
+              method,
+              params: resolvedParams,
+              requestVariables,
+              auth,
+              headers: resolvedHeaders,
+              body,
+              preRequestScript,
+              testScript,
+              responses,
+            }
+          }
+
+          // Include orderIndex from the request
+          return {
+            ...parsedRequest,
+            orderIndex: request.orderIndex,
+          }
+        })
+        // Sort the requests based on orderIndex
+        .sort((a, b) => a.orderIndex - b.orderIndex),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
     }
@@ -201,32 +213,45 @@ function exportedCollectionToHoppCollection(
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
       ),
-      requests: gqlCollection.requests.map((request) => {
-        const requestParsedResult = HoppGQLRequest.safeParse(request)
-        if (requestParsedResult.type === "ok") {
-          return requestParsedResult.value
-        }
+      requests: gqlCollection.requests
+        .map((request) => {
+          const requestParsedResult = HoppGQLRequest.safeParse(request)
+          let parsedRequest: HoppGQLRequest
 
-        const { v, auth, headers, name, id, query, url, variables } = request
+          if (requestParsedResult.success) {
+            parsedRequest = requestParsedResult.data
+          } else {
+            // Handle parsing failure (use your existing parsing logic)
+            const { v, auth, headers, name, id, query, url, variables } = request
 
-        const resolvedHeaders = addDescriptionField(headers)
+            const resolvedHeaders = addDescriptionField(headers)
 
-        return {
-          id,
-          v,
-          auth,
-          headers: resolvedHeaders,
-          name,
-          query,
-          url,
-          variables,
-        }
-      }),
+            parsedRequest = {
+              id,
+              v,
+              auth,
+              headers: resolvedHeaders,
+              name,
+              query,
+              url,
+              variables,
+            }
+          }
+
+          // Include orderIndex from the request
+          return {
+            ...parsedRequest,
+            orderIndex: request.orderIndex,
+          }
+        })
+        // Sort the requests based on orderIndex
+        .sort((a, b) => a.orderIndex - b.orderIndex),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
     }
   }
 }
+
 
 async function loadUserCollections(collectionType: "REST" | "GQL") {
   const res = await exportUserCollectionsToJSON(
@@ -300,104 +325,60 @@ function setupSubscriptions() {
   }
 }
 
-function setupUserCollectionCreatedSubscription() {
-  const [userCollectionCreated$, userCollectionCreatedSub] =
-    runUserCollectionCreatedSubscription()
+function setupUserRequestCreatedSubscription() {
+  const [userRequestCreated$, userRequestCreatedSub] =
+    runUserRequestCreatedSubscription()
 
-  userCollectionCreated$.subscribe((res) => {
+  userRequestCreated$.subscribe((res) => {
     if (E.isRight(res)) {
-      const collectionType = res.right.userCollectionCreated.type
+      const collectionID = res.right.userRequestCreated.collectionID
+      const requestData = JSON.parse(res.right.userRequestCreated.request)
+      const requestID = res.right.userRequestCreated.id
+      const orderIndex = res.right.userRequestCreated.orderIndex
 
-      const { collectionStore } = getStoreByCollectionType(collectionType)
+      const requestType = res.right.userRequestCreated.type
 
-      const userCollectionBackendID = res.right.userCollectionCreated.id
-      const parentCollectionID = res.right.userCollectionCreated.parent?.id
+      const { collectionStore } = getStoreByCollectionType(requestType)
 
-      const userCollectionLocalID = getCollectionPathFromCollectionID(
-        userCollectionBackendID,
+      const hasAlreadyHappened = getRequestPathFromRequestID(
+        requestID,
         collectionStore.value.state
       )
 
-      // collection already exists in store ( this instance created it )
-      if (userCollectionLocalID) {
+      if (hasAlreadyHappened) {
         return
       }
 
-      const parentCollectionPath =
-        parentCollectionID &&
-        getCollectionPathFromCollectionID(
-          parentCollectionID,
-          collectionStore.value.state
-        )
+      const collectionPath = getCollectionPathFromCollectionID(
+        collectionID,
+        collectionStore.value.state
+      )
 
-      // only folders will have parent collection id
-      if (parentCollectionID && parentCollectionPath) {
+      if (collectionID && collectionPath) {
         runDispatchWithOutSyncing(() => {
-          collectionType == "GQL"
-            ? addGraphqlFolder(
-                res.right.userCollectionCreated.title,
-                parentCollectionPath
-              )
-            : addRESTFolder(
-                res.right.userCollectionCreated.title,
-                parentCollectionPath
-              )
-
-          const parentCollection = navigateToFolderWithIndexPath(
+          const target = navigateToFolderWithIndexPath(
             collectionStore.value.state,
-            parentCollectionPath
-              .split("/")
-              .map((pathIndex) => parseInt(pathIndex))
+            collectionPath.split("/").map((index) => parseInt(index))
           )
 
-          if (parentCollection) {
-            const folderIndex = parentCollection.folders.length - 1
+          if (target) {
+            const requestWithID = {
+              ...requestData,
+              id: requestID,
+              orderIndex: orderIndex,
+            }
 
-            const addedFolder = parentCollection.folders[folderIndex]
-            addedFolder.id = userCollectionBackendID
+            // Insert the request at the correct position based on orderIndex
+            target.requests.splice(orderIndex - 1, 0, requestWithID)
           }
-        })
-      } else {
-        // root collections won't have parentCollectionID
-        const data =
-          res.right.userCollectionCreated.data &&
-          res.right.userCollectionCreated.data != "null"
-            ? JSON.parse(res.right.userCollectionCreated.data)
-            : {
-                auth: { authType: "inherit", authActive: false },
-                headers: [],
-              }
-
-        runDispatchWithOutSyncing(() => {
-          collectionType == "GQL"
-            ? addGraphqlCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 4,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-              })
-            : addRESTCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 4,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-              })
-
-          const localIndex = collectionStore.value.state.length - 1
-
-          const addedCollection = collectionStore.value.state[localIndex]
-          addedCollection.id = userCollectionBackendID
         })
       }
     }
   })
 
-  return userCollectionCreatedSub
+  return userRequestCreatedSub
 }
+
 
 function setupUserCollectionUpdatedSubscription() {
   const [userCollectionUpdated$, userCollectionUpdatedSub] =
@@ -700,97 +681,6 @@ function setupUserCollectionDuplicatedSubscription() {
   })
 
   return userCollectionDuplicatedSub
-}
-
-function setupUserRequestCreatedSubscription() {
-  const [userRequestCreated$, userRequestCreatedSub] =
-    runUserRequestCreatedSubscription()
-
-  userRequestCreated$.subscribe((res) => {
-    if (E.isRight(res)) {
-      const collectionID = res.right.userRequestCreated.collectionID
-      const request = JSON.parse(res.right.userRequestCreated.request)
-      const requestID = res.right.userRequestCreated.id
-
-      const requestType = res.right.userRequestCreated.type
-
-      const { collectionStore } = getStoreByCollectionType(requestType)
-
-      const hasAlreadyHappened = getRequestPathFromRequestID(
-        requestID,
-        collectionStore.value.state
-      )
-
-      if (!!hasAlreadyHappened) {
-        return
-      }
-
-      const collectionPath = getCollectionPathFromCollectionID(
-        collectionID,
-        collectionStore.value.state
-      )
-
-      if (collectionID && collectionPath) {
-        runDispatchWithOutSyncing(() => {
-          requestType == "REST"
-            ? saveRESTRequestAs(collectionPath, request)
-            : saveGraphqlRequestAs(collectionPath, request)
-
-          const target = navigateToFolderWithIndexPath(
-            collectionStore.value.state,
-            collectionPath.split("/").map((index) => parseInt(index))
-          )
-
-          const targetRequest = target?.requests[target?.requests.length - 1]
-
-          if (targetRequest) {
-            targetRequest.id = requestID
-          }
-        })
-      }
-    }
-  })
-
-  return userRequestCreatedSub
-}
-
-function setupUserRequestUpdatedSubscription() {
-  const [userRequestUpdated$, userRequestUpdatedSub] =
-    runUserRequestUpdatedSubscription()
-
-  userRequestUpdated$.subscribe((res) => {
-    if (E.isRight(res)) {
-      const requestType = res.right.userRequestUpdated.type
-
-      const { collectionStore } = getStoreByCollectionType(requestType)
-
-      const requestPath = getRequestPathFromRequestID(
-        res.right.userRequestUpdated.id,
-        collectionStore.value.state
-      )
-
-      const collectionPath = requestPath?.collectionPath
-      const requestIndex = requestPath?.requestIndex
-
-      ;(requestIndex || requestIndex == 0) &&
-        collectionPath &&
-        runDispatchWithOutSyncing(() => {
-          requestType == "REST"
-            ? editRESTRequest(
-                collectionPath,
-                requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
-              )
-            : editGraphqlRequest(
-                collectionPath,
-                requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
-              )
-        })
-    }
-  })
-
-  return userRequestUpdatedSub
 }
 
 function setupUserRequestMovedSubscription() {

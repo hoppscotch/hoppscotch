@@ -1,19 +1,23 @@
 <template>
     <div class="flex" @click="openLogoutModal()">
       <HoppSmartItem
-        ref="logoutItem"
+        ref="switchItem"
         :icon="IconLogOut"
-        :label="`${t('auth.logout')}`"
+        :label="Switch Users"
         :outline="outline"
         :shortcut="shortcut"
-        @click="openLogoutModal()"
+        @click="openLoginModal()"
       />
-      <HoppSmartConfirmModal
-        :show="confirmLogout"
+      <FirebaseLogin
+        :show="chooseLogin"
+        @hide-modal="confirmSwitch = false"
+      />
+      <!-- <HoppSmartConfirmModal
+        :show="confirmSwitch"
         :title="`${t('confirm.logout')}`"
         @hide-modal="confirmLogout = false"
         @resolve="logout"
-      />
+      /> -->
     </div>
   </template>
   
@@ -37,11 +41,11 @@
   })
   
   const emit = defineEmits<{
-    (e: "confirm-logout"): void
+    (e: "confirm-switch"): void
   }>()
   
-  const confirmLogout = ref(false)
-  const logoutItem = ref<HTMLButtonElement>()
+  const chooseLogin = ref(false)
+  const switchItem = ref<HTMLButtonElement>()
   
   const toast = useToast()
   const t = useI18n()
@@ -56,13 +60,13 @@
     }
   }
   
-  const openLogoutModal = () => {
-    emit("confirm-logout")
-    confirmLogout.value = true
+  const openLoginModal = () => {
+    emit("confirm-switch")
+    chooseLogin.value = true
   }
   
   defineActionHandler("user.logout", () => {
-    openLogoutModal()
+    openLoginModal()
   })
   </script>
   

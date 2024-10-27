@@ -4,6 +4,7 @@ import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 export type HoppRESTSaveContext =
   | {
@@ -137,6 +138,11 @@ export type HoppTestRunnerDocument = {
    * The request as it is in the document
    */
   result?: HoppCollection
+
+  /**
+   * Selected test runner request
+   */
+  request: TestRunnerRequest
 
   /**
    * The test runner configuration

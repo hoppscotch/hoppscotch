@@ -52,15 +52,19 @@
           :collection="collection"
           :stop-running="stopRunningTest"
           @on-stop-running="stopRunningTest = true"
+          @on-select-request="selectedRequest = $event"
         />
       </div>
 
-      <div v-else class="flex flex-col flex-1">
-        <!-- <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" /> -->
-      </div>
+      <!-- <div v-else class="flex flex-col flex-1">
+        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" />
+      </div> -->
     </template>
     <template #secondary>
-      <!-- <HttpResponse v-model:document="tab.document" /> -->
+      <HttpTestResponse
+        v-if="selectedRequest"
+        v-model:document="selectedRequest"
+      />
     </template>
   </AppPaneLayout>
 </template>
@@ -91,6 +95,8 @@ const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
+
+const selectedRequest = ref<any>(null)
 
 const collectionName = computed(() => {
   if (props.modelValue.document.type === "test-runner") {

@@ -1,16 +1,13 @@
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-} from "@hoppscotch/ui/dist/helpers/treeAdapter"
+import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { Ref } from "vue"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppCollection } from "@hoppscotch/data"
 import { computed } from "vue"
 
 export class TestRunnerCollectionsAdapter implements SmartTreeAdapter<any> {
-  constructor(public data: Ref<HoppCollection<HoppRESTRequest>[]>) {}
+  constructor(public data: Ref<HoppCollection[]>) {}
 
   navigateToFolderWithIndexPath(
-    collections: HoppCollection<HoppRESTRequest>[],
+    collections: HoppCollection[],
     indexPaths: number[]
   ) {
     if (indexPaths.length === 0) return null

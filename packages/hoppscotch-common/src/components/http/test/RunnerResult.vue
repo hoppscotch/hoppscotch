@@ -31,6 +31,7 @@
               :is-selected="node.data.isSelected"
               :show-selection="showCheckbox"
               :is-last-item="node.data.isLastItem"
+              @select-request="selectRequest(node.data.data.data)"
             />
           </template>
         </HoppSmartTree>
@@ -69,6 +70,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "onStopRunning"): void
+  (e: "onSelectRequest", request: TestRunnerRequest): void
 }>()
 
 const selectedTestTab = ref("all_tests")
@@ -86,6 +88,11 @@ const runnerState = testRunnerService.runTests(props.collection, {
 })
 
 const result = ref<HoppCollection[]>([])
+
+const selectRequest = (request: TestRunnerRequest) => {
+  emit("onSelectRequest", request)
+  console.log("selectRequest", request)
+}
 
 watch(
   () => runnerState.value,

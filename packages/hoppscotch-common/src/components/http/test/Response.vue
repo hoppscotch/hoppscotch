@@ -1,0 +1,40 @@
+<template>
+  <div class="relative flex flex-1 flex-col">
+    <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
+    <LensesResponseBodyRenderer
+      v-if="!loading && hasResponse"
+      v-model:document="doc"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
+import { useVModel } from "@vueuse/core"
+import { computed } from "vue"
+import { HoppRequestDocument } from "~/helpers/rest/document"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+
+const t = useI18n()
+const toast = useToast()
+
+const props = defineProps<{
+  document: TestRunnerRequest
+  isEmbed: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "update:tab", val: HoppRequestDocument): void
+}>()
+
+const doc = useVModel(props, "document", emit)
+
+const hasResponse = computed(
+  () =>
+    doc.value.response?.type === "success" ||
+    doc.value.response?.type === "fail"
+)
+
+const loading = computed(() => doc.value.response?.type === "loading")
+</script>

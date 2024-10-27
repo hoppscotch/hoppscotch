@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     '(chore': fix broken runner for user collection)
     '(feat': collection runner config in modal)
+    '(fix': collection runner response)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
@@ -178,6 +179,7 @@ declare module 'vue' {
     HttpTabHead: typeof import('./components/http/TabHead.vue')['default']
     HttpTestFolder: typeof import('./components/http/test/Folder.vue')['default']
     HttpTestRequest: typeof import('./components/http/test/Request.vue')['default']
+    HttpTestResponse: typeof import('./components/http/test/Response.vue')['default']
     HttpTestResult: typeof import('./components/http/TestResult.vue')['default']
     HttpTestResultEntry: typeof import('./components/http/TestResultEntry.vue')['default']
     HttpTestResultEnv: typeof import('./components/http/TestResultEnv.vue')['default']

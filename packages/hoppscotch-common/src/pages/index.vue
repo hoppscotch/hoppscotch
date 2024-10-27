@@ -18,9 +18,8 @@
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
-            <template #tabhead>
+            <template #tabhead v-if="tab.document.type === 'request'">
               <HttpTabHead
-                v-if="tab.document.type === 'request'"
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
                 @open-rename-modal="openReqRenameModal(tab.id)"
@@ -93,7 +92,7 @@
       role="dialog"
       aria-modal="true"
       :title="t('modal.close_unsaved_tab')"
-      @close="confirmingCloseForTabID = null"
+      @close="confirmingCloseForTopabID = null"
     >
       <template #body>
         <div class="text-center">
@@ -235,10 +234,12 @@ const getTabName = (tab: HoppTab<HoppTabDocument>) => {
   if (tab.document.type === "request") {
     return tab.document.request.name
   } else if (tab.document.type === "test-runner") {
-    return "tab.document.collection.name"
+    return tab.document.collection.name
   } else if (tab.document.type === "example-response") {
     return tab.document.response.name
   }
+
+  return "Unnamed tab"
 }
 
 const inspectionService = useService(InspectionService)

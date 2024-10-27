@@ -21,6 +21,7 @@ export type TestRunnerOptions = {
 } & TestRunnerConfig
 
 export type TestRunnerRequest = HoppRESTRequest & {
+  type: "test-response"
   /**
    * The response as it is in the document
    * (if any)

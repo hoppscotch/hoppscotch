@@ -3,7 +3,7 @@
       <HoppSmartItem
         ref="switchItem"
         :icon="IconLogOut"
-        :label="Switch Users"
+        :label="`${t('auth.logout')}`"
         :outline="outline"
         :shortcut="shortcut"
         @click="openLoginModal()"

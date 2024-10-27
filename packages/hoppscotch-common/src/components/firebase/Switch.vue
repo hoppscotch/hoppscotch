@@ -6,9 +6,8 @@
         :label="`${t('auth.logout')}`"
         :outline="outline"
         :shortcut="shortcut"
-        @click="openLoginModal()"
       />
-      <FirebaseLogin v-if="chooseLogin" @hide-modal="chooseLogin = false" />
+      <FirebaseLogin v-if="chooseLogin"/>
       <!-- <HoppSmartConfirmModal
         :show="confirmSwitch"
         :title="`${t('confirm.logout')}`"
@@ -61,7 +60,7 @@
     emit("confirm-switch")
     console.log("Opened Login Modal")
     invokeAction("modals.switch.toggle")
-    chooseLogin.value = true
+    //chooseLogin.value = true
     console.log(chooseLogin.value)
   }
   
@@ -71,6 +70,7 @@
 
   defineActionHandler("modals.switch.toggle", () => {
     chooseLogin.value = !chooseLogin.value
+    console.log("toggled")
   })
   </script>
   

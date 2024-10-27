@@ -136,7 +136,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from "vue"
+  import { Ref, onMounted, ref } from "vue"
   import IconLogOut from "~icons/lucide/log-out"
   import { useToast } from "@composables/toast"
   import { useI18n } from "@composables/i18n"

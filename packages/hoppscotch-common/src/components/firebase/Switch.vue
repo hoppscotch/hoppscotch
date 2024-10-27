@@ -3,14 +3,14 @@
       <HoppSmartItem
         ref="switchItem"
         :icon="IconLogOut"
-        :label="`${t('auth.logout')}`"
+        :label="`${t('auth.change_accounts')}`"
         :outline="outline"
         :shortcut="shortcut"
       />
       <HoppSmartModal
         v-if="chooseLogin"
         dialog
-        :title="`${t('auth.login_to_hoppscotch')}`"
+        :title="`${t('auth.change_accounts')}`"
         styles="sm:max-w-md"
         @close="hideModal"
       >
@@ -126,12 +126,6 @@
           </div>
         </template>
       </HoppSmartModal>
-          <!-- <HoppSmartConfirmModal
-            :show="confirmSwitch"
-          :title="`${t('confirm.logout')}`"
-          @hide-modal="confirmLogout = false"
-          @resolve="logout"
-        /> -->
     </div>
   </template>
   

@@ -1,4 +1,10 @@
 <template>
+  <div class="flex items-center space-x-2">
+    <label>{{ t("request.max_nesting_depth") }}: </label>
+    <!-- provides limits on the minimum and maximum for the max_nesting_depth setting -->
+    <input type="range" min="1" max="10" v-model="max_nesting_depth" @input="generateQueryWithMaxDepth" />
+    <span>{{ max_nesting_depth }}</span>
+  </div>
   <div
     class="sticky top-sidebarPrimaryStickyFold z-10 flex items-center justify-between border-y border-dividerLight bg-primary pl-4"
   >
@@ -93,7 +99,7 @@ import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { onMounted, reactive, ref, markRaw } from "vue"
+import { onMounted, reactive, ref, markRaw, watch } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -107,15 +113,20 @@ import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
 import { defineActionHandler } from "~/helpers/actions"
-import {
+import { 
   schema,
   socketDisconnect,
   subscriptionState,
 } from "~/helpers/graphql/connection"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
+import { generateQuery } from "@helpers/graphql/queryBuilder"
+import { GraphQLSchema } from "graphql"
+
+const generatedQuery = ref<string | null>(null)
 
 // Template refs
+const max_nesting_depth = ref(3);
 const queryEditor = ref<any | null>(null)
 
 const t = useI18n()
@@ -196,36 +207,52 @@ useCodemirror(
   })
 )
 
-// operations on graphql query string
-// const operations = useReadonlyStream(props.request.operations$, [])
-
-const prettifyQuery = () => {
-  try {
-    gqlQueryString.value = gql.print(
-      gql.parse(gqlQueryString.value, {
-        allowLegacyFragmentVariables: true,
-      })
-    )
-    prettifyQueryIcon.value = IconCheck
-  } catch (e) {
-    toast.error(`${t("error.gql_prettify_invalid_query")}`)
-    prettifyQueryIcon.value = IconInfo
-  }
-}
-
-const copyQuery = () => {
-  copyToClipboard(gqlQueryString.value)
-  copyQueryIcon.value = IconCheck
-  toast.success(`${t("state.copied_to_clipboard")}`)
-}
-
 const clearGQLQuery = () => {
   gqlQueryString.value = ""
 }
 
-const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
-  emit("run-query", definition)
-}
+// defines the schema and generatedQuery variables for use below
+let docSchema: GraphQLSchema | null = null;
+
+// generate query with max_nesting_depth
+const generateQueryWithMaxDepth = () => {
+  if (docSchema) {
+    generatedQuery.value = generateQuery(docSchema, max_nesting_depth.value);
+    gqlQueryString.value = generatedQuery.value || "";
+  } else {
+    toast.error(t("error.schema_not_loaded"));
+  }
+};
+
+// add watcher to allow the user to update max_nesting_depth without needing to refresh the page
+watch(
+  max_nesting_depth,
+  () => generateQueryWithMaxDepth(),
+  { immediate: true }
+);
+
+// copy the query to the clipboard
+const copyQuery = () => {
+  copyToClipboard(gqlQueryString.value);
+  copyQueryIcon.value = IconCheck;
+  toast.success(t("state.copied_to_clipboard"));
+};
+
+// prettify the graphql query
+const prettifyQuery = () => {
+  try {
+    gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value));
+    prettifyQueryIcon.value = IconCheck;
+  } catch {
+    toast.error(t("error.gql_prettify_invalid_query"));
+  }
+};
+
+const runQuery = (operation: any) => {
+  console.log("Running query:", operation);
+};
+
+
 const unsubscribe = () => {
   socketDisconnect()
 }

@@ -127,16 +127,15 @@
         </template>
       </HoppSmartModal>
     </div>
-  </template>
+</template>
   
-  <script setup lang="ts">
-  import { Ref, onMounted, ref } from "vue"
-  import IconLogOut from "~icons/lucide/log-out"
-  import { useToast } from "@composables/toast"
-  import { useI18n } from "@composables/i18n"
-  import { platform } from "~/platform"
-  import { defineActionHandler, invokeAction } from "~/helpers/actions"
-  import logout from "./Logout.vue"
+<script setup lang="ts">
+import { Ref, onMounted, ref } from "vue"
+import IconLogOut from "~icons/lucide/log-out"
+import { useToast } from "@composables/toast"
+import { useI18n } from "@composables/i18n"
+import { platform } from "~/platform"
+import { defineActionHandler } from "~/helpers/actions"
 
 import { useStreamSubscriber } from "@composables/stream"
 
@@ -174,25 +173,10 @@ import * as E from "fp-ts/Either"
   const toast = useToast()
   const t = useI18n()
   
-  // const logout = async () => {
-  //   try {
-  //     await platform.auth.signOutUser()
-  //     toast.success(`${t("auth.logged_out")}`)
-  //   } catch (e) {
-  //     console.error(e)
-  //     toast.error(`${t("error.something_went_wrong")}`)
-  //   }
-  // }
-  
   // Opens the login modal
   const openLoginModal = () => {
     emit("confirm-switch") // Closes the profile dropdown
-    console.log("Opened Login Modal 3")
-
     chooseLogin.value = !chooseLogin.value
-
-    console.log("toggled")
-    console.log(chooseLogin.value)
   }
   
   // Defines the action for opening the login modal
@@ -204,7 +188,6 @@ import * as E from "fp-ts/Either"
   const hideModal = () => {
     toast.clear()
     chooseLogin.value = false
-    console.log("HIDE MODAL")
   }
 
 
@@ -433,5 +416,5 @@ const authProvidersAvailable: AuthProviderItem[] = [
 
 
 
-  </script>
+</script>
   

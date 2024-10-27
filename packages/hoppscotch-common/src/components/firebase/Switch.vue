@@ -7,7 +7,21 @@
         :outline="outline"
         :shortcut="shortcut"
       />
-      <FirebaseLogin v-if="chooseLogin"/>
+      <HoppSmartModal
+        dialog
+        :title="`${t('auth.login_to_hoppscotch')}`"
+        :show="chooseLogin"
+        styles="sm:max-w-md"
+        @close="hideModal"
+      >
+        <template #body>
+          <template>
+            <div>
+              <h1>TESTING</h1>
+            </div>
+          </template>
+        </template>
+      </HoppSmartModal>
       <!-- <HoppSmartConfirmModal
         :show="confirmSwitch"
         :title="`${t('confirm.logout')}`"
@@ -58,7 +72,7 @@
   
   const openLoginModal = () => {
     emit("confirm-switch")
-    console.log("Opened Login Modal")
+    console.log("Opened Login Modal 2")
     invokeAction("modals.switch.toggle")
     //chooseLogin.value = true
     console.log(chooseLogin.value)
@@ -72,5 +86,12 @@
     chooseLogin.value = !chooseLogin.value
     console.log("toggled")
   })
+
+  const hideModal = () => {
+  //mode.value = "sign-i"
+  toast.clear()
+  chooseLogin.value = false
+  emit("hide-modal")
+}
   </script>
   

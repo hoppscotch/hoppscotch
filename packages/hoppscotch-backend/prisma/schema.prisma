@@ -189,6 +189,7 @@ model UserRequest {
   orderIndex     Int
   createdOn      DateTime       @default(now()) @db.Timestamp(3)
   updatedOn      DateTime       @updatedAt @db.Timestamp(3)
+  @@unique([title, collectionID])
 }
 
 model UserCollection {

@@ -81,6 +81,17 @@
               </div>
             </div>
           </section>
+          <!-- setting for the maximum nesting depth for the automatic graphql query generation -->
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.max_nesting_depth") }}
+            </h4>
+            <div class="mt-4">
+              <label for="max_nesting_depth">Maximum Nesting Depth:</label>
+              <!-- update input element to disable save button when input is invalid -->
+              <input type="number" v-model="max_nesting_depth" min="1" :class="{ 'input-error': !validMaxNestingDepth }"/> 
+            </div>
+          </section>
         </div>
       </div>
 
@@ -174,7 +185,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import { applySetting, toggleSetting } from "~/newstore/settings"
+import { applySetting, max_nesting_depth, toggleSetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -185,6 +196,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { platform } from "~/platform"
+import { getDocumentedGQLRequest } from "@hoppscotch/data/src/graphql/index";
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -233,6 +245,12 @@ watch(
   },
   { deep: true }
 )
+
+// watcher for when the max_nesting_depth setting is changed
+watch(
+  () => max_nesting_depth.value, (newVal) => {
+  applySetting("max_nesting_depth", newVal);
+});
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

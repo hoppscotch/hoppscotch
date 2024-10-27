@@ -8,7 +8,7 @@
         :shortcut="shortcut"
         @click="openLoginModal()"
       />
-      <<FirebaseLogin v-if="chooseLogin" @hide-modal="chooseLogin = false" />
+      <FirebaseLogin v-if="chooseLogin" @hide-modal="chooseLogin = false" />
       <!-- <HoppSmartConfirmModal
         :show="confirmSwitch"
         :title="`${t('confirm.logout')}`"

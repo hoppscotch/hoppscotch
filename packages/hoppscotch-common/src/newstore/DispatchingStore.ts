@@ -1,6 +1,8 @@
 import { Subject, BehaviorSubject } from "rxjs"
 import { map } from "rxjs/operators"
 import { assign, clone } from "lodash-es"
+import { KeysMatching } from "~/types/ts-utils"
+import { SettingsDef } from "./settings"
 
 type DispatcherFunc<StoreType, PayloadType> = (
   currentVal: StoreType,
@@ -17,9 +19,8 @@ export const defineDispatchers = <
   StoreType,
   T extends { [x: string]: DispatcherFunc<StoreType, any> },
 >(
-  // eslint-disable-next-line no-unused-vars
-  dispatchers: T
-) => dispatchers
+p0: { bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>): Partial<SettingsDef>; toggleSetting(currentState: SettingsDef, { settingKey }: { settingKey: KeysMatching<SettingsDef, boolean> }): Partial<SettingsDef>; applySetting(_currentState: SettingsDef, { settingKey, value }: { settingKey: "syncCollections"; value: boolean } | { settingKey: "syncHistory"; value: boolean } | { settingKey: "syncEnvironments"; value: boolean } | { settingKey: "PROXY_URL"; value: string } | { settingKey: "WRAP_LINES"; value: { httpRequestBody: boolean; httpResponseBody: boolean; httpHeaders: boolean; httpParams: boolean; httpUrlEncoded: boolean; httpPreRequest: boolean; httpTest: boolean; httpRequestVariables: boolean; graphqlQuery: boolean; graphqlResponseBody: boolean; graphqlHeaders: boolean; graphqlVariables: boolean; graphqlSchema: boolean; importCurl: boolean; codeGen: boolean; cookie: boolean } } | { settingKey: "CURRENT_INTERCEPTOR_ID"; value: string } | { settingKey: "URL_EXCLUDES"; value: { auth: boolean; httpUser: boolean; httpPassword: boolean; bearerToken: boolean; oauth2Token: boolean } } | { settingKey: "THEME_COLOR"; value: "green" | "teal" | "blue" | "indigo" | "purple" | "yellow" | "orange" | "red" | "pink" } | { settingKey: "BG_COLOR"; value: "system" | "light" | "dark" | "black" } | { settingKey: "TELEMETRY_ENABLED"; value: boolean } | { settingKey: "EXPAND_NAVIGATION"; value: boolean } | { settingKey: "SIDEBAR"; value: boolean } | { settingKey: "SIDEBAR_ON_LEFT"; value: boolean } | { settingKey: "COLUMN_LAYOUT"; value: boolean } | { settingKey: "HAS_OPENED_SPOTLIGHT"; value: boolean } | { settingKey: "ENABLE_AI_EXPERIMENTS"; value: boolean } | { settingKey: "max_nesting_depth"; value: number }, : any): any; function: any }, p1: unknown, // eslint-disable-next-line no-unused-vars
+dispatchers: T) => dispatchers
 
 type Dispatch<
   StoreType,

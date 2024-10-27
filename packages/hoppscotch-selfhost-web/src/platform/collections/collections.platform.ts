@@ -2,6 +2,7 @@ import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
 import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
 import { runDispatchWithOutSyncing } from "../../lib/sync"
 
+
 import {
   exportUserCollectionsToJSON,
   runUserCollectionCreatedSubscription,
@@ -16,6 +17,7 @@ import {
   runUserRequestUpdatedSubscription,
 } from "./collections.api"
 import { collectionsSyncer, getStoreByCollectionType } from "./collections.sync"
+
 
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
@@ -63,15 +65,19 @@ import {
 } from "../../api/generated/graphql"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 
+
 function initCollectionsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
   collectionsSyncer.startStoreSync()
   collectionsSyncer.setupSubscriptions(setupSubscriptions)
 
+
   gqlCollectionsSyncer.startStoreSync()
+
 
   loadUserCollections("REST")
   loadUserCollections("GQL")
+
 
   // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
@@ -81,16 +87,19 @@ function initCollectionsSync() {
     }
   })
 
+
   authEvents$.subscribe((event) => {
     if (event.event == "login" || event.event == "token_refresh") {
       collectionsSyncer.startListeningToSubscriptions()
     }
+
 
     if (event.event == "logout") {
       collectionsSyncer.stopListeningToSubscriptions()
     }
   })
 }
+
 
 type ExportedUserCollectionREST = {
   id?: string
@@ -100,6 +109,7 @@ type ExportedUserCollectionREST = {
   data: string
 }
 
+
 type ExportedUserCollectionGQL = {
   id?: string
   folders: ExportedUserCollectionGQL[]
@@ -107,6 +117,7 @@ type ExportedUserCollectionGQL = {
   name: string
   data: string
 }
+
 
 function addDescriptionField(
   candidate: HoppRESTHeaders | GQLHeader[] | HoppRESTParam[]
@@ -117,12 +128,14 @@ function addDescriptionField(
   }))
 }
 
+
 function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {
   if (collectionType == "REST") {
     const restCollection = collection as ExportedUserCollectionREST
+
 
     const data =
       restCollection.data && restCollection.data !== "null"
@@ -131,6 +144,7 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: false },
             headers: [],
           }
+
 
     return {
       id: restCollection.id,
@@ -143,6 +157,7 @@ function exportedCollectionToHoppCollection(
         .map((request) => {
           const requestParsedResult = HoppRESTRequest.safeParse(request)
           let parsedRequest: HoppRESTRequest
+
 
           if (requestParsedResult.success) {
             parsedRequest = requestParsedResult.data
@@ -164,8 +179,10 @@ function exportedCollectionToHoppCollection(
               responses,
             } = request
 
+
             const resolvedParams = addDescriptionField(params)
             const resolvedHeaders = addDescriptionField(headers)
+
 
             parsedRequest = {
               v,
@@ -184,6 +201,7 @@ function exportedCollectionToHoppCollection(
             }
           }
 
+
           // Include orderIndex from the request
           return {
             ...parsedRequest,
@@ -198,6 +216,7 @@ function exportedCollectionToHoppCollection(
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
 
+
     const data =
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
@@ -205,6 +224,7 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: false },
             headers: [],
           }
+
 
     return {
       id: gqlCollection.id,
@@ -218,13 +238,16 @@ function exportedCollectionToHoppCollection(
           const requestParsedResult = HoppGQLRequest.safeParse(request)
           let parsedRequest: HoppGQLRequest
 
+
           if (requestParsedResult.success) {
             parsedRequest = requestParsedResult.data
           } else {
             // Handle parsing failure (use your existing parsing logic)
             const { v, auth, headers, name, id, query, url, variables } = request
 
+
             const resolvedHeaders = addDescriptionField(headers)
+
 
             parsedRequest = {
               id,
@@ -237,6 +260,7 @@ function exportedCollectionToHoppCollection(
               variables,
             }
           }
+
 
           // Include orderIndex from the request
           return {
@@ -251,6 +275,8 @@ function exportedCollectionToHoppCollection(
     }
   }
 }
+
+
 
 
 async function loadUserCollections(collectionType: "REST" | "GQL") {
@@ -290,8 +316,10 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
   }
 }
 
+
 function setupSubscriptions() {
   let subs: ReturnType<typeof runGQLSubscription>[1][] = []
+
 
   const userCollectionCreatedSub = setupUserCollectionCreatedSubscription()
   const userCollectionUpdatedSub = setupUserCollectionUpdatedSubscription()
@@ -302,10 +330,12 @@ function setupSubscriptions() {
   const userCollectionDuplicatedSub =
     setupUserCollectionDuplicatedSubscription()
 
+
   const userRequestCreatedSub = setupUserRequestCreatedSubscription()
   const userRequestUpdatedSub = setupUserRequestUpdatedSubscription()
   const userRequestDeletedSub = setupUserRequestDeletedSubscription()
   const userRequestMovedSub = setupUserRequestMovedSubscription()
+
 
   subs = [
     userCollectionCreatedSub,
@@ -320,14 +350,17 @@ function setupSubscriptions() {
     userRequestMovedSub,
   ]
 
+
   return () => {
     subs.forEach((sub) => sub.unsubscribe())
   }
 }
 
+
 function setupUserRequestCreatedSubscription() {
   const [userRequestCreated$, userRequestCreatedSub] =
     runUserRequestCreatedSubscription()
+
 
   userRequestCreated$.subscribe((res) => {
     if (E.isRight(res)) {
@@ -336,23 +369,29 @@ function setupUserRequestCreatedSubscription() {
       const requestID = res.right.userRequestCreated.id
       const orderIndex = res.right.userRequestCreated.orderIndex
 
+
       const requestType = res.right.userRequestCreated.type
 
+
       const { collectionStore } = getStoreByCollectionType(requestType)
+
 
       const hasAlreadyHappened = getRequestPathFromRequestID(
         requestID,
         collectionStore.value.state
       )
 
+
       if (hasAlreadyHappened) {
         return
       }
+
 
       const collectionPath = getCollectionPathFromCollectionID(
         collectionID,
         collectionStore.value.state
       )
+
 
       if (collectionID && collectionPath) {
         runDispatchWithOutSyncing(() => {
@@ -361,12 +400,14 @@ function setupUserRequestCreatedSubscription() {
             collectionPath.split("/").map((index) => parseInt(index))
           )
 
+
           if (target) {
             const requestWithID = {
               ...requestData,
               id: requestID,
               orderIndex: orderIndex,
             }
+
 
             // Insert the request at the correct position based on orderIndex
             target.requests.splice(orderIndex - 1, 0, requestWithID)
@@ -376,19 +417,25 @@ function setupUserRequestCreatedSubscription() {
     }
   })
 
+
   return userRequestCreatedSub
 }
+
+
 
 
 function setupUserCollectionUpdatedSubscription() {
   const [userCollectionUpdated$, userCollectionUpdatedSub] =
     runUserCollectionUpdatedSubscription()
 
+
   userCollectionUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
       const collectionType = res.right.userCollectionUpdated.type
 
+
       const { collectionStore } = getStoreByCollectionType(collectionType)
+
 
       const updatedCollectionBackendID = res.right.userCollectionUpdated.id
       const updatedCollectionLocalPath = getCollectionPathFromCollectionID(
@@ -396,9 +443,11 @@ function setupUserCollectionUpdatedSubscription() {
         collectionStore.value.state
       )
 
+
       const isFolder =
         updatedCollectionLocalPath &&
         updatedCollectionLocalPath.split("/").length > 1
+
 
       // updated collection is a folder
       if (isFolder) {
@@ -412,6 +461,7 @@ function setupUserCollectionUpdatedSubscription() {
               })
         })
       }
+
 
       // updated collection is a root collection
       if (updatedCollectionLocalPath && !isFolder) {
@@ -428,23 +478,29 @@ function setupUserCollectionUpdatedSubscription() {
     }
   })
 
+
   return userCollectionUpdatedSub
 }
+
 
 function setupUserCollectionMovedSubscription() {
   const [userCollectionMoved$, userCollectionMovedSub] =
     runUserCollectionMovedSubscription()
 
+
   userCollectionMoved$.subscribe((res) => {
     if (E.isRight(res)) {
       const movedMetadata = res.right.userCollectionMoved
+
 
       const sourcePath = getCollectionPathFromCollectionID(
         movedMetadata.id,
         restCollectionStore.value.state
       )
 
+
       let destinationPath: string | undefined
+
 
       if (movedMetadata.parent?.id) {
         destinationPath =
@@ -454,6 +510,7 @@ function setupUserCollectionMovedSubscription() {
           ) ?? undefined
       }
 
+
       sourcePath &&
         runDispatchWithOutSyncing(() => {
           moveRESTFolder(sourcePath, destinationPath ?? null)
@@ -461,28 +518,35 @@ function setupUserCollectionMovedSubscription() {
     }
   })
 
+
   return userCollectionMovedSub
 }
+
 
 function setupUserCollectionRemovedSubscription() {
   const [userCollectionRemoved$, userCollectionRemovedSub] =
     runUserCollectionRemovedSubscription()
+
 
   userCollectionRemoved$.subscribe((res) => {
     if (E.isRight(res)) {
       const removedCollectionBackendID = res.right.userCollectionRemoved.id
       const collectionType = res.right.userCollectionRemoved.type
 
+
       const { collectionStore } = getStoreByCollectionType(collectionType)
+
 
       const removedCollectionLocalPath = getCollectionPathFromCollectionID(
         removedCollectionBackendID,
         collectionStore.value.state
       )
 
+
       const isFolder =
         removedCollectionLocalPath &&
         removedCollectionLocalPath.split("/").length > 1
+
 
       if (removedCollectionLocalPath && isFolder) {
         runDispatchWithOutSyncing(() => {
@@ -491,6 +555,7 @@ function setupUserCollectionRemovedSubscription() {
             : removeGraphqlFolder(removedCollectionLocalPath)
         })
       }
+
 
       if (removedCollectionLocalPath && !isFolder) {
         runDispatchWithOutSyncing(() => {
@@ -502,27 +567,34 @@ function setupUserCollectionRemovedSubscription() {
     }
   })
 
+
   return userCollectionRemovedSub
 }
+
 
 function setupUserCollectionOrderUpdatedSubscription() {
   const [userCollectionOrderUpdated$, userCollectionOrderUpdatedSub] =
     runUserCollectionOrderUpdatedSubscription()
+
 
   userCollectionOrderUpdated$.subscribe((res) => {
     if (E.isRight(res)) {
       const { userCollection, nextUserCollection } =
         res.right.userCollectionOrderUpdated
 
+
       const sourceCollectionID = userCollection.id
       const destinationCollectionID = nextUserCollection?.id
+
 
       const sourcePath = getCollectionPathFromCollectionID(
         sourceCollectionID,
         restCollectionStore.value.state
       )
 
+
       let destinationPath: string | null | undefined
+
 
       if (destinationCollectionID) {
         destinationPath = getCollectionPathFromCollectionID(
@@ -530,6 +602,7 @@ function setupUserCollectionOrderUpdatedSubscription() {
           restCollectionStore.value.state
         )
       }
+
 
       runDispatchWithOutSyncing(() => {
         if (sourcePath) {
@@ -539,12 +612,15 @@ function setupUserCollectionOrderUpdatedSubscription() {
     }
   })
 
+
   return userCollectionOrderUpdatedSub
 }
+
 
 function setupUserCollectionDuplicatedSubscription() {
   const [userCollectionDuplicated$, userCollectionDuplicatedSub] =
     runUserCollectionDuplicatedSubscription()
+
 
   userCollectionDuplicated$.subscribe((res) => {
     if (E.isRight(res)) {
@@ -558,7 +634,9 @@ function setupUserCollectionDuplicatedSubscription() {
         type: collectionType,
       } = res.right.userCollectionDuplicated
 
+
       const { collectionStore } = getStoreByCollectionType(collectionType)
+
 
       const parentCollectionPath =
         parentCollectionID &&
@@ -566,6 +644,7 @@ function setupUserCollectionDuplicatedSubscription() {
           parentCollectionID,
           collectionStore.value.state
         )
+
 
       // Incoming data transformed to the respective internal representations
       const { auth, headers } =
@@ -576,11 +655,14 @@ function setupUserCollectionDuplicatedSubscription() {
               headers: [],
             }
 
+
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
+
 
       const requests = transformDuplicatedCollectionRequests(
         userRequests as UserRequest[]
       )
+
 
       // New collection to be added to store with the transformed data
       const effectiveDuplicatedCollection: HoppCollection = {
@@ -593,9 +675,11 @@ function setupUserCollectionDuplicatedSubscription() {
         headers: addDescriptionField(headers),
       }
 
+
       // only folders will have parent collection id
       if (parentCollectionID && parentCollectionPath) {
         const collectionCreatedFromStoreIDSuffix = "-duplicate-collection"
+
 
         const parentCollection = navigateToFolderWithIndexPath(
           collectionStore.value.state,
@@ -604,9 +688,11 @@ function setupUserCollectionDuplicatedSubscription() {
             .map((pathIndex) => parseInt(pathIndex))
         )
 
+
         if (!parentCollection) {
           return
         }
+
 
         // Grab the child collection inserted via store update with the ID suffix
         const collectionInsertedViaStoreUpdateIdx =
@@ -614,11 +700,14 @@ function setupUserCollectionDuplicatedSubscription() {
             id?.endsWith(collectionCreatedFromStoreIDSuffix)
           )
 
+
         if (collectionInsertedViaStoreUpdateIdx === -1) {
           return
         }
 
+
         const collectionInsertedViaStoreUpdateIndexPath = `${parentCollectionPath}/${collectionInsertedViaStoreUpdateIdx}`
+
 
         runDispatchWithOutSyncing(() => {
           /**
@@ -627,10 +716,13 @@ function setupUserCollectionDuplicatedSubscription() {
            * Step 3. Update the duplicated collection with the relevant data
            */
 
+
           if (collectionType === "GQL") {
             removeGraphqlFolder(collectionInsertedViaStoreUpdateIndexPath)
 
+
             addGraphqlFolder(name, parentCollectionPath)
+
 
             editGraphqlFolder(
               collectionInsertedViaStoreUpdateIndexPath,
@@ -639,7 +731,9 @@ function setupUserCollectionDuplicatedSubscription() {
           } else {
             removeRESTFolder(collectionInsertedViaStoreUpdateIndexPath)
 
+
             addRESTFolder(name, parentCollectionPath)
+
 
             editRESTFolder(
               collectionInsertedViaStoreUpdateIndexPath,
@@ -651,15 +745,18 @@ function setupUserCollectionDuplicatedSubscription() {
         // root collections won't have `parentCollectionID`
         const collectionCreatedFromStoreIDSuffix = "-duplicate-collection"
 
+
         // Grab the child collection inserted via store update with the ID suffix
         const collectionInsertedViaStoreUpdateIdx =
           collectionStore.value.state.findIndex(({ id }) =>
             id?.endsWith(collectionCreatedFromStoreIDSuffix)
           )
 
+
         if (collectionInsertedViaStoreUpdateIdx === -1) {
           return
         }
+
 
         runDispatchWithOutSyncing(() => {
           /**
@@ -669,9 +766,11 @@ function setupUserCollectionDuplicatedSubscription() {
           if (collectionType === "GQL") {
             removeGraphqlCollection(collectionInsertedViaStoreUpdateIdx)
 
+
             addGraphqlCollection(effectiveDuplicatedCollection)
           } else {
             removeRESTCollection(collectionInsertedViaStoreUpdateIdx)
+
 
             addRESTCollection(effectiveDuplicatedCollection)
           }
@@ -680,16 +779,20 @@ function setupUserCollectionDuplicatedSubscription() {
     }
   })
 
+
   return userCollectionDuplicatedSub
 }
+
 
 function setupUserRequestMovedSubscription() {
   const [userRequestMoved$, userRequestMovedSub] =
     runUserRequestMovedSubscription()
 
+
   userRequestMoved$.subscribe((res) => {
     if (E.isRight(res)) {
       const { request, nextRequest } = res.right.userRequestMoved
+
 
       const {
         collectionID: destinationCollectionID,
@@ -697,17 +800,21 @@ function setupUserRequestMovedSubscription() {
         type: requestType,
       } = request
 
+
       const { collectionStore } = getStoreByCollectionType(requestType)
+
 
       const sourceRequestPath = getRequestPathFromRequestID(
         sourceRequestID,
         collectionStore.value.state
       )
 
+
       const destinationCollectionPath = getCollectionPathFromCollectionID(
         destinationCollectionID,
         collectionStore.value.state
       )
+
 
       const destinationRequestIndex = destinationCollectionPath
         ? (() => {
@@ -718,11 +825,13 @@ function setupUserRequestMovedSubscription() {
                 .map((index) => parseInt(index))
             )?.requests.length
 
+
             return requestsLength || requestsLength == 0
               ? requestsLength - 1
               : undefined
           })()
         : undefined
+
 
       // there is no nextRequest, so request is moved
       if (
@@ -746,6 +855,7 @@ function setupUserRequestMovedSubscription() {
         })
       }
 
+
       // there is nextRequest, so request is reordered
       if (
         (destinationRequestIndex || destinationRequestIndex == 0) &&
@@ -757,11 +867,13 @@ function setupUserRequestMovedSubscription() {
         const { collectionID: nextCollectionID, id: nextRequestID } =
           nextRequest
 
+
         const nextCollectionPath =
           getCollectionPathFromCollectionID(
             nextCollectionID,
             collectionStore.value.state
           ) ?? undefined
+
 
         const nextRequestIndex = nextCollectionPath
           ? getRequestIndex(
@@ -770,6 +882,7 @@ function setupUserRequestMovedSubscription() {
               collectionStore.value.state
             )
           : undefined
+
 
         nextRequestIndex &&
           nextCollectionPath &&
@@ -785,23 +898,29 @@ function setupUserRequestMovedSubscription() {
     }
   })
 
+
   return userRequestMovedSub
 }
+
 
 function setupUserRequestDeletedSubscription() {
   const [userRequestDeleted$, userRequestDeletedSub] =
     runUserRequestDeletedSubscription()
 
+
   userRequestDeleted$.subscribe((res) => {
     if (E.isRight(res)) {
       const requestType = res.right.userRequestDeleted.type
 
+
       const { collectionStore } = getStoreByCollectionType(requestType)
+
 
       const deletedRequestPath = getRequestPathFromRequestID(
         res.right.userRequestDeleted.id,
         collectionStore.value.state
       )
+
 
       ;(deletedRequestPath?.requestIndex ||
         deletedRequestPath?.requestIndex == 0) &&
@@ -820,12 +939,15 @@ function setupUserRequestDeletedSubscription() {
     }
   })
 
+
   return userRequestDeletedSub
 }
+
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
 }
+
 
 function getCollectionPathFromCollectionID(
   collectionID: string,
@@ -844,12 +966,15 @@ function getCollectionPathFromCollectionID(
         parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
       )
 
+
       if (collectionPath) return collectionPath
     }
   }
 
+
   return null
 }
+
 
 function getRequestPathFromRequestID(
   requestID: string,
@@ -860,6 +985,7 @@ function getRequestPathFromRequestID(
     const requestIndex = collections[collectionIndex].requests.findIndex(
       (request) => request.id == requestID
     )
+
 
     if (requestIndex != -1) {
       return {
@@ -875,12 +1001,15 @@ function getRequestPathFromRequestID(
         parentPath ? `${parentPath}/${collectionIndex}` : `${collectionIndex}`
       )
 
+
       if (requestPath) return requestPath
     }
   }
 
+
   return null
 }
+
 
 function getRequestIndex(
   requestID: string,
@@ -892,18 +1021,22 @@ function getRequestIndex(
     parentCollectionPath?.split("/").map((index) => parseInt(index))
   )
 
+
   const requestIndex = collection?.requests.findIndex(
     (request) => request.id == requestID
   )
 
+
   return requestIndex
 }
+
 
 function transformDuplicatedCollections(
   collectionsJSONStr: string
 ): HoppCollection[] {
   const parsedCollections: UserCollectionDuplicatedData[] =
     JSON.parse(collectionsJSONStr)
+
 
   return parsedCollections.map(
     ({
@@ -918,9 +1051,12 @@ function transformDuplicatedCollections(
           ? JSON.parse(data)
           : { auth: { authType: "inherit", authActive: false }, headers: [] }
 
+
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
+
       const requests = transformDuplicatedCollectionRequests(userRequests)
+
 
       return {
         id,
@@ -935,11 +1071,13 @@ function transformDuplicatedCollections(
   )
 }
 
+
 function transformDuplicatedCollectionRequests(
   requests: UserRequest[]
 ): HoppRESTRequest[] | HoppGQLRequest[] {
   return requests.map(({ id, request }) => {
     const parsedRequest = JSON.parse(request)
+
 
     return {
       ...parsedRequest,

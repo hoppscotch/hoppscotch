@@ -29,6 +29,7 @@ import {
 
 import * as E from "fp-ts/Either"
 import { ReqType } from "../../api/generated/graphql"
+import { runDispatchWithOutSyncing } from "../../lib/sync";
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 export const restCollectionsMapper = createMapper<string, string>()
@@ -118,34 +119,57 @@ const recursivelySyncCollections = async (
     }
   }
 
-  // create the requests
+  // Update the collection ID in the store
   if (parentCollectionID) {
-    collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createRESTUserRequest(
-          request.name,
-          JSON.stringify(request),
-          parentCollectionID
-        ))
-
-      if (res && E.isRight(res)) {
-        const requestId = res.right.createRESTUserRequest.id
-
-        request.id = requestId
-      }
-    })
+    const collectionInStore = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      collectionPath.split("/").map((index) => parseInt(index))
+    );
+    if (collectionInStore) {
+      runDispatchWithOutSyncing(() => {
+        collectionInStore.id = parentCollectionID;
+      });
+    }
   }
 
-  // create the folders aka child collections
-  if (parentCollectionID)
-    collection.folders.forEach(async (folder, index) => {
-      recursivelySyncCollections(
+  // Create the requests and update their IDs
+  if (parentCollectionID) {
+    for (let index = 0; index < collection.requests.length; index++) {
+      const request = collection.requests[index];
+      const res = await createRESTUserRequest(
+        request.name,
+        JSON.stringify(request),
+        parentCollectionID
+      );
+
+      if (E.isRight(res)) {
+        const requestId = res.right.createRESTUserRequest.id;
+
+        // Update the request ID in the store
+        const collectionInStore = navigateToFolderWithIndexPath(
+          restCollectionStore.value.state,
+          collectionPath.split("/").map((index) => parseInt(index))
+        );
+        if (collectionInStore) {
+          runDispatchWithOutSyncing(() => {
+            collectionInStore.requests[index].id = requestId;
+          });
+        }
+      }
+    }
+  }
+
+  // Create child collections recursively
+  if (parentCollectionID) {
+    for (let index = 0; index < collection.folders.length; index++) {
+      const folder = collection.folders[index];
+      await recursivelySyncCollections(
         folder,
         `${collectionPath}/${index}`,
         parentCollectionID
-      )
-    })
+      );
+    }
+  }
 }
 
 // TODO: generalize this

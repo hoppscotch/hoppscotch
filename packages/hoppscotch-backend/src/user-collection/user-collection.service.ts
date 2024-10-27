@@ -999,7 +999,7 @@ export class UserCollectionService {
         },
       },
       requests: {
-        create: folder.requests.map((r, index) => ({
+        create: folder.requests.map((r) => ({
           title: r.name,
           user: {
             connect: {
@@ -1008,9 +1008,10 @@ export class UserCollectionService {
           },
           type: reqType,
           request: r,
-          orderIndex: index + 1,
+          orderIndex: r.orderIndex, // Use the orderIndex from the imported data
         })),
       },
+      
       orderIndex: orderIndex,
       type: reqType,
       children: {
@@ -1020,7 +1021,7 @@ export class UserCollectionService {
       },
       data: folder.data ?? undefined,
     };
-  }
+  }  
 
   /**
    * Create new UserCollections and UserRequests from JSON string
@@ -1065,10 +1066,10 @@ export class UserCollectionService {
       ? await this.getRootCollectionsCount(userID)
       : await this.getChildCollectionsCount(destCollectionID);
 
-    let collectionOrderIndex = count;
+    // Generate Prisma Query Object for all child collections in collectionsList
     const queryList = collectionsList.right.map((x) =>
-      this.generatePrismaQueryObj(x, userID, ++collectionOrderIndex, reqType),
-    );      
+      this.generatePrismaQueryObj(x, userID, count + 1, reqType),
+    );
 
     const parent = destCollectionID
       ? {

@@ -9,7 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     '(chore': fix broken runner for user collection)
     '(feat': collection runner config in modal)
-    '(fix': collection runner response)
+    '(fix': display selected env)
     AccessTokens: typeof import('./components/accessTokens/index.vue')['default']
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
@@ -137,6 +137,7 @@ declare module 'vue' {
     HoppSmartTree: typeof import('@hoppscotch/ui')['HoppSmartTree']
     HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
     HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
+    HoppTestEnv: (typeof import("@hoppscotch/ui"))["HoppTestEnv"]
     HoppTestRunnerModal: (typeof import("@hoppscotch/ui"))["HoppTestRunnerModal"]
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
     HttpAuthorizationAkamaiEG: typeof import('./components/http/authorization/AkamaiEG.vue')['default']
@@ -177,6 +178,7 @@ declare module 'vue' {
     HttpSaveResponseName: typeof import('./components/http/SaveResponseName.vue')['default']
     HttpSidebar: typeof import('./components/http/Sidebar.vue')['default']
     HttpTabHead: typeof import('./components/http/TabHead.vue')['default']
+    HttpTestEnv: typeof import('./components/http/test/Env.vue')['default']
     HttpTestFolder: typeof import('./components/http/test/Folder.vue')['default']
     HttpTestRequest: typeof import('./components/http/test/Request.vue')['default']
     HttpTestResponse: typeof import('./components/http/test/Response.vue')['default']
@@ -192,6 +194,7 @@ declare module 'vue' {
     HttpTestRunnerModal: typeof import('./components/http/test/RunnerModal.vue')['default']
     HttpTestRunnerResult: typeof import('./components/http/test/RunnerResult.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
+    HttpTestSelector: (typeof import("./components/http/test/Selector.vue"))["default"]
     HttpTestSelectRequest: (typeof import("./components/http/test/SelectRequest.vue"))["default"]
     HttpTestTestResult: typeof import('./components/http/test/TestResult.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']

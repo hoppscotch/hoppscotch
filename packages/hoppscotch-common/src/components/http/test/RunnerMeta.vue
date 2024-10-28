@@ -4,7 +4,9 @@
       {{ heading }}
     </span>
     <span class="text-sm font-bold text-secondaryDark">
-      {{ text }}
+      <slot>
+        {{ text }}
+      </slot>
     </span>
   </div>
 </template>
@@ -12,7 +14,7 @@
 withDefaults(
   defineProps<{
     heading: string
-    text: string
+    text?: string
   }>(),
   {}
 )

@@ -10,10 +10,9 @@
             :text="collectionName"
           />
           <template v-if="showResult">
-            <!-- <HttpTestRunnerMeta
-              :heading="t('environment.heading')"
-              :text="'None'"
-            /> -->
+            <HttpTestRunnerMeta :heading="t('environment.heading')">
+              <HttpTestEnv />
+            </HttpTestRunnerMeta>
             <!-- <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" /> -->
             <HttpTestRunnerMeta
               :heading="t('test.duration')"

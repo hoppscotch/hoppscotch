@@ -1210,6 +1210,7 @@
     "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
+    "delay": "Delay",
     "ui": "Runner",
     "running_collection": "Running collection",
     "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",

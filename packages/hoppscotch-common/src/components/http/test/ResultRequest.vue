@@ -42,7 +42,7 @@
   <HttpTestTestResult
     :show-empty-message="false"
     v-if="request.testResults"
-    v-model="request.testResults"
+    :model-value="request.testResults"
   />
 </template>
 
@@ -87,13 +87,7 @@ const statusCategory = computed(() => {
 })
 
 const emit = defineEmits<{
-  (event: "edit-request"): void
-  (event: "duplicate-request"): void
-  (event: "remove-request"): void
   (event: "select-request"): void
-  (event: "drag-request", payload: DataTransfer): void
-  (event: "update-request-order", payload: DataTransfer): void
-  (event: "update-last-request-order", payload: DataTransfer): void
 }>()
 
 const requestLabelColor = computed(() =>

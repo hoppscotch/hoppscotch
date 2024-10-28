@@ -153,7 +153,7 @@ export type HoppTestRunnerDocument = {
   /**
    * Selected test runner request
    */
-  request: TestRunnerRequest
+  request: TestRunnerRequest | null
 
   /**
    * The test runner configuration

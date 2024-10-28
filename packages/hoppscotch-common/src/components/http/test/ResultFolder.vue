@@ -72,10 +72,6 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits<{
-  (event: "toggle-children"): void
-}>()
-
 const options = ref<TippyComponent | null>(null)
 
 const collectionName = computed(() => {

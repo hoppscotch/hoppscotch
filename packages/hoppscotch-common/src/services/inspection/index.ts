@@ -8,6 +8,7 @@ import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTTabService } from "../tab/rest"
+import { HoppSavedExampleDocument } from "~/helpers/rest/document"
 
 /**
  * Defines how to render the text in an Inspector Result
@@ -127,11 +128,20 @@ export class InspectionService extends Service {
     watch(
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
+        if (
+          this.restTab.currentActiveTab.value.document.type !== "request" &&
+          this.restTab.currentActiveTab.value.document.type !==
+            "example-response"
+        )
+          return
+
         const currentTabRequest = computed(() =>
           this.restTab.currentActiveTab.value.document.type === "request"
             ? this.restTab.currentActiveTab.value.document.request
-            : this.restTab.currentActiveTab.value.document.response
-                .originalRequest
+            : (
+                this.restTab.currentActiveTab.value
+                  .document as HoppSavedExampleDocument
+              ).response.originalRequest
         )
 
         const currentTabResponse = computed(() =>
@@ -140,21 +150,8 @@ export class InspectionService extends Service {
             : null
         )
 
-        console.log(
-          "INSPECTION SERVICE: initializeListeners",
-          this.restTab.currentActiveTab.value.document
-        )
-
-        const reqRef = computed(
-          () =>
-            this.restTab.currentActiveTab.value.document.type === "request" &&
-            this.restTab.currentActiveTab.value.document.request
-        )
-        const resRef = computed(
-          () =>
-            this.restTab.currentActiveTab.value.document.type === "request" &&
-            this.restTab.currentActiveTab.value.document.response
-        )
+        const reqRef = computed(() => currentTabRequest.value)
+        const resRef = computed(() => currentTabResponse.value)
 
         const debouncedReq = refDebounced(reqRef, 1000, { maxWait: 2000 })
         const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })

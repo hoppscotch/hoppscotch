@@ -72,7 +72,6 @@ export class TestRunnerService extends Service {
   }
 
   private async runTestRequest(
-    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     state: Ref<TestRunState>,
     request: TestRunnerRequest,
     collection: HoppCollection,
@@ -151,7 +150,7 @@ export class TestRunnerService extends Service {
           state.value.status = "stopped"
           throw new Error("Test execution stopped")
         }
-        await this.runTestRequest(tab, state, request, collection, options)
+        await this.runTestRequest(state, request, collection, options)
 
         if (options.delay && options.delay > 0) {
           try {

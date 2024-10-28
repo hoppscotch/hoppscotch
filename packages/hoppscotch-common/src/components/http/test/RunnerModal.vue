@@ -15,11 +15,11 @@
                 Run Configuration
               </h4>
               <div class="mt-4">
-                <!-- TODO: fix input component types -->
+                <!-- TODO: fix input component types. so that it accepts number -->
                 <HoppSmartInput
                   v-model="config.delay as any"
                   type="number"
-                  :label="t('Delay')"
+                  :label="t('collection_runner.delay')"
                   class="!rounded-r-none !border-r-0"
                   input-styles="floating-input !rounded-r-none !border-r-0"
                 >
@@ -148,17 +148,17 @@ import { refAutoReset } from "@vueuse/core"
 import { computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 
+import { HoppCollection } from "@hoppscotch/data"
+import { useService } from "dioc/vue"
 import { useToast } from "~/composables/toast"
+import { TestRunnerConfig } from "~/helpers/rest/document"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { SelectedEnvironmentIndex } from "~/newstore/environments"
+import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
-import IconPlay from "~icons/lucide/play"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
-import { HoppCollection } from "@hoppscotch/data"
-import { TestRunnerConfig } from "~/helpers/rest/document"
+import IconPlay from "~icons/lucide/play"
 
 const t = useI18n()
 const toast = useToast()
@@ -189,22 +189,12 @@ const config = ref<TestRunnerConfig>({
 })
 
 const runTests = () => {
-  // TODO: fix collection runner in tabs
-  const possibleTab = tabs.getTabRefWithSaveContext(
-    {
-      originLocation: "user-collection",
-      folderPath: props.collectionIndex!!,
-    },
-    "collection"
-  )
   if (props.sameTab) {
     const tabRef = tabs.getTabRef(tabs.currentTabID.value)
     if (tabRef && tabRef.value.document.type === "test-runner") {
       tabRef.value.document.config = config.value
     }
     emit("hide-modal")
-  } else if (possibleTab) {
-    tabs.setActiveTab(possibleTab.value.id)
   } else {
     tabs.createNewTab({
       type: "test-runner",
@@ -214,10 +204,6 @@ const runTests = () => {
       isRunning: false,
       request: null,
       initiateRunOnTabOpen: true,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: props.collectionIndex!,
-      },
     })
   }
 

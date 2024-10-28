@@ -1102,7 +1102,8 @@
     "we_sent_invite_link_description": " New invitees will receive a link to join the workspace, existing members and pending invitees won't receive a new link.",
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
-    "search_title": "Team Requests"
+    "search_title": "Team Requests",
+    "user_not_found": "User not found in the instance."
   },
   "team_environment": {
     "deleted": "Environment Deleted",

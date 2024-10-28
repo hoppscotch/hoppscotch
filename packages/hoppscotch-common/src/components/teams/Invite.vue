@@ -662,6 +662,8 @@ const getErrorMessage = (error: SendInvitesErrorType) => {
       return t("team.already_member")
     case "team_invite/member_has_invite":
       return t("team.member_has_invite")
+    case "user/not_found":
+      return t("team.user_not_found")
   }
 }
 

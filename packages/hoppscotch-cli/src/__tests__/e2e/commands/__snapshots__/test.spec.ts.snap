@@ -2,7 +2,7 @@
 
 exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the specified path 1`] = `
 "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>
-<testsuites tests=\\"66\\" failures=\\"0\\" errors=\\"66\\" time=\\"time\\">
+<testsuites tests=\\"76\\" failures=\\"2\\" errors=\\"66\\" time=\\"time\\">
   <testsuite name=\\"test-junit-report-export/assertions/error\\" time=\\"time\\" timestamp=\\"timestamp\\" tests=\\"22\\" failures=\\"0\\" errors=\\"22\\">
     <testcase name=\\"\`toBeLevelxxx()\` error scenarios - Expected 200-level status but could not parse value 'foo'\\" classname=\\"test-junit-report-export/assertions/error\\">
       <error message=\\"Expected 200-level status but could not parse value 'foo'\\"/>
@@ -269,12 +269,12 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
     <testcase name=\\"Overrides auth and headers set at the parent folder - Expected 'Basic dXNlcm5hbWU6cGFzc3dvcmQ=' to be 'Basic dXNlcm5hbWU6cGFzc3dvcmQ='\\" classname=\\"CollectionA/FolderA/FolderB/FolderC/RequestD\\"/>
   </testsuite>
   <testsuite name=\\"CollectionB/RequestA\\" time=\\"time\\" timestamp=\\"timestamp\\" tests=\\"2\\" failures=\\"0\\" errors=\\"0\\">
-      <testcase name=\\"Correctly inherits auth and headers from the root collection - Expected 'Set at root collection' to be 'Set at root collection'\\" classname=\\"CollectionB/RequestA\\"/>
-      <testcase name=\\"Correctly inherits auth and headers from the root collection - Expected 'Bearer BearerToken' to be 'Bearer BearerToken'\\" classname=\\"CollectionB/RequestA\\"/>
-    </testsuite>
-    <testsuite name=\\"CollectionB/FolderA/RequestB\\" time=\\"time\\" timestamp=\\"timestamp\\" tests=\\"2\\" failures=\\"0\\" errors=\\"0\\">
-      <testcase name=\\"Correctly inherits auth and headers from the parent folder - Expected 'Set at root collection' to be 'Set at root collection'\\" classname=\\"CollectionB/FolderA/RequestB\\"/>
-      <testcase name=\\"Correctly inherits auth and headers from the parent folder - Expected 'Bearer BearerToken' to be 'Bearer BearerToken'\\" classname=\\"CollectionB/FolderA/RequestB\\"/>
-    </testsuite>
+    <testcase name=\\"Correctly inherits auth and headers from the root collection - Expected 'Set at root collection' to be 'Set at root collection'\\" classname=\\"CollectionB/RequestA\\"/>
+    <testcase name=\\"Correctly inherits auth and headers from the root collection - Expected 'Bearer BearerToken' to be 'Bearer BearerToken'\\" classname=\\"CollectionB/RequestA\\"/>
+  </testsuite>
+  <testsuite name=\\"CollectionB/FolderA/RequestB\\" time=\\"time\\" timestamp=\\"timestamp\\" tests=\\"2\\" failures=\\"0\\" errors=\\"0\\">
+    <testcase name=\\"Correctly inherits auth and headers from the parent folder - Expected 'Set at root collection' to be 'Set at root collection'\\" classname=\\"CollectionB/FolderA/RequestB\\"/>
+    <testcase name=\\"Correctly inherits auth and headers from the parent folder - Expected 'Bearer BearerToken' to be 'Bearer BearerToken'\\" classname=\\"CollectionB/FolderA/RequestB\\"/>
+  </testsuite>
 </testsuites>"
 `;

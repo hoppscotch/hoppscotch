@@ -3,6 +3,9 @@ import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
 
+// Keeps track of whether an invalid JSON entry was detected in the tree
+let isInvalidJSONEntry = false
+
 const linter: LinterDefinition = (text) => {
   try {
     jsoncParse(text)
@@ -26,19 +29,33 @@ function convertNodeToJSON(node: Node): string {
     case "null":
       return "null"
     case "array":
-      return `[${node
-        .children!.map((child) => convertNodeToJSON(child))
+      if (!node.children) {
+        // The original text is returned if an invalid state is detected in the tree
+        isInvalidJSONEntry = true
+        return ""
+      }
+
+      return `[${node.children
+        .map((child) => convertNodeToJSON(child))
         .join(",")}]`
     case "number":
       return JSON.stringify(node.value)
     case "boolean":
       return JSON.stringify(node.value)
     case "object":
-      return `{${node
-        .children!.map((child) => convertNodeToJSON(child))
+      if (!node.children) {
+        // The original text is returned if an invalid state is detected in the tree
+        isInvalidJSONEntry = true
+        return ""
+      }
+
+      return `{${node.children
+        .map((child) => convertNodeToJSON(child))
         .join(",")}}`
     case "property":
       if (!node.children || node.children.length !== 2) {
+        // The original text is returned if an invalid state is detected in the tree
+        isInvalidJSONEntry = true
         return ""
       }
 
@@ -59,7 +76,10 @@ function stripCommentsAndCommas(text: string): string {
     return text
   }
 
-  return convertNodeToJSON(tree)
+  const transformedJSONString = convertNodeToJSON(tree)
+
+  // Return the original text if an invalid state was detected in the tree
+  return isInvalidJSONEntry ? text : transformedJSONString
 }
 
 /**
@@ -69,6 +89,9 @@ function stripCommentsAndCommas(text: string): string {
  */
 
 export function stripComments(jsonString: string) {
+  // Reset the state
+  isInvalidJSONEntry = false
+
   return stripCommentsAndCommas(stripComments_(jsonString))
 }
 

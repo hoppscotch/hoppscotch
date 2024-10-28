@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="rest-primary">
+  <AppPaneLayout layout-id="test-runner-primary">
     <template #primary>
       <div
         class="flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary sticky top-0 z-20"
@@ -64,6 +64,15 @@
         v-if="selectedRequest"
         v-model:document="selectedRequest"
       />
+
+      <div
+        v-if="tab.document.isRunning"
+        class="flex flex-col items-center gap-4 justify-center h-full"
+      >
+        <HoppSmartSpinner />
+
+        <span> {{ t("collection_runner.running_collection") }}... </span>
+      </div>
     </template>
   </AppPaneLayout>
 </template>
@@ -159,15 +168,6 @@ function calculateAverageTime(
   completedRequests: number
 ): number {
   return completedRequests > 0 ? Math.round(totalTime / completedRequests) : 0
-}
-
-function calculateProgress(
-  completedRequests: number,
-  totalRequests: number
-): number {
-  return totalRequests > 0
-    ? Math.round((completedRequests / totalRequests) * 100)
-    : 0
 }
 
 const newRun = () => {

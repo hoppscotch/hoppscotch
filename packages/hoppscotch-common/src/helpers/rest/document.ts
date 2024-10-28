@@ -130,6 +130,12 @@ export type HoppTestRunnerDocument = {
   type: "test-runner"
 
   /**
+   * Whether the test runner is currently running
+   */
+
+  isRunning: boolean
+
+  /**
    * The collection as it is in the document
    */
   collection: HoppCollection

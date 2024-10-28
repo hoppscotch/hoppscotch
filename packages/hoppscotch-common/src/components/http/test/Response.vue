@@ -9,15 +9,10 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
-
-const t = useI18n()
-const toast = useToast()
 
 const props = defineProps<{
   document: TestRunnerRequest

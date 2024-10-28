@@ -922,10 +922,18 @@ describe("hopp test [options] <file_path_or_id>", () => {
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
 
-      const {error} = await runCLI(args);
-      expect(error).toBeNull();
+      const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
+      console.log("args.."+args)
+      try {
+        const { stdout, stderr, error } = await runCLI(args);
+        console.log('stdout:', stdout);
+        console.log('stderr:', stderr);
+        expect(error).toBeNull();
+      } catch (error) {
+        console.error('Error:', error);
+        throw error;
+      }
     });
   });
 });

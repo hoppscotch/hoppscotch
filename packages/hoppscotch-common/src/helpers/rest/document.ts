@@ -1,10 +1,12 @@
-import { HoppRESTRequest, HoppRESTRequestResponse } from "@hoppscotch/data"
-import { HoppCollection } from "@hoppscotch/data"
-import { HoppRESTResponse } from "../types/HoppRESTResponse"
-import { HoppTestResult } from "../types/HoppTestResult"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  HoppRESTRequestResponse,
+} from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
-import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import { HoppRESTResponse } from "../types/HoppRESTResponse"
+import { HoppTestResult } from "../types/HoppTestResult"
 
 export type HoppRESTSaveContext =
   | {
@@ -136,6 +138,11 @@ export type HoppTestRunnerDocument = {
   isRunning: boolean
 
   /**
+   * The test runner configuration
+   */
+  config: TestRunnerConfig
+
+  /**
    * initiate test runner on tab open
    */
   initiateRunOnTabOpen: boolean
@@ -153,12 +160,19 @@ export type HoppTestRunnerDocument = {
   /**
    * Selected test runner request
    */
-  request: TestRunnerRequest | null
+  request: HoppRESTRequest | null
 
   /**
-   * The test runner configuration
+   * The response of the selected request in collections after running the test
+   * (if any)
    */
-  config: TestRunnerConfig
+  response?: HoppRESTResponse | null
+
+  /**
+   * The test results of the selected request in collections after running the test
+   * (if any)
+   */
+  testResults?: HoppTestResult | null
 
   /**
    * Info about where this request should be saved.

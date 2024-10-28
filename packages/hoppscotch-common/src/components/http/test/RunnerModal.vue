@@ -208,8 +208,8 @@ function setCurrentEnv(payload: CurrentEnv) {
 const config = ref<TestRunnerConfig>({
   iterations: 1,
   delay: 500,
-  stopOnError: true,
-  persistResponses: false,
+  stopOnError: false,
+  persistResponses: true,
   keepVariableValues: false,
 })
 
@@ -221,15 +221,17 @@ const runTests = () => {
     }
     emit("hide-modal")
   } else {
-    tabs.createNewTab({
-      type: "test-runner",
-      collection: props.collectionRunnerData.collection,
-      isDirty: false,
-      config: config.value,
-      isRunning: false,
-      request: null,
-      initiateRunOnTabOpen: true,
-    })
+    if (props.collectionRunnerData.type === "my-collections") {
+      tabs.createNewTab({
+        type: "test-runner",
+        collection: props.collectionRunnerData.collection,
+        isDirty: false,
+        config: config.value,
+        isRunning: false,
+        request: null,
+        initiateRunOnTabOpen: true,
+      })
+    }
   }
 
   emit("hide-modal")

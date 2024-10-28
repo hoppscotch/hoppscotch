@@ -3,11 +3,11 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { Ref, ref } from "vue"
-import { TestRunnerConfig } from "~/components/http/test/Runner.vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { RESTTabService } from "../tab/rest"
+import { TestRunnerConfig } from "~/helpers/rest/document"
 
 export type TestRunState = {
   status: "idle" | "running" | "stopped"
@@ -33,6 +33,8 @@ export type TestRunnerRequest = HoppRESTRequest & {
    * (if any)
    */
   testResults?: HoppTestResult | null
+
+  isLoading?: boolean
 
   /**
    * Whether to render the results in the UI

@@ -247,10 +247,6 @@ const getAdditionVars = () =>
     ? testResults.value.envDiff.selected.additions
     : []
 
-const clearContent = () => {
-  testResults.value = null
-}
-
 const haveEnvVariables = computed(() => {
   if (!testResults.value) return false
   return (

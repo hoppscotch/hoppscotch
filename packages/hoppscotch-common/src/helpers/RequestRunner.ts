@@ -4,11 +4,7 @@ import {
   HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import {
-  SandboxTestResult,
-  TestDescriptor,
-  TestResult,
-} from "@hoppscotch/js-sandbox"
+import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"

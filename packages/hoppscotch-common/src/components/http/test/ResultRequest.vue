@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-stretch group ml-4">
+  <div class="flex items-stretch group ml-4 flex-col">
     <button
       @click="selectRequest()"
-      class="w-full rounded px-6 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
+      class="w-full rounded px-4 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
     >
       <div class="flex gap-4 mb-1">
         <span
@@ -37,13 +37,12 @@
         {{ request.endpoint }}
       </p>
     </button>
+    <HttpTestTestResult
+      :show-empty-message="false"
+      v-if="request.testResults"
+      :model-value="request.testResults"
+    />
   </div>
-
-  <HttpTestTestResult
-    :show-empty-message="false"
-    v-if="request.testResults"
-    :model-value="request.testResults"
-  />
 </template>
 
 <script setup lang="ts">

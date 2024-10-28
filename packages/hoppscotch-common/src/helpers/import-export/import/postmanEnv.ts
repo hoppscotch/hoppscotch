@@ -54,9 +54,10 @@ export const postmanEnvImporter = (contents: string[]) => {
       id: uniqueID(),
       v: 1,
       name,
-      variables: values.map((entires) => ({
-        ...entires,
-        secret: entires.type === "secret",
+      variables: values.map(({ key, value, type }) => ({
+        key,
+        value,
+        secret: type === "secret",
       })),
     })
   )

@@ -74,19 +74,11 @@
             @click="emit('add-folder')"
           />
           <HoppButtonSecondary
-            v-if="collectionsType === 'team-collections'"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlaySquare"
             :title="t('collection_runner.run_collection')"
             class="hidden group-hover:inline-flex"
             @click="emit('run-collection', props.id)"
-          />
-          <HoppButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconPlaySquare"
-            :title="t('collection.run')"
-            class="hidden group-hover:inline-flex"
-            @click="emit('run-collection')"
           />
           <span>
             <tippy
@@ -141,13 +133,13 @@
                     "
                   />
                   <HoppSmartItem
-                    ref="folderAction"
+                    ref="runCollectionAction"
                     :icon="IconPlaySquare"
-                    :label="t('collection.run')"
-                    :shortcut="['N']"
+                    :label="t('collection_runner.run_collection')"
+                    :shortcut="['T']"
                     @click="
                       () => {
-                        emit('run-collection')
+                        emit('run-collection', props.id)
                         hide()
                       }
                     "
@@ -210,19 +202,6 @@
                     @click="
                       () => {
                         emit('edit-properties')
-                        hide()
-                      }
-                    "
-                  />
-                  <HoppSmartItem
-                    v-if="collectionsType === 'team-collections'"
-                    ref="runCollectionAction"
-                    :icon="IconPlaySquare"
-                    :label="t('collection_runner.run_collection')"
-                    :shortcut="['T']"
-                    @click="
-                      () => {
-                        emit('run-collection', props.id)
                         hide()
                       }
                     "

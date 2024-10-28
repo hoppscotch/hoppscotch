@@ -850,8 +850,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
   describe("Test `hopp test <file> --data <file>` command:", () => {
     describe("Supplied data export file validations", () => {
-      const VALID_TEST_ARGS = `test ${getTestJsonFilePath("data-envs.csv", "collection")}`;
-      const dataFilePath = `${VALID_TEST_ARGS} --data notfound.csv`;
+      const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
       test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
         const args = `${VALID_TEST_ARGS} --data`;
@@ -861,7 +860,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
       });
 
-      test("Errors with the code `INVALID_FILE_TYPE` if the supplied environment export file doesn't end with the `.csv` extension", async () => {
+      test("Errors with the code `INVALID_DATA_FILE_TYPE` if the supplied data file doesn't end with the `.csv` extension", async () => {
         const args = `${VALID_TEST_ARGS} --data ${getTestJsonFilePath(
           "notjson-coll.txt",
           "collection"
@@ -869,21 +868,16 @@ describe("hopp test [options] <file_path_or_id>", () => {
         const {stderr} = await runCLI(args);
 
         const out = getErrorCode(stderr);
-        expect(out).toBe<HoppErrorCode>("INVALID_FILE_TYPE");
+        expect(out).toBe<HoppErrorCode>("INVALID_DATA_FILE_TYPE");
       });
 
       test("Errors with the code `FILE_NOT_FOUND` if the supplied data export file doesn't exist", async () => {
-        const args = dataFilePath;
 
-        // Expect the function to throw an error and log the error message
-        try {
-          await runCLI(args);
-        } catch (error) {
-          if (error instanceof Error) {
-            console.log(error.message);
-            expect(error.message).toBe("FILE_NOT_FOUND");
-          }
-        }
+        const args = `${VALID_TEST_ARGS} --data notfound.csv`;
+        const {stderr} = await runCLI(args);
+
+        const out = getErrorCode(stderr);
+        expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
       });
     });
 
@@ -922,18 +916,11 @@ describe("hopp test [options] <file_path_or_id>", () => {
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-
       const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
-      console.log("args.."+args)
-      try {
-        const { stdout, stderr, error } = await runCLI(args);
-        console.log('stdout:', stdout);
-        console.log('stderr:', stderr);
-        expect(error).toBeNull();
-      } catch (error) {
-        console.error('Error:', error);
-        throw error;
-      }
+
+      const {stdout, stderr, error} = await runCLI(args);
+
+      expect(error).toBeNull();
     });
   });
 });

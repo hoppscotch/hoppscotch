@@ -1,3 +1,4 @@
+import { HoppCollection } from "@hoppscotch/data"
 import { Component, Ref } from "vue"
 import { defineStep } from "~/composables/step-components"
 
@@ -18,6 +19,10 @@ export type ImporterOrExporter = {
     icon: Component
     step: ReturnType<typeof defineStep>
   }[]
+  importSummary?: Ref<{
+    showImportSummary: boolean
+    importedCollections: HoppCollection[] | null
+  }>
   component?: ReturnType<typeof defineStep>
   action?: (...args: any[]) => any
   onSelect?: () => boolean

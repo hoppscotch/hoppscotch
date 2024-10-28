@@ -896,7 +896,6 @@ describe("hopp test [options] <file_path_or_id>", () => {
       const args = `test ${TESTS_PATH} --data ${ENV_PATH}`;
 
       const {error} = await runCLI(args);
-      console.log('error...'+error);
 
       expect(error).toBeNull();
     });
@@ -907,15 +906,14 @@ describe("hopp test [options] <file_path_or_id>", () => {
         "collection"
       );
       const ENVS_PATH = getTestJsonFilePath(
-        "req-body-data-vars.json",
+        "data-envs.csv",
         "environment"
       );
       const args = `test ${COLL_PATH} --data ${ENVS_PATH}`;
-
       const {error} = await runCLI(args);
-      console.log('error...'+error);
 
       expect(error).toBeNull();
+
     });
 
     test("Works with shorth `-data` flag", async () => {
@@ -927,7 +925,6 @@ describe("hopp test [options] <file_path_or_id>", () => {
       const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
 
       const {error} = await runCLI(args);
-      console.log('error...'+error);
       expect(error).toBeNull();
     });
   });

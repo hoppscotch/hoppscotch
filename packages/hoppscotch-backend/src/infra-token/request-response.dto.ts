@@ -142,7 +142,7 @@ export class GetUserWorkspacesResponse {
 
   @ApiProperty({ enum: TeamMemberRole })
   @Expose()
-  my_role: string;
+  role: string;
 
   @ApiProperty()
   @Expose()

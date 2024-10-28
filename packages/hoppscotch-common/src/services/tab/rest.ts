@@ -48,6 +48,7 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         doc: {
           ...tab.document,
           response: null,
+          initiateRunOnTabOpen: true,
         },
       }
     }),

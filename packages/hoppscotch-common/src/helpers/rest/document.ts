@@ -136,6 +136,11 @@ export type HoppTestRunnerDocument = {
   isRunning: boolean
 
   /**
+   * initiate test runner on tab open
+   */
+  initiateRunOnTabOpen: boolean
+
+  /**
    * The collection as it is in the document
    */
   collection: HoppCollection

@@ -4,13 +4,12 @@ import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { Ref, ref } from "vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
-import { RESTTabService } from "../tab/rest"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
 } from "~/helpers/rest/document"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
 
 export type TestRunState = {
@@ -39,13 +38,17 @@ export type TestRunnerRequest = HoppRESTRequest & {
 }
 
 function delay(timeMS: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeMS))
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(resolve, timeMS)
+    return () => {
+      clearTimeout(timeout)
+      reject(new Error("Operation cancelled"))
+    }
+  })
 }
 
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
-
-  private readonly restTab = this.bind(RESTTabService)
 
   private getRequestPath(
     collection: HoppCollection,
@@ -75,11 +78,20 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions
   ) {
+    if (options.stopRef?.value) {
+      throw new Error("Test execution stopped")
+    }
+
     try {
       request.isLoading = true
       request.error = undefined
 
       const results = await runTestRunnerRequest(tab, request)
+
+      // Check again after the request in case it was stopped during execution
+      if (options.stopRef?.value) {
+        throw new Error("Test execution stopped")
+      }
 
       if (results && E.isRight(results)) {
         const { response, testResult } = results.right
@@ -99,6 +111,13 @@ export class TestRunnerService extends Service {
         })
       }
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Test execution stopped"
+      ) {
+        throw error // Re-throw stop signal
+      }
+
       const errorMsg =
         error instanceof Error ? error.message : "Unknown error occurred"
       request.error = errorMsg
@@ -121,23 +140,39 @@ export class TestRunnerService extends Service {
       for (const folder of collection.folders) {
         if (options.stopRef?.value) {
           state.value.status = "stopped"
-          break
+          throw new Error("Test execution stopped")
         }
-        // folder.renderResults = options.renderResults
         await this.runTestCollection(tab, state, folder, options)
       }
 
       for (const request of collection.requests) {
         if (options.stopRef?.value) {
           state.value.status = "stopped"
-          break
+          throw new Error("Test execution stopped")
         }
         await this.runTestRequest(tab, state, request, collection, options)
-        await delay(options.delay ?? 0)
+
+        if (options.delay && options.delay > 0) {
+          try {
+            await delay(options.delay)
+          } catch (error) {
+            if (options.stopRef?.value) {
+              state.value.status = "stopped"
+              throw new Error("Test execution stopped")
+            }
+          }
+        }
       }
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Test execution stopped"
+      ) {
+        throw error // Propagate stop signal
+      }
       state.value.status = "error"
       console.error("Collection execution failed:", error)
+      throw error // Re-throw to propagate error
     }
   }
 
@@ -166,20 +201,28 @@ export class TestRunnerService extends Service {
       coll.folders.forEach((folder) => initializeRequests(folder))
     }
 
-    // state.value.result.renderResults = false
     initializeRequests(state.value.result)
 
     this.runTestCollection(tab, state, state.value.result, options)
+
+      .then(() => {
+        state.value.status = "stopped"
+      })
+
       .catch((error) => {
-        state.value.status = "error"
-        tab.value.document.isRunning = false
-        console.error("Test runner failed:", error)
+        if (
+          error instanceof Error &&
+          error.message === "Test execution stopped"
+        ) {
+          state.value.status = "stopped"
+        } else {
+          state.value.status = "error"
+          console.error("Test runner failed:", error)
+        }
       })
       .finally(() => {
-        if (state.value.status === "running") {
-          state.value.status = "stopped"
-          tab.value.document.isRunning = false
-        }
+        state.value.status = "stopped"
+        tab.value.document.isRunning = false
       })
 
     return state

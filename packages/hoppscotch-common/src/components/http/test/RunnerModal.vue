@@ -206,6 +206,7 @@ const runTests = () => {
       config: config.value,
       isRunning: false,
       request: null,
+      initiateRunOnTabOpen: true,
       saveContext: {
         originLocation: "user-collection",
         folderPath: props.collectionIndex!,

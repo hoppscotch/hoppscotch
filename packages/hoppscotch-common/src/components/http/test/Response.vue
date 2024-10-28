@@ -1,10 +1,7 @@
 <template>
   <div class="relative flex flex-1 flex-col">
     <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
-    <LensesResponseBodyRenderer
-      v-if="!loading && hasResponse"
-      v-model:document="doc"
-    />
+    <LensesResponseBodyRenderer v-if="hasResponse" v-model:document="doc" />
   </div>
 </template>
 
@@ -30,6 +27,4 @@ const hasResponse = computed(
     doc.value.response?.type === "success" ||
     doc.value.response?.type === "fail"
 )
-
-const loading = computed(() => doc.value.response?.type === "loading")
 </script>

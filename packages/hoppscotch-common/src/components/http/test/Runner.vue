@@ -9,6 +9,7 @@
             :heading="t('collection.title')"
             :text="collectionName"
           />
+
           <template v-if="showResult">
             <HttpTestRunnerMeta :heading="t('environment.heading')">
               <HttpTestEnv />
@@ -25,10 +26,10 @@
           </template>
         </div>
         <HoppButtonPrimary
-          v-if="showResult && !isTestStopped"
+          v-if="showResult && !testRunnerStopRef"
           :label="t('test.stop')"
           class="w-32"
-          @click="isTestStopped = false"
+          @click="testRunnerStopRef = true"
         />
         <HoppButtonPrimary
           v-else
@@ -95,6 +96,7 @@ import {
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
 import { HoppTab } from "~/services/tab"
 import {
+  TestRunnerRequest,
   TestRunnerService,
   TestRunState,
 } from "~/services/test-runner/test-runner.service"
@@ -132,7 +134,7 @@ function msToHumanReadable(ms: number) {
   return result.trim()
 }
 
-const selectedRequest = ref<any>(null)
+const selectedRequest = ref<TestRunnerRequest>()
 
 const collectionName = computed(() => {
   if (props.modelValue.document.type === "test-runner") {
@@ -147,31 +149,31 @@ const collection = computed(() => {
   return tab.value.document.collection
 })
 
+const testRunnerStopRef = ref(false)
+const showResult = ref(true)
+
 const runTests = () => {
   showResult.value = true
+  testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
 }
-
-const showResult = ref(false)
-const isTestStopped = ref(false)
 
 onMounted(() => {
   if (tab.value.document.type === "test-runner") {
-    showResult.value = true
+    if (tab.value.document.initiateRunOnTabOpen) {
+      runTests()
+      tab.value.document.initiateRunOnTabOpen = false
+    }
   }
 })
 
 const onStopRunning = (testRunnerState: TestRunState) => {
-  isTestStopped.value = true
+  testRunnerStopRef.value = true
 
   duration.value = testRunnerState.totalTime
   avgResponse.value = calculateAverageTime(
     testRunnerState.totalTime,
     testRunnerState.completedRequests
   )
-
-  console.log("stopRunning", duration.value, avgResponse.value)
-
-  console.log("stopRunning", testRunnerState)
 }
 
 function calculateAverageTime(
@@ -182,8 +184,7 @@ function calculateAverageTime(
 }
 
 const newRun = () => {
-  showResult.value = false
-  isTestStopped.value = false
+  testRunnerStopRef.value = false
 }
 
 const testRunnerService = useService(TestRunnerService)
@@ -192,7 +193,7 @@ const result = ref<HoppCollection[]>([])
 
 const runnerState = testRunnerService.runTests(tab, collection.value, {
   ...testRunnerConfig.value,
-  stopRef: isTestStopped,
+  stopRef: testRunnerStopRef,
 })
 
 watch(

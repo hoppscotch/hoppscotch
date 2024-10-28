@@ -50,14 +50,12 @@
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { TestRunnerConfig } from "~/helpers/rest/document"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const t = useI18n()
 
 defineProps<{
   collectionAdapter: SmartTreeAdapter<any>
-  config: TestRunnerConfig
   isRunning: boolean
 }>()
 

@@ -133,7 +133,7 @@
       />
     </div>
 
-    <div class="px-4 mt-4 pb-6">
+    <div class="px-4 pt-3 pb-6">
       <HoppSmartCheckbox
         :on="auth.disableRetry"
         @change="auth.disableRetry = !auth.disableRetry"

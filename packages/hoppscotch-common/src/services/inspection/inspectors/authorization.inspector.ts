@@ -91,7 +91,7 @@ export class AuthorizationInspectorService
           severity: 2,
           isApplicable: true,
           locations: {
-            type: "response",
+            type: "url",
           },
           doc: {
             text: this.t("action.learn_more"),

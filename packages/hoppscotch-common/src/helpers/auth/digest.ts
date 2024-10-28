@@ -1,7 +1,6 @@
 import * as E from "fp-ts/Either"
 import { md5 } from "js-md5"
 
-import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
 import { InterceptorService } from "~/services/interceptor.service"
@@ -73,7 +72,6 @@ export async function fetchInitialDigestAuthInfo(
   method: string,
   disableRetry: boolean
 ): Promise<DigestAuthInfo> {
-  const toast = useToast()
   const t = getI18n()
 
   try {
@@ -83,8 +81,14 @@ export async function fetchInitialDigestAuthInfo(
       method,
     }).response
 
-    if (E.isLeft(initialResponse))
-      throw new Error(`Unexpected response: ${initialResponse.left}`)
+    if (E.isLeft(initialResponse)) {
+      const initialFetchFailureReason =
+        initialResponse.left === "cancellation"
+          ? initialResponse.left
+          : initialResponse.left.humanMessage.heading(t)
+
+      throw new Error(initialFetchFailureReason)
+    }
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
     if (initialResponse.right.status === 401 && !disableRetry) {
@@ -120,7 +124,6 @@ export async function fetchInitialDigestAuthInfo(
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : error
 
-    toast.error(t("authorization.digest.initial_fetch_failed"))
     console.error(`Failed to fetch initial Digest Auth info: ${errMsg}`)
 
     throw error // Re-throw the error to handle it further up the chain if needed

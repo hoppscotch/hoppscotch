@@ -50,6 +50,7 @@ export class AuthorizationInspectorService
 
       const results: InspectorResult[] = []
 
+      // `Agent` interceptor is recommended while using Digest Auth
       const isUnsupportedInterceptor =
         this.interceptorService.currentInterceptorID.value !==
         this.agentService.interceptorID

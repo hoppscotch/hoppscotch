@@ -219,7 +219,6 @@
       "service_token": "Service Token"
     },
     "digest": {
-      "initial_fetch_failed": "Fetching initial digest authorization information failed. Please check console more context.",
       "realm": "Realm",
       "nonce": "Nonce",
       "algorithm": "Algorithm",

@@ -3,9 +3,6 @@ import jsoncParse from "~/helpers/jsoncParse"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
 
-// Keeps track of whether an invalid JSON entry was detected in the tree
-let isInvalidJSONEntry = false
-
 const linter: LinterDefinition = (text) => {
   try {
     jsoncParse(text)
@@ -22,6 +19,23 @@ const linter: LinterDefinition = (text) => {
   }
 }
 
+/**
+ * An internal error that is thrown when an invalid JSONC node configuration
+ * is encountered
+ */
+class InvalidJSONCNodeError extends Error {
+  constructor() {
+    super()
+    this.message = "Invalid JSONC node"
+  }
+}
+
+// NOTE: If we choose to export this function, do refactor it to return a result discriminated union instead of throwing
+/**
+ * @throws {InvalidJSONCNodeError} if the node is in an invalid configuration
+ * @returns The JSON string without comments and trailing commas or null
+ * if the conversion failed
+ */
 function convertNodeToJSON(node: Node): string {
   switch (node.type) {
     case "string":
@@ -30,9 +44,7 @@ function convertNodeToJSON(node: Node): string {
       return "null"
     case "array":
       if (!node.children) {
-        // The original text is returned if an invalid state is detected in the tree
-        isInvalidJSONEntry = true
-        return ""
+        throw new InvalidJSONCNodeError()
       }
 
       return `[${node.children
@@ -44,9 +56,7 @@ function convertNodeToJSON(node: Node): string {
       return JSON.stringify(node.value)
     case "object":
       if (!node.children) {
-        // The original text is returned if an invalid state is detected in the tree
-        isInvalidJSONEntry = true
-        return ""
+        throw new InvalidJSONCNodeError()
       }
 
       return `{${node.children
@@ -54,14 +64,13 @@ function convertNodeToJSON(node: Node): string {
         .join(",")}}`
     case "property":
       if (!node.children || node.children.length !== 2) {
-        // The original text is returned if an invalid state is detected in the tree
-        isInvalidJSONEntry = true
-        return ""
+        throw new InvalidJSONCNodeError()
       }
 
-      return `${JSON.stringify(node.children[0].value)}:${convertNodeToJSON(
-        node.children[1]
-      )}`
+      const [keyNode, valueNode] = node.children
+
+      // If the valueNode configuration is wrong, this will return an error, which will propagate up
+      return `${JSON.stringify(keyNode)}:${convertNodeToJSON(valueNode)}`
   }
 }
 
@@ -76,10 +85,12 @@ function stripCommentsAndCommas(text: string): string {
     return text
   }
 
-  const transformedJSONString = convertNodeToJSON(tree)
-
-  // Return the original text if an invalid state was detected in the tree
-  return isInvalidJSONEntry ? text : transformedJSONString
+  // convertNodeToJSON can throw an error if the tree is invalid
+  try {
+    return convertNodeToJSON(tree)
+  } catch (_) {
+    return text
+  }
 }
 
 /**
@@ -89,9 +100,6 @@ function stripCommentsAndCommas(text: string): string {
  */
 
 export function stripComments(jsonString: string) {
-  // Reset the state
-  isInvalidJSONEntry = false
-
   return stripCommentsAndCommas(stripComments_(jsonString))
 }
 

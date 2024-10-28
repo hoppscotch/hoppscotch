@@ -889,7 +889,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
     test("Successfully resolves values from the supplied data export file", async () => {
       const TESTS_PATH = getTestJsonFilePath(
-        "env-flag-tests-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
@@ -902,7 +902,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
     test("Successfully resolves data variables referenced in the request body", async () => {
       const COLL_PATH = getTestJsonFilePath(
-        "req-body-env-vars-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENVS_PATH = getTestJsonFilePath(
@@ -918,7 +918,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
     test("Works with shorth `-data` flag", async () => {
       const TESTS_PATH = getTestJsonFilePath(
-        "env-flag-tests-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");

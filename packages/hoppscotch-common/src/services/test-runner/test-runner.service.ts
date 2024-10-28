@@ -86,7 +86,6 @@ export class TestRunnerService extends Service {
       request.error = undefined
 
       const results = await runTestRunnerRequest(request)
-      console.log("results", results)
 
       // Check again after the request in case it was stopped during execution
       if (options.stopRef?.value) {
@@ -109,6 +108,12 @@ export class TestRunnerService extends Service {
           requestPath: this.getRequestPath(collection, request),
           error: errorMsg,
         })
+
+        // Stop the test run if stopOnError is true
+        if (options.stopOnError) {
+          state.value.status = "stopped"
+          throw new Error("Test execution stopped due to error")
+        }
       }
     } catch (error) {
       if (
@@ -125,6 +130,12 @@ export class TestRunnerService extends Service {
         requestPath: this.getRequestPath(collection, request),
         error: errorMsg,
       })
+
+      // Stop the test run if stopOnError is true
+      if (options.stopOnError) {
+        state.value.status = "stopped"
+        throw new Error("Test execution stopped due to error")
+      }
     } finally {
       request.isLoading = false
     }

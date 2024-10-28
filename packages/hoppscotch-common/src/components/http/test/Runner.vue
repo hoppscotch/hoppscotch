@@ -38,6 +38,7 @@
           @click="runTests()"
         />
         <HoppButtonSecondary
+          v-if="showResult && runnerState.status !== 'running'"
           :icon="IconPlus"
           :label="t('test.new_run')"
           filled
@@ -83,10 +84,11 @@
 
   <HttpTestRunnerModal
     v-if="showCollectionsRunnerModal"
-    :collection="tab.document.collection"
-    :collection-i-d="selectedCollectionID!"
-    :environment-i-d="activeEnvironmentID"
-    :selected-environment-index="selectedEnvironmentIndex"
+    :collection-runner-data="{
+      type: 'my-collections',
+      collection: tab.document.collection,
+      collectionIndex: '0',
+    }"
     @hide-modal="showCollectionsRunnerModal = false"
   />
 </template>
@@ -98,16 +100,8 @@ import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
-import { useStream } from "~/composables/stream"
-import {
-  HoppTestRunnerDocument,
-  TestRunnerConfig,
-} from "~/helpers/rest/document"
+import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
-import {
-  selectedEnvironmentIndex$,
-  setSelectedEnvironmentIndex,
-} from "~/newstore/environments"
 import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
@@ -117,14 +111,6 @@ import {
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
-
-const testRunnerConfig = ref<TestRunnerConfig>({
-  iterations: 1,
-  delay: 1000,
-  stopOnError: false,
-  persistResponses: false,
-  keepVariableValues: false,
-})
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 
@@ -159,6 +145,10 @@ const collectionName = computed(() => {
 
 const tab = useVModel(props, "modelValue", emit)
 
+const testRunnerConfig = computed(() => {
+  return tab.value.document.config
+})
+
 const collection = computed(() => {
   return tab.value.document.collection
 })
@@ -166,12 +156,6 @@ const collection = computed(() => {
 // for re-run config
 const showCollectionsRunnerModal = ref(false)
 const selectedCollectionID = ref<string>()
-const activeEnvironmentID = ref<string>()
-const selectedEnvironmentIndex = useStream(
-  selectedEnvironmentIndex$,
-  { type: "NO_ENV_SELECTED" },
-  setSelectedEnvironmentIndex
-)
 
 const testRunnerStopRef = ref(false)
 const showResult = ref(true)

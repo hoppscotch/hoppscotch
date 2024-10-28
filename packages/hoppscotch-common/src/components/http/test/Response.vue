@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex flex-1 flex-col">
-    <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
+    <HttpResponseMeta :response="doc.response" :is-embed="false" />
     <LensesResponseBodyRenderer v-if="hasResponse" v-model:document="doc" />
   </div>
 </template>
@@ -13,7 +13,6 @@ import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const props = defineProps<{
   document: TestRunnerRequest
-  isEmbed: boolean
 }>()
 
 const emit = defineEmits<{

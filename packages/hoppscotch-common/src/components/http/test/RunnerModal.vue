@@ -208,7 +208,7 @@ function setCurrentEnv(payload: CurrentEnv) {
 const config = ref<TestRunnerConfig>({
   iterations: 1,
   delay: 500,
-  stopOnError: false,
+  stopOnError: true,
   persistResponses: false,
   keepVariableValues: false,
 })

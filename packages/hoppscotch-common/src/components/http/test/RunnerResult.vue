@@ -55,6 +55,7 @@ import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
 import {
   TestRunnerRequest,
   TestRunnerService,
+  TestRunState,
 } from "~/services/test-runner/test-runner.service"
 import { useService } from "dioc/vue"
 import { TestRunnerConfig } from "~/helpers/rest/document"
@@ -69,7 +70,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "onStopRunning"): void
+  (e: "onStopRunning", runnerState: TestRunState): void
   (e: "onSelectRequest", request: TestRunnerRequest): void
 }>()
 
@@ -98,10 +99,8 @@ watch(
   () => runnerState.value,
   () => {
     result.value = [runnerState.value.result]
-    console.log("runnerState", runnerState.value.result)
     if (runnerState.value.status === "stopped") {
-      console.log("stopped")
-      emit("onStopRunning")
+      emit("onStopRunning", runnerState.value)
     }
   },
   {

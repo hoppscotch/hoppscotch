@@ -25,12 +25,15 @@
         >
           {{ `${request.response?.statusCode}` }}
         </span>
-        <div
+        <span>{{
+          request.response?.isLoading ? "loading" : "not loading"
+        }}</span>
+        <span
           v-if="request.response?.isLoading"
           class="flex flex-col items-center"
         >
           <HoppSmartSpinner />
-        </div>
+        </span>
       </div>
 
       <p class="text-left text-secondaryLight text-sm">

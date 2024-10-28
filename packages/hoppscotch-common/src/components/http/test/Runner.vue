@@ -10,18 +10,18 @@
             :text="collectionName"
           />
           <template v-if="showResult">
-            <HttpTestRunnerMeta
+            <!-- <HttpTestRunnerMeta
               :heading="t('environment.heading')"
               :text="'None'"
-            />
+            /> -->
             <!-- <HttpTestRunnerMeta :heading="t('test.iterations')" :text="'1'" /> -->
             <HttpTestRunnerMeta
               :heading="t('test.duration')"
-              :text="'10s 321ms'"
+              :text="duration ? msToHumanReadable(duration) : '...'"
             />
             <HttpTestRunnerMeta
               :heading="t('test.avg_resp')"
-              :text="'1234ms'"
+              :text="avgResponse ? msToHumanReadable(avgResponse) : '...'"
             />
           </template>
         </div>
@@ -29,7 +29,7 @@
           v-if="showResult && !stopRunningTest"
           :label="t('test.stop')"
           class="w-32"
-          @click="stopRunning()"
+          @click="stopRunningTest = false"
         />
         <HoppButtonPrimary
           v-else
@@ -51,7 +51,7 @@
           :config="testRunnerConfig"
           :collection="collection"
           :stop-running="stopRunningTest"
-          @on-stop-running="stopRunningTest = true"
+          @on-stop-running="onStopRunning"
           @on-select-request="selectedRequest = $event"
         />
       </div>
@@ -78,6 +78,7 @@ import {
   TestRunnerConfig,
 } from "~/helpers/rest/document"
 import { HoppTab } from "~/services/tab"
+import { TestRunState } from "~/services/test-runner/test-runner.service"
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
@@ -95,6 +96,22 @@ const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
+
+const duration = ref(0)
+const avgResponse = ref(0)
+
+function msToHumanReadable(ms: number) {
+  const seconds = Math.floor(ms / 1000)
+  const milliseconds = ms % 1000
+
+  let result = ""
+  if (seconds > 0) {
+    result += `${seconds}s `
+  }
+  result += `${milliseconds}ms`
+
+  return result.trim()
+}
 
 const selectedRequest = ref<any>(null)
 
@@ -124,8 +141,34 @@ onMounted(() => {
   }
 })
 
-const stopRunning = () => {
+const onStopRunning = (testRunnerState: TestRunState) => {
   stopRunningTest.value = true
+
+  duration.value = testRunnerState.totalTime
+  avgResponse.value = calculateAverageTime(
+    testRunnerState.totalTime,
+    testRunnerState.completedRequests
+  )
+
+  console.log("stopRunning", duration.value, avgResponse.value)
+
+  console.log("stopRunning", testRunnerState)
+}
+
+function calculateAverageTime(
+  totalTime: number,
+  completedRequests: number
+): number {
+  return completedRequests > 0 ? Math.round(totalTime / completedRequests) : 0
+}
+
+function calculateProgress(
+  completedRequests: number,
+  totalRequests: number
+): number {
+  return totalRequests > 0
+    ? Math.round((completedRequests / totalRequests) * 100)
+    : 0
 }
 
 const newRun = () => {

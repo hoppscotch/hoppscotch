@@ -227,7 +227,7 @@
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request",
-      "inspector_warning": "Agent interceptor is recommended when using Digest Authorization"
+      "inspector_warning": "Agent interceptor is recommended when using Digest Authorization."
     }
   },
   "collection": {

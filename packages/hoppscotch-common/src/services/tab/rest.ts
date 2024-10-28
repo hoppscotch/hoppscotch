@@ -53,6 +53,8 @@ export class RESTTabService extends TabService<HoppTabDocument> {
   public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
+      if (tab.document.type === "test-runner") return null
+
       if (ctx?.originLocation === "team-collection") {
         if (
           tab.document.saveContext?.originLocation === "team-collection" &&

@@ -32,7 +32,7 @@ export type TestRunnerRequest = HoppRESTRequest & {
   type: "test-response"
   response?: HoppRESTResponse | null
   testResults?: HoppTestResult | null
-  isLoading: boolean
+  isLoading?: boolean
   error?: string
   renderResults?: boolean
 }
@@ -150,7 +150,12 @@ export class TestRunnerService extends Service {
           state.value.status = "stopped"
           throw new Error("Test execution stopped")
         }
-        await this.runTestRequest(state, request, collection, options)
+        await this.runTestRequest(
+          state,
+          request as TestRunnerRequest,
+          collection,
+          options
+        )
 
         if (options.delay && options.delay > 0) {
           try {

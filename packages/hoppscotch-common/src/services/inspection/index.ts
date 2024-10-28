@@ -8,8 +8,6 @@ import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTTabService } from "../tab/rest"
-import { HoppSavedExampleDocument } from "~/helpers/rest/document"
-
 /**
  * Defines how to render the text in an Inspector Result
  */
@@ -129,23 +127,22 @@ export class InspectionService extends Service {
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
         const currentTabRequest = computed(() => {
-          if (this.restTab.currentActiveTab.value.document.type === "request") {
-            return this.restTab.currentActiveTab.value.document.request
-          } else if (
-            this.restTab.currentActiveTab.value.document.type ===
-            "example-response"
-          ) {
-            return this.restTab.currentActiveTab.value.document.response
-              .originalRequest
-          }
+          if (
+            this.restTab.currentActiveTab.value.document.type === "test-runner"
+          )
+            return null
+
+          return this.restTab.currentActiveTab.value.document.type === "request"
+            ? this.restTab.currentActiveTab.value.document.request
+            : this.restTab.currentActiveTab.value.document.response
+                .originalRequest
         })
 
         const currentTabResponse = computed(() => {
           if (this.restTab.currentActiveTab.value.document.type === "request") {
             return this.restTab.currentActiveTab.value.document.response
-          } else {
-            return null
           }
+          return null
         })
 
         const reqRef = computed(() => currentTabRequest.value)
@@ -155,6 +152,7 @@ export class InspectionService extends Service {
         const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
 
         const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
+          // @ts-expect-error - This is a valid call
           x.getInspections(debouncedReq, debouncedRes)
         )
 

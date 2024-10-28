@@ -85,7 +85,15 @@
             </section>
           </div>
         </HoppSmartTab>
-        <HoppSmartTab id="cli" :label="t('collection_runner.cli')">
+        <HoppSmartTab
+          id="cli"
+          :label="`${t('collection_runner.cli')} ${
+            !CLICommand ? '(Team Collections Only)' : ''
+          }`"
+          :disabled="!CLICommand"
+        >
+          <HttpTestEnv :show="false" @select-env="setCurrentEnv" />
+
           <div class="space-y-4 p-4">
             <p
               class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
@@ -100,16 +108,16 @@
               />
               <span class="truncate"
                 >{{ t("collection_runner.include_active_environment") }}
-                <span class="text-secondaryDark">{{
-                  activeEnvironment
-                }}</span></span
-              >
+                <span class="text-secondaryDark">
+                  {{ currentEnv?.name }}
+                </span>
+              </span>
             </div>
 
             <div
               class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
             >
-              {{ generatedCLICommand }}
+              {{ CLICommand }}
             </div>
           </div>
         </HoppSmartTab>
@@ -153,24 +161,31 @@ import { useService } from "dioc/vue"
 import { useToast } from "~/composables/toast"
 import { TestRunnerConfig } from "~/helpers/rest/document"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { SelectedEnvironmentIndex } from "~/newstore/environments"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlay from "~icons/lucide/play"
+import { CurrentEnv } from "./Env.vue"
 
 const t = useI18n()
 const toast = useToast()
 const tabs = useService(RESTTabService)
 
+export type CollectionRunnerData =
+  | {
+      type: "my-collections"
+      collectionIndex: string
+      collection: HoppCollection
+    }
+  | {
+      type: "team-collections"
+      collectionID: string
+    }
+
 const props = defineProps<{
   sameTab?: boolean
-  collectionID: string
-  collectionIndex?: string
-  environmentID?: string | null
-  collection: HoppCollection
-  selectedEnvironmentIndex: SelectedEnvironmentIndex
+  collectionRunnerData: CollectionRunnerData
 }>()
 
 const emit = defineEmits<{
@@ -179,6 +194,16 @@ const emit = defineEmits<{
 
 const includeEnvironmentID = ref(false)
 const activeTab = ref("test-runner")
+
+const environmentID = ref("")
+const currentEnv = ref<CurrentEnv>(null)
+
+function setCurrentEnv(payload: CurrentEnv) {
+  currentEnv.value = payload
+  if (payload?.type == "TEAM_ENV") {
+    environmentID.value = payload.teamEnvID
+  }
+}
 
 const config = ref<TestRunnerConfig>({
   iterations: 1,
@@ -198,7 +223,7 @@ const runTests = () => {
   } else {
     tabs.createNewTab({
       type: "test-runner",
-      collection: props.collection,
+      collection: props.collectionRunnerData.collection,
       isDirty: false,
       config: config.value,
       isRunning: false,
@@ -214,16 +239,6 @@ const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
-
-const activeEnvironment = computed(() => {
-  const selectedEnv = props.selectedEnvironmentIndex
-
-  if (selectedEnv.type === "TEAM_ENV") {
-    return selectedEnv.environment.name
-  }
-
-  return null
-})
 
 const isCloudInstance = window.location.hostname === "hoppscotch.io"
 
@@ -241,20 +256,25 @@ const cliCommandGenerationDescription = computed(() => {
   )
 })
 
-const generatedCLICommand = computed(() => {
-  const { collectionID, environmentID } = props
+const CLICommand = computed(() => {
+  if (props.collectionRunnerData.type === "team-collections") {
+    const collectionID = props.collectionRunnerData.collectionID
+    const environmentFlag =
+      includeEnvironmentID.value && environmentID.value
+        ? `-e ${environmentID.value}`
+        : ""
 
-  const environmentFlag =
-    includeEnvironmentID.value && environmentID ? `-e ${environmentID}` : ""
+    const serverUrl = import.meta.env.VITE_BACKEND_API_URL?.endsWith("/v1")
+      ? // Removing `/v1` prefix
+        import.meta.env.VITE_BACKEND_API_URL.slice(0, -3)
+      : "<server_url>"
 
-  const serverUrl = import.meta.env.VITE_BACKEND_API_URL?.endsWith("/v1")
-    ? // Removing `/v1` prefix
-      import.meta.env.VITE_BACKEND_API_URL.slice(0, -3)
-    : "<server_url>"
+    const serverFlag = isCloudInstance ? "" : `--server ${serverUrl}`
 
-  const serverFlag = isCloudInstance ? "" : `--server ${serverUrl}`
+    return `hopp test ${collectionID} ${environmentFlag} --token <access_token> ${serverFlag}`
+  }
 
-  return `hopp test ${collectionID} ${environmentFlag} --token <access_token> ${serverFlag}`
+  return null
 })
 
 const toggleIncludeEnvironment = () => {
@@ -262,7 +282,7 @@ const toggleIncludeEnvironment = () => {
 }
 
 const copyCLICommandToClipboard = () => {
-  copyToClipboard(generatedCLICommand.value)
+  copyToClipboard(CLICommand.value ?? "")
   copyIcon.value = IconCheck
 
   toast.success(`${t("state.copied_to_clipboard")}`)

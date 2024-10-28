@@ -35,7 +35,7 @@ export class ExtensionInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
-  getInspections(req: Readonly<Ref<HoppRESTRequest>>) {
+  getInspections(req: Readonly<Ref<HoppRESTRequest | null>>) {
     const currentExtensionStatus = this.extensionService.extensionStatus
 
     const isExtensionInstalled = computed(

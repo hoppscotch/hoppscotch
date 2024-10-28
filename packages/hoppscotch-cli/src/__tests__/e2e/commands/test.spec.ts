@@ -896,6 +896,8 @@ describe("hopp test [options] <file_path_or_id>", () => {
       const args = `test ${TESTS_PATH} --data ${ENV_PATH}`;
 
       const {error} = await runCLI(args);
+      console.log('error...'+error);
+
       expect(error).toBeNull();
     });
 
@@ -911,6 +913,8 @@ describe("hopp test [options] <file_path_or_id>", () => {
       const args = `test ${COLL_PATH} --data ${ENVS_PATH}`;
 
       const {error} = await runCLI(args);
+      console.log('error...'+error);
+
       expect(error).toBeNull();
     });
 
@@ -923,6 +927,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
       const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
 
       const {error} = await runCLI(args);
+      console.log('error...'+error);
       expect(error).toBeNull();
     });
   });

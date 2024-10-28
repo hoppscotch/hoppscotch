@@ -25,10 +25,10 @@
           </template>
         </div>
         <HoppButtonPrimary
-          v-if="showResult && !stopRunningTest"
+          v-if="showResult && !isTestRunning"
           :label="t('test.stop')"
           class="w-32"
-          @click="stopRunningTest = false"
+          @click="isTestRunning = false"
         />
         <HoppButtonPrimary
           v-else
@@ -47,10 +47,8 @@
 
       <div v-if="showResult">
         <HttpTestRunnerResult
-          :config="testRunnerConfig"
-          :collection="collection"
-          :stop-running="stopRunningTest"
-          @on-stop-running="onStopRunning"
+          :collection-adapter="collectionAdapter"
+          :is-running="isTestRunning"
           @on-select-request="selectedRequest = $event"
         />
       </div>
@@ -79,14 +77,21 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { HoppCollection } from "@hoppscotch/data"
+import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
-import { computed, onMounted, ref } from "vue"
+import { useService } from "dioc/vue"
+import { computed, onMounted, ref, watch } from "vue"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
 } from "~/helpers/rest/document"
+import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
 import { HoppTab } from "~/services/tab"
-import { TestRunState } from "~/services/test-runner/test-runner.service"
+import {
+  TestRunnerService,
+  TestRunState,
+} from "~/services/test-runner/test-runner.service"
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
@@ -141,7 +146,7 @@ const runTests = () => {
 }
 
 const showResult = ref(false)
-const stopRunningTest = ref(false)
+const isTestRunning = ref(false)
 
 onMounted(() => {
   if (tab.value.document.type === "test-runner") {
@@ -150,7 +155,7 @@ onMounted(() => {
 })
 
 const onStopRunning = (testRunnerState: TestRunState) => {
-  stopRunningTest.value = true
+  isTestRunning.value = true
 
   duration.value = testRunnerState.totalTime
   avgResponse.value = calculateAverageTime(
@@ -172,6 +177,31 @@ function calculateAverageTime(
 
 const newRun = () => {
   showResult.value = false
-  stopRunningTest.value = false
+  isTestRunning.value = false
 }
+
+const testRunnerService = useService(TestRunnerService)
+
+const result = ref<HoppCollection[]>([])
+
+const runnerState = testRunnerService.runTests(collection.value, {
+  ...testRunnerConfig.value,
+  stopRef: isTestRunning,
+})
+
+watch(
+  () => runnerState.value,
+  () => {
+    result.value = [runnerState.value.result]
+    if (runnerState.value.status === "stopped") {
+      onStopRunning(runnerState.value)
+    }
+  },
+  {
+    deep: true,
+  }
+)
+
+const collectionAdapter: SmartTreeAdapter<any> =
+  new TestRunnerCollectionsAdapter(result)
 </script>

@@ -47,30 +47,21 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection } from "@hoppscotch/data"
-import { SmartTreeAdapter } from "@hoppscotch/ui/helpers"
-import { ref, computed, watch } from "vue"
+import { SmartTreeAdapter } from "@hoppscotch/ui"
+import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
-import {
-  TestRunnerRequest,
-  TestRunnerService,
-  TestRunState,
-} from "~/services/test-runner/test-runner.service"
-import { useService } from "dioc/vue"
 import { TestRunnerConfig } from "~/helpers/rest/document"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const t = useI18n()
-const testRunnerService = useService(TestRunnerService)
 
-const props = defineProps<{
-  collection: HoppCollection
+defineProps<{
+  collectionAdapter: SmartTreeAdapter<any>
   config: TestRunnerConfig
-  stopRunning: boolean
+  isRunning: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: "onStopRunning", runnerState: TestRunState): void
   (e: "onSelectRequest", request: TestRunnerRequest): void
 }>()
 
@@ -78,36 +69,7 @@ const selectedTestTab = ref("all_tests")
 
 const showCheckbox = ref(false)
 
-const stopRunningTest = computed(() => {
-  console.log("stopRunningTest", props.stopRunning)
-  return props.stopRunning
-})
-
-const runnerState = testRunnerService.runTests(props.collection, {
-  ...props.config,
-  stopRef: stopRunningTest,
-})
-
-const result = ref<HoppCollection[]>([])
-
 const selectRequest = (request: TestRunnerRequest) => {
   emit("onSelectRequest", request)
-  console.log("selectRequest", request)
 }
-
-watch(
-  () => runnerState.value,
-  () => {
-    result.value = [runnerState.value.result]
-    if (runnerState.value.status === "stopped") {
-      emit("onStopRunning", runnerState.value)
-    }
-  },
-  {
-    deep: true,
-  }
-)
-
-const collectionAdapter: SmartTreeAdapter<any> =
-  new TestRunnerCollectionsAdapter(result)
 </script>

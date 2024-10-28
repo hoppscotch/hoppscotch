@@ -43,7 +43,7 @@ export const HoppRESTReqBody = z.union([
   }),
   z.object({
     contentType: z.literal("application/octet-stream"),
-    body: z.instanceof(File).nullable(),
+    body: z.instanceof(File).nullable().catch(null),
   }),
   z.object({
     contentType: z.union([

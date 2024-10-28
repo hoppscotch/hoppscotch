@@ -28,7 +28,7 @@ import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
-import { removeComments } from "../editor/linting/jsonc"
+import { stripComments } from "../editor/linting/jsonc"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -384,7 +384,7 @@ export const resolvesEnvsInBody = (
   let bodyContent = ""
 
   if (isJSONContentType(body.contentType))
-    bodyContent = removeComments(body.body)
+    bodyContent = stripComments(body.body)
 
   return {
     contentType: body.contentType,
@@ -476,7 +476,7 @@ function getFinalBodyFromRequest(
   let bodyContent = request.body.body ?? ""
 
   if (isJSONContentType(request.body.contentType))
-    bodyContent = removeComments(request.body.body)
+    bodyContent = stripComments(request.body.body)
 
   // body can be null if the content-type is not set
   return parseBodyEnvVariables(bodyContent, envVariables)

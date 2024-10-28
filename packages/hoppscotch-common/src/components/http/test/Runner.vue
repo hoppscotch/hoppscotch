@@ -25,10 +25,10 @@
           </template>
         </div>
         <HoppButtonPrimary
-          v-if="showResult && !isTestRunning"
+          v-if="showResult && !isTestStopped"
           :label="t('test.stop')"
           class="w-32"
-          @click="isTestRunning = false"
+          @click="isTestStopped = false"
         />
         <HoppButtonPrimary
           v-else
@@ -48,7 +48,7 @@
       <div v-if="showResult">
         <HttpTestRunnerResult
           :collection-adapter="collectionAdapter"
-          :is-running="isTestRunning"
+          :is-running="runnerState.status === 'running'"
           @on-select-request="selectedRequest = $event"
         />
       </div>
@@ -64,12 +64,18 @@
       />
 
       <div
-        v-if="tab.document.isRunning"
+        v-else-if="runnerState.status === 'running'"
         class="flex flex-col items-center gap-4 justify-center h-full"
       >
         <HoppSmartSpinner />
-
         <span> {{ t("collection_runner.running_collection") }}... </span>
+      </div>
+
+      <div
+        v-else
+        class="flex flex-col items-center gap-4 justify-center h-full"
+      >
+        <span> Select request to show response </span>
       </div>
     </template>
   </AppPaneLayout>
@@ -146,7 +152,7 @@ const runTests = () => {
 }
 
 const showResult = ref(false)
-const isTestRunning = ref(false)
+const isTestStopped = ref(false)
 
 onMounted(() => {
   if (tab.value.document.type === "test-runner") {
@@ -155,7 +161,7 @@ onMounted(() => {
 })
 
 const onStopRunning = (testRunnerState: TestRunState) => {
-  isTestRunning.value = true
+  isTestStopped.value = true
 
   duration.value = testRunnerState.totalTime
   avgResponse.value = calculateAverageTime(
@@ -177,16 +183,16 @@ function calculateAverageTime(
 
 const newRun = () => {
   showResult.value = false
-  isTestRunning.value = false
+  isTestStopped.value = false
 }
 
 const testRunnerService = useService(TestRunnerService)
 
 const result = ref<HoppCollection[]>([])
 
-const runnerState = testRunnerService.runTests(collection.value, {
+const runnerState = testRunnerService.runTests(tab, collection.value, {
   ...testRunnerConfig.value,
-  stopRef: isTestRunning,
+  stopRef: isTestStopped,
 })
 
 watch(

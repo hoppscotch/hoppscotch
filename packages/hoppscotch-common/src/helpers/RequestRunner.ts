@@ -30,7 +30,11 @@ import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
 } from "./preRequest"
-import { HoppRequestDocument, HoppTabDocument } from "./rest/document"
+import {
+  HoppRequestDocument,
+  HoppTabDocument,
+  HoppTestRunnerDocument,
+} from "./rest/document"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
@@ -444,7 +448,7 @@ function updateEnvsFromTestScript(
 }
 
 export function runTestRunnerRequest(
-  tab: Ref<HoppTab<HoppTabDocument>>,
+  tab: Ref<HoppTab<HoppTestRunnerDocument>>,
   request: HoppRESTRequest
 ): Promise<
   | E.Left<"script_fail">

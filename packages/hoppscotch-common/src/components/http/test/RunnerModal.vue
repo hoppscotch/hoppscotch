@@ -181,7 +181,7 @@ const activeTab = ref("test-runner")
 
 const config = ref<TestRunnerConfig>({
   iterations: 1,
-  delay: 1000,
+  delay: 500,
   stopOnError: false,
   persistResponses: false,
   keepVariableValues: false,
@@ -204,6 +204,8 @@ const runTests = () => {
       collection: props.collection,
       isDirty: false,
       config: config.value,
+      isRunning: false,
+      request: null,
       saveContext: {
         originLocation: "user-collection",
         folderPath: props.collectionIndex!,

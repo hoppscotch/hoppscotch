@@ -7,7 +7,11 @@ import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { RESTTabService } from "../tab/rest"
-import { TestRunnerConfig } from "~/helpers/rest/document"
+import {
+  HoppTestRunnerDocument,
+  TestRunnerConfig,
+} from "~/helpers/rest/document"
+import { HoppTab } from "../tab"
 
 export type TestRunState = {
   status: "idle" | "running" | "stopped" | "error"
@@ -65,6 +69,7 @@ export class TestRunnerService extends Service {
   }
 
   private async runTestRequest(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     state: Ref<TestRunState>,
     request: TestRunnerRequest,
     collection: HoppCollection,
@@ -74,7 +79,6 @@ export class TestRunnerService extends Service {
       request.isLoading = true
       request.error = undefined
 
-      const tab = this.restTab.getActiveTab()
       const results = await runTestRunnerRequest(tab, request)
 
       if (results && E.isRight(results)) {
@@ -108,6 +112,7 @@ export class TestRunnerService extends Service {
   }
 
   private async runTestCollection(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     state: Ref<TestRunState>,
     collection: TestRunState["result"],
     options: TestRunnerOptions
@@ -118,8 +123,8 @@ export class TestRunnerService extends Service {
           state.value.status = "stopped"
           break
         }
-        folder.renderResults = options.renderResults
-        await this.runTestCollection(state, folder, options)
+        // folder.renderResults = options.renderResults
+        await this.runTestCollection(tab, state, folder, options)
       }
 
       for (const request of collection.requests) {
@@ -127,7 +132,7 @@ export class TestRunnerService extends Service {
           state.value.status = "stopped"
           break
         }
-        await this.runTestRequest(state, request, collection, options)
+        await this.runTestRequest(tab, state, request, collection, options)
         await delay(options.delay ?? 0)
       }
     } catch (error) {
@@ -137,6 +142,7 @@ export class TestRunnerService extends Service {
   }
 
   public runTests(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
     options: TestRunnerOptions
   ): Ref<TestRunState> {
@@ -149,6 +155,8 @@ export class TestRunnerService extends Service {
       result: cloneDeep(collection),
     })
 
+    tab.value.document.isRunning = true
+
     // Initialize requests with loading state
     const initializeRequests = (coll: HoppCollection) => {
       coll.requests = coll.requests.map((req) => ({
@@ -158,17 +166,19 @@ export class TestRunnerService extends Service {
       coll.folders.forEach((folder) => initializeRequests(folder))
     }
 
-    state.value.result.renderResults = false
+    // state.value.result.renderResults = false
     initializeRequests(state.value.result)
 
-    this.runTestCollection(state, state.value.result, options)
+    this.runTestCollection(tab, state, state.value.result, options)
       .catch((error) => {
         state.value.status = "error"
+        tab.value.document.isRunning = false
         console.error("Test runner failed:", error)
       })
       .finally(() => {
         if (state.value.status === "running") {
           state.value.status = "stopped"
+          tab.value.document.isRunning = false
         }
       })
 

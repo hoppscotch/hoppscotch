@@ -25,9 +25,6 @@
         >
           {{ `${request.response?.statusCode}` }}
         </span>
-        <span>{{
-          request.response?.isLoading ? "loading" : "not loading"
-        }}</span>
         <span
           v-if="request.response?.isLoading"
           class="flex flex-col items-center"
@@ -50,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import { HoppRESTRequest } from "@hoppscotch/data"
 import { computed } from "vue"
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
@@ -58,7 +54,7 @@ import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const props = withDefaults(
   defineProps<{
-    request: HoppRESTRequest & TestRunnerRequest
+    request: TestRunnerRequest
     requestID?: string
     parentID: string | null
     isActive?: boolean

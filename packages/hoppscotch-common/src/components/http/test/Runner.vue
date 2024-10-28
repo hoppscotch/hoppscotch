@@ -80,6 +80,15 @@
       </div>
     </template>
   </AppPaneLayout>
+
+  <HttpTestRunnerModal
+    v-if="showCollectionsRunnerModal"
+    :collection="tab.document.collection"
+    :collection-i-d="selectedCollectionID!"
+    :environment-i-d="activeEnvironmentID"
+    :selected-environment-index="selectedEnvironmentIndex"
+    @hide-modal="showCollectionsRunnerModal = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -89,11 +98,16 @@ import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
+import { useStream } from "~/composables/stream"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
 } from "~/helpers/rest/document"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
+import {
+  selectedEnvironmentIndex$,
+  setSelectedEnvironmentIndex,
+} from "~/newstore/environments"
 import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
@@ -149,6 +163,16 @@ const collection = computed(() => {
   return tab.value.document.collection
 })
 
+// for re-run config
+const showCollectionsRunnerModal = ref(false)
+const selectedCollectionID = ref<string>()
+const activeEnvironmentID = ref<string>()
+const selectedEnvironmentIndex = useStream(
+  selectedEnvironmentIndex$,
+  { type: "NO_ENV_SELECTED" },
+  setSelectedEnvironmentIndex
+)
+
 const testRunnerStopRef = ref(false)
 const showResult = ref(true)
 
@@ -184,7 +208,8 @@ function calculateAverageTime(
 }
 
 const newRun = () => {
-  testRunnerStopRef.value = false
+  showCollectionsRunnerModal.value = true
+  selectedCollectionID.value = collection.value.id
 }
 
 const testRunnerService = useService(TestRunnerService)

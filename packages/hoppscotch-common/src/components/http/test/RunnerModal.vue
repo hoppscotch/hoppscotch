@@ -165,6 +165,7 @@ const toast = useToast()
 const tabs = useService(RESTTabService)
 
 const props = defineProps<{
+  sameTab?: boolean
   collectionID: string
   collectionIndex?: string
   environmentID?: string | null
@@ -196,7 +197,13 @@ const runTests = () => {
     },
     "collection"
   )
-  if (possibleTab) {
+  if (props.sameTab) {
+    const tabRef = tabs.getTabRef(tabs.currentTabID.value)
+    if (tabRef && tabRef.value.document.type === "test-runner") {
+      tabRef.value.document.config = config.value
+    }
+    emit("hide-modal")
+  } else if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
   } else {
     tabs.createNewTab({

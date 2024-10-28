@@ -15,6 +15,7 @@ import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
 
+import { getService } from "~/modules/dioc"
 import {
   environmentsStore,
   getCurrentEnvironment,
@@ -23,6 +24,10 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import {
+  SecretEnvironmentService,
+  SecretVariable,
+} from "~/services/secret-environment.service"
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
@@ -30,20 +35,11 @@ import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
 } from "./preRequest"
-import {
-  HoppRequestDocument,
-  HoppTabDocument,
-  HoppTestRunnerDocument,
-} from "./rest/document"
+import { HoppRequestDocument } from "./rest/document"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
-import {
-  SecretEnvironmentService,
-  SecretVariable,
-} from "~/services/secret-environment.service"
-import { getService } from "~/modules/dioc"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
@@ -253,8 +249,8 @@ export function runRESTRequest$(
     )
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
+      id: "env-id",
       v: 1,
-      id: "env",
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -286,71 +282,10 @@ export function runRESTRequest$(
           if (E.isRight(runResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
-
-            const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
-              cloneDeep(runResult.right.envs.global),
-              "global"
-            )
-
-            const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
-              cloneDeep(runResult.right.envs.selected),
-              "selected"
-            )
-
-            // set the response in the tab so that multiple tabs can run request simultaneously
-            tab.value.document.response = res
-
-            const updatedRunResult = {
-              ...runResult.right,
-              envs: {
-                global: updatedGlobalEnvVariables,
-                selected: updatedSelectedEnvVariables,
-              },
-            }
-
+            const updatedRunResult = updateEnvsAfterTestScript(runResult)
             tab.value.document.testResults =
+              // @ts-expect-error Typescript can't figure out this inference for some reason
               translateToSandboxTestResults(updatedRunResult)
-
-            const globalEnvVariables = updateEnvironmentsWithSecret(
-              runResult.right.envs.global,
-              "global"
-            )
-
-            setGlobalEnvVariables({
-              v: 1,
-              variables: globalEnvVariables,
-            })
-            if (
-              environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
-            ) {
-              const env = getEnvironment({
-                type: "MY_ENV",
-                index: environmentsStore.value.selectedEnvironmentIndex.index,
-              })
-              updateEnvironment(
-                environmentsStore.value.selectedEnvironmentIndex.index,
-                {
-                  name: env.name,
-                  v: 1,
-                  id: "id" in env ? env.id : "",
-                  variables: updatedRunResult.envs.selected,
-                }
-              )
-            } else if (
-              environmentsStore.value.selectedEnvironmentIndex.type ===
-              "TEAM_ENV"
-            ) {
-              const env = getEnvironment({
-                type: "TEAM_ENV",
-              })
-              pipe(
-                updateTeamEnvironment(
-                  JSON.stringify(updatedRunResult.envs.selected),
-                  environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
-                  env.name
-                )
-              )()
-            }
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -382,37 +317,30 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsFromTestScript(
-  tab: Ref<HoppTab<HoppTabDocument>>,
-  runResult: SandboxTestResult
-) {
+function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
   const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
-    // cloneDeep(runResult.right.envs.global),
-    [],
+    // @ts-expect-error Typescript can't figure out this inference for some reason
+    cloneDeep(runResult.right.envs.global),
     "global"
   )
 
   const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
-    // cloneDeep(runResult.right.envs.selected),
-    [],
+    // @ts-expect-error Typescript can't figure out this inference for some reason
+    cloneDeep(runResult.right.envs.selected),
     "selected"
   )
 
-  // TODO: fix test results assignment to the corresponding tab
   const updatedRunResult = {
-    // ...runResult.right,
+    ...runResult.right,
     envs: {
       global: updatedGlobalEnvVariables,
       selected: updatedSelectedEnvVariables,
     },
   }
 
-  // tab.value.document.testResults =
-  //   translateToSandboxTestResults(updatedRunResult)
-
   const globalEnvVariables = updateEnvironmentsWithSecret(
-    // runResult.right.envs.global,
-    [],
+    // @ts-expect-error Typescript can't figure out this inference for some reason
+    runResult.right.envs.global,
     "global"
   )
 
@@ -445,12 +373,11 @@ function updateEnvsFromTestScript(
       )
     )()
   }
+
+  return updatedRunResult
 }
 
-export function runTestRunnerRequest(
-  tab: Ref<HoppTab<HoppTestRunnerDocument>>,
-  request: HoppRESTRequest
-): Promise<
+export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
   | E.Left<"script_fail">
   | E.Right<{
       response: HoppRESTResponse
@@ -504,7 +431,7 @@ export function runTestRunnerRequest(
               runResult.right
             )
 
-            updateEnvsFromTestScript(tab, runResult.right)
+            updateEnvsAfterTestScript(runResult)
 
             return E.right({
               response: res,

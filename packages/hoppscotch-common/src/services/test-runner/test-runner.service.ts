@@ -86,7 +86,8 @@ export class TestRunnerService extends Service {
       request.isLoading = true
       request.error = undefined
 
-      const results = await runTestRunnerRequest(tab, request)
+      const results = await runTestRunnerRequest(request)
+      console.log("results", results)
 
       // Check again after the request in case it was stopped during execution
       if (options.stopRef?.value) {
@@ -190,26 +191,15 @@ export class TestRunnerService extends Service {
       result: cloneDeep(collection),
     })
 
-    tab.value.document.isRunning = true
-
-    // Initialize requests with loading state
-    const initializeRequests = (coll: HoppCollection) => {
-      coll.requests = coll.requests.map((req) => ({
-        ...req,
-        isLoading: false,
-      }))
-      coll.folders.forEach((folder) => initializeRequests(folder))
-    }
-
-    initializeRequests(state.value.result)
+    tab.value.document.isRunning = state.value.status === "running"
 
     this.runTestCollection(tab, state, state.value.result, options)
-
       .then(() => {
         state.value.status = "stopped"
+        tab.value.document.isRunning = false
       })
-
       .catch((error) => {
+        tab.value.document.isRunning = false
         if (
           error instanceof Error &&
           error.message === "Test execution stopped"

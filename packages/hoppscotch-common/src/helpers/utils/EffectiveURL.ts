@@ -139,8 +139,6 @@ export const getComputedAuthHeaders = async (
     // Step 3: Generate the Authorization header
     const authHeaderValue = await generateDigestAuthHeader(digestAuthParams)
 
-    console.log("Digest Auth Header:", authHeaderValue)
-
     headers.push({
       active: true,
       key: "Authorization",

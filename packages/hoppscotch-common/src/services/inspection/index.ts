@@ -128,27 +128,25 @@ export class InspectionService extends Service {
     watch(
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
-        if (
-          this.restTab.currentActiveTab.value.document.type !== "request" &&
-          this.restTab.currentActiveTab.value.document.type !==
+        const currentTabRequest = computed(() => {
+          if (this.restTab.currentActiveTab.value.document.type === "request") {
+            return this.restTab.currentActiveTab.value.document.request
+          } else if (
+            this.restTab.currentActiveTab.value.document.type ===
             "example-response"
-        )
-          return
+          ) {
+            return this.restTab.currentActiveTab.value.document.response
+              .originalRequest
+          }
+        })
 
-        const currentTabRequest = computed(() =>
-          this.restTab.currentActiveTab.value.document.type === "request"
-            ? this.restTab.currentActiveTab.value.document.request
-            : (
-                this.restTab.currentActiveTab.value
-                  .document as HoppSavedExampleDocument
-              ).response.originalRequest
-        )
-
-        const currentTabResponse = computed(() =>
-          this.restTab.currentActiveTab.value.document.type === "request"
-            ? this.restTab.currentActiveTab.value.document.response
-            : null
-        )
+        const currentTabResponse = computed(() => {
+          if (this.restTab.currentActiveTab.value.document.type === "request") {
+            return this.restTab.currentActiveTab.value.document.response
+          } else {
+            return null
+          }
+        })
 
         const reqRef = computed(() => currentTabRequest.value)
         const resRef = computed(() => currentTabResponse.value)

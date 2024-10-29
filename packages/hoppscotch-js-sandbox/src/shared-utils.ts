@@ -43,9 +43,8 @@ const setEnv = (
       selectedEnv.value = envValue
     }
   } else if (indexInGlobal >= 0) {
-    if ("value" in global[indexInGlobal]) {
-      ;(global[indexInGlobal] as { value: string }).value = envValue
-    }
+    if ("value" in global[indexInGlobal])
+      (global[indexInGlobal] as { value: string }).value = envValue
   } else {
     selected.push({
       key: envName,

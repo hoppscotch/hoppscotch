@@ -30,6 +30,11 @@ import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
 
+import {
+  DigestAuthParams,
+  fetchInitialDigestAuthInfo,
+  generateDigestAuthHeader,
+} from "../auth/digest"
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -100,6 +105,46 @@ export const getComputedAuthHeaders = async (
       value: `Basic ${btoa(`${username}:${password}`)}`,
       description: "",
     })
+  } else if (request.auth.authType === "digest") {
+    const { method, endpoint } = request as HoppRESTRequest
+
+    // Step 1: Fetch the initial auth info (nonce, realm, etc.)
+    const authInfo = await fetchInitialDigestAuthInfo(
+      parseTemplateString(endpoint, envVars),
+      method,
+      request.auth.disableRetry
+    )
+
+    // Step 2: Set up the parameters for the digest authentication header
+    const digestAuthParams: DigestAuthParams = {
+      username: parseTemplateString(request.auth.username, envVars),
+      password: parseTemplateString(request.auth.password, envVars),
+      realm: request.auth.realm
+        ? parseTemplateString(request.auth.realm, envVars)
+        : authInfo.realm,
+      nonce: request.auth.nonce
+        ? parseTemplateString(authInfo.nonce, envVars)
+        : authInfo.nonce,
+      endpoint: parseTemplateString(endpoint, envVars),
+      method,
+      algorithm: request.auth.algorithm ?? authInfo.algorithm,
+      qop: request.auth.qop
+        ? parseTemplateString(request.auth.qop, envVars)
+        : authInfo.qop,
+      opaque: request.auth.opaque
+        ? parseTemplateString(request.auth.opaque, envVars)
+        : authInfo.opaque,
+    }
+
+    // Step 3: Generate the Authorization header
+    const authHeaderValue = await generateDigestAuthHeader(digestAuthParams)
+
+    headers.push({
+      active: true,
+      key: "Authorization",
+      value: authHeaderValue,
+      description: "",
+    })
   } else if (
     request.auth.authType === "bearer" ||
     (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
@@ -132,7 +177,7 @@ export const getComputedAuthHeaders = async (
               false,
               showKeyIfSecret
             )
-          : (request.auth.value ?? ""),
+          : request.auth.value ?? "",
         description: "",
       })
     }

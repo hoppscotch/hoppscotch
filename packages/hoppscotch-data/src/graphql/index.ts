@@ -17,7 +17,7 @@ export {
 
 export { HoppGQLAuthAPIKey } from "./v/4"
 
-export { GQLHeader } from "./v/6"
+export { GQLHeader, HoppGQLAuthAWSSignature } from "./v/6"
 export { HoppGQLAuth, HoppGQLAuthOAuth2 } from "./v/7"
 
 export const GQL_REQ_SCHEMA_VERSION = 7

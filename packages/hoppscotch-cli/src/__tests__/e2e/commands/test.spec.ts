@@ -370,19 +370,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
     );
 
     describe("Request variables", () => {
-      test("Picks active request variables and ignores inactive entries", async () => {
-        const COLL_PATH = getTestJsonFilePath(
-          "request-vars-coll.json",
-          "collection"
-        );
-
-        const args = `test ${COLL_PATH}`;
-
-        const { error } = await runCLI(args);
-        expect(error).toBeNull();
-      });
-
-      test("Supports the usage of request variables along with environment variables", async () => {
+      test("Picks active request variables and ignores inactive entries alongside the usage of environment variables", async () => {
         const env = {
           ...process.env,
           secretBasicAuthPasswordEnvVar: "password",
@@ -426,6 +414,24 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
         const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
         const { error } = await runCLI(args, { env });
+
+        expect(error).toBeNull();
+      });
+    });
+
+    describe("Digest Authorization type", () => {
+      test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "digest-auth-coll.json",
+          "collection"
+        );
+        const ENVS_PATH = getTestJsonFilePath(
+          "digest-auth-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+        const { error } = await runCLI(args);
 
         expect(error).toBeNull();
       });

@@ -38,7 +38,6 @@
       </p>
     </button>
     <HttpTestTestResult
-      :show-empty-message="false"
       v-if="request.testResults"
       :model-value="request.testResults"
     />

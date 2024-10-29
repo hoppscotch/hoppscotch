@@ -149,6 +149,8 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
+const tab = useVModel(props, "modelValue", emit)
+
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>
   calculateAverageTime(
@@ -174,22 +176,17 @@ const selectedRequest = computed(() => tab.value.document.request)
 
 const onSelectRequest = async (request: TestRunnerRequest) => {
   tab.value.document.request = null
-  await nextTick()
+  await nextTick() // HACK: To ensure the request is cleared before setting the new request. there is a bug in the response component that doesn't change to the valid lens when the response is changed.
   tab.value.document.request = request
 }
 
-const collectionName = computed(() => {
-  if (props.modelValue.document.type === "test-runner") {
-    return props.modelValue.document.collection.name
-  }
-  return ""
-})
+const collectionName = computed(() =>
+  props.modelValue.document.type === "test-runner"
+    ? props.modelValue.document.collection.name
+    : ""
+)
 
-const tab = useVModel(props, "modelValue", emit)
-
-const testRunnerConfig = computed(() => {
-  return tab.value.document.config
-})
+const testRunnerConfig = computed(() => tab.value.document.config)
 
 const collection = computed(() => {
   return tab.value.document.collection
@@ -218,6 +215,13 @@ const runTests = () => {
 
 const stopTests = () => {
   testRunnerStopRef.value = true
+  // when we manually stop the test runner, we need to update the tab document with the current state
+  tab.value.document.testRunnerMeta = {
+    ...tab.value.document.testRunnerMeta,
+    completedRequests: runnerState.value.completedRequests,
+    totalTime: runnerState.value.totalTime,
+    totalRequests: runnerState.value.totalRequests,
+  }
 }
 
 const runAgain = async () => {

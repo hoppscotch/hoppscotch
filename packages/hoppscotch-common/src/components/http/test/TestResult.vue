@@ -156,23 +156,11 @@
     >
     </HoppSmartPlaceholder>
     <template v-else>
-      <HoppSmartPlaceholder
-        v-if="showEmptyMessage"
-        :src="`/images/states/${colorMode.value}/validation.svg`"
-        :alt="`${t('empty.tests')}`"
-        :heading="t('empty.tests')"
-        :text="t('helpers.tests')"
+      <div
+        class="py-2 pl-4 ml-4 mb-2 text-secondaryLight border-secondaryLight border-l"
       >
-        <HoppButtonSecondary
-          outline
-          :label="`${t('action.learn_more')}`"
-          to="https://docs.hoppscotch.io/documentation/getting-started/rest/tests"
-          blank
-          :icon="IconExternalLink"
-          reverse
-          class="my-4"
-        />
-      </HoppSmartPlaceholder>
+        {{ t("empty.tests") }}
+      </div>
     </template>
     <EnvironmentsMyDetails
       :show="showMyEnvironmentDetailsModal"
@@ -205,7 +193,6 @@ import {
 } from "~/newstore/environments"
 
 import IconCheck from "~icons/lucide/check"
-import IconExternalLink from "~icons/lucide/external-link"
 import IconClose from "~icons/lucide/x"
 
 import { GlobalEnvironment } from "@hoppscotch/data"

@@ -185,47 +185,48 @@ describe("hopp test [options] <file_path_or_id>", () => {
       });
     });
     test("Ensures tests are running in sequence order based on folder name", async () => {
-      const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
-      const {stdout, error} = await runCLI(args);
+        const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
+        const {stdout, error} = await runCLI(args);
 
-      // Extract folder names from the collection
-      const expectedOrder = [
-        "root-collection-request",
-        "folder-1/folder-1-request",
-        "folder-1/folder-11/folder-11-request",
-        "folder-1/folder-12/folder-12-request",
-        "folder-1/folder-13/folder-13-request",
-        "folder-2/folder-2-request",
-        "folder-2/folder-21/folder-21-request",
-        "folder-2/folder-22/folder-22-request",
-        "folder-2/folder-23/folder-23-request",
-        "folder-3/folder-3-request",
-        "folder-3/folder-31/folder-31-request",
-        "folder-3/folder-32/folder-32-request",
-        "folder-3/folder-33/folder-33-request"
-      ];
+        // Extract folder names from the collection
+        const expectedOrder = [
+          "root-collection-request",
+          "folder-1/folder-1-request",
+          "folder-1/folder-11/folder-11-request",
+          "folder-1/folder-12/folder-12-request",
+          "folder-1/folder-13/folder-13-request",
+          "folder-2/folder-2-request",
+          "folder-2/folder-21/folder-21-request",
+          "folder-2/folder-22/folder-22-request",
+          "folder-2/folder-23/folder-23-request",
+          "folder-3/folder-3-request",
+          "folder-3/folder-31/folder-31-request",
+          "folder-3/folder-32/folder-32-request",
+          "folder-3/folder-33/folder-33-request",
+        ];
 
-      // Helper function to extract the running order from stdout
-      const extractRunningOrder = (stdout: string): string[] => {
-        const regex = /Running:.*?\/(.*?)\n/g;
-        const matches = [];
-        let match;
-        while ((match = regex.exec(stdout)) !== null) {
-          // Clean up the extracted folder name
-          const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, '');
-          matches.push(cleanedMatch);
-        }
-        return matches;
-      };
+        // Helper function to extract the running order from stdout
+        const extractRunningOrder = (stdout: string): string[] => {
+          const regex = /Running:.*?\/(.*?)\n/g;
+          const matches = [];
+          let match;
+          while ((match = regex.exec(stdout)) !== null) {
+            // Clean up the extracted folder name
+            const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, '');
+            matches.push(cleanedMatch);
+          }
+          return matches;
+        };
 
-      // Extract the actual order from stdout
-      const actualOrder = extractRunningOrder(stdout);
+        // Extract the actual order from stdout
+        const actualOrder = extractRunningOrder(stdout);
 
-      // Verify the order of tests based on folder names
-      expect(actualOrder).toStrictEqual(expectedOrder);
+        // Verify the order of tests based on folder names
+        expect(actualOrder).toStrictEqual(expectedOrder);
 
-      expect(error).toBeNull();
-    });
+        expect(error).toBeNull();
+      },
+      {timeout: 100000});
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

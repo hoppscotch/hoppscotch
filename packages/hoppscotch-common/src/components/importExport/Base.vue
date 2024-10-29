@@ -172,10 +172,6 @@ const selectedImporterImportSummary = computed(() => {
 watch(
   selectedImporterImportSummary,
   (val) => {
-    console.group("selectedImporterImportSummary")
-    console.log(val?.value)
-    console.groupEnd()
-
     if (val?.value.showImportSummary) {
       goToStep(`import_summary_${selectedImporterID.value}`)
     }

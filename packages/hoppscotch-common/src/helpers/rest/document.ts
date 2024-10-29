@@ -86,37 +86,6 @@ export type HoppCollectionSaveContext =
     }
   | null
 
-export type HoppTestRunnerSaveContext =
-  | {
-      /**
-       * The origin source of the request
-       */
-      originLocation: "user-collection"
-      /**
-       * Path to the request folder
-       */
-      folderPath: string
-    }
-  | {
-      /**
-       * The origin source of the request
-       */
-      originLocation: "team-collection"
-      /**
-       * ID of the team
-       */
-      teamID?: string
-      /**
-       * ID of the collection loaded
-       */
-      collectionID?: string
-      /**
-       * ID of the request in the team
-       */
-      requestID: string
-    }
-  | null
-
 export type TestRunnerConfig = {
   iterations: number
   delay: number
@@ -153,6 +122,16 @@ export type HoppTestRunnerDocument = {
   collection: HoppCollection
 
   /**
+   * The type of the collection
+   */
+  collectionType: "my-collections" | "team-collections"
+
+  /**
+   * collection ID to be used for team collections
+   */
+  collectionID: string | null
+
+  /**
    * The request as it is in the document
    */
   result?: HoppCollection
@@ -174,11 +153,6 @@ export type HoppTestRunnerDocument = {
    */
   testResults?: HoppTestResult | null
 
-  /**
-   * Info about where this request should be saved.
-   * This contains where the request is originated from basically.
-   */
-  saveContext?: HoppTestRunnerSaveContext
   /**
    * Whether the request has any unsaved changes
    * (atleast as far as we can say)

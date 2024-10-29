@@ -73,22 +73,45 @@
         <span> {{ t("collection_runner.running_collection") }}... </span>
       </div>
 
-      <div
-        v-else
-        class="flex flex-col items-center gap-4 justify-center h-full"
+      <HoppSmartPlaceholder
+        v-else-if="!selectedRequest"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('collection_runner.select_request')}`"
+        :text="`${t('collection_runner.select_request')}`"
       >
-        <span> Select request to show response </span>
-      </div>
+      </HoppSmartPlaceholder>
+
+      <HoppSmartPlaceholder
+        v-else-if="!testRunnerConfig.persistResponses"
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('collection_runner.no_response_persist')}`"
+        :text="`${t('collection_runner.no_response_persist')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
     </template>
   </AppPaneLayout>
 
   <HttpTestRunnerModal
     v-if="showCollectionsRunnerModal"
-    :collection-runner-data="{
-      type: 'my-collections',
-      collection: tab.document.collection,
-      collectionIndex: '0',
-    }"
+    :same-tab="true"
+    :collection-runner-data="
+      tab.document.collectionType === 'my-collections'
+        ? {
+            type: 'my-collections',
+            collection: tab.document.collection,
+            collectionIndex: '0',
+          }
+        : {
+            type: 'team-collections',
+            collectionID: tab.document.collectionID!,
+          }
+    "
     @hide-modal="showCollectionsRunnerModal = false"
   />
 </template>
@@ -100,6 +123,7 @@ import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { computed, onMounted, ref, watch } from "vue"
+import { useColorMode } from "~/composables/theming"
 import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
 import { HoppTab } from "~/services/tab"
@@ -111,6 +135,7 @@ import {
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 

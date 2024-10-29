@@ -2867,7 +2867,6 @@ const setCollectionProperties = (newCollection: {
 }
 
 const runCollectionHandler = (payload: CollectionRunnerData) => {
-  console.log("runCollectionHandler", payload)
   collectionRunnerData.value = payload
   showCollectionsRunnerModal.value = true
 }

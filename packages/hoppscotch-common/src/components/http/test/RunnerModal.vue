@@ -12,7 +12,7 @@
           >
             <section>
               <h4 class="font-semibold text-secondaryDark">
-                Run Configuration
+                {{ t("collection_runner.run_config") }}
               </h4>
               <div class="mt-4">
                 <!-- TODO: fix input component types. so that it accepts number -->
@@ -36,7 +36,7 @@
 
             <section class="mt-6">
               <span class="text-xs text-secondaryLight">
-                Advanced Settings
+                {{ t("collection_runner.advanced_settings") }}
               </span>
 
               <div class="flex flex-col gap-4 mt-4 items-start">
@@ -45,7 +45,9 @@
                   :on="config.stopOnError"
                   @change="config.stopOnError = !config.stopOnError"
                 >
-                  <span>Stop run if an error occurs</span>
+                  <span>
+                    {{ t("collection_runner.stop_on_error") }}
+                  </span>
                 </HoppSmartCheckbox>
 
                 <HoppSmartCheckbox
@@ -53,7 +55,9 @@
                   :on="config.persistResponses"
                   @change="config.persistResponses = !config.persistResponses"
                 >
-                  <span>Persist responses</span>
+                  <span>
+                    {{ t("collection_runner.persist_responses") }}
+                  </span>
                   <HoppButtonSecondary
                     class="!py-0 pl-2"
                     v-tippy="{ theme: 'tooltip' }"
@@ -64,7 +68,7 @@
                   />
                 </HoppSmartCheckbox>
 
-                <HoppSmartCheckbox
+                <!-- <HoppSmartCheckbox
                   class="pr-2"
                   :on="config.keepVariableValues"
                   @change="
@@ -80,7 +84,7 @@
                     :title="t('app.wiki')"
                     :icon="IconHelpCircle"
                   />
-                </HoppSmartCheckbox>
+                </HoppSmartCheckbox> -->
               </div>
             </section>
           </div>
@@ -174,6 +178,7 @@ import {
 } from "~/helpers/backend/helpers"
 import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import { cloneDeep } from "lodash-es"
 
 const t = useI18n()
 const toast = useToast()
@@ -184,7 +189,7 @@ const loadingCollection = ref(false)
 export type CollectionRunnerData =
   | {
       type: "my-collections"
-      collectionIndex: string
+      collectionIndex?: string
       collection: HoppCollection
     }
   | {
@@ -234,23 +239,25 @@ const runTests = async () => {
 
   if (!collectionTree) return
 
-  if (props.sameTab) {
-    const tabRef = tabs.getTabRef(tabs.currentTabID.value)
-    if (tabRef && tabRef.value.document.type === "test-runner") {
-      tabRef.value.document.config = config.value
-    }
-    emit("hide-modal")
-  } else {
-    tabs.createNewTab({
-      type: "test-runner",
-      collection: collectionTree as HoppCollection,
-      isDirty: false,
-      config: config.value,
-      isRunning: false,
-      request: null,
-      initiateRunOnTabOpen: true,
-    })
-  }
+  let tabIdToClose = null
+  if (props.sameTab) tabIdToClose = cloneDeep(tabs.currentTabID.value)
+
+  tabs.createNewTab({
+    type: "test-runner",
+    collectionType: props.collectionRunnerData.type,
+    collectionID:
+      props.collectionRunnerData.type === "team-collections"
+        ? props.collectionRunnerData.collectionID
+        : null,
+    collection: collectionTree as HoppCollection,
+    isDirty: false,
+    config: config.value,
+    isRunning: false,
+    request: null,
+    initiateRunOnTabOpen: true,
+  })
+
+  if (tabIdToClose) tabs.closeTab(tabIdToClose)
 
   emit("hide-modal")
 }

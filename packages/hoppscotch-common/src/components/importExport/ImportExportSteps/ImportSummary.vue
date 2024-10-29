@@ -69,17 +69,29 @@ watch(
     } = countCollections(collections)
 
     countBlocks.value = [
-      { count: collectionCount, label: "Collections", id: "collections_count" },
-      { count: requestCount, label: "Requests", id: "requests_count" },
-      { count: responseCount, label: "Responses", id: "responses_count" },
+      {
+        count: collectionCount,
+        label: "import.import_summary_collections_title",
+        id: "collections_count",
+      },
+      {
+        count: requestCount,
+        label: "import.import_summary_requests_title",
+        id: "requests_count",
+      },
+      {
+        count: responseCount,
+        label: "import.import_summary_responses_title",
+        id: "responses_count",
+      },
       {
         count: preRequestScriptsCount,
-        label: "Pre-request Scripts",
+        label: "import.import_summary_pre_request_scripts_title",
         id: "pre_request_scripts_count",
       },
       {
         count: testScriptsCount,
-        label: "Test Scripts",
+        label: "import.import_summary_test_scripts_title",
         id: "test_scripts_count",
       },
     ]
@@ -99,11 +111,17 @@ watch(
         >
           <icon-lucide-check-circle class="svg-icons" />
         </span>
-        <span>{{ countBlock.label }}</span>
+        <span>{{ t(countBlock.label) }}</span>
       </p>
 
       <p class="ml-10 text-secondaryLight">
-        {{ countBlock.count }} {{ countBlock.label }} Imported
+        {{ countBlock.count }}
+        {{
+          countBlock.count != 1
+            ? t(countBlock.label)
+            : t(countBlock.label).slice(0, -1)
+        }}
+        Imported
       </p>
     </div>
   </div>

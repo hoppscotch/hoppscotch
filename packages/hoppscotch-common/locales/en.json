@@ -538,7 +538,12 @@
     "title": "Import",
     "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
     "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
-    "success": "Successfully imported"
+    "success": "Successfully imported",
+    "import_summary_collections_title": "Collections",
+    "import_summary_requests_title": "Requests",
+    "import_summary_responses_title": "Responses",
+    "import_summary_pre_request_scripts_title": "Pre-request scripts",
+    "import_summary_test_scripts_title": "Test scripts"
   },
   "inspections": {
     "description": "Inspect possible errors",

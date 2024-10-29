@@ -7,6 +7,7 @@ import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import { HoppTestResult } from "../types/HoppTestResult"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 export type HoppRESTSaveContext =
   | {
@@ -101,12 +102,6 @@ export type HoppTestRunnerDocument = {
   type: "test-runner"
 
   /**
-   * Whether the test runner is currently running
-   */
-
-  isRunning: boolean
-
-  /**
    * The test runner configuration
    */
   config: TestRunnerConfig
@@ -114,7 +109,7 @@ export type HoppTestRunnerDocument = {
   /**
    * initiate test runner on tab open
    */
-  initiateRunOnTabOpen: boolean
+  status: "idle" | "running" | "stopped" | "error"
 
   /**
    * The collection as it is in the document
@@ -134,12 +129,21 @@ export type HoppTestRunnerDocument = {
   /**
    * The request as it is in the document
    */
-  result?: HoppCollection
+  resultCollection?: HoppCollection
+
+  /**
+   * The test runner meta information
+   */
+  testRunnerMeta: {
+    totalRequests: number
+    totalTime: number
+    completedRequests: number
+  }
 
   /**
    * Selected test runner request
    */
-  request: HoppRESTRequest | null
+  request: TestRunnerRequest | null
 
   /**
    * The response of the selected request in collections after running the test

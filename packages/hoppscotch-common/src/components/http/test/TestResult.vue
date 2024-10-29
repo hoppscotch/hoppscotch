@@ -28,7 +28,7 @@
             <div class="divide-y divide-dividerLight">
               <div
                 v-if="noEnvSelected && !globalHasAdditions"
-                class="flex bg-info p-4 text-secondaryDark"
+                class="flex bg-bannerInfo p-4 text-secondaryDark"
                 role="alert"
               >
                 <icon-lucide-alert-triangle class="svg-icons mr-4" />
@@ -64,6 +64,13 @@
                 :key="`env-${env.key}-${index}`"
                 :env="env"
                 status="updations"
+                global
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
                 global
               />
               <HttpTestResultEnv
@@ -186,25 +193,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref } from "vue"
-import { isEqual } from "lodash-es"
-import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
+import { useReadonlyStream, useStream } from "@composables/stream"
+import { isEqual } from "lodash-es"
+import { computed, ref } from "vue"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
-  setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
-import IconExternalLink from "~icons/lucide/external-link"
 import IconCheck from "~icons/lucide/check"
+import IconExternalLink from "~icons/lucide/external-link"
 import IconClose from "~icons/lucide/x"
 
-import { useColorMode } from "~/composables/theming"
+import { GlobalEnvironment } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
+import { useColorMode } from "~/composables/theming"
+import { invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 
 const props = withDefaults(
@@ -265,12 +273,7 @@ const selectedEnvironmentIndex = useStream(
   setSelectedEnvironmentIndex
 )
 
-const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
-  Array<{
-    key: string
-    value: string
-  }>
->
+const globalEnvVars = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const noEnvSelected = computed(
   () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"
@@ -280,16 +283,18 @@ const globalHasAdditions = computed(() => {
   if (!testResults.value?.envDiff.selected.additions) return false
   return (
     testResults.value.envDiff.selected.additions.every(
-      (x) => globalEnvVars.value.findIndex((y) => isEqual(x, y)) !== -1
+      (x) =>
+        globalEnvVars.value.variables.findIndex((y) => isEqual(x, y)) !== -1
     ) ?? false
   )
 })
 
 const addEnvToGlobal = () => {
   if (!testResults.value?.envDiff.selected.additions) return
-  setGlobalEnvVariables([
-    ...globalEnvVars.value,
-    ...testResults.value.envDiff.selected.additions,
-  ])
+
+  invokeAction("modals.global.environment.update", {
+    variables: testResults.value.envDiff.selected.additions,
+    isSecret: false,
+  })
 }
 </script>

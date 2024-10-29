@@ -252,9 +252,13 @@ const runTests = async () => {
     collection: collectionTree as HoppCollection,
     isDirty: false,
     config: config.value,
-    isRunning: false,
+    status: "idle",
     request: null,
-    initiateRunOnTabOpen: true,
+    testRunnerMeta: {
+      completedRequests: 0,
+      totalRequests: 0,
+      totalTime: 0,
+    },
   })
 
   if (tabIdToClose) tabs.closeTab(tabIdToClose)

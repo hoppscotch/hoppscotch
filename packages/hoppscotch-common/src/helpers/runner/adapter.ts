@@ -1,9 +1,40 @@
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { Ref } from "vue"
-import { HoppCollection } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed } from "vue"
 
-export class TestRunnerCollectionsAdapter implements SmartTreeAdapter<any> {
+export type Collection = {
+  type: "collections"
+  isLastItem: boolean
+  data: {
+    parentIndex: null
+    data: HoppCollection
+  }
+}
+
+type Folder = {
+  type: "folders"
+  isLastItem: boolean
+  data: {
+    parentIndex: string
+    data: HoppCollection
+  }
+}
+
+type Requests = {
+  type: "requests"
+  isLastItem: boolean
+  data: {
+    parentIndex: string
+    data: HoppRESTRequest
+  }
+}
+
+export type CollectionNode = Collection | Folder | Requests
+
+export class TestRunnerCollectionsAdapter
+  implements SmartTreeAdapter<CollectionNode>
+{
   constructor(public data: Ref<HoppCollection[]>) {}
 
   navigateToFolderWithIndexPath(
@@ -37,7 +68,7 @@ export class TestRunnerCollectionsAdapter implements SmartTreeAdapter<any> {
         return {
           status: "loaded",
           data: data,
-        } as ChildrenResult<any>
+        } as ChildrenResult<Collection>
       }
 
       const childType = id.split("-")[0]
@@ -95,7 +126,7 @@ export class TestRunnerCollectionsAdapter implements SmartTreeAdapter<any> {
         return {
           status: "loaded",
           data: data,
-        } as ChildrenResult<any>
+        } as ChildrenResult<Folder | Request>
       } else {
         return {
           status: "loaded",

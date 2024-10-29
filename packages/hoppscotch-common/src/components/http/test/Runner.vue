@@ -21,24 +21,26 @@
             />
             <HttpTestRunnerMeta
               :heading="t('test.avg_resp')"
-              :text="avgResponse ? msToHumanReadable(avgResponse) : '...'"
+              :text="
+                avgResponseTime ? msToHumanReadable(avgResponseTime) : '...'
+              "
             />
           </template>
         </div>
         <HoppButtonPrimary
-          v-if="showResult && !testRunnerStopRef"
+          v-if="showResult && tab.document.status === 'running'"
           :label="t('test.stop')"
           class="w-32"
-          @click="testRunnerStopRef = true"
+          @click="stopTests()"
         />
         <HoppButtonPrimary
           v-else
           :label="t('test.run_again')"
           class="w-32"
-          @click="runTests()"
+          @click="runAgain()"
         />
         <HoppButtonSecondary
-          v-if="showResult && runnerState.status !== 'running'"
+          v-if="showResult && tab.document.status !== 'running'"
           :icon="IconPlus"
           :label="t('test.new_run')"
           filled
@@ -50,8 +52,8 @@
       <div v-if="showResult">
         <HttpTestRunnerResult
           :collection-adapter="collectionAdapter"
-          :is-running="runnerState.status === 'running'"
-          @on-select-request="selectedRequest = $event"
+          :is-running="tab.document.status === 'running'"
+          @on-select-request="onSelectRequest"
         />
       </div>
 
@@ -66,7 +68,7 @@
       />
 
       <div
-        v-else-if="runnerState.status === 'running'"
+        v-else-if="tab.document.status === 'running'"
         class="flex flex-col items-center gap-4 justify-center h-full"
       >
         <HoppSmartSpinner />
@@ -122,10 +124,14 @@ import { HoppCollection } from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { computed, onMounted, ref, watch } from "vue"
+import { cloneDeep } from "lodash-es"
+import { computed, nextTick, onMounted, ref, watch } from "vue"
 import { useColorMode } from "~/composables/theming"
 import { HoppTestRunnerDocument } from "~/helpers/rest/document"
-import { TestRunnerCollectionsAdapter } from "~/helpers/runner/adapter"
+import {
+  CollectionNode,
+  TestRunnerCollectionsAdapter,
+} from "~/helpers/runner/adapter"
 import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
@@ -143,8 +149,13 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
-const duration = ref(0)
-const avgResponse = ref(0)
+const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
+const avgResponseTime = computed(() =>
+  calculateAverageTime(
+    tab.value.document.testRunnerMeta.totalTime,
+    tab.value.document.testRunnerMeta.completedRequests
+  )
+)
 
 function msToHumanReadable(ms: number) {
   const seconds = Math.floor(ms / 1000)
@@ -159,7 +170,13 @@ function msToHumanReadable(ms: number) {
   return result.trim()
 }
 
-const selectedRequest = ref<TestRunnerRequest>()
+const selectedRequest = computed(() => tab.value.document.request)
+
+const onSelectRequest = async (request: TestRunnerRequest) => {
+  tab.value.document.request = null
+  await nextTick()
+  tab.value.document.request = request
+}
 
 const collectionName = computed(() => {
   if (props.modelValue.document.type === "test-runner") {
@@ -183,31 +200,54 @@ const showCollectionsRunnerModal = ref(false)
 const selectedCollectionID = ref<string>()
 
 const testRunnerStopRef = ref(false)
-const showResult = ref(true)
+const showResult = computed(() => {
+  return (
+    tab.value.document.status === "running" ||
+    tab.value.document.status === "stopped" ||
+    tab.value.document.status === "error"
+  )
+})
 
 const runTests = () => {
-  showResult.value = true
+  runnerState.value = testRunnerService.runTests(tab, collection.value, {
+    ...testRunnerConfig.value,
+    stopRef: testRunnerStopRef,
+  }).value
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
 }
 
+const stopTests = () => {
+  testRunnerStopRef.value = true
+}
+
+const runAgain = async () => {
+  result.value = []
+  await nextTick()
+  runnerState.value = {
+    status: "running",
+    totalRequests: 0,
+    totalTime: 0,
+    completedRequests: 0,
+    errors: [],
+    result: cloneDeep(collection.value),
+  }
+  await nextTick()
+  runTests()
+}
+
 onMounted(() => {
-  if (tab.value.document.type === "test-runner") {
-    if (tab.value.document.initiateRunOnTabOpen) {
-      runTests()
-      tab.value.document.initiateRunOnTabOpen = false
-    }
+  console.log("TAB", tab.value.document.status)
+  if (tab.value.document.status === "idle") runTests()
+  if (
+    tab.value.document.status === "stopped" ||
+    tab.value.document.status === "error"
+  ) {
+    // set existing result
+    result.value = tab.value.document.resultCollection
+      ? [tab.value.document.resultCollection]
+      : []
   }
 })
-
-const onStopRunning = (testRunnerState: TestRunState) => {
-  testRunnerStopRef.value = true
-
-  duration.value = testRunnerState.totalTime
-  avgResponse.value = calculateAverageTime(
-    testRunnerState.totalTime,
-    testRunnerState.completedRequests
-  )
-}
 
 function calculateAverageTime(
   totalTime: number,
@@ -225,24 +265,25 @@ const testRunnerService = useService(TestRunnerService)
 
 const result = ref<HoppCollection[]>([])
 
-const runnerState = testRunnerService.runTests(tab, collection.value, {
-  ...testRunnerConfig.value,
-  stopRef: testRunnerStopRef,
+const runnerState = ref<TestRunState>({
+  status: "running",
+  totalRequests: 0,
+  totalTime: 0,
+  completedRequests: 0,
+  errors: [],
+  result: cloneDeep(collection.value),
 })
 
 watch(
-  () => runnerState.value,
+  () => tab.value.document.status,
   () => {
     result.value = [runnerState.value.result]
-    if (runnerState.value.status === "stopped") {
-      onStopRunning(runnerState.value)
-    }
   },
   {
     deep: true,
   }
 )
 
-const collectionAdapter: SmartTreeAdapter<any> =
+const collectionAdapter: SmartTreeAdapter<CollectionNode> =
   new TestRunnerCollectionsAdapter(result)
 </script>

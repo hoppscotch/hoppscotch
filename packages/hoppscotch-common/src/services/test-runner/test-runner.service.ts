@@ -93,6 +93,7 @@ export class TestRunnerService extends Service {
       }
 
       if (results && E.isRight(results)) {
+        console.log("results.right", results.right)
         const { response, testResult } = results.right
         request.testResults = testResult
         request.response = response
@@ -206,15 +207,21 @@ export class TestRunnerService extends Service {
       result: cloneDeep(collection),
     })
 
-    tab.value.document.isRunning = state.value.status === "running"
+    tab.value.document.status = "running"
 
     this.runTestCollection(tab, state, state.value.result, options)
       .then(() => {
         state.value.status = "stopped"
-        tab.value.document.isRunning = false
+        tab.value.document.status = "stopped"
+        tab.value.document.resultCollection = state.value.result
+        tab.value.document.testRunnerMeta = {
+          totalRequests: state.value.totalRequests,
+          totalTime: state.value.totalTime,
+          completedRequests: state.value.completedRequests,
+        }
       })
       .catch((error) => {
-        tab.value.document.isRunning = false
+        tab.value.document.status = "stopped"
         if (
           error instanceof Error &&
           error.message === "Test execution stopped"
@@ -227,7 +234,7 @@ export class TestRunnerService extends Service {
       })
       .finally(() => {
         state.value.status = "stopped"
-        tab.value.document.isRunning = false
+        tab.value.document.status = "stopped"
       })
 
     return state

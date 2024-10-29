@@ -133,6 +133,15 @@ pub fn run_request_task(
     }
     log::debug!("Client certificate configuration successful");
 
+    curl_handle
+        .http_auth(curl::easy::Auth::new().auto(true))
+        .map_err(|err| {
+            RelayError::RequestRunError(format!(
+                "Failed to set HTTP Auth Mode: {}",
+                err.description()
+            ))
+        })?;
+
     if let Err(err) = apply_proxy_config_to_curl_handle(&mut curl_handle, &req) {
         log::error!(
             "Proxy configuration failed:\nError: {:?}\nProxy Info: {:?}",

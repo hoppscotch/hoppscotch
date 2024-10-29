@@ -272,8 +272,6 @@ const selectDigestAuthType = () => {
     algorithm = "MD5",
   } = auth.value as HoppRESTAuthDigest
 
-  console.error(`Auth is `, auth.value)
-
   auth.value = {
     ...auth.value,
     authType: "digest",

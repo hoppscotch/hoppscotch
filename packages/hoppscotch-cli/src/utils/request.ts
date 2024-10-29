@@ -240,7 +240,6 @@ export const processRequest =
 
       // Updating report for errors & current result
       report.errors.push(preRequestRes.left);
-      console.error(`Report result is `, report.result);
       report.result = report.result;
     } else {
       // Updating effective-request and consuming updated envs after pre-request script execution

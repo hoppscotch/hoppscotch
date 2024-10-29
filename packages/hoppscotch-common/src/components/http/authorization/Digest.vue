@@ -36,8 +36,7 @@
         :auto-complete-env="true"
         :placeholder="`${t(
           'authorization.digest.realm'
-        )} (e.g. testrealm@example.com)
-        `"
+        )} (e.g. testrealm@example.com)`"
         :envs="envs"
       />
     </div>
@@ -98,8 +97,7 @@
       <SmartEnvInput
         v-model="auth.qop"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.qop')} (e.g. auth-int)
-        `"
+        :placeholder="`${t('authorization.digest.qop')} (e.g. auth-int)`"
         :envs="envs"
       />
     </div>
@@ -108,8 +106,7 @@
       <SmartEnvInput
         v-model="auth.nc"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.nonce_count')} (e.g. 00000001)
-        `"
+        :placeholder="`${t('authorization.digest.nonce_count')} (e.g. 00000001)`"
         :envs="envs"
       />
     </div>
@@ -118,8 +115,7 @@
       <SmartEnvInput
         v-model="auth.cnonce"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.client_nonce')} (e.g. Oa4f113b)
-        `"
+        :placeholder="`${t('authorization.digest.client_nonce')} (e.g. Oa4f113b)`"
         :envs="envs"
       />
     </div>

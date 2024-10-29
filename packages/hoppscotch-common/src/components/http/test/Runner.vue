@@ -205,12 +205,12 @@ const showResult = computed(() => {
   )
 })
 
-const runTests = () => {
+const runTests = async () => {
+  testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
   runnerState.value = testRunnerService.runTests(tab, collection.value, {
     ...testRunnerConfig.value,
     stopRef: testRunnerStopRef,
   }).value
-  testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
 }
 
 const stopTests = () => {
@@ -227,6 +227,17 @@ const stopTests = () => {
 const runAgain = async () => {
   result.value = []
   await nextTick()
+  resetRunnerState()
+  await nextTick()
+  runTests()
+}
+
+const resetRunnerState = () => {
+  tab.value.document.testRunnerMeta = {
+    totalRequests: 0,
+    totalTime: 0,
+    completedRequests: 0,
+  }
   runnerState.value = {
     status: "running",
     totalRequests: 0,
@@ -235,12 +246,9 @@ const runAgain = async () => {
     errors: [],
     result: cloneDeep(collection.value),
   }
-  await nextTick()
-  runTests()
 }
 
 onMounted(() => {
-  console.log("TAB", tab.value.document.status)
   if (tab.value.document.status === "idle") runTests()
   if (
     tab.value.document.status === "stopped" ||

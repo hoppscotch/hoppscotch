@@ -93,7 +93,6 @@ export class TestRunnerService extends Service {
       }
 
       if (results && E.isRight(results)) {
-        console.log("results.right", results.right)
         const { response, testResult } = results.right
         request.testResults = testResult
         request.response = response
@@ -221,14 +220,15 @@ export class TestRunnerService extends Service {
         }
       })
       .catch((error) => {
-        tab.value.document.status = "stopped"
         if (
           error instanceof Error &&
           error.message === "Test execution stopped"
         ) {
           state.value.status = "stopped"
+          tab.value.document.status = "stopped"
         } else {
           state.value.status = "error"
+          tab.value.document.status = "error"
           console.error("Test runner failed:", error)
         }
       })

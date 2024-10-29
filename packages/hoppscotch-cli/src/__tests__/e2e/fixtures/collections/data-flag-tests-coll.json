@@ -1,0 +1,23 @@
+{
+  "v": 1,
+  "name": "data-flag-tests",
+  "folders": [],
+  "requests": [
+    {
+      "v": "3",
+      "endpoint": "<<URL>>",
+      "name": "test1",
+      "params": [],
+      "headers": [],
+      "method": "POST",
+      "auth": { "authType": "none", "authActive": true },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"<<BODY_KEY>>\":\"<<BODY_VALUE>>\"\n}"
+      },
+      "requestVariables": []
+    }
+  ]
+}

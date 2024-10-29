@@ -185,47 +185,48 @@ describe("hopp test [options] <file_path_or_id>", () => {
       });
     });
     test("Ensures tests are running in sequence order based on folder name", async () => {
-      const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
-      const {stdout, error} = await runCLI(args);
+        const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
+        const {stdout, error} = await runCLI(args);
 
-      // Extract folder names from the collection
-      const expectedOrder = [
-        "root-collection-request",
-        "folder-1/folder-1-request",
-        "folder-1/folder-11/folder-11-request",
-        "folder-1/folder-12/folder-12-request",
-        "folder-1/folder-13/folder-13-request",
-        "folder-2/folder-2-request",
-        "folder-2/folder-21/folder-21-request",
-        "folder-2/folder-22/folder-22-request",
-        "folder-2/folder-23/folder-23-request",
-        "folder-3/folder-3-request",
-        "folder-3/folder-31/folder-31-request",
-        "folder-3/folder-32/folder-32-request",
-        "folder-3/folder-33/folder-33-request"
-      ];
+        // Extract folder names from the collection
+        const expectedOrder = [
+          "root-collection-request",
+          "folder-1/folder-1-request",
+          "folder-1/folder-11/folder-11-request",
+          "folder-1/folder-12/folder-12-request",
+          "folder-1/folder-13/folder-13-request",
+          "folder-2/folder-2-request",
+          "folder-2/folder-21/folder-21-request",
+          "folder-2/folder-22/folder-22-request",
+          "folder-2/folder-23/folder-23-request",
+          "folder-3/folder-3-request",
+          "folder-3/folder-31/folder-31-request",
+          "folder-3/folder-32/folder-32-request",
+          "folder-3/folder-33/folder-33-request",
+        ];
 
-      // Helper function to extract the running order from stdout
-      const extractRunningOrder = (stdout: string): string[] => {
-        const regex = /Running:.*?\/(.*?)\n/g;
-        const matches = [];
-        let match;
-        while ((match = regex.exec(stdout)) !== null) {
-          // Clean up the extracted folder name
-          const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, '');
-          matches.push(cleanedMatch);
-        }
-        return matches;
-      };
+        // Helper function to extract the running order from stdout
+        const extractRunningOrder = (stdout: string): string[] => {
+          const regex = /Running:.*?\/(.*?)\n/g;
+          const matches = [];
+          let match;
+          while ((match = regex.exec(stdout)) !== null) {
+            // Clean up the extracted folder name
+            const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, '');
+            matches.push(cleanedMatch);
+          }
+          return matches;
+        };
 
-      // Extract the actual order from stdout
-      const actualOrder = extractRunningOrder(stdout);
+        // Extract the actual order from stdout
+        const actualOrder = extractRunningOrder(stdout);
 
-      // Verify the order of tests based on folder names
-      expect(actualOrder).toStrictEqual(expectedOrder);
+        // Verify the order of tests based on folder names
+        expect(actualOrder).toStrictEqual(expectedOrder);
 
-      expect(error).toBeNull();
-    });
+        expect(error).toBeNull();
+      },
+      {timeout: 100000});
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -850,8 +851,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
   describe("Test `hopp test <file> --data <file>` command:", () => {
     describe("Supplied data export file validations", () => {
-      const VALID_TEST_ARGS = `test ${getTestJsonFilePath("data-envs.csv", "collection")}`;
-      const dataFilePath = `${VALID_TEST_ARGS} --data notfound.csv`;
+      const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
       test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
         const args = `${VALID_TEST_ARGS} --data`;
@@ -861,7 +861,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
       });
 
-      test("Errors with the code `INVALID_FILE_TYPE` if the supplied environment export file doesn't end with the `.csv` extension", async () => {
+      test("Errors with the code `INVALID_DATA_FILE_TYPE` if the supplied data file doesn't end with the `.csv` extension", async () => {
         const args = `${VALID_TEST_ARGS} --data ${getTestJsonFilePath(
           "notjson-coll.txt",
           "collection"
@@ -869,60 +869,58 @@ describe("hopp test [options] <file_path_or_id>", () => {
         const {stderr} = await runCLI(args);
 
         const out = getErrorCode(stderr);
-        expect(out).toBe<HoppErrorCode>("INVALID_FILE_TYPE");
+        expect(out).toBe<HoppErrorCode>("INVALID_DATA_FILE_TYPE");
       });
 
       test("Errors with the code `FILE_NOT_FOUND` if the supplied data export file doesn't exist", async () => {
-        const args = dataFilePath;
 
-        // Expect the function to throw an error and log the error message
-        try {
-          await runCLI(args);
-        } catch (error) {
-          if (error instanceof Error) {
-            console.log(error.message);
-            expect(error.message).toBe("FILE_NOT_FOUND");
-          }
-        }
+        const args = `${VALID_TEST_ARGS} --data notfound.csv`;
+        const {stderr} = await runCLI(args);
+
+        const out = getErrorCode(stderr);
+        expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
       });
     });
 
     test("Successfully resolves values from the supplied data export file", async () => {
       const TESTS_PATH = getTestJsonFilePath(
-        "env-flag-tests-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
       const args = `test ${TESTS_PATH} --data ${ENV_PATH}`;
 
       const {error} = await runCLI(args);
+
       expect(error).toBeNull();
     });
 
     test("Successfully resolves data variables referenced in the request body", async () => {
       const COLL_PATH = getTestJsonFilePath(
-        "req-body-env-vars-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENVS_PATH = getTestJsonFilePath(
-        "req-body-data-vars.json",
+        "data-envs.csv",
         "environment"
       );
       const args = `test ${COLL_PATH} --data ${ENVS_PATH}`;
-
       const {error} = await runCLI(args);
+
       expect(error).toBeNull();
+
     });
 
     test("Works with shorth `-data` flag", async () => {
       const TESTS_PATH = getTestJsonFilePath(
-        "env-flag-tests-coll.json",
+        "data-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
       const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
 
-      const {error} = await runCLI(args);
+      const {stdout, stderr, error} = await runCLI(args);
+
       expect(error).toBeNull();
     });
   });

@@ -15,7 +15,7 @@
         </span>
       </p>
 
-      <p class="ml-10 mt-2 text-secondaryLight">
+      <p v-if="description" class="ml-10 mt-2 text-secondaryLight">
         {{ t(description) }}
       </p>
     </div>
@@ -56,9 +56,9 @@ const props = withDefaults(
     caption: string
     fetchLogic?: (url: string) => Promise<AxiosResponse<any>>
     loading?: boolean
-    description: string
+    description?: string
   }>(),
-  { fetchLogic: undefined, loading: false }
+  { fetchLogic: undefined, loading: false, description: undefined }
 )
 
 const emit = defineEmits<{

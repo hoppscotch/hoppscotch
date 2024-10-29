@@ -14,7 +14,7 @@ export function GistSource(metadata: {
     importResult: E.Either<string, string[]>
   ) => any | Promise<any>
   isLoading?: Ref<boolean>
-  description: string
+  description?: string
 }) {
   const stepID = uuidv4()
 

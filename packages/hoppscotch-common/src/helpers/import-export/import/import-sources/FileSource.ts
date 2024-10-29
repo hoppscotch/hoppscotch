@@ -9,7 +9,7 @@ export function FileSource(metadata: {
   caption: string
   onImportFromFile: (content: string[]) => any | Promise<any>
   isLoading?: Ref<boolean>
-  description: string
+  description?: string
 }) {
   const stepID = uuidv4()
 

@@ -15,7 +15,7 @@
         </span>
       </p>
 
-      <p class="ml-10 mt-2 text-secondaryLight">
+      <p v-if="description" class="ml-10 mt-2 text-secondaryLight">
         {{ t(description) }}
       </p>
     </div>
@@ -75,10 +75,11 @@ const props = withDefaults(
     caption: string
     acceptedFileTypes: string
     loading?: boolean
-    description: string
+    description?: string
   }>(),
   {
     loading: false,
+    description: undefined,
   }
 )
 

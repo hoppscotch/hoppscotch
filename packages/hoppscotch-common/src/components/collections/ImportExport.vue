@@ -369,6 +369,7 @@ const HoppPostmanImporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
@@ -410,6 +411,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
@@ -451,6 +453,7 @@ const HoppGistImporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
   },
+  importSummary: currentImportSummary,
   component: GistSource({
     caption: "import.from_url",
     description: "import.from_gist_import_summary",
@@ -497,6 +500,7 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     applicableTo: ["personal-workspace"],
     isLoading: isHoppMyCollectionExporterInProgress,
   },
+  importSummary: currentImportSummary,
   action: async () => {
     if (!myCollections.value.length) {
       return toast.error(t("error.no_collections_to_export"))
@@ -535,6 +539,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
     applicableTo: ["team-workspace"],
     isLoading: isHoppTeamCollectionExporterInProgress,
   },
+  importSummary: currentImportSummary,
   action: async () => {
     isHoppTeamCollectionExporterInProgress.value = true
     if (
@@ -632,6 +637,7 @@ const HARImporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".har",

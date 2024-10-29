@@ -7,10 +7,7 @@ const t = useI18n()
 
 const props = defineProps<{
   collections: HoppCollection[]
-}>()
-
-const emit = defineEmits<{
-  (e: "onClose"): void
+  onClose: () => void
 }>()
 
 type CountBlock = {
@@ -117,7 +114,11 @@ watch(
       :label="t('action.close')"
       outline
       filled
-      @click="() => emit('onClose')"
+      @click="
+        () => {
+          onClose()
+        }
+      "
     />
   </div>
 </template>

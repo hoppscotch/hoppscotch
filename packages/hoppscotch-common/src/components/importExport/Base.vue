@@ -183,18 +183,6 @@ watch(
   { deep: true }
 )
 
-watch(selectedImporterID, (id) => {
-  if (!id) return
-
-  const importer = props.importerModules.find((i) => i.metadata.id === id)
-
-  if (!importer) return
-
-  // if (importer.importSummary?.showImportSummary) {
-  //   goToStep(`import_summary_${importer.metadata.id}`)
-  // }
-})
-
 props.importerModules.forEach((importer) => {
   if (importer.component) {
     addStep(importer.component)
@@ -212,6 +200,9 @@ props.importerModules.forEach((importer) => {
       component: ImportSummary,
       props: () => ({
         collections: importSummary.value.importedCollections,
+        "on-close": () => {
+          emit("hide-modal")
+        },
       }),
     })
   }

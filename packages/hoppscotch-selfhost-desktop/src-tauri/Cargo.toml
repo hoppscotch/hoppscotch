@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "24.9.3"
+version = "24.10.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""

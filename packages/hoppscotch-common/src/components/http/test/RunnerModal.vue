@@ -167,10 +167,19 @@ import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlay from "~icons/lucide/play"
 import { CurrentEnv } from "./Env.vue"
+import { pipe } from "fp-ts/lib/function"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
+import * as TE from "fp-ts/TaskEither"
+import { GQLError } from "~/helpers/backend/GQLClient"
 
 const t = useI18n()
 const toast = useToast()
 const tabs = useService(RESTTabService)
+
+const loadingCollection = ref(false)
 
 export type CollectionRunnerData =
   | {
@@ -213,7 +222,18 @@ const config = ref<TestRunnerConfig>({
   keepVariableValues: false,
 })
 
-const runTests = () => {
+const runTests = async () => {
+  const collectionTree = await getCollectionTree(
+    props.collectionRunnerData.type,
+    props.collectionRunnerData.type === "my-collections"
+      ? props.collectionRunnerData.collection
+      : {
+          id: props.collectionRunnerData.collectionID,
+        }
+  )
+
+  if (!collectionTree) return
+
   if (props.sameTab) {
     const tabRef = tabs.getTabRef(tabs.currentTabID.value)
     if (tabRef && tabRef.value.document.type === "test-runner") {
@@ -221,20 +241,89 @@ const runTests = () => {
     }
     emit("hide-modal")
   } else {
-    if (props.collectionRunnerData.type === "my-collections") {
-      tabs.createNewTab({
-        type: "test-runner",
-        collection: props.collectionRunnerData.collection,
-        isDirty: false,
-        config: config.value,
-        isRunning: false,
-        request: null,
-        initiateRunOnTabOpen: true,
-      })
-    }
+    tabs.createNewTab({
+      type: "test-runner",
+      collection: collectionTree as HoppCollection,
+      isDirty: false,
+      config: config.value,
+      isRunning: false,
+      request: null,
+      initiateRunOnTabOpen: true,
+    })
   }
 
   emit("hide-modal")
+}
+
+/**
+ * Fetches the collection tree from the backend
+ * @param collection
+ * @returns collection tree
+ */
+const getCollectionTree = async (
+  type: CollectionRunnerData["type"],
+  collection: HoppCollection | { id: string }
+) => {
+  if (type === "my-collections") {
+    return collection
+  } else {
+    if (!collection.id) return
+    loadingCollection.value = true
+
+    console.log("Fetching collection tree for team collection", collection)
+
+    return pipe(
+      getCompleteCollectionTree(collection.id),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          loadingCollection.value = false
+          return
+        },
+        async (coll) => {
+          loadingCollection.value = false
+          return teamCollToHoppRESTColl(coll)
+        }
+      )
+    )()
+  }
+}
+
+const getErrorMessage = (err: GQLError<string>) => {
+  console.error(err)
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  }
+  switch (err.error) {
+    case "team_coll/short_title":
+      return t("collection.name_length_insufficient")
+    case "team/invalid_coll_id":
+    case "bug/team_coll/no_coll_id":
+    case "team_req/invalid_target_id":
+      return t("team.invalid_coll_id")
+    case "team/not_required_role":
+      return t("profile.no_permission")
+    case "team_req/not_required_role":
+      return t("profile.no_permission")
+    case "Forbidden resource":
+      return t("profile.no_permission")
+    case "team_req/not_found":
+      return t("team.no_request_found")
+    case "bug/team_req/no_req_id":
+      return t("team.no_request_found")
+    case "team/collection_is_parent_coll":
+      return t("team.parent_coll_move")
+    case "team/target_and_destination_collection_are_same":
+      return t("team.same_target_destination")
+    case "team/target_collection_is_already_root_collection":
+      return t("collection.invalid_root_move")
+    case "team_req/requests_not_from_same_collection":
+      return t("request.different_collection")
+    case "team/team_collections_have_different_parents":
+      return t("collection.different_parent")
+    default:
+      return t("error.something_went_wrong")
+  }
 }
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

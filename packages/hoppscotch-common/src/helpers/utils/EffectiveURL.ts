@@ -114,6 +114,12 @@ export const getComputedAuthHeaders = async (
       method
     )
 
+    const reqBody = getFinalBodyFromRequest(
+      req as HoppRESTRequest,
+      envVars,
+      showKeyIfSecret
+    )
+
     // Step 2: Set up the parameters for the digest authentication header
     const digestAuthParams: DigestAuthParams = {
       username: parseTemplateString(request.auth.username, envVars),
@@ -133,6 +139,7 @@ export const getComputedAuthHeaders = async (
       opaque: request.auth.opaque
         ? parseTemplateString(request.auth.opaque, envVars)
         : authInfo.opaque,
+      reqBody: typeof reqBody === "string" ? reqBody : "",
     }
 
     // Step 3: Generate the Authorization header

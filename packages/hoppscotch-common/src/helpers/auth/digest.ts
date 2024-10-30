@@ -17,6 +17,7 @@ export interface DigestAuthParams {
   nc?: string
   opaque?: string
   cnonce?: string // client nonce (optional but typically required in qop='auth')
+  reqBody?: string
 }
 
 // Function to generate Digest Auth Header
@@ -33,6 +34,7 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     nc = "00000001",
     opaque,
     cnonce,
+    reqBody = " ",
   } = params
 
   const url = new URL(endpoint)
@@ -41,7 +43,7 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
   // Generate client nonce if not provided
   const generatedCnonce = cnonce || md5(`${Math.random()}`)
 
-  // Step 1: Hash the username, realm, and password
+  // Step 1: Hash the username, realm, password and any additional fields based on the algorithm
   const ha1 =
     algorithm === "MD5-sess"
       ? md5(
@@ -52,7 +54,7 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
   // Step 2: Hash the method and URI
   const ha2 =
     qop === "auth-int"
-      ? md5(`${method}:${uri}:${md5("")}`) // Empty body hash for auth-int
+      ? md5(`${method}:${uri}:${md5(reqBody)}`) // Entity body hash for `auth-int`
       : md5(`${method}:${uri}`)
 
   // Step 3: Compute the response hash

@@ -42,6 +42,7 @@ createHoppApp("#app", {
   platformFeatureFlags: {
     exportAsGIST: false,
     hasTelemetry: false,
+    showInterceptorWarningForDigestAuth: true,
   },
   limits: {
     collectionImportSizeLimit: 50,

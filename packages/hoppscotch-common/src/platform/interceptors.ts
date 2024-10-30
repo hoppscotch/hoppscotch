@@ -14,4 +14,5 @@ export type PlatformInterceptorDef =
 export type InterceptorsPlatformDef = {
   default: string
   interceptors: PlatformInterceptorDef[]
+  showInterceptorWarningForDigestAuth?: boolean
 }

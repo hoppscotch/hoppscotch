@@ -75,10 +75,8 @@ export class AuthorizationInspectorService
       const results: InspectorResult[] = []
 
       // `Agent` interceptor is recommended while using Digest Auth
-      // TODO: Better check to detect the platform
-      // Interceptor check only applies to the browser platform
       const isUnsupportedInterceptor =
-        platform.interceptors.default === "browser" &&
+        platform.platformFeatureFlags.showInterceptorWarningForDigestAuth &&
         this.interceptorService.currentInterceptorID.value !==
           this.agentService.interceptorID
 

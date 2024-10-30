@@ -79,8 +79,7 @@ export interface DigestAuthInfo {
 
 export async function fetchInitialDigestAuthInfo(
   url: string,
-  method: string,
-  disableRetry: boolean
+  method: string
 ): Promise<DigestAuthInfo> {
   const t = getI18n()
 
@@ -101,7 +100,7 @@ export async function fetchInitialDigestAuthInfo(
     }
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.right.status === 401 && !disableRetry) {
+    if (initialResponse.right.status === 401) {
       const authHeaderEntry = Object.keys(initialResponse.right.headers).find(
         (header) => header.toLowerCase() === "www-authenticate"
       )
@@ -127,16 +126,13 @@ export async function fetchInitialDigestAuthInfo(
           }
         }
       }
+
       throw new Error(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       )
-    } else if (initialResponse.right.status === 401 && disableRetry) {
-      throw new Error(
-        `401 Unauthorized received. Retry is disabled as specified, so no further attempts will be made.`
-      )
-    } else {
-      throw new Error(`Unexpected response: ${initialResponse.right.status}`)
     }
+
+    throw new Error(`Unexpected response: ${initialResponse.right.status}`)
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : error
 

@@ -129,14 +129,15 @@
       />
     </div>
 
-    <div class="px-4 pt-3 pb-6">
+    <!-- TODO: Enable once request failure due to disabling retries is handled gracefully -->
+    <!-- <div class="px-4 pt-3 pb-6">
       <HoppSmartCheckbox
         :on="auth.disableRetry"
         @change="auth.disableRetry = !auth.disableRetry"
       >
         {{ t("authorization.digest.disable_retry") }}
       </HoppSmartCheckbox>
-    </div>
+    </div> -->
   </div>
 </template>
 

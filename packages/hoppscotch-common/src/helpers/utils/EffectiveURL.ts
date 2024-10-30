@@ -111,8 +111,7 @@ export const getComputedAuthHeaders = async (
     // Step 1: Fetch the initial auth info (nonce, realm, etc.)
     const authInfo = await fetchInitialDigestAuthInfo(
       parseTemplateString(endpoint, envVars),
-      method,
-      request.auth.disableRetry
+      method
     )
 
     // Step 2: Set up the parameters for the digest authentication header

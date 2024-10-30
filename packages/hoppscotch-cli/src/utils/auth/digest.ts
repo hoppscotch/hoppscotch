@@ -42,7 +42,7 @@ const parseDigestAuthHeader = (
 };
 
 // Function to generate Digest Auth Header
-export async function generateDigestAuthHeader(params: DigestAuthParams) {
+export const generateDigestAuthHeader = async (params: DigestAuthParams) => {
   const {
     username,
     password,
@@ -57,7 +57,6 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     cnonce,
   } = params;
 
-  // const uri = endpoint.replace(/(^\w+:|^)\/\//, "")
   const url = new URL(endpoint);
   const uri = url.pathname + url.search;
 
@@ -91,7 +90,7 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
   }
 
   return authHeader;
-}
+};
 
 export const fetchInitialDigestAuthInfo = async (
   url: string,
@@ -105,9 +104,21 @@ export const fetchInitialDigestAuthInfo = async (
       validateStatus: () => true, // Allow handling of all status codes
     });
 
+    if (disableRetry) {
+      throw new Error(
+        `Received status: ${initialResponse.status}. Retry is disabled as specified, so no further attempts will be made.`
+      );
+    }
+
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.status === 401 && !disableRetry) {
-      const authHeader = initialResponse.headers["www-authenticate"];
+    if (initialResponse.status === 401) {
+      const authHeaderEntry = Object.keys(initialResponse.headers).find(
+        (header) => header.toLowerCase() === "www-authenticate"
+      );
+
+      const authHeader = authHeaderEntry
+        ? (initialResponse.headers[authHeaderEntry] ?? null)
+        : null;
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader);
@@ -129,13 +140,9 @@ export const fetchInitialDigestAuthInfo = async (
       throw new Error(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       );
-    } else if (initialResponse.status === 401 && disableRetry) {
-      throw new Error(
-        `401 Unauthorized received. Retry is disabled as specified, so no further attempts will be made.`
-      );
-    } else {
-      throw new Error(`Unexpected response: ${initialResponse.status}`);
     }
+
+    throw new Error(`Unexpected response: ${initialResponse.status}`);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : error;
 

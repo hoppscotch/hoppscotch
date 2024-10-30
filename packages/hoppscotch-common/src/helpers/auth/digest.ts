@@ -35,7 +35,6 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     cnonce,
   } = params
 
-  // const uri = endpoint.replace(/(^\w+:|^)\/\//, "")
   const url = new URL(endpoint)
   const uri = url.pathname + url.search
 

@@ -302,6 +302,8 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
   public proxyInfo = ref<RequestDef["proxy"]>(undefined)
 
+  public supportsDigestAuth = true
+
   override onServiceInit() {
     // Register the Root UI Extension
     this.uiExtensionService.addRootUIExtension(AgentRootUIExtension)

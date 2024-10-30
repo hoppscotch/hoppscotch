@@ -277,6 +277,8 @@ export class NativeInterceptorService extends Service implements Interceptor {
   public validateCerts = ref(true)
   public proxyInfo = ref<RequestDef["proxy"]>(undefined)
 
+  public supportsDigestAuth = true
+
   override onServiceInit() {
     // Load SSL Validation
     const persistedValidateSSL: unknown = JSON.parse(

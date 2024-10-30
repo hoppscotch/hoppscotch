@@ -35,16 +35,26 @@ export async function generateDigestAuthHeader(params: DigestAuthParams) {
     cnonce,
   } = params
 
-  const uri = endpoint.replace(/(^\w+:|^)\/\//, "")
+  // const uri = endpoint.replace(/(^\w+:|^)\/\//, "")
+  const url = new URL(endpoint)
+  const uri = url.pathname + url.search
 
   // Generate client nonce if not provided
   const generatedCnonce = cnonce || md5(`${Math.random()}`)
 
   // Step 1: Hash the username, realm, and password
-  const ha1 = md5(`${username}:${realm}:${password}`)
+  const ha1 =
+    algorithm === "MD5-sess"
+      ? md5(
+          `${md5(`${username}:${realm}:${password}`)}:${nonce}:${generatedCnonce}`
+        )
+      : md5(`${username}:${realm}:${password}`)
 
   // Step 2: Hash the method and URI
-  const ha2 = md5(`${method}:${uri}`)
+  const ha2 =
+    qop === "auth-int"
+      ? md5(`${method}:${uri}:${md5("")}`) // Empty body hash for auth-int
+      : md5(`${method}:${uri}`)
 
   // Step 3: Compute the response hash
   const response = md5(`${ha1}:${nonce}:${nc}:${generatedCnonce}:${qop}:${ha2}`)
@@ -92,7 +102,13 @@ export async function fetchInitialDigestAuthInfo(
 
     // Check if the response status is 401 (which is expected in Digest Auth flow)
     if (initialResponse.right.status === 401 && !disableRetry) {
-      const authHeader = initialResponse.right.headers["www-authenticate"]
+      const authHeaderEntry = Object.keys(initialResponse.right.headers).find(
+        (header) => header.toLowerCase() === "www-authenticate"
+      )
+
+      const authHeader = authHeaderEntry
+        ? (initialResponse.right.headers[authHeaderEntry] ?? null)
+        : null
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader)

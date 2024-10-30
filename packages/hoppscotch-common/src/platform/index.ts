@@ -54,11 +54,6 @@ export type PlatformDef = {
      * Whether to show the A/B testing workspace switcher click login flow or not
      */
     workspaceSwitcherLogin?: Ref<boolean>
-
-    /**
-     * Whether to show the warning about supported interceptors while using the Digest Authorization type
-     */
-    showInterceptorWarningForDigestAuth?: boolean
   }
   limits?: LimitsPlatformDef
   infra?: InfraPlatformDef

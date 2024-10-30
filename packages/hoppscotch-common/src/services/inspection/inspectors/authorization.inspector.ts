@@ -6,8 +6,6 @@ import { Service } from "dioc"
 import { computed, markRaw, Ref } from "vue"
 
 import { getI18n } from "~/modules/i18n"
-import { platform } from "~/platform"
-import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
 import { InterceptorService } from "~/services/interceptor.service"
 import { RESTTabService } from "~/services/tab/rest"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
@@ -31,7 +29,6 @@ export class AuthorizationInspectorService
 
   private readonly inspection = this.bind(InspectionService)
   private readonly interceptorService = this.bind(InterceptorService)
-  private readonly agentService = this.bind(AgentInterceptorService)
   private readonly restTabService = this.bind(RESTTabService)
 
   override onServiceInit() {
@@ -74,15 +71,12 @@ export class AuthorizationInspectorService
 
       const results: InspectorResult[] = []
 
-      // `Agent` interceptor is recommended while using Digest Auth
-      const isUnsupportedInterceptor =
-        platform.platformFeatureFlags.showInterceptorWarningForDigestAuth &&
-        this.interceptorService.currentInterceptorID.value !==
-          this.agentService.interceptorID
-
       const resolvedAuthType = this.resolveAuthType(auth)
 
-      if (resolvedAuthType === "digest" && isUnsupportedInterceptor) {
+      if (
+        resolvedAuthType === "digest" &&
+        !this.interceptorService.currentInterceptor.value?.supportsDigestAuth
+      ) {
         results.push({
           id: "url",
           icon: markRaw(IconAlertTriangle),

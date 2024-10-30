@@ -120,6 +120,15 @@ export async function getEffectiveRESTRequest(
   }
   const effectiveFinalParams = _effectiveFinalParams.right;
 
+  // Parsing final-body with applied ENVs.
+  const _effectiveFinalBody = getFinalBodyFromRequest(
+    request,
+    resolvedVariables
+  );
+  if (E.isLeft(_effectiveFinalBody)) {
+    return _effectiveFinalBody;
+  }
+
   // Authentication
   if (request.auth.authActive) {
     // TODO: Support a better b64 implementation than btoa ?
@@ -266,6 +275,7 @@ export async function getEffectiveRESTRequest(
         opaque: request.auth.opaque
           ? parseTemplateString(request.auth.opaque, resolvedVariables)
           : authInfo.opaque,
+        reqBody: typeof request.body.body === "string" ? request.body.body : "",
       };
 
       // Step 3: Generate the Authorization header
@@ -280,14 +290,6 @@ export async function getEffectiveRESTRequest(
     }
   }
 
-  // Parsing final-body with applied ENVs.
-  const _effectiveFinalBody = getFinalBodyFromRequest(
-    request,
-    resolvedVariables
-  );
-  if (E.isLeft(_effectiveFinalBody)) {
-    return _effectiveFinalBody;
-  }
   const effectiveFinalBody = _effectiveFinalBody.right;
 
   if (

@@ -422,7 +422,7 @@ describe("hopp test [options] <file_path_or_id>", () => {
     describe("Digest Authorization type", () => {
       test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
         const COLL_PATH = getTestJsonFilePath(
-          "digest-auth-coll.json",
+          "digest-auth-success-coll.json",
           "collection"
         );
         const ENVS_PATH = getTestJsonFilePath(
@@ -435,6 +435,22 @@ describe("hopp test [options] <file_path_or_id>", () => {
 
         expect(error).toBeNull();
       });
+    });
+
+    test("Supports disabling request retries", async () => {
+      const COLL_PATH = getTestJsonFilePath(
+        "digest-auth-failure-coll.json",
+        "collection"
+      );
+      const ENVS_PATH = getTestJsonFilePath(
+        "digest-auth-envs.json",
+        "environment"
+      );
+
+      const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+      const { error } = await runCLI(args);
+
+      expect(error).toBeTruthy();
     });
   });
 

@@ -15,6 +15,7 @@ export interface DigestAuthParams {
   nc?: string;
   opaque?: string;
   cnonce?: string; // client nonce (optional but typically required in qop='auth')
+  reqBody?: string;
 }
 
 export interface DigestAuthInfo {
@@ -55,18 +56,28 @@ export const generateDigestAuthHeader = async (params: DigestAuthParams) => {
     nc = "00000001",
     opaque,
     cnonce,
+    reqBody = "",
   } = params;
 
-  const uri = endpoint.replace(/(^\w+:|^)\/\//, "");
+  const url = new URL(endpoint);
+  const uri = url.pathname + url.search;
 
   // Generate client nonce if not provided
   const generatedCnonce = cnonce || md5(`${Math.random()}`);
 
-  // Step 1: Hash the username, realm, and password
-  const ha1 = md5(`${username}:${realm}:${password}`);
+  // Step 1: Hash the username, realm, password and any additional fields based on the algorithm
+  const ha1 =
+    algorithm === "MD5-sess"
+      ? md5(
+          `${md5(`${username}:${realm}:${password}`)}:${nonce}:${generatedCnonce}`
+        )
+      : md5(`${username}:${realm}:${password}`);
 
   // Step 2: Hash the method and URI
-  const ha2 = md5(`${method}:${uri}`);
+  const ha2 =
+    qop === "auth-int"
+      ? md5(`${method}:${uri}:${md5(reqBody)}`) // Entity body hash for `auth-int`
+      : md5(`${method}:${uri}`);
 
   // Step 3: Compute the response hash
   const response = md5(
@@ -95,9 +106,21 @@ export const fetchInitialDigestAuthInfo = async (
       validateStatus: () => true, // Allow handling of all status codes
     });
 
+    if (disableRetry) {
+      throw new Error(
+        `Received status: ${initialResponse.status}. Retry is disabled as specified, so no further attempts will be made.`
+      );
+    }
+
     // Check if the response status is 401 (which is expected in Digest Auth flow)
-    if (initialResponse.status === 401 && !disableRetry) {
-      const authHeader = initialResponse.headers["www-authenticate"];
+    if (initialResponse.status === 401) {
+      const authHeaderEntry = Object.keys(initialResponse.headers).find(
+        (header) => header.toLowerCase() === "www-authenticate"
+      );
+
+      const authHeader = authHeaderEntry
+        ? (initialResponse.headers[authHeaderEntry] ?? null)
+        : null;
 
       if (authHeader) {
         const authParams = parseDigestAuthHeader(authHeader);
@@ -119,13 +142,9 @@ export const fetchInitialDigestAuthInfo = async (
       throw new Error(
         "Failed to parse authentication parameters from WWW-Authenticate header"
       );
-    } else if (initialResponse.status === 401 && disableRetry) {
-      throw new Error(
-        `401 Unauthorized received. Retry is disabled as specified, so no further attempts will be made.`
-      );
-    } else {
-      throw new Error(`Unexpected response: ${initialResponse.status}`);
     }
+
+    throw new Error(`Unexpected response: ${initialResponse.status}`);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : error;
 

@@ -111,8 +111,13 @@ export const getComputedAuthHeaders = async (
     // Step 1: Fetch the initial auth info (nonce, realm, etc.)
     const authInfo = await fetchInitialDigestAuthInfo(
       parseTemplateString(endpoint, envVars),
-      method,
-      request.auth.disableRetry
+      method
+    )
+
+    const reqBody = getFinalBodyFromRequest(
+      req as HoppRESTRequest,
+      envVars,
+      showKeyIfSecret
     )
 
     // Step 2: Set up the parameters for the digest authentication header
@@ -134,6 +139,7 @@ export const getComputedAuthHeaders = async (
       opaque: request.auth.opaque
         ? parseTemplateString(request.auth.opaque, envVars)
         : authInfo.opaque,
+      reqBody: typeof reqBody === "string" ? reqBody : "",
     }
 
     // Step 3: Generate the Authorization header

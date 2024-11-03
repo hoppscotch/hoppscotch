@@ -231,9 +231,8 @@ export class AdminService {
    * @returns a count of team members
    */
   async membersCountInTeam(teamID: string) {
-    const teamMembersCount = await this.teamService.getCountOfMembersInTeam(
-      teamID,
-    );
+    const teamMembersCount =
+      await this.teamService.getCountOfMembersInTeam(teamID);
     return teamMembersCount;
   }
 
@@ -276,9 +275,8 @@ export class AdminService {
    * @returns an array team invitations
    */
   async pendingInvitationCountInTeam(teamID: string) {
-    const invitations = await this.teamInvitationService.getTeamInvitations(
-      teamID,
-    );
+    const invitations =
+      await this.teamInvitationService.getTeamInvitations(teamID);
 
     return invitations;
   }
@@ -614,9 +612,8 @@ export class AdminService {
    * @returns an Either of boolean or error
    */
   async revokeTeamInviteByID(inviteID: string) {
-    const teamInvite = await this.teamInvitationService.revokeInvitation(
-      inviteID,
-    );
+    const teamInvite =
+      await this.teamInvitationService.revokeInvitation(inviteID);
 
     if (E.isLeft(teamInvite)) return E.left(teamInvite.left);
 

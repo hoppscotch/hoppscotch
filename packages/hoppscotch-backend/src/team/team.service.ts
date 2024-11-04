@@ -409,20 +409,20 @@ export class TeamService implements UserDataHandler, OnModuleInit {
         },
       });
 
-      // Count owners in each team
-      const ownerCounts = await Promise.all(
-        userOwnedTeams.map((team) =>
-          this.prisma.teamMember.count({
-            where: {
-              teamID: team.teamID,
-              role: TeamMemberRole.OWNER,
-            },
-          }),
-        ),
-      );
+      for (const userOwnedTeam of userOwnedTeams) {
+        const ownerCount = await this.prisma.teamMember.count({
+          where: {
+            teamID: userOwnedTeam.teamID,
+            role: TeamMemberRole.OWNER,
+          },
+        });
 
-      // Check if the user is the sole owner in any team
-      return ownerCounts.some((count) => count === 1);
+        // early return true if the user is the sole owner
+        if (ownerCount === 1) return true;
+      }
+
+      // return false if the user is not the sole owner in any team
+      return false;
     };
   }
 

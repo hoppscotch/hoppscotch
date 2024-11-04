@@ -40,6 +40,8 @@ pub enum AppError {
     RegistrationInsertError,
     #[error("Failed to save registrations to store")]
     RegistrationSaveError,
+    #[error("Serde error: {0}")]
+    Serde(#[from] serde_json::Error),
     #[error("Store error: {0}")]
     TauriPluginStore(#[from] tauri_plugin_store::Error),
     #[error("Relay error: {0}")]

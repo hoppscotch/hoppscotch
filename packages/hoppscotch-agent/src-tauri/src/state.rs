@@ -46,6 +46,10 @@ impl AppState {
             .and_then(|val| serde_json::from_value(val.clone()).ok())
             .unwrap_or_else(|| DashMap::new());
 
+        // Try to save the latest registrations list
+        let _ = store.set("registrations", serde_json::to_value(&registrations)?);
+        let _ = store.save();
+
         Ok(Self {
             active_registration_code: RwLock::new(None),
             cancellation_tokens: DashMap::new(),

@@ -16,8 +16,11 @@ let
   ];
 
   linuxPackages = with pkgs; [
-    libsoup
-    webkitgtk_4_0
+    libsoup_3
+    webkitgtk_4_1
+    librsvg
+    libappindicator
+    libayatana-appindicator
   ];
 
 in {
@@ -46,6 +49,11 @@ in {
     PRISMA_QUERY_ENGINE_LIBRARY = "${pkgs.prisma-engines}/lib/libquery_engine.node";
     PRISMA_QUERY_ENGINE_BINARY = "${pkgs.prisma-engines}/bin/query-engine";
     PRISMA_SCHEMA_ENGINE_BINARY = "${pkgs.prisma-engines}/bin/schema-engine";
+
+    LD_LIBRARY_PATH = lib.makeLibraryPath [
+      pkgs.libappindicator
+      pkgs.libayatana-appindicator
+    ];
   } // lib.optionalAttrs pkgs.stdenv.isDarwin {
     # Place to put macOS-specific environment variables
   };

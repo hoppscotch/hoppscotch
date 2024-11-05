@@ -1,6 +1,7 @@
 pub mod controller;
 pub mod dialog;
 pub mod error;
+pub mod global;
 pub mod model;
 pub mod route;
 pub mod server;

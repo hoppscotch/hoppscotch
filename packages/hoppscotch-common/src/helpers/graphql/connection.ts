@@ -159,7 +159,7 @@ export const graphqlTypes = computed(() => {
 
 let timeoutSubscription: any
 
-export const connect = (url: string, headers: GQLHeader[]) => {
+export const connect = async (url: string, headers: GQLHeader[]) => {
   if (connection.state === "CONNECTED") {
     throw new Error(
       "A connection is already running. Close it before starting another."
@@ -175,7 +175,8 @@ export const connect = (url: string, headers: GQLHeader[]) => {
       poll()
     }, GQL_SCHEMA_POLL_INTERVAL)
   }
-  poll()
+
+  await poll()
 }
 
 export const disconnect = () => {
@@ -256,6 +257,10 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
 }
 
 export const runGQLOperation = async (options: RunQueryOptions) => {
+  if (connection.state !== "CONNECTED") {
+    await connect(options.url, options.headers)
+  }
+
   const { url, headers, query, variables, auth, operationName, operationType } =
     options
 
@@ -377,10 +382,6 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     data: responseText,
     rawQuery: options,
     operationType,
-  }
-
-  if (connection.state !== "CONNECTED") {
-    connection.state = "CONNECTED"
   }
 
   addQueryToHistory(options, responseText)

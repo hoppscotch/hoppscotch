@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-agent"
-version = "0.1.2"
+version = "0.1.3"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
 authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"

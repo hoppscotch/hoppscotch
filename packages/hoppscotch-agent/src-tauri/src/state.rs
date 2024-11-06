@@ -3,11 +3,14 @@ use axum::body::Bytes;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use tauri_plugin_store::StoreBuilder;
+use tauri_plugin_store::StoreExt;
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
-use crate::error::{AppError, AppResult};
+use crate::{
+    error::{AgentError, AgentResult},
+    global::{AGENT_STORE, REGISTRATIONS},
+};
 
 /// Describes one registered app instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,17 +37,19 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(app_handle: tauri::AppHandle) -> AppResult<Self> {
-        let store = StoreBuilder::new(&app_handle, "app_data.bin").build()?;
-
-        let _ = store.reload();
+    pub fn new(app_handle: tauri::AppHandle) -> AgentResult<Self> {
+        let store = app_handle.store(AGENT_STORE)?;
 
         // Try loading and parsing registrations from the store, if that failed,
         // load the default list
         let registrations = store
-            .get("registrations")
+            .get(REGISTRATIONS)
             .and_then(|val| serde_json::from_value(val.clone()).ok())
             .unwrap_or_else(|| DashMap::new());
+
+        // Try to save the latest registrations list
+        let _ = store.set(REGISTRATIONS, serde_json::to_value(&registrations)?);
+        let _ = store.save();
 
         Ok(Self {
             active_registration_code: RwLock::new(None),
@@ -62,38 +67,50 @@ impl AppState {
     }
 
     /// Provides you an opportunity to update the registrations list
-    /// and also persists the data to the disk
+    /// and also persists the data to the disk.
+    /// This function bypasses `store.reload()` to avoid issues from stale or inconsistent
+    /// data on disk. By relying solely on the in-memory `self.registrations`,
+    /// we make sure that updates are applied based on the most recent changes in memory.
     pub fn update_registrations(
         &self,
         app_handle: tauri::AppHandle,
         update_func: impl FnOnce(&DashMap<String, Registration>),
-    ) -> Result<(), AppError> {
+    ) -> Result<(), AgentError> {
         update_func(&self.registrations);
 
-        let store = StoreBuilder::new(&app_handle, "app_data.bin").build()?;
+        let store = app_handle.store(AGENT_STORE)?;
 
-        let _ = store.reload()?;
+        if store.has(REGISTRATIONS) {
+            // We've confirmed `REGISTRATIONS` exists in the store
+            store
+                .delete(REGISTRATIONS)
+                .then_some(())
+                .ok_or(AgentError::RegistrationClearError)?;
+        } else {
+            log::debug!("`REGISTRATIONS` key not found in store; continuing with update.");
+        }
 
-        let _ = store
-            .delete("registrations")
-            .then_some(())
-            .ok_or(AppError::RegistrationClearError)?;
+        // Since we've established `self.registrations` as the source of truth,
+        // we avoid reloading the store from disk and instead choose to override it.
 
-        let _ = store.set(
-            "registrations",
-            serde_json::to_value(self.registrations.clone()).unwrap(),
+        store.set(
+            REGISTRATIONS,
+            serde_json::to_value(self.registrations.clone())?,
         );
 
-        store.save().map_err(|_| AppError::RegistrationSaveError)?;
+        // Explicitly save the changes
+        store.save()?;
 
         Ok(())
     }
 
+    /// Clear all the registrations
+    pub fn clear_registrations(&self, app_handle: tauri::AppHandle) -> Result<(), AgentError> {
+        Ok(self.update_registrations(app_handle, |registrations| registrations.clear())?)
+    }
+
     pub async fn validate_registration(&self, registration: &str) -> bool {
-        match *self.active_registration_code.read().await {
-            Some(ref code) => code == registration,
-            None => false,
-        }
+        self.active_registration_code.read().await.as_deref() == Some(registration)
     }
 
     pub fn remove_cancellation_token(&self, req_id: usize) -> Option<(usize, CancellationToken)> {

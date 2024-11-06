@@ -7,7 +7,7 @@ use serde_json::json;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum AppError {
+pub enum AgentError {
     #[error("Invalid Registration")]
     InvalidRegistration,
     #[error("Invalid Client Public Key")]
@@ -40,28 +40,30 @@ pub enum AppError {
     RegistrationInsertError,
     #[error("Failed to save registrations to store")]
     RegistrationSaveError,
+    #[error("Serde error: {0}")]
+    Serde(#[from] serde_json::Error),
     #[error("Store error: {0}")]
     TauriPluginStore(#[from] tauri_plugin_store::Error),
     #[error("Relay error: {0}")]
     Relay(#[from] hoppscotch_relay::RelayError),
 }
 
-impl IntoResponse for AppError {
+impl IntoResponse for AgentError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            AppError::InvalidRegistration => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::InvalidClientPublicKey => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
-            AppError::RequestNotFound => (StatusCode::NOT_FOUND, self.to_string()),
-            AppError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::ClientCertError => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::RootCertError => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::InvalidMethod => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::InvalidUrl => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::InvalidHeaders => (StatusCode::BAD_REQUEST, self.to_string()),
-            AppError::RequestRunError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
-            AppError::RequestCancelled => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::InvalidRegistration => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::InvalidClientPublicKey => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
+            AgentError::RequestNotFound => (StatusCode::NOT_FOUND, self.to_string()),
+            AgentError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            AgentError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+            AgentError::ClientCertError => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::RootCertError => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::InvalidMethod => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::InvalidUrl => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::InvalidHeaders => (StatusCode::BAD_REQUEST, self.to_string()),
+            AgentError::RequestRunError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            AgentError::RequestCancelled => (StatusCode::BAD_REQUEST, self.to_string()),
             _ => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal Server Error".to_string(),
@@ -76,4 +78,4 @@ impl IntoResponse for AppError {
     }
 }
 
-pub type AppResult<T> = std::result::Result<T, AppError>;
+pub type AgentResult<T> = std::result::Result<T, AgentError>;

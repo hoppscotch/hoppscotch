@@ -120,12 +120,10 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { HoppCollection } from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { cloneDeep } from "lodash-es"
-import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, ref } from "vue"
 import { useColorMode } from "~/composables/theming"
 import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import {
@@ -136,7 +134,6 @@ import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
   TestRunnerService,
-  TestRunState,
 } from "~/services/test-runner/test-runner.service"
 import IconPlus from "~icons/lucide/plus"
 
@@ -207,10 +204,10 @@ const showResult = computed(() => {
 
 const runTests = async () => {
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  runnerState.value = testRunnerService.runTests(tab, collection.value, {
+  testRunnerService.runTests(tab, collection.value, {
     ...testRunnerConfig.value,
     stopRef: testRunnerStopRef,
-  }).value
+  })
 }
 
 const stopTests = () => {
@@ -218,14 +215,11 @@ const stopTests = () => {
   // when we manually stop the test runner, we need to update the tab document with the current state
   tab.value.document.testRunnerMeta = {
     ...tab.value.document.testRunnerMeta,
-    completedRequests: runnerState.value.completedRequests,
-    totalTime: runnerState.value.totalTime,
-    totalRequests: runnerState.value.totalRequests,
   }
 }
 
 const runAgain = async () => {
-  result.value = []
+  tab.value.document.resultCollection = undefined
   await nextTick()
   resetRunnerState()
   await nextTick()
@@ -234,17 +228,12 @@ const runAgain = async () => {
 
 const resetRunnerState = () => {
   tab.value.document.testRunnerMeta = {
+    failedTests: 0,
+    passedTests: 0,
+    totalTests: 0,
     totalRequests: 0,
     totalTime: 0,
     completedRequests: 0,
-  }
-  runnerState.value = {
-    status: "running",
-    totalRequests: 0,
-    totalTime: 0,
-    completedRequests: 0,
-    errors: [],
-    result: cloneDeep(collection.value),
   }
 }
 
@@ -254,10 +243,6 @@ onMounted(() => {
     tab.value.document.status === "stopped" ||
     tab.value.document.status === "error"
   ) {
-    // set existing result
-    result.value = tab.value.document.resultCollection
-      ? [tab.value.document.resultCollection]
-      : []
   }
 })
 
@@ -275,26 +260,11 @@ const newRun = () => {
 
 const testRunnerService = useService(TestRunnerService)
 
-const result = ref<HoppCollection[]>([])
-
-const runnerState = ref<TestRunState>({
-  status: "running",
-  totalRequests: 0,
-  totalTime: 0,
-  completedRequests: 0,
-  errors: [],
-  result: cloneDeep(collection.value),
+const result = computed(() => {
+  return tab.value.document.resultCollection
+    ? [tab.value.document.resultCollection]
+    : []
 })
-
-watch(
-  () => tab.value.document.status,
-  () => {
-    result.value = [runnerState.value.result]
-  },
-  {
-    deep: true,
-  }
-)
 
 const collectionAdapter: SmartTreeAdapter<CollectionNode> =
   new TestRunnerCollectionsAdapter(result)

@@ -1,7 +1,11 @@
 <template>
   <div class="relative flex flex-1 flex-col">
     <HttpResponseMeta :response="doc.response" :is-embed="false" />
-    <LensesResponseBodyRenderer v-if="hasResponse" v-model:document="doc" />
+    <LensesResponseBodyRenderer
+      v-if="hasResponse"
+      :is-editable="false"
+      v-model:document="doc"
+    />
   </div>
 </template>
 

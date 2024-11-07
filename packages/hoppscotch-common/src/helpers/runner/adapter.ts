@@ -89,7 +89,7 @@ export class TestRunnerCollectionsAdapter
         indexPath
       )
 
-      if (item) {
+      if (item && Object.keys(item).length) {
         const data = [
           ...item.folders.map((folder, index) => ({
             id: `folder-${folderId}/${index}`,

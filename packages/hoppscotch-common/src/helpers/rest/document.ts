@@ -136,8 +136,11 @@ export type HoppTestRunnerDocument = {
    */
   testRunnerMeta: {
     totalRequests: number
-    totalTime: number
     completedRequests: number
+    totalTests: number
+    passedTests: number
+    failedTests: number
+    totalTime: number
   }
 
   /**

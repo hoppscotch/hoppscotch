@@ -51,7 +51,7 @@ type Props = {
     previousValue?: string
   }
   status: Status
-  global: boolean
+  global?: boolean
 }
 
 withDefaults(defineProps<Props>(), {

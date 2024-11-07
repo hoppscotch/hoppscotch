@@ -551,6 +551,28 @@ export const REST_TAB_STATE_SCHEMA = z
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),
           }),
+          z.object({
+            type: z.literal("test-runner").catch("test-runner"),
+            config: z.object({
+              totalRequests: z.number(),
+              totalTime: z.number(),
+              completedRequests: z.number(),
+            }),
+            status: z.enum(["idle", "running", "stopped", "error"]),
+            collection: HoppCollectionSchemaCommonProps,
+            collectionType: z.enum(["my-collections", "team-collections"]),
+            collectionID: z.optional(z.string()),
+            resultCollection: z.optional(HoppCollectionSchemaCommonProps),
+            testRunnerMeta: z.object({
+              totalRequests: z.number(),
+              totalTime: z.number(),
+              completedRequests: z.number(),
+            }),
+            request: z.nullable(entityReference(HoppRESTRequest)),
+            response: z.nullable(HoppRESTResponseSchema),
+            testResults: z.nullable(HoppTestResultSchema),
+            isDirty: z.boolean(),
+          }),
         ]),
       })
     ),

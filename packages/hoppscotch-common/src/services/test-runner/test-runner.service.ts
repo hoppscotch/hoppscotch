@@ -2,27 +2,15 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { Ref, ref } from "vue"
+import { Ref } from "vue"
 import { runTestRunnerRequest } from "~/helpers/RequestRunner"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
 } from "~/helpers/rest/document"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
-
-export type TestRunState = {
-  status: "idle" | "running" | "stopped" | "error"
-  totalRequests: number
-  totalTime: number
-  completedRequests: number
-  errors: Array<{
-    requestPath: string
-    error: string
-  }>
-  result: HoppCollection
-}
 
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
@@ -50,29 +38,86 @@ function delay(timeMS: number) {
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
 
-  private getRequestPath(
+  public runTests(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
-    request: TestRunnerRequest,
-    parentPath: string = ""
-  ): string {
-    const currentPath = parentPath
-      ? `${parentPath} > ${collection.name}`
-      : collection.name
+    options: TestRunnerOptions
+  ) {
+    tab.value.document.status = "running"
+    tab.value.document.resultCollection = cloneDeep(collection)
 
-    if (collection.requests.includes(request)) {
-      return `${currentPath} > ${request.name}`
+    this.runTestCollection(tab, tab.value.document.resultCollection, options)
+      .then(() => {
+        tab.value.document.status = "stopped"
+      })
+      .catch((error) => {
+        if (
+          error instanceof Error &&
+          error.message === "Test execution stopped"
+        ) {
+          tab.value.document.status = "stopped"
+        } else {
+          tab.value.document.status = "error"
+          console.error("Test runner failed:", error)
+        }
+      })
+      .finally(() => {
+        tab.value.document.status = "stopped"
+      })
+  }
+
+  private async runTestCollection(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+    collection: HoppCollection,
+    options: TestRunnerOptions
+  ) {
+    try {
+      for (const folder of collection.folders) {
+        if (options.stopRef?.value) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped")
+        }
+        await this.runTestCollection(tab, folder, options)
+      }
+
+      for (const request of collection.requests) {
+        if (options.stopRef?.value) {
+          tab.value.document.status = "stopped"
+          throw new Error("Test execution stopped")
+        }
+        await this.runTestRequest(
+          tab,
+          request as TestRunnerRequest,
+          collection,
+          options
+        )
+
+        if (options.delay && options.delay > 0) {
+          try {
+            await delay(options.delay)
+          } catch (error) {
+            if (options.stopRef?.value) {
+              tab.value.document.status = "stopped"
+              throw new Error("Test execution stopped")
+            }
+          }
+        }
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Test execution stopped"
+      ) {
+        throw error // Propagate stop signal
+      }
+      tab.value.document.status = "error"
+      console.error("Collection execution failed:", error)
+      throw error // Re-throw to propagate error
     }
-
-    for (const folder of collection.folders) {
-      const path = this.getRequestPath(folder, request, currentPath)
-      if (path) return path
-    }
-
-    return ""
   }
 
   private async runTestRequest(
-    state: Ref<TestRunState>,
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     request: TestRunnerRequest,
     collection: HoppCollection,
     options: TestRunnerOptions
@@ -94,24 +139,34 @@ export class TestRunnerService extends Service {
 
       if (results && E.isRight(results)) {
         const { response, testResult } = results.right
+
+        const { passed, failed } = this.getTestResultInfo(testResult)
+        console.log("Test results:", { passed, failed })
+
+        tab.value.document.testRunnerMeta.totalTests =
+          tab.value.document.testRunnerMeta.totalTests + 1
+        tab.value.document.testRunnerMeta.passedTests =
+          tab.value.document.testRunnerMeta.passedTests + passed
+        tab.value.document.testRunnerMeta.failedTests =
+          tab.value.document.testRunnerMeta.failedTests + failed
+
         request.testResults = testResult
         request.response = response
 
         if (response.type === "success" || response.type === "fail") {
-          state.value.totalTime += response.meta.responseDuration
-          state.value.completedRequests++
+          tab.value.document.testRunnerMeta.totalTime =
+            tab.value.document.testRunnerMeta.totalTime +
+            response.meta.responseDuration
+          tab.value.document.testRunnerMeta.completedRequests =
+            tab.value.document.testRunnerMeta.completedRequests + 1
         }
       } else {
         const errorMsg = "Request execution failed"
         request.error = errorMsg
-        state.value.errors.push({
-          requestPath: this.getRequestPath(collection, request),
-          error: errorMsg,
-        })
 
         // Stop the test run if stopOnError is true
         if (options.stopOnError) {
-          state.value.status = "stopped"
+          tab.value.document.status = "stopped"
           throw new Error("Test execution stopped due to error")
         }
       }
@@ -126,14 +181,10 @@ export class TestRunnerService extends Service {
       const errorMsg =
         error instanceof Error ? error.message : "Unknown error occurred"
       request.error = errorMsg
-      state.value.errors.push({
-        requestPath: this.getRequestPath(collection, request),
-        error: errorMsg,
-      })
 
       // Stop the test run if stopOnError is true
       if (options.stopOnError) {
-        state.value.status = "stopped"
+        tab.value.document.status = "stopped"
         throw new Error("Test execution stopped due to error")
       }
     } finally {
@@ -141,102 +192,27 @@ export class TestRunnerService extends Service {
     }
   }
 
-  private async runTestCollection(
-    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
-    state: Ref<TestRunState>,
-    collection: TestRunState["result"],
-    options: TestRunnerOptions
-  ) {
-    try {
-      for (const folder of collection.folders) {
-        if (options.stopRef?.value) {
-          state.value.status = "stopped"
-          throw new Error("Test execution stopped")
-        }
-        await this.runTestCollection(tab, state, folder, options)
-      }
+  private getTestResultInfo(testResult: HoppTestData) {
+    // Initialize counters for this level of recursion
+    let passed = 0
+    let failed = 0
 
-      for (const request of collection.requests) {
-        if (options.stopRef?.value) {
-          state.value.status = "stopped"
-          throw new Error("Test execution stopped")
-        }
-        await this.runTestRequest(
-          state,
-          request as TestRunnerRequest,
-          collection,
-          options
-        )
-
-        if (options.delay && options.delay > 0) {
-          try {
-            await delay(options.delay)
-          } catch (error) {
-            if (options.stopRef?.value) {
-              state.value.status = "stopped"
-              throw new Error("Test execution stopped")
-            }
-          }
-        }
+    // Count results at the current test level
+    for (const result of testResult.expectResults) {
+      if (result.status === "pass") {
+        passed++
+      } else if (result.status === "fail") {
+        failed++
       }
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "Test execution stopped"
-      ) {
-        throw error // Propagate stop signal
-      }
-      state.value.status = "error"
-      console.error("Collection execution failed:", error)
-      throw error // Re-throw to propagate error
     }
-  }
 
-  public runTests(
-    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
-    collection: HoppCollection,
-    options: TestRunnerOptions
-  ): Ref<TestRunState> {
-    const state = ref<TestRunState>({
-      status: "running",
-      totalRequests: collection.requests.length,
-      totalTime: 0,
-      completedRequests: 0,
-      errors: [],
-      result: cloneDeep(collection),
-    })
+    // Recursively check nested tests and accumulate their results
+    for (const nestedTest of testResult.tests) {
+      const nestedResult = this.getTestResultInfo(nestedTest)
+      passed += nestedResult.passed
+      failed += nestedResult.failed
+    }
 
-    tab.value.document.status = "running"
-
-    this.runTestCollection(tab, state, state.value.result, options)
-      .then(() => {
-        state.value.status = "stopped"
-        tab.value.document.status = "stopped"
-        tab.value.document.resultCollection = state.value.result
-        tab.value.document.testRunnerMeta = {
-          totalRequests: state.value.totalRequests,
-          totalTime: state.value.totalTime,
-          completedRequests: state.value.completedRequests,
-        }
-      })
-      .catch((error) => {
-        if (
-          error instanceof Error &&
-          error.message === "Test execution stopped"
-        ) {
-          state.value.status = "stopped"
-          tab.value.document.status = "stopped"
-        } else {
-          state.value.status = "error"
-          tab.value.document.status = "error"
-          console.error("Test runner failed:", error)
-        }
-      })
-      .finally(() => {
-        state.value.status = "stopped"
-        tab.value.document.status = "stopped"
-      })
-
-    return state
+    return { passed, failed }
   }
 }

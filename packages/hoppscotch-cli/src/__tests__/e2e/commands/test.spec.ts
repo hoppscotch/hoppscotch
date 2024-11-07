@@ -644,7 +644,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       const COLL_PATH = getTestJsonFilePath("passes-coll.json", "collection");
 
-      const args = `test ${COLL_PATH} --reporter-junit /non-existent-path/report.xml`;
+      const invalidPath = process.platform === 'win32'
+        ? 'Z:/non-existent-path/report.xml'
+        : '/non-existent/report.xml';
+
+      const args = `test ${COLL_PATH} --reporter-junit ${invalidPath}`;
 
       const { stdout, stderr } = await runCLI(args, {
         cwd: path.resolve("hopp-cli-test"),

@@ -52,7 +52,11 @@ export type GQLResponseEvent =
       }
     }
 
-export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
+export type ConnectionState =
+  | "CONNECTING"
+  | "CONNECTED"
+  | "DISCONNECTED"
+  | "ERROR"
 export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 
 const GQL = {
@@ -100,10 +104,7 @@ export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
 
 export const schemaString = computed(() => {
   if (!connection.schema) return ""
-
-  return printSchema(connection.schema, {
-    commentDescriptions: true,
-  })
+  return printSchema(connection.schema)
 })
 
 export const queryFields = computed(() => {
@@ -166,14 +167,19 @@ export const connect = async (url: string, headers: GQLHeader[]) => {
     )
   }
 
-  // Polling
-  connection.state = "CONNECTED"
+  connection.state = "CONNECTING"
 
   const poll = async () => {
-    await getSchema(url, headers)
-    timeoutSubscription = setTimeout(() => {
-      poll()
-    }, GQL_SCHEMA_POLL_INTERVAL)
+    try {
+      await getSchema(url, headers)
+      // polling for schema
+      if (connection.state !== "CONNECTED") connection.state = "CONNECTED"
+      timeoutSubscription = setTimeout(() => {
+        poll()
+      }, GQL_SCHEMA_POLL_INTERVAL)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   await poll()
@@ -235,6 +241,17 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
       }
 
       throw new Error(res.left.toString())
+    }
+
+    if (res.right.status !== 200) {
+      connection.state = "ERROR"
+      connection.error = {
+        type: "HTTP_ERROR",
+        message: (t: ReturnType<typeof getI18n>) =>
+          t("graphql.connection_error_http"),
+        component: undefined,
+      }
+      throw new Error("Failed to fetch schema. Status: " + res.right.status)
     }
 
     const data = res.right

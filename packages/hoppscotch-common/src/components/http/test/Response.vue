@@ -4,6 +4,7 @@
     <LensesResponseBodyRenderer
       v-if="hasResponse"
       :is-editable="false"
+      :show-response="showResponse"
       v-model:document="doc"
     />
   </div>
@@ -16,6 +17,7 @@ import { HoppRequestDocument } from "~/helpers/rest/document"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const props = defineProps<{
+  showResponse: boolean
   document: TestRunnerRequest
 }>()
 

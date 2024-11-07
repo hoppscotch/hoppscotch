@@ -141,7 +141,6 @@ export class TestRunnerService extends Service {
         const { response, testResult } = results.right
 
         const { passed, failed } = this.getTestResultInfo(testResult)
-        console.log("Test results:", { passed, failed })
 
         tab.value.document.testRunnerMeta.totalTests =
           tab.value.document.testRunnerMeta.totalTests + 1

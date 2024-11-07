@@ -4,7 +4,16 @@
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperRunnerStickyFold z-10"
     render-inactive-tabs
   >
-    <HoppSmartTab :id="'all_tests'" :label="`${t('tab.all_tests')}`">
+    <HoppSmartTab
+      :id="'all_tests'"
+      :label="`${t('tab.all_tests')}`"
+      :info="
+        (
+          tab.document.testRunnerMeta.passedTests +
+          tab.document.testRunnerMeta.failedTests
+        )?.toString()
+      "
+    >
       <div class="flex flex-col justify-center p-4">
         <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
           <template #content="{ node }">
@@ -37,10 +46,18 @@
         </HoppSmartTree>
       </div>
     </HoppSmartTab>
-    <HoppSmartTab :id="'passed'" :label="`${t('tab.passed')}`">
+    <HoppSmartTab
+      :id="'passed'"
+      :label="`${t('tab.passed')}`"
+      :info="tab.document.testRunnerMeta.passedTests?.toString()"
+    >
       tab passed
     </HoppSmartTab>
-    <HoppSmartTab :id="'failed'" :label="`${t('tab.failed')}`">
+    <HoppSmartTab
+      :id="'failed'"
+      :label="`${t('tab.failed')}`"
+      :info="tab.document.testRunnerMeta.failedTests?.toString()"
+    >
       tab failed
     </HoppSmartTab>
   </HoppSmartTabs>
@@ -50,11 +67,14 @@
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { HoppTestRunnerDocument } from "~/helpers/rest/document"
+import { HoppTab } from "~/services/tab"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const t = useI18n()
 
 defineProps<{
+  tab: HoppTab<HoppTestRunnerDocument>
   collectionAdapter: SmartTreeAdapter<any>
   isRunning: boolean
 }>()

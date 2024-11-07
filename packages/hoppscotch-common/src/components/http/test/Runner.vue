@@ -51,6 +51,7 @@
 
       <div v-if="showResult">
         <HttpTestRunnerResult
+          :tab="tab"
           :collection-adapter="collectionAdapter"
           :is-running="tab.document.status === 'running'"
           @on-select-request="onSelectRequest"
@@ -64,6 +65,7 @@
     <template #secondary>
       <HttpTestResponse
         v-if="selectedRequest"
+        :show-response="tab.document.config.persistResponses"
         v-model:document="selectedRequest"
       />
 

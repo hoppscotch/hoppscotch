@@ -150,6 +150,24 @@ pub async fn registrations(
     })
 }
 
+pub async fn delete_registration(
+    State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
+    TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
+    Path(auth_key): Path<String>,
+) -> AppResult<Json<serde_json::Value>> {
+    if !state.validate_access(auth_header.token()) {
+        return Err(AppError::Unauthorized);
+    }
+
+    let _removed = state.update_registrations(app_handle.clone(), |regs| {
+        regs.remove(&auth_key);
+    })?;
+
+    let message = format!("{} registration deleted successfully", auth_key);
+
+    Ok(Json(json!({ "message": message })))
+}
+
 pub async fn run_request<T>(
     State((state, _app_handle)): State<(Arc<AppState>, T)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,

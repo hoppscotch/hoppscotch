@@ -33,7 +33,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :icon="IconTrash"
                 :title="t('action.remove')"
-                @click="deleteEntry(index)"
+                @click="deleteEntry(registration.authKey)"
               />
             </div>
           </li>
@@ -116,8 +116,18 @@ watch(
   }
 )
 
-function deleteEntry(index: number) {
-  registrations.value.splice(index, 1)
-  nativeInterceptorService.registrations.value = registrations.value
+async function deleteEntry(authKeyToDelete: string) {
+  try {
+    isLoading.value = true
+    await nativeInterceptorService.deleteRegistration(authKeyToDelete)
+    await nativeInterceptorService.fetchRegistrations()
+    registrations.value = cloneDeep(
+      nativeInterceptorService.registrations?.value ?? []
+    )
+  } catch (error) {
+    console.error("Failed to delete registration:", error)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>

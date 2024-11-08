@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post},
     Router,
 };
 use std::sync::Arc;
@@ -22,9 +22,10 @@ pub fn route(state: Arc<AppState>, app_handle: AppHandle) -> Router {
             "/registered-handshake",
             get(controller::registered_handshake),
         )
+        .route("/registrations", get(controller::registrations))
         .route(
-            "/registrations",
-            get(controller::registrations),
+            "/registrations/:auth_key",
+            delete(controller::delete_registration),
         )
         .route("/request", post(controller::run_request))
         .route("/cancel-request/:req_id", post(controller::cancel_request))

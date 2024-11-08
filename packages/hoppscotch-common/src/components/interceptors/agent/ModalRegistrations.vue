@@ -32,7 +32,7 @@
               v-tippy="{
                 theme: 'tooltip',
                 content: isOwnRegistration(registration.authKey)
-                  ? t('agent.cannot_delete_own_registration')
+                  ? t('agent.current_registration')
                   : t('action.remove'),
               }"
               class="flex items-center"

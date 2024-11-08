@@ -1,7 +1,7 @@
 <template>
   <div class="py-4 space-y-4">
     <HoppButtonSecondary
-      :icon="IconLucideFileText"
+      :icon="IconLucideListChecks"
       :label="t('agent.registrations')"
       outline
       @click="showRegistrationsModal = true"
@@ -73,7 +73,7 @@ import { computed, ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import IconLucideFileKey from "~icons/lucide/file-key"
 import IconLucideFileBadge from "~icons/lucide/file-badge"
-import IconLucideFileText from "~icons/lucide/file-text"
+import IconLucideListChecks from "~icons/lucide/list-checks"
 import { useService } from "dioc/vue"
 import {
   RequestDef,

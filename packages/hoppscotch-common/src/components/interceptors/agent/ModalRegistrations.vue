@@ -28,11 +28,23 @@
                 maskAuthKey(registration.authKey)
               }}</span>
             </div>
-            <div class="flex items-center">
+            <div
+              v-tippy="{
+                theme: 'tooltip',
+                content: isOwnRegistration(registration.authKey)
+                  ? t('agent.cannot_delete_own_registration')
+                  : t('action.remove'),
+              }"
+              class="flex items-center"
+            >
               <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
                 :icon="IconTrash"
-                :title="t('action.remove')"
+                :disabled="isOwnRegistration(registration.authKey)"
+                :class="{
+                  'opacity-50 cursor-not-allowed': isOwnRegistration(
+                    registration.authKey
+                  ),
+                }"
                 @click="deleteEntry(registration.authKey)"
               />
             </div>
@@ -80,6 +92,10 @@ const emit = defineEmits<{
 const nativeInterceptorService = useService(AgentInterceptorService)
 const registrations = ref<RegistrationEntry[]>([])
 const isLoading = ref(false)
+
+function isOwnRegistration(authKey: string): boolean {
+  return authKey === nativeInterceptorService.authKey.value
+}
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleString("en-US", {

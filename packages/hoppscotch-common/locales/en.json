@@ -518,7 +518,7 @@
     "from_openapi_import_summary": "Collections ( will be created from tags ), Requests and response examples will be imported.",
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
-    "from_postman_import_summary": "Collections & Requests will be imported.",
+    "from_postman_import_summary": "Collections, Requests and response examples will be imported.",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "from_har": "Import from HAR",

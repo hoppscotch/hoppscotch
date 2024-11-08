@@ -21,12 +21,12 @@
             :class="{ 'border-t border-dividerDark': index !== 0 }"
           >
             <div class="flex text-xs items-center space-x-2 truncate">
-              <span class="text-secondaryLight">
-                {{ formatDate(registration.registeredAt) }}
-              </span>
-              <span class="truncate">
-                {{ maskAuthKey(registration.authKey) }}
-              </span>
+              <span class="text-secondaryLight">{{
+                formatDate(registration.registeredAt)
+              }}</span>
+              <span class="truncate">{{
+                maskAuthKey(registration.authKey)
+              }}</span>
             </div>
             <div class="flex items-center">
               <HoppButtonSecondary

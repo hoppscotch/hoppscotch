@@ -227,6 +227,8 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
     const res = await interceptorService.runRequest(reqOptions).response
 
     if (E.isLeft(res)) {
+      connection.state = "ERROR"
+
       if (
         res.left !== "cancellation" &&
         res.left.error === "NO_PW_EXT_HOOK" &&

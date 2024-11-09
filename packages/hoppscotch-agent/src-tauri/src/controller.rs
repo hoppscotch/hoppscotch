@@ -19,8 +19,8 @@ use crate::{
         AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, MaskedRegistration,
         Registration,
     },
-    state::{AppState, Registration},
-    util::{mask_auth_key, EncryptedJson},
+    state::AppState,
+    util::EncryptedJson,
 };
 use chrono::Utc;
 use rand::Rng;
@@ -128,14 +128,14 @@ pub async fn verify_registration(
 pub async fn registrations(
     State((state, _)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
-) -> AppResult<EncryptedJson<Vec<MaskedRegistration>>> {
+) -> AgentResult<EncryptedJson<Vec<MaskedRegistration>>> {
     if !state.validate_access(auth_header.token()) {
-        return Err(AppError::Unauthorized);
+        return Err(AgentError::Unauthorized);
     }
 
     let reg_info = state
         .get_registration_info(auth_header.token())
-        .ok_or(AppError::Unauthorized)?;
+        .ok_or(AgentError::Unauthorized)?;
 
     let registrations = state
         .get_registrations()
@@ -156,9 +156,9 @@ pub async fn delete_registration(
     State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Path(auth_key): Path<String>,
-) -> AppResult<Json<serde_json::Value>> {
+) -> AgentResult<Json<serde_json::Value>> {
     if !state.validate_access(auth_header.token()) {
-        return Err(AppError::Unauthorized);
+        return Err(AgentError::Unauthorized);
     }
 
     let _removed = state.update_registrations(app_handle.clone(), |regs| {

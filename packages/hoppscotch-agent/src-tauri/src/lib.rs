@@ -17,17 +17,17 @@ use tauri::{AppHandle, Emitter, Listener, Manager, WebviewWindowBuilder};
 use tauri_plugin_updater::UpdaterExt;
 use tokio_util::sync::CancellationToken;
 
-use error::{AppError, AppResult};
+use error::{AgentError, AgentResult};
 use model::Payload;
 use state::AppState;
 
-fn create_main_window(app_handle: &AppHandle) -> AppResult<()> {
+fn create_main_window(app_handle: &AppHandle) -> AgentResult<()> {
     let main = &app_handle
         .config()
         .app
         .windows
         .first()
-        .ok_or(AppError::NoMainWindow)?;
+        .ok_or(AgentError::NoMainWindow)?;
 
     let window = WebviewWindowBuilder::from_config(app_handle, main)?.build()?;
 
@@ -38,7 +38,7 @@ fn create_main_window(app_handle: &AppHandle) -> AppResult<()> {
     Ok(())
 }
 
-pub fn show_main_window(app_handle: &AppHandle) -> AppResult<()> {
+pub fn show_main_window(app_handle: &AppHandle) -> AgentResult<()> {
     if let Some(window) = app_handle.get_webview_window("main") {
         window.show()?;
         window.set_focus()?;
@@ -47,7 +47,7 @@ pub fn show_main_window(app_handle: &AppHandle) -> AppResult<()> {
     Ok(())
 }
 
-pub fn hide_main_window(app_handle: &AppHandle) -> AppResult<()> {
+pub fn hide_main_window(app_handle: &AppHandle) -> AgentResult<()> {
     if let Some(window) = app_handle.get_webview_window("main") {
         window.hide()?;
         log::info!("Hiding window");

@@ -1,12 +1,11 @@
-use crate::{ensure_main_window, state::AppState};
+use crate::{show_main_window, state::AppState};
 use lazy_static::lazy_static;
-use serde_json::json;
 use std::sync::Arc;
 use tauri::{
     image::Image,
     menu::{MenuBuilder, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager,
+    AppHandle, Manager,
 };
 
 const TRAY_ICON_DATA: &'static [u8] = include_bytes!("../icons/tray_icon.png");
@@ -17,13 +16,6 @@ lazy_static! {
 
 pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let show_registrations = MenuItem::with_id(
-        app,
-        "show_registrations",
-        "Show Registrations",
-        true,
-        None::<&str>,
-    )?;
     let clear_registrations = MenuItem::with_id(
         app,
         "clear_registrations",
@@ -49,8 +41,8 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .item(&app_name_item)
         .item(&app_version_item)
         .separator()
-        .item(&show_registrations)
         .item(&clear_registrations)
+        .separator()
         .item(&quit_i)
         .build()?;
 
@@ -67,20 +59,9 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .on_menu_event(move |app, event| match event.id.as_ref() {
             "quit" => {
                 log::info!("Exiting the agent...");
-                app.exit(-1);
+                // Exit with a specific code to allow actual exit.
+                app.exit(1);
             }
-            "show_registrations" => {
-                let app_state = app.state::<Arc<AppState>>();
-                let registrations = app_state.get_registrations();
-
-                if let Err(e) = ensure_main_window(&app) {
-                    log::error!("Failed to show window: {}", e);
-                }
-
-                app.emit("registrations", registrations)
-                    .expect("Failed to show registrations");
-            }
-
             "clear_registrations" => {
                 let app_state = app.state::<Arc<AppState>>();
 
@@ -100,10 +81,8 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
             } = event
             {
                 let app = tray.app_handle();
-
-                if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
+                if let Err(e) = show_main_window(&app) {
+                    log::error!("Failed to show window from tray: {}", e);
                 }
             }
         })

@@ -9,19 +9,8 @@ use tokio_util::sync::CancellationToken;
 
 use crate::{
     error::{AgentError, AgentResult},
-    global::{AGENT_STORE, REGISTRATIONS},
+    global::{AGENT_STORE, REGISTRATIONS}, model::Registration
 };
-
-/// Describes one registered app instance
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Registration {
-    pub registered_at: DateTime<Utc>,
-
-    /// base16 (lowercase) encoded shared secret that the client
-    /// and agent established during registration that is used
-    /// to encrypt traffic between them
-    pub shared_secret_b16: String,
-}
 
 #[derive(Default)]
 pub struct AppState {

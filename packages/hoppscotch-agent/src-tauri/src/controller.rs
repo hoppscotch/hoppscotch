@@ -15,7 +15,7 @@ use x25519_dalek::{EphemeralSecret, PublicKey};
 
 use crate::{
     error::{AgentError, AgentResult},
-    model::{AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse},
+    model::{AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, Registration},
     state::{AppState, Registration},
     util::EncryptedJson,
 };

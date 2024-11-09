@@ -13,12 +13,37 @@ pub mod webview;
 
 use log::{error, info};
 use std::sync::Arc;
-use tauri::{Emitter, Listener, Manager, WebviewWindowBuilder};
+use tauri::{AppHandle, Emitter, Listener, Manager, WebviewWindowBuilder};
 use tauri_plugin_updater::UpdaterExt;
 use tokio_util::sync::CancellationToken;
 
+use error::{AppError, AppResult};
 use model::Payload;
 use state::AppState;
+
+pub fn ensure_main_window(app_handle: &AppHandle) -> AppResult<()> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        window.show()?;
+        window.set_focus()?;
+
+        log::info!("Showing existing window");
+    } else {
+        let main = &app_handle
+            .config()
+            .app
+            .windows
+            .first()
+            .ok_or(AppError::NoMainWindow)?;
+
+        let window = WebviewWindowBuilder::from_config(app_handle, main)?.build()?;
+
+        window.show()?;
+
+        log::info!("Created and showed new window");
+    }
+
+    Ok(())
+}
 
 #[tauri::command]
 async fn get_otp(state: tauri::State<'_, Arc<AppState>>) -> Result<Option<String>, ()> {
@@ -133,15 +158,9 @@ pub fn run() {
             let app_handle_ref = app_handle.clone();
 
             app_handle.listen("registration_received", move |_| {
-                WebviewWindowBuilder::from_config(
-                    &app_handle_ref,
-                    &app_handle_ref.config().app.windows[0],
-                )
-                .unwrap()
-                .build()
-                .unwrap()
-                .show()
-                .unwrap();
+                if let Err(e) = ensure_main_window(&app_handle_ref) {
+                    log::error!("Failed to show window: {}", e);
+                }
             });
 
             Ok(())

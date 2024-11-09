@@ -14,8 +14,9 @@ pub struct Registration {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Registrations {
-    pub registrations: DashMap<String, Registration>,
+pub struct MaskedRegistration {
+    pub registered_at: DateTime<Utc>,
+    pub masked_auth_key: String,
 }
 
 /// Single instance payload.

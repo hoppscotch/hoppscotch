@@ -22,6 +22,10 @@ pub fn route(state: Arc<AppState>, app_handle: AppHandle) -> Router {
             "/registered-handshake",
             get(controller::registered_handshake),
         )
+        .route(
+            "/registrations",
+            get(controller::registrations),
+        )
         .route("/request", post(controller::run_request))
         .route("/cancel-request/:req_id", post(controller::cancel_request))
         .with_state((state, app_handle))

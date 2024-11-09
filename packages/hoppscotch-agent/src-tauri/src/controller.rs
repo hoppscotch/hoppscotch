@@ -15,9 +15,12 @@ use x25519_dalek::{EphemeralSecret, PublicKey};
 
 use crate::{
     error::{AgentError, AgentResult},
-    model::{AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, Registration},
+    model::{
+        AuthKeyResponse, ConfirmedRegistrationRequest, HandshakeResponse, MaskedRegistration,
+        Registration,
+    },
     state::{AppState, Registration},
-    util::EncryptedJson,
+    util::{mask_auth_key, EncryptedJson},
 };
 use chrono::Utc;
 use rand::Rng;
@@ -118,6 +121,33 @@ pub async fn verify_registration(
         created_at,
         agent_public_key_b16: base16::encode_lower(agent_public_key.as_bytes()),
     }))
+}
+
+pub async fn registrations(
+    State((state, _)): State<(Arc<AppState>, AppHandle)>,
+    TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
+) -> AppResult<EncryptedJson<Vec<MaskedRegistration>>> {
+    if !state.validate_access(auth_header.token()) {
+        return Err(AppError::Unauthorized);
+    }
+
+    let reg_info = state
+        .get_registration_info(auth_header.token())
+        .ok_or(AppError::Unauthorized)?;
+
+    let registrations_info: Vec<MaskedRegistration> = state
+        .get_registrations()
+        .iter()
+        .map(|registration| MaskedRegistration {
+            registered_at: registration.value().registered_at,
+            masked_auth_key: mask_auth_key(registration.key()),
+        })
+        .collect();
+
+    Ok(EncryptedJson {
+        key_b16: reg_info.shared_secret_b16,
+        data: registrations_info,
+    })
 }
 
 pub async fn run_request<T>(

@@ -97,6 +97,11 @@ impl AppState {
         Ok(self.update_registrations(app_handle, |registrations| registrations.clear())?)
     }
 
+    pub async fn clear_active_registration(&self) {
+        let mut active_registration_code = self.active_registration_code.write().await;
+        *active_registration_code = None;
+    }
+
     pub async fn validate_registration(&self, registration: &str) -> bool {
         self.active_registration_code.read().await.as_deref() == Some(registration)
     }

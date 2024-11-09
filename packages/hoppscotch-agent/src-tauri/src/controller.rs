@@ -82,8 +82,8 @@ pub async fn verify_registration(
 
     let auth_key_copy = auth_key.clone();
 
-    let agent_secret_key = EphemeralSecret::random();
-    let agent_public_key = PublicKey::from(&agent_secret_key);
+    let secret_key = EphemeralSecret::random();
+    let public_key = PublicKey::from(&secret_key);
 
     let their_public_key = {
         let public_key_slice: &[u8; 32] =
@@ -95,7 +95,7 @@ pub async fn verify_registration(
         PublicKey::from(public_key_slice.to_owned())
     };
 
-    let shared_secret = agent_secret_key.diffie_hellman(&their_public_key);
+    let shared_secret = secret_key.diffie_hellman(&their_public_key);
 
     let _ = state.update_registrations(app_handle.clone(), |regs| {
         regs.insert(
@@ -116,10 +116,12 @@ pub async fn verify_registration(
         .emit("authenticated", &auth_payload)
         .map_err(|_| AgentError::InternalServerError)?;
 
+    let _ = state.clear_active_registration().await;
+
     Ok(Json(AuthKeyResponse {
         auth_key,
         created_at,
-        agent_public_key_b16: base16::encode_lower(agent_public_key.as_bytes()),
+        agent_public_key_b16: base16::encode_lower(public_key.as_bytes()),
     }))
 }
 

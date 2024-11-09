@@ -47,16 +47,6 @@ pub fn open_link(link: &str) -> Option<()> {
     }
 }
 
-pub fn mask_auth_key(key: &str) -> String {
-    if key.len() <= 8 {
-        return key.to_string();
-    }
-
-    let visible_start = &key[..4];
-    let visible_end = &key[key.len() - 4..];
-    format!("{}...{}", visible_start, visible_end)
-}
-
 #[derive(Debug)]
 pub struct EncryptedJson<T: Serialize> {
     pub key_b16: String,

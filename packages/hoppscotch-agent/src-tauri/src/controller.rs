@@ -135,18 +135,18 @@ pub async fn registrations(
         .get_registration_info(auth_header.token())
         .ok_or(AppError::Unauthorized)?;
 
-    let registrations_info: Vec<MaskedRegistration> = state
+    let registrations = state
         .get_registrations()
         .iter()
         .map(|registration| MaskedRegistration {
             registered_at: registration.value().registered_at,
-            masked_auth_key: mask_auth_key(registration.key()),
+            auth_key: registration.key().to_string(),
         })
         .collect();
 
     Ok(EncryptedJson {
         key_b16: reg_info.shared_secret_b16,
-        data: registrations_info,
+        data: registrations,
     })
 }
 

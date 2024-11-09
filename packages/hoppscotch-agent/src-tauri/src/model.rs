@@ -16,7 +16,7 @@ pub struct Registration {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MaskedRegistration {
     pub registered_at: DateTime<Utc>,
-    pub masked_auth_key: String,
+    pub auth_key: String,
 }
 
 /// Single instance payload.

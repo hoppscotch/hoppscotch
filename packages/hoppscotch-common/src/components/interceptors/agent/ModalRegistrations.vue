@@ -16,7 +16,7 @@
         >
           <li
             v-for="(registration, index) in registrations"
-            :key="registration.maskedAuthKey"
+            :key="registration.authKey"
             class="flex border-dividerDark px-2 py-2 items-center justify-between"
             :class="{ 'border-t border-dividerDark': index !== 0 }"
           >
@@ -25,7 +25,7 @@
                 {{ formatDate(registration.registeredAt) }}
               </span>
               <span class="truncate">
-                {{ registration.maskedAuthKey }}
+                {{ maskAuthKey(registration.authKey) }}
               </span>
             </div>
             <div class="flex items-center">
@@ -65,16 +65,14 @@ import { useI18n } from "@composables/i18n"
 import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
 
 interface RegistrationEntry {
+  authKey: string
   registeredAt: Date
-  maskedAuthKey: string
 }
 
 const t = useI18n()
-
 const props = defineProps<{
   show: boolean
 }>()
-
 const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
@@ -92,6 +90,11 @@ function formatDate(date: Date) {
     minute: "2-digit",
     second: "2-digit",
   })
+}
+
+function maskAuthKey(key: string): string {
+  if (key.length <= 8) return key
+  return `${key.slice(0, 4)}...${key.slice(-4)}`
 }
 
 watch(

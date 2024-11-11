@@ -21,11 +21,11 @@
             :class="{ 'border-t border-dividerDark': index !== 0 }"
           >
             <div class="flex text-xs items-center space-x-2 truncate">
-              <span class="text-secondaryLight">{{
-                formatDate(registration.registeredAt)
-              }}</span>
-              <span class="truncate">{{
-                maskAuthKey(registration.authKey)
+              <span class="text-secondaryLight">
+                {{ formatDate(registration.registeredAt) }}
+              </span>
+              <span class="truncate font-mono">{{
+                registration.displayHash
               }}</span>
             </div>
             <div
@@ -79,6 +79,7 @@ import { AgentInterceptorService } from "~/platform/std/interceptors/agent"
 interface RegistrationEntry {
   authKey: string
   registeredAt: Date
+  displayHash?: string
 }
 
 const t = useI18n()
@@ -108,9 +109,24 @@ function formatDate(date: Date) {
   })
 }
 
-function maskAuthKey(key: string): string {
-  if (key.length <= 8) return key
-  return `${key.slice(0, 4)}...${key.slice(-4)}`
+async function hashAuthKey(key: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(key)
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+    .substring(0, 8)
+}
+
+async function processRegistrations(
+  regs: RegistrationEntry[]
+): Promise<RegistrationEntry[]> {
+  const processedRegistrations = cloneDeep(regs)
+  for (const reg of processedRegistrations) {
+    reg.displayHash = await hashAuthKey(reg.authKey)
+  }
+  return processedRegistrations
 }
 
 watch(
@@ -120,7 +136,7 @@ watch(
       isLoading.value = true
       try {
         await nativeInterceptorService.fetchRegistrations()
-        registrations.value = cloneDeep(
+        registrations.value = await processRegistrations(
           nativeInterceptorService.registrations?.value ?? []
         )
       } catch (error) {
@@ -137,7 +153,7 @@ async function deleteEntry(authKeyToDelete: string) {
     isLoading.value = true
     await nativeInterceptorService.deleteRegistration(authKeyToDelete)
     await nativeInterceptorService.fetchRegistrations()
-    registrations.value = cloneDeep(
+    registrations.value = await processRegistrations(
       nativeInterceptorService.registrations?.value ?? []
     )
   } catch (error) {

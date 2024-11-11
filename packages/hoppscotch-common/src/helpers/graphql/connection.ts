@@ -13,6 +13,7 @@ import {
   printSchema,
 } from "graphql"
 import { Component, computed, reactive, ref } from "vue"
+import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
 
@@ -160,12 +161,19 @@ export const graphqlTypes = computed(() => {
 
 let timeoutSubscription: any
 
-export const connect = async (url: string, headers: GQLHeader[]) => {
+export const connect = async (
+  url: string,
+  headers: GQLHeader[],
+  isRunGQLOperation = false
+) => {
   if (connection.state === "CONNECTED") {
     throw new Error(
       "A connection is already running. Close it before starting another."
     )
   }
+
+  const toast = useToast()
+  const t = getI18n()
 
   connection.state = "CONNECTING"
 
@@ -178,6 +186,11 @@ export const connect = async (url: string, headers: GQLHeader[]) => {
         poll()
       }, GQL_SCHEMA_POLL_INTERVAL)
     } catch (error) {
+      // Show an error toast if the introspection attempt failed and not while sending a request
+      if (connection.error && !isRunGQLOperation) {
+        toast.error(t("graphql.connection_error_http"))
+      }
+
       console.error(error)
     }
   }
@@ -277,7 +290,7 @@ const getSchema = async (url: string, headers: GQLHeader[]) => {
 
 export const runGQLOperation = async (options: RunQueryOptions) => {
   if (connection.state !== "CONNECTED") {
-    await connect(options.url, options.headers)
+    await connect(options.url, options.headers, true)
   }
 
   const { url, headers, query, variables, auth, operationName, operationType } =

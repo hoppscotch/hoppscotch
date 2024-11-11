@@ -178,12 +178,6 @@ const onTabUpdate = (tab: HoppTab<HoppGQLDocument>) => {
   tabs.updateTab(tab)
 }
 
-const connectionError = computed(() => connection.error)
-
-watch(connectionError, (error) => {
-  if (error) toast.error(error.message(t))
-})
-
 onBeforeUnmount(() => {
   if (connection.state === "CONNECTED") {
     disconnect()

@@ -187,7 +187,7 @@ export const connect = async (
       }, GQL_SCHEMA_POLL_INTERVAL)
     } catch (error) {
       // Show an error toast if the introspection attempt failed and not while sending a request
-      if (connection.error && !isRunGQLOperation) {
+      if (!isRunGQLOperation) {
         toast.error(t("graphql.connection_error_http"))
       }
 

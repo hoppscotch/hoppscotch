@@ -27,26 +27,28 @@
             />
           </template>
         </div>
-        <HoppButtonPrimary
-          v-if="showResult && tab.document.status === 'running'"
-          :label="t('test.stop')"
-          class="w-32"
-          @click="stopTests()"
-        />
-        <HoppButtonPrimary
-          v-else
-          :label="t('test.run_again')"
-          class="w-32"
-          @click="runAgain()"
-        />
-        <HoppButtonSecondary
-          v-if="showResult && tab.document.status !== 'running'"
-          :icon="IconPlus"
-          :label="t('test.new_run')"
-          filled
-          outline
-          @click="newRun()"
-        />
+        <div class="flex items-center gap-2">
+          <HoppButtonPrimary
+            v-if="showResult && tab.document.status === 'running'"
+            :label="t('test.stop')"
+            class="w-32"
+            @click="stopTests()"
+          />
+          <HoppButtonPrimary
+            v-else
+            :label="t('test.run_again')"
+            class="w-32"
+            @click="runAgain()"
+          />
+          <HoppButtonSecondary
+            v-if="showResult && tab.document.status !== 'running'"
+            :icon="IconPlus"
+            :label="t('test.new_run')"
+            filled
+            outline
+            @click="newRun()"
+          />
+        </div>
       </div>
 
       <div v-if="showResult">

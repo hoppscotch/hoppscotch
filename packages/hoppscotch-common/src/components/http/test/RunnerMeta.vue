@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col">
-    <span class="text-xs text-secondaryLight mb-1">
+    <span class="text-xs text-secondaryLight mb-1 truncate">
       {{ heading }}
     </span>
-    <span class="text-sm font-bold text-secondaryDark">
+    <span class="text-sm font-bold text-secondaryDark truncate">
       <slot>
         {{ text }}
       </slot>

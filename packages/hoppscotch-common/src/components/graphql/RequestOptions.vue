@@ -224,7 +224,10 @@ watch(
 watch(
   () => connection,
   (newVal) => {
-    if (newVal.error && newVal.state === "DISCONNECTED") {
+    if (
+      newVal.error &&
+      (newVal.state === "DISCONNECTED" || newVal.state === "ERROR")
+    ) {
       const response = [
         {
           type: "error",

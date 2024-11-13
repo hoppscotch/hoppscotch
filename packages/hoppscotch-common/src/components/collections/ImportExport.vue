@@ -56,6 +56,7 @@ import { teamCollectionsExporter } from "~/helpers/import-export/export/teamColl
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { TeamWorkspace } from "~/services/workspace.service"
+import { invokeAction } from "~/helpers/actions"
 
 const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
@@ -215,8 +216,16 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
     name: "import.from_all_collections",
     title: "import.from_all_collections_description",
     icon: IconUser,
-    disabled: !currentUser.value,
+    disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
+  },
+  onSelect() {
+    if (!currentUser.value) {
+      invokeAction("modals.login.toggle")
+      return true
+    }
+
+    return false
   },
   component: defineStep("all_collection_import", AllCollectionImport, () => ({
     loading: isAllCollectionImporterInProgress.value,

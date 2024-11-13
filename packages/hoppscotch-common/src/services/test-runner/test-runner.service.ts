@@ -43,10 +43,19 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions
   ) {
+    // Reset the result collection
     tab.value.document.status = "running"
-    tab.value.document.resultCollection = cloneDeep(collection)
+    tab.value.document.resultCollection = {
+      v: collection.v,
+      id: collection.id,
+      name: collection.name,
+      auth: collection.auth,
+      headers: collection.headers,
+      folders: [],
+      requests: [],
+    }
 
-    this.runTestCollection(tab, tab.value.document.resultCollection, options)
+    this.runTestCollection(tab, collection, options)
       .then(() => {
         tab.value.document.status = "stopped"
       })
@@ -69,27 +78,57 @@ export class TestRunnerService extends Service {
   private async runTestCollection(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
-    options: TestRunnerOptions
+    options: TestRunnerOptions,
+    parentPath: number[] = []
   ) {
     try {
-      for (const folder of collection.folders) {
+      // Process folders progressively
+      for (let i = 0; i < collection.folders.length; i++) {
         if (options.stopRef?.value) {
           tab.value.document.status = "stopped"
           throw new Error("Test execution stopped")
         }
-        await this.runTestCollection(tab, folder, options)
+
+        const folder = collection.folders[i]
+        const currentPath = [...parentPath, i]
+
+        // Add folder to the result collection
+        this.addFolderToPath(
+          tab.value.document.resultCollection!,
+          currentPath,
+          {
+            ...cloneDeep(folder),
+            folders: [],
+            requests: [],
+          }
+        )
+
+        await this.runTestCollection(tab, folder, options, currentPath)
       }
 
-      for (const request of collection.requests) {
+      // Process requests progressively
+      for (let i = 0; i < collection.requests.length; i++) {
         if (options.stopRef?.value) {
           tab.value.document.status = "stopped"
           throw new Error("Test execution stopped")
         }
+
+        const request = collection.requests[i] as TestRunnerRequest
+        const currentPath = [...parentPath, i]
+
+        // Add request to the result collection before execution
+        this.addRequestToPath(
+          tab.value.document.resultCollection!,
+          currentPath,
+          cloneDeep(request)
+        )
+
         await this.runTestRequest(
           tab,
-          request as TestRunnerRequest,
+          request,
           collection,
-          options
+          options,
+          currentPath
         )
 
         if (options.delay && options.delay > 0) {
@@ -108,11 +147,69 @@ export class TestRunnerService extends Service {
         error instanceof Error &&
         error.message === "Test execution stopped"
       ) {
-        throw error // Propagate stop signal
+        throw error
       }
       tab.value.document.status = "error"
       console.error("Collection execution failed:", error)
-      throw error // Re-throw to propagate error
+      throw error
+    }
+  }
+
+  private addFolderToPath(
+    collection: HoppCollection,
+    path: number[],
+    folder: HoppCollection
+  ) {
+    let current = collection
+
+    // Navigate to the parent folder
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current.folders[path[i]]
+    }
+
+    // Add the folder at the specified index
+    if (path.length > 0) {
+      current.folders[path[path.length - 1]] = folder
+    }
+  }
+
+  private addRequestToPath(
+    collection: HoppCollection,
+    path: number[],
+    request: TestRunnerRequest
+  ) {
+    let current = collection
+
+    // Navigate to the parent folder
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current.folders[path[i]]
+    }
+
+    // Add the request at the specified index
+    if (path.length > 0) {
+      current.requests[path[path.length - 1]] = request
+    }
+  }
+
+  private updateRequestAtPath(
+    collection: HoppCollection,
+    path: number[],
+    updates: Partial<TestRunnerRequest>
+  ) {
+    let current = collection
+
+    // Navigate to the parent folder
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current.folders[path[i]]
+    }
+
+    // Update the request at the specified index
+    if (path.length > 0) {
+      const index = path[path.length - 1]
+      current.requests[index] = {
+        ...current.requests[index],
+        ...updates,
+      } as TestRunnerRequest
     }
   }
 
@@ -120,50 +217,55 @@ export class TestRunnerService extends Service {
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     request: TestRunnerRequest,
     collection: HoppCollection,
-    options: TestRunnerOptions
+    options: TestRunnerOptions,
+    path: number[]
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
     }
 
     try {
-      request.isLoading = true
-      request.error = undefined
+      // Update request status in the result collection
+      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+        isLoading: true,
+        error: undefined,
+      })
 
       const results = await runTestRunnerRequest(request)
 
-      // Check again after the request in case it was stopped during execution
       if (options.stopRef?.value) {
         throw new Error("Test execution stopped")
       }
 
       if (results && E.isRight(results)) {
         const { response, testResult } = results.right
-
         const { passed, failed } = this.getTestResultInfo(testResult)
 
-        tab.value.document.testRunnerMeta.totalTests =
-          tab.value.document.testRunnerMeta.totalTests + 1
-        tab.value.document.testRunnerMeta.passedTests =
-          tab.value.document.testRunnerMeta.passedTests + passed
-        tab.value.document.testRunnerMeta.failedTests =
-          tab.value.document.testRunnerMeta.failedTests + failed
+        tab.value.document.testRunnerMeta.totalTests += 1
+        tab.value.document.testRunnerMeta.passedTests += passed
+        tab.value.document.testRunnerMeta.failedTests += failed
 
-        request.testResults = testResult
-        request.response = response
+        // Update request with results in the result collection
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          testResults: testResult,
+          response,
+          isLoading: false,
+        })
 
         if (response.type === "success" || response.type === "fail") {
-          tab.value.document.testRunnerMeta.totalTime =
-            tab.value.document.testRunnerMeta.totalTime +
+          tab.value.document.testRunnerMeta.totalTime +=
             response.meta.responseDuration
-          tab.value.document.testRunnerMeta.completedRequests =
-            tab.value.document.testRunnerMeta.completedRequests + 1
+          tab.value.document.testRunnerMeta.completedRequests += 1
         }
       } else {
         const errorMsg = "Request execution failed"
-        request.error = errorMsg
 
-        // Stop the test run if stopOnError is true
+        // Update request with error in the result collection
+        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          error: errorMsg,
+          isLoading: false,
+        })
+
         if (options.stopOnError) {
           tab.value.document.status = "stopped"
           throw new Error("Test execution stopped due to error")
@@ -174,29 +276,29 @@ export class TestRunnerService extends Service {
         error instanceof Error &&
         error.message === "Test execution stopped"
       ) {
-        throw error // Re-throw stop signal
+        throw error
       }
 
       const errorMsg =
         error instanceof Error ? error.message : "Unknown error occurred"
-      request.error = errorMsg
 
-      // Stop the test run if stopOnError is true
+      // Update request with error in the result collection
+      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+        error: errorMsg,
+        isLoading: false,
+      })
+
       if (options.stopOnError) {
         tab.value.document.status = "stopped"
         throw new Error("Test execution stopped due to error")
       }
-    } finally {
-      request.isLoading = false
     }
   }
 
   private getTestResultInfo(testResult: HoppTestData) {
-    // Initialize counters for this level of recursion
     let passed = 0
     let failed = 0
 
-    // Count results at the current test level
     for (const result of testResult.expectResults) {
       if (result.status === "pass") {
         passed++
@@ -205,7 +307,6 @@ export class TestRunnerService extends Service {
       }
     }
 
-    // Recursively check nested tests and accumulate their results
     for (const nestedTest of testResult.tests) {
       const nestedResult = this.getTestResultInfo(nestedTest)
       passed += nestedResult.passed

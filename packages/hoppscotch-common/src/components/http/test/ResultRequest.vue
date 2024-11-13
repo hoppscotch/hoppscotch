@@ -25,10 +25,7 @@
         >
           {{ `${request.response?.statusCode}` }}
         </span>
-        <span
-          v-if="request.response?.isLoading"
-          class="flex flex-col items-center"
-        >
+        <span v-if="isLoading" class="flex flex-col items-center">
           <HoppSmartSpinner />
         </span>
       </div>
@@ -66,6 +63,8 @@ const props = withDefaults(
     showSelection: false,
   }
 )
+
+const isLoading = computed(() => props.request?.isLoading)
 
 const statusCategory = computed(() => {
   if (

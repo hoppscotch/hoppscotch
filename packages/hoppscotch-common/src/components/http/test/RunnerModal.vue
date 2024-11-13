@@ -258,6 +258,9 @@ const runTests = async () => {
       completedRequests: 0,
       totalRequests: 0,
       totalTime: 0,
+      failedTests: 0,
+      passedTests: 0,
+      totalTests: 0,
     },
   })
 

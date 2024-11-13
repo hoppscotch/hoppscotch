@@ -7,12 +7,7 @@
     <HoppSmartTab
       :id="'all_tests'"
       :label="`${t('tab.all_tests')}`"
-      :info="
-        (
-          tab.document.testRunnerMeta.passedTests +
-          tab.document.testRunnerMeta.failedTests
-        )?.toString()
-      "
+      :info="tab.document.testRunnerMeta.totalTests.toString()"
     >
       <div class="flex flex-col justify-center p-4">
         <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
@@ -49,14 +44,14 @@
     <HoppSmartTab
       :id="'passed'"
       :label="`${t('tab.passed')}`"
-      :info="tab.document.testRunnerMeta.passedTests?.toString()"
+      :info="tab.document.testRunnerMeta.passedTests.toString()"
     >
       tab passed
     </HoppSmartTab>
     <HoppSmartTab
       :id="'failed'"
       :label="`${t('tab.failed')}`"
-      :info="tab.document.testRunnerMeta.failedTests?.toString()"
+      :info="tab.document.testRunnerMeta.failedTests.toString()"
     >
       tab failed
     </HoppSmartTab>

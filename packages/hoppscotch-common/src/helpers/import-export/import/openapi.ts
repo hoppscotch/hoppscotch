@@ -869,8 +869,26 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
             const resultDoc = []
 
             for (const docObj of docArr) {
-              const validatedDoc = await SwaggerParser.validate(docObj)
-              resultDoc.push(validatedDoc)
+              try {
+                const validatedDoc = await SwaggerParser.validate(docObj, {
+                  // @ts-expect-error - this is a valid option, but seems like the types are not updated
+                  continueOnError: true,
+                })
+
+                resultDoc.push(validatedDoc)
+              } catch (err) {
+                if (
+                  // @ts-expect-error the type for err is not exported from the library
+                  err.files &&
+                  // @ts-expect-error the type for err is not exported from the library
+                  err.files instanceof SwaggerParser &&
+                  // @ts-expect-error the type for err is not exported from the library
+                  err.files.schema
+                ) {
+                  // @ts-expect-error the type for err is not exported from the library
+                  resultDoc.push(err.files.schema)
+                }
+              }
             }
 
             return resultDoc

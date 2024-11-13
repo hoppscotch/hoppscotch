@@ -94,12 +94,20 @@
             </div>
           </details>
         </div>
-        <div v-if="testResults.tests" class="divide-y-4 divide-dividerLight">
-          <HttpTestResultEntry
+        <div
+          v-if="testResults.tests"
+          class="divide-y-4 divide-dividerLight test-results-entry"
+        >
+          <template
             v-for="(result, index) in testResults.tests"
             :key="`result-${index}`"
-            :test-results="result"
-          />
+          >
+            <HttpTestResultEntry
+              v-if="shouldShowEntry(result)"
+              :test-results="result"
+              :show-test-type="props.showTestType"
+            />
+          </template>
         </div>
         <div
           v-if="testResults.expectResults"
@@ -185,7 +193,7 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { isEqual } from "lodash-es"
 import { computed, ref } from "vue"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import {
   globalEnv$,
   selectedEnvironmentIndex$,
@@ -218,6 +226,15 @@ const emit = defineEmits<{
 }>()
 
 const testResults = useVModel(props, "modelValue", emit)
+
+const shouldShowEntry = (result: HoppTestData) => {
+  if (props.showTestType === "all") return true
+  if (props.showTestType === "passed")
+    return result.expectResults.some((x) => x.status === "pass")
+  if (props.showTestType === "failed")
+    return result.expectResults.some((x) => x.status === "fail")
+  return false
+}
 
 const t = useI18n()
 const colorMode = useColorMode()

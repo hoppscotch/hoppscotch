@@ -23,6 +23,8 @@ export type TestRunnerRequest = HoppRESTRequest & {
   isLoading?: boolean
   error?: string
   renderResults?: boolean
+  passedTests: number
+  failedTests: number
 }
 
 function delay(timeMS: number) {

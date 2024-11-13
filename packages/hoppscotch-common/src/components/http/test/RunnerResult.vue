@@ -1,61 +1,62 @@
 <template>
   <HoppSmartTabs
     v-model="selectedTestTab"
+    @update:model-value="emit('onChangeTab', $event)"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperRunnerStickyFold z-10"
     render-inactive-tabs
   >
     <HoppSmartTab
-      :id="'all_tests'"
+      :id="'all'"
       :label="`${t('tab.all_tests')}`"
       :info="tab.document.testRunnerMeta.totalTests.toString()"
     >
-      <div class="flex flex-col justify-center p-4">
-        <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
-          <template #content="{ node }">
-            <HttpTestResultFolder
-              v-if="
-                node.data.type === 'folders' &&
-                node.data.data.data.requests.length > 0
-              "
-              :id="node.id"
-              :parent-i-d="node.data.data.parentIndex"
-              :data="node.data.data.data"
-              :is-open="true"
-              :is-selected="node.data.isSelected"
-              :is-last-item="node.data.isLastItem"
-              :show-selection="showCheckbox"
-              folder-type="folder"
-            />
-
-            <HttpTestResultRequest
-              v-if="node.data.type === 'requests'"
-              :request="node.data.data.data"
-              :request-i-d="node.id"
-              :parent-i-d="node.data.data.parentIndex"
-              :is-selected="node.data.isSelected"
-              :show-selection="showCheckbox"
-              :is-last-item="node.data.isLastItem"
-              @select-request="selectRequest(node.data.data.data)"
-            />
-          </template>
-        </HoppSmartTree>
-      </div>
     </HoppSmartTab>
     <HoppSmartTab
       :id="'passed'"
       :label="`${t('tab.passed')}`"
       :info="tab.document.testRunnerMeta.passedTests.toString()"
     >
-      tab passed
     </HoppSmartTab>
     <HoppSmartTab
       :id="'failed'"
       :label="`${t('tab.failed')}`"
       :info="tab.document.testRunnerMeta.failedTests.toString()"
     >
-      tab failed
     </HoppSmartTab>
   </HoppSmartTabs>
+
+  <div class="flex flex-col justify-center p-4">
+    <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
+      <template #content="{ node }">
+        <HttpTestResultFolder
+          v-if="
+            node.data.type === 'folders' &&
+            node.data.data.data.requests.length > 0
+          "
+          :id="node.id"
+          :parent-i-d="node.data.data.parentIndex"
+          :data="node.data.data.data"
+          :is-open="true"
+          :is-selected="node.data.isSelected"
+          :is-last-item="node.data.isLastItem"
+          :show-selection="showCheckbox"
+          folder-type="folder"
+        />
+
+        <HttpTestResultRequest
+          v-if="node.data.type === 'requests' && !node.data.hidden"
+          :show-test-type="selectedTestTab"
+          :request="node.data.data.data"
+          :request-i-d="node.id"
+          :parent-i-d="node.data.data.parentIndex"
+          :is-selected="node.data.isSelected"
+          :show-selection="showCheckbox"
+          :is-last-item="node.data.isLastItem"
+          @select-request="selectRequest(node.data.data.data)"
+        />
+      </template>
+    </HoppSmartTree>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -76,9 +77,10 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "onSelectRequest", request: TestRunnerRequest): void
+  (e: "onChangeTab", event: string): void
 }>()
 
-const selectedTestTab = ref("all_tests")
+const selectedTestTab = ref<"all" | "passed" | "failed">("all")
 
 const showCheckbox = ref(false)
 

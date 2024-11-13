@@ -205,6 +205,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 const props = withDefaults(
   defineProps<{
     modelValue: HoppTestResult | null | undefined
+    showTestType: "all" | "passed" | "failed"
     showEmptyMessage?: boolean
   }>(),
   {

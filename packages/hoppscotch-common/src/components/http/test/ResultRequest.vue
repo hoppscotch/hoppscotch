@@ -37,6 +37,7 @@
     <HttpTestTestResult
       v-if="request.testResults"
       :model-value="request.testResults"
+      :show-test-type="showTestType"
     />
   </div>
 </template>
@@ -55,6 +56,7 @@ const props = withDefaults(
     isActive?: boolean
     isSelected?: boolean
     showSelection?: boolean
+    showTestType: "all" | "passed" | "failed"
   }>(),
   {
     parentID: null,

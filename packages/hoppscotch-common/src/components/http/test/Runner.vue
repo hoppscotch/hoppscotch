@@ -56,6 +56,7 @@
           :tab="tab"
           :collection-adapter="collectionAdapter"
           :is-running="tab.document.status === 'running'"
+          @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
           @on-select-request="onSelectRequest"
         />
       </div>
@@ -270,6 +271,8 @@ const result = computed(() => {
     : []
 })
 
+const showTestsType = ref<"all" | "passed" | "failed">("passed")
+
 const collectionAdapter: SmartTreeAdapter<CollectionNode> =
-  new TestRunnerCollectionsAdapter(result)
+  new TestRunnerCollectionsAdapter(result, showTestsType)
 </script>

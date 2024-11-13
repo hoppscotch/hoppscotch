@@ -87,7 +87,8 @@
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { computed, onBeforeUnmount, ref, watch } from "vue"
+import { useToast } from "~/composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"
@@ -97,6 +98,7 @@ import { HoppTab } from "~/services/tab"
 import { GQLTabService } from "~/services/tab/graphql"
 
 const t = useI18n()
+const toast = useToast()
 const tabs = useService(GQLTabService)
 
 const currentTabID = computed(() => tabs.currentTabID.value)

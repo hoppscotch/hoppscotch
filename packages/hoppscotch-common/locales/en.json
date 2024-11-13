@@ -452,6 +452,7 @@
   },
   "graphql": {
     "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
+    "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
     "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
     "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "mutations": "Mutations",

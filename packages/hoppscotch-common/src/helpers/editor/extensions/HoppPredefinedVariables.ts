@@ -5,8 +5,10 @@ import {
   ViewPlugin,
   hoverTooltip,
 } from "@codemirror/view"
-import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
 import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "@hoppscotch/data"
+
+import IconSquareAsterisk from "~icons/lucide/square-asterisk?raw"
+import { isComment } from "./helpers"
 
 const HOPP_PREDEFINED_VARIABLES_REGEX = /(<<\$[a-zA-Z0-9-_]+>>)/g
 
@@ -18,13 +20,23 @@ const HOPP_PREDEFINED_VARIABLE_HIGHLIGHT_INVALID = "predefined-variable-invalid"
 const getMatchDecorator = () => {
   return new MatchDecorator({
     regexp: HOPP_PREDEFINED_VARIABLES_REGEX,
-    decoration: (m) => checkPredefinedVariable(m[0]),
+    decoration: (m, view, pos) => {
+      // Don't highlight if the cursor is inside a comment
+      if (isComment(view.state, pos)) {
+        return null
+      }
+      return checkPredefinedVariable(m[0])
+    },
   })
 }
 
 const cursorTooltipField = () =>
   hoverTooltip(
     (view, pos, side) => {
+      // Don't show tooltip if the cursor is inside a comment
+      if (isComment(view.state, pos)) {
+        return null
+      }
       const { from, to, text } = view.state.doc.lineAt(pos)
 
       // TODO: When Codemirror 6 allows this to work (not make the

@@ -19,8 +19,8 @@
     <LensesHeadersRendererEntry
       v-for="(header, index) in headers"
       :key="index"
-      v-model:headerKey="header.key"
-      v-model:headerValue="header.value"
+      v-model:header-key="header.key"
+      v-model:header-value="header.value"
       :is-editable="isEditable"
       @delete-header="deleteHeader(index)"
     />

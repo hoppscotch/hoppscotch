@@ -26,6 +26,8 @@ const ThemeColorSchema = z.enum([
 
 const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
+const EncodeMode = z.enum(["enable", "disable", "auto"])
+
 const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
@@ -41,6 +43,7 @@ const SettingsDefSchema = z.object({
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
+  ENCODE_MODE: EncodeMode.catch("enable"),
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),
   SIDEBAR: z.boolean(),

@@ -26,7 +26,7 @@
         <component
           :is="isResponseVisible ? IconArrowDown : IconArrowRight"
           v-if="request.responses && Object.keys(request.responses).length > 0"
-          class="svg-icons cursor-pointer hover:bg-primaryDark transition"
+          class="svg-icons cursor-pointer hover:bg-primaryDark transition rounded"
           @click="toggleRequestResponse()"
         />
       </div>

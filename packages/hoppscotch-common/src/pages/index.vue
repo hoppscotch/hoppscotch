@@ -143,6 +143,7 @@ import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
+import { AuthorizationInspectorService } from "~/services/inspection/inspectors/authorization.inspector"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -400,6 +401,7 @@ defineActionHandler("tab.open-new", addNewTab)
 useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
+useService(AuthorizationInspectorService)
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)
 }

@@ -311,10 +311,13 @@ watch(
             env: {
               key: e.key,
               value: e.secret
-                ? secretEnvironmentService.getSecretEnvironmentVariable(
+                ? (secretEnvironmentService.getSecretEnvironmentVariable(
                     editingID.value ?? "",
                     index
-                  )?.value ?? ""
+                  )?.value ??
+                  // @ts-expect-error `value` field can exist for secret environment variables as inferred while importing
+                  e.value ??
+                  "")
                 : e.value,
               secret: e.secret,
             },

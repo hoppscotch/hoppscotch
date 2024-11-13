@@ -57,18 +57,19 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .menu_on_left_click(true)
         .on_menu_event(move |app, event| match event.id.as_ref() {
             "quit" => {
+                log::info!("Exiting the agent...");
                 app.exit(-1);
             }
             "clear_registrations" => {
                 let app_state = app.state::<Arc<AppState>>();
 
                 app_state
-                    .update_registrations(app.clone(), |regs| {
-                        regs.clear();
-                    })
-                    .expect("Failed to clear registrations");
+                    .clear_registrations(app.clone())
+                    .expect("Invariant violation: Failed to clear registrations");
             }
-            _ => {}
+            _ => {
+                log::warn!("Unhandled menu event: {:?}", event.id);
+            }
         })
         .on_tray_icon_event(|tray, event| {
             if let TrayIconEvent::Click {

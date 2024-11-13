@@ -136,13 +136,23 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
-const request = computed(() =>
-  cloneDeep(tabs.currentActiveTab.value.document.request)
+
+// get the current active request if the current active tab is a request else get the original request from the response tab
+const currentActiveRequest = computed(() =>
+  tabs.currentActiveTab.value.document.type === "request"
+    ? tabs.currentActiveTab.value.document.request
+    : makeRESTRequest({
+        ...getDefaultRESTRequest(),
+        ...tabs.currentActiveTab.value.document.response.originalRequest,
+      })
 )
+
+const request = computed(() => cloneDeep(currentActiveRequest.value))
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
 

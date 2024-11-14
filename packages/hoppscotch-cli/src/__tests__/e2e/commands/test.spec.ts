@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 import { HoppErrorCode } from "../../../types/errors";
-import { getErrorCode, getTestJsonFilePath, runCLI } from "../../utils";
+import {getErrorCode, getErrorCodeFn, getTestJsonFilePath, runCLI, runCLIIteration} from "../../utils";
 
 describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
   const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
@@ -467,7 +467,6 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
         const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
         const { error } = await runCLI(args);
-
         expect(error).toBeNull();
       });
     });

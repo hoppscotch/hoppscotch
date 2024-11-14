@@ -395,6 +395,9 @@ importers:
       lodash-es:
         specifier: 4.17.21
         version: 4.17.21
+      papaparse:
+        specifier: 5.4.1
+        version: 5.4.1
       qs:
         specifier: 6.13.0
         version: 6.13.0
@@ -420,6 +423,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      '@types/papaparse':
+        specifier: 5.3.14
+        version: 5.3.14
       '@types/qs':
         specifier: 6.9.16
         version: 6.9.16
@@ -5148,6 +5154,9 @@ packages:
   '@types/paho-mqtt@1.0.10':
     resolution: {integrity: sha512-xOEii1m7jw7mIKjufDkolpz7VlyqptUmm/YFPtLJCybrPCuLhN+WYgNpulQ/CXo7wtEW7x4uGon2v89+6g/pcA==}
 
+  '@types/papaparse@5.3.14':
+    resolution: {integrity: sha512-LxJ4iEFcpqc6METwp9f6BV6VVc43m6MfH0VqFosHvrUgfXiFe6ww7R3itkOQ+TCK6Y+Iv/+RnnvtRZnkc5Kc9g==}
+
   '@types/passport-github2@1.2.9':
     resolution: {integrity: sha512-/nMfiPK2E6GKttwBzwj0Wjaot8eHrM57hnWxu52o6becr5/kXlH/4yE2v2rh234WGvSgEEzIII02Nc5oC5xEHA==}
 
@@ -9690,6 +9699,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  papaparse@5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
 
   param-case@3.0.4:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
@@ -16956,6 +16968,10 @@ snapshots:
 
   '@types/paho-mqtt@1.0.10': {}
 
+  '@types/papaparse@5.3.14':
+    dependencies:
+      '@types/node': 22.7.6
+
   '@types/passport-github2@1.2.9':
     dependencies:
       '@types/express': 5.0.0
@@ -23373,6 +23389,8 @@ snapshots:
   pako@0.2.9: {}
 
   pako@1.0.11: {}
+
+  papaparse@5.4.1: {}
 
   param-case@3.0.4:
     dependencies:

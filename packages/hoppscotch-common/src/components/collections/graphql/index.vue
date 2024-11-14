@@ -400,21 +400,13 @@ const duplicateCollection = ({
   collectionSyncID?: string
 }) => duplicateGraphQLCollection(path, collectionSyncID)
 
-const onAddRequest = ({
-  name,
-  path,
-  index,
-}: {
-  name: string
-  path: string
-  index: number
-}) => {
+const onAddRequest = ({ name, path }: { name: string; path: string }) => {
   const newRequest = {
     ...tabs.currentActiveTab.value.document.request,
     name,
   }
 
-  saveGraphqlRequestAs(path, newRequest)
+  const insertionIndex = saveGraphqlRequestAs(path, newRequest)
 
   const { auth, headers } = cascadeParentCollectionForHeaderAuth(
     path,
@@ -425,7 +417,7 @@ const onAddRequest = ({
     saveContext: {
       originLocation: "user-collection",
       folderPath: path,
-      requestIndex: index,
+      requestIndex: insertionIndex,
     },
     request: newRequest,
     isDirty: false,

@@ -154,6 +154,10 @@ const submittedFeedback = ref(false)
 const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 
 const editRequest = () => {
+  if (props.loadingState) {
+    return
+  }
+
   if (editingName.value.trim() === "") {
     toast.error(t("request.invalid_name"))
     return

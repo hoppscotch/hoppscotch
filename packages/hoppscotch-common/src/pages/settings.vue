@@ -4,38 +4,13 @@
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ t("settings.theme") }}
+            {{ t("settings.general") }}
           </h3>
           <p class="my-1 text-secondaryLight">
-            {{ t("settings.theme_description") }}
+            {{ t("settings.general_description") }}
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.background") }}
-            </h4>
-            <div class="my-1 text-secondaryLight">
-              {{ t(getColorModeName(colorMode.preference)) }}
-              <span v-if="colorMode.preference === 'system'">
-                ({{ t(getColorModeName(colorMode.value)) }})
-              </span>
-            </div>
-            <div class="mt-4">
-              <SmartColorModePicker />
-            </div>
-          </section>
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.accent_color") }}
-            </h4>
-            <div class="my-1 text-secondaryLight">
-              {{ ACCENT_COLOR.charAt(0).toUpperCase() + ACCENT_COLOR.slice(1) }}
-            </div>
-            <div class="mt-4">
-              <SmartAccentModePicker />
-            </div>
-          </section>
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.language") }}
@@ -44,6 +19,19 @@
               <SmartChangeLanguage />
             </div>
           </section>
+
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.query_parameters_encoding") }}
+            </h4>
+            <div class="my-1 text-secondaryLight">
+              {{ t("settings.query_parameters_encoding_description") }}
+            </div>
+            <div class="mt-4">
+              <SmartEncodingPicker />
+            </div>
+          </section>
+
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.experiments") }}
@@ -91,6 +79,44 @@
                   {{ t("settings.ai_experiments") }}
                 </HoppSmartToggle>
               </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="p-8 md:col-span-1">
+          <h3 class="heading">
+            {{ t("settings.theme") }}
+          </h3>
+          <p class="my-1 text-secondaryLight">
+            {{ t("settings.theme_description") }}
+          </p>
+        </div>
+        <div class="space-y-8 p-8 md:col-span-2">
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.background") }}
+            </h4>
+            <div class="my-1 text-secondaryLight">
+              {{ t(getColorModeName(colorMode.preference)) }}
+              <span v-if="colorMode.preference === 'system'">
+                ({{ t(getColorModeName(colorMode.value)) }})
+              </span>
+            </div>
+            <div class="mt-4">
+              <SmartColorModePicker />
+            </div>
+          </section>
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.accent_color") }}
+            </h4>
+            <div class="my-1 text-secondaryLight">
+              {{ ACCENT_COLOR.charAt(0).toUpperCase() + ACCENT_COLOR.slice(1) }}
+            </div>
+            <div class="mt-4">
+              <SmartAccentModePicker />
             </div>
           </section>
         </div>

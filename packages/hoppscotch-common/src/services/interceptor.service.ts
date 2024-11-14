@@ -141,6 +141,12 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
    * @param request The request to run the interceptor on.
    */
   runRequest: (request: AxiosRequestConfig) => RequestRunResult<Err>
+
+  /**
+   * Defines whether the interceptor has support for Digest Auth.
+   * If this field is undefined, it is assumed as not supporting the Digest Auth type.
+   */
+  supportsDigestAuth?: boolean
 }
 
 /**

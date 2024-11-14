@@ -166,10 +166,15 @@ watch(
 )
 
 const addRequest = () => {
+  if (props.loadingState) {
+    return
+  }
+
   if (editingName.value.trim() === "") {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
+
   emit("add-request", editingName.value)
 }
 

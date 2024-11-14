@@ -415,7 +415,7 @@ enum PageDirection {
 }
 
 const page = ref(1);
-const { data } = useQuery({ query: MetricsDocument });
+const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersCount = computed(() => data?.value?.infra.usersCount);
 
 const changePage = (direction: PageDirection) => {
@@ -460,7 +460,10 @@ const goToUserDetails = (user: UserInfoQuery['infra']['userInfo']) =>
   router.push('/users/' + user.uid);
 
 // Check if SMTP is enabled
-const { data: status } = useQuery({ query: IsSmtpEnabledDocument });
+const { data: status } = useQuery({
+  query: IsSmtpEnabledDocument,
+  variables: {},
+});
 const smtpEnabled = computed(() => status?.value?.isSMTPEnabled);
 const inviteSuccessModal = ref(false);
 

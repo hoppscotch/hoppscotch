@@ -91,7 +91,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/invalid-url" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">
     <system-err><![CDATA[
-      REQUEST_ERROR - TypeError [ERR_INVALID_URL]: Invalid URL]]></system-err>
+      REQUEST_ERROR - TypeError: Invalid URL]]></system-err>
     <testcase name="\`toBeLevelxxx()\` error scenarios - Expected 200-level status but could not parse value 'foo'" classname="test-junit-report-export/request-level-errors/invalid-url">
       <error message="Expected 200-level status but could not parse value 'foo'"/>
     </testcase>
@@ -161,7 +161,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/test-script-reference-error" time="time" timestamp="timestamp" tests="0" failures="0" errors="0">
     <system-err><![CDATA[
-      REQUEST_ERROR - TypeError [ERR_INVALID_URL]: Invalid URL
+      REQUEST_ERROR - TypeError: Invalid URL
       TEST_SCRIPT_ERROR - Script execution failed: ReferenceError: status is not defined]]></system-err>
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/non-existent-env-var" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">
@@ -330,7 +330,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/invalid-url" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">
     <system-err><![CDATA[
-      REQUEST_ERROR - TypeError [ERR_INVALID_URL]: Invalid URL]]></system-err>
+      REQUEST_ERROR - TypeError: Invalid URL]]></system-err>
     <testcase name="\`toBeLevelxxx()\` error scenarios - Expected 200-level status but could not parse value 'foo'" classname="test-junit-report-export/request-level-errors/invalid-url">
       <error message="Expected 200-level status but could not parse value 'foo'"/>
     </testcase>
@@ -400,7 +400,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/test-script-reference-error" time="time" timestamp="timestamp" tests="0" failures="0" errors="0">
     <system-err><![CDATA[
-      REQUEST_ERROR - TypeError [ERR_INVALID_URL]: Invalid URL
+      REQUEST_ERROR - TypeError: Invalid URL
       TEST_SCRIPT_ERROR - Script execution failed: ReferenceError: status is not defined]]></system-err>
   </testsuite>
   <testsuite name="test-junit-report-export/request-level-errors/non-existent-env-var" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">

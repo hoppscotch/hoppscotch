@@ -60,17 +60,29 @@
           @on-select-request="onSelectRequest"
         />
       </div>
-
-      <!-- <div v-else class="flex flex-col flex-1">
-        <HttpTestRunnerConfig v-model="tab" v-model:config="testRunnerConfig" />
-      </div> -->
     </template>
     <template #secondary>
       <HttpTestResponse
-        v-if="selectedRequest"
+        v-if="selectedRequest && selectedRequest.response"
         :show-response="tab.document.config.persistResponses"
         v-model:document="selectedRequest"
       />
+
+      <HoppSmartPlaceholder
+        v-else-if="
+          !testRunnerConfig.persistResponses && !selectedRequest?.response
+        "
+        :src="`/images/states/${colorMode.value}/add_files.svg`"
+        :alt="`${t('collection_runner.no_response_persist')}`"
+        :text="`${t('collection_runner.no_response_persist')}`"
+      >
+        <template #body>
+          <HoppButtonPrimary
+            :label="t('test.new_run')"
+            @click="showCollectionsRunnerModal = true"
+          />
+        </template>
+      </HoppSmartPlaceholder>
 
       <div
         v-else-if="tab.document.status === 'running'"
@@ -86,20 +98,6 @@
         :alt="`${t('collection_runner.select_request')}`"
         :text="`${t('collection_runner.select_request')}`"
       >
-      </HoppSmartPlaceholder>
-
-      <HoppSmartPlaceholder
-        v-else-if="!testRunnerConfig.persistResponses"
-        :src="`/images/states/${colorMode.value}/add_files.svg`"
-        :alt="`${t('collection_runner.no_response_persist')}`"
-        :text="`${t('collection_runner.no_response_persist')}`"
-      >
-        <template #body>
-          <HoppButtonPrimary
-            :label="t('test.new_run')"
-            @click="showCollectionsRunnerModal = true"
-          />
-        </template>
       </HoppSmartPlaceholder>
     </template>
   </AppPaneLayout>

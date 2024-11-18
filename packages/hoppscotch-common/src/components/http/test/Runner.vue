@@ -126,13 +126,22 @@ import { useI18n } from "@composables/i18n"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
+import { pipe } from "fp-ts/lib/function"
+import * as TE from "fp-ts/TaskEither"
 import { computed, nextTick, onMounted, ref } from "vue"
 import { useColorMode } from "~/composables/theming"
+import { useToast } from "~/composables/toast"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
 import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import {
   CollectionNode,
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
+import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
@@ -141,6 +150,7 @@ import {
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
+const toast = useToast()
 const colorMode = useColorMode()
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
@@ -225,6 +235,10 @@ const runAgain = async () => {
   tab.value.document.resultCollection = undefined
   await nextTick()
   resetRunnerState()
+  const updatedCollection = await refetchCollectionTree()
+  if (updatedCollection) {
+    tab.value.document.collection = updatedCollection
+  }
   await nextTick()
   runTests()
 }
@@ -273,4 +287,32 @@ const showTestsType = ref<"all" | "passed" | "failed">("passed")
 
 const collectionAdapter: SmartTreeAdapter<CollectionNode> =
   new TestRunnerCollectionsAdapter(result, showTestsType)
+
+/**
+ * refetches the collection tree from the backend
+ * @returns collection tree
+ */
+const refetchCollectionTree = async () => {
+  const type = tab.value.document.collectionType
+  if (type === "my-collections") {
+    return collection.value
+  } else {
+    if (!tab.value.document.collectionID) return
+
+    console.log("Fetching collection tree for team collection", collection)
+
+    return pipe(
+      getCompleteCollectionTree(tab.value.document.collectionID),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err, t)}`)
+          return
+        },
+        async (coll) => {
+          return teamCollToHoppRESTColl(coll)
+        }
+      )
+    )()
+  }
+}
 </script>

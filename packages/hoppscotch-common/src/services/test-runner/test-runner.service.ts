@@ -250,7 +250,7 @@ export class TestRunnerService extends Service {
         // Update request with results in the result collection
         this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
           testResults: testResult,
-          response,
+          response: options.persistResponses ? response : null,
           isLoading: false,
         })
 

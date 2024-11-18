@@ -34,6 +34,13 @@
         {{ request.endpoint }}
       </p>
     </button>
+
+    <div
+      v-if="request.error"
+      class="py-2 pl-4 ml-4 mb-2 border-l text-red-500 border-red-500"
+    >
+      <span> {{ request.error }} </span>
+    </div>
     <HttpTestTestResult
       v-if="request.testResults"
       :model-value="request.testResults"

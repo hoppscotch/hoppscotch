@@ -1,7 +1,8 @@
-import { createApp } from 'vue';
+import { createApp, h } from 'vue';
 import urql, { createClient, cacheExchange, fetchExchange } from '@urql/vue';
 import { authExchange } from '@urql/exchange-auth';
 import App from './App.vue';
+import ErrorComponent from './pages/_.vue';
 
 // STYLES
 import '@hoppscotch/ui/style.css';
@@ -16,50 +17,74 @@ import { HOPP_MODULES } from './modules';
 import { auth } from './helpers/auth';
 import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
-import { GRAPHQL_UNAUTHORIZED } from './helpers/errors';
+import { ErrorPageData, GRAPHQL_UNAUTHORIZED } from './helpers/errors';
 
-// Top-level await is not available in our targets
 (async () => {
-  const app = createApp(App).use(
-    urql,
-    createClient({
+  try {
+    // Initialize auth
+    await auth.performAuthInit();
+
+    // Create URQL client
+    const urqlClient = createClient({
       url: import.meta.env.VITE_BACKEND_GQL_URL,
       requestPolicy: 'network-only',
-      fetchOptions: () => {
-        return {
-          credentials: 'include',
-        };
-      },
+      fetchOptions: () => ({
+        credentials: 'include',
+      }),
       exchanges: [
         cacheExchange,
-        authExchange(async () => {
-          return {
-            addAuthToOperation(operation) {
-              return operation;
-            },
-
-            async refreshAuth() {
-              pipe(
-                await auth.performAuthRefresh(),
-                O.getOrElseW(() => auth.signOutUser(true))
-              );
-            },
-
-            didAuthError(error, _operation) {
-              return error.message === GRAPHQL_UNAUTHORIZED;
-            },
-          };
-        }),
+        authExchange(async () => ({
+          addAuthToOperation(operation) {
+            return operation;
+          },
+          async refreshAuth() {
+            pipe(
+              await auth.performAuthRefresh(),
+              O.getOrElseW(() => auth.signOutUser(true))
+            );
+          },
+          didAuthError(error, _operation) {
+            return error.message === GRAPHQL_UNAUTHORIZED;
+          },
+        })),
         fetchExchange,
       ],
-    })
-  );
+    });
 
-  // Initialize auth
-  await auth.performAuthInit();
+    // Execute a test query to check backend availability
+    const testQuery = `
+      query {
+        __typename
+      }
+    `;
+    const result = await urqlClient.query(testQuery, {}).toPromise();
 
-  // Initialize modules
-  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app));
+    if (result.error) {
+      throw new Error('Backend server error');
+    }
 
-  app.mount('#app');
+    // If the query is successful, mount the main application
+    const app = createApp({
+      render: () => h(App),
+    }).use(urql, urqlClient);
+
+    // Initialize modules
+    HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app));
+
+    app.mount('#app');
+  } catch (error) {
+    console.error('Error during initialization:', error);
+    console.log(error);
+
+    const errorData = {
+      message:
+        'Failed to connect to the backend server, make sure the backend is setup correctly',
+    };
+
+    // Mount the fallback component in case of an error
+    createApp({
+      render: () =>
+        h(ErrorComponent, { error: errorData as ErrorPageData | null }),
+    }).mount('#app');
+  }
 })();

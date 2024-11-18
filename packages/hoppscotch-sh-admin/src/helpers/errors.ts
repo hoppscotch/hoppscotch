@@ -1,3 +1,11 @@
+/*
+ * Error page data
+ */
+export type ErrorPageData = {
+  message: string;
+  statusCode?: number;
+};
+
 /* No cookies were found in the auth request
  * (AuthService)
  */

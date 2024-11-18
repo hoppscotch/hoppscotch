@@ -13,6 +13,13 @@
       />
     </template>
     <template #footer>
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip', allowHTML: true }"
+        :title="t('support.title')"
+        :icon="IconCircleHelp"
+        class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+        @click=""
+      />
       <span class="flex space-x-2">
         <HoppButtonPrimary
           :label="t('users.add_user')"
@@ -32,6 +39,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import IconCircleHelp from '~icons/lucide/circle-help';
 
 const t = useI18n();
 

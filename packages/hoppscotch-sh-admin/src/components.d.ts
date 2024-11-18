@@ -14,6 +14,7 @@ declare module 'vue' {
     AppSidebar: typeof import('./components/app/Sidebar.vue')['default']
     AppToast: typeof import('./components/app/Toast.vue')['default']
     DashboardMetricsCard: typeof import('./components/dashboard/MetricsCard.vue')['default']
+    FallbackComponent: typeof import('./components/FallbackComponent.vue')['default']
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary']
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
     HoppSmartAnchor: typeof import('@hoppscotch/ui')['HoppSmartAnchor']

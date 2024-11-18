@@ -88,6 +88,7 @@ export async function getDefaultInfraConfigs(): Promise<
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
   const configuredSSOProviders = getConfiguredSSOProviders();
   const generatedAnalyticsUserId = generateAnalyticsUserId();
+
   const infraConfigDefaultObjs: {
     name: InfraConfigEnum;
     value: string;
@@ -313,14 +314,19 @@ export async function syncInfraConfigWithEnvFile() {
   const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
 
   for (const dbConfig of dbInfraConfigs) {
-    const envValue = process.env[dbConfig.name];
-    if (!envValue) continue; // i.e. true for IS_FIRST_TIME_INFRA_SETUP, ANALYTICS_USER_ID, ALLOW_ANALYTICS_COLLECTION
+    let envValue = process.env[dbConfig.name];
 
-    // lastSyncedEnvFileValue null check for backward compatibility
-    if (!dbConfig.lastSyncedEnvFileValue) {
+    // Special case for 'VITE_ALLOWED_AUTH_PROVIDERS' as it enabled auth strategies
+    if (dbConfig.name === InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS) {
+      envValue = getConfiguredSSOProviders();
+    }
+
+    // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
+    if (!dbConfig.lastSyncedEnvFileValue && envValue) {
       const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
+        value: dbConfig.value === null ? configValue : undefined,
         lastSyncedEnvFileValue: configValue,
       });
       continue;
@@ -331,12 +337,12 @@ export async function syncInfraConfigWithEnvFile() {
       ? decrypt(dbConfig.lastSyncedEnvFileValue)
       : dbConfig.lastSyncedEnvFileValue;
 
-    if (rawLastSyncedEnvFileValue !== envValue) {
+    if (rawLastSyncedEnvFileValue != envValue) {
       const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
-        value: configValue,
-        lastSyncedEnvFileValue: configValue,
+        value: configValue ?? null,
+        lastSyncedEnvFileValue: configValue ?? null,
       });
     }
   }

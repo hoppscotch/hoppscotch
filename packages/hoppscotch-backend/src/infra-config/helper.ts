@@ -327,10 +327,11 @@ export async function syncInfraConfigWithEnvFile() {
 
     // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
     if (dbConfig.lastSyncedEnvFileValue !== envValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
-        value: dbConfig.isEncrypted ? encrypt(envValue) : envValue,
-        lastSyncedEnvFileValue: envValue,
+        value: configValue,
+        lastSyncedEnvFileValue: configValue,
       });
     }
   }

@@ -29,6 +29,7 @@ import {
   getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
+  syncInfraConfigWithEnvFile,
 } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
@@ -87,8 +88,25 @@ export class InfraConfigService implements OnModuleInit {
         await Promise.allSettled(dbOperations);
       }
 
+      // Sync the InfraConfigs with the .env file, if .env file updates later on
+      const envFileChangesRequired = await syncInfraConfigWithEnvFile();
+      if (envFileChangesRequired.length > 0) {
+        const dbOperations = envFileChangesRequired.map((dbConfig) => {
+          const { id, ...dataObj } = dbConfig;
+          return this.prisma.infraConfig.update({
+            where: { id: dbConfig.id },
+            data: dataObj,
+          });
+        });
+        await Promise.allSettled(dbOperations);
+      }
+
       // Restart the app if needed
-      if (propsToInsert.length > 0 || encryptionRequiredEntries.length > 0) {
+      if (
+        propsToInsert.length > 0 ||
+        encryptionRequiredEntries.length > 0 ||
+        envFileChangesRequired.length > 0
+      ) {
         stopApp();
       }
     } catch (error) {

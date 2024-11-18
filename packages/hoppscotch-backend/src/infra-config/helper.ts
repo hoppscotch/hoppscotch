@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { decrypt, encrypt, throwErr } from 'src/utils';
 import { randomBytes } from 'crypto';
+import { InfraConfig } from '@prisma/client';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -85,144 +86,174 @@ export async function getDefaultInfraConfigs(): Promise<
   const prisma = new PrismaService();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
+  const configuredSSOProviders = getConfiguredSSOProviders();
+  const generatedAnalyticsUserId = generateAnalyticsUserId();
   const infraConfigDefaultObjs: {
     name: InfraConfigEnum;
     value: string;
+    lastSyncedEnvFileValue: string;
     isEncrypted: boolean;
   }[] = [
     {
       name: InfraConfigEnum.MAILER_SMTP_ENABLE,
       value: process.env.MAILER_SMTP_ENABLE ?? 'true',
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_ENABLE ?? 'true',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
       value: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
+      lastSyncedEnvFileValue: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_URL,
       value: encrypt(process.env.MAILER_SMTP_URL),
+      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_URL),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_ADDRESS_FROM,
       value: process.env.MAILER_ADDRESS_FROM,
+      lastSyncedEnvFileValue: process.env.MAILER_ADDRESS_FROM,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_HOST,
       value: process.env.MAILER_SMTP_HOST,
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_HOST,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PORT,
       value: process.env.MAILER_SMTP_PORT,
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_PORT,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_SECURE,
       value: process.env.MAILER_SMTP_SECURE,
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_SECURE,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_USER,
       value: process.env.MAILER_SMTP_USER,
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_USER,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PASSWORD,
       value: encrypt(process.env.MAILER_SMTP_PASSWORD),
+      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_PASSWORD),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
       value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
+      lastSyncedEnvFileValue: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
       value: encrypt(process.env.GOOGLE_CLIENT_ID),
+      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_ID),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
       value: encrypt(process.env.GOOGLE_CLIENT_SECRET),
+      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_SECRET),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
       value: process.env.GOOGLE_CALLBACK_URL,
+      lastSyncedEnvFileValue: process.env.GOOGLE_CALLBACK_URL,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_SCOPE,
       value: process.env.GOOGLE_SCOPE,
+      lastSyncedEnvFileValue: process.env.GOOGLE_SCOPE,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_ID,
       value: encrypt(process.env.GITHUB_CLIENT_ID),
+      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_ID),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
       value: encrypt(process.env.GITHUB_CLIENT_SECRET),
+      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_SECRET),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CALLBACK_URL,
       value: process.env.GITHUB_CALLBACK_URL,
+      lastSyncedEnvFileValue: process.env.GITHUB_CALLBACK_URL,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_SCOPE,
       value: process.env.GITHUB_SCOPE,
+      lastSyncedEnvFileValue: process.env.GITHUB_SCOPE,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
       value: encrypt(process.env.MICROSOFT_CLIENT_ID),
+      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_ID),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
       value: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
+      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
       value: process.env.MICROSOFT_CALLBACK_URL,
+      lastSyncedEnvFileValue: process.env.MICROSOFT_CALLBACK_URL,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_SCOPE,
       value: process.env.MICROSOFT_SCOPE,
+      lastSyncedEnvFileValue: process.env.MICROSOFT_SCOPE,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_TENANT,
       value: process.env.MICROSOFT_TENANT,
+      lastSyncedEnvFileValue: process.env.MICROSOFT_TENANT,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-      value: getConfiguredSSOProviders(),
+      value: configuredSSOProviders,
+      lastSyncedEnvFileValue: configuredSSOProviders,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
       value: false.toString(),
+      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ANALYTICS_USER_ID,
-      value: generateAnalyticsUserId(),
+      value: generatedAnalyticsUserId,
+      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
       value: (await prisma.infraConfig.count()) === 0 ? 'true' : 'false',
+      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
   ];
@@ -269,6 +300,42 @@ export async function getEncryptionRequiredInfraConfigEntries() {
   });
 
   return requiredEncryption;
+}
+
+/**
+ * Sync the 'infra_config' table with .env file
+ * @returns Array of InfraConfig
+ */
+export async function syncInfraConfigWithEnvFile() {
+  const prisma = new PrismaService();
+  const dbInfraConfigs = await prisma.infraConfig.findMany();
+
+  const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
+
+  for (const dbConfig of dbInfraConfigs) {
+    const envValue = process.env[dbConfig.name];
+    if (!envValue) continue; // i.e. true for IS_FIRST_TIME_INFRA_SETUP, ANALYTICS_USER_ID, ALLOW_ANALYTICS_COLLECTION
+
+    // lastSyncedEnvFileValue null check for backward compatibility
+    if (!dbConfig.lastSyncedEnvFileValue) {
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        lastSyncedEnvFileValue: envValue,
+      });
+      continue;
+    }
+
+    // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
+    if (dbConfig.lastSyncedEnvFileValue !== envValue) {
+      updateRequiredObjs.push({
+        id: dbConfig.id,
+        value: dbConfig.isEncrypted ? encrypt(envValue) : envValue,
+        lastSyncedEnvFileValue: envValue,
+      });
+    }
+  }
+
+  return updateRequiredObjs;
 }
 
 /**

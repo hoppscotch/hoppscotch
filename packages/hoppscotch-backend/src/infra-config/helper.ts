@@ -318,15 +318,20 @@ export async function syncInfraConfigWithEnvFile() {
 
     // lastSyncedEnvFileValue null check for backward compatibility
     if (!dbConfig.lastSyncedEnvFileValue) {
+      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,
-        lastSyncedEnvFileValue: envValue,
+        lastSyncedEnvFileValue: configValue,
       });
       continue;
     }
 
     // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
-    if (dbConfig.lastSyncedEnvFileValue !== envValue) {
+    const rawLastSyncedEnvFileValue = dbConfig.isEncrypted
+      ? decrypt(dbConfig.lastSyncedEnvFileValue)
+      : dbConfig.lastSyncedEnvFileValue;
+
+    if (rawLastSyncedEnvFileValue !== envValue) {
       const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
       updateRequiredObjs.push({
         id: dbConfig.id,

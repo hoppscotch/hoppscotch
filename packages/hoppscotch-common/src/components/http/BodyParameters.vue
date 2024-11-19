@@ -7,6 +7,17 @@
         {{ t("request.body") }}
       </label>
       <div class="flex">
+        <div class="flex items-center gap-2">
+          <HoppSmartCheckbox
+            :on="useIndividualContentTypes"
+            @change="
+              () => {
+                useIndividualContentTypes = !useIndividualContentTypes
+              }
+            "
+            >Use Individual Content Types</HoppSmartCheckbox
+          >
+        </div>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
@@ -97,6 +108,25 @@
                   value: $event,
                   active: entry.active,
                   isFile: entry.isFile,
+                })
+              "
+            />
+          </span>
+          <span v-if="useIndividualContentTypes" class="flex flex-1">
+            <SmartEnvInput
+              v-model="entry.contentType"
+              :placeholder="
+                entry.contentType ? entry.contentType : `Auto (Content Type)`
+              "
+              :auto-complete-env="true"
+              :envs="envs"
+              @change="
+                updateBodyParam(index, {
+                  key: entry.key,
+                  value: entry.value,
+                  active: entry.active,
+                  isFile: entry.isFile,
+                  contentType: $event,
                 })
               "
             />
@@ -222,6 +252,8 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const bodyParams = pluckRef(body, "body")
 
+const useIndividualContentTypes = ref(true)
+
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<WorkingFormDataKeyValue[]>([
   {
@@ -231,6 +263,7 @@ const workingParams = ref<WorkingFormDataKeyValue[]>([
       value: "",
       active: true,
       isFile: false,
+      contentType: undefined,
     },
   },
 ])

@@ -422,11 +422,13 @@ function getFinalBodyFromRequest(
           ? x.value.map((v) => ({
               key: parseTemplateString(x.key, resolvedVariables),
               value: v as string | Blob,
+              contentType: x.contentType,
             }))
           : [
               {
                 key: parseTemplateString(x.key, resolvedVariables),
                 value: parseTemplateString(x.value, resolvedVariables),
+                contentType: x.contentType,
               },
             ]
       ),

@@ -1,7 +1,14 @@
+import fs from "fs";
+import { isSafeInteger } from "lodash-es";
+import Papa from "papaparse";
+import path from "path";
+
 import { handleError } from "../handlers/error";
 import { parseDelayOption } from "../options/test/delay";
 import { parseEnvsData } from "../options/test/env";
+import { IterationDataEntry } from "../types/collections";
 import { TestCmdEnvironmentOptions, TestCmdOptions } from "../types/commands";
+import { error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
 import { isHoppCLIError } from "../utils/checks";
 import {
@@ -10,11 +17,6 @@ import {
   collectionsRunnerResult,
 } from "../utils/collections";
 import { parseCollectionData } from "../utils/mutators";
-import fs from "fs";
-import path from "path";
-import Papa from "papaparse";
-import { error } from "../types/errors";
-import { isSafeInteger } from "lodash-es";
 
 export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
   try {
@@ -36,42 +38,42 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
 
     const { iterations } = options;
 
+    let data: unknown[];
+    let iterationData: IterationDataEntry[][] | undefined;
+
     const collections = await parseCollectionData(pathOrId, options);
 
-    let data;
-    let transformedData;
     if (options.data) {
       // Check file existence
       if (!fs.existsSync(options.data)) {
         throw error({ code: "FILE_NOT_FOUND", path: options.data });
       }
+
       // Check the file extension
       if (path.extname(options.data) !== ".csv") {
         throw error({ code: "INVALID_DATA_FILE_TYPE", data: options.data });
       }
+
       const csvData = fs.readFileSync(options.data, "utf8");
       data = Papa.parse(csvData, { header: true }).data;
 
       // Transform data into the desired format
-      transformedData = data
-        .map((item) => {
-          const keys = Object.keys(item as object);
-          return keys
-            .filter((key) => (item as { [key: string]: any })[key] !== "") // Ignore keys with empty string values
-            .map((key) => ({
-              key: key,
-              value: (item as { [key: string]: any })[key],
-              secret: false,
-            }));
-        })
-        .filter((item) => item.length > 0); // Ignore items that result in an empty array
+      iterationData = data
+        .map((item) =>
+          Object.entries(item as IterationDataEntry)
+            // Ignore keys with empty string values
+            .filter(([value]) => value !== "")
+            .map(([key, value]) => ({ key, value, secret: false }))
+        )
+        // Ignore items that result in an empty array
+        .filter((item) => item.length > 0) as IterationDataEntry[][];
     }
 
     const report = await collectionsRunner({
       collections,
       envs,
       delay,
-      transformedData,
+      iterationData,
       iterations,
     });
     const hasSucceeded = collectionsRunnerResult(report, options.reporterJunit);

@@ -1,12 +1,15 @@
 import { HoppCollection } from "@hoppscotch/data";
-import { HoppEnvs } from "./request";
+import { HoppEnvPair, HoppEnvs } from "./request";
 
 export type CollectionRunnerParam = {
   collections: HoppCollection[];
   envs: HoppEnvs;
   delay?: number;
-  transformedData?: any;
-  iterations?: number
+  iterationData?: IterationDataEntry[][];
+  iterations?: number;
 };
 
 export type HoppCollectionFileExt = "json";
+
+// Indicates the shape each iteration data entry gets transformed into
+export type IterationDataEntry = Extract<HoppEnvPair, { value: string }>;

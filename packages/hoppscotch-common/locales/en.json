@@ -1217,6 +1217,7 @@
     "advanced_settings": "Advanced Settings",
     "stop_on_error": "Stop run if an error occurs",
     "persist_responses": "Persist responses",
+    "collection_not_found": "Collection not found. May be deleted or moved.",
     "no_response_persist": "The collection runner is presently configured not to persist responses. This setting prevents showing the response data. To modify this behavior, initiate a new run configuration.",
     "select_request": "Select a request to see response and test results",
     "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",

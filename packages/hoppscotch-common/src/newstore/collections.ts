@@ -1198,6 +1198,30 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
+export function getRESTCollectionByRefId(ref_id: string) {
+  function findCollection(
+    collection: HoppCollection,
+    ref_id: string
+  ): HoppCollection | null {
+    if (collection._ref_id === ref_id) {
+      return collection
+    }
+    for (const folder of collection.folders) {
+      const found = findCollection(folder, ref_id)
+      if (found) {
+        return found
+      }
+    }
+    return null
+  }
+  for (const collection of restCollectionStore.value.state) {
+    const found = findCollection(collection, ref_id)
+    if (found) {
+      return found
+    }
+  }
+}
+
 export function editRESTCollection(
   collectionIndex: number,
   partialCollection: Partial<HoppCollection>

@@ -6,7 +6,7 @@ import { HoppRESTAuth } from "../../rest/v/8"
 
 import { V3_SCHEMA, v3_baseCollectionSchema } from "./3"
 
-const v4_baseCollectionSchema = v3_baseCollectionSchema.extend({
+export const v4_baseCollectionSchema = v3_baseCollectionSchema.extend({
   v: z.literal(4),
   auth: z.union([HoppRESTAuth, HoppGQLAuth]),
 })
@@ -19,7 +19,7 @@ type Output = z.output<typeof v4_baseCollectionSchema> & {
   folders: Output[]
 }
 
-const V4_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
+export const V4_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
   v4_baseCollectionSchema.extend({
     folders: z.lazy(() => z.array(V4_SCHEMA)),
   })

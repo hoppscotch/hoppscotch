@@ -36,7 +36,7 @@
       @run-collection="
         runCollectionHandler({
           type: 'my-collections',
-          collection: $event.collection,
+          collectionID: $event.collection._ref_id,
           collectionIndex: $event.collectionIndex,
         })
       "

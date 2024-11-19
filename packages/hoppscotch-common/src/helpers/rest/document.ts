@@ -123,8 +123,9 @@ export type HoppTestRunnerDocument = {
 
   /**
    * collection ID to be used for team collections
+   * (if it's my-collections, the _ref_id will be used as collectionID)
    */
-  collectionID: string | null
+  collectionID: string
 
   /**
    * The request as it is in the document

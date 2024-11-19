@@ -109,12 +109,11 @@
       tab.document.collectionType === 'my-collections'
         ? {
             type: 'my-collections',
-            collection: tab.document.collection,
-            collectionIndex: '0',
+            collectionID: tab.document.collectionID,
           }
         : {
             type: 'team-collections',
-            collectionID: tab.document.collectionID!,
+            collectionID: tab.document.collectionID,
           }
     "
     @hide-modal="showCollectionsRunnerModal = false"
@@ -142,6 +141,7 @@ import {
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
+import { getRESTCollectionByRefId } from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
 import {
   TestRunnerRequest,
@@ -238,6 +238,8 @@ const runAgain = async () => {
   const updatedCollection = await refetchCollectionTree()
   if (updatedCollection) {
     tab.value.document.collection = updatedCollection
+  } else {
+    toast.error(t("collection_runner.collection_not_found"))
   }
   await nextTick()
   runTests()
@@ -283,7 +285,7 @@ const result = computed(() => {
     : []
 })
 
-const showTestsType = ref<"all" | "passed" | "failed">("passed")
+const showTestsType = ref<"all" | "passed" | "failed">("all")
 
 const collectionAdapter: SmartTreeAdapter<CollectionNode> =
   new TestRunnerCollectionsAdapter(result, showTestsType)
@@ -293,13 +295,15 @@ const collectionAdapter: SmartTreeAdapter<CollectionNode> =
  * @returns collection tree
  */
 const refetchCollectionTree = async () => {
+  if (!tab.value.document.collectionID) return
   const type = tab.value.document.collectionType
   if (type === "my-collections") {
-    return collection.value
+    return getRESTCollectionByRefId(tab.value.document.collectionID)
   } else {
-    if (!tab.value.document.collectionID) return
-
-    console.log("Fetching collection tree for team collection", collection)
+    console.log(
+      "Fetching collection tree for team collection",
+      tab.value.document.collectionID
+    )
 
     return pipe(
       getCompleteCollectionTree(tab.value.document.collectionID),

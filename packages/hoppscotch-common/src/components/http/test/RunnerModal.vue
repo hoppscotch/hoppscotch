@@ -180,6 +180,7 @@ import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { cloneDeep } from "lodash-es"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
+import { getRESTCollectionByRefId } from "~/newstore/collections"
 
 const t = useI18n()
 const toast = useToast()
@@ -190,8 +191,9 @@ const loadingCollection = ref(false)
 export type CollectionRunnerData =
   | {
       type: "my-collections"
+      // for my-collections it's actually _ref_id
+      collectionID: string
       collectionIndex?: string
-      collection: HoppCollection
     }
   | {
       type: "team-collections"
@@ -231,14 +233,13 @@ const config = ref<TestRunnerConfig>({
 const runTests = async () => {
   const collectionTree = await getCollectionTree(
     props.collectionRunnerData.type,
-    props.collectionRunnerData.type === "my-collections"
-      ? props.collectionRunnerData.collection
-      : {
-          id: props.collectionRunnerData.collectionID,
-        }
+    props.collectionRunnerData.collectionID
   )
 
-  if (!collectionTree) return
+  if (!collectionTree) {
+    toast.error(t("collection_runner.collection_not_found"))
+    return
+  }
 
   let tabIdToClose = null
   if (props.sameTab) tabIdToClose = cloneDeep(tabs.currentTabID.value)
@@ -246,10 +247,7 @@ const runTests = async () => {
   tabs.createNewTab({
     type: "test-runner",
     collectionType: props.collectionRunnerData.type,
-    collectionID:
-      props.collectionRunnerData.type === "team-collections"
-        ? props.collectionRunnerData.collectionID
-        : null,
+    collectionID: props.collectionRunnerData.collectionID,
     collection: collectionTree as HoppCollection,
     isDirty: false,
     config: config.value,
@@ -277,18 +275,16 @@ const runTests = async () => {
  */
 const getCollectionTree = async (
   type: CollectionRunnerData["type"],
-  collection: HoppCollection | { id: string }
+  collectionID: string
 ) => {
+  if (!collectionID) return
   if (type === "my-collections") {
-    return collection
+    return await getRESTCollectionByRefId(collectionID)
   } else {
-    if (!collection.id) return
     loadingCollection.value = true
-
-    console.log("Fetching collection tree for team collection", collection)
-
+    console.log("Fetching collection tree for team collection", collectionID)
     return pipe(
-      getCompleteCollectionTree(collection.id),
+      getCompleteCollectionTree(collectionID),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err, t)}`)

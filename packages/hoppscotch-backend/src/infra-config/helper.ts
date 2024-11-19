@@ -14,6 +14,13 @@ export enum ServiceStatus {
   DISABLE = 'DISABLE',
 }
 
+type DefaultInfraConfig = {
+  name: InfraConfigEnum;
+  value: string;
+  lastSyncedEnvFileValue: string;
+  isEncrypted: boolean;
+};
+
 const AuthProviderConfigurations = {
   [AuthProvider.GOOGLE]: [
     InfraConfigEnum.GOOGLE_CLIENT_ID,
@@ -80,21 +87,14 @@ export async function loadInfraConfiguration() {
  * Read the default values from .env file and return them as an array
  * @returns Array of default infra configs
  */
-export async function getDefaultInfraConfigs(): Promise<
-  { name: InfraConfigEnum; value: string; isEncrypted: boolean }[]
-> {
+export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
   const prisma = new PrismaService();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
-  const configuredSSOProviders = getConfiguredSSOProviders();
+  const configuredSSOProviders = getConfiguredSSOProvidersFromEnvFile();
   const generatedAnalyticsUserId = generateAnalyticsUserId();
 
-  const infraConfigDefaultObjs: {
-    name: InfraConfigEnum;
-    value: string;
-    lastSyncedEnvFileValue: string;
-    isEncrypted: boolean;
-  }[] = [
+  const infraConfigDefaultObjs: DefaultInfraConfig[] = [
     {
       name: InfraConfigEnum.MAILER_SMTP_ENABLE,
       value: process.env.MAILER_SMTP_ENABLE ?? 'true',
@@ -266,12 +266,11 @@ export async function getDefaultInfraConfigs(): Promise<
  * Get the missing entries in the 'infra_config' table
  * @returns Array of InfraConfig
  */
-export async function getMissingInfraConfigEntries() {
+export async function getMissingInfraConfigEntries(
+  infraConfigDefaultObjs: DefaultInfraConfig[],
+) {
   const prisma = new PrismaService();
-  const [dbInfraConfigs, infraConfigDefaultObjs] = await Promise.all([
-    prisma.infraConfig.findMany(),
-    getDefaultInfraConfigs(),
-  ]);
+  const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const missingEntries = infraConfigDefaultObjs.filter(
     (config) =>
@@ -285,12 +284,11 @@ export async function getMissingInfraConfigEntries() {
  * Get the encryption required entries in the 'infra_config' table
  * @returns Array of InfraConfig
  */
-export async function getEncryptionRequiredInfraConfigEntries() {
+export async function getEncryptionRequiredInfraConfigEntries(
+  infraConfigDefaultObjs: DefaultInfraConfig[],
+) {
   const prisma = new PrismaService();
-  const [dbInfraConfigs, infraConfigDefaultObjs] = await Promise.all([
-    prisma.infraConfig.findMany(),
-    getDefaultInfraConfigs(),
-  ]);
+  const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const requiredEncryption = dbInfraConfigs.filter((dbConfig) => {
     const defaultConfig = infraConfigDefaultObjs.find(
@@ -315,11 +313,6 @@ export async function syncInfraConfigWithEnvFile() {
 
   for (const dbConfig of dbInfraConfigs) {
     let envValue = process.env[dbConfig.name];
-
-    // Special case for 'VITE_ALLOWED_AUTH_PROVIDERS' as it enabled auth strategies
-    if (dbConfig.name === InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS) {
-      envValue = getConfiguredSSOProviders();
-    }
 
     // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
     if (!dbConfig.lastSyncedEnvFileValue && envValue) {
@@ -356,7 +349,9 @@ export async function syncInfraConfigWithEnvFile() {
  */
 export async function isInfraConfigTablePopulated(): Promise<boolean> {
   try {
-    const propsRemainingToInsert = await getMissingInfraConfigEntries();
+    const defaultInfraConfigs = await getDefaultInfraConfigs();
+    const propsRemainingToInsert =
+      await getMissingInfraConfigEntries(defaultInfraConfigs);
 
     if (propsRemainingToInsert.length > 0) {
       console.log(
@@ -385,10 +380,11 @@ export function stopApp() {
 }
 
 /**
- * Get the configured SSO providers
+ * Get the configured SSO providers from .env file
+ * @description This function verify if the required parameters for each SSO provider are configured in .env file. Usage on first time setup and reset.
  * @returns Array of configured SSO providers
  */
-export function getConfiguredSSOProviders() {
+export function getConfiguredSSOProvidersFromEnvFile() {
   const allowedAuthProviders: string[] =
     process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
   let configuredAuthProviders: string[] = [];
@@ -399,7 +395,6 @@ export function getConfiguredSSOProviders() {
     const isConfigured = configParameters.every((configParameter) => {
       return process.env[configParameter];
     });
-
     if (isConfigured) configuredAuthProviders.push(provider);
   };
 
@@ -416,7 +411,36 @@ export function getConfiguredSSOProviders() {
     console.log(
       `${unConfiguredAuthProviders.join(
         ',',
-      )} SSO auth provider(s) are not configured properly. Do configure them from Admin Dashboard.`,
+      )} SSO auth provider(s) are not configured properly in .env file. Do configure them from Admin Dashboard.`,
+    );
+  }
+
+  return configuredAuthProviders.join(',');
+}
+
+export async function getConfiguredSSOProvidersFromInfraConfig() {
+  const env = await loadInfraConfiguration();
+
+  const allowedAuthProviders: string[] =
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+  let configuredAuthProviders: string[] = [];
+
+  const addProviderIfConfigured = (provider) => {
+    const configParameters: string[] = AuthProviderConfigurations[provider];
+
+    const isConfigured = configParameters.every((configParameter) => {
+      return env['INFRA'][configParameter];
+    });
+    if (isConfigured) configuredAuthProviders.push(provider);
+  };
+
+  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
+
+  if (configuredAuthProviders.length === 0) {
+    throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
+  } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
+    console.log(
+      `${configuredAuthProviders.join(',')} SSO auth provider(s) are configured properly. To enable other SSO providers, configure them from Admin Dashboard.`,
     );
   }
 

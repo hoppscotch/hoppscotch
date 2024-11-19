@@ -66,8 +66,11 @@ export class InfraConfigService implements OnModuleInit {
    */
   async initializeInfraConfigTable() {
     try {
+      const defaultInfraConfigs = await getDefaultInfraConfigs();
+
       // Adding missing InfraConfigs to the database (with encrypted values)
-      const propsToInsert = await getMissingInfraConfigEntries();
+      const propsToInsert =
+        await getMissingInfraConfigEntries(defaultInfraConfigs);
 
       if (propsToInsert.length > 0) {
         await this.prisma.infraConfig.createMany({ data: propsToInsert });
@@ -75,7 +78,7 @@ export class InfraConfigService implements OnModuleInit {
 
       // Encrypting previous InfraConfigs that are required to be encrypted
       const encryptionRequiredEntries =
-        await getEncryptionRequiredInfraConfigEntries();
+        await getEncryptionRequiredInfraConfigEntries(defaultInfraConfigs);
 
       if (encryptionRequiredEntries.length > 0) {
         const dbOperations = encryptionRequiredEntries.map((dbConfig) => {

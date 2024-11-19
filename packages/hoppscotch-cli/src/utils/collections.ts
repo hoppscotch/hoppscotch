@@ -35,7 +35,7 @@ import {
 } from "./request";
 import { getTestMetrics } from "./test";
 
-const { WARN, FAIL } = exceptionColors;
+const { WARN, FAIL, INFO } = exceptionColors;
 
 /**
  * Processes each requests within collections to prints details of subsequent requests,
@@ -60,14 +60,18 @@ export const collectionsRunner = async (
 
   const originalSelected = [...envs.selected];
 
-  for (let i = 0; i < iterations; i++) {
+  for (let count = 0; count < iterations; count++) {
+    if (iterations > 1) {
+      log(INFO(`\nIteration: ${count + 1}/${iterations}`));
+    }
+
     // Reset envs to the original value at the start of each iteration
     envs.selected = [...originalSelected];
     // Set the current item of transformedData to envs
     if (transformedData) {
       const dataItem =
-        i < transformedData.length
-          ? transformedData[i]
+        count < transformedData.length
+          ? transformedData[count]
           : transformedData[transformedData.length - 1];
       for (const dataPair of dataItem) {
         // Remove the matching key in envs.selected

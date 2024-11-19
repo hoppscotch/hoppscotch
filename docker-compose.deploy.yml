@@ -6,9 +6,9 @@ services:
     image: postgres:15
     user: postgres
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
-      POSTGRES_DB: test
     healthcheck:
       test:
         [

@@ -50,9 +50,14 @@ export const collectionsRunner = async (
   let envs: HoppEnvs = param.envs;
   const delay = param.delay ?? 0;
   const requestsReport: RequestReport[] = [];
-  const collectionQueue: CollectionQueue[] = getCollectionQueue(param.collections);
+  const collectionQueue: CollectionQueue[] = getCollectionQueue(
+    param.collections
+  );
   const transformedData = param.transformedData;
-  const iterations = param.iterations ?? 1;
+
+  // If iteration count is not supplied, it should be based on the size of iteration data if in scope
+  const iterations = param.iterations ?? transformedData.length ?? 1;
+
   const originalSelected = [...envs.selected];
 
   for (let i = 0; i < iterations; i++) {
@@ -60,10 +65,15 @@ export const collectionsRunner = async (
     envs.selected = [...originalSelected];
     // Set the current item of transformedData to envs
     if (transformedData) {
-      const dataItem = i < transformedData.length ? transformedData[i] : transformedData[transformedData.length - 1];
+      const dataItem =
+        i < transformedData.length
+          ? transformedData[i]
+          : transformedData[transformedData.length - 1];
       for (const dataPair of dataItem) {
         // Remove the matching key in envs.selected
-        envs.selected = envs.selected.filter(envPair => envPair.key !== dataPair.key);
+        envs.selected = envs.selected.filter(
+          (envPair) => envPair.key !== dataPair.key
+        );
       }
       envs.selected = envs.selected.concat(dataItem);
     }
@@ -121,13 +131,24 @@ const processCollection = async (
     if (collection.headers?.length) {
       // Filter out header entries present in the parent collection under the same name
       // This ensures the folder headers take precedence over the collection headers
-      const filteredHeaders = collection.headers.filter((collectionHeaderEntries) => {
-        return !updatedFolder.headers.some((folderHeaderEntries) => folderHeaderEntries.key === collectionHeaderEntries.key)
-      })
+      const filteredHeaders = collection.headers.filter(
+        (collectionHeaderEntries) => {
+          return !updatedFolder.headers.some(
+            (folderHeaderEntries) =>
+              folderHeaderEntries.key === collectionHeaderEntries.key
+          );
+        }
+      );
       updatedFolder.headers.push(...filteredHeaders);
     }
 
-    await processCollection(updatedFolder, `${path}/${updatedFolder.name}`, envs, delay, requestsReport);
+    await processCollection(
+      updatedFolder,
+      `${path}/${updatedFolder.name}`,
+      envs,
+      delay,
+      requestsReport
+    );
   }
 };
 /**

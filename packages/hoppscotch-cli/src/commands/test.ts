@@ -34,8 +34,9 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       ? await parseEnvsData(options as TestCmdEnvironmentOptions)
       : <HoppEnvs>{ global: [], selected: [] };
 
+    const { iterations } = options;
+
     const collections = await parseCollectionData(pathOrId, options);
-    const iterations = options.iterations || 1;
 
     let data;
     let transformedData;

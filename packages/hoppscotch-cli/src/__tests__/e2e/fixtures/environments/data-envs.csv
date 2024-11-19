@@ -1,4 +1,4 @@
-URL,HOST,BODY_VALUE,BODY_KEY,firstName,lastName,salutation,fullName,id
-https://echo.hoppscotch.io,echo.hoppscotch.io,body_value1,body_key1,John,Joe,Mr,John Joe,1
-https://echo.hoppscotch.io,echo.hoppscotch.io,body_value2,body_key2,John,Joe,Mr,John Joe,2
-https://echo.hoppscotch.io,echo.hoppscotch.io,body_value3,body_key3,John,Joe,Mr,John Joe,3
+URL,BODY_VALUE,BODY_KEY
+https://echo.hoppscotch.io/1,body_value1,body_key1
+https://echo.hoppscotch.io/2,body_value2,body_key2
+https://echo.hoppscotch.io/3,body_value3,body_key3

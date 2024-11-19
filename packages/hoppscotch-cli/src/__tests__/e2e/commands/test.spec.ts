@@ -1,10 +1,10 @@
 import { ExecException } from "child_process";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import fs from "fs";
 import path from "path";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { HoppErrorCode } from "../../../types/errors";
-import {getErrorCode, getErrorCodeFn, getTestJsonFilePath, runCLI, runCLIIteration} from "../../utils";
+import { getErrorCode, getTestJsonFilePath, runCLI } from "../../utils";
 
 describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
   const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
@@ -179,9 +179,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         expect(error).toBeNull();
       });
     });
-    test("Ensures tests are running in sequence order based on folder name", async () => {
+    test(
+      "Ensures tests are running in sequence order based on folder name",
+      async () => {
         const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
-        const {stdout, error} = await runCLI(args);
+        const { stdout, error } = await runCLI(args);
 
         // Extract folder names from the collection
         const expectedOrder = [
@@ -207,7 +209,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           let match;
           while ((match = regex.exec(stdout)) !== null) {
             // Clean up the extracted folder name
-            const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, '');
+            const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, "");
             matches.push(cleanedMatch);
           }
           return matches;
@@ -221,7 +223,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
         expect(error).toBeNull();
       },
-      {timeout: 100000});
+      { timeout: 100000 }
+    );
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -686,9 +689,10 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       const COLL_PATH = getTestJsonFilePath("passes-coll.json", "collection");
 
-      const invalidPath = process.platform === 'win32'
-        ? 'Z:/non-existent-path/report.xml'
-        : '/non-existent/report.xml';
+      const invalidPath =
+        process.platform === "win32"
+          ? "Z:/non-existent-path/report.xml"
+          : "/non-existent/report.xml";
 
       const args = `test ${COLL_PATH} --reporter-junit ${invalidPath}`;
 
@@ -823,7 +827,6 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       expect(replaceDynamicValuesInStr(fileContents)).toMatchSnapshot();
     });
-
   });
 
   describe("Test `hopp test <file> --iterations <iterations_in_ms>` command:", () => {
@@ -831,35 +834,30 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
     test("Errors with the code `INVALID_ARGUMENT` on not supplying a iterations value", async () => {
       const args = `${VALID_TEST_ARGS} --iterations`;
-      const {stderr} = await runCLI(args);
+      const { stderr } = await runCLI(args);
 
       const out = getErrorCode(stderr);
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
     test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid iteration value", async () => {
-      const args = `${VALID_TEST_ARGS} --iterations 'NaN'`;
-      try {
-        await runCLIIteration(args);
-      } catch (error) {
-        if (error instanceof Error) {
-          const errorCode = getErrorCodeFn(error.message);
-          expect(errorCode).toBe("INVALID_ARGUMENT");
-        }
-      }
-    });
+      const args = `${VALID_TEST_ARGS} --iterations NaN`;
+      const { stderr } = await runCLI(args);
 
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+    });
 
     test("Successfully performs iteration request execution for a valid iteration value", async () => {
       const args = `${VALID_TEST_ARGS} --iterations 1`;
-      const {error} = await runCLI(args);
+      const { error } = await runCLI(args);
 
       expect(error).toBeNull();
     });
 
     test("Works with the short `-i` flag", async () => {
       const args = `${VALID_TEST_ARGS} -i 1`;
-      const {error} = await runCLI(args);
+      const { error } = await runCLI(args);
 
       expect(error).toBeNull();
     });
@@ -871,7 +869,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
         const args = `${VALID_TEST_ARGS} --data`;
-        const {stderr} = await runCLI(args);
+        const { stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
@@ -882,16 +880,15 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "notjson-coll.txt",
           "collection"
         )}`;
-        const {stderr} = await runCLI(args);
+        const { stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("INVALID_DATA_FILE_TYPE");
       });
 
       test("Errors with the code `FILE_NOT_FOUND` if the supplied data export file doesn't exist", async () => {
-
         const args = `${VALID_TEST_ARGS} --data notfound.csv`;
-        const {stderr} = await runCLI(args);
+        const { stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
@@ -906,7 +903,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
       const args = `test ${TESTS_PATH} --data ${ENV_PATH}`;
 
-      const {error} = await runCLI(args);
+      const { error } = await runCLI(args);
 
       expect(error).toBeNull();
     });
@@ -916,15 +913,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "data-flag-tests-coll.json",
         "collection"
       );
-      const ENVS_PATH = getTestJsonFilePath(
-        "data-envs.csv",
-        "environment"
-      );
+      const ENVS_PATH = getTestJsonFilePath("data-envs.csv", "environment");
       const args = `test ${COLL_PATH} --data ${ENVS_PATH}`;
-      const {error} = await runCLI(args);
+      const { error } = await runCLI(args);
 
       expect(error).toBeNull();
-
     });
 
     test("Works with shorth `-data` flag", async () => {
@@ -935,7 +928,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
       const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
 
-      const {stdout, stderr, error} = await runCLI(args);
+      const { stdout, stderr, error } = await runCLI(args);
 
       expect(error).toBeNull();
     });

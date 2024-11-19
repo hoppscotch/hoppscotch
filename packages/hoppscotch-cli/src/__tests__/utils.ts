@@ -41,17 +41,3 @@ export const getTestJsonFilePath = (
   );
   return filePath;
 };
-
-export const runCLIIteration = async (args: string) => {
-
-  // Check if the iterations argument is a valid number
-  const iterationsArg = args.split(' ').find((arg, i, arr) => arr[i - 1] === '--iterations');
-  if (iterationsArg && isNaN(Number(iterationsArg))) {
-    throw new Error('INVALID_ARGUMENT');
-  }
-};
-export const getErrorCodeFn = (stderr: string) => {
-  const match = stderr.match(/Error: (\w+)/);
-  const errorCode = match ? match[1] : stderr;
-  return errorCode;
-};

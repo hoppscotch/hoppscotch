@@ -5,10 +5,10 @@
     class="flex flex-col items-center h-screen"
     :class="{ 'min-h-screen': props.error?.statusCode !== 404 }"
   >
-    <div class="flex justify-center items-center mt-10">
+    <!-- <div class="flex justify-center items-center mt-10">
       <img src="/logo.svg" alt="hoppscotch-logo" class="w-20 mx-5" />
       <h1 class="text-2xl text-secondaryDark heading">Admin Dashboard</h1>
-    </div>
+    </div> -->
     <div class="flex flex-col items-center justify-center h-full">
       <img
         :src="imgUrl"
@@ -41,7 +41,6 @@
 
 <script setup lang="ts">
 import IconRefreshCW from '~icons/lucide/refresh-cw';
-import IconHome from '~icons/lucide/home';
 import IconTextSearch from '~icons/lucide/text-search';
 import { PropType, computed } from 'vue';
 import { ErrorPageData } from '~/helpers/errors';

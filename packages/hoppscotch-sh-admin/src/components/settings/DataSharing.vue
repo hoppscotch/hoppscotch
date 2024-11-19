@@ -30,6 +30,9 @@
         blank
         class="w-min my-2"
       />
+      <p class="my-1 text-secondaryLight">
+        {{ t('configs.data_sharing.description') }}
+      </p>
     </div>
   </div>
 </template>

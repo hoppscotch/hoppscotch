@@ -1,23 +1,23 @@
-import { createApp, h } from 'vue';
-import urql, { createClient, cacheExchange, fetchExchange } from '@urql/vue';
 import { authExchange } from '@urql/exchange-auth';
+import urql, { cacheExchange, createClient, fetchExchange } from '@urql/vue';
+import { createApp, h } from 'vue';
 import App from './App.vue';
 import ErrorComponent from './pages/_.vue';
 
 // STYLES
-import '@hoppscotch/ui/style.css';
-import '../assets/scss/styles.scss';
-import '../assets/scss/tailwind.scss';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/material-symbols-rounded';
 import '@fontsource-variable/roboto-mono';
+import '@hoppscotch/ui/style.css';
+import '../assets/scss/styles.scss';
+import '../assets/scss/tailwind.scss';
 // END STYLES
 
-import { HOPP_MODULES } from './modules';
-import { auth } from './helpers/auth';
 import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
+import { auth } from './helpers/auth';
 import { ErrorPageData, GRAPHQL_UNAUTHORIZED } from './helpers/errors';
+import { HOPP_MODULES } from './modules';
 
 (async () => {
   try {
@@ -51,19 +51,6 @@ import { ErrorPageData, GRAPHQL_UNAUTHORIZED } from './helpers/errors';
       ],
     });
 
-    // Execute a test query to check backend availability
-    const testQuery = `
-      query {
-        __typename
-      }
-    `;
-    const result = await urqlClient.query(testQuery, {}).toPromise();
-
-    if (result.error) {
-      throw new Error('Backend server error');
-    }
-
-    // If the query is successful, mount the main application
     const app = createApp({
       render: () => h(App),
     }).use(urql, urqlClient);
@@ -73,9 +60,6 @@ import { ErrorPageData, GRAPHQL_UNAUTHORIZED } from './helpers/errors';
 
     app.mount('#app');
   } catch (error) {
-    console.error('Error during initialization:', error);
-    console.log(error);
-
     const errorData = {
       message:
         'Failed to connect to the backend server, make sure the backend is setup correctly',

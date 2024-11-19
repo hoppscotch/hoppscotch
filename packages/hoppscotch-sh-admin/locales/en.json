@@ -17,6 +17,9 @@
     "open_navigation": "Open Navigation",
     "read_documentation": "Read Documentation"
   },
+  "auth": {
+    "cookies_not_found": "Cookies not found"
+  },
   "configs": {
     "auth_providers": {
       "callback_url": "CALLBACK URL",
@@ -246,6 +249,10 @@
     "user_not_found": "User not found in the infra!!",
     "users_to_admin_success": "Selected users are elevated to admin status!!",
     "users_to_admin_failure": "Failed to elevate selected users to admin status!!"
+  },
+  "support": {
+    "description": "Get help from the Hoppscotch community",
+    "title": "Need Help?"
   },
   "teams": {
     "add_member": "Add Member",

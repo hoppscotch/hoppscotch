@@ -1,0 +1,10 @@
+query Me {
+  me {
+    uid
+    displayName
+    email
+    photoURL
+    isAdmin
+    createdOn
+  }
+}

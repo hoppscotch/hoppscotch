@@ -5,11 +5,11 @@ export type CollectionRunnerParam = {
   collections: HoppCollection[];
   envs: HoppEnvs;
   delay?: number;
-  iterationData?: IterationDataEntry[][];
+  iterationData?: IterationDataItem[][];
   iterationCount?: number;
 };
 
 export type HoppCollectionFileExt = "json";
 
 // Indicates the shape each iteration data entry gets transformed into
-export type IterationDataEntry = Extract<HoppEnvPair, { value: string }>;
+export type IterationDataItem = Extract<HoppEnvPair, { value: string }>;

@@ -6,7 +6,7 @@ import path from "path";
 import { handleError } from "../handlers/error";
 import { parseDelayOption } from "../options/test/delay";
 import { parseEnvsData } from "../options/test/env";
-import { IterationDataEntry } from "../types/collections";
+import { IterationDataItem } from "../types/collections";
 import { TestCmdEnvironmentOptions, TestCmdOptions } from "../types/commands";
 import { error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
@@ -40,7 +40,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       : <HoppEnvs>{ global: [], selected: [] };
 
     let parsedIterationData: unknown[] | null = null;
-    let transformedIterationData: IterationDataEntry[][] | undefined;
+    let transformedIterationData: IterationDataItem[][] | undefined;
 
     const collections = await parseCollectionData(pathOrId, options);
 
@@ -63,14 +63,26 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
 
       // Transform data into the desired format
       transformedIterationData = parsedIterationData
-        .map((item) =>
-          Object.entries(item as IterationDataEntry)
-            // Ignore keys with empty string values
-            .filter(([value]) => value !== "")
-            .map(([key, value]) => ({ key, value, secret: false }))
-        )
+        .map((item) => {
+          const iterationDataItem = item as Record<string, unknown>;
+          const keys = Object.keys(iterationDataItem);
+
+          return (
+            keys
+              // Ignore keys with empty string values
+              .filter((key) => iterationDataItem[key] !== "")
+              .map(
+                (key) =>
+                  <IterationDataItem>{
+                    key: key,
+                    value: iterationDataItem[key],
+                    secret: false,
+                  }
+              )
+          );
+        })
         // Ignore items that result in an empty array
-        .filter((item) => item.length > 0) as IterationDataEntry[][];
+        .filter((item) => item.length > 0);
     }
 
     const report = await collectionsRunner({

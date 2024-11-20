@@ -179,49 +179,45 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         expect(error).toBeNull();
       });
     });
+  });
 
-    test("Ensures tests are running in sequence order based on folder name", async () => {
-      const args = `test ${getTestJsonFilePath("multiple-child-collections-auth-headers-coll.json", "collection")}`;
-      const { stdout, error } = await runCLI(args);
+  test("Ensures tests run in sequence order based on request path", async () => {
+    // Expected order of collection runs
+    const expectedOrder = [
+      "root-collection-request",
+      "folder-1/folder-1-request",
+      "folder-1/folder-11/folder-11-request",
+      "folder-1/folder-12/folder-12-request",
+      "folder-1/folder-13/folder-13-request",
+      "folder-2/folder-2-request",
+      "folder-2/folder-21/folder-21-request",
+      "folder-2/folder-22/folder-22-request",
+      "folder-2/folder-23/folder-23-request",
+      "folder-3/folder-3-request",
+      "folder-3/folder-31/folder-31-request",
+      "folder-3/folder-32/folder-32-request",
+      "folder-3/folder-33/folder-33-request",
+    ];
 
-      // Extract folder names from the collection
-      const expectedOrder = [
-        "root-collection-request",
-        "folder-1/folder-1-request",
-        "folder-1/folder-11/folder-11-request",
-        "folder-1/folder-12/folder-12-request",
-        "folder-1/folder-13/folder-13-request",
-        "folder-2/folder-2-request",
-        "folder-2/folder-21/folder-21-request",
-        "folder-2/folder-22/folder-22-request",
-        "folder-2/folder-23/folder-23-request",
-        "folder-3/folder-3-request",
-        "folder-3/folder-31/folder-31-request",
-        "folder-3/folder-32/folder-32-request",
-        "folder-3/folder-33/folder-33-request",
-      ];
+    const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
-      // Helper function to extract the running order from stdout
-      const extractRunningOrder = (stdout: string): string[] => {
-        const regex = /Running:.*?\/(.*?)\n/g;
-        const matches = [];
-        let match;
-        while ((match = regex.exec(stdout)) !== null) {
-          // Clean up the extracted folder name
-          const cleanedMatch = match[1].replace(/\x1b\[\d+m/g, "");
-          matches.push(cleanedMatch);
-        }
-        return matches;
-      };
+    const extractRunningOrder = (stdout: string): string[] =>
+      [...stdout.matchAll(/Running:.*?\/(.*?)\r?\n/g)].map(
+        ([, path]) => normalizePath(path.replace(/\x1b\[\d+m/g, "")) // Remove ANSI codes and normalize paths
+      );
 
-      // Extract the actual order from stdout
-      const actualOrder = extractRunningOrder(stdout);
+    const args = `test ${getTestJsonFilePath(
+      "multiple-child-collections-auth-headers-coll.json",
+      "collection"
+    )}`;
 
-      // Verify the order of tests based on folder names
-      expect(actualOrder).toStrictEqual(expectedOrder);
+    const { stdout, error } = await runCLI(args);
 
-      expect(error).toBeNull();
-    });
+    // Verify the actual order matches the expected order
+    expect(extractRunningOrder(stdout)).toStrictEqual(expectedOrder);
+
+    // Ensure no errors occurred
+    expect(error).toBeNull();
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -829,7 +825,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
   describe("Test `hopp test <file> --iteration-count <no_of_iterations>` command:", () => {
     const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
-    test("Errors with the code `INVALID_ARGUMENT` on not supplying a iterations value", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on not supplying a value", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count`;
       const { stderr } = await runCLI(args);
 
@@ -837,7 +833,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
-    test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid iteration value", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid value", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count NaN`;
       const { stderr } = await runCLI(args);
 
@@ -845,9 +841,31 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
-    test("Successfully performs iteration request execution for a valid iteration value", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on supplying a value below `1`", async () => {
+      const args = `${VALID_TEST_ARGS} --iteration-count -5`;
+      const { stderr } = await runCLI(args);
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+    });
+
+    test("Successfully performs iteration request execution for a valid iteration count value", async () => {
+      const iterationCount = 3;
+      const args = `${VALID_TEST_ARGS} --iteration-count ${iterationCount}`;
+      const { error, stdout } = await runCLI(args);
+
+      // Logs iteration count in each pass
+      Array.from({ length: 3 }).forEach((_, idx) =>
+        expect(stdout).include(`Iteration: ${idx + 1}/${iterationCount}`)
+      );
+      expect(error).toBeNull();
+    });
+
+    test("Doesn't log iteration count if the value supplied is `1`", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count 1`;
-      const { error } = await runCLI(args);
+      const { error, stdout } = await runCLI(args);
+
+      expect(stdout).not.include(`Iteration: 1/1`);
 
       expect(error).toBeNull();
     });
@@ -885,27 +903,51 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
     });
 
-    test("Successfully resolves values from the supplied data export file", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
-        "data-flag-tests-coll.json",
+    test("Prioritizes values from the supplied data export file over environment variables", async () => {
+      const COLL_PATH = getTestJsonFilePath(
+        "iteration-data-tests-coll.json",
         "collection"
       );
-      const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${TESTS_PATH} --iteration-data ${ENV_PATH}`;
+      const ITERATION_DATA_PATH = getTestJsonFilePath(
+        "iteration-data-export.csv",
+        "environment"
+      );
+      const ENV_PATH = getTestJsonFilePath(
+        "iteration-data-envs.json",
+        "environment"
+      );
+      const args = `test ${COLL_PATH} --iteration-data ${ITERATION_DATA_PATH} -e ${ENV_PATH}`;
 
-      const { error } = await runCLI(args);
+      const { error, stdout } = await runCLI(args);
+
+      const iterationCount = 3;
+
+      // Even though iteration count is not supplied, it will be inferred from the iteration data size
+      Array.from({ length: iterationCount }).forEach((_, idx) =>
+        expect(stdout).include(`Iteration: ${idx + 1}/${iterationCount}`)
+      );
 
       expect(error).toBeNull();
     });
 
-    test("Successfully resolves data variables referenced in the request body", async () => {
+    test("Iteration count takes priority if supplied instead of inferring from the iteration data size", async () => {
       const COLL_PATH = getTestJsonFilePath(
-        "data-flag-tests-coll.json",
+        "iteration-data-tests-coll.json",
         "collection"
       );
-      const ENVS_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${COLL_PATH} --iteration-data ${ENVS_PATH}`;
-      const { error } = await runCLI(args);
+      const ITERATION_DATA_PATH = getTestJsonFilePath(
+        "iteration-data-export.csv",
+        "environment"
+      );
+
+      const iterationCount = 5;
+      const args = `test ${COLL_PATH} --iteration-data ${ITERATION_DATA_PATH} --iteration-count ${iterationCount}`;
+
+      const { error, stdout } = await runCLI(args);
+
+      Array.from({ length: iterationCount }).forEach((_, idx) =>
+        expect(stdout).include(`Iteration: ${idx + 1}/${iterationCount}`)
+      );
 
       expect(error).toBeNull();
     });

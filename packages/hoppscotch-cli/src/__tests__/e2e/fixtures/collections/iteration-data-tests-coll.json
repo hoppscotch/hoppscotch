@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "name": "data-flag-tests",
+  "name": "iteration-data-tests-coll",
   "folders": [],
   "requests": [
     {
@@ -12,7 +12,7 @@
       "method": "POST",
       "auth": { "authType": "none", "authActive": true },
       "preRequestScript": "",
-      "testScript": "",
+      "testScript": "// Iteration data is prioritised over environment variables \n const { data, headers } = pw.response.body;\n  pw.expect(headers['host']).toBe('echo.hoppscotch.io')\n  pw.expect(data).toInclude('body_key')\n  pw.expect(data).toInclude('body_value')",
       "body": {
         "contentType": "application/json",
         "body": "{\n  \"<<BODY_KEY>>\":\"<<BODY_VALUE>>\"\n}"

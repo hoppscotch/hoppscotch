@@ -5,10 +5,7 @@ import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { round } from "lodash-es";
 
-import {
-  CollectionRunnerParam,
-  IterationDataEntry,
-} from "../types/collections";
+import { CollectionRunnerParam } from "../types/collections";
 import {
   CollectionQueue,
   HoppEnvs,
@@ -40,25 +37,6 @@ import { getTestMetrics } from "./test";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
-const resolveIterationCount = ({
-  iterationCount,
-  iterationData,
-}: {
-  iterationCount?: number;
-  iterationData?: IterationDataEntry[][];
-}) => {
-  if (iterationCount) {
-    return iterationCount;
-  }
-
-  // If iteration count is not supplied, it should be based on the size of iteration data if in scope
-  if (iterationData?.length) {
-    return iterationData.length - 1;
-  }
-
-  return 1;
-};
-
 /**
  * Processes each requests within collections to prints details of subsequent requests,
  * tests and to display complete errors-report, failed-tests-report and test-metrics.
@@ -74,14 +52,12 @@ export const collectionsRunner = async (
   const resolvedDelay = delay ?? 0;
 
   const requestsReport: RequestReport[] = [];
-  const collectionQueue: CollectionQueue[] = getCollectionQueue(collections);
+  const collectionQueue = getCollectionQueue(collections);
 
-  const resolvedIterationCount = resolveIterationCount({
-    iterationCount,
-    iterationData,
-  });
+  // If iteration count is not supplied, it should be based on the size of iteration data if in scope
+  const resolvedIterationCount = iterationCount ?? iterationData?.length ?? 1;
 
-  const originalSelectedEnvironments = [...envs.selected];
+  const originalSelectedEnvs = [...envs.selected];
 
   for (let count = 0; count < resolvedIterationCount; count++) {
     if (resolvedIterationCount > 1) {
@@ -89,19 +65,20 @@ export const collectionsRunner = async (
     }
 
     // Reset `envs` to the original value at the start of each iteration
-    envs.selected = [...originalSelectedEnvironments];
+    envs.selected = [...originalSelectedEnvs];
 
     if (iterationData) {
       // Ensure last item is picked if the iteration count exceeds size of the iteration data
-      const dataItem = iterationData[Math.min(count, iterationData.length - 1)];
+      const iterationDataItem =
+        iterationData[Math.min(count, iterationData.length - 1)];
 
       // Ensure iteration data takes priority over supplied environment variables
       envs.selected = envs.selected
         .filter(
           (envPair) =>
-            !dataItem.some((dataPair) => dataPair.key === envPair.key)
+            !iterationDataItem.some((dataPair) => dataPair.key === envPair.key)
         )
-        .concat(dataItem);
+        .concat(iterationDataItem);
     }
 
     for (const { collection, path } of collectionQueue) {

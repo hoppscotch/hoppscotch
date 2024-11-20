@@ -3,7 +3,7 @@
     <HoppSmartTabs
       v-model="selectedTestTab"
       @update:model-value="emit('onChangeTab', $event)"
-      styles=" overflow-x-auto flex-shrink-0 bg-primary "
+      styles="overflow-x-auto flex-shrink-0 bg-primary"
       render-inactive-tabs
     >
       <HoppSmartTab
@@ -27,7 +27,7 @@
     </HoppSmartTabs>
   </div>
 
-  <div class="flex flex-col justify-center p-4">
+  <div class="flex flex-col justify-center test-runner pr-2">
     <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
       <template #content="{ node }">
         <HttpTestResultFolder
@@ -47,6 +47,7 @@
 
         <HttpTestResultRequest
           v-if="node.data.type === 'requests' && !node.data.hidden"
+          class="runner-request"
           :show-test-type="selectedTestTab"
           :request="node.data.data.data"
           :request-i-d="node.id"
@@ -90,3 +91,14 @@ const selectRequest = (request: TestRunnerRequest) => {
   emit("onSelectRequest", request)
 }
 </script>
+
+<style>
+.test-runner > div > div > div > div > div {
+  margin-left: 0;
+  width: 0;
+}
+
+.test-runner .runner-request {
+  @apply ml-2;
+}
+</style>

@@ -439,6 +439,12 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   if (configuredAuthProviders.length === 0) {
     throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
   } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
+    const prisma = new PrismaService();
+    await prisma.infraConfig.update({
+      where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
+      data: { value: configuredAuthProviders.join(',') },
+    });
+    stopApp();
     console.log(
       `${configuredAuthProviders.join(',')} SSO auth provider(s) are configured properly. To enable other SSO providers, configure them from Admin Dashboard.`,
     );

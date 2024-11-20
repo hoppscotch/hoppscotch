@@ -274,12 +274,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Successfully resolves values from the supplied environment export file", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
+      const COLL_PATH = getTestJsonFilePath(
         "env-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("env-flag-envs.json", "environment");
-      const args = `test ${TESTS_PATH} --env ${ENV_PATH}`;
+      const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
@@ -290,23 +290,23 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "req-body-env-vars-coll.json",
         "collection"
       );
-      const ENVS_PATH = getTestJsonFilePath(
+      const ENV_PATH = getTestJsonFilePath(
         "req-body-env-vars-envs.json",
         "environment"
       );
-      const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+      const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
     });
 
     test("Works with short `-e` flag", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
+      const COLL_PATH = getTestJsonFilePath(
         "env-flag-tests-coll.json",
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("env-flag-envs.json", "environment");
-      const args = `test ${TESTS_PATH} -e ${ENV_PATH}`;
+      const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
@@ -329,11 +329,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "secret-envs-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
-          "secret-envs.json",
-          "environment"
-        );
-        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const ENV_PATH = getTestJsonFilePath("secret-envs.json", "environment");
+        const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
         const { error, stdout } = await runCLI(args, { env });
 
@@ -349,11 +346,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "secret-envs-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "secret-supplied-values-envs.json",
           "environment"
         );
-        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
         const { error, stdout } = await runCLI(args);
 
@@ -369,11 +366,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "secret-envs-persistence-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "secret-supplied-values-envs.json",
           "environment"
         );
-        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
         const { error, stdout } = await runCLI(args);
 
@@ -388,12 +385,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "secret-envs-persistence-scripting-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "secret-envs-persistence-scripting-envs.json",
           "environment"
         );
 
-        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
         const { error } = await runCLI(args);
         expect(error).toBeNull();
@@ -411,12 +408,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "request-vars-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "request-vars-envs.json",
           "environment"
         );
 
-        const args = `test ${COLL_PATH} --env ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} --env ${ENV_PATH}`;
 
         const { error, stdout } = await runCLI(args, { env });
         expect(stdout).toContain(
@@ -438,12 +435,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "aws-signature-auth-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "aws-signature-auth-envs.json",
           "environment"
         );
 
-        const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
         const { error } = await runCLI(args, { env });
 
         expect(error).toBeNull();
@@ -456,12 +453,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           "digest-auth-success-coll.json",
           "collection"
         );
-        const ENVS_PATH = getTestJsonFilePath(
+        const ENV_PATH = getTestJsonFilePath(
           "digest-auth-envs.json",
           "environment"
         );
 
-        const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+        const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
         const { error } = await runCLI(args);
         expect(error).toBeNull();
       });
@@ -472,12 +469,12 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "digest-auth-failure-coll.json",
         "collection"
       );
-      const ENVS_PATH = getTestJsonFilePath(
+      const ENV_PATH = getTestJsonFilePath(
         "digest-auth-envs.json",
         "environment"
       );
 
-      const args = `test ${COLL_PATH} -e ${ENVS_PATH}`;
+      const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
       const { error } = await runCLI(args);
 
       expect(error).toBeTruthy();
@@ -621,11 +618,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Supports specifying collection file path along with environment ID", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
+      const COLL_PATH = getTestJsonFilePath(
         "req-body-env-vars-coll.json",
         "collection"
       );
-      const args = `test ${TESTS_PATH} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
+      const args = `test ${COLL_PATH} --env ${REQ_BODY_ENV_VARS_ENVS_ID} --token ${PERSONAL_ACCESS_TOKEN} --server ${SERVER_URL}`;
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
@@ -643,7 +640,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Supports specifying both collection and environment file paths", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
+      const COLL_PATH = getTestJsonFilePath(
         "req-body-env-vars-coll.json",
         "collection"
       );
@@ -651,7 +648,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "req-body-env-vars-envs.json",
         "environment"
       );
-      const args = `test ${TESTS_PATH} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN}`;
+      const args = `test ${COLL_PATH} --env ${ENV_PATH} --token ${PERSONAL_ACCESS_TOKEN}`;
 
       const { error } = await runCLI(args);
       expect(error).toBeNull();
@@ -825,7 +822,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
   describe("Test `hopp test <file> --iteration-count <no_of_iterations>` command:", () => {
     const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
-    test("Errors with the code `INVALID_ARGUMENT` on not supplying a value", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on not supplying an iteration count", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count`;
       const { stderr } = await runCLI(args);
 
@@ -833,7 +830,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
-    test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid value", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid iteration count", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count NaN`;
       const { stderr } = await runCLI(args);
 
@@ -841,7 +838,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
-    test("Errors with the code `INVALID_ARGUMENT` on supplying a value below `1`", async () => {
+    test("Errors with the code `INVALID_ARGUMENT` on supplying an iteration count below `1`", async () => {
       const args = `${VALID_TEST_ARGS} --iteration-count -5`;
       const { stderr } = await runCLI(args);
 
@@ -849,7 +846,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
     });
 
-    test("Successfully performs iteration request execution for a valid iteration count value", async () => {
+    test("Successfully executes all requests in the collection iteratively based on the specified iteration count", async () => {
       const iterationCount = 3;
       const args = `${VALID_TEST_ARGS} --iteration-count ${iterationCount}`;
       const { error, stdout } = await runCLI(args);
@@ -903,7 +900,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
     });
 
-    test("Prioritizes values from the supplied data export file over environment variables", async () => {
+    test("Prioritizes values from the supplied data export file over environment variables with relevant fallbacks for missing entries", async () => {
       const COLL_PATH = getTestJsonFilePath(
         "iteration-data-tests-coll.json",
         "collection"
@@ -939,9 +936,13 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "iteration-data-export.csv",
         "environment"
       );
+      const ENV_PATH = getTestJsonFilePath(
+        "iteration-data-envs.json",
+        "environment"
+      );
 
       const iterationCount = 5;
-      const args = `test ${COLL_PATH} --iteration-data ${ITERATION_DATA_PATH} --iteration-count ${iterationCount}`;
+      const args = `test ${COLL_PATH} --iteration-data ${ITERATION_DATA_PATH} -e ${ENV_PATH} --iteration-count ${iterationCount}`;
 
       const { error, stdout } = await runCLI(args);
 

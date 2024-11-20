@@ -58,7 +58,7 @@ hopp [options or commands] arguments
 
    ##### `--iteration-data <file_path>`
 
-   - Accepts the path to a CSV file with contents in below format:
+   - Accepts the path to a CSV file with contents in the below format:
 
      ```text
      key1,key2,key3

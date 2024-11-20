@@ -20,9 +20,12 @@ import { parseCollectionData } from "../utils/mutators";
 
 export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
   try {
+    const { delay, env, iterationCount, iterationData, reporterJunit } =
+      options;
+
     if (
-      options.iterations !== undefined &&
-      (options.iterations < 1 || !isSafeInteger(options.iterations))
+      iterationCount !== undefined &&
+      (iterationCount < 1 || !isSafeInteger(iterationCount))
     ) {
       throw error({
         code: "INVALID_ARGUMENT",
@@ -30,35 +33,36 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       });
     }
 
-    const delay = options.delay ? parseDelayOption(options.delay) : 0;
+    const resolvedDelay = delay ? parseDelayOption(delay) : 0;
 
-    const envs = options.env
+    const envs = env
       ? await parseEnvsData(options as TestCmdEnvironmentOptions)
       : <HoppEnvs>{ global: [], selected: [] };
 
-    const { iterations } = options;
-
-    let data: unknown[];
-    let iterationData: IterationDataEntry[][] | undefined;
+    let parsedIterationData: unknown[] | null = null;
+    let transformedIterationData: IterationDataEntry[][] | undefined;
 
     const collections = await parseCollectionData(pathOrId, options);
 
-    if (options.data) {
+    if (iterationData) {
       // Check file existence
-      if (!fs.existsSync(options.data)) {
-        throw error({ code: "FILE_NOT_FOUND", path: options.data });
+      if (!fs.existsSync(iterationData)) {
+        throw error({ code: "FILE_NOT_FOUND", path: iterationData });
       }
 
       // Check the file extension
-      if (path.extname(options.data) !== ".csv") {
-        throw error({ code: "INVALID_DATA_FILE_TYPE", data: options.data });
+      if (path.extname(iterationData) !== ".csv") {
+        throw error({
+          code: "INVALID_DATA_FILE_TYPE",
+          data: iterationData,
+        });
       }
 
-      const csvData = fs.readFileSync(options.data, "utf8");
-      data = Papa.parse(csvData, { header: true }).data;
+      const csvData = fs.readFileSync(iterationData, "utf8");
+      parsedIterationData = Papa.parse(csvData, { header: true }).data;
 
       // Transform data into the desired format
-      iterationData = data
+      transformedIterationData = parsedIterationData
         .map((item) =>
           Object.entries(item as IterationDataEntry)
             // Ignore keys with empty string values
@@ -72,11 +76,11 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
     const report = await collectionsRunner({
       collections,
       envs,
-      delay,
-      iterationData,
-      iterations,
+      delay: resolvedDelay,
+      iterationData: transformedIterationData,
+      iterationCount,
     });
-    const hasSucceeded = collectionsRunnerResult(report, options.reporterJunit);
+    const hasSucceeded = collectionsRunnerResult(report, reporterJunit);
 
     collectionsRunnerExit(hasSucceeded);
   } catch (e) {

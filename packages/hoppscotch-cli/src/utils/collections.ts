@@ -41,14 +41,14 @@ import { getTestMetrics } from "./test";
 const { WARN, FAIL, INFO } = exceptionColors;
 
 const resolveIterationCount = ({
-  iterations,
+  iterationCount,
   iterationData,
 }: {
-  iterations?: number;
+  iterationCount?: number;
   iterationData?: IterationDataEntry[][];
 }) => {
-  if (iterations) {
-    return iterations;
+  if (iterationCount) {
+    return iterationCount;
   }
 
   // If iteration count is not supplied, it should be based on the size of iteration data if in scope
@@ -69,7 +69,7 @@ const resolveIterationCount = ({
 export const collectionsRunner = async (
   param: CollectionRunnerParam
 ): Promise<RequestReport[]> => {
-  const { collections, envs, delay, iterations, iterationData } = param;
+  const { collections, envs, delay, iterationCount, iterationData } = param;
 
   const resolvedDelay = delay ?? 0;
 
@@ -77,7 +77,7 @@ export const collectionsRunner = async (
   const collectionQueue: CollectionQueue[] = getCollectionQueue(collections);
 
   const resolvedIterationCount = resolveIterationCount({
-    iterations,
+    iterationCount,
     iterationData,
   });
 

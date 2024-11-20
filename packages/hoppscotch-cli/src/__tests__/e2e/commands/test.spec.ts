@@ -826,11 +826,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
   });
 
-  describe("Test `hopp test <file> --iterations <iterations_in_ms>` command:", () => {
+  describe("Test `hopp test <file> --iteration-count <no_of_iterations>` command:", () => {
     const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
     test("Errors with the code `INVALID_ARGUMENT` on not supplying a iterations value", async () => {
-      const args = `${VALID_TEST_ARGS} --iterations`;
+      const args = `${VALID_TEST_ARGS} --iteration-count`;
       const { stderr } = await runCLI(args);
 
       const out = getErrorCode(stderr);
@@ -838,7 +838,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Errors with the code `INVALID_ARGUMENT` on supplying an invalid iteration value", async () => {
-      const args = `${VALID_TEST_ARGS} --iterations NaN`;
+      const args = `${VALID_TEST_ARGS} --iteration-count NaN`;
       const { stderr } = await runCLI(args);
 
       const out = getErrorCode(stderr);
@@ -846,26 +846,19 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     test("Successfully performs iteration request execution for a valid iteration value", async () => {
-      const args = `${VALID_TEST_ARGS} --iterations 1`;
-      const { error } = await runCLI(args);
-
-      expect(error).toBeNull();
-    });
-
-    test("Works with the short `-i` flag", async () => {
-      const args = `${VALID_TEST_ARGS} -i 1`;
+      const args = `${VALID_TEST_ARGS} --iteration-count 1`;
       const { error } = await runCLI(args);
 
       expect(error).toBeNull();
     });
   });
 
-  describe("Test `hopp test <file> --data <file>` command:", () => {
+  describe("Test `hopp test <file> --iteration-data <file_path>` command:", () => {
     describe("Supplied data export file validations", () => {
       const VALID_TEST_ARGS = `test ${getTestJsonFilePath("passes-coll.json", "collection")}`;
 
       test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
-        const args = `${VALID_TEST_ARGS} --data`;
+        const args = `${VALID_TEST_ARGS} --iteration-data`;
         const { stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
@@ -873,7 +866,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
 
       test("Errors with the code `INVALID_DATA_FILE_TYPE` if the supplied data file doesn't end with the `.csv` extension", async () => {
-        const args = `${VALID_TEST_ARGS} --data ${getTestJsonFilePath(
+        const args = `${VALID_TEST_ARGS} --iteration-data ${getTestJsonFilePath(
           "notjson-coll.txt",
           "collection"
         )}`;
@@ -884,7 +877,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
 
       test("Errors with the code `FILE_NOT_FOUND` if the supplied data export file doesn't exist", async () => {
-        const args = `${VALID_TEST_ARGS} --data notfound.csv`;
+        const args = `${VALID_TEST_ARGS} --iteration-data notfound.csv`;
         const { stderr } = await runCLI(args);
 
         const out = getErrorCode(stderr);
@@ -898,7 +891,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "collection"
       );
       const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${TESTS_PATH} --data ${ENV_PATH}`;
+      const args = `test ${TESTS_PATH} --iteration-data ${ENV_PATH}`;
 
       const { error } = await runCLI(args);
 
@@ -911,21 +904,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         "collection"
       );
       const ENVS_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${COLL_PATH} --data ${ENVS_PATH}`;
+      const args = `test ${COLL_PATH} --iteration-data ${ENVS_PATH}`;
       const { error } = await runCLI(args);
-
-      expect(error).toBeNull();
-    });
-
-    test("Works with shorth `-data` flag", async () => {
-      const TESTS_PATH = getTestJsonFilePath(
-        "data-flag-tests-coll.json",
-        "collection"
-      );
-      const ENV_PATH = getTestJsonFilePath("data-envs.csv", "environment");
-      const args = `test ${TESTS_PATH} -data ${ENV_PATH}`;
-
-      const { stdout, stderr, error } = await runCLI(args);
 
       expect(error).toBeNull();
     });

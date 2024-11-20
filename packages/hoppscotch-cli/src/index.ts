@@ -70,12 +70,12 @@ program
     "generate JUnit report optionally specifying the path"
   )
   .option(
-    "-i, --iterations <number_of_iterations>",
+    "--iteration-count <no_of_iterations>",
     "number of iterations to run the test",
     parseInt
   )
   .option(
-    "-data, --data <file_path>",
+    "--iteration-data <file_path>",
     "path to a CSV file for data-driven testing"
   )
   .allowExcessArguments(false)

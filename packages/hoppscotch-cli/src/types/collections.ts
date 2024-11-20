@@ -6,7 +6,7 @@ export type CollectionRunnerParam = {
   envs: HoppEnvs;
   delay?: number;
   iterationData?: IterationDataEntry[][];
-  iterations?: number;
+  iterationCount?: number;
 };
 
 export type HoppCollectionFileExt = "json";

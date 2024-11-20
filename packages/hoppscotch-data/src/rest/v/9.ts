@@ -32,6 +32,7 @@ export const HoppRESTReqBody = z.union([
   z.object({
     contentType: z.literal("multipart/form-data"),
     body: z.array(FormDataKeyValue).catch([]),
+    showIndividualContentType: z.boolean().optional().catch(false),
   }),
   z.object({
     contentType: z.union([

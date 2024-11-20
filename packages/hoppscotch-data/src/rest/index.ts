@@ -34,8 +34,6 @@ export { HoppRESTAuthAPIKey } from "./v/4"
 
 export { AuthCodeGrantTypeParams } from "./v/5"
 
-export { HoppRESTReqBody } from "./v/6"
-
 export {
   HoppRESTAuthAWSSignature,
   HoppRESTHeaders,
@@ -54,6 +52,7 @@ export {
 } from "./v/8"
 
 export { FormDataKeyValue } from "./v/9"
+export { HoppRESTReqBody } from "./v/9"
 
 const versionedObject = z.object({
   // v is a stringified number

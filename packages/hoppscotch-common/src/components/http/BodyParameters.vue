@@ -9,10 +9,10 @@
       <div class="flex">
         <div class="flex items-center gap-2">
           <HoppSmartCheckbox
-            :on="useIndividualContentTypes"
+            :on="body.showIndividualContentType"
             @change="
               () => {
-                useIndividualContentTypes = !useIndividualContentTypes
+                body.showIndividualContentType = !body.showIndividualContentType
               }
             "
             >{{ t(`request.show_content_type`) }}</HoppSmartCheckbox
@@ -112,7 +112,7 @@
               "
             />
           </span>
-          <span v-if="useIndividualContentTypes" class="flex flex-1">
+          <span v-if="body.showIndividualContentType" class="flex flex-1">
             <SmartEnvInput
               v-model="entry.contentType"
               :placeholder="
@@ -251,8 +251,6 @@ const idTicker = ref(0)
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const bodyParams = pluckRef(body, "body")
-
-const useIndividualContentTypes = ref(true)
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<WorkingFormDataKeyValue[]>([

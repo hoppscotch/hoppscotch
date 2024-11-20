@@ -13,12 +13,23 @@
       </h4>
 
       <div class="flex items-center space-y-4 py-4">
-        <HoppSmartToggle
-          :on="dataSharingConfigs.enabled"
-          @change="dataSharingConfigs.enabled = !dataSharingConfigs.enabled"
-        >
-          {{ t('configs.data_sharing.toggle_description') }}
-        </HoppSmartToggle>
+        <div class="flex justify-between w-full">
+          <HoppSmartToggle
+            :on="dataSharingConfigs.enabled"
+            @change="dataSharingConfigs.enabled = !dataSharingConfigs.enabled"
+          >
+            {{ t('configs.data_sharing.toggle_description') }}
+          </HoppSmartToggle>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            blank
+            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#server-settings"
+            :title="t('support.title')"
+            :icon="IconHelpCircle"
+            class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            @click=""
+          />
+        </div>
       </div>
 
       <HoppButtonSecondary
@@ -43,6 +54,7 @@ import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { ServerConfigs } from '~/helpers/configs';
 import IconShieldQuestion from '~icons/lucide/shield-question';
+import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();
 

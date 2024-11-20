@@ -13,28 +13,35 @@
       />
     </template>
     <template #footer>
-      <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip', allowHTML: true }"
-        to="https://docs.hoppscotch.io/documentation"
-        filled
-        blank
-        :title="t('support.title')"
-        :icon="IconCircleHelp"
-        class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-        @click=""
-      />
-      <span class="flex space-x-2">
-        <HoppButtonPrimary
-          :label="t('users.add_user')"
-          @click="emit('send-invite', email)"
-        />
-        <HoppButtonSecondary
-          :label="t('users.cancel')"
-          outline
-          filled
-          @click="hideModal"
-        />
-      </span>
+      <div class="block w-full">
+        <p class="text-secondaryLight mb-5">
+          {{ t('configs.data_sharing.description') }}
+        </p>
+
+        <div class="flex justify-between">
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            to="https://docs.hoppscotch.io/documentation"
+            blank
+            :title="t('support.title')"
+            :icon="IconCircleHelp"
+            class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            @click=""
+          />
+          <span class="flex space-x-2">
+            <HoppButtonPrimary
+              :label="t('users.add_user')"
+              @click="emit('send-invite', email)"
+            />
+            <HoppButtonSecondary
+              :label="t('users.cancel')"
+              outline
+              filled
+              @click="hideModal"
+            />
+          </span>
+        </div>
+      </div>
     </template>
   </HoppSmartModal>
 </template>

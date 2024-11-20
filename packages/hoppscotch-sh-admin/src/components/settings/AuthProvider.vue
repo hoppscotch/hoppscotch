@@ -25,10 +25,9 @@
               {{ capitalize(provider.name) }}
             </HoppSmartToggle>
             <HoppButtonSecondary
-              to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#server-settings"
-              filled
-              blank
               v-tippy="{ theme: 'tooltip', allowHTML: true }"
+              to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#server-settings"
+              blank
               :title="t('support.title')"
               :icon="IconCircleHelp"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"

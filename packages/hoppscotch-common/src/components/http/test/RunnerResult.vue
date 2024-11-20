@@ -1,29 +1,31 @@
 <template>
-  <HoppSmartTabs
-    v-model="selectedTestTab"
-    @update:model-value="emit('onChangeTab', $event)"
-    styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperRunnerStickyFold z-10"
-    render-inactive-tabs
-  >
-    <HoppSmartTab
-      :id="'all'"
-      :label="`${t('tab.all_tests')}`"
-      :info="tab.document.testRunnerMeta.totalTests.toString()"
+  <div class="sticky top-upperRunnerStickyFold z-10">
+    <HoppSmartTabs
+      v-model="selectedTestTab"
+      @update:model-value="emit('onChangeTab', $event)"
+      styles=" overflow-x-auto flex-shrink-0 bg-primary "
+      render-inactive-tabs
     >
-    </HoppSmartTab>
-    <HoppSmartTab
-      :id="'passed'"
-      :label="`${t('tab.passed')}`"
-      :info="tab.document.testRunnerMeta.passedTests.toString()"
-    >
-    </HoppSmartTab>
-    <HoppSmartTab
-      :id="'failed'"
-      :label="`${t('tab.failed')}`"
-      :info="tab.document.testRunnerMeta.failedTests.toString()"
-    >
-    </HoppSmartTab>
-  </HoppSmartTabs>
+      <HoppSmartTab
+        :id="'all'"
+        :label="`${t('tab.all_tests')}`"
+        :info="tab.document.testRunnerMeta.totalTests.toString()"
+      >
+      </HoppSmartTab>
+      <HoppSmartTab
+        :id="'passed'"
+        :label="`${t('tab.passed')}`"
+        :info="tab.document.testRunnerMeta.passedTests.toString()"
+      >
+      </HoppSmartTab>
+      <HoppSmartTab
+        :id="'failed'"
+        :label="`${t('tab.failed')}`"
+        :info="tab.document.testRunnerMeta.failedTests.toString()"
+      >
+      </HoppSmartTab>
+    </HoppSmartTabs>
+  </div>
 
   <div class="flex flex-col justify-center p-4">
     <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">

@@ -51,15 +51,14 @@
         </div>
       </div>
 
-      <div v-if="showResult">
-        <HttpTestRunnerResult
-          :tab="tab"
-          :collection-adapter="collectionAdapter"
-          :is-running="tab.document.status === 'running'"
-          @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
-          @on-select-request="onSelectRequest"
-        />
-      </div>
+      <HttpTestRunnerResult
+        v-if="showResult"
+        :tab="tab"
+        :collection-adapter="collectionAdapter"
+        :is-running="tab.document.status === 'running'"
+        @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
+        @on-select-request="onSelectRequest"
+      />
     </template>
     <template #secondary>
       <HttpTestResponse

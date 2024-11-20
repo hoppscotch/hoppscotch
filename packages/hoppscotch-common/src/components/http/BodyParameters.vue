@@ -15,7 +15,7 @@
                 useIndividualContentTypes = !useIndividualContentTypes
               }
             "
-            >Use Individual Content Types</HoppSmartCheckbox
+            >{{ t(`request.show_content_type`) }}</HoppSmartCheckbox
           >
         </div>
         <HoppButtonSecondary

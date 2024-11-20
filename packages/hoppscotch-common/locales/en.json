@@ -652,6 +652,7 @@
       "structured": "Structured",
       "text": "Text"
     },
+    "show_content_type": "Show Content Type",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Duration",

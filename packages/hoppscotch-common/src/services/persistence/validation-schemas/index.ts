@@ -7,6 +7,7 @@ import {
   HoppRESTRequest,
   HoppRESTHeaders,
   HoppRESTRequestResponse,
+  HoppCollection,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -88,23 +89,9 @@ const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
-// @ts-expect-error recursive schema
-const HoppRESTCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppRESTCollectionSchema)),
-  requests: z.optional(z.array(HoppRESTRequestSchema)),
+const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
-  auth: z.optional(HoppRESTAuth),
-  headers: z.optional(HoppRESTHeaders),
-}).strict()
-
-// @ts-expect-error recursive schema
-const HoppGQLCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppGQLCollectionSchema)),
-  requests: z.optional(z.array(HoppGQLRequestSchema)),
-
-  auth: z.optional(HoppGQLAuth),
-  headers: z.optional(z.array(GQLHeader)),
-}).strict()
+const HoppGQLCollectionSchema = entityReference(HoppCollection)
 
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(

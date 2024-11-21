@@ -84,6 +84,7 @@
                 value: entry.value,
                 active: entry.active,
                 isFile: entry.isFile,
+                contentType: entry.contentType,
               })
             "
           />
@@ -108,6 +109,7 @@
                   value: $event,
                   active: entry.active,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
                 })
               "
             />
@@ -169,6 +171,7 @@
                     ? !entry.active
                     : false,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
                 })
               "
             />

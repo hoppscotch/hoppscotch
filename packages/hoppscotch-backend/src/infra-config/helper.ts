@@ -41,17 +41,18 @@ const AuthProviderConfigurations = {
     InfraConfigEnum.MICROSOFT_SCOPE,
     InfraConfigEnum.MICROSOFT_TENANT,
   ],
-  [AuthProvider.EMAIL]: !!process.env.MAILER_USE_CUSTOM_CONFIGS
-    ? [
-        InfraConfigEnum.MAILER_SMTP_HOST,
-        InfraConfigEnum.MAILER_SMTP_PORT,
-        InfraConfigEnum.MAILER_SMTP_SECURE,
-        InfraConfigEnum.MAILER_SMTP_USER,
-        InfraConfigEnum.MAILER_SMTP_PASSWORD,
-        InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-        InfraConfigEnum.MAILER_ADDRESS_FROM,
-      ]
-    : [InfraConfigEnum.MAILER_SMTP_URL, InfraConfigEnum.MAILER_ADDRESS_FROM],
+  [AuthProvider.EMAIL]:
+    process.env.MAILER_USE_CUSTOM_CONFIGS === 'true'
+      ? [
+          InfraConfigEnum.MAILER_SMTP_HOST,
+          InfraConfigEnum.MAILER_SMTP_PORT,
+          InfraConfigEnum.MAILER_SMTP_SECURE,
+          InfraConfigEnum.MAILER_SMTP_USER,
+          InfraConfigEnum.MAILER_SMTP_PASSWORD,
+          InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
+          InfraConfigEnum.MAILER_ADDRESS_FROM,
+        ]
+      : [InfraConfigEnum.MAILER_SMTP_URL, InfraConfigEnum.MAILER_ADDRESS_FROM],
 };
 
 /**
@@ -418,6 +419,11 @@ export function getConfiguredSSOProvidersFromEnvFile() {
   return configuredAuthProviders.join(',');
 }
 
+/**
+ * Get the configured SSO providers from 'infra_config' table.
+ * @description Usage every time the app starts by AuthModule to initiate Strategies.
+ * @returns Array of configured SSO providers
+ */
 export async function getConfiguredSSOProvidersFromInfraConfig() {
   const env = await loadInfraConfiguration();
 
@@ -437,7 +443,7 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
 
   if (configuredAuthProviders.length === 0) {
-    throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
+    return '';
   } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
     const prisma = new PrismaService();
     await prisma.infraConfig.update({

@@ -13,7 +13,7 @@
       />
     </template>
     <template #footer>
-      <div class="block w-full">
+      <div class="w-full">
         <p class="text-secondaryLight mb-5 text-center">
           {{ t('users.invite_users_description') }}
         </p>
@@ -26,7 +26,6 @@
             :title="t('support.documentation')"
             :icon="IconCircleHelp"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-            @click=""
           />
           <span class="flex space-x-2">
             <HoppButtonPrimary

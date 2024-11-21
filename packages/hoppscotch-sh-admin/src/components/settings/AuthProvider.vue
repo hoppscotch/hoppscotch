@@ -31,7 +31,6 @@
               :title="t('support.documentation')"
               :icon="IconCircleHelp"
               class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-              @click=""
             />
           </div>
 

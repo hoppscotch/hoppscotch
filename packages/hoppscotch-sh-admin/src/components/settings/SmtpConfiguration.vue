@@ -29,7 +29,6 @@
                 :title="t('support.documentation')"
                 :icon="IconHelpCircle"
                 class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-                @click=""
               />
             </div>
           </div>

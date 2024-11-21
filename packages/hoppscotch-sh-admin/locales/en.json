@@ -17,9 +17,6 @@
     "open_navigation": "Open Navigation",
     "read_documentation": "Read Documentation"
   },
-  "auth": {
-    "cookies_not_found": "Cookies not found"
-  },
   "configs": {
     "auth_providers": {
       "callback_url": "CALLBACK URL",

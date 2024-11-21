@@ -7,7 +7,7 @@
     </div>
 
     <div class="flex justify-between items-center py-6">
-      <div class="block">
+      <div>
         <h3 class="text-lg font-bold text-accentContrast">
           {{ t('users.pending_invites') }}
         </h3>

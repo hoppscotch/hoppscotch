@@ -1,5 +1,5 @@
 /*
- * Error page data
+ * Type used to send error data to the Fallback catch-all component
  */
 export type ErrorPageData = {
   message: string;
@@ -53,9 +53,6 @@ type ErrorMessages = {
 };
 
 const ERROR_MESSAGES: Record<string, ErrorMessages> = {
-  [COOKIES_NOT_FOUND]: {
-    message: 'auth.cookies_not_found',
-  },
   [INVALID_EMAIL]: {
     message: 'state.invalid_email',
   },

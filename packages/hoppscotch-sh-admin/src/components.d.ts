@@ -35,6 +35,7 @@ declare module 'vue' {
     HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
     HoppSmartToggle: typeof import('@hoppscotch/ui')['HoppSmartToggle']
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
+    IconLucideArrowUpRight: typeof import('~icons/lucide/arrow-up-right')['default']
     IconLucideCheck: typeof import('~icons/lucide/check')['default']
     IconLucideChevronDown: typeof import('~icons/lucide/chevron-down')['default']
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']

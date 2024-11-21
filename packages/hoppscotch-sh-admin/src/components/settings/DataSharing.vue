@@ -23,7 +23,7 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             blank
-            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#server-settings"
+            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
             :title="t('support.title')"
             :icon="IconHelpCircle"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"

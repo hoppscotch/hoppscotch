@@ -12,7 +12,7 @@
           {{ t('users.pending_invites') }}
         </h3>
         <p class="my-1 text-secondaryLight">
-          {{ t('configs.data_sharing.description') }}
+          {{ t('users.pending_invites_description') }}
         </p>
       </div>
 

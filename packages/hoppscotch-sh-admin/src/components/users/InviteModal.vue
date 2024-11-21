@@ -14,8 +14,8 @@
     </template>
     <template #footer>
       <div class="block w-full">
-        <p class="text-secondaryLight mb-5">
-          {{ t('configs.data_sharing.description') }}
+        <p class="text-secondaryLight mb-5 text-center">
+          {{ t('users.invite_users_description') }}
         </p>
 
         <div class="flex justify-between">
@@ -23,7 +23,7 @@
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             to="https://docs.hoppscotch.io/documentation"
             blank
-            :title="t('support.title')"
+            :title="t('support.documentation')"
             :icon="IconCircleHelp"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
             @click=""

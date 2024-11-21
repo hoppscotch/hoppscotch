@@ -25,8 +25,8 @@
               <HoppButtonSecondary
                 blank
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
-                to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#server-settings"
-                :title="t('support.title')"
+                to="https://docs.hoppscotch.io/documentation/self-host/community-edition/prerequisites#email-delivery"
+                :title="t('support.documentation')"
                 :icon="IconHelpCircle"
                 class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
                 @click=""

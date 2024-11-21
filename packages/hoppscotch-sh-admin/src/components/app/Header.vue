@@ -29,7 +29,7 @@
           to="https://docs.hoppscotch.io/documentation"
           blank
           v-tippy="{ theme: 'tooltip' }"
-          :title="t('settings.support')"
+          :title="t('support.documentation')"
           :icon="IconHelpCircle"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
         />

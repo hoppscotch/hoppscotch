@@ -250,8 +250,7 @@
   "support": {
     "description": "Get help from the Hoppscotch community",
     "documentation": "Documentation",
-    "more_info": "More Info",
-    "title": "Need Help?"
+    "more_info": "More Info"
   },
   "teams": {
     "add_member": "Add Member",
@@ -331,7 +330,7 @@
     "invalid_user": "Invalid User",
     "invite_load_list_error": "Unable to Load Invited Users List",
     "invite_user": "Invite User",
-    "invite_users_description": "Send invites and onboard new users in no time.",
+    "invite_users_description": "Invite your team members to join Hoppscotch.",
     "invited_by": "Invited By",
     "invited_on": "Invited On",
     "invited_users": "Invited Users",

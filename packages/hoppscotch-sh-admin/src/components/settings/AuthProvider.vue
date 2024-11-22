@@ -75,9 +75,9 @@ import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { ServerConfigs, SsoAuthProviders } from '~/helpers/configs';
+import IconCircleHelp from '~icons/lucide/circle-help';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
-import IconCircleHelp from '~icons/lucide/circle-help';
 
 const t = useI18n();
 

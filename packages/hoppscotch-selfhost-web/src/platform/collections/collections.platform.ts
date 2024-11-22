@@ -147,9 +147,9 @@ function exportedCollectionToHoppCollection(
       restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
         : {
-          auth: { authType: "inherit", authActive: false },
-          headers: [],
-        }
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
 
     return {
       id: restCollection.id,
@@ -211,7 +211,7 @@ function exportedCollectionToHoppCollection(
         : {
           auth: { authType: "inherit", authActive: false },
           headers: [],
-        }
+          }
 
     return {
       id: gqlCollection.id,
@@ -331,7 +331,7 @@ function getUnsyncedDataFromCollection(
 function syncDataPromises(data: UnsyncUserData) {
   const promises = []
 
-  // Если коллекция не отправлена на сервер, то отправляем её
+  // If the collection has not been sent to the server, then we send it
   if (data.collections.length > 0) {
     data.collections.map((collection) => {
       const c = [translateToBackendCollectionFormat(collection.collection)]
@@ -389,7 +389,8 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
     return
   }
 
-  const collectionsJSONString = res.right.exportUserCollectionsToJSON.exportedCollection
+  const collectionsJSONString =
+    res.right.exportUserCollectionsToJSON.exportedCollection
   const exportedCollections = (
     JSON.parse(collectionsJSONString) as Array<
       ExportedUserCollectionGQL | ExportedUserCollectionREST

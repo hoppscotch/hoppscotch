@@ -841,7 +841,7 @@ const onAddRequest = (requestName: string) => {
     name: requestName,
   }
 
-  // У новых объектов не должно быть ID
+  // new object should not have an ID
   delete newRequest.id
 
   const path = editingFolderPath.value

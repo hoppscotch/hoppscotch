@@ -1,9 +1,11 @@
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
-import { authEvents$, def as platformAuth } from "@platform/auth/auth.platform"
+import { authEvents$ } from "@platform/auth/auth.platform"
 import { runDispatchWithOutSyncing } from "../../lib/sync"
 
 import {
+  createRESTUserRequest,
   exportUserCollectionsToJSON,
+  importUserCollectionsFromJSON,
   runUserCollectionCreatedSubscription,
   runUserCollectionDuplicatedSubscription,
   runUserCollectionMovedSubscription,
@@ -40,6 +42,8 @@ import {
   removeRESTFolder,
   removeRESTRequest,
   restCollectionStore,
+  restCollections$,
+  defaultRESTCollectionState,
   saveGraphqlRequestAs,
   saveRESTRequestAs,
   setGraphqlCollections,
@@ -62,32 +66,42 @@ import {
   UserRequest,
 } from "../../api/generated/graphql"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import { platform } from "@hoppscotch/common/platform"
+import { useReadonlyStream } from "@hoppscotch/common/composables/stream"
 
 function initCollectionsSync() {
-  const currentUser$ = platformAuth.getCurrentUserStream()
   collectionsSyncer.startStoreSync()
   collectionsSyncer.setupSubscriptions(setupSubscriptions)
 
   gqlCollectionsSyncer.startStoreSync()
 
-  loadUserCollections("REST")
-  loadUserCollections("GQL")
+  let userCache = platform.auth.getProbableUser()
 
-  // TODO: test & make sure the auth thing is working properly
-  currentUser$.subscribe(async (user) => {
-    if (user) {
+  console.log("AUTH", platform.auth.getProbableUser())
+  if (userCache !== null) {
+    syncLocalRESTDataWithCloudOnStartup(() => {
       loadUserCollections("REST")
       loadUserCollections("GQL")
-    }
-  })
+    })
+  }
 
   authEvents$.subscribe((event) => {
+    console.log("AUTH", event)
+
+    if (event.event === "login" && userCache === null) {
+      userCache = event.user
+      syncLocalRESTDataWithCloudOnLogin(() => {
+        loadUserCollections("REST")
+        loadUserCollections("GQL")
+      })
+    }
     if (event.event == "login" || event.event == "token_refresh") {
       collectionsSyncer.startListeningToSubscriptions()
     }
 
     if (event.event == "logout") {
       collectionsSyncer.stopListeningToSubscriptions()
+      userCache = null
     }
   })
 }
@@ -106,6 +120,11 @@ type ExportedUserCollectionGQL = {
   requests: Array<HoppGQLRequest & { id: string }>
   name: string
   data: string
+}
+
+type UnsyncUserData = {
+  collections: HoppCollection[]
+  requests: HoppRESTRequest[]
 }
 
 function addDescriptionField(
@@ -190,8 +209,8 @@ function exportedCollectionToHoppCollection(
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
         : {
-            auth: { authType: "inherit", authActive: false },
-            headers: [],
+          auth: { authType: "inherit", authActive: false },
+          headers: [],
           }
 
     return {
@@ -228,41 +247,177 @@ function exportedCollectionToHoppCollection(
   }
 }
 
+function syncLocalRESTDataWithCloudOnStartup(next) {
+  console.log("User is authenticated. Sync unsynced user data")
+  console.log("Start syncLocalRESTDataWithCloudOnStartup")
+  const subscription = restCollections$.subscribe(async (data) => {
+    if (data == defaultRESTCollectionState.state) {
+      console.log("localRESTCollection: is default value")
+      return
+    }
+
+    console.log("Get data", data)
+
+    const unsyncData = getUnsyncedDataFromCollection(data)
+
+    Promise.all(syncDataPromises(unsyncData)).then(next)
+    // Subscribe only on data from local store. It's getting faster that from cloud
+    subscription.unsubscribe()
+  })
+}
+
+function syncLocalRESTDataWithCloudOnLogin(next) {
+  const collection = useReadonlyStream(restCollections$, [], "deep")
+  const unsyncData = getUnsyncedDataFromCollection(collection.value)
+
+  Promise.all(syncDataPromises(unsyncData)).then(next)
+}
+
+function getUnsyncedDataFromCollection(
+  collections: HoppCollection[]
+): UnsyncUserData {
+  const notSyncedCollections = []
+  const notSyncedRequests: [
+    { collectionID: string; request: HoppRESTRequest },
+  ] = []
+
+  const mapCollectionRecursively = (
+    collection: HoppCollection,
+    parentCollectionID: string | null = null
+  ) => {
+    if (collection.id === undefined) {
+      notSyncedCollections.push({
+        parentCollectionID: parentCollectionID,
+        collection,
+      })
+
+      return
+    }
+
+    collection.requests.map((request: HoppRESTRequest) => {
+      if (request.id === undefined) {
+        notSyncedRequests.push({
+          collectionID: collection.id,
+          request,
+        })
+      }
+    })
+
+    collection.folders.map((folder: HoppCollection) =>
+      mapCollectionRecursively(folder, collection.id)
+    )
+  }
+
+  console.log("localRESTCollection", collections)
+
+  collections.map((folder: HoppCollection) => mapCollectionRecursively(folder))
+
+  console.log(
+    "localRESTCollection:",
+    "after recursive find\n",
+    "notSyncedCollections",
+    notSyncedCollections,
+    "\n",
+    "notSyncedRequests",
+    notSyncedRequests
+  )
+
+  return {
+    collections: notSyncedCollections,
+    requests: notSyncedRequests,
+  }
+}
+
+function syncDataPromises(data: UnsyncUserData) {
+  const promises = []
+
+  // If the collection has not been sent to the server, then we send it
+  if (data.collections.length > 0) {
+    data.collections.map((collection) => {
+      const c = [translateToBackendCollectionFormat(collection.collection)]
+
+      const promise = importUserCollectionsFromJSON(
+        JSON.stringify(c),
+        collection.parentCollectionID
+      )
+
+      promises.push(promise)
+    })
+  }
+
+  if (data.requests.length > 0) {
+    data.requests.map((r) => {
+      const promise = createRESTUserRequest(
+        r.request.name,
+        JSON.stringify(r.request),
+        r.collectionID
+      )
+      promises.push(promise)
+    })
+  }
+
+  return promises
+}
+
+function translateToBackendCollectionFormat(x: HoppCollection) {
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToBackendCollectionFormat
+  )
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
 async function loadUserCollections(collectionType: "REST" | "GQL") {
   const res = await exportUserCollectionsToJSON(
     undefined,
     collectionType == "REST" ? ReqType.Rest : ReqType.Gql
   )
-  if (E.isRight(res)) {
-    const collectionsJSONString =
-      res.right.exportUserCollectionsToJSON.exportedCollection
-    const exportedCollections = (
-      JSON.parse(collectionsJSONString) as Array<
-        ExportedUserCollectionGQL | ExportedUserCollectionREST
-      >
-    ).map((collection) => ({ v: 1, ...collection }))
-    runDispatchWithOutSyncing(() => {
-      collectionType == "REST"
-        ? setRESTCollections(
-            exportedCollections.map(
-              (collection) =>
-                exportedCollectionToHoppCollection(
-                  collection,
-                  "REST"
-                ) as HoppCollection
-            )
-          )
-        : setGraphqlCollections(
-            exportedCollections.map(
-              (collection) =>
-                exportedCollectionToHoppCollection(
-                  collection,
-                  "GQL"
-                ) as HoppCollection
-            )
-          )
-    })
+  if (E.isLeft(res)) {
+    return
   }
+
+  const collectionsJSONString =
+    res.right.exportUserCollectionsToJSON.exportedCollection
+  const exportedCollections = (
+    JSON.parse(collectionsJSONString) as Array<
+      ExportedUserCollectionGQL | ExportedUserCollectionREST
+    >
+  ).map((collection) => ({ v: 1, ...collection }))
+  runDispatchWithOutSyncing(() => {
+    collectionType == "REST"
+      ? setRESTCollections(
+        exportedCollections.map(
+          (collection) =>
+            exportedCollectionToHoppCollection(
+              collection,
+              "REST"
+            ) as HoppCollection
+        )
+      )
+      : setGraphqlCollections(
+        exportedCollections.map(
+          (collection) =>
+            exportedCollectionToHoppCollection(
+              collection,
+              "GQL"
+            ) as HoppCollection
+        )
+      )
+  })
+
 }
 
 function setupSubscriptions() {
@@ -335,13 +490,13 @@ function setupUserCollectionCreatedSubscription() {
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
             ? addGraphqlFolder(
-                res.right.userCollectionCreated.title,
-                parentCollectionPath
-              )
+              res.right.userCollectionCreated.title,
+              parentCollectionPath
+            )
             : addRESTFolder(
-                res.right.userCollectionCreated.title,
-                parentCollectionPath
-              )
+              res.right.userCollectionCreated.title,
+              parentCollectionPath
+            )
 
           const parentCollection = navigateToFolderWithIndexPath(
             collectionStore.value.state,
@@ -364,28 +519,28 @@ function setupUserCollectionCreatedSubscription() {
           res.right.userCollectionCreated.data != "null"
             ? JSON.parse(res.right.userCollectionCreated.data)
             : {
-                auth: { authType: "inherit", authActive: false },
-                headers: [],
-              }
+              auth: { authType: "inherit", authActive: false },
+              headers: [],
+            }
 
         runDispatchWithOutSyncing(() => {
           collectionType == "GQL"
             ? addGraphqlCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 4,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-              })
+              name: res.right.userCollectionCreated.title,
+              folders: [],
+              requests: [],
+              v: 4,
+              auth: data.auth,
+              headers: addDescriptionField(data.headers),
+            })
             : addRESTCollection({
-                name: res.right.userCollectionCreated.title,
-                folders: [],
-                requests: [],
-                v: 4,
-                auth: data.auth,
-                headers: addDescriptionField(data.headers),
-              })
+              name: res.right.userCollectionCreated.title,
+              folders: [],
+              requests: [],
+              v: 4,
+              auth: data.auth,
+              headers: addDescriptionField(data.headers),
+            })
 
           const localIndex = collectionStore.value.state.length - 1
 
@@ -393,6 +548,8 @@ function setupUserCollectionCreatedSubscription() {
           addedCollection.id = userCollectionBackendID
         })
       }
+
+      loadUserCollections(collectionType)
     }
   })
 
@@ -424,11 +581,11 @@ function setupUserCollectionUpdatedSubscription() {
         runDispatchWithOutSyncing(() => {
           collectionType == "REST"
             ? editRESTFolder(updatedCollectionLocalPath, {
-                name: res.right.userCollectionUpdated.title,
-              })
+              name: res.right.userCollectionUpdated.title,
+            })
             : editGraphqlFolder(updatedCollectionLocalPath, {
-                name: res.right.userCollectionUpdated.title,
-              })
+              name: res.right.userCollectionUpdated.title,
+            })
         })
       }
 
@@ -437,11 +594,11 @@ function setupUserCollectionUpdatedSubscription() {
         runDispatchWithOutSyncing(() => {
           collectionType == "REST"
             ? editRESTCollection(parseInt(updatedCollectionLocalPath), {
-                name: res.right.userCollectionUpdated.title,
-              })
+              name: res.right.userCollectionUpdated.title,
+            })
             : editGraphqlCollection(parseInt(updatedCollectionLocalPath), {
-                name: res.right.userCollectionUpdated.title,
-              })
+              name: res.right.userCollectionUpdated.title,
+            })
         })
       }
     }
@@ -474,9 +631,9 @@ function setupUserCollectionMovedSubscription() {
       }
 
       sourcePath &&
-        runDispatchWithOutSyncing(() => {
-          moveRESTFolder(sourcePath, destinationPath ?? null)
-        })
+      runDispatchWithOutSyncing(() => {
+        moveRESTFolder(sourcePath, destinationPath ?? null)
+      })
     }
   })
 
@@ -591,9 +748,9 @@ function setupUserCollectionDuplicatedSubscription() {
         data && data != "null"
           ? JSON.parse(data)
           : {
-              auth: { authType: "inherit", authActive: false },
-              headers: [],
-            }
+            auth: { authType: "inherit", authActive: false },
+            headers: [],
+          }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
@@ -773,20 +930,20 @@ function setupUserRequestUpdatedSubscription() {
       const requestIndex = requestPath?.requestIndex
 
       ;(requestIndex || requestIndex == 0) &&
-        collectionPath &&
-        runDispatchWithOutSyncing(() => {
-          requestType == "REST"
-            ? editRESTRequest(
-                collectionPath,
-                requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
-              )
-            : editGraphqlRequest(
-                collectionPath,
-                requestIndex,
-                JSON.parse(res.right.userRequestUpdated.request)
-              )
-        })
+      collectionPath &&
+      runDispatchWithOutSyncing(() => {
+        requestType == "REST"
+          ? editRESTRequest(
+            collectionPath,
+            requestIndex,
+            JSON.parse(res.right.userRequestUpdated.request)
+          )
+          : editGraphqlRequest(
+            collectionPath,
+            requestIndex,
+            JSON.parse(res.right.userRequestUpdated.request)
+          )
+      })
     }
   })
 
@@ -821,17 +978,17 @@ function setupUserRequestMovedSubscription() {
 
       const destinationRequestIndex = destinationCollectionPath
         ? (() => {
-            const requestsLength = navigateToFolderWithIndexPath(
-              collectionStore.value.state,
-              destinationCollectionPath
-                .split("/")
-                .map((index) => parseInt(index))
-            )?.requests.length
+          const requestsLength = navigateToFolderWithIndexPath(
+            collectionStore.value.state,
+            destinationCollectionPath
+              .split("/")
+              .map((index) => parseInt(index))
+          )?.requests.length
 
-            return requestsLength || requestsLength == 0
-              ? requestsLength - 1
-              : undefined
-          })()
+          return requestsLength || requestsLength == 0
+            ? requestsLength - 1
+            : undefined
+        })()
         : undefined
 
       // there is no nextRequest, so request is moved
@@ -844,15 +1001,15 @@ function setupUserRequestMovedSubscription() {
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? moveRESTRequest(
-                sourceRequestPath.collectionPath,
-                sourceRequestPath.requestIndex,
-                destinationCollectionPath
-              )
+              sourceRequestPath.collectionPath,
+              sourceRequestPath.requestIndex,
+              destinationCollectionPath
+            )
             : moveGraphqlRequest(
-                sourceRequestPath.collectionPath,
-                sourceRequestPath.requestIndex,
-                destinationCollectionPath
-              )
+              sourceRequestPath.collectionPath,
+              sourceRequestPath.requestIndex,
+              destinationCollectionPath
+            )
         })
       }
 
@@ -875,22 +1032,22 @@ function setupUserRequestMovedSubscription() {
 
         const nextRequestIndex = nextCollectionPath
           ? getRequestIndex(
-              nextRequestID,
-              nextCollectionPath,
-              collectionStore.value.state
-            )
+            nextRequestID,
+            nextCollectionPath,
+            collectionStore.value.state
+          )
           : undefined
 
         nextRequestIndex &&
-          nextCollectionPath &&
-          sourceRequestPath &&
-          runDispatchWithOutSyncing(() => {
-            updateRESTRequestOrder(
-              sourceRequestPath?.requestIndex,
-              nextRequestIndex,
-              nextCollectionPath
-            )
-          })
+        nextCollectionPath &&
+        sourceRequestPath &&
+        runDispatchWithOutSyncing(() => {
+          updateRESTRequestOrder(
+            sourceRequestPath?.requestIndex,
+            nextRequestIndex,
+            nextCollectionPath
+          )
+        })
       }
     }
   })
@@ -909,24 +1066,24 @@ function setupUserRequestDeletedSubscription() {
       const { collectionStore } = getStoreByCollectionType(requestType)
 
       const deletedRequestPath = getRequestPathFromRequestID(
-        res.right.userRequestDeleted.id,
-        collectionStore.value.state
-      )
+          res.right.userRequestDeleted.id,
+          collectionStore.value.state
+        )
 
       ;(deletedRequestPath?.requestIndex ||
         deletedRequestPath?.requestIndex == 0) &&
-        deletedRequestPath.collectionPath &&
-        runDispatchWithOutSyncing(() => {
-          requestType == "REST"
-            ? removeRESTRequest(
-                deletedRequestPath.collectionPath,
-                deletedRequestPath.requestIndex
-              )
-            : removeGraphqlRequest(
-                deletedRequestPath.collectionPath,
-                deletedRequestPath.requestIndex
-              )
-        })
+      deletedRequestPath.collectionPath &&
+      runDispatchWithOutSyncing(() => {
+        requestType == "REST"
+          ? removeRESTRequest(
+            deletedRequestPath.collectionPath,
+            deletedRequestPath.requestIndex
+          )
+          : removeGraphqlRequest(
+            deletedRequestPath.collectionPath,
+            deletedRequestPath.requestIndex
+          )
+      })
     }
   })
 
@@ -1017,12 +1174,12 @@ function transformDuplicatedCollections(
 
   return parsedCollections.map(
     ({
-      childCollections: childCollectionsJSONStr,
-      data,
-      id,
-      requests: userRequests,
-      title: name,
-    }) => {
+       childCollections: childCollectionsJSONStr,
+       data,
+       id,
+       requests: userRequests,
+       title: name,
+     }) => {
       const { auth, headers } =
         data && data !== "null"
           ? JSON.parse(data)

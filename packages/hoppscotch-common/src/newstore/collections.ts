@@ -17,7 +17,7 @@ import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
-const defaultRESTCollectionState = {
+export const defaultRESTCollectionState = {
   state: [
     makeCollection({
       name: "My Collection",

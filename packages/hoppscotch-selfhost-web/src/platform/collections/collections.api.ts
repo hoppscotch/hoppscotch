@@ -72,6 +72,9 @@ import {
   DuplicateUserCollectionDocument,
   DuplicateUserCollectionMutation,
   DuplicateUserCollectionMutationVariables,
+  ImportUserCollectionsFromJsonDocument,
+  ImportUserCollectionsFromJsonMutationVariables,
+  ImportUserCollectionsFromJsonMutation,
 } from "../../api/generated/graphql"
 
 export const createRESTRootUserCollection = (title: string, data?: string) =>
@@ -310,6 +313,21 @@ export const exportUserCollectionsToJSON = (
     query: ExportUserCollectionsToJsonDocument,
     variables: { collectionID, collectionType },
   })
+
+export const importUserCollectionsFromJSON = (
+  jsonString: string,
+  parentCollectionID?: string,
+  reqType: ReqType.Rest | ReqType.Gql = ReqType.Rest
+) =>
+  runMutation<
+    ImportUserCollectionsFromJsonMutation,
+    ImportUserCollectionsFromJsonMutationVariables,
+    ""
+  >(ImportUserCollectionsFromJsonDocument, {
+    reqType,
+    parentCollectionID,
+    jsonString,
+  })()
 
 export const runUserCollectionCreatedSubscription = () =>
   runGQLSubscription({ query: UserCollectionCreatedDocument, variables: {} })

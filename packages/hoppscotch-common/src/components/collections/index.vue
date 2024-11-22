@@ -841,6 +841,9 @@ const onAddRequest = (requestName: string) => {
     name: requestName,
   }
 
+  // new object should not have an ID
+  delete newRequest.id
+
   const path = editingFolderPath.value
   if (!path) return
   if (collectionsType.value.type === "my-collections") {

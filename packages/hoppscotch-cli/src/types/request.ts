@@ -18,7 +18,7 @@ export type HoppEnvs = {
   selected: HoppEnvPair[];
 };
 
-export type CollectionStack = {
+export type CollectionQueue = {
   path: string;
   collection: HoppCollection;
 };

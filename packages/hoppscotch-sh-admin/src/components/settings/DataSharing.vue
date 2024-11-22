@@ -24,7 +24,7 @@
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             blank
             to="https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry"
-            :title="t('support.title')"
+            :title="t('support.documentation')"
             :icon="IconHelpCircle"
             class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           />

@@ -40,7 +40,7 @@
           trigger="click"
           theme="popover"
           arrow
-          :on-shown="() => tippyActions!.show()"
+          :on-shown="() => tippyActions!.focus()"
         >
           <HoppSmartPicture
             v-tippy="{

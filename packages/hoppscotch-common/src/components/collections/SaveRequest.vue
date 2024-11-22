@@ -135,6 +135,7 @@ import {
   useSubmitFeedback,
 } from "~/composables/ai-experiments"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import { ReqType } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
   updateTeamRequest,
@@ -521,6 +522,16 @@ const saveRequestAs = async () => {
       requestUpdated as HoppGQLRequest
     )
 
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: picked.value.requestIndex,
+      },
+    }
+
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
       createdNow: false,
@@ -538,13 +549,23 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved()
+    requestSaved(ReqType.Gql)
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
-    saveGraphqlRequestAs(
+    const insertionIndex = saveGraphqlRequestAs(
       picked.value.folderPath,
       requestUpdated as HoppGQLRequest
     )
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: picked.value.folderPath,
+        requestIndex: insertionIndex,
+      },
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -563,13 +584,23 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved()
+    requestSaved(ReqType.Gql)
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
-    saveGraphqlRequestAs(
+    const insertionIndex = saveGraphqlRequestAs(
       `${picked.value.collectionIndex}`,
       requestUpdated as HoppGQLRequest
     )
+
+    GQLTabs.currentActiveTab.value.document = {
+      request: requestUpdated as HoppGQLRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: `${picked.value.collectionIndex}`,
+        requestIndex: insertionIndex,
+      },
+    }
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -588,7 +619,7 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved()
+    requestSaved(ReqType.Gql)
   }
 }
 
@@ -643,10 +674,14 @@ const updateTeamCollectionOrFolder = (
   )()
 }
 
-const requestSaved = () => {
+const requestSaved = (tab: ReqType = ReqType.Rest) => {
   toast.success(`${t("request.added")}`)
   nextTick(() => {
-    RESTTabs.currentActiveTab.value.document.isDirty = false
+    if (tab === ReqType.Rest) {
+      RESTTabs.currentActiveTab.value.document.isDirty = false
+    } else {
+      GQLTabs.currentActiveTab.value.document.isDirty = false
+    }
   })
   hideModal()
 }

@@ -1508,6 +1508,14 @@ export function editGraphqlRequest(
 }
 
 export function saveGraphqlRequestAs(path: string, request: HoppGQLRequest) {
+  // For calculating the insertion request index
+  const targetLocation = navigateToFolderWithIndexPath(
+    graphqlCollectionStore.value.state,
+    path.split("/").map((x) => parseInt(x))
+  )
+
+  const insertionIndex = targetLocation!.requests.length
+
   graphqlCollectionStore.dispatch({
     dispatcher: "saveRequestAs",
     payload: {
@@ -1515,6 +1523,8 @@ export function saveGraphqlRequestAs(path: string, request: HoppGQLRequest) {
       request,
     },
   })
+
+  return insertionIndex
 }
 
 export function removeGraphqlRequest(

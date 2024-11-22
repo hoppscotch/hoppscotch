@@ -97,18 +97,21 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
-import { ref, watch } from "vue"
+import { nextTick, ref, watch } from "vue"
+import { useService } from "dioc/vue"
 import {
   useRequestNameGeneration,
   useSubmitFeedback,
 } from "~/composables/ai-experiments"
 import { editGraphqlRequest } from "~/newstore/collections"
+import { GQLTabService } from "~/services/tab/graphql"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 
 const t = useI18n()
 const toast = useToast()
+const tabs = useService(GQLTabService)
 
 const props = defineProps<{
   show: boolean
@@ -163,7 +166,22 @@ const saveRequest = () => {
     name: editingName.value || (props.request as any).name,
   }
 
+  // Future TODO: Move below store and follow up tab updates to the page level
+  const possibleActiveTab = tabs.getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    requestIndex: props.requestIndex!,
+    folderPath: props.folderPath!,
+  })
+
   editGraphqlRequest(props.folderPath, props.requestIndex, requestUpdated)
+
+  if (possibleActiveTab) {
+    possibleActiveTab.value.document.request.name = requestUpdated.name
+
+    nextTick(() => {
+      possibleActiveTab.value.document.isDirty = false
+    })
+  }
 
   hideModal()
 }

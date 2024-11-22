@@ -7,9 +7,14 @@
     </div>
 
     <div class="flex justify-between items-center py-6">
-      <h3 class="text-lg font-bold text-accentContrast">
-        {{ t('users.pending_invites') }}
-      </h3>
+      <div>
+        <h3 class="text-lg font-bold text-accentContrast">
+          {{ t('users.pending_invites') }}
+        </h3>
+        <p class="my-1 text-secondaryLight">
+          {{ t('users.pending_invites_description') }}
+        </p>
+      </div>
 
       <HoppButtonSecondary
         v-if="pendingInvites?.length"

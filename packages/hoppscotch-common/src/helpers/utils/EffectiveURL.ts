@@ -427,6 +427,7 @@ export const resolvesEnvsInBody = (
             value: entry.isFile
               ? entry.value
               : parseTemplateString(entry.value, env.variables, false, true),
+            contentType: entry.contentType,
           }
       ),
     }

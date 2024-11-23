@@ -201,6 +201,7 @@ const HoppRESTImporter: ImporterOrExporter = {
     icon: IconFolderPlus,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "hoppscotch",
   },
   importSummary: currentImportSummary,
   component: FileSource({
@@ -242,6 +243,7 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
     icon: IconUser,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
+    format: "hoppscotch",
   },
   onSelect() {
     if (!currentUser.value) {
@@ -285,6 +287,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
     icon: IconOpenAPI,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "openapi",
   },
   importSummary: currentImportSummary,
   supported_sources: [
@@ -368,6 +371,7 @@ const HoppPostmanImporter: ImporterOrExporter = {
     icon: IconPostman,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "postman",
   },
   importSummary: currentImportSummary,
   component: FileSource({
@@ -410,6 +414,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     icon: IconInsomnia,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "insomnia",
   },
   importSummary: currentImportSummary,
   component: FileSource({
@@ -452,6 +457,7 @@ const HoppGistImporter: ImporterOrExporter = {
     icon: IconGithub,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "hoppscotch",
   },
   importSummary: currentImportSummary,
   component: GistSource({
@@ -499,6 +505,7 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace"],
     isLoading: isHoppMyCollectionExporterInProgress,
+    format: "hoppscotch",
   },
   importSummary: currentImportSummary,
   action: async () => {
@@ -636,6 +643,7 @@ const HARImporter: ImporterOrExporter = {
     icon: IconFile,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
+    format: "har",
   },
   importSummary: currentImportSummary,
   component: FileSource({

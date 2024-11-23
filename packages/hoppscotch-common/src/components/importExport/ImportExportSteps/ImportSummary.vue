@@ -1,22 +1,78 @@
 <script setup lang="ts">
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { Ref, ref, watch } from "vue"
+import { computed, Ref, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
+import IconInfo from "~icons/lucide/info"
+import { SupportedImportFormat } from "./../types"
 
 const t = useI18n()
 
+type Feature =
+  | "collections"
+  | "requests"
+  | "responses"
+  | "preRequestScripts"
+  | "testScripts"
+
+type FeatureStatus =
+  | "SUPPORTED"
+  | "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT"
+  | "NOT_SUPPORTED_BY_SOURCE"
+
+type FeatureWithCount = {
+  count: number
+  label: string
+  id: Feature
+}
+
 const props = defineProps<{
+  importFormat: SupportedImportFormat
   collections: HoppCollection[]
   onClose: () => void
 }>()
 
-type CountBlock = {
-  count: number
-  label: string
-  id: string
+const importSourceAndSupportedFeatures: Record<
+  SupportedImportFormat,
+  Record<Feature, FeatureStatus>
+> = {
+  hoppscotch: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "SUPPORTED",
+    preRequestScripts: "SUPPORTED",
+    testScripts: "SUPPORTED",
+  },
+  postman: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "SUPPORTED",
+    preRequestScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+    testScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+  },
+  insomnia: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "NOT_SUPPORTED_BY_SOURCE",
+    preRequestScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+    testScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+  },
+  openapi: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "SUPPORTED",
+    preRequestScripts: "NOT_SUPPORTED_BY_SOURCE",
+    testScripts: "NOT_SUPPORTED_BY_SOURCE",
+  },
+  har: {
+    collections: "SUPPORTED",
+    requests: "SUPPORTED",
+    responses: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+    preRequestScripts: "NOT_SUPPORTED_BY_SOURCE",
+    testScripts: "NOT_SUPPORTED_BY_SOURCE",
+  },
 }
 
-const countBlocks: Ref<CountBlock[]> = ref([])
+const featuresWithCount: Ref<FeatureWithCount[]> = ref([])
 
 const countCollections = (collections: HoppCollection[]) => {
   let collectionCount = 0
@@ -68,31 +124,31 @@ watch(
       testScriptsCount,
     } = countCollections(collections)
 
-    countBlocks.value = [
+    featuresWithCount.value = [
       {
         count: collectionCount,
         label: "import.import_summary_collections_title",
-        id: "collections_count",
+        id: "collections" as const,
       },
       {
         count: requestCount,
         label: "import.import_summary_requests_title",
-        id: "requests_count",
+        id: "requests" as const,
       },
       {
         count: responseCount,
         label: "import.import_summary_responses_title",
-        id: "responses_count",
+        id: "responses" as const,
       },
       {
         count: preRequestScriptsCount,
         label: "import.import_summary_pre_request_scripts_title",
-        id: "pre_request_scripts_count",
+        id: "preRequestScripts" as const,
       },
       {
         count: testScriptsCount,
         label: "import.import_summary_test_scripts_title",
-        id: "test_scripts_count",
+        id: "testScripts" as const,
       },
     ]
   },
@@ -100,28 +156,73 @@ watch(
     immediate: true,
   }
 )
+
+const featureSupportForImportFormat = computed(() => {
+  return importSourceAndSupportedFeatures[props.importFormat]
+})
+
+const visibleFeatures = computed(() => {
+  return featuresWithCount.value.filter((feature) => {
+    return (
+      importSourceAndSupportedFeatures[props.importFormat][feature.id] !==
+      "NOT_SUPPORTED_BY_SOURCE"
+    )
+  })
+})
 </script>
 
 <template>
   <div class="space-y-4">
-    <div v-for="countBlock in countBlocks" :key="countBlock.id">
+    <div v-for="feature in visibleFeatures" :key="feature.id">
       <p class="flex items-center">
         <span
-          class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark text-green-500"
+          class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary"
+          :class="{
+            'text-green-500':
+              featureSupportForImportFormat[feature.id] === 'SUPPORTED',
+            'text-amber-500':
+              featureSupportForImportFormat[feature.id] ===
+              'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT',
+          }"
         >
-          <icon-lucide-check-circle class="svg-icons" />
+          <icon-lucide-check-circle
+            v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
+            class="svg-icons"
+          />
+
+          <IconInfo
+            v-else-if="
+              featureSupportForImportFormat[feature.id] ===
+              'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
+            "
+            class="svg-icons"
+          />
         </span>
-        <span>{{ t(countBlock.label) }}</span>
+        <span>{{ t(feature.label) }}</span>
       </p>
 
       <p class="ml-10 text-secondaryLight">
-        {{ countBlock.count }}
-        {{
-          countBlock.count != 1
-            ? t(countBlock.label)
-            : t(countBlock.label).slice(0, -1)
-        }}
-        Imported
+        <template
+          v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
+        >
+          {{ feature.count }}
+          {{
+            feature.count != 1
+              ? t(feature.label)
+              : t(feature.label).slice(0, -1)
+          }}
+          Imported
+        </template>
+
+        <template
+          v-else-if="
+            featureSupportForImportFormat[feature.id] ===
+            'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
+          "
+        >
+          We do not support importing {{ t(feature.label) }} from this source
+          right now
+        </template>
       </p>
     </div>
   </div>
@@ -132,11 +233,7 @@ watch(
       :label="t('action.close')"
       outline
       filled
-      @click="
-        () => {
-          onClose()
-        }
-      "
+      @click="onClose"
     />
   </div>
 </template>

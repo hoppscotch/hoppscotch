@@ -2,6 +2,13 @@ import { HoppCollection } from "@hoppscotch/data"
 import { Component, Ref } from "vue"
 import { defineStep } from "~/composables/step-components"
 
+export type SupportedImportFormat =
+  | "hoppscotch"
+  | "postman"
+  | "insomnia"
+  | "openapi"
+  | "har"
+
 // TODO: move the metadata except disabled and isLoading to importers.ts
 export type ImporterOrExporter = {
   metadata: {
@@ -12,6 +19,7 @@ export type ImporterOrExporter = {
     disabled: boolean
     applicableTo: Array<"personal-workspace" | "team-workspace" | "url-import">
     isLoading?: Ref<boolean>
+    format?: SupportedImportFormat
   }
   supported_sources?: {
     id: string

@@ -427,6 +427,7 @@ export const resolvesEnvsInBody = (
             value: entry.isFile
               ? entry.value
               : parseTemplateString(entry.value, env.variables, false, true),
+            contentType: entry.contentType,
           }
       ),
     }
@@ -512,11 +513,13 @@ function getFinalBodyFromRequest(
           ? x.value.map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
+              contentType: x.contentType,
             }))
           : [
               {
                 key: parseTemplateString(x.key, envVariables),
                 value: parseTemplateString(x.value, envVariables),
+                contentType: x.contentType,
               },
             ]
       ),

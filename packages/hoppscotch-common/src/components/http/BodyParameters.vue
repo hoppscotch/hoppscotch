@@ -7,6 +7,17 @@
         {{ t("request.body") }}
       </label>
       <div class="flex">
+        <div class="flex items-center gap-2">
+          <HoppSmartCheckbox
+            :on="body.showIndividualContentType"
+            @change="
+              () => {
+                body.showIndividualContentType = !body.showIndividualContentType
+              }
+            "
+            >{{ t(`request.show_content_type`) }}</HoppSmartCheckbox
+          >
+        </div>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
@@ -73,6 +84,7 @@
                 value: entry.value,
                 active: entry.active,
                 isFile: entry.isFile,
+                contentType: entry.contentType,
               })
             "
           />
@@ -97,6 +109,26 @@
                   value: $event,
                   active: entry.active,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
+                })
+              "
+            />
+          </span>
+          <span v-if="body.showIndividualContentType" class="flex flex-1">
+            <SmartEnvInput
+              v-model="entry.contentType"
+              :placeholder="
+                entry.contentType ? entry.contentType : `Auto (Content Type)`
+              "
+              :auto-complete-env="true"
+              :envs="envs"
+              @change="
+                updateBodyParam(index, {
+                  key: entry.key,
+                  value: entry.value,
+                  active: entry.active,
+                  isFile: entry.isFile,
+                  contentType: $event,
                 })
               "
             />
@@ -139,6 +171,7 @@
                     ? !entry.active
                     : false,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
                 })
               "
             />
@@ -231,6 +264,7 @@ const workingParams = ref<WorkingFormDataKeyValue[]>([
       value: "",
       active: true,
       isFile: false,
+      contentType: undefined,
     },
   },
 ])

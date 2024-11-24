@@ -48,6 +48,42 @@ const objectHasProperty = <T extends string>(
   typeof obj === "object" &&
   Object.prototype.hasOwnProperty.call(obj, propName)
 
+// basic validation for OpenAPI V2 Document
+const isOpenAPIV2Document = (doc: unknown): doc is OpenAPIV2.Document => {
+  return (
+    objectHasProperty(doc, "swagger") &&
+    typeof doc.swagger === "string" &&
+    doc.swagger === "2.0"
+  )
+}
+
+// basic validation for OpenAPI V3 Document
+const isOpenAPIV3Document = (
+  doc: unknown
+): doc is OpenAPIV3.Document | OpenAPIV31.Document => {
+  return (
+    objectHasProperty(doc, "openapi") &&
+    typeof doc.openapi === "string" &&
+    doc.openapi.startsWith("3.")
+  )
+}
+
+const hasRequiredOpenAPIFields = (doc: unknown): boolean => {
+  return (
+    objectHasProperty(doc, "info") &&
+    objectHasProperty(doc.info, "title") &&
+    objectHasProperty(doc.info, "version") &&
+    objectHasProperty(doc, "paths")
+  )
+}
+
+const isABasicOpenAPIDoc = (doc: unknown): boolean => {
+  return (
+    (isOpenAPIV2Document(doc) || isOpenAPIV3Document(doc)) &&
+    hasRequiredOpenAPIFields(doc)
+  )
+}
+
 type OpenAPIPathInfoType =
   | OpenAPIV2.PathItemObject<Record<string, unknown>>
   | OpenAPIV3.PathItemObject<Record<string, unknown>>
@@ -870,6 +906,12 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
             for (const docObj of docArr) {
               try {
+                const isValidOpenAPISpec = isABasicOpenAPIDoc(docObj)
+
+                if (!isValidOpenAPISpec) {
+                  throw new Error("INVALID_OPENAPI_SPEC")
+                }
+
                 const validatedDoc = await SwaggerParser.validate(docObj, {
                   // @ts-expect-error - this is a valid option, but seems like the types are not updated
                   continueOnError: true,
@@ -877,6 +919,13 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
                 resultDoc.push(validatedDoc)
               } catch (err) {
+                if (
+                  err instanceof Error &&
+                  err.message === "INVALID_OPENAPI_SPEC"
+                ) {
+                  throw new Error("INVALID_OPENAPI_SPEC")
+                }
+
                 if (
                   // @ts-expect-error the type for err is not exported from the library
                   err.files &&

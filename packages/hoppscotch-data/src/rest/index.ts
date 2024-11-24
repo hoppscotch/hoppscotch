@@ -51,8 +51,7 @@ export {
   HoppRESTRequestResponses,
 } from "./v/8"
 
-export { FormDataKeyValue } from "./v/9"
-export { HoppRESTReqBody } from "./v/9"
+export { FormDataKeyValue, HoppRESTReqBody } from "./v/9"
 
 const versionedObject = z.object({
   // v is a stringified number

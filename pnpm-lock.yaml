@@ -904,6 +904,9 @@ importers:
       parser-ts:
         specifier: 0.7.0
         version: 0.7.0(fp-ts@2.16.9)
+      uuid:
+        specifier: 10.0.0
+        version: 10.0.0
       verzod:
         specifier: 0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -914,6 +917,9 @@ importers:
       '@types/lodash':
         specifier: 4.17.10
         version: 4.17.10
+      '@types/uuid':
+        specifier: 10.0.0
+        version: 10.0.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -10387,6 +10393,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.11.0:

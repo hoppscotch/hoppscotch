@@ -48,6 +48,7 @@ import {
   updateRESTRequestOrder,
 } from "@hoppscotch/common/newstore/collections"
 import {
+  generateUniqueRefId,
   GQLHeader,
   HoppCollection,
   HoppGQLRequest,
@@ -71,13 +72,13 @@ function initCollectionsSync() {
   gqlCollectionsSyncer.startStoreSync()
 
   // TODO: fix collection schema transformation on backend maybe?
-  // loadUserCollections("REST")
+  loadUserCollections("REST")
   loadUserCollections("GQL")
 
   // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
     if (user) {
-      // loadUserCollections("REST")
+      loadUserCollections("REST")
       loadUserCollections("GQL")
     }
   })
@@ -133,11 +134,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: false },
             headers: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
     return {
       id: restCollection.id,
-      _ref_id: restCollection._ref_id,
+      _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
       v: 5,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
@@ -196,11 +198,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: false },
             headers: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
     return {
       id: gqlCollection.id,
-      _ref_id: gqlCollection._ref_id,
+      _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
       v: 5,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
@@ -371,6 +374,7 @@ function setupUserCollectionCreatedSubscription() {
             : {
                 auth: { authType: "inherit", authActive: false },
                 headers: [],
+                _ref_id: generateUniqueRefId("coll"),
               }
 
         runDispatchWithOutSyncing(() => {
@@ -594,12 +598,13 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers } =
+      const { auth, headers, _ref_id } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: false },
               headers: [],
+              _ref_id: generateUniqueRefId("coll"),
             }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
@@ -614,7 +619,8 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 3,
+        v: 5,
+        _ref_id,
         auth,
         headers: addDescriptionField(headers),
       }

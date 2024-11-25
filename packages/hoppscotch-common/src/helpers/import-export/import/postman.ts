@@ -30,7 +30,7 @@ import {
 import { stringArrayJoin } from "~/helpers/functional/array"
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { HoppRESTRequestResponses } from "@hoppscotch/data/dist/rest/v/8"
+import { HoppRESTRequestResponses } from "@hoppscotch/data"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -177,7 +177,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: "1" as const,
+            v: "2" as const,
           },
         }
         return [response.name, res]

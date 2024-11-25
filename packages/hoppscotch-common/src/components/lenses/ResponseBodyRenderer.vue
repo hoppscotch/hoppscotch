@@ -26,7 +26,7 @@
       :info="`${maybeHeaders.length}`"
       class="flex flex-1 flex-col"
     >
-      <LensesHeadersRenderer v-model="maybeHeaders" />
+      <LensesHeadersRenderer v-model="maybeHeaders" :is-editable="false" />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="!isEditable"

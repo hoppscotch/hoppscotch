@@ -47,7 +47,7 @@ const t = useI18n()
 const props = withDefaults(
   defineProps<{
     show: boolean
-    loadingState: boolean
+    loadingState?: boolean
     modelValue?: string
   }>(),
   {

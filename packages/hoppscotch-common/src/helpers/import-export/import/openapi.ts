@@ -812,7 +812,7 @@ const convertPathToHoppReqs = (
             requestVariables: parseOpenAPIVariables(
               (info.parameters as OpenAPIParamsType[] | undefined) ?? []
             ),
-            v: "1",
+            v: "2",
           }),
         }),
         metadata: {

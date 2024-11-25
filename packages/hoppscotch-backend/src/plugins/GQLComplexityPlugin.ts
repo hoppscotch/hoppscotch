@@ -24,17 +24,20 @@ export class GQLComplexityPlugin implements ApolloServerPlugin {
 
     return {
       async didResolveOperation({ request, document }) {
-        const isIntrospectionQuery =
-          request.operationName === 'IntrospectionQuery';
-
         const complexity = getComplexity({
           schema,
           operationName: request.operationName,
           query: document,
           variables: request.variables,
           estimators: [
-            // Custom estimator for introspection queries
-            (info) => (isIntrospectionQuery ? 0 : undefined),
+            // Custom estimator for introspection fields
+            (args: ComplexityEstimatorArgs) => {
+              const fieldName = args.field.name;
+              if (fieldName.startsWith('__')) {
+                return 0; // Return 0 complexity for introspection fields
+              }
+              return;
+            },
             fieldExtensionsEstimator(),
             simpleEstimator({ defaultComplexity: 1 }),
           ],

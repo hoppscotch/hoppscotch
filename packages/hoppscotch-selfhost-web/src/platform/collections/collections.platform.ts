@@ -1050,7 +1050,7 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 3,
+        v: 5,
         auth,
         headers: addDescriptionField(headers),
       }

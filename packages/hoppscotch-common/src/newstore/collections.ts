@@ -1,4 +1,5 @@
 import {
+  generateUniqueRefId,
   HoppCollection,
   HoppGQLAuth,
   HoppGQLRequest,
@@ -514,6 +515,21 @@ const restCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
+      function recursiveChangeRefIdToAvoidConflicts(
+        collection: HoppCollection
+      ): HoppCollection {
+        const newCollection = {
+          ...collection,
+          _ref_id: generateUniqueRefId("coll"),
+        }
+
+        newCollection.folders = newCollection.folders.map((folder) =>
+          recursiveChangeRefIdToAvoidConflicts(folder)
+        )
+
+        return newCollection
+      }
+
       const duplicatedCollection = {
         ...cloneDeep(collection),
         name,
@@ -522,15 +538,18 @@ const restCollectionDispatchers = defineDispatchers({
           : {}),
       }
 
+      const duplicatedCollectionWithNewRefId =
+        recursiveChangeRefIdToAvoidConflicts(duplicatedCollection)
+
       if (isRootCollection) {
-        newState.push(duplicatedCollection)
+        newState.push(duplicatedCollectionWithNewRefId)
       } else {
         const parentCollectionIndexPath = indexPaths.slice(0, -1)
 
         const parentCollection = navigateToFolderWithIndexPath(state, [
           ...parentCollectionIndexPath,
         ])
-        parentCollection?.folders.push(duplicatedCollection)
+        parentCollection?.folders.push(duplicatedCollectionWithNewRefId)
       }
     }
 

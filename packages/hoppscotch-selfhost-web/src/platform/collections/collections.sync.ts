@@ -9,7 +9,9 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
+
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+
 
 import { getSyncInitFunction, StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
@@ -27,14 +29,19 @@ import {
   updateUserCollectionOrder,
 } from "./collections.api"
 
+
 import * as E from "fp-ts/Either"
 import { ReqType } from "../../api/generated/graphql"
+import { runDispatchWithOutSyncing } from "../../lib/sync";
+
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 export const restCollectionsMapper = createMapper<string, string>()
 
+
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const restRequestsMapper = createMapper<string, string>()
+
 
 // temp implementation untill the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
@@ -44,6 +51,7 @@ const recursivelySyncCollections = async (
   parentUserCollectionID?: string
 ) => {
   let parentCollectionID = parentUserCollectionID
+
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
@@ -61,6 +69,7 @@ const recursivelySyncCollections = async (
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
 
+
       const returnedData = res.right.createRESTRootUserCollection.data
         ? JSON.parse(res.right.createRESTRootUserCollection.data)
         : {
@@ -70,6 +79,7 @@ const recursivelySyncCollections = async (
             },
             headers: [],
           }
+
 
       collection.id = parentCollectionID
       collection.auth = returnedData.auth
@@ -88,14 +98,17 @@ const recursivelySyncCollections = async (
       headers: collection.headers ?? [],
     }
 
+
     const res = await createRESTChildUserCollection(
       collection.name,
       parentUserCollectionID,
       JSON.stringify(data)
     )
 
+
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
+
 
       const returnedData = res.right.createRESTChildUserCollection.data
         ? JSON.parse(res.right.createRESTChildUserCollection.data)
@@ -107,9 +120,11 @@ const recursivelySyncCollections = async (
             headers: [],
           }
 
+
       collection.id = childCollectionId
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
+
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -118,35 +133,64 @@ const recursivelySyncCollections = async (
     }
   }
 
-  // create the requests
+
+  // Update the collection ID in the store
   if (parentCollectionID) {
-    collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createRESTUserRequest(
-          request.name,
-          JSON.stringify(request),
-          parentCollectionID
-        ))
-
-      if (res && E.isRight(res)) {
-        const requestId = res.right.createRESTUserRequest.id
-
-        request.id = requestId
-      }
-    })
+    const collectionInStore = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      collectionPath.split("/").map((index) => parseInt(index))
+    );
+    if (collectionInStore) {
+      runDispatchWithOutSyncing(() => {
+        collectionInStore.id = parentCollectionID;
+      });
+    }
   }
 
-  // create the folders aka child collections
-  if (parentCollectionID)
-    collection.folders.forEach(async (folder, index) => {
-      recursivelySyncCollections(
+
+  // Create the requests and update their IDs
+  if (parentCollectionID) {
+    for (let index = 0; index < collection.requests.length; index++) {
+      const request = collection.requests[index];
+      const res = await createRESTUserRequest(
+        request.name,
+        JSON.stringify(request),
+        parentCollectionID
+      );
+
+
+      if (E.isRight(res)) {
+        const requestId = res.right.createRESTUserRequest.id;
+
+
+        // Update the request ID in the store
+        const collectionInStore = navigateToFolderWithIndexPath(
+          restCollectionStore.value.state,
+          collectionPath.split("/").map((index) => parseInt(index))
+        );
+        if (collectionInStore) {
+          runDispatchWithOutSyncing(() => {
+            collectionInStore.requests[index].id = requestId;
+          });
+        }
+      }
+    }
+  }
+
+
+  // Create child collections recursively
+  if (parentCollectionID) {
+    for (let index = 0; index < collection.folders.length; index++) {
+      const folder = collection.folders[index];
+      await recursivelySyncCollections(
         folder,
         `${collectionPath}/${index}`,
         parentCollectionID
-      )
-    })
+      );
+    }
+  }
 }
+
 
 // TODO: generalize this
 // TODO: ask backend to send enough info on the subscription to not need this
@@ -159,7 +203,9 @@ export const collectionReorderOrMovingOperations: {
   }
 }[] = []
 
+
 type OperationStatus = "pending" | "completed"
+
 
 type OperationCollectionRemoved = {
   type: "COLLECTION_REMOVED"
@@ -167,13 +213,16 @@ type OperationCollectionRemoved = {
   status: OperationStatus
 }
 
+
 export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
+
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
   appendCollections({ entries }) {
     let indexStart = restCollectionStore.value.state.length - entries.length
+
 
     entries.forEach((collection) => {
       recursivelySyncCollections(collection, `${indexStart}`)
@@ -183,6 +232,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async addCollection({ collection }) {
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
+
 
     recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
   },
@@ -197,10 +247,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
+
     const data = {
       auth: collection.auth,
       headers: collection.headers,
     }
+
 
     if (collectionID) {
       updateUserCollection(collectionID, collection.name, JSON.stringify(data))
@@ -212,18 +264,23 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
+
     const parentCollectionBackendID = parentCollection?.id
+
 
     if (parentCollectionBackendID) {
       const foldersLength = parentCollection.folders.length
+
 
       const res = await createRESTChildUserCollection(
         name,
         parentCollectionBackendID
       )
 
+
       if (E.isRight(res)) {
         const { id } = res.right.createRESTChildUserCollection
+
 
         if (foldersLength) {
           parentCollection.folders[foldersLength - 1].id = id
@@ -240,6 +297,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       restCollectionStore.value.state,
       path.split("/").map((index) => parseInt(index))
     )?.id
+
 
     const folderName = folder.name
     const data = {
@@ -261,11 +319,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       destinationPath ?? undefined
     )
 
+
     if (newSourcePath) {
       const sourceCollectionID = navigateToFolderWithIndexPath(
         restCollectionStore.value.state,
         newSourcePath.split("/").map((index) => parseInt(index))
       )?.id
+
 
       const destinationCollectionID = destinationPath
         ? newDestinationPath &&
@@ -274,6 +334,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
             newDestinationPath.split("/").map((index) => parseInt(index))
           )?.id
         : undefined
+
 
       if (sourceCollectionID) {
         await moveUserCollection(sourceCollectionID, destinationCollectionID)
@@ -291,7 +352,9 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )?.requests[requestIndex]
 
+
     const requestBackendID = request?.id
+
 
     if (requestBackendID) {
       editUserRequest(
@@ -307,10 +370,13 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )
 
+
     const parentCollectionBackendID = folder?.id
+
 
     if (parentCollectionBackendID) {
       const newRequest = folder.requests[folder.requests.length - 1]
+
 
       const res = await createRESTUserRequest(
         (request as HoppRESTRequest).name,
@@ -318,8 +384,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         parentCollectionBackendID
       )
 
+
       if (E.isRight(res)) {
         const { id } = res.right.createRESTUserRequest
+
 
         newRequest.id = id
         removeDuplicateRESTCollectionOrFolder(
@@ -360,16 +428,20 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   }) {
     const collections = restCollectionStore.value.state
 
+
     const sourcePathIndexes = getParentPathIndexesFromPath(collectionPath)
     const sourceCollectionIndex = getCollectionIndexFromPath(collectionPath)
+
 
     const destinationCollectionIndex = !!destinationCollectionPath
       ? getCollectionIndexFromPath(destinationCollectionPath)
       : undefined
 
+
     let updatedCollectionIndexs:
       | [newSourceIndex: number, newDestinationIndex: number | undefined]
       | undefined
+
 
     if (
       (sourceCollectionIndex || sourceCollectionIndex == 0) &&
@@ -388,6 +460,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
           ...sourcePathIndexes,
         ])
 
+
         if (sourceCollection && sourceCollection.folders.length > 0) {
           updatedCollectionIndexs = [
             sourceCollection.folders.length - 1,
@@ -397,12 +470,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
 
+
     const sourceCollectionID =
       updatedCollectionIndexs &&
       navigateToFolderWithIndexPath(collections, [
         ...sourcePathIndexes,
         updatedCollectionIndexs[0],
       ])?.id
+
 
     const destinationCollectionID =
       updatedCollectionIndexs &&
@@ -413,6 +488,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
           ])?.id
         : undefined
 
+
     if (sourceCollectionID) {
       await updateUserCollectionOrder(
         sourceCollectionID,
@@ -422,12 +498,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   },
 }
 
+
 export const collectionsSyncer = getSyncInitFunction(
   restCollectionStore,
   storeSyncDefinition,
   () => settingsStore.value.syncCollections,
   getSettingSubject("syncCollections")
 )
+
 
 export async function moveOrReorderRequests(
   requestIndex: number,
@@ -438,21 +516,27 @@ export async function moveOrReorderRequests(
 ) {
   const { collectionStore } = getStoreByCollectionType(requestType)
 
+
   const sourceCollectionBackendID = navigateToFolderWithIndexPath(
     collectionStore.value.state,
     path.split("/").map((index) => parseInt(index))
   )?.id
+
 
   const destinationCollection = navigateToFolderWithIndexPath(
     collectionStore.value.state,
     destinationPath.split("/").map((index) => parseInt(index))
   )
 
+
   const destinationCollectionBackendID = destinationCollection?.id
+
 
   let requestBackendID: string | undefined
 
+
   let nextRequestBackendID: string | undefined
+
 
   // we only need this for reordering requests, not for moving requests
   if (nextRequestIndex) {
@@ -462,8 +546,10 @@ export async function moveOrReorderRequests(
       nextRequestIndex
     )
 
+
     requestBackendID =
       destinationCollection?.requests[newRequestIndex]?.id ?? undefined
+
 
     nextRequestBackendID =
       destinationCollection?.requests[newDestinationIndex]?.id ?? undefined
@@ -475,6 +561,7 @@ export async function moveOrReorderRequests(
         ? requests[requests.length - 1]?.id
         : undefined
   }
+
 
   if (
     sourceCollectionBackendID &&
@@ -490,11 +577,13 @@ export async function moveOrReorderRequests(
   }
 }
 
+
 function getParentPathIndexesFromPath(path: string) {
   const indexes = path.split("/")
   indexes.pop()
   return indexes.map((index) => parseInt(index))
 }
+
 
 export function getCollectionIndexFromPath(collectionPath: string) {
   const sourceCollectionIndexString = collectionPath.split("/").pop()
@@ -502,8 +591,10 @@ export function getCollectionIndexFromPath(collectionPath: string) {
     ? parseInt(sourceCollectionIndexString)
     : undefined
 
+
   return sourceCollectionIndex
 }
+
 
 /**
  * the sync function is called after the reordering has happened on the store
@@ -519,14 +610,17 @@ function getIndexesAfterReorder(
     return [oldDestinationIndex - 1, oldDestinationIndex]
   }
 
+
   // Source Becomes The Destination
   // Destintion Becomes Source + 1
   if (oldSourceIndex > oldDestinationIndex) {
     return [oldDestinationIndex, oldDestinationIndex + 1]
   }
 
+
   throw new Error("Source and Destination are the same")
 }
+
 
 /**
  * the sync function is called after moving a folder has happened on the store,
@@ -541,16 +635,21 @@ function getPathsAfterMoving(sourcePath: string, destinationPath?: string) {
     }
   }
 
+
   const sourceParentPath = getParentPathFromPath(sourcePath)
   const destinationParentPath = getParentPathFromPath(destinationPath)
 
+
   const isSameParentPath = sourceParentPath === destinationParentPath
 
+
   let newDestinationPath: string
+
 
   if (isSameParentPath) {
     const sourceIndex = getCollectionIndexFromPath(sourcePath)
     const destinationIndex = getCollectionIndexFromPath(destinationPath)
+
 
     if (
       (sourceIndex || sourceIndex == 0) &&
@@ -567,14 +666,17 @@ function getPathsAfterMoving(sourcePath: string, destinationPath?: string) {
     newDestinationPath = destinationPath
   }
 
+
   const destinationFolder = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,
     newDestinationPath.split("/").map((index) => parseInt(index))
   )
 
+
   const newSourcePath = destinationFolder
     ? `${newDestinationPath}/${destinationFolder?.folders.length - 1}`
     : undefined
+
 
   return {
     newSourcePath,
@@ -582,17 +684,22 @@ function getPathsAfterMoving(sourcePath: string, destinationPath?: string) {
   }
 }
 
+
 function getParentPathFromPath(path: string | undefined) {
   const indexes = path ? path.split("/") : []
   indexes.pop()
 
+
   return indexes.join("/")
 }
+
 
 export function getStoreByCollectionType(type: "GQL" | "REST") {
   const isGQL = type == "GQL"
 
+
   const collectionStore = isGQL ? graphqlCollectionStore : restCollectionStore
+
 
   return { collectionStore }
 }

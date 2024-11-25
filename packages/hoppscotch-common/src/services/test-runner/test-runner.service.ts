@@ -1,4 +1,8 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTHeaders,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
@@ -81,9 +85,22 @@ export class TestRunnerService extends Service {
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
     options: TestRunnerOptions,
-    parentPath: number[] = []
+    parentPath: number[] = [],
+    parentHeaders?: HoppRESTHeaders,
+    parentAuth?: HoppRESTRequest["auth"]
   ) {
     try {
+      // Compute inherited auth and headers for this collection
+      const inheritedAuth =
+        collection.auth?.authType === "inherit" && collection.auth.authActive
+          ? (parentAuth ?? { authType: "none", authActive: false })
+          : collection.auth || { authType: "none", authActive: false }
+
+      let inheritedHeaders: HoppRESTHeaders = []
+      if (parentHeaders) {
+        inheritedHeaders = [...parentHeaders, ...collection.headers]
+      }
+
       // Process folders progressively
       for (let i = 0; i < collection.folders.length; i++) {
         if (options.stopRef?.value) {
@@ -105,7 +122,15 @@ export class TestRunnerService extends Service {
           }
         )
 
-        await this.runTestCollection(tab, folder, options, currentPath)
+        // Pass inherited headers and auth to the folder
+        await this.runTestCollection(
+          tab,
+          folder,
+          options,
+          currentPath,
+          inheritedHeaders,
+          inheritedAuth
+        )
       }
 
       // Process requests progressively
@@ -125,9 +150,19 @@ export class TestRunnerService extends Service {
           cloneDeep(request)
         )
 
+        // Update the request with inherited headers and auth before execution
+        const finalRequest = {
+          ...request,
+          auth:
+            request.auth.authType === "inherit" && request.auth.authActive
+              ? inheritedAuth
+              : request.auth,
+          headers: [...inheritedHeaders, ...request.headers],
+        }
+
         await this.runTestRequest(
           tab,
-          request,
+          finalRequest,
           collection,
           options,
           currentPath

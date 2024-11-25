@@ -14,11 +14,13 @@ export function GistSource(metadata: {
     importResult: E.Either<string, string[]>
   ) => any | Promise<any>
   isLoading?: Ref<boolean>
+  description?: string
 }) {
   const stepID = uuidv4()
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
+    description: metadata.description,
     onImportFromURL: (gistResponse: unknown) => {
       const fileSchema = z.object({
         files: z.record(z.object({ content: z.string() })),

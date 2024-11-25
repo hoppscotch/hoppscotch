@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import { PropType, computed, ref } from "vue"
+import { PropType, Ref, computed, ref } from "vue"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
@@ -106,7 +106,6 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 
   if (E.isRight(importResult)) {
     toast.success(t("state.file_imported"))
-    emit("hide-modal")
   } else {
     toast.error(t("import.failed"))
   }
@@ -175,6 +174,24 @@ const isTeamWorkspace = computed(() => {
   return props.collectionsType.type === "team-collections"
 })
 
+const currentImportSummary: Ref<{
+  showImportSummary: boolean
+  importedCollections: HoppCollection[] | null
+}> = ref({
+  showImportSummary: false,
+  importedCollections: null,
+})
+
+const setCurrentImportSummary = (collections: HoppCollection[]) => {
+  currentImportSummary.value.importedCollections = collections
+  currentImportSummary.value.showImportSummary = true
+}
+
+const unsetCurrentImportSummary = () => {
+  currentImportSummary.value.importedCollections = null
+  currentImportSummary.value.showImportSummary = false
+}
+
 const HoppRESTImporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_rest",
@@ -183,7 +200,9 @@ const HoppRESTImporter: ImporterOrExporter = {
     icon: IconFolderPlus,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "hoppscotch",
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
@@ -194,6 +213,8 @@ const HoppRESTImporter: ImporterOrExporter = {
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
 
+        setCurrentImportSummary(res.right)
+
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
           importer: "import.from_json",
@@ -202,10 +223,13 @@ const HoppRESTImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+
+        unsetCurrentImportSummary()
       }
 
       isRESTImporterInProgress.value = false
     },
+    description: "import.from_hoppscotch_importer_summary",
     isLoading: isRESTImporterInProgress,
   }),
 }
@@ -218,6 +242,7 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
     icon: IconUser,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
+    format: "hoppscotch",
   },
   onSelect() {
     if (!currentUser.value) {
@@ -227,19 +252,26 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
 
     return false
   },
+  importSummary: currentImportSummary,
   component: defineStep("all_collection_import", AllCollectionImport, () => ({
     loading: isAllCollectionImporterInProgress.value,
     async onImportCollection(content) {
       isAllCollectionImporterInProgress.value = true
 
-      await handleImportToStore([content])
+      try {
+        await handleImportToStore([content])
+        setCurrentImportSummary([content])
 
-      // our analytics consider this as an export event, so keeping compatibility with that
-      platform.analytics?.logEvent({
-        type: "HOPP_EXPORT_COLLECTION",
-        exporter: "import_to_teams",
-        platform: "rest",
-      })
+        // our analytics consider this as an export event, so keeping compatibility with that
+        platform.analytics?.logEvent({
+          type: "HOPP_EXPORT_COLLECTION",
+          exporter: "import_to_teams",
+          platform: "rest",
+        })
+      } catch (e) {
+        showImportFailedError()
+        unsetCurrentImportSummary()
+      }
 
       isAllCollectionImporterInProgress.value = false
     },
@@ -254,7 +286,9 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
     icon: IconOpenAPI,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "openapi",
   },
+  importSummary: currentImportSummary,
   supported_sources: [
     {
       id: "file_import",
@@ -263,6 +297,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       step: FileSource({
         caption: "import.from_file",
         acceptedFileTypes: ".json, .yaml, .yml",
+        description: "import.from_openapi_import_summary",
         onImportFromFile: async (content) => {
           isOpenAPIImporterInProgress.value = true
 
@@ -270,6 +305,8 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
 
           if (E.isRight(res)) {
             await handleImportToStore(res.right)
+
+            setCurrentImportSummary(res.right)
 
             platform.analytics?.logEvent({
               platform: "rest",
@@ -279,6 +316,8 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
             })
           } else {
             showImportFailedError()
+
+            unsetCurrentImportSummary()
           }
 
           isOpenAPIImporterInProgress.value = false
@@ -292,6 +331,7 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
       icon: IconLink,
       step: UrlSource({
         caption: "import.from_url",
+        description: "import.from_openapi_import_summary",
         onImportFromURL: async (content) => {
           isOpenAPIImporterInProgress.value = true
 
@@ -299,6 +339,8 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
 
           if (E.isRight(res)) {
             await handleImportToStore(res.right)
+
+            setCurrentImportSummary(res.right)
 
             platform.analytics?.logEvent({
               platform: "rest",
@@ -308,6 +350,8 @@ const HoppOpenAPIImporter: ImporterOrExporter = {
             })
           } else {
             showImportFailedError()
+
+            unsetCurrentImportSummary()
           }
 
           isOpenAPIImporterInProgress.value = false
@@ -326,10 +370,13 @@ const HoppPostmanImporter: ImporterOrExporter = {
     icon: IconPostman,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "postman",
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
+    description: "import.from_postman_import_summary",
     onImportFromFile: async (content) => {
       isPostmanImporterInProgress.value = true
 
@@ -337,6 +384,8 @@ const HoppPostmanImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
+
+        setCurrentImportSummary(res.right)
 
         platform.analytics?.logEvent({
           platform: "rest",
@@ -346,6 +395,8 @@ const HoppPostmanImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+
+        unsetCurrentImportSummary()
       }
 
       isPostmanImporterInProgress.value = false
@@ -362,10 +413,13 @@ const HoppInsomniaImporter: ImporterOrExporter = {
     icon: IconInsomnia,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "insomnia",
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".json",
+    description: "import.from_insomnia_import_summary",
     onImportFromFile: async (content) => {
       isInsomniaImporterInProgress.value = true
 
@@ -373,6 +427,8 @@ const HoppInsomniaImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
+
+        setCurrentImportSummary(res.right)
 
         platform.analytics?.logEvent({
           platform: "rest",
@@ -382,6 +438,8 @@ const HoppInsomniaImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+
+        unsetCurrentImportSummary()
       }
 
       isInsomniaImporterInProgress.value = false
@@ -398,9 +456,12 @@ const HoppGistImporter: ImporterOrExporter = {
     icon: IconGithub,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "hoppscotch",
   },
+  importSummary: currentImportSummary,
   component: GistSource({
     caption: "import.from_url",
+    description: "import.from_gist_import_summary",
     onImportFromGist: async (content) => {
       if (E.isLeft(content)) {
         showImportFailedError()
@@ -414,6 +475,8 @@ const HoppGistImporter: ImporterOrExporter = {
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
 
+        setCurrentImportSummary(res.right)
+
         platform.analytics?.logEvent({
           platform: "rest",
           type: "HOPP_IMPORT_COLLECTION",
@@ -422,6 +485,8 @@ const HoppGistImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+
+        unsetCurrentImportSummary()
       }
 
       isGistImporterInProgress.value = false
@@ -439,7 +504,9 @@ const HoppMyCollectionsExporter: ImporterOrExporter = {
     disabled: false,
     applicableTo: ["personal-workspace"],
     isLoading: isHoppMyCollectionExporterInProgress,
+    format: "hoppscotch",
   },
+  importSummary: currentImportSummary,
   action: async () => {
     if (!myCollections.value.length) {
       return toast.error(t("error.no_collections_to_export"))
@@ -478,6 +545,7 @@ const HoppTeamCollectionsExporter: ImporterOrExporter = {
     applicableTo: ["team-workspace"],
     isLoading: isHoppTeamCollectionExporterInProgress,
   },
+  importSummary: currentImportSummary,
   action: async () => {
     isHoppTeamCollectionExporterInProgress.value = true
     if (
@@ -574,10 +642,13 @@ const HARImporter: ImporterOrExporter = {
     icon: IconFile,
     disabled: false,
     applicableTo: ["personal-workspace", "team-workspace"],
+    format: "har",
   },
+  importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
     acceptedFileTypes: ".har",
+    description: "import.from_har_import_summary",
     onImportFromFile: async (content) => {
       isHarImporterInProgress.value = true
 
@@ -585,6 +656,8 @@ const HARImporter: ImporterOrExporter = {
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
+
+        setCurrentImportSummary(res.right)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
@@ -594,6 +667,8 @@ const HARImporter: ImporterOrExporter = {
         })
       } else {
         showImportFailedError()
+
+        unsetCurrentImportSummary()
       }
 
       isHarImporterInProgress.value = false

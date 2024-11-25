@@ -1,14 +1,14 @@
 import { defineVersion } from "verzod"
 import { z } from "zod"
 
+import { HoppRESTRequestVariables } from "./2"
+import { HoppRESTHeaders, HoppRESTParams } from "./7"
 import {
   HoppRESTAuth,
   HoppRESTResponseHeaders,
   V8_SCHEMA,
   ValidCodes,
 } from "./8"
-import { HoppRESTHeaders, HoppRESTParams } from "./7"
-import { HoppRESTRequestVariables } from "./2"
 
 export const FormDataKeyValue = z
   .object({

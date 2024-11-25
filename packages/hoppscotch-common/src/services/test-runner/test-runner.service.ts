@@ -93,13 +93,13 @@ export class TestRunnerService extends Service {
       // Compute inherited auth and headers for this collection
       const inheritedAuth =
         collection.auth?.authType === "inherit" && collection.auth.authActive
-          ? (parentAuth ?? { authType: "none", authActive: false })
+          ? parentAuth || { authType: "none", authActive: false }
           : collection.auth || { authType: "none", authActive: false }
 
-      let inheritedHeaders: HoppRESTHeaders = []
-      if (parentHeaders) {
-        inheritedHeaders = [...parentHeaders, ...collection.headers]
-      }
+      const inheritedHeaders: HoppRESTHeaders = [
+        ...(parentHeaders || []),
+        ...collection.headers,
+      ]
 
       // Process folders progressively
       for (let i = 0; i < collection.folders.length; i++) {

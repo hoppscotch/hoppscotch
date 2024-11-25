@@ -2,6 +2,7 @@ import { AuthProvider } from 'src/auth/helper';
 import {
   AUTH_PROVIDER_NOT_CONFIGURED,
   DATABASE_TABLE_NOT_EXIST,
+  ENV_INVALID_DATA_ENCRYPTION_KEY,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
@@ -78,6 +79,9 @@ export async function loadInfraConfiguration() {
 
     return { INFRA: environmentObject };
   } catch (error) {
+    if (error.code === 'ERR_OSSL_BAD_DECRYPT')
+      throw new Error(ENV_INVALID_DATA_ENCRYPTION_KEY);
+
     // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
     // Reason for not throwing error is, we want successful build during 'postinstall' and generate dist files
     return { INFRA: {} };

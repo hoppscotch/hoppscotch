@@ -106,7 +106,6 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 
   if (E.isRight(importResult)) {
     toast.success(t("state.file_imported"))
-    // emit("hide-modal")
   } else {
     toast.error(t("import.failed"))
   }

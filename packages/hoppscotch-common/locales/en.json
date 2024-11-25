@@ -506,7 +506,7 @@
     "from_hoppscotch_importer_summary": "All hoppscotch features are imported.",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
-    "from_insomnia_import_summary": "Collections and Requests will be imported",
+    "from_insomnia_import_summary": "Collections and Requests will be imported.",
     "from_json": "Import from Hoppscotch",
     "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Import from Personal Collections",
@@ -523,7 +523,7 @@
     "gist_url": "Enter Gist URL",
     "from_har": "Import from HAR",
     "from_har_description": "Import from HAR file",
-    "from_har_import_summary": "Requests will be imported to a default collection",
+    "from_har_import_summary": "Requests will be imported to a default collection.",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
     "hoppscotch_environment": "Hoppscotch Environment",
     "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
@@ -543,7 +543,8 @@
     "import_summary_requests_title": "Requests",
     "import_summary_responses_title": "Responses",
     "import_summary_pre_request_scripts_title": "Pre-request scripts",
-    "import_summary_test_scripts_title": "Test scripts"
+    "import_summary_test_scripts_title": "Test scripts",
+    "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now."
   },
   "inspections": {
     "description": "Inspect possible errors",

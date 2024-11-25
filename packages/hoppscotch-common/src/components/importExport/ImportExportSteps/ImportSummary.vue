@@ -220,8 +220,11 @@ const visibleFeatures = computed(() => {
             'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
           "
         >
-          We do not support importing {{ t(feature.label) }} from this source
-          right now
+          {{
+            t("import.import_summary_not_supported_by_hoppscotch_import", {
+              featureLabel: t(feature.label),
+            })
+          }}
         </template>
       </p>
     </div>

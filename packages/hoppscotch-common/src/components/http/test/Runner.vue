@@ -142,6 +142,7 @@ import {
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import { getRESTCollectionByRefId } from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
+import { RESTTabService } from "~/services/tab/rest"
 import {
   TestRunnerRequest,
   TestRunnerService,
@@ -158,6 +159,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTab<HoppTestRunnerDocument>): void
 }>()
 
+const tabs = useService(RESTTabService)
 const tab = useVModel(props, "modelValue", emit)
 
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
@@ -237,11 +239,13 @@ const runAgain = async () => {
   const updatedCollection = await refetchCollectionTree()
   if (updatedCollection) {
     tab.value.document.collection = updatedCollection
+    await nextTick()
+    runTests()
   } else {
+    tabs.closeTab(tab.value.id)
+    await nextTick()
     toast.error(t("collection_runner.collection_not_found"))
   }
-  await nextTick()
-  runTests()
 }
 
 const resetRunnerState = () => {

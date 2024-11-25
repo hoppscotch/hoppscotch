@@ -14,8 +14,8 @@ import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
 import V6_VERSION from "./v/6"
 import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
-import V8_VERSION, { HoppRESTAuth, HoppRESTRequestResponses } from "./v/8"
-import V9_VERSION, { HoppRESTReqBody } from "./v/9"
+import V8_VERSION, { HoppRESTAuth } from "./v/8"
+import V9_VERSION, { HoppRESTReqBody, HoppRESTRequestResponses } from "./v/9"
 
 export * from "./content-types"
 
@@ -46,12 +46,15 @@ export {
   HoppRESTAuthOAuth2,
   HoppRESTAuthDigest,
   PasswordGrantTypeParams,
+} from "./v/8"
+
+export {
+  FormDataKeyValue,
+  HoppRESTReqBody,
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
   HoppRESTRequestResponses,
-} from "./v/8"
-
-export { FormDataKeyValue, HoppRESTReqBody } from "./v/9"
+} from "./v/9"
 
 const versionedObject = z.object({
   // v is a stringified number

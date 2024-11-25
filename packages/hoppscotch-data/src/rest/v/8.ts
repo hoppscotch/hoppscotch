@@ -85,7 +85,7 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-const ValidCodes = z.union(
+export const ValidCodes = z.union(
   Object.keys(StatusCodes).map((code) => z.literal(parseInt(code))) as [
     z.ZodLiteral<number>,
     z.ZodLiteral<number>,
@@ -93,7 +93,7 @@ const ValidCodes = z.union(
   ]
 )
 
-const HoppRESTResponseHeaders = z.array(
+export const HoppRESTResponseHeaders = z.array(
   z.object({
     key: z.string(),
     value: z.string(),

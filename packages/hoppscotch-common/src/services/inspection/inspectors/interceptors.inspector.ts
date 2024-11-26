@@ -35,36 +35,21 @@ export class InterceptorsInspectorService extends Service implements Inspector {
       const isAgent = this.interceptors.currentInterceptorID.value === "agent"
 
       if (isBinaryBody && isAgent) {
-        const inspectionResultPayload: Omit<
-          InspectorResult,
-          "locations" | "id"
-        > = {
-          isApplicable: true,
-          icon: IconAlertCircle,
-          severity: 2,
-          text: {
-            type: "text",
-            text: this.t(
-              "inspections.requestBody.agent_doesnt_support_binary_body"
-            ),
-          },
-        }
-
         return [
-          // TODO: locations should have been an array, so i didnt have to do this
           {
-            ...inspectionResultPayload,
+            isApplicable: true,
+            icon: IconAlertCircle,
+            severity: 2,
+            text: {
+              type: "text",
+              text: this.t(
+                "inspections.requestBody.agent_doesnt_support_binary_body"
+              ),
+            },
             locations: {
               type: "body-content-type-header",
             },
             id: "interceptors-inspector-binary-agent-body-content-type-header",
-          },
-          {
-            ...inspectionResultPayload,
-            locations: {
-              type: "url",
-            },
-            id: "interceptors-inspector-binary-agent-url",
           },
         ]
       }

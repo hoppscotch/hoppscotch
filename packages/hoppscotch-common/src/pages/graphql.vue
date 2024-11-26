@@ -88,7 +88,6 @@ import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { useService } from "dioc/vue"
 import { computed, onBeforeUnmount, ref } from "vue"
-
 import { defineActionHandler } from "~/helpers/actions"
 import { connection, disconnect } from "~/helpers/graphql/connection"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"

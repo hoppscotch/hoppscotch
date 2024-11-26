@@ -1,4 +1,5 @@
 import {
+  generateUniqueRefId,
   HoppCollection,
   HoppGQLAuth,
   HoppGQLRequest,
@@ -514,6 +515,21 @@ const restCollectionDispatchers = defineDispatchers({
     if (collection) {
       const name = `${collection.name} - ${t("action.duplicate")}`
 
+      function recursiveChangeRefIdToAvoidConflicts(
+        collection: HoppCollection
+      ): HoppCollection {
+        const newCollection = {
+          ...collection,
+          _ref_id: generateUniqueRefId("coll"),
+        }
+
+        newCollection.folders = newCollection.folders.map((folder) =>
+          recursiveChangeRefIdToAvoidConflicts(folder)
+        )
+
+        return newCollection
+      }
+
       const duplicatedCollection = {
         ...cloneDeep(collection),
         name,
@@ -522,15 +538,18 @@ const restCollectionDispatchers = defineDispatchers({
           : {}),
       }
 
+      const duplicatedCollectionWithNewRefId =
+        recursiveChangeRefIdToAvoidConflicts(duplicatedCollection)
+
       if (isRootCollection) {
-        newState.push(duplicatedCollection)
+        newState.push(duplicatedCollectionWithNewRefId)
       } else {
         const parentCollectionIndexPath = indexPaths.slice(0, -1)
 
         const parentCollection = navigateToFolderWithIndexPath(state, [
           ...parentCollectionIndexPath,
         ])
-        parentCollection?.folders.push(duplicatedCollection)
+        parentCollection?.folders.push(duplicatedCollectionWithNewRefId)
       }
     }
 
@@ -1196,6 +1215,30 @@ export function removeRESTCollection(
 
 export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
+}
+
+export function getRESTCollectionByRefId(ref_id: string) {
+  function findCollection(
+    collection: HoppCollection,
+    ref_id: string
+  ): HoppCollection | null {
+    if (collection._ref_id === ref_id) {
+      return collection
+    }
+    for (const folder of collection.folders) {
+      const found = findCollection(folder, ref_id)
+      if (found) {
+        return found
+      }
+    }
+    return null
+  }
+  for (const collection of restCollectionStore.value.state) {
+    const found = findCollection(collection, ref_id)
+    if (found) {
+      return found
+    }
+  }
 }
 
 export function editRESTCollection(

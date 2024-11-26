@@ -7,6 +7,7 @@ import {
   HoppRESTRequest,
   HoppRESTHeaders,
   HoppRESTRequestResponse,
+  HoppCollection,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -75,36 +76,13 @@ const SettingsDefSchema = z.object({
   ENABLE_AI_EXPERIMENTS: z.optional(z.boolean()),
 })
 
-// Common properties shared across REST & GQL collections
-const HoppCollectionSchemaCommonProps = z
-  .object({
-    v: z.number(),
-    name: z.string(),
-    id: z.optional(z.string()),
-  })
-  .strict()
-
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
 
 const HoppGQLRequestSchema = entityReference(HoppGQLRequest)
 
-// @ts-expect-error recursive schema
-const HoppRESTCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppRESTCollectionSchema)),
-  requests: z.optional(z.array(HoppRESTRequestSchema)),
+const HoppRESTCollectionSchema = entityReference(HoppCollection)
 
-  auth: z.optional(HoppRESTAuth),
-  headers: z.optional(HoppRESTHeaders),
-}).strict()
-
-// @ts-expect-error recursive schema
-const HoppGQLCollectionSchema = HoppCollectionSchemaCommonProps.extend({
-  folders: z.array(z.lazy(() => HoppGQLCollectionSchema)),
-  requests: z.optional(z.array(HoppGQLRequestSchema)),
-
-  auth: z.optional(HoppGQLAuth),
-  headers: z.optional(z.array(GQLHeader)),
-}).strict()
+const HoppGQLCollectionSchema = entityReference(HoppCollection)
 
 export const VUEX_SCHEMA = z.object({
   postwoman: z.optional(
@@ -549,6 +527,33 @@ export const REST_TAB_STATE_SCHEMA = z
             type: z.literal("example-response").catch("example-response"),
             response: HoppRESTRequestResponse,
             saveContext: z.optional(HoppRESTSaveContextSchema),
+            isDirty: z.boolean(),
+          }),
+          z.object({
+            type: z.literal("test-runner").catch("test-runner"),
+            config: z.object({
+              delay: z.number(),
+              iterations: z.number(),
+              keepVariableValues: z.boolean(),
+              persistResponses: z.boolean(),
+              stopOnError: z.boolean(),
+            }),
+            status: z.enum(["idle", "running", "stopped", "error"]),
+            collection: HoppRESTCollectionSchema,
+            collectionType: z.enum(["my-collections", "team-collections"]),
+            collectionID: z.optional(z.string()),
+            resultCollection: z.optional(HoppRESTCollectionSchema),
+            testRunnerMeta: z.object({
+              totalRequests: z.number(),
+              completedRequests: z.number(),
+              totalTests: z.number(),
+              passedTests: z.number(),
+              failedTests: z.number(),
+              totalTime: z.number(),
+            }),
+            request: z.nullable(entityReference(HoppRESTRequest)),
+            response: z.nullable(HoppRESTResponseSchema),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
             isDirty: z.boolean(),
           }),
         ]),

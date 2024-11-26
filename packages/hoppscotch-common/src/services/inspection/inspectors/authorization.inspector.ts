@@ -43,7 +43,10 @@ export class AuthorizationInspectorService
     const activeTabDocument =
       this.restTabService.currentActiveTab.value.document
 
-    if (activeTabDocument.type === "example-response") {
+    if (
+      activeTabDocument.type === "example-response" ||
+      activeTabDocument.type === "test-runner"
+    ) {
       return null
     }
 
@@ -60,6 +63,7 @@ export class AuthorizationInspectorService
     req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>
   ) {
     return computed(() => {
+      if (!req.value) return []
       const currentInterceptorIDValue =
         this.interceptorService.currentInterceptorID.value
 

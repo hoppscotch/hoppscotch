@@ -31,12 +31,14 @@ const migrateCollections = (collections: unknown[]): HoppCollection[] => {
     );
   }
 
-  return collectionSchemaParsedResult.data.map((collection) => {
-    return {
-      ...collection,
-      folders: migrateCollections(collection.folders),
-    };
-  });
+  return collectionSchemaParsedResult.data.map(
+    ({ _ref_id, folders, ...rest }) => {
+      return {
+        ...rest,
+        folders: migrateCollections(folders),
+      };
+    }
+  );
 };
 
 describe("workspace-access", () => {

@@ -35,7 +35,7 @@ export class ExtensionInspectorService extends Service implements Inspector {
     this.inspection.registerInspector(this)
   }
 
-  getInspections(req: Readonly<Ref<HoppRESTRequest>>) {
+  getInspections(req: Readonly<Ref<HoppRESTRequest | null>>) {
     const currentExtensionStatus = this.extensionService.extensionStatus
 
     const isExtensionInstalled = computed(
@@ -54,6 +54,8 @@ export class ExtensionInspectorService extends Service implements Inspector {
 
     return computed(() => {
       const results: InspectorResult[] = []
+
+      if (!req.value) return results
 
       const url = req.value.endpoint
       const localHostURLs = ["localhost", "127.0.0.1"]

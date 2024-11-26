@@ -18,7 +18,7 @@
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
-            <template #tabhead>
+            <template v-if="tab.document.type === 'request'" #tabhead>
               <HttpTabHead
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
@@ -44,16 +44,24 @@
                 </svg>
               </span>
             </template>
+            <HttpExampleResponseTab
+              v-if="tab.document.type === 'example-response'"
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+            <!-- Render TabContents -->
+            <HttpTestRunner
+              v-if="tab.document.type === 'test-runner'"
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+            <!-- When document.type === 'request' the tab type is HoppTab<HoppRequestDocument>-->
             <HttpRequestTab
               v-if="tab.document.type === 'request'"
               :model-value="tab"
               @update:model-value="onTabUpdate"
             />
-            <HttpExampleResponseTab
-              v-else-if="tab.document.type === 'example-response'"
-              :model-value="tab"
-              @update:model-value="onTabUpdate"
-            />
+            <!-- END Render TabContents -->
           </HoppSmartWindow>
           <template #actions>
             <EnvironmentsSelector class="h-full" />
@@ -211,15 +219,27 @@ const onTabUpdate = (tab: HoppTab<HoppRequestDocument>) => {
 
 const addNewTab = () => {
   const tab = tabs.createNewTab({
+    type: "request",
     request: getDefaultRESTRequest(),
     isDirty: false,
-    type: "request",
   })
 
   tabs.setActiveTab(tab.id)
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.updateTabOrdering(e.oldIndex, e.newIndex)
+}
+
+const getTabName = (tab: HoppTab<HoppTabDocument>) => {
+  if (tab.document.type === "request") {
+    return tab.document.request.name
+  } else if (tab.document.type === "test-runner") {
+    return tab.document.collection.name
+  } else if (tab.document.type === "example-response") {
+    return tab.document.response.name
+  }
+
+  return "Unnamed tab"
 }
 
 const inspectionService = useService(InspectionService)
@@ -255,9 +275,9 @@ const duplicateTab = (tabID: string) => {
   const tab = tabs.getTabRef(tabID)
   if (tab.value && tab.value.document.type === "request") {
     const newTab = tabs.createNewTab({
+      type: "request",
       request: cloneDeep(tab.value.document.request),
       isDirty: true,
-      type: "request",
     })
     tabs.setActiveTab(newTab.id)
   }
@@ -266,14 +286,6 @@ const duplicateTab = (tabID: string) => {
 const onResolveConfirmCloseAllTabs = () => {
   if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
   confirmingCloseAllTabs.value = false
-}
-
-const getTabName = (tab: HoppTab<HoppTabDocument>) => {
-  if (tab.document.type === "request") {
-    return tab.document.request.name
-  } else if (tab.document.type === "example-response") {
-    return tab.document.response.name
-  }
 }
 
 const requestToRename = computed(() => {
@@ -386,7 +398,10 @@ defineActionHandler("rest.request.open", ({ doc }) => {
   tabs.createNewTab(doc)
 })
 
-defineActionHandler("request.rename", openReqRenameModal)
+defineActionHandler("request.rename", () => {
+  if (tabs.currentActiveTab.value.document.type === "request")
+    openReqRenameModal(tabs.currentActiveTab.value.id)
+})
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })

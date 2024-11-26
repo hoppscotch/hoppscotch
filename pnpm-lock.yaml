@@ -30,8 +30,8 @@ importers:
         specifier: 19.5.0
         version: 19.5.0
       '@hoppscotch/ui':
-        specifier: 0.2.1
-        version: 0.2.1(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))
+        specifier: 0.2.2
+        version: 0.2.2(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))
       '@types/node':
         specifier: 22.7.6
         version: 22.7.6
@@ -499,8 +499,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
       '@hoppscotch/ui':
-        specifier: 0.2.1
-        version: 0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))
+        specifier: 0.2.2
+        version: 0.2.2(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))
       '@hoppscotch/vue-toasted':
         specifier: 0.1.0
         version: 0.1.0(vue@3.5.12(typescript@5.3.3))
@@ -904,6 +904,9 @@ importers:
       parser-ts:
         specifier: 0.7.0
         version: 0.7.0(fp-ts@2.16.9)
+      uuid:
+        specifier: 10.0.0
+        version: 10.0.0
       verzod:
         specifier: 0.2.2
         version: 0.2.2(zod@3.23.8)
@@ -914,6 +917,9 @@ importers:
       '@types/lodash':
         specifier: 4.17.10
         version: 4.17.10
+      '@types/uuid':
+        specifier: 10.0.0
+        version: 10.0.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -3760,6 +3766,12 @@ packages:
     peerDependencies:
       vue: 3.5.12
 
+  '@hoppscotch/ui@0.2.2':
+    resolution: {integrity: sha512-rDRfG9onpmlDCO2KjJZN6UIlFC5Ewif689guvtVCZh9a+soy9nUUTbwMHI9913oBIJpbZ4GTLHGpdCl1YHUiVQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.5.12
+
   '@hoppscotch/vue-sonner@1.2.3':
     resolution: {integrity: sha512-P1gyvHHLsPeB8lsLP5SrqwQatuwOKtbsP83sKhyIV3WL2rJj3+DiFfqo2ErNBa+Sl0gM68o1V+wuOS7zbR//6g==}
 
@@ -3882,24 +3894,24 @@ packages:
     resolution: {integrity: sha512-GG428DkrrWCMhxRMRQZjuS7zmSUzarYcaHJqG9VB8dXAxw4iQDoKVQ7ChJRB6ZtsCsX3Jse1PEUlHrJiyQrOTg==}
     engines: {node: '>= 16'}
 
-  '@intlify/message-compiler@10.0.0':
-    resolution: {integrity: sha512-OcaWc63NC/9p1cMdgoNKBj4d61BH8sUW1Hfs6YijTd9656ZR4rNqXAlRnBrfS5ABq0vjQjpa8VnyvH9hK49yBw==}
-    engines: {node: '>= 16'}
-
   '@intlify/message-compiler@10.0.4':
     resolution: {integrity: sha512-AFbhEo10DP095/45EauinQJ5hJ3rJUmuuqltGguvc3WsvezZN+g8qNHLGWKu60FHQVizMrQY7VJ+zVlBXlQQkQ==}
+    engines: {node: '>= 16'}
+
+  '@intlify/message-compiler@11.0.0-beta.1':
+    resolution: {integrity: sha512-yMXfN4hg/EeSdtWfmoMrwB9X4TXwkBoZlTIpNydQaW9y0tSJHGnUPRoahtkbsyACCm9leSJINLY4jQ0rK6BK0Q==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.3.0-beta.20':
     resolution: {integrity: sha512-hwqQXyTnDzAVZ300SU31jO0+3OJbpOdfVU6iBkrmNpS7t2HRnVACo0EwcEXzJa++4EVDreqz5OeqJbt+PeSGGA==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@10.0.0':
-    resolution: {integrity: sha512-6ngLfI7DOTew2dcF9WMJx+NnMWghMBhIiHbGg+wRvngpzD5KZJZiJVuzMsUQE1a5YebEmtpTEfUrDp/NqVGdiw==}
-    engines: {node: '>= 16'}
-
   '@intlify/shared@10.0.4':
     resolution: {integrity: sha512-ukFn0I01HsSgr3VYhYcvkTCLS7rGa0gw4A4AMpcy/A9xx/zRJy7PS2BElMXLwUazVFMAr5zuiTk3MQeoeGXaJg==}
+    engines: {node: '>= 16'}
+
+  '@intlify/shared@11.0.0-beta.1':
+    resolution: {integrity: sha512-Md/4T/QOx7wZ7zqVzSsMx2M/9Mx/1nsgsjXS5SFIowFKydqUhMz7K+y7pMFh781aNYz+rGXYwad8E9/+InK9SA==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.3.0-beta.20':
@@ -10381,6 +10393,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.11.0:
@@ -15394,30 +15407,6 @@ snapshots:
       stringify-object: 3.3.0
       yargs: 17.7.2
 
-  '@hoppscotch/ui@0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
-      '@fontsource-variable/inter': 5.1.0
-      '@fontsource-variable/material-symbols-rounded': 5.1.3
-      '@fontsource-variable/roboto-mono': 5.1.0
-      '@hoppscotch/vue-sonner': 1.2.3
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.3.3))
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
-      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.3.3))
-      fp-ts: 2.16.9
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
-      vue: 3.5.12(typescript@5.3.3)
-      vue-promise-modals: 0.1.0(typescript@5.3.3)
-      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.3.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - typescript
-      - vite
-
   '@hoppscotch/ui@0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
     dependencies:
       '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
@@ -15472,6 +15461,54 @@ snapshots:
       '@fontsource-variable/inter': 5.1.0
       '@fontsource-variable/material-symbols-rounded': 5.1.3
       '@fontsource-variable/roboto-mono': 5.1.0
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.6.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.6.3))
+      fp-ts: 2.16.9
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@9.12.0(jiti@2.3.3))(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
+      vue: 3.5.12(typescript@5.6.3)
+      vue-promise-modals: 0.1.0(typescript@5.6.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.6.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.2(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.3.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.3.3))
+      fp-ts: 2.16.9
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
+      vue: 3.5.12(typescript@5.3.3)
+      vue-promise-modals: 0.1.0(typescript@5.3.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.3.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.2(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.6.3))
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
       '@hoppscotch/vue-sonner': 1.2.3
       '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.6.3))
       '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
@@ -15588,8 +15625,8 @@ snapshots:
 
   '@intlify/bundle-utils@3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0
-      '@intlify/shared': 10.0.0
+      '@intlify/message-compiler': 11.0.0-beta.1
+      '@intlify/shared': 11.0.0-beta.1
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       yaml-eslint-parser: 0.3.2
@@ -15613,8 +15650,8 @@ snapshots:
 
   '@intlify/bundle-utils@9.0.0-beta.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0
-      '@intlify/shared': 10.0.0
+      '@intlify/message-compiler': 11.0.0-beta.1
+      '@intlify/shared': 11.0.0-beta.1
       acorn: 8.12.1
       escodegen: 2.1.0
       estree-walker: 2.0.2
@@ -15630,14 +15667,14 @@ snapshots:
       '@intlify/message-compiler': 10.0.4
       '@intlify/shared': 10.0.4
 
-  '@intlify/message-compiler@10.0.0':
-    dependencies:
-      '@intlify/shared': 10.0.0
-      source-map-js: 1.2.1
-
   '@intlify/message-compiler@10.0.4':
     dependencies:
       '@intlify/shared': 10.0.4
+      source-map-js: 1.2.1
+
+  '@intlify/message-compiler@11.0.0-beta.1':
+    dependencies:
+      '@intlify/shared': 11.0.0-beta.1
       source-map-js: 1.2.1
 
   '@intlify/message-compiler@9.3.0-beta.20':
@@ -15645,9 +15682,9 @@ snapshots:
       '@intlify/shared': 9.3.0-beta.20
       source-map-js: 1.2.1
 
-  '@intlify/shared@10.0.0': {}
-
   '@intlify/shared@10.0.4': {}
+
+  '@intlify/shared@11.0.0-beta.1': {}
 
   '@intlify/shared@9.3.0-beta.20': {}
 
@@ -15655,8 +15692,8 @@ snapshots:
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@9.12.0(jiti@2.3.3))
       '@intlify/bundle-utils': 9.0.0-beta.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))
-      '@intlify/shared': 10.0.0
-      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@10.0.0)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))
+      '@intlify/shared': 11.0.0-beta.1
+      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@11.0.0-beta.1)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))
       '@rollup/pluginutils': 5.1.2(rollup@4.24.0)
       '@typescript-eslint/scope-manager': 7.18.0
       '@typescript-eslint/typescript-estree': 7.18.0(typescript@5.6.3)
@@ -15682,7 +15719,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@6.0.1(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@4.9.5)))':
     dependencies:
       '@intlify/bundle-utils': 7.0.0(vue-i18n@10.0.4(vue@3.5.12(typescript@4.9.5)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.1
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15696,7 +15733,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.1
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15710,7 +15747,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.1
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15721,11 +15758,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@10.0.0)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))':
+  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@11.0.0-beta.1)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@babel/parser': 7.25.7
     optionalDependencies:
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.1
       '@vue/compiler-dom': 3.5.12
       vue: 3.5.12(typescript@5.6.3)
       vue-i18n: 10.0.4(vue@3.5.12(typescript@5.6.3))

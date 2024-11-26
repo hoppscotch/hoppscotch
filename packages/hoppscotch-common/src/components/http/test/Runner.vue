@@ -31,13 +31,11 @@
           <HoppButtonPrimary
             v-if="showResult && tab.document.status === 'running'"
             :label="t('test.stop')"
-            class="w-32"
             @click="stopTests()"
           />
           <HoppButtonPrimary
             v-else
             :label="t('test.run_again')"
-            class="w-32"
             @click="runAgain()"
           />
           <HoppButtonSecondary

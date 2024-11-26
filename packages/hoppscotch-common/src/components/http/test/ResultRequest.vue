@@ -4,7 +4,7 @@
       class="w-full rounded px-4 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
       @click="selectRequest()"
     >
-      <div class="flex gap-4 mb-1">
+      <div class="flex gap-4 mb-1 items-center">
         <span
           class="flex items-center justify-center truncate pointer-events-none"
           :style="{ color: requestLabelColor }"
@@ -20,7 +20,7 @@
           v-if="request.response?.statusCode"
           :class="[
             statusCategory.className,
-            'outlined text-xs rounded-md px-2 flex items-center',
+            'outlined text-[10px] rounded px-2 flex items-center',
           ]"
         >
           {{ `${request.response?.statusCode}` }}

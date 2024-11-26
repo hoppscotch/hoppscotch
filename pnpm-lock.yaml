@@ -667,8 +667,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.23.8)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.23.8)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.3.3)
@@ -908,8 +908,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.23.8)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.23.8)
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -1066,8 +1066,8 @@ importers:
         specifier: 0.12.5
         version: 0.12.5
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.22.4)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.22.4)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@4.9.5)
@@ -11823,12 +11823,6 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  verzod@0.2.2:
-    resolution: {integrity: sha512-TnM0O2SUcXuY63qQ+W+W4/5bDaIhyV9ZDWwL0ztDOawX7q7ar+jHNdYKUR43rf8ku23p2ROgrfoKABjl2IiiZQ==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      zod: ^3.22.0
 
   verzod@0.2.3:
     resolution: {integrity: sha512-fARgs0c/TNNtbo83/5LjriJEb3QMwBN8Ju2+BcVdiI7Y2NOa5Yhq+CrQ8UH43h0BRXcgb2JQABjkgrRCWybEtQ==}
@@ -25942,13 +25936,9 @@ snapshots:
 
   vary@1.1.2: {}
 
-  verzod@0.2.2(zod@3.22.4):
+  verzod@0.2.3(zod@3.22.4):
     dependencies:
       zod: 3.22.4
-
-  verzod@0.2.2(zod@3.23.8):
-    dependencies:
-      zod: 3.23.8
 
   verzod@0.2.3(zod@3.23.8):
     dependencies:

@@ -77,7 +77,7 @@
             </div>
           </template>
         </tippy>
-        <AppInspection :inspection-results="tabResults"></AppInspection>
+        <AppInspection :inspection-results="tabResults" />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="t('request.override_help')"

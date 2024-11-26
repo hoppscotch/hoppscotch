@@ -10,6 +10,11 @@ import IconAlertCircle from "~icons/lucide/alert-circle"
 import { InterceptorService } from "~/services/interceptor.service"
 import { getI18n } from "~/modules/i18n"
 
+/**
+ * This inspector is responsible for inspecting the interceptor usage.
+ *
+ * NOTE: Initializing this service registers it as a inspector with the Inspection Service.
+ */
 export class InterceptorsInspectorService extends Service implements Inspector {
   public static readonly ID = "INTERCEPTORS_INSPECTOR_SERVICE"
 

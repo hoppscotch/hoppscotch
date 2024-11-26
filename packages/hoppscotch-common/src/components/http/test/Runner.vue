@@ -63,8 +63,8 @@
     <template #secondary>
       <HttpTestResponse
         v-if="selectedRequest && selectedRequest.response"
-        :show-response="tab.document.config.persistResponses"
         v-model:document="selectedRequest"
+        :show-response="tab.document.config.persistResponses"
       />
 
       <HoppSmartPlaceholder
@@ -309,25 +309,20 @@ const refetchCollectionTree = async () => {
   const type = tab.value.document.collectionType
   if (type === "my-collections") {
     return getRESTCollectionByRefId(tab.value.document.collectionID)
-  } else {
-    console.log(
-      "Fetching collection tree for team collection",
-      tab.value.document.collectionID
-    )
-
-    return pipe(
-      getCompleteCollectionTree(tab.value.document.collectionID),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err, t)}`)
-          return
-        },
-        async (coll) => {
-          return teamCollToHoppRESTColl(coll)
-        }
-      )
-    )()
   }
+
+  return pipe(
+    getCompleteCollectionTree(tab.value.document.collectionID),
+    TE.match(
+      (err: GQLError<string>) => {
+        toast.error(`${getErrorMessage(err, t)}`)
+        return
+      },
+      async (coll) => {
+        return teamCollToHoppRESTColl(coll)
+      }
+    )
+  )()
 }
 
 function checkIfCollectionIsEmpty(collection: HoppCollection): boolean {

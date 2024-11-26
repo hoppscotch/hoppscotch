@@ -135,9 +135,7 @@
             :key="`result-${index}`"
             class="flex items-center px-4 py-2"
           >
-            <div
-              class="flex flex-shrink flex-shrink-0 items-center overflow-x-auto"
-            >
+            <div class="flex flex-shrink-0 items-center overflow-x-auto">
               <component
                 :is="result.status === 'pass' ? IconCheck : IconClose"
                 class="svg-icons mr-4"
@@ -146,7 +144,7 @@
                 "
               />
               <div
-                class="flex flex-shrink flex-shrink-0 items-center space-x-2 overflow-x-auto"
+                class="flex flex-shrink-0 items-center space-x-2 overflow-x-auto"
               >
                 <span
                   v-if="result.message"

@@ -3,9 +3,9 @@
     <HttpResponseMeta :response="doc.response" :is-embed="false" />
     <LensesResponseBodyRenderer
       v-if="hasResponse"
+      v-model:document="doc"
       :is-editable="false"
       :show-response="showResponse"
-      v-model:document="doc"
     />
   </div>
 </template>

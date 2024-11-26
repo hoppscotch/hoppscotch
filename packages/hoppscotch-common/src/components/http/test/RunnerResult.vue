@@ -2,9 +2,9 @@
   <div class="sticky top-upperRunnerStickyFold z-10">
     <HoppSmartTabs
       v-model="selectedTestTab"
-      @update:model-value="emit('onChangeTab', $event)"
       styles="overflow-x-auto flex-shrink-0 bg-primary"
       render-inactive-tabs
+      @update:model-value="emit('onChangeTab', $event)"
     >
       <HoppSmartTab
         :id="'all'"
@@ -28,7 +28,7 @@
   </div>
 
   <div class="flex flex-col justify-center test-runner pr-2">
-    <HoppSmartTree :adapter="collectionAdapter" :expandAll="true">
+    <HoppSmartTree :expand-all="true" :adapter="collectionAdapter">
       <template #content="{ node }">
         <HttpTestResultFolder
           v-if="

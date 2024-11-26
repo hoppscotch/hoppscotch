@@ -14,8 +14,8 @@
             v-if="showSelection"
             :on="isSelected"
             :name="`request-${requestID}`"
-            @change="selectRequest()"
             class="mx-2 ml-4"
+            @change="selectRequest()"
           />
           <span class="font-semibold truncate text-tiny">
             {{ request.method }}

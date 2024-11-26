@@ -76,7 +76,7 @@ const options = ref<TippyComponent | null>(null)
 const collectionName = computed(() => {
   if ((props.data as HoppCollection).name)
     return (props.data as HoppCollection).name
-  else return (props.data as TeamCollection).title
+  return (props.data as TeamCollection).title
 })
 
 watch(

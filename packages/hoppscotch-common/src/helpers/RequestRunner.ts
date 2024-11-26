@@ -437,30 +437,29 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
               response: res,
               testResult: sandboxTestResult,
             })
-          } else {
-            const sandboxTestResult = {
-              description: "",
-              expectResults: [],
-              tests: [],
-              envDiff: {
-                global: {
-                  additions: [],
-                  deletions: [],
-                  updations: [],
-                },
-                selected: {
-                  additions: [],
-                  deletions: [],
-                  updations: [],
-                },
-              },
-              scriptError: true,
-            }
-            return E.right({
-              response: res,
-              testResult: sandboxTestResult,
-            })
           }
+          const sandboxTestResult = {
+            description: "",
+            expectResults: [],
+            tests: [],
+            envDiff: {
+              global: {
+                additions: [],
+                deletions: [],
+                updations: [],
+              },
+              selected: {
+                additions: [],
+                deletions: [],
+                updations: [],
+              },
+            },
+            scriptError: true,
+          }
+          return E.right({
+            response: res,
+            testResult: sandboxTestResult,
+          })
         }
       })
 

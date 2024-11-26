@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-stretch group ml-4 flex-col">
     <button
-      @click="selectRequest()"
       class="w-full rounded px-4 py-3 transition cursor-pointer focus:outline-none hover:active hover:bg-primaryLight hover:text-secondaryDark"
+      @click="selectRequest()"
     >
       <div class="flex gap-4 mb-1">
         <span
@@ -17,11 +17,11 @@
           {{ request.name }}
         </span>
         <span
+          v-if="request.response?.statusCode"
           :class="[
             statusCategory.className,
             'outlined text-xs rounded-md px-2 flex items-center',
           ]"
-          v-if="request.response?.statusCode"
         >
           {{ `${request.response?.statusCode}` }}
         </span>
@@ -70,6 +70,7 @@ const props = withDefaults(
     isActive: false,
     isSelected: false,
     showSelection: false,
+    requestID: "",
   }
 )
 

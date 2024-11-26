@@ -18,7 +18,7 @@
             :is-removable="activeTabs.length > 1"
             :close-visibility="'hover'"
           >
-            <template #tabhead v-if="tab.document.type === 'request'">
+            <template v-if="tab.document.type === 'request'" #tabhead>
               <HttpTabHead
                 :tab="tab"
                 :is-removable="activeTabs.length > 1"
@@ -92,7 +92,7 @@
       role="dialog"
       aria-modal="true"
       :title="t('modal.close_unsaved_tab')"
-      @close="confirmingCloseForTopabID = null"
+      @close="confirmingCloseForTabID = null"
     >
       <template #body>
         <div class="text-center">

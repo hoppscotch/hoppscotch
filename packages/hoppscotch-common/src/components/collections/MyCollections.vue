@@ -138,13 +138,13 @@
                 folderPath: node.id,
               })
             "
+            folder-type="folder"
             @run-collection="
               emit('run-collection', {
                 collectionIndex: node.id,
                 collection: node.data.data.data,
               })
             "
-            folder-type="folder"
             @add-request="
               node.data.type === 'folders' &&
                 emit('add-request', {

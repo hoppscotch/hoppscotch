@@ -59,8 +59,8 @@
                     {{ t("collection_runner.persist_responses") }}
                   </span>
                   <HoppButtonSecondary
-                    class="!py-0 pl-2"
                     v-tippy="{ theme: 'tooltip' }"
+                    class="!py-0 pl-2"
                     to="https://docs.hoppscotch.io/documentation/features/inspections"
                     blank
                     :title="t('app.wiki')"
@@ -217,7 +217,7 @@ const currentEnv = ref<CurrentEnv>(null)
 
 function setCurrentEnv(payload: CurrentEnv) {
   currentEnv.value = payload
-  if (payload?.type == "TEAM_ENV") {
+  if (payload?.type === "TEAM_ENV") {
     environmentID.value = payload.teamEnvID
   }
 }
@@ -285,24 +285,22 @@ const getCollectionTree = async (
   if (!collectionID) return
   if (type === "my-collections") {
     return await getRESTCollectionByRefId(collectionID)
-  } else {
-    loadingCollection.value = true
-    console.log("Fetching collection tree for team collection", collectionID)
-    return pipe(
-      getCompleteCollectionTree(collectionID),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err, t)}`)
-          loadingCollection.value = false
-          return
-        },
-        async (coll) => {
-          loadingCollection.value = false
-          return teamCollToHoppRESTColl(coll)
-        }
-      )
-    )()
   }
+  loadingCollection.value = true
+  return pipe(
+    getCompleteCollectionTree(collectionID),
+    TE.match(
+      (err: GQLError<string>) => {
+        toast.error(`${getErrorMessage(err, t)}`)
+        loadingCollection.value = false
+        return
+      },
+      async (coll) => {
+        loadingCollection.value = false
+        return teamCollToHoppRESTColl(coll)
+      }
+    )
+  )()
 }
 
 function checkIfCollectionIsEmpty(collection: HoppCollection): boolean {

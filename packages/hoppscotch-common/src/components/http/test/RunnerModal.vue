@@ -241,6 +241,11 @@ const runTests = async () => {
     return
   }
 
+  if (recursiveCheckEmpty(collectionTree)) {
+    toast.error(t("collection_runner.empty_collection"))
+    return
+  }
+
   let tabIdToClose = null
   if (props.sameTab) tabIdToClose = cloneDeep(tabs.currentTabID.value)
 
@@ -298,6 +303,16 @@ const getCollectionTree = async (
       )
     )()
   }
+}
+
+function recursiveCheckEmpty(collection: HoppCollection) {
+  if (collection.requests.length === 0) return true
+
+  for (const folder of collection.folders) {
+    if (recursiveCheckEmpty(folder)) return true
+  }
+
+  return false
 }
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

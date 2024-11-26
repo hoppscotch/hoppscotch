@@ -121,6 +121,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { HoppCollection } from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
@@ -237,13 +238,19 @@ const runAgain = async () => {
   await nextTick()
   resetRunnerState()
   const updatedCollection = await refetchCollectionTree()
+
   if (updatedCollection) {
+    if (recursiveCheckEmpty(updatedCollection)) {
+      tabs.closeTab(tab.value.id)
+      toast.error(t("collection_runner.empty_collection"))
+      return
+    }
+
     tab.value.document.collection = updatedCollection
     await nextTick()
     runTests()
   } else {
     tabs.closeTab(tab.value.id)
-    await nextTick()
     toast.error(t("collection_runner.collection_not_found"))
   }
 }
@@ -321,5 +328,15 @@ const refetchCollectionTree = async () => {
       )
     )()
   }
+}
+
+function recursiveCheckEmpty(collection: HoppCollection) {
+  if (collection.requests.length === 0) return true
+
+  for (const folder of collection.folders) {
+    if (recursiveCheckEmpty(folder)) return true
+  }
+
+  return false
 }
 </script>

@@ -241,7 +241,7 @@ const runTests = async () => {
     return
   }
 
-  if (recursiveCheckEmpty(collectionTree)) {
+  if (checkIfCollectionIsEmpty(collectionTree)) {
     toast.error(t("collection_runner.empty_collection"))
     return
   }
@@ -305,14 +305,12 @@ const getCollectionTree = async (
   }
 }
 
-function recursiveCheckEmpty(collection: HoppCollection) {
-  if (collection.requests.length === 0) return true
-
-  for (const folder of collection.folders) {
-    if (recursiveCheckEmpty(folder)) return true
-  }
-
-  return false
+function checkIfCollectionIsEmpty(collection: HoppCollection): boolean {
+  // Check if the collection has requests or if any child collection is non-empty
+  return (
+    collection.requests.length === 0 &&
+    collection.folders.every((folder) => checkIfCollectionIsEmpty(folder))
+  )
 }
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

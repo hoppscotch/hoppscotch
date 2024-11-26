@@ -240,7 +240,7 @@ const runAgain = async () => {
   const updatedCollection = await refetchCollectionTree()
 
   if (updatedCollection) {
-    if (recursiveCheckEmpty(updatedCollection)) {
+    if (checkIfCollectionIsEmpty(updatedCollection)) {
       tabs.closeTab(tab.value.id)
       toast.error(t("collection_runner.empty_collection"))
       return
@@ -330,13 +330,11 @@ const refetchCollectionTree = async () => {
   }
 }
 
-function recursiveCheckEmpty(collection: HoppCollection) {
-  if (collection.requests.length === 0) return true
-
-  for (const folder of collection.folders) {
-    if (recursiveCheckEmpty(folder)) return true
-  }
-
-  return false
+function checkIfCollectionIsEmpty(collection: HoppCollection): boolean {
+  // Check if the collection has requests or if any child collection is non-empty
+  return (
+    collection.requests.length === 0 &&
+    collection.folders.every((folder) => checkIfCollectionIsEmpty(folder))
+  )
 }
 </script>

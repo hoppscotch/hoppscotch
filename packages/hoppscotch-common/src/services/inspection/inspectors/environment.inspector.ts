@@ -100,7 +100,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
               position:
                 locations.type === "url" ||
                 locations.type === "body" ||
-                locations.type === "response"
+                locations.type === "response" ||
+                locations.type === "body-content-type-header"
                   ? "key"
                   : locations.position,
               index: index,
@@ -222,7 +223,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                     position:
                       locations.type === "url" ||
                       locations.type === "body" ||
-                      locations.type === "response"
+                      locations.type === "response" ||
+                      locations.type === "body-content-type-header"
                         ? "key"
                         : locations.position,
                     index: index,

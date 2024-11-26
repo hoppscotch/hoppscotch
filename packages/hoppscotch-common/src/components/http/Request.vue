@@ -612,5 +612,8 @@ const isCustomMethod = computed(() => {
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
-const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
+const tabResults = inspectionService.getResultViewFor(
+  tabs.currentTabID.value,
+  (x) => x.locations.type === "url"
+)
 </script>

@@ -146,6 +146,7 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
+import { InterceptorsInspectorService } from "~/services/inspection/inspectors/interceptors.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
@@ -417,6 +418,8 @@ useService(HeaderInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
 useService(AuthorizationInspectorService)
+useService(InterceptorsInspectorService)
+
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)
 }

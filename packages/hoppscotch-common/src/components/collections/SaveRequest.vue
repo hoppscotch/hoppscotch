@@ -135,7 +135,6 @@ import {
   useSubmitFeedback,
 } from "~/composables/ai-experiments"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { ReqType } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
   updateTeamRequest,
@@ -549,7 +548,7 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved(ReqType.Gql)
+    requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
     // TODO: Check for GQL request ?
     const insertionIndex = saveGraphqlRequestAs(
@@ -584,7 +583,7 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved(ReqType.Gql)
+    requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
     // TODO: Check for GQL request ?
     const insertionIndex = saveGraphqlRequestAs(
@@ -619,7 +618,7 @@ const saveRequestAs = async () => {
       headers,
     }
 
-    requestSaved(ReqType.Gql)
+    requestSaved("GQL")
   }
 }
 
@@ -674,10 +673,10 @@ const updateTeamCollectionOrFolder = (
   )()
 }
 
-const requestSaved = (tab: ReqType = ReqType.Rest) => {
+const requestSaved = (tab: "REST" | "GQL" = "REST") => {
   toast.success(`${t("request.added")}`)
   nextTick(() => {
-    if (tab === ReqType.Rest) {
+    if (tab === "REST") {
       RESTTabs.currentActiveTab.value.document.isDirty = false
     } else {
       GQLTabs.currentActiveTab.value.document.isDirty = false

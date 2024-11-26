@@ -26,7 +26,7 @@
     <div class="flex items-center">
       <div class="inline-flex items-center mr-5">
         <HoppButtonSecondary
-          to="https://docs.hoppscotch.io/documentation"
+          to="https://docs.hoppscotch.io/documentation/self-host/community-edition/getting-started"
           blank
           v-tippy="{ theme: 'tooltip' }"
           :title="t('support.documentation')"

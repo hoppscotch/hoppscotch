@@ -46,6 +46,9 @@ export type InspectorLocation =
   | {
       type: "response"
     }
+  | {
+      type: "body-content-type-header"
+    }
 
 /**
  * Defines info about an inspector result so the UI can render it
@@ -60,7 +63,7 @@ export interface InspectorResult {
     text: string
     apply: () => void
   }
-  doc: {
+  doc?: {
     text: string
     link: string
   }

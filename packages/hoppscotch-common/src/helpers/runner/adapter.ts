@@ -169,11 +169,10 @@ export class TestRunnerCollectionsAdapter
           status: "loaded",
           data: [...folderData, ...requestData],
         } as ChildrenResult<Folder | Request>
-      } else {
-        return {
-          status: "loaded",
-          data: [],
-        }
+      }
+      return {
+        status: "loaded",
+        data: [],
       }
     })
   }

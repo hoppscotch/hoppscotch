@@ -21,7 +21,7 @@
         <div class="flex justify-between">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
-            to="https://docs.hoppscotch.io/documentation"
+            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#invite-users-to-your-hoppscotch-instance"
             blank
             :title="t('support.documentation')"
             :icon="IconCircleHelp"

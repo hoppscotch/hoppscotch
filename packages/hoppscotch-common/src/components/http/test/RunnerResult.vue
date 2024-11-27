@@ -27,7 +27,16 @@
     </HoppSmartTabs>
   </div>
 
-  <div class="flex flex-col justify-center test-runner pr-2">
+  <div
+    class="flex flex-col justify-center test-runner pr-2"
+    :class="{
+      hidden:
+        (selectedTestTab === 'passed' &&
+          tab.document.testRunnerMeta.passedTests === 0) ||
+        (selectedTestTab === 'failed' &&
+          tab.document.testRunnerMeta.failedTests === 0),
+    }"
+  >
     <HoppSmartTree :expand-all="true" :adapter="collectionAdapter">
       <template #content="{ node }">
         <HttpTestResultFolder
@@ -60,17 +69,34 @@
       </template>
     </HoppSmartTree>
   </div>
+
+  <HoppSmartPlaceholder
+    v-if="
+      (selectedTestTab === 'passed' &&
+        tab.document.testRunnerMeta.passedTests === 0) ||
+      (selectedTestTab === 'failed' &&
+        tab.document.testRunnerMeta.failedTests === 0)
+    "
+    :src="`/images/states/${colorMode.value}/pack.svg`"
+    :text="
+      selectedTestTab === 'passed'
+        ? `${t('collection_runner.no_passed_tests')}`
+        : `${t('collection_runner.no_failed_tests')}`
+    "
+  />
 </template>
 
 <script setup lang="ts">
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
+import { useColorMode } from "~/composables/theming"
 import { HoppTestRunnerDocument } from "~/helpers/rest/document"
 import { HoppTab } from "~/services/tab"
 import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 defineProps<{
   tab: HoppTab<HoppTestRunnerDocument>

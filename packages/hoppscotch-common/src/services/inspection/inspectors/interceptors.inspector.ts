@@ -40,10 +40,13 @@ export class InterceptorsInspectorService extends Service implements Inspector {
       const isBinaryBody =
         req.value.body.contentType === "application/octet-stream"
 
-      // TODO: define the supported capabilities in the interceptor
-      const isAgent = this.interceptors.currentInterceptorID.value === "agent"
+      const currentInterceptor = this.interceptors.currentInterceptor.value
 
-      if (isBinaryBody && isAgent) {
+      if (
+        isBinaryBody &&
+        currentInterceptor &&
+        !currentInterceptor.supportsBinaryContentType
+      ) {
         return [
           {
             isApplicable: true,
@@ -52,7 +55,7 @@ export class InterceptorsInspectorService extends Service implements Inspector {
             text: {
               type: "text",
               text: this.t(
-                "inspections.requestBody.agent_doesnt_support_binary_body"
+                "inspections.requestBody.doesnt_support_binary_body"
               ),
             },
             locations: {

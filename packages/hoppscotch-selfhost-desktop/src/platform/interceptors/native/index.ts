@@ -260,6 +260,8 @@ export class NativeInterceptorService extends Service implements Interceptor {
   public selectable = { type: "selectable" as const }
 
   public supportsCookies = true
+  public supportsDigestAuth = true
+  public supportsBinaryContentType = false
 
   private cookieJarService = this.bind(CookieJarService)
   private persistenceService: PersistenceService = this.bind(PersistenceService)
@@ -276,8 +278,6 @@ export class NativeInterceptorService extends Service implements Interceptor {
   public clientCertificates = ref<Map<string, ClientCertificateEntry>>(new Map())
   public validateCerts = ref(true)
   public proxyInfo = ref<RequestDef["proxy"]>(undefined)
-
-  public supportsDigestAuth = true
 
   override onServiceInit() {
     // Load SSL Validation

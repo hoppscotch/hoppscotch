@@ -53,7 +53,7 @@ const headerPaddingTop = ref("0px")
         { type: "service", service: NativeInterceptorService },
         {
           type: "standalone",
-          interceptor: { ...proxyInterceptor, supportsDigestAuth: true },
+          interceptor: { ...proxyInterceptor, supportsDigestAuth: true, supportsBinaryContentType: true },
         },
       ],
     },

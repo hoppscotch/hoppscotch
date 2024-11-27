@@ -576,7 +576,7 @@
       "extention_not_enabled": "Extension not enabled."
     },
     "requestBody": {
-      "agent_doesnt_support_binary_body": "Sending binary data via agent is not supported yet"
+      "doesnt_support_binary_body": "Sending binary data via current interceptor is not supported yet"
     }
   },
   "layout": {

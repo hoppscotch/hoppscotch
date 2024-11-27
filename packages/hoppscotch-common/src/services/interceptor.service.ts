@@ -109,6 +109,18 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
   supportsCookies?: boolean
 
   /**
+   * Defines whether the interceptor has support for Digest Auth.
+   * If this field is undefined, it is assumed as not supporting the Digest Auth type.
+   */
+  supportsDigestAuth?: boolean
+
+  /**
+   * Defines whether the interceptor has support for Binary (file) content type.
+   * If this field is undefined, it is assumed as not supporting the Binary content type.
+   */
+  supportsBinaryContentType?: boolean
+
+  /**
    * Defines what to render in the Interceptor section of the Settings page.
    * Use this space to define interceptor specific settings.
    * Not setting this will lead to nothing being rendered about this interceptor in the settings page.
@@ -141,12 +153,6 @@ export type Interceptor<Err extends InterceptorError = InterceptorError> = {
    * @param request The request to run the interceptor on.
    */
   runRequest: (request: AxiosRequestConfig) => RequestRunResult<Err>
-
-  /**
-   * Defines whether the interceptor has support for Digest Auth.
-   * If this field is undefined, it is assumed as not supporting the Digest Auth type.
-   */
-  supportsDigestAuth?: boolean
 }
 
 /**

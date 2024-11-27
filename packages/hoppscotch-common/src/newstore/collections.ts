@@ -1217,28 +1217,138 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
-export function getRESTCollectionByRefId(ref_id: string) {
+function computeCollectionInheritedProps(
+  collection: HoppCollection,
+  ref_id: string,
+  type: "my-collections" | "team-collections" = "my-collections",
+  parentAuth: HoppRESTAuth | null = null,
+  parentHeaders: HoppRESTHeaders | null = null
+): { auth: HoppRESTAuth; headers: HoppRESTHeaders } | null {
+  // Determine the inherited authentication and headers
+  const inheritedAuth =
+    collection.auth?.authType === "inherit" && collection.auth.authActive
+      ? (parentAuth ?? { authType: "none", authActive: false })
+      : (collection.auth ?? { authType: "none", authActive: false })
+
+  const inheritedHeaders: HoppRESTHeaders = [
+    ...(parentHeaders ?? []),
+    ...collection.headers,
+  ]
+
+  // Check if the current collection matches the target reference ID
+  const isTargetCollection =
+    type === "my-collections"
+      ? collection._ref_id === ref_id
+      : collection.id === ref_id
+
+  if (isTargetCollection) {
+    return {
+      auth: inheritedAuth,
+      headers: inheritedHeaders,
+    }
+  }
+
+  // Recursively search in folders
+  for (const folder of collection.folders) {
+    const result = computeCollectionInheritedProps(
+      folder,
+      ref_id,
+      type,
+      inheritedAuth,
+      inheritedHeaders
+    )
+    if (result) return result // Return as soon as a match is found
+  }
+
+  return null
+}
+
+export function getRESTCollectionInheritedProps(
+  collectionID: string,
+  collections: HoppCollection[] = restCollectionStore.value.state,
+  type: "my-collections" | "team-collections" = "my-collections"
+): { auth: HoppRESTAuth; headers: HoppRESTHeaders } | null {
+  for (const collection of collections) {
+    const result = computeCollectionInheritedProps(
+      collection,
+      collectionID,
+      type
+    )
+
+    if (result) {
+      return result
+    }
+  }
+
+  return null
+}
+
+export function getRESTCollectionByRefId(
+  ref_id: string,
+  inheritAuthHeaders: boolean = false,
+  collectionsList: HoppCollection[] = restCollectionStore.value.state,
+  type: "my-collections" | "team-collections" = "my-collections"
+) {
   function findCollection(
     collection: HoppCollection,
-    ref_id: string
+    ref_id: string,
+    parentAuth: HoppRESTAuth | null = null,
+    parentHeaders: HoppRESTHeaders | null = null
   ): HoppCollection | null {
-    if (collection._ref_id === ref_id) {
+    // Compute inherited auth and headers for this collection
+    const inheritedAuth =
+      collection.auth?.authType === "inherit" && collection.auth.authActive
+        ? parentAuth || { authType: "none", authActive: false }
+        : collection.auth || { authType: "none", authActive: false }
+
+    const inheritedHeaders: HoppRESTHeaders = [
+      ...(parentHeaders || []),
+      ...collection.headers,
+    ]
+
+    const check =
+      type === "my-collections"
+        ? collection._ref_id === ref_id
+        : collection.id === ref_id
+
+    // Check if this is the target collection
+    if (check) {
+      if (inheritAuthHeaders) {
+        return {
+          ...collection,
+          auth: inheritedAuth,
+          headers: inheritedHeaders,
+        }
+      }
       return collection
     }
+
+    // Recursively search in folders
     for (const folder of collection.folders) {
-      const found = findCollection(folder, ref_id)
+      const found = findCollection(
+        folder,
+        ref_id,
+        inheritedAuth,
+        inheritedHeaders
+      )
+
       if (found) {
         return found
       }
     }
+
     return null
   }
-  for (const collection of restCollectionStore.value.state) {
+
+  // Iterate through all root-level collections
+  for (const collection of collectionsList) {
     const found = findCollection(collection, ref_id)
     if (found) {
       return found
     }
   }
+
+  return null // Return null if no collection matches the ref_id
 }
 
 export function editRESTCollection(

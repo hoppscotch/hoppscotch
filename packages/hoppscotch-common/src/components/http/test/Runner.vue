@@ -126,7 +126,8 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
-import { computed, nextTick, onMounted, ref } from "vue"
+import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -140,18 +141,30 @@ import {
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
-import { getRESTCollectionByRefId } from "~/newstore/collections"
+import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
+import {
+  getRESTCollectionByRefId,
+  getRESTCollectionInheritedProps,
+  restCollectionStore,
+} from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
 import {
   TestRunnerRequest,
   TestRunnerService,
 } from "~/services/test-runner/test-runner.service"
+import { WorkspaceService } from "~/services/workspace.service"
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
+
+const teamCollectionAdapter = new TeamCollectionAdapter(null)
+const teamCollectionList = useReadonlyStream(
+  teamCollectionAdapter.collections$,
+  []
+)
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 
@@ -161,6 +174,22 @@ const emit = defineEmits<{
 
 const tabs = useService(RESTTabService)
 const tab = useVModel(props, "modelValue", emit)
+
+const workspaceService = useService(WorkspaceService)
+
+watch(
+  workspaceService.currentWorkspace,
+  () => {
+    if (workspaceService.currentWorkspace.value.type === "personal") {
+      return
+    }
+
+    teamCollectionAdapter.changeTeamID(
+      workspaceService.currentWorkspace.value.teamID
+    )
+  },
+  { immediate: true }
+)
 
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>
@@ -217,11 +246,33 @@ const showResult = computed(() => {
 })
 
 const runTests = async () => {
+  const { collectionID, collectionType } = tab.value.document
+
+  const collections =
+    collectionType === "my-collections"
+      ? restCollectionStore.value.state
+      : teamCollectionList.value.map(teamCollToHoppRESTColl)
+
+  const collectionInheritedProps = getRESTCollectionInheritedProps(
+    collectionID,
+    collections,
+    collectionType
+  )
+
+  const { auth, headers } = collectionInheritedProps ?? {
+    auth: { authActive: true, authType: "none" },
+    headers: [],
+  }
+
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(tab, collection.value, {
-    ...testRunnerConfig.value,
-    stopRef: testRunnerStopRef,
-  })
+  testRunnerService.runTests(
+    tab,
+    { ...collection.value, auth, headers },
+    {
+      ...testRunnerConfig.value,
+      stopRef: testRunnerStopRef,
+    }
+  )
 }
 
 const stopTests = () => {

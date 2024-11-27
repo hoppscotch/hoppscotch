@@ -42,10 +42,11 @@ export class InterceptorsInspectorService extends Service implements Inspector {
 
       const currentInterceptor = this.interceptors.currentInterceptor.value
 
+      // TODO: Maybe move feature determination/checking related things to interceptor system.
       if (
         isBinaryBody &&
         currentInterceptor &&
-        !currentInterceptor.supportsBinaryContentType
+        currentInterceptor.supportsBinaryContentType === false
       ) {
         return [
           {

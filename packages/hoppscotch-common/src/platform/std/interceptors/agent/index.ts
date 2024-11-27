@@ -271,7 +271,9 @@ export class AgentInterceptorService extends Service implements Interceptor {
 
   public selectable = { type: "selectable" as const }
 
+  public supportsDigestAuth = true
   public supportsCookies = true
+  public supportsBinaryContentType = false
 
   private interceptorService = this.bind(InterceptorService)
   private cookieJarService = this.bind(CookieJarService)
@@ -301,8 +303,6 @@ export class AgentInterceptorService extends Service implements Interceptor {
   private registrationOTP = ref<string | null>(null)
 
   public proxyInfo = ref<RequestDef["proxy"]>(undefined)
-
-  public supportsDigestAuth = true
 
   override onServiceInit() {
     // Register the Root UI Extension

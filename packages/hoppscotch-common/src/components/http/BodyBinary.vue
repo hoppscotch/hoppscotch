@@ -56,7 +56,11 @@ const handleFileChange = (e: Event) => {
 }
 </script>
 <template>
-  <span>
+  <div class="flex items-center px-4 py-2">
+    <HoppSmartFileChip v-if="props.modelValue.body">{{
+      props.modelValue.body.name
+    }}</HoppSmartFileChip>
+
     <label :for="`attachment-binary-body`" class="p-0">
       <input
         :id="`attachment-binary-body`"
@@ -66,5 +70,5 @@ const handleFileChange = (e: Event) => {
         @change="handleFileChange"
       />
     </label>
-  </span>
+  </div>
 </template>

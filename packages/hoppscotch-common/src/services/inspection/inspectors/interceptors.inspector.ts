@@ -33,6 +33,10 @@ export class InterceptorsInspectorService extends Service implements Inspector {
     req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>
   ) {
     return computed((): InspectorResult[] => {
+      if (!req.value) {
+        return []
+      }
+
       const isBinaryBody =
         req.value.body.contentType === "application/octet-stream"
 

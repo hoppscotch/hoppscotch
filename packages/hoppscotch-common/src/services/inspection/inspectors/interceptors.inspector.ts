@@ -56,7 +56,7 @@ export class InterceptorsInspectorService extends Service implements Inspector {
             text: {
               type: "text",
               text: this.t(
-                "inspections.requestBody.doesnt_support_binary_body"
+                "inspections.requestBody.active_interceptor_doesnt_support_binary_body"
               ),
             },
             locations: {

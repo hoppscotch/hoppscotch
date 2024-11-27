@@ -1215,6 +1215,7 @@
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
     "delay": "Delay",
+    "negative_delay": "Delay cannot be negative",
     "ui": "Runner",
     "running_collection": "Running collection",
     "run_config": "Run Configuration",

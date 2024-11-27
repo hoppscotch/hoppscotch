@@ -113,6 +113,7 @@
             collectionID: tab.document.collectionID,
           }
     "
+    :prev-config="testRunnerConfig"
     @hide-modal="showCollectionsRunnerModal = false"
   />
 </template>

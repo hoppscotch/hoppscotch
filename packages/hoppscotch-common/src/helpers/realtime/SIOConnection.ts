@@ -131,7 +131,7 @@ export class SIOConnection {
     })
   }
 
-  sendMessage(event: { message: string; eventName: string }) {
+  sendMessage(event: { message: unknown; eventName: string }) {
     if (this.connectionState$.value === "DISCONNECTED") return
     const { message, eventName } = event
 

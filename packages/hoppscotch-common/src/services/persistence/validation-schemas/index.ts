@@ -511,25 +511,6 @@ export const REST_TAB_STATE_SCHEMA = z
         tabID: z.string(),
         doc: z.union([
           z.object({
-            // !Versioned entity
-            request: entityReference(HoppRESTRequest),
-            type: z.literal("request").catch("request"),
-            isDirty: z.boolean(),
-            saveContext: z.optional(HoppRESTSaveContextSchema),
-            response: z.optional(z.nullable(HoppRESTResponseSchema)),
-            testResults: z.optional(z.nullable(HoppTestResultSchema)),
-            responseTabPreference: z.optional(z.string()),
-            optionTabPreference: z.optional(z.enum(validRestOperations)),
-            inheritedProperties: z.optional(HoppInheritedPropertySchema),
-            cancelFunction: z.optional(z.function()),
-          }),
-          z.object({
-            type: z.literal("example-response").catch("example-response"),
-            response: HoppRESTRequestResponse,
-            saveContext: z.optional(HoppRESTSaveContextSchema),
-            isDirty: z.boolean(),
-          }),
-          z.object({
             type: z.literal("test-runner").catch("test-runner"),
             config: z.object({
               delay: z.number(),
@@ -554,6 +535,25 @@ export const REST_TAB_STATE_SCHEMA = z
             request: z.nullable(entityReference(HoppRESTRequest)),
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
+            isDirty: z.boolean(),
+          }),
+          z.object({
+            // !Versioned entity
+            request: entityReference(HoppRESTRequest),
+            type: z.literal("request").catch("request"),
+            isDirty: z.boolean(),
+            saveContext: z.optional(HoppRESTSaveContextSchema),
+            response: z.optional(z.nullable(HoppRESTResponseSchema)),
+            testResults: z.optional(z.nullable(HoppTestResultSchema)),
+            responseTabPreference: z.optional(z.string()),
+            optionTabPreference: z.optional(z.enum(validRestOperations)),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
+            cancelFunction: z.optional(z.function()),
+          }),
+          z.object({
+            type: z.literal("example-response").catch("example-response"),
+            response: HoppRESTRequestResponse,
+            saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),
           }),
         ]),

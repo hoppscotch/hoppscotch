@@ -38,7 +38,7 @@ export class InterceptorsInspectorService extends Service implements Inspector {
       }
 
       const isBinaryBody =
-        req.value?.body.contentType === "application/octet-stream"
+        req.value.body.contentType === "application/octet-stream"
 
       const currentInterceptor = this.interceptors.currentInterceptor.value
 

@@ -21,6 +21,7 @@
                   type="number"
                   :label="t('collection_runner.delay')"
                   class="!rounded-r-none !border-r-0"
+                  :class="{ 'border-red-500': config.delay < 0 }"
                   input-styles="floating-input !rounded-r-none !border-r-0"
                 >
                   <template #button>
@@ -31,6 +32,9 @@
                     </span>
                   </template>
                 </HoppSmartInput>
+                <p v-if="config.delay < 0" class="text-xs text-red-500 mt-1">
+                  {{ t("collection_runner.negative_delay") }}
+                </p>
               </div>
             </section>
 
@@ -133,6 +137,7 @@
         <HoppButtonPrimary
           v-if="activeTab === 'test-runner'"
           :label="`${t('test.run')}`"
+          :disabled="config.delay < 0"
           :icon="IconPlay"
           outline
           @click="runTests"
@@ -157,7 +162,7 @@
 
 <script setup lang="ts">
 import { refAutoReset } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 
 import { HoppCollection } from "@hoppscotch/data"
@@ -203,6 +208,7 @@ export type CollectionRunnerData =
 const props = defineProps<{
   sameTab?: boolean
   collectionRunnerData: CollectionRunnerData
+  prevConfig?: Partial<TestRunnerConfig>
 }>()
 
 const emit = defineEmits<{
@@ -228,6 +234,12 @@ const config = ref<TestRunnerConfig>({
   stopOnError: false,
   persistResponses: true,
   keepVariableValues: false,
+})
+
+onMounted(() => {
+  if (props.prevConfig) {
+    config.value = { ...config.value, ...props.prevConfig }
+  }
 })
 
 const runTests = async () => {

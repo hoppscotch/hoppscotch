@@ -31,13 +31,11 @@
           <HoppButtonPrimary
             v-if="showResult && tab.document.status === 'running'"
             :label="t('test.stop')"
-            class="w-32"
             @click="stopTests()"
           />
           <HoppButtonPrimary
             v-else
             :label="t('test.run_again')"
-            class="w-32"
             @click="runAgain()"
           />
           <HoppButtonSecondary
@@ -115,6 +113,7 @@
             collectionID: tab.document.collectionID,
           }
     "
+    :prev-config="testRunnerConfig"
     @hide-modal="showCollectionsRunnerModal = false"
   />
 </template>
@@ -127,7 +126,8 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
-import { computed, nextTick, onMounted, ref } from "vue"
+import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -141,7 +141,12 @@ import {
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
-import { getRESTCollectionByRefId } from "~/newstore/collections"
+import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
+import {
+  getRESTCollectionByRefId,
+  getRESTCollectionInheritedProps,
+  restCollectionStore,
+} from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
 import {
@@ -153,6 +158,12 @@ import IconPlus from "~icons/lucide/plus"
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
+
+const teamCollectionAdapter = new TeamCollectionAdapter(null)
+const teamCollectionList = useReadonlyStream(
+  teamCollectionAdapter.collections$,
+  []
+)
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 
@@ -218,8 +229,33 @@ const showResult = computed(() => {
 })
 
 const runTests = async () => {
+  const { collectionID, collectionType } = tab.value.document
+
+  const isPersonalWorkspace = collectionType === "my-collections"
+
+  const collections = isPersonalWorkspace
+    ? restCollectionStore.value.state
+    : teamCollectionList.value.map(teamCollToHoppRESTColl)
+
+  const collectionInheritedProps = getRESTCollectionInheritedProps(
+    collectionID,
+    collections,
+    collectionType
+  )
+
+  const { auth, headers } = collectionInheritedProps ?? {
+    auth: { authActive: true, authType: "none" },
+    headers: [],
+  }
+
+  // Accommodate collection properties for personal workspace
+  // TODO: Resolve the collection properties computation for team workspaces
+  const resolvedCollection = isPersonalWorkspace
+    ? { ...collection.value, auth, headers }
+    : collection.value
+
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(tab, collection.value, {
+  testRunnerService.runTests(tab, resolvedCollection, {
     ...testRunnerConfig.value,
     stopRef: testRunnerStopRef,
   })

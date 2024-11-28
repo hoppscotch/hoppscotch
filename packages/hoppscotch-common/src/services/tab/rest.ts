@@ -39,6 +39,17 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         }
       }
 
+      if (tab.document.type === "test-runner") {
+        return {
+          tabID: tab.id,
+          doc: {
+            ...tab.document,
+            request: null,
+            response: null,
+          },
+        }
+      }
+
       return {
         tabID: tab.id,
         doc: {

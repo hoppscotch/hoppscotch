@@ -51,9 +51,12 @@ const getCollectionChildrenIDs = async (collID: string) => {
       return E.left(data.left)
     }
 
-    collsList.push(...data.right.collection!.children.map((x) => x.id))
+    if (!data.right.collection) return E.right([])
 
-    if (data.right.collection!.children.length !== BACKEND_PAGE_SIZE) break
+    const children = data.right.collection.children || []
+    collsList.push(...children.map((x) => x.id))
+
+    if (children.length !== BACKEND_PAGE_SIZE) break
   }
 
   return E.right(collsList)
@@ -170,10 +173,14 @@ export const getCompleteCollectionTree = (
               collectionID: collID,
             },
           }),
-        TE.map((result) => ({
-          title: result.collection!.title,
-          data: result.collection!.data,
-        }))
+        TE.map((result) =>
+          result.collection
+            ? {
+                title: result.collection!.title,
+                data: result.collection!.data,
+              }
+            : null
+        )
       )
     ),
     TE.bind("children", () =>
@@ -192,8 +199,8 @@ export const getCompleteCollectionTree = (
           id: collID,
           children,
           requests,
-          title: titleAndData.title,
-          data: titleAndData.data,
+          title: titleAndData?.title,
+          data: titleAndData?.data,
         }
     )
   )

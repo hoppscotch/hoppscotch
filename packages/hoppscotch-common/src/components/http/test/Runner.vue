@@ -153,7 +153,6 @@ import {
   TestRunnerRequest,
   TestRunnerService,
 } from "~/services/test-runner/test-runner.service"
-import { WorkspaceService } from "~/services/workspace.service"
 import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
@@ -174,22 +173,6 @@ const emit = defineEmits<{
 
 const tabs = useService(RESTTabService)
 const tab = useVModel(props, "modelValue", emit)
-
-const workspaceService = useService(WorkspaceService)
-
-watch(
-  workspaceService.currentWorkspace,
-  () => {
-    if (workspaceService.currentWorkspace.value.type === "personal") {
-      return
-    }
-
-    teamCollectionAdapter.changeTeamID(
-      workspaceService.currentWorkspace.value.teamID
-    )
-  },
-  { immediate: true }
-)
 
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>
@@ -248,10 +231,11 @@ const showResult = computed(() => {
 const runTests = async () => {
   const { collectionID, collectionType } = tab.value.document
 
-  const collections =
-    collectionType === "my-collections"
-      ? restCollectionStore.value.state
-      : teamCollectionList.value.map(teamCollToHoppRESTColl)
+  const isPersonalWorkspace = collectionType === "my-collections"
+
+  const collections = isPersonalWorkspace
+    ? restCollectionStore.value.state
+    : teamCollectionList.value.map(teamCollToHoppRESTColl)
 
   const collectionInheritedProps = getRESTCollectionInheritedProps(
     collectionID,
@@ -264,15 +248,17 @@ const runTests = async () => {
     headers: [],
   }
 
+  // Accommodate collection properties for personal workspace
+  // TODO: Resolve the collection properties computation for team workspaces
+  const resolvedCollection = isPersonalWorkspace
+    ? { ...collection.value, auth, headers }
+    : collection.value
+
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(
-    tab,
-    { ...collection.value, auth, headers },
-    {
-      ...testRunnerConfig.value,
-      stopRef: testRunnerStopRef,
-    }
-  )
+  testRunnerService.runTests(tab, resolvedCollection, {
+    ...testRunnerConfig.value,
+    stopRef: testRunnerStopRef,
+  })
 }
 
 const stopTests = () => {

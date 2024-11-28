@@ -1283,72 +1283,29 @@ export function getRESTCollectionInheritedProps(
   return null
 }
 
-export function getRESTCollectionByRefId(
-  ref_id: string,
-  inheritAuthHeaders: boolean = false,
-  collectionsList: HoppCollection[] = restCollectionStore.value.state,
-  type: "my-collections" | "team-collections" = "my-collections"
-) {
-  function findCollection(
-    collection: HoppCollection,
-    ref_id: string,
-    parentAuth: HoppRESTAuth | null = null,
-    parentHeaders: HoppRESTHeaders | null = null
-  ): HoppCollection | null {
-    // Compute inherited auth and headers for this collection
-    const inheritedAuth =
-      collection.auth?.authType === "inherit" && collection.auth.authActive
-        ? parentAuth || { authType: "none", authActive: false }
-        : collection.auth || { authType: "none", authActive: false }
-
-    const inheritedHeaders: HoppRESTHeaders = [
-      ...(parentHeaders || []),
-      ...collection.headers,
-    ]
-
-    const check =
-      type === "my-collections"
-        ? collection._ref_id === ref_id
-        : collection.id === ref_id
-
-    // Check if this is the target collection
-    if (check) {
-      if (inheritAuthHeaders) {
-        return {
-          ...collection,
-          auth: inheritedAuth,
-          headers: inheritedHeaders,
-        }
-      }
-      return collection
-    }
-
-    // Recursively search in folders
-    for (const folder of collection.folders) {
-      const found = findCollection(
-        folder,
-        ref_id,
-        inheritedAuth,
-        inheritedHeaders
-      )
-
-      if (found) {
-        return found
-      }
-    }
-
-    return null
+function findCollection(
+  collection: HoppCollection,
+  ref_id: string
+): HoppCollection | null {
+  if (collection._ref_id === ref_id) {
+    return collection
   }
+  for (const folder of collection.folders) {
+    const found = findCollection(folder, ref_id)
+    if (found) {
+      return found
+    }
+  }
+  return null
+}
 
-  // Iterate through all root-level collections
-  for (const collection of collectionsList) {
+export function getRESTCollectionByRefId(ref_id: string) {
+  for (const collection of restCollectionStore.value.state) {
     const found = findCollection(collection, ref_id)
     if (found) {
       return found
     }
   }
-
-  return null // Return null if no collection matches the ref_id
 }
 
 export function editRESTCollection(

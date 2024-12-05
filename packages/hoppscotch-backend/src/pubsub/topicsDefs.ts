@@ -74,4 +74,5 @@ export type TopicDef = {
   [
     topic: `shortcode/${string}/${'created' | 'revoked' | 'updated'}`
   ]: Shortcode;
+  [topic: `infra_config/${string}/${'updated'}`]: string;
 };

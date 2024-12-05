@@ -156,4 +156,14 @@ export class UserHistoryResolver {
   userHistoryDeletedMany(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted_many`);
   }
+
+  @Subscription(() => Boolean, {
+    description: 'Listen for All User History deleted',
+    resolve: (value) => value,
+  })
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard)
+  userHistoryAllDeleted() {
+    return this.pubsub.asyncIterator(`user_history/all/deleted`);
+  }
 }

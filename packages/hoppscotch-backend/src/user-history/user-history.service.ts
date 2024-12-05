@@ -189,6 +189,16 @@ export class UserHistoryService {
   }
 
   /**
+   * Delete all user history from DB
+   * @returns a boolean
+   */
+  async deleteAllHistories() {
+    await this.prisma.userHistory.deleteMany();
+    this.pubsub.publish('user_history/all/deleted', true);
+    return E.right(true);
+  }
+
+  /**
    * Fetch a user history based on history ID.
    * @param id User History ID
    * @returns an `UserHistory` object

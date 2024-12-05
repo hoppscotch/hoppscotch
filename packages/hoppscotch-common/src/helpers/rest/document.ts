@@ -128,6 +128,12 @@ export type HoppTestRunnerDocument = {
   collectionID: string
 
   /**
+   * Selected request id
+   * (if any)
+   */
+  selectedRequestPath?: string
+
+  /**
    * The request as it is in the document
    */
   resultCollection?: HoppCollection

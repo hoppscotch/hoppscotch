@@ -54,8 +54,10 @@
         :tab="tab"
         :collection-adapter="collectionAdapter"
         :is-running="tab.document.status === 'running'"
+        :selected-request-path="selectedRequestPath"
         @on-change-tab="showTestsType = $event as 'all' | 'passed' | 'failed'"
         @on-select-request="onSelectRequest"
+        @request-path="onChangeRequestPath"
       />
     </template>
     <template #secondary>
@@ -126,7 +128,7 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
-import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onMounted, ref } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
@@ -174,6 +176,9 @@ const emit = defineEmits<{
 const tabs = useService(RESTTabService)
 const tab = useVModel(props, "modelValue", emit)
 
+const selectedRequestPath = computed(
+  () => tab.value.document.selectedRequestPath
+)
 const duration = computed(() => tab.value.document.testRunnerMeta.totalTime)
 const avgResponseTime = computed(() =>
   calculateAverageTime(
@@ -201,6 +206,10 @@ const onSelectRequest = async (request: TestRunnerRequest) => {
   tab.value.document.request = null
   await nextTick() // HACK: To ensure the request is cleared before setting the new request. there is a bug in the response component that doesn't change to the valid lens when the response is changed.
   tab.value.document.request = request
+}
+
+const onChangeRequestPath = (path: string) => {
+  tab.value.document.selectedRequestPath = path
 }
 
 const collectionName = computed(() =>

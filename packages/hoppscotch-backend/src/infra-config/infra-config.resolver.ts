@@ -7,6 +7,8 @@ import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
+import * as E from 'fp-ts/Either';
+import { throwErr } from 'src/utils';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => InfraConfig)
@@ -24,6 +26,16 @@ export class InfraConfigResolver {
   @UseGuards(GqlAuthGuard)
   isSMTPEnabled() {
     return this.infraConfigService.isSMTPEnabled();
+  }
+
+  @Query(() => InfraConfig, {
+    description: 'Check if user history is enabled or not',
+  })
+  @UseGuards(GqlAuthGuard)
+  async isUserHistoryEnabled() {
+    const isEnabled = await this.infraConfigService.isUserHistoryEnabled();
+    if (E.isLeft(isEnabled)) throwErr(isEnabled.left);
+    return isEnabled.right;
   }
 
   /* Subscriptions */

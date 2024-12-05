@@ -473,6 +473,19 @@ export class InfraConfigService implements OnModuleInit {
   }
 
   /**
+   * Check if user history is enabled or not
+   * @returns InfraConfig model
+   */
+  async isUserHistoryEnabled() {
+    const dbInfraConfig = await this.get(
+      InfraConfigEnum.USER_HISTORY_STORE_ENABLED,
+    );
+
+    if (E.isLeft(dbInfraConfig)) return E.left(dbInfraConfig.left);
+    return E.right(dbInfraConfig.right);
+  }
+
+  /**
    * Reset all the InfraConfigs to their default values (from .env)
    */
   async reset() {

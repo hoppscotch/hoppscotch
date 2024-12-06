@@ -477,12 +477,12 @@ export class InfraConfigService implements OnModuleInit {
    * @returns InfraConfig model
    */
   async isUserHistoryEnabled() {
-    const dbInfraConfig = await this.get(
+    const infraConfig = await this.get(
       InfraConfigEnum.USER_HISTORY_STORE_ENABLED,
     );
 
-    if (E.isLeft(dbInfraConfig)) return E.left(dbInfraConfig.left);
-    return E.right(dbInfraConfig.right);
+    if (E.isLeft(infraConfig)) return E.left(infraConfig.left);
+    return E.right(infraConfig.right);
   }
 
   /**

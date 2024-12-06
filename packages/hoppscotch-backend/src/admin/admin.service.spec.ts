@@ -295,4 +295,15 @@ describe('AdminService', () => {
       expect(result).toEqual(10);
     });
   });
+
+  describe('deleteAllUserHistory', () => {
+    test('should resolve right and delete all user history', async () => {
+      mockUserHistoryService.deleteAllHistories.mockResolvedValueOnce(
+        E.right(true),
+      );
+
+      const result = await adminService.deleteAllUserHistory();
+      expect(result).toEqualRight(true);
+    });
+  });
 });

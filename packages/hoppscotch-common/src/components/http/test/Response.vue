@@ -3,8 +3,17 @@
     <HttpResponseMeta :response="doc.response" :is-embed="false" />
     <LensesResponseBodyRenderer
       v-if="hasResponse"
-      v-model:document="doc"
+      :document="{
+        request: {
+          ...doc,
+          response: null,
+          testResults: null,
+        },
+        response: doc.response,
+        testResults: doc.testResults,
+      }"
       :is-editable="false"
+      :is-test-runner="true"
       :show-response="showResponse"
     />
   </div>

@@ -724,6 +724,7 @@
     "duplicate_name_error": "Same name response already exists",
     "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Headers",
+    "request_headers": "Request Headers",
     "html": "HTML",
     "image": "Image",
     "json": "JSON",

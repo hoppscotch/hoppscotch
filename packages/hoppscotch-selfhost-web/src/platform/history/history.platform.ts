@@ -29,6 +29,7 @@ import { restHistorySyncer, gqlHistorySyncer } from "./history.sync"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import { ReqType } from "../../api/generated/graphql"
+import { ref } from "vue"
 
 function initHistorySync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -256,6 +257,11 @@ function setupUserHistoryDeletedManySubscription() {
   return userHistoryDeletedManySub
 }
 
+const isHistoryEnabled = ref(false)
+
 export const def: HistoryPlatformDef = {
   initHistorySync,
+  async isUserHistoryEnabled() {
+    return E.right(isHistoryEnabled.value)
+  },
 }

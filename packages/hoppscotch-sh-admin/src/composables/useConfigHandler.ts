@@ -1,6 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -25,6 +25,7 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  HISTORY_STORE_CONFIG,
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
@@ -141,6 +142,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION' && x.value === 'true'
         ),
       },
+      historyConfig: {
+        name: 'history_settings',
+        enabled: true,
+      },
     };
 
     // Cloning the current configs to working configs
@@ -247,6 +252,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         config: CUSTOM_MAIL_CONFIGS,
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
+      },
+      {
+        config: HISTORY_STORE_CONFIG,
+        enabled: updatedConfigs?.historyConfig.enabled,
       },
     ];
 

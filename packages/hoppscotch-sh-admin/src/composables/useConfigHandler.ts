@@ -1,6 +1,6 @@
 import { AnyVariables, UseMutationResponse } from '@urql/vue';
 import { cloneDeep } from 'lodash-es';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import {
   AllowedAuthProvidersDocument,
@@ -14,6 +14,7 @@ import {
   ServiceStatus,
   ToggleAnalyticsCollectionMutation,
   ToggleSmtpMutation,
+  ToggleUserHistoryStoreMutation,
   UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
 import {
@@ -25,6 +26,7 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  HISTORY_STORE_CONFIG,
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
@@ -141,6 +143,14 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           (x) => x.name === 'ALLOW_ANALYTICS_COLLECTION' && x.value === 'true'
         ),
       },
+      historyConfig: {
+        name: 'history_settings',
+        enabled: !!infraConfigs.value.find(
+          (config) =>
+            config.name === 'USER_HISTORY_STORE_ENABLED' &&
+            config.value === 'ENABLE'
+        ),
+      },
     };
 
     // Cloning the current configs to working configs
@@ -248,13 +258,18 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
       },
+      {
+        config: HISTORY_STORE_CONFIG,
+        enabled: updatedConfigs?.historyConfig.enabled,
+      },
     ];
 
     const transformedConfigs: UpdatedConfigs[] = [];
 
     updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (name === 'MAILER_SMTP_ENABLE') return;
+        if (name === 'MAILER_SMTP_ENABLE' || 'USER_HISTORY_STORE_ENABLED')
+          return;
         else if (isCustomMailConfigEnabled && name === 'MAILER_SMTP_URL')
           return;
         else if (enabled && fields) {
@@ -384,12 +399,27 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.mail_configs.toggle_failure'
     );
 
+  // Toggle User History Store
+  const toggleUserHistoryStore = (
+    toggleUserHistoryStore: UseMutationResponse<ToggleUserHistoryStoreMutation>
+  ) =>
+    executeMutation(
+      toggleUserHistoryStore,
+      {
+        status: updatedConfigs?.historyConfig.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      'configs.user_history_store.toggle_failure'
+    );
+
   return {
     currentConfigs,
     workingConfigs,
     updateAuthProvider,
     updateDataSharingConfigs,
     toggleSMTPConfigs,
+    toggleUserHistoryStore,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

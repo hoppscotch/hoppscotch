@@ -797,6 +797,7 @@
     "sync_description": "These settings are synced to cloud.",
     "sync_environments": "Environments",
     "sync_history": "History",
+    "history_disabled": "History is disabled",
     "system_mode": "System",
     "telemetry": "Telemetry",
     "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",

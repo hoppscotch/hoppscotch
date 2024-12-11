@@ -74,6 +74,8 @@ const SettingsDefSchema = z.object({
 
   HAS_OPENED_SPOTLIGHT: z.optional(z.boolean()),
   ENABLE_AI_EXPERIMENTS: z.optional(z.boolean()),
+  EXTENSIONS_ENABLED: z.optional(z.booolean()),
+  PROXY_ENABLED: z.optional(z.boolean()),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
@@ -109,10 +111,7 @@ export const LOCAL_STATE_SCHEMA = z.union([
     .strict(),
 ])
 
-export const SETTINGS_SCHEMA = SettingsDefSchema.extend({
-  EXTENSIONS_ENABLED: z.optional(z.boolean()),
-  PROXY_ENABLED: z.optional(z.boolean()),
-})
+export const SETTINGS_SCHEMA = SettingsDefSchema
 
 export const REST_HISTORY_ENTRY_SCHEMA = z
   .object({

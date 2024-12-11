@@ -4,6 +4,9 @@ import {
   Environment,
   GlobalEnvironment,
   GlobalEnvironmentVariable,
+  HoppRESTHistory,
+  HoppGQLHistory,
+  Settings,
   translateToNewGQLCollection,
   translateToNewRESTCollection,
 } from "@hoppscotch/data"
@@ -246,7 +249,7 @@ export class PersistenceService extends Service {
 
   private setupSettingsPersistence() {
     const settingsKey = "settings"
-    let settingsData = JSON.parse(
+    let settingsData: Settings = JSON.parse(
       window.localStorage.getItem(settingsKey) ?? "null"
     )
 
@@ -255,9 +258,9 @@ export class PersistenceService extends Service {
     }
 
     // Validate data read from localStorage
-    const result = SETTINGS_SCHEMA.safeParse(settingsData)
-    if (result.success) {
-      settingsData = result.data
+    const result = Settings.safeParse(settingsData)
+    if (result.type === "ok") {
+      settingsData = result.value
     } else {
       this.showErrorToast(settingsKey)
       window.localStorage.setItem(
@@ -281,22 +284,22 @@ export class PersistenceService extends Service {
 
   private setupHistoryPersistence() {
     const restHistoryKey = "history"
-    let restHistoryData = JSON.parse(
+    let restHistoryData: HoppRESTHistory = JSON.parse(
       window.localStorage.getItem(restHistoryKey) || "[]"
     )
 
     const graphqlHistoryKey = "graphqlHistory"
-    let graphqlHistoryData = JSON.parse(
+    let graphqlHistoryData: HoppGQLHistory = JSON.parse(
       window.localStorage.getItem(graphqlHistoryKey) || "[]"
     )
 
     // Validate data read from localStorage
     const restHistorySchemaParsedresult = z
-      .array(REST_HISTORY_ENTRY_SCHEMA)
+      .array(HoppRESTHistory)
       .safeParse(restHistoryData)
 
-    if (restHistorySchemaParsedresult.success) {
-      restHistoryData = restHistorySchemaParsedresult.data
+    if (restHistorySchemaParsedresult.type === "ok") {
+      restHistoryData = restHistorySchemaParsedresult.value
     } else {
       this.showErrorToast(restHistoryKey)
       window.localStorage.setItem(
@@ -306,11 +309,11 @@ export class PersistenceService extends Service {
     }
 
     const gqlHistorySchemaParsedresult = z
-      .array(GQL_HISTORY_ENTRY_SCHEMA)
+      .array(HoppGQLHistory)
       .safeParse(graphqlHistoryData)
 
-    if (gqlHistorySchemaParsedresult.success) {
-      graphqlHistoryData = gqlHistorySchemaParsedresult.data
+    if (gqlHistorySchemaParsedresult === "ok") {
+      graphqlHistoryData = gqlHistorySchemaParsedresult.value
     } else {
       this.showErrorToast(graphqlHistoryKey)
       window.localStorage.setItem(

@@ -1,6 +1,10 @@
-import * as E from "fp-ts/Either"
+import { Ref } from "vue"
 
 export type HistoryPlatformDef = {
   initHistorySync: () => void
-  isUserHistoryEnabled?: () => Promise<E.Either<string, boolean>>
+  requestHistoryStore?: {
+    isHistoryStoreEnabled: Ref<boolean>
+    isFetchingHistoryStoreStatus: Ref<boolean>
+    hasErrorFetchingHistoryStoreStatus: Ref<boolean>
+  }
 }

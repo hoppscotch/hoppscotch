@@ -14,6 +14,7 @@ import {
   ServiceStatus,
   ToggleAnalyticsCollectionMutation,
   ToggleSmtpMutation,
+  ToggleUserHistoryStoreMutation,
   UpdateInfraConfigsMutation,
 } from '~/helpers/backend/graphql';
 import {
@@ -144,7 +145,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       },
       historyConfig: {
         name: 'history_settings',
-        enabled: true,
+        enabled: !!infraConfigs.value.find(
+          (config) =>
+            config.name === 'USER_HISTORY_STORE_ENABLED' &&
+            config.value === 'ENABLE'
+        ),
       },
     };
 
@@ -263,7 +268,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
     updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (name === 'MAILER_SMTP_ENABLE') return;
+        if (name === 'MAILER_SMTP_ENABLE' || 'USER_HISTORY_STORE_ENABLED')
+          return;
         else if (isCustomMailConfigEnabled && name === 'MAILER_SMTP_URL')
           return;
         else if (enabled && fields) {
@@ -393,12 +399,27 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.mail_configs.toggle_failure'
     );
 
+  // Toggle User History Store
+  const toggleUserHistoryStore = (
+    toggleUserHistoryStore: UseMutationResponse<ToggleUserHistoryStoreMutation>
+  ) =>
+    executeMutation(
+      toggleUserHistoryStore,
+      {
+        status: updatedConfigs?.historyConfig.enabled
+          ? ServiceStatus.Enable
+          : ServiceStatus.Disable,
+      },
+      'configs.user_history_store.toggle_failure'
+    );
+
   return {
     currentConfigs,
     workingConfigs,
     updateAuthProvider,
     updateDataSharingConfigs,
     toggleSMTPConfigs,
+    toggleUserHistoryStore,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

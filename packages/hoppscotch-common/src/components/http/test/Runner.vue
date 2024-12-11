@@ -93,9 +93,9 @@
 
       <HoppSmartPlaceholder
         v-else-if="!selectedRequest"
-        :src="`/images/states/${colorMode.value}/add_files.svg`"
-        :alt="`${t('collection_runner.select_request')}`"
-        :text="`${t('collection_runner.select_request')}`"
+        :src="`/images/states/${colorMode.value}/pack.svg`"
+        :alt="`${t('collection_runner.response_body_lost_rerun')}`"
+        :text="`${t('collection_runner.response_body_lost_rerun')}`"
       >
       </HoppSmartPlaceholder>
     </template>

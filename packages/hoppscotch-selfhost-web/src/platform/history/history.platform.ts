@@ -18,9 +18,11 @@ import {
 import { HistoryPlatformDef } from "@hoppscotch/common/platform/history"
 import {
   getUserHistoryEntries,
+  getUserHistoryStore,
   runUserHistoryCreatedSubscription,
   runUserHistoryDeletedManySubscription,
   runUserHistoryDeletedSubscription,
+  runUserHistoryStoreStatusChangedSubscription,
   runUserHistoryUpdatedSubscription,
 } from "./history.api"
 
@@ -39,11 +41,13 @@ function initHistorySync() {
 
   gqlHistorySyncer.startStoreSync()
 
+  getUserHistoryStatus()
   loadHistoryEntries()
 
   currentUser$.subscribe(async (user) => {
     if (user) {
-      await loadHistoryEntries()
+      getUserHistoryStatus()
+      loadHistoryEntries()
     }
   })
 
@@ -65,12 +69,15 @@ function setupSubscriptions() {
   const userHistoryUpdatedSub = setupUserHistoryUpdatedSubscription()
   const userHistoryDeletedSub = setupUserHistoryDeletedSubscription()
   const userHistoryDeletedManySub = setupUserHistoryDeletedManySubscription()
+  const userHistoryStoreStatusChangedSub =
+    setupUserHistoryStoreStatusChangedSubscription()
 
   subs = [
     userHistoryCreatedSub,
     userHistoryUpdatedSub,
     userHistoryDeletedSub,
     userHistoryDeletedManySub,
+    userHistoryStoreStatusChangedSub,
   ]
 
   return () => {
@@ -108,6 +115,25 @@ async function loadHistoryEntries() {
       setGraphqlHistoryEntries(gqlHistoryEntries)
     })
   }
+}
+
+async function getUserHistoryStatus() {
+  isFetchingHistoryStoreStatus.value = true
+
+  const res = await getUserHistoryStore()
+
+  if (E.isLeft(res)) {
+    hasErrorFetchingHistoryStoreStatus.value = true
+    isFetchingHistoryStoreStatus.value = false
+    return
+  }
+
+  isHistoryStoreEnabled.value =
+    res.right.infraConfigs.find(
+      (config) => config.name == "USER_HISTORY_STORE_ENABLED"
+    )?.value == "ENABLE"
+
+  isFetchingHistoryStoreStatus.value = false
 }
 
 function setupUserHistoryCreatedSubscription() {
@@ -257,11 +283,30 @@ function setupUserHistoryDeletedManySubscription() {
   return userHistoryDeletedManySub
 }
 
-const isHistoryEnabled = ref(false)
+function setupUserHistoryStoreStatusChangedSubscription() {
+  const [userHistoryStoreStatusChanged$, userHistoryStoreStatusChangedSub] =
+    runUserHistoryStoreStatusChangedSubscription()
+
+  userHistoryStoreStatusChanged$.subscribe((res) => {
+    if (E.isRight(res)) {
+      const status = res.right.infraConfigUpdate == "ENABLE" ? true : false
+
+      isHistoryStoreEnabled.value = status
+    }
+  })
+
+  return userHistoryStoreStatusChangedSub
+}
+
+const isHistoryStoreEnabled = ref(false)
+const isFetchingHistoryStoreStatus = ref(false)
+const hasErrorFetchingHistoryStoreStatus = ref(false)
 
 export const def: HistoryPlatformDef = {
   initHistorySync,
-  async isUserHistoryEnabled() {
-    return E.right(isHistoryEnabled.value)
+  requestHistoryStore: {
+    isHistoryStoreEnabled,
+    isFetchingHistoryStoreStatus,
+    hasErrorFetchingHistoryStoreStatus,
   },
 }

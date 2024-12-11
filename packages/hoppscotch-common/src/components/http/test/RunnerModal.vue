@@ -137,8 +137,9 @@
         <HoppButtonPrimary
           v-if="activeTab === 'test-runner'"
           :label="`${t('test.run')}`"
-          :disabled="config.delay < 0"
+          :disabled="config.delay < 0 || isLoading"
           :icon="IconPlay"
+          :loading="isLoading"
           outline
           @click="runTests"
         />
@@ -221,6 +222,8 @@ const activeTab = ref("test-runner")
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
 
+const isLoading = ref(false)
+
 function setCurrentEnv(payload: CurrentEnv) {
   currentEnv.value = payload
   if (payload?.type === "TEAM_ENV") {
@@ -243,10 +246,12 @@ onMounted(() => {
 })
 
 const runTests = async () => {
+  isLoading.value = true
   const collectionTree = await getCollectionTree(
     props.collectionRunnerData.type,
     props.collectionRunnerData.collectionID
   )
+  isLoading.value = false
 
   if (!collectionTree) {
     toast.error(t("collection_runner.collection_not_found"))

@@ -6,6 +6,7 @@ import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import {
+  USER_HISTORY_DELETION_FAILED,
   USER_HISTORY_INVALID_REQ_TYPE,
   USER_HISTORY_NOT_FOUND,
 } from '../errors';
@@ -193,7 +194,12 @@ export class UserHistoryService {
    * @returns a boolean
    */
   async deleteAllHistories() {
-    await this.prisma.userHistory.deleteMany();
+    try {
+      await this.prisma.userHistory.deleteMany();
+    } catch (error) {
+      return E.left(USER_HISTORY_DELETION_FAILED);
+    }
+
     this.pubsub.publish('user_history/all/deleted', true);
     return E.right(true);
   }

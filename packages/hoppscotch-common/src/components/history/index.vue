@@ -162,7 +162,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconTrash from "~icons/lucide/trash"
 import IconFilter from "~icons/lucide/filter"
-import { computed, ref, Ref, toRaw, watch } from "vue"
+import { computed, ref, Ref, toRaw } from "vue"
 import { useColorMode } from "@composables/theming"
 import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { groupBy, escapeRegExp, filter } from "lodash-es"
@@ -216,18 +216,13 @@ const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   []
 )
 
-const {
-  isHistoryStoreEnabled,
-  isFetchingHistoryStoreStatus,
-  hasErrorFetchingHistoryStoreStatus,
-} =
+const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } =
   "requestHistoryStore" in platform.sync.history &&
   platform.sync.history.requestHistoryStore
     ? platform.sync.history.requestHistoryStore
     : {
         isHistoryStoreEnabled: ref(false),
         isFetchingHistoryStoreStatus: ref(false),
-        hasErrorFetchingHistoryStoreStatus: ref(true),
       }
 
 const deepCheckForRegex = (value: unknown, regExp: RegExp): boolean => {

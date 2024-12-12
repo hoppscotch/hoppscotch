@@ -19,6 +19,7 @@ import { HistoryPlatformDef } from "@hoppscotch/common/platform/history"
 import {
   getUserHistoryEntries,
   getUserHistoryStore,
+  runUserHistoryAllDeletedSubscription,
   runUserHistoryCreatedSubscription,
   runUserHistoryDeletedManySubscription,
   runUserHistoryDeletedSubscription,
@@ -71,6 +72,7 @@ function setupSubscriptions() {
   const userHistoryDeletedManySub = setupUserHistoryDeletedManySubscription()
   const userHistoryStoreStatusChangedSub =
     setupUserHistoryStoreStatusChangedSubscription()
+  const userHistoryAllDeletedSub = setupUserHistoryAllDeletedSubscription()
 
   subs = [
     userHistoryCreatedSub,
@@ -78,6 +80,7 @@ function setupSubscriptions() {
     userHistoryDeletedSub,
     userHistoryDeletedManySub,
     userHistoryStoreStatusChangedSub,
+    userHistoryAllDeletedSub,
   ]
 
   return () => {
@@ -298,7 +301,23 @@ function setupUserHistoryStoreStatusChangedSubscription() {
   return userHistoryStoreStatusChangedSub
 }
 
-const isHistoryStoreEnabled = ref(false)
+function setupUserHistoryAllDeletedSubscription() {
+  const [userHistoryAllDeleted$, userHistoryAllDeletedSub] =
+    runUserHistoryAllDeletedSubscription()
+
+  userHistoryAllDeleted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      runDispatchWithOutSyncing(() => {
+        clearRESTHistory()
+        clearGraphqlHistory()
+      })
+    }
+  })
+
+  return userHistoryAllDeletedSub
+}
+
+export const isHistoryStoreEnabled = ref(false)
 const isFetchingHistoryStoreStatus = ref(false)
 const hasErrorFetchingHistoryStoreStatus = ref(false)
 

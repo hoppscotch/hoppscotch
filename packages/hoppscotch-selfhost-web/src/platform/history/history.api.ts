@@ -29,6 +29,7 @@ import {
   GetUserHistoryStoreQueryVariables,
   GetUserHistoryStoreDocument,
   UserHistoryStoreStatusChangedDocument,
+  UserHistoryAllDeletedDocument,
 } from "../../api/generated/graphql"
 
 export const getUserHistoryEntries = () =>
@@ -112,5 +113,11 @@ export const runUserHistoryDeletedManySubscription = () =>
 export const runUserHistoryStoreStatusChangedSubscription = () =>
   runGQLSubscription({
     query: UserHistoryStoreStatusChangedDocument,
+    variables: {},
+  })
+
+export const runUserHistoryAllDeletedSubscription = () =>
+  runGQLSubscription({
+    query: UserHistoryAllDeletedDocument,
     variables: {},
   })

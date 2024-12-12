@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import { useVModel } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { ServerConfigs } from '~/helpers/configs';
+import { RevokeAllUserHistoryByAdminDocument } from '~/helpers/backend/graphql';
+import { useMutation } from '@urql/vue';
+import { useToast } from '~/composables/toast';
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -15,6 +18,7 @@ const emit = defineEmits<{
 const workingConfigs = useVModel(props, 'config', emit);
 
 const t = useI18n();
+const toast = useToast();
 
 // Get or set smtpConfigs from workingConfigs
 const historyConfig = computed({
@@ -25,6 +29,26 @@ const historyConfig = computed({
     workingConfigs.value.historyConfig = value;
   },
 });
+
+const showConfirmHistoryClearModal = ref(false);
+
+// had to add this here, because useConfigHandler is too coupled with the settings page
+const { fetching: isRevoking, executeMutation: revokeAllUserHistoryByAdmin } =
+  useMutation(RevokeAllUserHistoryByAdminDocument);
+
+const clearAllHistory = async () => {
+  const res = await revokeAllUserHistoryByAdmin({});
+
+  if (res.error) {
+    toast.error(t('configs.history_configs.clear_failure'));
+  }
+
+  if (res.data) {
+    toast.success(t('configs.history_configs.clear_success'));
+  }
+
+  return res;
+};
 </script>
 
 <template>
@@ -61,8 +85,27 @@ const historyConfig = computed({
               <!-- IconHelpCircle -->
             </div>
           </div>
+
+          <HoppButtonSecondary
+            :label="t('configs.history_configs.clear_history')"
+            @click="showConfirmHistoryClearModal = true"
+            outline
+          />
         </div>
       </section>
     </div>
   </div>
+
+  <HoppSmartConfirmModal
+    :show="showConfirmHistoryClearModal"
+    :loading-state="isRevoking"
+    :title="t('configs.history_configs.clear_confirm')"
+    @hide-modal="showConfirmHistoryClearModal = false"
+    @resolve="
+      async () => {
+        await clearAllHistory();
+        showConfirmHistoryClearModal = false;
+      }
+    "
+  />
 </template>

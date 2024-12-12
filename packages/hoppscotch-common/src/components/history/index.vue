@@ -221,7 +221,7 @@ const { isHistoryStoreEnabled, isFetchingHistoryStoreStatus } =
   platform.sync.history.requestHistoryStore
     ? platform.sync.history.requestHistoryStore
     : {
-        isHistoryStoreEnabled: ref(false),
+        isHistoryStoreEnabled: ref(true),
         isFetchingHistoryStoreStatus: ref(false),
       }
 

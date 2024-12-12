@@ -11,8 +11,9 @@ import { throwErr } from '../utils';
 import * as E from 'fp-ts/Either';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
+import { UserHistoryFeatureFlagGuard } from './user-history-feature-flag.guard';
 
-@UseGuards(GqlThrottlerGuard)
+@UseGuards(GqlThrottlerGuard, UserHistoryFeatureFlagGuard)
 @Resolver()
 export class UserHistoryResolver {
   constructor(

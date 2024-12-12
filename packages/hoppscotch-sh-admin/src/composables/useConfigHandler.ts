@@ -26,7 +26,6 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
-  HISTORY_STORE_CONFIG,
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
@@ -258,18 +257,13 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
       },
-      {
-        config: HISTORY_STORE_CONFIG,
-        enabled: updatedConfigs?.historyConfig.enabled,
-      },
     ];
 
     const transformedConfigs: UpdatedConfigs[] = [];
 
     updatedWorkingConfigs.forEach(({ config, enabled, fields }) => {
       config.forEach(({ name, key }) => {
-        if (name === 'MAILER_SMTP_ENABLE' || 'USER_HISTORY_STORE_ENABLED')
-          return;
+        if (name === 'MAILER_SMTP_ENABLE') return;
         else if (isCustomMailConfigEnabled && name === 'MAILER_SMTP_URL')
           return;
         else if (enabled && fields) {

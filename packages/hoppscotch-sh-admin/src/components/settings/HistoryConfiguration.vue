@@ -75,23 +75,16 @@ const clearAllHistory = async () => {
               >
                 {{ t('configs.history_configs.enable_history') }}
               </HoppSmartToggle>
-              <HoppButtonSecondary
-                blank
-                v-tippy="{ theme: 'tooltip', allowHTML: true }"
-                to="https://docs.hoppscotch.io/documentation/self-host/community-edition/prerequisites#email-delivery"
-                :title="t('support.documentation')"
-                class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-              />
-              <!-- IconHelpCircle -->
             </div>
           </div>
-
-          <HoppButtonSecondary
-            :label="t('configs.history_configs.clear_history')"
-            @click="showConfirmHistoryClearModal = true"
-            outline
-          />
         </div>
+
+        <HoppButtonSecondary
+          :label="t('configs.history_configs.clear_history')"
+          @click="showConfirmHistoryClearModal = true"
+          outline
+          class="my-2"
+        />
       </section>
     </div>
   </div>

@@ -46,8 +46,9 @@ function initHistorySync() {
   loadHistoryEntries()
 
   currentUser$.subscribe(async (user) => {
+    getUserHistoryStatus()
+
     if (user) {
-      getUserHistoryStatus()
       loadHistoryEntries()
     }
   })
@@ -121,6 +122,13 @@ async function loadHistoryEntries() {
 }
 
 async function getUserHistoryStatus() {
+  const currentUser = platformAuth.getCurrentUser()
+
+  if (!currentUser) {
+    isHistoryStoreEnabled.value = true
+    return
+  }
+
   isFetchingHistoryStoreStatus.value = true
 
   const res = await getUserHistoryStore()

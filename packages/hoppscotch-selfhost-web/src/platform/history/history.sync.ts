@@ -64,6 +64,10 @@ export const gqlHistoryStoreSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlHistoryStore
 > = {
   async addEntry({ entry }) {
+    if (!isHistoryStoreEnabled.value) {
+      return
+    }
+
     const res = await createUserHistory(
       JSON.stringify(entry.request),
       JSON.stringify(entry.response),

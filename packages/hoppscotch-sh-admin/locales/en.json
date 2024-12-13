@@ -59,7 +59,7 @@
       "user": "MAILER USER"
     },
     "history_configs": {
-      "description": "Disable or enable tracking history of sent requests from hoppscotch app",
+      "description": "Disable or enable tracking history of sent requests from the Hoppscotch app",
       "title": "History Configurations",
       "enable_history": "Enable History",
       "clear_history": "Clear existing history",

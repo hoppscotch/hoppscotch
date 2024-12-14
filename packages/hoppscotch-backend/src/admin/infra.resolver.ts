@@ -377,7 +377,7 @@ export class InfraResolver {
   }
 
   @Mutation(() => Boolean, {
-    description: 'Enable or Disable User History Storeing in DB',
+    description: 'Enable or Disable User History Storing in DB',
   })
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   async toggleUserHistoryStore(

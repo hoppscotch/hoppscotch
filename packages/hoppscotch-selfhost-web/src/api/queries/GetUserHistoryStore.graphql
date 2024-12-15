@@ -1,6 +1,0 @@
-query GetUserHistoryStore {
-  infraConfigs(configNames: [USER_HISTORY_STORE_ENABLED]) {
-    name
-    value
-  }
-}

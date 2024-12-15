@@ -25,9 +25,9 @@ import {
   UserHistoryDeletedDocument,
   UserHistoryDeletedManyDocument,
   UserHistoryUpdatedDocument,
-  GetUserHistoryStoreQuery,
-  GetUserHistoryStoreQueryVariables,
-  GetUserHistoryStoreDocument,
+  IsUserHistoryEnabledQuery,
+  IsUserHistoryEnabledQueryVariables,
+  IsUserHistoryEnabledDocument,
   UserHistoryStoreStatusChangedDocument,
   UserHistoryAllDeletedDocument,
 } from "../../api/generated/graphql"
@@ -39,8 +39,12 @@ export const getUserHistoryEntries = () =>
   })
 
 export const getUserHistoryStore = () =>
-  runGQLQuery<GetUserHistoryStoreQuery, GetUserHistoryStoreQueryVariables, "">({
-    query: GetUserHistoryStoreDocument,
+  runGQLQuery<
+    IsUserHistoryEnabledQuery,
+    IsUserHistoryEnabledQueryVariables,
+    ""
+  >({
+    query: IsUserHistoryEnabledDocument,
     variables: {},
   })
 

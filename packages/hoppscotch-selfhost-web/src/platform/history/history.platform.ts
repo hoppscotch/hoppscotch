@@ -140,9 +140,7 @@ async function getUserHistoryStatus() {
   }
 
   isHistoryStoreEnabled.value =
-    res.right.infraConfigs.find(
-      (config) => config.name == "USER_HISTORY_STORE_ENABLED"
-    )?.value == "ENABLE"
+    res.right.isUserHistoryEnabled.value === "ENABLE"
 
   isFetchingHistoryStoreStatus.value = false
 }

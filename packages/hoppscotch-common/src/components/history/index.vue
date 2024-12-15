@@ -51,7 +51,11 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             data-testid="clear_history"
-            :disabled="history.length === 0"
+            :disabled="
+              history.length === 0 ||
+              !isHistoryStoreEnabled ||
+              isFetchingHistoryStoreStatus
+            "
             :icon="IconTrash2"
             :title="t('action.clear_all')"
             @click="confirmRemove = true"

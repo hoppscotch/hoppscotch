@@ -72,14 +72,16 @@
                   />
                 </HoppSmartCheckbox>
 
-                <!-- <HoppSmartCheckbox
+                <HoppSmartCheckbox
                   class="pr-2"
                   :on="config.keepVariableValues"
                   @change="
                     config.keepVariableValues = !config.keepVariableValues
                   "
                 >
-                  <span>Keep variable values</span>
+                  <span>
+                    {{ t("collection_runner.keep_variable_values") }}
+                  </span>
                   <HoppButtonSecondary
                     class="!py-0 pl-2"
                     v-tippy="{ theme: 'tooltip' }"
@@ -88,7 +90,7 @@
                     :title="t('app.wiki')"
                     :icon="IconHelpCircle"
                   />
-                </HoppSmartCheckbox> -->
+                </HoppSmartCheckbox>
               </div>
             </section>
           </div>
@@ -236,7 +238,7 @@ const config = ref<TestRunnerConfig>({
   delay: 500,
   stopOnError: false,
   persistResponses: true,
-  keepVariableValues: false,
+  keepVariableValues: true,
 })
 
 onMounted(() => {

@@ -49,14 +49,14 @@ export class HistorySpotlightSearcherService
     }
   )[0]
 
-  private hasHistoryPlatfromDef = "requestHistoryStore" in platform.sync.history
+  private hasHistoryPlatformDef = "requestHistoryStore" in platform.sync.history
 
   private isHistoryEnabledPlatformRef =
     platform.sync.history.requestHistoryStore?.isHistoryStoreEnabled
 
   private clearHistoryActionEnabledCombined = computed(() => {
     // if the platform has not defined the history store, by default we consider history is enabled
-    if (!this.hasHistoryPlatfromDef) return this.clearHistoryActionEnabled.value
+    if (!this.hasHistoryPlatformDef) return this.clearHistoryActionEnabled.value
 
     // if the platform has defined the history store, we check the defined values to determine if history is enabled
     return (

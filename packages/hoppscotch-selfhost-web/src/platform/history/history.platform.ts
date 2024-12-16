@@ -31,7 +31,7 @@ import * as E from "fp-ts/Either"
 import { restHistorySyncer, gqlHistorySyncer } from "./history.sync"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { runDispatchWithOutSyncing } from "@lib/sync"
-import { ReqType } from "../../api/generated/graphql"
+import { ReqType, ServiceStatus } from "../../api/generated/graphql"
 import { ref } from "vue"
 
 function initHistorySync() {
@@ -140,7 +140,7 @@ async function getUserHistoryStatus() {
   }
 
   isHistoryStoreEnabled.value =
-    res.right.isUserHistoryEnabled.value === "ENABLE"
+    res.right.isUserHistoryEnabled.value === ServiceStatus.Enable
 
   isFetchingHistoryStoreStatus.value = false
 }
@@ -298,7 +298,8 @@ function setupUserHistoryStoreStatusChangedSubscription() {
 
   userHistoryStoreStatusChanged$.subscribe((res) => {
     if (E.isRight(res)) {
-      const status = res.right.infraConfigUpdate == "ENABLE" ? true : false
+      const status =
+        res.right.infraConfigUpdate == ServiceStatus.Enable ? true : false
 
       isHistoryStoreEnabled.value = status
     }

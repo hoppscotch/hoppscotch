@@ -2,6 +2,7 @@
   <HoppSmartModal
     dialog
     :title="t('collection_runner.run_collection')"
+    :full-width-body="true"
     @close="closeModal"
   >
     <template #body>
@@ -62,14 +63,6 @@
                   <span>
                     {{ t("collection_runner.persist_responses") }}
                   </span>
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    class="!py-0 pl-2"
-                    to="https://docs.hoppscotch.io/documentation/features/inspections"
-                    blank
-                    :title="t('app.wiki')"
-                    :icon="IconHelpCircle"
-                  />
                 </HoppSmartCheckbox>
 
                 <!-- <HoppSmartCheckbox
@@ -129,6 +122,16 @@
             </div>
           </div>
         </HoppSmartTab>
+        <template #actions>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            class="!py-0 pl-2"
+            :to="`https://docs.hoppscotch.io/documentation/${runnerLink}`"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
+          />
+        </template>
       </HoppSmartTabs>
     </template>
 
@@ -216,10 +219,16 @@ const emit = defineEmits<{
 }>()
 
 const includeEnvironmentID = ref(false)
-const activeTab = ref("test-runner")
+const activeTab = ref<"test-runner" | "cli">("test-runner")
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
+
+const runnerLink = computed(() => {
+  return activeTab.value === "test-runner"
+    ? "features/runner#runner"
+    : "clients/cli/overview#running-collections-present-on-the-api-client"
+})
 
 function setCurrentEnv(payload: CurrentEnv) {
   currentEnv.value = payload

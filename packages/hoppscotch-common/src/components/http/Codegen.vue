@@ -203,6 +203,7 @@ const requestCode = asyncComputed(async () => {
   let requestHeaders
   let requestAuth
 
+  // Add inherited headers and auth from the parent
   if (document.value.type === "request") {
     requestAuth =
       request.value.auth.authType === "inherit" && request.value.auth.authActive
@@ -228,7 +229,6 @@ const requestCode = asyncComputed(async () => {
     true
   )
 
-  //Generate code, adding the inheritedHeaders to the headers array
   const result = generateCode(
     lang,
     makeRESTRequest({

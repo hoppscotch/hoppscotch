@@ -108,7 +108,7 @@
 <script setup lang="ts">
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { Environment, makeRESTRequest } from "@hoppscotch/data"
+import { Environment, HoppRESTHeaders, makeRESTRequest } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import { computed, reactive, ref } from "vue"
 import {
@@ -143,23 +143,21 @@ const t = useI18n()
 const tabs = useService(RESTTabService)
 
 // get the current active request if the current active tab is a request else get the original request from the response tab
-const currentActiveRequest = computed(() =>
-  tabs.currentActiveTab.value.document.type === "request"
-    ? tabs.currentActiveTab.value.document.request
-    : makeRESTRequest({
-        ...getDefaultRESTRequest(),
-        ...tabs.currentActiveTab.value.document.response.originalRequest,
-      })
-)
+const currentActiveRequest = computed(() => {
+  if (tabs.currentActiveTab.value.document.type === "request") {
+    return tabs.currentActiveTab.value.document.request
+  } else if (tabs.currentActiveTab.value.document.type === "example-response") {
+    return makeRESTRequest({
+      ...getDefaultRESTRequest(),
+      ...tabs.currentActiveTab.value.document.response.originalRequest,
+    })
+  }
+  return getDefaultRESTRequest()
+})
 
 const request = computed(() => cloneDeep(currentActiveRequest.value))
 //Retrieve the document
 const document = computed(() => cloneDeep(tabs.currentActiveTab.value.document))
-//Set inheritedHeaders if existing
-const inheritedHeaders = computed(() => {
-  const inheritedProperties = document.value.inheritedProperties
-  return inheritedProperties ? inheritedProperties.headers : []
-})
 
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
@@ -177,7 +175,7 @@ const emit = defineEmits<{
 
 const requestCode = asyncComputed(async () => {
   const aggregateEnvs = getAggregateEnvs()
-  const requestVariables = request.value.requestVariables.map(
+  const requestVariables = request.value?.requestVariables.map(
     (requestVariable) => {
       if (requestVariable.active)
         return {
@@ -202,8 +200,30 @@ const requestCode = asyncComputed(async () => {
   // reactivity tracking after the await point
   const lang = codegenType.value
 
+  let requestHeaders
+  let requestAuth
+
+  if (document.value.type === "request") {
+    requestAuth =
+      request.value.auth.authType === "inherit" && request.value.auth.authActive
+        ? document.value.inheritedProperties?.auth.inheritedAuth
+        : request.value.auth
+
+    const inheritedHeaders = document.value.inheritedProperties?.headers
+      ?.map((header) => header.inheritedHeader || [])
+      .flat()
+
+    requestHeaders = [...(inheritedHeaders || []), ...request.value.headers]
+  }
+
+  const finalRequest = {
+    ...request.value,
+    auth: requestAuth ?? { authType: "none", authActive: false },
+    headers: (requestHeaders as HoppRESTHeaders) ?? [],
+  }
+
   const effectiveRequest = await getEffectiveRESTRequest(
-    request.value,
+    finalRequest,
     env,
     true
   )
@@ -214,17 +234,10 @@ const requestCode = asyncComputed(async () => {
     makeRESTRequest({
       ...effectiveRequest,
       body: resolvesEnvsInBody(effectiveRequest.body, env),
-      headers: [
-        ...(inheritedHeaders.value
-          ? inheritedHeaders.value.map((header) => ({
-              ...header.inheritedHeader,
-            }))
-          : []),
-        ...effectiveRequest.effectiveFinalHeaders.map((header) => ({
-          ...header,
-          active: true,
-        })),
-      ],
+      headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
+        ...header,
+        active: true,
+      })),
       params: effectiveRequest.effectiveFinalParams.map((param) => ({
         ...param,
         active: true,

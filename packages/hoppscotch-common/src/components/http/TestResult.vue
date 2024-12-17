@@ -135,9 +135,7 @@
             :key="`result-${index}`"
             class="flex items-center px-4 py-2"
           >
-            <div
-              class="flex flex-shrink flex-shrink-0 items-center overflow-x-auto"
-            >
+            <div class="flex flex-shrink-0 items-center overflow-x-auto">
               <component
                 :is="result.status === 'pass' ? IconCheck : IconClose"
                 class="svg-icons mr-4"
@@ -146,7 +144,7 @@
                 "
               />
               <div
-                class="flex flex-shrink flex-shrink-0 items-center space-x-2 overflow-x-auto"
+                class="flex flex-shrink-0 items-center space-x-2 overflow-x-auto"
               >
                 <span
                   v-if="result.message"
@@ -237,9 +235,15 @@ import { useColorMode } from "~/composables/theming"
 import { invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 
-const props = defineProps<{
-  modelValue: HoppTestResult | null | undefined
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: HoppTestResult | null | undefined
+    showEmptyMessage?: boolean
+  }>(),
+  {
+    showEmptyMessage: true,
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:modelValue", val: HoppTestResult | null | undefined): void

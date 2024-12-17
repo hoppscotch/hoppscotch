@@ -7,6 +7,17 @@
         {{ t("request.body") }}
       </label>
       <div class="flex">
+        <div class="flex items-center gap-2">
+          <HoppSmartCheckbox
+            :on="body.showIndividualContentType"
+            @change="
+              () => {
+                body.showIndividualContentType = !body.showIndividualContentType
+              }
+            "
+            >{{ t(`request.show_content_type`) }}</HoppSmartCheckbox
+          >
+        </div>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data"
@@ -73,6 +84,7 @@
                 value: entry.value,
                 active: entry.active,
                 isFile: entry.isFile,
+                contentType: entry.contentType,
               })
             "
           />
@@ -97,6 +109,27 @@
                   value: $event,
                   active: entry.active,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
+                })
+              "
+            />
+          </span>
+          <span v-if="body.showIndividualContentType" class="flex flex-1">
+            <SmartEnvInput
+              v-model="entry.contentType"
+              :placeholder="
+                entry.contentType ? entry.contentType : `Auto (Content Type)`
+              "
+              :auto-complete-env="true"
+              :auto-complete-source="autoCompleteContenTypes"
+              :envs="envs"
+              @change="
+                updateBodyParam(index, {
+                  key: entry.key,
+                  value: entry.value,
+                  active: entry.active,
+                  isFile: entry.isFile,
+                  contentType: $event,
                 })
               "
             />
@@ -139,6 +172,7 @@
                     ? !entry.active
                     : false,
                   isFile: entry.isFile,
+                  contentType: entry.contentType,
                 })
               "
             />
@@ -222,6 +256,63 @@ const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const bodyParams = pluckRef(body, "body")
 
+const autoCompleteContenTypes = [
+  "application/atom+xml",
+  "application/ecmascript",
+  "application/json",
+  "application/vnd.api+json",
+  "application/javascript",
+  "application/octet-stream",
+  "application/ogg",
+  "application/pdf",
+  "application/postscript",
+  "application/rdf+xml",
+  "application/rss+xml",
+  "application/soap+xml",
+  "application/font-woff",
+  "application/x-yaml",
+  "application/xhtml+xml",
+  "application/xml",
+  "application/xml-dtd",
+  "application/xop+xml",
+  "application/zip",
+  "application/gzip",
+  "application/graphql",
+  "application/x-www-form-urlencoded",
+  "audio/basic",
+  "audio/L24",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/ogg",
+  "audio/vorbis",
+  "audio/vnd.rn-realaudio",
+  "audio/vnd.wave",
+  "audio/webm",
+  "image/gif",
+  "image/jpeg",
+  "image/pjpeg",
+  "image/png",
+  "image/svg+xml",
+  "image/tiff",
+  "message/http",
+  "message/imdn+xml",
+  "message/partial",
+  "message/rfc822",
+  "multipart/mixed",
+  "multipart/alternative",
+  "multipart/related",
+  "multipart/form-data",
+  "multipart/signed",
+  "multipart/encrypted",
+  "text/cmd",
+  "text/css",
+  "text/csv",
+  "text/html",
+  "text/plain",
+  "text/vcard",
+  "text/xml",
+]
+
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<WorkingFormDataKeyValue[]>([
   {
@@ -231,6 +322,7 @@ const workingParams = ref<WorkingFormDataKeyValue[]>([
       value: "",
       active: true,
       isFile: false,
+      contentType: undefined,
     },
   },
 ])

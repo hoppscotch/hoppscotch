@@ -698,22 +698,22 @@ export class PersistenceService extends Service {
 
     try {
       if (restTabStateData) {
-        let parsedGqlTabStateData = JSON.parse(restTabStateData)
+        let parsedRESTTabStateData = JSON.parse(restTabStateData)
 
         // Validate data read from localStorage
-        const result = REST_TAB_STATE_SCHEMA.safeParse(parsedGqlTabStateData)
+        const result = REST_TAB_STATE_SCHEMA.safeParse(parsedRESTTabStateData)
 
         if (result.success) {
-          parsedGqlTabStateData = result.data
+          parsedRESTTabStateData = result.data
         } else {
           this.showErrorToast(restTabStateKey)
           window.localStorage.setItem(
             `${restTabStateKey}-backup`,
-            JSON.stringify(parsedGqlTabStateData)
+            JSON.stringify(parsedRESTTabStateData)
           )
         }
 
-        this.restTabService.loadTabsFromPersistedState(parsedGqlTabStateData)
+        this.restTabService.loadTabsFromPersistedState(parsedRESTTabStateData)
       }
     } catch (e) {
       console.error(

@@ -4,6 +4,7 @@
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:document="doc"
+      :is-editable="false"
       @save-as-example="saveAsExample"
     />
   </div>
@@ -84,7 +85,7 @@ const onSaveAsExample = () => {
     } = response.req
 
     const originalRequest: HoppRESTResponseOriginalRequest = {
-      v: "1",
+      v: "2",
       method,
       endpoint,
       headers,

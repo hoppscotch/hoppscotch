@@ -8,7 +8,6 @@ import { computed, markRaw, reactive } from "vue"
 import { Component, Ref, ref, watch } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTTabService } from "../tab/rest"
-
 /**
  * Defines how to render the text in an Inspector Result
  */
@@ -47,6 +46,9 @@ export type InspectorLocation =
   | {
       type: "response"
     }
+  | {
+      type: "body-content-type-header"
+    }
 
 /**
  * Defines info about an inspector result so the UI can render it
@@ -61,7 +63,7 @@ export interface InspectorResult {
     text: string
     apply: () => void
   }
-  doc: {
+  doc?: {
     text: string
     link: string
   }
@@ -127,18 +129,24 @@ export class InspectionService extends Service {
     watch(
       () => [this.inspectors.entries(), this.restTab.currentActiveTab.value.id],
       () => {
-        const currentTabRequest = computed(() =>
-          this.restTab.currentActiveTab.value.document.type === "request"
+        const currentTabRequest = computed(() => {
+          if (
+            this.restTab.currentActiveTab.value.document.type === "test-runner"
+          )
+            return null
+
+          return this.restTab.currentActiveTab.value.document.type === "request"
             ? this.restTab.currentActiveTab.value.document.request
             : this.restTab.currentActiveTab.value.document.response
                 .originalRequest
-        )
+        })
 
-        const currentTabResponse = computed(() =>
-          this.restTab.currentActiveTab.value.document.type === "request"
-            ? this.restTab.currentActiveTab.value.document.response
-            : null
-        )
+        const currentTabResponse = computed(() => {
+          if (this.restTab.currentActiveTab.value.document.type === "request") {
+            return this.restTab.currentActiveTab.value.document.response
+          }
+          return null
+        })
 
         const reqRef = computed(() => currentTabRequest.value)
         const resRef = computed(() => currentTabResponse.value)
@@ -147,6 +155,7 @@ export class InspectionService extends Service {
         const debouncedRes = refDebounced(resRef, 1000, { maxWait: 2000 })
 
         const inspectorRefs = Array.from(this.inspectors.values()).map((x) =>
+          // @ts-expect-error - This is a valid call
           x.getInspections(debouncedReq, debouncedRes)
         )
 

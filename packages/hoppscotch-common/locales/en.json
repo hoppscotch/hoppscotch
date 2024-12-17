@@ -231,6 +231,8 @@
     }
   },
   "collection": {
+    "title": "Collection",
+    "run": "Run Collection",
     "created": "Collection created",
     "different_parent": "Cannot reorder collection with different parent",
     "edit": "Edit Collection",
@@ -341,6 +343,7 @@
     "response": "No response received"
   },
   "environment": {
+    "heading": "Environment",
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Create new environment",
@@ -448,6 +451,7 @@
     "invalid_name": "Please provide a name for the folder",
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
+    "run": "Run Folder",
     "renamed": "Folder renamed"
   },
   "graphql": {
@@ -502,8 +506,11 @@
     "from_file": "Import from File",
     "from_gist": "Import from Gist",
     "from_gist_description": "Import from Gist URL",
+    "from_gist_import_summary": "All hoppscotch features are imported.",
+    "from_hoppscotch_importer_summary": "All hoppscotch features are imported.",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_insomnia_import_summary": "Collections and Requests will be imported.",
     "from_json": "Import from Hoppscotch",
     "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Import from Personal Collections",
@@ -512,12 +519,15 @@
     "from_all_collections_description": "Import any collection from Another Workspace to the current workspace",
     "from_openapi": "Import from OpenAPI",
     "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_openapi_import_summary": "Collections ( will be created from tags ), Requests and response examples will be imported.",
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
+    "from_postman_import_summary": "Collections, Requests and response examples will be imported.",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "from_har": "Import from HAR",
     "from_har_description": "Import from HAR file",
+    "from_har_import_summary": "Requests will be imported to a default collection.",
     "gql_collections_from_gist_description": "Import GraphQL Collections From Gist",
     "hoppscotch_environment": "Hoppscotch Environment",
     "hoppscotch_environment_description": "Import Hoppscotch Environment JSON file",
@@ -532,7 +542,13 @@
     "title": "Import",
     "file_size_limit_exceeded_warning_multiple_files": "Chosen files exceed the recommended limit of {sizeLimit}MB. Only the first {files} selected will be imported",
     "file_size_limit_exceeded_warning_single_file": "The currently chosen file exceeds the recommended limit of {sizeLimit}MB. Please select another file.",
-    "success": "Successfully imported"
+    "success": "Successfully imported",
+    "import_summary_collections_title": "Collections",
+    "import_summary_requests_title": "Requests",
+    "import_summary_responses_title": "Responses",
+    "import_summary_pre_request_scripts_title": "Pre-request scripts",
+    "import_summary_test_scripts_title": "Test scripts",
+    "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now."
   },
   "inspections": {
     "description": "Inspect possible errors",
@@ -558,6 +574,9 @@
       "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
       "extention_enable_action": "Enable Browser Extension",
       "extention_not_enabled": "Extension not enabled."
+    },
+    "requestBody": {
+      "active_interceptor_doesnt_support_binary_body": "Sending binary data via the current interceptor is not supported yet."
     }
   },
   "layout": {
@@ -650,8 +669,10 @@
     "content_type_titles": {
       "others": "Others",
       "structured": "Structured",
-      "text": "Text"
+      "text": "Text",
+      "binary": "Binary"
     },
+    "show_content_type": "Show Content Type",
     "different_collection": "Cannot reorder requests from different collections",
     "duplicated": "Request duplicated",
     "duration": "Duration",
@@ -1056,7 +1077,10 @@
     "tests": "Tests",
     "types": "Types",
     "variables": "Variables",
-    "websocket": "WebSocket"
+    "websocket": "WebSocket",
+    "all_tests": "All Tests",
+    "passed": "Passed",
+    "failed": "Failed"
   },
   "team": {
     "already_member": "This email is associated with an existing user.",
@@ -1124,6 +1148,8 @@
     "not_found": "Environment not found."
   },
   "test": {
+    "requests": "Requests",
+    "selection": "Selection",
     "failed": "test failed",
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",
@@ -1131,7 +1157,14 @@
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",
-    "snippets": "Snippets"
+    "snippets": "Snippets",
+    "run": "Run",
+    "run_again": "Run again",
+    "stop": "Stop",
+    "new_run": "New Run",
+    "iterations": "Iterations",
+    "duration": "Duration",
+    "avg_resp": "Avg. Response Time"
   },
   "websocket": {
     "communication": "Communication",
@@ -1181,11 +1214,24 @@
     "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
-    "ui": "Runner (coming soon)",
+    "delay": "Delay",
+    "negative_delay": "Delay cannot be negative",
+    "ui": "Runner",
+    "running_collection": "Running collection",
+    "run_config": "Run Configuration",
+    "advanced_settings": "Advanced Settings",
+    "stop_on_error": "Stop run if an error occurs",
+    "persist_responses": "Persist responses",
+    "collection_not_found": "Collection not found. May be deleted or moved.",
+    "empty_collection": "Collection is empty. Add requests to run.",
+    "no_response_persist": "The collection runner is presently configured not to persist responses. This setting prevents showing the response data. To modify this behavior, initiate a new run configuration.",
+    "select_request": "Select a request to see response and test results",
     "cli_command_generation_description_cloud": "Copy the below command and run it from the CLI. Please specify a personal access token.",
     "cli_command_generation_description_sh": "Copy the below command and run it from the CLI. Please specify a personal access token and verify the generated SH instance server URL.",
     "cli_command_generation_description_sh_with_server_url_placeholder": "Copy the below command and run it from the CLI. Please specify a personal access token and the SH instance server URL.",
-    "run_collection": "Run collection"
+    "run_collection": "Run collection",
+    "no_passed_tests": "No tests passed",
+    "no_failed_tests": "No tests failed"
   },
   "ai_experiments": {
     "generate_request_name": "Generate Request Name Using AI",

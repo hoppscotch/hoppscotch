@@ -26,7 +26,7 @@
       :info="`${maybeHeaders.length}`"
       class="flex flex-1 flex-col"
     >
-      <LensesHeadersRenderer v-model="maybeHeaders" />
+      <LensesHeadersRenderer v-model="maybeHeaders" :is-editable="false" />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="!isEditable"
@@ -50,9 +50,10 @@ import {
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
 import { HoppRequestDocument } from "~/helpers/rest/document"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 const props = defineProps<{
-  document: HoppRequestDocument
+  document: HoppRequestDocument | TestRunnerRequest
   isEditable: boolean
 }>()
 
@@ -64,6 +65,7 @@ const emit = defineEmits<{
 const doc = useVModel(props, "document", emit)
 
 const isSavable = computed(() => {
+  if (doc.value.type === "test-response") return false
   return doc.value.response?.type === "success" && doc.value.saveContext
 })
 
@@ -118,6 +120,8 @@ watch(
       "results",
     ]
 
+    if (doc.value.type === "test-response") return
+
     const { responseTabPreference } = doc.value
 
     if (
@@ -133,6 +137,7 @@ watch(
 )
 
 watch(selectedLensTab, (newLensID) => {
+  if (doc.value.type === "test-response") return
   doc.value.responseTabPreference = newLensID
 })
 </script>

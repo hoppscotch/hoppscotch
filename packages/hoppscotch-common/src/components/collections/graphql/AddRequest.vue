@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { ref, watch } from "vue"
 
@@ -106,8 +106,8 @@ import {
 } from "~/composables/ai-experiments"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconSparkle from "~icons/lucide/sparkles"
-import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
+import IconThumbsUp from "~icons/lucide/thumbs-up"
 
 const toast = useToast()
 const t = useI18n()
@@ -117,7 +117,7 @@ const tabs = useService(GQLTabService)
 const props = defineProps<{
   show: boolean
   folderPath?: string
-  requestContext: HoppRESTRequest | null
+  requestContext: HoppGQLRequest | null
 }>()
 
 const emit = defineEmits<{

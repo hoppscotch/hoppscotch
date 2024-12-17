@@ -64,6 +64,12 @@
                   folder: node.data.data.data,
                 })
             "
+            @run-collection="
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-collection="
               node.data.type === 'collections' &&
                 emit('edit-collection', {
@@ -133,6 +139,12 @@
               })
             "
             folder-type="folder"
+            @run-collection="
+              emit('run-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
+            "
             @add-request="
               node.data.type === 'folders' &&
                 emit('add-request', {
@@ -491,6 +503,13 @@ const emit = defineEmits<{
     payload: {
       path: string
       folder: HoppCollection
+    }
+  ): void
+  (
+    event: "run-collection",
+    payload: {
+      collectionIndex: string
+      collection: HoppCollection
     }
   ): void
   (

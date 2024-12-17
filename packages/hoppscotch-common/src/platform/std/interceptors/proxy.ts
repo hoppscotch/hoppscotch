@@ -95,6 +95,7 @@ export const proxyInterceptor: Interceptor = {
   interceptorID: "proxy",
   name: (t) => t("settings.proxy"),
   selectable: { type: "selectable" },
+  supportsBinaryContentType: false,
   settingsPageEntry: {
     entryTitle: (t) => t("settings.proxy"),
     component: SettingsProxy,

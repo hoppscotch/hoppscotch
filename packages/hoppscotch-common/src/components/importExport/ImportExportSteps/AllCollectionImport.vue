@@ -102,7 +102,7 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useReadonlyStream } from "~/composables/stream"
 import { runGQLQuery } from "~/helpers/backend/GQLClient"
@@ -128,6 +128,10 @@ const t = useI18n()
 defineProps<{
   loading: boolean
 }>()
+
+onMounted(() => {
+  teamListAdapter.fetchList()
+})
 
 const selectedCollectionID = ref<string | undefined>(undefined)
 

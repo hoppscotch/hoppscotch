@@ -30,8 +30,8 @@ importers:
         specifier: 19.5.0
         version: 19.5.0
       '@hoppscotch/ui':
-        specifier: 0.2.1
-        version: 0.2.1(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))
+        specifier: 0.2.2
+        version: 0.2.2(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))
       '@types/node':
         specifier: 22.7.6
         version: 22.7.6
@@ -141,10 +141,10 @@ importers:
         version: 4.11.0(graphql@16.9.0)
       '@nestjs-modules/mailer':
         specifier: 2.0.2
-        version: 2.0.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(nodemailer@6.9.15)(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
+        version: 2.0.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(nodemailer@6.9.15)(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       '@nestjs/apollo':
         specifier: 12.2.0
-        version: 12.2.0(@apollo/server@4.11.0(graphql@16.9.0))(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2))(graphql@16.9.0)
+        version: 12.2.0(@apollo/server@4.11.0(graphql@16.9.0))(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2))(graphql@16.9.0)
       '@nestjs/common':
         specifier: 10.4.4
         version: 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -156,7 +156,7 @@ importers:
         version: 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/graphql':
         specifier: 12.2.0
-        version: 12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)
+        version: 12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)
       '@nestjs/jwt':
         specifier: 10.2.0
         version: 10.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))
@@ -168,16 +168,16 @@ importers:
         version: 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
       '@nestjs/schedule':
         specifier: 4.1.1
-        version: 4.1.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
+        version: 4.1.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))
       '@nestjs/swagger':
         specifier: 7.4.2
-        version: 7.4.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
+        version: 7.4.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
       '@nestjs/terminus':
         specifier: 10.2.3
-        version: 10.2.3(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@prisma/client@5.20.0(prisma@5.20.0))(reflect-metadata@0.2.2)(rxjs@7.8.1)
+        version: 10.2.3(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@prisma/client@5.20.0(prisma@5.20.0))(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/throttler':
         specifier: 6.2.1
-        version: 6.2.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(reflect-metadata@0.2.2)
+        version: 6.2.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(reflect-metadata@0.2.2)
       '@prisma/client':
         specifier: 5.20.0
         version: 5.20.0(prisma@5.20.0)
@@ -277,7 +277,7 @@ importers:
         version: 10.1.4(chokidar@3.6.0)(typescript@5.5.4)
       '@nestjs/testing':
         specifier: 10.4.4
-        version: 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@nestjs/platform-express@10.4.4)
+        version: 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4))
       '@relmify/jest-fp-ts':
         specifier: 2.1.1
         version: 2.1.1(fp-ts@2.16.9)(io-ts@2.2.21(fp-ts@2.16.9))
@@ -395,6 +395,9 @@ importers:
       lodash-es:
         specifier: 4.17.21
         version: 4.17.21
+      papaparse:
+        specifier: 5.4.1
+        version: 5.4.1
       qs:
         specifier: 6.13.0
         version: 6.13.0
@@ -420,6 +423,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      '@types/papaparse':
+        specifier: 5.3.14
+        version: 5.3.14
       '@types/qs':
         specifier: 6.9.16
         version: 6.9.16
@@ -429,6 +435,9 @@ importers:
       prettier:
         specifier: 3.3.3
         version: 3.3.3
+      semver:
+        specifier: 7.6.3
+        version: 7.6.3
       tsup:
         specifier: 8.3.0
         version: 8.3.0(@swc/core@1.4.2)(jiti@2.3.3)(postcss@8.4.47)(typescript@5.6.3)(yaml@2.5.1)
@@ -493,8 +502,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
       '@hoppscotch/ui':
-        specifier: 0.2.1
-        version: 0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))
+        specifier: 0.2.2
+        version: 0.2.2(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))
       '@hoppscotch/vue-toasted':
         specifier: 0.1.0
         version: 0.1.0(vue@3.5.12(typescript@5.3.3))
@@ -661,8 +670,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.23.8)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.23.8)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.3.3)
@@ -858,7 +867,7 @@ importers:
         version: 5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1)
       vite-plugin-checker:
         specifier: 0.6.4
-        version: 0.6.4(eslint@8.57.0)(optionator@0.9.4)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-tsc@1.8.24(typescript@5.3.3))
+        version: 0.6.4(eslint@8.57.0)(meow@13.2.0)(optionator@0.9.4)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-tsc@1.8.24(typescript@5.3.3))
       vite-plugin-fonts:
         specifier: 0.7.0
         version: 0.7.0(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
@@ -898,9 +907,12 @@ importers:
       parser-ts:
         specifier: 0.7.0
         version: 0.7.0(fp-ts@2.16.9)
+      uuid:
+        specifier: 10.0.0
+        version: 10.0.0
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.23.8)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.23.8)
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -908,6 +920,9 @@ importers:
       '@types/lodash':
         specifier: 4.17.10
         version: 4.17.10
+      '@types/uuid':
+        specifier: 10.0.0
+        version: 10.0.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -1054,8 +1069,8 @@ importers:
         specifier: 0.12.5
         version: 0.12.5
       verzod:
-        specifier: 0.2.2
-        version: 0.2.2(zod@3.22.4)
+        specifier: 0.2.3
+        version: 0.2.3(zod@3.22.4)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@4.9.5)
@@ -1155,7 +1170,7 @@ importers:
         version: 0.14.9(@vue/compiler-sfc@3.5.12)(vue-template-compiler@2.7.16)
       unplugin-vue-components:
         specifier: 0.21.0
-        version: 0.21.0(@babel/parser@7.25.7)(esbuild@0.24.0)(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@4.9.5))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0))
+        version: 0.21.0(@babel/parser@7.25.7)(esbuild@0.24.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@4.9.5))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0))
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1)
@@ -1164,7 +1179,7 @@ importers:
         version: 1.0.11(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))
       vite-plugin-inspect:
         specifier: 0.7.38
-        version: 0.7.38(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))
+        version: 0.7.38(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))
       vite-plugin-pages:
         specifier: 0.26.0
         version: 0.26.0(@vue/compiler-sfc@3.5.12)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))
@@ -1330,7 +1345,7 @@ importers:
         version: 0.19.3(@vue/compiler-sfc@3.5.12)(vue-template-compiler@2.7.16)(webpack-sources@3.2.3)
       unplugin-vue-components:
         specifier: 0.27.4
-        version: 0.27.4(@babel/parser@7.25.7)(rollup@4.24.0)(vue@3.5.12(typescript@5.3.3))(webpack-sources@3.2.3)
+        version: 0.27.4(@babel/parser@7.25.7)(rollup@3.29.4)(vue@3.5.12(typescript@5.3.3))(webpack-sources@3.2.3)
       vite:
         specifier: 5.4.9
         version: 5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1)
@@ -1342,7 +1357,7 @@ importers:
         version: 2.0.2(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
       vite-plugin-inspect:
         specifier: 0.8.7
-        version: 0.8.7(rollup@4.24.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
+        version: 0.8.7(rollup@3.29.4)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
       vite-plugin-pages:
         specifier: 0.32.3
         version: 0.32.3(@vue/compiler-sfc@3.5.12)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue-router@4.4.5(vue@3.5.12(typescript@5.3.3)))
@@ -1384,7 +1399,7 @@ importers:
         version: 0.1.0(vue@3.5.12(typescript@5.6.3))
       '@intlify/unplugin-vue-i18n':
         specifier: 5.2.0
-        version: 5.2.0(@vue/compiler-dom@3.5.12)(eslint@9.12.0(jiti@2.3.3))(rollup@4.24.0)(typescript@5.6.3)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
+        version: 5.2.0(@vue/compiler-dom@3.5.12)(eslint@9.12.0(jiti@2.3.3))(rollup@3.29.4)(typescript@5.6.3)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       '@types/cors':
         specifier: 2.8.17
         version: 2.8.17
@@ -1441,7 +1456,7 @@ importers:
         version: 0.19.3(@vue/compiler-sfc@3.5.12)(vue-template-compiler@2.7.16)(webpack-sources@3.2.3)
       unplugin-vue-components:
         specifier: 0.27.4
-        version: 0.27.4(@babel/parser@7.25.7)(rollup@4.24.0)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
+        version: 0.27.4(@babel/parser@7.25.7)(rollup@3.29.4)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -3754,6 +3769,12 @@ packages:
     peerDependencies:
       vue: 3.5.12
 
+  '@hoppscotch/ui@0.2.2':
+    resolution: {integrity: sha512-rDRfG9onpmlDCO2KjJZN6UIlFC5Ewif689guvtVCZh9a+soy9nUUTbwMHI9913oBIJpbZ4GTLHGpdCl1YHUiVQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.5.12
+
   '@hoppscotch/vue-sonner@1.2.3':
     resolution: {integrity: sha512-P1gyvHHLsPeB8lsLP5SrqwQatuwOKtbsP83sKhyIV3WL2rJj3+DiFfqo2ErNBa+Sl0gM68o1V+wuOS7zbR//6g==}
 
@@ -3876,24 +3897,24 @@ packages:
     resolution: {integrity: sha512-GG428DkrrWCMhxRMRQZjuS7zmSUzarYcaHJqG9VB8dXAxw4iQDoKVQ7ChJRB6ZtsCsX3Jse1PEUlHrJiyQrOTg==}
     engines: {node: '>= 16'}
 
-  '@intlify/message-compiler@10.0.0':
-    resolution: {integrity: sha512-OcaWc63NC/9p1cMdgoNKBj4d61BH8sUW1Hfs6YijTd9656ZR4rNqXAlRnBrfS5ABq0vjQjpa8VnyvH9hK49yBw==}
-    engines: {node: '>= 16'}
-
   '@intlify/message-compiler@10.0.4':
     resolution: {integrity: sha512-AFbhEo10DP095/45EauinQJ5hJ3rJUmuuqltGguvc3WsvezZN+g8qNHLGWKu60FHQVizMrQY7VJ+zVlBXlQQkQ==}
+    engines: {node: '>= 16'}
+
+  '@intlify/message-compiler@11.0.0-beta.2':
+    resolution: {integrity: sha512-/cJHP1n45Zlf9tbm/hudLrUwXzJZngR9OMTQk32H1S4lBjM2996wzKTHuLbaJJlJZNTTjnfWZUHPb+F6sE6p1Q==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.3.0-beta.20':
     resolution: {integrity: sha512-hwqQXyTnDzAVZ300SU31jO0+3OJbpOdfVU6iBkrmNpS7t2HRnVACo0EwcEXzJa++4EVDreqz5OeqJbt+PeSGGA==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@10.0.0':
-    resolution: {integrity: sha512-6ngLfI7DOTew2dcF9WMJx+NnMWghMBhIiHbGg+wRvngpzD5KZJZiJVuzMsUQE1a5YebEmtpTEfUrDp/NqVGdiw==}
-    engines: {node: '>= 16'}
-
   '@intlify/shared@10.0.4':
     resolution: {integrity: sha512-ukFn0I01HsSgr3VYhYcvkTCLS7rGa0gw4A4AMpcy/A9xx/zRJy7PS2BElMXLwUazVFMAr5zuiTk3MQeoeGXaJg==}
+    engines: {node: '>= 16'}
+
+  '@intlify/shared@11.0.0-beta.2':
+    resolution: {integrity: sha512-N6ngJfFaVA0l2iLtx/SymgHOBW4wiS5Pyue7YmY/G+mrGjesi+S+U+u/Xlv6pZa/YIBfeM4QB07lI7rz1YqKLg==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.3.0-beta.20':
@@ -5147,6 +5168,9 @@ packages:
 
   '@types/paho-mqtt@1.0.10':
     resolution: {integrity: sha512-xOEii1m7jw7mIKjufDkolpz7VlyqptUmm/YFPtLJCybrPCuLhN+WYgNpulQ/CXo7wtEW7x4uGon2v89+6g/pcA==}
+
+  '@types/papaparse@5.3.14':
+    resolution: {integrity: sha512-LxJ4iEFcpqc6METwp9f6BV6VVc43m6MfH0VqFosHvrUgfXiFe6ww7R3itkOQ+TCK6Y+Iv/+RnnvtRZnkc5Kc9g==}
 
   '@types/passport-github2@1.2.9':
     resolution: {integrity: sha512-/nMfiPK2E6GKttwBzwj0Wjaot8eHrM57hnWxu52o6becr5/kXlH/4yE2v2rh234WGvSgEEzIII02Nc5oC5xEHA==}
@@ -9691,6 +9715,9 @@ packages:
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
+  papaparse@5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
+
   param-case@3.0.4:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
 
@@ -10369,6 +10396,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.11.0:
@@ -11798,12 +11826,6 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  verzod@0.2.2:
-    resolution: {integrity: sha512-TnM0O2SUcXuY63qQ+W+W4/5bDaIhyV9ZDWwL0ztDOawX7q7ar+jHNdYKUR43rf8ku23p2ROgrfoKABjl2IiiZQ==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      zod: ^3.22.0
 
   verzod@0.2.3:
     resolution: {integrity: sha512-fARgs0c/TNNtbo83/5LjriJEb3QMwBN8Ju2+BcVdiI7Y2NOa5Yhq+CrQ8UH43h0BRXcgb2JQABjkgrRCWybEtQ==}
@@ -15382,30 +15404,6 @@ snapshots:
       stringify-object: 3.3.0
       yargs: 17.7.2
 
-  '@hoppscotch/ui@0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
-      '@fontsource-variable/inter': 5.1.0
-      '@fontsource-variable/material-symbols-rounded': 5.1.3
-      '@fontsource-variable/roboto-mono': 5.1.0
-      '@hoppscotch/vue-sonner': 1.2.3
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.3.3))
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
-      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.3.3))
-      fp-ts: 2.16.9
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
-      vue: 3.5.12(typescript@5.3.3)
-      vue-promise-modals: 0.1.0(typescript@5.3.3)
-      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.3.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - typescript
-      - vite
-
   '@hoppscotch/ui@0.2.1(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
     dependencies:
       '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
@@ -15460,6 +15458,54 @@ snapshots:
       '@fontsource-variable/inter': 5.1.0
       '@fontsource-variable/material-symbols-rounded': 5.1.3
       '@fontsource-variable/roboto-mono': 5.1.0
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.6.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.6.3))
+      fp-ts: 2.16.9
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@9.12.0(jiti@2.3.3))(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
+      vue: 3.5.12(typescript@5.6.3)
+      vue-promise-modals: 0.1.0(typescript@5.6.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.6.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.2(eslint@8.57.0)(terser@5.34.1)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue@3.5.12(typescript@5.3.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.3.3))
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.3.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.3.3))
+      fp-ts: 2.16.9
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))
+      vue: 3.5.12(typescript@5.3.3)
+      vue-promise-modals: 0.1.0(typescript@5.3.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.3.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.2(eslint@9.12.0(jiti@2.3.3))(terser@5.34.1)(typescript@5.6.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.6.3))
+      '@fontsource-variable/inter': 5.0.15
+      '@fontsource-variable/material-symbols-rounded': 5.0.16
+      '@fontsource-variable/roboto-mono': 5.0.16
       '@hoppscotch/vue-sonner': 1.2.3
       '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.6.3))
       '@vitejs/plugin-legacy': 2.3.0(terser@5.34.1)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))
@@ -15576,8 +15622,8 @@ snapshots:
 
   '@intlify/bundle-utils@3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0
-      '@intlify/shared': 10.0.0
+      '@intlify/message-compiler': 11.0.0-beta.2
+      '@intlify/shared': 11.0.0-beta.2
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       yaml-eslint-parser: 0.3.2
@@ -15601,8 +15647,8 @@ snapshots:
 
   '@intlify/bundle-utils@9.0.0-beta.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))':
     dependencies:
-      '@intlify/message-compiler': 10.0.0
-      '@intlify/shared': 10.0.0
+      '@intlify/message-compiler': 11.0.0-beta.2
+      '@intlify/shared': 11.0.0-beta.2
       acorn: 8.12.1
       escodegen: 2.1.0
       estree-walker: 2.0.2
@@ -15618,14 +15664,14 @@ snapshots:
       '@intlify/message-compiler': 10.0.4
       '@intlify/shared': 10.0.4
 
-  '@intlify/message-compiler@10.0.0':
-    dependencies:
-      '@intlify/shared': 10.0.0
-      source-map-js: 1.2.1
-
   '@intlify/message-compiler@10.0.4':
     dependencies:
       '@intlify/shared': 10.0.4
+      source-map-js: 1.2.1
+
+  '@intlify/message-compiler@11.0.0-beta.2':
+    dependencies:
+      '@intlify/shared': 11.0.0-beta.2
       source-map-js: 1.2.1
 
   '@intlify/message-compiler@9.3.0-beta.20':
@@ -15633,19 +15679,19 @@ snapshots:
       '@intlify/shared': 9.3.0-beta.20
       source-map-js: 1.2.1
 
-  '@intlify/shared@10.0.0': {}
-
   '@intlify/shared@10.0.4': {}
+
+  '@intlify/shared@11.0.0-beta.2': {}
 
   '@intlify/shared@9.3.0-beta.20': {}
 
-  '@intlify/unplugin-vue-i18n@5.2.0(@vue/compiler-dom@3.5.12)(eslint@9.12.0(jiti@2.3.3))(rollup@4.24.0)(typescript@5.6.3)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
+  '@intlify/unplugin-vue-i18n@5.2.0(@vue/compiler-dom@3.5.12)(eslint@9.12.0(jiti@2.3.3))(rollup@3.29.4)(typescript@5.6.3)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@9.12.0(jiti@2.3.3))
       '@intlify/bundle-utils': 9.0.0-beta.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))
-      '@intlify/shared': 10.0.0
-      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@10.0.0)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))
-      '@rollup/pluginutils': 5.1.2(rollup@4.24.0)
+      '@intlify/shared': 11.0.0-beta.2
+      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@11.0.0-beta.2)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.4)
       '@typescript-eslint/scope-manager': 7.18.0
       '@typescript-eslint/typescript-estree': 7.18.0(typescript@5.6.3)
       debug: 4.3.7
@@ -15670,7 +15716,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@6.0.1(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@4.9.5)))':
     dependencies:
       '@intlify/bundle-utils': 7.0.0(vue-i18n@10.0.4(vue@3.5.12(typescript@4.9.5)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.2
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15684,7 +15730,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.2
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15698,7 +15744,7 @@ snapshots:
   '@intlify/vite-plugin-vue-i18n@7.0.0(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1))(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))':
     dependencies:
       '@intlify/bundle-utils': 3.4.0(vue-i18n@10.0.4(vue@3.5.12(typescript@5.3.3)))
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.2
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.7
       fast-glob: 3.3.2
@@ -15709,11 +15755,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@10.0.0)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))':
+  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@11.0.0-beta.2)(@vue/compiler-dom@3.5.12)(vue-i18n@10.0.4(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@babel/parser': 7.25.7
     optionalDependencies:
-      '@intlify/shared': 10.0.0
+      '@intlify/shared': 11.0.0-beta.2
       '@vue/compiler-dom': 3.5.12
       vue: 3.5.12(typescript@5.6.3)
       vue-i18n: 10.0.4(vue@3.5.12(typescript@5.6.3))
@@ -15999,7 +16045,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.0': {}
 
-  '@nestjs-modules/mailer@2.0.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(nodemailer@6.9.15)(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)':
+  '@nestjs-modules/mailer@2.0.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(nodemailer@6.9.15)(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)':
     dependencies:
       '@css-inline/css-inline': 0.14.1
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16026,13 +16072,13 @@ snapshots:
       - typescript
       - uncss
 
-  '@nestjs/apollo@12.2.0(@apollo/server@4.11.0(graphql@16.9.0))(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2))(graphql@16.9.0)':
+  '@nestjs/apollo@12.2.0(@apollo/server@4.11.0(graphql@16.9.0))(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2))(graphql@16.9.0)':
     dependencies:
       '@apollo/server': 4.11.0(graphql@16.9.0)
       '@apollo/server-plugin-landing-page-graphql-playground': 4.0.0(@apollo/server@4.11.0(graphql@16.9.0))
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/graphql': 12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)
+      '@nestjs/graphql': 12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)
       graphql: 16.9.0
       iterall: 1.3.0
       lodash.omit: 4.5.0
@@ -16101,7 +16147,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)':
+  '@nestjs/graphql@12.2.0(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(graphql@16.9.0)(reflect-metadata@0.2.2)':
     dependencies:
       '@graphql-tools/merge': 9.0.4(graphql@16.9.0)
       '@graphql-tools/schema': 10.0.4(graphql@16.9.0)
@@ -16159,7 +16205,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nestjs/schedule@4.1.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)':
+  '@nestjs/schedule@4.1.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))':
     dependencies:
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16188,7 +16234,7 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@nestjs/swagger@7.4.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)':
+  '@nestjs/swagger@7.4.2(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)':
     dependencies:
       '@microsoft/tsdoc': 0.15.0
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16203,7 +16249,7 @@ snapshots:
       class-transformer: 0.5.1
       class-validator: 0.14.1
 
-  '@nestjs/terminus@10.2.3(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@prisma/client@5.20.0(prisma@5.20.0))(reflect-metadata@0.2.2)(rxjs@7.8.1)':
+  '@nestjs/terminus@10.2.3(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@prisma/client@5.20.0(prisma@5.20.0))(reflect-metadata@0.2.2)(rxjs@7.8.1)':
     dependencies:
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16214,7 +16260,7 @@ snapshots:
     optionalDependencies:
       '@prisma/client': 5.20.0(prisma@5.20.0)
 
-  '@nestjs/testing@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(@nestjs/platform-express@10.4.4)':
+  '@nestjs/testing@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4))':
     dependencies:
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16222,7 +16268,7 @@ snapshots:
     optionalDependencies:
       '@nestjs/platform-express': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
 
-  '@nestjs/throttler@6.2.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)(reflect-metadata@0.2.2)':
+  '@nestjs/throttler@6.2.1(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1))(reflect-metadata@0.2.2)':
     dependencies:
       '@nestjs/common': 10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -16955,6 +17001,10 @@ snapshots:
       '@types/node': 22.7.6
 
   '@types/paho-mqtt@1.0.10': {}
+
+  '@types/papaparse@5.3.14':
+    dependencies:
+      '@types/node': 22.7.6
 
   '@types/passport-github2@1.2.9':
     dependencies:
@@ -23374,6 +23424,8 @@ snapshots:
 
   pako@1.0.11: {}
 
+  papaparse@5.4.1: {}
+
   param-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
@@ -25713,7 +25765,7 @@ snapshots:
       - supports-color
       - webpack-sources
 
-  unplugin-vue-components@0.21.0(@babel/parser@7.25.7)(esbuild@0.24.0)(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@4.9.5))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0)):
+  unplugin-vue-components@0.21.0(@babel/parser@7.25.7)(esbuild@0.24.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(vue@3.5.12(typescript@4.9.5))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0)):
     dependencies:
       '@antfu/utils': 0.5.2
       '@rollup/pluginutils': 4.2.1
@@ -25724,7 +25776,7 @@ snapshots:
       magic-string: 0.26.7
       minimatch: 5.1.6
       resolve: 1.22.8
-      unplugin: 0.7.2(esbuild@0.24.0)(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0))
+      unplugin: 0.7.2(esbuild@0.24.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0))
       vue: 3.5.12(typescript@4.9.5)
     optionalDependencies:
       '@babel/parser': 7.25.7
@@ -25734,6 +25786,46 @@ snapshots:
       - supports-color
       - vite
       - webpack
+
+  unplugin-vue-components@0.27.4(@babel/parser@7.25.7)(rollup@3.29.4)(vue@3.5.12(typescript@5.3.3))(webpack-sources@3.2.3):
+    dependencies:
+      '@antfu/utils': 0.7.10
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.4)
+      chokidar: 3.6.0
+      debug: 4.3.7
+      fast-glob: 3.3.2
+      local-pkg: 0.5.0
+      magic-string: 0.30.11
+      minimatch: 9.0.5
+      mlly: 1.7.2
+      unplugin: 1.14.1(webpack-sources@3.2.3)
+      vue: 3.5.12(typescript@5.3.3)
+    optionalDependencies:
+      '@babel/parser': 7.25.7
+    transitivePeerDependencies:
+      - rollup
+      - supports-color
+      - webpack-sources
+
+  unplugin-vue-components@0.27.4(@babel/parser@7.25.7)(rollup@3.29.4)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3):
+    dependencies:
+      '@antfu/utils': 0.7.10
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.4)
+      chokidar: 3.6.0
+      debug: 4.3.7
+      fast-glob: 3.3.2
+      local-pkg: 0.5.0
+      magic-string: 0.30.11
+      minimatch: 9.0.5
+      mlly: 1.7.2
+      unplugin: 1.14.1(webpack-sources@3.2.3)
+      vue: 3.5.12(typescript@5.6.3)
+    optionalDependencies:
+      '@babel/parser': 7.25.7
+    transitivePeerDependencies:
+      - rollup
+      - supports-color
+      - webpack-sources
 
   unplugin-vue-components@0.27.4(@babel/parser@7.25.7)(rollup@4.24.0)(vue@3.5.12(typescript@5.3.3))(webpack-sources@3.2.3):
     dependencies:
@@ -25755,27 +25847,7 @@ snapshots:
       - supports-color
       - webpack-sources
 
-  unplugin-vue-components@0.27.4(@babel/parser@7.25.7)(rollup@4.24.0)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3):
-    dependencies:
-      '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.2(rollup@4.24.0)
-      chokidar: 3.6.0
-      debug: 4.3.7
-      fast-glob: 3.3.2
-      local-pkg: 0.5.0
-      magic-string: 0.30.11
-      minimatch: 9.0.5
-      mlly: 1.7.2
-      unplugin: 1.14.1(webpack-sources@3.2.3)
-      vue: 3.5.12(typescript@5.6.3)
-    optionalDependencies:
-      '@babel/parser': 7.25.7
-    transitivePeerDependencies:
-      - rollup
-      - supports-color
-      - webpack-sources
-
-  unplugin@0.7.2(esbuild@0.24.0)(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0)):
+  unplugin@0.7.2(esbuild@0.24.0)(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1))(webpack@5.94.0(@swc/core@1.4.2)(esbuild@0.24.0)):
     dependencies:
       acorn: 8.12.1
       chokidar: 3.6.0
@@ -25783,7 +25855,7 @@ snapshots:
       webpack-virtual-modules: 0.4.6
     optionalDependencies:
       esbuild: 0.24.0
-      rollup: 2.79.2
+      rollup: 3.29.4
       vite: 4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1)
       webpack: 5.94.0(@swc/core@1.4.2)(esbuild@0.24.0)
 
@@ -25887,13 +25959,9 @@ snapshots:
 
   vary@1.1.2: {}
 
-  verzod@0.2.2(zod@3.22.4):
+  verzod@0.2.3(zod@3.22.4):
     dependencies:
       zod: 3.22.4
-
-  verzod@0.2.2(zod@3.23.8):
-    dependencies:
-      zod: 3.23.8
 
   verzod@0.2.3(zod@3.23.8):
     dependencies:
@@ -25950,7 +26018,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-checker@0.6.4(eslint@8.57.0)(optionator@0.9.4)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-tsc@1.8.24(typescript@5.3.3)):
+  vite-plugin-checker@0.6.4(eslint@8.57.0)(meow@13.2.0)(optionator@0.9.4)(typescript@5.3.3)(vite@5.4.9(@types/node@22.7.6)(sass@1.79.5)(terser@5.34.1))(vue-tsc@1.8.24(typescript@5.3.3)):
     dependencies:
       '@babel/code-frame': 7.25.7
       ansi-escapes: 4.3.2
@@ -25970,6 +26038,7 @@ snapshots:
       vscode-uri: 3.0.8
     optionalDependencies:
       eslint: 8.57.0
+      meow: 13.2.0
       optionator: 0.9.4
       typescript: 5.3.3
       vue-tsc: 1.8.24(typescript@5.3.3)
@@ -26028,10 +26097,10 @@ snapshots:
     dependencies:
       vite: 5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1)
 
-  vite-plugin-inspect@0.7.38(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1)):
+  vite-plugin-inspect@0.7.38(rollup@3.29.4)(vite@4.5.0(@types/node@18.18.8)(sass@1.80.3)(terser@5.34.1)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.2(rollup@2.79.2)
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.4)
       debug: 4.3.7
       error-stack-parser-es: 0.1.5
       fs-extra: 11.2.0
@@ -26043,10 +26112,10 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-inspect@0.8.7(rollup@4.24.0)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1)):
+  vite-plugin-inspect@0.8.7(rollup@3.29.4)(vite@5.4.9(@types/node@22.7.6)(sass@1.80.3)(terser@5.34.1)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.2(rollup@4.24.0)
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.4)
       debug: 4.3.7
       error-stack-parser-es: 0.1.5
       fs-extra: 11.2.0

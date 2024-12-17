@@ -186,14 +186,6 @@ const {
 
 const pendingInvites = ref<InvitedUsersQuery['infra']['invitedUsers']>([]);
 
-const hasNextPage = computed(() => invitesList.value.length === invitesPerPage);
-
-// Get Next Page
-const fetchNextInvites = () => {
-  page.value += 1;
-  refetch({ take: invitesPerPage, skip: (page.value - 1) * invitesPerPage });
-};
-
 // Populate pending invites
 watch(
   invitesList,
@@ -211,6 +203,14 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+// Pagination
+const hasNextPage = computed(() => invitesList.value.length === invitesPerPage);
+
+const fetchNextInvites = () => {
+  page.value += 1;
+  refetch({ take: invitesPerPage, skip: (page.value - 1) * invitesPerPage });
+};
 
 // Selected Rows
 const selectedRows = ref<InvitedUsersQuery['infra']['invitedUsers']>([]);

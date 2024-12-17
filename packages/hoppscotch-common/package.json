@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2024.10.2",
+  "version": "2024.11.0",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -38,7 +38,7 @@
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/httpsnippet": "3.0.6",
     "@hoppscotch/js-sandbox": "workspace:^",
-    "@hoppscotch/ui": "0.2.1",
+    "@hoppscotch/ui": "0.2.2",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.0",
     "@noble/curves": "1.6.0",
@@ -94,7 +94,7 @@
     "url": "0.11.4",
     "util": "0.12.5",
     "uuid": "10.0.0",
-    "verzod": "0.2.2",
+    "verzod": "0.2.3",
     "vue": "3.5.12",
     "vue-i18n": "10.0.4",
     "vue-pdf-embed": "2.1.0",

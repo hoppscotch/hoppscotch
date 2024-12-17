@@ -1,8 +1,13 @@
-import { HoppRESTRequest, HoppRESTRequestResponse } from "@hoppscotch/data"
-import { HoppRESTResponse } from "../types/HoppRESTResponse"
-import { HoppTestResult } from "../types/HoppTestResult"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  HoppRESTRequestResponse,
+} from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { HoppRESTResponse } from "../types/HoppRESTResponse"
+import { HoppTestResult } from "../types/HoppTestResult"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
 
 export type HoppRESTSaveContext =
   | {
@@ -50,9 +55,122 @@ export type HoppRESTSaveContext =
 /**
  * Defines a live 'document' (something that is open and being edited) in the app
  */
+
+export type HoppCollectionSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "user-collection"
+      /**
+       * Path to the request folder
+       */
+      folderPath: string
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "team-collection"
+      /**
+       * ID of the team
+       */
+      teamID?: string
+      /**
+       * ID of the collection loaded
+       */
+      collectionID?: string
+      /**
+       * ID of the request in the team
+       */
+      requestID: string
+    }
+  | null
+
+export type TestRunnerConfig = {
+  iterations: number
+  delay: number
+  stopOnError: boolean
+  persistResponses: boolean
+  keepVariableValues: boolean
+}
+
+export type HoppTestRunnerDocument = {
+  /**
+   * The document type
+   */
+  type: "test-runner"
+
+  /**
+   * The test runner configuration
+   */
+  config: TestRunnerConfig
+
+  /**
+   * initiate test runner on tab open
+   */
+  status: "idle" | "running" | "stopped" | "error"
+
+  /**
+   * The collection as it is in the document
+   */
+  collection: HoppCollection
+
+  /**
+   * The type of the collection
+   */
+  collectionType: "my-collections" | "team-collections"
+
+  /**
+   * collection ID to be used for team collections
+   * (if it's my-collections, the _ref_id will be used as collectionID)
+   */
+  collectionID: string
+
+  /**
+   * The request as it is in the document
+   */
+  resultCollection?: HoppCollection
+
+  /**
+   * The test runner meta information
+   */
+  testRunnerMeta: {
+    totalRequests: number
+    completedRequests: number
+    totalTests: number
+    passedTests: number
+    failedTests: number
+    totalTime: number
+  }
+
+  /**
+   * Selected test runner request
+   */
+  request: TestRunnerRequest | null
+
+  /**
+   * The response of the selected request in collections after running the test
+   * (if any)
+   */
+  response?: HoppRESTResponse | null
+
+  /**
+   * The test results of the selected request in collections after running the test
+   * (if any)
+   */
+  testResults?: HoppTestResult | null
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+}
+
 export type HoppRequestDocument = {
   /**
-   * The type of the document
+   * The document type
    */
   type: "request"
 
@@ -134,4 +252,7 @@ export type HoppSavedExampleDocument = {
 /**
  * Defines a live 'document' (something that is open and being edited) in the app
  */
-export type HoppTabDocument = HoppSavedExampleDocument | HoppRequestDocument
+export type HoppTabDocument =
+  | HoppSavedExampleDocument
+  | HoppRequestDocument
+  | HoppTestRunnerDocument

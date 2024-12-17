@@ -74,7 +74,6 @@
             @click="emit('add-folder')"
           />
           <HoppButtonSecondary
-            v-if="collectionsType === 'team-collections'"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlaySquare"
             :title="t('collection_runner.run_collection')"
@@ -129,6 +128,18 @@
                     @click="
                       () => {
                         emit('add-folder')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    ref="runCollectionAction"
+                    :icon="IconPlaySquare"
+                    :label="t('collection_runner.run_collection')"
+                    :shortcut="['T']"
+                    @click="
+                      () => {
+                        emit('run-collection', props.id)
                         hide()
                       }
                     "
@@ -191,19 +202,6 @@
                     @click="
                       () => {
                         emit('edit-properties')
-                        hide()
-                      }
-                    "
-                  />
-                  <HoppSmartItem
-                    v-if="collectionsType === 'team-collections'"
-                    ref="runCollectionAction"
-                    :icon="IconPlaySquare"
-                    :label="t('collection_runner.run_collection')"
-                    :shortcut="['T']"
-                    @click="
-                      () => {
-                        emit('run-collection', props.id)
                         hide()
                       }
                     "
@@ -298,6 +296,7 @@ const emit = defineEmits<{
   (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
+  (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void

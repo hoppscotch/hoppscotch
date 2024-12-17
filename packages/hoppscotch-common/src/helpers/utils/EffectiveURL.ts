@@ -44,7 +44,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: HoppRESTHeaders
   effectiveFinalParams: HoppRESTParams
-  effectiveFinalBody: FormData | string | null
+  effectiveFinalBody: FormData | string | null | File
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
 
@@ -249,6 +249,32 @@ export const getComputedBodyHeaders = (
   // Body should have a non-null content-type
   if (!req.body || req.body.contentType === null) return []
 
+  if (
+    req.body &&
+    req.body.contentType === "application/octet-stream" &&
+    req.body.body
+  ) {
+    const filename = req.body.body.name
+    const fileType = req.body.body.type
+
+    const contentType = fileType ? fileType : "application/octet-stream"
+
+    return [
+      {
+        active: true,
+        key: "content-type",
+        value: contentType,
+        description: "",
+      },
+      {
+        active: true,
+        key: "Content-Disposition",
+        value: `attachment; filename="${filename}"`,
+        description: "",
+      },
+    ]
+  }
+
   return [
     {
       active: true,
@@ -408,6 +434,10 @@ export const resolvesEnvsInBody = (
 ): HoppRESTReqBody => {
   if (!body.contentType) return body
 
+  if (body.contentType === "application/octet-stream") {
+    return body
+  }
+
   if (body.contentType === "multipart/form-data") {
     if (!body.body) {
       return {
@@ -427,6 +457,7 @@ export const resolvesEnvsInBody = (
             value: entry.isFile
               ? entry.value
               : parseTemplateString(entry.value, env.variables, false, true),
+            contentType: entry.contentType,
           }
       ),
     }
@@ -447,7 +478,7 @@ function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"],
   showKeyIfSecret = false
-): FormData | string | null {
+): FormData | Blob | string | null {
   if (request.body.contentType === null) return null
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
@@ -512,16 +543,22 @@ function getFinalBodyFromRequest(
           ? x.value.map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
+              contentType: x.contentType,
             }))
           : [
               {
                 key: parseTemplateString(x.key, envVariables),
                 value: parseTemplateString(x.value, envVariables),
+                contentType: x.contentType,
               },
             ]
       ),
       toFormData
     )
+  }
+
+  if (request.body.contentType === "application/octet-stream") {
+    return request.body.body
   }
 
   let bodyContent = request.body.body ?? ""

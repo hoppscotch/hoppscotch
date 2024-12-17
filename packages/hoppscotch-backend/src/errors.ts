@@ -56,6 +56,12 @@ export const ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY =
   '"DATA_ENCRYPTION_KEY" is not present in .env file';
 
 /**
+ * Environment variable "DATA_ENCRYPTION_KEY" is changed in .env file
+ */
+export const ENV_INVALID_DATA_ENCRYPTION_KEY =
+  '"DATA_ENCRYPTION_KEY" value changed in .env file. Please undo the changes and restart the server';
+
+/**
  * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
  */
 export const ENV_EMPTY_AUTH_PROVIDERS =

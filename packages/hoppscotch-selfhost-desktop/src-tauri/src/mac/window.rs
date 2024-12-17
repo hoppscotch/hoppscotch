@@ -17,7 +17,7 @@ pub enum ToolbarThickness {
 }
 
 const WINDOW_CONTROL_PAD_X: f64 = 15.0;
-const WINDOW_CONTROL_PAD_Y: f64 = 23.0;
+const WINDOW_CONTROL_PAD_Y: f64 = 16.0;
 
 pub trait WindowExt {
     #[cfg(target_os = "macos")]
@@ -95,6 +95,7 @@ fn set_window_controls_pos(window: cocoa::base::id, x: f64, y: f64) {
         for (i, button) in window_buttons.into_iter().enumerate() {
             let mut rect: NSRect = NSView::frame(button);
             rect.origin.x = x + (i as f64 * space_between);
+            rect.origin.y = 0.0;
             button.setFrameOrigin(rect.origin);
         }
     }

@@ -156,7 +156,7 @@ const router = useRouter();
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greater('lg');
 
-const invitesPerPage = 4;
+const invitesPerPage = 10;
 const page = ref(1);
 
 // Get Proper Date Formats
@@ -176,7 +176,7 @@ const {
   fetching,
   error,
   refetch,
-  list: invites,
+  list: invitesList,
 } = usePagedQuery(
   InvitedUsersDocument,
   (x) => x.infra.invitedUsers,
@@ -186,7 +186,7 @@ const {
 
 const pendingInvites = ref<InvitedUsersQuery['infra']['invitedUsers']>([]);
 
-const hasNextPage = computed(() => invites.value.length === invitesPerPage);
+const hasNextPage = computed(() => invitesList.value.length === invitesPerPage);
 
 // Get Next Page
 const fetchNextInvites = () => {
@@ -196,23 +196,18 @@ const fetchNextInvites = () => {
 
 // Populate pending invites
 watch(
-  invites,
-  (newList) => {
-    if (!newList) return;
+  invitesList,
+  (newInvitesList) => {
+    if (!newInvitesList) return;
 
-    if (page.value === 1) {
-      // Reset list if it's the first page
-      pendingInvites.value.splice(0, pendingInvites.value.length, ...newList);
-    } else {
-      // Filter out any items that are already in the list
-      const newItems = newList.filter(
-        (newItem) =>
-          !pendingInvites.value.some(
-            (existingItem) => existingItem.inviteeEmail === newItem.inviteeEmail
-          )
-      );
-      pendingInvites.value.push(...newItems);
-    }
+    const newInvites = newInvitesList.filter(
+      (newInvite) =>
+        !pendingInvites.value.some(
+          (existingInvite) =>
+            existingInvite.inviteeEmail === newInvite.inviteeEmail
+        )
+    );
+    pendingInvites.value.push(...newInvites);
   },
   { immediate: true, deep: true }
 );

@@ -7,7 +7,7 @@
   >
     <template #body>
       <HoppSmartTabs v-model="activeTab">
-        <HoppSmartTab id="test-runner" :label="t('collection_runner.ui')">
+        <HoppSmartTab id="gui" :label="t('collection_runner.ui')">
           <div
             class="flex-shrink-0 w-full h-full p-4 overflow-auto overflow-x-auto bg-primary"
           >
@@ -126,7 +126,7 @@
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             class="!py-0 pl-2"
-            :to="`https://docs.hoppscotch.io/documentation/${runnerLink}`"
+            :to="runnerLink"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"
@@ -138,7 +138,7 @@
     <template #footer>
       <div class="flex space-x-2">
         <HoppButtonPrimary
-          v-if="activeTab === 'test-runner'"
+          v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
           :disabled="config.delay < 0"
           :icon="IconPlay"
@@ -219,15 +219,15 @@ const emit = defineEmits<{
 }>()
 
 const includeEnvironmentID = ref(false)
-const activeTab = ref<"test-runner" | "cli">("test-runner")
+const activeTab = ref<"gui" | "cli">("gui")
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
 
 const runnerLink = computed(() => {
-  return activeTab.value === "test-runner"
-    ? "features/runner#runner"
-    : "clients/cli/overview#running-collections-present-on-the-api-client"
+  return activeTab.value === "gui"
+    ? "https://docs.hoppscotch.io/documentation/features/runner#runner"
+    : "https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-present-on-the-api-client"
 })
 
 function setCurrentEnv(payload: CurrentEnv) {

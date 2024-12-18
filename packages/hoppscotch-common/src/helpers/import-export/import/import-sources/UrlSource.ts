@@ -9,6 +9,7 @@ export function UrlSource(metadata: {
   onImportFromURL: (content: string) => any | Promise<any>
   fetchLogic?: (url: string) => Promise<any>
   isLoading?: Ref<boolean>
+  description: string
 }) {
   const stepID = uuidv4()
 
@@ -20,5 +21,6 @@ export function UrlSource(metadata: {
       }
     },
     loading: metadata.isLoading?.value,
+    description: metadata.description,
   }))
 }

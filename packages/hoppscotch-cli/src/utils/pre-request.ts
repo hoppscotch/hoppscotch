@@ -360,7 +360,7 @@ export async function getEffectiveRESTRequest(
 function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   resolvedVariables: EnvironmentVariable[]
-): E.Either<HoppCLIError, string | null | FormData> {
+): E.Either<HoppCLIError, string | null | FormData | File> {
   if (request.body.contentType === null) {
     return E.right(null);
   }
@@ -422,17 +422,33 @@ function getFinalBodyFromRequest(
           ? x.value.map((v) => ({
               key: parseTemplateString(x.key, resolvedVariables),
               value: v as string | Blob,
+              contentType: x.contentType,
             }))
           : [
               {
                 key: parseTemplateString(x.key, resolvedVariables),
                 value: parseTemplateString(x.value, resolvedVariables),
+                contentType: x.contentType,
               },
             ]
       ),
       toFormData,
       E.right
     );
+  }
+
+  if (request.body.contentType === "application/octet-stream") {
+    const body = request.body.body;
+
+    if (!body) {
+      return E.right(null);
+    }
+
+    if (!(body instanceof File)) {
+      return E.right(null);
+    }
+
+    return E.right(body);
   }
 
   return pipe(

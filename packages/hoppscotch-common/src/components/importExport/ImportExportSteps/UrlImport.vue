@@ -1,19 +1,26 @@
 <template>
   <div class="space-y-4">
-    <p class="flex items-center">
-      <span
-        class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
-        :class="{
-          '!text-green-500': hasURL,
-        }"
-      >
-        <icon-lucide-check-circle class="svg-icons" />
-      </span>
-      <span>
-        {{ t(caption) }}
-      </span>
-    </p>
-    <p class="flex flex-col ml-10">
+    <div>
+      <p class="flex items-center">
+        <span
+          class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
+          :class="{
+            '!text-green-500': hasURL,
+          }"
+        >
+          <icon-lucide-check-circle class="svg-icons" />
+        </span>
+        <span>
+          {{ t(caption) }}
+        </span>
+      </p>
+
+      <p v-if="description" class="ml-10 mt-2 text-secondaryLight">
+        {{ t(description) }}
+      </p>
+    </div>
+
+    <p class="flex flex-col">
       <input
         v-model="inputChooseGistToImportFrom"
         type="url"
@@ -49,8 +56,9 @@ const props = withDefaults(
     caption: string
     fetchLogic?: (url: string) => Promise<AxiosResponse<any>>
     loading?: boolean
+    description?: string
   }>(),
-  { fetchLogic: undefined, loading: false }
+  { fetchLogic: undefined, loading: false, description: undefined }
 )
 
 const emit = defineEmits<{

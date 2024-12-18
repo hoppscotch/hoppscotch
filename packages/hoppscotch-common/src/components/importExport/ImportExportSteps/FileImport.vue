@@ -1,22 +1,26 @@
 <template>
   <div class="space-y-4">
-    <p class="flex items-center">
-      <span
-        class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
-        :class="{
-          '!text-green-500': hasFile,
-        }"
-      >
-        <icon-lucide-check-circle class="svg-icons" />
-      </span>
-      <span>
-        {{ t(`${caption}`) }}
-      </span>
-    </p>
+    <div>
+      <p class="flex items-center">
+        <span
+          class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
+          :class="{
+            '!text-green-500': hasFile,
+          }"
+        >
+          <icon-lucide-check-circle class="svg-icons" />
+        </span>
+        <span>
+          {{ t(`${caption}`) }}
+        </span>
+      </p>
 
-    <div
-      class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
-    >
+      <p v-if="description" class="ml-10 mt-2 text-secondaryLight">
+        {{ t(description) }}
+      </p>
+    </div>
+
+    <div class="flex flex-col border border-dashed rounded border-dividerDark">
       <input
         id="inputChooseFileToImportFrom"
         ref="inputChooseFileToImportFrom"
@@ -71,9 +75,11 @@ const props = withDefaults(
     caption: string
     acceptedFileTypes: string
     loading?: boolean
+    description?: string
   }>(),
   {
     loading: false,
+    description: undefined,
   }
 )
 

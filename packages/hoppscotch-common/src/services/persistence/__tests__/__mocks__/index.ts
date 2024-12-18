@@ -25,48 +25,57 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 4,
+    v: 5,
     name: "Echo",
-    folders: [],
     requests: [
       {
         v: RESTReqSchemaVersion,
-        endpoint: "https://echo.hoppscotch.io",
         name: "Echo test",
+        method: "GET",
+        endpoint: "https://echo.hoppscotch.io",
         params: [],
         headers: [],
-        method: "GET",
-        auth: { authType: "none", authActive: true },
         preRequestScript: "",
         testScript: "",
-        body: { contentType: null, body: null },
+        auth: {
+          authType: "none",
+          authActive: true,
+        },
+        body: {
+          contentType: null,
+          body: null,
+        },
         requestVariables: [],
         responses: {},
       },
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    folders: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 4,
+    v: 5,
     name: "Echo",
-    folders: [],
     requests: [
       {
         v: 7,
         name: "Echo test",
         url: "https://echo.hoppscotch.io/graphql",
         headers: [],
-        variables: '{\n  "id": "1"\n}',
         query: "query Request { url }",
-        auth: { authType: "none", authActive: true },
+        variables: '{\n  "id": "1"\n}',
+        auth: {
+          authType: "none",
+          authActive: true,
+        },
       },
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    folders: [],
   },
 ]
 

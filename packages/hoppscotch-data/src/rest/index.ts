@@ -12,19 +12,18 @@ import V2_VERSION, { HoppRESTRequestVariables } from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
-import V6_VERSION, { HoppRESTReqBody } from "./v/6"
+import V6_VERSION from "./v/6"
 import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
-import V8_VERSION, { HoppRESTAuth, HoppRESTRequestResponses } from "./v/8"
+import V8_VERSION, { HoppRESTAuth } from "./v/8"
+import V9_VERSION, { HoppRESTReqBody, HoppRESTRequestResponses } from "./v/9"
 
 export * from "./content-types"
 
 export {
-  FormDataKeyValue,
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
   HoppRESTAuthInherit,
   HoppRESTAuthNone,
-  HoppRESTReqBodyFormData,
 } from "./v/1"
 
 export { HoppRESTRequestVariables } from "./v/2"
@@ -34,8 +33,6 @@ export { ImplicitOauthFlowParams } from "./v/3"
 export { HoppRESTAuthAPIKey } from "./v/4"
 
 export { AuthCodeGrantTypeParams } from "./v/5"
-
-export { HoppRESTReqBody } from "./v/6"
 
 export {
   HoppRESTAuthAWSSignature,
@@ -49,10 +46,15 @@ export {
   HoppRESTAuthOAuth2,
   HoppRESTAuthDigest,
   PasswordGrantTypeParams,
+} from "./v/8"
+
+export {
+  FormDataKeyValue,
+  HoppRESTReqBody,
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
   HoppRESTRequestResponses,
-} from "./v/8"
+} from "./v/9"
 
 const versionedObject = z.object({
   // v is a stringified number
@@ -60,7 +62,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 8,
+  latestVersion: 9,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -71,6 +73,7 @@ export const HoppRESTRequest = createVersionedEntity({
     6: V6_VERSION,
     7: V7_VERSION,
     8: V8_VERSION,
+    9: V9_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -113,7 +116,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   responses: lodashIsEqualEq,
 })
 
-export const RESTReqSchemaVersion = "8"
+export const RESTReqSchemaVersion = "9"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]

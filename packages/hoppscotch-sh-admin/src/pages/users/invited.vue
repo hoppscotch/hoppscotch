@@ -7,9 +7,23 @@
     </div>
 
     <div class="flex justify-between items-center py-6">
-      <h3 class="text-lg font-bold text-accentContrast">
-        {{ t('users.pending_invites') }}
-      </h3>
+      <div>
+        <h3 class="text-lg font-bold text-accentContrast">
+          {{ t('users.pending_invites') }}
+        </h3>
+        <div class="flex">
+          <p class="my-1 text-secondaryLight">
+            {{ t('users.pending_invites_description') }}
+          </p>
+          <HoppSmartAnchor
+            blank
+            to="https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard#pending-invites"
+            :label="t('support.more_info')"
+            class="underline ml-1"
+          />
+          <icon-lucide-arrow-up-right class="underline w-4 h-4" />
+        </div>
+      </div>
 
       <HoppButtonSecondary
         v-if="pendingInvites?.length"

@@ -89,6 +89,9 @@ export class ParameterMenuService extends Service implements ContextMenu {
 
     const tabService = getService(RESTTabService)
 
+    if (tabService.currentActiveTab.value.document.type === "test-runner")
+      return
+
     const currentActiveRequest =
       tabService.currentActiveTab.value.document.type === "request"
         ? tabService.currentActiveTab.value.document.request

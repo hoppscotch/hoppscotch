@@ -2,11 +2,12 @@
   <HoppSmartModal
     dialog
     :title="t('collection_runner.run_collection')"
+    :full-width-body="true"
     @close="closeModal"
   >
     <template #body>
       <HoppSmartTabs v-model="activeTab">
-        <HoppSmartTab id="test-runner" :label="t('collection_runner.ui')">
+        <HoppSmartTab id="gui" :label="t('collection_runner.ui')">
           <div
             class="flex-shrink-0 w-full h-full p-4 overflow-auto overflow-x-auto bg-primary"
           >
@@ -62,14 +63,6 @@
                   <span>
                     {{ t("collection_runner.persist_responses") }}
                   </span>
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    class="!py-0 pl-2"
-                    to="https://docs.hoppscotch.io/documentation/features/inspections"
-                    blank
-                    :title="t('app.wiki')"
-                    :icon="IconHelpCircle"
-                  />
                 </HoppSmartCheckbox>
 
                 <!-- <HoppSmartCheckbox
@@ -129,13 +122,23 @@
             </div>
           </div>
         </HoppSmartTab>
+        <template #actions>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            class="!py-0 pl-2"
+            :to="runnerLink"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
+          />
+        </template>
       </HoppSmartTabs>
     </template>
 
     <template #footer>
       <div class="flex space-x-2">
         <HoppButtonPrimary
-          v-if="activeTab === 'test-runner'"
+          v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
           :disabled="config.delay < 0"
           :icon="IconPlay"
@@ -216,10 +219,16 @@ const emit = defineEmits<{
 }>()
 
 const includeEnvironmentID = ref(false)
-const activeTab = ref("test-runner")
+const activeTab = ref<"gui" | "cli">("gui")
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
+
+const runnerLink = computed(() => {
+  return activeTab.value === "gui"
+    ? "https://docs.hoppscotch.io/documentation/features/runner#runner"
+    : "https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-present-on-the-api-client"
+})
 
 function setCurrentEnv(payload: CurrentEnv) {
   currentEnv.value = payload

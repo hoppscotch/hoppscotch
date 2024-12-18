@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import type { GraphQLNamedType, GraphQLType } from "graphql"
 import { h } from "vue"
-import { useExplorer, renderType } from "./context"
+import { useExplorer, renderType } from "../../helpers/graphql/explorer"
 
 interface TypeLinkProps {
   type: GraphQLType

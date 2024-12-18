@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 // import { isType } from "graphql"
-import { useExplorer } from "./context"
+import { useExplorer } from "../../helpers/graphql/explorer"
 import { schema } from "~/helpers/graphql/connection"
 
 // Use explorer composable

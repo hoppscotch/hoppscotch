@@ -50,6 +50,7 @@ export type SettingsDef = {
     importCurl: boolean
     codeGen: boolean
     cookie: boolean
+    multipartFormdata: boolean
   }
 
   CURRENT_INTERCEPTOR_ID: string
@@ -96,6 +97,7 @@ export const getDefaultSettings = (): SettingsDef => ({
     importCurl: true,
     codeGen: true,
     cookie: true,
+    multipartFormdata: true,
   },
 
   // Set empty because interceptor module will set the default value

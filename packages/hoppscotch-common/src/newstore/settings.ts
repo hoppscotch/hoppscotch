@@ -247,9 +247,9 @@ export function toggleNestedSetting<
 >(settingKey: K, property: P) {
   settingsStore.dispatch({
     dispatcher: "toggleNestedSetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       property,
     },
   })
@@ -264,7 +264,6 @@ export function applySetting<K extends keyof SettingsDef>(
     payload: {
       // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       value,
     },
   })
@@ -277,9 +276,9 @@ export function applyNestedSetting<
 >(settingKey: K, property: P, value: R) {
   settingsStore.dispatch({
     dispatcher: "applyNestedSetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
       settingKey,
-      // @ts-expect-error TS is not able to understand the type semantics here
       property,
       value,
     },

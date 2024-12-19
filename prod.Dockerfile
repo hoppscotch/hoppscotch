@@ -18,8 +18,8 @@ RUN npm uninstall -g cross-spawn && \
     npm cache clean --force && \
     # Remove any remaining old versions
     find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install the latest version of cross-spawn globally
-    npm install -g cross-spawn@7.0.5 --force
+    # Install cross-spawn v7 globally
+    npm install -g cross-spawn@^7.0.6 --force
 
 FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
@@ -37,8 +37,8 @@ RUN npm uninstall -g cross-spawn && \
     npm cache clean --force && \
     # Remove any remaining old versions
     find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install the latest version of cross-spawn globally
-    npm install -g cross-spawn@7.0.5 --force
+    # Install cross-spawn v7 globally
+    npm install -g cross-spawn@^7.0.6 --force
 
 COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
@@ -123,8 +123,8 @@ RUN npm uninstall -g cross-spawn && \
     npm cache clean --force && \
     # Remove any remaining old versions
     find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install the latest version of cross-spawn globally
-    npm install -g cross-spawn@7.0.5 --force
+    # Install cross-spawn v7 globally
+    npm install -g cross-spawn@^7.0.6 --force
 
 # Copy necessary files
 # Backend files

@@ -219,7 +219,7 @@ declare module 'vue' {
     IconLucideRss: (typeof import("~icons/lucide/rss"))["default"]
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
-    IconLucideVerified: (typeof import("~icons/lucide/verified"))["default"]
+    IconLucideVerified: typeof import('~icons/lucide/verified')['default']
     IconLucideX: typeof import('~icons/lucide/x')['default']
     ImportExportBase: typeof import('./components/importExport/Base.vue')['default']
     ImportExportImportExportList: typeof import('./components/importExport/ImportExportList.vue')['default']

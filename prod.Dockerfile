@@ -1,4 +1,4 @@
-FROM node:20-alpine3.19 AS base_builder
+FROM node:22.12.0-alpine3.20 AS base_builder
 
 WORKDIR /usr/src/app
 
@@ -14,6 +14,12 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install -f --offline
 
+RUN npm uninstall -g cross-spawn && \
+    npm cache clean --force && \
+    # Remove any remaining old versions
+    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
+    # Install the latest version of cross-spawn globally
+    npm install -g cross-spawn@7.0.5 --force
 
 FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
@@ -23,9 +29,16 @@ RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM node:20-alpine3.19 AS backend
+FROM node:22.12.0-alpine3.20 AS backend
 RUN apk add caddy
 RUN npm install -g pnpm
+
+RUN npm uninstall -g cross-spawn && \
+    npm cache clean --force && \
+    # Remove any remaining old versions
+    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
+    # Install the latest version of cross-spawn globally
+    npm install -g cross-spawn@7.0.5 --force
 
 COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
@@ -88,7 +101,7 @@ WORKDIR /site
 
 CMD ["node","/site/prod_run.mjs"]
 
-FROM node:20-alpine3.19 AS aio
+FROM node:22.12.0-alpine3.20 AS aio
 
 ENV PRODUCTION="true"
 ENV PORT=8080
@@ -106,6 +119,12 @@ RUN apk add caddy
 RUN apk add tini curl
 
 RUN npm install -g pnpm
+RUN npm uninstall -g cross-spawn && \
+    npm cache clean --force && \
+    # Remove any remaining old versions
+    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
+    # Install the latest version of cross-spawn globally
+    npm install -g cross-spawn@7.0.5 --force
 
 # Copy necessary files
 # Backend files

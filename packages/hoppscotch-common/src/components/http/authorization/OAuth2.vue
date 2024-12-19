@@ -520,6 +520,10 @@ const supportedGrantTypes = [
 
       const grantTypeInfo = auth.value.grantTypeInfo
 
+      console.group("clientCredentials")
+      console.log("grantTypeInfo", grantTypeInfo)
+      console.groupEnd()
+
       const authEndpoint = refWithCallbackOnChange(
         grantTypeInfo?.authEndpoint,
         (value) => {
@@ -564,6 +568,33 @@ const supportedGrantTypes = [
         }
       )
 
+      const sendAs = refWithCallbackOnChange(
+        grantTypeInfo.sendAs
+          ? grantTypeInfo.sendAs === "AS_BASIC_AUTH_HEADERS"
+            ? {
+                id: "AS_BASIC_AUTH_HEADERS" as const,
+                label: "Send as Basic Auth Header",
+              }
+            : {
+                id: "IN_BODY" as const,
+                label: "Send in Request Body",
+              }
+          : {
+              id: "IN_BODY" as const,
+              label: "Send in Request Body",
+            },
+        (value) => {
+          if (!("sendAs" in auth.value.grantTypeInfo)) {
+            return
+          }
+
+          auth.value.grantTypeInfo = {
+            ...auth.value.grantTypeInfo,
+            sendAs: value.id,
+          }
+        }
+      )
+
       const runAction = async () => {
         const values: ClientCredentialsFlowParams =
           replaceTemplateStringsInObjectValues({
@@ -571,6 +602,7 @@ const supportedGrantTypes = [
             clientID: clientID.value,
             clientSecret: clientSecret.value,
             scopes: scopes.value,
+            sendAs: sendAs.value.id,
           })
 
         const parsedArgs = clientCredentials.params.safeParse(values)
@@ -617,6 +649,24 @@ const supportedGrantTypes = [
             label: "Scopes",
             type: "text" as const,
             ref: scopes,
+          },
+          {
+            id: "sendAs",
+            label: "Send As",
+            type: "dropdown" as const,
+            ref: sendAs,
+            tippyRefName: "sendAsTippyActions",
+            tippyRef: sendAsTippyActions,
+            options: [
+              {
+                id: "IN_BODY" as const,
+                label: "Send in Request Body",
+              },
+              {
+                id: "AS_BASIC_AUTH_HEADERS" as const,
+                label: "Send as Basic Auth Header",
+              },
+            ],
           },
         ]
       })
@@ -1066,4 +1116,5 @@ const generateOAuthToken = async () => {
 const grantTypeTippyActions = ref<HTMLElement | null>(null)
 const pkceTippyActions = ref<HTMLElement | null>(null)
 const authTippyActions = ref<HTMLElement | null>(null)
+const sendAsTippyActions = ref<HTMLElement | null>(null)
 </script>

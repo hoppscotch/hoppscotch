@@ -1,6 +1,6 @@
 <template>
   <div class="mb-6">
-    <div class="graphiql-doc-explorer-section-title flex gap-2">
+    <div class="graphiql-doc-explorer-section-title flex gap-2 mb-2">
       <component :is="iconComponent" />
       {{ title }}
     </div>
@@ -19,7 +19,7 @@ import IconDierctive from "~icons/lucide/arrow-right"
 import IconEnumValue from "~icons/lucide/arrow-right"
 import IconField from "~icons/lucide/arrow-right"
 import IconImplements from "~icons/lucide/arrow-right"
-import IconType from "~icons/lucide/arrow-right"
+import IconType from "~icons/lucide/type"
 import IconRootTypes from "~icons/lucide/folder-kanban"
 
 type ExplorerSectionTitle =

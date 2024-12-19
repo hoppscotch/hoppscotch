@@ -10,7 +10,6 @@ import {
 import { TestResult } from "@hoppscotch/js-sandbox"
 import { getService } from "~/modules/dioc"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { getTemporaryVariables } from "./runner/temp_envs"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 

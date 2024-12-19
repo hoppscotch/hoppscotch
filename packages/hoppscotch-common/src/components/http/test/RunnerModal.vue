@@ -83,8 +83,8 @@
                     {{ t("collection_runner.keep_variable_values") }}
                   </span>
                   <HoppButtonSecondary
-                    class="!py-0 pl-2"
                     v-tippy="{ theme: 'tooltip' }"
+                    class="!py-0 pl-2"
                     to="https://docs.hoppscotch.io/documentation/features/inspections"
                     blank
                     :title="t('app.wiki')"
@@ -189,6 +189,7 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import { cloneDeep } from "lodash-es"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import { getRESTCollectionByRefId } from "~/newstore/collections"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -206,6 +207,7 @@ export type CollectionRunnerData =
   | {
       type: "team-collections"
       collectionID: string
+      inheritedProperties?: HoppInheritedProperty
     }
 
 const props = defineProps<{
@@ -253,6 +255,7 @@ const runTests = async () => {
     props.collectionRunnerData.type,
     props.collectionRunnerData.collectionID
   )
+
   isLoading.value = false
 
   if (!collectionTree) {
@@ -267,7 +270,6 @@ const runTests = async () => {
 
   let tabIdToClose = null
   if (props.sameTab) tabIdToClose = cloneDeep(tabs.currentTabID.value)
-
   tabs.createNewTab({
     type: "test-runner",
     collectionType: props.collectionRunnerData.type,
@@ -285,6 +287,10 @@ const runTests = async () => {
       passedTests: 0,
       totalTests: 0,
     },
+    inheritedProperties:
+      "inheritedProperties" in props.collectionRunnerData
+        ? props.collectionRunnerData.inheritedProperties
+        : undefined,
   })
 
   if (tabIdToClose) tabs.closeTab(tabIdToClose)

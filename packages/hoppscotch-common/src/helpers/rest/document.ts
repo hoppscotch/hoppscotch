@@ -172,6 +172,12 @@ export type HoppTestRunnerDocument = {
    * (atleast as far as we can say)
    */
   isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection also the collection itself
+   * (if any) - Used for team collections
+   */
+  inheritedProperties?: HoppInheritedProperty
 }
 
 export type HoppRequestDocument = {

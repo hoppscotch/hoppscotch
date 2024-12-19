@@ -536,6 +536,7 @@ export const REST_TAB_STATE_SCHEMA = z
             response: z.nullable(HoppRESTResponseSchema),
             testResults: z.optional(z.nullable(HoppTestResultSchema)),
             isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
           z.object({
             // !Versioned entity

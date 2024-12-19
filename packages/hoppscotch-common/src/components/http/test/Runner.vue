@@ -122,7 +122,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { HoppCollection } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTHeader } from "@hoppscotch/data"
 import { SmartTreeAdapter } from "@hoppscotch/ui"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
@@ -252,16 +252,41 @@ const runTests = async () => {
     collectionType
   )
 
-  const { auth, headers } = collectionInheritedProps ?? {
-    auth: { authActive: true, authType: "none" },
-    headers: [],
-  }
+  let resolvedCollection: HoppCollection = collection.value
 
-  // Accommodate collection properties for personal workspace
-  // TODO: Resolve the collection properties computation for team workspaces
-  const resolvedCollection = isPersonalWorkspace
-    ? { ...collection.value, auth, headers }
-    : collection.value
+  if (!isPersonalWorkspace) {
+    const requestAuth = tab.value.document.inheritedProperties?.auth
+      .inheritedAuth ?? {
+      authActive: true,
+      authType: "none",
+    }
+
+    const requestHeaders = tab.value.document.inheritedProperties?.headers.map(
+      (header) => {
+        if (header.inheritedHeader) {
+          return header.inheritedHeader
+        }
+        return []
+      }
+    )
+
+    resolvedCollection = {
+      ...collection.value,
+      auth: requestAuth,
+      headers: requestHeaders as HoppRESTHeader[],
+    }
+  } else {
+    const { auth, headers } = collectionInheritedProps ?? {
+      auth: { authActive: true, authType: "none" },
+      headers: [],
+    }
+
+    resolvedCollection = {
+      ...collection.value,
+      auth,
+      headers,
+    }
+  }
 
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
   testRunnerService.runTests(tab, resolvedCollection, {

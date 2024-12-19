@@ -1215,6 +1215,7 @@
     "cli_environment_id_description": "This environment ID will be used by the CLI collection runner for Hoppscotch.",
     "include_active_environment": "Include active environment:",
     "cli": "CLI",
+    "cli_comming_soon_for_personal_collection": "Collection Runner for personal collections in CLI is coming soon.",
     "delay": "Delay",
     "negative_delay": "Delay cannot be negative",
     "ui": "Runner",

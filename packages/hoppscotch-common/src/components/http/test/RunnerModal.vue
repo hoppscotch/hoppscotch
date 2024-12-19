@@ -86,41 +86,44 @@
             </section>
           </div>
         </HoppSmartTab>
-        <HoppSmartTab
-          id="cli"
-          :label="`${t('collection_runner.cli')} ${
-            !CLICommand ? '(Team Collections Only)' : ''
-          }`"
-          :disabled="!CLICommand"
-        >
-          <HttpTestEnv :show="false" @select-env="setCurrentEnv" />
-
-          <div class="space-y-4 p-4">
-            <p
-              class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
-            >
-              {{ cliCommandGenerationDescription }}
+        <HoppSmartTab id="cli" :label="t('collection_runner.cli')">
+          <div v-if="!CLICommand" class="p-4">
+            <p class="p-4 border rounded-md text-amber-500 border-amber-600">
+              {{
+                t("collection_runner.cli_comming_soon_for_personal_collection")
+              }}
             </p>
-
-            <div v-if="environmentID" class="flex gap-x-2 items-center">
-              <HoppSmartCheckbox
-                :on="includeEnvironmentID"
-                @change="toggleIncludeEnvironment"
-              />
-              <span class="truncate"
-                >{{ t("collection_runner.include_active_environment") }}
-                <span class="text-secondaryDark">
-                  {{ currentEnv?.name }}
-                </span>
-              </span>
-            </div>
-
-            <div
-              class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
-            >
-              {{ CLICommand }}
-            </div>
           </div>
+          <template v-else>
+            <HttpTestEnv :show="false" @select-env="setCurrentEnv" />
+
+            <div class="space-y-4 p-4">
+              <p
+                class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
+              >
+                {{ cliCommandGenerationDescription }}
+              </p>
+
+              <div v-if="environmentID" class="flex gap-x-2 items-center">
+                <HoppSmartCheckbox
+                  :on="includeEnvironmentID"
+                  @change="toggleIncludeEnvironment"
+                />
+                <span class="truncate"
+                  >{{ t("collection_runner.include_active_environment") }}
+                  <span class="text-secondaryDark">
+                    {{ currentEnv?.name }}
+                  </span>
+                </span>
+              </div>
+
+              <div
+                class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
+              >
+                {{ CLICommand }}
+              </div>
+            </div>
+          </template>
         </HoppSmartTab>
         <template #actions>
           <HoppButtonSecondary
@@ -141,12 +144,13 @@
           v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
           :disabled="config.delay < 0"
+          :loading="loadingCollection"
           :icon="IconPlay"
           outline
           @click="runTests"
         />
         <HoppButtonPrimary
-          v-else
+          v-else-if="CLICommand"
           :label="`${t('action.copy')}`"
           :icon="copyIcon"
           outline

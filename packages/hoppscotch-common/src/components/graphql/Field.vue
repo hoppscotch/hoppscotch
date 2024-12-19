@@ -5,6 +5,9 @@
         class="field-title flex-1"
         :class="{ 'field-highlighted': isHighlighted }"
       >
+        <icon-lucide-plus-circle
+          class="inline cursor-pointer hover:text-accent"
+        />
         {{ fieldName }}
         <span v-if="fieldArgs.length > 0">
           (

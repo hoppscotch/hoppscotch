@@ -96,6 +96,7 @@ declare module 'vue' {
     FirebaseLogin: typeof import('./components/firebase/Login.vue')['default']
     FirebaseLogout: typeof import('./components/firebase/Logout.vue')['default']
     GraphqlAuthorization: typeof import('./components/graphql/Authorization.vue')['default']
+    GraphqlDoc: typeof import('./components/graphql/Doc.vue')['default']
     GraphqlDocExplorer: typeof import('./components/graphql/DocExplorer.vue')['default']
     GraphqlExplorerSection: typeof import('./components/graphql/ExplorerSection.vue')['default']
     GraphqlField: typeof import('./components/graphql/Field.vue')['default']

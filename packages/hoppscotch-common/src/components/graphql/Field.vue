@@ -6,6 +6,7 @@
         :class="{ 'field-highlighted': isHighlighted }"
       >
         <icon-lucide-plus-circle
+          @click="emit('add-field', gqlField)"
           class="opacity-0 w-0 group-hover:opacity-100 group-hover:w-4 -ml-2 group-hover:ml-0 cursor-pointer hover:text-accent transition-all duration-300 ease-out overflow-hidden"
         />
         <span class="transition-all duration-300 ease-out">
@@ -55,6 +56,7 @@
         >
           <div class="argument-title flex-1 flex items-center gap-2">
             <icon-lucide-plus-circle
+              @click="emit('add-arg', field)"
               class="opacity-0 w-0 group-hover:opacity-100 group-hover:w-4 -mr-2 group-hover:mr-0 cursor-pointer hover:text-accent transition-all duration-300 ease-out overflow-hidden"
             />
             <span class="transition-all duration-300 ease-out">
@@ -98,6 +100,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "jump-to-type", type: GraphQLType): void
+  (e: "add-field", field: any): void
+  (e: "add-arg", arg: any): void
 }>()
 
 const fieldName = computed(() => props.gqlField.name)

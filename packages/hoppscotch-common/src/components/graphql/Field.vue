@@ -1,28 +1,34 @@
 <template>
   <div>
-    <div class="flex justify-between gap-2">
+    <div class="flex justify-between gap-2 group">
       <div
-        class="field-title flex-1"
+        class="field-title flex-1 flex items-center gap-2"
         :class="{ 'field-highlighted': isHighlighted }"
       >
         <icon-lucide-plus-circle
-          class="inline cursor-pointer hover:text-accent"
+          class="opacity-0 w-0 group-hover:opacity-100 group-hover:w-4 -ml-2 group-hover:ml-0 cursor-pointer hover:text-accent transition-all duration-300 ease-out overflow-hidden"
         />
-        {{ fieldName }}
-        <span v-if="fieldArgs.length > 0">
-          (
-          <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-            {{ field.name }}:
-            <GraphqlTypeLink
-              :gql-type="field.type"
-              @jump-to-type="jumpToType"
-            />
-            <span v-if="index !== fieldArgs.length - 1">, </span>
-          </span>
-          ) </span
-        >:
-        <GraphqlTypeLink :gql-type="gqlField.type" @jump-to-type="jumpToType" />
+        <span class="transition-all duration-300 ease-out">
+          {{ fieldName }}
+          <span v-if="fieldArgs.length > 0">
+            (
+            <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
+              {{ field.name }}:
+              <GraphqlTypeLink
+                :gql-type="field.type"
+                @jump-to-type="jumpToType"
+              />
+              <span v-if="index !== fieldArgs.length - 1">, </span>
+            </span>
+            ) </span
+          >:
+          <GraphqlTypeLink
+            :gql-type="gqlField.type"
+            @jump-to-type="jumpToType"
+          />
+        </span>
       </div>
+
       <div v-if="gqlField.deprecationReason">
         <span
           v-tippy="{ theme: 'tomato' }"
@@ -42,14 +48,23 @@
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2">Arguments:</h5>
       <div class="border-l-2 border-divider pl-4">
-        <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-          <span>
-            {{ field.name }}:
-            <GraphqlTypeLink
-              :gql-type="field.type"
-              @jump-to-type="jumpToType"
+        <div
+          v-for="(field, index) in fieldArgs"
+          :key="`field-${index}`"
+          class="group"
+        >
+          <div class="argument-title flex-1 flex items-center gap-2">
+            <icon-lucide-plus-circle
+              class="opacity-0 w-0 group-hover:opacity-100 group-hover:w-4 -mr-2 group-hover:mr-0 cursor-pointer hover:text-accent transition-all duration-300 ease-out overflow-hidden"
             />
-          </span>
+            <span class="transition-all duration-300 ease-out">
+              {{ field.name }}:
+              <GraphqlTypeLink
+                :gql-type="field.type"
+                @jump-to-type="jumpToType"
+              />
+            </span>
+          </div>
           <div
             v-if="field.description"
             class="field-desc py-2 text-secondaryLight"

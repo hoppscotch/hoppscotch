@@ -1,4 +1,4 @@
-FROM node:22.12.0-alpine3.20 AS base_builder
+FROM node:20-alpine3.19 AS base_builder
 
 WORKDIR /usr/src/app
 
@@ -29,7 +29,7 @@ RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM node:22.12.0-alpine3.20 AS backend
+FROM node:20-alpine3.19 AS backend
 RUN apk add caddy
 RUN npm install -g pnpm
 
@@ -101,7 +101,7 @@ WORKDIR /site
 
 CMD ["node","/site/prod_run.mjs"]
 
-FROM node:22.12.0-alpine3.20 AS aio
+FROM node:20-alpine3.19 AS aio
 
 ENV PRODUCTION="true"
 ENV PORT=8080

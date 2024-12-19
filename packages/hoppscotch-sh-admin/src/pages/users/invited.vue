@@ -147,7 +147,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greater('lg');
 
 // Get Proper Date Formats
-const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
+const getCreatedDate = (date: string) => format(new Date(date), 'dd-MMMM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Invited Users

@@ -69,6 +69,7 @@ const SettingsDefSchema = z.object({
       importCurl: z.boolean().catch(true),
       codeGen: z.boolean().catch(true),
       cookie: z.boolean().catch(true),
+      multipartFormdata: z.boolean().catch(true),
     })
   ),
 

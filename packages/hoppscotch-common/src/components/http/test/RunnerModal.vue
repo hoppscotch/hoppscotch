@@ -2,11 +2,12 @@
   <HoppSmartModal
     dialog
     :title="t('collection_runner.run_collection')"
+    :full-width-body="true"
     @close="closeModal"
   >
     <template #body>
       <HoppSmartTabs v-model="activeTab">
-        <HoppSmartTab id="test-runner" :label="t('collection_runner.ui')">
+        <HoppSmartTab id="gui" :label="t('collection_runner.ui')">
           <div
             class="flex-shrink-0 w-full h-full p-4 overflow-auto overflow-x-auto bg-primary"
           >
@@ -62,14 +63,6 @@
                   <span>
                     {{ t("collection_runner.persist_responses") }}
                   </span>
-                  <HoppButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    class="!py-0 pl-2"
-                    to="https://docs.hoppscotch.io/documentation/features/inspections"
-                    blank
-                    :title="t('app.wiki')"
-                    :icon="IconHelpCircle"
-                  />
                 </HoppSmartCheckbox>
 
                 <HoppSmartCheckbox
@@ -95,58 +88,71 @@
             </section>
           </div>
         </HoppSmartTab>
-        <HoppSmartTab
-          id="cli"
-          :label="`${t('collection_runner.cli')} ${
-            !CLICommand ? '(Team Collections Only)' : ''
-          }`"
-          :disabled="!CLICommand"
-        >
-          <HttpTestEnv :show="false" @select-env="setCurrentEnv" />
-
-          <div class="space-y-4 p-4">
-            <p
-              class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
-            >
-              {{ cliCommandGenerationDescription }}
+        <HoppSmartTab id="cli" :label="t('collection_runner.cli')">
+          <div v-if="!CLICommand" class="p-4">
+            <p class="p-4 border rounded-md text-amber-500 border-amber-600">
+              {{
+                t("collection_runner.cli_comming_soon_for_personal_collection")
+              }}
             </p>
-
-            <div v-if="environmentID" class="flex gap-x-2 items-center">
-              <HoppSmartCheckbox
-                :on="includeEnvironmentID"
-                @change="toggleIncludeEnvironment"
-              />
-              <span class="truncate"
-                >{{ t("collection_runner.include_active_environment") }}
-                <span class="text-secondaryDark">
-                  {{ currentEnv?.name }}
-                </span>
-              </span>
-            </div>
-
-            <div
-              class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
-            >
-              {{ CLICommand }}
-            </div>
           </div>
+          <template v-else>
+            <HttpTestEnv :show="false" @select-env="setCurrentEnv" />
+
+            <div class="space-y-4 p-4">
+              <p
+                class="p-4 mb-4 border rounded-md text-amber-500 border-amber-600"
+              >
+                {{ cliCommandGenerationDescription }}
+              </p>
+
+              <div v-if="environmentID" class="flex gap-x-2 items-center">
+                <HoppSmartCheckbox
+                  :on="includeEnvironmentID"
+                  @change="toggleIncludeEnvironment"
+                />
+                <span class="truncate"
+                  >{{ t("collection_runner.include_active_environment") }}
+                  <span class="text-secondaryDark">
+                    {{ currentEnv?.name }}
+                  </span>
+                </span>
+              </div>
+
+              <div
+                class="p-4 rounded-md bg-primaryLight text-secondaryDark select-text"
+              >
+                {{ CLICommand }}
+              </div>
+            </div>
+          </template>
         </HoppSmartTab>
+        <template #actions>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            class="!py-0 pl-2"
+            :to="runnerLink"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
+          />
+        </template>
       </HoppSmartTabs>
     </template>
 
     <template #footer>
       <div class="flex space-x-2">
         <HoppButtonPrimary
-          v-if="activeTab === 'test-runner'"
+          v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
-          :disabled="config.delay < 0 || isLoading"
+          :disabled="config.delay < 0"
+          :loading="loadingCollection"
           :icon="IconPlay"
-          :loading="isLoading"
           outline
           @click="runTests"
         />
         <HoppButtonPrimary
-          v-else
+          v-else-if="CLICommand"
           :label="`${t('action.copy')}`"
           :icon="copyIcon"
           outline
@@ -221,12 +227,16 @@ const emit = defineEmits<{
 }>()
 
 const includeEnvironmentID = ref(false)
-const activeTab = ref("test-runner")
+const activeTab = ref<"gui" | "cli">("gui")
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)
 
-const isLoading = ref(false)
+const runnerLink = computed(() => {
+  return activeTab.value === "gui"
+    ? "https://docs.hoppscotch.io/documentation/features/runner#runner"
+    : "https://docs.hoppscotch.io/documentation/clients/cli/overview#running-collections-present-on-the-api-client"
+})
 
 function setCurrentEnv(payload: CurrentEnv) {
   currentEnv.value = payload
@@ -250,13 +260,10 @@ onMounted(() => {
 })
 
 const runTests = async () => {
-  isLoading.value = true
   const collectionTree = await getCollectionTree(
     props.collectionRunnerData.type,
     props.collectionRunnerData.collectionID
   )
-
-  isLoading.value = false
 
   if (!collectionTree) {
     toast.error(t("collection_runner.collection_not_found"))

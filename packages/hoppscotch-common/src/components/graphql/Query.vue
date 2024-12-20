@@ -128,6 +128,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "save-request"): void
   (e: "update:modelValue", val: string): void
+  (e: "cursor-position", val: number): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
 
@@ -147,6 +148,7 @@ const gqlQueryString = useVModel(props, "modelValue", emit)
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
   const selectedPos = update.state.selection.main.head
+  emit("cursor-position", selectedPos)
   const queryString = update.state.doc.toJSON().join(update.state.lineBreak)
 
   try {

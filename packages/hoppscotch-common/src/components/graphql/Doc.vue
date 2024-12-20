@@ -48,6 +48,8 @@
           :gql-field="field"
           class="p-4"
           @jump-to-type="handleJumpToType"
+          @add-field="handleAddField"
+          @add-arg="handleAddArgument"
         />
       </HoppSmartTab>
       <HoppSmartTab
@@ -62,6 +64,8 @@
           :gql-field="field"
           class="p-4"
           @jump-to-type="handleJumpToType"
+          @add-field="handleAddField"
+          @add-arg="handleAddArgument"
         />
       </HoppSmartTab>
       <HoppSmartTab
@@ -76,6 +80,8 @@
           :gql-field="field"
           class="p-4"
           @jump-to-type="handleJumpToType"
+          @add-field="handleAddField"
+          @add-arg="handleAddArgument"
         />
       </HoppSmartTab>
       <HoppSmartTab
@@ -101,7 +107,16 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { GraphQLField, GraphQLType, getNamedType } from "graphql"
+import { useService } from "dioc/vue"
+import {
+  GraphQLField,
+  GraphQLType,
+  OperationDefinitionNode,
+  getNamedType,
+  parse,
+  print,
+  visit,
+} from "graphql"
 import { computed, nextTick, ref } from "vue"
 import {
   graphqlTypes,
@@ -109,6 +124,7 @@ import {
   queryFields,
   subscriptionFields,
 } from "~/helpers/graphql/connection"
+import { GQLTabService } from "~/services/tab/graphql"
 import IconHelpCircle from "~icons/lucide/help-circle"
 
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -117,6 +133,114 @@ const selectedGqlTab = ref<GqlTabs>("queries")
 
 const t = useI18n()
 const colorMode = useColorMode()
+
+const tabs = useService(GQLTabService)
+
+// Utility function for query insertion
+function insertGraphQLField(
+  currentQuery: string,
+  field: GraphQLField<any, any>
+): string {
+  // const cursorPosition = tabs.currentActiveTab.value.document.cursorPosition
+  try {
+    // Parse the current query
+    const ast = parse(currentQuery)
+
+    // Helper to create field selection
+    const createFieldSelection = () => {
+      const fieldName = field.name
+
+      // Handle fields with arguments
+      if (field.args.length > 0) {
+        const argStrings = field.args.map(
+          (arg) => `${arg.name}: ${getDefaultArgumentValue(arg.type)}`
+        )
+        return `${fieldName}(${argStrings.join(", ")})`
+      }
+
+      return fieldName
+    }
+
+    // Modify the AST to insert the field
+    const modifiedAst = visit(ast, {
+      OperationDefinition(node: OperationDefinitionNode) {
+        // If no selection set, create one
+        if (!node.selectionSet) {
+          return {
+            ...node,
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: createFieldSelection() },
+                },
+              ],
+            },
+          }
+        }
+
+        // Find the right place to insert based on cursor
+        const newSelections = [...node.selectionSet.selections]
+
+        // Simple append for now - you might want more sophisticated insertion
+        newSelections.push({
+          kind: "Field",
+          name: { kind: "Name", value: createFieldSelection() },
+        })
+
+        return {
+          ...node,
+          selectionSet: {
+            ...node.selectionSet,
+            selections: newSelections,
+          },
+        }
+      },
+    })
+
+    // Convert back to string
+    return print(modifiedAst)
+  } catch (error) {
+    console.error("Error inserting field:", error)
+  }
+}
+
+// Helper to get default argument value based on type
+function getDefaultArgumentValue(type: GraphQLType): string {
+  switch (type.name) {
+    case "String":
+      return '""'
+    case "Int":
+      return "0"
+    case "Float":
+      return "0.0"
+    case "Boolean":
+      return "false"
+    default:
+      return "null"
+  }
+}
+
+const handleAddField = (field: any) => {
+  const currentTab = tabs.currentActiveTab.value
+  if (!currentTab) return
+
+  currentTab.document.request.query = insertGraphQLField(
+    currentTab.document.request.query,
+    field
+  )
+}
+
+const handleAddArgument = (arg: any) => {
+  const currentTab = tabs.currentActiveTab.value
+  if (!currentTab) return
+
+  currentTab.document.request.query = insertGraphQLField(
+    currentTab.document.request.query,
+    arg
+  )
+}
 
 function isTextFoundInGraphqlFieldObject(
   text: string,

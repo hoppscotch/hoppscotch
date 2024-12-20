@@ -1250,6 +1250,9 @@
     "feedback_thank_you": "Thank you for your feedback!",
     "feedback_cta_text_long": "Rate the generation, helps us to improve",
     "feedback_cta_request_name": "Did you like the generated name?",
-    "modify_request_body_error": "Failed to modify request body"
+    "modify_request_body_error": "Failed to modify request body",
+    "generate_or_modify_prerequest_input_placeholder": "Enter a prompt to generate or modify the pre-request script",
+    "generate_or_modify_test_script_input_placeholder": "Enter a prompt to generate or modify the test script",
+    "modify_test_script_error": "Failed to modify test script"
   }
 }

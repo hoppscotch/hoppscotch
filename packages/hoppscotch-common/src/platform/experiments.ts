@@ -28,5 +28,17 @@ export type ExperimentsPlatformDef = {
       rating: -1 | 1,
       traceID: string
     ) => Promise<E.Either<string, void>>
+    modifyPreRequestScript?: (
+      requestInfo: string,
+      userPrompt: string
+    ) => Promise<
+      E.Either<string, { modified_script: string; trace_id: string }>
+    >
+    modifyTestScript?: (
+      requestInfo: string,
+      userPrompt: string
+    ) => Promise<
+      E.Either<string, { modified_script: string; trace_id: string }>
+    >
   }
 }

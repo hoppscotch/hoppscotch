@@ -97,11 +97,7 @@
                       <HoppSmartSelectWrapper>
                         <HoppButtonSecondary
                           class="flex flex-1 !justify-start rounded-none pr-8"
-                          :label="
-                            t(
-                              `settings.ai_request_naming_style_${AI_REQUEST_NAMING_STYLE.toLowerCase()}`
-                            )
-                          "
+                          :label="activeNamingStyle?.label"
                           outline
                         />
                       </HoppSmartSelectWrapper>
@@ -113,36 +109,23 @@
                           @keyup.escape="hide()"
                         >
                           <HoppSmartLink
-                            v-for="style in [
-                              'DESCRIPTIVE_WITH_SPACES',
-                              'camelCase',
-                              'snake_case',
-                              'PascalCase',
-                            ]"
+                            v-for="style in supportedNamingStyles"
                             :key="style"
                             class="flex flex-1"
                             @click="
                               () => {
-                                AI_REQUEST_NAMING_STYLE = style as
-                                  | 'DESCRIPTIVE_WITH_SPACES'
-                                  | 'camelCase'
-                                  | 'snake_case'
-                                  | 'PascalCase'
+                                AI_REQUEST_NAMING_STYLE = style.id
                                 hide()
                               }
                             "
                           >
                             <HoppSmartItem
-                              :label="
-                                t(
-                                  `settings.ai_request_naming_style_${style.toLowerCase()}`
-                                )
-                              "
+                              :label="style.label"
                               :active-info-icon="
-                                AI_REQUEST_NAMING_STYLE === style
+                                AI_REQUEST_NAMING_STYLE === style.id
                               "
                               :info-icon="
-                                AI_REQUEST_NAMING_STYLE === style
+                                AI_REQUEST_NAMING_STYLE === style.id
                                   ? IconDone
                                   : null
                               "
@@ -291,6 +274,31 @@ const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 const AI_REQUEST_NAMING_STYLE = useSetting("AI_REQUEST_NAMING_STYLE")
+
+const supportedNamingStyles = [
+  {
+    id: "DESCRIPTIVE_WITH_SPACES" as const,
+    label: t("settings.ai_request_naming_style_descriptive_with_spaces"),
+  },
+  {
+    id: "camelCase" as const,
+    label: t("settings.ai_request_naming_style_camel_case"),
+  },
+  {
+    id: "snake_case" as const,
+    label: t("settings.ai_request_naming_style_snake_case"),
+  },
+  {
+    id: "PascalCase" as const,
+    label: t("settings.ai_request_naming_style_pascal_case"),
+  },
+]
+
+const activeNamingStyle = computed(() =>
+  supportedNamingStyles.find(
+    (style) => style.id === AI_REQUEST_NAMING_STYLE.value
+  )
+)
 
 const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 

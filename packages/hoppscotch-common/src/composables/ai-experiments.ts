@@ -49,6 +49,8 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
       return
     }
 
+    const namingStyle = useSetting("AI_REQUEST_NAMING_STYLE").value
+
     isGenerateRequestNamePending.value = true
 
     platform.analytics?.logEvent({
@@ -57,7 +59,8 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     })
 
     const result = await generateRequestNameForPlatform(
-      JSON.stringify(requestContext)
+      JSON.stringify(requestContext),
+      namingStyle
     )
 
     if (result && E.isLeft(result)) {

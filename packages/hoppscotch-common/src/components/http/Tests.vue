@@ -28,7 +28,7 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpTest')"
         />
         <HoppButtonSecondary
-          v-if="shouldEnableAIFeatures"
+          v-if="shouldEnableAIFeatures && currentRequest"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('ai_experiments.modify_with_ai')"
           :icon="IconSparkles"
@@ -66,7 +66,7 @@
       </div>
     </div>
     <AiexperimentsModifyTestScriptModal
-      v-if="isModifyTestScriptModalOpen"
+      v-if="isModifyTestScriptModalOpen && currentRequest"
       :current-script="testScript"
       :request-info="currentRequest"
       @close-modal="isModifyTestScriptModalOpen = false"
@@ -131,15 +131,21 @@ const clearContent = () => {
   testScript.value = ""
 }
 const tabService = useService(RESTTabService)
-const currentRequest = computed(
-  () => tabService.currentActiveTab.value?.document.request
+
+const currentRequest = computed(() =>
+  tabService.currentActiveTab.value?.document.type === "request"
+    ? tabService.currentActiveTab.value?.document.request
+    : null
 )
+
 const { shouldEnableAIFeatures } = useAIExperiments()
 const isModifyTestScriptModalOpen = ref(false)
+
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
 const showModifyTestScriptModal = () => {
   if (!currentUser.value) {
     invokeAction("modals.login.toggle")

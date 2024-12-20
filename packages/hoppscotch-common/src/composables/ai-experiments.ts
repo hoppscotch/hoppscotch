@@ -294,7 +294,7 @@ const buildRequestInfoString = (
   ${request.endpoint}
 
   BODY:
-  ${request.body.body ?? ""}
+  ${JSON.stringify(request.body) ?? ""}
 
   PARAMS:
   ${JSON.stringify(request.params, null, 2)}

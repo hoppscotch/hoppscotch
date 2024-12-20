@@ -20,7 +20,7 @@ import {
 } from "graphql"
 
 export type ExplorerFieldDef =
-  | GraphQLField<{}, {}, {}>
+  | GraphQLField<unknown, unknown, unknown>
   | GraphQLInputField
   | GraphQLArgument
 

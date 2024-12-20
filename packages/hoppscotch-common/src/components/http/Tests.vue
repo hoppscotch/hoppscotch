@@ -95,6 +95,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
 import AiexperimentsModifyTestScriptModal from "@components/aiexperiments/ModifyTestScriptModal.vue"
+import { invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 

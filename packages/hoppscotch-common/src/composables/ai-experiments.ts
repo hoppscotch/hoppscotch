@@ -197,16 +197,6 @@ export const useModifyPreRequestScript = (
   const lastTraceID = ref<string | null>(null)
   const isModifyPreRequestPending = ref(false)
 
-  const buildRequestInfoString = (request: HoppRESTRequest, script: string) => {
-    return `METHOD : \n${request.method}\nURL : \n${request.endpoint}\nBODY :\n${
-      request.body.body ?? ""
-    }\nPARAMS :\n${JSON.stringify(request.params, null, 2)}\nHEADERS : \n${JSON.stringify(
-      request.headers,
-      null,
-      2
-    )}\n\nEXISTING SCRIPT :\n${script}`
-  }
-
   const modifyPreRequestScriptForPlatform =
     platform.experiments?.aiExperiments?.modifyPreRequestScript
 
@@ -255,16 +245,6 @@ export const useModifyTestScript = (
   const lastTraceID = ref<string | null>(null)
   const isModifyTestScriptPending = ref(false)
 
-  const buildRequestInfoString = (request: HoppRESTRequest, script: string) => {
-    return `METHOD : \n${request.method}\nURL : \n${request.endpoint}\nBODY :\n${
-      request.body.body ?? ""
-    }\nPARAMS :\n${JSON.stringify(request.params, null, 2)}\nHEADERS : \n${JSON.stringify(
-      request.headers,
-      null,
-      2
-    )}\n\nEXISTING SCRIPT :\n${script}`
-  }
-
   const modifyTestScriptForPlatform =
     platform.experiments?.aiExperiments?.modifyTestScript
 
@@ -300,4 +280,29 @@ export const useModifyTestScript = (
     isModifyTestScriptPending,
     lastTraceID,
   }
+}
+
+const buildRequestInfoString = (
+  request: HoppRESTRequest,
+  currentScript: string
+) => {
+  return `
+  METHOD:
+  ${request.method}
+
+  URL:
+  ${request.endpoint}
+
+  BODY:
+  ${request.body.body ?? ""}
+
+  PARAMS:
+  ${JSON.stringify(request.params, null, 2)}
+
+  HEADERS:
+  ${JSON.stringify(request.headers, null, 2)}
+  
+  EXISTING SCRIPT:
+  ${currentScript}
+  `
 }

@@ -75,7 +75,10 @@ const SettingsDefSchema = z.object({
 
   HAS_OPENED_SPOTLIGHT: z.optional(z.boolean()),
   ENABLE_AI_EXPERIMENTS: z.optional(z.boolean()),
-  AI_REQUEST_NAMING_STYLE: z.string().catch("DESCRIPTIVE_WITH_SPACES"),
+  AI_REQUEST_NAMING_STYLE: z
+    .string()
+    .optional()
+    .catch("DESCRIPTIVE_WITH_SPACES"),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)

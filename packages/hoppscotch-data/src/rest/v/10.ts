@@ -56,10 +56,7 @@ export type HoppRESTReqBody = z.infer<typeof HoppRESTReqBody>
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
-    sendAs: z
-      .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
-      .optional()
-      .catch("IN_BODY"),
+    sendAs: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]).catch("IN_BODY"),
   })
 
 export const HoppRESTAuthOAuth2 = z.object({
@@ -103,7 +100,25 @@ export default defineVersion({
   schema: V10_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V9_SCHEMA>) {
-    // no breaking changes
+    const auth = old.auth
+
+    if (
+      auth.authType === "oauth-2" &&
+      auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
+    ) {
+      return {
+        ...old,
+        v: "10" as const,
+        auth: {
+          ...auth,
+          grantTypeInfo: {
+            ...auth.grantTypeInfo,
+            sendAs: "IN_BODY",
+          },
+        },
+      }
+    }
+
     return {
       ...old,
       v: "10" as const,

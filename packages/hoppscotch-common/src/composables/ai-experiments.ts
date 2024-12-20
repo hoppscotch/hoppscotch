@@ -185,3 +185,119 @@ export const useSubmitFeedback = () => {
     isSubmitFeedbackPending,
   }
 }
+
+export const useModifyPreRequestScript = (
+  currentScript: string,
+  userPromptRef: Ref<string>,
+  generatedScriptRef: Ref<string>,
+  requestInfo: HoppRESTRequest
+) => {
+  const toast = useToast()
+  const t = useI18n()
+  const lastTraceID = ref<string | null>(null)
+  const isModifyPreRequestPending = ref(false)
+
+  const buildRequestInfoString = (request: HoppRESTRequest, script: string) => {
+    return `METHOD : \n${request.method}\nURL : \n${request.endpoint}\nBODY :\n${
+      request.body.body ?? ""
+    }\nPARAMS :\n${JSON.stringify(request.params, null, 2)}\nHEADERS : \n${JSON.stringify(
+      request.headers,
+      null,
+      2
+    )}\n\nEXISTING SCRIPT :\n${script}`
+  }
+
+  const modifyPreRequestScriptForPlatform =
+    platform.experiments?.aiExperiments?.modifyPreRequestScript
+
+  const modifyPreRequestScript = async () => {
+    isModifyPreRequestPending.value = true
+
+    if (!modifyPreRequestScriptForPlatform) {
+      toast.error(t("ai_experiments.modify_prerequest_error"))
+      isModifyPreRequestPending.value = false
+      return
+    }
+
+    const result = await modifyPreRequestScriptForPlatform(
+      buildRequestInfoString(requestInfo, currentScript),
+      userPromptRef.value
+    )
+
+    if (result && E.isLeft(result)) {
+      toast.error(t("ai_experiments.modify_prerequest_error"))
+      isModifyPreRequestPending.value = false
+      return
+    }
+
+    generatedScriptRef.value = result.right.modified_script
+    lastTraceID.value = result.right.trace_id
+
+    isModifyPreRequestPending.value = false
+    return result.right
+  }
+
+  return {
+    modifyPreRequestScript,
+    isModifyPreRequestPending,
+    lastTraceID,
+  }
+}
+
+export const useModifyTestScript = (
+  currentScript: string,
+  userPromptRef: Ref<string>,
+  generatedScriptRef: Ref<string>,
+  requestInfo: HoppRESTRequest
+) => {
+  const toast = useToast()
+  const t = useI18n()
+  const lastTraceID = ref<string | null>(null)
+  const isModifyTestScriptPending = ref(false)
+
+  const buildRequestInfoString = (request: HoppRESTRequest, script: string) => {
+    return `METHOD : \n${request.method}\nURL : \n${request.endpoint}\nBODY :\n${
+      request.body.body ?? ""
+    }\nPARAMS :\n${JSON.stringify(request.params, null, 2)}\nHEADERS : \n${JSON.stringify(
+      request.headers,
+      null,
+      2
+    )}\n\nEXISTING SCRIPT :\n${script}`
+  }
+
+  const modifyTestScriptForPlatform =
+    platform.experiments?.aiExperiments?.modifyTestScript
+
+  const modifyTestScript = async () => {
+    isModifyTestScriptPending.value = true
+
+    if (!modifyTestScriptForPlatform) {
+      toast.error(t("ai_experiments.modify_test_script_error"))
+      isModifyTestScriptPending.value = false
+      return
+    }
+
+    const result = await modifyTestScriptForPlatform(
+      buildRequestInfoString(requestInfo, currentScript),
+      userPromptRef.value
+    )
+
+    if (result && E.isLeft(result)) {
+      toast.error(t("ai_experiments.modify_test_script_error"))
+      isModifyTestScriptPending.value = false
+      return
+    }
+
+    generatedScriptRef.value = result.right.modified_script
+    lastTraceID.value = result.right.trace_id
+
+    isModifyTestScriptPending.value = false
+    return result.right
+  }
+
+  return {
+    modifyTestScript,
+    isModifyTestScriptPending,
+    lastTraceID,
+  }
+}

@@ -1258,6 +1258,7 @@
     "modify_request_body_error": "Failed to modify request body",
     "generate_or_modify_prerequest_input_placeholder": "Enter a prompt to generate or modify the pre-request script",
     "generate_or_modify_test_script_input_placeholder": "Enter a prompt to generate or modify the test script",
-    "modify_test_script_error": "Failed to modify test script"
+    "modify_test_script_error": "Failed to modify test script",
+    "modify_prerequest_error": "Failed to modify pre-request script"
   }
 }

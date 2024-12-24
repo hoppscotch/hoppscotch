@@ -4,7 +4,7 @@ import { def as environmentsDef } from "./platform/environments/environments.pla
 import { def as collectionsDef } from "./platform/collections/collections.platform"
 import { def as settingsDef } from "./platform/settings/settings.platform"
 import { def as historyDef } from "./platform/history/history.platform"
-import { def as backendDef } from "@hoppscotch/common/platform/std/backend"
+import { def as stdBackendDef } from "@hoppscotch/common/platform/std/backend"
 import { browserInterceptor } from "@hoppscotch/common/platform/std/interceptors/browser"
 import { proxyInterceptor } from "@hoppscotch/common/platform/std/interceptors/proxy"
 import { ExtensionInspectorService } from "@hoppscotch/common/platform/std/inspections/extension.inspector"
@@ -18,7 +18,6 @@ import { InfraPlatform } from "@platform/infra/infra.platform"
 
 import { getKernelMode } from "@hoppscotch/kernel"
 import { NativeKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/native"
-import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 import { kernelIO } from "@hoppscotch/common/platform/std/kernel-io"
 
 const defaultInterceptor = getKernelMode() == "desktop" ? "native" : "browser";
@@ -42,7 +41,6 @@ createHoppApp("#app", {
   interceptors: {
     default: "browser",
     interceptors: [
-      { type: "standalone", interceptor: browserInterceptor },
       { type: "standalone", interceptor: proxyInterceptor },
       { type: "service", service: ExtensionInterceptorService },
       { type: "service", service: AgentInterceptorService },
@@ -52,7 +50,6 @@ createHoppApp("#app", {
     default: defaultInterceptor,
     interceptors: [
       { type: "service", service: NativeKernelInterceptorService },
-      { type: "service", service: BrowserKernelInterceptorService },
     ],
   },
   additionalInspectors: [
@@ -66,5 +63,5 @@ createHoppApp("#app", {
     collectionImportSizeLimit: 50,
   },
   infra: InfraPlatform,
-  backend: backendDef,
+  backend: stdBackendDef,
 })

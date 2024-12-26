@@ -15,7 +15,8 @@ import V5_VERSION from "./v/5"
 import V6_VERSION from "./v/6"
 import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
 import V8_VERSION, { HoppRESTAuth } from "./v/8"
-import V9_VERSION, { HoppRESTReqBody, HoppRESTRequestResponses } from "./v/9"
+import V9_VERSION, { HoppRESTRequestResponses } from "./v/9"
+import V10_VERSION, { HoppRESTReqBody } from "./v/10"
 
 export * from "./content-types"
 
@@ -50,11 +51,12 @@ export {
 
 export {
   FormDataKeyValue,
-  HoppRESTReqBody,
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
   HoppRESTRequestResponses,
 } from "./v/9"
+
+export { HoppRESTReqBody } from "./v/10"
 
 const versionedObject = z.object({
   // v is a stringified number
@@ -62,7 +64,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 9,
+  latestVersion: 10,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -74,6 +76,7 @@ export const HoppRESTRequest = createVersionedEntity({
     7: V7_VERSION,
     8: V8_VERSION,
     9: V9_VERSION,
+    10: V10_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -116,7 +119,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   responses: lodashIsEqualEq,
 })
 
-export const RESTReqSchemaVersion = "9"
+export const RESTReqSchemaVersion = "10"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]

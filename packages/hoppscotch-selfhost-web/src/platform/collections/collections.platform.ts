@@ -598,14 +598,15 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers, _ref_id } =
+      const { auth, headers } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: false },
               headers: [],
-              _ref_id: generateUniqueRefId("coll"),
             }
+      // Duplicated collection will have a unique ref id
+      const _ref_id = generateUniqueRefId("coll")
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
@@ -1041,6 +1042,8 @@ function transformDuplicatedCollections(
           ? JSON.parse(data)
           : { auth: { authType: "inherit", authActive: false }, headers: [] }
 
+      const _ref_id = generateUniqueRefId("coll")
+
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
       const requests = transformDuplicatedCollectionRequests(userRequests)
@@ -1050,6 +1053,7 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
+        _ref_id,
         v: 5,
         auth,
         headers: addDescriptionField(headers),

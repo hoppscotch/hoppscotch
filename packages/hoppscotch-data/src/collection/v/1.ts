@@ -9,6 +9,7 @@ const baseCollectionSchema = z.object({
 
   name: z.string(),
   requests: z.array(
+    // @ts-ignore typescript bails when the complexity of the type is too high, a lot of versions in the versionMap is causing this
     z.lazy(() =>
       z.union([
         entityReference(HoppRESTRequest),
@@ -26,9 +27,10 @@ type Output = z.output<typeof baseCollectionSchema> & {
   folders: Output[]
 }
 
-export const V1_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> = baseCollectionSchema.extend({
-  folders: z.lazy(() => z.array(V1_SCHEMA)),
-})
+export const V1_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
+  baseCollectionSchema.extend({
+    folders: z.lazy(() => z.array(V1_SCHEMA)),
+  })
 
 export default defineVersion({
   initial: true,

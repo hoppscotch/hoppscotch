@@ -520,10 +520,6 @@ const supportedGrantTypes = [
 
       const grantTypeInfo = auth.value.grantTypeInfo
 
-      console.group("clientCredentials")
-      console.log("grantTypeInfo", grantTypeInfo)
-      console.groupEnd()
-
       const authEndpoint = refWithCallbackOnChange(
         grantTypeInfo?.authEndpoint,
         (value) => {

@@ -569,15 +569,15 @@ const supportedGrantTypes = [
           ? grantTypeInfo.sendAs === "AS_BASIC_AUTH_HEADERS"
             ? {
                 id: "AS_BASIC_AUTH_HEADERS" as const,
-                label: "Send as Basic Auth Header",
+                label: t("authorization.oauth.label_send_as_basic_auth"),
               }
             : {
                 id: "IN_BODY" as const,
-                label: "Send in Request Body",
+                label: t("authorization.oauth.label_send_in_body"),
               }
           : {
               id: "IN_BODY" as const,
-              label: "Send in Request Body",
+              label: t("authorization.oauth.label_send_in_body"),
             },
         (value) => {
           if (!("sendAs" in auth.value.grantTypeInfo)) {
@@ -624,31 +624,31 @@ const supportedGrantTypes = [
         return [
           {
             id: "authEndpoint",
-            label: "Authorization Endpoint",
+            label: t("authorization.oauth.label_authorization_endpoint"),
             type: "text" as const,
             ref: authEndpoint,
           },
           {
             id: "clientId",
-            label: "Client ID",
+            label: t("authorization.oauth.label_client_id"),
             type: "text" as const,
             ref: clientID,
           },
           {
             id: "clientSecret",
-            label: "Client Secret",
+            label: t("authorization.oauth.label_client_secret"),
             type: "text" as const,
             ref: clientSecret,
           },
           {
             id: "scopes",
-            label: "Scopes",
+            label: t("authorization.oauth.label_scopes"),
             type: "text" as const,
             ref: scopes,
           },
           {
             id: "sendAs",
-            label: "Send As",
+            label: t("authorization.oauth.label_send_as"),
             type: "dropdown" as const,
             ref: sendAs,
             tippyRefName: "sendAsTippyActions",
@@ -656,11 +656,11 @@ const supportedGrantTypes = [
             options: [
               {
                 id: "IN_BODY" as const,
-                label: "Send in Request Body",
+                label: t("authorization.oauth.label_send_in_body"),
               },
               {
                 id: "AS_BASIC_AUTH_HEADERS" as const,
-                label: "Send as Basic Auth Header",
+                label: t("authorization.oauth.label_send_as_basic_auth"),
               },
             ],
           },

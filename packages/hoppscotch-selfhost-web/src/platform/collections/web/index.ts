@@ -14,8 +14,8 @@ import {
   runUserRequestDeletedSubscription,
   runUserRequestMovedSubscription,
   runUserRequestUpdatedSubscription,
-} from "./collections.api"
-import { collectionsSyncer, getStoreByCollectionType } from "./collections.sync"
+} from "./api"
+import { collectionsSyncer, getStoreByCollectionType } from "./sync"
 
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {

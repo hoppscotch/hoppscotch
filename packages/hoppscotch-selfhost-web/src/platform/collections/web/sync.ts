@@ -29,7 +29,7 @@ import {
   moveUserRequest,
   updateUserCollection,
   updateUserCollectionOrder,
-} from "./collections.api"
+} from "./api"
 
 import * as E from "fp-ts/Either"
 import { ReqType } from "@api/generated/graphql"

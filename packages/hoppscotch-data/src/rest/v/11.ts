@@ -60,7 +60,7 @@ export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
 export const HoppRESTResponseOriginalRequest =
   HoppRESTResponseOriginalRequestOld.extend({
-    v: z.literal("4"),
+    v: z.literal("3"),
     auth: HoppRESTAuth,
   })
 
@@ -117,7 +117,7 @@ export default defineVersion({
                 : auth,
 
             // just following the previous pattern here, but is this a good idea to overwrite the request version ?
-            v: "4" as const,
+            v: "3" as const,
           },
         },
       ])

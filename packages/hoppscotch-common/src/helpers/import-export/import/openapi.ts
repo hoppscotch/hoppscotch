@@ -470,7 +470,7 @@ const resolveOpenAPIV3SecurityObj = (
           clientSecret: "",
           scopes: _schemeData.join(" "),
           token: "",
-          sendAs: "IN_BODY",
+          clientAuthentication: "IN_BODY",
         },
         addTo: "HEADERS",
       }
@@ -617,7 +617,7 @@ const resolveOpenAPIV2SecurityScheme = (
           grantType: "CLIENT_CREDENTIALS",
           scopes: _schemeData.join(" "),
           token: "",
-          sendAs: "IN_BODY",
+          clientAuthentication: "IN_BODY",
         },
         addTo: "HEADERS",
       }

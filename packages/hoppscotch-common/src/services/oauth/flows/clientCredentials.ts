@@ -19,7 +19,7 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
     clientID: true,
     clientSecret: true,
     scopes: true,
-    sendAs: true,
+    clientAuthentication: true,
   }
 ).refine(
   (params) => {
@@ -44,7 +44,7 @@ export const getDefaultClientCredentialsFlowParams =
     clientID: "",
     clientSecret: "",
     scopes: undefined,
-    sendAs: "IN_BODY",
+    clientAuthentication: "IN_BODY",
   })
 
 const initClientCredentialsOAuthFlow = async (
@@ -53,7 +53,7 @@ const initClientCredentialsOAuthFlow = async (
   const toast = useToast()
 
   const requestPayload =
-    payload.sendAs === "AS_BASIC_AUTH_HEADERS"
+    payload.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
       ? getPayloadForViaBasicAuthHeader(payload)
       : getPayloadForViaBody(payload)
 
@@ -170,7 +170,7 @@ export default createFlowConfig(
 )
 
 const getPayloadForViaBasicAuthHeader = (
-  payload: Omit<ClientCredentialsFlowParams, "sendAs">
+  payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
 ): AxiosRequestConfig => {
   const { clientID, clientSecret, scopes, authEndpoint } = payload
 
@@ -197,7 +197,7 @@ const getPayloadForViaBasicAuthHeader = (
 }
 
 const getPayloadForViaBody = (
-  payload: Omit<ClientCredentialsFlowParams, "sendAs">
+  payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
 ) => {
   const { clientID, clientSecret, scopes, authEndpoint } = payload
 

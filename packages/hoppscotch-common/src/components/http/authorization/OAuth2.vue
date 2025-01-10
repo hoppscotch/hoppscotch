@@ -564,9 +564,9 @@ const supportedGrantTypes = [
         }
       )
 
-      const sendAs = refWithCallbackOnChange(
-        grantTypeInfo.sendAs
-          ? grantTypeInfo.sendAs === "AS_BASIC_AUTH_HEADERS"
+      const clientAuthentication = refWithCallbackOnChange(
+        grantTypeInfo.clientAuthentication
+          ? grantTypeInfo.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
             ? {
                 id: "AS_BASIC_AUTH_HEADERS" as const,
                 label: t("authorization.oauth.label_send_as_basic_auth"),
@@ -580,13 +580,13 @@ const supportedGrantTypes = [
               label: t("authorization.oauth.label_send_in_body"),
             },
         (value) => {
-          if (!("sendAs" in auth.value.grantTypeInfo)) {
+          if (!("clientAuthentication" in auth.value.grantTypeInfo)) {
             return
           }
 
           auth.value.grantTypeInfo = {
             ...auth.value.grantTypeInfo,
-            sendAs: value.id,
+            clientAuthentication: value.id,
           }
         }
       )
@@ -598,7 +598,7 @@ const supportedGrantTypes = [
             clientID: clientID.value,
             clientSecret: clientSecret.value,
             scopes: scopes.value,
-            sendAs: sendAs.value.id,
+            clientAuthentication: clientAuthentication.value.id,
           })
 
         const parsedArgs = clientCredentials.params.safeParse(values)
@@ -647,12 +647,12 @@ const supportedGrantTypes = [
             ref: scopes,
           },
           {
-            id: "sendAs",
+            id: "clientAuthentication",
             label: t("authorization.oauth.label_send_as"),
             type: "dropdown" as const,
-            ref: sendAs,
-            tippyRefName: "sendAsTippyActions",
-            tippyRef: sendAsTippyActions,
+            ref: clientAuthentication,
+            tippyRefName: "clientAuthenticationTippyActions",
+            tippyRef: clientAuthenticationTippyActions,
             options: [
               {
                 id: "IN_BODY" as const,
@@ -1112,5 +1112,5 @@ const generateOAuthToken = async () => {
 const grantTypeTippyActions = ref<HTMLElement | null>(null)
 const pkceTippyActions = ref<HTMLElement | null>(null)
 const authTippyActions = ref<HTMLElement | null>(null)
-const sendAsTippyActions = ref<HTMLElement | null>(null)
+const clientAuthenticationTippyActions = ref<HTMLElement | null>(null)
 </script>

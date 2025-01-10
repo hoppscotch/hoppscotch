@@ -23,7 +23,7 @@ import {
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
-    sendAs: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
+    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
   })
 
 export const HoppRESTAuthOAuth2 = z.object({
@@ -110,7 +110,7 @@ export default defineVersion({
                       auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
                         ? {
                             ...auth.grantTypeInfo,
-                            sendAs: "IN_BODY" as const,
+                            clientAuthentication: "IN_BODY" as const,
                           }
                         : auth.grantTypeInfo,
                   }
@@ -134,7 +134,7 @@ export default defineVersion({
                 auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
                   ? {
                       ...auth.grantTypeInfo,
-                      sendAs: "IN_BODY" as const,
+                      clientAuthentication: "IN_BODY" as const,
                     }
                   : auth.grantTypeInfo,
             }

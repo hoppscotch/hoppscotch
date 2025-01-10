@@ -39,7 +39,7 @@ export default defineVersion({
               auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
                 ? {
                     ...auth.grantTypeInfo,
-                    sendAs: "IN_BODY",
+                    clientAuthentication: "IN_BODY",
                   }
                 : auth.grantTypeInfo,
           }

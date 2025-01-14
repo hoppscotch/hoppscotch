@@ -14,7 +14,7 @@ import {
 import { ImplicitOauthFlowParams } from "./3"
 import { z } from "zod"
 
-import { V10_SCHEMA } from "./10"
+import { HoppRESTReqBody, V10_SCHEMA } from "./10"
 import { defineVersion } from "verzod"
 import {
   HoppRESTResponseOriginalRequest as HoppRESTResponseOriginalRequestOld,
@@ -62,6 +62,7 @@ export const HoppRESTResponseOriginalRequest =
   HoppRESTResponseOriginalRequestOld.extend({
     v: z.literal("3"),
     auth: HoppRESTAuth,
+    body: HoppRESTReqBody,
   })
 
 export type HoppRESTResponseOriginalRequest = z.infer<

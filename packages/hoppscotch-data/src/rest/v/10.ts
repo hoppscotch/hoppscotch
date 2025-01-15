@@ -49,7 +49,6 @@ export default defineVersion({
   schema: V10_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V9_SCHEMA>) {
-    // no breaking changes
     return {
       ...old,
       v: "10" as const,

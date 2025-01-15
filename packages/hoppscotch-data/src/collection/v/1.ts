@@ -9,7 +9,6 @@ const baseCollectionSchema = z.object({
 
   name: z.string(),
   requests: z.array(
-    // @ts-ignore typescript bails when the complexity of the type is too high, a lot of versions in the versionMap is causing this
     z.lazy(() =>
       z.union([
         entityReference(HoppRESTRequest),

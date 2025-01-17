@@ -27,16 +27,24 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 
-type Platform = 'web' | 'desktop'
+type Platform = "web" | "desktop"
 
 const createPlatformDef = <Web, Desktop>(web: Web, desktop: Desktop) => ({
   web,
   desktop,
-  get: (platform: Platform) => platform === 'web' ? web : desktop
+  get: (platform: Platform) => (platform === "web" ? web : desktop),
 })
 
-const webInterceptors = [BrowserKernelInterceptorService, ProxyKernelInterceptorService, AgentKernelInterceptorService, ExtensionKernelInterceptorService]
-const desktopInterceptors = [NativeKernelInterceptorService, ProxyKernelInterceptorService]
+const webInterceptors = [
+  BrowserKernelInterceptorService,
+  ProxyKernelInterceptorService,
+  AgentKernelInterceptorService,
+  ExtensionKernelInterceptorService,
+]
+const desktopInterceptors = [
+  NativeKernelInterceptorService,
+  ProxyKernelInterceptorService,
+]
 
 const platformDefs = {
   auth: createPlatformDef(webAuth, desktopAuth),
@@ -44,7 +52,7 @@ const platformDefs = {
   collections: createPlatformDef(webCollections, desktopCollections),
   settings: createPlatformDef(webSettings, desktopSettings),
   history: createPlatformDef(webHistory, desktopHistory),
-  interceptors: createPlatformDef(webInterceptors, desktopInterceptors)
+  interceptors: createPlatformDef(webInterceptors, desktopInterceptors),
 }
 
 const kernelMode = getKernelMode()
@@ -52,54 +60,89 @@ const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
 
 const getInterceptors = (mode: Platform) =>
-  platformDefs.interceptors.get(mode).map(service => ({
+  platformDefs.interceptors.get(mode).map((service) => ({
     type: "service" as const,
-    service
+    service,
   }))
 
-createHoppApp("#app", {
-  ui: {
-    additionalFooterMenuItems: stdFooterItems,
-    additionalSupportOptionsMenuItems: stdSupportOptionItems,
-    appHeader: {
-      paddingLeft: headerPaddingLeft,
-      paddingTop: headerPaddingTop,
+async function initApp() {
+  await createHoppApp("#app", {
+    ui: {
+      additionalFooterMenuItems: stdFooterItems,
+      additionalSupportOptionsMenuItems: stdSupportOptionItems,
+      appHeader: {
+        paddingLeft: headerPaddingLeft,
+        paddingTop: headerPaddingTop,
+      },
     },
-  },
-  auth: platformDefs.auth.get(kernelMode),
-  kernelIO,
-  sync: {
-    environments: platformDefs.environments.get(kernelMode),
-    collections: platformDefs.collections.get(kernelMode),
-    settings: platformDefs.settings.get(kernelMode),
-    history: platformDefs.history.get(kernelMode),
-  },
-  kernelInterceptors: {
-    default: kernelMode === "desktop" ? "native" : "browser",
-    interceptors: getInterceptors(kernelMode),
-  },
-  platformFeatureFlags: {
-    exportAsGIST: false,
-    hasTelemetry: false,
-  },
-  limits: {
-    collectionImportSizeLimit: 50,
-  },
-  infra: InfraPlatform,
-  backend: stdBackendDef,
-})
-
-if (kernelMode === "desktop") {
-  listen("will-enter-fullscreen", () => {
-    headerPaddingTop.value = "0px"
-    headerPaddingLeft.value = "0px"
+    auth: platformDefs.auth.get(kernelMode),
+    kernelIO,
+    sync: {
+      environments: platformDefs.environments.get(kernelMode),
+      collections: platformDefs.collections.get(kernelMode),
+      settings: platformDefs.settings.get(kernelMode),
+      history: platformDefs.history.get(kernelMode),
+    },
+    kernelInterceptors: {
+      default: kernelMode === "desktop" ? "native" : "browser",
+      interceptors: getInterceptors(kernelMode),
+    },
+    platformFeatureFlags: {
+      exportAsGIST: false,
+      hasTelemetry: false,
+    },
+    limits: {
+      collectionImportSizeLimit: 50,
+    },
+    infra: InfraPlatform,
+    backend: stdBackendDef,
   })
 
-  listen("will-exit-fullscreen", () => {
+  if (kernelMode === "desktop") {
+    listen("will-enter-fullscreen", () => {
+      headerPaddingTop.value = "0px"
+      headerPaddingLeft.value = "0px"
+    })
+
+    listen("will-exit-fullscreen", () => {
+      headerPaddingTop.value = "2px"
+      headerPaddingLeft.value = "70px"
+    })
+
     headerPaddingTop.value = "2px"
     headerPaddingLeft.value = "70px"
-  })
 
-  headerPaddingTop.value = "2px"
-  headerPaddingLeft.value = "70px"
+    // Add backspace prevention for non-text inputs
+    window.addEventListener(
+      "keydown",
+      function (e) {
+        if (e.key === "Backspace" && !isTextInput(e.target)) {
+          e.preventDefault()
+        }
+      },
+      true
+    )
+  }
 }
+
+function isTextInput(target: EventTarget | null) {
+  if (target instanceof HTMLInputElement) {
+    return (
+      target.type === "text" ||
+      target.type === "email" ||
+      target.type === "password" ||
+      target.type === "number" ||
+      target.type === "search" ||
+      target.type === "tel" ||
+      target.type === "url" ||
+      target.type === "textarea"
+    )
+  } else if (target instanceof HTMLTextAreaElement) {
+    return true
+  } else if (target instanceof HTMLElement && target.isContentEditable) {
+    return true
+  }
+  return false
+}
+
+initApp().catch(console.error)

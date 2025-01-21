@@ -57,12 +57,12 @@ const props = defineProps<{
 const { push } = useExplorer()
 const { handleAddField } = useQuery()
 
-const handleClick = ($event: ExplorerFieldDef) => {
+const handleClick = () => {
   push({ name: props.field.name, def: props.field })
 }
 
 const insertQuery = () => {
-  handleAddField(props.field, true)
+  handleAddField(props.field)
 }
 
 const args = computed(() =>

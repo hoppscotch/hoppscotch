@@ -175,7 +175,9 @@ const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
         return selectedPos >= start && selectedPos <= end
       }) as OperationDefinitionNode) ?? null
   } catch (error) {
-    // console.error(error)
+    if (queryString.trim() === "") {
+      operationDefinitions.value = []
+    }
   }
 }, 300)
 

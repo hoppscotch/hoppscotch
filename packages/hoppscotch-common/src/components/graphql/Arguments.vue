@@ -31,13 +31,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { ExplorerFieldDef } from "~/helpers/graphql/explorer"
+import { GraphQLField } from "graphql"
 
-interface Props {
-  field: ExplorerFieldDef
-}
-
-const props = defineProps<Props>()
+const props = defineProps<{
+  field: GraphQLField<any, any>
+}>()
 
 const showDeprecated = ref(false)
 

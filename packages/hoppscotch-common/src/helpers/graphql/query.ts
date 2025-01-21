@@ -23,14 +23,14 @@ import {
 import { useToast } from "~/composables/toast"
 
 const updatedQuery = ref("")
-const cursorPosition = ref({ line: 0, ch: 0 })
+const cursorPosition = ref({ line: 0, ch: 1 })
 const operations = ref<OperationDefinitionNode[]>([])
 
 export function useQuery() {
   const tabs = useService(GQLTabService)
   const toast = useToast()
 
-  const { navStack } = useExplorer()
+  const { navStack, push } = useExplorer()
 
   const getOperation = (cursorPosition: number) => {
     return operations.value.find((operation) => {
@@ -67,9 +67,9 @@ export function useQuery() {
         : OperationTypeNode.SUBSCRIPTION
   }
 
-  function buildOperationNode(navStack: ExplorerNavStackItem[]): DocumentNode {
+  function buildOperationNode(navItems: ExplorerNavStackItem[]): DocumentNode {
     // Skip root and query/mutation/subscription
-    const queryPath = navStack.slice(2)
+    const queryPath = navItems.slice(2)
 
     // Build the selections from inside out
     let currentSelection: FieldNode = {
@@ -127,10 +127,10 @@ export function useQuery() {
     // Create the final document
     const operation: OperationDefinitionNode = {
       kind: Kind.OPERATION_DEFINITION,
-      operation: getOperationTypeNode(navStack[1].name),
+      operation: getOperationTypeNode(navItems[1].name),
       name: {
         kind: Kind.NAME,
-        value: navStack[navStack.length - 1].name,
+        value: navItems[navItems.length - 1].name,
       },
       variableDefinitions: [],
       directives: [],
@@ -168,10 +168,10 @@ export function useQuery() {
   }
 
   function mergeAndBuildOperationNode(
-    navStack: ExplorerNavStackItem[],
+    navItems: ExplorerNavStackItem[],
     operation: OperationDefinitionNode
   ): OperationDefinitionNode {
-    const queryPath = navStack.slice(2)
+    const queryPath = navItems.slice(2)
     let currentSelectionSet = operation.selectionSet
 
     // Build the path from top to bottom
@@ -269,20 +269,24 @@ export function useQuery() {
     console.info("Current Query", currentQuery, selectedOperation)
 
     const navItems: ExplorerNavStackItem[] = []
-    navItems.push(...(navStack.value as ExplorerNavStack), field)
+    navItems.push(...(navStack.value as ExplorerNavStack), {
+      name: field.name,
+      def: field,
+    })
 
     if (!currentQuery.trim() || !selectedOperation) {
       console.info("No query found, creating a new one")
       const q = buildOperationNode(navItems)
+      console.info("New Query", q)
       const query = print(q)
-      updatedQuery.value = `${currentQuery}\n\n${query}`
+      updatedQuery.value = !currentQuery.trim()
+        ? `${currentQuery}${query}`
+        : `${currentQuery}\n\n${query}`
       return
     }
 
     // Check for duplicates only if there's an existing operation
-    if (selectedOperation) {
-      showToastIfOperationExists(selectedOperation, field)
-    }
+    if (selectedOperation) showToastIfOperationExists(selectedOperation, field)
 
     const queryAst = mergeAndBuildOperationNode(navItems, selectedOperation)
     const query = print(queryAst)

@@ -19,16 +19,27 @@ import {
   isListType,
 } from "graphql"
 
+/**
+ * Represents a field definition in the GraphQL explorer
+ * Can be a field, input field, or argument
+ */
 export type ExplorerFieldDef =
   | GraphQLField<unknown, unknown, unknown>
   | GraphQLInputField
   | GraphQLArgument
 
+/**
+ * Represents a single item in the explorer navigation stack
+ */
 export type ExplorerNavStackItem = {
   name: string
   def?: GraphQLNamedType | ExplorerFieldDef
 }
 
+/**
+ * Represents the complete navigation stack for the explorer
+ * Must contain at least one item
+ */
 export type ExplorerNavStack = [ExplorerNavStackItem, ...ExplorerNavStackItem[]]
 
 const initialNavStackItem: ExplorerNavStackItem = { name: "Root" }
@@ -37,6 +48,11 @@ const navStack = ref<ExplorerNavStack>([initialNavStackItem])
 const schema = ref<GraphQLSchema | null>()
 const validationErrors = ref<any[]>([])
 
+/**
+ * Hook to manage the GraphQL schema explorer state and navigation
+ * @param initialSchema - Optional initial GraphQL schema
+ * @returns Object containing explorer state and methods
+ */
 export function useExplorer(initialSchema?: GraphQLSchema) {
   schema.value = initialSchema ?? null
 
@@ -45,6 +61,10 @@ export function useExplorer(initialSchema?: GraphQLSchema) {
     return lastItem
   })
 
+  /**
+   * Adds a new item to the navigation stack
+   * @param item - The navigation stack item to add
+   */
   function push(item: ExplorerNavStackItem) {
     const lastItem = navStack.value[navStack.value.length - 1]
 
@@ -54,17 +74,30 @@ export function useExplorer(initialSchema?: GraphQLSchema) {
     navStack.value.push(item)
   }
 
+  /**
+   * Removes the last item from the navigation stack
+   * Won't remove the root item
+   */
   function pop() {
     if (navStack.value.length > 1) {
       navStack.value.pop()
     }
   }
 
+  /**
+   * Resets the navigation stack to initial state
+   */
   function reset() {
     navStack.value =
       navStack.value.length === 1 ? navStack.value : [initialNavStackItem]
   }
 
+  /**
+   * Updates the schema and validation errors
+   * Rebuilds the navigation stack if needed
+   * @param newSchema - The new GraphQL schema
+   * @param newValidationErrors - Array of validation errors
+   */
   function updateSchema(
     newSchema: GraphQLSchema,
     newValidationErrors: any[] = []
@@ -82,12 +115,20 @@ export function useExplorer(initialSchema?: GraphQLSchema) {
     rebuildNavStack()
   }
 
+  /**
+   * Navigates to a specific index in the navigation stack
+   * @param index - Target index to navigate to
+   */
   const navigateToIndex = (index: number) => {
     while (navStack.value.length > index + 1) {
       pop()
     }
   }
 
+  /**
+   * Rebuilds the navigation stack based on the current schema
+   * Used when schema is updated to maintain valid navigation
+   */
   function rebuildNavStack() {
     if (!schema.value) return
 
@@ -162,7 +203,12 @@ export function useExplorer(initialSchema?: GraphQLSchema) {
 }
 
 /**
- * Recursive rendering function for GraphQL types.
+ * Recursively renders a GraphQL type as a Vue virtual node
+ * Handles non-null types, list types, and named types
+ *
+ * @param type - The GraphQL type to render
+ * @param renderNamedType - Function to render named types
+ * @returns VNode representing the rendered type
  */
 export function renderType(
   type: GraphQLType,

@@ -15,6 +15,9 @@ import { ref } from "vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { ExplorerFieldDef, ExplorerNavStackItem, useExplorer } from "./explorer"
 
+/**
+ * Makes all properties in type T mutable
+ */
 type Mutable<T> = {
   -readonly [K in keyof T]: T[K]
 }
@@ -23,11 +26,18 @@ const updatedQuery = ref("")
 const cursorPosition = ref({ line: 0, ch: 1 })
 const operations = ref<OperationDefinitionNode[]>([])
 
+/**
+ * Hook to manage GraphQL query operations and mutations
+ * Provides functionality for building and modifying GraphQL operations
+ */
 export function useQuery() {
   const tabs = useService(GQLTabService)
   const { navStack } = useExplorer()
 
-  // Utility functions
+  /**
+   * Returns default value for a GraphQL type
+   * @param type - GraphQL type to get default value for
+   */
   const getDefaultArgumentValue = (type: GraphQLType): string => {
     const namedType = getNamedType(type)
     const defaultValues: Record<string, string> = {
@@ -39,6 +49,10 @@ export function useQuery() {
     return defaultValues[namedType.name] || "null"
   }
 
+  /**
+   * Maps operation name to GraphQL operation type
+   * @param name - Operation name to convert
+   */
   const getOperationTypeNode = (name: string): OperationTypeNode => {
     const operationTypes: Record<string, OperationTypeNode> = {
       Query: OperationTypeNode.QUERY,
@@ -48,6 +62,10 @@ export function useQuery() {
     return operationTypes[name] || OperationTypeNode.QUERY
   }
 
+  /**
+   * Finds operation definition node at given cursor position
+   * @param cursorPosition - Position to find operation at
+   */
   const getOperation = (cursorPosition: number) => {
     return operations.value.find(
       ({ loc }) =>
@@ -55,6 +73,11 @@ export function useQuery() {
     )
   }
 
+  /**
+   * Creates an ArgumentNode with default value
+   * @param argName - Name of the argument
+   * @param type - GraphQL type of the argument
+   */
   const createArgumentNode = (
     argName: string,
     type: GraphQLType
@@ -64,6 +87,12 @@ export function useQuery() {
     value: { kind: Kind.STRING, value: getDefaultArgumentValue(type) },
   })
 
+  /**
+   * Creates a FieldNode with optional arguments and nested fields
+   * @param name - Field name
+   * @param args - Field arguments
+   * @param hasNestedFields - Whether field has nested selections
+   */
   const createFieldNode = (
     name: string,
     args: GraphQLArgument[] | undefined,
@@ -78,7 +107,9 @@ export function useQuery() {
       : undefined,
   })
 
-  // Add this type
+  /**
+   * Result of processing an operation, including document and field location
+   */
   type OperationResult = {
     document: DocumentNode
     fieldLocation?: {
@@ -87,7 +118,14 @@ export function useQuery() {
     }
   }
 
-  // Core function to handle merging, checking existence, and building operations
+  /**
+   * Processes GraphQL operation based on navigation stack
+   * Handles merging with existing operations and field/argument modifications
+   *
+   * @param navItems - Navigation stack items
+   * @param existingOperation - Existing operation to modify (if any)
+   * @param isArgument - Whether processing an argument
+   */
   const processOperation = (
     navItems: ExplorerNavStackItem[],
     existingOperation?: OperationDefinitionNode,
@@ -244,6 +282,13 @@ export function useQuery() {
     }
   }
 
+  /**
+   * Handles operation modifications for fields and arguments
+   * Updates query and cursor position based on changes
+   *
+   * @param item - Field or argument to process
+   * @param isArgument - Whether item is an argument
+   */
   const handleOperation = (item: ExplorerFieldDef, isArgument = false) => {
     const currentTab = tabs.currentActiveTab.value
     if (!currentTab) return

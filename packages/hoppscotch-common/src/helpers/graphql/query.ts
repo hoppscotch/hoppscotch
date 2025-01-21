@@ -4,23 +4,21 @@ import {
   DocumentNode,
   FieldNode,
   getNamedType,
+  GraphQLArgument,
   GraphQLType,
   Kind,
   OperationDefinitionNode,
   OperationTypeNode,
   print,
-  SelectionNode,
-  SelectionSetNode,
 } from "graphql"
 import { ref } from "vue"
-import { GQLTabService } from "~/services/tab/graphql"
-import {
-  ExplorerFieldDef,
-  ExplorerNavStack,
-  ExplorerNavStackItem,
-  useExplorer,
-} from "./explorer"
 import { useToast } from "~/composables/toast"
+import { GQLTabService } from "~/services/tab/graphql"
+import { ExplorerFieldDef, ExplorerNavStackItem, useExplorer } from "./explorer"
+
+type Mutable<T> = {
+  -readonly [K in keyof T]: T[K]
+}
 
 const updatedQuery = ref("")
 const cursorPosition = ref({ line: 0, ch: 1 })
@@ -29,312 +27,262 @@ const operations = ref<OperationDefinitionNode[]>([])
 export function useQuery() {
   const tabs = useService(GQLTabService)
   const toast = useToast()
-
   const { navStack, push } = useExplorer()
 
-  const getOperation = (cursorPosition: number) => {
-    return operations.value.find((operation) => {
-      const { start, end } = operation.loc!
-      return cursorPosition >= start && cursorPosition <= end
-    })
-  }
-
-  const getSelectedOperation = () =>
-    getOperation(tabs.currentActiveTab.value.document.cursorPosition)
-
-  // Helper to get default argument value based on type
-  function getDefaultArgumentValue(type: GraphQLType): string {
+  // Utility functions
+  const getDefaultArgumentValue = (type: GraphQLType): string => {
     const namedType = getNamedType(type)
-    switch (namedType.name) {
-      case "String":
-        return '""'
-      case "Int":
-        return "0"
-      case "Float":
-        return "0.0"
-      case "Boolean":
-        return "false"
-      default:
-        return "null"
+    const defaultValues: Record<string, string> = {
+      String: '""',
+      Int: "0",
+      Float: "0.0",
+      Boolean: "false",
+    }
+    return defaultValues[namedType.name] || "null"
+  }
+
+  const getOperationTypeNode = (name: string): OperationTypeNode => {
+    const operationTypes: Record<string, OperationTypeNode> = {
+      Query: OperationTypeNode.QUERY,
+      Mutation: OperationTypeNode.MUTATION,
+      Subscription: OperationTypeNode.SUBSCRIPTION,
+    }
+    return operationTypes[name] || OperationTypeNode.QUERY
+  }
+
+  const getOperation = (cursorPosition: number) => {
+    return operations.value.find(
+      ({ loc }) =>
+        loc && cursorPosition >= loc.start && cursorPosition <= loc.end
+    )
+  }
+
+  const createArgumentNode = (
+    argName: string,
+    type: GraphQLType
+  ): ArgumentNode => ({
+    kind: Kind.ARGUMENT,
+    name: { kind: Kind.NAME, value: argName },
+    value: { kind: Kind.STRING, value: getDefaultArgumentValue(type) },
+  })
+
+  const createFieldNode = (
+    name: string,
+    args: GraphQLArgument[] | undefined,
+    hasNestedFields = false
+  ): Mutable<FieldNode> => ({
+    kind: Kind.FIELD,
+    name: { kind: Kind.NAME, value: name },
+    arguments: args?.map((arg) => createArgumentNode(arg.name, arg.type)) || [],
+    directives: [],
+    selectionSet: hasNestedFields
+      ? { kind: Kind.SELECTION_SET, selections: [] }
+      : undefined,
+  })
+
+  // Add this type
+  type OperationResult = {
+    document: DocumentNode
+    fieldLocation?: {
+      start: number
+      end: number
     }
   }
 
-  function getOperationTypeNode(name: string): OperationTypeNode {
-    return name === "Query"
-      ? OperationTypeNode.QUERY
-      : name === "Mutation"
-        ? OperationTypeNode.MUTATION
-        : OperationTypeNode.SUBSCRIPTION
-  }
-
-  function buildOperationNode(navItems: ExplorerNavStackItem[]): DocumentNode {
-    // Skip root and query/mutation/subscription
-    const queryPath = navItems.slice(2)
-
-    // Build the selections from inside out
-    let currentSelection: FieldNode = {
-      kind: Kind.FIELD,
-      name: {
-        kind: Kind.NAME,
-        value: queryPath[queryPath.length - 1].name,
-      },
-      arguments: [],
-      directives: [],
-    }
-
-    for (let i = queryPath.length - 2; i >= 0; i--) {
-      const item = queryPath[i]
-      const arguments_: ArgumentNode[] = []
-
-      if (item.def?.args) {
-        for (const arg of item.def.args) {
-          arguments_.push({
-            kind: Kind.ARGUMENT,
-            name: {
-              kind: Kind.NAME,
-              value: arg.name,
-            },
-            value: {
-              kind: Kind.STRING,
-              value: getDefaultArgumentValue(arg.type),
-            },
-          })
-        }
-      }
-
-      // Check if the field has nested fields and ensure it has a selectionSet
-      let selectionSet: SelectionSetNode | undefined = undefined
-      if (item.def?.fields && item.def.fields.length > 0) {
-        selectionSet = {
-          kind: Kind.SELECTION_SET,
-          selections: [currentSelection],
-        }
-      }
-
-      // Wrap the current selection in a new field
-      currentSelection = {
-        kind: Kind.FIELD,
-        name: {
-          kind: Kind.NAME,
-          value: item.name,
-        },
-        arguments: arguments_,
-        directives: [],
-        selectionSet: selectionSet,
-      }
-    }
-
-    // Create the final document
-    const operation: OperationDefinitionNode = {
-      kind: Kind.OPERATION_DEFINITION,
-      operation: getOperationTypeNode(navItems[1].name),
-      name: {
-        kind: Kind.NAME,
-        value: navItems[navItems.length - 1].name,
-      },
-      variableDefinitions: [],
-      directives: [],
-      selectionSet: {
-        kind: Kind.SELECTION_SET,
-        selections: [currentSelection],
-      },
-    }
-
-    const document: DocumentNode = {
-      kind: Kind.DOCUMENT,
-      definitions: [operation],
-    }
-
-    return document
-  }
-
-  function hasField(
-    selections: readonly SelectionNode[] | undefined,
-    fieldName: string
-  ): FieldNode | undefined {
-    if (!selections) return undefined
-    return selections.find(
-      (selection) =>
-        selection.kind === Kind.FIELD && selection.name.value === fieldName
-    ) as FieldNode | undefined
-  }
-
-  function hasArgument(
-    args: readonly ArgumentNode[] | undefined,
-    argName: string
-  ): boolean {
-    if (!args) return false
-    return args.some((arg) => arg.name.value === argName)
-  }
-
-  function mergeAndBuildOperationNode(
+  // Core function to handle merging, checking existence, and building operations
+  const processOperation = (
     navItems: ExplorerNavStackItem[],
-    operation: OperationDefinitionNode
-  ): OperationDefinitionNode {
+    existingOperation?: OperationDefinitionNode
+  ): OperationResult => {
     const queryPath = navItems.slice(2)
-    let currentSelectionSet = operation.selectionSet
+    const lastItem = queryPath[queryPath.length - 1]
+    const requestedOperationType = getOperationTypeNode(navItems[1].name)
 
-    // Build the path from top to bottom
+    // Create new operation if there's no existing operation or operation types don't match
+    if (
+      !existingOperation ||
+      existingOperation.operation !== requestedOperationType
+    ) {
+      // Build from bottom up starting with the last field
+      let currentSelection = createFieldNode(
+        lastItem.name,
+        lastItem.def?.args,
+        lastItem.def?.fields?.length > 0
+      )
+
+      for (let i = queryPath.length - 2; i >= 0; i--) {
+        const item = queryPath[i]
+        const parentField = createFieldNode(item.name, item.def?.args, true)
+        parentField.selectionSet!.selections = [currentSelection]
+        currentSelection = parentField
+      }
+
+      return {
+        document: {
+          kind: Kind.DOCUMENT,
+          definitions: [
+            {
+              kind: Kind.OPERATION_DEFINITION,
+              operation: requestedOperationType,
+              name: { kind: Kind.NAME, value: queryPath[0].name },
+              variableDefinitions: [],
+              directives: [],
+              selectionSet: {
+                kind: Kind.SELECTION_SET,
+                selections: [currentSelection],
+              },
+            },
+          ],
+        },
+      }
+    }
+
+    // For existing operations
+    let currentSelectionSet = existingOperation.selectionSet
+    let fieldExists = false
+    let fieldLocation: { start: number; end: number } | undefined
+
+    // Navigate through the path
     for (let i = 0; i < queryPath.length; i++) {
       const item = queryPath[i]
-      let existingField = hasField(currentSelectionSet.selections, item.name)
+      const isLastItem = i === queryPath.length - 1
 
-      if (existingField) {
-        // If field exists but doesn't have a selection set, create one
-        if (!existingField.selectionSet) {
-          existingField = {
-            ...existingField,
-            selectionSet: {
-              kind: Kind.SELECTION_SET,
-              selections: [],
-            },
-          }
-        }
-        // Add any missing arguments
-        if (item.def?.args) {
-          const newArgs: ArgumentNode[] = []
-          for (const arg of item.def.args) {
-            if (!hasArgument(existingField.arguments, arg.name)) {
-              newArgs.push({
-                kind: Kind.ARGUMENT,
-                name: {
-                  kind: Kind.NAME,
-                  value: arg.name,
-                },
-                value: {
-                  kind: Kind.STRING,
-                  value: getDefaultArgumentValue(arg.type),
-                },
-              })
+      const existingFieldIndex = currentSelectionSet.selections.findIndex(
+        (selection): selection is FieldNode =>
+          selection.kind === Kind.FIELD && selection.name.value === item.name
+      )
+
+      if (existingFieldIndex !== -1) {
+        const existingField = currentSelectionSet.selections[
+          existingFieldIndex
+        ] as Mutable<FieldNode>
+
+        if (isLastItem) {
+          // Store the location before removing
+          if (existingField.loc) {
+            fieldLocation = {
+              start: existingField.loc.start,
+              end: existingField.loc.end,
             }
           }
-          existingField = {
-            ...existingField,
-            arguments: [...(existingField.arguments || []), ...newArgs],
-          }
-        }
-        currentSelectionSet = existingField.selectionSet!
-      } else {
-        // Create new field with arguments
-        const arguments_: ArgumentNode[] = []
-
-        if (item.def?.args) {
-          for (const arg of item.def.args) {
-            arguments_.push({
-              kind: Kind.ARGUMENT,
-              name: {
-                kind: Kind.NAME,
-                value: arg.name,
-              },
-              value: {
-                kind: Kind.STRING,
-                value: getDefaultArgumentValue(arg.type),
-              },
-            })
-          }
+          // Remove the field if it already exists
+          currentSelectionSet.selections.splice(existingFieldIndex, 1)
+          fieldExists = true
+          break
         }
 
-        const newField: FieldNode = {
-          kind: Kind.FIELD,
-          name: {
-            kind: Kind.NAME,
-            value: item.name,
-          },
-          arguments: arguments_,
-          directives: [],
-          selectionSet: {
+        // Ensure parent has a selection set
+        if (!existingField.selectionSet) {
+          existingField.selectionSet = {
             kind: Kind.SELECTION_SET,
             selections: [],
-          },
+          }
         }
 
-        currentSelectionSet.selections = [
-          ...currentSelectionSet.selections,
-          newField,
-        ]
-        currentSelectionSet = newField.selectionSet!
+        // Move to the next level
+        currentSelectionSet = existingField.selectionSet ?? {
+          kind: Kind.SELECTION_SET,
+          selections: [],
+        }
+      } else {
+        const newField = createFieldNode(
+          item.name,
+          (item.def as any)?.args, // these type assertion is avoidable
+          !isLastItem || (isLastItem && (item.def as any)?.fields?.length > 0)
+        )
+
+        // Store the approximate location where field will be added
+        if (currentSelectionSet.loc) {
+          fieldLocation = {
+            start: currentSelectionSet.loc.end - 1,
+            end: currentSelectionSet.loc.end - 1,
+          }
+        }
+
+        if (!isLastItem) {
+          // Ensure non-leaf nodes have a selection set
+          newField.selectionSet = {
+            kind: Kind.SELECTION_SET,
+            selections: [],
+          }
+        }
+
+        currentSelectionSet.selections.push(newField)
+
+        if (!isLastItem) {
+          // Move to the next level
+          currentSelectionSet = newField.selectionSet!
+        }
       }
     }
 
-    return operation
+    return {
+      document: {
+        kind: Kind.DOCUMENT,
+        definitions: [existingOperation],
+      },
+      fieldLocation,
+    }
   }
 
+  // Main handler for adding fields
   const handleAddField = (field: ExplorerFieldDef) => {
     const currentTab = tabs.currentActiveTab.value
     if (!currentTab) return
 
     const currentQuery = currentTab.document.request.query || ""
-    const selectedOperation = getSelectedOperation()
+    const selectedOperation = getOperation(currentTab.document.cursorPosition)
+    const navItems = [...navStack.value, { name: field.name, def: field }]
 
-    console.info("Current Query", currentQuery, selectedOperation)
+    const result = processOperation(
+      navItems as ExplorerNavStackItem[],
+      selectedOperation
+    )
+    const newQuery = print(result.document.definitions[0])
 
-    const navItems: ExplorerNavStackItem[] = []
-    navItems.push(...(navStack.value as ExplorerNavStack), {
-      name: field.name,
-      def: field,
-    })
-
-    if (!currentQuery.trim() || !selectedOperation) {
-      console.info("No query found, creating a new one")
-      const q = buildOperationNode(navItems)
-      console.info("New Query", q)
-      const query = print(q)
-      updatedQuery.value = !currentQuery.trim()
-        ? `${currentQuery}${query}`
-        : `${currentQuery}\n\n${query}`
+    // If operation type is different or no existing operation,
+    // append as a new operation
+    if (
+      !selectedOperation ||
+      selectedOperation.operation !== getOperationTypeNode(navItems[1].name)
+    ) {
+      updatedQuery.value = currentQuery.trim()
+        ? `${currentQuery}\n\n${newQuery}`
+        : newQuery
+      // Set cursor at the start of new operation
+      cursorPosition.value = {
+        line: currentQuery.split("\n").length + 2,
+        ch: -1,
+      }
       return
     }
 
-    // Check for duplicates only if there's an existing operation
-    if (selectedOperation) showToastIfOperationExists(selectedOperation, field)
-
-    const queryAst = mergeAndBuildOperationNode(navItems, selectedOperation)
-    const query = print(queryAst)
-
-    // should remove selected operation start to end from currentQuery and add query in place
+    // Replace existing operation if operation types match
     updatedQuery.value = currentQuery.replace(
       currentQuery.substring(
         selectedOperation.loc!.start,
         selectedOperation.loc!.end
       ),
-      query
+      newQuery
     )
-  }
 
-  function showToastIfOperationExists(
-    operation: OperationDefinitionNode,
-    field: ExplorerFieldDef
-  ) {
-    const navItems = [...navStack.value]
-    let currentSelectionSet = operation.selectionSet
-
-    // Navigate through the existing selection set following navStack
-    for (let i = 2; i < navItems.length; i++) {
-      const existingField = hasField(
-        currentSelectionSet.selections,
-        navItems[i].name
+    // Update cursor position to field location
+    if (result.fieldLocation) {
+      const precedingText = currentQuery.substring(
+        0,
+        result.fieldLocation.start
       )
-      if (!existingField) break
-      if (existingField.selectionSet) {
-        currentSelectionSet = existingField.selectionSet
+      const lines = precedingText.split("\n")
+      cursorPosition.value = {
+        line: lines.length - 1,
+        ch: -1,
       }
     }
-
-    // Check if the field we're trying to add already exists
-    if (hasField(currentSelectionSet.selections, field.name)) {
-      toast.error(`Field "${field.name}" already exists in the query`)
-      return
-    }
-  }
-
-  const handleAddArgument = (arg: any) => {
-    // it's also one kind of field so use handleAddField
-    handleAddField(arg)
   }
 
   return {
     handleAddField,
-    handleAddArgument,
+    handleAddArgument: handleAddField,
     updatedQuery,
     cursorPosition,
     operationDefinitions: operations,

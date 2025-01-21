@@ -32,17 +32,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted, watch } from "vue"
 import type {
   GraphQLArgument,
   GraphQLField,
   GraphQLInputField,
   GraphQLNamedType,
 } from "graphql"
-import { isObjectType, isInterfaceType, isInputObjectType } from "graphql"
+import { isInputObjectType, isInterfaceType, isObjectType } from "graphql"
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
-import { ExplorerNavStackItem, useExplorer } from "~/helpers/graphql/explorer"
 import { schema } from "~/helpers/graphql/connection"
+import { ExplorerNavStackItem, useExplorer } from "~/helpers/graphql/explorer"
 
 // Types
 type SearchResult = {
@@ -144,56 +144,80 @@ const filteredResults = computed(() =>
 )
 
 // Methods
-const buildNavigationPath = (result: SearchResult) => {
+const buildNavigationPath = (result: SearchResult): ExplorerNavStackItem[] => {
   const path: ExplorerNavStackItem[] = []
 
   if (result.type === "Type") {
-    // For type results, just push the type itself
-    path.push({
-      name: result.def.name,
-      def: result.def as GraphQLNamedType,
-    })
-  } else if (result.type.startsWith("Field in")) {
-    // For fields, push both the parent type and the field
-    const parentTypeName = result.type.replace("Field in ", "")
-    const parentType = schema.value?.getType(parentTypeName)
-
-    if (parentType) {
-      path.push({
-        name: parentType.name,
-        def: parentType,
-      })
-      path.push({
-        name: result.name,
-        def: result.def,
-      })
+    // For type results, traverse through schema to build proper path
+    const type = result.def as GraphQLNamedType
+    const rootTypes = {
+      query: schema.value?.getQueryType(),
+      mutation: schema.value?.getMutationType(),
+      subscription: schema.value?.getSubscriptionType(),
     }
-  } else if (result.type.startsWith("Argument in")) {
-    // For arguments, push the parent type, the field, and the argument
-    const field = result.def as GraphQLArgument
-    const parentField = navStack.value.find(
-      (item) => item.def && "args" in item.def && item.def.args.includes(field)
+
+    // Check if the type is directly accessible from root types
+    const rootEntry = Object.entries(rootTypes).find(
+      ([_, rootType]) => rootType?.name === type.name
     )
 
-    if (parentField && parentField.def) {
-      const parentType = schema.value?.getType(
-        ("type" in parentField.def && parentField.def.type.toString()) || ""
-      )
+    if (rootEntry) {
+      path.push({
+        name: rootEntry[0].charAt(0).toUpperCase() + rootEntry[0].slice(1),
+        def: type,
+      })
+    } else {
+      // If not a root type, try to find the path through fields
+      const parentType = Object.values(rootTypes).find((rootType) => {
+        if (!rootType || !isObjectType(rootType)) return false
+        const fields = rootType.getFields()
+        return Object.values(fields).some((field) =>
+          field.type.toString().includes(type.name)
+        )
+      })
 
       if (parentType) {
         path.push({
           name: parentType.name,
           def: parentType,
         })
-        path.push({
-          name: parentField.name,
-          def: parentField.def,
-        })
-        path.push({
-          name: result.name,
-          def: result.def,
-        })
+
+        // Find the field that leads to our type
+        const field = Object.values(parentType.getFields()).find((field) =>
+          field.type.toString().includes(type.name)
+        )
+
+        if (field) {
+          path.push({
+            name: field.name,
+            def: field,
+          })
+        }
       }
+
+      path.push({
+        name: type.name,
+        def: type,
+      })
+    }
+  } else if (result.type.startsWith("Field in")) {
+    // For fields, ensure we have the complete path from root
+    const parentTypeName = result.type.replace("Field in ", "")
+    const parentType = schema.value?.getType(parentTypeName)
+
+    if (parentType) {
+      // First find path to parent type
+      const parentPath = buildNavigationPath({
+        name: parentType.name,
+        type: "Type",
+        def: parentType,
+      })
+
+      path.push(...parentPath)
+      path.push({
+        name: result.name,
+        def: result.def,
+      })
     }
   }
 
@@ -208,9 +232,15 @@ const selectSearchResult = (result: SearchResult) => {
     pop()
   }
 
-  // Push each item in the path
-  navigationPath.forEach((item) => {
-    push(item)
+  // Push each item in the path sequentially
+  navigationPath.forEach((item, i) => {
+    if (
+      i === 0 ||
+      (!isObjectType(item.def) &&
+        !isInterfaceType(item.def) &&
+        !isInputObjectType(item.def))
+    )
+      push(item)
   })
 
   showSearchResults.value = false

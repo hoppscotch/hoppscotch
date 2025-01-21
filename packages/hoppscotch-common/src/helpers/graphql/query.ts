@@ -12,7 +12,6 @@ import {
   print,
 } from "graphql"
 import { ref } from "vue"
-import { useToast } from "~/composables/toast"
 import { GQLTabService } from "~/services/tab/graphql"
 import { ExplorerFieldDef, ExplorerNavStackItem, useExplorer } from "./explorer"
 
@@ -26,14 +25,13 @@ const operations = ref<OperationDefinitionNode[]>([])
 
 export function useQuery() {
   const tabs = useService(GQLTabService)
-  const toast = useToast()
-  const { navStack, push } = useExplorer()
+  const { navStack } = useExplorer()
 
   // Utility functions
   const getDefaultArgumentValue = (type: GraphQLType): string => {
     const namedType = getNamedType(type)
     const defaultValues: Record<string, string> = {
-      String: '""',
+      String: "",
       Int: "0",
       Float: "0.0",
       Boolean: "false",
@@ -92,13 +90,15 @@ export function useQuery() {
   // Core function to handle merging, checking existence, and building operations
   const processOperation = (
     navItems: ExplorerNavStackItem[],
-    existingOperation?: OperationDefinitionNode
+    existingOperation?: OperationDefinitionNode,
+    isArgument = false
   ): OperationResult => {
-    const queryPath = navItems.slice(2)
+    const queryPath = navItems.slice(2, isArgument ? -1 : undefined)
+    const argumentItem = isArgument ? navItems[navItems.length - 1] : null
     const lastItem = queryPath[queryPath.length - 1]
     const requestedOperationType = getOperationTypeNode(navItems[1].name)
 
-    // Create new operation if there's no existing operation or operation types don't match
+    // Handle new operations
     if (
       !existingOperation ||
       existingOperation.operation !== requestedOperationType
@@ -158,16 +158,35 @@ export function useQuery() {
         ] as Mutable<FieldNode>
 
         if (isLastItem) {
-          // Store the location before removing
+          if (isArgument && argumentItem) {
+            // Handle argument modifications
+            const argIndex =
+              existingField.arguments?.findIndex(
+                (arg) => arg.name.value === argumentItem.name
+              ) ?? -1
+
+            if (argIndex !== -1) {
+              existingField.arguments?.splice(argIndex, 1)
+            } else {
+              const newArg = createArgumentNode(
+                argumentItem.name,
+                (argumentItem.def as any)?.type
+              )
+              existingField.arguments = existingField.arguments || []
+              existingField.arguments.push(newArg)
+            }
+          } else {
+            // Remove the field if it's not an argument operation
+            currentSelectionSet.selections.splice(existingFieldIndex, 1)
+            fieldExists = true
+          }
+
           if (existingField.loc) {
             fieldLocation = {
               start: existingField.loc.start,
               end: existingField.loc.end,
             }
           }
-          // Remove the field if it already exists
-          currentSelectionSet.selections.splice(existingFieldIndex, 1)
-          fieldExists = true
           break
         }
 
@@ -225,18 +244,18 @@ export function useQuery() {
     }
   }
 
-  // Main handler for adding fields
-  const handleAddField = (field: ExplorerFieldDef) => {
+  const handleOperation = (item: ExplorerFieldDef, isArgument = false) => {
     const currentTab = tabs.currentActiveTab.value
     if (!currentTab) return
 
     const currentQuery = currentTab.document.request.query || ""
     const selectedOperation = getOperation(currentTab.document.cursorPosition)
-    const navItems = [...navStack.value, { name: field.name, def: field }]
+    const navItems = [...navStack.value, { name: item.name, def: item }]
 
     const result = processOperation(
       navItems as ExplorerNavStackItem[],
-      selectedOperation
+      selectedOperation,
+      isArgument
     )
     const newQuery = print(result.document.definitions[0])
 
@@ -249,9 +268,8 @@ export function useQuery() {
       updatedQuery.value = currentQuery.trim()
         ? `${currentQuery}\n\n${newQuery}`
         : newQuery
-      // Set cursor at the start of new operation
       cursorPosition.value = {
-        line: currentQuery.split("\n").length + 2,
+        line: currentQuery.split("\n").length + (currentQuery.trim() ? 2 : 1),
         ch: -1,
       }
       return
@@ -281,8 +299,8 @@ export function useQuery() {
   }
 
   return {
-    handleAddField,
-    handleAddArgument: handleAddField,
+    handleAddField: (field: ExplorerFieldDef) => handleOperation(field, false),
+    handleAddArgument: (arg: ExplorerFieldDef) => handleOperation(arg, true),
     updatedQuery,
     cursorPosition,
     operationDefinitions: operations,

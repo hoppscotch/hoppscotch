@@ -1,16 +1,10 @@
 <template>
   <div class="px-3">
     <div
-      class="hopp-doc-explorer-title text-xl font-bold break-words mb-4 flex items-center gap-2 leading-[inherit]"
+      class="hopp-doc-explorer-title text-xl font-bold break-words flex-wrap mb-4 flex items-center gap-2 leading-[inherit]"
     >
       {{ field.name }}:
       <GraphqlTypeLink :type="field.type" />
-      <span
-        class="hover:text-accent cursor-pointer text-base"
-        @click="insertQuery"
-      >
-        <icon-lucide-plus-circle />
-      </span>
     </div>
 
     <div
@@ -37,9 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from "vue"
 import { GraphQLOutputType, getNamedType } from "graphql"
-import { useQuery } from "~/helpers/graphql/query"
+import { computed, defineProps } from "vue"
 
 // Update the Field interface
 interface Field {
@@ -53,8 +46,6 @@ const props = defineProps<{
   field: Field
 }>()
 
-const { handleAddField } = useQuery()
-
 // Computed properties
 const hasDescription = computed(() => props.field.description !== null)
 const description = computed(() => props.field.description)
@@ -62,9 +53,4 @@ const deprecationReason = computed(() => props.field.deprecationReason)
 
 // Add new computed property to resolve the named type
 const resolvedType = computed(() => getNamedType(props.field.type))
-
-// Add new method to insert the query
-const insertQuery = () => {
-  handleAddField(props.field as any)
-}
 </script>

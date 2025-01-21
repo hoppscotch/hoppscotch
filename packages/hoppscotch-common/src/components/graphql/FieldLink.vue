@@ -2,6 +2,7 @@
   <p class="inline-flex items-center mb-0 gap-2 align-bottom">
     <span
       class="hover:text-accent cursor-pointer"
+      v-if="showAddField"
       @click.stop="emit('add-field', field)"
     >
       <icon-lucide-plus-circle />
@@ -18,10 +19,17 @@
 <script setup lang="ts">
 import { type ExplorerFieldDef, useExplorer } from "~/helpers/graphql/explorer"
 
-const props = defineProps<{
-  field: ExplorerFieldDef
-  clickable?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    field: ExplorerFieldDef
+    clickable?: boolean
+    showAddField: boolean
+  }>(),
+  {
+    clickable: true,
+    showAddField: true,
+  }
+)
 
 const emit = defineEmits<{
   (event: "add-field", field: ExplorerFieldDef): void

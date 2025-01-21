@@ -1,7 +1,12 @@
 <template>
   <div>
     <GraphqlExplorerSection v-if="fields.length > 0" title="Fields">
-      <GraphqlField v-for="field in fields" :key="field.name" :field="field" />
+      <GraphqlField
+        v-for="field in fields"
+        :key="field.name"
+        :field="field"
+        :show-add-field="showAddField"
+      />
     </GraphqlExplorerSection>
   </div>
 </template>
@@ -16,9 +21,15 @@ import {
 import { computed } from "vue"
 import { ExplorerFieldDef } from "~/helpers/graphql/explorer"
 
-const props = defineProps<{
-  type: GraphQLNamedType
-}>()
+const props = withDefaults(
+  defineProps<{
+    type: GraphQLNamedType
+    showAddField: boolean
+  }>(),
+  {
+    showAddField: true,
+  }
+)
 
 const fieldMap = computed(() => {
   if (

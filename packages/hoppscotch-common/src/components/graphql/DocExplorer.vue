@@ -25,13 +25,6 @@
         </template>
       </div>
     </div>
-    <!-- <div class="hopp-doc-explorer-header px-3 mt-4" v-if="navStack.length > 1">
-      <div class="hopp-doc-explorer-header-content mb-2">
-        <div class="hopp-doc-explorer-title text-xl font-bold break-words">
-          {{ currentNavItem.name }}
-        </div>
-      </div>
-    </div> -->
     <div class="hopp-doc-explorer-content mt-4">
       <template v-if="navStack.length === 1">
         <GraphqlSchemaDocumentation :schema="schema" />
@@ -79,6 +72,7 @@ const { navStack, currentNavItem, navigateToIndex } = useExplorer()
   color: hsl(208, 100%, 72%);
 }
 .hopp-doc-explorer-type-name {
+  cursor: pointer;
   color: hsl(30, 100%, 80%);
 }
 

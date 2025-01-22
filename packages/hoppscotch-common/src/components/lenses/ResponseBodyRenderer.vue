@@ -128,7 +128,10 @@ const validLenses = computed(() => {
 watch(
   validLenses,
   (newLenses: Lens[]) => {
-    if (newLenses.length === 0) return
+    if (newLenses.length === 0) {
+      selectedLensTab.value = "req-headers"
+      return
+    }
 
     const validRenderers = [
       ...newLenses.map((x) => x.renderer),

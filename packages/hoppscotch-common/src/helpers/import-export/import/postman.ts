@@ -409,8 +409,8 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection => {
-  return makeCollection({
+const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
+  makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
@@ -421,10 +421,9 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection => {
     auth: getHoppReqAuth(ig.auth),
     headers: [],
   })
-}
 
 export const getHoppCollections = (collections: PMCollection[]) => {
-  return collections.map((coll) => getHoppFolder(coll))
+  return collections.map(getHoppFolder)
 }
 
 export const hoppPostmanImporter = (fileContents: string[]) =>

@@ -198,7 +198,7 @@ const getVariableValue = (defs: VariableDefinition[], key: string) =>
   defs.find((param) => param.key === key)?.value as string | undefined
 
 const getHoppReqAuth = (hoppAuth: Item["request"]["auth"]): HoppRESTAuth => {
-  if (!hoppAuth) return { authType: "none", authActive: true }
+  if (!hoppAuth) return { authType: "inherit", authActive: true }
 
   // Cast to the type for more stricter checking down the line
   const auth = hoppAuth as unknown as PMRequestAuthDef
@@ -269,7 +269,7 @@ const getHoppReqAuth = (hoppAuth: Item["request"]["auth"]): HoppRESTAuth => {
     }
   }
 
-  return { authType: "none", authActive: true }
+  return { authType: "inherit", authActive: true }
 }
 
 const getHoppReqBody = ({

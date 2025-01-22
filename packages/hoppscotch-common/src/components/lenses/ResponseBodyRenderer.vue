@@ -116,8 +116,17 @@ const maybeHeaders = computed(() => {
 })
 
 const requestHeaders = computed(() => {
-  if (!props.isTestRunner || !doc.value) return null
-  return doc.value.request.headers
+  if (
+    !props.isTestRunner ||
+    !doc.value.response ||
+    !(
+      doc.value.response.type === "success" ||
+      doc.value.response.type === "fail" ||
+      doc.value.response.type === "network_fail"
+    )
+  )
+    return null
+  return doc.value.response?.req.headers || doc.value.request.headers
 })
 
 const validLenses = computed(() => {

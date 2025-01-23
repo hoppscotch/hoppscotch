@@ -199,7 +199,10 @@
       "label_password": "Password",
       "label_username": "Username",
       "label_auth_code": "Authorization Code",
-      "label_client_credentials": "Client Credentials"
+      "label_client_credentials": "Client Credentials",
+      "label_send_as": "Client Authentication",
+      "label_send_in_body": "Send Credentials in Body",
+      "label_send_as_basic_auth": "Send Credentials as Basic Auth"
     },
     "pass_key_by": "Pass by",
     "pass_by_query_params_label": "Query Parameters",

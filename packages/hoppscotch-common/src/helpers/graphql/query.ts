@@ -111,6 +111,7 @@ export function useQuery() {
    * Result of processing an operation, including document and field location
    */
   type OperationResult = {
+    append?: boolean
     document: DocumentNode
     fieldLocation?: {
       start: number
@@ -179,8 +180,21 @@ export function useQuery() {
     let currentSelectionSet = existingOperation.selectionSet
     let fieldExists = false
     let fieldLocation: { start: number; end: number } | undefined
+    let append = false
 
-    // Navigate through the path
+    if (
+      requestedOperationType === OperationTypeNode.SUBSCRIPTION &&
+      requestedOperationType === existingOperation?.operation
+    ) {
+      // Check if paths are different at the top level
+      const existingTopField = existingOperation.selectionSet
+        .selections[0] as FieldNode
+      if (existingTopField.name.value !== queryPath[0].name) {
+        append = true
+        currentSelectionSet.selections = []
+      }
+    }
+
     for (let i = 0; i < queryPath.length; i++) {
       const item = queryPath[i]
       const isLastItem = i === queryPath.length - 1
@@ -279,6 +293,7 @@ export function useQuery() {
         definitions: [existingOperation],
       },
       fieldLocation,
+      append,
     }
   }
 
@@ -308,7 +323,8 @@ export function useQuery() {
     // append as a new operation
     if (
       !selectedOperation ||
-      selectedOperation.operation !== getOperationTypeNode(navItems[1].name)
+      selectedOperation.operation !== getOperationTypeNode(navItems[1].name) ||
+      result.append
     ) {
       updatedQuery.value = currentQuery.trim()
         ? `${currentQuery}\n\n${newQuery}`

@@ -363,25 +363,33 @@ export function useQuery() {
     const operation = getOperation(
       tabs.currentActiveTab.value?.document.cursorPosition
     )
-    const findField = (
-      field: ExplorerFieldDef,
-      selectionSet: FieldNode["selectionSet"]
-    ): boolean => {
-      if (!selectionSet) return false
-      return selectionSet.selections.some((selection) => {
-        if (
+    if (!operation) return false
+
+    // Get the current navigation path (excluding root and operation type)
+    const navPath = navStack.value.slice(2)
+
+    // Start from the operation's selection set
+    let currentSelections = operation.selectionSet.selections
+
+    // Follow the navigation path
+    for (let i = 0; i < navPath.length; i++) {
+      const pathItem = navPath[i]
+      const foundField = currentSelections.find(
+        (selection) =>
           selection.kind === Kind.FIELD &&
-          selection.name.value === field.name
-        ) {
-          return true
-        }
-        return (
-          selection.kind === Kind.FIELD &&
-          findField(field, selection.selectionSet)
-        )
-      })
+          selection.name.value === pathItem.name
+      ) as FieldNode | undefined
+
+      if (!foundField?.selectionSet) return false
+
+      currentSelections = foundField.selectionSet.selections
     }
-    return findField(field, operation?.selectionSet)
+
+    // Check if the target field exists at current level
+    return currentSelections.some(
+      (selection) =>
+        selection.kind === Kind.FIELD && selection.name.value === field.name
+    )
   }
 
   return {

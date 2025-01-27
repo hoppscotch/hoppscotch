@@ -736,6 +736,7 @@
     "preview_html": "Preview HTML",
     "raw": "Raw",
     "renamed": "Response renamed",
+    "same_name_inspector_warning": "Response name already exists for this request, if saved it will overwrite the existing response",
     "size": "Size",
     "status": "Status",
     "time": "Time",

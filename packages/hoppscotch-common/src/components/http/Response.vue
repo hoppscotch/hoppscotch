@@ -9,7 +9,8 @@
     />
   </div>
   <HttpSaveResponseName
-    v-model="responseName"
+    v-model:response-name="responseName"
+    v-model:has-same-name-response="hasSameNameResponse"
     :show="showSaveResponseName"
     @submit="onSaveAsExample"
     @hide-modal="showSaveResponseName = false"
@@ -18,7 +19,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -54,12 +55,26 @@ const hasResponse = computed(
 )
 
 const responseName = ref("")
+const hasSameNameResponse = ref(false)
 const showSaveResponseName = ref(false)
+
+watch(
+  () => responseName.value,
+  () => {
+    if (doc.value.request.responses[responseName.value]) {
+      hasSameNameResponse.value = true
+    } else {
+      hasSameNameResponse.value = false
+    }
+  }
+)
 
 const loading = computed(() => doc.value.response?.type === "loading")
 
 const saveAsExample = () => {
   showSaveResponseName.value = true
+
+  responseName.value = doc.value.request.name
 }
 
 const onSaveAsExample = () => {
@@ -124,8 +139,10 @@ const onSaveAsExample = () => {
         editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
 
         toast.success(`${t("response.saved")}`)
+        responseName.value = ""
       } catch (e) {
         console.error(e)
+        responseName.value = ""
       }
     } else {
       runMutation(UpdateRequestDocument, {
@@ -137,10 +154,12 @@ const onSaveAsExample = () => {
       })().then((result) => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
+          responseName.value = ""
         } else {
           doc.value.isDirty = false
 
           toast.success(`${t("request.saved")}`)
+          responseName.value = ""
         }
       })
     }

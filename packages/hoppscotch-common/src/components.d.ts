@@ -232,6 +232,7 @@ declare module 'vue' {
     IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronLeft: typeof import('~icons/lucide/chevron-left')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
+    IconLucideCircleCheck: typeof import('~icons/lucide/circle-check')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']
     IconLucideHelpCircle: typeof import('~icons/lucide/help-circle')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']

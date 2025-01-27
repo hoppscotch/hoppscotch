@@ -343,11 +343,37 @@ export function useQuery() {
     }
   }
 
+  const isFieldInOperation = (field: ExplorerFieldDef): boolean => {
+    const operation = getOperation(
+      tabs.currentActiveTab.value?.document.cursorPosition
+    )
+    const findField = (
+      field: ExplorerFieldDef,
+      selectionSet: FieldNode["selectionSet"]
+    ): boolean => {
+      if (!selectionSet) return false
+      return selectionSet.selections.some((selection) => {
+        if (
+          selection.kind === Kind.FIELD &&
+          selection.name.value === field.name
+        ) {
+          return true
+        }
+        return (
+          selection.kind === Kind.FIELD &&
+          findField(field, selection.selectionSet)
+        )
+      })
+    }
+    return findField(field, operation?.selectionSet)
+  }
+
   return {
     handleAddField: (field: ExplorerFieldDef) => handleOperation(field, false),
     handleAddArgument: (arg: ExplorerFieldDef) => handleOperation(arg, true),
     updatedQuery,
     cursorPosition,
     operationDefinitions: operations,
+    isFieldInOperation,
   }
 }

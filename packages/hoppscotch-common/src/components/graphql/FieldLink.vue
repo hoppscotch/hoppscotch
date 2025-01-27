@@ -2,10 +2,12 @@
   <p class="inline-flex items-center mb-0 gap-2 align-bottom">
     <span
       class="hover:text-accent cursor-pointer"
+      :class="{ 'text-accent': isAdded }"
       v-if="showAddField"
       @click.stop="emit('add-field', field)"
     >
-      <icon-lucide-plus-circle />
+      <icon-lucide-plus-circle v-if="!isAdded" />
+      <icon-lucide-circle-check v-else />
     </span>
     <span
       class="hopp-doc-explorer-field-name [text-decoration:inherit]"
@@ -24,10 +26,12 @@ const props = withDefaults(
     field: ExplorerFieldDef
     clickable?: boolean
     showAddField: boolean
+    isAdded?: boolean
   }>(),
   {
     clickable: true,
     showAddField: true,
+    isAdded: false,
   }
 )
 

@@ -9,6 +9,7 @@
         <GraphqlFieldLink
           :field="field"
           :show-add-field="showAddField"
+          :is-added="isFieldInOperation(field)"
           @add-field="insertQuery"
         />
         <template v-if="args.length > 0">
@@ -65,7 +66,7 @@ const props = withDefaults(
 )
 
 const { push } = useExplorer()
-const { handleAddField } = useQuery()
+const { handleAddField, isFieldInOperation } = useQuery()
 
 const handleClick = () => {
   push({ name: props.field.name, def: props.field })

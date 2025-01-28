@@ -2666,7 +2666,7 @@ const initializeDownloadCollection = async (
  */
 const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection)
+    const collectionJSON = JSON.stringify(collection, null, 2)
 
     const name = (collection as HoppCollection).name
 
@@ -2685,7 +2685,7 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
         },
         async (coll) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
-          const collectionJSONString = JSON.stringify(hoppColl)
+          const collectionJSONString = JSON.stringify(hoppColl, null, 2)
 
           await initializeDownloadCollection(
             collectionJSONString,

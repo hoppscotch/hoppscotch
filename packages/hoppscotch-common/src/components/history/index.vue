@@ -9,7 +9,7 @@
       />
     </template>
   </WorkspaceCurrent>
-  <HistoryPersonalWorkspace
+  <HistoryPersonal
     v-if="workspace === 'personal' || !historyUIProviderService.isEnabled"
     :page="page"
   />

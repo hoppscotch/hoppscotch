@@ -45,7 +45,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
-import { computed, markRaw, Ref } from "vue"
+import { computed, ComputedRef, markRaw } from "vue"
 import { InspectorResult } from "~/services/inspection"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 
@@ -71,34 +71,35 @@ const emit = defineEmits<{
   (e: "submit", name: string): void
   (e: "hide-modal"): void
   (e: "update:responseName", value: string): void
-  (e: "update:hasSameNameResponse", value: boolean): void
 }>()
 
 const editingName = useVModel(props, "responseName")
 
-const hasSameNameInspectionResult: Ref<InspectorResult[]> = computed(() => {
-  if (!props.hasSameNameResponse) return []
+const hasSameNameInspectionResult: ComputedRef<InspectorResult[]> = computed(
+  () => {
+    if (!props.hasSameNameResponse) return []
 
-  return [
-    {
-      id: "same-name-response",
-      severity: 2,
-      icon: markRaw(IconAlertTriangle),
-      isApplicable: true,
-      text: {
-        type: "text",
-        text: t("response.same_name_inspector_warning"),
+    return [
+      {
+        id: "same-name-response",
+        severity: 2,
+        icon: markRaw(IconAlertTriangle),
+        isApplicable: true,
+        text: {
+          type: "text",
+          text: t("response.same_name_inspector_warning"),
+        },
+        doc: {
+          text: t("action.learn_more"),
+          link: "https://docs.hoppscotch.io/documentation",
+        },
+        locations: {
+          type: "url",
+        },
       },
-      doc: {
-        text: t("action.learn_more"),
-        link: "https://docs.hoppscotch.io/documentation",
-      },
-      locations: {
-        type: "url",
-      },
-    },
-  ]
-})
+    ]
+  }
+)
 
 const editRequest = () => {
   if (editingName.value.trim() === "") {

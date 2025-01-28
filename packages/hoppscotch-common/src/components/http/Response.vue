@@ -10,7 +10,7 @@
   </div>
   <HttpSaveResponseName
     v-model:response-name="responseName"
-    v-model:has-same-name-response="hasSameNameResponse"
+    :has-same-name-response="hasSameNameResponse"
     :show="showSaveResponseName"
     @submit="onSaveAsExample"
     @hide-modal="showSaveResponseName = false"
@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -55,19 +55,13 @@ const hasResponse = computed(
 )
 
 const responseName = ref("")
-const hasSameNameResponse = ref(false)
 const showSaveResponseName = ref(false)
 
-watch(
-  () => responseName.value,
-  () => {
-    if (doc.value.request.responses[responseName.value]) {
-      hasSameNameResponse.value = true
-    } else {
-      hasSameNameResponse.value = false
-    }
-  }
-)
+const hasSameNameResponse = computed(() => {
+  return responseName.value
+    ? !!doc.value.request.responses[responseName.value]
+    : false
+})
 
 const loading = computed(() => doc.value.response?.type === "loading")
 

@@ -7,10 +7,12 @@
     <GraphqlExplorerSection title="Root Types">
       <div
         v-if="queryType"
-        @click="handleTypeClick(queryType)"
         class="hopp-doc-explorer-root-wrapper"
+        @click="handleTypeClick(queryType)"
       >
-        <span class="hopp-doc-explorer-root-type">query</span>
+        <span class="hopp-doc-explorer-root-type">
+          {{ t("graphql.query") }}
+        </span>
         {{ ": " }}
         <GraphqlTypeLink :type="queryType" />
       </div>
@@ -19,7 +21,9 @@
         class="hopp-doc-explorer-root-wrapper"
         @click="handleTypeClick(mutationType)"
       >
-        <span class="hopp-doc-explorer-root-type">mutation</span>
+        <span class="hopp-doc-explorer-root-type">
+          {{ t("graphql.mutation") }}
+        </span>
         {{ ": " }}
         <GraphqlTypeLink :type="mutationType" />
       </div>
@@ -28,7 +32,9 @@
         class="hopp-doc-explorer-root-wrapper"
         @click="handleTypeClick(subscriptionType)"
       >
-        <span class="hopp-doc-explorer-root-type">subscription</span>
+        <span class="hopp-doc-explorer-root-type">
+          {{ t("graphql.subscription") }}
+        </span>
         {{ ": " }}
         <GraphqlTypeLink :type="subscriptionType" />
       </div>
@@ -47,10 +53,13 @@
 import { computed } from "vue"
 import type { GraphQLNamedType, GraphQLSchema } from "graphql"
 import { useExplorer } from "~/helpers/graphql/explorer"
+import { useI18n } from "~/composables/i18n"
 
 const props = defineProps<{
   schema: GraphQLSchema
 }>()
+
+const t = useI18n()
 
 const queryType = props.schema.getQueryType()
 const mutationType = props.schema.getMutationType?.()
@@ -89,5 +98,8 @@ const filteredTypes = computed(() => {
 <style scoped lang="scss">
 .hopp-doc-explorer-root-wrapper {
   @apply cursor-pointer py-1 px-2 hover:bg-primaryLight;
+}
+.hopp-doc-explorer-root-type {
+  @apply lowercase;
 }
 </style>

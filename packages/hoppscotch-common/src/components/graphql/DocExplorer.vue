@@ -46,8 +46,8 @@
   <HoppSmartPlaceholder
     v-else
     :src="`/images/states/${colorMode.value}/pack.svg`"
-    :alt="`No schema found`"
-    :text="`No schema found`"
+    :alt="t('empty.empty_schema')"
+    :text="t('empty.empty_schema')"
   >
   </HoppSmartPlaceholder>
 </template>
@@ -57,8 +57,10 @@ import { isType } from "graphql"
 import { schema } from "~/helpers/graphql/connection"
 import { useExplorer } from "../../helpers/graphql/explorer"
 import { useColorMode } from "~/composables/theming"
+import { useI18n } from "~/composables/i18n"
 
 const colorMode = useColorMode()
+const t = useI18n()
 
 // Use explorer composable
 const { navStack, currentNavItem, navigateToIndex } = useExplorer()

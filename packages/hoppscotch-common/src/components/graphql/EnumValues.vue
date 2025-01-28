@@ -32,7 +32,7 @@
       </ExplorerSection>
 
       <button v-else type="button" @click="handleShowDeprecated">
-        Show Deprecated Values
+        {{ t("graphql.show_depricated_values") }}
       </button>
     </template>
   </template>
@@ -42,6 +42,9 @@
 import { ref, computed } from "vue"
 import type { GraphQLNamedType, GraphQLEnumValue } from "graphql"
 import { isEnumType } from "graphql"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 interface EnumValuesProps {
   type: GraphQLNamedType

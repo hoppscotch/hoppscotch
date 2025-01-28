@@ -1,9 +1,9 @@
 <template>
   <p class="inline-flex items-center mb-0 gap-2 align-bottom">
     <span
+      v-if="showAddField"
       class="hover:text-accent cursor-pointer"
       :class="{ 'text-accent': isAdded }"
-      v-if="showAddField"
       @click.stop="emit('add-field', field)"
     >
       <icon-lucide-plus-circle v-if="!isAdded" />

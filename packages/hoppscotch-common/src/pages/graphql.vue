@@ -218,6 +218,7 @@ const duplicateTab = (tabID: string) => {
     const newTab = tabs.createNewTab({
       request: tab.value.document.request,
       isDirty: true,
+      cursorPosition: 0,
     })
     tabs.setActiveTab(newTab.id)
   }
@@ -228,6 +229,7 @@ defineActionHandler("gql.request.open", ({ request, saveContext }) => {
     saveContext,
     request: request,
     isDirty: false,
+    cursorPosition: 0,
   })
 })
 

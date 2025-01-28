@@ -111,8 +111,6 @@ export const schemaString = computed(() => {
 export const queryFields = computed(() => {
   if (!connection.schema) return []
 
-  console.log(connection.schema.getQueryType())
-
   const fields = connection.schema.getQueryType()?.getFields()
   if (!fields) return []
 

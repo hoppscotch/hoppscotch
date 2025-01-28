@@ -72,9 +72,6 @@ const generateSearchResults = () => {
 
   if (!schema.value) return results
 
-  const navItem = navStack.value.at(-1)!
-  const withinType = navItem.def
-
   const typeMap = schema.value.getTypeMap()
   const typeNames = Object.keys(typeMap).filter(
     (name) => !name.startsWith("__")
@@ -158,7 +155,7 @@ const buildNavigationPath = (result: SearchResult): ExplorerNavStackItem[] => {
 
     // Check if the type is directly accessible from root types
     const rootEntry = Object.entries(rootTypes).find(
-      ([_, rootType]) => rootType?.name === type.name
+      ([, rootType]) => rootType?.name === type.name
     )
 
     if (rootEntry) {

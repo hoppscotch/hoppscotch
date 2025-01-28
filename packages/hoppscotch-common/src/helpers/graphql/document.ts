@@ -53,6 +53,9 @@ export type HoppGQLDocument = {
    */
   isDirty: boolean
 
+  /**
+   * The cursor position in the document
+   */
   cursorPosition: number
 
   /**

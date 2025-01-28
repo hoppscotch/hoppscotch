@@ -178,7 +178,6 @@ export function useQuery() {
 
     // For existing operations
     let currentSelectionSet = existingOperation.selectionSet
-    let fieldExists = false
     let fieldLocation: { start: number; end: number } | undefined
     let append = false
 

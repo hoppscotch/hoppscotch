@@ -1,4 +1,4 @@
-import { Container, Service } from "dioc"
+import { Service } from "dioc"
 import { ref } from "vue"
 import { getI18n } from "~/modules/i18n"
 
@@ -12,8 +12,4 @@ export class HistoryUIProviderService extends Service {
   public readonly historyUIProviderTitle = ref<HistoryUIProviderTitle>((t) =>
     t("tab.history")
   )
-
-  constructor(container: Container) {
-    super(container)
-  }
 }

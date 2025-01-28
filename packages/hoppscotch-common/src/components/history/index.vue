@@ -38,6 +38,6 @@ const workspace = computed(() => workspaceService.currentWorkspace.value.type)
 const section = computed(() =>
   workspace.value === "personal" || !historyUIProviderService.isEnabled
     ? t("tab.history")
-    : (historyUIProviderService.historyUIProviderTitle.value(t) ?? "")
+    : historyUIProviderService.historyUIProviderTitle.value(t)
 )
 </script>

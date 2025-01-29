@@ -4,13 +4,14 @@
       <component
         :is="platform.ui?.additionalSidebarHeaderItem"
         v-if="
-          props.selectedTab === 'history' && historyUIProviderService.isEnabled
+          props.selectedTab === 'history' &&
+          historyUIProviderService.isEnabled.value
         "
       />
     </template>
   </WorkspaceCurrent>
   <HistoryPersonal
-    v-if="workspace === 'personal' || !historyUIProviderService.isEnabled"
+    v-if="workspace === 'personal' || !historyUIProviderService.isEnabled.value"
     :page="page"
   />
   <component :is="platform.ui?.additionalHistoryComponent" v-else />
@@ -36,7 +37,7 @@ const historyUIProviderService = useService(HistoryUIProviderService)
 
 const workspace = computed(() => workspaceService.currentWorkspace.value.type)
 const section = computed(() =>
-  workspace.value === "personal" || !historyUIProviderService.isEnabled
+  workspace.value === "personal" || !historyUIProviderService.isEnabled.value
     ? t("tab.history")
     : historyUIProviderService.historyUIProviderTitle.value(t)
 )

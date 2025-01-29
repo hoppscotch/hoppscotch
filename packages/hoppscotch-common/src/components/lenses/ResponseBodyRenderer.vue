@@ -29,7 +29,7 @@
       <LensesHeadersRenderer v-model="maybeHeaders" :is-editable="false" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="!isEditable"
+      v-if="doc.response?.type !== 'network_fail' && !isEditable"
       id="results"
       :label="t('test.results')"
       :indicator="showIndicator"

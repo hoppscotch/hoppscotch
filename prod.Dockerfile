@@ -1,4 +1,13 @@
-FROM node:20-alpine3.19 AS base_builder
+# This is used to source the latest version of Caddy
+# TODO: Find a better way to do this
+FROM caddy:2-alpine AS caddy_source
+
+FROM alpine:3.19.6 AS base_builder
+RUN apk add nodejs curl
+
+# Install NPM from source, as Alpine version is old and has dependency vulnerabilities
+# TODO: Find a better method which is resistant to supply chain attacks
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
 
 WORKDIR /usr/src/app
 
@@ -29,7 +38,13 @@ RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM node:20-alpine3.19 AS backend
+FROM alpine:3.19.6 AS backend
+RUN apk add nodejs curl
+
+# Install NPM from source, as Alpine version is old and has dependency vulnerabilities
+# TODO: Find a better method which is resistant to supply chain attacks
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+
 RUN apk add caddy
 RUN npm install -g pnpm
 
@@ -101,7 +116,13 @@ WORKDIR /site
 
 CMD ["node","/site/prod_run.mjs"]
 
-FROM node:20-alpine3.19 AS aio
+FROM alpine:3.19.6 AS aio
+
+RUN apk add nodejs curl
+
+# Install NPM from source, as Alpine version is old and has dependency vulnerabilities
+# TODO: Find a better method which is resistant to supply chain attacks
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
 
 ENV PRODUCTION="true"
 ENV PORT=8080
@@ -113,18 +134,19 @@ LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch"
   org.opencontainers.image.url="https://docs.hoppscotch.io" \
   org.opencontainers.image.licenses="MIT"
 
-# Run this separately to use the cache from backend
-RUN apk add caddy
+# Caddy install
+COPY --from=caddy_source /usr/bin/caddy /usr/bin/caddy
 
-RUN apk add tini curl
+RUN apk add tini
 
 RUN npm install -g pnpm
-RUN npm uninstall -g cross-spawn && \
-    npm cache clean --force && \
-    # Remove any remaining old versions
-    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install cross-spawn v7 globally
-    npm install -g cross-spawn@^7.0.6 --force
+
+# RUN npm uninstall -g cross-spawn && \
+#     npm cache clean --force && \
+#     # Remove any remaining old versions
+#     find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
+#     # Install cross-spawn v7 globally
+#     npm install -g cross-spawn@^7.0.6 --force
 
 # Copy necessary files
 # Backend files

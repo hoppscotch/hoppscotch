@@ -38,7 +38,7 @@ WORKDIR /usr/src/app
 ENV HOPP_ALLOW_RUNTIME_ENV=true
 
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
-RUN apk add python3 make g++
+RUN apk add python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev
 
 RUN npm install -g pnpm
 COPY pnpm-lock.yaml .

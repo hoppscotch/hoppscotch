@@ -179,7 +179,7 @@ const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
       operationDefinitions.value = []
     }
   }
-}, 300)
+}, 150)
 
 onMounted(() => {
   try {

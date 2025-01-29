@@ -79,6 +79,7 @@ const SettingsDefSchema = z.object({
     .string()
     .optional()
     .catch("DESCRIPTIVE_WITH_SPACES"),
+  CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)

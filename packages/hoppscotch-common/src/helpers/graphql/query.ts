@@ -112,7 +112,7 @@ export function useQuery() {
    */
   type OperationResult = {
     append?: boolean
-    document: DocumentNode
+    document: DocumentNode | null
     fieldLocation?: {
       start: number
       end: number
@@ -288,10 +288,13 @@ export function useQuery() {
     }
 
     return {
-      document: {
-        kind: Kind.DOCUMENT,
-        definitions: [existingOperation],
-      },
+      document:
+        existingOperation.selectionSet.selections.length === 0
+          ? null
+          : {
+              kind: Kind.DOCUMENT,
+              definitions: [existingOperation],
+            },
       fieldLocation,
       append,
     }
@@ -317,7 +320,10 @@ export function useQuery() {
       selectedOperation,
       isArgument
     )
-    const newQuery = print(result.document.definitions[0])
+
+    const newQuery = result.document
+      ? print(result.document.definitions[0])
+      : "\n"
 
     // If operation type is different or no existing operation,
     // append as a new operation

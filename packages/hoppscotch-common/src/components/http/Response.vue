@@ -59,7 +59,7 @@ const showSaveResponseName = ref(false)
 
 const hasSameNameResponse = computed(() => {
   return responseName.value
-    ? !!doc.value.request.responses[responseName.value]
+    ? responseName.value in doc.value.request.responses
     : false
 })
 

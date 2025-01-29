@@ -1,6 +1,30 @@
-# This is used to source the latest version of Caddy
-# TODO: Find a better way to do this
-FROM caddy:2-alpine AS caddy_source
+# This step is used to build a custom build of Caddy to prevent
+# vulnerable packages on the dependency chain
+FROM alpine:3.21.2 AS caddy_builder
+RUN apk add curl go
+
+RUN mkdir -p /tmp/caddy-build
+
+RUN curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.9.1/caddy_2.9.1_src.tar.gz
+
+# Checksum verification of caddy source
+RUN expected="1cfd6127f9ed8dc908d84d7d14579d3ce5114e8671aa8f786745cb3fe60923e0" && \
+    actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \
+    [ "$actual" = "$expected" ] && \
+    echo "✅ Caddy Source Checksum OK" || \
+    (echo "❌ Caddy Source Checksum failed!" && exit 1)
+
+WORKDIR /tmp/caddy-build
+RUN tar xvf /tmp/caddy-build/src.tar.gz
+
+# Patch to reolve CVE-2024-45339 on glog
+RUN go get github.com/golang/glog@v1.2.4
+RUN go mod vendor
+
+WORKDIR /tmp/caddy-build/cmd/caddy
+RUN go build
+
+
 
 FROM alpine:3.19.6 AS base_builder
 RUN apk add nodejs curl
@@ -23,12 +47,7 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install -f --offline
 
-RUN npm uninstall -g cross-spawn && \
-    npm cache clean --force && \
-    # Remove any remaining old versions
-    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install cross-spawn v7 globally
-    npm install -g cross-spawn@^7.0.6 --force
+
 
 FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
@@ -45,15 +64,10 @@ RUN apk add nodejs curl
 # TODO: Find a better method which is resistant to supply chain attacks
 RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
 
-RUN apk add caddy
-RUN npm install -g pnpm
+# Install caddy
+COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
-RUN npm uninstall -g cross-spawn && \
-    npm cache clean --force && \
-    # Remove any remaining old versions
-    find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-    # Install cross-spawn v7 globally
-    npm install -g cross-spawn@^7.0.6 --force
+RUN npm install -g pnpm
 
 COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
@@ -71,16 +85,29 @@ CMD ["node", "prod_run.mjs"]
 EXPOSE 80
 EXPOSE 3170
 
+
+
 FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
-FROM caddy:2-alpine AS app
+
+
+
+FROM alpine:3.19.6 AS app
+RUN apk add nodejs curl
+
+# Install NPM from source, as Alpine version is old and has dependency vulnerabilities
+# TODO: Find a better method which is resistant to supply chain attacks
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+
+# Install caddy
+COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
+
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
 
-RUN apk add nodejs npm
 
 RUN npm install -g @import-meta-env/cli
 
@@ -91,13 +118,29 @@ WORKDIR /site
 
 CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
 
+
+
+
+
 FROM base_builder AS sh_admin_builder
 WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
-FROM caddy:2-alpine AS sh_admin
+
+
+
+
+FROM alpine:3.19.6 AS sh_admin
+RUN apk add nodejs curl
+
+# Install NPM from source, as Alpine version is old and has dependency vulnerabilities
+# TODO: Find a better method which is resistant to supply chain attacks
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+
+# Install caddy
+COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /site/prod_run.mjs
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
@@ -105,7 +148,6 @@ COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 
-RUN apk add nodejs npm
 
 RUN npm install -g @import-meta-env/cli
 
@@ -124,6 +166,9 @@ RUN apk add nodejs curl
 # TODO: Find a better method which is resistant to supply chain attacks
 RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
 
+# Caddy install
+COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
+
 ENV PRODUCTION="true"
 ENV PORT=8080
 ENV APP_PORT=${PORT}
@@ -134,19 +179,9 @@ LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch"
   org.opencontainers.image.url="https://docs.hoppscotch.io" \
   org.opencontainers.image.licenses="MIT"
 
-# Caddy install
-COPY --from=caddy_source /usr/bin/caddy /usr/bin/caddy
-
 RUN apk add tini
 
 RUN npm install -g pnpm
-
-# RUN npm uninstall -g cross-spawn && \
-#     npm cache clean --force && \
-#     # Remove any remaining old versions
-#     find /usr/local/lib/node_modules -name "cross-spawn" -type d -exec rm -rf {} + && \
-#     # Install cross-spawn v7 globally
-#     npm install -g cross-spawn@^7.0.6 --force
 
 # Copy necessary files
 # Backend files

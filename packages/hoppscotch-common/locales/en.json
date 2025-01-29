@@ -802,6 +802,8 @@
     "ai_request_naming_style_camel_case": "Camel Case ( camelCase )",
     "ai_request_naming_style_snake_case": "Snake Case ( snake_case )",
     "ai_request_naming_style_pascal_case": "Pascal Case ( PascalCase )",
+    "ai_request_naming_style_custom": "Custom",
+    "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",

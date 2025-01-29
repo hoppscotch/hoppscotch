@@ -12,9 +12,11 @@
       <span
         v-if="showAddButton"
         class="hover:text-accent cursor-pointer"
+        :class="{ 'text-accent': isArgumentInOperation(arg) }"
         @click="insertQuery"
       >
-        <icon-lucide-plus-circle />
+        <icon-lucide-plus-circle v-if="!isArgumentInOperation(arg)" />
+        <icon-lucide-circle-check v-else />
       </span>
       <span class="hopp-doc-explorer-argument-name"> {{ arg.name }} </span>:
       <GraphqlTypeLink :type="arg.type" />
@@ -42,7 +44,7 @@
 import type { GraphQLArgument } from "graphql"
 import { useQuery } from "~/helpers/graphql/query"
 
-const { handleAddArgument } = useQuery()
+const { handleAddArgument, isArgumentInOperation } = useQuery()
 
 interface ArgumentProps {
   /**

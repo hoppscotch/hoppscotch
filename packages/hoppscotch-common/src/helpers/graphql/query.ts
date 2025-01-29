@@ -359,7 +359,10 @@ export function useQuery() {
     }
   }
 
-  const isFieldInOperation = (field: ExplorerFieldDef): boolean => {
+  const isItemInOperation = (
+    item: ExplorerFieldDef,
+    isArgument = false
+  ): boolean => {
     const operation = getOperation(
       tabs.currentActiveTab.value?.document.cursorPosition
     )
@@ -385,19 +388,25 @@ export function useQuery() {
       currentSelections = foundField.selectionSet.selections
     }
 
-    // Check if the target field exists at current level
-    return currentSelections.some(
-      (selection) =>
-        selection.kind === Kind.FIELD && selection.name.value === field.name
-    )
+    // Check based on type
+    return currentSelections.some((selection) => {
+      if (selection.kind !== Kind.FIELD) return false
+      return isArgument
+        ? selection.arguments?.some(
+            (argNode) => argNode.name.value === item.name
+          )
+        : selection.name.value === item.name
+    })
   }
 
   return {
-    handleAddField: (field: ExplorerFieldDef) => handleOperation(field, false),
+    handleAddField: (field: ExplorerFieldDef) => handleOperation(field),
     handleAddArgument: (arg: ExplorerFieldDef) => handleOperation(arg, true),
     updatedQuery,
     cursorPosition,
     operationDefinitions: operations,
-    isFieldInOperation,
+    isFieldInOperation: (field: ExplorerFieldDef) => isItemInOperation(field),
+    isArgumentInOperation: (arg: ExplorerFieldDef) =>
+      isItemInOperation(arg, true),
   }
 }

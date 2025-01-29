@@ -17,7 +17,7 @@ RUN expected="1cfd6127f9ed8dc908d84d7d14579d3ce5114e8671aa8f786745cb3fe60923e0" 
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz
 
-# Patch to reolve CVE-2024-45339 on glog
+# Patch to resolve CVE-2024-45339 on glog
 RUN go get github.com/golang/glog@v1.2.4
 RUN go mod vendor
 

@@ -329,6 +329,7 @@ export const GQL_TAB_STATE_SCHEMA = z
             responseTabPreference: z.optional(z.string()),
             optionTabPreference: z.optional(z.enum(validGqlOperations)),
             inheritedProperties: z.optional(HoppInheritedPropertySchema),
+            cursorPosition: z.optional(z.number()),
           })
           .strict(),
       })

@@ -343,6 +343,7 @@
     "collection": "Collection is empty",
     "collections": "Collections are empty",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "empty_schema": "No schema found",
     "endpoint": "Endpoint cannot be empty",
     "environments": "Environments are empty",
     "folder": "Folder is empty",
@@ -487,11 +488,16 @@
     "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
     "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
     "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
+    "deprecated": "Deprecated",
+    "mutation": "Mutation",
     "mutations": "Mutations",
     "schema": "Schema",
+    "show_depricated_values": "Show deprecated values",
+    "subscription": "Subscription",
     "subscriptions": "Subscriptions",
     "switch_connection": "Switch connection",
-    "url_placeholder": "Enter a GraphQL endpoint URL"
+    "url_placeholder": "Enter a GraphQL endpoint URL",
+    "query": "Query"
   },
   "graphql_collections": {
     "title": "GraphQL Collections"

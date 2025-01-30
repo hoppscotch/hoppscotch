@@ -40,6 +40,10 @@ import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
+import {
+  getTemporaryVariables,
+  setTemporaryVariables,
+} from "./runner/temp_envs"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
@@ -74,10 +78,12 @@ export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
     global: Environment["variables"]
+    temp?: Environment["variables"]
   }
   requestVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
+  ...(variables.environments.temp ?? []),
   ...variables.environments.selected,
   ...variables.environments.global,
 ]
@@ -378,7 +384,17 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
   return updatedRunResult
 }
 
-export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
+/**
+ * Run the test runner request
+ * @param request The request to run
+ * @param persistEnv Whether to persist the environment variables after running the test script
+ * @returns The response and the test result
+ */
+
+export function runTestRunnerRequest(
+  request: HoppRESTRequest,
+  persistEnv = true
+): Promise<
   | E.Left<"script_fail">
   | E.Right<{
       response: HoppRESTResponse
@@ -400,7 +416,10 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
       v: 1,
       name: "Env",
       variables: combineEnvVariables({
-        environments: envs.right,
+        environments: {
+          ...envs.right,
+          temp: !persistEnv ? getTemporaryVariables() : [],
+        },
         requestVariables: [],
       }),
     })
@@ -432,7 +451,18 @@ export function runTestRunnerRequest(request: HoppRESTRequest): Promise<
               runResult.right
             )
 
-            updateEnvsAfterTestScript(runResult)
+            // Update the environment variables after running the test script when persistEnv is true. else store the updated environment variables in the store as a temporary variable.
+            if (persistEnv) {
+              updateEnvsAfterTestScript(runResult)
+            } else {
+              // Combine global and selected environment changes
+              const allChanges = [
+                ...runResult.right.envs.global,
+                ...runResult.right.envs.selected,
+              ]
+
+              setTemporaryVariables(allChanges)
+            }
 
             return E.right({
               response: res,

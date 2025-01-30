@@ -1,8 +1,8 @@
 <template>
   <div class="relative flex flex-1 flex-col">
     <div
-      class="sticky top-0 z-50 flex-none flex-shrink-0 items-center justify-center whitespace-nowrap bg-primary p-4"
       v-if="doc.response?.type === 'network_fail'"
+      class="sticky top-0 z-50 flex-none flex-shrink-0 items-center justify-center whitespace-nowrap bg-primary p-4"
     >
       <span class="text-secondary">
         {{ t("response.status") }}:

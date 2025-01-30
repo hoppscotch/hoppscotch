@@ -178,7 +178,6 @@ export function useQuery() {
 
     // For existing operations
     let currentSelectionSet = existingOperation.selectionSet
-    let fieldExists = false
     let fieldLocation: { start: number; end: number } | undefined
     let append = false
 
@@ -230,7 +229,6 @@ export function useQuery() {
           } else {
             // Remove the field if it's not an argument operation
             currentSelectionSet.selections.splice(existingFieldIndex, 1)
-            fieldExists = true
           }
 
           if (existingField.loc) {

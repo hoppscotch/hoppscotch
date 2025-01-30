@@ -79,7 +79,7 @@
     "WORKSPACE_USER_ROLE_UPDATE": "{user}'s role was updated from {old_role} to {new_role}",
     "COLLECTION_CREATE": "Created new collection {title}",
     "COLLECTION_RENAME": "Renamed collection from {old_title} to {new_title}",
-    "COLLECTION_IMPORT": "Imported collection {title}",
+    "COLLECTION_IMPORT": "Imported {count} collection(s)",
     "COLLECTION_DELETE": "Deleted collection {title}",
     "COLLECTION_DUPLICATE": "Duplicated collection {parentTitle}",
     "REQUEST_CREATE": "Created new request {title}",

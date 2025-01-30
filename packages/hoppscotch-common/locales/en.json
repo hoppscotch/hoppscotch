@@ -1132,6 +1132,7 @@
     "create_new": "Create new workspace",
     "deleted": "Workspace deleted",
     "delete_all_activity_logs": "Delete all activity logs",
+    "successfully_deleted_all_activity_logs": "Successfully deleted all activity logs",
     "delete_activity_log": "Delete activity log",
     "deleted_activity_log": "Deleted selected activity log",
     "deleted_all_activity_logs": "Deleted all activity logs",

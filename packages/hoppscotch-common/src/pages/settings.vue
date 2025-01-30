@@ -142,7 +142,7 @@
                     >
                       <textarea
                         v-model="CUSTOM_NAMING_STYLE"
-                        class="flex flex-1 bg-primaryLight px-4 py-2 rounded border border-dividerLight focus:border-divider transition"
+                        class="flex flex-1 bg-primaryLight px-4 py-2 rounded border border-dividerLight focus:border-divider transition resize-none"
                         :placeholder="
                           t(
                             'settings.ai_request_naming_style_custom_placeholder'

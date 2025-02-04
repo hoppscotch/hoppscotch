@@ -160,7 +160,7 @@ export const CodegenDefinitions = [
     name: "rust-reqwest",
     lang: "rust",
     mode: "reqwest",
-    caption: "Rust - Reqwest"
+    caption: "Rust - Reqwest",
   },
   {
     name: "shell-curl",

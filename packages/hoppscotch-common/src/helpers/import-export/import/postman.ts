@@ -313,7 +313,7 @@ const getHoppReqBody = ({
           (param) =>
             `${replacePMVarTemplating(
               param.key ?? ""
-            )}: ${replacePMVarTemplating(String(param.value) ?? "")}`
+            )}: ${replacePMVarTemplating(String(param.value ?? ""))}`
         ),
         stringArrayJoin("\n")
       ),

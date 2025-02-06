@@ -254,5 +254,5 @@ export const getTeamCollectionJSON = async (teamID: string) => {
   }
 
   const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
-  return E.right(JSON.stringify(hoppCollections))
+  return E.right(JSON.stringify(hoppCollections, null, 2))
 }

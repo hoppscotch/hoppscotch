@@ -500,8 +500,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@hoppscotch/httpsnippet':
-        specifier: 3.0.6
-        version: 3.0.6
+        specifier: 3.0.7
+        version: 3.0.7
       '@hoppscotch/js-sandbox':
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
@@ -3768,8 +3768,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@hoppscotch/httpsnippet@3.0.6':
-    resolution: {integrity: sha512-W42cXJWrPvydwImgHZAV6s60fKouQ9TeTX/vzXqjBuszccrPywOJaPUlBjMe26Xe+5xEQccjlGaVaxSVJu9nXw==}
+  '@hoppscotch/httpsnippet@3.0.7':
+    resolution: {integrity: sha512-A7uoYLmkdjekFadnooOjpplFOIr0yHtY/wG63uoTbvL0hoEYH22fDQlJeYIlZe1kdv4q+xjnHj9VgdZQzMbauA==}
     engines: {node: '^14.19.1 || ^16.14.2 || ^18.0.0 '}
     hasBin: true
 
@@ -7998,9 +7998,8 @@ packages:
     engines: {node: '>=0.4.7'}
     hasBin: true
 
-  har-schema@2.0.0:
-    resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}
-    engines: {node: '>=4'}
+  har-validator-compiled@1.0.0:
+    resolution: {integrity: sha512-dher7nFSx+Ef6OoqVveLClh8itAR3vd8Qx70Lh/hEgP1iGeARAolbci7Y8JBrHIYgFCT6xRdvvL16AR9Zh07Dw==}
 
   has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -15393,13 +15392,13 @@ snapshots:
     dependencies:
       graphql: 16.9.0
 
-  '@hoppscotch/httpsnippet@3.0.6':
+  '@hoppscotch/httpsnippet@3.0.7':
     dependencies:
       ajv: 6.12.3
       chalk: 4.1.2
       event-stream: 4.0.1
       form-data: 4.0.0
-      har-schema: 2.0.0
+      har-validator-compiled: 1.0.0
       stringify-object: 3.3.0
       yargs: 17.7.2
 
@@ -21026,7 +21025,7 @@ snapshots:
     optionalDependencies:
       uglify-js: 3.19.3
 
-  har-schema@2.0.0: {}
+  har-validator-compiled@1.0.0: {}
 
   has-bigints@1.0.2: {}
 

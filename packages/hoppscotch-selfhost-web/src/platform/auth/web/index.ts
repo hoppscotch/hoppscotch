@@ -249,7 +249,7 @@ export const def: AuthPlatformDef = {
   },
   async performAuthInit() {
     const probableUser = JSON.parse(
-      await persistenceService.getLocalConfig("login_state") ?? "null"
+      (await persistenceService.getLocalConfig("login_state")) ?? "null"
     )
     probableUser$.next(probableUser)
     await setInitialUser()

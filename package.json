@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.2.1",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -57,6 +57,22 @@
           "ajv": "6.12.3"
         }
       }
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@apollo/protobufjs",
+      "@import-meta-env/unplugin",
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "@swc/core",
+      "argon2",
+      "bcrypt",
+      "canvas",
+      "core-js",
+      "esbuild",
+      "isolated-vm",
+      "prisma",
+      "vue-demi"
+    ]
   }
 }

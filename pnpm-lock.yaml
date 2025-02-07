@@ -21,7 +21,7 @@ overrides:
   nanoid@3.3.7: 3.3.8
   execa@0.10.0: 2.0.0
 
-packageExtensionsChecksum: da57d58cd55bf5e7924e59ad5f1485b8
+packageExtensionsChecksum: sha256-Qhsch/G1LLagBL1kRb8nf11C5HcyCWi8Px3h3uWxYUw=
 
 importers:
 

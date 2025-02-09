@@ -295,7 +295,7 @@ export const getComputedAuthHeaders = async (
       showKeyIfSecret
     )
 
-    const authHeader = calculateAkamaiEdgeGridHeader({
+    const authHeader = await calculateAkamaiEdgeGridHeader({
       accessToken: parseTemplateString(request.auth.accessToken, envVars),
       clientToken: parseTemplateString(request.auth.clientToken, envVars),
       clientSecret: parseTemplateString(request.auth.clientSecret, envVars),

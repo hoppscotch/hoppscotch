@@ -31,7 +31,9 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "./auth/digest";
-import { calculateHawkHeader } from "./auth/hawk";
+
+import { calculateHawkHeader } from "@hoppscotch/data";
+import { calculateAkamaiEdgeGridHeader } from "@hoppscotch/data";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -324,6 +326,49 @@ export async function getEffectiveRESTRequest(
         active: true,
         key: "Authorization",
         value: hawkHeader,
+        description: "",
+      });
+    } else if (request.auth.authType === "akamai-eg") {
+      const { method, endpoint } = request;
+
+      const akamaiEdgeGridHeader = await calculateAkamaiEdgeGridHeader({
+        url: parseTemplateString(endpoint, resolvedVariables), // URL
+        method: method, // HTTP method
+        accessToken: parseTemplateString(
+          request.auth.accessToken,
+          resolvedVariables
+        ),
+        clientToken: parseTemplateString(
+          request.auth.clientToken,
+          resolvedVariables
+        ),
+        clientSecret: parseTemplateString(
+          request.auth.clientSecret,
+          resolvedVariables
+        ),
+
+        // advanced parameters (optional)
+        nonce: request.auth.nonce
+          ? parseTemplateString(request.auth.nonce, resolvedVariables)
+          : undefined,
+        timestamp: request.auth.timestamp
+          ? parseTemplateString(request.auth.timestamp, resolvedVariables)
+          : undefined,
+        host: request.auth.host
+          ? parseTemplateString(request.auth.host, resolvedVariables)
+          : undefined,
+        headersToSign: request.auth.headersToSign
+          ? parseTemplateString(request.auth.headersToSign, resolvedVariables)
+          : undefined,
+        maxBodySize: request.auth.maxBodySize
+          ? parseTemplateString(request.auth.maxBodySize, resolvedVariables)
+          : undefined,
+      });
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: akamaiEdgeGridHeader,
         description: "",
       });
     }

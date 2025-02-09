@@ -133,6 +133,7 @@ declare module 'vue' {
     GraphqlVariable: typeof import('./components/graphql/Variable.vue')['default']
     History: typeof import('./components/history/index.vue')['default']
     HistoryGraphqlCard: typeof import('./components/history/graphql/Card.vue')['default']
+    HistoryPersonal: typeof import('./components/history/Personal.vue')['default']
     HistoryRestCard: typeof import('./components/history/rest/Card.vue')['default']
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary']
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']

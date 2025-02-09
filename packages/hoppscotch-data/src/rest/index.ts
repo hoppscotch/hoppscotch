@@ -55,13 +55,13 @@ export {
 
 export { HoppRESTReqBody } from "./v/10"
 
-export {
-  HoppRESTAuthOAuth2,
-  HoppRESTAuth,
-  ClientCredentialsGrantTypeParams,
-} from "./v/11"
+export { HoppRESTAuthOAuth2, ClientCredentialsGrantTypeParams } from "./v/11"
 
-export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12"
+export {
+  HoppRESTAuthHAWK,
+  HoppRESTAuthAkamaiEdgeGrid,
+  HoppRESTAuth,
+} from "./v/12"
 
 const versionedObject = z.object({
   // v is a stringified number

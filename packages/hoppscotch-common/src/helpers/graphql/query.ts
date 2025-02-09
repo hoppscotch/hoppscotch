@@ -365,10 +365,7 @@ export function useQuery() {
     }
   }
 
-  const isItemInOperation = (
-    item: ExplorerFieldDef,
-    isArgument = false
-  ): boolean => {
+  const isFieldInOperation = (item: ExplorerFieldDef): boolean => {
     const operation = getOperation(
       tabs.currentActiveTab.value?.document.cursorPosition || 0
     )
@@ -397,12 +394,35 @@ export function useQuery() {
     // Check based on type
     return currentSelections.some((selection) => {
       if (selection.kind !== Kind.FIELD) return false
-      return isArgument
-        ? selection.arguments?.some(
-            (argNode) => argNode.name.value === item.name
-          )
-        : selection.name.value === item.name
+      return selection.name.value === item.name
     })
+  }
+
+  const isArgumentInOperation = (item: ExplorerFieldDef): boolean => {
+    const { cursorPosition } = tabs.currentActiveTab.value?.document
+    const operation = getOperation(cursorPosition)
+    if (!operation) return false
+
+    // Start from the operation's selection set
+    let args: ArgumentNode[] = []
+
+    // change the currentSelections based on current Field by the cursor position
+    operation.selectionSet.selections.forEach((selection) => {
+      if (selection.kind === Kind.FIELD) {
+        const fieldNode = selection as FieldNode
+        if (
+          fieldNode.loc &&
+          fieldNode.loc.start <= cursorPosition &&
+          fieldNode.loc.end >= cursorPosition
+        ) {
+          args = fieldNode.arguments || []
+        }
+      }
+    })
+
+    if (args.length === 0) return false
+
+    return args.some((arg) => arg.name.value === item.name)
   }
 
   return {
@@ -411,8 +431,7 @@ export function useQuery() {
     updatedQuery,
     cursorPosition,
     operationDefinitions: operations,
-    isFieldInOperation: (field: ExplorerFieldDef) => isItemInOperation(field),
-    isArgumentInOperation: (arg: ExplorerFieldDef) =>
-      isItemInOperation(arg, true),
+    isFieldInOperation,
+    isArgumentInOperation,
   }
 }

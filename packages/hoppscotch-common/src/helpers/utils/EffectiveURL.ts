@@ -35,8 +35,8 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
-import { calculateHawkHeader } from "../auth/hawk"
-import { calculateAkamaiEdgeGridHeader } from "../auth/akamai-eg"
+import { calculateHawkHeader } from "@hoppscotch/data"
+import { calculateAkamaiEdgeGridHeader } from "@hoppscotch/data"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -288,12 +288,21 @@ export const getComputedAuthHeaders = async (
   } else if (request.auth.authType === "akamai-eg") {
     const { method, endpoint } = req as HoppRESTRequest
 
+    // Get the request body
+    const reqBody = getFinalBodyFromRequest(
+      req as HoppRESTRequest,
+      envVars,
+      showKeyIfSecret
+    )
+
     const authHeader = calculateAkamaiEdgeGridHeader({
       accessToken: parseTemplateString(request.auth.accessToken, envVars),
       clientToken: parseTemplateString(request.auth.clientToken, envVars),
       clientSecret: parseTemplateString(request.auth.clientSecret, envVars),
       url: parseTemplateString(endpoint, envVars),
       method: method,
+      // Pass the request body to the function
+      body: typeof reqBody === "string" ? reqBody : undefined,
       nonce: request.auth.nonce
         ? parseTemplateString(request.auth.nonce, envVars)
         : undefined,

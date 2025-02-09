@@ -42,7 +42,7 @@
     <GraphqlExplorerSection title="All Schema Types">
       <div v-if="filteredTypes">
         <div v-for="type in filteredTypes" :key="type.name" class="px-2">
-          <GraphqlTypeLink :type="type" :clickable="true" />
+          <GraphqlTypeLink :type="type" :clickable="true" :readonly="true" />
         </div>
       </div>
     </GraphqlExplorerSection>

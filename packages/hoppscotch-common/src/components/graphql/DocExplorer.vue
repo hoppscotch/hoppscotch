@@ -35,10 +35,16 @@
         >
           {{ currentNavItem.name }}
         </div>
-        <GraphqlTypeDocumentation :type="currentNavItem.def" />
+        <GraphqlTypeDocumentation
+          :type="currentNavItem.def"
+          :readonly="currentNavItem.readonly"
+        />
       </template>
       <template v-else-if="currentNavItem.def">
-        <GraphqlFieldDocumentation :field="currentNavItem.def" />
+        <GraphqlFieldDocumentation
+          :field="currentNavItem.def"
+          :readonly="currentNavItem.readonly"
+        />
       </template>
     </div>
   </section>

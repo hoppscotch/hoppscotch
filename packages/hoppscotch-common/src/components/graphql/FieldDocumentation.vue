@@ -26,8 +26,8 @@
     <!-- <GraphqlExplorerSection title="Type">
       <GraphqlTypeLink :type="field.type" />
     </GraphqlExplorerSection> -->
-    <GraphqlArguments :field="field" />
-    <GraphqlFields :type="resolvedType" />
+    <GraphqlArguments :field="field" :readonly="readonly" />
+    <GraphqlFields :type="resolvedType" :show-add-field="!readonly" />
     <GraphqlDirectives :field="field" />
   </div>
 </template>
@@ -47,6 +47,7 @@ interface Field {
 
 const props = defineProps<{
   field: Field
+  readonly?: boolean
 }>()
 
 const t = useI18n()

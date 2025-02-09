@@ -7,7 +7,7 @@
     <GraphqlFields
       :type="type"
       :insert-query="false"
-      :show-add-field="isShowAddField"
+      :show-add-field="!readonly"
     />
     <GraphqlEnumValues :type="type" />
     <GraphqlPossibleTypes :type="type" />
@@ -18,11 +18,8 @@
 import { defineProps } from "vue"
 import { GraphQLNamedType, isNamedType } from "graphql"
 
-const props = defineProps<{
+defineProps<{
   type: GraphQLNamedType
+  readonly?: boolean
 }>()
-
-const isShowAddField = ["Query", "Mutation", "Subscription"].includes(
-  props.type.name
-)
 </script>

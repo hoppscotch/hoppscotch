@@ -5,7 +5,7 @@
         v-for="arg in field.args"
         :key="arg.name"
         :arg="arg"
-        :show-add-button="true"
+        :show-add-button="!readonly"
       />
     </GraphqlExplorerSection>
   </template>
@@ -14,7 +14,13 @@
 <script setup lang="ts">
 import { GraphQLField } from "graphql"
 
-defineProps<{
-  field: GraphQLField<any, any>
-}>()
+withDefaults(
+  defineProps<{
+    field: GraphQLField<any, any>
+    readonly?: boolean
+  }>(),
+  {
+    readonly: false,
+  }
+)
 </script>

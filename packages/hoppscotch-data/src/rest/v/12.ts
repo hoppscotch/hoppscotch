@@ -29,7 +29,7 @@ export const HoppRESTAuthHAWK = z.object({
 })
 
 export const HoppRESTAuthAkamaiEdgeGrid = z.object({
-  authType: z.literal("akamai"),
+  authType: z.literal("akamai-eg"),
   accessToken: z.string().catch(""),
   clientToken: z.string().catch(""),
   clientSecret: z.string().catch(""),

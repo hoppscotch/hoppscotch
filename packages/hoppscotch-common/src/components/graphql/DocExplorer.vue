@@ -74,28 +74,33 @@ const { navStack, currentNavItem, navigateToIndex } = useExplorer()
 
 <style lang="scss">
 .hopp-doc-explorer-field-name {
-  color: hsl(208, 100%, 72%);
+  color: var(--editor-name-color);
 }
 .hopp-doc-explorer-root-type {
-  color: hsl(208, 100%, 72%);
+  color: var(--editor-name-color);
 }
 .hopp-doc-explorer-type-name {
   cursor: pointer;
-  color: hsl(30, 100%, 80%);
+  color: var(--editor-type-color);
 }
 
 .hopp-doc-explorer-argument-name {
-  color: hsl(243, 100%, 77%);
+  color: var(--editor-keyword-color);
 }
 
 .hopp-doc-explorer-argument-multiple {
   margin-left: 0.5rem;
 }
 
+.hopp-doc-explorer-deprecated {
+  // use color from above comment
+  color: var(--status-critical-error-color);
+}
+
 .hopp-doc-explorer-argument-deprecation {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background-color: hsl(0, 100%, 90%);
+  background-color: var(--status-critical-error-color);
   border-radius: 0.25rem;
 }
 </style>

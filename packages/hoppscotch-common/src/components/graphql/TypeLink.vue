@@ -12,13 +12,14 @@ import { renderType, useExplorer } from "~/helpers/graphql/explorer"
 const props = defineProps<{
   type: GraphQLType
   clickable?: boolean
+  readonly?: boolean
 }>()
 
 const { push } = useExplorer()
 
 const handleTypeClick = (event: MouseEvent, namedType: GraphQLNamedType) => {
   event.preventDefault()
-  push({ name: namedType.name, def: namedType })
+  push({ name: namedType.name, def: namedType, readonly: props.readonly })
 }
 
 /**

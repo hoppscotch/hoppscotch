@@ -1,4 +1,16 @@
-export async function calculateAkamaiEdgeGridHeader(params) {
+export async function calculateAkamaiEdgeGridHeader(params: {
+  accessToken: string
+  clientToken: string
+  clientSecret: string
+  url: string
+  method: string
+  body?: string // Add body parameter
+  nonce?: string
+  timestamp?: string
+  host?: string
+  headersToSign?: string
+  maxBodySize?: string
+}) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 

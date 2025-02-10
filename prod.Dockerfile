@@ -47,6 +47,8 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install -f --prefer-offline
 
+
+
 FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
@@ -95,6 +97,8 @@ RUN apk add --no-cache musl-dev
 COPY . .
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
 RUN cargo build --release
+
+
 
 FROM alpine:3.19.6 AS app
 RUN apk add nodejs curl

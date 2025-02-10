@@ -1,5 +1,5 @@
 use curl::easy::Easy;
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Not};
 
 use crate::{
     auth::AuthHandler,
@@ -101,12 +101,6 @@ impl<'a> CurlRequest<'a> {
 
         if let Some(ref proxy) = self.request.proxy {
             tracing::trace!(proxy_url = %proxy.url, "Setting up proxy");
-            self.handle
-                .proxy_auth(curl::easy::Auth::new().auto(true))
-                .map_err(|e| RelayError::Network {
-                    message: "Failed to set proxy authentication to auto".into(),
-                    cause: Some(e.to_string()),
-                })?;
 
             self.handle
                 .proxy(&proxy.url)
@@ -115,20 +109,29 @@ impl<'a> CurlRequest<'a> {
                     cause: Some(e.to_string()),
                 })?;
 
+            self.handle
+                .proxy_auth(curl::easy::Auth::new().auto(true))
+                .map_err(|e| RelayError::Network {
+                    message: "Failed to set proxy authentication to auto".into(),
+                    cause: Some(e.to_string()),
+                })?;
+
             if let Some(ref auth) = proxy.auth {
-                self.handle
-                    .proxy_username(&auth.username)
-                    .map_err(|e| RelayError::Network {
-                        message: "Failed to set proxy username".into(),
-                        cause: Some(e.to_string()),
+                if (auth.username.trim().is_empty() || auth.password.trim().is_empty()).not() {
+                    self.handle.proxy_username(&auth.username).map_err(|e| {
+                        RelayError::Network {
+                            message: "Failed to set proxy username".into(),
+                            cause: Some(e.to_string()),
+                        }
                     })?;
 
-                self.handle
-                    .proxy_password(&auth.password)
-                    .map_err(|e| RelayError::Network {
-                        message: "Failed to set proxy password".into(),
-                        cause: Some(e.to_string()),
+                    self.handle.proxy_password(&auth.password).map_err(|e| {
+                        RelayError::Network {
+                            message: "Failed to set proxy password".into(),
+                            cause: Some(e.to_string()),
+                        }
                     })?;
+                }
             }
         }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col space-y-6 w-full max-w-md">
-    <div class="flex flex-col items-center space-y-4">
-      <img src="/logo.svg" alt="Hoppscotch" class="h-16 w-16" />
+    <div class="flex items-center justify-center space-x-4">
+      <img src="/logo.svg" alt="Hoppscotch" class="h-12 w-12" />
       <div class="flex flex-col items-center">
         <h1 class="text-xl font-semibold text-secondaryDark">Connect to Hoppscotch</h1>
         <p class="text-tiny text-secondary">Enter your server URL to get started</p>
@@ -28,7 +28,7 @@
             <IconLucideCheck class="text-green-500" />
           </template>
         </HoppSmartInput>
-        <span v-if="error" class="text-red-500 text-tiny">{{ error }}</span>
+        <span v-if="error" class="text-red-500 text-tiny">Failed to load the app, either the server is offline or varification has failed</span>
       </div>
 
       <HoppButtonPrimary
@@ -46,7 +46,7 @@
           <div class="h-px bg-divider flex-1" />
         </div>
 
-        <div class="flex flex-col space-y-0.5">
+        <div class="flex flex-col space-y-0.5 overflow-y-scroll h-44">
           <div
             v-for="item in recentUrls"
             :key="item.url"

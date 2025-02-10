@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex items-center justify-between border-b border-divider px-6 py-4 bg-primary shadow-lg"
+    class="flex items-center justify-between border-b border-divider px-6 py-2 mb-4 bg-primary shadow-lg"
   >
     <div class="flex items-center">
       <HoppButtonSecondary

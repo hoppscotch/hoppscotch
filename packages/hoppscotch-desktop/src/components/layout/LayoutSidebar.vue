@@ -25,7 +25,7 @@
           label="Home"
           :class="!expanded && 'justify-center'"
           to="/"
-          exact-active-class="!text-accent !bg-primaryLight"
+          exact-active-class="!text-accent !bg-primaryLight w-full"
         >
           <template #icon>
             <IconLucideHome />

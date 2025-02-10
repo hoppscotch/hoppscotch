@@ -38,6 +38,7 @@
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/httpsnippet": "3.0.7",
     "@hoppscotch/js-sandbox": "workspace:^",
+    "@hoppscotch/kernel": "workspace:^",
     "@hoppscotch/ui": "0.2.2",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.0",

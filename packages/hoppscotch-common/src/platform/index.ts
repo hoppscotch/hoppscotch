@@ -17,6 +17,7 @@ import { SpotlightPlatformDef } from "./spotlight"
 import { UIPlatformDef } from "./ui"
 import { BackendPlatformDef } from "./backend"
 import { OrganizationPlatformDef } from "./organization"
+import { KernelIO } from "./kernel-io"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -25,6 +26,7 @@ export type PlatformDef = {
   auth: AuthPlatformDef
   analytics?: AnalyticsPlatformDef
   io: IOPlatformDef
+  kernelIO: KernelIO,
   sync: {
     environments: EnvironmentsPlatformDef
     collections: CollectionsPlatformDef

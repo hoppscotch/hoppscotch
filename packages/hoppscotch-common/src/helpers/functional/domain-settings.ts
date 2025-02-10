@@ -20,7 +20,6 @@ export type InputDomainSetting = {
           }
       ca?: StoreFile[]
     }
-    validateCertificates?: boolean
     verifyHost?: boolean
     verifyPeer?: boolean
   }
@@ -143,14 +142,28 @@ const convertSecurity = (
                 client: convertedCerts.client,
                 ca: convertedCerts.ca,
               },
-              validateCertificates: security.validateCertificates,
-              verifyHost: security.verifyHost,
-              verifyPeer: security.verifyPeer,
+              // Default to `false` if not explicitly set
+              verifyHost: security.verifyHost ?? false,
+              verifyPeer: security.verifyPeer ?? false,
             }))
           )
+        ),
+        // If no certificates but security object exists, still return verify settings
+        O.alt(() =>
+          O.some({
+            verifyHost: security.verifyHost ?? false,
+            verifyPeer: security.verifyPeer ?? false,
+          })
         )
       )
-    })
+    }),
+    // If no security object at all, return default settings
+    O.alt(() =>
+      O.some({
+        verifyHost: false,
+        verifyPeer: false,
+      })
+    )
   )
 
 const convertProxy = (

@@ -196,8 +196,6 @@ pub enum CertificateType {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SecurityConfig {
     pub certificates: Option<CertificateConfig>,
-    #[serde(rename = "validateCertificates")]
-    pub validate_certificates: Option<bool>,
     #[serde(rename = "verifyHost")]
     pub verify_host: Option<bool>,
     #[serde(rename = "verifyPeer")]

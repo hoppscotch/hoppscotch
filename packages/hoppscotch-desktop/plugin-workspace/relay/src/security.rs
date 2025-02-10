@@ -21,9 +21,9 @@ impl<'a> SecurityHandler<'a> {
     pub(crate) fn configure(&mut self, security: &SecurityConfig) -> Result<()> {
         tracing::info!("Configuring security settings");
 
-        if let Some(validate) = security.validate_certificates {
-            tracing::debug!(validate = validate, "Setting SSL verify peer");
-            self.handle.ssl_verify_peer(validate).map_err(|e| {
+        if let Some(verify) = security.verify_peer {
+            tracing::debug!(verify = verify, "Setting SSL verify peer");
+            self.handle.ssl_verify_peer(verify).map_err(|e| {
                 tracing::error!(error = %e, "Failed to set SSL verify peer");
                 RelayError::Certificate {
                     message: "Failed to set SSL verify peer".into(),

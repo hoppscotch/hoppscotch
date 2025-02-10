@@ -92,7 +92,7 @@ impl<'a> CurlRequest<'a> {
 
         if let Some(ref security) = self.request.security {
             tracing::trace!(
-                verify_peer = ?security.validate_certificates,
+                verify_peer = ?security.verify_peer,
                 verify_host = ?security.verify_host,
                 "Configuring security settings"
             );

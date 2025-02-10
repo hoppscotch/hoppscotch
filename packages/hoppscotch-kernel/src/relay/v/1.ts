@@ -336,7 +336,6 @@ export interface RelayRequest {
             client?: CertificateType
             ca?: Array<Uint8Array>
         }
-        validateCertificates?: boolean
         verifyHost?: boolean
         verifyPeer?: boolean
     }

@@ -31,7 +31,6 @@ interface StoredData {
 const defaultDomainConfig: InputDomainSetting = {
   version: "v1",
   security: {
-    validateCertificates: true,
     verifyHost: true,
     verifyPeer: true,
   },

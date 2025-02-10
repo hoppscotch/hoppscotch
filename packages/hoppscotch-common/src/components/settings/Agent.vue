@@ -17,14 +17,6 @@
     <div class="flex flex-col space-y-4">
       <div class="flex items-center">
         <HoppSmartToggle
-          :on="domainSettings[selectedDomain]?.security?.validateCertificates"
-          @change="toggleValidateCertificates"
-        />
-        {{ t("settings.validate_certificates") }}
-      </div>
-
-      <div class="flex items-center">
-        <HoppSmartToggle
           :on="domainSettings[selectedDomain]?.security?.verifyHost"
           @change="toggleVerifyHost"
         />
@@ -528,15 +520,6 @@ function updateDomainSettings(newSettings: any) {
   }
 
   store.saveDomainSettings(domain, domainSettings[domain])
-}
-
-function toggleValidateCertificates() {
-  updateDomainSettings({
-    security: {
-      validateCertificates:
-        !domainSettings[selectedDomain.value]?.security?.validateCertificates,
-    },
-  })
 }
 
 function toggleVerifyHost() {

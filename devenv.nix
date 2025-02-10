@@ -34,7 +34,6 @@ in {
     # See: https://github.com/kelektiv/node.bcrypt.js/issues/800
     # See: https://github.com/kelektiv/node.bcrypt.js/issues/1055
     nodejs_20
-    nodePackages.node-gyp
     nodePackages.typescript-language-server
     nodePackages."@volar/vue-language-server"
     nodePackages.prisma
@@ -169,12 +168,8 @@ in {
     javascript = {
       package = pkgs.nodejs_20;
       enable = true;
-      pnpm = {
-        # NOTE: This follows pnpm version from `prod.Dockerfile`
-        package = pkgs.pnpm_9;  # This will use pnpm version 9.x
-        enable = true;
-      };
       npm.enable = true;
+      pnpm.enable = true;
     };
     rust = {
       enable = true;

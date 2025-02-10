@@ -75,6 +75,9 @@
           input-styles="floating-input !border-0"
           @update:model-value="updateProxyUrl"
         />
+        <p class="my-1 text-secondaryLight">
+          {{ t("settings.proxy_auth") }}
+        </p>
         <div class="flex">
           <HoppSmartInput
             :model-value="domainSettings[selectedDomain].proxy.username"

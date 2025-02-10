@@ -102,6 +102,13 @@ impl<'a> CurlRequest<'a> {
         if let Some(ref proxy) = self.request.proxy {
             tracing::trace!(proxy_url = %proxy.url, "Setting up proxy");
             self.handle
+                .proxy_auth(curl::easy::Auth::new().auto(true))
+                .map_err(|e| RelayError::Network {
+                    message: "Failed to set proxy authentication to auto".into(),
+                    cause: Some(e.to_string()),
+                })?;
+
+            self.handle
                 .proxy(&proxy.url)
                 .map_err(|e| RelayError::Network {
                     message: "Failed to set proxy".into(),

@@ -98,7 +98,7 @@ const onConnectClick = () => {
 }
 
 const gqlConnect = () => {
-  connect(url.value, tabs.currentActiveTab.value?.document.request.headers)
+  connect(url.value, tabs.currentActiveTab.value?.document.request)
 
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",

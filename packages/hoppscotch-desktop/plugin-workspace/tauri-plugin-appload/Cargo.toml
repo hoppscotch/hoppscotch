@@ -25,7 +25,7 @@ flate2 = { version = "1.0.35" }
 chrono = { version = "0.4.38", features = ["serde"] }
 base64 = "0.22.1"
 blake3 = { version = "1.5.4", features = ["serde"] }
-ed25519-dalek = { version = "2.1.1", features = ["serde"] }
+ed25519-dalek = { version = "2.1.1", features = ["rand_core", "serde"] }
 hex = "0.4.3"
 lru = "0.12.5"
 sys-info = "0.9.1"

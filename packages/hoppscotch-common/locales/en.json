@@ -803,8 +803,7 @@
     "black_mode": "Black",
     "choose_language": "Choose language",
     "dark_mode": "Dark",
-    "delete_account": "Delete Hoppscotch Account",
-    "delete_account_short": "Delete Account",
+    "delete_account": "Delete account",
     "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone.",
     "disable_encode_mode_tooltip": "Never encode the parameters in the request",
     "enable_encode_mode_tooltip": "Always encode the parameters in the request",
@@ -1695,7 +1694,11 @@
     "login_to_continue_description": "You need to be logged in to join an organization instance.",
     "create_an_organization": "Create an organization",
     "deactivate_user_failure": "User deactivation failed!!",
-    "deactivate_user_success": "User deactivated successfully!!"
+    "deactivate_user_success": "User deactivated successfully!!",
+    "delete_account_description": "This will delete all data associated with your Hoppscotch account, including this and any other organizations you are part of.",
+    "delete_account": "Delete Hoppscotch Account",
+    "user_deletion_failed_sole_admin": "The user is the sole admin of one or more organization instances. Please demote the user before attempting deletion.",
+    "user_deletion_failed_sole_team_owner": "The user is the sole team owner on one or more organization instances. Please transfer the ownership or delete the relevant workspaces before attempting deletion."
   },
   "billing": {
     "confirm": {

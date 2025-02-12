@@ -36,16 +36,18 @@ mod models;
 mod storage;
 mod ui;
 mod uri;
+mod vendor;
 mod verification;
 
 pub use error::{Error, Result};
+pub use vendor::{VendorConfig, VendorConfigBuilder};
 
 #[cfg(mobile)]
 use mobile::Appload;
 
 const KERNEL_JS: &str = include_str!("kernel.js");
 
-pub fn init<R: Runtime>() -> TauriPlugin<R> {
+pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
     Builder::new("appload")
         .setup(move |app, api| {
             tracing::info!("Initializing appload plugin");
@@ -65,12 +67,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             );
             config.storage.root_dir = app_config_dir;
 
-            let rt = tokio::runtime::Runtime::new().map_err(|e| {
-                tracing::error!(error = %e, "Failed to create Tokio runtime.");
-                Error::Config(e.to_string())
-            })?;
-
-            let storage = rt.block_on(async {
+            let storage = tauri::async_runtime::block_on(async {
                 let storage = storage::StorageManager::new(config.storage.root_dir.clone())
                     .await
                     .map_err(|e| {
@@ -100,8 +97,26 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
 
             tracing::debug!("Setting up uri handler.");
-            let config = app.config();
-            let uri_handler = Arc::new(uri::UriHandler::new(cache.clone(), config.clone()));
+            let tauri_config = app.config().clone();
+            let uri_handler = Arc::new(uri::UriHandler::new(cache.clone(), tauri_config.clone()));
+
+            {
+                let tauri_config = tauri_config.clone();
+                let cache = cache.clone();
+                let storage = storage.clone();
+                tauri::async_runtime::block_on(async move {
+                    match vendor.build() {
+                        Ok(vendor) => {
+                            if let Err(e) = vendor.initialize(tauri_config, cache, storage).await {
+                                tracing::error!(error = %e, "Failed to initialize vendor.");
+                            }
+                        }
+                        Err(e) => {
+                            tracing::error!(error = %e, "Failed to build vendor.");
+                        }
+                    }
+                });
+            }
 
             #[cfg(desktop)]
             tracing::debug!("Initializing desktop-specific components.");
@@ -128,20 +143,22 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             commands::clear
         ])
         .register_uri_scheme_protocol("app", move |ctx, req| {
+            tracing::info!("Incoming URI request");
+
             let app = ctx.app_handle();
             let uri = req.uri();
-            tracing::debug!(url = %uri, "Handling app URI scheme request.");
+
+            tracing::debug!(
+                url = %uri,
+                thread_id = ?std::thread::current().id(),
+                "Handling app URI scheme request."
+            );
 
             let uri_handler = app.state::<Arc<uri::UriHandler>>();
 
-            tokio::runtime::Runtime::new()
-                .map_err(|e| {
-                    tracing::error!(error = %e, "Failed to create Tokio runtime.");
-                    Error::Config(e.to_string())
-                })
-                .unwrap()
-                .block_on(async { uri_handler.handle(uri).await })
-                .unwrap()
+            tracing::info!("Got URI handler");
+
+            tauri::async_runtime::block_on(uri_handler.handle(uri)).unwrap()
         })
         .build()
 }

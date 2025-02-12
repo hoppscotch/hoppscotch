@@ -38,35 +38,65 @@ impl UriHandler {
         let host = uri.host().unwrap_or_default();
         let path = uri.path().trim_start_matches('/');
 
+        tracing::debug!(host = %host, path = %path, "Handling request");
+
         match self.fetch_content(host, path).await {
             Ok(content) => {
-                tracing::info!(host = %host, path = %path, "Successfully retrieved file content.");
+                tracing::info!(host = %host, path = %path, content_length = %content.len(), "Successfully retrieved file content");
+
                 let mime_type = Self::determine_mime(path);
-                let csp = match self.config
-                    .app
-                    .security
-                    .csp.as_ref() {
-                    Some(csp) => csp.to_string(),
-                    None => String::from("null"),
+                let csp = match self.config.app.security.csp.as_ref() {
+                    Some(csp) => {
+                        tracing::debug!("Using configured CSP");
+                        csp.to_string()
+                    }
+                    None => {
+                        tracing::debug!("No CSP configured, using null");
+                        String::from("null")
+                    }
                 };
 
-                Response::builder()
+                tracing::info!(
+                    status = 200,
+                    host = %host,
+                    path = %path,
+                    mime = %mime_type,
+                    csp = %csp,
+                    content_length = %content.len(),
+                    "Building response"
+                );
+
+                let response = Response::builder()
                     .status(200)
                     .header("content-type", mime_type)
-                    .header(
-                        "content-security-policy",
-                        csp
-                    )
-                    .header("Access-Control-Allow-Credentials", "true")
+                    .header("content-security-policy", csp)
+                    .header("access-control-allow-credentials", "true")
                     .header("x-content-type-options", "nosniff")
-                    .body(content)
+                    .body(content);
+
+                tracing::info!("Sending response");
+
+                response
             }
             Err(e) => {
-                tracing::error!(error = %e, host = %host, path = %path, "Failed to retrieve file content.");
-                Response::builder()
-                    .status(404)
-                    .body(Vec::new())
+                tracing::error!(
+                    error = %e,
+                    host = %host,
+                    path = %path,
+                    "Failed to retrieve file content"
+                );
+
+                Response::builder().status(404).body(Vec::new())
             }
-        }.map_err(Into::into)
+        }
+        .map_err(|e| {
+            tracing::error!(
+                error = %e,
+                host = %host,
+                path = %path,
+                "Failed to build response"
+            );
+            e.into()
+        })
     }
 }

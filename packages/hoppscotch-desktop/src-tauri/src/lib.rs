@@ -3,6 +3,7 @@ pub mod server;
 use std::sync::OnceLock;
 
 use tauri::Emitter;
+use tauri_plugin_appload::VendorConfigBuilder;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_updater::UpdaterExt;
 
@@ -72,7 +73,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_appload::init())
+        .plugin(tauri_plugin_appload::init(VendorConfigBuilder::new()))
         .plugin(tauri_plugin_relay::init())
         .invoke_handler(tauri::generate_handler![hopp_auth_port])
         .run(tauri::generate_context!())

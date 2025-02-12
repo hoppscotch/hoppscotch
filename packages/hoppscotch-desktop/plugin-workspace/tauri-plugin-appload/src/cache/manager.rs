@@ -29,6 +29,14 @@ impl CacheManager {
         let cache_key = format!("{}:{}", bundle_name, file_path);
         tracing::info!(%bundle_name, %file_path, %cache_key, "Retrieving file");
 
+        tracing::debug!(
+            %bundle_name,
+            %file_path,
+            %cache_key,
+            thread_id = ?std::thread::current().id(),
+            "Cache lookup attempt"
+        );
+
         self.store.get(&cache_key).await
     }
 

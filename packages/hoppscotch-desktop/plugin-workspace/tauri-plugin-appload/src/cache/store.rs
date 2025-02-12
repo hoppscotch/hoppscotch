@@ -109,11 +109,20 @@ impl FileStore {
 
     pub async fn get(&self, key: &str) -> Result<Vec<u8>> {
         tracing::info!(key, "Retrieving file from cache.");
+        tracing::debug!(
+            key,
+            thread_id = ?std::thread::current().id(),
+            hot_cache_len = self.hot_cache.lock().await.len(),
+            disk_cache_len = self.disk_cache.len(),
+            "Cache access attempt details"
+        );
 
-        if let Some(entry) = self.hot_cache.lock().await.get(key) {
+        let mut guard = self.hot_cache.lock().await;
+        if let Some(entry) = guard.get(key) {
             tracing::debug!(key, "File found in hot cache.");
             return Ok(entry.content.clone());
         }
+        drop(guard);
 
         tracing::debug!(key, "File not found in hot cache. Checking disk cache.");
         if let Some(path) = self.disk_cache.get(key) {

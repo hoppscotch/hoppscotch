@@ -7,7 +7,7 @@
   >
     <template #body>
       <div class="flex flex-col space-y-4 relative">
-        <div class="flex flex-col relaive">
+        <div class="flex flex-col relative">
           <label for="teamName" class="py-2"> {{ t('teams.email') }} </label>
           <HoppSmartAutoComplete
             type="email"

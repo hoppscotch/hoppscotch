@@ -21,6 +21,7 @@ node_modules
 
 **/dist
 **/build
+**/target
 
 **/__tests__
 **/*.test.*

@@ -132,7 +132,7 @@ function exportedCollectionToHoppCollection(
       restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
         : {
-            auth: { authType: "inherit", authActive: false },
+            auth: { authType: "inherit", authActive: true },
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
           }
@@ -196,7 +196,7 @@ function exportedCollectionToHoppCollection(
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
         : {
-            auth: { authType: "inherit", authActive: false },
+            auth: { authType: "inherit", authActive: true },
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
           }
@@ -372,7 +372,7 @@ function setupUserCollectionCreatedSubscription() {
           res.right.userCollectionCreated.data != "null"
             ? JSON.parse(res.right.userCollectionCreated.data)
             : {
-                auth: { authType: "inherit", authActive: false },
+                auth: { authType: "inherit", authActive: true },
                 headers: [],
                 _ref_id: generateUniqueRefId("coll"),
               }
@@ -602,7 +602,7 @@ function setupUserCollectionDuplicatedSubscription() {
         data && data != "null"
           ? JSON.parse(data)
           : {
-              auth: { authType: "inherit", authActive: false },
+              auth: { authType: "inherit", authActive: true },
               headers: [],
             }
       // Duplicated collection will have a unique ref id
@@ -1040,7 +1040,7 @@ function transformDuplicatedCollections(
       const { auth, headers } =
         data && data !== "null"
           ? JSON.parse(data)
-          : { auth: { authType: "inherit", authActive: false }, headers: [] }
+          : { auth: { authType: "inherit", authActive: true }, headers: [] }
 
       const _ref_id = generateUniqueRefId("coll")
 

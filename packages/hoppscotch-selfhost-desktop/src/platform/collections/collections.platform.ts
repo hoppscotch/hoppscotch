@@ -128,13 +128,13 @@ function exportedCollectionToHoppCollection(
       restCollection.data && restCollection.data !== "null"
         ? JSON.parse(restCollection.data)
         : {
-            auth: { authType: "inherit", authActive: false },
+            auth: { authType: "inherit", authActive: true },
             headers: [],
           }
 
     return {
       id: restCollection.id,
-      v: 4,
+      v: 6,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -190,13 +190,13 @@ function exportedCollectionToHoppCollection(
       gqlCollection.data && gqlCollection.data !== "null"
         ? JSON.parse(gqlCollection.data)
         : {
-            auth: { authType: "inherit", authActive: false },
+            auth: { authType: "inherit", authActive: true },
             headers: [],
           }
 
     return {
       id: gqlCollection.id,
-      v: 4,
+      v: 6,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -364,7 +364,7 @@ function setupUserCollectionCreatedSubscription() {
           res.right.userCollectionCreated.data != "null"
             ? JSON.parse(res.right.userCollectionCreated.data)
             : {
-                auth: { authType: "inherit", authActive: false },
+                auth: { authType: "inherit", authActive: true },
                 headers: [],
               }
 
@@ -374,7 +374,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 4,
+                v: 6,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })
@@ -382,7 +382,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 4,
+                v: 6,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })
@@ -591,7 +591,7 @@ function setupUserCollectionDuplicatedSubscription() {
         data && data != "null"
           ? JSON.parse(data)
           : {
-              auth: { authType: "inherit", authActive: false },
+              auth: { authType: "inherit", authActive: true },
               headers: [],
             }
 
@@ -607,7 +607,7 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 4,
+        v: 6,
         auth,
         headers: addDescriptionField(headers),
       }
@@ -1026,7 +1026,7 @@ function transformDuplicatedCollections(
       const { auth, headers } =
         data && data !== "null"
           ? JSON.parse(data)
-          : { auth: { authType: "inherit", authActive: false }, headers: [] }
+          : { auth: { authType: "inherit", authActive: true }, headers: [] }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
@@ -1037,7 +1037,7 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 4,
+        v: 6,
         auth,
         headers: addDescriptionField(headers),
       }

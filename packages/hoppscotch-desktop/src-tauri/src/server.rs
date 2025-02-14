@@ -14,7 +14,7 @@ use tower_http::cors::CorsLayer;
 #[derive(Debug, Serialize, Deserialize)]
 struct AuthTokensQuery {
     access_token: String,
-    refresh_token: String,
+    refresh_token: Option<String>,
 }
 
 async fn device_token<R: Runtime>(

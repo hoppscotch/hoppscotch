@@ -50,7 +50,7 @@ export class NativeKernelInterceptorService
       "urlencoded",
       "compression",
     ]),
-    auth: new Set(["basic", "bearer", "apikey", "digest"]),
+    auth: new Set(["basic", "bearer", "apikey", "digest", "aws"]),
     security: new Set([
       "clientcertificates",
       "cacertificates",

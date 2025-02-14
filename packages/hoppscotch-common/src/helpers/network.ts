@@ -33,10 +33,13 @@ function processResponse(
     // If multi headers are present, then we can just use that, else fallback to Axios type
     headers:
       res.additional?.multiHeaders ??
-      Object.keys(res.headers).map((x) => ({
-        key: x,
-        value: res.headers[x],
-      })),
+      Object.keys(res.headers).flatMap((key) => {
+        const headerValues = res.headers[key]
+        if (Array.isArray(headerValues)) {
+          return headerValues.map((value) => ({ key, value }))
+        }
+        return { key, value: headerValues }
+      }),
     meta: {
       responseSize: contentLength,
       responseDuration: backupTimeEnd - backupTimeStart,

@@ -62,7 +62,7 @@ export class AgentKernelInterceptorService
       "urlencoded",
       "compression",
     ]),
-    auth: new Set(["basic", "bearer", "apikey", "digest"]),
+    auth: new Set(["basic", "bearer", "apikey", "digest", "aws"]),
     security: new Set([
       "clientcertificates",
       "cacertificates",

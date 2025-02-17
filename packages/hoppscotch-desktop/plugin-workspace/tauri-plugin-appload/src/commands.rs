@@ -70,7 +70,7 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
     let label = format!("{}", sanitize_window_label(&options.window.title));
     tracing::info!(?options, bundle = %options.bundle_name, "Loading bundle");
 
-    let url = format!("app://{}/", options.bundle_name);
+    let url = format!("app://{}/", options.bundle_name.to_lowercase());
     tracing::debug!(%url, "Generated app URL");
 
     let window = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))

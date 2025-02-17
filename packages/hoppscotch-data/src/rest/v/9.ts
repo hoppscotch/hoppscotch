@@ -20,7 +20,7 @@ export const FormDataKeyValue = z
     z.union([
       z.object({
         isFile: z.literal(true),
-        value: z.array(z.instanceof(Blob).nullable()),
+        value: z.array(z.instanceof(Blob).nullable()).catch([]),
       }),
       z.object({
         isFile: z.literal(false),

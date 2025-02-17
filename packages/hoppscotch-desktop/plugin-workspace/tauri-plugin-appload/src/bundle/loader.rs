@@ -168,6 +168,8 @@ impl BundleLoader {
 
     fn generate_bundle_name(&self, server_url: &str) -> String {
         server_url
+            // NOTE: This is to fix capitalized URL not being served properly on Windows
+            .to_lowercase()
             .split("://")
             .nth(1)
             .unwrap_or("unknown")

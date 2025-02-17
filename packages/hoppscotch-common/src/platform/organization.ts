@@ -5,4 +5,5 @@ export type OrganizationPlatformDef = {
     orgDomain: string
   } | null>
   getRootDomain: () => string
+  initiateOnboarding: () => void
 }

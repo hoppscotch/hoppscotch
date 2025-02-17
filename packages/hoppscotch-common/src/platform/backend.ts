@@ -37,8 +37,11 @@ export type BackendPlatformDef = {
     cursor?: string
   ) => Promise<E.Either<GQLError<"">, GetUserShortcodesQuery>>
 
+  // Sample use case for `matchAllTeams` would be at the cloud platform level where the list of teams across instances is fetched
+  // and not limited to a single instance.
   getUserTeams: (
-    cursor?: string
+    cursor?: string,
+    matchAllTeams?: boolean
   ) => Promise<E.Either<GQLError<"">, GetMyTeamsQuery>>
 
   // Write actions via GQL mutations

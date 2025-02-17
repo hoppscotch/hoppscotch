@@ -36,6 +36,12 @@
             <ul class="my-4 ml-8 list-disc space-y-2">
               <li v-for="team in myTeams" :key="team.id">
                 {{ team.name }}
+
+                <component
+                  :is="platform.ui.additionalUserDeletionSoleTeamOwnerInfo"
+                  v-if="platform.ui?.additionalUserDeletionSoleTeamOwnerInfo"
+                  :team="team"
+                />
               </li>
             </ul>
             <span class="font-semibold">
@@ -119,6 +125,7 @@ const showDeleteAccountModal = ref(false)
 const userVerificationInput = ref("")
 
 const loading = ref(true)
+
 const myTeams = ref<GetMyTeamsQuery["myTeams"]>([])
 
 watch(showDeleteAccountModal, (isModalOpen) => {
@@ -142,7 +149,7 @@ const deleteAccountDescription = computed(() =>
 const fetchMyTeams = async () => {
   loading.value = true
 
-  const result = await platform.backend.getUserTeams()
+  const result = await platform.backend.getUserTeams(undefined, true)
 
   loading.value = false
 

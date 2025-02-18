@@ -1,4 +1,9 @@
-import { HoppGQLAuth, HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
+import {
+  HoppGQLAuth,
+  HoppGQLRequest,
+  HoppRESTHeaders,
+  makeGQLRequest,
+} from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
 import { AwsV4Signer } from "aws4fetch"
 import * as E from "fp-ts/Either"
@@ -12,6 +17,7 @@ import {
   getIntrospectionQuery,
   printSchema,
 } from "graphql"
+import { clone } from "lodash-es"
 import { Component, computed, reactive, ref } from "vue"
 import { useToast } from "~/composables/toast"
 import { getService } from "~/modules/dioc"
@@ -28,6 +34,8 @@ type RunQueryOptions = {
   name?: string
   url: string
   request: HoppGQLRequest
+  inheritedHeaders: HoppGQLRequest["headers"]
+  inheritedAuth: HoppGQLAuth
   query: string
   variables: string
   operationName: string | undefined
@@ -299,16 +307,44 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     await connect(options.url, options.request, true)
   }
 
-  const { url, request, query, variables, operationName, operationType } =
-    options
+  const {
+    url,
+    request,
+    query,
+    variables,
+    operationName,
+    inheritedHeaders,
+    inheritedAuth,
+    operationType,
+  } = options
+
+  const headers = request?.headers || []
+
+  const auth =
+    request?.auth.authType === "inherit" && request.auth.authActive
+      ? clone(inheritedAuth)
+      : clone(request.auth)
+
+  let runHeaders: HoppGQLRequest["headers"] = []
+
+  if (inheritedHeaders) {
+    runHeaders = [
+      ...inheritedHeaders,
+      ...clone(request.headers),
+    ] as HoppRESTHeaders
+  } else {
+    runHeaders = clone(request.headers)
+  }
 
   const finalHeaders: Record<string, string> = {}
 
-  const headers = request?.headers || []
-  const auth = request?.auth
-
   const { authHeaders, authParams } = await generateAuthHeader(url, auth)
 
+  runHeaders.forEach((header) => {
+    if (header.active && header.key !== "") {
+      finalHeaders[header.key] = header.value
+    }
+  })
   Object.assign(finalHeaders, authHeaders)
 
   const parsedVariables = JSON.parse(variables || "{}")
@@ -381,7 +417,10 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   return responseText
 }
 
-const generateAuthHeader = async (url: string, auth: HoppGQLAuth) => {
+const generateAuthHeader = async (
+  url: string,
+  auth: HoppGQLAuth | undefined
+) => {
   const finalHeaders: Record<string, string> = {}
   const params: Record<string, string> = {}
 

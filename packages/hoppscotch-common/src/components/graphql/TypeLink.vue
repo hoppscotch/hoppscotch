@@ -12,13 +12,15 @@ import { renderType, useExplorer } from "~/helpers/graphql/explorer"
 const props = defineProps<{
   type: GraphQLType
   clickable?: boolean
+  readonly?: boolean
+  isHeading?: boolean
 }>()
 
 const { push } = useExplorer()
 
 const handleTypeClick = (event: MouseEvent, namedType: GraphQLNamedType) => {
   event.preventDefault()
-  push({ name: namedType.name, def: namedType })
+  push({ name: namedType.name, def: namedType, readonly: props.readonly })
 }
 
 /**
@@ -31,7 +33,11 @@ const renderedComponent = computed(() => {
     return h(
       "span",
       {
-        class: "hopp-doc-explorer-type-name",
+        class: `hopp-doc-explorer-type-name ${
+          props.isHeading ? "!text-lg !font-bold" : ""
+        } 
+        ${props.clickable ? "cursor-pointer hover:underline" : ""}  
+        `,
         onClick: (event: MouseEvent) =>
           props.clickable ? handleTypeClick(event, namedType) : undefined,
       },

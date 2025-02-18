@@ -1,6 +1,9 @@
 <template>
   <div>
-    <GraphqlExplorerSection v-if="fields.length > 0" title="Fields">
+    <GraphqlExplorerSection
+      v-if="fields.length > 0"
+      :title="t('graphql.fields')"
+    >
       <GraphqlField
         v-for="field in fields"
         :key="field.name"
@@ -19,7 +22,10 @@ import {
   isObjectType,
 } from "graphql"
 import { computed } from "vue"
+import { useI18n } from "~/composables/i18n"
 import { ExplorerFieldDef } from "~/helpers/graphql/explorer"
+
+const t = useI18n()
 
 const props = withDefaults(
   defineProps<{

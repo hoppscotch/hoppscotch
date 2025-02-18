@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="schema"
-    class="hopp-doc-explorer pb-10"
+    class="hopp-doc-explorer"
     aria-label="Documentation Explorer"
   >
     <div class="sticky top-0 z-10 border-b border-dividerLight bg-primary">
@@ -25,20 +25,24 @@
         </template>
       </div>
     </div>
-    <div class="hopp-doc-explorer-content mt-4">
+    <div class="hopp-doc-explorer-content">
       <template v-if="navStack.length === 1">
         <GraphqlSchemaDocumentation :schema="schema" />
       </template>
       <template v-else-if="isType(currentNavItem.def)">
-        <div
-          class="hopp-doc-explorer-title text-xl font-bold break-words px-3 mb-4"
-        >
+        <div class="hopp-doc-explorer-title text-xl font-bold break-words p-4">
           {{ currentNavItem.name }}
         </div>
-        <GraphqlTypeDocumentation :type="currentNavItem.def" />
+        <GraphqlTypeDocumentation
+          :type="currentNavItem.def"
+          :readonly="currentNavItem.readonly"
+        />
       </template>
       <template v-else-if="currentNavItem.def">
-        <GraphqlFieldDocumentation :field="currentNavItem.def" />
+        <GraphqlFieldDocumentation
+          :field="currentNavItem.def"
+          :readonly="currentNavItem.readonly"
+        />
       </template>
     </div>
   </section>
@@ -68,28 +72,34 @@ const { navStack, currentNavItem, navigateToIndex } = useExplorer()
 
 <style lang="scss">
 .hopp-doc-explorer-field-name {
-  color: hsl(208, 100%, 72%);
+  color: var(--editor-name-color);
 }
 .hopp-doc-explorer-root-type {
-  color: hsl(208, 100%, 72%);
+  color: var(--editor-name-color);
 }
 .hopp-doc-explorer-type-name {
   cursor: pointer;
-  color: hsl(30, 100%, 80%);
+  color: var(--editor-type-color);
+  @apply text-sm font-normal;
 }
 
 .hopp-doc-explorer-argument-name {
-  color: hsl(243, 100%, 77%);
+  color: var(--editor-keyword-color);
 }
 
 .hopp-doc-explorer-argument-multiple {
   margin-left: 0.5rem;
 }
 
+.hopp-doc-explorer-deprecated {
+  // use color from above comment
+  color: var(--status-critical-error-color);
+}
+
 .hopp-doc-explorer-argument-deprecation {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background-color: hsl(0, 100%, 90%);
+  background-color: var(--status-critical-error-color);
   border-radius: 0.25rem;
 }
 </style>

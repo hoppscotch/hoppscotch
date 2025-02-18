@@ -157,6 +157,12 @@ export const CodegenDefinitions = [
     caption: "Ruby - Ruby Native",
   },
   {
+    name: "rust-reqwest",
+    lang: "rust",
+    mode: "reqwest",
+    caption: "Rust - Reqwest",
+  },
+  {
     name: "shell-curl",
     lang: "shell",
     mode: "curl",

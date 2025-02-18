@@ -83,6 +83,9 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
                 Ok::<_, Error>(Arc::new(storage))
             })?;
 
+            tracing::debug!("Setting up uri handler.");
+            let tauri_config = app.config().clone();
+
             tracing::debug!("Initializing cache manager.");
             let cache = Arc::new(cache::CacheManager::new(
                 storage.layout().cache_dir(),
@@ -91,13 +94,12 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
                     config.cache.file_ttl,
                     config.cache.hot_ratio,
                 ),
+                tauri_config.clone(),
             ));
 
             tracing::debug!("Setting up bundle loader.");
             let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
 
-            tracing::debug!("Setting up uri handler.");
-            let tauri_config = app.config().clone();
             let uri_handler = Arc::new(uri::UriHandler::new(cache.clone(), tauri_config.clone()));
 
             {

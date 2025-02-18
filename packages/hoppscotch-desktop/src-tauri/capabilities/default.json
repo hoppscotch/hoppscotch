@@ -4,7 +4,8 @@
   "description": "Capability for the main window",
   "windows": [
     "main",
-    "Hoppscotch"
+    "Hoppscotch-curr",
+    "Hoppscotch-next"
   ],
   "permissions": [
     "core:default",

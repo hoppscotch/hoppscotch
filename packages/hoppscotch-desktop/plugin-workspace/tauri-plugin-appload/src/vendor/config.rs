@@ -1,4 +1,5 @@
 use std::sync::Arc;
+
 use tauri::Config;
 
 use crate::{
@@ -36,7 +37,10 @@ impl VendorConfig {
             )));
         }
 
-        let name = config.product_name.unwrap_or("unknown".to_string()).to_lowercase();
+        let name = config
+            .product_name
+            .unwrap_or("unknown".to_string())
+            .to_lowercase();
         let version = config.version.as_deref().unwrap_or("0.0.0").to_string();
 
         tracing::info!(

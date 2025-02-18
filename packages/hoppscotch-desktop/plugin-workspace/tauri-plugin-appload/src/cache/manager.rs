@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use rayon::prelude::*;
+use tauri::Config;
 
 use super::{CacheError, CachePolicy, FileStore, Result};
 use crate::bundle::VerifiedBundle;
@@ -14,14 +15,14 @@ pub struct CacheManager {
 }
 
 impl CacheManager {
-    pub fn new(cache_dir: PathBuf, policy: CachePolicy) -> Self {
+    pub fn new(cache_dir: PathBuf, policy: CachePolicy, config: Config) -> Self {
         tracing::info!(
             ?cache_dir,
             max_size = policy.max_size,
             "Initializing CacheManager"
         );
 
-        let store = Arc::new(FileStore::new(cache_dir, policy.max_size));
+        let store = Arc::new(FileStore::new(cache_dir, policy.max_size, config));
         Self { store, policy }
     }
 
@@ -48,6 +49,9 @@ impl CacheManager {
             return Err(CacheError::CacheFull);
         }
 
+        tracing::info!(%name, "Clearing memory cache before caching bundle");
+        self.clear_memory_cache().await;
+
         let store = self.store.clone();
 
         verified
@@ -67,5 +71,10 @@ impl CacheManager {
 
         tracing::info!(%name, "Bundle caching completed successfully");
         Ok(())
+    }
+
+    pub async fn clear_memory_cache(&self) {
+        tracing::info!("Forwarding clear cache request to FileStore");
+        self.store.clear().await;
     }
 }

@@ -231,6 +231,7 @@ declare module 'vue' {
     ImportExportImportExportStepsImportSummary: typeof import('./components/importExport/ImportExportSteps/ImportSummary.vue')['default']
     ImportExportImportExportStepsMyCollectionImport: typeof import('./components/importExport/ImportExportSteps/MyCollectionImport.vue')['default']
     ImportExportImportExportStepsUrlImport: typeof import('./components/importExport/ImportExportSteps/UrlImport.vue')['default']
+    InstanceSwitcher: typeof import('./components/instance/Switcher.vue')['default']
     InterceptorsAgentModalNativeCACertificates: typeof import('./components/interceptors/agent/ModalNativeCACertificates.vue')['default']
     InterceptorsAgentModalNativeClientCertificates: typeof import('./components/interceptors/agent/ModalNativeClientCertificates.vue')['default']
     InterceptorsAgentModalNativeClientCertsAdd: typeof import('./components/interceptors/agent/ModalNativeClientCertsAdd.vue')['default']

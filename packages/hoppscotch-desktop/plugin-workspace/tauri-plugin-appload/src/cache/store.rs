@@ -4,6 +4,7 @@ use std::time::Instant;
 
 use dashmap::DashMap;
 use lru::LruCache;
+use tauri::Config;
 use tokio::sync::Mutex;
 
 use super::{CacheError, Result};
@@ -13,6 +14,7 @@ pub struct FileStore {
     disk_cache: Arc<DashMap<String, PathBuf>>,
     cache_dir: PathBuf,
     max_memory: usize,
+    config: Config,
 }
 
 struct CacheEntry {
@@ -22,7 +24,7 @@ struct CacheEntry {
 }
 
 impl FileStore {
-    pub fn new(cache_dir: PathBuf, max_memory: usize) -> Self {
+    pub fn new(cache_dir: PathBuf, max_memory: usize, config: Config) -> Self {
         tracing::info!(
             cache_dir = ?cache_dir,
             max_memory,
@@ -35,6 +37,7 @@ impl FileStore {
             disk_cache: Arc::new(DashMap::new()),
             cache_dir,
             max_memory,
+            config,
         }
     }
 
@@ -83,7 +86,7 @@ impl FileStore {
             if let Some((evicted_key, entry)) = cache.pop_lru() {
                 let path = self.cache_dir.join(&evicted_key);
                 tracing::debug!(evicted_key, "Evicting file to disk.");
-                tokio::fs::write(&path, &entry.content).await.map_err(|e| {
+                std::fs::write(&path, &entry.content).map_err(|e| {
                     tracing::error!(
                         evicted_key,
                         error = %e,
@@ -137,6 +140,36 @@ impl FileStore {
 
         tracing::warn!(key, "File not found in cache.");
         Err(CacheError::NotFound(key.to_string()))
+    }
+
+    pub async fn clear_except_prefix(&self, prefix: &str) {
+        let mut cache = self.hot_cache.lock().await;
+
+        let keys_to_keep: Vec<_> = cache
+            .iter()
+            .filter(|(key, _)| key.starts_with(prefix))
+            .map(|(key, _)| key.clone())
+            .collect();
+
+        let mut new_cache = LruCache::new(std::num::NonZeroUsize::new(1000).unwrap());
+        for key in keys_to_keep {
+            if let Some(entry) = cache.pop(&key) {
+                new_cache.put(key, entry);
+            }
+        }
+
+        *cache = new_cache;
+    }
+
+    pub async fn clear(&self) {
+        tracing::info!("Clearing in-memory cache");
+        let config = self.config.clone();
+        let name = config
+            .product_name
+            .unwrap_or("unknown".to_string())
+            .to_lowercase();
+        self.clear_except_prefix(&name).await;
+        tracing::info!("In-memory cache cleared successfully");
     }
 
     fn current_size(&self, cache: &LruCache<String, CacheEntry>) -> usize {

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "dev:full": "(cd ../hoppscotch-selfhost-web && pnpm install && pnpm generate) && (cd crates/webapp-bundler && cargo build --release && cd target/release && ./webapp-bundler --input ../../../../../hoppscotch-selfhost-web/dist --output ../../../../bundle.zip --manifest ../../../../manifest.json) && (cd src-tauri && pnpm tauri dev)",
+    "build:full": "(cd ../hoppscotch-selfhost-web && pnpm install && pnpm generate) && (cd crates/webapp-bundler && cargo build --release && cd target/release && ./webapp-bundler --input ../../../../../hoppscotch-selfhost-web/dist --output ../../../../bundle.zip --manifest ../../../../manifest.json) && (cd src-tauri && pnpm tauri build)"
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.1.0",

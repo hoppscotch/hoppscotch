@@ -59,7 +59,7 @@ impl Default for CacheConfig {
         Self {
             max_size: DEFAULT_CACHE_SIZE,
             file_ttl: Duration::from_secs(3600),
-            hot_ratio: 0.2,
+            hot_ratio: 0.9,
         }
     }
 }

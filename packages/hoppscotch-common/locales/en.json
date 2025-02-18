@@ -9,7 +9,9 @@
     "select_workspace": "Select a workspace",
     "clear": "Clear",
     "clear_all": "Clear all",
+    "clear_cache": "Clear Cache",
     "clear_history": "Clear all History",
+    "clear_unpinned": "Clear Unpinned",
     "close": "Close",
     "confirm": "Confirm",
     "connect": "Connect",
@@ -44,6 +46,7 @@
     "properties": "Properties",
     "register": "Register",
     "remove": "Remove",
+    "remove_instance": "Remove instance",
     "rename": "Rename",
     "restore": "Restore",
     "retry": "Retry",
@@ -628,6 +631,13 @@
     "import_summary_pre_request_scripts_title": "Pre-request scripts",
     "import_summary_test_scripts_title": "Test scripts",
     "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now."
+  },
+  "instances": {
+    "switch": "Switch Hoppscotch Instance",
+    "enter_server_url": "Connect to a self-hosted instance",
+    "recent_connections": "Recent Connections",
+    "add_new": "Add a new instance",
+    "clear_cached_bundles": "Clear cached bundles"
   },
   "inspections": {
     "description": "Inspect possible errors",

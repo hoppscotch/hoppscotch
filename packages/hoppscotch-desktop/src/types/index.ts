@@ -6,5 +6,5 @@ export interface RecentUrl {
 }
 
 export interface StoreSchema {
-  recentUrls: RecentUrl[]
+  recentInstances: RecentInstance[]
 }

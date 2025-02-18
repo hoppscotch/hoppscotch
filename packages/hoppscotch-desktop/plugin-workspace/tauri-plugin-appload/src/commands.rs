@@ -67,15 +67,24 @@ pub async fn download<R: Runtime>(
 
 #[command]
 pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result<LoadResponse> {
-    let label = format!("{}", sanitize_window_label(&options.window.title));
-    tracing::info!(?options, bundle = %options.bundle_name, "Loading bundle");
+    let base_label = sanitize_window_label(&options.window.title);
+    let current_label = format!("{}-curr", base_label);
+    let alternate_label = format!("{}-next", base_label);
+
+    let label = if app.get_webview_window(&current_label).is_some() {
+        alternate_label
+    } else {
+        current_label
+    };
+
+    tracing::info!(?options, bundle = %options.bundle_name, window_label = %label, "Loading bundle");
 
     let url = format!("app://{}/", options.bundle_name.to_lowercase());
     tracing::debug!(%url, "Generated app URL");
 
     let window = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))
         .initialization_script(crate::KERNEL_JS)
-        .title(sanitize_window_label(&label))
+        .title(sanitize_window_label(&options.window.title))
         .inner_size(options.window.width, options.window.height)
         .resizable(options.window.resizable)
         .build()
@@ -100,9 +109,19 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         })?;
     }
 
-    if let Some(main_window) = app.get_webview_window("main") {
-        main_window.close()?;
-        tracing::info!("Closing `main` window");
+    for old_label in [
+        &format!("{}-curr", base_label),
+        &format!("{}-next", base_label),
+        "main",
+    ] {
+        if old_label == &label {
+            continue;
+        }
+
+        if let Some(old_window) = app.get_webview_window(old_label) {
+            old_window.close()?;
+            tracing::info!("Closing {} window", old_label);
+        }
     }
 
     let response = LoadResponse {

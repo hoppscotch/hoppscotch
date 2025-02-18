@@ -14,7 +14,34 @@
         }"
       >
         <div class="flex">
+          <tippy
+            v-if="kernelMode === 'desktop'"
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => instanceSwitcherRef.focus()"
+          >
+            <div class="flex items-center">
+              <span
+                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
+              >
+                {{ instanceDisplayName }}
+              </span>
+              <IconChevronDown class="h-4 w-4 text-secondaryDark" />
+            </div>
+            <template #content="{ hide }">
+              <div
+                ref="instanceSwitcherRef"
+                class="flex flex-col focus:outline-none min-w-64"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <InstanceSwitcher />
+              </div>
+            </template>
+          </tippy>
           <HoppButtonSecondary
+            v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
             :label="t('app.name')"
             to="/"
@@ -247,6 +274,8 @@
 </template>
 
 <script setup lang="ts">
+import { getKernelMode } from "@hoppscotch/kernel"
+
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
@@ -266,6 +295,7 @@ import {
   BannerService,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
+import { InstanceSwitcherService } from "~/services/instance-switcher.service"
 import IconDownload from "~icons/lucide/download"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
@@ -273,9 +303,15 @@ import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
+import IconChevronDown from "~icons/lucide/chevron-down"
 
 const t = useI18n()
 const toast = useToast()
+const kernelMode = getKernelMode()
+
+const instanceSwitcherService = useService(InstanceSwitcherService)
+
+const instanceDisplayName = computed(() => instanceSwitcherService.getCurrentInstanceDisplayName())
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -465,6 +501,7 @@ const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
+const instanceSwitcherRef = ref<any | null>(null)
 
 defineActionHandler("modals.team.edit", handleTeamEdit)
 

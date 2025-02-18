@@ -13,10 +13,12 @@
     "windows": [
       {
         "title": "hoppscotch-desktop",
+        "decorations": false,
         "width": 500,
         "height": 600,
         "alwaysOnTop": true,
         "resizable": false,
+        "visible": false,
         "shadow": true
       }
     ],

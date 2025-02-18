@@ -30,7 +30,7 @@ impl Default for CachePolicy {
         Self {
             max_size: super::DEFAULT_CACHE_SIZE,
             file_ttl: Duration::from_secs(super::DEFAULT_FILE_TTL),
-            hot_ratio: 0.2,
+            hot_ratio: 0.9,
         }
     }
 }

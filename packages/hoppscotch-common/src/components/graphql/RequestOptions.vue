@@ -57,26 +57,25 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
+import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
+import { computedWithControl, useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
 import * as gql from "graphql"
 import { clone } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { HoppGQLRequest } from "@hoppscotch/data"
-import { platform } from "~/platform"
-import { computedWithControl, useVModel } from "@vueuse/core"
 import {
+  connection,
+  gqlMessageEvent,
   GQLResponseEvent,
   runGQLOperation,
-  gqlMessageEvent,
-  connection,
 } from "~/helpers/graphql/connection"
-import { useService } from "dioc/vue"
-import { InterceptorService } from "~/services/interceptor.service"
-import { editGraphqlRequest } from "~/newstore/collections"
-import { GQLTabService } from "~/services/tab/graphql"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { HoppRESTHeaders } from "@hoppscotch/data"
+import { completePageProgress, startPageProgress } from "~/modules/loadingbar"
+import { editGraphqlRequest } from "~/newstore/collections"
+import { platform } from "~/platform"
+import { InterceptorService } from "~/services/interceptor.service"
+import { GQLTabService } from "~/services/tab/graphql"
 
 const VALID_GQL_OPERATIONS = [
   "query",
@@ -139,13 +138,6 @@ const runQuery = async (
     const runURL = clone(url.value)
     const runQuery = clone(request.value.query)
     const runVariables = clone(request.value.variables)
-    const runAuth =
-      request.value.auth.authType === "inherit" && request.value.auth.authActive
-        ? clone(
-            tabs.currentActiveTab.value.document.inheritedProperties?.auth
-              .inheritedAuth
-          )
-        : clone(request.value.auth)
 
     const inheritedHeaders =
       tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
@@ -155,26 +147,17 @@ const runQuery = async (
           }
           return []
         }
-      )
-
-    let runHeaders: HoppGQLRequest["headers"] = []
-
-    if (inheritedHeaders) {
-      runHeaders = [
-        ...inheritedHeaders,
-        ...clone(request.value.headers),
-      ] as HoppRESTHeaders
-    } else {
-      runHeaders = clone(request.value.headers)
-    }
+      ) as HoppGQLRequest["headers"]
 
     await runGQLOperation({
       name: request.value.name,
       url: runURL,
-      headers: runHeaders,
+      request: request.value,
+      inheritedHeaders: inheritedHeaders,
+      inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
+        ?.auth.inheritedAuth as HoppGQLAuth,
       query: runQuery,
       variables: runVariables,
-      auth: runAuth ?? { authType: "none", authActive: false },
       operationName: definition?.name?.value,
       operationType: definition?.operation ?? "query",
     })

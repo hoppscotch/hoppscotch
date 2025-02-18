@@ -19,6 +19,7 @@
       />
     </span>
     <SmartEnvInput
+      :class="{ 'opacity-50': !entityActive }"
       :model-value="name"
       :placeholder="t('count.key')"
       :auto-complete-source="keyAutoCompleteSource"
@@ -37,6 +38,7 @@
       "
     />
     <SmartEnvInput
+      :class="{ 'opacity-50': !entityActive }"
       :model-value="value"
       :placeholder="t('count.value')"
       :auto-complete-env="true"

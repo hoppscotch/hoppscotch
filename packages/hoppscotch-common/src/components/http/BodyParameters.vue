@@ -93,6 +93,7 @@
             />
           </span>
           <SmartEnvInput
+            :class="{ 'opacity-50': !entry.active }"
             v-model="entry.key"
             :placeholder="`${t('count.parameter', { count: index + 1 })}`"
             :auto-complete-env="true"
@@ -118,6 +119,7 @@
           </div>
           <span v-else class="flex flex-1">
             <SmartEnvInput
+              :class="{ 'opacity-50': !entry.active }"
               v-model="entry.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :auto-complete-env="true"

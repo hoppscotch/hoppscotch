@@ -1,16 +1,16 @@
 <template>
-  <p class="inline-flex items-center mb-0 gap-2 align-bottom">
+  <p class="inline-flex items-center align-bottom">
     <span
       v-if="showAddField"
-      class="hover:text-accent cursor-pointer"
+      class="hover:text-accent cursor-pointer flex items-center justify-center px-4 py-2"
       :class="{ 'text-accent': isAdded }"
       @click.stop="emit('add-field', field)"
     >
-      <icon-lucide-plus-circle v-if="!isAdded" />
-      <icon-lucide-circle-check v-else />
+      <icon-lucide-plus-circle v-if="!isAdded" class="svg-icons" />
+      <icon-lucide-circle-check v-else class="svg-icons" />
     </span>
     <span
-      class="hopp-doc-explorer-field-name [text-decoration:inherit]"
+      class="hopp-doc-explorer-field-name [text-decoration:inherit] text-sm py-2 font-normal"
       @click="clickable ? handleClick : undefined"
     >
       {{ field.name }}

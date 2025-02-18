@@ -1,6 +1,9 @@
 <template>
   <template v-if="'args' in field">
-    <GraphqlExplorerSection v-if="field.args.length > 0" title="Arguments">
+    <GraphqlExplorerSection
+      v-if="field.args.length > 0"
+      :title="t('graphql.arguments')"
+    >
       <GraphqlArgument
         v-for="arg in field.args"
         :key="arg.name"
@@ -13,6 +16,9 @@
 
 <script setup lang="ts">
 import { GraphQLField } from "graphql"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 withDefaults(
   defineProps<{

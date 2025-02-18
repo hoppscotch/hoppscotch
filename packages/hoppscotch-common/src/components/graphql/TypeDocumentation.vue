@@ -1,6 +1,6 @@
 <template>
-  <div v-if="isNamedType(type)" class="px-3">
-    <AppMarkdown v-if="type.description" type="description">
+  <div v-if="isNamedType(type)">
+    <AppMarkdown v-if="type.description" type="description" class="p-4">
       {{ type.description }}
     </AppMarkdown>
     <GraphqlImplementsInterfaces :type="type" />

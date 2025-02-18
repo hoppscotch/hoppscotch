@@ -80,7 +80,7 @@ const props = defineProps({
   },
   isEmbed: {
     type: Boolean,
-    defaul: false,
+    default: false,
   },
   forceColumnLayout: {
     type: Boolean,

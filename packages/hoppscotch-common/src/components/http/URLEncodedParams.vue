@@ -85,6 +85,7 @@
               />
             </span>
             <SmartEnvInput
+              :class="{ 'opacity-50': !param.active }"
               v-model="param.key"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
               :auto-complete-env="true"
@@ -99,6 +100,7 @@
               "
             />
             <SmartEnvInput
+              :class="{ 'opacity-50': !param.active }"
               v-model="param.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :auto-complete-env="true"

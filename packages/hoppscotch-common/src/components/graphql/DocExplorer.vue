@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="schema"
-    class="hopp-doc-explorer pb-10"
+    class="hopp-doc-explorer"
     aria-label="Documentation Explorer"
   >
     <div class="sticky top-0 z-10 border-b border-dividerLight bg-primary">
@@ -25,14 +25,12 @@
         </template>
       </div>
     </div>
-    <div class="hopp-doc-explorer-content mt-4">
+    <div class="hopp-doc-explorer-content">
       <template v-if="navStack.length === 1">
         <GraphqlSchemaDocumentation :schema="schema" />
       </template>
       <template v-else-if="isType(currentNavItem.def)">
-        <div
-          class="hopp-doc-explorer-title text-xl font-bold break-words px-3 mb-4"
-        >
+        <div class="hopp-doc-explorer-title text-xl font-bold break-words p-4">
           {{ currentNavItem.name }}
         </div>
         <GraphqlTypeDocumentation
@@ -82,6 +80,7 @@ const { navStack, currentNavItem, navigateToIndex } = useExplorer()
 .hopp-doc-explorer-type-name {
   cursor: pointer;
   color: var(--editor-type-color);
+  @apply text-sm font-normal;
 }
 
 .hopp-doc-explorer-argument-name {

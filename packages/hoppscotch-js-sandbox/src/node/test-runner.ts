@@ -62,14 +62,14 @@ const executeScriptInContext = (
   context: ivmT.Context
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
-    // const headersArray = Array.isArray(response.headers)
-    //   ? response.headers
-    //   : Object.entries(response.headers).map(([key, value]) => ({
-    //     key,
-    //     value,
-    //   }))
+    const headersArray = Array.isArray(response.headers)
+      ? response.headers
+      : Object.entries(response.headers).map(([key, value]) => ({
+        key,
+        value,
+      }))
     // Parse response object
-    const responseObjHandle = preventCyclicObjects({ ...response })
+    const responseObjHandle = preventCyclicObjects({ ...response, headers: headersArray })
     if (E.isLeft(responseObjHandle)) {
       return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }

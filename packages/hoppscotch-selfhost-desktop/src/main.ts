@@ -31,7 +31,7 @@ const headerPaddingTop = ref("0px")
         paddingTop: headerPaddingTop,
         onHeaderAreaClick() {
           if (platform === "Darwin") {
-            // Drag thw window when the user drags the header area
+            // Drag the window when the user drags the header area
             // TODO: Ignore click on headers and fields
             appWindow.startDragging()
           }

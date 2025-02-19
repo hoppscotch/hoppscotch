@@ -33,7 +33,7 @@ export const gqlCollectionsMapper = createMapper<string, string>()
 // gqlRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const gqlRequestsMapper = createMapper<string, string>()
 
-// temp implementation untill the backend implements an endpoint that accepts an entire collection
+// temp implementation until the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
   collection: HoppCollection,

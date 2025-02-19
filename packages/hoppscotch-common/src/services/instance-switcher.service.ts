@@ -1,157 +1,386 @@
 import { Service } from "dioc"
-import * as E from "fp-ts/Either"
-import { BehaviorSubject } from "rxjs"
-import { Ref, ref, computed } from "vue"
+import { BehaviorSubject, Observable } from "rxjs"
+import { computed } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
 import { download, load, clear } from "@hoppscotch/plugin-appload"
-import { pipe } from "fp-ts/function"
+import { useToast } from "~/composables/toast"
 
 const STORE_PATH = "hopp.store.json"
-const MAX_HISTORY = 10
+const MAX_RECENT_INSTANCES = 10
 
-export type InstanceDetails = {
-  url: string
+type ServerInstance = {
+  type: "server"
+  serverUrl: string
+  displayName: string
+  version: string
   lastUsed: string
+}
+
+type VendoredInstance = {
+  type: "vendored"
+  displayName: string
   version: string
 }
 
-export type CurrentInstance = {
-  url: string
-  version: string
-  isVendored?: boolean
-}
+export type InstanceType = ServerInstance | VendoredInstance
 
-export type InstanceEvent =
-  | { event: "instance-changed"; url: string }
-  | { event: "instance-connecting"; url: string }
-  | { event: "instance-connection-failed"; url: string; error: string }
-  | { event: "instance-connection-success"; url: string }
-  | { event: "instance-cleared" }
+export type ConnectionState =
+  | { status: "idle" }
+  | { status: "connecting"; target: string }
+  | { status: "connected"; instance: InstanceType }
+  | { status: "error"; target: string; message: string }
 
-export class InstanceSwitcherService extends Service<InstanceEvent> {
+export class InstanceSwitcherService extends Service<ConnectionState> {
   public static readonly ID = "INSTANCE_SWITCHER_SERVICE"
 
-  private currentInstance$ = new BehaviorSubject<CurrentInstance | null>(null)
-  private recentInstances$ = new BehaviorSubject<InstanceDetails[]>([])
-  private isConnecting: Ref<boolean> = ref(false)
-  private connectionError: Ref<string | null> = ref(null)
+  private state$ = new BehaviorSubject<ConnectionState>({ status: "idle" })
+  private recentInstances$ = new BehaviorSubject<ServerInstance[]>([])
   private store!: LazyStore
+  private toast = useToast()
 
   override async onServiceInit(): Promise<void> {
     this.store = new LazyStore(STORE_PATH)
     await this.store.init()
     await this.loadRecentInstances()
-    await this.loadCurrentInstance()
+
+    if (this.inVendoredEnvironment()) {
+      const instance: VendoredInstance = {
+        type: "vendored",
+        displayName: "Hoppscotch",
+        version: "vendored",
+      }
+
+      this.state$.next({
+        status: "connected",
+        instance,
+      })
+      this.emit(this.state$.value)
+    } else {
+      await this.loadSavedState()
+    }
   }
 
-  private normalizeUrl(url: string): E.Either<Error, string> {
-    return pipe(
-      E.tryCatch(
-        () => {
-          const withProtocol = url.startsWith("http") ? url : `http://${url}`
-          const parsedUrl = new URL(withProtocol)
-          if (!parsedUrl.port) parsedUrl.port = "3200"
-          return parsedUrl.toString()
-        },
-        (e) => (e instanceof Error ? e : new Error(String(e)))
+  private inVendoredEnvironment(): boolean {
+    try {
+      return (
+        window.location.hostname === "hoppscotch" &&
+        window.location.protocol === "app:"
       )
-    )
+    } catch {
+      return false
+    }
+  }
+
+  public getStateStream(): Observable<ConnectionState> {
+    return this.state$
+  }
+
+  public getRecentInstancesStream(): Observable<ServerInstance[]> {
+    return this.recentInstances$
+  }
+
+  public getCurrentState() {
+    return computed(() => this.state$.value)
+  }
+
+  public getCurrentInstance() {
+    return computed(() => {
+      const state = this.state$.value
+      return state.status === "connected" ? state.instance : null
+    })
+  }
+
+  public getRecentInstances() {
+    return computed(() => this.recentInstances$.value)
+  }
+
+  public isConnecting() {
+    return computed(() => this.state$.value.status === "connecting")
+  }
+
+  public getConnectionError() {
+    return computed(() => {
+      const state = this.state$.value
+      return state.status === "error" ? state.message : null
+    })
+  }
+
+  public async connectToVendoredInstance(): Promise<boolean> {
+    if (this.isCurrentlyVendored()) {
+      return true
+    }
+
+    this.state$.next({
+      status: "connecting",
+      target: "Vendored",
+    })
+    this.emit(this.state$.value)
+
+    try {
+      const instance: VendoredInstance = {
+        type: "vendored",
+        displayName: "Hoppscotch",
+        version: "vendored",
+      }
+
+      this.state$.next({
+        status: "connected",
+        instance,
+      })
+      this.emit(this.state$.value)
+
+      await this.saveCurrentState()
+
+      this.toast.success("Connecting to Vendored")
+
+      const loadResponse = await load({
+        bundleName: "Hoppscotch",
+        window: { title: "Hoppscotch" },
+      })
+
+      if (!loadResponse.success) {
+        throw new Error("Failed to load vendored bundle")
+      }
+
+      this.toast.success("Connected to Vendored")
+      return true
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      this.state$.next({
+        status: "error",
+        target: "Vendored",
+        message: errorMessage,
+      })
+      this.emit(this.state$.value)
+
+      this.toast.error(`Failed to connect: ${errorMessage}`)
+      return false
+    }
+  }
+
+  public async connectToServerInstance(serverUrl: string): Promise<boolean> {
+    if (this.isCurrentlyConnectedTo(serverUrl)) {
+      const currentState = this.state$.value
+      if (
+        currentState.status === "connected" &&
+        currentState.instance.type === "server"
+      ) {
+        const updatedInstance: ServerInstance = {
+          ...currentState.instance,
+          lastUsed: new Date().toISOString(),
+        }
+
+        await this.updateRecentInstance(updatedInstance)
+      }
+      return true
+    }
+
+    const displayName = this.getDisplayNameFromUrl(serverUrl)
+    const normalizedUrl = this.normalizeUrl(serverUrl)
+
+    this.state$.next({
+      status: "connecting",
+      target: displayName,
+    })
+    this.emit(this.state$.value)
+
+    try {
+      const downloadResponse = await download({ serverUrl: normalizedUrl })
+      if (!downloadResponse.success) {
+        throw new Error("Failed to download bundle")
+      }
+
+      const instance: ServerInstance = {
+        type: "server",
+        serverUrl: normalizedUrl,
+        displayName,
+        version: downloadResponse.version,
+        lastUsed: new Date().toISOString(),
+      }
+
+      await this.updateRecentInstance(instance)
+
+      this.state$.next({
+        status: "connected",
+        instance,
+      })
+      this.emit(this.state$.value)
+
+      await this.saveCurrentState()
+
+      this.toast.success(`Connecting to ${displayName}`)
+
+      const loadResponse = await load({
+        bundleName: downloadResponse.bundleName,
+        window: { title: "Hoppscotch" },
+      })
+
+      if (!loadResponse.success) {
+        throw new Error("Failed to load bundle")
+      }
+
+      this.toast.success(`Connected to ${displayName}`)
+      return true
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      this.state$.next({
+        status: "error",
+        target: displayName,
+        message: errorMessage,
+      })
+      this.emit(this.state$.value)
+
+      this.toast.error(`Connection failed: ${errorMessage}`)
+      return false
+    }
+  }
+
+  public async removeInstance(serverUrl: string): Promise<boolean> {
+    try {
+      const normalizedUrl = this.normalizeUrl(serverUrl)
+      const instances = this.recentInstances$.value.filter(
+        (instance) => instance.serverUrl !== normalizedUrl
+      )
+
+      if (instances.length === this.recentInstances$.value.length) {
+        return false
+      }
+
+      this.recentInstances$.next(instances)
+      await this.saveRecentInstances()
+
+      const displayName = this.getDisplayNameFromUrl(serverUrl)
+      this.toast.success(`Removed ${displayName}`)
+
+      if (this.isCurrentlyConnectedTo(serverUrl)) {
+        this.state$.next({ status: "idle" })
+        this.emit(this.state$.value)
+        await this.saveCurrentState()
+      }
+
+      return true
+    } catch (error) {
+      this.toast.error("Failed to remove instance")
+      return false
+    }
+  }
+
+  public async clearCache(): Promise<boolean> {
+    try {
+      await clear()
+      this.toast.success("Cache cleared successfully")
+      return true
+    } catch (error) {
+      this.toast.error("Failed to clear cache")
+      return false
+    }
   }
 
   public getCurrentInstanceDisplayName(): string {
-    const instance = this.getCurrentInstance()
-
-    if (!instance.value) {
-      return "Hoppscotch Self Hosted"
+    const state = this.state$.value
+    if (state.status !== "connected") {
+      return "Hoppscotch"
     }
+    return state.instance.displayName
+  }
 
-    const url = instance.value.url
-
+  public getDisplayNameFromUrl(url: string): string {
     try {
-      const urlO = new URL(url)
-      const hostname = urlO.hostname
-
-      if (hostname === "localhost") {
+      const urlObj = new URL(url)
+      if (urlObj.hostname === "localhost") {
         return "Self Hosted"
       }
-      if (hostname === "hoppscotch") {
-        return "Cloud"
+      if (urlObj.hostname === "hoppscotch") {
+        return "Vendored"
       }
-      return hostname.replace(/^www\./, "")
+      return urlObj.hostname.replace(/^www\./, "")
     } catch {
       return url
     }
   }
 
-  public getCurrentInstanceStream() {
-    return this.currentInstance$
+  public isCurrentlyVendored(): boolean {
+    const state = this.state$.value
+    return state.status === "connected" && state.instance.type === "vendored"
   }
 
-  public getInstanceEventsStream() {
-    return this.getEventStream()
+  public isCurrentlyConnectedTo(serverUrl: string): boolean {
+    const state = this.state$.value
+    if (state.status !== "connected") return false
+
+    const instance = state.instance
+    if (instance.type !== "server") return false
+
+    return instance.serverUrl === this.normalizeUrl(serverUrl)
   }
 
-  public getRecentInstancesStream() {
-    return this.recentInstances$
-  }
-
-  public getCurrentInstance() {
-    return computed(() => this.currentInstance$.value)
-  }
-
-  public getRecentInstances() {
-    return this.recentInstances$.value
-  }
-
-  public getConnectingState() {
-    return this.isConnecting
-  }
-
-  public getConnectionError() {
-    return this.connectionError
-  }
-
-  public clearConnectionError() {
-    this.connectionError.value = null
-  }
-
-  private async loadCurrentInstance() {
+  public normalizeUrl(url: string): string {
     try {
-      const currentInstance =
-        await this.store.get<CurrentInstance>("currentInstance")
-      if (currentInstance) {
-        this.currentInstance$.next(currentInstance)
+      const withProtocol = url.startsWith("http") ? url : `http://${url}`
+      const urlObj = new URL(withProtocol)
+
+      if (!urlObj.port) {
+        urlObj.port = "3200"
+      }
+
+      return urlObj.toString().replace(/\/$/, "")
+    } catch (error) {
+      return url
+    }
+  }
+
+  public normalizeUrlSimple(url: string): string {
+    try {
+      const withProtocol = url.startsWith("http") ? url : `http://${url}`
+      const parsedUrl = new URL(withProtocol)
+
+      if (!parsedUrl.port) {
+        parsedUrl.port = "3200"
+      }
+
+      return (
+        parsedUrl.origin.toLowerCase() +
+        parsedUrl.pathname.replace(/\/+$/, "").toLowerCase()
+      )
+    } catch (e) {
+      return url.trim().toLowerCase().replace(/\/+$/, "")
+    }
+  }
+
+  private async loadSavedState(): Promise<void> {
+    try {
+      const savedState =
+        await this.store.get<ConnectionState>("connectionState")
+
+      if (savedState && savedState.status === "connected") {
+        if (savedState.instance.type === "server") {
+          this.state$.next(savedState)
+          this.emit(this.state$.value)
+        }
       }
     } catch (error) {
-      console.error("Failed to load current instance:", error)
+      console.error("Failed to load saved state:", error)
+      this.state$.next({ status: "idle" })
     }
   }
 
-  private async saveCurrentInstance(instance: CurrentInstance | null) {
+  private async saveCurrentState(): Promise<void> {
     try {
-      await this.store.set("currentInstance", instance)
+      await this.store.set("connectionState", this.state$.value)
       await this.store.save()
     } catch (error) {
-      console.error("Failed to save current instance:", error)
+      console.error("Failed to save current state:", error)
     }
   }
 
-  private async loadRecentInstances() {
+  private async loadRecentInstances(): Promise<void> {
     try {
       const instances =
-        (await this.store.get<InstanceDetails[]>("recentInstances")) || []
+        (await this.store.get<ServerInstance[]>("recentInstances")) || []
 
-      const updatedInstances = instances.map((instance) => {
-        if ("pinned" in instance) {
-          const { pinned, ...rest } = instance as InstanceDetails & {
-            pinned: boolean
-          }
-          return rest as InstanceDetails
-        }
-        return instance
-      })
-
-      const sortedInstances = updatedInstances.sort(
+      const sortedInstances = instances.sort(
         (a, b) =>
           new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime()
       )
@@ -163,228 +392,36 @@ export class InstanceSwitcherService extends Service<InstanceEvent> {
     }
   }
 
-  public async saveRecentInstances(
-    instances: InstanceDetails[]
-  ): Promise<void> {
+  private async saveRecentInstances(): Promise<void> {
     try {
-      this.recentInstances$.next(instances)
-      await this.store.set("recentInstances", instances)
+      await this.store.set("recentInstances", this.recentInstances$.value)
       await this.store.save()
     } catch (error) {
       console.error("Failed to save recent instances:", error)
     }
   }
 
-  public async removeInstance(url: string): Promise<void> {
+  private async updateRecentInstance(instance: ServerInstance): Promise<void> {
     try {
-      const instances = [...this.recentInstances$.value]
-      const index = instances.findIndex((item) => item.url === url)
+      const currentInstances = [...this.recentInstances$.value]
+      const instances = currentInstances.filter(
+        (item) => item.serverUrl !== instance.serverUrl
+      )
 
-      if (index >= 0) {
-        instances.splice(index, 1)
-        await this.saveRecentInstances(instances)
-      }
-    } catch (error) {
-      console.error("Failed to remove instance:", error)
-    }
-  }
+      instances.unshift(instance)
 
-  public async setCurrentVendoredInstance(): Promise<void> {
-    try {
-      const currentInstance: CurrentInstance = {
-        url: "app://hoppscotch",
-        version: "vendored",
-        isVendored: true,
+      if (instances.length > MAX_RECENT_INSTANCES) {
+        instances.length = MAX_RECENT_INSTANCES
       }
 
-      await load({
-        bundleName: "hoppscotch",
-        window: { title: "Hoppscotch" },
-      })
+      this.recentInstances$.next(instances)
+      await this.saveRecentInstances()
 
-      this.currentInstance$.next(currentInstance)
-      await this.saveCurrentInstance(currentInstance)
-      this.emit({
-        event: "instance-changed",
-        url: currentInstance.url,
-      })
-      this.emit({
-        event: "instance-connection-success",
-        url: currentInstance.url,
-      })
-    } catch (error) {
-      console.error("Failed to set vendored instance:", error)
-      this.connectionError.value =
-        error instanceof Error ? error.message : String(error)
-    }
-  }
-
-  private async updateRecentInstance(url: string, version: string) {
-    try {
-      const instances = [...this.recentInstances$.value]
-      const existingIndex = instances.findIndex((item) => item.url === url)
-
-      const newEntry: InstanceDetails = {
-        url,
-        lastUsed: new Date().toISOString(),
-        version,
-      }
-
-      if (existingIndex >= 0) {
-        instances.splice(existingIndex, 1)
-      }
-
-      instances.unshift(newEntry)
-
-      if (instances.length > MAX_HISTORY) {
-        instances.splice(MAX_HISTORY)
-      }
-
-      await this.saveRecentInstances(instances)
+      console.log(
+        `Updated recent instances. Current count: ${instances.length}`
+      )
     } catch (error) {
       console.error("Failed to update recent instance:", error)
-    }
-  }
-
-  public isCurrentInstance(url: string): boolean {
-    if (!url || !this.currentInstance$.value) return false
-
-    if (this.currentInstance$.value.isVendored) {
-      return url === "app://hoppscotch"
-    }
-
-    const normalizedInput = this.normalizeUrlSimple(url)
-    const normalizedCurrent = this.normalizeUrlSimple(
-      this.currentInstance$.value.url
-    )
-
-    return normalizedInput === normalizedCurrent
-  }
-
-  private normalizeUrlSimple(url: string): string {
-    try {
-      const withProtocol = url.startsWith("http") ? url : `http://${url}`
-      const parsedUrl = new URL(withProtocol)
-
-      if (!parsedUrl.port) parsedUrl.port = "3200"
-
-      return (
-        parsedUrl.origin.toLowerCase() +
-        parsedUrl.pathname.replace(/\/+$/, "").toLowerCase()
-      )
-    } catch (e) {
-      return url.trim().toLowerCase().replace(/\/+$/, "")
-    }
-  }
-
-  public async clearAllInstances() {
-    try {
-      await this.saveRecentInstances([])
-      this.emit({ event: "instance-cleared" })
-    } catch (error) {
-      console.error("Failed to clear all instances:", error)
-    }
-  }
-
-  public async clearCache() {
-    try {
-      await clear()
-      return E.right(undefined)
-    } catch (err) {
-      console.error("Failed to clear cache:", err)
-      return E.left("Failed to clear cache")
-    }
-  }
-
-  public async connectToInstance(url: string): Promise<E.Either<string, void>> {
-    if (this.isConnecting.value) {
-      return E.left("Already connecting to an instance")
-    }
-
-    if (this.isCurrentInstance(url)) {
-      return E.left("Already connected to this instance")
-    }
-
-    this.isConnecting.value = true
-    this.connectionError.value = null
-    this.emit({ event: "instance-connecting", url })
-
-    try {
-      const normalizedUrlResult = pipe(url, this.normalizeUrl)
-
-      if (E.isLeft(normalizedUrlResult)) {
-        const error = normalizedUrlResult.left.message
-        this.connectionError.value = error
-        this.emit({
-          event: "instance-connection-failed",
-          url,
-          error,
-        })
-        return E.left(error)
-      }
-
-      const normalizedUrl = normalizedUrlResult.right
-
-      const downloadResp = await download({ serverUrl: normalizedUrl })
-      if (!downloadResp.success) {
-        const error = "Failed to download bundle"
-        this.connectionError.value = error
-        this.emit({
-          event: "instance-connection-failed",
-          url: normalizedUrl,
-          error,
-        })
-        return E.left(error)
-      }
-
-      await this.updateRecentInstance(normalizedUrl, downloadResp.version)
-
-      const loadResp = await load({
-        bundleName: downloadResp.bundleName,
-        window: { title: "Hoppscotch" },
-      })
-
-      if (!loadResp.success) {
-        const error = "Failed to load bundle"
-        this.connectionError.value = error
-        this.emit({
-          event: "instance-connection-failed",
-          url: normalizedUrl,
-          error,
-        })
-        return E.left(error)
-      }
-
-      const currentInstance = {
-        url: normalizedUrl,
-        version: downloadResp.version,
-        isVendored: false,
-      }
-      this.currentInstance$.next(currentInstance)
-      await this.saveCurrentInstance(currentInstance)
-
-      this.emit({
-        event: "instance-changed",
-        url: normalizedUrl,
-      })
-
-      this.emit({
-        event: "instance-connection-success",
-        url: normalizedUrl,
-      })
-
-      return E.right(undefined)
-    } catch (err) {
-      const error = err instanceof Error ? err.message : String(err)
-      this.connectionError.value = error
-      this.emit({
-        event: "instance-connection-failed",
-        url,
-        error,
-      })
-      return E.left(error)
-    } finally {
-      this.isConnecting.value = false
     }
   }
 }

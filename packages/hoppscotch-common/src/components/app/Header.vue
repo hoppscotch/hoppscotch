@@ -308,10 +308,20 @@ import IconChevronDown from "~icons/lucide/chevron-down"
 const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
-
 const instanceSwitcherService = useService(InstanceSwitcherService)
+const instanceSwitcherRef = ref<any | null>(null)
 
-const instanceDisplayName = computed(() => instanceSwitcherService.getCurrentInstanceDisplayName())
+const currentState = useReadonlyStream(
+  instanceSwitcherService.getStateStream(),
+  instanceSwitcherService.getCurrentState().value
+)
+
+const instanceDisplayName = computed(() => {
+  if (currentState.value.status !== "connected") {
+    return "Hoppscotch"
+  }
+  return currentState.value.instance.displayName
+})
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -501,7 +511,6 @@ const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
-const instanceSwitcherRef = ref<any | null>(null)
 
 defineActionHandler("modals.team.edit", handleTeamEdit)
 

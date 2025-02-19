@@ -1,182 +1,190 @@
 <template>
   <div class="flex flex-col w-full">
-    <div v-if="!showAddInstanceModal" class="flex flex-col w-full">
-      <div
-        v-if="currentInstance"
-        class="flex items-center justify-between p-4 hover:bg-primaryLight"
-      >
-        <div class="flex items-center gap-2">
-          <IconLucideServer class="text-secondary" />
-          <span class="font-semibold">{{
-            getInstanceDisplayName(currentInstance.url)
-          }}</span>
-        </div>
-        <IconLucideCheck class="text-purple-500" />
+    <div
+      v-if="currentInstance"
+      class="flex items-center justify-between p-4 hover:bg-primaryLight"
+    >
+      <div class="flex items-center gap-2">
+        <IconLucideServer
+          v-if="currentInstance.type === 'server'"
+          class="text-secondary"
+        />
+        <IconLucidePackage v-else class="text-secondary" />
+        <span class="font-semibold">{{ currentInstance.displayName }}</span>
       </div>
+      <IconLucideCheck class="text-purple-500" />
+    </div>
 
-      <div
-        v-if="recentInstances.length > 0 && userEmail"
-        class="p-4 text-secondary text-sm"
-      >
-        Organizations for {{ userEmail }}
-      </div>
+    <div
+      v-if="recentInstances.length > 0 && userEmail"
+      class="p-4 text-secondary text-sm"
+    >
+      Organizations for {{ userEmail }}
+    </div>
 
-      <div
-        class="flex items-center justify-between p-4 hover:bg-primaryLight cursor-pointer"
-        @click="loadVendoredInstance()"
-      >
-        <div class="flex items-center gap-2">
-          <IconLucidePackage class="text-secondary" />
-          <div class="flex flex-col">
-            <span class="font-semibold">Hoppscotch</span>
-            <span class="text-xs text-secondary">Vendored app</span>
-          </div>
-        </div>
-        <IconLucideArrowRight class="text-secondary" />
-      </div>
-
-      <div class="flex flex-col">
-        <div
-          v-for="instance in recentInstances"
-          :key="instance.url"
-          class="flex items-center justify-between p-4 hover:bg-primaryLight"
-          :class="{ 'opacity-50': isCurrentInstance(instance.url) }"
-        >
-          <div
-            class="flex items-center gap-2 flex-1 cursor-pointer"
-            @click="
-              !isCurrentInstance(instance.url) && connectToUrl(instance.url)
-            "
-          >
-            <IconLucideServer class="text-secondary" />
-            <div class="flex flex-col">
-              <span class="font-semibold">{{
-                getInstanceDisplayName(instance.url)
-              }}</span>
-              <span v-if="instance.version" class="text-xs text-secondary"
-                >v{{ instance.version }}</span
-              >
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <HoppButtonSecondary
-              v-tippy="{
-                content: t('action.remove_instance') || 'Remove instance',
-                theme: 'tooltip',
-              }"
-              class="!p-2"
-              :icon="IconLucideTrash"
-              @click.stop="() => removeInstance(instance.url)"
-            />
-            <IconLucideArrowRight
-              v-if="!isCurrentInstance(instance.url)"
-              class="text-secondary"
-            />
-          </div>
+    <div
+      class="flex items-center justify-between p-4 hover:bg-primaryLight"
+      :class="{ 'cursor-pointer': !isVendored, 'opacity-50': isVendored }"
+      @click="!isVendored && connectToVendored()"
+    >
+      <div class="flex items-center gap-2">
+        <IconLucidePackage class="text-secondary" />
+        <div class="flex flex-col">
+          <span class="font-semibold">Hoppscotch</span>
+          <span class="text-xs text-secondary">Vendored app</span>
         </div>
       </div>
-
-      <div
-        class="flex items-center gap-2 p-4 hover:bg-primaryLight cursor-pointer border-t border-divider"
-        @click="showAddInstanceModal = true"
-      >
-        <IconLucidePlus class="text-secondary" />
-        <span class="text-secondary">Add an instance</span>
+      <div class="flex items-center">
+        <IconLucideCheck v-if="isVendored" class="text-green-500" />
+        <IconLucideArrowRight v-else class="text-secondary" />
       </div>
     </div>
-  </div>
 
-  <HoppSmartModal
-    v-if="showAddInstanceModal"
-    dialog
-    :title="t('instances.add_new') || 'Add New Instance'"
-    styles="sm:max-w-md"
-    @close="showAddInstanceModal = false"
-  >
-    <template #body>
-      <form class="flex flex-col space-y-4" @submit.prevent="handleConnect">
-        <div class="flex flex-col space-y-2">
-          <HoppSmartInput
-            v-model="instanceUrl"
-            :disabled="isLoading"
-            placeholder="localhost"
-            :error="!!error"
-            type="url"
-            autofocus
-            styles="bg-primaryLight border-divider text-secondaryDark"
-            input-styles="floating-input peer w-full px-4 py-2 bg-primaryDark border border-divider rounded text-secondaryDark font-medium transition focus:border-dividerDark disabled:opacity-75"
-            @submit="handleConnect"
-          >
-            <template #prefix>
-              <IconLucideGlobe class="text-secondary" />
-            </template>
-            <template
-              v-if="
-                !isLoading && !error && instanceUrl && !isSameAsCurrentInstance
-              "
-              #suffix
-            >
-              <IconLucideCheck class="text-green-500" />
-            </template>
-            <template
-              v-if="!isLoading && !error && isSameAsCurrentInstance"
-              #suffix
-            >
-              <IconLucideAlertCircle class="text-amber-500" />
-            </template>
-          </HoppSmartInput>
-          <span v-if="error" class="text-red-500 text-tiny">{{ error }}</span>
-          <span
-            v-else-if="isSameAsCurrentInstance"
-            class="text-amber-500 text-tiny"
-          >
-            {{
-              t("instances.already_connected") ||
-              "You are already connected to this instance"
-            }}
-          </span>
+    <div class="flex flex-col">
+      <div
+        v-for="instance in recentInstances"
+        :key="instance.serverUrl"
+        class="flex items-center justify-between p-4 hover:bg-primaryLight"
+        :class="{ 'opacity-50': isConnectedTo(instance.serverUrl) }"
+      >
+        <div
+          class="flex items-center gap-2 flex-1 cursor-pointer"
+          @click="
+            !isConnectedTo(instance.serverUrl) &&
+              connectToServer(instance.serverUrl)
+          "
+        >
+          <IconLucideServer class="text-secondary" />
+          <div class="flex flex-col">
+            <span class="font-semibold">{{ instance.displayName }}</span>
+            <span v-if="instance.version" class="text-xs text-secondary">
+              v{{ instance.version }}
+            </span>
+          </div>
         </div>
-
-        <HoppButtonPrimary
-          type="submit"
-          :disabled="isLoading || isSameAsCurrentInstance"
-          :loading="isLoading"
-          :label="t('action.connect')"
-          class="h-10"
-        />
-      </form>
-    </template>
-
-    <template #footer>
-      <div class="flex justify-end w-full">
-        <HoppButtonSecondary
-          v-tippy="{
-            content: t('instances.clear_cached_bundles'),
-            theme: 'tooltip',
-          }"
-          :icon="IconLucideTrash2"
-          :label="t('action.clear_cache')"
-          :loading="isClearingCache"
-          :disabled="isClearingCache"
-          class="!text-red-500 hover:!text-red-600"
-          @click="handleClearCache"
-        />
+        <div class="flex items-center gap-2">
+          <HoppButtonSecondary
+            v-tippy="{
+              content: t('action.remove_instance') || 'Remove instance',
+              theme: 'tooltip',
+            }"
+            class="!p-2"
+            :icon="IconLucideTrash"
+            @click.stop="removeInstance(instance.serverUrl)"
+          />
+          <IconLucideCheck
+            v-if="isConnectedTo(instance.serverUrl)"
+            class="text-green-500"
+          />
+          <IconLucideArrowRight v-else class="text-secondary" />
+        </div>
       </div>
-    </template>
-  </HoppSmartModal>
+    </div>
+
+    <div
+      class="flex items-center gap-2 p-4 hover:bg-primaryLight cursor-pointer border-t border-divider"
+      @click="showAddModal = true"
+    >
+      <IconLucidePlus class="text-secondary" />
+      <span class="text-secondary">Add an instance</span>
+    </div>
+
+    <HoppSmartModal
+      v-if="showAddModal"
+      dialog
+      :title="t('instances.add_new') || 'Add New Instance'"
+      styles="sm:max-w-md"
+      @close="showAddModal = false"
+    >
+      <template #body>
+        <form class="flex flex-col space-y-4" @submit.prevent="handleConnect">
+          <div class="flex flex-col space-y-2">
+            <HoppSmartInput
+              v-model="newInstanceUrl"
+              :disabled="isConnecting"
+              placeholder="localhost"
+              :error="!!connectionError"
+              type="url"
+              autofocus
+              styles="bg-primaryLight border-divider text-secondaryDark"
+              input-styles="floating-input peer w-full px-4 py-2 bg-primaryDark border border-divider rounded text-secondaryDark font-medium transition focus:border-dividerDark disabled:opacity-75"
+              @submit="handleConnect"
+            >
+              <template #prefix>
+                <IconLucideGlobe class="text-secondary" />
+              </template>
+              <HoppSmartInput>
+                <template #suffix>
+                  <IconLucideCheck
+                    v-if="
+                      !isConnecting &&
+                      !connectionError &&
+                      newInstanceUrl &&
+                      isValidUrl &&
+                      !isCurrentUrl
+                    "
+                    class="text-green-500"
+                  />
+                  <IconLucideAlertCircle
+                    v-else-if="
+                      !isConnecting && !connectionError && isCurrentUrl
+                    "
+                    class="text-amber-500"
+                  />
+                </template>
+              </HoppSmartInput>
+            </HoppSmartInput>
+            <span v-if="connectionError" class="text-red-500 text-tiny">
+              {{ connectionError }}
+            </span>
+            <span v-else-if="isCurrentUrl" class="text-amber-500 text-tiny">
+              {{
+                t("instances.already_connected") ||
+                "You are already connected to this instance"
+              }}
+            </span>
+          </div>
+
+          <HoppButtonPrimary
+            type="submit"
+            :disabled="isConnecting || !isValidUrl || isCurrentUrl"
+            :loading="isConnecting"
+            :label="t('action.connect')"
+            class="h-10"
+          />
+        </form>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-end w-full">
+          <HoppButtonSecondary
+            v-tippy="{
+              content: t('instances.clear_cached_bundles'),
+              theme: 'tooltip',
+            }"
+            :icon="IconLucideTrash2"
+            :label="t('action.clear_cache')"
+            :loading="isClearingCache"
+            :disabled="isClearingCache"
+            class="!text-red-500 hover:!text-red-600"
+            @click="handleClearCache"
+          />
+        </div>
+      </template>
+    </HoppSmartModal>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue"
+import { ref, computed } from "vue"
 import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
-import { Subscription } from "rxjs"
-import {
-  InstanceDetails,
-  InstanceSwitcherService,
-} from "~/services/instance-switcher.service"
+import { useReadonlyStream } from "@composables/stream"
 import { platform } from "~/platform"
-import { load } from "@hoppscotch/plugin-appload"
+import {
+  InstanceSwitcherService,
+  InstanceType,
+} from "~/services/instance-switcher.service"
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
@@ -188,146 +196,100 @@ import IconLucideArrowRight from "~icons/lucide/arrow-right"
 import IconLucidePlus from "~icons/lucide/plus"
 import IconLucidePackage from "~icons/lucide/package"
 
-const instanceSwitcherService = useService(InstanceSwitcherService)
 const t = useI18n()
+const instanceService = useService(InstanceSwitcherService)
 
-const showAddInstanceModal = ref(false)
-const instanceUrl = ref("")
-const isClearingCache = ref(false)
-const isLoadingVendored = ref(false)
-const storedInstances = ref<InstanceDetails[]>([])
-let subscription: Subscription | null = null
-
-const error = computed(() => instanceSwitcherService.getConnectionError().value)
-const isLoading = computed(
-  () => instanceSwitcherService.getConnectingState().value
-)
-const recentInstances = computed(() => {
-  return storedInstances.value.filter((instance) =>
-    currentInstance.value
-      ? !instanceSwitcherService.isCurrentInstance(instance.url)
-      : true
-  )
-})
-const currentInstance = computed(
-  () => instanceSwitcherService.getCurrentInstance().value
-)
 const userEmail = computed(() => platform.auth.getProbableUser()?.email || "")
+const showAddModal = ref(false)
+const newInstanceUrl = ref("")
+const isClearingCache = ref(false)
 
-const isSameAsCurrentInstance = computed(() => {
-  return instanceUrl.value ? isCurrentInstance(instanceUrl.value) : false
+const state = useReadonlyStream(
+  instanceService.getStateStream(),
+  instanceService.getCurrentState().value
+)
+
+const recentInstances = useReadonlyStream(
+  instanceService.getRecentInstancesStream(),
+  []
+)
+
+const currentInstance = computed<InstanceType | null>(() => {
+  return state.value.status === "connected" ? state.value.instance : null
 })
 
-const isCurrentInstance = (url: string): boolean => {
-  return instanceSwitcherService.isCurrentInstance(url)
+const isConnecting = computed(() => state.value.status === "connecting")
+
+const connectionError = computed(() => {
+  return state.value.status === "error" ? state.value.message : null
+})
+
+const isVendored = computed(() => {
+  return currentInstance.value?.type === "vendored"
+})
+
+const isValidUrl = computed(() => {
+  if (!newInstanceUrl.value) return false
+
+  try {
+    new URL(
+      newInstanceUrl.value.startsWith("http")
+        ? newInstanceUrl.value
+        : `http://${newInstanceUrl.value}`
+    )
+    return true
+  } catch {
+    return false
+  }
+})
+
+const isCurrentUrl = computed(() => {
+  if (!newInstanceUrl.value) return false
+  if (currentInstance.value?.type !== "server") return false
+
+  try {
+    return instanceService.isCurrentlyConnectedTo(newInstanceUrl.value)
+  } catch {
+    return false
+  }
+})
+
+const isConnectedTo = (url: string): boolean => {
+  return instanceService.isCurrentlyConnectedTo(url)
 }
 
-const getInstanceDisplayName = (url: string): string => {
-  try {
-    const urlObj = new URL(url)
-    if (urlObj.hostname === "localhost") {
-      return "Self Hosted"
-    }
-    if (urlObj.hostname === "hoppscotch") {
-      return "Cloud"
-    }
-    return urlObj.hostname.replace(/^www\./, "")
-  } catch {
-    return url
-  }
+const connectToVendored = async () => {
+  if (isVendored.value) return
+  await instanceService.connectToVendoredInstance()
+  if (showAddModal.value) showAddModal.value = false
+}
+
+const connectToServer = async (url: string) => {
+  await instanceService.connectToServerInstance(url)
 }
 
 const removeInstance = async (url: string) => {
-  const instances = storedInstances.value.filter((item) => item.url !== url)
-  storedInstances.value = instances
-  await instanceSwitcherService.removeInstance(url)
+  await instanceService.removeInstance(url)
+}
+
+const handleConnect = async () => {
+  if (!newInstanceUrl.value || !isValidUrl.value || isCurrentUrl.value) return
+
+  const success = await instanceService.connectToServerInstance(
+    newInstanceUrl.value
+  )
+
+  if (success) {
+    newInstanceUrl.value = ""
+    showAddModal.value = false
+  }
 }
 
 const handleClearCache = async () => {
   if (isClearingCache.value) return
 
   isClearingCache.value = true
-  try {
-    await instanceSwitcherService.clearCache()
-  } finally {
-    isClearingCache.value = false
-  }
+  await instanceService.clearCache()
+  isClearingCache.value = false
 }
-
-const loadVendoredInstance = async () => {
-  if (isLoadingVendored.value) return
-
-  isLoadingVendored.value = true
-  try {
-    const loadResp = await load({
-      bundleName: "Hoppscotch",
-      window: { title: "Hoppscotch" },
-    })
-
-    if (loadResp.success) {
-      instanceSwitcherService.setCurrentVendoredInstance()
-    }
-  } catch (e) {
-    console.error("Failed to load vendored instance:", e)
-  } finally {
-    isLoadingVendored.value = false
-  }
-}
-
-const connectToUrl = async (url: string) => {
-  if (isLoading.value) return
-  if (isCurrentInstance(url)) return
-
-  try {
-    await instanceSwitcherService.connectToInstance(url)
-  } catch (e) {}
-}
-
-const handleConnect = () => {
-  if (!instanceUrl.value || isSameAsCurrentInstance.value) return
-  connectToUrl(instanceUrl.value).then(() => {
-    if (!error.value) {
-      showAddInstanceModal.value = false
-    }
-  })
-}
-
-watch(instanceUrl, (newUrl) => {
-  if (isCurrentInstance(newUrl)) {
-    instanceSwitcherService.clearConnectionError()
-  }
-})
-
-onMounted(() => {
-  subscription = instanceSwitcherService
-    .getInstanceEventsStream()
-    .subscribe((event: any) => {
-      if (event.event === "instance-connection-success") {
-        instanceUrl.value = ""
-        showAddInstanceModal.value = false
-      }
-    })
-
-  const instancesSubscription = instanceSwitcherService
-    .getRecentInstancesStream()
-    .subscribe((instances) => {
-      storedInstances.value = instances
-    })
-
-  storedInstances.value = instanceSwitcherService.getRecentInstances()
-
-  if (subscription) {
-    const originalUnsubscribe = subscription.unsubscribe.bind(subscription)
-    subscription.unsubscribe = () => {
-      originalUnsubscribe()
-      instancesSubscription.unsubscribe()
-    }
-  }
-})
-
-onUnmounted(() => {
-  if (subscription) {
-    subscription.unsubscribe()
-  }
-})
 </script>

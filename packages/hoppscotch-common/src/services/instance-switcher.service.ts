@@ -46,7 +46,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
     if (this.inVendoredEnvironment()) {
       const instance: VendoredInstance = {
         type: "vendored",
-        displayName: "Hoppscotch",
+        displayName: "Hoppscotch Vendored",
         version: "vendored",
       }
 
@@ -119,7 +119,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
     try {
       const instance: VendoredInstance = {
         type: "vendored",
-        displayName: "Hoppscotch",
+        displayName: "Hoppscotch Vendored",
         version: "vendored",
       }
 
@@ -176,8 +176,8 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       return true
     }
 
-    const displayName = this.getDisplayNameFromUrl(serverUrl)
-    const normalizedUrl = this.normalizeUrl(serverUrl)
+    const normalizedUrl = this.normalizeUrl(serverUrl);
+    const displayName = this.getDisplayNameFromUrl(normalizedUrl);
 
     this.state$.next({
       status: "connecting",
@@ -290,10 +290,10 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
     try {
       const urlObj = new URL(url)
       if (urlObj.hostname === "localhost") {
-        return "Self Hosted"
+        return "Hoppscotch Self Hosted"
       }
       if (urlObj.hostname === "hoppscotch") {
-        return "Vendored"
+        return "Hoppscotch Vendored"
       }
       return urlObj.hostname.replace(/^www\./, "")
     } catch {

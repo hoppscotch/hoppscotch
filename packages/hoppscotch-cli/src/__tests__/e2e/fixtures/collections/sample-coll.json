@@ -15,7 +15,7 @@
                 "authActive": true
             },
             "preRequestScript": "",
-            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"object\");\n }); \n\n// Check Content-Type\n pw.test(\"Check Content-Type\", () => {\n  let contentType = null;\n  for (const header of pw.response.headers) {\n  if (header.key.toLowerCase() === 'content-type') {\n    contentType = header.value;\n    break;\n  }\n}\npw.expect(contentType).toBe('application');\n });",
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"object\");\n }); \n\n// Check Content-Type\n pw.test(\"Check Content-Type\", () => {\n  let contentType = null;\n  for (const header of pw.response.headers) {\n  if (header.key.toLowerCase() === 'content-type') {\n    contentType = header.value;\n    break;\n  }\n}\npw.expect(contentType).toBe('application/json');\n });",
             "body": {
                 "contentType": null,
                 "body": null

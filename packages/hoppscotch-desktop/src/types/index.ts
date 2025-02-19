@@ -1,4 +1,4 @@
-export interface RecentUrl {
+export interface RecentInstance {
   url: string
   lastUsed: string
   version?: string

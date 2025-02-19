@@ -11,7 +11,6 @@ declare module 'vue' {
     HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
     HoppSmartInput: typeof import('@hoppscotch/ui')['HoppSmartInput']
     HoppSmartItem: typeof import('@hoppscotch/ui')['HoppSmartItem']
-    IconLucideCloud: typeof import('~icons/lucide/cloud')['default']
     LayoutHeader: typeof import('./components/layout/LayoutHeader.vue')['default']
     LayoutSidebar: typeof import('./components/layout/LayoutSidebar.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']

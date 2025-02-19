@@ -1322,7 +1322,8 @@
     "invite_sent_smtp_disabled_description": "Sending invite emails is disabled for this instance of Hoppscotch. Please use the Copy link button to copy and share the invite link manually.",
     "copy_invite_link": "Copy Invite Link",
     "search_title": "Team Requests",
-    "user_not_found": "User not found in the instance."
+    "user_not_found": "User not found in the instance.",
+    "invite_members": "Invite Members"
   },
   "team_environment": {
     "deleted": "Environment Deleted",
@@ -1611,6 +1612,7 @@
     "load_list_error": "Unable to Load Workspace List",
     "members": "Number of members",
     "no_invite": "No invites",
+    "no_invite_description": "Invite your team to start collaborating",
     "owner": "OWNER",
     "owner_description": " Owners can add, edit, and delete requests, collections and workspace members.",
     "permissions": "Permissions",
@@ -1618,6 +1620,7 @@
     "no_members": "No members in this workspace. Add members to this workspace to collaborate",
     "no_pending_invites": "No pending invites",
     "no_teams": "No workspaces found..",
+    "no_teams_description": "Create a workspace to collaborate with your team",
     "pending_invites": "Pending invites",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
@@ -1670,6 +1673,7 @@
     "name": "Name",
     "new_user_added": "New User Added",
     "no_invite": "No pending invites found",
+    "no_invite_description": "No pending invites! Start inviting your teammates to Hoppscotch",
     "no_shared_requests": "No shared requests created by the user",
     "no_users": "No users found",
     "not_available": "Not Available",

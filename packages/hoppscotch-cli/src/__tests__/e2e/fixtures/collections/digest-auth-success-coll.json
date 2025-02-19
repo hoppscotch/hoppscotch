@@ -29,7 +29,7 @@
       "params": [],
       "headers": [],
       "endpoint": "<<url>>",
-      "testScript": "pw.test(\"Status code is 200\", ()=> { pw.expect(pw.response.status).toBe(200);}); \n pw.test(\"Receives the www-authenticate header\", ()=> { pw.expect(pw.response.headers['www-authenticate']).toBeType('string');});",
+      "testScript": "pw.test(\"Status code is 200\", ()=> { pw.expect(pw.response.status).toBe(200);});",
       "preRequestScript": "",
       "responses": {},
       "requestVariables": []

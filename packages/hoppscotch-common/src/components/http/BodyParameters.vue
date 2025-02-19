@@ -144,6 +144,7 @@
               :auto-complete-env="true"
               :auto-complete-source="autoCompleteContenTypes"
               :envs="envs"
+              :class="{ 'opacity-50': !entry.active }"
               @change="
                 updateBodyParam(index, {
                   key: entry.key,

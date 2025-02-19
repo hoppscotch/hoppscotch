@@ -61,6 +61,7 @@
       :placeholder="t('count.description')"
       class="flex flex-1 px-4 bg-transparent"
       type="text"
+      :class="{ 'opacity-50': !entityActive }"
       @update:value="emit('update:description', $event.target.value)"
       @input="
         updateEntity(index, {

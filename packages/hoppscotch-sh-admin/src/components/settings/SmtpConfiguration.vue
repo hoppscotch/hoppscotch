@@ -233,7 +233,7 @@ const fieldErrors = computed(() => {
   const errors: Record<string, boolean> = {};
 
   if (smtpConfigs.value?.fields.mailer_smtp_url) {
-    const value = smtpConfigs.value.fields.mailer_smtp_url as string;
+    const value = smtpConfigs.value.fields.mailer_smtp_url;
     errors.mailer_smtp_url =
       !value.startsWith('smtp://') && !value.startsWith('smtps://');
   }

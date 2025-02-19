@@ -33,7 +33,7 @@
   <div v-if="isConfigUpdated" class="fixed bottom-0 right-0 m-10">
     <HoppButtonPrimary
       :label="t('configs.save_changes')"
-      @click="triggerSaveChangesModal()"
+      @click="triggerSaveChangesModal"
     />
   </div>
 

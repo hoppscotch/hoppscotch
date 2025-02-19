@@ -84,6 +84,7 @@
             <SmartEnvInput
               v-model="variable.key"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,
@@ -96,6 +97,7 @@
             <SmartEnvInput
               v-model="variable.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,

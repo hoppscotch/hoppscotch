@@ -30,6 +30,13 @@ import { GQLTabService } from "~/services/tab/graphql"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
+type ConnectionRequestOptions = {
+  url: string
+  request: HoppGQLRequest
+  inheritedHeaders: HoppGQLRequest["headers"]
+  inheritedAuth: HoppGQLAuth
+}
+
 type RunQueryOptions = {
   name?: string
   url: string
@@ -169,8 +176,7 @@ export const graphqlTypes = computed(() => {
 let timeoutSubscription: any
 
 export const connect = async (
-  url: string,
-  request: HoppGQLRequest,
+  options: ConnectionRequestOptions,
   isRunGQLOperation = false
 ) => {
   if (connection.state === "CONNECTED") {
@@ -186,7 +192,7 @@ export const connect = async (
 
   const poll = async () => {
     try {
-      await getSchema(url, request)
+      await getSchema(options)
       // polling for schema
       if (connection.state !== "CONNECTED") connection.state = "CONNECTED"
       timeoutSubscription = setTimeout(() => {
@@ -224,24 +230,50 @@ export const reset = () => {
   connection.schema = null
 }
 
-const getSchema = async (url: string, request: HoppGQLRequest) => {
+const getSchema = async (options: ConnectionRequestOptions) => {
   try {
     const introspectionQuery = JSON.stringify({
       query: getIntrospectionQuery(),
     })
 
+    const { url, request, inheritedHeaders, inheritedAuth } = options
+
+    const headers = request?.headers || []
+
+    const auth =
+      request?.auth.authType === "inherit" && request.auth.authActive
+        ? clone(inheritedAuth)
+        : clone(request.auth)
+
+    let runHeaders: HoppGQLRequest["headers"] = []
+
+    if (inheritedHeaders) {
+      runHeaders = [
+        ...inheritedHeaders,
+        ...clone(request.headers),
+      ] as HoppRESTHeaders
+    } else {
+      runHeaders = clone(request.headers)
+    }
+
     const finalHeaders: Record<string, string> = {}
-    request.headers
-      .filter((x) => x.active && x.key !== "")
-      .forEach((x) => (finalHeaders[x.key] = x.value))
 
-    const { authHeaders } = await generateAuthHeader(url, request.auth)
+    const { authHeaders } = await generateAuthHeader(url, auth)
 
+    runHeaders.forEach((header) => {
+      if (header.active && header.key !== "") {
+        finalHeaders[header.key] = header.value
+      }
+    })
     Object.assign(finalHeaders, authHeaders)
+
+    headers
+      .filter((item) => item.active && item.key !== "")
+      .forEach(({ key, value }) => (finalHeaders[key] = value))
 
     const reqOptions = {
       method: "POST",
-      url,
+      url: options.url,
       headers: {
         ...finalHeaders,
         "content-type": "application/json",
@@ -304,7 +336,15 @@ const getSchema = async (url: string, request: HoppGQLRequest) => {
 
 export const runGQLOperation = async (options: RunQueryOptions) => {
   if (connection.state !== "CONNECTED") {
-    await connect(options.url, options.request, true)
+    await connect(
+      {
+        url: options.url,
+        request: options.request,
+        inheritedHeaders: options.inheritedHeaders,
+        inheritedAuth: options.inheritedAuth,
+      },
+      true
+    )
   }
 
   const {

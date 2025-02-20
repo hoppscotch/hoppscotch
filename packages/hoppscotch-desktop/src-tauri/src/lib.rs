@@ -19,6 +19,7 @@ pub fn run() {
     tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {

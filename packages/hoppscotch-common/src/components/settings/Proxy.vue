@@ -36,10 +36,13 @@ import { useSetting } from "~/composables/settings"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconCheck from "~icons/lucide/check"
 import { useToast } from "~/composables/toast"
-import { computed } from "vue"
+import { computed, watch } from "vue"
 import { useService } from "dioc/vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { proxyInterceptor } from "~/platform/std/interceptors/proxy"
+import { useReadonlyStream } from "~/composables/stream"
+import { platform } from "~/platform"
+import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 const t = useI18n()
 const toast = useToast()
@@ -47,6 +50,17 @@ const toast = useToast()
 const interceptorService = useService(InterceptorService)
 
 const PROXY_URL = useSetting("PROXY_URL")
+
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+
+watch(currentUser, async () => {
+  if (!currentUser.value) {
+    PROXY_URL.value = await getDefaultProxyUrl()
+  }
+})
 
 const proxyEnabled = computed(
   () =>
@@ -59,8 +73,8 @@ const clearIcon = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
   1000
 )
 
-const resetProxy = () => {
-  PROXY_URL.value = "https://proxy.hoppscotch.io/"
+const resetProxy = async () => {
+  PROXY_URL.value = await getDefaultProxyUrl()
   clearIcon.value = IconCheck
   toast.success(`${t("state.cleared")}`)
 }

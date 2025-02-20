@@ -3,6 +3,7 @@ import { Observable } from "rxjs"
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import type { KeysMatching } from "~/types/ts-utils"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 export const HoppBgColors = ["system", "light", "dark", "black"] as const
 
@@ -82,6 +83,8 @@ export type SettingsDef = {
   CUSTOM_NAMING_STYLE: string
 }
 
+const defaultProxyURL = await getDefaultProxyUrl()
+
 export const getDefaultSettings = (): SettingsDef => ({
   syncCollections: true,
   syncHistory: true,
@@ -111,7 +114,7 @@ export const getDefaultSettings = (): SettingsDef => ({
   CURRENT_INTERCEPTOR_ID: "",
 
   // TODO: Interceptor related settings should move under the interceptor systems
-  PROXY_URL: "https://proxy.hoppscotch.io/",
+  PROXY_URL: defaultProxyURL,
   URL_EXCLUDES: {
     auth: true,
     httpUser: true,

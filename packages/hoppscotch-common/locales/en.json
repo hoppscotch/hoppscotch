@@ -823,7 +823,7 @@
     "proxy_url": "Proxy URL",
     "proxy_use_toggle": "Use the proxy middleware to send requests",
     "read_the": "Read the",
-    "reset_default": "Reset to default",
+    "reset_default": "Use Default Proxy",
     "short_codes": "Short codes",
     "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",

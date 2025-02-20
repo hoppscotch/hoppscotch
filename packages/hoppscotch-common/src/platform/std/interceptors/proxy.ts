@@ -7,6 +7,7 @@ import axios from "axios"
 import { settingsStore } from "~/newstore/settings"
 import { decodeB64StringToArrayBuffer } from "~/helpers/utils/b64"
 import SettingsProxy from "~/components/settings/Proxy.vue"
+import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 type ProxyHeaders = {
   "multipart-part-key"?: string
@@ -36,6 +37,8 @@ const getProxyPayload = (
   return payload
 }
 
+const defaultProxyURL = await getDefaultProxyUrl()
+
 async function runRequest(
   req: AxiosRequestConfig,
   cancelToken: CancelToken
@@ -55,7 +58,7 @@ async function runRequest(
   try {
     // TODO: Validation for the proxy result
     const { data } = await axios.post(
-      settingsStore.value.PROXY_URL ?? "https://proxy.hoppscotch.io",
+      settingsStore.value.PROXY_URL ?? defaultProxyURL,
       payload,
       {
         headers,

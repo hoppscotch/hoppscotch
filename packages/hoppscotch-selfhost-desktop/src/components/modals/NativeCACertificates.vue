@@ -47,7 +47,7 @@
         <HoppButtonSecondary
           class="mx-4"
           :icon="IconPlus"
-          :label="'Add Certifcate File'"
+          :label="'Add Certificate File'"
           :loading="selectedFiles && selectedFiles!.length > 0"
           filled
           outline

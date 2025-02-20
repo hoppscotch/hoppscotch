@@ -28,6 +28,19 @@ export const FormDataKeyValue = z
       }),
     ])
   )
+  .transform((data) => {
+    // Sample use case about restoring the `value` field in an empty state during page reload
+    // for files chosen in the previous attempt
+    if (data.isFile && Array.isArray(data.value) && data.value.length === 0) {
+      return {
+        ...data,
+        isFile: false,
+        value: "",
+      }
+    }
+
+    return data
+  })
 
 export type FormDataKeyValue = z.infer<typeof FormDataKeyValue>
 

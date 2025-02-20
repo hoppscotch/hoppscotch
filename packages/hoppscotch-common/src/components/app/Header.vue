@@ -36,7 +36,7 @@
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <InstanceSwitcher />
+                <InstanceSwitcher @close-dropdown="hide()" />
               </div>
             </template>
           </tippy>

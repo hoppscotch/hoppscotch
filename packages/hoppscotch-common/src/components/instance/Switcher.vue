@@ -83,7 +83,12 @@
 
     <div
       class="flex items-center gap-2 p-4 hover:bg-primaryLight cursor-pointer border-t border-divider"
-      @click="showAddModal = true"
+      @click="
+        () => {
+          showAddModal = true
+          $emit('close-dropdown')
+        }
+      "
     >
       <IconLucidePlus class="text-secondary" />
       <span class="text-secondary">Add an instance</span>
@@ -199,6 +204,8 @@ import IconLucidePackage from "~icons/lucide/package"
 const t = useI18n()
 const instanceService = useService(InstanceSwitcherService)
 
+const emit = defineEmits(["close-dropdown"])
+
 const userEmail = computed(() => platform.auth.getProbableUser()?.email || "")
 const showAddModal = ref(false)
 const newInstanceUrl = ref("")
@@ -262,10 +269,12 @@ const connectToVendored = async () => {
   if (isVendored.value) return
   await instanceService.connectToVendoredInstance()
   if (showAddModal.value) showAddModal.value = false
+  emit("close-dropdown")
 }
 
 const connectToServer = async (url: string) => {
   await instanceService.connectToServerInstance(url)
+  emit("close-dropdown")
 }
 
 const removeInstance = async (url: string) => {

@@ -113,8 +113,9 @@
               <HoppSmartFileChip
                 v-for="(file, fileIndex) in entry.value"
                 :key="`param-${index}-file-${fileIndex}`"
-                >{{ file.name }}</HoppSmartFileChip
               >
+                {{ file.name }}
+              </HoppSmartFileChip>
             </div>
           </div>
           <span v-else class="flex flex-1">

@@ -308,13 +308,21 @@ import IconChevronDown from "~icons/lucide/chevron-down"
 const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
-const instanceSwitcherService = useService(InstanceSwitcherService)
-const instanceSwitcherRef = ref<any | null>(null)
+const instanceSwitcherService =
+  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
+const instanceSwitcherRef =
+  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
 
-const currentState = useReadonlyStream(
-  instanceSwitcherService.getStateStream(),
-  instanceSwitcherService.getCurrentState().value
-)
+const currentState =
+  kernelMode === "desktop" && instanceSwitcherService
+    ? useReadonlyStream(
+        instanceSwitcherService.getStateStream(),
+        instanceSwitcherService.getCurrentState().value
+      )
+    : ref({
+        status: "disconnected",
+        instance: { displayName: "Hoppscotch" },
+      })
 
 const instanceDisplayName = computed(() => {
   if (currentState.value.status !== "connected") {

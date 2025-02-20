@@ -70,7 +70,7 @@
         <hr />
         <HoppButtonPrimary
           :label="t('organization.create_an_organization')"
-          @click="platform.organization!.initiateOnboarding"
+          to="/orgs"
         />
       </div>
     </div>

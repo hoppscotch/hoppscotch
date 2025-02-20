@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center space-x-2 py-4">
-      <h2 class="font-semibold flex-1">{{ selectedDomainDisplay }}</h2>
+      <h2 class="font-semibold flex-1 truncate">{{ selectedDomainDisplay }}</h2>
       <HoppButtonSecondary
         v-tippy="{
           theme: 'tooltip',
@@ -130,7 +130,7 @@
               :class="{ 'bg-primaryLight': domain === selectedDomain }"
               @click="selectDomain(domain)"
             >
-              <span class="py-2.5">{{
+              <span class="py-2.5 truncate max-w-[80%]">{{
                 domain === "*" ? t("settings.global_defaults") : domain
               }}</span>
               <HoppButtonSecondary

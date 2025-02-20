@@ -176,8 +176,8 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       return true
     }
 
-    const normalizedUrl = this.normalizeUrl(serverUrl);
-    const displayName = this.getDisplayNameFromUrl(normalizedUrl);
+    const normalizedUrl = this.normalizeUrl(serverUrl)
+    const displayName = this.getDisplayNameFromUrl(normalizedUrl)
 
     this.state$.next({
       status: "connecting",

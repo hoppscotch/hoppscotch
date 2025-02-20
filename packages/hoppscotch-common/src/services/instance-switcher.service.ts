@@ -46,7 +46,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
     if (this.inVendoredEnvironment()) {
       const instance: VendoredInstance = {
         type: "vendored",
-        displayName: "Hoppscotch Vendored",
+        displayName: "Hoppscotch",
         version: "vendored",
       }
 
@@ -119,7 +119,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
     try {
       const instance: VendoredInstance = {
         type: "vendored",
-        displayName: "Hoppscotch Vendored",
+        displayName: "Hoppscotch",
         version: "vendored",
       }
 
@@ -293,7 +293,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         return "Hoppscotch Self Hosted"
       }
       if (urlObj.hostname === "hoppscotch") {
-        return "Hoppscotch Vendored"
+        return "Hoppscotch"
       }
       return urlObj.hostname.replace(/^www\./, "")
     } catch {

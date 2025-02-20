@@ -6,6 +6,7 @@ import { cloneDeep } from "lodash-es"
 import { NetworkResponse, NetworkStrategy } from "../network"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 import { settingsStore } from "~/newstore/settings"
+import { getDefaultProxyUrl } from "../proxyUrl"
 
 let cancelSource = axios.CancelToken.source()
 
@@ -41,6 +42,8 @@ const getProxyPayload = (
 
   return payload
 }
+
+const defaultProxyURL = await getDefaultProxyUrl()
 
 const preProcessRequest = (req: AxiosRequestConfig): AxiosRequestConfig => {
   const reqClone = cloneDeep(req)
@@ -103,7 +106,7 @@ const axiosWithProxy: NetworkStrategy = (req) =>
       TE.tryCatch(
         () =>
           axios.post(
-            settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io",
+            settingsStore.value.PROXY_URL || defaultProxyURL,
             payload,
             {
               headers,

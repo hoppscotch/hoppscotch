@@ -22,7 +22,6 @@ import {
   deleteUserRequest,
   duplicateUserCollection,
   editGQLUserRequest,
-  renameUserCollection,
   updateUserCollection,
 } from "./api"
 

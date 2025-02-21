@@ -27,7 +27,6 @@ import {
   editUserRequest,
   moveUserCollection,
   moveUserRequest,
-  renameUserCollection,
   updateUserCollection,
   updateUserCollectionOrder,
 } from "./api"

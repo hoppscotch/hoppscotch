@@ -3,7 +3,7 @@ import { Observable } from "rxjs"
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import type { KeysMatching } from "~/types/ts-utils"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
+import { DEFAULT_HOPP_PROXY_URL, getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 export const HoppBgColors = ["system", "light", "dark", "black"] as const
 
@@ -83,59 +83,65 @@ export type SettingsDef = {
   CUSTOM_NAMING_STYLE: string
 }
 
-const defaultProxyURL = await getDefaultProxyUrl()
+let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
 
-export const getDefaultSettings = (): SettingsDef => ({
-  syncCollections: true,
-  syncHistory: true,
-  syncEnvironments: true,
+export const getDefaultSettings = (): SettingsDef => {
+  getDefaultProxyUrl().then((url) => {
+    defaultProxyURL = url
+  })
 
-  WRAP_LINES: {
-    httpRequestBody: true,
-    httpResponseBody: true,
-    httpHeaders: true,
-    httpParams: true,
-    httpUrlEncoded: true,
-    httpPreRequest: true,
-    httpTest: true,
-    httpRequestVariables: true,
-    graphqlQuery: true,
-    graphqlResponseBody: true,
-    graphqlHeaders: false,
-    graphqlVariables: false,
-    graphqlSchema: true,
-    importCurl: true,
-    codeGen: true,
-    cookie: true,
-    multipartFormdata: true,
-  },
+  return {
+    syncCollections: true,
+    syncHistory: true,
+    syncEnvironments: true,
 
-  // Set empty because interceptor module will set the default value
-  CURRENT_INTERCEPTOR_ID: "",
+    WRAP_LINES: {
+      httpRequestBody: true,
+      httpResponseBody: true,
+      httpHeaders: true,
+      httpParams: true,
+      httpUrlEncoded: true,
+      httpPreRequest: true,
+      httpTest: true,
+      httpRequestVariables: true,
+      graphqlQuery: true,
+      graphqlResponseBody: true,
+      graphqlHeaders: false,
+      graphqlVariables: false,
+      graphqlSchema: true,
+      importCurl: true,
+      codeGen: true,
+      cookie: true,
+      multipartFormdata: true,
+    },
 
-  // TODO: Interceptor related settings should move under the interceptor systems
-  PROXY_URL: defaultProxyURL,
-  URL_EXCLUDES: {
-    auth: true,
-    httpUser: true,
-    httpPassword: true,
-    bearerToken: true,
-    oauth2Token: true,
-  },
-  THEME_COLOR: "indigo",
-  BG_COLOR: "system",
-  ENCODE_MODE: "enable",
-  TELEMETRY_ENABLED: true,
-  EXPAND_NAVIGATION: false,
-  SIDEBAR: true,
-  SIDEBAR_ON_LEFT: false,
-  COLUMN_LAYOUT: true,
+    // Set empty because interceptor module will set the default value
+    CURRENT_INTERCEPTOR_ID: "",
 
-  HAS_OPENED_SPOTLIGHT: false,
-  ENABLE_AI_EXPERIMENTS: true,
-  AI_REQUEST_NAMING_STYLE: "DESCRIPTIVE_WITH_SPACES",
-  CUSTOM_NAMING_STYLE: "",
-})
+    // TODO: Interceptor related settings should move under the interceptor systems
+    PROXY_URL: defaultProxyURL,
+    URL_EXCLUDES: {
+      auth: true,
+      httpUser: true,
+      httpPassword: true,
+      bearerToken: true,
+      oauth2Token: true,
+    },
+    THEME_COLOR: "indigo",
+    BG_COLOR: "system",
+    ENCODE_MODE: "enable",
+    TELEMETRY_ENABLED: true,
+    EXPAND_NAVIGATION: false,
+    SIDEBAR: true,
+    SIDEBAR_ON_LEFT: false,
+    COLUMN_LAYOUT: true,
+
+    HAS_OPENED_SPOTLIGHT: false,
+    ENABLE_AI_EXPERIMENTS: true,
+    AI_REQUEST_NAMING_STYLE: "DESCRIPTIVE_WITH_SPACES",
+    CUSTOM_NAMING_STYLE: "",
+  }
+}
 
 type ApplySettingPayload = {
   [K in keyof SettingsDef]: {

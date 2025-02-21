@@ -139,7 +139,6 @@ const addRequestToTab = () => {
       type: "request",
       request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
       isDirty: false,
-      type: "request",
     })
 
     router.push({ path: "/" })

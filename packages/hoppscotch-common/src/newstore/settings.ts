@@ -85,11 +85,11 @@ export type SettingsDef = {
 
 let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
 
-export const getDefaultSettings = (): SettingsDef => {
-  getDefaultProxyUrl().then((url) => {
-    defaultProxyURL = url
-  })
+getDefaultProxyUrl().then((url) => {
+  defaultProxyURL = url
+})
 
+export const getDefaultSettings = (): SettingsDef => {
   return {
     syncCollections: true,
     syncHistory: true,

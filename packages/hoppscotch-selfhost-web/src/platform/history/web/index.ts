@@ -25,10 +25,10 @@ import {
   runUserHistoryDeletedSubscription,
   runUserHistoryStoreStatusChangedSubscription,
   runUserHistoryUpdatedSubscription,
-} from "./api"
+} from "@platform/history/web/api"
 
 import * as E from "fp-ts/Either"
-import { restHistorySyncer, gqlHistorySyncer } from "./sync"
+import { restHistorySyncer, gqlHistorySyncer } from "@platform/history/web/sync"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import { ReqType, ServiceStatus } from "@api/generated/graphql"
@@ -49,7 +49,7 @@ function initHistorySync() {
     getUserHistoryStatus()
 
     if (user) {
-      loadHistoryEntries()
+      await loadHistoryEntries()
     }
   })
 

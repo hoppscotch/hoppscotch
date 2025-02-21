@@ -1,5 +1,6 @@
 import { Service } from "dioc"
 import { Store } from "~/kernel/store"
+import { settingsStore } from "~/newstore/settings"
 import * as E from "fp-ts/Either"
 
 const STORE_NAMESPACE = "interceptors.proxy.v1"
@@ -19,7 +20,7 @@ interface StoredData {
 
 const DEFAULT_SETTINGS: ProxySettings = {
   version: "v1",
-  proxyUrl: "https://proxy.hoppscotch.io",
+  proxyUrl: settingsStore.value.PROXY_URL ?? "https://proxy.hoppscotch.io",
   accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
 }
 

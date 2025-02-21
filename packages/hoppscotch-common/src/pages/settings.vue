@@ -248,8 +248,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
-import { applySetting, toggleSetting } from "~/newstore/settings"
+import { ref, computed } from "vue"
+import { toggleSetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -285,7 +285,6 @@ const interceptorsWithSettings = computed(() =>
 )
 
 const ACCENT_COLOR = useSetting("THEME_COLOR")
-const PROXY_URL = useSetting("PROXY_URL")
 const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
@@ -326,20 +325,8 @@ const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 
 const confirmRemove = ref(false)
 
-const proxySettings = computed(() => ({
-  url: PROXY_URL.value,
-}))
-
 const hasAIExperimentsSupport =
   !!platform.experiments?.aiExperiments?.enableAIExperiments
-
-watch(
-  proxySettings,
-  ({ url }) => {
-    applySetting("PROXY_URL", url)
-  },
-  { deep: true }
-)
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

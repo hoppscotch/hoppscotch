@@ -37,12 +37,12 @@ const getProxyPayload = (
   return payload
 }
 
-const defaultProxyURL = await getDefaultProxyUrl()
-
 async function runRequest(
   req: AxiosRequestConfig,
   cancelToken: CancelToken
 ): RequestRunResult["response"] {
+  const defaultProxyURL = await getDefaultProxyUrl()
+
   const multipartKey =
     req.data instanceof FormData ? `proxyRequestData-${v4()}` : null
 

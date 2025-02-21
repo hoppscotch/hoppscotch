@@ -56,12 +56,14 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
-watch(currentUser, async () => {
-  if (!currentUser.value) {
-    PROXY_URL.value = await getDefaultProxyUrl()
+watch(
+  () => currentUser.value,
+  async () => {
+    if (!currentUser.value) {
+      PROXY_URL.value = await getDefaultProxyUrl()
+    }
   }
-})
-
+)
 const proxyEnabled = computed(
   () =>
     interceptorService.currentInterceptorID.value ===

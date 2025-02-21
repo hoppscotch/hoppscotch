@@ -1,4 +1,6 @@
 import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
+import { entityReference } from "verzod"
+
 import {
   createEnvironment,
   deleteEnvironment,
@@ -16,6 +18,7 @@ import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient
 import { environnmentsSyncer } from "@platform/environments/desktop/sync"
 
 import * as E from "fp-ts/Either"
+import { GlobalEnvironment } from "@hoppscotch/data"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import {
   createUserGlobalEnvironment,
@@ -81,6 +84,7 @@ async function loadUserEnvironments() {
       runDispatchWithOutSyncing(() => {
         replaceEnvironments(
           environments.map(({ id, variables, name }) => ({
+            v: 1,
             id,
             name,
             variables: JSON.parse(variables),
@@ -98,8 +102,16 @@ async function loadGlobalEnvironments() {
     const globalEnv = res.right.me.globalEnvironments
 
     if (globalEnv) {
+      const globalEnvVariableEntries = JSON.parse(globalEnv.variables)
+
+      const result = entityReference(GlobalEnvironment).safeParse(
+        globalEnvVariableEntries
+      )
+
       runDispatchWithOutSyncing(() => {
-        setGlobalEnvVariables(JSON.parse(globalEnv.variables))
+        setGlobalEnvVariables(
+          result.success ? result.data : globalEnvVariableEntries
+        )
         setGlobalEnvID(globalEnv.id)
       })
     }
@@ -164,6 +176,7 @@ function setupUserEnvironmentUpdatedSubscription() {
         if ((localIndex || localIndex == 0) && name) {
           runDispatchWithOutSyncing(() => {
             updateEnvironment(localIndex, {
+              v: 1,
               id,
               name,
               variables: JSON.parse(variables),

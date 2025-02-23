@@ -302,6 +302,7 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
+import { useSetting } from "~/composables/settings"
 
 const t = useI18n()
 const toast = useToast()
@@ -573,6 +574,8 @@ const hasTeamWriteAccess = computed(() => {
   return role === "OWNER" || role === "EDITOR"
 })
 
+const searchType = useSetting("COLLECTION_SEARCH_OPTION")
+
 const filteredCollections = computed(() => {
   const collections =
     collectionsType.value.type === "my-collections" ? myCollections.value : []
@@ -585,18 +588,35 @@ const filteredCollections = computed(() => {
   const filteredCollections = []
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
+  // console.log("all collections = ", collections)
+  const isRequestMatch = (request: HoppRESTRequest) => {
+    switch (searchType.value) {
+      case "name":
+        return request.name.toLowerCase().includes(filterText)
+      case "url":
+        return request.endpoint.toLowerCase().includes(filterText)
+      case "both":
+        return (
+          request.name.toLowerCase().includes(filterText) ||
+          request.endpoint.toLowerCase().includes(filterText)
+        )
+      default:
+        return request.name.toLowerCase().includes(filterText)
+    }
+  }
 
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isMatch(request.name)) filteredRequests.push(request)
+      if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
-      if (isMatch(folder.name)) filteredFolders.push(folder)
+      if (searchType.value !== "url" && isMatch(folder.name))
+        filteredFolders.push(folder)
       const filteredFolderRequests = []
       for (const request of folder.requests) {
-        if (isMatch(request.name)) filteredFolderRequests.push(request)
+        if (isRequestMatch(request)) filteredFolderRequests.push(request)
       }
       if (filteredFolderRequests.length > 0) {
         const filteredFolder = Object.assign({}, folder)

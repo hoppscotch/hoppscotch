@@ -29,6 +29,8 @@ const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
 const EncodeMode = z.enum(["enable", "disable", "auto"])
 
+const CollectionSearchOption = z.enum(["name", "url", "both"])
+
 const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
@@ -44,6 +46,7 @@ const SettingsDefSchema = z.object({
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
+  COLLECTION_SEARCH_OPTION: CollectionSearchOption,
   ENCODE_MODE: EncodeMode.catch("enable"),
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),

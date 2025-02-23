@@ -587,7 +587,6 @@ const filteredCollections = computed(() => {
   const filteredCollections = []
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
-  // console.log("all collections = ", collections)
   const isRequestMatch = (request: HoppRESTRequest) => {
     switch (searchType.value) {
       case "name":

@@ -289,13 +289,19 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
   public getDisplayNameFromUrl(url: string): string {
     try {
       const urlObj = new URL(url)
-      if (urlObj.hostname === "localhost") {
-        return "Hoppscotch Self Hosted"
-      }
-      if (urlObj.hostname === "hoppscotch") {
+      // We don't want entire hostname, only the specific org
+      const hostnameParts = urlObj.hostname.split(".")
+      const mainDomain = hostnameParts.slice(-2).join('.')
+
+      if (mainDomain === "hoppscotch") {
         return "Hoppscotch"
       }
-      return urlObj.hostname.replace(/^www\./, "")
+
+      if (mainDomain === "localhost") {
+        return "Hoppscotch Self Hosted"
+      }
+
+      return mainDomain || urlObj.hostname.replace(/^www\./, "")
     } catch {
       return url
     }

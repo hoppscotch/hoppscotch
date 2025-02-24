@@ -109,7 +109,7 @@
               :disabled="isConnecting"
               placeholder="localhost"
               :error="!!connectionError"
-              type="url"
+              type="text"
               autofocus
               styles="bg-primaryLight border-divider text-secondaryDark"
               input-styles="floating-input peer w-full px-4 py-2 bg-primaryDark border border-divider rounded text-secondaryDark font-medium transition focus:border-dividerDark disabled:opacity-75"
@@ -239,11 +239,11 @@ const isValidUrl = computed(() => {
   if (!newInstanceUrl.value) return false
 
   try {
-    new URL(
-      newInstanceUrl.value.startsWith("http")
-        ? newInstanceUrl.value
-        : `http://${newInstanceUrl.value}`
-    )
+    const normalizedUrl = newInstanceUrl.value.startsWith("http")
+      ? newInstanceUrl.value
+      : `http://${newInstanceUrl.value}`
+    const url = new URL(normalizedUrl)
+    console.info("url", url)
     return true
   } catch {
     return false

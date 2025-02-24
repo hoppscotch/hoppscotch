@@ -291,7 +291,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const urlObj = new URL(url)
       // We don't want entire hostname, only the specific org
       const hostnameParts = urlObj.hostname.split(".")
-      const mainDomain = hostnameParts.slice(-2).join('.')
+      const mainDomain = hostnameParts.slice(-2).join(".")
 
       if (mainDomain === "hoppscotch") {
         return "Hoppscotch"

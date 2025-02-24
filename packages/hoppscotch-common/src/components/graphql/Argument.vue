@@ -26,7 +26,7 @@
           {{ arg.name }}
         </span>
         :
-        <GraphqlTypeLink :type="arg.type" :clickable="true" />
+        <GraphqlTypeLink :type="arg.type" />
         <GraphqlDefaultValue v-if="showDefaultValue !== false" :field="arg" />
       </div>
     </div>

@@ -16,7 +16,7 @@
         />
         <template v-if="args.length > 0"> (...) </template>
         <span> : </span>
-        <GraphqlTypeLink :type="field.type" :clickable="true" />
+        <GraphqlTypeLink :type="field.type" />
         <GraphqlDefaultValue :field="field" />
       </div>
 

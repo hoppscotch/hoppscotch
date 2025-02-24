@@ -328,7 +328,6 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const urlObj = new URL(withProtocol)
 
       const pathSegments = urlObj.pathname.split("/").filter(Boolean)
-      console.info("pathSegments", pathSegments)
 
       if (!pathSegments.includes("desktop-app-server")) {
         // We try `desktop-app-server` subpath first
@@ -338,20 +337,17 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         // If it fails, fall back to the original URL with default port
         try {
           const re = withSubpath.toString().replace(/\/$/, "")
-          console.info("re", re)
           return re
         } catch {
           if (!urlObj.port) {
             urlObj.port = "3200"
           }
           const re = urlObj.toString().replace(/\/$/, "")
-          console.info("re", re)
           return re
         }
       }
 
       const re = urlObj.toString().replace(/\/$/, "")
-      console.info("re", re)
       return re
     } catch (error) {
       return url

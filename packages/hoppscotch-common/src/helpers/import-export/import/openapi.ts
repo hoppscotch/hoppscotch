@@ -197,7 +197,7 @@ const parseOpenAPIV3Responses = (
       status,
       code,
       headers,
-      body: stringifiedBody,
+      body: stringifiedBody ?? "",
       originalRequest,
     }
   }

@@ -114,7 +114,7 @@ const gqlConnect = () => {
     request: tabs.currentActiveTab.value.document.request,
     inheritedHeaders,
     inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-      ?.auth as HoppGQLAuth,
+      ?.auth.inheritedAuth as HoppGQLAuth,
   })
 
   platform.analytics?.logEvent({

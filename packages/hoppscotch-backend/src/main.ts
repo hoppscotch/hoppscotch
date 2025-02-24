@@ -43,7 +43,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   console.log(`Running in production:  ${configService.get('PRODUCTION')}`);
-  console.log(`Port: ${configService.get('PORT')}`);
+  console.log(`Port: ${configService.get('APP_PORT') || configService.get('PORT') || 3170}`);
 
   checkEnvironmentAuthProvider(
     configService.get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS') ??
@@ -90,7 +90,7 @@ async function bootstrap() {
 
   await setupSwagger(app);
 
-  await app.listen(configService.get('PORT') || 3170);
+  await app.listen(configService.get('APP_PORT') || configService.get('PORT') || 3170);
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {

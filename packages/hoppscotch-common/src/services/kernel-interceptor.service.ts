@@ -86,6 +86,10 @@ export class KernelInterceptorService extends Service {
     Array.from(this.state.interceptors.values())
   )
 
+  public getCurrentId(): string | null {
+    return this.state.currentId
+  }
+
   override onServiceInit(): void {
     this.setupInterceptorValidation()
   }

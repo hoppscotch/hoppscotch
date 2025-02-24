@@ -186,7 +186,7 @@ const parseOpenAPIV3Responses = (
     // and it converts the object into an array format, which can only be parsed back by the parse method from the same library
     // also we're displaying it as a string, so doesnt make much sense
     try {
-      stringifiedBody = JSON.stringify(body)
+      stringifiedBody = JSON.stringify(body ?? "")
       // the parsing will fail for a circular response schema
     } catch (e) {
       // eat five star, do nothing
@@ -197,7 +197,7 @@ const parseOpenAPIV3Responses = (
       status,
       code,
       headers,
-      body: stringifiedBody ?? "",
+      body: stringifiedBody,
       originalRequest,
     }
   }

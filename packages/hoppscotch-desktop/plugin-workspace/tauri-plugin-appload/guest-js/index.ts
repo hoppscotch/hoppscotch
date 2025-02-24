@@ -29,12 +29,26 @@ export interface LoadResponse {
   windowLabel: string
 }
 
+export interface RemoveOptions {
+  bundleName: string
+  serverUrl: string
+}
+
+export interface RemoveResponse {
+  success: boolean
+  bundleName: string
+}
+
 export async function download(options: DownloadOptions): Promise<DownloadResponse> {
   return await invoke<DownloadResponse>('plugin:appload|download', { options })
 }
 
 export async function load(options: LoadOptions): Promise<LoadResponse> {
   return await invoke<LoadResponse>('plugin:appload|load', { options })
+}
+
+export async function remove(options: RemoveOptions): Promise<RemoveResponse> {
+  return await invoke<RemoveResponse>('plugin:appload|remove', { options })
 }
 
 export async function clear(): Promise<void> {

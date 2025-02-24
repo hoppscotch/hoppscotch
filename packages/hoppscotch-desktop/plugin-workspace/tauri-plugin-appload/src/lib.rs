@@ -142,6 +142,7 @@ pub fn init<R: Runtime>(vendor: VendorConfigBuilder) -> TauriPlugin<R> {
         .invoke_handler(tauri::generate_handler![
             commands::download,
             commands::load,
+            commands::remove,
             commands::clear
         ])
         .register_uri_scheme_protocol("app", move |ctx, req| {

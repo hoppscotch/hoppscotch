@@ -8,9 +8,10 @@ use tauri::{
 
 use crate::{
     bundle::BundleLoader,
+    cache::CacheManager,
     models::{DownloadOptions, DownloadResponse, LoadOptions, LoadResponse},
     storage::{StorageError, StorageManager},
-    ui, Result,
+    ui, RemoveOptions, RemoveResponse, Result,
 };
 
 fn sanitize_window_label(input: &str) -> String {
@@ -130,6 +131,36 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
     };
 
     tracing::info!(?response, "Bundle loaded successfully");
+    Ok(response)
+}
+
+#[command]
+pub async fn remove<R: Runtime>(
+    app: AppHandle<R>,
+    options: RemoveOptions,
+) -> Result<RemoveResponse> {
+    tracing::info!(?options, "Starting instance removal process");
+    let storage = app.state::<Arc<StorageManager>>();
+    let cache = app.state::<Arc<CacheManager>>();
+
+    tracing::debug!("Retrieved StorageManager and CacheManager states");
+
+    storage
+        .delete_bundle(&options.bundle_name, &options.server_url)
+        .await
+        .map_err(|e| {
+            tracing::error!(?e, "Failed to delete bundle from storage");
+            e
+        })?;
+
+    cache.clear_memory_cache().await;
+
+    let response = RemoveResponse {
+        success: true,
+        bundle_name: options.bundle_name,
+    };
+
+    tracing::info!(?response, "Instance removed successfully");
     Ok(response)
 }
 

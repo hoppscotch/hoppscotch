@@ -5,6 +5,7 @@ Default permissions for AppLoad plugin
 - `allow-load`
 - `allow-download`
 - `allow-clear`
+- `allow-remove`
 
 ## Permission Table
 
@@ -115,6 +116,32 @@ Enables the ping command without any pre-configured scope.
 <td>
 
 Denies the ping command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`appload:allow-remove`
+
+</td>
+<td>
+
+Enables the remove command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`appload:deny-remove`
+
+</td>
+<td>
+
+Denies the remove command without any pre-configured scope.
 
 </td>
 </tr>

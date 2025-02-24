@@ -160,6 +160,20 @@ pub struct LoadResponse {
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct RemoveOptions {
+    pub bundle_name: String,
+    pub server_url: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveResponse {
+    pub success: bool,
+    pub bundle_name: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WindowOptions {
     #[serde(default = "default_window_title")]
     pub title: String,

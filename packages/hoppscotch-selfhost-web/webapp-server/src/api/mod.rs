@@ -13,11 +13,17 @@ pub fn routes(bundle_manager: Arc<crate::bundle::BundleManager>) -> Router {
     tracing::info!("Setting up API routes");
     let handler = Arc::new(ApiHandler::new(bundle_manager));
 
-    Router::new()
+    let api_routes = Router::new()
         .route("/api/v1/manifest", get(get_manifest))
         .route("/api/v1/bundle", get(download_bundle))
         .route("/api/v1/key", get(key))
-        .with_state(handler)
+        .with_state(handler.clone());
+
+    // NOTE: A hack to allow subpath access override
+    let desktop_app_routes = Router::new()
+        .nest("/desktop-app-server", api_routes.clone());
+
+    api_routes.merge(desktop_app_routes)
 }
 
 async fn get_manifest(

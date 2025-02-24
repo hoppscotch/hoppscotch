@@ -2,7 +2,7 @@ import { Service } from "dioc"
 import { BehaviorSubject, Observable } from "rxjs"
 import { computed } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
-import { download, load, clear } from "@hoppscotch/plugin-appload"
+import { download, load, clear, remove } from "@hoppscotch/plugin-appload"
 import { useToast } from "~/composables/toast"
 
 const STORE_PATH = "hopp.store.json"
@@ -14,6 +14,7 @@ type ServerInstance = {
   displayName: string
   version: string
   lastUsed: string
+  bundleName?: string
 }
 
 type VendoredInstance = {
@@ -197,6 +198,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         displayName,
         version: downloadResponse.version,
         lastUsed: new Date().toISOString(),
+        bundleName: downloadResponse.bundleName,
       }
 
       await this.updateRecentInstance(instance)
@@ -240,13 +242,31 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
   public async removeInstance(serverUrl: string): Promise<boolean> {
     try {
       const normalizedUrl = this.normalizeUrl(serverUrl)
+
+      const instanceToRemove = this.recentInstances$.value.find(
+        (instance) => instance.serverUrl === normalizedUrl
+      )
+
+      if (!instanceToRemove) {
+        return false
+      }
+
+      if (instanceToRemove.bundleName) {
+        try {
+          await remove({
+            bundleName: instanceToRemove.bundleName,
+            serverUrl: normalizedUrl
+          })
+          this.toast.success(`Removed ${instanceToRemove.displayName} from local storage`)
+        } catch (error) {
+          console.error("Failed to remove bundle from storage:", error)
+          // Continue with instance removal even if bundle removal fails
+        }
+      }
+
       const instances = this.recentInstances$.value.filter(
         (instance) => instance.serverUrl !== normalizedUrl
       )
-
-      if (instances.length === this.recentInstances$.value.length) {
-        return false
-      }
 
       this.recentInstances$.next(instances)
       await this.saveRecentInstances()
@@ -254,6 +274,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const displayName = this.getDisplayNameFromUrl(serverUrl)
       this.toast.success(`Removed ${displayName}`)
 
+      // If we're currently connected to this instance, go back to idle state
       if (this.isCurrentlyConnectedTo(serverUrl)) {
         this.state$.next({ status: "idle" })
         this.emit(this.state$.value)

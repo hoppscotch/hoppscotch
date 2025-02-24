@@ -335,6 +335,16 @@
           "const": "deny-ping"
         },
         {
+          "description": "Enables the remove command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove"
+        },
+        {
+          "description": "Denies the remove command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove"
+        },
+        {
           "description": "Default permissions for AppLoad plugin",
           "type": "string",
           "const": "default"

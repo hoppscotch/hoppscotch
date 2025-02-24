@@ -45,7 +45,11 @@
 import { computed, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "~/composables/toast"
-import axios, { AxiosResponse } from "axios"
+import { InterceptorService } from "~/services/interceptor.service"
+import { useService } from "dioc/vue"
+import * as E from "fp-ts/Either"
+
+const interceptorService = useService(InterceptorService)
 
 const t = useI18n()
 
@@ -54,7 +58,7 @@ const toast = useToast()
 const props = withDefaults(
   defineProps<{
     caption: string
-    fetchLogic?: (url: string) => Promise<AxiosResponse<any>>
+    fetchLogic?: (url: string) => Promise<E.Either<unknown, unknown>>
     loading?: boolean
     description?: string
   }>(),
@@ -79,7 +83,8 @@ const disableImportCTA = computed(() => !hasURL.value || props.loading)
 const urlFetchLogic =
   props.fetchLogic ??
   async function (url: string) {
-    const res = await axios.get(url, {
+    const res = await interceptorService.runRequest({
+      url: url,
       transitional: {
         forcedJSONParsing: false,
         silentJSONParsing: false,
@@ -87,23 +92,38 @@ const urlFetchLogic =
       },
     })
 
-    return res
+    const response = await res.response
+
+    if (E.isLeft(response)) {
+      return E.left("REQUEST_FAILED")
+    }
+
+    // convert ArrayBuffer to string
+    if (!(response.right.data instanceof ArrayBuffer)) {
+      return E.left("REQUEST_FAILED")
+    }
+
+    try {
+      return E.right(
+        InterceptorService.convertArrayBufferToString(response.right.data)
+      )
+    } catch (e) {
+      return E.left("REQUEST_FAILED")
+    }
   }
 
 async function fetchUrlData() {
   isFetchingUrl.value = true
+  const res = await urlFetchLogic(inputChooseGistToImportFrom.value)
 
-  try {
-    const res = await urlFetchLogic(inputChooseGistToImportFrom.value)
-
-    if (res.status === 200) {
-      emit("importFromURL", res.data)
-    }
-  } catch (e) {
+  if (E.isLeft(res)) {
     toast.error(t("import.failed"))
-    console.log(e)
-  } finally {
     isFetchingUrl.value = false
+    return
   }
+
+  emit("importFromURL", res.right)
+
+  isFetchingUrl.value = false
 }
 </script>

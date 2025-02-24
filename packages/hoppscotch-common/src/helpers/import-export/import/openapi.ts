@@ -179,12 +179,25 @@ const parseOpenAPIV3Responses = (
       },
     ]
 
+    let stringifiedBody = ""
+
+    // I think it'll be better to just drop the response body with circular refs
+    // because it's not possible to stringify them, using stringify from a library like flatted, will change the structure,
+    // and it converts the object into an array format, which can only be parsed back by the parse method from the same library
+    // also we're displaying it as a string, so doesnt make much sense
+    try {
+      stringifiedBody = JSON.stringify(body ?? "")
+      // the parsing will fail for a circular response schema
+    } catch (e) {
+      // eat five star, do nothing
+    }
+
     res[name] = {
       name,
       status,
       code,
       headers,
-      body: JSON.stringify(body ?? ""),
+      body: stringifiedBody,
       originalRequest,
     }
   }

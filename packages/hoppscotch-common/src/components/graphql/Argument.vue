@@ -51,6 +51,7 @@
 <script setup lang="ts">
 import type { GraphQLArgument } from "graphql"
 import { useQuery } from "~/helpers/graphql/query"
+import { debounce } from "lodash-es"
 
 const { handleAddArgument, isArgumentInOperation } = useQuery()
 
@@ -84,9 +85,9 @@ const props = withDefaults(defineProps<ArgumentProps>(), {
   showAddButton: false,
 })
 
-const insertQuery = () => {
+const insertQuery = debounce(() => {
   handleAddArgument(props.arg)
-}
+}, 50)
 </script>
 
 <style scoped lang="scss">

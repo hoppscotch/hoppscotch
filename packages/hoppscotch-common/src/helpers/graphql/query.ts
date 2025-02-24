@@ -188,7 +188,11 @@ export function useQuery() {
       // Check if paths are different at the top level
       const existingTopField = existingOperation.selectionSet
         .selections[0] as FieldNode
-      if (existingTopField.name.value !== queryPath[0]?.name) {
+
+      if (
+        existingTopField.name.value !==
+        (queryPath && queryPath[0] && queryPath[0]?.name)
+      ) {
         append = true
         currentSelectionSet.selections = []
       }

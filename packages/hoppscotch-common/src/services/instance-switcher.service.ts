@@ -321,31 +321,34 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const withProtocol = url.startsWith("http") ? url : `http://${url}`
       const urlObj = new URL(withProtocol)
 
-      if (!urlObj.port) {
-        urlObj.port = "3200"
+      const pathSegments = urlObj.pathname.split("/").filter(Boolean)
+      console.info("pathSegments", pathSegments)
+
+      if (!pathSegments.includes("desktop-app-server")) {
+        // We try `desktop-app-server` subpath first
+        const withSubpath = new URL(withProtocol)
+        withSubpath.pathname = `/desktop-app-server${urlObj.pathname}`
+
+        // If it fails, fall back to the original URL with default port
+        try {
+          const re = withSubpath.toString().replace(/\/$/, "")
+          console.info("re", re)
+          return re
+        } catch {
+          if (!urlObj.port) {
+            urlObj.port = "3200"
+          }
+          const re = urlObj.toString().replace(/\/$/, "")
+          console.info("re", re)
+          return re
+        }
       }
 
-      return urlObj.toString().replace(/\/$/, "")
+      const re = urlObj.toString().replace(/\/$/, "")
+      console.info("re", re)
+      return re
     } catch (error) {
       return url
-    }
-  }
-
-  public normalizeUrlSimple(url: string): string {
-    try {
-      const withProtocol = url.startsWith("http") ? url : `http://${url}`
-      const parsedUrl = new URL(withProtocol)
-
-      if (!parsedUrl.port) {
-        parsedUrl.port = "3200"
-      }
-
-      return (
-        parsedUrl.origin.toLowerCase() +
-        parsedUrl.pathname.replace(/\/+$/, "").toLowerCase()
-      )
-    } catch (e) {
-      return url.trim().toLowerCase().replace(/\/+$/, "")
     }
   }
 

@@ -111,7 +111,14 @@ impl ApiClient {
     }
 
     fn build_url(&self, path: &str) -> Result<Url> {
-        self.base_url.join(path).map_err(|e| {
+        let path_to_join = path.trim_start_matches('/');
+
+        let mut base = self.base_url.clone();
+        if !base.path().ends_with('/') {
+            base.set_path(&format!("{}/", base.path()));
+        }
+
+        base.join(path_to_join).map_err(|e| {
             tracing::error!(path, error = %e, "Invalid URL");
             ApiError::InvalidUrl(e)
         })

@@ -18,3 +18,7 @@
 :3170 {
 	reverse_proxy localhost:8080
 }
+
+:3200 {
+    reverse_proxy localhost:3200
+}

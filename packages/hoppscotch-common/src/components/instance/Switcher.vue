@@ -79,26 +79,6 @@
           <IconLucideArrowRight v-else class="text-secondary" />
         </div>
       </div>
-      <div
-        class="flex items-center justify-between p-4 hover:bg-primaryLight cursor-pointer"
-        :class="{ 'opacity-50': isConnectedTo('localhost') }"
-        @click="!isConnectedTo('localhost') && connectToServer('localhost')"
-      >
-        <div class="flex items-center gap-2">
-          <IconLucideServer class="text-secondary" />
-          <div class="flex flex-col">
-            <span class="font-semibold">Local</span>
-            <span class="text-xs text-secondary">Local Self Hosted</span>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <IconLucideCheck
-            v-if="isConnectedTo('localhost')"
-            class="text-green-500"
-          />
-          <IconLucideArrowRight v-else class="text-secondary" />
-        </div>
-      </div>
     </div>
 
     <div

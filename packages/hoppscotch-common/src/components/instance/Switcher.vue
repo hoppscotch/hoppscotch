@@ -11,23 +11,23 @@
       <div class="flex items-center gap-4">
         <IconLucidePackage />
         <div class="flex flex-col">
-          <span class="font-semibold">Hoppscotch</span>
+          <span class="font-semibold uppercase">Hoppscotch</span>
           <div class="flex items-center gap-1">
             <span class="text-xs"
               >On-prem</span
             >
-            <span class="text-xs"> v25.2.0 </span>
+            <span class="text-xs"> app </span>
           </div>
         </div>
       </div>
       <IconLucideCheck v-if="isVendored" />
     </div>
 
-    <div class="flex flex-col group">
+    <div class="flex flex-col">
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
-        class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md"
+        class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md group"
         :class="{
           'bg-accent text-accentContrast':
             currentInstance &&

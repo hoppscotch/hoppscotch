@@ -173,7 +173,11 @@ impl BundleLoader {
             .split("://")
             .nth(1)
             .unwrap_or("unknown")
-            .replace(['/', '.', ':'], "_")
+            // Extract only the hostname part by splitting at the first '/' and taking the first part
+            .split('/')
+            .next()
+            .unwrap_or("unknown")
+            .replace(['/', '.', ':', '-'], "_")
             .trim_end_matches('_')
             .to_string()
     }

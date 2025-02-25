@@ -318,10 +318,6 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         return "Hoppscotch"
       }
 
-      if (mainDomain === "localhost") {
-        return "Hoppscotch Self Hosted"
-      }
-
       return mainDomain || urlObj.hostname.replace(/^www\./, "")
     } catch {
       return url

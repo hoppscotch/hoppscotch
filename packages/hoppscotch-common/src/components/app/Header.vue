@@ -21,7 +21,7 @@
             theme="popover"
             :on-shown="() => instanceSwitcherRef.focus()"
           >
-            <div class="flex items-center">
+            <div class="flex items-center cursor-pointer">
               <span
                 class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
               >

@@ -12,12 +12,13 @@
         <IconLucidePackage />
         <div class="flex flex-col">
           <span class="font-semibold">Hoppscotch</span>
-          <span class="text-xs">Vendored app</span>
+          <span class="text-xs">On-prem app</span>
         </div>
       </div>
+      <IconLucideCheck v-if="isVendored" />
     </div>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col group">
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
@@ -31,7 +32,7 @@
         }"
       >
         <div
-          class="flex items-center gap-2 flex-1 cursor-pointer"
+          class="flex items-center gap-4 flex-1 cursor-pointer"
           @click="
             !isConnectedTo(instance.serverUrl) &&
               connectToServer(instance.serverUrl)
@@ -39,29 +40,41 @@
         >
           <IconLucideServer />
           <div class="flex flex-col">
-            <span class="font-semibold">{{ instance.displayName }}</span>
-            <span v-if="instance.version" class="text-xs">
-              v{{ instance.version }}
-            </span>
+            <span
+              v-tippy="{
+                content: instance.serverUrl,
+                theme: 'tooltip',
+              }"
+              class="font-semibold uppercase"
+              >{{ getHostname(instance.displayName) }}</span
+            >
+            <div class="flex items-center gap-1">
+              <span v-if="isOnPrem(instance.serverUrl)" class="text-xs"
+                >On-prem</span
+              >
+              <span v-if="instance.version" class="text-xs">
+                v{{ instance.version }}
+              </span>
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <HoppButtonSecondary
-            v-tippy="{
-              content: t('action.remove_instance') || 'Remove instance',
-              theme: 'tooltip',
-            }"
-            class="!p-2"
-            :class="{
-              '!text-accentContrast !bg-transparent hover:!bg-transparent':
-                currentInstance &&
-                currentInstance.type === 'server' &&
-                currentInstance.serverUrl ===
-                  instanceService.normalizeUrl(instance.serverUrl),
-            }"
-            :icon="IconLucideTrash"
-            @click.stop="removeInstance(instance.serverUrl)"
-          />
+        <div class="flex items-center">
+          <div class="w-8 flex justify-center">
+            <IconLucideCheck
+              v-if="isConnectedTo(instance.serverUrl)"
+              class="text-current"
+            />
+            <HoppButtonSecondary
+              v-if="!isConnectedTo(instance.serverUrl)"
+              v-tippy="{
+                content: t('action.remove_instance') || 'Remove instance',
+                theme: 'tooltip',
+              }"
+              class="!p-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity"
+              :icon="IconLucideTrash"
+              @click.stop="removeInstance(instance.serverUrl)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -245,6 +258,28 @@ const isCurrentUrl = computed(() => {
 
 const isConnectedTo = (url: string): boolean => {
   return instanceService.isCurrentlyConnectedTo(url)
+}
+
+const getHostname = (url: string): string => {
+  try {
+    if (!url.startsWith("http")) {
+      return url.toUpperCase()
+    }
+    const hostname = new URL(url).hostname
+    return hostname.toUpperCase()
+  } catch {
+    return url.toUpperCase()
+  }
+}
+
+const isOnPrem = (url: string): boolean => {
+  try {
+    const hostname = new URL(url.startsWith("http") ? url : `http://${url}`)
+      .hostname
+    return hostname !== "hoppscotch.com"
+  } catch {
+    return false
+  }
 }
 
 const connectToVendored = async () => {

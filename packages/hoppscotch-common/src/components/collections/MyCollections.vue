@@ -95,6 +95,11 @@
               node.data.type === 'collections' &&
                 emit('export-data', node.data.data.data)
             "
+            @alphabetic-sort="
+              emit('alphabetic-sort', {
+                collectionIndex: node.id,
+              })
+            "
             @remove-collection="emit('remove-collection', node.id)"
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
@@ -179,6 +184,11 @@
                   collectionIndex: node.id,
                   collection: node.data.data.data,
                 })
+            "
+            @alphabetic-sort="
+              emit('alphabetic-sort', {
+                collectionIndex: node.id,
+              })
             "
             @export-data="
               node.data.type === 'folders' &&
@@ -558,6 +568,7 @@ const emit = defineEmits<{
   ): void
   (event: "duplicate-response", payload: ResponsePayload): void
   (event: "export-data", payload: HoppCollection): void
+  (event: "alphabetic-sort", payload: { collectionIndex: string }): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (

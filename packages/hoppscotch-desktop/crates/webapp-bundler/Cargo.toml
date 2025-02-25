@@ -8,6 +8,7 @@ publish = false
 [dependencies]
 base64 = "0.22.1"
 blake3 = { version = "1.5.4", features = ["serde"] }
+chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.28", features = ["derive"] }
 mime_guess = "2.0.5"
 rayon = "1.10.0"

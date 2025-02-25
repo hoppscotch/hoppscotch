@@ -7,7 +7,7 @@ use clap::Parser;
 use rayon::prelude::*;
 use thiserror::Error;
 use walkdir::WalkDir;
-use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
+use zip::{ZipWriter, write::SimpleFileOptions};
 
 #[derive(Error, Debug)]
 pub enum BundlerError {
@@ -43,6 +43,10 @@ struct Args {
     /// Path to save the manifest file (optional)
     #[arg(short, long)]
     manifest: Option<PathBuf>,
+
+    /// Custom version for the bundle (defaults to CLI tool version)
+    #[arg(short, long)]
+    version: Option<String>,
 }
 
 #[derive(serde::Serialize)]
@@ -57,6 +61,8 @@ struct FileEntry {
 #[derive(serde::Serialize)]
 struct Manifest {
     files: Vec<FileEntry>,
+    version: String,
+    created_at: chrono::DateTime<chrono::Utc>,
 }
 
 mod hash_serde {
@@ -137,8 +143,7 @@ impl BundleBuilder {
         };
 
         for file_info in file_infos {
-            let options = SimpleFileOptions::default()
-                .unix_permissions(0o644);
+            let options = SimpleFileOptions::default().unix_permissions(0o644);
 
             builder
                 .writer
@@ -186,11 +191,20 @@ fn main() -> Result<()> {
     let builder = BundleBuilder::new(&args.input)?;
     let (content, files) = builder.finish()?;
 
+    let version = args.version
+        .or_else(|| std::env::var("WEBAPP_BUNDLE_VERSION").ok())
+        .unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string());
+    println!("Using bundle version: {}", version);
+
     let mut output_file = File::create(&args.output)?;
     output_file.write_all(&content)?;
     println!("Bundle written to: {}", args.output.display());
 
-    let manifest = Manifest { files };
+    let manifest = Manifest {
+        files,
+        version,
+        created_at: chrono::Utc::now(),
+    };
 
     if let Some(manifest_path) = args.manifest {
         let manifest_json = serde_json::to_string_pretty(&manifest)?;

@@ -46,7 +46,8 @@ impl BundleManager {
         })?;
         let signature = signing_key.sign(&content);
 
-        let bundle = Bundle::new(content, signature, files);
+        let bundle_version = &config.bundle_version;
+        let bundle = Bundle::new(bundle_version.clone(), content, signature, files);
         tracing::info!("Successfully created initial bundle");
 
         Ok(Self {

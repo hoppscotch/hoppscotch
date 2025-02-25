@@ -15,6 +15,9 @@ pub struct ServerConfig {
     pub max_bundle_size: usize,
 
     #[serde(default)]
+    pub bundle_version: Option<String>,
+
+    #[serde(default)]
     pub csp_directives: Option<String>,
 
     #[serde(skip)]
@@ -51,6 +54,7 @@ impl Default for ServerConfig {
         Self {
             port: default_port(),
             max_bundle_size: default_max_bundle_size(),
+            bundle_version: None,
             csp_directives: None,
             signing_key: None,
             verifying_key: None,
@@ -71,6 +75,7 @@ impl ServerConfig {
         Self {
             signing_key: Some(key_pair.signing_key),
             verifying_key: Some(key_pair.verifying_key),
+            bundle_version: std::env::var("WEBAPP_BUNDLE_VERSION").ok(),
             frontend_path,
             is_dev: cfg!(debug_assertions),
             ..Default::default()

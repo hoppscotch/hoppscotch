@@ -45,9 +45,9 @@ pub struct Bundle {
 }
 
 impl Bundle {
-    pub fn new(content: Vec<u8>, signature: Signature, files: Vec<FileEntry>) -> Self {
+    pub fn new(bundle_version: Option<String>, content: Vec<u8>, signature: Signature, files: Vec<FileEntry>) -> Self {
         let metadata = BundleMetadata {
-            version: env!("CARGO_PKG_VERSION").to_string(),
+            version: bundle_version.unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string()),
             created_at: Utc::now(),
             signature,
             manifest: Manifest { files },

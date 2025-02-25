@@ -80,6 +80,8 @@ mod hash_serde {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Manifest {
     pub files: Vec<FileEntry>,
+    #[serde(default)]
+    pub version: Option<String>,
 }
 
 impl Manifest {

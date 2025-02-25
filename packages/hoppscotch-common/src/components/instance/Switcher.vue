@@ -12,7 +12,12 @@
         <IconLucidePackage />
         <div class="flex flex-col">
           <span class="font-semibold">Hoppscotch</span>
-          <span class="text-xs">On-prem app</span>
+          <div class="flex items-center gap-1">
+            <span class="text-xs"
+              >On-prem</span
+            >
+            <span class="text-xs"> v25.2.0 </span>
+          </div>
         </div>
       </div>
       <IconLucideCheck v-if="isVendored" />

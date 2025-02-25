@@ -1,18 +1,15 @@
 <template>
   <div class="flex flex-col divide-y divide-dashed divide-dividerDark">
     <div class="flex flex-col px-3 py-2">
-      <span class="font-bold text-secondaryDark mb-2">
-        {{ t("ai_experiments.diagnosis_section") }}
-      </span>
       <div class="flex flex-col space-y-2">
         <div class="flex flex-col">
-          <span class="text-tiny text-secondaryLight">{{
+          <span class="text-tiny text-secondaryLight mb-1">{{
             t("ai_experiments.diagnosis")
           }}</span>
           <span>{{ diagnosis }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-tiny text-secondaryLight">{{
+          <span class="text-tiny text-secondaryLight mb-1">{{
             t("ai_experiments.suggested_fix")
           }}</span>
           <span>{{ fix }}</span>

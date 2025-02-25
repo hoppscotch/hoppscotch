@@ -1,42 +1,19 @@
 <template>
   <div class="flex flex-col w-full">
     <div
-      v-if="currentInstance"
-      class="flex items-center justify-between p-4 hover:bg-primaryLight"
-    >
-      <div class="flex items-center gap-2">
-        <IconLucideServer
-          v-if="currentInstance.type === 'server'"
-          class="text-secondary"
-        />
-        <IconLucidePackage v-else class="text-secondary" />
-        <span class="font-semibold">{{ currentInstance.displayName }}</span>
-      </div>
-      <IconLucideCheck class="text-purple-500" />
-    </div>
-
-    <div
-      v-if="recentInstances.length > 0 && userEmail"
-      class="p-4 text-secondary text-sm"
-    >
-      Organizations for {{ userEmail }}
-    </div>
-
-    <div
-      class="flex items-center justify-between p-4 hover:bg-primaryLight"
-      :class="{ 'cursor-pointer': !isVendored, 'opacity-50': isVendored }"
+      class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md"
+      :class="{
+        'cursor-pointer': !isVendored,
+        'bg-accent text-accentContrast': isVendored,
+      }"
       @click="!isVendored && connectToVendored()"
     >
-      <div class="flex items-center gap-2">
-        <IconLucidePackage class="text-secondary" />
+      <div class="flex items-center gap-4">
+        <IconLucidePackage />
         <div class="flex flex-col">
           <span class="font-semibold">Hoppscotch</span>
-          <span class="text-xs text-secondary">Vendored app</span>
+          <span class="text-xs">Vendored app</span>
         </div>
-      </div>
-      <div class="flex items-center">
-        <IconLucideCheck v-if="isVendored" class="text-green-500" />
-        <IconLucideArrowRight v-else class="text-secondary" />
       </div>
     </div>
 
@@ -44,8 +21,14 @@
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
-        class="flex items-center justify-between p-4 hover:bg-primaryLight"
-        :class="{ 'opacity-50': isConnectedTo(instance.serverUrl) }"
+        class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md"
+        :class="{
+          'bg-accent text-accentContrast':
+            currentInstance &&
+            currentInstance.type === 'server' &&
+            currentInstance.serverUrl ===
+              instanceService.normalizeUrl(instance.serverUrl),
+        }"
       >
         <div
           class="flex items-center gap-2 flex-1 cursor-pointer"
@@ -54,10 +37,10 @@
               connectToServer(instance.serverUrl)
           "
         >
-          <IconLucideServer class="text-secondary" />
+          <IconLucideServer />
           <div class="flex flex-col">
             <span class="font-semibold">{{ instance.displayName }}</span>
-            <span v-if="instance.version" class="text-xs text-secondary">
+            <span v-if="instance.version" class="text-xs">
               v{{ instance.version }}
             </span>
           </div>
@@ -69,20 +52,22 @@
               theme: 'tooltip',
             }"
             class="!p-2"
+            :class="{
+              '!text-accentContrast !bg-transparent hover:!bg-transparent':
+                currentInstance &&
+                currentInstance.type === 'server' &&
+                currentInstance.serverUrl ===
+                  instanceService.normalizeUrl(instance.serverUrl),
+            }"
             :icon="IconLucideTrash"
             @click.stop="removeInstance(instance.serverUrl)"
           />
-          <IconLucideCheck
-            v-if="isConnectedTo(instance.serverUrl)"
-            class="text-green-500"
-          />
-          <IconLucideArrowRight v-else class="text-secondary" />
         </div>
       </div>
     </div>
-
+    <hr />
     <div
-      class="flex items-center gap-2 p-4 hover:bg-primaryLight cursor-pointer border-t border-divider"
+      class="flex items-center gap-2 px-4 py-3 hover:accent-primaryLight cursor-pointer"
       @click="
         () => {
           showAddModal = true
@@ -90,7 +75,7 @@
         }
       "
     >
-      <IconLucidePlus class="text-secondary" />
+      <IconLucidePlus />
       <span class="text-secondary">Add an instance</span>
     </div>
 
@@ -116,7 +101,7 @@
               @submit="handleConnect"
             >
               <template #prefix>
-                <IconLucideGlobe class="text-secondary" />
+                <IconLucideGlobe />
               </template>
               <HoppSmartInput>
                 <template #suffix>
@@ -185,7 +170,6 @@ import { ref, computed } from "vue"
 import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
-import { platform } from "~/platform"
 import {
   InstanceSwitcherService,
   InstanceType,
@@ -197,7 +181,6 @@ import IconLucideServer from "~icons/lucide/server"
 import IconLucideTrash from "~icons/lucide/trash"
 import IconLucideTrash2 from "~icons/lucide/trash-2"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
-import IconLucideArrowRight from "~icons/lucide/arrow-right"
 import IconLucidePlus from "~icons/lucide/plus"
 import IconLucidePackage from "~icons/lucide/package"
 
@@ -206,7 +189,6 @@ const instanceService = useService(InstanceSwitcherService)
 
 const emit = defineEmits(["close-dropdown"])
 
-const userEmail = computed(() => platform.auth.getProbableUser()?.email || "")
 const showAddModal = ref(false)
 const newInstanceUrl = ref("")
 const isClearingCache = ref(false)

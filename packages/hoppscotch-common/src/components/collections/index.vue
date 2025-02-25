@@ -55,6 +55,7 @@
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
       @export-data="exportData"
+      @alphabetic-sort="alphabeticSort"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
       @remove-request="removeRequest"
@@ -274,6 +275,7 @@ import {
   addRESTCollection,
   addRESTFolder,
   cascadeParentCollectionForHeaderAuth,
+  changeRequestsOrder,
   duplicateRESTCollection,
   editRESTCollection,
   editRESTFolder,
@@ -2696,6 +2698,35 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
       )
     )()
   }
+}
+
+const alphabeticSort = async (payload: { collectionIndex: string }) => {
+  const collection = navigateToFolderWithIndexPath(
+    myCollections.value,
+    payload.collectionIndex.split("/").map((i) => parseInt(i))
+  )
+  if (!collection) return
+  const requests = JSON.parse(JSON.stringify(collection.requests))
+
+  for (let i = 0; i < requests.length; i++) {
+    requests[i] = {
+      ...requests[i],
+      id: i,
+    }
+  }
+
+  const sortedOrder = Array(requests.length)
+  const sortedRequests = requests.sort(
+    (a: HoppRESTRequest, b: HoppRESTRequest) => {
+      return a.name.localeCompare(b.name)
+    }
+  )
+  for (let i = 0; i < sortedRequests.length; i++) {
+    sortedOrder[sortedRequests[i].id] = i
+  }
+
+  changeRequestsOrder(sortedOrder, payload.collectionIndex)
+  toast.success(`${t("request.order_changed")}`)
 }
 
 const shareRequest = ({ request }: { request: HoppRESTRequest }) => {

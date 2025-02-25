@@ -807,6 +807,40 @@ const restCollectionDispatchers = defineDispatchers({
       state: after,
     }
   },
+
+  updateRequestsSequentialOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      requestIndices,
+      collectionPath,
+    }: {
+      collectionPath: string
+      requestIndices: number[]
+    }
+  ) {
+    const newState = state
+    const indexPaths = collectionPath.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      return {}
+    }
+
+    const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
+
+    if (targetLocation === null) {
+      return {}
+    }
+
+    const sortedRequests = requestIndices.map(
+      (index) => targetLocation.requests[index]
+    )
+
+    targetLocation.requests = sortedRequests
+
+    return {
+      state: newState,
+    }
+  },
 })
 
 const gqlCollectionDispatchers = defineDispatchers({
@@ -1471,6 +1505,19 @@ export function updateRESTRequestOrder(
       requestIndex,
       destinationRequestIndex,
       destinationCollectionPath,
+    },
+  })
+}
+
+export function changeRequestsOrder(
+  sortedOrder: number[],
+  collectionPath: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateRequestsSequentialOrder",
+    payload: {
+      collectionPath,
+      requestIndices: sortedOrder,
     },
   })
 }

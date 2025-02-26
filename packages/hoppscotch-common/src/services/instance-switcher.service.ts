@@ -257,7 +257,6 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
             bundleName: instanceToRemove.bundleName,
             serverUrl: normalizedUrl,
           })
-          this.toast.success(`Removed ${instanceToRemove.displayName}`)
         } catch (error) {
           console.error("Failed to remove bundle from storage:", error)
           // Continue with instance removal even if bundle removal fails

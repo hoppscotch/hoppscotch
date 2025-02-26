@@ -635,8 +635,11 @@
   "instances": {
     "switch": "Switch Hoppscotch Instance",
     "enter_server_url": "Connect to a self-hosted instance",
+    "already_connected": "You are already connected to this instance",
     "recent_connections": "Recent Connections",
     "add_new": "Add a new instance",
+    "confirm_remove": "Confirm Removal",
+    "remove_warning": "Are you sure you want to remove this instance?",
     "clear_cached_bundles": "Clear cached bundles"
   },
   "inspections": {

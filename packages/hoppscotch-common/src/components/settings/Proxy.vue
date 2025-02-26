@@ -31,13 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 
 import { useService } from "dioc/vue"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
+import { useReadonlyStream } from "~/composables/stream"
 import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 import { platform } from "~/platform"
 

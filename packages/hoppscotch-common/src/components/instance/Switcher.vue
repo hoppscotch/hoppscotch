@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full">
+  <div class="flex flex-col space-y-1 w-full">
     <div
       class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md"
       :class="{
@@ -21,11 +21,11 @@
       <IconLucideCheck v-if="isVendored" />
     </div>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col space-y-1">
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
-        class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md group"
+        class="flex items-center justify-between px-4 py-2 hover:bg-primaryLight rounded-md group"
         :class="{
           'bg-accent text-accentContrast':
             currentInstance &&
@@ -84,18 +84,19 @@
       </div>
     </div>
     <hr />
-    <div
-      class="flex items-center gap-2 px-4 py-3 hover:accent-primaryLight cursor-pointer"
+
+    <HoppButtonSecondary
+      :label="t('instances.add_instance') || 'Add an instance'"
+      :icon="IconLucidePlus"
+      filled
+      outline
       @click="
         () => {
           showAddModal = true
           $emit('close-dropdown')
         }
       "
-    >
-      <IconLucidePlus />
-      <span class="text-secondary">Add an instance</span>
-    </div>
+    />
 
     <HoppSmartModal
       v-if="showAddModal"
@@ -193,19 +194,24 @@
             t("instances.remove_warning") ||
             "Are you sure you want to remove this instance?"
           }}
-        </p>
-        <p class="mt-2 font-medium">
-          {{ confirmedRemoveDisplayName }}
+
+          <span class="font-bold">
+            {{ confirmedRemoveDisplayName }}
+          </span>
         </p>
       </template>
       <template #footer>
         <div class="flex justify-end w-full space-x-2">
           <HoppButtonSecondary
             :label="t('action.cancel') || 'Cancel'"
+            outline
+            filled
             @click="showRemoveModal = false"
           />
           <HoppButtonPrimary
             :label="t('action.remove') || 'Remove'"
+            filled
+            outline
             @click="removeInstance(confirmedRemoveUrl)"
           />
         </div>

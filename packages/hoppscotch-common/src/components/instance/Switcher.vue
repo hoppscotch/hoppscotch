@@ -13,9 +13,7 @@
         <div class="flex flex-col">
           <span class="font-semibold uppercase">Hoppscotch</span>
           <div class="flex items-center gap-1">
-            <span class="text-xs"
-              >On-prem</span
-            >
+            <span class="text-xs">On-prem</span>
             <span class="text-xs"> app </span>
           </div>
         </div>
@@ -77,7 +75,9 @@
               }"
               class="!p-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity"
               :icon="IconLucideTrash"
-              @click.stop="removeInstance(instance.serverUrl)"
+              @click.stop="
+                confirmRemove(instance.serverUrl, instance.displayName)
+              "
             />
           </div>
         </div>
@@ -110,7 +110,7 @@
             <HoppSmartInput
               v-model="newInstanceUrl"
               :disabled="isConnecting"
-              placeholder="localhost"
+              placeholder="hoppscotch.company.com"
               :error="!!connectionError"
               type="text"
               autofocus
@@ -180,6 +180,37 @@
         </div>
       </template>
     </HoppSmartModal>
+    <HoppSmartModal
+      v-if="showRemoveModal"
+      dialog
+      :title="t('instances.confirm_remove') || 'Confirm Removal'"
+      styles="sm:max-w-md"
+      @close="showRemoveModal = false"
+    >
+      <template #body>
+        <p>
+          {{
+            t("instances.remove_warning") ||
+            "Are you sure you want to remove this instance?"
+          }}
+        </p>
+        <p class="mt-2 font-medium">
+          {{ confirmedRemoveDisplayName }}
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex justify-end w-full space-x-2">
+          <HoppButtonSecondary
+            :label="t('action.cancel') || 'Cancel'"
+            @click="showRemoveModal = false"
+          />
+          <HoppButtonPrimary
+            :label="t('action.remove') || 'Remove'"
+            @click="removeInstance(confirmedRemoveUrl)"
+          />
+        </div>
+      </template>
+    </HoppSmartModal>
   </div>
 </template>
 
@@ -210,6 +241,16 @@ const emit = defineEmits(["close-dropdown"])
 const showAddModal = ref(false)
 const newInstanceUrl = ref("")
 const isClearingCache = ref(false)
+const showRemoveModal = ref(false)
+const confirmedRemoveUrl = ref("")
+const confirmedRemoveDisplayName = ref("")
+
+const confirmRemove = (url: string, displayName: string) => {
+  confirmedRemoveUrl.value = url
+  confirmedRemoveDisplayName.value = displayName || getHostname(url)
+  showRemoveModal.value = true
+  emit("close-dropdown")
+}
 
 const state = useReadonlyStream(
   instanceService.getStateStream(),
@@ -301,6 +342,7 @@ const connectToServer = async (url: string) => {
 
 const removeInstance = async (url: string) => {
   await instanceService.removeInstance(url)
+  showRemoveModal.value = false
 }
 
 const handleConnect = async () => {

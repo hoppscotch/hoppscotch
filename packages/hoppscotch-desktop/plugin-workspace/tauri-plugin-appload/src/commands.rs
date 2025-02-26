@@ -88,6 +88,7 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         .title(sanitize_window_label(&options.window.title))
         .inner_size(options.window.width, options.window.height)
         .resizable(options.window.resizable)
+        .disable_drag_drop_handler()
         .build()
         .map_err(|e| {
             tracing::error!(?e, ?label, "Failed to create window");

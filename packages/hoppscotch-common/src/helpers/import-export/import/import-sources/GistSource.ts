@@ -2,14 +2,16 @@ import UrlImport from "~/components/importExport/ImportExportSteps/UrlImport.vue
 import { defineStep } from "~/composables/step-components"
 
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import { z } from "zod"
 
 import { v4 as uuidv4 } from "uuid"
 import { Ref } from "vue"
 import { getService } from "~/modules/dioc"
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { parseBodyAsJSON } from "~/helpers/functional/json"
 
-const interceptorService = getService(InterceptorService)
+const interceptorService = getService(KernelInterceptorService)
 
 export function GistSource(metadata: {
   caption: string
@@ -48,31 +50,29 @@ export function GistSource(metadata: {
 }
 
 const fetchGistFromUrl = async (url: string) => {
-  const res = await interceptorService.runRequest({
+  const { response } = interceptorService.execute({
+    id: Date.now(),
     url: `https://api.github.com/gists/${url.split("/").pop()}`,
+    method: "GET",
+    version: "HTTP/1.1",
     headers: {
       Accept: "application/vnd.github.v3+json",
     },
   })
 
-  const response = await res.response
+  const res = await response
 
-  if (E.isLeft(response)) {
+  if (E.isLeft(res)) {
     return E.left("REQUEST_FAILED")
   }
 
-  // convert ArrayBuffer to string
-  if (!(response.right.data instanceof ArrayBuffer)) {
-    return E.left("REQUEST_FAILED")
+  const responsePayload = parseBodyAsJSON<unknown>(
+    res.right.body
+  )
+
+   if (O.isSome(responsePayload)) {
+    return E.right(responsePayload)
   }
 
-  try {
-    return E.right(
-      JSON.parse(
-        InterceptorService.convertArrayBufferToString(response.right.data)
-      )
-    )
-  } catch (e) {
-    return E.left("REQUEST_FAILED")
-  }
+  return E.left("REQUEST_FAILED")
 }

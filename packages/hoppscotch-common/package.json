@@ -21,7 +21,7 @@
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "10.1.0",
+    "@apidevtools/swagger-parser": "10.1.1",
     "@codemirror/autocomplete": "6.18.1",
     "@codemirror/commands": "6.7.0",
     "@codemirror/lang-javascript": "6.2.2",

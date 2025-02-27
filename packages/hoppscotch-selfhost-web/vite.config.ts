@@ -27,6 +27,7 @@ export default defineConfig({
   define: {
     // For 'util' polyfill required by dep of '@apidevtools/swagger-parser'
     "process.env": {},
+    "process.platform": '"browser"',
   },
   server: {
     port: 3000,

@@ -27,13 +27,19 @@ import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { cloneDeep, isNumber } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
-// TODO: URL Import Support
+const worker = new Worker(
+  new URL("./workers/openapi-import-worker.ts", import.meta.url),
+  {
+    type: "module",
+  }
+)
 
 const safeParseJSON = (str: string) => O.tryCatch(() => JSON.parse(str))
 
@@ -179,12 +185,25 @@ const parseOpenAPIV3Responses = (
       },
     ]
 
+    let stringifiedBody = ""
+
+    // I think it'll be better to just drop the response body with circular refs
+    // because it's not possible to stringify them, using stringify from a library like flatted, will change the structure,
+    // and it converts the object into an array format, which can only be parsed back by the parse method from the same library
+    // also we're displaying it as a string, so doesnt make much sense
+    try {
+      stringifiedBody = JSON.stringify(body ?? "")
+      // the parsing will fail for a circular response schema
+    } catch (e) {
+      // eat five star, do nothing
+    }
+
     res[name] = {
       name,
       status,
       code,
       headers,
-      body: JSON.stringify(body ?? ""),
+      body: stringifiedBody,
       originalRequest,
     }
   }
@@ -914,10 +933,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
                   throw new Error("INVALID_OPENAPI_SPEC")
                 }
 
-                const validatedDoc = await SwaggerParser.validate(docObj, {
-                  // @ts-expect-error - this is a valid option, but seems like the types are not updated
-                  continueOnError: true,
-                })
+                const validatedDoc = await validateDocs(docObj)
 
                 resultDoc.push(validatedDoc)
               } catch (err) {
@@ -956,7 +972,8 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
             const resultDoc = []
 
             for (const docObj of docArr) {
-              const validatedDoc = await SwaggerParser.dereference(docObj)
+              const validatedDoc = await dereferenceDocs(docObj)
+
               resultDoc.push(validatedDoc)
             }
 
@@ -968,3 +985,41 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
     ),
     TE.chainW(convertOpenApiDocsToHopp)
   )
+
+const validateDocs = (docs: any): Promise<OpenAPI.Document> => {
+  return new Promise((resolve, reject) => {
+    worker.postMessage({
+      type: "validate",
+      docs,
+    })
+
+    worker.onmessage = (event) => {
+      if (event.data.type === "VALIDATION_RESULT") {
+        if (E.isLeft(event.data.data)) {
+          reject("COULD_NOT_VALIDATE")
+        } else {
+          resolve(event.data.data.right as OpenAPI.Document)
+        }
+      }
+    }
+  })
+}
+
+const dereferenceDocs = (docs: any): Promise<OpenAPI.Document> => {
+  return new Promise((resolve, reject) => {
+    worker.postMessage({
+      type: "dereference",
+      docs,
+    })
+
+    worker.onmessage = (event) => {
+      if (event.data.type === "DEREFERENCE_RESULT") {
+        if (E.isLeft(event.data.data)) {
+          reject("COULD_NOT_DEREFERENCE")
+        } else {
+          resolve(event.data.data.right as OpenAPI.Document)
+        }
+      }
+    }
+  })
+}

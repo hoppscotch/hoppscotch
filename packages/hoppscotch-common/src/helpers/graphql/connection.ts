@@ -249,26 +249,6 @@ const getSchema = async (options: ConnectionRequestOptions) => {
       runHeaders = clone(request.headers)
     }
 
-    const { url, request, inheritedHeaders, inheritedAuth } = options
-
-    const headers = request?.headers || []
-
-    const auth =
-      request?.auth.authType === "inherit" && request.auth.authActive
-        ? clone(inheritedAuth)
-        : clone(request.auth)
-
-    let runHeaders: HoppGQLRequest["headers"] = []
-
-    if (inheritedHeaders) {
-      runHeaders = [
-        ...inheritedHeaders,
-        ...clone(request.headers),
-      ] as HoppRESTHeaders
-    } else {
-      runHeaders = clone(request.headers)
-    }
-
     const finalHeaders: Record<string, string> = {}
 
     const { authHeaders } = await generateAuthHeader(url, auth)

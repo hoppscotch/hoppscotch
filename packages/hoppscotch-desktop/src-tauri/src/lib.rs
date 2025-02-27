@@ -1,11 +1,11 @@
 pub mod server;
+pub mod updater;
 
 use std::sync::OnceLock;
 
 use tauri::Emitter;
 use tauri_plugin_appload::VendorConfigBuilder;
 use tauri_plugin_deep_link::DeepLinkExt;
-use tauri_plugin_updater::UpdaterExt;
 
 static SERVER_PORT: OnceLock<u16> = OnceLock::new();
 
@@ -22,6 +22,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let _ = app
                 .handle()
@@ -31,12 +32,7 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                if let Ok(updater) = handle.updater() {
-                    if let Ok(Some(update)) = updater.check().await {
-                        let _ = update.download_and_install(|_, _| {}, || {}).await;
-                        handle.restart();
-                    }
-                }
+                updater::check_and_install_updates(&handle).await;
             });
             Ok(())
         })
@@ -72,7 +68,6 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_appload::init(
             VendorConfigBuilder::new().bundle(
@@ -81,7 +76,10 @@ pub fn run() {
             ),
         ))
         .plugin(tauri_plugin_relay::init())
-        .invoke_handler(tauri::generate_handler![hopp_auth_port])
+        .invoke_handler(tauri::generate_handler![
+            hopp_auth_port,
+            updater::check_updates_and_wait
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -30,6 +30,7 @@
 import { ref, onMounted } from "vue";
 import { LazyStore } from '@tauri-apps/plugin-store';
 import { load } from "@hoppscotch/plugin-appload";
+import { invoke } from "@tauri-apps/api/core";
 
 import IconLucideCloud from "~icons/lucide/cloud"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
@@ -170,6 +171,14 @@ const loadVendored = async () => {
       console.log("Migration completed successfully");
     } catch (migrationError) {
       console.error("Migration error:", migrationError);
+    }
+
+    try {
+      console.log("Checking for updates before loading app...");
+      await invoke('check_updates_and_wait');
+      console.log("Update check completed");
+    } catch (updateError) {
+      console.error("Update check error:", updateError);
     }
 
     const vendoredInstance: VendoredInstance = {

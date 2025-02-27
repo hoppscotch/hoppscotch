@@ -67,6 +67,7 @@ export type HoppAction =
   | "response.save" // Save response
   | "response.save-as-example" // Save response as example
   | "modals.login.toggle" // Login to Hoppscotch
+  | "modals.instance-switcher.toggle" // Switch Hoppscotch instances (self-hosted)
   | "history.clear" // Clear REST History
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch

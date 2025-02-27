@@ -2,10 +2,11 @@
   <div>
     <header
       ref="headerRef"
+      data-tauri-drag-region
       class="grid grid-cols-5 grid-rows-1 gap-2 overflow-x-auto overflow-y-hidden p-2"
-      @mousedown.prevent="platform.ui?.appHeader?.onHeaderAreaClick?.()"
     >
       <div
+        data-tauri-drag-region
         class="col-span-2 flex items-center justify-between space-x-2"
         :style="{
           paddingTop: platform.ui?.appHeader?.paddingTop?.value,
@@ -13,17 +14,50 @@
         }"
       >
         <div class="flex">
+          <tippy
+            v-if="kernelMode === 'desktop'"
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => instanceSwitcherRef.focus()"
+          >
+            <div class="flex items-center cursor-pointer">
+              <span
+                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
+              >
+                {{ instanceDisplayName }}
+              </span>
+              <IconChevronDown class="h-4 w-4 text-secondaryDark" />
+            </div>
+            <template #content="{ hide }">
+              <div
+                ref="instanceSwitcherRef"
+                class="flex flex-col focus:outline-none min-w-64"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <InstanceSwitcher @close-dropdown="hide()" />
+              </div>
+            </template>
+          </tippy>
           <HoppButtonSecondary
+            v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
             :label="t('app.name')"
             to="/"
           />
         </div>
       </div>
-      <div class="col-span-1 flex items-center justify-between space-x-2">
+      <div
+        data-tauri-drag-region
+        class="col-span-1 flex items-center justify-between space-x-2"
+      >
         <AppSpotlightSearch />
       </div>
-      <div class="col-span-2 flex items-center justify-between space-x-2">
+      <div
+        data-tauri-drag-region
+        class="col-span-2 flex items-center justify-between space-x-2"
+      >
         <div class="flex">
           <HoppButtonSecondary
             v-if="showInstallButton"
@@ -177,9 +211,8 @@
                       </span>
                       <span
                         class="inline-flex truncate text-secondaryLight text-tiny"
+                        >{{ currentUser.email }}</span
                       >
-                        {{ currentUser.email }}
-                      </span>
                     </div>
                     <hr />
                     <HoppSmartItem
@@ -241,6 +274,8 @@
 </template>
 
 <script setup lang="ts">
+import { getKernelMode } from "@hoppscotch/kernel"
+
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
@@ -260,6 +295,7 @@ import {
   BannerService,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
+import { InstanceSwitcherService } from "~/services/instance-switcher.service"
 import IconDownload from "~icons/lucide/download"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
@@ -267,9 +303,33 @@ import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
+import IconChevronDown from "~icons/lucide/chevron-down"
 
 const t = useI18n()
 const toast = useToast()
+const kernelMode = getKernelMode()
+const instanceSwitcherService =
+  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
+const instanceSwitcherRef =
+  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+
+const currentState =
+  kernelMode === "desktop" && instanceSwitcherService
+    ? useReadonlyStream(
+        instanceSwitcherService.getStateStream(),
+        instanceSwitcherService.getCurrentState().value
+      )
+    : ref({
+        status: "disconnected",
+        instance: { displayName: "Hoppscotch" },
+      })
+
+const instanceDisplayName = computed(() => {
+  if (currentState.value.status !== "connected") {
+    return "Hoppscotch"
+  }
+  return currentState.value.instance.displayName
+})
 
 /**
  * Feature flag to enable the workspace selector login conversion

@@ -45,11 +45,13 @@
 import { computed, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "~/composables/toast"
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import { parseBodyAsJSON } from "~/helpers/functional/json"
 
-const interceptorService = useService(InterceptorService)
+const interceptorService = useService(KernelInterceptorService)
 
 const t = useI18n()
 
@@ -83,33 +85,26 @@ const disableImportCTA = computed(() => !hasURL.value || props.loading)
 const urlFetchLogic =
   props.fetchLogic ??
   async function (url: string) {
-    const res = await interceptorService.runRequest({
+    const { response } = interceptorService.execute({
+      id: Date.now(),
       url: url,
-      transitional: {
-        forcedJSONParsing: false,
-        silentJSONParsing: false,
-        clarifyTimeoutError: true,
-      },
+      method: "GET",
+      version: "HTTP/1.1",
     })
 
-    const response = await res.response
+    const res = await response
 
-    if (E.isLeft(response)) {
+    if (E.isLeft(res)) {
       return E.left("REQUEST_FAILED")
     }
 
-    // convert ArrayBuffer to string
-    if (!(response.right.data instanceof ArrayBuffer)) {
-      return E.left("REQUEST_FAILED")
+    const responsePayload = parseBodyAsJSON<unknown>(res.right.body)
+
+    if (O.isSome(responsePayload)) {
+      return E.right(responsePayload)
     }
 
-    try {
-      return E.right(
-        InterceptorService.convertArrayBufferToString(response.right.data)
-      )
-    } catch (e) {
-      return E.left("REQUEST_FAILED")
-    }
+    return E.left("REQUEST_FAILED")
   }
 
 async function fetchUrlData() {

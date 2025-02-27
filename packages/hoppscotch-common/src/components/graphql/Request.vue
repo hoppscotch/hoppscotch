@@ -68,7 +68,7 @@ import { computed, ref, watch } from "vue"
 import { connection } from "~/helpers/graphql/connection"
 import { connect } from "~/helpers/graphql/connection"
 import { disconnect } from "~/helpers/graphql/connection"
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useService } from "dioc/vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -77,7 +77,7 @@ import { HoppGQLAuth, HoppGQLRequest } from "@hoppscotch/data"
 const t = useI18n()
 const tabs = useService(GQLTabService)
 
-const interceptorService = useService(InterceptorService)
+const interceptorService = useService(KernelInterceptorService)
 
 const connectionSwitchModal = ref(false)
 
@@ -120,7 +120,7 @@ const gqlConnect = () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "graphql-schema",
-    strategy: interceptorService.currentInterceptorID.value!,
+    strategy: interceptorService.current.value!.id,
   })
 }
 

@@ -25,8 +25,12 @@ import { getI18n } from "~/modules/i18n"
 
 import { addGraphqlHistoryEntry, makeGQLHistoryEntry } from "~/newstore/history"
 
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
+
+import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
+import { GQLRequest } from "~/helpers/kernel/gql/request"
+import { GQLResponse } from "~/helpers/kernel/gql/response"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -111,49 +115,44 @@ export const connection = reactive<Connection>({
 })
 
 export const schema = computed(() => connection.schema)
-export const subscriptionState = computed(() => {
-  return connection.subscriptionState.get(currentTabID.value)
-})
+export const subscriptionState = computed(() =>
+  connection.subscriptionState.get(currentTabID.value)
+)
 
 export const gqlMessageEvent = ref<GQLResponseEvent | "reset">()
 
 export const schemaString = computed(() => {
-  if (!connection.schema) return ""
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return ""
   return printSchema(connection.schema)
 })
 
 export const queryFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getQueryType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const mutationFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getMutationType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const subscriptionFields = computed(() => {
-  if (!connection.schema) return []
-
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
   const fields = connection.schema.getSubscriptionType()?.getFields()
-  if (!fields) return []
-
-  return Object.values(fields)
+  return fields ? Object.values(fields) : []
 })
 
 export const graphqlTypes = computed(() => {
-  if (!connection.schema) return []
+  if (!connection.schema || !(connection.schema instanceof GraphQLSchema))
+    return []
 
   const typeMap = connection.schema.getTypeMap()
-
   const queryTypeName = connection.schema.getQueryType()?.name ?? ""
   const mutationTypeName = connection.schema.getMutationType()?.name ?? ""
   const subscriptionTypeName =
@@ -193,7 +192,6 @@ export const connect = async (
   const poll = async () => {
     try {
       await getSchema(options)
-      // polling for schema
       if (connection.state !== "CONNECTED") connection.state = "CONNECTED"
       timeoutSubscription = setTimeout(() => {
         poll()
@@ -201,7 +199,6 @@ export const connect = async (
     } catch (error) {
       connection.state = "ERROR"
 
-      // Show an error toast if the introspection attempt failed and not while sending a request
       if (!isRunGQLOperation) {
         toast.error(t("graphql.connection_error_http"))
       }
@@ -232,10 +229,6 @@ export const reset = () => {
 
 const getSchema = async (options: ConnectionRequestOptions) => {
   try {
-    const introspectionQuery = JSON.stringify({
-      query: getIntrospectionQuery(),
-    })
-
     const { url, request, inheritedHeaders, inheritedAuth } = options
 
     const headers = request?.headers || []
@@ -271,62 +264,60 @@ const getSchema = async (options: ConnectionRequestOptions) => {
       .filter((item) => item.active && item.key !== "")
       .forEach(({ key, value }) => (finalHeaders[key] = value))
 
-    const reqOptions = {
-      method: "POST",
+    const kernelRequest: RelayRequest = {
+      id: Date.now(),
       url: options.url,
+      method: "POST" as Method,
+      version: "HTTP/1.1",
       headers: {
         ...finalHeaders,
         "content-type": "application/json",
       },
-      data: introspectionQuery,
+      content: content.json(
+        { query: getIntrospectionQuery() },
+        MediaType.APPLICATION_JSON
+      ),
     }
 
-    const interceptorService = getService(InterceptorService)
+    const kernelInterceptorService = getService(KernelInterceptorService)
+    const { response } = kernelInterceptorService.execute(kernelRequest)
 
-    const res = await interceptorService.runRequest(reqOptions).response
+    const res = await response
 
     if (E.isLeft(res)) {
       connection.state = "ERROR"
 
-      if (
-        res.left !== "cancellation" &&
-        res.left.error === "NO_PW_EXT_HOOK" &&
-        res.left.humanMessage
-      ) {
+      if (res.left !== "cancellation" && typeof res.left === "object") {
         connection.error = {
-          type: res.left.error,
-          message: (t: ReturnType<typeof getI18n>) =>
-            res.left.humanMessage.description(t),
+          type: res.left.error?.kind || "error",
+          message: (t: ReturnType<typeof getI18n>) => {
+            if (res.left !== "cancellation" && typeof res.left === "object") {
+              return (
+                res.left.humanMessage?.description(t) ||
+                t("graphql.connection_error_http")
+              )
+            }
+            return "Unknown"
+          },
           component: res.left.component,
         }
       }
 
-      throw new Error(res.left.toString())
-    }
-
-    if (res.right.status !== 200) {
-      connection.state = "ERROR"
-      connection.error = {
-        type: "HTTP_ERROR",
-        message: (t: ReturnType<typeof getI18n>) =>
-          t("graphql.connection_error_http"),
-        component: undefined,
-      }
-      throw new Error("Failed to fetch schema. Status: " + res.right.status)
+      throw new Error(
+        typeof res.left === "string" ? res.left : res.left.error.message
+      )
     }
 
     const data = res.right
 
-    // HACK : Temporary trailing null character issue from the extension fix
-    const response = new TextDecoder("utf-8")
-      .decode(data.data as any)
-      .replace(/\0+$/, "")
+    const decoder = new TextDecoder("utf-8")
+    const responseText = decoder.decode(data.body.body)
 
-    const introspectResponse = JSON.parse(response)
+    const introspectResponse = JSON.parse(responseText)
 
-    const schema = buildClientSchema(introspectResponse.data)
+    const schemaData = buildClientSchema(introspectResponse.data)
 
-    connection.schema = schema
+    connection.schema = schemaData
     connection.error = null
   } catch (e: any) {
     console.error(e)
@@ -380,6 +371,15 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
 
   const { authHeaders, authParams } = await generateAuthHeader(url, auth)
 
+  let finalUrl = url
+  if (Object.keys(authParams).length > 0) {
+    const urlObj = new URL(url)
+    for (const [key, value] of Object.entries(authParams)) {
+      urlObj.searchParams.append(key, value)
+    }
+    finalUrl = urlObj.toString()
+  }
+
   runHeaders.forEach((header) => {
     if (header.active && header.key !== "") {
       finalHeaders[header.key] = header.value
@@ -387,74 +387,91 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   })
   Object.assign(finalHeaders, authHeaders)
 
-  const parsedVariables = JSON.parse(variables || "{}")
-
-  const params: Record<string, string> = {}
-
   headers
     .filter((item) => item.active && item.key !== "")
     .forEach(({ key, value }) => (finalHeaders[key] = value))
 
-  const reqOptions = {
-    method: "POST",
-    url,
-    headers: {
-      ...finalHeaders,
-      "content-type": "application/json",
-    },
-    data: JSON.stringify({
-      query,
-      variables: parsedVariables,
-      operationName,
-    }),
-    params: {
-      ...params,
-      ...authParams,
-    },
+  const gqlRequest: HoppGQLRequest = {
+    v: 8,
+    name: options.name || "Untitled Request",
+    url: finalUrl,
+    headers: request.headers,
+    query,
+    variables,
+    auth: request.auth as HoppGQLAuth,
   }
 
   if (operationType === "subscription") {
     return runSubscription(options, finalHeaders)
   }
 
-  const interceptorService = getService(InterceptorService)
-  const result = await interceptorService.runRequest(reqOptions).response
+  try {
+    const kernelRequest = await GQLRequest.toRequest(gqlRequest)
 
-  if (E.isLeft(result)) {
-    if (
-      result.left !== "cancellation" &&
-      result.left.error === "NO_PW_EXT_HOOK" &&
-      result.left.humanMessage
-    ) {
-      connection.error = {
-        type: result.left.error,
-        message: (t: ReturnType<typeof getI18n>) =>
-          result.left.humanMessage.description(t),
-        component: result.left.component,
+    if (operationName) {
+      if (kernelRequest.content?.kind === "json") {
+        const content = kernelRequest.content.content as any
+        content.operationName = operationName
+        kernelRequest.content.content = content
       }
     }
-    throw new Error(result.left.toString())
+
+    const kernelInterceptorService = getService(KernelInterceptorService)
+    const { response } = kernelInterceptorService.execute(kernelRequest)
+
+    const result = await response
+
+    if (E.isLeft(result)) {
+      if (result.left !== "cancellation" && typeof result.left === "object") {
+        connection.error = {
+          type: result.left.error?.kind || "error",
+          message: (t: ReturnType<typeof getI18n>) => {
+            if (
+              result.left !== "cancellation" &&
+              typeof result.left === "object"
+            ) {
+              return (
+                result.left.humanMessage?.description(t) ||
+                t("graphql.operation_error")
+              )
+            }
+            return "Unknown"
+          },
+          component: result.left.component,
+        }
+      }
+
+      throw new Error(
+        typeof result.left === "string"
+          ? result.left
+          : result.left.error.message
+      )
+    }
+
+    const relayResponse = result.right
+
+    const parsedResponse = await GQLResponse.toResponse(relayResponse, options)
+
+    if (parsedResponse.type === "error") {
+      throw new Error(parsedResponse.error.message)
+    }
+
+    gqlMessageEvent.value = parsedResponse
+
+    addQueryToHistory(options, parsedResponse.data)
+
+    return parsedResponse.data
+  } catch (error: any) {
+    gqlMessageEvent.value = {
+      type: "error",
+      error: {
+        type: "network_error",
+        message: error.message || "An unknown error occurred",
+      },
+    }
+
+    throw error
   }
-
-  const res = result.right
-
-  // HACK: Temporary trailing null character issue from the extension fix
-  const responseText = new TextDecoder("utf-8")
-    .decode(res.data as any)
-    .replace(/\0+$/, "")
-
-  gqlMessageEvent.value = {
-    type: "response",
-    time: Date.now(),
-    operationName: operationName ?? "query",
-    data: responseText,
-    rawQuery: options,
-    operationType,
-  }
-
-  addQueryToHistory(options, responseText)
-
-  return responseText
 }
 
 const generateAuthHeader = async (

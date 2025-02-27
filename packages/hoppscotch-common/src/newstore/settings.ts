@@ -55,6 +55,7 @@ export type SettingsDef = {
   }
 
   CURRENT_INTERCEPTOR_ID: string
+  CURRENT_KERNEL_INTERCEPTOR_ID: string
 
   URL_EXCLUDES: {
     auth: boolean
@@ -117,6 +118,7 @@ export const getDefaultSettings = (): SettingsDef => {
 
     // Set empty because interceptor module will set the default value
     CURRENT_INTERCEPTOR_ID: "",
+    CURRENT_KERNEL_INTERCEPTOR_ID: "",
 
     // TODO: Interceptor related settings should move under the interceptor systems
     PROXY_URL: defaultProxyURL,

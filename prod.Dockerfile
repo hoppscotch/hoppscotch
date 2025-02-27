@@ -19,6 +19,10 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz
 
 # Patch to resolve CVE-2024-45339 on glog
 RUN go get github.com/golang/glog@v1.2.4
+# Patch to resolve CVE-2025-2714 on go-jose
+RUN go get github.com/go-jose/go-jose/v3@v3.0.4
+# Patch to resolve CVE-2025-22869 on crypto
+RUN go get golang.org/x/crypto@v0.35.0
 RUN go mod vendor
 
 WORKDIR /tmp/caddy-build/cmd/caddy
@@ -26,7 +30,7 @@ RUN go build
 
 
 
-FROM alpine:3.19.6 AS base_builder
+FROM alpine:3.19.7 AS base_builder
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -57,7 +61,7 @@ RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod --legacy
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM alpine:3.19.6 AS backend
+FROM alpine:3.19.7 AS backend
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -100,7 +104,7 @@ RUN cargo build --release
 
 
 
-FROM alpine:3.19.6 AS app
+FROM alpine:3.19.7 AS app
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -138,7 +142,7 @@ RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
 
 
-FROM alpine:3.19.6 AS sh_admin
+FROM alpine:3.19.7 AS sh_admin
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -175,7 +179,7 @@ WORKDIR /site
 CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && webapp-server"]
 EXPOSE 3200
 
-FROM alpine:3.19.6 AS aio
+FROM alpine:3.19.7 AS aio
 
 RUN apk add nodejs curl
 

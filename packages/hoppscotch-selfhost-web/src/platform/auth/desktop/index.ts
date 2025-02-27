@@ -475,7 +475,8 @@ export const def: AuthPlatformDef = {
     await persistenceService.removeLocalConfig("verifyToken")
   },
 
-  async setEmailAddress(_email: string) {
+  // Removed parameter from here because we do not use it
+  async setEmailAddress() {
     return
   },
 

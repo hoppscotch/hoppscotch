@@ -25,13 +25,19 @@
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
-        class="flex items-center justify-between px-4 py-2 hover:bg-primaryLight rounded-md group"
+        class="flex items-center justify-between px-4 py-2 rounded-md group"
         :class="{
           'bg-accent text-accentContrast':
             currentInstance &&
             currentInstance.type === 'server' &&
             currentInstance.serverUrl ===
               instanceService.normalizeUrl(instance.serverUrl),
+          'hover:bg-primaryLight': !(
+            currentInstance &&
+            currentInstance.type === 'server' &&
+            currentInstance.serverUrl ===
+              instanceService.normalizeUrl(instance.serverUrl)
+          ),
         }"
       >
         <div

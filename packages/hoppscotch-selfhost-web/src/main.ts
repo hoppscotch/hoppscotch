@@ -105,12 +105,12 @@ async function initApp() {
     })
 
     listen("will-exit-fullscreen", () => {
-      headerPaddingTop.value = "2px"
-      headerPaddingLeft.value = "70px"
+      headerPaddingTop.value = "0px"
+      headerPaddingLeft.value = "80px"
     })
 
-    headerPaddingTop.value = "2px"
-    headerPaddingLeft.value = "70px"
+    headerPaddingTop.value = "0px"
+    headerPaddingLeft.value = "80px"
 
     // Add backspace prevention for non-text inputs
     window.addEventListener(

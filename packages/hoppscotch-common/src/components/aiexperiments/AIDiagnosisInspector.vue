@@ -55,7 +55,7 @@ import { useI18n } from "~/composables/i18n"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 import { platform } from "~/platform"
-import { useToast } from "~/composables/useToast"
+import { useToast } from "~/composables/toast"
 
 const t = useI18n()
 const toast = useToast()

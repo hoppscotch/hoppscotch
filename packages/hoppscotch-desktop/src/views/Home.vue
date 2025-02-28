@@ -9,8 +9,7 @@
       </div>
 
       <div v-if="isLoading" class="flex flex-col items-center space-y-4">
-        <div class="loading-spinner w-10 h-10 border-4 border-t-purple-500 rounded-full animate-spin"></div>
-        <p class="text-secondary">Loading Hoppscotch...</p>
+        <HoppSmartSpinner />
       </div>
 
       <div v-else-if="error" class="flex flex-col items-center space-y-4">
@@ -153,13 +152,17 @@ const migrateFromLocalStorage = async () => {
   console.log(`Migration complete. Migrated ${migratedCount} items.`);
 };
 
+interface UpdateCheckResult {
+  status: "completed" | "timeout";
+  hasUpdates?: boolean;
+}
+
 const loadVendored = async () => {
   isLoading.value = true;
   error.value = "";
 
   try {
     console.log("Initializing home_store and starting migration process");
-
     await home_store.init();
     await app_store.init();
 
@@ -173,36 +176,63 @@ const loadVendored = async () => {
       console.error("Migration error:", migrationError);
     }
 
+    let shouldProceedWithLoad = true;
+
     try {
       console.log("Checking for updates before loading app...");
-      await invoke('check_updates_and_wait');
-      console.log("Update check completed");
+
+      const timeoutPromise: Promise<UpdateCheckResult> = new Promise((resolve) => {
+        setTimeout(() => {
+          console.log("Update check timeout reached, proceeding with app load");
+          resolve({ status: "timeout" });
+        }, 2000); // TODO: 2s shoud be good?
+      });
+
+      const result = await Promise.race([
+        invoke('check_updates_available').then(hasUpdates => ({ status: "completed", hasUpdates })),
+        timeoutPromise
+      ]);
+
+      console.log("Update check result:", result);
+
+      if (result.status === "completed" && result.hasUpdates) {
+        console.log("Updates available, handling before loading app");
+        shouldProceedWithLoad = false;
+
+        await invoke('install_updates_and_restart');
+        // This point would only be reached if install_updates_and_restart
+        // doesn't actually restart the app
+        return;
+      }
     } catch (updateError) {
       console.error("Update check error:", updateError);
+      // Continue with loading the app despite update check errors
     }
 
-    const vendoredInstance: VendoredInstance = {
-      type: "vendored",
-      displayName: "Vendored",
-      version: "vendored"
-    };
+    if (shouldProceedWithLoad) {
+      const vendoredInstance: VendoredInstance = {
+        type: "vendored",
+        displayName: "Vendored",
+        version: "vendored"
+      };
 
-    await saveConnectionState({
-      status: "connected",
-      instance: vendoredInstance
-    });
+      await saveConnectionState({
+        status: "connected",
+        instance: vendoredInstance
+      });
 
-    console.log("Loading vendored app...");
-    const loadResp = await load({
-      bundleName: "Hoppscotch",
-      window: { title: "Hoppscotch" }
-    });
+      console.log("Loading vendored app...");
+      const loadResp = await load({
+        bundleName: "Hoppscotch",
+        window: { title: "Hoppscotch" }
+      });
 
-    if (!loadResp.success) {
-      throw new Error("Failed to load Hoppscotch Vendored");
+      if (!loadResp.success) {
+        throw new Error("Failed to load Hoppscotch Vendored");
+      }
+
+      console.log("Vendored app loaded successfully");
     }
-
-    console.log("Vendored app loaded successfully");
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("Error loading vendored app:", errorMessage);

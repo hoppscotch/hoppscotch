@@ -31,13 +31,6 @@ pub fn run() {
         })
         .setup(|app| {
             let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                updater::check_and_install_updates(&handle).await;
-            });
-            Ok(())
-        })
-        .setup(|app| {
-            let handle = app.handle().clone();
             tracing::info!(app_name = %app.package_info().name, "Configuring deep link handler");
 
             app.deep_link().on_open_url(move |event| {
@@ -78,7 +71,8 @@ pub fn run() {
         .plugin(tauri_plugin_relay::init())
         .invoke_handler(tauri::generate_handler![
             hopp_auth_port,
-            updater::check_updates_and_wait
+            updater::check_updates_available,
+            updater::install_updates_and_restart
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

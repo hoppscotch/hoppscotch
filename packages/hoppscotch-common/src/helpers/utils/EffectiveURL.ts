@@ -468,6 +468,10 @@ export const resolvesEnvsInBody = (
   if (isJSONContentType(body.contentType))
     bodyContent = stripComments(body.body)
 
+  if (body.contentType === "application/x-www-form-urlencoded") {
+    bodyContent = body.body
+  }
+
   return {
     contentType: body.contentType,
     body: parseTemplateString(bodyContent, env.variables, false, true),

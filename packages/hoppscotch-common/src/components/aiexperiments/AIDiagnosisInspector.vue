@@ -28,7 +28,6 @@
           @click="
             async () => {
               await submitFeedback('positive')
-              submittedFeedback = true
             }
           "
         />
@@ -38,7 +37,6 @@
           @click="
             async () => {
               await submitFeedback('negative')
-              submittedFeedback = true
             }
           "
         />
@@ -57,8 +55,10 @@ import { useI18n } from "~/composables/i18n"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 import { platform } from "~/platform"
+import { useToast } from "~/composables/useToast"
 
 const t = useI18n()
+const toast = useToast()
 
 const props = defineProps<{
   diagnosis: string
@@ -74,10 +74,14 @@ const submitFeedback = async (type: "positive" | "negative") => {
 
   isSubmitFeedbackPending.value = true
   try {
+    const score = type === "positive" ? 1 : -1
     await platform.experiments?.aiExperiments?.submitFeedback(
-      type,
+      score,
       props.traceID
     )
+    submittedFeedback.value = true
+  } catch (error) {
+    toast.error(t("ai_experiments.feedback_failure"))
   } finally {
     isSubmitFeedbackPending.value = false
   }

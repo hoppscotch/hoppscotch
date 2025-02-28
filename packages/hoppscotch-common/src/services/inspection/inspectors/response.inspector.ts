@@ -51,7 +51,7 @@ export class ResponseInspectorService extends Service implements Inspector {
 
     // Watch for response changes to trigger inspection updates
     watch(
-      [res, shouldEnableAIFeatures],
+      [res],
       async ([newRes]) => {
         if (!newRes) {
           await this.updateInspectionResults([])

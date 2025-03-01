@@ -28,6 +28,20 @@ pub fn run_request_task(
 
     let mut curl_handle = Easy::new();
 
+    // Set identity for default fallback
+    match curl_handle.accept_encoding("identity") {
+        Ok(_) => log::debug!("Fallback to identity encoding"),
+        Err(err) => {
+            log::error!(
+                "Critical failure enabling fallback encoding identity: {}
+                \nError details: {:?}",
+                err,
+                err
+            );
+            return Err(RelayError::RequestRunError(err.description().to_string()));
+        }
+    }
+
     for header in &req.headers {
         if header.key.to_lowercase() == "accept-encoding" {
             let encoding = header.value.to_lowercase();

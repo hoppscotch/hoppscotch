@@ -197,9 +197,8 @@ export class PersistenceService extends Service {
       STORE_NAMESPACE,
       STORE_KEYS.SCHEMA_VERSION
     )
-    const currentVersion = E.isRight(versionResult)
-      ? versionResult.right || "0"
-      : "0"
+    const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "0"
+    const currentVersion = perhapsVersion ?? "0"
     const targetVersion = "1"
 
     if (currentVersion !== targetVersion) {
@@ -918,6 +917,30 @@ export class PersistenceService extends Service {
   /**
    * Gets a value from persistence
    */
+  public async get<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<E.Either<StoreError, T | undefined>> {
+    return await Store.get<T>(STORE_NAMESPACE, key)
+  }
+
+  /**
+   * Gets a value from persistence, discards error
+   * NOTE: Use this cautiously, try to always use `get`,
+   *       handling error at call site is better
+   */
+  public async getNullable<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<T | null> {
+    const r = await Store.get<T>(STORE_NAMESPACE, key)
+
+    if (E.isLeft(r)) return null
+
+    return r.right ?? null
+  }
+
+  /**
+   * Gets a value from persistence
+   */
   public async getLocalConfig(
     name: string
   ): Promise<string | null | undefined> {
@@ -931,8 +954,27 @@ export class PersistenceService extends Service {
   /**
    * Sets a value in persistence
    */
+  public async set<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS],
+    value: T
+  ): Promise<E.Either<StoreError, void>> {
+    return await Store.set(STORE_NAMESPACE, key, value)
+  }
+
+  /**
+   * Sets a value in persistence
+   */
   public async setLocalConfig(key: string, value: string): Promise<void> {
     await Store.set(STORE_NAMESPACE, key, value)
+  }
+
+  /**
+   * Clear config value from persistence
+   */
+  public async remove(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<E.Either<StoreError, boolean>> {
+    return await Store.remove(STORE_NAMESPACE, key)
   }
 
   /**

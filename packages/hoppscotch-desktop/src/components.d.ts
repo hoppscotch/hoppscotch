@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     HoppButtonPrimary: typeof import('@hoppscotch/ui')['HoppButtonPrimary']
+    HoppButtonSecondary: typeof import('@hoppscotch/ui')['HoppButtonSecondary']
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
     LayoutHeader: typeof import('./components/layout/LayoutHeader.vue')['default']
     LayoutSidebar: typeof import('./components/layout/LayoutSidebar.vue')['default']

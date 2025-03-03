@@ -301,7 +301,6 @@ declare module 'vue' {
     SmartAutoComplete: (typeof import("./../../hoppscotch-ui/src/components/smart/AutoComplete.vue"))["default"]
     SmartChangeLanguage: typeof import('./components/smart/ChangeLanguage.vue')['default']
     SmartCheckbox: (typeof import("./../../hoppscotch-ui/src/components/smart/Checkbox.vue"))["default"]
-    SmartCollectionSearchOptions: typeof import('./components/smart/CollectionSearchOptions.vue')['default']
     SmartColorModePicker: typeof import('./components/smart/ColorModePicker.vue')['default']
     SmartConfirmModal: (typeof import("./../../hoppscotch-ui/src/components/smart/ConfirmModal.vue"))["default"]
     SmartEncodingPicker: typeof import('./components/smart/EncodingPicker.vue')['default']

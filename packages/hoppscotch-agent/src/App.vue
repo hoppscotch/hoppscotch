@@ -23,8 +23,8 @@
 
     <template v-else>
       <div class="flex-grow overflow-auto">
-        <HoppSmartTable :headings="TABLE_HEADINGS" :list="state().registrations">
-          <template #registered_at="{ item }">{{ formatDate(item.registered_at) }}</template>
+        <HoppSmartTable :headings="tableHeadings" :list="state().registrations">
+          <template #registered_at="{ item }">{{ formatDate(String(item.registered_at)) }}</template>
         </HoppSmartTable>
       </div>
     </template>
@@ -50,7 +50,9 @@ import {
   HoppButtonSecondary,
   HoppSmartTable,
 } from "@hoppscotch/ui"
+// @ts-ignore
 import IconCopy from "~icons/lucide/copy"
+// @ts-ignore
 import IconCheck from "~icons/lucide/check"
 import { useClipboard, refAutoReset } from "@vueuse/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
@@ -72,10 +74,15 @@ interface AppState {
   registrations: Registration[]
 }
 
-const TABLE_HEADINGS = [
+interface CellHeading {
+  key: string
+  label: string
+}
+
+const tableHeadings: CellHeading[] = [
   { key: "auth_key_hash", label: "ID" },
   { key: "registered_at", label: "Registered At" },
-] as const
+]
 
 const { copy } = useClipboard()
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
@@ -127,7 +134,7 @@ const copyOtp = () => {
 const updateRegistrations = async () => {
   await pipe(
     listRegistrations,
-    TE.map((registrations: Registration) => {
+    TE.map((registrations: Registration[]) => {
       appState.value = { ...state(), registrations }
     })
   )()

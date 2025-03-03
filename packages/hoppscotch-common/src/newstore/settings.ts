@@ -21,10 +21,6 @@ export const HoppAccentColors = [
   "pink",
 ] as const
 
-export const CollectionSearchOptions = ["name", "url", "both"] as const
-
-export type CollectionSearchOption = (typeof CollectionSearchOptions)[number]
-
 export const EncodeModes = ["enable", "disable", "auto"] as const
 
 export type EncodeMode = (typeof EncodeModes)[number]
@@ -70,7 +66,6 @@ export type SettingsDef = {
   }
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
-  COLLECTION_SEARCH_OPTION: CollectionSearchOption
   ENCODE_MODE: EncodeMode
   TELEMETRY_ENABLED: boolean
   EXPAND_NAVIGATION: boolean

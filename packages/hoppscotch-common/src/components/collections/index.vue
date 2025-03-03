@@ -302,7 +302,6 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
-import { useSetting } from "~/composables/settings"
 
 const t = useI18n()
 const toast = useToast()
@@ -573,8 +572,6 @@ const hasTeamWriteAccess = computed(() => {
   return role === "OWNER" || role === "EDITOR"
 })
 
-const searchType = useSetting("COLLECTION_SEARCH_OPTION")
-
 const filteredCollections = computed(() => {
   const collections =
     collectionsType.value.type === "my-collections" ? myCollections.value : []
@@ -598,8 +595,7 @@ const filteredCollections = computed(() => {
       if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
-      if (searchType.value !== "url" && isMatch(folder.name))
-        filteredFolders.push(folder)
+      if (isMatch(folder.name)) filteredFolders.push(folder)
       const filteredFolderRequests = []
       for (const request of folder.requests) {
         if (isRequestMatch(request)) filteredFolderRequests.push(request)

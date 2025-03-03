@@ -272,8 +272,6 @@ declare module 'vue' {
     ShareTemplatesLink: typeof import('./components/share/templates/Link.vue')['default']
     SmartAccentModePicker: typeof import('./components/smart/AccentModePicker.vue')['default']
     SmartChangeLanguage: typeof import('./components/smart/ChangeLanguage.vue')['default']
-    SmartCheckbox: (typeof import("./../../hoppscotch-ui/src/components/smart/Checkbox.vue"))["default"]
-    SmartCollectionSearchOptions: typeof import('./components/smart/CollectionSearchOptions.vue')['default']
     SmartColorModePicker: typeof import('./components/smart/ColorModePicker.vue')['default']
     SmartEncodingPicker: typeof import('./components/smart/EncodingPicker.vue')['default']
     SmartEnvInput: typeof import('./components/smart/EnvInput.vue')['default']

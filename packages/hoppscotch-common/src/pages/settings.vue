@@ -34,18 +34,6 @@
 
           <section>
             <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.collection_search_options") }}
-            </h4>
-            <div class="my-1 text-secondaryLight">
-              {{ t("settings.collection_search_options_description") }}
-            </div>
-            <div class="mt-4">
-              <SmartCollectionSearchOptions />
-            </div>
-          </section>
-
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.experiments") }}
             </h4>
             <div class="my-1 text-secondaryLight">

@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import { z } from "zod"
 
 import { Service } from "dioc"
-import { watchDebounced } from "@vueuse/core"
+import { StorageLike, watchDebounced } from "@vueuse/core"
 import { assign, clone, isEmpty } from "lodash-es"
 
 import {
@@ -166,6 +166,9 @@ const migrations: Migration[] = [
  */
 export class PersistenceService extends Service {
   public static readonly ID = "PERSISTENCE_SERVICE"
+
+  // TODO: Consider swapping this with platform dependent `StoreLike` impl
+  public hoppLocalConfigStorage: StorageLike = localStorage
 
   private readonly restTabService = this.bind(RESTTabService)
   private readonly gqlTabService = this.bind(GQLTabService)

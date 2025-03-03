@@ -46,7 +46,9 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppGQLDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getNullable<PersistableTabState<HoppGQLDocument>>(STORE_KEYS.GQL_TABS)
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppGQLDocument>
+    >(STORE_KEYS.GQL_TABS)
     return savedState
   }
 

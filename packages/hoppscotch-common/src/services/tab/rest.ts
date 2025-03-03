@@ -65,7 +65,9 @@ export class RESTTabService extends TabService<HoppTabDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getNullable<PersistableTabState<HoppTabDocument>>(STORE_KEYS.REST_TABS)
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppTabDocument>
+    >(STORE_KEYS.REST_TABS)
     return savedState
   }
 

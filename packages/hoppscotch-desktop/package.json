@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-desktop",
   "private": true,
-  "version": "0.1.0",
+  "version": "25.2.0-0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,8 +19,10 @@
     "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload",
     "@hoppscotch/ui": "0.2.1",
     "@tauri-apps/api": "2.1.1",
+    "@tauri-apps/plugin-process": "2.2.0",
     "@tauri-apps/plugin-shell": "2.0.1",
     "@tauri-apps/plugin-store": "2.2.0",
+    "@tauri-apps/plugin-updater": "2.5.1",
     "@vueuse/core": "11.1.0",
     "fp-ts": "2.16.9",
     "vue": "^3.3.4",

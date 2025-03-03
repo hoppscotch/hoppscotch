@@ -1,25 +1,90 @@
 <template>
   <div class="flex flex-col items-center justify-center w-full h-screen bg-primary">
-    <div class="flex flex-col items-center space-y-6">
+    <div class="flex flex-col items-center space-y-6 max-w-md text-center">
       <div class="flex items-center space-x-4">
-        <IconLucideCloud class="h-16 w-16 text-secondaryDark" />
-        <div class="flex flex-col">
+        <img src="/logo.svg" alt="Hoppscotch" class="h-7 w-7" />
+        <div class="flex flex-col items-start">
           <h1 class="text-2xl font-semibold text-secondaryDark">Hoppscotch</h1>
+          <p class="text-secondary text-sm">Desktop</p>
         </div>
       </div>
 
-      <div v-if="isLoading" class="flex flex-col items-center space-y-4">
+      <div v-if="appState === AppState.LOADING" class="flex flex-col items-center space-y-4">
         <HoppSmartSpinner />
+        <p class="text-secondaryDark">{{ statusMessage }}</p>
       </div>
 
-      <div v-else-if="error" class="flex flex-col items-center space-y-4">
-        <IconLucideAlertCircle class="h-10 w-10 text-red-500" />
-        <p class="text-red-500">{{ error }}</p>
+      <div
+        v-else-if="appState === AppState.UPDATE_AVAILABLE || appState === AppState.UPDATE_IN_PROGRESS || appState === AppState.UPDATE_READY"
+        class="flex flex-col items-center space-y-4"
+      >
+        <IconLucideDownload class="h-16 w-16 text-accent" />
+        <div class="text-center">
+          <h2 class="text-xl font-semibold text-secondaryDark">Update Available</h2>
+          <p class="text-secondary mt-1">{{ updateMessage || 'A new version of Hoppscotch is available, downloading...' }}</p>
+        </div>
+
+        <div v-if="downloadProgress.total && downloadProgress.downloaded" class="w-full">
+          <div class="w-full bg-primaryLight rounded-full h-2.5">
+            <div
+              class="bg-accent h-2.5 rounded-full"
+              :style="{ width: `${(downloadProgress.downloaded / downloadProgress.total) * 100}%` }"
+            ></div>
+          </div>
+          <div class="flex justify-between text-sm text-secondaryLight mt-1">
+            <span>{{ Math.round((downloadProgress.downloaded / downloadProgress.total) * 100) }}%</span>
+            <span class="text-xs">
+              {{ formatBytes(downloadProgress.downloaded) }} / {{ formatBytes(downloadProgress.total) }}
+            </span>
+          </div>
+        </div>
+
+        <div v-else-if="downloadProgress.downloaded > 0" class="w-full">
+          <div class="w-full bg-primaryLight rounded-full h-2.5">
+            <div class="bg-accent h-2.5 rounded-full animate-pulse" style="width: 100%"></div>
+          </div>
+          <p class="text-sm text-secondaryLight text-center mt-1">
+            Downloaded {{ formatBytes(downloadProgress.downloaded) }}
+          </p>
+        </div>
+
+        <div class="flex space-x-2">
+          <HoppButtonPrimary
+            v-if="appState === AppState.UPDATE_AVAILABLE"
+            label="Install Update"
+            :icon="IconLucideDownload"
+            @click="installUpdate"
+          />
+          <HoppButtonPrimary
+            v-else-if="appState === AppState.UPDATE_READY"
+            label="Restart Now"
+            :icon="IconLucideRefreshCw"
+            @click="restartApp"
+          />
+          <HoppButtonSecondary
+            v-if="appState === AppState.UPDATE_AVAILABLE"
+            label="Later"
+            outline
+            @click="skipUpdate"
+          />
+        </div>
+      </div>
+
+      <div v-else-if="appState === AppState.ERROR" class="flex flex-col items-center space-y-4">
+        <IconLucideAlertCircle class="h-16 w-16 text-red-500" />
+        <div class="text-center">
+          <h2 class="text-xl font-semibold text-secondaryDark">Something went wrong</h2>
+          <p class="text-red-500 mt-2">{{ error }}</p>
+        </div>
         <HoppButtonPrimary
           label="Try Again"
           :icon="IconLucideRefreshCw"
-          @click="loadVendored"
+          @click="initialize"
         />
+      </div>
+
+      <div class="text-secondaryLight text-xs mt-4">
+        <p>Version {{ appVersion }}</p>
       </div>
     </div>
   </div>
@@ -29,14 +94,25 @@
 import { ref, onMounted } from "vue";
 import { LazyStore } from '@tauri-apps/plugin-store';
 import { load } from "@hoppscotch/plugin-appload";
-import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from '@tauri-apps/api/app';
 
-import IconLucideCloud from "~icons/lucide/cloud"
-import IconLucideAlertCircle from "~icons/lucide/alert-circle"
-import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
+import { UpdateStatus, CheckResult, UpdateState } from "~/types";
+import { UpdaterService } from "~/utils/updater";
 
-const HOME_STORE_PATH = "hopp.store.json";
-const APP_STORE_PATH = "hoppscotch.hoppscotch.store";
+import IconLucideAlertCircle from "~icons/lucide/alert-circle";
+import IconLucideRefreshCw from "~icons/lucide/refresh-cw";
+import IconLucideDownload from "~icons/lucide/download";
+
+const APP_STORE_PATH = "hoppscotch-desktop.store";
+
+enum AppState {
+  LOADING = "loading",
+  UPDATE_AVAILABLE = "update_available",
+  UPDATE_IN_PROGRESS = "update_in_progress",
+  UPDATE_READY = "update_ready",
+  ERROR = "error",
+  LOADED = "loaded"
+}
 
 interface VendoredInstance {
   type: "vendored";
@@ -51,188 +127,115 @@ interface ConnectionState {
   message?: string;
 }
 
-interface StoredData {
-  schemaVersion: number;
-  metadata: {
-    createdAt: string;
-    updatedAt: string;
-    namespace: string;
-  };
-  data: unknown;
-}
-
-interface StoreData {
-  data: {
-    [namespace: string]: {
-      [key: string]: StoredData;
-    };
-  };
-}
-
-const home_store = new LazyStore(HOME_STORE_PATH);
-const app_store = new LazyStore(APP_STORE_PATH);
-const isLoading = ref(true);
+const appStore = new LazyStore(APP_STORE_PATH);
+const appState = ref<AppState>(AppState.LOADING);
+const updateStatus = ref("");
+const updateMessage = ref("");
+const downloadProgress = ref<{ downloaded: number; total?: number }>({ downloaded: 0 });
 const error = ref("");
+const statusMessage = ref("Initializing...");
+const appVersion = ref("...");
+
+const updaterService = new UpdaterService(appStore);
+
+const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 
 const saveConnectionState = async (state: ConnectionState) => {
   try {
-    await home_store.set("connectionState", state);
-    await home_store.save();
+    await appStore.set("connectionState", state);
+    await appStore.save();
   } catch (err) {
     console.error("Failed to save connection state:", err);
   }
 };
 
-const migrateFromLocalStorage = async () => {
-  const keyMappings = {
-    settings: "settings",
-    collections: "restCollections",
-    collectionsGraphql: "gqlCollections",
-    environments: "environments",
-    history: "restHistory",
-    graphqlHistory: "gqlHistory",
-    WebsocketRequest: "websocket",
-    SocketIORequest: "socketio",
-    SSERequest: "sse",
-    MQTTRequest: "mqtt",
-    globalEnv: "globalEnv",
-    restTabState: "restTabs",
-    gqlTabState: "gqlTabs",
-    secretEnvironments: "secretEnvironments"
-  };
+const setupUpdateStateWatcher = async () => {
+   const unsubscribe = await appStore.onKeyChange<UpdateState>("updateState", (newValue) => {
+    if (!newValue) return;
 
-  console.log("Starting migration from localStorage to home_store...");
-  let migratedCount = 0;
+    updateStatus.value = newValue.status;
+    updateMessage.value = newValue.message || "";
 
-  const storeData: StoreData = {
-    data: {
-      "persistence.v1": {}
+    if (newValue.progress) {
+      downloadProgress.value = newValue.progress;
     }
-  };
 
-  console.log("Current localStorage keys:", Object.keys(localStorage));
-
-  for (const [oldKey, newKey] of Object.entries(keyMappings)) {
-    const data = localStorage.getItem(oldKey);
-    if (data) {
-      try {
-        console.log(`Migrating ${oldKey} to persistence.v1.${newKey}...`);
-        let parsedData;
-
-        try {
-          parsedData = JSON.parse(data);
-        } catch (e) {
-          console.error(`Failed to parse ${oldKey} data:`, e);
-          continue;
-        }
-
-        const storedData: StoredData = {
-          schemaVersion: 1,
-          metadata: {
-            createdAt: new Date().toISOString(),
-            namespace: "persistence.v1",
-            updatedAt: new Date().toISOString(),
-          },
-          data: parsedData
-        };
-
-        storeData.data["persistence.v1"][newKey] = storedData;
-
-        localStorage.removeItem(oldKey);
-        migratedCount++;
-        console.log(`Successfully migrated ${oldKey}`);
-      } catch (err) {
-        console.error(`Failed to migrate ${oldKey}:`, err);
-      }
+    if (newValue.status === UpdateStatus.AVAILABLE) {
+      appState.value = AppState.UPDATE_AVAILABLE;
+    } else if (newValue.status === UpdateStatus.ERROR) {
+      error.value = newValue.message || "Unknown error";
+      appState.value = AppState.ERROR;
+    } else if (newValue.status === UpdateStatus.DOWNLOADING || newValue.status === UpdateStatus.INSTALLING) {
+      appState.value = AppState.UPDATE_IN_PROGRESS;
+    } else if (newValue.status === UpdateStatus.READY_TO_RESTART) {
+      appState.value = AppState.UPDATE_READY;
     }
-  }
+  });
 
-  await app_store.set('data', storeData.data);
-  await app_store.save();
-  console.log(`Migration complete. Migrated ${migratedCount} items.`);
+  return unsubscribe;
 };
 
-interface UpdateCheckResult {
-  status: "completed" | "timeout";
-  hasUpdates?: boolean;
-}
+const installUpdate = async () => {
+  try {
+    appState.value = AppState.UPDATE_IN_PROGRESS;
+    await updaterService.downloadAndInstall();
+    // In a rare occurance where we reach here but automatic restart didn't happen,
+    // we'll just show a restart button instead
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error.value = `Failed to install update: ${errorMessage}`;
+    appState.value = AppState.ERROR;
+  }
+};
+
+const skipUpdate = async () => {
+  await loadVendored();
+};
+
+const restartApp = async () => {
+  try {
+    await updaterService.restartApp();
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error.value = `Failed to restart app: ${errorMessage}`;
+    appState.value = AppState.ERROR;
+  }
+};
 
 const loadVendored = async () => {
-  isLoading.value = true;
-  error.value = "";
-
   try {
-    console.log("Initializing home_store and starting migration process");
-    await home_store.init();
-    await app_store.init();
+    statusMessage.value = "Loading application...";
 
-    console.log(`Using home_store path: ${HOME_STORE_PATH}`);
-    console.log("home_Store initialized successfully");
+    const vendoredInstance: VendoredInstance = {
+      type: "vendored",
+      displayName: "Vendored",
+      version: "vendored"
+    };
 
-    try {
-      await migrateFromLocalStorage();
-      console.log("Migration completed successfully");
-    } catch (migrationError) {
-      console.error("Migration error:", migrationError);
+    await saveConnectionState({
+      status: "connected",
+      instance: vendoredInstance
+    });
+
+    console.log("Loading vendored app...");
+    const loadResp = await load({
+      bundleName: "Hoppscotch",
+      window: { title: "Hoppscotch" }
+    });
+
+    if (!loadResp.success) {
+      throw new Error("Failed to load Hoppscotch Vendored");
     }
 
-    let shouldProceedWithLoad = true;
-
-    try {
-      console.log("Checking for updates before loading app...");
-
-      const timeoutPromise: Promise<UpdateCheckResult> = new Promise((resolve) => {
-        setTimeout(() => {
-          console.log("Update check timeout reached, proceeding with app load");
-          resolve({ status: "timeout" });
-        }, 2000); // TODO: 2s shoud be good?
-      });
-
-      const result = await Promise.race([
-        invoke('check_updates_available').then(hasUpdates => ({ status: "completed", hasUpdates })),
-        timeoutPromise
-      ]);
-
-      console.log("Update check result:", result);
-
-      if (result.status === "completed" && result.hasUpdates) {
-        console.log("Updates available, handling before loading app");
-        shouldProceedWithLoad = false;
-
-        await invoke('install_updates_and_restart');
-        // This point would only be reached if install_updates_and_restart
-        // doesn't actually restart the app
-        return;
-      }
-    } catch (updateError) {
-      console.error("Update check error:", updateError);
-      // Continue with loading the app despite update check errors
-    }
-
-    if (shouldProceedWithLoad) {
-      const vendoredInstance: VendoredInstance = {
-        type: "vendored",
-        displayName: "Vendored",
-        version: "vendored"
-      };
-
-      await saveConnectionState({
-        status: "connected",
-        instance: vendoredInstance
-      });
-
-      console.log("Loading vendored app...");
-      const loadResp = await load({
-        bundleName: "Hoppscotch",
-        window: { title: "Hoppscotch" }
-      });
-
-      if (!loadResp.success) {
-        throw new Error("Failed to load Hoppscotch Vendored");
-      }
-
-      console.log("Vendored app loaded successfully");
-    }
+    console.log("Vendored app loaded successfully");
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("Error loading vendored app:", errorMessage);
@@ -244,23 +247,48 @@ const loadVendored = async () => {
       message: errorMessage
     });
 
-    isLoading.value = false;
+    appState.value = AppState.ERROR;
+  }
+};
+
+const initialize = async () => {
+  appState.value = AppState.LOADING;
+  error.value = "";
+  downloadProgress.value = { downloaded: 0 };
+
+  try {
+    try {
+      appVersion.value = await getVersion();
+    } catch (error) {
+      console.error("Failed to get app version:", error);
+      appVersion.value = "unknown";
+    }
+
+    statusMessage.value = "Initializing stores...";
+    await appStore.init();
+    await updaterService.initialize();
+
+    await setupUpdateStateWatcher();
+
+    statusMessage.value = "Checking for updates...";
+    const checkResult = await updaterService.checkForUpdates();
+
+    if (checkResult === CheckResult.AVAILABLE) {
+      console.log("Updates available, prompting for install");
+      appState.value = AppState.UPDATE_AVAILABLE;
+      return;
+    }
+
+    await loadVendored();
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Initialization error:", errorMessage);
+    error.value = errorMessage;
+    appState.value = AppState.ERROR;
   }
 };
 
 onMounted(() => {
-  loadVendored();
+  initialize();
 });
 </script>
-
-<style scoped>
-.loading-spinner {
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>

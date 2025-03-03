@@ -6,6 +6,7 @@ use std::sync::OnceLock;
 use tauri::Emitter;
 use tauri_plugin_appload::VendorConfigBuilder;
 use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_window_state::StateFlags;
 
 static SERVER_PORT: OnceLock<u16> = OnceLock::new();
 
@@ -19,16 +20,22 @@ pub fn run() {
     tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::new()
+                .with_state_flags(
+                    StateFlags::SIZE
+                        | StateFlags::POSITION
+                        | StateFlags::MAXIMIZED
+                        | StateFlags::FULLSCREEN,
+                )
+                .with_denylist(&["main"])
+                .build(),
+        )
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(|app| {
-            let _ = app
-                .handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
-            Ok(())
-        })
         .setup(|app| {
             let handle = app.handle().clone();
             tracing::info!(app_name = %app.package_info().name, "Configuring deep link handler");

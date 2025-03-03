@@ -1,0 +1,20 @@
+[package]
+name = "webapp-bundler"
+version = "0.1.0"
+authors = ["CuriousCorrelation"]
+edition = "2024"
+publish = false
+
+[dependencies]
+base64 = "0.22.1"
+blake3 = { version = "1.5.4", features = ["serde"] }
+chrono = { version = "0.4.39", features = ["serde"] }
+clap = { version = "4.5.28", features = ["derive"] }
+mime_guess = "2.0.5"
+rayon = "1.10.0"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+thiserror = "2.0.3"
+walkdir = "2.5.0"
+zip = "2.2.0"
+zstd = "0.13.2"

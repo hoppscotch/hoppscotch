@@ -36,7 +36,7 @@ export const restCollectionsMapper = createMapper<string, string>()
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const restRequestsMapper = createMapper<string, string>()
 
-// temp implementation untill the backend implements an endpoint that accepts an entire collection
+// temp implementation until the backend implements an endpoint that accepts an entire collection
 // TODO: use importCollectionsJSON to do this
 const recursivelySyncCollections = async (
   collection: HoppCollection,

@@ -302,6 +302,7 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
+import { useSetting } from "~/composables/settings"
 
 const t = useI18n()
 const toast = useToast()
@@ -440,9 +441,9 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
-onMounted(() => {
+onMounted(async () => {
   const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
+    await persistenceService.getLocalConfig("oauth_temp_config")
 
   if (!localOAuthTempConfig) {
     return
@@ -457,9 +458,8 @@ onMounted(() => {
 
   if (context?.type === "collection-properties") {
     // load the unsaved editing properties
-    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
-      "unsaved_collection_properties"
-    )
+    const unsavedCollectionPropertiesString =
+      await persistenceService.getLocalConfig("unsaved_collection_properties")
 
     if (unsavedCollectionPropertiesString) {
       const unsavedCollectionProperties: EditingProperties = JSON.parse(
@@ -481,7 +481,7 @@ onMounted(() => {
       editingProperties.value = unsavedCollectionProperties
     }
 
-    persistenceService.removeLocalConfig("oauth_temp_config")
+    await persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
@@ -573,6 +573,8 @@ const hasTeamWriteAccess = computed(() => {
   return role === "OWNER" || role === "EDITOR"
 })
 
+const searchType = useSetting("COLLECTION_SEARCH_OPTION")
+
 const filteredCollections = computed(() => {
   const collections =
     collectionsType.value.type === "my-collections" ? myCollections.value : []
@@ -596,7 +598,8 @@ const filteredCollections = computed(() => {
       if (isRequestMatch(request)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
-      if (isMatch(folder.name)) filteredFolders.push(folder)
+      if (searchType.value !== "url" && isMatch(folder.name))
+        filteredFolders.push(folder)
       const filteredFolderRequests = []
       for (const request of folder.requests) {
         if (isRequestMatch(request)) filteredFolderRequests.push(request)
@@ -2645,7 +2648,7 @@ const initializeDownloadCollection = async (
   collectionJSON: string,
   name: string | null
 ) => {
-  const result = await platform.io.saveFileWithDialog({
+  const result = await platform.kernelIO.saveFileWithDialog({
     data: collectionJSON,
     contentType: "application/json",
     suggestedFilename: `${name ?? "collection"}.json`,

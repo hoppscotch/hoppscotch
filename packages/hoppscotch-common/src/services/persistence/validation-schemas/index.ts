@@ -8,6 +8,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequestResponse,
   HoppCollection,
+  GlobalEnvironment,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -29,12 +30,15 @@ const BgColorSchema = z.enum(["system", "light", "dark", "black"])
 
 const EncodeMode = z.enum(["enable", "disable", "auto"])
 
+const CollectionSearchOption = z.enum(["name", "url", "both"])
+
 const SettingsDefSchema = z.object({
   syncCollections: z.boolean(),
   syncHistory: z.boolean(),
   syncEnvironments: z.boolean(),
   PROXY_URL: z.string(),
   CURRENT_INTERCEPTOR_ID: z.string(),
+  CURRENT_KERNEL_INTERCEPTOR_ID: z.string(),
   URL_EXCLUDES: z.object({
     auth: z.boolean(),
     httpUser: z.boolean(),
@@ -44,6 +48,7 @@ const SettingsDefSchema = z.object({
   }),
   THEME_COLOR: ThemeColorSchema,
   BG_COLOR: BgColorSchema,
+  COLLECTION_SEARCH_OPTION: CollectionSearchOption,
   ENCODE_MODE: EncodeMode.catch("enable"),
   TELEMETRY_ENABLED: z.boolean(),
   EXPAND_NAVIGATION: z.boolean(),
@@ -154,6 +159,8 @@ export const REST_COLLECTION_SCHEMA = HoppRESTCollectionSchema
 export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
 
 export const ENVIRONMENTS_SCHEMA = z.array(entityReference(Environment))
+
+export const GLOBAL_ENVIRONMENT_SCHEMA = entityReference(GlobalEnvironment)
 
 export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
   z.discriminatedUnion("type", [

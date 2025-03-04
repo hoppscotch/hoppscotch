@@ -120,6 +120,7 @@ const recursivelySyncCollections = async (
       collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,

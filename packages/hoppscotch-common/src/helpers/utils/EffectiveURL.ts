@@ -71,8 +71,16 @@ export const getComputedAuthHeaders = async (
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
   // If Authorization header is also being user-defined, that takes priority
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
-    return []
+  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization")) {
+    // Only return empty array if not using API key auth or if API key is using "authorization" header
+    if (
+      !req.auth ||
+      req.auth.authType !== "api-key" ||
+      req.auth.key.toLowerCase() === "authorization"
+    ) {
+      return []
+    }
+  }
 
   if (!request) return []
 

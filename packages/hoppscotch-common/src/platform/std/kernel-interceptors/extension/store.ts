@@ -119,9 +119,8 @@ export class KernelInterceptorExtensionStore extends Service {
       })
 
       window.__HOPP_EXTENSION_STATUS_PROXY__ = statusProxy
-      statusProxy.subscribe(
-        "status",
-        (status: ExtensionStatus) => this.updateSettings({ status })
+      statusProxy.subscribe("status", (status: ExtensionStatus) =>
+        this.updateSettings({ status })
       )
 
       /**

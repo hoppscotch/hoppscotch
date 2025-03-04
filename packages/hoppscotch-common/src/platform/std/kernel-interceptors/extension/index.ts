@@ -1,4 +1,4 @@
-import { computed, markRaw, ref } from "vue"
+import { computed, markRaw } from "vue"
 import { Service } from "dioc"
 import type { RelayRequest, RelayResponse } from "@hoppscotch/kernel"
 import { body } from "@hoppscotch/kernel"
@@ -147,10 +147,7 @@ export class ExtensionKernelInterceptorService
             status: response.status,
             statusText: response.statusText,
             headers: response.headers,
-            body: body.body(
-              response.data,
-              response.headers["content-type"]
-            ),
+            body: body.body(response.data, response.headers["content-type"]),
           })
         }
       }

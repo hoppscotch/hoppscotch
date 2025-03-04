@@ -137,15 +137,13 @@ export class TeamRequestService {
     title: string,
     request: string,
   ) {
-    const team = await this.teamCollectionService.getTeamOfCollection(
-      collectionID,
-    );
+    const team =
+      await this.teamCollectionService.getTeamOfCollection(collectionID);
     if (E.isLeft(team)) return E.left(team.left);
     if (team.right.id !== teamID) return E.left(TEAM_INVALID_ID);
 
-    const reqCountInColl = await this.getRequestsCountInCollection(
-      collectionID,
-    );
+    const reqCountInColl =
+      await this.getRequestsCountInCollection(collectionID);
 
     const createInput: Prisma.TeamRequestCreateInput = {
       request: request,
@@ -191,6 +189,9 @@ export class TeamRequestService {
       skip: cursor ? 1 : 0,
       where: {
         collectionID: collectionID,
+      },
+      orderBy: {
+        orderIndex: 'asc',
       },
     });
 

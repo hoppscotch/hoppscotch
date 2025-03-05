@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
     error::{RelayError, Result},
-    interop::{AuthType, GrantType, TokenResponse},
+    interop::{ApiKeyLocation, AuthType, GrantType, TokenResponse},
 };
 
 pub(crate) struct AuthHandler<'a> {
@@ -32,6 +32,10 @@ impl<'a> AuthHandler<'a> {
             } => {
                 tracing::info!(username = %username, "Setting digest auth");
                 self.set_digest_auth(username, password)
+            }
+            AuthType::ApiKey { key, value, location } => {
+                tracing::info!(key = %key, "Setting API key auth");
+                self.set_apikey_auth(key, value, location)
             }
             AuthType::OAuth2 {
                 grant_type,
@@ -82,6 +86,25 @@ impl<'a> AuthHandler<'a> {
     fn set_bearer_auth(&mut self, token: &str) -> Result<()> {
         self.headers
             .insert("Authorization".to_string(), format!("Bearer {}", token));
+        Ok(())
+    }
+
+    fn set_apikey_auth(&mut self, key: &str, value: &str, location: &ApiKeyLocation) -> Result<()> {
+        tracing::debug!(key = %key, location = ?location, "Setting API key auth");
+
+        match location {
+            ApiKeyLocation::Header => {
+                tracing::debug!("Adding API key as header: {}", key);
+                self.headers.insert(key.to_string(), value.to_string());
+            }
+            ApiKeyLocation::Query => {
+                // For query parameters, we don't need to do anything here
+                // This is handled in the request.rs file before setting the URL
+                tracing::debug!("API key will be added to query parameters in URL");
+            }
+        }
+
+        tracing::debug!("API key auth configured successfully");
         Ok(())
     }
 

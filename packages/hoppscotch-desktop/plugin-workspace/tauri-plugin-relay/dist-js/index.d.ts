@@ -107,6 +107,11 @@ export type AuthType = {
     };
     accessToken?: string;
     refreshToken?: string;
+} | {
+    kind: "apikey";
+    key: string;
+    value: string;
+    in: "header" | "query";
 };
 export type CertificateType = {
     kind: "pem";

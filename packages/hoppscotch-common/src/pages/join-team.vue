@@ -194,6 +194,12 @@ onMounted(async () => {
 })
 
 onLoggedIn(async () => {
+  const probableUser = platform.auth.getProbableUser()
+
+  if (probableUser !== null) {
+    await platform.auth.waitProbableLoginToConfirm()
+  }
+
   if (typeof route.query.id === "string") {
     inviteDetails.execute({
       inviteID: route.query.id,

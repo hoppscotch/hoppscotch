@@ -33,9 +33,31 @@ impl<'a> AuthHandler<'a> {
                 tracing::info!(username = %username, "Setting digest auth");
                 self.set_digest_auth(username, password)
             }
-            AuthType::ApiKey { key, value, location } => {
+            AuthType::ApiKey {
+                key,
+                value,
+                location,
+            } => {
                 tracing::info!(key = %key, "Setting API key auth");
                 self.set_apikey_auth(key, value, location)
+            }
+            AuthType::Aws {
+                access_key,
+                secret_key,
+                region,
+                service,
+                session_token,
+                location,
+            } => {
+                tracing::debug!("AWS SigV4 auth is handled at application level");
+                self.set_aws_auth(
+                    access_key,
+                    secret_key,
+                    region,
+                    service,
+                    session_token.as_deref(),
+                    location,
+                )
             }
             AuthType::OAuth2 {
                 grant_type,
@@ -105,6 +127,19 @@ impl<'a> AuthHandler<'a> {
         }
 
         tracing::debug!("API key auth configured successfully");
+        Ok(())
+    }
+
+    fn set_aws_auth(
+        &mut self,
+        _access_key: &str,
+        _secret_key: &str,
+        _region: &str,
+        _service: &str,
+        _session_token: Option<&str>,
+        _location: &ApiKeyLocation,
+    ) -> Result<()> {
+        tracing::debug!("AWS SigV4 auth is handled at application level");
         Ok(())
     }
 

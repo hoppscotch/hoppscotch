@@ -279,7 +279,7 @@ export function useCodemirror(
       }
 
       const text = view.value?.state.doc.sliceString(from, to)
-      const coords = view.value?.coordsAtPos(from)
+      const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
       const left = coords?.left ?? 0
       if (text?.trim()) {

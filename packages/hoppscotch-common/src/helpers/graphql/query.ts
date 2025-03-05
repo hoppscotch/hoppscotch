@@ -310,7 +310,9 @@ export function useQuery() {
     if (!currentTab) return
 
     const currentQuery = currentTab.document.request.query || ""
-    const selectedOperation = getOperation(currentTab.document.cursorPosition)
+    const selectedOperation = getOperation(
+      currentTab.document.cursorPosition || 0
+    )
     const navItems = [...navStack.value, { name: item.name, def: item }]
 
     const result = processOperation(
@@ -368,7 +370,7 @@ export function useQuery() {
     isArgument = false
   ): boolean => {
     const operation = getOperation(
-      tabs.currentActiveTab.value?.document.cursorPosition
+      tabs.currentActiveTab.value?.document.cursorPosition || 0
     )
     if (!operation) return false
 

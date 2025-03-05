@@ -208,7 +208,7 @@ const GqlCollectionsGistExporter: ImporterOrExporter = {
         exporter: "gist",
       })
 
-      platform.kernelIO.openExternalLink(res.right)
+      platform.kernelIO.openExternalLink({ url: res.right })
     }
 
     isGqlCollectionGistExportInProgress.value = false

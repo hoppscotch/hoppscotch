@@ -138,6 +138,13 @@ pub enum GrantType {
     },
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ApiKeyLocation {
+    Header,
+    Query,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum AuthType {
@@ -162,6 +169,13 @@ pub enum AuthType {
         qop: Option<DigestQop>,
         nc: Option<String>,
         cnonce: Option<String>,
+    },
+    #[serde(rename_all = "camelCase")]
+    ApiKey {
+        key: String,
+        value: String,
+        #[serde(rename = "in")]
+        location: ApiKeyLocation,
     },
     #[serde(rename_all = "camelCase")]
     OAuth2 {

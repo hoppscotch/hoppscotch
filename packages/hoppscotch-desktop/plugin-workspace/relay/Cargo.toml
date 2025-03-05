@@ -29,3 +29,4 @@ infer = "0.16.0"
 strum = { version = "0.26.3", features = ["derive"] }
 bytes = { version = "1.9.0", features = ["serde"] }
 mime = "0.3.17"
+url = "2.5.4"

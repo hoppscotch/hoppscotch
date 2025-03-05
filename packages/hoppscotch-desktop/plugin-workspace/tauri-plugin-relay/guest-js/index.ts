@@ -165,6 +165,15 @@ export type AuthType =
         value: string
         in: "header" | "query"
     }
+    | {
+        kind: "aws"
+        accessKey: string
+        secretKey: string
+        region: string
+        service: string
+        sessionToken?: string
+        in: "header" | "query"
+    }
 
 export type CertificateType =
   | {

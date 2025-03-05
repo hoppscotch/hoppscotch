@@ -183,6 +183,16 @@ pub enum AuthType {
         access_token: Option<String>,
         refresh_token: Option<String>,
     },
+    #[serde(rename_all = "camelCase")]
+    Aws {
+        access_key: String,
+        secret_key: String,
+        region: String,
+        service: String,
+        session_token: Option<String>,
+        #[serde(rename = "in")]
+        location: ApiKeyLocation,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

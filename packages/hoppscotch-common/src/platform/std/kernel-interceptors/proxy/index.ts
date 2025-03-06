@@ -241,7 +241,7 @@ export class ProxyKernelInterceptorService
                 ? new Uint8Array(res.body.body)
                 : null
 
-            // NOTE: This will become obsolete if we use native interceptor like error propogation.
+            // NOTE: This will become obsolete if we use native interceptor like error propagation.
             const proxyResponse = proxyBody
               ? (JSON.parse(
                   new TextDecoder().decode(proxyBody)

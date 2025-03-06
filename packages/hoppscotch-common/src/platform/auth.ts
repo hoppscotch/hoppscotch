@@ -24,7 +24,7 @@ export type HoppUser = {
 
   // Regarding `provider` and `accessToken`:
   // The current implementation and use case for these 2 fields are super weird due to legacy.
-  // Currrently these fields are only basically populated for Github Auth as we need the access token issued
+  // Currently these fields are only basically populated for Github Auth as we need the access token issued
   // by it to implement Gist submission. I would really love refactor to make this thing more sane.
 
   /** Name of the provider authenticating (NOTE: See notes on `platform/auth.ts`) */

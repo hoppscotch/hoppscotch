@@ -58,7 +58,17 @@ impl ApiClient {
         tracing::debug!(bundle_name = name, "Downloading bundle");
         let url = self.build_url(&format!("/api/{API_VERSION}/bundle"))?;
 
-        let response = self.client.get(url).send().await.map_err(|e| {
+        let download_client = HttpClient::builder()
+            .timeout(10 * DEFAULT_TIMEOUT)
+            .user_agent(format!(
+                "{}/{}",
+                env!("CARGO_PKG_NAME"),
+                env!("CARGO_PKG_VERSION")
+            ))
+            .build()
+            .map_err(ApiError::RequestFailed)?;
+
+        let response = download_client.get(url).send().await.map_err(|e| {
             tracing::error!(bundle_name = name, error = %e, "Download request failed");
             ApiError::RequestFailed(e)
         })?;

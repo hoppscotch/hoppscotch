@@ -269,7 +269,7 @@ export class ProxyKernelInterceptorService
               return E.right({
                 ...res,
                 body: {
-                  body: proxyBody,
+                  body: proxyResponse.data,
                   mediaType:
                     proxyResponse.headers["content-type"] ||
                     "application/octet-stream",
@@ -283,7 +283,7 @@ export class ProxyKernelInterceptorService
               statusText: proxyResponse.statusText,
               headers: proxyResponse.headers,
               body: {
-                body: proxyBody,
+                body: new TextEncoder().encode(proxyResponse.data),
                 mediaType: "text/plain",
               },
             })

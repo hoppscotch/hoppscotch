@@ -29,7 +29,7 @@ export type UIPlatformDef = {
   onCodemirrorInstanceMount?: (element: HTMLElement) => void
 
   /**
-   * Additonal menu items shown in the "Help and Feedback" menu
+   * Additional menu items shown in the "Help and Feedback" menu
    * in the app footer.
    */
   additionalFooterMenuItems?: HoppFooterMenuItem[]

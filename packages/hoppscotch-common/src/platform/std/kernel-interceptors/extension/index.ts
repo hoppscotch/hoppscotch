@@ -108,8 +108,8 @@ export class ExtensionKernelInterceptorService
     if (!window.__POSTWOMAN_EXTENSION_HOOK__) {
       return E.left({
         humanMessage: {
-          heading: (t) => t("error.extension_not_found.heading"),
-          description: (t) => t("error.extension_not_found.description"),
+          heading: (t) => t("error.extension_not_found"),
+          description: (t) => t("error.network_fail"),
         },
         error: {
           kind: "extension",

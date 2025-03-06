@@ -237,16 +237,19 @@ export class ProxyKernelInterceptorService
           }),
           E.chain((res) => {
             const proxyBody =
-              res.body.mediaType === MediaType.TEXT_PLAIN
+              (res.body.mediaType === MediaType.TEXT_PLAIN ||
+                res.body.mediaType === MediaType.APPLICATION_JSON)
                 ? new Uint8Array(res.body.body)
-                : null
+                : res.body.body
 
             // NOTE: This will become obsolete if we use native interceptor like error propogation.
-            const proxyResponse = proxyBody
+            const proxyResponse =
+              (res.body.mediaType === MediaType.TEXT_PLAIN ||
+                res.body.mediaType === MediaType.APPLICATION_JSON)
               ? (JSON.parse(
                   new TextDecoder().decode(proxyBody)
                 ) as ProxyResponse)
-              : null
+              : res.body.body
 
             if (!proxyResponse?.success) {
               return E.left({

@@ -39,14 +39,19 @@ import IconChrome from "~icons/brands/chrome"
 import IconFirefox from "~icons/brands/firefox"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import { useI18n } from "@composables/i18n"
-import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
+import { computed } from "vue"
 import { useService } from "dioc/vue"
+import { ExtensionKernelInterceptorService } from "~/platform/std/kernel-interceptors/extension"
 
 const t = useI18n()
 
-const extensionService = useService(ExtensionInterceptorService)
+const extensionService = useService(ExtensionKernelInterceptorService)
 
-const extensionVersion = extensionService.extensionVersion
+const extensionVersion = computed(() => {
+  const versionOption = extensionService.extensionVersion
+  return versionOption.value ? versionOption.value : null
+})
+
 const hasChromeExtInstalled = extensionService.chromeExtensionInstalled
 const hasFirefoxExtInstalled = extensionService.firefoxExtensionInstalled
 </script>

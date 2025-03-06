@@ -2023,7 +2023,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.2.0"
+version = "25.2.1"
 dependencies = [
  "axum",
  "portpicker",
@@ -3956,7 +3956,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git#0cab8a64b4c9148c930590f2ad5ad3cc1c6c00ae"
+source = "git+https://github.com/CuriousCorrelation/relay.git#d258a2c1557b9da0715681a1f267a686eb4920bb"
 dependencies = [
  "bytes",
  "curl",
@@ -3977,6 +3977,7 @@ dependencies = [
  "time",
  "tokio-util",
  "tracing",
+ "url",
  "url-escape",
  "urlencoding",
 ]
@@ -4971,7 +4972,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-appload"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload#e44d90aefb8d930044643b41fa1ce739e49d456c"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload#1c2e8b19db7f1b6af6d00abb907f15cdc2017298"
 dependencies = [
  "base64 0.22.1",
  "blake3",
@@ -5080,7 +5081,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-relay"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay#bbf25139962fd59b6e0c09f2a8034df29ac10bdf"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay#4b96e40170c65189144299d896b7e97803f13cca"
 dependencies = [
  "relay",
  "serde",

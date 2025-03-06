@@ -14,6 +14,11 @@ import * as E from "fp-ts/Either"
 import { getI18n } from "~/modules/i18n"
 import { until } from "@vueuse/core"
 import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
+
+export const cancelRunningExtensionRequest = async () => {
+  window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRequest()
+}
 
 export class ExtensionKernelInterceptorService
   extends Service
@@ -23,8 +28,15 @@ export class ExtensionKernelInterceptorService
   private readonly store = this.bind(KernelInterceptorExtensionStore)
 
   public readonly id = "extension"
-  public readonly name = (t: ReturnType<typeof getI18n>) =>
-    t("interceptor.extension.name")
+  public readonly name = (t: ReturnType<typeof getI18n>) => {
+    const version = this.extensionVersion.value
+
+    if (this.extensionStatus.value === "available" && version) {
+      return `${t("settings.extensions")}: v${version.major}.${version.minor}`
+    }
+    return `${t("settings.extensions")}: ${t("settings.extension_ver_not_reported")}`
+  }
+
   public readonly selectable = { type: "selectable" as const }
   public readonly capabilities = {
     method: new Set([
@@ -60,17 +72,32 @@ export class ExtensionKernelInterceptorService
   } as const
 
   public readonly settingsEntry = markRaw({
-    title: (t: ReturnType<typeof getI18n>) =>
-      t("interceptor.extension.settings_title"),
+    title: (t: ReturnType<typeof getI18n>) => t("settings.extensions"),
     component: SettingsExtension,
   })
 
   public readonly subtitle = markRaw(SettingsExtensionSubtitle)
+
   public readonly extensionStatus = computed(
     () => this.store.getSettings().status
   )
+
   public readonly extensionVersion = computed(
     () => this.store.getSettings().extensionVersion
+  )
+
+  /**
+   * Whether the extension is installed in Chrome or not.
+   */
+  public readonly chromeExtensionInstalled = computed(
+    () => this.extensionStatus.value === "available" && browserIsChrome()
+  )
+
+  /**
+   * Whether the extension is installed in Firefox or not.
+   */
+  public readonly firefoxExtensionInstalled = computed(
+    () => this.extensionStatus.value === "available" && browserIsFirefox()
   )
 
   private async executeExtensionRequest(
@@ -81,8 +108,8 @@ export class ExtensionKernelInterceptorService
     if (!window.__POSTWOMAN_EXTENSION_HOOK__) {
       return E.left({
         humanMessage: {
-          heading: (t) => t("error.extension_not_found.heading"),
-          description: (t) => t("error.extension_not_found.description"),
+          heading: (t) => t("error.extension_not_found"),
+          description: (t) => t("error.network_fail"),
         },
         error: {
           kind: "extension",
@@ -111,6 +138,20 @@ export class ExtensionKernelInterceptorService
         ),
       })
     } catch (e) {
+      console.error(e)
+
+      if (e instanceof Error && "response" in e) {
+        const response = (e as any).response
+        if (response) {
+          return E.right({
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+            body: body.body(response.data, response.headers["content-type"]),
+          })
+        }
+      }
+
       return E.left({
         humanMessage: {
           heading: (t) => t("error.extension.heading"),

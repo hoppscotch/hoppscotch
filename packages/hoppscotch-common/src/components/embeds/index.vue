@@ -52,7 +52,7 @@ const shortcodeBaseURL = computed(
 )
 
 const sharedRequestURL = computed(() => {
-  return `${shortcodeBaseURL.value}/e/${props.sharedRequestID}`
+  return `${shortcodeBaseURL.value}/r/${props.sharedRequestID}`
 })
 
 const tabRequestVariables = computed(() => {

@@ -56,7 +56,7 @@ export type HoppGQLDocument = {
   /**
    * The cursor position in the document
    */
-  cursorPosition: number
+  cursorPosition?: number
 
   /**
    * Info about where this request should be saved.

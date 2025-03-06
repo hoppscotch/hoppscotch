@@ -10,9 +10,8 @@
 # - default: All-in-one service + database + auto-migration (recommended for most users)
 # - default-no-db: All-in-one service without database (for users with external DB)
 # - backend: The backend service only
-# - app: The main Hoppscotch application only
+# - app: The main Hoppscotch application and the webapp server
 # - admin: The self-host admin dashboard only
-# - webapp: The static web app server only
 # - database: Just the PostgreSQL database
 # - just-backend: All services except webapp for local development
 # - deprecated: All deprecated services (not recommended)
@@ -55,7 +54,8 @@ services:
       - "3180:80"
       - "3170:3170"
 
-  # The main hoppscotch app. This will be hosted at port 3000
+  # The main hoppscotch app with integrated webapp server. This will be hosted at port 3000
+  # The webapp server will be accessible at port 3200
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
   #       the SH admin dashboard server at packages/hoppscotch-selfhost-web/Caddyfile
   hoppscotch-app:
@@ -72,6 +72,7 @@ services:
     ports:
       - "3080:80"
       - "3000:3000"
+      - "3200:3200"
 
   # The Self Host dashboard for managing the app. This will be hosted at port 3100
   # NOTE: To do TLS or play around with how the app is hosted, you can look into the Caddyfile for
@@ -90,19 +91,6 @@ services:
     ports:
       - "3280:80"
       - "3100:3100"
-
-  # The static server for serving web content to desktop shell, hosted at port 3200
-  hoppscotch-webapp-server:
-    profiles: ["webapp"]
-    container_name: hoppscotch-webapp-server
-    env_file:
-      - ./.env
-    build:
-      dockerfile: prod.Dockerfile
-      context: .
-      target: webapp_server
-    ports:
-      - "3200:3200"
 
   # The service that spins up all services at once in one container
   hoppscotch-aio:
@@ -227,9 +215,8 @@ services:
 #
 # 3. Individual service deployment:
 #    docker compose --profile backend up  # Just the backend
-#    docker compose --profile app up      # Just the app
+#    docker compose --profile app up      # Just the app and webapp server
 #    docker compose --profile admin up    # Just the admin dashboard
-#    docker compose --profile webapp up   # Just the static web server
 #    docker compose --profile database up # Just the database
 #
 # 4. Development deployment:

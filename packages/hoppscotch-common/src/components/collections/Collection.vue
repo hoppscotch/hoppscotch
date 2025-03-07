@@ -106,6 +106,7 @@
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
+                  @keyup.a="propertiesReorder?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -206,6 +207,18 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    ref="propertiesReorder"
+                    :icon="IconSort"
+                    :label="t('action.alphabetical-sort')"
+                    :shortcut="['A']"
+                    @click="
+                      () => {
+                        emit('alphabetic-sort')
+                        hide()
+                      }
+                    "
+                  />
                 </div>
               </template>
             </tippy>
@@ -253,6 +266,7 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconPlaySquare from "~icons/lucide/play-square"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconSort from "~icons/lucide/sort-asc"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -301,6 +315,7 @@ const emit = defineEmits<{
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void
   (event: "export-data"): void
+  (event: "alphabetic-sort"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
   (event: "drag-event", payload: DataTransfer): void
@@ -320,6 +335,7 @@ const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
+const propertiesReorder = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

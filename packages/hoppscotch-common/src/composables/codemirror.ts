@@ -358,8 +358,8 @@ export function useCodemirror(
           view.requestMeasure()
 
           if (event.target && options.contextMenuEnabled) {
-            // Debounce to make the performance better
-            debouncedTextSelection(30)()
+            // close the context menu when the editor is scrolled
+            closeContextMenu()
           }
         },
       }),

@@ -448,7 +448,11 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
 
     describe("Digest Authorization type", () => {
-      test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
+      /**
+       * NOTE: This test is being skipped because the test endpoint is no longer resolving
+       * TODO: Find a reliable public endpoint that supports Digest Auth and re-enable this test
+       */
+      test.skip("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
         const COLL_PATH = getTestJsonFilePath(
           "digest-auth-success-coll.json",
           "collection"

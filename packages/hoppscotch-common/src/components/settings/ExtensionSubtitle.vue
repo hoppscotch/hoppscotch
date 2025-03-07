@@ -48,11 +48,15 @@ import IconFirefox from "~icons/brands/firefox"
 import { ExtensionKernelInterceptorService } from "~/platform/std/kernel-interceptors/extension"
 
 const t = useI18n()
-const extensionInterceptorService = useService(ExtensionKernelInterceptorService)
+const extensionInterceptorService = useService(
+  ExtensionKernelInterceptorService
+)
 
 const isNotAvailable = computed(
   () => extensionInterceptorService.extensionStatus.value !== "available"
 )
 
-const extensionVersion = computed(() => extensionInterceptorService.extensionVersion)
+const extensionVersion = computed(
+  () => extensionInterceptorService.extensionVersion
+)
 </script>

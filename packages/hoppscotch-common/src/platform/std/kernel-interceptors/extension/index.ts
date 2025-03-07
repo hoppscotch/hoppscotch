@@ -146,7 +146,8 @@ export class ExtensionKernelInterceptorService
     const extensionPollIntervalId = ref<ReturnType<typeof setInterval>>()
 
     if (window.__HOPP_EXTENSION_STATUS_PROXY__) {
-      this._extensionStatus.value = window.__HOPP_EXTENSION_STATUS_PROXY__.status
+      this._extensionStatus.value =
+        window.__HOPP_EXTENSION_STATUS_PROXY__.status
       window.__HOPP_EXTENSION_STATUS_PROXY__.subscribe(
         "status",
         (status: ExtensionStatus) => {
@@ -226,12 +227,117 @@ export class ExtensionKernelInterceptorService
     }
 
     try {
+      let requestData: any = null
+
+      if (request.content) {
+        switch (request.content.kind) {
+          case "json":
+            // For JSON, we need to stringify it before sending it to extension,
+            // see extension source code for more info on this.
+            // Also if it's already a string, we can use it as is, otherwise we stringify.
+            requestData =
+              typeof request.content.content === "string"
+                ? request.content.content
+                : JSON.stringify(request.content.content)
+            break
+
+          case "multipart":
+            // Extension expects a true FormData instance but relay has to have custom impl
+            // mainly because of cross platform reasons, so FormData is represented as map + blob,
+            // we need to transform it to actual FormData before sending it over.
+            // TODO: Perhaps look into having direct processing like relay in extension as well.
+            const formData = new FormData()
+            const content = request.content.content
+
+            // Following is pretty standard
+            // TODO: Maybe this should be a function in helpers/functionl directory?
+            if (content instanceof Map) {
+              for (const [key, value] of content.entries()) {
+                if (Array.isArray(value)) {
+                  for (const item of value) {
+                    if (item.kind === "file" && item.data) {
+                      const file = new File([item.data], item.filename, {
+                        type: item.contentType || "application/octet-stream",
+                      })
+                      formData.append(key, file)
+                    } else {
+                      formData.append(key, String(item))
+                    }
+                  }
+                } else {
+                  formData.append(key, String(value))
+                }
+              }
+            } else if (Array.isArray(content)) {
+              for (const item of content) {
+                if (item.filename && item.value) {
+                  try {
+                    const blob = new Blob([item.value], {
+                      type: "application/octet-stream",
+                    })
+                    formData.append(item.name || item.key, blob, item.filename)
+                  } catch (e) {
+                    console.error("Error creating file blob:", e)
+                    formData.append(item.name || item.key, item.value)
+                  }
+                } else {
+                  formData.append(item.name || item.key, item.value)
+                }
+              }
+            } else if (content instanceof FormData) {
+              requestData = content
+              break
+            } else if (content && typeof content === "object") {
+              Object.entries(content).forEach(([key, value]) => {
+                if (value instanceof File) {
+                  formData.append(key, value, value.name)
+                } else {
+                  formData.append(key, value as string)
+                }
+              })
+            }
+
+            requestData = formData
+            break
+
+          case "binary":
+            // Again pretty standard
+            if (
+              request.content.content instanceof Blob ||
+              request.content.content instanceof File
+            ) {
+              requestData = request.content.content
+            } else if (typeof request.content.content === "string") {
+              try {
+                const base64 =
+                  request.content.content.split(",")[1] ||
+                  request.content.content
+                const binaryString = window.atob(base64)
+                const bytes = new Uint8Array(binaryString.length)
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i)
+                }
+                requestData = new Blob([bytes.buffer])
+              } catch (e) {
+                console.error("Error converting binary data:", e)
+                requestData = request.content.content
+              }
+            } else {
+              requestData = request.content.content
+            }
+            break
+
+          default:
+            requestData = request.content.content
+        }
+      }
+
       const extensionResponse =
         await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
           url: request.url,
           method: request.method,
           headers: request.headers,
-          data: request.content?.content,
+          data: requestData,
           wantsBinary: true,
         })
 

@@ -32,6 +32,7 @@ export type ExplorerFieldDef =
  * Represents a single item in the explorer navigation stack
  */
 export type ExplorerNavStackItem = {
+  readonly?: boolean
   name: string
   def?: GraphQLNamedType | ExplorerFieldDef
 }
@@ -71,7 +72,7 @@ export function useExplorer(initialSchema?: GraphQLSchema) {
     // Avoid pushing duplicate items
     if (lastItem.def === item.def) return
 
-    navStack.value.push(item)
+    navStack.value.push(lastItem.readonly ? { ...item, readonly: true } : item)
   }
 
   /**

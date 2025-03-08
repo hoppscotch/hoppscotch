@@ -209,8 +209,6 @@ export const implementation: VersionedAPI<RelayV1> = {
                         proxy: request.proxy,
                     } as PluginRequest
 
-                    console.info("pluginrequest", pluginRequest)
-
                     return execute(pluginRequest)
                 })
                 .then((result: RequestResult): E.Either<RelayError, RelayResponse> => {

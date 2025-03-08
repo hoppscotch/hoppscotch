@@ -84,8 +84,6 @@ export type FormDataValue =
     | { kind: "text"; value: string }
     | { kind: "file"; filename: string; contentType: string; data: Uint8Array }
 
-export type FormData = Map<string, FormDataValue[]>
-
 export enum MediaType {
     TEXT_PLAIN = "text/plain",
     TEXT_HTML = "text/html",

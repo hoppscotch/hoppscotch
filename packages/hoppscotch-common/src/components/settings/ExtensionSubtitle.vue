@@ -42,23 +42,21 @@ import { computed } from "vue"
 import { useService } from "dioc/vue"
 import * as O from "fp-ts/Option"
 import { useI18n } from "@composables/i18n"
-import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { KernelInterceptorExtensionStore } from "~/platform/std/kernel-interceptors/extension/store"
 
 import IconChrome from "~icons/brands/chrome"
 import IconFirefox from "~icons/brands/firefox"
+import { ExtensionKernelInterceptorService } from "~/platform/std/kernel-interceptors/extension"
 
 const t = useI18n()
-const store = useService(KernelInterceptorExtensionStore)
-const interceptorService = useService(KernelInterceptorService)
-
-const isSelected = computed(
-  () => interceptorService.current.value?.id === "extension"
+const extensionInterceptorService = useService(
+  ExtensionKernelInterceptorService
 )
 
 const isNotAvailable = computed(
-  () => store.getExtensionStatus() !== "available"
+  () => extensionInterceptorService.extensionStatus.value !== "available"
 )
 
-const extensionVersion = computed(() => store.getExtensionVersion())
+const extensionVersion = computed(
+  () => extensionInterceptorService.extensionVersion
+)
 </script>

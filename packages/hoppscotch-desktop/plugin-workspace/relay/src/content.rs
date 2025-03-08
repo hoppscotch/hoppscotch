@@ -201,7 +201,7 @@ impl<'a> ContentHandler<'a> {
         for (key, values) in content {
             for value in values {
                 match value {
-                    FormValue::Text(text) => {
+                    FormValue::Text { value: text } => {
                         tracing::debug!(key = %key, text_length = text.len(), "Adding form text field");
                         form.part(key)
                             .contents(text.as_bytes())

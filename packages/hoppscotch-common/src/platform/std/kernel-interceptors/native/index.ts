@@ -83,11 +83,6 @@ export class NativeKernelInterceptorService
         .join(";")
     }
 
-    console.info(
-      "[platform/std/kernel-interceptor/native/index]: effectiveRequest",
-      effectiveRequest
-    )
-
     const relayExecution = Relay.execute(effectiveRequest)
 
     const response = pipe(relayExecution.response, (promise) =>

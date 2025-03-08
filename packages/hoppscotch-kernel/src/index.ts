@@ -85,7 +85,6 @@ export type {
   RelayRequest,
   RelayResponse,
   RelayResponseBody,
-  FormData,
   FormDataValue,
   RelayError,
   RelayV1,

@@ -1,4 +1,8 @@
+import { Request, Response } from '@hoppscotch/plugin-relay'
 import type { VersionedAPI } from '@type/versioning'
+
+export type PluginRequest = Request
+export type PluginResponse = Response
 
 import * as E from 'fp-ts/Either'
 
@@ -83,8 +87,6 @@ export type StatusCode =
 export type FormDataValue =
     | { kind: "text"; value: string }
     | { kind: "file"; filename: string; contentType: string; data: Uint8Array }
-
-export type FormData = Map<string, FormDataValue[]>
 
 export enum MediaType {
     TEXT_PLAIN = "text/plain",
@@ -555,6 +557,68 @@ export const content = {
         content,
         mediaType
     })
+}
+
+// Helper function to convert standard `FormData` to `Map<string, FormDataValue[]>`
+// This is mainly a crossplatform thing, once there's an equivalent and easy to impl `FormData` type for Rust,
+// we can consider removing this.
+const makeFormDataSerializable = async (formData: FormData): Promise<Map<string, FormDataValue[]>> => {
+    const result = new Map<string, FormDataValue[]>()
+    // @ts-expect-error: `formData.entries` does exist but isn't visible,
+    // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
+    for (const [key, value] of formData.entries()) {
+        if (value instanceof File || value instanceof Blob) {
+            const buffer = await value.arrayBuffer()
+            const fileEntry: FormDataValue = {
+                kind: "file",
+                filename: value instanceof File ? value.name : "unknown",
+                contentType: value.type || "application/octet-stream",
+                data: new Uint8Array(buffer)
+            }
+
+            const existingValues = result.get(key) || []
+            result.set(key, [...existingValues, fileEntry])
+        } else {
+            const textEntry: FormDataValue = {
+                kind: "text",
+                value: value.toString()
+            }
+
+            const existingValues = result.get(key) || []
+            result.set(key, [...existingValues, textEntry])
+        }
+    }
+
+    return result
+}
+
+// Helper function to adapt a relay request to work with the plugin
+export const relayRequestToNativeAdapter = async (request: RelayRequest): Promise<Request> => {
+    const adaptedRequest = { ...request };
+
+    if (adaptedRequest.content?.kind === "multipart" && adaptedRequest.content.content instanceof FormData) {
+        const serializableFormData = await makeFormDataSerializable(adaptedRequest.content.content);
+
+        // Replace with the converted form data
+        // SAFETY: Type assertion is necessary here because the plugin system expects
+        // types similar to Map<string, FormDataValue[]> instead of FormData.
+        // Then convert the `Map` to simpler nested object structure for better compatibility
+        // `Maps` it seems like are serialized differently across platforms and serialization libraries,
+        // while objects tend to maintain more consistent behavior by the sheer ubiquity of it.
+        const convertedContent: Record<string, FormDataValue[]> = {};
+
+        for (const [key, values] of serializableFormData.entries()) {
+            convertedContent[key] = Array.isArray(values) ? values : [values];
+        }
+
+        adaptedRequest.content = {
+            ...adaptedRequest.content,
+            // @ts-expect-error: This is intentional to work around SuperJSON serialization
+            content: convertedContent
+        };
+    }
+
+    return adaptedRequest as Request;
 }
 
 export const v1: VersionedAPI<RelayV1> = {

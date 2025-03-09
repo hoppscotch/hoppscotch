@@ -83,7 +83,10 @@ export class KernelInterceptorExtensionStore extends Service {
     }
 
     await this.loadSettings()
-    this.setupExtensionStatusListener()
+
+    if (!this.tryDetectExtension()) {
+      this.setupExtensionStatusListener()
+    }
 
     Store.watch(STORE_NAMESPACE, SETTINGS_KEY).on(
       "change",
@@ -123,6 +126,10 @@ export class KernelInterceptorExtensionStore extends Service {
         this.updateSettings({ status })
       )
 
+      if (this.tryDetectExtension()) {
+        return
+      }
+
       /**
        * Keeping identifying extension backward compatible
        * We are assuming the default version is 0.24 or later. So if the extension exists, its identified immediately,
@@ -131,24 +138,37 @@ export class KernelInterceptorExtensionStore extends Service {
        * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
        */
       this.extensionPollIntervalId.value = setInterval(() => {
-        if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
-          if (this.extensionPollIntervalId.value)
-            clearInterval(this.extensionPollIntervalId.value)
-
-          const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
-          this.updateSettings({ extensionVersion: version })
-
-          // When the version is not 0.24 or higher, the extension wont do this. so we have to do it manually
-          if (
-            version.major === 0 &&
-            version.minor <= 23 &&
-            window.__HOPP_EXTENSION_STATUS_PROXY__
-          ) {
-            window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
-          }
+        if (this.tryDetectExtension() && this.extensionPollIntervalId.value) {
+          clearInterval(this.extensionPollIntervalId.value)
         }
       }, 2000)
     }
+  }
+
+  public tryDetectExtension(): boolean {
+    if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
+      const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+
+      this.settings = {
+        ...this.settings,
+        extensionVersion: version,
+        status: "available",
+      }
+
+      // We don't need to persist right away to thing eventually resolving is good enough
+      this.persistSettings()
+
+      // When the version is not 0.24 or higher, the extension wont do this. so we have to do it manually
+      if (
+        version.major === 0 &&
+        version.minor <= 23 &&
+        window.__HOPP_EXTENSION_STATUS_PROXY__
+      ) {
+        window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
+      }
+      return true
+    }
+    return false
   }
 
   private async loadSettings(): Promise<void> {

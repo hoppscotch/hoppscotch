@@ -1,6 +1,6 @@
 import { Service } from "dioc"
 import { markRaw } from "vue"
-import { body } from "@hoppscotch/kernel"
+import { body, relayRequestToNativeAdapter } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import axios, { CancelTokenSource } from "axios"
@@ -132,9 +132,8 @@ export class AgentKernelInterceptorService
           .join(";")
       }
 
-      console.log("[AGENT]: effectiveRequest", effectiveRequest)
       const [nonceB16, encryptedReq] = await this.store.encryptRequest(
-        effectiveRequest,
+        await relayRequestToNativeAdapter(effectiveRequest),
         reqID
       )
 

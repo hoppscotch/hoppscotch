@@ -1,6 +1,4 @@
 import {
-  type FormData,
-  type FormDataValue,
   type RelayError,
   type RelayEventEmitter,
   type RelayRequest,

@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import axios from "axios"
 import superjson from "superjson"
 import { Store } from "~/kernel/store"
-import type { RelayRequest, RelayResponse } from "@hoppscotch/kernel"
+import type { PluginRequest, PluginResponse } from "@hoppscotch/kernel"
 import { x25519 } from "@noble/curves/ed25519"
 import { base16 } from "@scure/base"
 import {
@@ -156,8 +156,8 @@ export class KernelInterceptorAgentStore extends Service {
   }
 
   public completeRequest(
-    request: Omit<RelayRequest, "proxy" | "security">
-  ): RelayRequest {
+    request: Omit<PluginRequest, "proxy" | "security">
+  ): PluginRequest {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)
     const effective = convertDomainSetting(settings)
@@ -258,7 +258,7 @@ export class KernelInterceptorAgentStore extends Service {
   }
 
   public async encryptRequest(
-    request: RelayRequest,
+    request: PluginRequest,
     reqID: number
   ): Promise<[string, ArrayBuffer]> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -291,7 +291,7 @@ export class KernelInterceptorAgentStore extends Service {
   public async decryptResponse(
     nonceB16: string,
     encryptedResponse: ArrayBuffer
-  ): Promise<RelayResponse> {
+  ): Promise<PluginResponse> {
     const nonce = base16.decode(nonceB16.toUpperCase())
     const sharedSecretKeyBytes = base16.decode(
       this.sharedSecretB16.value!.toUpperCase()

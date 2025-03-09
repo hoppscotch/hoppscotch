@@ -1,5 +1,11 @@
 <template>
-  <AppPaneLayout layout-id="embed-primary" :is-embed="true">
+  <component
+    :is="platform.ui?.additionalEmbedsComponent"
+    v-if="showCustomEmbedsView"
+    v-bind="props"
+  />
+
+  <AppPaneLayout v-else layout-id="embed-primary" :is-embed="true">
     <template #primary>
       <EmbedsHeader :shared-request-u-r-l="sharedRequestURL" />
       <div class="flex flex-col flex-1">
@@ -28,6 +34,7 @@ import { computed, useModel } from "vue"
 import { ref } from "vue"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"
+import { platform } from "~/platform"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 
 const props = defineProps<{
@@ -40,11 +47,12 @@ const tab = useModel(props, "modelTab")
 
 const selectedOptionTab = ref<RESTOptionTabs>(props.properties[0])
 
-const shortcodeBaseURL =
-  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+const shortcodeBaseURL = computed(
+  () => import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+)
 
 const sharedRequestURL = computed(() => {
-  return `${shortcodeBaseURL}/r/${props.sharedRequestID}`
+  return `${shortcodeBaseURL.value}/r/${props.sharedRequestID}`
 })
 
 const tabRequestVariables = computed(() => {
@@ -54,5 +62,15 @@ const tabRequestVariables = computed(() => {
     secret: false,
     sourceEnv: "RequestVariable",
   }))
+})
+
+const showCustomEmbedsView = computed(() => {
+  const { organization, ui } = platform
+
+  return (
+    organization &&
+    !organization.isDefaultCloudInstance &&
+    ui?.additionalEmbedsComponent
+  )
 })
 </script>

@@ -71,7 +71,7 @@ export class ExtensionKernelInterceptorService
     if (this.extensionStatus.value === "available" && version) {
       return `${t("settings.extensions")}: v${version.major}.${version.minor}`
     }
-    return `${t("settings.extensions")}: ${t("settings.extension_ver_not_reported")}`
+    return `${t("settings.extensions")}`
   }
 
   public readonly selectable = { type: "selectable" as const }

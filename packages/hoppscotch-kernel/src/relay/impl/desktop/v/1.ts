@@ -6,70 +6,17 @@ import {
     type RelayEventEmitter,
     type RelayResponse,
     type RelayError,
-    type FormDataValue,
     body,
+    relayRequestToNativeAdapter,
 } from '@relay/v/1'
 import * as E from 'fp-ts/Either'
 
 import {
     execute,
     cancel,
-    type Request as PluginRequest,
+    type Request,
     type RequestResult
 } from '@hoppscotch/plugin-relay'
-
-// Helper function to convert standard `FormData` to `Map<string, FormDataValue[]>`
-// This is mainly a crossplatform thing, once there's an equivalent and easy to impl `FormData` type for Rust,
-// we can consider removing this.
-const makeFormDataSerializable = async (formData: FormData): Promise<Map<string, FormDataValue[]>> => {
-    const result = new Map<string, FormDataValue[]>()
-    // @ts-expect-error: `formData.entries` does exist but isn't visible,
-    // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
-    for (const [key, value] of formData.entries()) {
-        if (value instanceof File || value instanceof Blob) {
-            const buffer = await value.arrayBuffer()
-            const fileEntry: FormDataValue = {
-                kind: "file",
-                filename: value instanceof File ? value.name : "unknown",
-                contentType: value.type || "application/octet-stream",
-                data: new Uint8Array(buffer)
-            }
-
-            const existingValues = result.get(key) || []
-            result.set(key, [...existingValues, fileEntry])
-        } else {
-            const textEntry: FormDataValue = {
-                kind: "text",
-                value: value.toString()
-            }
-
-            const existingValues = result.get(key) || []
-            result.set(key, [...existingValues, textEntry])
-        }
-    }
-
-    return result
-}
-
-// Helper function to adapt a relay request to work with the plugin
-const adaptRelayRequestForPlugin = async (request: RelayRequest): Promise<PluginRequest> => {
-    const adaptedRequest = { ...request }
-
-    if (adaptedRequest.content?.kind === "multipart" && adaptedRequest.content.content instanceof FormData) {
-        const serializableFormData = await makeFormDataSerializable(adaptedRequest.content.content)
-
-        // Replace with the converted form data
-        // SAFETY: Type assertion is necessary here because the plugin system expects
-        // Map<string, FormDataValue[]> instead of FormData.
-        adaptedRequest.content = {
-            ...adaptedRequest.content,
-            // @ts-expect-error: This is intentional as explained in the SAFETY comment
-            content: serializableFormData
-        }
-    }
-
-    return adaptedRequest as PluginRequest
-}
 
 export const implementation: VersionedAPI<RelayV1> = {
     version: { major: 1, minor: 0, patch: 0 },
@@ -189,7 +136,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                 off: () => {}
             }
 
-            const responsePromise = adaptRelayRequestForPlugin(request)
+            const responsePromise = relayRequestToNativeAdapter(request)
                 .then(request => {
                     // SAFETY: Type assertion is safe because:
                     // 1. The capabilities system prevents requests with unsupported methods from reaching this point
@@ -207,7 +154,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                         auth: request.auth,
                         security: request.security,
                         proxy: request.proxy,
-                    } as PluginRequest
+                    }
 
                     return execute(pluginRequest)
                 })

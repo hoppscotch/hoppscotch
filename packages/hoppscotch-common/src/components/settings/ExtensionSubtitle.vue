@@ -48,7 +48,9 @@ import IconChrome from "~icons/brands/chrome"
 import IconFirefox from "~icons/brands/firefox"
 
 const t = useI18n()
-const extensionInterceptorService = useService(ExtensionKernelInterceptorService)
+const extensionInterceptorService = useService(
+  ExtensionKernelInterceptorService
+)
 const interceptorService = useService(KernelInterceptorService)
 
 const isSelected = computed(
@@ -59,5 +61,7 @@ const isNotAvailable = computed(
   () => extensionInterceptorService.extensionStatus.value !== "available"
 )
 
-const extensionVersion = computed(() => extensionInterceptorService.extensionVersion.value)
+const extensionVersion = computed(
+  () => extensionInterceptorService.extensionVersion.value
+)
 </script>

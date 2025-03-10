@@ -872,7 +872,7 @@ describe('deleteCollection', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
@@ -906,7 +906,7 @@ describe('deleteCollection', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
@@ -929,7 +929,7 @@ describe('deleteCollection', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
@@ -1563,7 +1563,7 @@ describe('replaceCollectionsWithJSON', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
@@ -1595,7 +1595,7 @@ describe('replaceCollectionsWithJSON', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
@@ -1627,7 +1627,7 @@ describe('replaceCollectionsWithJSON', () => {
     // deleteCollectionData
     // deleteCollectionData --> FindMany query 1st time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2st time
+    // deleteCollectionData --> FindMany query 2nd time
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     // deleteCollectionData --> DeleteMany query
     mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });

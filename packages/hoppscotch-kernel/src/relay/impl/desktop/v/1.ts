@@ -7,13 +7,14 @@ import {
     type RelayResponse,
     type RelayError,
     body,
+    relayRequestToNativeAdapter,
 } from '@relay/v/1'
 import * as E from 'fp-ts/Either'
 
 import {
     execute,
     cancel,
-    type Request as PluginRequest,
+    type Request,
     type RequestResult
 } from '@hoppscotch/plugin-relay'
 
@@ -135,25 +136,28 @@ export const implementation: VersionedAPI<RelayV1> = {
                 off: () => {}
             }
 
-            // SAFETY: Type assertion is safe because:
-            // 1. The capabilities system prevents requests with unsupported methods from reaching this point
-            // 2. Content types not supported by the plugin are filtered by capabilities
-            // 3. Authentication methods are validated through capabilities
-            // 4. The plugin's Request type is a subset of our Request type
-            const pluginRequest = {
-                id: request.id,
-                url: request.url,
-                method: request.method,
-                version: request.version,
-                headers: request.headers,
-                params: request.params,
-                content: request.content,
-                auth: request.auth,
-                security: request.security,
-                proxy: request.proxy,
-            } as PluginRequest
+            const responsePromise = relayRequestToNativeAdapter(request)
+                .then(request => {
+                    // SAFETY: Type assertion is safe because:
+                    // 1. The capabilities system prevents requests with unsupported methods from reaching this point
+                    // 2. Content types not supported by the plugin are filtered by capabilities
+                    // 3. Authentication methods are validated through capabilities
+                    // 4. The plugin's Request type is a subset of our Request type
+                    const pluginRequest = {
+                        id: request.id,
+                        url: request.url,
+                        method: request.method,
+                        version: request.version,
+                        headers: request.headers,
+                        params: request.params,
+                        content: request.content,
+                        auth: request.auth,
+                        security: request.security,
+                        proxy: request.proxy,
+                    }
 
-            const responsePromise = execute(pluginRequest)
+                    return execute(pluginRequest)
+                })
                 .then((result: RequestResult): E.Either<RelayError, RelayResponse> => {
                     if (result.kind === 'success') {
                         const response: RelayResponse = {
@@ -170,7 +174,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                                     end: result.response.meta.timing.end,
                                 },
                                 size: result.response.meta.size,
-                                                        }
+                            }
                         }
                         return E.right(response)
                     }

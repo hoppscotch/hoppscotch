@@ -37,16 +37,6 @@ Access Hoppscotch Cloud Edition from Hoppscotch Desktop App:
 3. Click "**HOPPSCOTCH CLOUD**".
 4. Sign in with your Hoppscotch Cloud account to access your workspaces and collections.
 
-### Hoppscotch Cloud Edition for Organizations
-
-Access your organization's Hoppscotch Cloud Edition from Hoppscotch Desktop App:
-
-1. Open Hoppscotch Desktop App.
-2. Click the Hoppscotch logo in the top-left corner.
-3. Click "**Add an instance**".
-4. Enter the URL of your organization's Hoppscotch Cloud Edition.
-5. Sign in with your organization's Hoppscotch Cloud account to access your workspaces and collections.
-
 ### Hoppscotch Self-Hosted Edition for Community
 
 > [!Note]

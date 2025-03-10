@@ -6,14 +6,16 @@ body:
 - type: markdown
   attributes:
     value: |
-      Thank you for taking the time to fill out this bug report.
+      Thank you for taking the time to report this issue. Complete information helps us resolve issues faster.
+
 - type: checkboxes
   attributes:
     label: Is there an existing issue for this?
     description: Please search to see if an issue already exists for the bug you encountered
     options:
-    - label: I have searched the existing issues
+    - label: I have searched existing issues and this bug hasn't been reported yet
       required: true
+
 - type: textarea
   attributes:
     label: Current behavior
@@ -24,6 +26,7 @@ body:
       What I expect is <Z>
   validations:
     required: true
+
 - type: textarea
   attributes:
     label: Steps to reproduce
@@ -35,23 +38,97 @@ body:
       4. See error
   validations:
     required: true
+
+- type: textarea
+  id: logs
+  attributes:
+    label: Logs and Screenshots
+    description: Include any relevant anonymized console logs, network errors, or screenshots
+    placeholder: |
+      ```
+      Uncaught TypeError: Cannot read property 'data' of undefined
+          at GraphQLModule.processResponse (graphql.js:242)
+      ```
+
+      [Attach screenshots if available]
+    render: shell
+
 - type: dropdown
   id: env
   attributes:
     label: Environment
+    description: Where did you encounter this issue?
     options:
       - Production
       - Release
       - Deploy preview
   validations:
     required: true
+
 - type: dropdown
   id: version
   attributes:
-    label: Version
+    label: Hoppscotch Version
+    description: Which version of Hoppscotch are you using?
     options:
       - Cloud
       - Self-hosted
       - Local
   validations:
     required: true
+
+- type: dropdown
+  id: interceptor
+  attributes:
+    label: Interceptor
+    description: Which request interceptor are you using? (Select "Not Applicable" if your issue isn't related to network requests)
+    options:
+      - Not Applicable - Issue not related to network requests
+      - Browser - Web App
+      - Agent - Web App
+      - Extension - Web App
+      - Proxy - Web App
+      - Native - Desktop App
+      - Proxy - Desktop App
+    default: 0
+  validations:
+    required: true
+
+- type: dropdown
+  id: browsers
+  attributes:
+    label: Browsers Affected
+    description: Which browsers have you seen this issue on? (Select all that apply)
+    multiple: true
+    options:
+      - Chrome
+      - Firefox
+      - Safari
+      - Edge
+      - Opera
+      - Other (specify in additional info)
+      - Not browser-specific
+      - Not applicable (Desktop app)
+
+- type: dropdown
+  id: os
+  attributes:
+    label: Operating System
+    description: Which operating system are you using?
+    options:
+      - Windows
+      - MacOS
+      - Linux
+      - Other (specify in additional info)
+
+- type: textarea
+  id: additional
+  attributes:
+    label: Additional Information
+    description: Any other details that might help us understand and fix the issue
+    placeholder: |
+      - Self Hosted instance version if not latest
+      - Desktop app version if not latest
+      - Device specifics
+      - Special configurations
+      - Context about your use case

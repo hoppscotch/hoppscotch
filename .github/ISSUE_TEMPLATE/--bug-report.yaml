@@ -118,8 +118,6 @@ body:
       - Windows
       - MacOS
       - Linux
-      - Android
-      - iOS
       - Other (specify in additional info)
   validations:
     required: true

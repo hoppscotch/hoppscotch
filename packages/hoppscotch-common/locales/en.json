@@ -68,7 +68,6 @@
     "turn_on": "Turn on",
     "undo": "Undo",
     "yes": "Yes",
-    "confirm": "Confirm",
     "verify": "Verify",
     "enable": "Enable",
     "disable": "Disable"
@@ -367,6 +366,7 @@
     "protocols": "Protocols are empty",
     "request_variables": "This request does not have any request variables",
     "schema": "Connect to a GraphQL endpoint to view schema",
+    "search_environment": "No matching environment found",
     "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",

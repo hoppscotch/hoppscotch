@@ -321,6 +321,28 @@ export class ExtensionKernelInterceptorService
   public execute(
     request: RelayRequest
   ): ExecutionResult<KernelInterceptorError> {
+    if (this._extensionStatus.value !== "available") {
+      return {
+        cancel: async () => {
+          // Nothing to cancel if extension is not available
+        },
+        response: Promise.resolve(
+          E.left({
+            humanMessage: {
+              heading: (t: ReturnType<typeof getI18n>) =>
+                t("error.extension.heading"),
+              description: (t: ReturnType<typeof getI18n>) =>
+                t("error.extension.description"),
+            },
+            error: {
+              kind: "extension",
+              message: "Extension not available",
+            },
+          })
+        ),
+      }
+    }
+
     const extensionExecution = {
       cancel: async () => {
         window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRequest()

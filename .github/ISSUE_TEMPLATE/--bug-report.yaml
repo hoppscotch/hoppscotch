@@ -90,6 +90,7 @@ body:
       - Proxy - Web App
       - Native - Desktop App
       - Proxy - Desktop App
+    default: 0
   validations:
     required: true
 
@@ -119,8 +120,6 @@ body:
       - MacOS
       - Linux
       - Other (specify in additional info)
-  validations:
-    required: true
 
 - type: textarea
   id: additional

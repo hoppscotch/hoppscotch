@@ -81,7 +81,7 @@ body:
   id: interceptor
   attributes:
     label: Interceptor
-    description: Which request interceptor are you using? (Select "Not Applicable" if your issue isn't related network requests)
+    description: Which request interceptor are you using? (Select "Not Applicable" if your issue isn't related to network requests)
     options:
       - Not Applicable - Issue not related to network requests
       - Browser - Web App

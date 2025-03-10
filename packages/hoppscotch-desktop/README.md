@@ -11,7 +11,7 @@
 
 <br/>
 
-#### Hoppscotch Desktop App is a cross-platform [Hoppscotch](hoppscotch.io) app built with [Tauri V2](https://v2.tauri.app/)
+#### Hoppscotch Desktop App is a cross-platform [Hoppscotch](https://hoppscotch.io) app built with [Tauri V2](https://v2.tauri.app/)
 
 ![Hoppscotch Desktop App](desktop-app.png)
 

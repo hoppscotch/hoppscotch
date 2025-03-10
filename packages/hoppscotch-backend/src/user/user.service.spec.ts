@@ -688,7 +688,7 @@ describe('UserService', () => {
       const result = service.deleteUserByUID(user)();
       return expect(result).resolves.toBeLeft();
     });
-    test('should resolve left when ther is an unsuccessful deletion of userdata from firestore', () => {
+    test('should resolve left when there is an unsuccessful deletion of userdata from firestore', () => {
       // Handlers allow deletion to proceed
       handler1.canAllowUserDeletion.mockImplementation(() => TO.none);
       handler2.canAllowUserDeletion.mockImplementation(() => TO.none);

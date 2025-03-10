@@ -463,7 +463,6 @@ export class NativeInterceptorService extends Service implements Interceptor {
         )
 
         try {
-          console.log(requestDef)
 
           const response: RunRequestResponse = await invoke(
             "plugin:hopp_native_interceptor|run_request",
@@ -488,7 +487,6 @@ export class NativeInterceptorService extends Service implements Interceptor {
             }
           })
         } catch (e) {
-          console.log(e)
 
           if (typeof e === "object" && (e as any)["RequestCancelled"]) {
             return E.left("cancellation" as const)

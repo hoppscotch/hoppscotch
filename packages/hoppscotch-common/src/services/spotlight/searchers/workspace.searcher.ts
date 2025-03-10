@@ -25,15 +25,14 @@ import { Container, Service } from "dioc"
 import * as E from "fp-ts/Either"
 import MiniSearch from "minisearch"
 import IconCheckCircle from "~/components/app/spotlight/entry/IconSelected.vue"
-import { runGQLQuery } from "~/helpers/backend/GQLClient"
-import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { platform } from "~/platform"
+import { WorkspaceService } from "~/services/workspace.service"
 import IconEdit from "~icons/lucide/edit"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import { WorkspaceService } from "~/services/workspace.service"
 
 type Doc = {
   text: string | string[]
@@ -180,13 +179,10 @@ export class SwitchWorkspaceSpotlightSearcherService
 
       const results: GetMyTeamsQuery["myTeams"] = []
 
-      const result = await runGQLQuery({
-        query: GetMyTeamsDocument,
-        variables: {
-          cursor:
-            results.length > 0 ? results[results.length - 1].id : undefined,
-        },
-      })
+      const cursor =
+        results.length > 0 ? results[results.length - 1].id : undefined
+
+      const result = await platform.backend.getUserTeams(cursor)
 
       if (E.isRight(result)) results.push(...result.right.myTeams)
       resolve(results)

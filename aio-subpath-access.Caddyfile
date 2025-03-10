@@ -21,6 +21,11 @@
 		reverse_proxy localhost:8080
 	}
 
+	# Handle requests under `/desktop-app-server*` path
+	handle_path /desktop-app-server* {
+		reverse_proxy localhost:3200
+	}
+
 	# Catch-all route for unknown paths, serves `selfhost-web` SPA
 	handle {
 		root * /site/selfhost-web

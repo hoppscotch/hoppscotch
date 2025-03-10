@@ -127,6 +127,8 @@ body:
     label: Additional Information
     description: Any other details that might help us understand and fix the issue
     placeholder: |
+      - Self Hosted instance version if not latest
+      - Desktop app version if not latest
       - Device specifics
       - Special configurations
       - Context about your use case

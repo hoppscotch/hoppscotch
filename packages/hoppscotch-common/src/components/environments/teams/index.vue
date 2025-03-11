@@ -89,7 +89,7 @@
         :key="`environment-${index}`"
         :environment="env"
         :is-viewer="team?.role === 'VIEWER'"
-        :selected="selectedEnvironmentID === env.environment.id"
+        :selected="isEnvironmentSelected(env.id)"
         @edit-environment="editEnvironment(env)"
         @select-environment="selectEnvironment(env)"
         @show-environment-properties="
@@ -150,6 +150,8 @@ import { TeamWorkspace } from "~/services/workspace.service"
 import { sortTeamEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { HandleEnvChangeProp } from "../index.vue"
+import { selectedEnvironmentIndex$ } from "~/newstore/environments"
+import { useReadonlyStream } from "~/composables/stream"
 
 const t = useI18n()
 
@@ -222,6 +224,17 @@ const selectEnvironment = (environment: TeamEnvironment) => {
       environment,
     },
   })
+}
+
+const selectedEnvironmentIndex = useReadonlyStream(selectedEnvironmentIndex$, {
+  type: "NO_ENV_SELECTED",
+})
+
+const isEnvironmentSelected = (id: string) => {
+  return (
+    selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+    selectedEnvironmentIndex.value.teamEnvID === id
+  )
 }
 
 defineActionHandler(

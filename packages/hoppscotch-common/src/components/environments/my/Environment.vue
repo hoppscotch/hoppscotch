@@ -3,18 +3,23 @@
     class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy?.show()"
   >
-    <span class="flex cursor-pointer items-center justify-center px-4">
+    <span
+      class="flex cursor-pointer items-center justify-center px-4"
+      @click="emit('select-environment')"
+    >
       <icon-lucide-globe
         v-if="environmentIndex === 'Global'"
         class="svg-icons"
       />
+      <icon-lucide-check v-else-if="selected" class="svg-icons mr-2" />
       <icon-lucide-layers v-else class="svg-icons" />
     </span>
-    <spans
+    <span
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+      @click="emit('select-environment')"
     >
       <span class="truncate"> {{ environment.name }} </span>
-    </spans>
+    </span>
 
     <div class="flex">
       <HoppButtonSecondary
@@ -157,16 +162,19 @@ const props = withDefaults(
     environmentIndex: number | "Global" | null
     duplicateGlobalEnvironmentLoading?: boolean
     showContextMenuLoadingState?: boolean
+    selected?: boolean
   }>(),
   {
     duplicateGlobalEnvironmentLoading: false,
     showContextMenuLoadingState: false,
+    selected: false,
   }
 )
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "duplicate-global-environment"): void
+  (e: "select-environment"): void
 }>()
 
 const confirmRemove = ref(false)

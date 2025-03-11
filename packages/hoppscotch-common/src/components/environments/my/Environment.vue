@@ -11,7 +11,10 @@
         v-if="environmentIndex === 'Global'"
         class="svg-icons"
       />
-      <icon-lucide-check v-else-if="selected" class="svg-icons mr-2" />
+      <icon-lucide-check-circle
+        v-else-if="selected"
+        class="svg-icons text-green-500"
+      />
       <icon-lucide-layers v-else class="svg-icons" />
     </span>
     <span

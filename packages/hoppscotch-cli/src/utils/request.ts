@@ -69,7 +69,7 @@ const processEnvs = (envs: Partial<HoppEnvs>) => {
  * Transforms given request data to request-config used by request-runner to
  * perform HTTP request.
  * @param req Effective request data with parsed ENVs.
- * @returns Request config with data realted to HTTP request.
+ * @returns Request config with data related to HTTP request.
  */
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {

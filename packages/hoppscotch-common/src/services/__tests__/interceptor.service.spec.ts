@@ -3,7 +3,7 @@ import { Interceptor, InterceptorService } from "../interceptor.service"
 import { TestContainer } from "dioc/testing"
 
 describe("InterceptorService", () => {
-  it("initally there are no interceptors defined", () => {
+  it("initaly there are no interceptors defined", () => {
     const container = new TestContainer()
 
     const service = container.bind(InterceptorService)
@@ -147,7 +147,7 @@ describe("InterceptorService", () => {
       expect(service.availableInterceptors.value).toEqual([interceptor])
     })
 
-    it("should set the current interceptor ID to non-null after the intiial registration", () => {
+    it("should set the current interceptor ID to non-null after the initial registration", () => {
       const container = new TestContainer()
 
       const service = container.bind(InterceptorService)

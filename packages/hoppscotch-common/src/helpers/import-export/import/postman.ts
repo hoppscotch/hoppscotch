@@ -336,7 +336,7 @@ const getHoppReqBody = ({
               contentType in knownContentTypes
           ),
 
-          // Back-up plan, assume language from raw language defintion
+          // Back-up plan, assume language from raw language definition
           O.alt(() =>
             pipe(
               body.options?.raw?.language,

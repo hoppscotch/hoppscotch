@@ -194,15 +194,13 @@ const filterTexts = ref("")
 const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
   const env = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
 
-  if (filterTexts.value) {
-    return env.filter(({ env }) =>
-      env.environment.name
-        .toLowerCase()
-        .includes(filterTexts.value.toLowerCase())
-    )
-  }
-
-  return env
+  return !filterTexts.value
+    ? env
+    : env.filter(({ env }) =>
+        env.environment.name
+          .toLowerCase()
+          .includes(filterTexts.value.toLowerCase())
+      )
 })
 
 const showModalImportExport = ref(false)

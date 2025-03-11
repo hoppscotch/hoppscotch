@@ -135,13 +135,11 @@ const filterTexts = ref("")
 const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
   const env = sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
 
-  if (filterTexts.value) {
-    return env.filter(({ env }) =>
-      env.name.toLowerCase().includes(filterTexts.value.toLowerCase())
-    )
-  }
-
-  return env
+  return !filterTexts.value
+    ? env
+    : env.filter(({ env }) =>
+        env.name.toLowerCase().includes(filterTexts.value.toLowerCase())
+      )
 })
 
 const showModalImportExport = ref(false)

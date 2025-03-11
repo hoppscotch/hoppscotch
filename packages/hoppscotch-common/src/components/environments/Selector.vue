@@ -449,17 +449,15 @@ const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
     "asc"
   )
 
-  if (selectedEnvTab.value === "my-environments") {
-    if (!environmentSelectorSearch.value) return envs
+  if (selectedEnvTab.value !== "my-environments") return envs
 
-    return envs.filter(({ env }) =>
-      env.name
-        .toLowerCase()
-        .includes(environmentSelectorSearch.value.toLowerCase())
-    )
-  }
-
-  return envs
+  return !environmentSelectorSearch.value
+    ? envs
+    : envs.filter(({ env }) =>
+        env.name
+          .toLowerCase()
+          .includes(environmentSelectorSearch.value.toLowerCase())
+      )
 })
 
 const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
@@ -468,16 +466,15 @@ const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
     "asc"
   )
 
-  if (selectedEnvTab.value === "team-environments") {
-    if (!environmentSelectorSearch.value) return envs
+  if (selectedEnvTab.value !== "team-environments") return envs
 
-    return envs.filter(({ env }) =>
-      env.environment.name
-        .toLowerCase()
-        .includes(environmentSelectorSearch.value.toLowerCase())
-    )
-  }
-  return envs
+  return !environmentSelectorSearch.value
+    ? envs
+    : envs.filter(({ env }) =>
+        env.environment.name
+          .toLowerCase()
+          .includes(environmentSelectorSearch.value.toLowerCase())
+      )
 })
 
 const handleEnvironmentChange = (

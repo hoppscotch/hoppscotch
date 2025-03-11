@@ -1,5 +1,12 @@
 <template>
   <div>
+    <input
+      v-model="filterTexts"
+      type="search"
+      autocomplete="off"
+      class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
+      :placeholder="t('action.search')"
+    />
     <div
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
@@ -45,8 +52,20 @@
     </div>
     <HoppSmartPlaceholder
       v-if="
+        filterTexts &&
+        searchedAndAlphabeticallySortedTeamEnvironments.length === 0
+      "
+      :alt="`${t('empty.search_environment')}`"
+      :text="`${t('empty.search_environment')} '${filterTexts}'`"
+    >
+      <template #icon>
+        <icon-lucide-search class="svg-icons opacity-75" />
+      </template>
+    </HoppSmartPlaceholder>
+    <HoppSmartPlaceholder
+      v-else-if="
         !loading &&
-        !alphabeticallySortedTeamEnvironments.length &&
+        !searchedAndAlphabeticallySortedTeamEnvironments.length &&
         !adapterError
       "
       :src="`/images/states/${colorMode.value}/blockchain.svg`"
@@ -84,7 +103,7 @@
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="{ env, index } in JSON.parse(
-          JSON.stringify(alphabeticallySortedTeamEnvironments)
+          JSON.stringify(searchedAndAlphabeticallySortedTeamEnvironments)
         )"
         :key="`environment-${index}`"
         :environment="env"
@@ -121,7 +140,7 @@
     <EnvironmentsImportExport
       v-if="showModalImportExport"
       :team-environments="
-        alphabeticallySortedTeamEnvironments.map(({ env }) => env)
+        searchedAndAlphabeticallySortedTeamEnvironments.map(({ env }) => env)
       "
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
@@ -169,10 +188,22 @@ const emit = defineEmits<{
 }>()
 
 // Sort environments alphabetically by default
+const filterTexts = ref("")
 
-const alphabeticallySortedTeamEnvironments = computed(() =>
-  sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
-)
+// Sort environments alphabetically by default and filter by search text
+const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
+  const env = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+
+  if (filterTexts.value) {
+    return env.filter(({ env }) =>
+      env.environment.name
+        .toLowerCase()
+        .includes(filterTexts.value.toLowerCase())
+    )
+  }
+
+  return env
+})
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -241,9 +272,10 @@ defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const teamEnvToEdit = alphabeticallySortedTeamEnvironments.value.find(
-      ({ env }) => env.environment.name === envName
-    )
+    const teamEnvToEdit =
+      searchedAndAlphabeticallySortedTeamEnvironments.value.find(
+        ({ env }) => env.environment.name === envName
+      )
     if (teamEnvToEdit) {
       const { env } = teamEnvToEdit
       editEnvironment(env)

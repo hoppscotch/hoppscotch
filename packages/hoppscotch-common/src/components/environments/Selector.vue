@@ -33,6 +33,7 @@
           <SmartEnvInput
             v-model="environmentSelectorSearch"
             :placeholder="`${t('action.search')}`"
+            :context-menu-enabled="false"
             class="border border-dividerDark focus:border-primaryDark rounded"
           />
           <HoppSmartItem
@@ -86,7 +87,7 @@
                 v-for="{
                   env,
                   index,
-                } in alphabeticallySortedPersonalEnvironments"
+                } in searchedAndAlphabeticallySortedPersonalEnvironments"
                 :key="`gen-${index}`"
                 :icon="IconLayers"
                 :label="env.name"
@@ -105,15 +106,21 @@
               <HoppSmartPlaceholder
                 v-if="
                   environmentSelectorSearch &&
-                  alphabeticallySortedPersonalEnvironments.length === 0
+                  searchedAndAlphabeticallySortedPersonalEnvironments.length ===
+                    0
                 "
-                :src="`/images/states/${colorMode.value}/blockchain.svg`"
+                class="break-words"
                 :alt="`${t('empty.search_environment')}`"
-                :text="t('empty.search_environment')"
-              />
+                :text="`${t('empty.search_environment')} '${environmentSelectorSearch}'`"
+              >
+                <template #icon>
+                  <icon-lucide-search class="svg-icons opacity-75" />
+                </template>
+              </HoppSmartPlaceholder>
               <HoppSmartPlaceholder
                 v-else-if="
-                  alphabeticallySortedPersonalEnvironments.length === 0
+                  searchedAndAlphabeticallySortedPersonalEnvironments.length ===
+                  0
                 "
                 :src="`/images/states/${colorMode.value}/blockchain.svg`"
                 :alt="`${t('empty.environments')}`"
@@ -136,7 +143,10 @@
               </div>
               <div v-if="isTeamSelected" class="flex flex-col">
                 <HoppSmartItem
-                  v-for="{ env, index } in alphabeticallySortedTeamEnvironments"
+                  v-for="{
+                    env,
+                    index,
+                  } in searchedAndAlphabeticallySortedTeamEnvironments"
                   :key="`gen-team-${index}`"
                   :icon="IconLayers"
                   :label="env.environment.name"
@@ -155,14 +165,20 @@
                 <HoppSmartPlaceholder
                   v-if="
                     environmentSelectorSearch &&
-                    alphabeticallySortedTeamEnvironments.length === 0
+                    searchedAndAlphabeticallySortedTeamEnvironments.length === 0
                   "
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
                   :alt="`${t('empty.search_environment')}`"
-                  :text="t('empty.search_environment')"
-                />
+                  :text="`${t('empty.search_environment')} '${environmentSelectorSearch}'`"
+                  class="break-words"
+                >
+                  <template #icon>
+                    <icon-lucide-search class="svg-icons opacity-75" />
+                  </template>
+                </HoppSmartPlaceholder>
                 <HoppSmartPlaceholder
-                  v-else-if="alphabeticallySortedTeamEnvironments.length === 0"
+                  v-else-if="
+                    searchedAndAlphabeticallySortedTeamEnvironments.length === 0
+                  "
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"
                   :alt="`${t('empty.environments')}`"
                   :text="t('empty.environments')"
@@ -427,7 +443,7 @@ const teamEnvironmentList = useReadonlyStream(
 )
 
 // Sort environments alphabetically by default and filter based on search
-const alphabeticallySortedPersonalEnvironments = computed(() => {
+const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
   const envs = sortPersonalEnvironmentsAlphabetically(
     myEnvironments.value,
     "asc"
@@ -435,8 +451,8 @@ const alphabeticallySortedPersonalEnvironments = computed(() => {
   if (selectedEnvTab.value === "my-environments") {
     if (!environmentSelectorSearch.value) return envs
 
-    return envs.filter((e) =>
-      e.env.name
+    return envs.filter(({ env }) =>
+      env.name
         .toLowerCase()
         .includes(environmentSelectorSearch.value.toLowerCase())
     )
@@ -445,7 +461,7 @@ const alphabeticallySortedPersonalEnvironments = computed(() => {
   return envs
 })
 
-const alphabeticallySortedTeamEnvironments = computed(() => {
+const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
   const envs = sortTeamEnvironmentsAlphabetically(
     teamEnvironmentList.value,
     "asc"
@@ -454,8 +470,8 @@ const alphabeticallySortedTeamEnvironments = computed(() => {
   if (selectedEnvTab.value === "team-environments") {
     if (!environmentSelectorSearch.value) return envs
 
-    return envs.filter((e) =>
-      e.env.environment.name
+    return envs.filter(({ env }) =>
+      env.environment.name
         .toLowerCase()
         .includes(environmentSelectorSearch.value.toLowerCase())
     )

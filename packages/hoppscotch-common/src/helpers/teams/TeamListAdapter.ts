@@ -65,6 +65,12 @@ export default class TeamListAdapter {
 
     this.loading$.next(true)
 
+    const probableUser = platform.auth.getProbableUser()
+
+    if (probableUser !== null) {
+      await platform.auth.waitProbableLoginToConfirm()
+    }
+
     const results: GetMyTeamsQuery["myTeams"] = []
 
     while (true) {

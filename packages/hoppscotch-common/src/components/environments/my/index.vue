@@ -1,5 +1,12 @@
 <template>
   <div>
+    <input
+      v-model="filterTexts"
+      type="search"
+      autocomplete="off"
+      class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
+      :placeholder="t('action.search')"
+    />
     <div
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
@@ -25,15 +32,31 @@
         />
       </div>
     </div>
+
     <EnvironmentsMyEnvironment
-      v-for="{ env, index } in alphabeticallySortedPersonalEnvironments"
+      v-for="{
+        env,
+        index,
+      } in searchedAndAlphabeticallySortedPersonalEnvironments"
       :key="`environment-${index}`"
       :environment-index="index"
       :environment="env"
       @edit-environment="editEnvironment(index)"
     />
     <HoppSmartPlaceholder
-      v-if="!alphabeticallySortedPersonalEnvironments.length"
+      v-if="
+        filterTexts &&
+        searchedAndAlphabeticallySortedPersonalEnvironments.length === 0
+      "
+      :alt="`${t('empty.search_environment')}`"
+      :text="`${t('empty.search_environment')} '${filterTexts}'`"
+    >
+      <template #icon>
+        <icon-lucide-search class="svg-icons opacity-75" />
+      </template>
+    </HoppSmartPlaceholder>
+    <HoppSmartPlaceholder
+      v-else-if="!searchedAndAlphabeticallySortedPersonalEnvironments.length"
       :src="`/images/states/${colorMode.value}/blockchain.svg`"
       :alt="`${t('empty.environments')}`"
       :text="t('empty.environments')"
@@ -95,10 +118,20 @@ const colorMode = useColorMode()
 
 const environments = useReadonlyStream(environments$, [])
 
-// Sort environments alphabetically by default
-const alphabeticallySortedPersonalEnvironments = computed(() =>
-  sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
-)
+const filterTexts = ref("")
+
+// Sort environments alphabetically by default and filter by search text
+const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
+  const env = sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
+
+  if (filterTexts.value) {
+    return env.filter(({ env }) =>
+      env.name.toLowerCase().includes(filterTexts.value.toLowerCase())
+    )
+  }
+
+  return env
+})
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -135,7 +168,7 @@ defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const env = alphabeticallySortedPersonalEnvironments.value.find(
+    const env = searchedAndAlphabeticallySortedPersonalEnvironments.value.find(
       ({ env }) => env.name === envName
     )
     if (envName !== "Global" && env) {

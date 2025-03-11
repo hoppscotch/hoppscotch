@@ -448,6 +448,7 @@ const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
     myEnvironments.value,
     "asc"
   )
+
   if (selectedEnvTab.value === "my-environments") {
     if (!environmentSelectorSearch.value) return envs
 

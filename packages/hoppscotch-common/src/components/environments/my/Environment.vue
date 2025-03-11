@@ -3,28 +3,35 @@
     class="group flex items-stretch"
     @contextmenu.prevent="options!.tippy?.show()"
   >
-    <span
-      v-if="environmentIndex === 'Global'"
-      class="flex cursor-pointer items-center justify-center px-4"
-      @click="emit('edit-environment')"
-    >
-      <icon-lucide-globe class="svg-icons" />
+    <span class="flex cursor-pointer items-center justify-center px-4">
+      <icon-lucide-globe
+        v-if="environmentIndex === 'Global'"
+        class="svg-icons"
+      />
+      <icon-lucide-layers v-else class="svg-icons" />
     </span>
-    <span
-      v-else
-      class="flex cursor-pointer items-center justify-center px-4"
-      @click="emit('edit-environment')"
-    >
-      <icon-lucide-layers class="svg-icons" />
-    </span>
-    <span
+    <spans
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-      @click="emit('edit-environment')"
     >
-      <span class="truncate">
-        {{ environment.name }}
-      </span>
-    </span>
+      <span class="truncate"> {{ environment.name }} </span>
+    </spans>
+
+    <div class="flex">
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconEdit"
+        :title="`${t('action.edit')}`"
+        class="hidden group-hover:inline-flex"
+        @click="emit('edit-environment')"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconCopy"
+        :title="`${t('action.duplicate')}`"
+        class="hidden group-hover:inline-flex"
+        @click="duplicateEnvironments"
+      />
+    </div>
     <span>
       <tippy
         ref="options"

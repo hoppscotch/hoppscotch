@@ -94,7 +94,7 @@ services:
 
   # The service that spins up all services at once in one container
   hoppscotch-aio:
-    profiles: ["default", "default-no-db"]
+    profiles: ["default"]
     container_name: hoppscotch-aio
     restart: unless-stopped
     build:
@@ -106,6 +106,24 @@ services:
     depends_on:
       hoppscotch-db:
         condition: service_healthy
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+      - "3170:3170"
+      - "3200:3200"
+      - "3080:80"
+
+  # Profile with no database dependency (purely developmental)
+  hoppscotch-aio-no-db:
+    profiles: ["default-no-db"]
+    container_name: hoppscotch-aio
+    restart: unless-stopped
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    env_file:
+      - ./.env
     ports:
       - "3000:3000"
       - "3100:3100"

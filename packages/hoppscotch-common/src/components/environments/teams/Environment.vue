@@ -7,8 +7,11 @@
       class="flex cursor-pointer items-center justify-center px-4"
       @click="emit('select-environment')"
     >
-      <icon-lucide-check v-if="selected" class="svg-icons mr-2" />
-      <icon-lucide-layers class="svg-icons" />
+      <icon-lucide-check-circle
+        v-if="selected"
+        class="svg-icons text-green-500"
+      />
+      <icon-lucide-layers v-else class="svg-icons" />
     </span>
     <span
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"

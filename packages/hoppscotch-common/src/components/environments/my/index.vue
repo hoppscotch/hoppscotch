@@ -31,6 +31,7 @@
       :environment-index="index"
       :environment="env"
       @edit-environment="editEnvironment(index)"
+      @select-environment="selectEnvironment(index, env)"
     />
     <HoppSmartPlaceholder
       v-if="!alphabeticallySortedPersonalEnvironments.length"
@@ -89,9 +90,15 @@ import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
+import { HandleEnvChangeProp } from "../index.vue"
+import { Environment } from "@hoppscotch/data"
 
 const t = useI18n()
 const colorMode = useColorMode()
+
+const emit = defineEmits<{
+  (e: "select-environment", data: HandleEnvChangeProp): void
+}>()
 
 const environments = useReadonlyStream(environments$, [])
 
@@ -119,6 +126,15 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 }
 const displayModalImportExport = (shouldDisplay: boolean) => {
   showModalImportExport.value = shouldDisplay
+}
+const selectEnvironment = (index: number, environment: Environment) => {
+  emit("select-environment", {
+    index,
+    env: {
+      type: "my-environment",
+      environment,
+    },
+  })
 }
 const editEnvironment = (environmentIndex: number) => {
   editingEnvironmentIndex.value = environmentIndex

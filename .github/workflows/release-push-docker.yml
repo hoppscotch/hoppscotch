@@ -7,7 +7,14 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        platform: [
+         { platform: linux/amd64, cache: docker-release-amd64 },
+         { platform: linux/arm64, cache: docker-release-arm64 },
+        ]
     runs-on: ubuntu-latest
+    continue-on-error: true          # We can continue each platform deployment if the other fails
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,9 +41,10 @@ jobs:
           file: ./prod.Dockerfile
           target: backend
           push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:${{ github.ref_name }}
@@ -48,9 +56,10 @@ jobs:
           file: ./prod.Dockerfile
           target: app
           push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:${{ github.ref_name }}
@@ -62,9 +71,10 @@ jobs:
           file: ./prod.Dockerfile
           target: sh_admin
           push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:${{ github.ref_name }}
@@ -76,9 +86,11 @@ jobs:
           file: ./prod.Dockerfile
           target: aio
           push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:latest
             ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:${{ github.ref_name }}
+

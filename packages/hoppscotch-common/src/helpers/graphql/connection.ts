@@ -61,7 +61,7 @@ export type GQLResponseEvent =
       operationType: OperationType
       data: string
       rawQuery?: RunQueryOptions
-      document: {
+      document?: {
         type: string
         statusCode: number
         statusText: string
@@ -466,7 +466,20 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       throw new Error(parsedResponse.error.message)
     }
 
-    gqlMessageEvent.value = parsedResponse
+    const timeEnd = Date.now()
+
+    gqlMessageEvent.value = {
+      ...parsedResponse,
+      document: {
+        type: "success",
+        statusCode: relayResponse.status,
+        statusText: relayResponse.statusText,
+        meta: {
+          responseSize: relayResponse.body.body.byteLength,
+          responseDuration: timeEnd - timeStart,
+        },
+      },
+    }
 
     addQueryToHistory(options, parsedResponse.data)
 

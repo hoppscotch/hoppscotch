@@ -1,8 +1,12 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
     <HttpResponseMeta
-      :response="props.response?.[0]?.document"
-      :is-embed="isEmbed"
+      v-if="
+        response?.length &&
+        response.length > 0 &&
+        response[0].type === 'response'
+      "
+      :response="response?.[0]?.document"
     />
     <div
       v-if="

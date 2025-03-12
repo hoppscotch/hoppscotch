@@ -234,7 +234,7 @@
     "remove_admin_for_deletion": "Remove admin status before attempting deletion!!",
     "remove_owner_for_deletion": "One or more users are team owners. Update ownership before deletion!!",
     "remove_invitee_failure": "Removal of invitee failed!!",
-    "remove_invitee_success": "Removal of invitee is successfull!!",
+    "remove_invitee_success": "Removal of invitee is successful!!",
     "remove_member_failure": "Member couldn't be removed!!",
     "remove_member_success": "Member removed successfully!!",
     "rename_team_failure": "Failed to rename workspace!!",

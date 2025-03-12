@@ -188,7 +188,7 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the URL contains non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the URL contains non empty value in a environment variable", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 
@@ -219,7 +219,7 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the headers contain non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the headers contain non empty value in a environment variable", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 
@@ -254,7 +254,7 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(1)
     })
 
-    it("should not return an inspector result when the params contain non empty value in a environemnt variable", () => {
+    it("should not return an inspector result when the params contain non empty value in a environment variable", () => {
       const container = new TestContainer()
       const envInspector = container.bind(EnvironmentInspectorService)
 

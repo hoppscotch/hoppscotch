@@ -1,7 +1,7 @@
 import { Service } from "dioc"
 
 /**
- * This service provice debug utilities for the application and is
+ * This service provides debug utilities for the application and is
  * supposed to be used only in development.
  *
  * This service logs events from the container and also events

@@ -20,7 +20,7 @@ const emit = defineEmits<{
 // need to look into this
 // eg: body: some-json-value-user-entered, contentType: "application/json" -> change content type-> body: some-json-value-user-entered, contentType: "application/octet-stream"
 // this is not caught by the type system
-// but this behavior right now gives us persistance, which will prevent unwanted data loss
+// but this behavior right now gives us persistence, which will prevent unwanted data loss
 // eg: when the user comes back to the json body, the value is still there
 // so to solve this, we need to consider this too.
 watch(

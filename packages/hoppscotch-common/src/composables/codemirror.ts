@@ -402,7 +402,8 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
-            key: "Cmd-Enter" /* macOS */ || "Ctrl-Enter" /* Windows */,
+            key: "Ctrl-Enter" /* Windows */,
+            mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
             run: () => true,
           },

@@ -39,6 +39,7 @@ jobs:
 
       - name: Build and push the backend container
         uses: docker/build-push-action@v4
+        if: false # TODO: Temporary, remove later
         with:
           context: .
           file: ./prod.Dockerfile
@@ -59,6 +60,7 @@ jobs:
 
       - name: Build and push the frontend container
         uses: docker/build-push-action@v4
+        if: false # TODO: Temporary, remove later
         with:
           context: .
           file: ./prod.Dockerfile

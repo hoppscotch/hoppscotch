@@ -2023,7 +2023,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.2.1"
+version = "25.2.2"
 dependencies = [
  "axum",
  "portpicker",

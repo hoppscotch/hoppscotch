@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      # NO INPUTS
 
 jobs:
   build:

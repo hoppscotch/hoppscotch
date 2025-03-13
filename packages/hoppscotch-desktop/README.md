@@ -42,9 +42,9 @@ Access Hoppscotch Cloud Edition from Hoppscotch Desktop App:
 > [!Note]
 > To enable desktop app support for your self-hosted Hoppscotch instance, make sure to update the `WHITELISTED_ORIGINS` environment variable in your `.env` file with your deployment URL.
 >
-> e.g. to allow connection to `https://hoppscotch.mydomain.com` you need to add `app://hoppscotch_mydomain_com` to the `WHITELISTED_ORIGINS` environment variable.
+> e.g. to allow connection to `https://hoppscotch.mydomain.com` you need to add `app://hoppscotch_mydomain_com` (MacOS, Linux) and `http://app.hoppscotch_mydomain_com` (Windows) to the `WHITELISTED_ORIGINS` environment variable.
 > ```bash
-> WHITELISTED_ORIGINS=...existing_origins,app://hoppscotch_mydomain_com
+> WHITELISTED_ORIGINS=...existing_origins,app://hoppscotch_mydomain_com,http://app.hoppscotch_mydomain_com
 > ```
 
 Add your self-hosted Hoppscotch Community Edition instance to Hoppscotch Desktop App:
@@ -92,9 +92,9 @@ Add your self-hosted Hoppscotch Community Edition instance to Hoppscotch Desktop
 > [!Note]
 > To enable desktop app support for your self-hosted Hoppscotch instance, make sure to update the `WHITELISTED_ORIGINS` environment variable in your `.env` file with your deployment URL.
 >
-> e.g. to allow connection to `https://hoppscotch.mydomain.com` you need to add `app://hoppscotch_mydomain_com` to the `WHITELISTED_ORIGINS` environment variable.
+> e.g. to allow connection to `https://hoppscotch.mydomain.com` you need to add `app://hoppscotch_mydomain_com` (MacOS, Linux) and `http://app.hoppscotch_mydomain_com` (Windows) to the `WHITELISTED_ORIGINS` environment variable.
 > ```bash
-> WHITELISTED_ORIGINS=...existing_origins,app://hoppscotch_mydomain_com
+> WHITELISTED_ORIGINS=...existing_origins,app://hoppscotch_mydomain_com,http://app.hoppscotch_mydomain_com
 > ```
 
 Add your self-hosted Hoppscotch Enterprise Edition instance to Hoppscotch Desktop App:

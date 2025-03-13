@@ -199,7 +199,7 @@ const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
     : env.filter(({ env }) =>
         env.environment.name
           .toLowerCase()
-          .includes(filterTexts.value.toLowerCase())
+          .includes(filterTexts.value.toLowerCase().trim())
       )
 })
 

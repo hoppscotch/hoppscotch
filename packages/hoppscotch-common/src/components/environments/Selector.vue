@@ -456,7 +456,7 @@ const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
     : envs.filter(({ env }) =>
         env.name
           .toLowerCase()
-          .includes(environmentSelectorSearch.value.toLowerCase())
+          .includes(environmentSelectorSearch.value.toLowerCase().trim())
       )
 })
 
@@ -473,7 +473,7 @@ const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
     : envs.filter(({ env }) =>
         env.environment.name
           .toLowerCase()
-          .includes(environmentSelectorSearch.value.toLowerCase())
+          .includes(environmentSelectorSearch.value.toLowerCase().trim())
       )
 })
 

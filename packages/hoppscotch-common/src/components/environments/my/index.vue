@@ -138,7 +138,7 @@ const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
   return !filterTexts.value
     ? env
     : env.filter(({ env }) =>
-        env.name.toLowerCase().includes(filterTexts.value.toLowerCase())
+        env.name.toLowerCase().includes(filterTexts.value.toLowerCase().trim())
       )
 })
 

@@ -1,6 +1,6 @@
 <template>
-  <div class="px-3">
-    <AppMarkdown type="description" class="mb-4">
+  <div class="flex flex-col space-y-4">
+    <AppMarkdown type="description" class="p-4">
       {{ schemaDescription }}
     </AppMarkdown>
 
@@ -41,8 +41,8 @@
     </GraphqlExplorerSection>
     <GraphqlExplorerSection title="All Schema Types">
       <div v-if="filteredTypes">
-        <div v-for="type in filteredTypes" :key="type.name" class="px-2">
-          <GraphqlTypeLink :type="type" :clickable="true" />
+        <div v-for="type in filteredTypes" :key="type.name" class="px-4 py-1">
+          <GraphqlTypeLink :type="type" :clickable="true" :readonly="true" />
         </div>
       </div>
     </GraphqlExplorerSection>
@@ -97,9 +97,9 @@ const filteredTypes = computed(() => {
 
 <style scoped lang="scss">
 .hopp-doc-explorer-root-wrapper {
-  @apply cursor-pointer py-1 px-2 hover:bg-primaryLight;
+  @apply cursor-pointer flex items-center gap-2 px-4 py-2 transition hover:bg-primaryLight;
 }
 .hopp-doc-explorer-root-type {
-  @apply lowercase;
+  @apply lowercase text-sm font-normal;
 }
 </style>

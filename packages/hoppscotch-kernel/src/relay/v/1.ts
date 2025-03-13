@@ -5,6 +5,8 @@ export type PluginRequest = Request
 export type PluginResponse = Response
 
 import * as E from 'fp-ts/Either'
+import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
 
 export type Method =
     | "GET"        // Retrieve resource
@@ -495,13 +497,42 @@ export const body = {
     }),
 }
 
+export const transform = {
+    text: (content: string): string => content,
+    json: <T>(content: T): T => content,
+    xml: (content: string): string => content,
+    form: (content: FormData): FormData => content,
+    binary: (content: Uint8Array): Uint8Array => content,
+    multipart: (content: FormData): FormData => content,
+    stream: (content: ReadableStream): ReadableStream => content,
+    urlencoded: (arg: string | Record<string, any>): string =>
+        pipe(
+            arg,
+            (input) => typeof input === 'string'
+                ? O.some(input)
+                : O.none,
+            O.getOrElse(() => {
+                const params = new URLSearchParams()
+                const obj = arg as Record<string, any>
+
+                Object.entries(obj)
+                    .filter(([_, value]) => value !== undefined && value !== null)
+                    .forEach(([key, value]) =>
+                        params.append(key, value.toString())
+                    )
+
+                return params.toString()
+            })
+        )
+}
+
 export const content = {
     text: (
         content: string,
         mediaType?: MediaType.TEXT_PLAIN | MediaType.TEXT_HTML | MediaType.TEXT_CSS | MediaType.TEXT_CSV
     ): ContentType => ({
         kind: "text",
-        content,
+        content: transform.text(content),
         mediaType: mediaType ?? MediaType.TEXT_PLAIN
     }),
 
@@ -510,7 +541,7 @@ export const content = {
         mediaType?: MediaType.APPLICATION_JSON | MediaType.APPLICATION_LD_JSON | MediaType.APPLICATION_JSON
     ): ContentType => ({
         kind: "json",
-        content,
+        content: transform.json(content),
         mediaType: mediaType ?? MediaType.APPLICATION_JSON
     }),
 
@@ -519,13 +550,13 @@ export const content = {
         mediaType?: MediaType.APPLICATION_XML | MediaType.TEXT_XML
     ): ContentType => ({
         kind: "xml",
-        content,
+        content: transform.xml(content),
         mediaType: mediaType ?? MediaType.APPLICATION_XML
     }),
 
     form: (content: FormData): ContentType => ({
         kind: "form",
-        content,
+        content: transform.form(content),
         mediaType: MediaType.APPLICATION_FORM
     }),
 
@@ -535,26 +566,26 @@ export const content = {
         filename?: string
     ): ContentType => ({
         kind: "binary",
-        content,
+        content: transform.binary(content),
         mediaType,
         filename
     }),
 
     multipart: (content: FormData): ContentType => ({
         kind: "multipart",
-        content,
+        content: transform.multipart(content),
         mediaType: MediaType.MULTIPART_FORM
     }),
 
-    urlencoded: (content: string): ContentType => ({
+    urlencoded: (content: string | Record<string, any>): ContentType => ({
         kind: "urlencoded",
-        content,
+        content: transform.urlencoded(content),
         mediaType: MediaType.APPLICATION_FORM
     }),
 
     stream: (content: ReadableStream, mediaType: string): ContentType => ({
         kind: "stream",
-        content,
+        content: transform.stream(content),
         mediaType
     })
 }

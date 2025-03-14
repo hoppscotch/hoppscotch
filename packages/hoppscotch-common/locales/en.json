@@ -1223,6 +1223,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
+    "saved": "Saved",
     "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",

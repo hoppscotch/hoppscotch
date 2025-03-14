@@ -14,7 +14,9 @@
         :text="t('cookies.modal.interceptor_no_support')"
       >
         <template #body>
-          <AppInterceptor class="rounded border border-dividerLight p-2" />
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
       <div v-else class="flex flex-col">

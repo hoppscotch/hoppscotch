@@ -57,7 +57,9 @@
         :text="t('helpers.network_fail')"
       >
         <template #body>
-          <AppInterceptor class="rounded border border-dividerLight p-2" />
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
       <HoppSmartPlaceholder

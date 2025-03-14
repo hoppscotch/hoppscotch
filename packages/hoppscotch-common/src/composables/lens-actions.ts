@@ -1,7 +1,7 @@
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
-import { computed, ComputedRef, onMounted, ref, Ref } from "vue"
+import { computed, ComputedRef, ref, Ref, watch } from "vue"
 
 import jsonToLanguage from "~/helpers/utils/json-to-language"
 import { platform } from "~/platform"
@@ -88,7 +88,7 @@ export function useDownloadResponse(
 }
 
 export function usePreview(
-  previewEnabledDefault: boolean,
+  previewEnabledDefault: Ref<boolean>,
   responseBodyText: Ref<string>
 ): {
   previewFrame: Ref<HTMLIFrameElement | null>
@@ -98,15 +98,6 @@ export function usePreview(
   const previewFrame: Ref<HTMLIFrameElement | null> = ref(null)
   const previewEnabled = ref(previewEnabledDefault)
   const url = ref("")
-
-  // `previewFrame` is a template ref that gets attached to the `iframe` element when the component mounts
-  // Ensures the HTML content is rendered immediately after a request, persists between tab switches, and is not limited to preview toggles
-  onMounted(() => updatePreviewFrame())
-
-  // Prevent updating the `iframe` element attributes during preview toggle actions after they are set initially
-  const shouldUpdatePreviewFrame = computed(
-    () => previewFrame.value?.getAttribute("data-previewing-url") !== url.value
-  )
 
   const updatePreviewFrame = () => {
     if (
@@ -128,6 +119,24 @@ export function usePreview(
       previewFrame.value.setAttribute("data-previewing-url", url.value)
     }
   }
+
+  // `previewFrame` is a template ref that gets attached to the `iframe` element when the component mounts
+  // Ensures the HTML content is rendered immediately after a request, persists between tab switches, and is not limited to preview toggles
+  // Also watches for changes in the `previewEnabled` state to update the `iframe` element attributes
+  watch(
+    previewEnabled,
+    () => {
+      updatePreviewFrame()
+    },
+    {
+      immediate: true,
+    }
+  )
+
+  // Prevent updating the `iframe` element attributes during preview toggle actions after they are set initially
+  const shouldUpdatePreviewFrame = computed(
+    () => previewFrame.value?.getAttribute("data-previewing-url") !== url.value
+  )
 
   const togglePreview = () => {
     previewEnabled.value = !previewEnabled.value

@@ -23,7 +23,6 @@ declare module 'vue' {
     AppGitHubStarButton: typeof import('./components/app/GitHubStarButton.vue')['default']
     AppHeader: typeof import('./components/app/Header.vue')['default']
     AppInspection: typeof import('./components/app/Inspection.vue')['default']
-    AppInterceptor: typeof import('./components/app/Interceptor.vue')['default']
     AppKernelInterceptor: typeof import('./components/app/KernelInterceptor.vue')['default']
     AppLogo: typeof import('./components/app/Logo.vue')['default']
     AppMarkdown: typeof import('./components/app/Markdown.vue')['default']

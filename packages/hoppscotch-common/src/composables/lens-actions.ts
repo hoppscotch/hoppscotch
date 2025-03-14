@@ -117,6 +117,14 @@ export function usePreview(
       // Finally, set the iframe source to the resulting HTML.
       previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
       previewFrame.value.setAttribute("data-previewing-url", url.value)
+
+      // Enable sandboxing for the iframe but this can have security implications
+      // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attr-sandbox
+      // https://stackoverflow.com/a/30785417
+      // previewFrame.value.setAttribute(
+      //   "sandbox",
+      //   "allow-scripts allow-same-origin"
+      // )
     }
   }
 

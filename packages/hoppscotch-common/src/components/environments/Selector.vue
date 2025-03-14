@@ -85,10 +85,7 @@
               :label="`${t('environment.my_environments')}`"
             >
               <HoppSmartItem
-                v-for="{
-                  env,
-                  index,
-                } in searchedAndAlphabeticallySortedPersonalEnvironments"
+                v-for="{ env, index } in filteredAndAlphabetizedPersonalEnvs"
                 :key="`gen-${index}`"
                 :icon="IconLayers"
                 :label="env.name"
@@ -106,28 +103,36 @@
               />
               <HoppSmartPlaceholder
                 v-if="
-                  environmentSelectorSearch &&
-                  searchedAndAlphabeticallySortedPersonalEnvironments.length ===
-                    0
+                  emptyFilterdPersonalResult ||
+                  filteredAndAlphabetizedPersonalEnvs.length === 0
                 "
                 class="break-words"
-                :alt="`${t('empty.search_environment')}`"
-                :text="`${t('empty.search_environment')} '${environmentSelectorSearch}'`"
+                :src="
+                  filteredAndAlphabetizedPersonalEnvs.length === 0 &&
+                  !environmentSelectorSearch
+                    ? `/images/states/${colorMode.value}/blockchain.svg`
+                    : undefined
+                "
+                :alt="
+                  emptyFilterdPersonalResult
+                    ? `${t('empty.search_environment')}`
+                    : t('empty.environments')
+                "
+                :text="
+                  emptyFilterdPersonalResult
+                    ? `${t('empty.search_environment')} '${environmentSelectorSearch}'`
+                    : t('empty.environments')
+                "
               >
                 <template #icon>
-                  <icon-lucide-search class="svg-icons opacity-75" />
+                  <icon-lucide-search
+                    v-if="emptyFilterdPersonalResult"
+                    class="svg-icons opacity-75"
+                  />
                 </template>
               </HoppSmartPlaceholder>
-              <HoppSmartPlaceholder
-                v-else-if="
-                  searchedAndAlphabeticallySortedPersonalEnvironments.length ===
-                  0
-                "
-                :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                :alt="`${t('empty.environments')}`"
-                :text="t('empty.environments')"
-              />
             </HoppSmartTab>
+
             <HoppSmartTab
               :id="'team-environments'"
               :label="`${t('environment.team_environments')}`"
@@ -144,10 +149,7 @@
               </div>
               <div v-if="isTeamSelected" class="flex flex-col">
                 <HoppSmartItem
-                  v-for="{
-                    env,
-                    index,
-                  } in searchedAndAlphabeticallySortedTeamEnvironments"
+                  v-for="{ env, index } in filteredAndAlphabetizedTeamEnvs"
                   :key="`gen-team-${index}`"
                   :icon="IconLayers"
                   :label="env.environment.name"
@@ -165,25 +167,34 @@
                 />
                 <HoppSmartPlaceholder
                   v-if="
-                    environmentSelectorSearch &&
-                    searchedAndAlphabeticallySortedTeamEnvironments.length === 0
+                    emptyFilterdTeamResult ||
+                    filteredAndAlphabetizedTeamEnvs.length === 0
                   "
-                  :alt="`${t('empty.search_environment')}`"
-                  :text="`${t('empty.search_environment')} '${environmentSelectorSearch}'`"
                   class="break-words"
+                  :src="
+                    filteredAndAlphabetizedTeamEnvs.length === 0 &&
+                    !environmentSelectorSearch
+                      ? `/images/states/${colorMode.value}/blockchain.svg`
+                      : undefined
+                  "
+                  :alt="
+                    emptyFilterdTeamResult
+                      ? `${t('empty.search_environment')}`
+                      : t('empty.environments')
+                  "
+                  :text="
+                    emptyFilterdTeamResult
+                      ? `${t('empty.search_environment')} '${environmentSelectorSearch}'`
+                      : t('empty.environments')
+                  "
                 >
                   <template #icon>
-                    <icon-lucide-search class="svg-icons opacity-75" />
+                    <icon-lucide-search
+                      v-if="emptyFilterdTeamResult"
+                      class="svg-icons opacity-75"
+                    />
                   </template>
                 </HoppSmartPlaceholder>
-                <HoppSmartPlaceholder
-                  v-else-if="
-                    searchedAndAlphabeticallySortedTeamEnvironments.length === 0
-                  "
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  :alt="`${t('empty.environments')}`"
-                  :text="t('empty.environments')"
-                />
               </div>
               <div
                 v-if="!teamListLoading && teamAdapterError"
@@ -444,38 +455,56 @@ const teamEnvironmentList = useReadonlyStream(
 )
 
 // Sort environments alphabetically by default and filter based on search
-const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
+const filteredAndAlphabetizedPersonalEnvs = computed(() => {
   const envs = sortPersonalEnvironmentsAlphabetically(
     myEnvironments.value,
     "asc"
   )
 
-  if (selectedEnvTab.value !== "my-environments") return envs
+  if (
+    selectedEnvTab.value !== "my-environments" ||
+    !environmentSelectorSearch.value
+  )
+    return envs
 
-  return !environmentSelectorSearch.value
-    ? envs
-    : envs.filter(({ env }) =>
-        env.name
-          .toLowerCase()
-          .includes(environmentSelectorSearch.value.toLowerCase().trim())
-      )
+  return envs.filter(({ env }) =>
+    env.name
+      .toLowerCase()
+      .includes(environmentSelectorSearch.value.toLowerCase().trim())
+  )
 })
 
-const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
+const emptyFilterdPersonalResult = computed(() => {
+  return (
+    environmentSelectorSearch.value &&
+    filteredAndAlphabetizedPersonalEnvs.value.length === 0
+  )
+})
+
+const filteredAndAlphabetizedTeamEnvs = computed(() => {
   const envs = sortTeamEnvironmentsAlphabetically(
     teamEnvironmentList.value,
     "asc"
   )
 
-  if (selectedEnvTab.value !== "team-environments") return envs
+  if (
+    selectedEnvTab.value !== "team-environments" ||
+    !environmentSelectorSearch.value
+  )
+    return envs
 
-  return !environmentSelectorSearch.value
-    ? envs
-    : envs.filter(({ env }) =>
-        env.environment.name
-          .toLowerCase()
-          .includes(environmentSelectorSearch.value.toLowerCase().trim())
-      )
+  return envs.filter(({ env }) =>
+    env.environment.name
+      .toLowerCase()
+      .includes(environmentSelectorSearch.value.toLowerCase().trim())
+  )
+})
+
+const emptyFilterdTeamResult = computed(() => {
+  return (
+    environmentSelectorSearch.value &&
+    filteredAndAlphabetizedTeamEnvs.value.length === 0
+  )
 })
 
 const handleEnvironmentChange = (

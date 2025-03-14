@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-      v-model="filterTexts"
+      v-model="filterText"
       type="search"
       autocomplete="off"
       class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
@@ -53,28 +53,44 @@
     </div>
     <HoppSmartPlaceholder
       v-if="
-        filterTexts &&
-        searchedAndAlphabeticallySortedTeamEnvironments.length === 0
+        emptyFilterdTeamResults || filteredAndAlphabetizedTeamEnvs.length === 0
       "
-      :alt="`${t('empty.search_environment')}`"
-      :text="`${t('empty.search_environment')} '${filterTexts}'`"
+      :alt="
+        emptyFilterdTeamResults
+          ? `${t('empty.search_environment')}`
+          : t('empty.environments')
+      "
+      :text="
+        emptyFilterdTeamResults
+          ? `${t('empty.search_environment')} '${filterText}'`
+          : t('empty.environments')
+      "
+      :src="
+        !filterText &&
+        !loading &&
+        !adapterError &&
+        filteredAndAlphabetizedTeamEnvs.length === 0
+          ? `/images/states/${colorMode.value}/blockchain.svg`
+          : undefined
+      "
     >
       <template #icon>
-        <icon-lucide-search class="svg-icons opacity-75" />
+        <icon-lucide-search
+          v-if="emptyFilterdTeamResults"
+          class="svg-icons opacity-75"
+        />
       </template>
-    </HoppSmartPlaceholder>
-    <HoppSmartPlaceholder
-      v-else-if="
-        !loading &&
-        !searchedAndAlphabeticallySortedTeamEnvironments.length &&
-        !adapterError
-      "
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
-    >
+
       <template #body>
-        <div class="flex flex-col items-center space-y-4">
+        <div
+          v-if="
+            !filterText &&
+            !loading &&
+            !adapterError &&
+            filteredAndAlphabetizedTeamEnvs.length === 0
+          "
+          class="flex flex-col items-center space-y-4"
+        >
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
           </span>
@@ -104,7 +120,7 @@
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="{ env, index } in JSON.parse(
-          JSON.stringify(searchedAndAlphabeticallySortedTeamEnvironments)
+          JSON.stringify(filteredAndAlphabetizedTeamEnvs)
         )"
         :key="`environment-${index}`"
         :environment="env"
@@ -140,9 +156,7 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
-      :team-environments="
-        searchedAndAlphabeticallySortedTeamEnvironments.map(({ env }) => env)
-      "
+      :team-environments="filteredAndAlphabetizedTeamEnvs.map(({ env }) => env)"
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
@@ -188,20 +202,23 @@ const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
 }>()
 
-// Sort environments alphabetically by default
-const filterTexts = ref("")
+const filterText = ref("")
 
 // Sort environments alphabetically by default and filter by search text
-const searchedAndAlphabeticallySortedTeamEnvironments = computed(() => {
+const filteredAndAlphabetizedTeamEnvs = computed(() => {
   const env = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
 
-  return !filterTexts.value
+  return !filterText.value
     ? env
     : env.filter(({ env }) =>
         env.environment.name
           .toLowerCase()
-          .includes(filterTexts.value.toLowerCase().trim())
+          .includes(filterText.value.toLowerCase().trim())
       )
+})
+
+const emptyFilterdTeamResults = computed(() => {
+  return filterText.value && filteredAndAlphabetizedTeamEnvs.value.length === 0
 })
 
 const showModalImportExport = ref(false)
@@ -271,10 +288,9 @@ defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const teamEnvToEdit =
-      searchedAndAlphabeticallySortedTeamEnvironments.value.find(
-        ({ env }) => env.environment.name === envName
-      )
+    const teamEnvToEdit = filteredAndAlphabetizedTeamEnvs.value.find(
+      ({ env }) => env.environment.name === envName
+    )
     if (teamEnvToEdit) {
       const { env } = teamEnvToEdit
       editEnvironment(env)

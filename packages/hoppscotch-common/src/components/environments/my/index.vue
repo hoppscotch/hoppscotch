@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-      v-model="filterTexts"
+      v-model="filterText"
       type="search"
       autocomplete="off"
       class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
@@ -35,10 +35,7 @@
     </div>
 
     <EnvironmentsMyEnvironment
-      v-for="{
-        env,
-        index,
-      } in searchedAndAlphabeticallySortedPersonalEnvironments"
+      v-for="{ env, index } in filteredAndAlphabetizedPersonalEnvs"
       :key="`environment-${index}`"
       :environment-index="index"
       :environment="env"
@@ -48,24 +45,37 @@
     />
     <HoppSmartPlaceholder
       v-if="
-        filterTexts &&
-        searchedAndAlphabeticallySortedPersonalEnvironments.length === 0
+        emptyFilterdPersonalResults ||
+        !filteredAndAlphabetizedPersonalEnvs.length
       "
-      :alt="`${t('empty.search_environment')}`"
-      :text="`${t('empty.search_environment')} '${filterTexts}'`"
+      :alt="
+        emptyFilterdPersonalResults
+          ? `${t('empty.search_environment')}`
+          : t('empty.environments')
+      "
+      :text="
+        emptyFilterdPersonalResults
+          ? `${t('empty.search_environment')} '${filterText}'`
+          : t('empty.environments')
+      "
+      :src="
+        !filterText && filteredAndAlphabetizedPersonalEnvs.length === 0
+          ? `/images/states/${colorMode.value}/blockchain.svg`
+          : undefined
+      "
     >
       <template #icon>
-        <icon-lucide-search class="svg-icons opacity-75" />
+        <icon-lucide-search
+          v-if="emptyFilterdPersonalResults"
+          class="svg-icons opacity-75"
+        />
       </template>
-    </HoppSmartPlaceholder>
-    <HoppSmartPlaceholder
-      v-else-if="!searchedAndAlphabeticallySortedPersonalEnvironments.length"
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
-    >
+
       <template #body>
-        <div class="flex flex-col items-center space-y-4">
+        <div
+          v-if="!filterText && filteredAndAlphabetizedPersonalEnvs.length === 0"
+          class="flex flex-col items-center space-y-4"
+        >
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
           </span>
@@ -130,17 +140,23 @@ const emit = defineEmits<{
 
 const environments = useReadonlyStream(environments$, [])
 
-const filterTexts = ref("")
+const filterText = ref("")
 
 // Sort environments alphabetically by default and filter by search text
-const searchedAndAlphabeticallySortedPersonalEnvironments = computed(() => {
+const filteredAndAlphabetizedPersonalEnvs = computed(() => {
   const env = sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
 
-  return !filterTexts.value
+  return !filterText.value
     ? env
     : env.filter(({ env }) =>
-        env.name.toLowerCase().includes(filterTexts.value.toLowerCase().trim())
+        env.name.toLowerCase().includes(filterText.value.toLowerCase().trim())
       )
+})
+
+const emptyFilterdPersonalResults = computed(() => {
+  return (
+    filterText.value && filteredAndAlphabetizedPersonalEnvs.value.length === 0
+  )
 })
 
 const showModalImportExport = ref(false)
@@ -198,7 +214,7 @@ defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const env = searchedAndAlphabeticallySortedPersonalEnvironments.value.find(
+    const env = filteredAndAlphabetizedPersonalEnvs.value.find(
       ({ env }) => env.name === envName
     )
     if (envName !== "Global" && env) {

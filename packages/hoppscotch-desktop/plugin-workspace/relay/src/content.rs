@@ -1,5 +1,6 @@
 use curl::easy::Easy;
 use http::HeaderName;
+use indexmap::IndexMap;
 use std::{collections::HashMap, path::Path};
 
 use crate::{
@@ -188,7 +189,7 @@ impl<'a> ContentHandler<'a> {
 
     fn set_form_content(
         &mut self,
-        content: &HashMap<String, Vec<FormValue>>,
+        content: &IndexMap<String, Vec<FormValue>>,
         media_type: &MediaType,
     ) -> Result<()> {
         let mut headers = HashMap::new();
@@ -264,7 +265,7 @@ impl<'a> ContentHandler<'a> {
 
     fn set_multipart_content(
         &mut self,
-        content: &HashMap<String, Vec<FormValue>>,
+        content: &IndexMap<String, Vec<FormValue>>,
         media_type: &MediaType,
     ) -> Result<()> {
         self.set_form_content(content, media_type)

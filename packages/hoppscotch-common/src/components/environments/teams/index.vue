@@ -1,5 +1,13 @@
 <template>
   <div>
+    <input
+      v-model="filterText"
+      type="search"
+      autocomplete="off"
+      class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
+      :placeholder="t('action.search')"
+      :disabled="loading || !teamEnvironments.length"
+    />
     <div
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
@@ -45,16 +53,44 @@
     </div>
     <HoppSmartPlaceholder
       v-if="
-        !loading &&
-        !alphabeticallySortedTeamEnvironments.length &&
-        !adapterError
+        emptyFilterdTeamResults || filteredAndAlphabetizedTeamEnvs.length === 0
       "
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
+      :alt="
+        emptyFilterdTeamResults
+          ? `${t('empty.search_environment')}`
+          : t('empty.environments')
+      "
+      :text="
+        emptyFilterdTeamResults
+          ? `${t('empty.search_environment')} '${filterText}'`
+          : t('empty.environments')
+      "
+      :src="
+        !filterText &&
+        !loading &&
+        !adapterError &&
+        filteredAndAlphabetizedTeamEnvs.length === 0
+          ? `/images/states/${colorMode.value}/blockchain.svg`
+          : undefined
+      "
     >
+      <template #icon>
+        <icon-lucide-search
+          v-if="emptyFilterdTeamResults"
+          class="svg-icons opacity-75"
+        />
+      </template>
+
       <template #body>
-        <div class="flex flex-col items-center space-y-4">
+        <div
+          v-if="
+            !filterText &&
+            !loading &&
+            !adapterError &&
+            filteredAndAlphabetizedTeamEnvs.length === 0
+          "
+          class="flex flex-col items-center space-y-4"
+        >
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
           </span>
@@ -84,7 +120,7 @@
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
         v-for="{ env, index } in JSON.parse(
-          JSON.stringify(alphabeticallySortedTeamEnvironments)
+          JSON.stringify(filteredAndAlphabetizedTeamEnvs)
         )"
         :key="`environment-${index}`"
         :environment="env"
@@ -118,9 +154,7 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
-      :team-environments="
-        alphabeticallySortedTeamEnvironments.map(({ env }) => env)
-      "
+      :team-environments="filteredAndAlphabetizedTeamEnvs.map(({ env }) => env)"
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
@@ -159,11 +193,24 @@ const props = defineProps<{
   loading: boolean
 }>()
 
-// Sort environments alphabetically by default
+const filterText = ref("")
 
-const alphabeticallySortedTeamEnvironments = computed(() =>
-  sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
-)
+// Sort environments alphabetically by default and filter by search text
+const filteredAndAlphabetizedTeamEnvs = computed(() => {
+  const env = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+
+  return !filterText.value
+    ? env
+    : env.filter(({ env }) =>
+        env.environment.name
+          .toLowerCase()
+          .includes(filterText.value.toLowerCase().trim())
+      )
+})
+
+const emptyFilterdTeamResults = computed(() => {
+  return filterText.value && filteredAndAlphabetizedTeamEnvs.value.length === 0
+})
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -211,7 +258,7 @@ defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const teamEnvToEdit = alphabeticallySortedTeamEnvironments.value.find(
+    const teamEnvToEdit = filteredAndAlphabetizedTeamEnvs.value.find(
       ({ env }) => env.environment.name === envName
     )
     if (teamEnvToEdit) {

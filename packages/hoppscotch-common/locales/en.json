@@ -71,7 +71,8 @@
     "confirm": "Confirm",
     "verify": "Verify",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "alphabetical-sort": "Alphabetical Sort"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Activity log has been deleted",

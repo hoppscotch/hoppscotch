@@ -115,6 +115,7 @@ const recursivelySyncCollections = async (
       collection.id = childCollectionId
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,

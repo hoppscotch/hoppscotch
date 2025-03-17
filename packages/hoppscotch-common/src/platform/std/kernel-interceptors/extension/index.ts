@@ -1,20 +1,56 @@
-import { computed, markRaw } from "vue"
+import { computed, markRaw, ref } from "vue"
 import { Service } from "dioc"
 import type { RelayRequest, RelayResponse } from "@hoppscotch/kernel"
 import { body } from "@hoppscotch/kernel"
 import SettingsExtension from "~/components/settings/Extension.vue"
 import SettingsExtensionSubtitle from "~/components/settings/ExtensionSubtitle.vue"
-import { KernelInterceptorExtensionStore } from "./store"
-import type {
-  KernelInterceptor,
-  ExecutionResult,
-  KernelInterceptorError,
-} from "~/services/kernel-interceptor.service"
 import * as E from "fp-ts/Either"
 import { getI18n } from "~/modules/i18n"
 import { until } from "@vueuse/core"
 import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
+import type {
+  KernelInterceptor,
+  ExecutionResult,
+  KernelInterceptorError,
+} from "~/services/kernel-interceptor.service"
+
+export const defineSubscribableObject = <T extends object>(obj: T) => {
+  const proxyObject = {
+    ...obj,
+    _subscribers: {} as {
+      // eslint-disable-next-line no-unused-vars
+      [key in keyof T]?: ((...args: any[]) => any)[]
+    },
+    subscribe(prop: keyof T, func: (...args: any[]) => any): void {
+      if (Array.isArray(this._subscribers[prop])) {
+        this._subscribers[prop]?.push(func)
+      } else {
+        this._subscribers[prop] = [func]
+      }
+    },
+  }
+
+  type SubscribableProxyObject = typeof proxyObject
+
+  return new Proxy(proxyObject, {
+    set(obj, prop, newVal) {
+      obj[prop as keyof SubscribableProxyObject] = newVal
+
+      const currentSubscribers = obj._subscribers[prop as keyof T]
+
+      if (Array.isArray(currentSubscribers)) {
+        for (const subscriber of currentSubscribers) {
+          subscriber(newVal)
+        }
+      }
+
+      return true
+    },
+  })
+}
+
+export type ExtensionStatus = "available" | "unknown-origin" | "waiting"
 
 export const cancelRunningExtensionRequest = async () => {
   window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRequest()
@@ -25,7 +61,8 @@ export class ExtensionKernelInterceptorService
   implements KernelInterceptor
 {
   public static readonly ID = "KERNEL_EXTENSION_INTERCEPTOR_SERVICE"
-  private readonly store = this.bind(KernelInterceptorExtensionStore)
+
+  private _extensionStatus = ref<ExtensionStatus>("waiting")
 
   public readonly id = "extension"
   public readonly name = (t: ReturnType<typeof getI18n>) => {
@@ -34,7 +71,7 @@ export class ExtensionKernelInterceptorService
     if (this.extensionStatus.value === "available" && version) {
       return `${t("settings.extensions")}: v${version.major}.${version.minor}`
     }
-    return `${t("settings.extensions")}: ${t("settings.extension_ver_not_reported")}`
+    return `${t("settings.extensions")}`
   }
 
   public readonly selectable = { type: "selectable" as const }
@@ -71,20 +108,21 @@ export class ExtensionKernelInterceptorService
     advanced: new Set(["localaccess"]),
   } as const
 
+  public readonly extensionStatus = computed(() => this._extensionStatus.value)
+
+  public readonly extensionVersion = computed(() => {
+    if (this.extensionStatus.value === "available") {
+      return window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion() || null
+    }
+    return null
+  })
+
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) => t("settings.extensions"),
     component: SettingsExtension,
   })
 
   public readonly subtitle = markRaw(SettingsExtensionSubtitle)
-
-  public readonly extensionStatus = computed(
-    () => this.store.getSettings().status
-  )
-
-  public readonly extensionVersion = computed(
-    () => this.store.getSettings().extensionVersion
-  )
 
   /**
    * Whether the extension is installed in Chrome or not.
@@ -100,10 +138,80 @@ export class ExtensionKernelInterceptorService
     () => this.extensionStatus.value === "available" && browserIsFirefox()
   )
 
+  override async onServiceInit(): Promise<void> {
+    this.setupExtensionStatusListener()
+  }
+
+  private setupExtensionStatusListener(): void {
+    const extensionPollIntervalId = ref<ReturnType<typeof setInterval>>()
+
+    if (window.__HOPP_EXTENSION_STATUS_PROXY__) {
+      this._extensionStatus.value =
+        window.__HOPP_EXTENSION_STATUS_PROXY__.status
+      window.__HOPP_EXTENSION_STATUS_PROXY__.subscribe(
+        "status",
+        (status: ExtensionStatus) => {
+          this._extensionStatus.value = status
+        }
+      )
+    } else {
+      const statusProxy = defineSubscribableObject({
+        status: "waiting" as ExtensionStatus,
+      })
+
+      window.__HOPP_EXTENSION_STATUS_PROXY__ = statusProxy
+      statusProxy.subscribe(
+        "status",
+        (status: ExtensionStatus) => (this._extensionStatus.value = status)
+      )
+
+      // Check if extension is already available
+      if (this.tryDetectExtension()) {
+        return
+      }
+
+      /**
+       * Keeping identifying extension backward compatible
+       * We are assuming the default version is 0.24 or later. So if the extension exists, its identified immediately,
+       * then we use a poll to find the version, this will get the version for 0.24 and any other version
+       * of the extension, but will have a slight lag.
+       * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
+       */
+      extensionPollIntervalId.value = setInterval(() => {
+        if (this.tryDetectExtension() && extensionPollIntervalId.value) {
+          clearInterval(extensionPollIntervalId.value)
+        }
+      }, 2000)
+    }
+  }
+
+  public tryDetectExtension(): boolean {
+    if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
+      const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+
+      this._extensionStatus.value = "available"
+
+      // When the version is not 0.24 or higher, the extension wont do this. so we have to do it manually
+      if (
+        version.major === 0 &&
+        version.minor <= 23 &&
+        window.__HOPP_EXTENSION_STATUS_PROXY__
+      ) {
+        window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
+      }
+      return true
+    }
+    return false
+  }
+
   private async executeExtensionRequest(
     request: RelayRequest
   ): Promise<E.Either<KernelInterceptorError, RelayResponse>> {
-    await until(() => this.store.getSettings().status).not.toBe("waiting")
+    // Wait for the extension to resolve (not waiting forever)
+    await until(this.extensionStatus).toMatch(
+      (status) => status !== "waiting",
+      { timeout: 1000 }
+    )
 
     if (!window.__POSTWOMAN_EXTENSION_HOOK__) {
       return E.left({
@@ -119,12 +227,57 @@ export class ExtensionKernelInterceptorService
     }
 
     try {
+      let requestData: any = null
+
+      if (request.content) {
+        switch (request.content.kind) {
+          case "json":
+            // For JSON, we need to stringify it before sending it to extension,
+            // see extension source code for more info on this.
+            // Also if it's already a string, we can use it as is, otherwise we stringify.
+            requestData =
+              typeof request.content.content === "string"
+                ? request.content.content
+                : JSON.stringify(request.content.content)
+            break
+
+          case "binary":
+            if (
+              request.content.content instanceof Blob ||
+              request.content.content instanceof File
+            ) {
+              requestData = request.content.content
+            } else if (typeof request.content.content === "string") {
+              try {
+                const base64 =
+                  request.content.content.split(",")[1] ||
+                  request.content.content
+                const binaryString = window.atob(base64)
+                const bytes = new Uint8Array(binaryString.length)
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i)
+                }
+                requestData = new Blob([bytes.buffer])
+              } catch (e) {
+                console.error("Error converting binary data:", e)
+                requestData = request.content.content
+              }
+            } else {
+              requestData = request.content.content
+            }
+            break
+
+          default:
+            requestData = request.content.content
+        }
+      }
+
       const extensionResponse =
         await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
           url: request.url,
           method: request.method,
           headers: request.headers,
-          data: request.content?.content,
+          data: requestData,
           wantsBinary: true,
         })
 
@@ -168,6 +321,28 @@ export class ExtensionKernelInterceptorService
   public execute(
     request: RelayRequest
   ): ExecutionResult<KernelInterceptorError> {
+    if (this._extensionStatus.value !== "available") {
+      return {
+        cancel: async () => {
+          // Nothing to cancel if extension is not available
+        },
+        response: Promise.resolve(
+          E.left({
+            humanMessage: {
+              heading: (t: ReturnType<typeof getI18n>) =>
+                t("error.extension.heading"),
+              description: (t: ReturnType<typeof getI18n>) =>
+                t("error.extension.description"),
+            },
+            error: {
+              kind: "extension",
+              message: "Extension not available",
+            },
+          })
+        ),
+      }
+    }
+
     const extensionExecution = {
       cancel: async () => {
         window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRequest()

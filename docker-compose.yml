@@ -30,7 +30,7 @@
 services:
   # This service runs the backend app in the port 3170
   hoppscotch-backend:
-    profiles: ["backend", "just-backend"]
+    profiles: ["backend", "just-backend", "app", "admin"]
     container_name: hoppscotch-backend
     build:
       dockerfile: prod.Dockerfile
@@ -94,7 +94,7 @@ services:
 
   # The service that spins up all services at once in one container
   hoppscotch-aio:
-    profiles: ["default", "default-no-db"]
+    profiles: ["default"]
     container_name: hoppscotch-aio
     restart: unless-stopped
     build:
@@ -113,11 +113,29 @@ services:
       - "3200:3200"
       - "3080:80"
 
+  # Profile with no database dependency (purely developmental)
+  hoppscotch-aio-no-db:
+    profiles: ["default-no-db"]
+    container_name: hoppscotch-aio
+    restart: unless-stopped
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      target: aio
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+      - "3170:3170"
+      - "3200:3200"
+      - "3080:80"
+
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
-    profiles: ["default", "database", "just-backend"]
+    profiles: ["default", "database", "just-backend", "backend", "app", "admin", "deprecated"]
     image: postgres:15
     ports:
       - "5432:5432"
@@ -140,7 +158,7 @@ services:
 
   # Auto-migration service - handles database migrations automatically
   hoppscotch-migrate:
-    profiles: ["default", "just-backend"]
+    profiles: ["default", "just-backend", "backend", "app", "admin"]
     build:
       dockerfile: prod.Dockerfile
       context: .

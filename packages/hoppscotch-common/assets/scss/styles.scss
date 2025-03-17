@@ -580,7 +580,7 @@ details[open] summary .indicator {
 
 .env-highlight,
 .predefined-variable-highlight {
-  // forcing the text colour to be white inside a higlighted environment variable and predefined variable
+  // forcing the text colour to be white inside a highlighted environment variable and predefined variable
   @apply text-accentContrast #{!important};
   span {
     @apply text-accentContrast #{!important};

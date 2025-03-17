@@ -1,6 +1,5 @@
 import { markRaw } from "vue"
 import type {
-  FormDataValue,
   RelayRequest,
   ContentType,
   Method,
@@ -17,10 +16,14 @@ import type {
   KernelInterceptorError,
 } from "~/services/kernel-interceptor.service"
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { getI18n } from "~/modules/i18n"
 import { v4 } from "uuid"
+
 import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { parseBytesToJSON } from "~/helpers/functional/json"
+import { decodeB64StringToArrayBuffer } from "~/helpers/utils/b64"
 
 type ProxyRequest = {
   url: string
@@ -83,32 +86,56 @@ export class ProxyKernelInterceptorService
     request: RelayRequest,
     accessToken: string
   ): ProxyRequest {
-    let wantsBinary = false
-    let requestData = ""
+    // NOTE: This should be conditional but for now setting it to true for backwards compat,
+    // see std/interceptor/proxy.ts for more info.
+    const wantsBinary = true
+    let requestData: any = null
+
+    // This is required for backwards compatibility with current proxyscotch impl
     if (request.content) {
-      if (request.content.kind === "text" || request.content.kind === "xml") {
-        requestData = request.content.content
-      } else if (request.content.kind === "json") {
-        requestData = JSON.stringify(request.content.content)
-      } else if (
-        request.content.kind === "multipart" ||
-        request.content.kind === "form"
-      ) {
-        wantsBinary = true
-        const formData = new FormData()
-        request.content.content.forEach(
-          (values: FormDataValue[], key: string) => {
-            values.forEach((value: FormDataValue) => {
-              if (value.kind === "text") {
-                formData.append(key, value.value)
-              } else {
-                const blob = new Blob([value.data], { type: value.contentType })
-                formData.append(key, blob, value.filename)
+      switch (request.content.kind) {
+        case "json":
+          requestData =
+            typeof request.content.content === "string"
+              ? request.content.content
+              : JSON.stringify(request.content.content)
+          break
+
+        case "binary":
+          if (
+            request.content.content instanceof Blob ||
+            request.content.content instanceof File
+          ) {
+            requestData = request.content.content
+          } else if (typeof request.content.content === "string") {
+            // This is rather rare but just in case
+            try {
+              const base64 =
+                request.content.content.split(",")[1] || request.content.content
+              const binaryString = window.atob(base64)
+              const bytes = new Uint8Array(binaryString.length)
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i)
               }
-            })
+              requestData = new Blob([bytes.buffer])
+            } catch (e) {
+              console.error("Error converting binary data:", e)
+              requestData = request.content.content
+            }
+          } else {
+            requestData = request.content.content
           }
-        )
-        requestData = formData.toString()
+          break
+
+        case "multipart":
+          // `multipart` has separate handling in `execute`,
+          // where we combine request with request body
+          // so removing that part right now
+          requestData = ""
+          break
+
+        default:
+          requestData = request.content.content
       }
     }
 
@@ -137,15 +164,51 @@ export class ProxyKernelInterceptorService
     const accessToken = settings.accessToken
     const proxyUrl = settings.proxyUrl
 
-    const proxyRequest = this.constructProxyRequest(
-      preProcessRelayRequest(request),
-      accessToken
-    )
+    const processedRequest = preProcessRelayRequest(request)
 
-    const content: ContentType = {
-      kind: "json",
-      content: proxyRequest,
-      mediaType: MediaType.APPLICATION_JSON,
+    let content: ContentType
+    const multipartKey = `proxyRequestData-${v4()}`
+
+    if (
+      processedRequest.content &&
+      processedRequest.content.kind === "multipart" &&
+      processedRequest.content.content instanceof FormData
+    ) {
+      const modifiedRequest = { ...processedRequest }
+
+      const proxyRequest = this.constructProxyRequest(
+        modifiedRequest,
+        accessToken
+      )
+
+      const formData = processedRequest.content.content as FormData
+      const newFormData = new FormData()
+
+      // @ts-expect-error: `formData.entries` does exist but isn't visible,
+      // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
+      for (const [key, value] of formData.entries()) {
+        newFormData.append(key, value)
+      }
+
+      const proxyRequestString = JSON.stringify(proxyRequest)
+      newFormData.append(multipartKey, proxyRequestString)
+
+      content = {
+        kind: "multipart",
+        content: newFormData,
+        mediaType: MediaType.MULTIPART_FORM_DATA,
+      }
+    } else {
+      const proxyRequest = this.constructProxyRequest(
+        processedRequest,
+        accessToken
+      )
+
+      content = {
+        kind: "json",
+        content: proxyRequest,
+        mediaType: MediaType.APPLICATION_JSON,
+      }
     }
 
     const proxyRelayRequest: RelayRequest = {
@@ -157,7 +220,7 @@ export class ProxyKernelInterceptorService
         "content-type": content.mediaType,
         ...(content.kind === "multipart"
           ? {
-              "multipart-part-key": `proxyRequestData-${v4()}`,
+              "multipart-part-key": multipartKey,
             }
           : {}),
       },
@@ -236,19 +299,9 @@ export class ProxyKernelInterceptorService
             return { humanMessage, error }
           }),
           E.chain((res) => {
-            const proxyBody =
-              res.body.mediaType === MediaType.TEXT_PLAIN
-                ? new Uint8Array(res.body.body)
-                : null
+            const proxyResponse = parseBytesToJSON<ProxyResponse>(res.body.body)
 
-            // NOTE: This will become obsolete if we use native interceptor like error propogation.
-            const proxyResponse = proxyBody
-              ? (JSON.parse(
-                  new TextDecoder().decode(proxyBody)
-                ) as ProxyResponse)
-              : null
-
-            if (!proxyResponse?.success) {
+            if (O.isNone(proxyResponse)) {
               return E.left({
                 humanMessage: {
                   heading: (t) => t("error.network.heading"),
@@ -265,13 +318,59 @@ export class ProxyKernelInterceptorService
               })
             }
 
-            if (proxyResponse.isBinary) {
+            const parsedProxyResponse = proxyResponse.value
+
+            if (!parsedProxyResponse?.success) {
+              return E.left({
+                humanMessage: {
+                  heading: (t) => t("error.network.heading"),
+                  description: (t) =>
+                    t("error.network.description", {
+                      message: "Proxy request failed",
+                      cause: "Proxy server may be unresponsive",
+                    }),
+                },
+                error: {
+                  kind: "network",
+                  message: "Proxy request failed",
+                },
+              })
+            }
+
+            // NOTE: This should be conditional but seems to be hit always,
+            // see std/interceptor/proxy.ts for more info. Also see the above similar note.
+            if (parsedProxyResponse.isBinary) {
+              const decodedData = decodeB64StringToArrayBuffer(
+                parsedProxyResponse.data
+              )
+
+              // NOTE: This is also for backwards compat,
+              // better solution would be to ask for raw bytes from proxyscotch.
+              const jsonResult = parseBytesToJSON(new Uint8Array(decodedData))
+
+              if (O.isSome(jsonResult)) {
+                return E.right({
+                  ...res,
+                  status: parsedProxyResponse.status,
+                  statusText: parsedProxyResponse.statusText,
+                  headers: parsedProxyResponse.headers,
+                  body: {
+                    body: new TextEncoder().encode(
+                      JSON.stringify(jsonResult.value)
+                    ),
+                    mediaType: "application/json",
+                  },
+                })
+              }
               return E.right({
                 ...res,
+                status: parsedProxyResponse.status,
+                statusText: parsedProxyResponse.statusText,
+                headers: parsedProxyResponse.headers,
                 body: {
-                  body: proxyResponse.data,
+                  body: decodedData,
                   mediaType:
-                    proxyResponse.headers["content-type"] ||
+                    parsedProxyResponse.headers["content-type"] ||
                     "application/octet-stream",
                 },
               })
@@ -279,12 +378,13 @@ export class ProxyKernelInterceptorService
 
             return E.right({
               ...res,
-              status: proxyResponse.status,
-              statusText: proxyResponse.statusText,
-              headers: proxyResponse.headers,
+              status: parsedProxyResponse.status,
+              statusText: parsedProxyResponse.statusText,
+              headers: parsedProxyResponse.headers,
               body: {
-                body: new TextEncoder().encode(proxyResponse.data),
-                mediaType: "text/plain",
+                body: parsedProxyResponse.data,
+                mediaType:
+                  parsedProxyResponse.headers["content-type"] || "text/plain",
               },
             })
           })

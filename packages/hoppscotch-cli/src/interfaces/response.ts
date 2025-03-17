@@ -9,7 +9,7 @@ import { HoppEnvs } from "../types/request";
  * @property {string} path Path of request within collection file.
  * @property {string} endpoint Endpoint from response config.url.
  * @property {Method} method Method from response headers.
- * @property {string} statusCode Template string concating status & statusText.
+ * @property {string} statusCode Template string concatenating status & statusText.
  */
 export interface TableResponse {
   endpoint: string;

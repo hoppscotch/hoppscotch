@@ -187,7 +187,7 @@ const installUpdate = async () => {
   try {
     appState.value = AppState.UPDATE_IN_PROGRESS;
     await updaterService.downloadAndInstall();
-    // In a rare occurance where we reach here but automatic restart didn't happen,
+    // In a rare occurrence where we reach here but automatic restart didn't happen,
     // we'll just show a restart button instead
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);

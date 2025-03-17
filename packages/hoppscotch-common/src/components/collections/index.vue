@@ -371,7 +371,7 @@ const currentUser = useReadonlyStream(
 )
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
-// Draging
+// Dragging
 const draggingToRoot = ref(false)
 const collectionMoveLoading = ref<string[]>([])
 const requestMoveLoading = ref<string[]>([])
@@ -1941,7 +1941,7 @@ const selectPicked = (payload: Picked | null) => {
 
 /**
  * This function is called when the user clicks on a request
- * @param selectedRequest The request that the user clicked on emited from the collection tree
+ * @param selectedRequest The request that the user clicked on emitted from the collection tree
  */
 const selectRequest = (selectedRequest: {
   request: HoppRESTRequest

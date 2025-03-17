@@ -48,7 +48,10 @@ pub enum MediaType {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum FormValue {
-    Text(String),
+    #[serde(rename_all = "camelCase")]
+    Text {
+        value: String,
+    },
     #[serde(rename_all = "camelCase")]
     File {
         filename: String,

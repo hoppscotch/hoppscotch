@@ -90,8 +90,8 @@ export function useStream<T>(
   });
 }
 
-/** A static (doesn't cleanup on itself and does
- *  not require component instace) version of useStream
+/** A static (doesn't cleanup itself and doesn't
+ *  require component instance) version of useStream
  */
 export function useStreamStatic<T>(
   stream$: Observable<T>,

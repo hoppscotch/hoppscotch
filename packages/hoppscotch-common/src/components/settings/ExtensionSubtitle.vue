@@ -4,10 +4,10 @@
     class="flex flex-col items-left my-2 text-secondaryLight"
   >
     <div class="text-secondaryLight">
-      <span v-if="O.isSome(extensionVersion)">
+      <span v-if="extensionVersion">
         {{
-          `${t("settings.extension_version")}: v${extensionVersion.value.major}.${
-            extensionVersion.value.minor
+          `${t("settings.extension_version")}: v${extensionVersion.major}.${
+            extensionVersion.minor
           }`
         }}
       </span>
@@ -40,16 +40,17 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { useService } from "dioc/vue"
-import * as O from "fp-ts/Option"
 import { useI18n } from "@composables/i18n"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { KernelInterceptorExtensionStore } from "~/platform/std/kernel-interceptors/extension/store"
+import { ExtensionKernelInterceptorService } from "~/platform/std/kernel-interceptors/extension"
 
 import IconChrome from "~icons/brands/chrome"
 import IconFirefox from "~icons/brands/firefox"
 
 const t = useI18n()
-const store = useService(KernelInterceptorExtensionStore)
+const extensionInterceptorService = useService(
+  ExtensionKernelInterceptorService
+)
 const interceptorService = useService(KernelInterceptorService)
 
 const isSelected = computed(
@@ -57,8 +58,10 @@ const isSelected = computed(
 )
 
 const isNotAvailable = computed(
-  () => store.getExtensionStatus() !== "available"
+  () => extensionInterceptorService.extensionStatus.value !== "available"
 )
 
-const extensionVersion = computed(() => store.getExtensionVersion())
+const extensionVersion = computed(
+  () => extensionInterceptorService.extensionVersion.value
+)
 </script>

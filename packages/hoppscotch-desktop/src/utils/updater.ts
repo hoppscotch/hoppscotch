@@ -12,19 +12,24 @@ export class UpdaterService {
     });
   }
 
-  async checkForUpdates(timeout = 2000): Promise<CheckResult> {
+  async checkForUpdates(timeout = 5000): Promise<CheckResult> {
     try {
       await this.saveUpdateState({
         status: UpdateStatus.CHECKING
       });
 
-      // Create a timeout promise, this is just to make sure we don't keep checking for updates indefinitely
-      // NOTE: Also `checkUpdate` tends to hang indefinitely in dev mode, but works in build
+      // This creats a timeout promise that is slightly longer than `check`'s internal timeout,
+      // this is just to make sure we don't keep checking for updates indefinitely.
+      // NOTE: `check` tends to hang indefinitely in dev mode, but works in build,
+      // so this is just in case this ever happens on prod.
       const timeoutPromise = new Promise<null>((resolve) => {
+        // Longer local timeout to make sure it only triggers
+        // if there's an issue with `check`'s built-in timeout.
+        const bufferTimeout = timeout + 1000;
         setTimeout(() => {
-          console.log("Update check timeout reached, proceeding with app load");
+          console.log("Update check exceeded buffer timeout, likely hanging in check function");
           resolve(null);
-        }, timeout);
+        }, bufferTimeout);
       });
 
       const updateResult = await Promise.race([

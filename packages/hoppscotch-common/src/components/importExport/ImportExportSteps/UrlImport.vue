@@ -101,7 +101,8 @@ const urlFetchLogic =
     const responsePayload = parseBodyAsJSON<unknown>(res.right.body)
 
     if (O.isSome(responsePayload)) {
-      return E.right(responsePayload)
+      // stringify the response payload
+      return E.right(JSON.stringify(responsePayload.value))
     }
 
     return E.left("REQUEST_FAILED")

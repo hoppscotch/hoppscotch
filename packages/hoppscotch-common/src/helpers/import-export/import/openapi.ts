@@ -745,7 +745,9 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
-    return `${doc.host}${doc.basePath}`
+    const host = (doc as OpenAPIV2.Document).host || "<<baseUrl>>"
+    const basePath = (doc as OpenAPIV2.Document).basePath || ""
+    return `${host}${basePath}`
   }
 
   /**

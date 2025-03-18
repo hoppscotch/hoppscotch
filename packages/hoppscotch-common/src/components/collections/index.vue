@@ -137,7 +137,6 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
-      :request-context="requestContext"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -824,24 +823,9 @@ const addRequest = (payload: {
   displayModalAddRequest(true)
 }
 
-const requestContext = computed(() => {
-  return tabs.currentActiveTab.value.document.type === "request"
-    ? tabs.currentActiveTab.value.document.request
-    : null
-})
-
 const onAddRequest = (requestName: string) => {
-  const request =
-    tabs.currentActiveTab.value.document.type === "request"
-      ? tabs.currentActiveTab.value.document.request
-      : getDefaultRESTRequest()
-
-  if (!request) return
-
   const newRequest = {
-    ...(tabs.currentActiveTab.value.document.type === "request"
-      ? cloneDeep(tabs.currentActiveTab.value.document.request)
-      : getDefaultRESTRequest()),
+    ...getDefaultRESTRequest(),
     name: requestName,
   }
 

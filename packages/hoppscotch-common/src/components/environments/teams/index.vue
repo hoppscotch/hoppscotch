@@ -51,46 +51,41 @@
         />
       </div>
     </div>
+
+    <div v-if="loading" class="flex flex-col items-center justify-center p-4">
+      <HoppSmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
+
+    <div v-else-if="adapterError" class="flex flex-col items-center py-4">
+      <icon-lucide-help-circle class="svg-icons mb-4" />
+      {{ t(getEnvActionErrorMessage(adapterError)) }}
+    </div>
+
     <HoppSmartPlaceholder
-      v-if="
-        emptyFilterdTeamResults || filteredAndAlphabetizedTeamEnvs.length === 0
-      "
+      v-else-if="filteredAndAlphabetizedTeamEnvs.length === 0"
       :alt="
-        emptyFilterdTeamResults
+        filterText
           ? `${t('empty.search_environment')}`
           : t('empty.environments')
       "
       :text="
-        emptyFilterdTeamResults
+        filterText
           ? `${t('empty.search_environment')} '${filterText}'`
           : t('empty.environments')
       "
       :src="
-        !filterText &&
-        !loading &&
-        !adapterError &&
-        filteredAndAlphabetizedTeamEnvs.length === 0
-          ? `/images/states/${colorMode.value}/blockchain.svg`
-          : undefined
+        filterText
+          ? undefined
+          : `/images/states/${colorMode.value}/blockchain.svg`
       "
     >
-      <template #icon>
-        <icon-lucide-search
-          v-if="emptyFilterdTeamResults"
-          class="svg-icons opacity-75"
-        />
+      <template v-if="filterText" #icon>
+        <icon-lucide-search class="svg-icons opacity-75" />
       </template>
 
-      <template #body>
-        <div
-          v-if="
-            !filterText &&
-            !loading &&
-            !adapterError &&
-            filteredAndAlphabetizedTeamEnvs.length === 0
-          "
-          class="flex flex-col items-center space-y-4"
-        >
+      <template v-else #body>
+        <div class="flex flex-col items-center space-y-4">
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
           </span>
@@ -117,7 +112,8 @@
         </div>
       </template>
     </HoppSmartPlaceholder>
-    <div v-else-if="!loading">
+
+    <div v-else>
       <EnvironmentsTeamsEnvironment
         v-for="{ env, index } in JSON.parse(
           JSON.stringify(filteredAndAlphabetizedTeamEnvs)
@@ -133,17 +129,7 @@
         "
       />
     </div>
-    <div v-if="loading" class="flex flex-col items-center justify-center p-4">
-      <HoppSmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-    </div>
-    <div
-      v-if="!loading && adapterError"
-      class="flex flex-col items-center py-4"
-    >
-      <icon-lucide-help-circle class="svg-icons mb-4" />
-      {{ t(getEnvActionErrorMessage(adapterError)) }}
-    </div>
+
     <EnvironmentsTeamsDetails
       :show="showModalDetails"
       :action="action"
@@ -206,19 +192,22 @@ const filterText = ref("")
 
 // Sort environments alphabetically by default and filter by search text
 const filteredAndAlphabetizedTeamEnvs = computed(() => {
-  const env = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+  const envs = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+  const rawFilter = filterText.value
 
-  return !filterText.value
-    ? env
-    : env.filter(({ env }) =>
-        env.environment.name
-          .toLowerCase()
-          .includes(filterText.value.toLowerCase().trim())
-      )
-})
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilter = rawFilter.trim().toLowerCase()
 
-const emptyFilterdTeamResults = computed(() => {
-  return filterText.value && filteredAndAlphabetizedTeamEnvs.value.length === 0
+  // Whitespace-only input results in an empty state
+  if (rawFilter && !trimmedFilter) return []
+
+  // No search text → Show all environments
+  if (!trimmedFilter) return envs
+
+  // Filter environments based on search text
+  return envs.filter(({ env }) =>
+    env.environment.name.toLowerCase().includes(trimmedFilter)
+  )
 })
 
 const showModalImportExport = ref(false)

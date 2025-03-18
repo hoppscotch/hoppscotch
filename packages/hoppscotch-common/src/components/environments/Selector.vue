@@ -31,7 +31,7 @@
           @keyup.escape="hide()"
         >
           <SmartEnvInput
-            v-model="environmentSelectorSearch"
+            v-model="filterText"
             :placeholder="`${t('action.search')}`"
             :context-menu-enabled="false"
             class="border border-dividerDark focus:border-primaryDark rounded"
@@ -102,33 +102,26 @@
                 "
               />
               <HoppSmartPlaceholder
-                v-if="
-                  emptyFilterdPersonalResult ||
-                  filteredAndAlphabetizedPersonalEnvs.length === 0
-                "
+                v-if="filteredAndAlphabetizedPersonalEnvs.length === 0"
                 class="break-words"
                 :src="
-                  filteredAndAlphabetizedPersonalEnvs.length === 0 &&
-                  !environmentSelectorSearch
-                    ? `/images/states/${colorMode.value}/blockchain.svg`
-                    : undefined
+                  filterText
+                    ? undefined
+                    : `/images/states/${colorMode.value}/blockchain.svg`
                 "
                 :alt="
-                  emptyFilterdPersonalResult
+                  filterText
                     ? `${t('empty.search_environment')}`
                     : t('empty.environments')
                 "
                 :text="
-                  emptyFilterdPersonalResult
-                    ? `${t('empty.search_environment')} '${environmentSelectorSearch}'`
+                  filterText
+                    ? `${t('empty.search_environment')} '${filterText}'`
                     : t('empty.environments')
                 "
               >
-                <template #icon>
-                  <icon-lucide-search
-                    v-if="emptyFilterdPersonalResult"
-                    class="svg-icons opacity-75"
-                  />
+                <template v-if="filterText" #icon>
+                  <icon-lucide-search class="svg-icons opacity-75" />
                 </template>
               </HoppSmartPlaceholder>
             </HoppSmartTab>
@@ -166,33 +159,26 @@
                   "
                 />
                 <HoppSmartPlaceholder
-                  v-if="
-                    emptyFilterdTeamResult ||
-                    filteredAndAlphabetizedTeamEnvs.length === 0
-                  "
+                  v-if="filteredAndAlphabetizedTeamEnvs.length === 0"
                   class="break-words"
                   :src="
-                    filteredAndAlphabetizedTeamEnvs.length === 0 &&
-                    !environmentSelectorSearch
+                    filteredAndAlphabetizedTeamEnvs.length === 0 && !filterText
                       ? `/images/states/${colorMode.value}/blockchain.svg`
                       : undefined
                   "
                   :alt="
-                    emptyFilterdTeamResult
+                    filterText
                       ? `${t('empty.search_environment')}`
                       : t('empty.environments')
                   "
                   :text="
-                    emptyFilterdTeamResult
-                      ? `${t('empty.search_environment')} '${environmentSelectorSearch}'`
+                    filterText
+                      ? `${t('empty.search_environment')} '${filterText}'`
                       : t('empty.environments')
                   "
                 >
-                  <template #icon>
-                    <icon-lucide-search
-                      v-if="emptyFilterdTeamResult"
-                      class="svg-icons opacity-75"
-                    />
+                  <template v-if="filterText" #icon>
+                    <icon-lucide-search class="svg-icons opacity-75" />
                   </template>
                 </HoppSmartPlaceholder>
               </div>
@@ -410,7 +396,7 @@ const colorMode = useColorMode()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
-const environmentSelectorSearch = ref("")
+const filterText = ref("")
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
@@ -461,23 +447,16 @@ const filteredAndAlphabetizedPersonalEnvs = computed(() => {
     "asc"
   )
 
-  if (
-    selectedEnvTab.value !== "my-environments" ||
-    !environmentSelectorSearch.value
-  )
+  if (selectedEnvTab.value !== "my-environments" || !filterText.value)
     return envs
 
-  return envs.filter(({ env }) =>
-    env.name
-      .toLowerCase()
-      .includes(environmentSelectorSearch.value.toLowerCase().trim())
-  )
-})
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilterText = filterText.value.trim().toLowerCase()
 
-const emptyFilterdPersonalResult = computed(() => {
-  return (
-    environmentSelectorSearch.value &&
-    filteredAndAlphabetizedPersonalEnvs.value.length === 0
+  return envs.filter(({ env }) =>
+    trimmedFilterText
+      ? env.name.toLowerCase().includes(trimmedFilterText)
+      : false
   )
 })
 
@@ -487,23 +466,16 @@ const filteredAndAlphabetizedTeamEnvs = computed(() => {
     "asc"
   )
 
-  if (
-    selectedEnvTab.value !== "team-environments" ||
-    !environmentSelectorSearch.value
-  )
+  if (selectedEnvTab.value !== "team-environments" || !filterText.value)
     return envs
 
-  return envs.filter(({ env }) =>
-    env.environment.name
-      .toLowerCase()
-      .includes(environmentSelectorSearch.value.toLowerCase().trim())
-  )
-})
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilterText = filterText.value.trim().toLowerCase()
 
-const emptyFilterdTeamResult = computed(() => {
-  return (
-    environmentSelectorSearch.value &&
-    filteredAndAlphabetizedTeamEnvs.value.length === 0
+  return envs.filter(({ env }) =>
+    trimmedFilterText
+      ? env.environment.name.toLowerCase().includes(trimmedFilterText)
+      : false
   )
 })
 

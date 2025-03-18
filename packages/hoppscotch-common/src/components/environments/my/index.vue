@@ -44,38 +44,29 @@
       @select-environment="selectEnvironment(index, env)"
     />
     <HoppSmartPlaceholder
-      v-if="
-        emptyFilterdPersonalResults ||
-        !filteredAndAlphabetizedPersonalEnvs.length
-      "
+      v-if="filteredAndAlphabetizedPersonalEnvs.length === 0"
       :alt="
-        emptyFilterdPersonalResults
+        filterText
           ? `${t('empty.search_environment')}`
           : t('empty.environments')
       "
       :text="
-        emptyFilterdPersonalResults
+        filterText
           ? `${t('empty.search_environment')} '${filterText}'`
           : t('empty.environments')
       "
       :src="
-        !filterText && filteredAndAlphabetizedPersonalEnvs.length === 0
-          ? `/images/states/${colorMode.value}/blockchain.svg`
-          : undefined
+        filterText
+          ? undefined
+          : `/images/states/${colorMode.value}/blockchain.svg`
       "
     >
-      <template #icon>
-        <icon-lucide-search
-          v-if="emptyFilterdPersonalResults"
-          class="svg-icons opacity-75"
-        />
+      <template v-if="filterText" #icon>
+        <icon-lucide-search class="svg-icons opacity-75" />
       </template>
 
-      <template #body>
-        <div
-          v-if="!filterText && filteredAndAlphabetizedPersonalEnvs.length === 0"
-          class="flex flex-col items-center space-y-4"
-        >
+      <template v-else #body>
+        <div class="flex flex-col items-center space-y-4">
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
           </span>
@@ -144,18 +135,21 @@ const filterText = ref("")
 
 // Sort environments alphabetically by default and filter by search text
 const filteredAndAlphabetizedPersonalEnvs = computed(() => {
-  const env = sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
+  const envs = sortPersonalEnvironmentsAlphabetically(environments.value, "asc")
+  const rawFilter = filterText.value
 
-  return !filterText.value
-    ? env
-    : env.filter(({ env }) =>
-        env.name.toLowerCase().includes(filterText.value.toLowerCase().trim())
-      )
-})
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilter = rawFilter.trim().toLowerCase()
 
-const emptyFilterdPersonalResults = computed(() => {
-  return (
-    filterText.value && filteredAndAlphabetizedPersonalEnvs.value.length === 0
+  // Whitespace-only input results in an empty state
+  if (rawFilter && !trimmedFilter) return []
+
+  // No search text → Show all environments
+  if (!trimmedFilter) return envs
+
+  // Filter environments based on search text
+  return envs.filter(({ env }) =>
+    env.name.toLowerCase().includes(trimmedFilter)
   )
 })
 

@@ -13,6 +13,8 @@ import { getService } from "./dioc"
 
 import FALLBACK_LANG_MESSAGES from "../../locales/en.json"
 
+import messages from "@intlify/unplugin-vue-i18n/messages"
+
 /*
   In context of this file, we have 2 main kinds of things.
   1. Locale -> A locale is termed as the i18n entries present in the /locales folder
@@ -140,6 +142,7 @@ export default <HoppModule>{
       fallbackLocale: "en",
       legacy: false,
       allowComposition: true,
+      messages,
     })
 
     app.use(i18n)

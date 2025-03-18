@@ -88,7 +88,7 @@ export function useDownloadResponse(
 }
 
 export function usePreview(
-  previewEnabledDefault: Ref<boolean>,
+  previewEnabled: Ref<boolean>,
   responseBodyText: Ref<string>
 ): {
   previewFrame: Ref<HTMLIFrameElement | null>
@@ -96,7 +96,6 @@ export function usePreview(
   togglePreview: () => void
 } {
   const previewFrame: Ref<HTMLIFrameElement | null> = ref(null)
-  const previewEnabled = ref(previewEnabledDefault)
   const url = ref("")
 
   const updatePreviewFrame = () => {

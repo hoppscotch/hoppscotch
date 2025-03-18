@@ -49,9 +49,12 @@ export function GistSource(metadata: {
   }))
 }
 const fetchGistFromUrl = async (url: string) => {
+  // Extract the gist ID from the URL (eg. https://gist.github.com/username/gistID/...)
+  const gistID = url.split("/")[4]
+
   const { response } = interceptorService.execute({
     id: Date.now(),
-    url: `https://api.github.com/gists/${url.split("/")[4]}`,
+    url: `https://api.github.com/gists/${gistID}`,
     method: "GET",
     version: "HTTP/1.1",
     headers: {

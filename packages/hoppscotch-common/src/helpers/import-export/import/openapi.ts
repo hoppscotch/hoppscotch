@@ -74,11 +74,12 @@ const isOpenAPIV3Document = (
   )
 }
 
+// Make validation less strict for basic OpenAPI documents
 const hasRequiredOpenAPIFields = (doc: unknown): boolean => {
   return (
     objectHasProperty(doc, "info") &&
-    objectHasProperty(doc.info, "title") &&
-    objectHasProperty(doc.info, "version") &&
+    (objectHasProperty(doc.info, "title") ||
+      objectHasProperty(doc.info, "version")) &&
     objectHasProperty(doc, "paths")
   )
 }
@@ -745,9 +746,9 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
-    const { host = "<<baseUrl>>", basePath = "" } =
-      doc satisfies OpenAPIV2.Document
-    return `${host}${basePath}`
+    return doc.host
+      ? `${doc.host}${doc.basePath || ""}`
+      : `<<baseUrl>>${doc.basePath || ""}`
   }
 
   /**
@@ -759,7 +760,7 @@ const parseOpenAPIUrl = (
     return doc.servers?.[0]?.url ?? "<<baseUrl>>"
   }
 
-  // If the document is neither v2 nor v3 then return a env variable as placeholder
+  // If the document is neither v2 nor v3 or missing required fields
   return "<<baseUrl>>"
 }
 
@@ -918,6 +919,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
     fileContents,
     A.traverse(O.Applicative)(parseOpenAPIDocContent),
     TE.fromOption(() => {
+      console.error("Failed to parse file contents as JSON or YAML")
       return IMPORTER_INVALID_FILE_FORMAT
     }),
     // Try validating, else the importer is invalid file format
@@ -929,16 +931,40 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
             for (const docObj of docArr) {
               try {
-                const isValidOpenAPISpec = isABasicOpenAPIDoc(docObj)
+                console.log(
+                  "Validating OpenAPI spec:",
+                  JSON.stringify(docObj).substring(0, 100) + "..."
+                )
+
+                // More lenient check - if it has paths, we'll try to import it
+                const isValidOpenAPISpec =
+                  objectHasProperty(docObj, "paths") &&
+                  (isOpenAPIV2Document(docObj) ||
+                    isOpenAPIV3Document(docObj) ||
+                    objectHasProperty(docObj, "info"))
 
                 if (!isValidOpenAPISpec) {
+                  console.error("Invalid OpenAPI spec:", docObj)
                   throw new Error("INVALID_OPENAPI_SPEC")
                 }
 
-                const validatedDoc = await validateDocs(docObj)
-
-                resultDoc.push(validatedDoc)
+                try {
+                  const validatedDoc = await validateDocs(docObj)
+                  resultDoc.push(validatedDoc)
+                } catch (validationError) {
+                  // If validation fails but it has basic OpenAPI structure, add it anyway
+                  if (objectHasProperty(docObj, "paths")) {
+                    console.warn(
+                      "Validation had errors but document has paths, attempting to process anyway"
+                    )
+                    resultDoc.push(docObj as OpenAPI.Document)
+                  } else {
+                    throw validationError
+                  }
+                }
               } catch (err) {
+                console.error("Error processing OpenAPI document:", err)
+
                 if (
                   err instanceof Error &&
                   err.message === "INVALID_OPENAPI_SPEC"
@@ -960,9 +986,13 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
               }
             }
 
+            console.log("Processed documents:", resultDoc.length)
             return resultDoc
           },
-          () => IMPORTER_INVALID_FILE_FORMAT
+          (error) => {
+            console.error("Validation error:", error)
+            return IMPORTER_INVALID_FILE_FORMAT
+          }
         )
       )
     }),
@@ -974,14 +1004,25 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
             const resultDoc = []
 
             for (const docObj of docArr) {
-              const validatedDoc = await dereferenceDocs(docObj)
-
-              resultDoc.push(validatedDoc)
+              try {
+                const validatedDoc = await dereferenceDocs(docObj)
+                resultDoc.push(validatedDoc)
+              } catch (error) {
+                console.warn(
+                  "Dereferencing failed, using original document:",
+                  error
+                )
+                // If dereferencing fails, use the original document
+                resultDoc.push(docObj)
+              }
             }
 
             return resultDoc
           },
-          () => OPENAPI_DEREF_ERROR
+          (error) => {
+            console.error("Dereferencing error:", error)
+            return OPENAPI_DEREF_ERROR
+          }
         )
       )
     ),

@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2025.2.2",
+  "version": "2025.2.3",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -125,7 +125,7 @@
     "@graphql-codegen/urql-introspection": "3.0.0",
     "@graphql-typed-document-node/core": "3.2.0",
     "@iconify-json/lucide": "1.2.9",
-    "@intlify/vite-plugin-vue-i18n": "7.0.0",
+    "@intlify/unplugin-vue-i18n": "6.0.4",
     "@relmify/jest-fp-ts": "2.1.1",
     "@rushstack/eslint-patch": "1.10.4",
     "@types/har-format": "1.2.16",

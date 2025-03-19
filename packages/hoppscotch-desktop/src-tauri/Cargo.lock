@@ -1949,7 +1949,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "http",
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "slab",
  "tokio",
  "tokio-util",
@@ -2023,7 +2023,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.2.2"
+version = "25.2.3"
 dependencies = [
  "axum",
  "portpicker",
@@ -2398,9 +2398,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.7.0"
+version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62f822373a4fe84d4bb149bf54e584a7f4abec90e072ed49cda0edea5b95471f"
+checksum = "3954d50fe15b02142bf25d3b8bdadb634ec3948f103d04ffe3031bc8fe9d7058"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.2",
@@ -3580,7 +3580,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42cf17e9a1800f5f396bc67d193dc9411b59012a5876445ef450d449881e1016"
 dependencies = [
  "base64 0.22.1",
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "quick-xml 0.32.0",
  "serde",
  "time",
@@ -3956,7 +3956,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git#b744a64c0e40829a44a562e51f9d18b4696d2ba4"
+source = "git+https://github.com/CuriousCorrelation/relay.git#78f2360c022e974c34413d68355dcbc625ba1acd"
 dependencies = [
  "bytes",
  "curl",
@@ -3964,6 +3964,7 @@ dependencies = [
  "env_logger",
  "http",
  "http-serde",
+ "indexmap 2.8.0",
  "infer",
  "lazy_static",
  "log",
@@ -4385,7 +4386,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "serde",
  "serde_derive",
  "serde_json",
@@ -5081,7 +5082,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-relay"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay#124133dd126da3e0ed25ce578420c0ea2671e38e"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay#86e1ccf327e60442c6ae9c2911d9359bf9e32c1b"
 dependencies = [
  "relay",
  "serde",
@@ -5511,7 +5512,7 @@ version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "serde",
  "serde_spanned",
  "toml_datetime",
@@ -5524,7 +5525,7 @@ version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "396e4d48bbb2b7554c944bde63101b5ae446cff6ec4a24227428f15eb72ef338"
 dependencies = [
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "serde",
  "serde_spanned",
  "toml_datetime",
@@ -6842,7 +6843,7 @@ dependencies = [
  "displaydoc",
  "flate2",
  "hmac",
- "indexmap 2.7.0",
+ "indexmap 2.8.0",
  "lzma-rs",
  "memchr",
  "pbkdf2",

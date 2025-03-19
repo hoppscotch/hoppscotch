@@ -303,6 +303,7 @@ const refreshToken = async ({
     id: Date.now(),
     url: tokenEndpoint,
     method: "POST",
+    version: "HTTP/1.1",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",

@@ -1,5 +1,6 @@
 use curl::easy::Easy;
 use http::HeaderName;
+use indexmap::IndexMap;
 use std::{collections::HashMap, path::Path};
 
 use crate::{
@@ -26,15 +27,25 @@ impl<'a> ContentHandler<'a> {
         );
 
         for (key, value) in new_headers {
-            if let Ok(header_name) = HeaderName::from_bytes(key.as_bytes()) {
-                let canonical_name = header_name.to_string();
-                self.headers.insert(canonical_name, value);
+            let key_lower = key.to_lowercase();
+
+            if !self
+                .headers
+                .iter()
+                .any(|(k, _)| k.to_lowercase() == key_lower)
+            {
+                let canonical_key = HeaderName::from_bytes(key.as_bytes())
+                    .map(|name| name.to_string())
+                    .unwrap_or_else(|_| key);
+
+                tracing::debug!(key = %canonical_key, value = %value, "Adding header");
+                self.headers.insert(canonical_key, value);
             } else {
-                self.headers.insert(key, value);
+                tracing::debug!(key = %key, "Skipping duplicate header (case-insensitive match exists)");
             }
         }
 
-        tracing::info!(merged_headers = ?self.headers, "Headers merged");
+        tracing::trace!(merged_headers = ?self.headers, "Headers after merge");
     }
 
     #[tracing::instrument(skip(self), level = "debug")]
@@ -188,7 +199,7 @@ impl<'a> ContentHandler<'a> {
 
     fn set_form_content(
         &mut self,
-        content: &HashMap<String, Vec<FormValue>>,
+        content: &IndexMap<String, Vec<FormValue>>,
         media_type: &MediaType,
     ) -> Result<()> {
         let mut headers = HashMap::new();
@@ -264,7 +275,7 @@ impl<'a> ContentHandler<'a> {
 
     fn set_multipart_content(
         &mut self,
-        content: &HashMap<String, Vec<FormValue>>,
+        content: &IndexMap<String, Vec<FormValue>>,
         media_type: &MediaType,
     ) -> Result<()> {
         self.set_form_content(content, media_type)

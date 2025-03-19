@@ -130,32 +130,30 @@ const convertSecurity = (
   pipe(
     O.fromNullable(security),
     O.chain((security) => {
-      return pipe(
+      const certificatesOption = pipe(
         O.fromNullable(security.certificates),
-        O.chain((certificates) =>
-          pipe(
-            O.Do,
-            O.bind("client", () => convertClientCert(certificates.client)),
-            O.bind("ca", () => convertCaCerts(certificates.ca)),
-            O.map((convertedCerts) => ({
-              certificates: {
-                client: convertedCerts.client,
-                ca: convertedCerts.ca,
-              },
-              // Default to `false` if not explicitly set
-              verifyHost: security.verifyHost ?? false,
-              verifyPeer: security.verifyPeer ?? false,
-            }))
-          )
-        ),
-        // If no certificates but security object exists, still return verify settings
-        O.alt(() =>
-          O.some({
-            verifyHost: security.verifyHost ?? false,
-            verifyPeer: security.verifyPeer ?? false,
-          })
-        )
+        O.chain((certificates) => {
+          const clientCert = convertClientCert(certificates.client)
+          const caCerts = convertCaCerts(certificates.ca)
+
+          // Include if at least one certificate exists
+          return O.isSome(clientCert) || O.isSome(caCerts)
+            ? O.some({
+                ...(O.isSome(clientCert) ? { client: clientCert.value } : {}),
+                ...(O.isSome(caCerts) ? { ca: caCerts.value } : {}),
+              })
+            : O.none
+        })
       )
+      return O.some({
+        ...(O.isSome(certificatesOption)
+          ? { certificates: certificatesOption.value }
+          : {}),
+        // Default to `false` if not explicitly set,
+        // if no certificates but security object exists, still return verify settings
+        verifyHost: security.verifyHost ?? false,
+        verifyPeer: security.verifyPeer ?? false,
+      })
     }),
     // If no security object at all, return default settings
     O.alt(() =>

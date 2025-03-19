@@ -48,7 +48,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const instance: VendoredInstance = {
         type: "vendored",
         displayName: "Hoppscotch",
-        version: "25.2.2",
+        version: "25.2.3",
       }
 
       this.state$.next({
@@ -121,7 +121,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const instance: VendoredInstance = {
         type: "vendored",
         displayName: "Hoppscotch",
-        version: "25.2.2",
+        version: "25.2.3",
       }
 
       this.state$.next({

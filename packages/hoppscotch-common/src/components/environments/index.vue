@@ -233,12 +233,15 @@ export type HandleEnvChangeProp = {
 }
 
 const handleEnvironmentChange = ({ index, env }: HandleEnvChangeProp) => {
-  if (env && env.type === "my-environment") {
+  if (env?.type === "my-environment") {
     selectedEnvironmentIndex.value = {
       type: "MY_ENV",
       index,
     }
-  } else if (env && env.type === "team-environment") {
+    return
+  }
+
+  if (env?.type === "team-environment") {
     selectedEnvironmentIndex.value = {
       type: "TEAM_ENV",
       teamEnvID: env.environment.id,

@@ -177,7 +177,10 @@ const getPayloadForViaBasicAuthHeader = (
 ): RelayRequest => {
   const { clientID, clientSecret, scopes, authEndpoint } = payload
 
-  const basicAuthToken = btoa(`${clientID}:${clientSecret}`)
+  // RFC 6749 Section 2.3.1 states that the client ID and secret should be URL encoded.
+  const encodedClientID = encodeBasicAuthComponent(clientID)
+  const encodedClientSecret = encodeBasicAuthComponent(clientSecret || "")
+  const basicAuthToken = btoa(`${encodedClientID}:${encodedClientSecret}`)
 
   return {
     id: Date.now(),
@@ -217,4 +220,10 @@ const getPayloadForViaBody = (
       ...(scopes && { scope: scopes }),
     }),
   }
+}
+
+const encodeBasicAuthComponent = (component: string): string => {
+  // application/x-www-form-urlencoded expects spaces to be encoded as '+', but
+  // encodeURIComponent encodes them as '%20'.
+  return encodeURIComponent(component).replace(/%20/g, "+")
 }

@@ -253,7 +253,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 ## **Demo**
 
-[hoppscotch.io](https://hoppscotch.io)
+- Web : [hoppscotch.io](https://hoppscotch.io)
+- Windows/Linux/macOS : [Desktop Apps](https://docs.hoppscotch.io/documentation/clients/desktop#download-hoppscotch-desktop-app)
 
 ## **Usage**
 

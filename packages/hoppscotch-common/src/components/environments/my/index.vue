@@ -30,7 +30,9 @@
       :key="`environment-${index}`"
       :environment-index="index"
       :environment="env"
+      :selected="isEnvironmentSelected(index)"
       @edit-environment="editEnvironment(index)"
+      @select-environment="selectEnvironment(index, env)"
     />
     <HoppSmartPlaceholder
       v-if="!alphabeticallySortedPersonalEnvironments.length"
@@ -80,7 +82,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { environments$ } from "~/newstore/environments"
+import {
+  environments$,
+  selectedEnvironmentIndex$,
+} from "~/newstore/environments"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
@@ -89,9 +94,15 @@ import IconImport from "~icons/lucide/folder-down"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
+import { HandleEnvChangeProp } from "../index.vue"
+import { Environment } from "@hoppscotch/data"
 
 const t = useI18n()
 const colorMode = useColorMode()
+
+const emit = defineEmits<{
+  (e: "select-environment", data: HandleEnvChangeProp): void
+}>()
 
 const environments = useReadonlyStream(environments$, [])
 
@@ -120,6 +131,15 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 const displayModalImportExport = (shouldDisplay: boolean) => {
   showModalImportExport.value = shouldDisplay
 }
+const selectEnvironment = (index: number, environment: Environment) => {
+  emit("select-environment", {
+    index,
+    env: {
+      type: "my-environment",
+      environment,
+    },
+  })
+}
 const editEnvironment = (environmentIndex: number) => {
   editingEnvironmentIndex.value = environmentIndex
   action.value = "edit"
@@ -129,6 +149,17 @@ const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
   editingVariableName.value = ""
   secretOptionSelected.value = false
+}
+
+const selectedEnvironmentIndex = useReadonlyStream(selectedEnvironmentIndex$, {
+  type: "NO_ENV_SELECTED",
+})
+
+const isEnvironmentSelected = (index: number) => {
+  return (
+    selectedEnvironmentIndex.value.type === "MY_ENV" &&
+    selectedEnvironmentIndex.value.index === index
+  )
 }
 
 defineActionHandler(

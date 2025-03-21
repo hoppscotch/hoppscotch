@@ -89,7 +89,9 @@
         :key="`environment-${index}`"
         :environment="env"
         :is-viewer="team?.role === 'VIEWER'"
+        :selected="isEnvironmentSelected(env.id)"
         @edit-environment="editEnvironment(env)"
+        @select-environment="selectEnvironment(env)"
         @show-environment-properties="
           showEnvironmentProperties(env.environment.id)
         "
@@ -147,6 +149,9 @@ import { defineActionHandler } from "~/helpers/actions"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { sortTeamEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
+import { HandleEnvChangeProp } from "../index.vue"
+import { selectedEnvironmentIndex$ } from "~/newstore/environments"
+import { useReadonlyStream } from "~/composables/stream"
 
 const t = useI18n()
 
@@ -157,6 +162,10 @@ const props = defineProps<{
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
   loading: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "select-environment", data: HandleEnvChangeProp): void
 }>()
 
 // Sort environments alphabetically by default
@@ -205,6 +214,27 @@ const resetSelectedData = () => {
 const showEnvironmentProperties = (environmentID: string) => {
   showEnvironmentsPropertiesModal.value = true
   selectedEnvironmentID.value = environmentID
+}
+
+const selectEnvironment = (environment: TeamEnvironment) => {
+  emit("select-environment", {
+    index: 1,
+    env: {
+      type: "team-environment",
+      environment,
+    },
+  })
+}
+
+const selectedEnvironmentIndex = useReadonlyStream(selectedEnvironmentIndex$, {
+  type: "NO_ENV_SELECTED",
+})
+
+const isEnvironmentSelected = (id: string) => {
+  return (
+    selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+    selectedEnvironmentIndex.value.teamEnvID === id
+  )
 }
 
 defineActionHandler(

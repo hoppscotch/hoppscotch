@@ -109,10 +109,10 @@ impl<'a> ContentHandler<'a> {
     }
 
     fn set_text_content(&mut self, content: &str, media_type: &MediaType) -> Result<()> {
-        let mut headers = HashMap::new();
-        headers.insert("content-type".to_string(), media_type.to_string());
-
-        self.merge_headers(headers);
+        /* TODO: Look into reintroducing this when auth handling is done by kernel */
+        // let mut headers = HashMap::new();
+        // headers.insert("content-type".to_string(), media_type.to_string());
+        // self.merge_headers(headers);
 
         self.handle
             .post_fields_copy(content.as_bytes())
@@ -141,10 +141,10 @@ impl<'a> ContentHandler<'a> {
             }
         })?;
 
-        let mut headers = HashMap::new();
-        headers.insert("content-type".to_string(), media_type.to_string());
-
-        self.merge_headers(headers);
+        /* TODO: Look into reintroducing this when auth handling is done by kernel */
+        // let mut headers = HashMap::new();
+        // headers.insert("content-type".to_string(), media_type.to_string());
+        // self.merge_headers(headers);
 
         self.handle
             .post_fields_copy(json_str.as_bytes())
@@ -174,16 +174,18 @@ impl<'a> ContentHandler<'a> {
                 .and_then(|n| n.to_str())
                 .unwrap_or(name);
 
-            headers.insert("content-type".to_string(), media_type.to_string());
+            /* TODO: Look into reintroducing this when auth handling is done by kernel */
+            // headers.insert("content-type".to_string(), media_type.to_string());
             headers.insert(
                 "Content-Disposition".to_string(),
                 format!("attachment; filename=\"{}\"", safe_name),
             );
         } else {
-            headers.insert("content-type".to_string(), media_type.to_string());
+            /* TODO: Look into reintroducing this when auth handling is done by kernel */
+            // headers.insert("content-type".to_string(), media_type.to_string());
         }
 
-        self.merge_headers(headers);
+        // self.merge_headers(headers);
 
         self.handle.post_fields_copy(content).map_err(|e| {
             tracing::error!(error = %e, "Failed to set binary content");
@@ -202,10 +204,10 @@ impl<'a> ContentHandler<'a> {
         content: &IndexMap<String, Vec<FormValue>>,
         media_type: &MediaType,
     ) -> Result<()> {
-        let mut headers = HashMap::new();
-        headers.insert("content-type".to_string(), media_type.to_string());
-
-        self.merge_headers(headers);
+        /* TODO: Look into reintroducing this when auth handling is done by kernel */
+        // let mut headers = HashMap::new();
+        // headers.insert("content-type".to_string(), media_type.to_string());
+        // self.merge_headers(headers);
 
         let mut form = curl::easy::Form::new();
 
@@ -282,10 +284,10 @@ impl<'a> ContentHandler<'a> {
     }
 
     fn set_urlencoded_content(&mut self, content: &String, media_type: &MediaType) -> Result<()> {
-        let mut headers = HashMap::new();
-        headers.insert("content-type".to_string(), media_type.to_string());
-
-        self.merge_headers(headers);
+        /* TODO: Look into reintroducing this when auth handling is done by kernel */
+        // let mut headers = HashMap::new();
+        // headers.insert("content-type".to_string(), media_type.to_string());
+        // self.merge_headers(headers);
 
         tracing::debug!(content_length = content.len(), "URL-encoded form data");
 

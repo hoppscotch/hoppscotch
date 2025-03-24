@@ -276,7 +276,7 @@ export class ExtensionKernelInterceptorService
         await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
           url: request.url,
           method: request.method,
-          headers: request.headers,
+          headers: request.headers ?? {},
           data: requestData,
           wantsBinary: true,
         })

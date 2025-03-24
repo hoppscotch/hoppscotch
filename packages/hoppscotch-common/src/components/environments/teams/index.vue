@@ -1,5 +1,13 @@
 <template>
   <div>
+    <input
+      v-model="filterText"
+      type="search"
+      autocomplete="off"
+      class="flex w-full bg-transparent px-4 py-2 h-8 border-b border-dividerLight"
+      :placeholder="t('action.search')"
+      :disabled="loading || !teamEnvironments.length"
+    />
     <div
       class="sticky top-upperPrimaryStickyFold z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
@@ -43,17 +51,40 @@
         />
       </div>
     </div>
+
+    <div v-if="loading" class="flex flex-col items-center justify-center p-4">
+      <HoppSmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
+
+    <div v-else-if="adapterError" class="flex flex-col items-center py-4">
+      <icon-lucide-help-circle class="svg-icons mb-4" />
+      {{ t(getEnvActionErrorMessage(adapterError)) }}
+    </div>
+
     <HoppSmartPlaceholder
-      v-if="
-        !loading &&
-        !alphabeticallySortedTeamEnvironments.length &&
-        !adapterError
+      v-else-if="filteredAndAlphabetizedTeamEnvs.length === 0"
+      :alt="
+        filterText
+          ? `${t('empty.search_environment')}`
+          : t('empty.environments')
       "
-      :src="`/images/states/${colorMode.value}/blockchain.svg`"
-      :alt="`${t('empty.environments')}`"
-      :text="t('empty.environments')"
+      :text="
+        filterText
+          ? `${t('empty.search_environment')} '${filterText}'`
+          : t('empty.environments')
+      "
+      :src="
+        filterText
+          ? undefined
+          : `/images/states/${colorMode.value}/blockchain.svg`
+      "
     >
-      <template #body>
+      <template v-if="filterText" #icon>
+        <icon-lucide-search class="svg-icons opacity-75" />
+      </template>
+
+      <template v-else #body>
         <div class="flex flex-col items-center space-y-4">
           <span class="text-center text-secondaryLight">
             {{ t("environment.import_or_create") }}
@@ -81,10 +112,11 @@
         </div>
       </template>
     </HoppSmartPlaceholder>
-    <div v-else-if="!loading">
+
+    <div v-else>
       <EnvironmentsTeamsEnvironment
         v-for="{ env, index } in JSON.parse(
-          JSON.stringify(alphabeticallySortedTeamEnvironments)
+          JSON.stringify(filteredAndAlphabetizedTeamEnvs)
         )"
         :key="`environment-${index}`"
         :environment="env"
@@ -97,17 +129,7 @@
         "
       />
     </div>
-    <div v-if="loading" class="flex flex-col items-center justify-center p-4">
-      <HoppSmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-    </div>
-    <div
-      v-if="!loading && adapterError"
-      class="flex flex-col items-center py-4"
-    >
-      <icon-lucide-help-circle class="svg-icons mb-4" />
-      {{ t(getEnvActionErrorMessage(adapterError)) }}
-    </div>
+
     <EnvironmentsTeamsDetails
       :show="showModalDetails"
       :action="action"
@@ -120,9 +142,7 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
-      :team-environments="
-        alphabeticallySortedTeamEnvironments.map(({ env }) => env)
-      "
+      :team-environments="filteredAndAlphabetizedTeamEnvs.map(({ env }) => env)"
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
@@ -168,11 +188,27 @@ const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
 }>()
 
-// Sort environments alphabetically by default
+const filterText = ref("")
 
-const alphabeticallySortedTeamEnvironments = computed(() =>
-  sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
-)
+// Sort environments alphabetically by default and filter by search text
+const filteredAndAlphabetizedTeamEnvs = computed(() => {
+  const envs = sortTeamEnvironmentsAlphabetically(props.teamEnvironments, "asc")
+  const rawFilter = filterText.value
+
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilter = rawFilter.trim().toLowerCase()
+
+  // Whitespace-only input results in an empty state
+  if (rawFilter && !trimmedFilter) return []
+
+  // No search text → Show all environments
+  if (!trimmedFilter) return envs
+
+  // Filter environments based on search text
+  return envs.filter(({ env }) =>
+    env.environment.name.toLowerCase().includes(trimmedFilter)
+  )
+})
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
@@ -241,7 +277,7 @@ defineActionHandler(
   "modals.team.environment.edit",
   ({ envName, variableName, isSecret }) => {
     if (variableName) editingVariableName.value = variableName
-    const teamEnvToEdit = alphabeticallySortedTeamEnvironments.value.find(
+    const teamEnvToEdit = filteredAndAlphabetizedTeamEnvs.value.find(
       ({ env }) => env.environment.name === envName
     )
     if (teamEnvToEdit) {

@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import { z } from "zod"
 
 import { Service } from "dioc"
-import { watchDebounced } from "@vueuse/core"
+import { StorageLike, watchDebounced } from "@vueuse/core"
 import { assign, clone, isEmpty } from "lodash-es"
 
 import {
@@ -167,6 +167,9 @@ const migrations: Migration[] = [
 export class PersistenceService extends Service {
   public static readonly ID = "PERSISTENCE_SERVICE"
 
+  // TODO: Consider swapping this with platform dependent `StoreLike` impl
+  public hoppLocalConfigStorage: StorageLike = localStorage
+
   private readonly restTabService = this.bind(RESTTabService)
   private readonly gqlTabService = this.bind(GQLTabService)
   private readonly secretEnvironmentService = this.bind(
@@ -197,9 +200,8 @@ export class PersistenceService extends Service {
       STORE_NAMESPACE,
       STORE_KEYS.SCHEMA_VERSION
     )
-    const currentVersion = E.isRight(versionResult)
-      ? versionResult.right || "0"
-      : "0"
+    const perhapsVersion = E.isRight(versionResult) ? versionResult.right : "0"
+    const currentVersion = perhapsVersion ?? "0"
     const targetVersion = "1"
 
     if (currentVersion !== targetVersion) {
@@ -916,7 +918,40 @@ export class PersistenceService extends Service {
   }
 
   /**
-   * Gets a value from persistence
+   * Gets a typed value from persistence, deserialization is automatic.
+   * No need to use JSON.parse on the result, it's handled internally by the store.
+   * @param key The key to retrieve
+   * @returns Either containing the typed value or an error
+   */
+  public async get<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<E.Either<StoreError, T | undefined>> {
+    return await Store.get<T>(STORE_NAMESPACE, key)
+  }
+
+  /**
+   * Gets a value from persistence, discards error and returns null on failure.
+   * No need to use JSON.parse on the result, it's handled internally by the store.
+   * NOTE: Use this cautiously, try to always use `get`, handling error at call site is better
+   * @param key The key to retrieve
+   * @returns The typed value or null if not found or on error
+   */
+  public async getNullable<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<T | null> {
+    const r = await Store.get<T>(STORE_NAMESPACE, key)
+
+    if (E.isLeft(r)) return null
+
+    return r.right ?? null
+  }
+
+  /**
+   * Gets a value from local config
+   * @deprecated Use get<T>() instead which provides automatic deserialization and type safety.
+   * With get<T>(), there's no need to use JSON.parse on the result.
+   * @param name The name of the config to retrieve
+   * @returns The config value as string, null or undefined
    */
   public async getLocalConfig(
     name: string
@@ -929,7 +964,25 @@ export class PersistenceService extends Service {
   }
 
   /**
+   * Sets a value in persistence with proper type safety and automatic serialization.
+   * No need to use JSON.stringify on the value, it's handled internally by the store.
+   * @param key The key to set
+   * @param value The value to set (passed directly without manual serialization)
+   * @returns Either containing void or an error
+   */
+  public async set<T>(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS],
+    value: T
+  ): Promise<E.Either<StoreError, void>> {
+    return await Store.set(STORE_NAMESPACE, key, value)
+  }
+
+  /**
    * Sets a value in persistence
+   * @deprecated Use set<T>() instead which provides automatic serialization and type safety.
+   * With set<T>(), there's no need to use JSON.stringify on the value before passing it.
+   * @param key The key to set
+   * @param value The value to set as string
    */
   public async setLocalConfig(key: string, value: string): Promise<void> {
     await Store.set(STORE_NAMESPACE, key, value)
@@ -937,6 +990,19 @@ export class PersistenceService extends Service {
 
   /**
    * Clear config value from persistence
+   * @param key The key to remove
+   * @returns Either containing boolean or an error
+   */
+  public async remove(
+    key: (typeof STORE_KEYS)[keyof typeof STORE_KEYS]
+  ): Promise<E.Either<StoreError, boolean>> {
+    return await Store.remove(STORE_NAMESPACE, key)
+  }
+
+  /**
+   * Clear config value from persistence
+   * @deprecated Use remove() instead which provides proper error handling and type safety.
+   * @param key The key to remove
    */
   public async removeLocalConfig(key: string): Promise<void> {
     await Store.remove(STORE_NAMESPACE, key)

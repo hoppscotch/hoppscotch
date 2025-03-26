@@ -34,7 +34,7 @@
 /// See: https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
 ///
 /// Our implementation uses Approach 1, checking both the 32-bit (WOW6432Node) and 64-bit registry locations
-/// to make sure we have critical dependencis compatibility with different system architectures.
+/// to make sure we have critical dependency compatibility with different system architectures.
 pub mod error;
 
 use std::{io, ops::Not};

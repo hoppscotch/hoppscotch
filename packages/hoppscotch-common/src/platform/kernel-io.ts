@@ -42,11 +42,24 @@ export type SaveFileWithDialogOptions = {
   }>
 }
 
+/**
+ * Options for opening an external link.
+ */
+export type OpenExternalLinkOptions = {
+  /**
+   * The URL to open.
+   */
+  url: string
+}
+
+/**
+ * Response from a file save operation.
+ */
 export type SaveFileResponse =
   | {
       /**
        * The implementation was unable to determine the status of the save operation.
-       * This cannot be considered a success or a failure and should be handled as an uncertainity.
+       * This cannot be considered a success or a failure and should be handled as an uncertainty.
        * The browser standard implementation (std) returns this value as there is no way to
        * check if the user downloaded the file or not.
        */
@@ -71,6 +84,29 @@ export type SaveFileResponse =
     }
 
 /**
+ * Response from an external link operation.
+ */
+export type OpenExternalLinkResponse =
+  | {
+      /**
+       * The implementation was unable to determine the status of the open operation.
+       */
+      type: "unknown"
+    }
+  | {
+      /**
+       * The result is known and the user cancelled the open action.
+       */
+      type: "cancelled"
+    }
+  | {
+      /**
+       * The result is known and the link was opened successfully.
+       */
+      type: "opened"
+    }
+
+/**
  * Platform definitions for how to handle IO operations.
  */
 export type KernelIO = {
@@ -85,7 +121,8 @@ export type KernelIO = {
   /**
    * Opens a link in the user's browser.
    * The expected behaviour is for the browser to open a new tab/window (for example in desktop app) with the given URL.
-   * @param url The URL to open
    */
-  openExternalLink: (url: string) => Promise<void>
+  openExternalLink: (
+    opts: OpenExternalLinkOptions
+  ) => Promise<OpenExternalLinkResponse>
 }

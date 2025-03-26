@@ -114,6 +114,9 @@ RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
+# Copy over webapp server bin
+COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
+
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
@@ -123,10 +126,12 @@ RUN npm install -g @import-meta-env/cli
 
 EXPOSE 80
 EXPOSE 3000
+EXPOSE 3200
 
 WORKDIR /site
 
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
+# Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
+CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
 
 
 
@@ -167,17 +172,6 @@ EXPOSE 3100
 WORKDIR /site
 
 CMD ["node","/site/prod_run.mjs"]
-
-FROM node:20-alpine AS webapp_server
-COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
-RUN mkdir -p /site/selfhost-web
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
-RUN apk add nodejs npm
-RUN npm install -g @import-meta-env/cli
-WORKDIR /site
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && webapp-server"]
-EXPOSE 3200
 
 FROM alpine:3.19.7 AS aio
 

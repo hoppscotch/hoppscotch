@@ -328,7 +328,7 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      platform.kernelIO.openExternalLink(res.right)
+      platform.kernelIO.openExternalLink({ url: res.right })
     }
 
     isEnvironmentGistExportInProgress.value = false

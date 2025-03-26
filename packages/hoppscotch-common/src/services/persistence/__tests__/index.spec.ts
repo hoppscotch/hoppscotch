@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
+import * as E from "fp-ts/Either"
+
 import {
   translateToNewGQLCollection,
   translateToNewRESTCollection,
@@ -1868,6 +1870,60 @@ describe("PersistenceService", () => {
 
     await service.setLocalConfig(testKey, testValue)
     await service.removeLocalConfig(testKey)
+
+    expect(setItemSpy).toHaveBeenCalledWith(
+      `${STORE_NAMESPACE}:${testKey}`,
+      expect.stringContaining(testValue)
+    )
+    expect(removeItemSpy).toHaveBeenCalledWith(`${STORE_NAMESPACE}:${testKey}`)
+  })
+
+  it("`set` method sets a value in localStorage", async () => {
+    const testKey = "temp"
+    const testValue = "test-value"
+
+    const setItemSpy = spyOnSetItem()
+
+    const service = bindPersistenceService()
+
+    await service.set(testKey, testValue)
+    expect(setItemSpy).toHaveBeenCalledWith(
+      `${STORE_NAMESPACE}:${testKey}`,
+      expect.stringContaining(testValue)
+    )
+  })
+
+  it("`get` method gets a value from localStorage", async () => {
+    const testKey = "temp"
+    const testValue = "test-value"
+
+    const setItemSpy = spyOnSetItem()
+    const getItemSpy = spyOnGetItem()
+
+    const service = bindPersistenceService()
+
+    await service.set(testKey, testValue)
+    const retrievedValue = await service.get(testKey)
+
+    expect(setItemSpy).toHaveBeenCalledWith(
+      `${STORE_NAMESPACE}:${testKey}`,
+      expect.stringContaining(testValue)
+    )
+    expect(getItemSpy).toHaveBeenCalledWith(`${STORE_NAMESPACE}:${testKey}`)
+    expect(retrievedValue).toStrictEqual(E.right(testValue))
+  })
+
+  it("`remove` method clears a value in localStorage", async () => {
+    const testKey = "temp"
+    const testValue = "test-value"
+
+    const setItemSpy = spyOnSetItem()
+    const removeItemSpy = spyOnRemoveItem()
+
+    const service = bindPersistenceService()
+
+    await service.set(testKey, testValue)
+    await service.remove(testKey)
 
     expect(setItemSpy).toHaveBeenCalledWith(
       `${STORE_NAMESPACE}:${testKey}`,

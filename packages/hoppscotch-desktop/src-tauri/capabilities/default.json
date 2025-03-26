@@ -14,6 +14,7 @@
     "shell:allow-open",
     "store:default",
     "dialog:default",
+    "process:default",
     "updater:default",
     "fs:allow-write-text-file",
     "deep-link:default",

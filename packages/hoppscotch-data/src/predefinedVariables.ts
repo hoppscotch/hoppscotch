@@ -61,7 +61,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
   // Text, numbers, and colors
   {
     key: "$randomAlphaNumeric",
-    description: "A random alpha-numeric character.",
+    description: "A random alphanumeric character.",
     getValue: () => {
       const characters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -159,7 +159,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
 
   {
     key: "$randomPassword",
-    description: "A random 15-character alpha-numeric password.",
+    description: "A random 15-character alphanumeric password.",
     getValue: () => {
       const characters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"

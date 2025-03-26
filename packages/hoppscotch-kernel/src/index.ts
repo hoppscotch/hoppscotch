@@ -84,8 +84,9 @@ export type {
 export type {
   RelayRequest,
   RelayResponse,
+  PluginRequest,
+  PluginResponse,
   RelayResponseBody,
-  FormData,
   FormDataValue,
   RelayError,
   RelayV1,
@@ -104,6 +105,7 @@ export {
   content,
   body,
   MediaType,
+  relayRequestToNativeAdapter
 } from '@relay/v/1'
 
 export type {

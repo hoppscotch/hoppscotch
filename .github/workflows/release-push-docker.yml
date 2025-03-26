@@ -4,9 +4,18 @@ on:
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      # NO INPUTS
 
 jobs:
   build:
+    strategy:
+      matrix:
+        platform: [
+          { platform: linux/amd64, cache: docker-release-amd64, artifactSuffix: amd64 },
+          { platform: linux/arm64, cache: docker-release-arm64, artifactSuffix: arm64 },
+        ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,58 +36,147 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push the backend container
+      - name: Build and push the backend container by digest
+        id: backend-build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: backend
-          push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:latest
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:${{ github.ref_name }}
+            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
-      - name: Build and push the frontend container
+      - name: Build and push the frontend container by digest
+        id: frontend-build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: app
-          push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:latest
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:${{ github.ref_name }}
+            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
-      - name: Build and push the admin dashboard container
+      - name: Build and push the admin dashboard container by digest
+        id: sh_admin-build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: sh_admin
-          push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:latest
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:${{ github.ref_name }}
+            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
-      - name: Build and push the AIO container
+      - name: Build and push the AIO container by digest
+        id: aio-build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./prod.Dockerfile
           target: aio
-          push: true
+          cache-from: type=gha,timeout=200m,scope=${{ matrix.platform.cache }}
+          cache-to: type=gha,mode=max,timeout=200m,scope=${{ matrix.platform.cache }}
           platforms: |
-            linux/amd64
-            linux/arm64
+            ${{ matrix.platform.platform }}
           tags: |
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:latest
-            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:${{ github.ref_name }}
+            ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+
+      - name: Make digest files
+        run: |
+          backend_digest="${{ steps.backend-build.outputs.digest }}"
+          frontend_digest="${{ steps.frontend-build.outputs.digest }}"
+          sh_admin_digest="${{ steps.sh_admin-build.outputs.digest }}"
+          aio_digest="${{ steps.aio-build.outputs.digest }}"
+
+          mkdir -p digests/backend digests/frontend digests/sh_admin digests/aio
+
+          touch "digests/backend/${backend_digest#sha256:}"
+          touch "digests/frontend/${frontend_digest#sha256:}"
+          touch "digests/sh_admin/${sh_admin_digest#sha256:}"
+          touch "digests/aio/${aio_digest#sha256:}"
+
+      - name: Upload digests files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-docker-build-digests-${{ github.ref_name }}-${{ matrix.platform.artifactSuffix }}
+          path: digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  assemble-and-push-to-docker-hub:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Download digests from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: digests
+          pattern: release-docker-build-digests-${{ github.ref_name }}-*
+          merge-multiple: true
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: "[Backend] - Create manifest list and push"
+        working-directory: digests/backend
+        run: |
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:${{ github.ref_name }} \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}@sha256:%s ' *)
+
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}:latest \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_BACKEND_CONTAINER_NAME }}@sha256:%s ' *)
+
+
+      - name: "[Frontend] - Create manifest list and push"
+        working-directory: digests/frontend
+        run: |
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:${{ github.ref_name }} \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}@sha256:%s ' *)
+
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}:latest \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_FRONTEND_CONTAINER_NAME }}@sha256:%s ' *)
+
+
+      - name: "[SH Admin] - Create manifest list and push"
+        working-directory: digests/sh_admin
+        run: |
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:${{ github.ref_name }} \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}@sha256:%s ' *)
+
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}:latest \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_SH_ADMIN_CONTAINER_NAME }}@sha256:%s ' *)
+
+      - name: "[AIO] - Create manifest list and push"
+        working-directory: digests/aio
+        run: |
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:${{ github.ref_name }} \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}@sha256:%s ' *)
+
+          docker buildx imagetools create -t ${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}:latest \
+            $(printf '${{ secrets.DOCKER_ORG_NAME }}/${{ secrets.DOCKER_AIO_CONTAINER_NAME }}@sha256:%s ' *)
+

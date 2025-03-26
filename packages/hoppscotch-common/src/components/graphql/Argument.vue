@@ -8,20 +8,28 @@
   </template>
 
   <div v-else class="hopp-doc-explorer-argument">
-    <p class="inline-flex items-center mb-0 gap-2 align-bottom">
+    <div class="inline-flex items-center align-bottom">
       <span
         v-if="showAddButton"
-        class="hover:text-accent cursor-pointer"
+        class="hover:text-accent cursor-pointer flex items-center justify-center px-4 py-2"
         :class="{ 'text-accent': isArgumentInOperation(arg) }"
         @click="insertQuery"
       >
-        <icon-lucide-plus-circle v-if="!isArgumentInOperation(arg)" />
-        <icon-lucide-circle-check v-else />
+        <icon-lucide-plus-circle
+          v-if="!isArgumentInOperation(arg)"
+          class="svg-icons"
+        />
+        <icon-lucide-circle-check v-else class="svg-icons" />
       </span>
-      <span class="hopp-doc-explorer-argument-name"> {{ arg.name }} </span>:
-      <GraphqlTypeLink :type="arg.type" />
-      <GraphqlDefaultValue v-if="showDefaultValue !== false" :field="arg" />
-    </p>
+      <div class="flex items-center gap-2">
+        <span class="hopp-doc-explorer-argument-name text-sm py-2 font-normal">
+          {{ arg.name }}
+        </span>
+        :
+        <GraphqlTypeLink :type="arg.type" />
+        <GraphqlDefaultValue v-if="showDefaultValue !== false" :field="arg" />
+      </div>
+    </div>
 
     <!-- <AppMarkdown v-if="arg.description" type="description">
       {{ arg.description }}
@@ -43,6 +51,7 @@
 <script setup lang="ts">
 import type { GraphQLArgument } from "graphql"
 import { useQuery } from "~/helpers/graphql/query"
+import { debounce } from "lodash-es"
 
 const { handleAddArgument, isArgumentInOperation } = useQuery()
 
@@ -76,13 +85,13 @@ const props = withDefaults(defineProps<ArgumentProps>(), {
   showAddButton: false,
 })
 
-const insertQuery = () => {
+const insertQuery = debounce(() => {
   handleAddArgument(props.arg)
-}
+}, 50)
 </script>
 
 <style scoped lang="scss">
 .hopp-doc-explorer-argument {
-  @apply cursor-pointer py-1 px-2 hover:bg-primaryLight;
+  @apply transition hover:bg-primaryLight;
 }
 </style>

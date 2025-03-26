@@ -1,6 +1,12 @@
+import { Request, Response } from '@hoppscotch/plugin-relay'
 import type { VersionedAPI } from '@type/versioning'
 
+export type PluginRequest = Request
+export type PluginResponse = Response
+
 import * as E from 'fp-ts/Either'
+import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
 
 export type Method =
     | "GET"        // Retrieve resource
@@ -83,8 +89,6 @@ export type StatusCode =
 export type FormDataValue =
     | { kind: "text"; value: string }
     | { kind: "file"; filename: string; contentType: string; data: Uint8Array }
-
-export type FormData = Map<string, FormDataValue[]>
 
 export enum MediaType {
     TEXT_PLAIN = "text/plain",
@@ -493,13 +497,42 @@ export const body = {
     }),
 }
 
+export const transform = {
+    text: (content: string): string => content,
+    json: <T>(content: T): T => content,
+    xml: (content: string): string => content,
+    form: (content: FormData): FormData => content,
+    binary: (content: Uint8Array): Uint8Array => content,
+    multipart: (content: FormData): FormData => content,
+    stream: (content: ReadableStream): ReadableStream => content,
+    urlencoded: (arg: string | Record<string, any>): string =>
+        pipe(
+            arg,
+            (input) => typeof input === 'string'
+                ? O.some(input)
+                : O.none,
+            O.getOrElse(() => {
+                const params = new URLSearchParams()
+                const obj = arg as Record<string, any>
+
+                Object.entries(obj)
+                    .filter(([_, value]) => value !== undefined && value !== null)
+                    .forEach(([key, value]) =>
+                        params.append(key, value.toString())
+                    )
+
+                return params.toString()
+            })
+        )
+}
+
 export const content = {
     text: (
         content: string,
         mediaType?: MediaType.TEXT_PLAIN | MediaType.TEXT_HTML | MediaType.TEXT_CSS | MediaType.TEXT_CSV
     ): ContentType => ({
         kind: "text",
-        content,
+        content: transform.text(content),
         mediaType: mediaType ?? MediaType.TEXT_PLAIN
     }),
 
@@ -508,7 +541,7 @@ export const content = {
         mediaType?: MediaType.APPLICATION_JSON | MediaType.APPLICATION_LD_JSON | MediaType.APPLICATION_JSON
     ): ContentType => ({
         kind: "json",
-        content,
+        content: transform.json(content),
         mediaType: mediaType ?? MediaType.APPLICATION_JSON
     }),
 
@@ -517,13 +550,13 @@ export const content = {
         mediaType?: MediaType.APPLICATION_XML | MediaType.TEXT_XML
     ): ContentType => ({
         kind: "xml",
-        content,
+        content: transform.xml(content),
         mediaType: mediaType ?? MediaType.APPLICATION_XML
     }),
 
     form: (content: FormData): ContentType => ({
         kind: "form",
-        content,
+        content: transform.form(content),
         mediaType: MediaType.APPLICATION_FORM
     }),
 
@@ -533,28 +566,90 @@ export const content = {
         filename?: string
     ): ContentType => ({
         kind: "binary",
-        content,
+        content: transform.binary(content),
         mediaType,
         filename
     }),
 
     multipart: (content: FormData): ContentType => ({
         kind: "multipart",
-        content,
+        content: transform.multipart(content),
         mediaType: MediaType.MULTIPART_FORM
     }),
 
-    urlencoded: (content: string): ContentType => ({
+    urlencoded: (content: string | Record<string, any>): ContentType => ({
         kind: "urlencoded",
-        content,
+        content: transform.urlencoded(content),
         mediaType: MediaType.APPLICATION_FORM
     }),
 
     stream: (content: ReadableStream, mediaType: string): ContentType => ({
         kind: "stream",
-        content,
+        content: transform.stream(content),
         mediaType
     })
+}
+
+// Helper function to convert standard `FormData` to `Map<string, FormDataValue[]>`
+// This is mainly a crossplatform thing, once there's an equivalent and easy to impl `FormData` type for Rust,
+// we can consider removing this.
+const makeFormDataSerializable = async (formData: FormData): Promise<Map<string, FormDataValue[]>> => {
+    const result = new Map<string, FormDataValue[]>()
+    // @ts-expect-error: `formData.entries` does exist but isn't visible,
+    // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
+    for (const [key, value] of formData.entries()) {
+        if (value instanceof File || value instanceof Blob) {
+            const buffer = await value.arrayBuffer()
+            const fileEntry: FormDataValue = {
+                kind: "file",
+                filename: value instanceof File ? value.name : "unknown",
+                contentType: value.type || "application/octet-stream",
+                data: new Uint8Array(buffer)
+            }
+
+            const existingValues = result.get(key) || []
+            result.set(key, [...existingValues, fileEntry])
+        } else {
+            const textEntry: FormDataValue = {
+                kind: "text",
+                value: value.toString()
+            }
+
+            const existingValues = result.get(key) || []
+            result.set(key, [...existingValues, textEntry])
+        }
+    }
+
+    return result
+}
+
+// Helper function to adapt a relay request to work with the plugin
+export const relayRequestToNativeAdapter = async (request: RelayRequest): Promise<Request> => {
+    const adaptedRequest = { ...request };
+
+    if (adaptedRequest.content?.kind === "multipart" && adaptedRequest.content.content instanceof FormData) {
+        const serializableFormData = await makeFormDataSerializable(adaptedRequest.content.content);
+
+        // Replace with the converted form data
+        // SAFETY: Type assertion is necessary here because the plugin system expects
+        // types similar to Map<string, FormDataValue[]> instead of FormData.
+        // Then convert the `Map` to simpler nested object structure for better compatibility
+        // `Maps` it seems like are serialized differently across platforms and serialization libraries,
+        // while objects tend to maintain more consistent behavior by the sheer ubiquity of it.
+        const convertedContent: Record<string, FormDataValue[]> = {};
+
+        for (const [key, values] of serializableFormData.entries()) {
+            convertedContent[key] = Array.isArray(values) ? values : [values];
+        }
+
+        adaptedRequest.content = {
+            ...adaptedRequest.content,
+            // @ts-expect-error: This is intentional to work around SuperJSON serialization
+            content: convertedContent
+        };
+    }
+
+    return adaptedRequest as Request;
 }
 
 export const v1: VersionedAPI<RelayV1> = {

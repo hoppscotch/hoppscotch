@@ -34,6 +34,7 @@ function runChildProcessWithPrefix(command, args, prefix) {
 
 const envFileContent = Object.entries(process.env)
   .filter(([env]) => env.startsWith('VITE_'))
+  .sort(([envA], [envB]) => envA.localeCompare(envB))
   .map(
     ([env, val]) =>
       `${env}=${val.startsWith('"') && val.endsWith('"') ? val : `"${val}"`}`

@@ -5,7 +5,7 @@ export const kernelIO: KernelIO = {
   saveFileWithDialog(opts) {
     return Io.saveFileWithDialog(opts)
   },
-  openExternalLink(url) {
-    return Io.openExternalLink(url)
+  openExternalLink(opts) {
+    return Io.openExternalLink(opts)
   },
 }

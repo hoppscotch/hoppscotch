@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bytes::Bytes;
 use http::{Method, StatusCode, Version};
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 use time::OffsetDateTime;
@@ -48,7 +49,8 @@ pub enum MediaType {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum FormValue {
-    Text(String),
+    #[serde(rename_all = "camelCase")]
+    Text { value: String },
     #[serde(rename_all = "camelCase")]
     File {
         filename: String,
@@ -57,7 +59,7 @@ pub enum FormValue {
     },
 }
 
-pub type FormData = HashMap<String, Vec<FormValue>>;
+pub type FormData = IndexMap<String, Vec<FormValue>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -138,6 +140,13 @@ pub enum GrantType {
     },
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ApiKeyLocation {
+    Header,
+    Query,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum AuthType {
@@ -164,10 +173,27 @@ pub enum AuthType {
         cnonce: Option<String>,
     },
     #[serde(rename_all = "camelCase")]
+    ApiKey {
+        key: String,
+        value: String,
+        #[serde(rename = "in")]
+        location: ApiKeyLocation,
+    },
+    #[serde(rename_all = "camelCase")]
     OAuth2 {
         grant_type: GrantType,
         access_token: Option<String>,
         refresh_token: Option<String>,
+    },
+    #[serde(rename_all = "camelCase")]
+    Aws {
+        access_key: String,
+        secret_key: String,
+        region: String,
+        service: String,
+        session_token: Option<String>,
+        #[serde(rename = "in")]
+        location: ApiKeyLocation,
     },
 }
 

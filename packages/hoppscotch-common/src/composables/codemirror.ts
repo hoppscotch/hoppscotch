@@ -279,7 +279,7 @@ export function useCodemirror(
       }
 
       const text = view.value?.state.doc.sliceString(from, to)
-      const coords = view.value?.coordsAtPos(from)
+      const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
       const left = coords?.left ?? 0
       if (text?.trim()) {
@@ -402,7 +402,8 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
-            key: "Cmd-Enter" /* macOS */ || "Ctrl-Enter" /* Windows */,
+            key: "Ctrl-Enter" /* Windows */,
+            mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
             run: () => true,
           },

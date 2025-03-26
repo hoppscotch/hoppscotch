@@ -4,7 +4,7 @@ import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
 import { getService } from "~/modules/dioc"
-import { PersistenceService } from "../persistence"
+import { PersistenceService, STORE_KEYS } from "../persistence"
 import { TabService } from "./tab"
 import { PersistableTabState } from "."
 
@@ -65,16 +65,10 @@ export class RESTTabService extends TabService<HoppTabDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getLocalConfig("restTabs")
-
-    if (savedState) {
-      try {
-        return JSON.parse(savedState) as PersistableTabState<HoppTabDocument>
-      } catch {
-        return null
-      }
-    }
-    return null
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppTabDocument>
+    >(STORE_KEYS.REST_TABS)
+    return savedState
   }
 
   public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {

@@ -68,7 +68,6 @@
     "turn_on": "Turn on",
     "undo": "Undo",
     "yes": "Yes",
-    "confirm": "Confirm",
     "verify": "Verify",
     "enable": "Enable",
     "disable": "Disable"
@@ -367,6 +366,7 @@
     "protocols": "Protocols are empty",
     "request_variables": "This request does not have any request variables",
     "schema": "Connect to a GraphQL endpoint to view schema",
+    "search_environment": "No matching environment found for",
     "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
@@ -456,6 +456,10 @@
       "description": "An unknown error occurred.",
       "cause": "Unknown cause"
     },
+    "extension": {
+      "heading": "Extension error",
+      "description": "Failed running request on extension"
+    },
     "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
     "check_console_details": "Check console log for details.",
@@ -496,7 +500,8 @@
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
-    "delete_access_token": "Something went wrong while deleting the access token"
+    "delete_access_token": "Something went wrong while deleting the access token",
+    "extension_not_found": "Extension not found"
   },
   "export": {
     "as_json": "Export as JSON",
@@ -531,11 +536,13 @@
     "renamed": "Folder renamed"
   },
   "graphql": {
+    "arguments": "Arguments",
     "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
     "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
     "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
     "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "deprecated": "Deprecated",
+    "fields": "Fields",
     "mutation": "Mutation",
     "mutations": "Mutations",
     "schema": "Schema",
@@ -882,6 +889,7 @@
     "agent_reset_registration": "Reset Registration",
     "agent_registered": "Agent Registered",
     "agent_registration_successful": "Agent Registered Successfully",
+    "agent_registration_fetch_failed": "Couldn't fetch Agent registration information",
     "auto_encode_mode": "Auto",
     "auto_encode_mode_tooltip": "Encode the parameters in the request only if some special characters are present",
     "background": "Background",
@@ -1217,6 +1225,7 @@
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "published_message": "Published message: {message} to topic: {topic}",
     "reconnection_error": "Failed to reconnect",
+    "saved": "Saved",
     "show": "Show",
     "subscribed_failed": "Failed to subscribe to topic: {topic}",
     "subscribed_success": "Successfully subscribed to topic: {topic}",

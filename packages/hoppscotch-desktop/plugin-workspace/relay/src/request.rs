@@ -6,7 +6,7 @@ use crate::{
     content::ContentHandler,
     error::{RelayError, Result},
     header::HeadersBuilder,
-    interop::Request,
+    interop::{ApiKeyLocation, AuthType, Request},
     security::SecurityHandler,
     util::ToCurlVersion,
 };
@@ -48,6 +48,50 @@ impl<'a> CurlRequest<'a> {
                 cause: Some(e.to_string()),
             }
         })?;
+
+        /* NOTE: Once auth handling is correctly migrated over, this is how query param should be handled
+        if let Some(AuthType::ApiKey { key, value, location }) = &self.request.auth {
+            if let ApiKeyLocation::Query = location {
+                tracing::debug!(key = %key, "Adding API key to query parameters");
+
+                let mut url = url::Url::parse(&self.request.url).map_err(|e| {
+                    tracing::error!(error = %e, "Failed to parse URL for API key addition");
+                    RelayError::Parse {
+                        message: "Failed to parse URL for API key addition".into(),
+                        cause: Some(e.to_string()),
+                    }
+                })?;
+
+                url.query_pairs_mut().append_pair(key, value);
+                let updated_url = url.to_string();
+                tracing::debug!(url = %updated_url, "Updated URL with API key in query parameters");
+
+                self.handle.url(&updated_url).map_err(|e| {
+                    tracing::error!(error = %e, "Failed to set URL with API key");
+                    RelayError::Network {
+                        message: "Failed to set URL with API key".into(),
+                        cause: Some(e.to_string()),
+                    }
+                })?;
+            } else {
+                self.handle.url(&self.request.url).map_err(|e| {
+                    tracing::error!(error = %e, "Failed to set URL");
+                    RelayError::Network {
+                        message: "Failed to set URL".into(),
+                        cause: Some(e.to_string()),
+                    }
+                })?;
+            }
+        } else {
+            self.handle.url(&self.request.url).map_err(|e| {
+                tracing::error!(error = %e, "Failed to set URL");
+                RelayError::Network {
+                    message: "Failed to set URL".into(),
+                    cause: Some(e.to_string()),
+                }
+            })?;
+        }
+        */
 
         self.handle
             .http_version(self.request.version.to_curl_version())
@@ -137,6 +181,8 @@ impl<'a> CurlRequest<'a> {
 
         if let Some(ref request_headers) = self.request.headers {
             headers.extend(request_headers.clone());
+            HeadersBuilder::new(self.handle).add_headers(Some(&headers))?;
+        } else if !headers.is_empty() {
             HeadersBuilder::new(self.handle).add_headers(Some(&headers))?;
         }
 

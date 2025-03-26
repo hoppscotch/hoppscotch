@@ -5,7 +5,7 @@ import { TabService } from "./tab"
 import { computed } from "vue"
 import { Container } from "dioc"
 import { getService } from "~/modules/dioc"
-import { PersistenceService } from "../persistence"
+import { PersistenceService, STORE_KEYS } from "../persistence"
 import { PersistableTabState } from "."
 
 export class GQLTabService extends TabService<HoppGQLDocument> {
@@ -46,16 +46,10 @@ export class GQLTabService extends TabService<HoppGQLDocument> {
 
   protected async loadPersistedState(): Promise<PersistableTabState<HoppGQLDocument> | null> {
     const persistenceService = getService(PersistenceService)
-    const savedState = await persistenceService.getLocalConfig("gqlTabs")
-
-    if (savedState) {
-      try {
-        return JSON.parse(savedState) as PersistableTabState<HoppGQLDocument>
-      } catch {
-        return null
-      }
-    }
-    return null
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppGQLDocument>
+    >(STORE_KEYS.GQL_TABS)
+    return savedState
   }
 
   public getTabRefWithSaveContext(ctx: HoppGQLSaveContext) {

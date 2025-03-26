@@ -107,6 +107,19 @@ export type AuthType = {
     };
     accessToken?: string;
     refreshToken?: string;
+} | {
+    kind: "apikey";
+    key: string;
+    value: string;
+    in: "header" | "query";
+} | {
+    kind: "aws";
+    accessKey: string;
+    secretKey: string;
+    region: string;
+    service: string;
+    sessionToken?: string;
+    in: "header" | "query";
 };
 export type CertificateType = {
     kind: "pem";

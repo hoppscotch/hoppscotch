@@ -41,7 +41,7 @@ export function resolveSaveContextOnCollectionReorder(
   if (newIndex === -1) {
     // if (newIndex === -1) remove it from the map because it will be deleted
     affectedIndexes.delete(lastIndex)
-    // when collection deleted opended requests from that collection be affected
+    // when collection deleted opened requests from that collection be affected
     if (type === "remove") {
       resetSaveContextForAffectedRequests(
         folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
@@ -112,7 +112,7 @@ export function updateSaveContextForAffectedRequests(
 /**
  * Used to check the new folder path is close to the save context folder path or not
  * @param folderPathCurrent The path saved as the inherited path in the inherited properties
- * @param newFolderPath The incomming path
+ * @param newFolderPath The incoming path
  * @param saveContextPath The save context of the request
  * @returns The path which is close to saveContext.folderPath
  */

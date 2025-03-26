@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2025.2.2",
+  "version": "2025.2.3",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -19,7 +19,7 @@
     "@graphql-typed-document-node/core": "3.2.0",
     "@hoppscotch/ui": "0.2.1",
     "@hoppscotch/vue-toasted": "0.1.0",
-    "@intlify/unplugin-vue-i18n": "5.2.0",
+    "@intlify/unplugin-vue-i18n": "6.0.4",
     "@types/cors": "2.8.17",
     "@urql/exchange-auth": "2.2.0",
     "@urql/vue": "1.4.0",

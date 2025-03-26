@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use curl::easy::{Easy, List};
+use http::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::error::{RelayError, Result};
 
@@ -20,19 +22,28 @@ impl<'a> HeadersBuilder<'a> {
             return Ok(());
         };
 
-        let header_count = headers.len();
+        let mut header_map = HeaderMap::new();
+        for (key, value) in headers {
+            if let (Ok(name), Ok(val)) = (HeaderName::from_str(key), HeaderValue::from_str(value)) {
+                header_map.insert(name, val);
+            }
+        }
+
+        let header_count = header_map.len();
         tracing::info!(header_count, "Building header list");
 
-        let list = headers
+        let list = header_map
             .iter()
             .map(|(key, value)| {
+                let key_str = key.as_str();
+                let value_str = value.to_str().unwrap_or("");
                 tracing::debug!(
-                    ?key,
-                    value_count = value.len(),
-                    ?value,
+                    key = ?key_str,
+                    value_count = value_str.len(),
+                    value = ?value_str,
                     "Processing headers"
                 );
-                let header = format!("{key}: {value}");
+                let header = format!("{}: {}", key_str, value_str);
                 tracing::debug!(%header, "Adding header");
                 header
             })

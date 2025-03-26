@@ -340,13 +340,13 @@ export class ProxyKernelInterceptorService
             // NOTE: This should be conditional but seems to be hit always,
             // see std/interceptor/proxy.ts for more info. Also see the above similar note.
             if (parsedProxyResponse.isBinary) {
-              const decodedData = decodeB64StringToArrayBuffer(
-                parsedProxyResponse.data
+              const decodedData = new Uint8Array(
+                decodeB64StringToArrayBuffer(parsedProxyResponse.data)
               )
 
               // NOTE: This is also for backwards compat,
               // better solution would be to ask for raw bytes from proxyscotch.
-              const jsonResult = parseBytesToJSON(new Uint8Array(decodedData))
+              const jsonResult = parseBytesToJSON(decodedData)
 
               if (O.isSome(jsonResult)) {
                 return E.right({
@@ -382,7 +382,7 @@ export class ProxyKernelInterceptorService
               statusText: parsedProxyResponse.statusText,
               headers: parsedProxyResponse.headers,
               body: {
-                body: parsedProxyResponse.data,
+                body: new TextEncoder().encode(parsedProxyResponse.data),
                 mediaType:
                   parsedProxyResponse.headers["content-type"] || "text/plain",
               },

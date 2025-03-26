@@ -584,15 +584,16 @@ const filteredCollections = computed(() => {
   const filteredCollections = []
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
+
   const isRequestMatch = (request: HoppRESTRequest) =>
-    request.name.toLowerCase().includes(filterText) ||
-    request.endpoint.toLowerCase().includes(filterText)
+    isMatch(request.name) || isMatch(request.endpoint)
 
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isRequestMatch(request)) filteredRequests.push(request)
+      if (isRequestMatch(request as HoppRESTRequest))
+        filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
       if (isMatch(folder.name)) filteredFolders.push(folder)

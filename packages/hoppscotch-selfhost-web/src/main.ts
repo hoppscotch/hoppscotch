@@ -90,6 +90,8 @@ async function initApp() {
     platformFeatureFlags: {
       exportAsGIST: false,
       hasTelemetry: false,
+      cookiesEnabled: kernelMode === "desktop",
+      promptAsUsingCookies: false,
     },
     limits: {
       collectionImportSizeLimit: 50,

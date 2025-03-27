@@ -46,13 +46,13 @@
             @click="hideWindow"
           />
         </template>
-        <template v-else>
+
           <HoppButtonPrimary
+            v-else
             label="Minimize to Tray"
             outline
             @click="hideWindow"
           />
-        </template>
       </div>
     </div>
   </div>

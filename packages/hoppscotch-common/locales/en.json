@@ -882,7 +882,7 @@
     "account_email_description": "Your primary email address.",
     "account_name_description": "This is your display name.",
     "additional": "Additional Settings",
-    "agent_not_running": "Hoppscotch Agent not detected please check if the Agent is running.",
+    "agent_not_running": "Hoppscotch Agent not detected. Please check if the Agent is running.",
     "agent_not_running_short": "Check Agent's status.",
     "agent_running": "Hoppscotch Agent is live.",
     "agent_running_short": "Hoppscotch Agent is live.",

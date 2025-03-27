@@ -52,8 +52,6 @@
 
     <div v-else>
       <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.register')"
         :icon="IconPlus"
         :label="t('settings.register_agent')"
         outline

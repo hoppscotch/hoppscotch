@@ -51,6 +51,13 @@ export class KernelInterceptorAgentStore extends Service {
   public authKey = ref<string | null>(null)
   private sharedSecretB16 = ref<string | null>(null)
 
+  // AgentSubtitle component shared varaibles for unified display across multiple components
+  public hasInitiatedRegistration = ref(false)
+  public maskedAuthKey = ref("")
+  public hasCheckedAgent = ref(false)
+  public registrationOTP = ref(this.authKey.value ? null : "")
+  public isRegistering = ref(false)
+
   override async onServiceInit() {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {

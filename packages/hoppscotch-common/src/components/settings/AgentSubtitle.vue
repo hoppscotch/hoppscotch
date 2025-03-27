@@ -4,14 +4,18 @@
     class="flex flex-col items-left my-2 text-secondaryLight"
   >
     <div
-      v-if="!store.authKey.value && hasInitiatedRegistration && hasCheckedAgent"
+      v-if="
+        !store.authKey.value &&
+        store.hasInitiatedRegistration.value &&
+        store.hasCheckedAgent.value
+      "
       class="flex flex-1 items-center space-x-2"
     >
       <HoppSmartInput
-        v-model="registrationOTP"
+        v-model="store.registrationOTP.value"
         :autofocus="false"
         :placeholder="' '"
-        :disabled="isRegistering"
+        :disabled="store.isRegistering.value"
         :label="t('settings.enter_otp')"
         input-styles="input floating-input"
         class="flex-1"
@@ -20,7 +24,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.confirm')"
         :icon="IconCheck"
-        :loading="isRegistering"
+        :loading="store.isRegistering.value"
         outline
         class="rounded"
         @click="register"
@@ -28,7 +32,7 @@
     </div>
 
     <div
-      v-else-if="maskedAuthKey"
+      v-else-if="store.maskedAuthKey.value"
       class="flex relative flex-1 items-center space-x-2"
     >
       <label
@@ -38,7 +42,7 @@
       <div
         class="w-full p-2 border border-dividerLight rounded bg-primary text-secondaryDark cursor-text select-all"
       >
-        {{ maskedAuthKey }}
+        {{ store.maskedAuthKey.value }}
       </div>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -63,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
+import { computed, onMounted } from "vue"
 import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -83,23 +87,17 @@ const isSelected = computed(
   () => interceptorService.current.value?.id === "agent"
 )
 
-const hasInitiatedRegistration = ref(false)
-const maskedAuthKey = ref("")
-const hasCheckedAgent = ref(false)
-const registrationOTP = ref(store.authKey.value ? null : "")
-const isRegistering = ref(false)
-
 const handleAgentCheck = async () => {
   try {
     await store.checkAgentStatus()
-    hasCheckedAgent.value = true
+    store.hasCheckedAgent.value = true
     if (!store.isAgentRunning.value) {
       toast.error(t("settings.agent_not_running"))
     } else {
       await initiateRegistration()
     }
   } catch {
-    hasCheckedAgent.value = false
+    store.hasCheckedAgent.value = false
     toast.error(t("settings.agent_check_failed"))
   }
 }
@@ -107,7 +105,7 @@ const handleAgentCheck = async () => {
 const initiateRegistration = async () => {
   try {
     await store.initiateRegistration()
-    hasInitiatedRegistration.value = true
+    store.hasInitiatedRegistration.value = true
     toast.success(t("settings.agent_running"))
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -121,25 +119,25 @@ const initiateRegistration = async () => {
 }
 
 const register = async () => {
-  if (!registrationOTP.value) return
-  isRegistering.value = true
+  if (!store.registrationOTP.value) return
+  store.isRegistering.value = true
   try {
-    await store.verifyRegistration(registrationOTP.value)
+    await store.verifyRegistration(store.registrationOTP.value)
     await updateMaskedAuthKey()
     toast.success(t("settings.agent_registration_successful"))
-    registrationOTP.value = ""
+    store.registrationOTP.value = ""
   } catch (e) {
   } finally {
-    isRegistering.value = false
+    store.isRegistering.value = false
   }
 }
 
 const resetRegistration = async () => {
   await store.resetAuthKey()
-  maskedAuthKey.value = ""
-  registrationOTP.value = ""
-  hasInitiatedRegistration.value = false
-  hasCheckedAgent.value = false
+  store.maskedAuthKey.value = ""
+  store.registrationOTP.value = ""
+  store.hasInitiatedRegistration.value = false
+  store.hasCheckedAgent.value = false
 }
 
 const updateMaskedAuthKey = async () => {
@@ -147,7 +145,7 @@ const updateMaskedAuthKey = async () => {
 
   try {
     const registration = await store.fetchRegistrationInfo()
-    maskedAuthKey.value = registration.auth_key_hash
+    store.maskedAuthKey.value = registration.auth_key_hash
   } catch (e) {}
 }
 

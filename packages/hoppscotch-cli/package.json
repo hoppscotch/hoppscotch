@@ -42,7 +42,7 @@
   "private": false,
   "dependencies": {
     "aws4fetch": "1.0.20",
-    "axios": "1.7.7",
+    "axios": "1.8.2",
     "chalk": "5.3.0",
     "commander": "12.1.0",
     "isolated-vm": "5.0.1",

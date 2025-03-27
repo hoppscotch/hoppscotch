@@ -182,6 +182,20 @@ pub fn run() {
             };
 
             let app_handle_ref = app_handle.clone();
+            app_handle.listen("maximize-window", move |_| {
+                tracing::info!("Maximize window event triggered");
+                if let Some(window) = app_handle_ref.get_webview_window("main") {
+                    if let Err(e) = window.emit("show-otp-view", ()) {
+                        tracing::error!("Failed to emit show-otp-view event: {}", e);
+                    }
+
+                    if let Err(e) = show_main_window(&app_handle_ref) {
+                        tracing::error!("Failed to maximize window: {}", e);
+                    }
+                }
+            });
+
+            let app_handle_ref = app_handle.clone();
             app_handle.listen("registration-received", move |_| {
                 tracing::info!("Registration received event triggered");
                 if let Err(e) = show_main_window(&app_handle_ref) {

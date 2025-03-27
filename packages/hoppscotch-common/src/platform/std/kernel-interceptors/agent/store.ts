@@ -51,6 +51,13 @@ export class KernelInterceptorAgentStore extends Service {
   public authKey = ref<string | null>(null)
   private sharedSecretB16 = ref<string | null>(null)
 
+  // AgentSubtitle component shared variables for unified display across multiple components
+  public hasInitiatedRegistration = ref(false)
+  public maskedAuthKey = ref("")
+  public hasCheckedAgent = ref(false)
+  public registrationOTP = ref(this.authKey.value ? null : "")
+  public isRegistering = ref(false)
+
   override async onServiceInit() {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
@@ -117,6 +124,12 @@ export class KernelInterceptorAgentStore extends Service {
     if (E.isLeft(saveResult)) {
       console.error("[AgentStore] Failed to save store:", saveResult.left)
     }
+  }
+
+  public async resetAuthKey(): Promise<void> {
+    this.authKey.value = null
+    this.sharedSecretB16.value = null
+    await this.persistStore()
   }
 
   private mergeSecurity(
@@ -195,7 +208,7 @@ export class KernelInterceptorAgentStore extends Service {
     )
 
     if (response.data.message !== "Registration received and stored") {
-      throw new Error("Registration failed")
+      throw new Error(response.data.message ?? "Registration failed")
     }
 
     return otp
@@ -251,6 +264,7 @@ export class KernelInterceptorAgentStore extends Service {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           this.authKey.value = null
+          await this.persistStore()
         }
       }
       throw error

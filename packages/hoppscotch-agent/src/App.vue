@@ -6,8 +6,9 @@
       <div class="flex-grow">
         <p class="tracking-wide">
           An app is trying to register against the Hoppscotch Agent. If this was intentional, copy the given code into
-          the app to complete the registration process. Please hide the window if you did not initiate this request.
-          Do not hide this window until the verification code is entered. The window will hide automatically once done.
+          the app to complete the registration process. Please cancel the registration if you did not initiate this request.
+          The window will hide automatically once registration succeeds. If you minimize this window during registration,
+          you can access it again from the tray by selecting "Maximize Window".
         </p>
         <p
           class="font-bold text-5xl tracking-wider text-center pt-10 text-white"

@@ -136,8 +136,8 @@ const register = async () => {
   }
 }
 
-const resetRegistration = () => {
-  store.authKey.value = null
+const resetRegistration = async () => {
+  await store.resetAuthKey()
   maskedAuthKey.value = ""
   registrationOTP.value = ""
   hasInitiatedRegistration.value = false

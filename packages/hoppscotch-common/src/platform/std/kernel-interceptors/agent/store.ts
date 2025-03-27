@@ -119,6 +119,12 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
+  public async resetAuthKey(): Promise<void> {
+    this.authKey.value = null
+    this.sharedSecretB16.value = null
+    await this.persistStore()
+  }
+
   private mergeSecurity(
     ...settings: (Required<InputDomainSetting>["security"] | undefined)[]
   ): Required<InputDomainSetting>["security"] | undefined {
@@ -251,6 +257,7 @@ export class KernelInterceptorAgentStore extends Service {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           this.authKey.value = null
+          await this.persistStore()
         }
       }
       throw error

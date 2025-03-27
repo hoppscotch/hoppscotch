@@ -195,7 +195,7 @@ export class KernelInterceptorAgentStore extends Service {
     )
 
     if (response.data.message !== "Registration received and stored") {
-      throw new Error("Registration failed")
+      throw new Error(response.data.message ?? "Registration failed")
     }
 
     return otp

@@ -4,46 +4,7 @@
     class="flex flex-col items-left my-2 text-secondaryLight"
   >
     <div
-      v-if="
-        !store.authKey.value &&
-        (!store.isAgentRunning.value || !hasCheckedAgent)
-      "
-      class="flex flex-1 items-center space-x-2"
-    >
-      <div class="relative flex-1 border border-divider rounded p-2">
-        <span>{{ t("settings.agent_not_running_short") }}</span>
-      </div>
-      <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.retry')"
-        :icon="IconRefresh"
-        outline
-        class="rounded"
-        @click="handleAgentCheck"
-      />
-    </div>
-
-    <div
-      v-else-if="!store.authKey.value && !hasInitiatedRegistration"
-      class="flex flex-1 items-center space-x-2"
-    >
-      <div
-        class="relative flex-1 border border-divider rounded p-2 text-accent"
-      >
-        <span>{{ t("settings.agent_running") }}</span>
-      </div>
-      <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.register')"
-        :icon="IconPlus"
-        outline
-        class="rounded"
-        @click="initiateRegistration"
-      />
-    </div>
-
-    <div
-      v-else-if="!store.authKey.value"
+      v-if="!store.authKey.value && hasInitiatedRegistration && hasCheckedAgent"
       class="flex flex-1 items-center space-x-2"
     >
       <HoppSmartInput
@@ -66,9 +27,12 @@
       />
     </div>
 
-    <div v-else class="flex relative flex-1 items-center space-x-2">
+    <div
+      v-else-if="maskedAuthKey"
+      class="flex relative flex-1 items-center space-x-2"
+    >
       <label
-        class="text-secondaryLight text-tiny absolute -top-2 left-2 px-1 bg-primary"
+        class="text-secondaryLight text-tiny absolute -top-2 left-2 px-1"
         >{{ t("settings.agent_registered") }}</label
       >
       <div
@@ -78,11 +42,23 @@
       </div>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="t('settings.agent_reset_registration')"
-        :icon="iconClear"
+        :title="t('settings.agent_discard_registration')"
+        :icon="IconClose"
         outline
         class="rounded"
         @click="resetRegistration"
+      />
+    </div>
+
+    <div v-else>
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('action.register')"
+        :icon="IconPlus"
+        :label="t('settings.register_agent')"
+        outline
+        class="rounded"
+        @click="handleAgentCheck"
       />
     </div>
   </div>
@@ -90,7 +66,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"
-import { refAutoReset } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -98,18 +73,13 @@ import { KernelInterceptorAgentStore } from "~/platform/std/kernel-interceptors/
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 import IconPlus from "~icons/lucide/plus"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconCheck from "~icons/lucide/check"
-import IconRefresh from "~icons/lucide/refresh-cw"
+import IconClose from "~icons/lucide/x"
 
 const t = useI18n()
 const toast = useToast()
 const store = useService(KernelInterceptorAgentStore)
 const interceptorService = useService(KernelInterceptorService)
-const iconClear = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
-  IconRotateCCW,
-  1000
-)
 
 const isSelected = computed(
   () => interceptorService.current.value?.id === "agent"
@@ -120,28 +90,41 @@ const maskedAuthKey = ref("")
 const hasCheckedAgent = ref(false)
 const registrationOTP = ref(store.authKey.value ? null : "")
 const isRegistering = ref(false)
+const errorCheckAgent = ref(false)
 
-async function handleAgentCheck() {
+const handleAgentCheck = async () => {
   try {
     await store.checkAgentStatus()
     hasCheckedAgent.value = true
     if (!store.isAgentRunning.value) {
       toast.error(t("settings.agent_not_running"))
+    } else {
+      await initiateRegistration()
     }
-  } catch (e) {
+  } catch {
     hasCheckedAgent.value = false
     toast.error(t("settings.agent_check_failed"))
   }
 }
 
-async function initiateRegistration() {
+const initiateRegistration = async () => {
   try {
     await store.initiateRegistration()
     hasInitiatedRegistration.value = true
-  } catch (e) {}
+    toast.success(t("settings.agent_running"))
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      errorCheckAgent.value = true
+      if (e.message === "There is already an existing registration happening") {
+        toast.error(t("settings.agent_registration_already_in_progress"))
+      } else {
+        toast.error(t("settings.agent_registration_failed"))
+      }
+    }
+  }
 }
 
-async function register() {
+const register = async () => {
   if (!registrationOTP.value) return
   isRegistering.value = true
   try {
@@ -155,14 +138,15 @@ async function register() {
   }
 }
 
-function resetRegistration() {
+const resetRegistration = () => {
   store.authKey.value = null
   maskedAuthKey.value = ""
   registrationOTP.value = ""
   hasInitiatedRegistration.value = false
+  hasCheckedAgent.value = false
 }
 
-async function updateMaskedAuthKey() {
+const updateMaskedAuthKey = async () => {
   if (!store.authKey.value) return
 
   try {

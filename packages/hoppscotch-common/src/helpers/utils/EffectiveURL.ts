@@ -62,9 +62,9 @@ export const getComputedAuthHeaders = async (
   req?:
     | HoppRESTRequest
     | {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeaders
-      },
+      auth: HoppRESTAuth
+      headers: HoppRESTHeaders
+    },
   auth?: HoppRESTRequest["auth"],
   parse = true,
   showKeyIfSecret = false
@@ -84,19 +84,19 @@ export const getComputedAuthHeaders = async (
   if (request.auth.authType === "basic") {
     const username = parse
       ? parseTemplateString(
-          request.auth.username,
-          envVars,
-          false,
-          showKeyIfSecret
-        )
+        request.auth.username,
+        envVars,
+        false,
+        showKeyIfSecret
+      )
       : request.auth.username
     const password = parse
       ? parseTemplateString(
-          request.auth.password,
-          envVars,
-          false,
-          showKeyIfSecret
-        )
+        request.auth.password,
+        envVars,
+        false,
+        showKeyIfSecret
+      )
       : request.auth.password
 
     headers.push({
@@ -163,11 +163,10 @@ export const getComputedAuthHeaders = async (
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${
-        parse
-          ? parseTemplateString(token, envVars, false, showKeyIfSecret)
-          : token
-      }`,
+      value: `Bearer ${parse
+        ? parseTemplateString(token, envVars, false, showKeyIfSecret)
+        : token
+        }`,
       description: "",
     })
   } else if (request.auth.authType === "api-key") {
@@ -178,11 +177,11 @@ export const getComputedAuthHeaders = async (
         key: parseTemplateString(key, envVars, false, showKeyIfSecret),
         value: parse
           ? parseTemplateString(
-              request.auth.value ?? "",
-              envVars,
-              false,
-              showKeyIfSecret
-            )
+            request.auth.value ?? "",
+            envVars,
+            false,
+            showKeyIfSecret
+          )
           : (request.auth.value ?? ""),
         description: "",
       })
@@ -232,9 +231,9 @@ export const getComputedBodyHeaders = (
   req:
     | HoppRESTRequest
     | {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeaders
-      }
+      auth: HoppRESTAuth
+      headers: HoppRESTHeaders
+    }
 ): HoppRESTHeader[] => {
   // If a content-type is already defined, that will override this
   if (
@@ -303,9 +302,9 @@ export const getComputedHeaders = async (
   req:
     | HoppRESTRequest
     | {
-        auth: HoppRESTAuth
-        headers: HoppRESTHeaders
-      },
+      auth: HoppRESTAuth
+      headers: HoppRESTHeaders
+    },
   envVars: Environment["variables"],
   parse = true,
   showKeyIfSecret = false
@@ -348,8 +347,18 @@ export const getComputedParams = async (
 ): Promise<ComputedParam[]> => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
-  if (!req.auth || !req.auth.authActive) return []
 
+  let arr = []
+  for (let i = 0; i < envVars.length; i++) {
+    let elem = envVars[i] as { value: string, key: string, secret: false }
+    arr.push({
+      ...elem,
+      sourceEnv: ''
+    })
+  }
+  arr = resolveEnvsInParams(req, arr)
+
+  if (!req.auth || !req.auth.authActive) return arr
   if (
     req.auth.authType !== "api-key" &&
     req.auth.authType !== "oauth-2" &&
@@ -357,7 +366,7 @@ export const getComputedParams = async (
   )
     return []
 
-  if (req.auth.addTo !== "QUERY_PARAMS") return []
+  if (req.auth.addTo !== "QUERY_PARAMS") return arr
 
   if (req.auth.authType === "aws-signature") {
     const { addTo } = req.auth
@@ -424,7 +433,39 @@ export const getComputedParams = async (
       },
     ]
   }
-  return []
+  return arr
+}
+
+export const resolveEnvsInParams = (
+  req: HoppRESTRequest,
+  envVars: {
+    key: string,
+    value: string,
+    secret: boolean,
+    sourceEnv: string
+  }[]
+): ComputedParam[] => {
+  let regex = /(\w+)=(<<\w+>>)+/g
+  let params: ComputedParam[] = []
+  function replaceAll(_: string, group1: string, group2: string) {
+    for (let i = 0; i < envVars.length; i++) {
+      if (envVars[i].key == group2.slice(2, -2)) {
+        params.push({
+          source: "auth",
+          param: {
+            key: group1,
+            value: envVars[i].value,
+            active: true,
+            description: ''
+          }
+        })
+        return envVars[i].value.replace(' ', '+')
+      }
+    }
+    return group2
+  }
+  req.endpoint.replace(regex, replaceAll)
+  return params
 }
 
 // Resolves environment variables in the body
@@ -545,17 +586,17 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-              key: parseTemplateString(x.key, envVariables),
-              value: v as string | Blob,
-              contentType: x.contentType,
-            }))
+            key: parseTemplateString(x.key, envVariables),
+            value: v as string | Blob,
+            contentType: x.contentType,
+          }))
           : [
-              {
-                key: parseTemplateString(x.key, envVariables),
-                value: parseTemplateString(x.value, envVariables),
-                contentType: x.contentType,
-              },
-            ]
+            {
+              key: parseTemplateString(x.key, envVariables),
+              value: parseTemplateString(x.value, envVariables),
+              contentType: x.contentType,
+            },
+          ]
       ),
       toFormData
     )
@@ -618,22 +659,27 @@ export async function getEffectiveRESTRequest(
     ),
     A.concat(request.params),
     A.filter((x) => x.active && x.key !== ""),
-    A.map((x) => ({
-      active: true,
-      key: parseTemplateString(
-        x.key,
-        environment.variables,
-        false,
-        showKeyIfSecret
-      ),
-      value: parseTemplateString(
-        x.value,
-        environment.variables,
-        false,
-        showKeyIfSecret
-      ),
-      description: x.description,
-    }))
+    A.map((x) => {
+
+      return {
+
+
+        active: true,
+        key: parseTemplateString(
+          x.key,
+          environment.variables,
+          false,
+          showKeyIfSecret
+        ),
+        value: parseTemplateString(
+          x.value,
+          environment.variables,
+          false,
+          showKeyIfSecret
+        ),
+        description: x.description,
+      }
+    })
   )
 
   const effectiveFinalRequestVariables = pipe(
@@ -652,10 +698,22 @@ export async function getEffectiveRESTRequest(
     showKeyIfSecret
   )
 
+  let regex = /(<<\w+>>)+/g
+  function replaceAll(_: string, group: string) {
+    for (let i = 0; i < environment.variables.length; i++) {
+      if (group.slice(2, -2) == environment.variables[i].key) {
+        let elem = environment.variables[i] as { value: string, key: string, secret: false }
+        if (elem.value) {
+          return elem.value.replace(' ', '+')
+        }
+      }
+    }
+    return group
+  }
   return {
     ...request,
     effectiveFinalURL: parseTemplateString(
-      request.endpoint,
+      request.endpoint.replace(regex, replaceAll),
       environment.variables,
       false,
       showKeyIfSecret

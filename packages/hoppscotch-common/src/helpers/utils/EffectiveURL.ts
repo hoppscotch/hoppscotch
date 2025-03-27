@@ -62,9 +62,9 @@ export const getComputedAuthHeaders = async (
   req?:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    },
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   auth?: HoppRESTRequest["auth"],
   parse = true,
   showKeyIfSecret = false
@@ -84,19 +84,19 @@ export const getComputedAuthHeaders = async (
   if (request.auth.authType === "basic") {
     const username = parse
       ? parseTemplateString(
-        request.auth.username,
-        envVars,
-        false,
-        showKeyIfSecret
-      )
+          request.auth.username,
+          envVars,
+          false,
+          showKeyIfSecret
+        )
       : request.auth.username
     const password = parse
       ? parseTemplateString(
-        request.auth.password,
-        envVars,
-        false,
-        showKeyIfSecret
-      )
+          request.auth.password,
+          envVars,
+          false,
+          showKeyIfSecret
+        )
       : request.auth.password
 
     headers.push({
@@ -163,10 +163,11 @@ export const getComputedAuthHeaders = async (
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${parse
-        ? parseTemplateString(token, envVars, false, showKeyIfSecret)
-        : token
-        }`,
+      value: `Bearer ${
+        parse
+          ? parseTemplateString(token, envVars, false, showKeyIfSecret)
+          : token
+      }`,
       description: "",
     })
   } else if (request.auth.authType === "api-key") {
@@ -177,11 +178,11 @@ export const getComputedAuthHeaders = async (
         key: parseTemplateString(key, envVars, false, showKeyIfSecret),
         value: parse
           ? parseTemplateString(
-            request.auth.value ?? "",
-            envVars,
-            false,
-            showKeyIfSecret
-          )
+              request.auth.value ?? "",
+              envVars,
+              false,
+              showKeyIfSecret
+            )
           : (request.auth.value ?? ""),
         description: "",
       })
@@ -231,9 +232,9 @@ export const getComputedBodyHeaders = (
   req:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    }
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      }
 ): HoppRESTHeader[] => {
   // If a content-type is already defined, that will override this
   if (
@@ -302,9 +303,9 @@ export const getComputedHeaders = async (
   req:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    },
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   envVars: Environment["variables"],
   parse = true,
   showKeyIfSecret = false
@@ -350,10 +351,10 @@ export const getComputedParams = async (
 
   let arr = []
   for (let i = 0; i < envVars.length; i++) {
-    let elem = envVars[i] as { value: string, key: string, secret: false }
+    const elem = envVars[i] as { value: string; key: string; secret: false }
     arr.push({
       ...elem,
-      sourceEnv: ''
+      sourceEnv: "",
     })
   }
   arr = resolveEnvsInParams(req, arr)
@@ -439,14 +440,14 @@ export const getComputedParams = async (
 export const resolveEnvsInParams = (
   req: HoppRESTRequest,
   envVars: {
-    key: string,
-    value: string,
-    secret: boolean,
+    key: string
+    value: string
+    secret: boolean
     sourceEnv: string
   }[]
 ): ComputedParam[] => {
-  let regex = /(\w+)=(<<\w+>>)+/g
-  let params: ComputedParam[] = []
+  const regex = /(\w+)=(<<\w+>>)+/g
+  const params: ComputedParam[] = []
   function replaceAll(_: string, group1: string, group2: string) {
     for (let i = 0; i < envVars.length; i++) {
       if (envVars[i].key == group2.slice(2, -2)) {
@@ -456,10 +457,10 @@ export const resolveEnvsInParams = (
             key: group1,
             value: envVars[i].value,
             active: true,
-            description: ''
-          }
+            description: "",
+          },
         })
-        return envVars[i].value.replace(' ', '+')
+        return envVars[i].value.replace(" ", "+")
       }
     }
     return group2
@@ -586,17 +587,17 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-            key: parseTemplateString(x.key, envVariables),
-            value: v as string | Blob,
-            contentType: x.contentType,
-          }))
-          : [
-            {
               key: parseTemplateString(x.key, envVariables),
-              value: parseTemplateString(x.value, envVariables),
+              value: v as string | Blob,
               contentType: x.contentType,
-            },
-          ]
+            }))
+          : [
+              {
+                key: parseTemplateString(x.key, envVariables),
+                value: parseTemplateString(x.value, envVariables),
+                contentType: x.contentType,
+              },
+            ]
       ),
       toFormData
     )
@@ -660,10 +661,7 @@ export async function getEffectiveRESTRequest(
     A.concat(request.params),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => {
-
       return {
-
-
         active: true,
         key: parseTemplateString(
           x.key,
@@ -698,13 +696,17 @@ export async function getEffectiveRESTRequest(
     showKeyIfSecret
   )
 
-  let regex = /(<<\w+>>)+/g
+  const regex = /(<<\w+>>)+/g
   function replaceAll(_: string, group: string) {
     for (let i = 0; i < environment.variables.length; i++) {
       if (group.slice(2, -2) == environment.variables[i].key) {
-        let elem = environment.variables[i] as { value: string, key: string, secret: false }
+        const elem = environment.variables[i] as {
+          value: string
+          key: string
+          secret: false
+        }
         if (elem.value) {
-          return elem.value.replace(' ', '+')
+          return elem.value.replace(" ", "+")
         }
       }
     }

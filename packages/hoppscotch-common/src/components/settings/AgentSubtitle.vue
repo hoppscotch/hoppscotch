@@ -90,7 +90,6 @@ const maskedAuthKey = ref("")
 const hasCheckedAgent = ref(false)
 const registrationOTP = ref(store.authKey.value ? null : "")
 const isRegistering = ref(false)
-const errorCheckAgent = ref(false)
 
 const handleAgentCheck = async () => {
   try {
@@ -114,7 +113,6 @@ const initiateRegistration = async () => {
     toast.success(t("settings.agent_running"))
   } catch (e: unknown) {
     if (e instanceof Error) {
-      errorCheckAgent.value = true
       if (e.message === "There is already an existing registration happening") {
         toast.error(t("settings.agent_registration_already_in_progress"))
       } else {

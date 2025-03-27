@@ -13,7 +13,7 @@
       </HoppSmartTable>
     </div>
     <div class="border-t border-divider p-5 flex justify-between">
-      <HoppButtonPrimary label="Close Window" outline @click="hideWindow" />
+      <HoppButtonPrimary label="Hide Window" outline @click="hideWindow" />
     </div>
   </div>
 </template>

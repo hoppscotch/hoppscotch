@@ -181,7 +181,11 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import {
+  getDefaultGQLRequest,
+  HoppCollection,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
@@ -329,10 +333,6 @@ const filteredCollections = computed(() => {
   return filteredCollections
 })
 
-const requestContext = computed(() => {
-  return tabs.currentActiveTab.value.document.request
-})
-
 const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
 }
@@ -396,7 +396,7 @@ const duplicateCollection = ({
 
 const onAddRequest = ({ name, path }: { name: string; path: string }) => {
   const newRequest = {
-    ...tabs.currentActiveTab.value.document.request,
+    ...getDefaultGQLRequest(),
     name,
   }
 

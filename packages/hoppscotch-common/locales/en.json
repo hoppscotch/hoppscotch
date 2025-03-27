@@ -890,7 +890,7 @@
     "agent_registered": "Agent Registered",
     "agent_registration_successful": "Agent Registered Successfully",
     "agent_registration_fetch_failed": "Couldn't fetch Agent registration information. Please re-register the Agent.",
-    "agent_registration_already_in_progress": "Agent registration is already in progress. Please close the current registration window and try again.",
+    "agent_registration_already_in_progress": "Agent registration is already in progress. Please complete or cancel the current registration and try again.",
     "auto_encode_mode": "Auto",
     "auto_encode_mode_tooltip": "Encode the parameters in the request only if some special characters are present",
     "background": "Background",

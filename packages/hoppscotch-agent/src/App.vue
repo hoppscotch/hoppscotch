@@ -38,7 +38,27 @@
         :icon="copyIcon"
         @click="copyOtp"
       />
-      <HoppButtonPrimary label="Hide Window" outline @click="hideWindow" />
+      <div class="flex gap-2">
+        <template v-if="isOtpView(state()) && state().otp">
+          <HoppButtonSecondary
+            label="Cancel Registration"
+            outline
+            @click="getCurrentWindow().close()"
+          />
+          <HoppButtonPrimary
+            label="Minimize to Tray"
+            outline
+            @click="hideWindow"
+          />
+        </template>
+        <template v-else>
+          <HoppButtonPrimary
+            label="Minimize to Tray"
+            outline
+            @click="hideWindow"
+          />
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -181,6 +201,16 @@ onMounted(async () => {
     ),
     listen("authenticated", handleAuthenticated),
     listen("show-registrations", handleShowRegistrations),
+    listen("show-otp-view", async () => {
+      appState.value = { ...state(), view: "otp" };
+
+      await pipe(
+        getOtp,
+        TE.map((otp: string) => {
+          if (otp) appState.value = { ...state(), view: "otp", otp: O.some(otp) };
+        })
+      )();
+    }),
   ])
 })
 </script>

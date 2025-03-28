@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2025.2.3",
+  "version": "2025.3.0",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -24,7 +24,7 @@
     "@urql/exchange-auth": "2.2.0",
     "@urql/vue": "1.4.0",
     "@vueuse/core": "11.1.0",
-    "axios": "1.7.7",
+    "axios": "1.8.2",
     "cors": "2.8.5",
     "date-fns": "4.1.0",
     "fp-ts": "2.16.9",

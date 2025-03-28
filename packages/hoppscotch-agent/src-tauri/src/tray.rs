@@ -23,6 +23,13 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         true,
         None::<&str>,
     )?;
+    let maximize_window = MenuItem::with_id(
+        app,
+        "maximize_window",
+        "Maximize Window",
+        true,
+        None::<&str>,
+    )?;
     let show_registrations = MenuItem::with_id(
         app,
         "show_registrations",
@@ -48,8 +55,11 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .item(&app_name_item)
         .item(&app_version_item)
         .separator()
+        .item(&maximize_window)
+        .separator()
         .item(&clear_registrations)
         .item(&show_registrations)
+        .separator()
         .separator()
         .item(&quit_i)
         .build()?;
@@ -63,7 +73,7 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         })
         .icon_as_template(cfg!(target_os = "macos"))
         .menu(&menu)
-        .menu_on_left_click(true)
+        .show_menu_on_left_click(true)
         .on_menu_event(move |app, event| match event.id.as_ref() {
             "quit" => {
                 tracing::info!("Exiting the agent...");
@@ -83,6 +93,15 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                 });
                 if let Err(e) = show_main_window(&app) {
                     tracing::error!("Failed to show window: {}", e);
+                }
+            }
+            "maximize_window" => {
+                app.emit("maximize-window", ())
+                    .unwrap_or_else(|e| {
+                        tracing::error!("Failed to emit maximize-window event: {}", e);
+                    });
+                if let Err(e) = show_main_window(&app) {
+                    tracing::error!("Failed to maximize window: {}", e);
                 }
             }
             _ => {

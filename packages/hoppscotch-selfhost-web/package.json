@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2025.2.3",
+  "version": "2025.3.0",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -36,7 +36,7 @@
     "@tauri-apps/plugin-fs": "2.0.2",
     "@tauri-apps/plugin-shell": "2.0.1",
     "@vueuse/core": "10.5.0",
-    "axios": "1.7.7",
+    "axios": "1.8.2",
     "buffer": "6.0.3",
     "dioc": "3.0.2",
     "fp-ts": "2.16.9",

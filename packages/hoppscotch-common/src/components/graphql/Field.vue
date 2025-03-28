@@ -1,9 +1,11 @@
 <template>
   <div class="hopp-doc-explorer-item" @click="handleClick">
-    <div class="flex">
+    <div class="flex space-x-2 items-center flex-1">
       <div
+        class="inline-flex items-center align-bottom gap-2"
         :class="{
           '!line-through': field.deprecationReason,
+          '!px-4': !showAddField,
         }"
       >
         <GraphqlFieldLink
@@ -12,19 +14,8 @@
           :is-added="isFieldInOperation(field)"
           @add-field="insertQuery"
         />
-        <template v-if="args.length > 0">
-          (<span>
-            <template v-for="arg in args" :key="arg.name">
-              <div
-                v-if="args.length > 1"
-                class="hopp-doc-explorer-argument-multiple"
-              >
-                <GraphqlArgument :arg="arg" inline />
-              </div>
-              <GraphqlArgument v-else :arg="arg" inline />
-            </template> </span
-          >)</template
-        >:
+        <template v-if="args.length > 0"> (...) </template>
+        <span> : </span>
         <GraphqlTypeLink :type="field.type" />
         <GraphqlDefaultValue :field="field" />
       </div>
@@ -32,7 +23,7 @@
       <span
         v-if="field.deprecationReason"
         v-tippy="{ theme: 'tooltip' }"
-        class="hopp-doc-explorer-deprecated inline ml-auto text-red-500"
+        class="hopp-doc-explorer-deprecated inline-flex items-center justify-center"
         :title="field.deprecationReason"
       >
         <icon-lucide-triangle-alert />
@@ -42,7 +33,7 @@
     <AppMarkdown
       v-if="field.description"
       type="description"
-      class="hidden"
+      class="hidden p-4"
       :only-show-first-child="true"
     >
       {{ field.description }}
@@ -85,6 +76,6 @@ const args = computed(() =>
 
 <style scoped lang="scss">
 .hopp-doc-explorer-item {
-  @apply cursor-pointer py-1 px-2 hover:bg-primaryLight;
+  @apply cursor-pointer transition hover:bg-primaryLight;
 }
 </style>

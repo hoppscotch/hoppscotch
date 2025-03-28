@@ -20,6 +20,7 @@ overrides:
   dset@3.1.3: 3.1.4
   nanoid@3.3.7: 3.3.8
   execa@0.10.0: 2.0.0
+  '@babel/runtime@<7.26.10': 7.26.10
 
 packageExtensionsChecksum: sha256-Qhsch/G1LLagBL1kRb8nf11C5HcyCWi8Px3h3uWxYUw=
 
@@ -95,8 +96,8 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0(vue@3.5.12(typescript@5.6.3))
       axios:
-        specifier: ^1.7.7
-        version: 1.7.7
+        specifier: 1.8.2
+        version: 1.8.2
       fp-ts:
         specifier: ^2.16.9
         version: 2.16.9
@@ -391,8 +392,8 @@ importers:
         specifier: 1.0.20
         version: 1.0.20
       axios:
-        specifier: 1.7.7
-        version: 1.7.7
+        specifier: 1.8.2
+        version: 1.8.2
       chalk:
         specifier: 5.3.0
         version: 5.3.0
@@ -566,8 +567,8 @@ importers:
         specifier: 1.0.20
         version: 1.0.20
       axios:
-        specifier: 1.7.7
-        version: 1.7.7
+        specifier: 1.8.2
+        version: 1.8.2
       buffer:
         specifier: 6.0.3
         version: 6.0.3
@@ -1180,7 +1181,7 @@ importers:
     dependencies:
       '@hoppscotch/plugin-relay':
         specifier: github:CuriousCorrelation/tauri-plugin-relay
-        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/86e1ccf327e60442c6ae9c2911d9359bf9e32c1b'
+        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/fee58601fb4b0c129b5a9d87aaa0f9f87c26cd09'
       '@tauri-apps/api':
         specifier: 2.1.1
         version: 2.1.1
@@ -1200,8 +1201,8 @@ importers:
         specifier: 1.0.20
         version: 1.0.20
       axios:
-        specifier: 1.6.2
-        version: 1.6.2
+        specifier: 1.8.2
+        version: 1.8.2
       fp-ts:
         specifier: 2.16.9
         version: 2.16.9
@@ -1252,8 +1253,8 @@ importers:
         specifier: 10.5.0
         version: 10.5.0(vue@3.5.12(typescript@4.9.5))
       axios:
-        specifier: 1.7.5
-        version: 1.7.5
+        specifier: 1.8.2
+        version: 1.8.2
       buffer:
         specifier: 6.0.3
         version: 6.0.3
@@ -1466,8 +1467,8 @@ importers:
         specifier: 10.5.0
         version: 10.5.0(vue@3.5.12(typescript@5.3.3))
       axios:
-        specifier: 1.7.7
-        version: 1.7.7
+        specifier: 1.8.2
+        version: 1.8.2
       buffer:
         specifier: 6.0.3
         version: 6.0.3
@@ -1659,8 +1660,8 @@ importers:
         specifier: 11.1.0
         version: 11.1.0(vue@3.5.12(typescript@5.6.3))
       axios:
-        specifier: 1.7.7
-        version: 1.7.7
+        specifier: 1.8.2
+        version: 1.8.2
       cors:
         specifier: 2.8.5
         version: 2.8.5
@@ -1809,8 +1810,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1c2e8b19db7f1b6af6d00abb907f15cdc2017298}
     version: 0.1.0
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/86e1ccf327e60442c6ae9c2911d9359bf9e32c1b':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/86e1ccf327e60442c6ae9c2911d9359bf9e32c1b}
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/fee58601fb4b0c129b5a9d87aaa0f9f87c26cd09':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/fee58601fb4b0c129b5a9d87aaa0f9f87c26cd09}
     version: 0.1.0
 
   '@alloc/quick-lru@5.2.0':
@@ -2604,8 +2605,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0 || ^8.0.0-0 <8.0.0
 
-  '@babel/runtime@7.25.7':
-    resolution: {integrity: sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==}
+  '@babel/runtime@7.26.10':
+    resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/standalone@7.24.5':
@@ -6439,14 +6440,8 @@ packages:
   aws4fetch@1.0.20:
     resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
-  axios@1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
-
-  axios@1.7.5:
-    resolution: {integrity: sha512-fZu86yCo+svH3uqJ/yTdQ0QHpQu5oL+/QE+QPSv6BZSkDAoky9vytxp7u5qk83OJFS3kEBcesWni9WTZAv3tSw==}
-
-  axios@1.7.7:
-    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -13213,7 +13208,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.1.1
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/86e1ccf327e60442c6ae9c2911d9359bf9e32c1b':
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/fee58601fb4b0c129b5a9d87aaa0f9f87c26cd09':
     dependencies:
       '@tauri-apps/api': 2.1.1
 
@@ -13440,7 +13435,7 @@ snapshots:
       '@babel/core': 7.25.7
       '@babel/generator': 7.25.7
       '@babel/parser': 7.25.7
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       '@babel/traverse': 7.25.7
       '@babel/types': 7.25.7
       babel-preset-fbjs: 3.4.0(@babel/core@7.25.7)
@@ -14269,7 +14264,7 @@ snapshots:
       '@babel/types': 7.25.7
       esutils: 2.0.3
 
-  '@babel/runtime@7.25.7':
+  '@babel/runtime@7.26.10':
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -19293,26 +19288,10 @@ snapshots:
 
   aws4fetch@1.0.20: {}
 
-  axios@1.6.2:
+  axios@1.8.2:
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.1
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.7.5:
-    dependencies:
-      follow-redirects: 1.15.6
-      form-data: 4.0.1
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.7.7:
-    dependencies:
-      follow-redirects: 1.15.6
-      form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -23494,7 +23473,7 @@ snapshots:
 
   mjml-accordion@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23510,7 +23489,7 @@ snapshots:
 
   mjml-body@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23526,7 +23505,7 @@ snapshots:
 
   mjml-button@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23542,7 +23521,7 @@ snapshots:
 
   mjml-carousel@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23558,7 +23537,7 @@ snapshots:
 
   mjml-cli@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       chokidar: 3.6.0
       glob: 10.4.2
       lodash: 4.17.21
@@ -23580,7 +23559,7 @@ snapshots:
 
   mjml-column@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23596,7 +23575,7 @@ snapshots:
 
   mjml-core@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       cheerio: 1.0.0-rc.12
       cssnano: 7.0.6(postcss@8.4.49)
       detect-node: 2.1.0
@@ -23620,7 +23599,7 @@ snapshots:
 
   mjml-divider@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23636,7 +23615,7 @@ snapshots:
 
   mjml-group@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23652,7 +23631,7 @@ snapshots:
 
   mjml-head-attributes@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23668,7 +23647,7 @@ snapshots:
 
   mjml-head-breakpoint@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23684,7 +23663,7 @@ snapshots:
 
   mjml-head-font@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23700,7 +23679,7 @@ snapshots:
 
   mjml-head-html-attributes@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23716,7 +23695,7 @@ snapshots:
 
   mjml-head-preview@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23732,7 +23711,7 @@ snapshots:
 
   mjml-head-style@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23748,7 +23727,7 @@ snapshots:
 
   mjml-head-title@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23764,7 +23743,7 @@ snapshots:
 
   mjml-head@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23780,7 +23759,7 @@ snapshots:
 
   mjml-hero@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23796,7 +23775,7 @@ snapshots:
 
   mjml-image@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23812,7 +23791,7 @@ snapshots:
 
   mjml-navbar@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23828,7 +23807,7 @@ snapshots:
 
   mjml-parser-xml@5.0.0-alpha.4:
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       detect-node: 2.1.0
       htmlparser2: 9.1.0
       lodash: 4.17.21
@@ -23836,7 +23815,7 @@ snapshots:
 
   mjml-preset-core@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       mjml-accordion: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       mjml-body: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       mjml-button: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
@@ -23875,7 +23854,7 @@ snapshots:
 
   mjml-raw@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23891,7 +23870,7 @@ snapshots:
 
   mjml-section@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23907,7 +23886,7 @@ snapshots:
 
   mjml-social@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23923,7 +23902,7 @@ snapshots:
 
   mjml-spacer@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23939,7 +23918,7 @@ snapshots:
 
   mjml-table@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23955,7 +23934,7 @@ snapshots:
 
   mjml-text@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
     transitivePeerDependencies:
@@ -23971,12 +23950,12 @@ snapshots:
 
   mjml-validator@5.0.0-alpha.4:
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
     optional: true
 
   mjml-wrapper@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       lodash: 4.17.21
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       mjml-section: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
@@ -23993,7 +23972,7 @@ snapshots:
 
   mjml@5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4):
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       mjml-cli: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       mjml-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
       mjml-preset-core: 5.0.0-alpha.4(relateurl@0.2.7)(svgo@3.3.2)(terser@5.34.1)(typescript@5.5.4)
@@ -24905,7 +24884,7 @@ snapshots:
 
   posthog-node@4.2.0:
     dependencies:
-      axios: 1.7.7
+      axios: 1.8.2
       rusha: 0.8.14
     transitivePeerDependencies:
       - debug
@@ -25249,7 +25228,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
 
   regexp.prototype.flags@1.5.2:
     dependencies:
@@ -25285,7 +25264,7 @@ snapshots:
 
   relay-runtime@12.0.0:
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       fbjs: 3.0.5
       invariant: 2.2.4
     transitivePeerDependencies:
@@ -28078,7 +28057,7 @@ snapshots:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.17.1)
       '@babel/core': 7.25.7
       '@babel/preset-env': 7.25.7(@babel/core@7.25.7)
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.26.10
       '@rollup/plugin-babel': 5.3.1(@babel/core@7.25.7)(@types/babel__core@7.20.5)(rollup@2.79.2)
       '@rollup/plugin-node-resolve': 15.3.0(rollup@2.79.2)
       '@rollup/plugin-replace': 2.4.2(rollup@2.79.2)

@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2025.2.3",
+  "version": "2025.3.0",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -55,7 +55,7 @@
     "@vueuse/core": "11.1.0",
     "acorn-walk": "8.3.4",
     "aws4fetch": "1.0.20",
-    "axios": "1.7.7",
+    "axios": "1.8.2",
     "buffer": "6.0.3",
     "cookie-es": "1.2.2",
     "dioc": "3.0.2",

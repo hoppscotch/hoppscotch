@@ -53,7 +53,9 @@
               <template v-else-if="inspector.text.type === 'custom'">
                 <component
                   :is="inspector.text.component"
-                  v-bind="inspector.text.componentProps"
+                  v-bind="
+                    inspector.text.componentProps as Record<string, unknown>
+                  "
                 />
               </template>
               <span v-if="inspector.action" class="flex space-x-2 p-2">

@@ -132,13 +132,19 @@ export class AgentKernelInterceptorService
           .join(";")
       }
 
+      const existingUserAgentHeader = Object.keys(
+        effectiveRequest.headers || {}
+      ).find((header) => header.toLowerCase() === "user-agent")
+
       // A temporary workaround to add a User-Agent header to the request
       // This will be removed once the agent is updated to add User-Agent header by default
       const effectiveRequestWithUserAgent = {
         ...effectiveRequest,
         headers: {
           ...effectiveRequest.headers,
-          "User-Agent": "HoppscotchKernel/0.1.0",
+          "User-Agent": existingUserAgentHeader
+            ? effectiveRequest.headers[existingUserAgentHeader]
+            : "HoppscotchKernel/0.1.0",
         },
       }
 

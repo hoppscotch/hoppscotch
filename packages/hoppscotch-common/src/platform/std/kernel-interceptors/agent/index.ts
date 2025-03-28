@@ -4,7 +4,10 @@ import { body, relayRequestToNativeAdapter } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import axios, { CancelTokenSource } from "axios"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import {
+  postProcessRelayRequest,
+  preProcessRelayRequest,
+} from "~/helpers/functional/process-request"
 import {
   RelayRequest,
   RelayResponse,
@@ -148,8 +151,13 @@ export class AgentKernelInterceptorService
         },
       }
 
+      const nativeRequest = await relayRequestToNativeAdapter(
+        effectiveRequestWithUserAgent
+      )
+      const postProcessedRequest = postProcessRelayRequest(nativeRequest)
+
       const [nonceB16, encryptedReq] = await this.store.encryptRequest(
-        await relayRequestToNativeAdapter(effectiveRequestWithUserAgent),
+        postProcessedRequest,
         reqID
       )
 

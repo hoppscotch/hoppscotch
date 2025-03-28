@@ -2,8 +2,16 @@ import { markRaw } from "vue"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { getI18n } from "~/modules/i18n"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
-import type { RelayCapabilities, RelayRequest } from "@hoppscotch/kernel"
+import {
+  postProcessRelayRequest,
+  preProcessRelayRequest,
+} from "~/helpers/functional/process-request"
+import {
+  relayRequestToNativeAdapter,
+  type RelayCapabilities,
+  type RelayRequest,
+  type RelayResponse,
+} from "@hoppscotch/kernel"
 import { Relay } from "~/kernel/relay"
 import { Service } from "dioc"
 import type {
@@ -70,124 +78,150 @@ export class NativeKernelInterceptorService
   public execute(
     request: RelayRequest
   ): ExecutionResult<KernelInterceptorError> {
-    const effectiveRequest = this.store.completeRequest(
-      preProcessRelayRequest(request)
-    )
-    const relevantCookies = this.cookieJar.getCookiesForURL(
-      new URL(effectiveRequest.url!)
-    )
-
-    if (relevantCookies.length > 0) {
-      effectiveRequest.headers!["Cookie"] = relevantCookies
-        .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-        .join(";")
-    }
-
-    const existingUserAgentHeader = Object.keys(
-      effectiveRequest.headers || {}
-    ).find((header) => header.toLowerCase() === "user-agent")
-
-    // A temporary workaround to add a User-Agent header to the request
-    // This will be removed once the kernel/relay is updated to add User-Agent header by default
-    const effectiveRequestWithUserAgent = {
-      ...effectiveRequest,
-      headers: {
-        ...effectiveRequest.headers,
-        "User-Agent": existingUserAgentHeader
-          ? effectiveRequest.headers[existingUserAgentHeader]
-          : "HoppscotchKernel/0.1.0",
-      },
-    }
-
-    const relayExecution = Relay.execute(effectiveRequestWithUserAgent)
-
-    const response = pipe(relayExecution.response, (promise) =>
-      promise.then((either) =>
-        pipe(
-          either,
-          E.mapLeft((error): KernelInterceptorError => {
-            const humanMessage = {
-              heading: (t: ReturnType<typeof getI18n>) => {
-                switch (error.kind) {
-                  case "network":
-                    return t("error.network.heading")
-                  case "timeout":
-                    return t("error.timeout.heading")
-                  case "certificate":
-                    return t("error.certificate.heading")
-                  case "auth":
-                    return t("error.auth.heading")
-                  case "proxy":
-                    return t("error.proxy.heading")
-                  case "parse":
-                    return t("error.parse.heading")
-                  case "version":
-                    return t("error.version.heading")
-                  case "abort":
-                    return t("error.aborted.heading")
-                  default:
-                    return t("error.unknown.heading")
-                }
-              },
-              description: (t: ReturnType<typeof getI18n>) => {
-                switch (error.kind) {
-                  case "network":
-                    return t("error.network.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "timeout":
-                    return t("error.timeout.description", {
-                      message: error.message,
-                      phase: error.phase ?? t("error.unknown.phase"),
-                    })
-                  case "certificate":
-                    return t("error.certificate.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "auth":
-                    return t("error.auth.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "proxy":
-                    return t("error.proxy.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "parse":
-                    return t("error.parse.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "version":
-                    return t("error.version.description", {
-                      message: error.message,
-                      cause: error.cause ?? t("error.unknown.cause"),
-                    })
-                  case "abort":
-                    return t("error.aborted.description", {
-                      message: error.message,
-                    })
-                  default:
-                    return t("error.unknown.description")
-                }
-              },
-            }
-            return {
-              humanMessage,
-              error,
-              component: InterceptorsErrorPlaceholder,
-            }
-          })
-        )
-      )
-    )
+    let relayExecution: { cancel: () => Promise<void> } | null = null
 
     return {
-      cancel: relayExecution.cancel,
-      response,
+      cancel: async () => {
+        if (relayExecution) {
+          await relayExecution.cancel()
+        }
+      },
+      response: pipe(
+        this.executeRequest(request, (execution) => {
+          relayExecution = execution
+        }),
+        (promise) =>
+          promise.then((either) =>
+            pipe(
+              either,
+              E.mapLeft((error): KernelInterceptorError => {
+                const humanMessage = {
+                  heading: (t: ReturnType<typeof getI18n>) => {
+                    switch (error.kind) {
+                      case "network":
+                        return t("error.network.heading")
+                      case "timeout":
+                        return t("error.timeout.heading")
+                      case "certificate":
+                        return t("error.certificate.heading")
+                      case "auth":
+                        return t("error.auth.heading")
+                      case "proxy":
+                        return t("error.proxy.heading")
+                      case "parse":
+                        return t("error.parse.heading")
+                      case "version":
+                        return t("error.version.heading")
+                      case "abort":
+                        return t("error.aborted.heading")
+                      default:
+                        return t("error.unknown.heading")
+                    }
+                  },
+                  description: (t: ReturnType<typeof getI18n>) => {
+                    switch (error.kind) {
+                      case "network":
+                        return t("error.network.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "timeout":
+                        return t("error.timeout.description", {
+                          message: error.message,
+                          phase: error.phase ?? t("error.unknown.phase"),
+                        })
+                      case "certificate":
+                        return t("error.certificate.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "auth":
+                        return t("error.auth.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "proxy":
+                        return t("error.proxy.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "parse":
+                        return t("error.parse.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "version":
+                        return t("error.version.description", {
+                          message: error.message,
+                          cause: error.cause ?? t("error.unknown.cause"),
+                        })
+                      case "abort":
+                        return t("error.aborted.description", {
+                          message: error.message,
+                        })
+                      default:
+                        return t("error.unknown.description")
+                    }
+                  },
+                }
+                return {
+                  humanMessage,
+                  error,
+                  component: InterceptorsErrorPlaceholder,
+                }
+              })
+            )
+          )
+      ),
+    }
+  }
+
+  private async executeRequest(
+    request: RelayRequest,
+    setRelayExecution: (execution: { cancel: () => Promise<void> }) => void
+  ): Promise<E.Either<any, RelayResponse>> {
+    try {
+      const effectiveRequest = this.store.completeRequest(
+        preProcessRelayRequest(request)
+      )
+
+      const relevantCookies = this.cookieJar.getCookiesForURL(
+        new URL(effectiveRequest.url!)
+      )
+
+      if (relevantCookies.length > 0) {
+        effectiveRequest.headers!["Cookie"] = relevantCookies
+          .map((cookie) => `${cookie.name!}=${cookie.value!}`)
+          .join(";")
+      }
+
+      const existingUserAgentHeader = Object.keys(
+        effectiveRequest.headers || {}
+      ).find((header) => header.toLowerCase() === "user-agent")
+
+      // A temporary workaround to add a User-Agent header to the request
+      // This will be removed once the kernel/relay is updated to add User-Agent header by default
+      const effectiveRequestWithUserAgent = {
+        ...effectiveRequest,
+        headers: {
+          ...effectiveRequest.headers,
+          "User-Agent": existingUserAgentHeader
+            ? effectiveRequest.headers[existingUserAgentHeader]
+            : "HoppscotchKernel/0.1.0",
+        },
+      }
+
+      const nativeRequest = await relayRequestToNativeAdapter(
+        effectiveRequestWithUserAgent
+      )
+      const postProcessedRequest = postProcessRelayRequest(nativeRequest)
+      const relayExecution = Relay.execute(postProcessedRequest)
+
+      setRelayExecution(relayExecution)
+
+      return await relayExecution.response
+    } catch (e) {
+      return E.left(e)
     }
   }
 }

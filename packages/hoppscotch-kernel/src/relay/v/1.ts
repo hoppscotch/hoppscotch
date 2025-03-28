@@ -590,11 +590,11 @@ export const content = {
     })
 }
 
-// Helper function to convert standard `FormData` to `Map<string, FormDataValue[]>`
+// Helper function to convert standard `FormData` to array of arrays `[string, FormDataValue[]][]`
 // This is mainly a crossplatform thing, once there's an equivalent and easy to impl `FormData` type for Rust,
 // we can consider removing this.
-const makeFormDataSerializable = async (formData: FormData): Promise<Map<string, FormDataValue[]>> => {
-    const result = new Map<string, FormDataValue[]>()
+const makeFormDataSerializable = async (formData: FormData): Promise<[string, FormDataValue[]][]> => {
+    const result: [string, FormDataValue[]][] = []
     // @ts-expect-error: `formData.entries` does exist but isn't visible,
     // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
     for (const [key, value] of formData.entries()) {
@@ -607,16 +607,24 @@ const makeFormDataSerializable = async (formData: FormData): Promise<Map<string,
                 data: new Uint8Array(buffer)
             }
 
-            const existingValues = result.get(key) || []
-            result.set(key, [...existingValues, fileEntry])
+            const existingEntry = result.find(([k]) => k === key)
+            if (existingEntry) {
+                existingEntry[1].push(fileEntry)
+            } else {
+                result.push([key, [fileEntry]])
+            }
         } else {
             const textEntry: FormDataValue = {
                 kind: "text",
                 value: value.toString()
             }
 
-            const existingValues = result.get(key) || []
-            result.set(key, [...existingValues, textEntry])
+            const existingEntry = result.find(([k]) => k === key)
+            if (existingEntry) {
+                existingEntry[1].push(textEntry)
+            } else {
+                result.push([key, [textEntry]])
+            }
         }
     }
 
@@ -630,22 +638,16 @@ export const relayRequestToNativeAdapter = async (request: RelayRequest): Promis
     if (adaptedRequest.content?.kind === "multipart" && adaptedRequest.content.content instanceof FormData) {
         const serializableFormData = await makeFormDataSerializable(adaptedRequest.content.content);
 
-        // Replace with the converted form data
-        // SAFETY: Type assertion is necessary here because the plugin system expects
-        // types similar to Map<string, FormDataValue[]> instead of FormData.
-        // Then convert the `Map` to simpler nested object structure for better compatibility
-        // `Maps` it seems like are serialized differently across platforms and serialization libraries,
-        // while objects tend to maintain more consistent behavior by the sheer ubiquity of it.
-        const convertedContent: Record<string, FormDataValue[]> = {};
-
-        for (const [key, values] of serializableFormData.entries()) {
-            convertedContent[key] = Array.isArray(values) ? values : [values];
-        }
-
         adaptedRequest.content = {
             ...adaptedRequest.content,
+            // Replace with the converted form data
+            // SAFETY: Type assertion is necessary here because the plugin system expects
+            // types similar to Map<string, FormDataValue[]> instead of FormData.
+            // Then convert the `Map` to simpler nested `Array` of `Array` structure for better compatibility
+            // `Maps` it seems like are serialized differently across platforms and serialization libraries,
+            // while `Array` of `Array` tend to maintain more consistent behavior by the sheer ubiquity of it.
             // @ts-expect-error: This is intentional to work around SuperJSON serialization
-            content: convertedContent
+            content: serializableFormData
         };
     }
 

@@ -986,7 +986,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
             }
             return resultDoc
           },
-          (error) => {
+          () => {
             return IMPORTER_INVALID_FILE_FORMAT
           }
         )
@@ -1018,7 +1018,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
             return resultDoc
           },
-          (error) => {
+          () => {
             return OPENAPI_DEREF_ERROR
           }
         )

@@ -84,7 +84,7 @@ export class NativeKernelInterceptorService
     }
 
     // A temporary workaround to add a User-Agent header to the request
-    // This will be removed once the agent is updated to add User-Agent header by default
+    // This will be removed once the kernel/relay is updated to add User-Agent header by default
     const effectiveRequestWithUserAgent = {
       ...effectiveRequest,
       headers: {

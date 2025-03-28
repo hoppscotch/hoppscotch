@@ -83,7 +83,17 @@ export class NativeKernelInterceptorService
         .join(";")
     }
 
-    const relayExecution = Relay.execute(effectiveRequest)
+    // A temporary workaround to add a User-Agent header to the request
+    // This will be removed once the agent is updated to add User-Agent header by default
+    const effectiveRequestWithUserAgent = {
+      ...effectiveRequest,
+      headers: {
+        ...effectiveRequest.headers,
+        "User-Agent": "HoppscotchKernel/0.1.0",
+      },
+    }
+
+    const relayExecution = Relay.execute(effectiveRequestWithUserAgent)
 
     const response = pipe(relayExecution.response, (promise) =>
       promise.then((either) =>

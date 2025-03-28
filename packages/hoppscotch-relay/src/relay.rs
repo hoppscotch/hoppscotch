@@ -27,6 +27,46 @@ pub fn run_request_task(
     );
 
     let mut curl_handle = Easy::new();
+
+    for header in &req.headers {
+        if header.key.to_lowercase() == "accept-encoding" {
+            let encoding = header.value.to_lowercase();
+            let encodings: Vec<&str> = encoding.split(',').map(|s| s.trim()).collect();
+
+            for enc in encodings {
+                // https://docs.rs/curl/latest/curl/easy/struct.Easy2.html#method.accept_encoding
+                // Currently supported encoding are identity, zlib, and gzip. A zero-length string passed in will send all accepted encodings.
+
+                let enc = match enc {
+                    "gzip" => "gzip",
+                    "zlib" | "deflate" => "deflate",
+                    "identity" => "identity",
+                    "" => "",
+                    _ => {
+                        log::warn!("Encoding '{}' not recognized, ignoring.", enc);
+                        continue;
+                    }
+                };
+
+                match curl_handle.accept_encoding(enc) {
+                    Ok(_) => log::debug!("Enabling encoding: {}", enc),
+                    Err(err) => {
+                        log::error!(
+                            "Critical failure enabling encoding {}: {}
+                            \nError details: {:?}",
+                            enc,
+                            err,
+                            err
+                        );
+                        return Err(RelayError::RequestRunError(err.description().to_string()));
+                    }
+                }
+            }
+        }
+    }
+
+
+
     log::debug!("Initialized new curl handle with default settings");
 
     match curl_handle.progress(true) {
@@ -61,6 +101,7 @@ pub fn run_request_task(
         }
     }
 
+
     let headers = match get_headers_list(&req) {
         Ok(headers) => {
             log::debug!("Generated headers list");
@@ -72,6 +113,7 @@ pub fn run_request_task(
         }
     };
 
+
     match curl_handle.http_headers(headers) {
         Ok(_) => log::debug!("Successfully configured request headers"),
         Err(err) => {
@@ -79,6 +121,7 @@ pub fn run_request_task(
             return Err(RelayError::InvalidHeaders);
         }
     }
+
 
     if let Err(err) = apply_body_to_curl_handle(&mut curl_handle, &req) {
         log::error!(

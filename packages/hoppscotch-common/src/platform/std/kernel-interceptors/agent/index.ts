@@ -132,8 +132,18 @@ export class AgentKernelInterceptorService
           .join(";")
       }
 
+      // A temporary workaround to add a User-Agent header to the request
+      // This will be removed once the agent is updated to add User-Agent header by default
+      const effectiveRequestWithUserAgent = {
+        ...effectiveRequest,
+        headers: {
+          ...effectiveRequest.headers,
+          "User-Agent": "HoppscotchKernel/0.1.0",
+        },
+      }
+
       const [nonceB16, encryptedReq] = await this.store.encryptRequest(
-        await relayRequestToNativeAdapter(effectiveRequest),
+        await relayRequestToNativeAdapter(effectiveRequestWithUserAgent),
         reqID
       )
 

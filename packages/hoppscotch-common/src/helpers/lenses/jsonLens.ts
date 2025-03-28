@@ -3,11 +3,24 @@ import { Lens } from "./lenses"
 import { isJSONContentType } from "../utils/contenttypes"
 
 /**
- * Checks if a string can be parsed as valid JSON
+ * Checks if response body contents can be parsed as valid JSON
  */
-export function isValidJSON(str: string): boolean {
+export function isValidJSONResponse(contents: string | ArrayBuffer): boolean {
+  if (!contents) {
+    return false
+  }
+
+  const resolvedStr =
+    contents instanceof ArrayBuffer
+      ? new TextDecoder("utf-8").decode(contents)
+      : contents
+
+  if (!resolvedStr.trim()) {
+    return false
+  }
+
   try {
-    JSON.parse(str)
+    JSON.parse(resolvedStr)
     return true
   } catch (e) {
     return false
@@ -16,17 +29,7 @@ export function isValidJSON(str: string): boolean {
 
 const jsonLens: Lens = {
   lensName: "response.json",
-  isSupportedContentType: (contentType) => {
-    // Check if it's a standard JSON content type
-    if (isJSONContentType(contentType)) return true
-
-    // For text/plain, we'll need the response body to determine if it's JSON
-    if (contentType.includes("text/plain")) {
-      return true // We'll do actual JSON validation in the renderer component
-    }
-
-    return false
-  },
+  isSupportedContentType: isJSONContentType,
   renderer: "json",
   rendererImport: defineAsyncComponent(
     () => import("~/components/lenses/renderers/JSONLensRenderer.vue")

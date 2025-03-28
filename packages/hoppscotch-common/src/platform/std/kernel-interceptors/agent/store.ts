@@ -275,7 +275,6 @@ export class KernelInterceptorAgentStore extends Service {
     reqID: number
   ): Promise<[string, ArrayBuffer]> {
     const reqJSON = JSON.stringify({ ...request, id: reqID })
-    console.info("reqJSON", reqJSON)
     const reqJSONBytes = new TextEncoder().encode(reqJSON)
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()

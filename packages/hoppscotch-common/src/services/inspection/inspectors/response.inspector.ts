@@ -5,7 +5,7 @@ import {
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
-import { markRaw, ref, watch, nextTick } from "vue"
+import { markRaw, ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import IconLoader from "~icons/lucide/loader"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -31,14 +31,6 @@ export class ResponseInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
 
-  private inspectionResults = ref<InspectorResult[]>([])
-  private isLoadingAI = ref(false)
-
-  private async updateInspectionResults(results: InspectorResult[]) {
-    this.inspectionResults.value = [...results]
-    await nextTick()
-  }
-
   override onServiceInit() {
     this.inspection.registerInspector(this)
   }
@@ -49,145 +41,145 @@ export class ResponseInspectorService extends Service implements Inspector {
   ) {
     const { shouldEnableAIFeatures } = useAIExperiments()
 
-    // Watch for response changes to trigger inspection updates
-    watch(
-      [res],
-      async ([newRes]) => {
-        if (!newRes) {
-          await this.updateInspectionResults([])
+    const aiResults: Ref<InspectorResult[]> = ref([])
+
+    const isAIDiagnosisLoading = ref(false)
+
+    const calculateAIResult = async () => {
+      try {
+        const diagnoseError =
+          await platform.experiments?.aiExperiments?.diagnoseError
+
+        if (!diagnoseError || !shouldEnableAIFeatures.value) {
           return
         }
 
-        const baseResults: InspectorResult[] = []
+        isAIDiagnosisLoading.value = true
 
-        const hasErrors =
-          newRes.type !== "success" ||
-          (newRes.type === "success" && newRes.statusCode !== 200)
+        const aiResult = await diagnoseError(
+          JSON.stringify(req.value),
+          JSON.stringify(res.value)
+        )
 
-        let text: string | undefined = undefined
-
-        if (newRes.type === "network_fail" && !navigator.onLine) {
-          text = this.t("inspections.response.network_error")
-        } else if (newRes.type === "fail") {
-          text = this.t("inspections.response.default_error")
-        } else if (newRes.type === "success" && newRes.statusCode === 404) {
-          text = this.t("inspections.response.404_error")
-        } else if (newRes.type === "success" && newRes.statusCode === 401) {
-          text = this.t("inspections.response.401_error")
-        }
-
-        if (hasErrors && text) {
-          baseResults.push({
-            id: "url",
+        if (E.isRight(aiResult)) {
+          return {
+            id: "ai_diagnosis",
             icon: markRaw(IconAlertTriangle),
             text: {
-              type: "text",
-              text: text,
+              type: "custom" as const,
+              component: markRaw(AIDiagnosisInspector),
+              componentProps: {
+                diagnosis: aiResult.right.diagnosis,
+                fix: aiResult.right.fix,
+                traceID: aiResult.right.trace_id,
+              },
             },
             severity: 2,
             isApplicable: true,
             locations: {
-              type: "response",
+              type: "response" as const,
             },
-            doc: {
-              text: this.t("action.learn_more"),
-              link: "https://docs.hoppscotch.io/documentation/features/inspections",
-            },
-          })
-
-          // Update UI with base results first
-          await this.updateInspectionResults(baseResults)
-
-          // Add AI diagnosis if AI features are enabled
-          if (
-            shouldEnableAIFeatures.value &&
-            platform.experiments?.aiExperiments?.diagnoseError
-          ) {
-            this.isLoadingAI.value = true
-            // Show loading state
-            await this.updateInspectionResults([
-              ...baseResults,
-              {
-                id: "ai_diagnosis_loading",
-                icon: markRaw(IconLoader),
-                text: {
-                  type: "text",
-                  text: "AI is analyzing your request...",
-                },
-                severity: 1,
-                isApplicable: true,
-                locations: {
-                  type: "response",
-                },
-              },
-            ])
-
-            try {
-              const aiResult =
-                await platform.experiments.aiExperiments.diagnoseError(
-                  JSON.stringify(req.value),
-                  JSON.stringify(newRes)
-                )
-
-              if (E.isRight(aiResult)) {
-                // Update with final results including AI diagnosis
-                await this.updateInspectionResults([
-                  ...baseResults,
-                  {
-                    id: "ai_diagnosis",
-                    icon: markRaw(IconAlertTriangle),
-                    text: {
-                      type: "custom",
-                      component: markRaw(AIDiagnosisInspector),
-                      componentProps: {
-                        diagnosis: aiResult.right.diagnosis,
-                        fix: aiResult.right.fix,
-                        traceID: aiResult.right.trace_id,
-                      },
-                    },
-                    severity: 2,
-                    isApplicable: true,
-                    locations: {
-                      type: "response",
-                    },
-                  },
-                ])
-              }
-            } catch (error) {
-              // Update with error state
-              await this.updateInspectionResults([
-                ...baseResults,
-                {
-                  id: "ai_diagnosis_error",
-                  icon: markRaw(IconAlertTriangle),
-                  text: {
-                    type: "text",
-                    text: "Failed to get AI diagnosis for now.",
-                  },
-                  severity: 1,
-                  isApplicable: true,
-                  locations: {
-                    type: "response",
-                  },
-                },
-              ])
-            } finally {
-              this.isLoadingAI.value = false
-            }
-          } else {
-            // If AI features are not enabled, just show base results
-            await this.updateInspectionResults(baseResults)
           }
-        } else {
-          // If no errors, clear the results
-          await this.updateInspectionResults([])
         }
-      },
-      { immediate: true }
-    )
+
+        return {
+          id: "ai_diagnosis_error",
+          icon: markRaw(IconAlertTriangle),
+          text: {
+            type: "text" as const,
+            text: "Failed to get AI diagnosis for now.",
+          },
+          severity: 1,
+          isApplicable: true,
+          locations: {
+            type: "response" as const,
+          },
+        }
+      } catch (error) {
+        return {
+          id: "ai_diagnosis_error",
+          icon: markRaw(IconAlertTriangle),
+          text: {
+            type: "text" as const,
+            text: "Failed to get AI diagnosis for now.",
+          },
+          severity: 1,
+          isApplicable: true,
+          locations: {
+            type: "response" as const,
+          },
+        }
+      } finally {
+        isAIDiagnosisLoading.value = false
+      }
+    }
+
+    calculateAIResult()
+      .then((result) => {
+        aiResults.value = result ? [result] : []
+      })
+      .catch(() => {})
 
     return computed(() => {
-      return this.inspectionResults.value
+      const results: InspectorResult[] = []
+      if (!res.value) return results
+
+      const hasErrors =
+        res && (res.value.type !== "success" || res.value.statusCode !== 200)
+
+      let text: string | undefined = undefined
+
+      if (res.value.type === "network_fail" && !navigator.onLine) {
+        text = this.t("inspections.response.network_error")
+      } else if (res.value.type === "fail") {
+        text = this.t("inspections.response.default_error")
+      } else if (res.value.type === "success" && res.value.statusCode === 404) {
+        text = this.t("inspections.response.404_error")
+      } else if (res.value.type === "success" && res.value.statusCode === 401) {
+        text = this.t("inspections.response.401_error")
+      }
+
+      if (hasErrors && text) {
+        results.push({
+          id: "url",
+          icon: markRaw(IconAlertTriangle),
+          text: {
+            type: "text",
+            text: text,
+          },
+          severity: 2,
+          isApplicable: true,
+          locations: {
+            type: "response",
+          },
+          doc: {
+            text: this.t("action.learn_more"),
+            link: "https://docs.hoppscotch.io/documentation/features/inspections",
+          },
+        })
+      }
+
+      if (isAIDiagnosisLoading.value) {
+        results.push({
+          id: "ai_diagnosis_loading",
+          icon: markRaw(IconLoader),
+          text: {
+            type: "text",
+            text: "AI is analyzing your request...",
+          },
+          severity: 1,
+          isApplicable: true,
+          locations: {
+            type: "response",
+          },
+        })
+      }
+
+      return [
+        ...results,
+        // if the ai results are there, the computed will run and update the results
+        ...aiResults.value,
+      ]
     })
   }
 }

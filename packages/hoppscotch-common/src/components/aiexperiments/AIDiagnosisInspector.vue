@@ -27,7 +27,7 @@
           outline
           @click="
             async () => {
-              await submitFeedback('positive')
+              await submitFeedback('positive', traceID)
             }
           "
         />
@@ -36,7 +36,7 @@
           outline
           @click="
             async () => {
-              await submitFeedback('negative')
+              await submitFeedback('negative', traceID)
             }
           "
         />
@@ -54,36 +54,17 @@ import { ref } from "vue"
 import { useI18n } from "~/composables/i18n"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
-import { platform } from "~/platform"
-import { useToast } from "~/composables/toast"
+import { useSubmitFeedback } from "~/composables/ai-experiments"
 
 const t = useI18n()
-const toast = useToast()
 
-const props = defineProps<{
+defineProps<{
   diagnosis: string
   fix: string
   traceID: string
 }>()
 
 const submittedFeedback = ref(false)
-const isSubmitFeedbackPending = ref(false)
 
-const submitFeedback = async (type: "positive" | "negative") => {
-  if (!props.traceID) return
-
-  isSubmitFeedbackPending.value = true
-  try {
-    const score = type === "positive" ? 1 : -1
-    await platform.experiments?.aiExperiments?.submitFeedback(
-      score,
-      props.traceID
-    )
-    submittedFeedback.value = true
-  } catch (error) {
-    toast.error(t("ai_experiments.feedback_failure"))
-  } finally {
-    isSubmitFeedbackPending.value = false
-  }
-}
+const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 </script>

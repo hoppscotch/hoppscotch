@@ -49,6 +49,14 @@ cd hoppscotch/packages/hoppscotch-js-sandbox
 npm run demo
 ```
 
+## Developement Setup - Gary Ascuy
+
+Tests does not work with nodejs 20, it's required nodejs flag
+
+```sh
+NODE_OPTIONS="--no-node-snapshot" pnpm test
+```
+
 ## Versioning
 This project follows [Semantic Versioning](https://semver.org/) but as the project is still pre-1.0. The code and the public exposed API should not be considered to be fixed and stable. Things can change at any time!
 

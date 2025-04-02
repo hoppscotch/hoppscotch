@@ -365,12 +365,12 @@ const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
 onMounted(async () => {
   const { organization } = platform
 
-  if (!organization) return
+  if (!organization || organization.isDefaultCloudInstance) return
 
   const orgInfo = await organization.getOrgInfo()
 
   if (orgInfo) {
-    isUserAdmin.value = !organization.isDefaultCloudInstance && orgInfo?.isAdmin
+    isUserAdmin.value = !!orgInfo.isAdmin
   }
 })
 

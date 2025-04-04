@@ -590,11 +590,26 @@ export const content = {
     })
 }
 
-// Helper function to convert standard `FormData` to array of arrays `[string, FormDataValue[]][]`
-// This is mainly a crossplatform thing, once there's an equivalent and easy to impl `FormData` type for Rust,
-// we can consider removing this.
+/**
+ * Helper function to convert standard `FormData` to array of arrays `[string, FormDataValue[]][]`
+ *
+ * This implementation uses a Map to maintain insertion order of form fields,
+ * required for certain multipart/form-data requests where field order matters.
+ *
+ * JavaScript Maps maintain insertion order (ECMAScript 2015+) unlike plain objects
+ * before ES2015 ("own properties") where property enumeration order was not guaranteed,
+ * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#description
+ * > Although the keys of an ordinary Object are ordered now,
+ * > this was not always the case, and the order is complex.
+ * > As a result, it's best not to rely on property order.
+ *
+ * This preserves the original field order as per RFC 7578 section 5.2.
+ * See: https://datatracker.ietf.org/doc/html/rfc7578#section-5.2
+ * > Form processors given forms with a well-defined ordering SHOULD send back results in order.
+ */
 const makeFormDataSerializable = async (formData: FormData): Promise<[string, FormDataValue[]][]> => {
-    const result: [string, FormDataValue[]][] = []
+    const m = new Map<string, FormDataValue[]>()
+
     // @ts-expect-error: `formData.entries` does exist but isn't visible,
     // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
     for (const [key, value] of formData.entries()) {
@@ -607,11 +622,10 @@ const makeFormDataSerializable = async (formData: FormData): Promise<[string, Fo
                 data: new Uint8Array(buffer)
             }
 
-            const existingEntry = result.find(([k]) => k === key)
-            if (existingEntry) {
-                existingEntry[1].push(fileEntry)
+            if (m.has(key)) {
+                m.get(key)!.push(fileEntry)
             } else {
-                result.push([key, [fileEntry]])
+                m.set(key, [fileEntry])
             }
         } else {
             const textEntry: FormDataValue = {
@@ -619,16 +633,15 @@ const makeFormDataSerializable = async (formData: FormData): Promise<[string, Fo
                 value: value.toString()
             }
 
-            const existingEntry = result.find(([k]) => k === key)
-            if (existingEntry) {
-                existingEntry[1].push(textEntry)
+            if (m.has(key)) {
+                m.get(key)!.push(textEntry)
             } else {
-                result.push([key, [textEntry]])
+                m.set(key, [textEntry])
             }
         }
     }
 
-    return result
+    return Array.from(m.entries())
 }
 
 // Helper function to adapt a relay request to work with the plugin

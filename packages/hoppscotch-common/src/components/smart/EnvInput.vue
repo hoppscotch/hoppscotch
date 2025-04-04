@@ -17,7 +17,7 @@
         v-else
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1"
+        class="flex flex-1 max-w-[85%]"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"

@@ -371,10 +371,27 @@ const getHoppReqBody = ({
           }
       )
     )
+  } else if (body.mode === "graphql") {
+    const formatedQuery = {
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      query: body.graphql?.query,
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      variables: body.graphql?.variables
+        ? // @ts-expect-error - this is a valid option, but seems like the types are not updated
+          JSON.parse(body.graphql?.variables)
+        : undefined,
+    }
+
+    return {
+      contentType: "application/json",
+      body: pipe(
+        JSON.stringify(formatedQuery, null, 2),
+        replacePMVarTemplating
+      ),
+    }
   }
 
   // TODO: File
-  // TODO: GraphQL ?
 
   return { contentType: null, body: null }
 }

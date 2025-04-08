@@ -31,7 +31,7 @@ import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
-import { isNumber } from "~/helpers/utils/isNumber"
+import { isNumeric } from "~/helpers/utils/number"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -173,7 +173,7 @@ const parseOpenAPIV3Responses = (
 
     const name = response.description ?? key
 
-    const code = isNumber(key) ? Number(key) : 200
+    const code = isNumeric(key) ? Number(key) : 200
 
     const status = getStatusCodeReasonPhrase(code)
 
@@ -231,7 +231,7 @@ const parseOpenAPIV2Responses = (
 
     const name = response.description ?? key
 
-    const code = isNumber(Number(key)) ? Number(key) : 200
+    const code = isNumeric(Number(key)) ? Number(key) : 200
     const status = getStatusCodeReasonPhrase(code)
 
     const headers: HoppRESTHeader[] = [

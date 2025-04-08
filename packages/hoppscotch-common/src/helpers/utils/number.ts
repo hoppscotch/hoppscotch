@@ -1,9 +1,10 @@
 /**
- * Check if a value is a number
+ * Check if a value is numeric — either a valid number or a numeric string
+ *
  * @param value - The value to check
- * @returns True if the value is a number, false otherwise
+ * @returns True if the value is numeric, false otherwise
  */
-export const isNumber = (value: unknown): boolean => {
+export const isNumeric = (value: unknown): boolean => {
   if (typeof value === "number") return !Number.isNaN(value) // handle actual numbers
   if (typeof value !== "string") return false // only process strings or numbers!
   return (

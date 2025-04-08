@@ -375,11 +375,12 @@ const getHoppReqBody = ({
     const formattedQuery = {
       // @ts-expect-error - this is a valid option, but seems like the types are not updated
       query: body.graphql?.query,
-      // @ts-expect-error - this is a valid option, but seems like the types are not updated
-      variables: body.graphql?.variables
-        ? // @ts-expect-error - this is a valid option, but seems like the types are not updated
-          JSON.parse(body.graphql?.variables)
-        : undefined,
+      variables: pipe(
+        // @ts-expect-error - this is a valid option, but seems like the types are not updated
+        body.graphql?.variables,
+        safeParseJSON,
+        O.getOrElse(() => undefined)
+      ),
     }
 
     return {

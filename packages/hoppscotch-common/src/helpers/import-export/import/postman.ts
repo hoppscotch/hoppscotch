@@ -372,7 +372,7 @@ const getHoppReqBody = ({
       )
     )
   } else if (body.mode === "graphql") {
-    const formatedQuery = {
+    const formattedQuery = {
       // @ts-expect-error - this is a valid option, but seems like the types are not updated
       query: body.graphql?.query,
       // @ts-expect-error - this is a valid option, but seems like the types are not updated
@@ -385,7 +385,7 @@ const getHoppReqBody = ({
     return {
       contentType: "application/json",
       body: pipe(
-        JSON.stringify(formatedQuery, null, 2),
+        JSON.stringify(formattedQuery, null, 2),
         replacePMVarTemplating
       ),
     }

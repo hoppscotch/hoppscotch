@@ -2,8 +2,11 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import * as R from "fp-ts/Record"
+
 import { cloneDeep } from "lodash-es"
 import { useSetting } from "~/composables/settings"
+import superjson from "superjson"
+
 import type { RelayRequest } from "@hoppscotch/kernel"
 
 const isEncoded = (value: string): boolean =>
@@ -67,3 +70,6 @@ export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>
         )
       : req
   )
+
+export const postProcessRelayRequest = (req: RelayRequest): RelayRequest =>
+  pipe(cloneDeep(req), (req) => superjson.serialize(req).json)

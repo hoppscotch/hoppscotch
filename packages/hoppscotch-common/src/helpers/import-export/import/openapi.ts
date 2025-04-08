@@ -29,8 +29,9 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { cloneDeep, isNumber } from "lodash-es"
+import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
+import { isNumber } from "~/helpers/utils/isNumber"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 

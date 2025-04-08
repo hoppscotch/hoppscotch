@@ -213,9 +213,10 @@ describe('verifyMagicLinkTokens', () => {
 
   test('Should throw MAGIC_LINK_EXPIRED if passwordless token is expired', async () => {
     // validatePasswordlessTokens
-    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce(
-      passwordlessData,
-    );
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
+      ...passwordlessData,
+      expiresOn: new Date('2020-01-01T00:00:00Z'),
+    });
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.some(user));
     // checkIfProviderAccountExists

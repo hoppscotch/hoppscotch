@@ -10,7 +10,7 @@ import { transformAuth, transformContent } from "~/helpers/kernel/common"
 import { defaultAuth } from "~/helpers/kernel/common/auth"
 import {
   filterActiveToRecord,
-  filterParamsActiveToRecord,
+  filterActiveParams,
 } from "~/helpers/functional/filter-active"
 
 export const RESTRequest = {
@@ -27,7 +27,7 @@ export const RESTRequest = {
     )()
 
     const headers = filterActiveToRecord(request.effectiveFinalHeaders)
-    const params = filterParamsActiveToRecord(request.effectiveFinalParams)
+    const params = filterActiveParams(request.effectiveFinalParams)
 
     return {
       id: Date.now(),

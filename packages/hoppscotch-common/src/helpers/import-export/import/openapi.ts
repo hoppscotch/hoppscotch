@@ -56,7 +56,7 @@ const objectHasProperty = <T extends string>(
   Object.prototype.hasOwnProperty.call(obj, propName)
 
 // Helper function to check for unresolved references in a document
-const hasUnresolvedRefs = (obj: any, visited = new WeakSet()): boolean => {
+const hasUnresolvedRefs = (obj: unknown, visited = new WeakSet()): boolean => {
   // Handle non-objects or null
   if (!obj || typeof obj !== "object") return false
 
@@ -67,7 +67,7 @@ const hasUnresolvedRefs = (obj: any, visited = new WeakSet()): boolean => {
   visited.add(obj)
 
   // Check if current object has $ref property
-  if (obj.$ref && typeof obj.$ref === "string") return true
+  if ("$ref" in obj && typeof obj.$ref === "string") return true
 
   // Check arrays
   if (Array.isArray(obj)) {
@@ -753,9 +753,9 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
-    return doc.host
-      ? `${doc.host}${doc.basePath || ""}`
-      : `<<baseUrl>>${doc.basePath || ""}`
+    const host = doc.host?.trim() || "<<baseUrl>>"
+    const basePath = doc.basePath?.trim() || ""
+    return `${host}${basePath}`
   }
 
   /**

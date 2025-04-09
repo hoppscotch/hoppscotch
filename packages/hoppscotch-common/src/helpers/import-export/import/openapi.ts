@@ -34,8 +34,6 @@ import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
-export const OPENAPI_UNRESOLVED_REFS_ERROR =
-  "openapi/unresolved_refs_error" as const
 
 const worker = new Worker(
   new URL("./workers/openapi-import-worker.ts", import.meta.url),
@@ -58,19 +56,26 @@ const objectHasProperty = <T extends string>(
   Object.prototype.hasOwnProperty.call(obj, propName)
 
 // Helper function to check for unresolved references in a document
-const hasUnresolvedRefs = (obj: any): boolean => {
+const hasUnresolvedRefs = (obj: any, visited = new WeakSet()): boolean => {
+  // Handle non-objects or null
   if (!obj || typeof obj !== "object") return false
+
+  // Check for circular references
+  if (visited.has(obj)) return false
+
+  // Add current object to visited set
+  visited.add(obj)
 
   // Check if current object has $ref property
   if (obj.$ref && typeof obj.$ref === "string") return true
 
   // Check arrays
   if (Array.isArray(obj)) {
-    return obj.some((item) => hasUnresolvedRefs(item))
+    return obj.some((item) => hasUnresolvedRefs(item, visited))
   }
 
   // Check object properties
-  return Object.values(obj).some((value) => hasUnresolvedRefs(value))
+  return Object.values(obj).some((value) => hasUnresolvedRefs(value, visited))
 }
 
 // basic validation for OpenAPI V2 Document

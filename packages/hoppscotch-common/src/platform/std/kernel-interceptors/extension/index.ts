@@ -288,6 +288,16 @@ export class ExtensionKernelInterceptorService
       const bodySize = extensionResponse.data?.byteLength || 0
       const totalSize = headersSize + bodySize
 
+      const timingMeta = extensionResponse.timeData
+        ? {
+            start: extensionResponse.timeData.startTime,
+            end: extensionResponse.timeData.endTime,
+          }
+        : {
+            start: startTime,
+            end: endTime,
+          }
+
       return E.right({
         id: request.id,
         status: extensionResponse.status,
@@ -299,10 +309,7 @@ export class ExtensionKernelInterceptorService
           extensionResponse.headers["content-type"]
         ),
         meta: {
-          timing: {
-            start: startTime,
-            end: endTime,
-          },
+          timing: timingMeta,
           size: {
             headers: headersSize,
             body: bodySize,
@@ -320,6 +327,18 @@ export class ExtensionKernelInterceptorService
           const bodySize = response.data?.byteLength || 0
           const totalSize = headersSize + bodySize
 
+          const timingMeta = response.timeData
+            ? {
+                start: response.timeData.startTime,
+                end: response.timeData.endTime,
+              }
+            : {
+                // Fallback timing - at least show it took some time,
+                // this is mainly for cross compat with other interceptor settings.
+                start: Date.now() - 1,
+                end: Date.now(),
+              }
+
           return E.right({
             id: request.id,
             status: response.status,
@@ -328,13 +347,7 @@ export class ExtensionKernelInterceptorService
             headers: response.headers,
             body: body.body(response.data, response.headers["content-type"]),
             meta: {
-              timing: {
-                // TODO: Think of better fallback
-                // Fallback timing - at least show it took some time,
-                // this is mainly for cross compat with other interceptor settings.
-                start: Date.now() - 1,
-                end: Date.now(),
-              },
+              timing: timingMeta,
               size: {
                 headers: headersSize,
                 body: bodySize,

@@ -227,6 +227,7 @@ export class ExtensionKernelInterceptorService
     }
 
     try {
+      const startTime = Date.now()
       let requestData: any = null
 
       if (request.content) {
@@ -281,14 +282,33 @@ export class ExtensionKernelInterceptorService
           wantsBinary: true,
         })
 
+      const endTime = Date.now()
+
+      const headersSize = JSON.stringify(extensionResponse.headers).length
+      const bodySize = extensionResponse.data?.byteLength || 0
+      const totalSize = headersSize + bodySize
+
       return E.right({
+        id: request.id,
         status: extensionResponse.status,
         statusText: extensionResponse.statusText,
+        version: request.version,
         headers: extensionResponse.headers,
         body: body.body(
           extensionResponse.data,
           extensionResponse.headers["content-type"]
         ),
+        meta: {
+          timing: {
+            start: startTime,
+            end: endTime,
+          },
+          size: {
+            headers: headersSize,
+            body: bodySize,
+            total: totalSize,
+          },
+        },
       })
     } catch (e) {
       console.error(e)
@@ -296,11 +316,31 @@ export class ExtensionKernelInterceptorService
       if (e instanceof Error && "response" in e) {
         const response = (e as any).response
         if (response) {
+          const headersSize = JSON.stringify(response.headers).length
+          const bodySize = response.data?.byteLength || 0
+          const totalSize = headersSize + bodySize
+
           return E.right({
+            id: request.id,
             status: response.status,
             statusText: response.statusText,
+            version: request.version,
             headers: response.headers,
             body: body.body(response.data, response.headers["content-type"]),
+            meta: {
+              timing: {
+                // TODO: Think of better fallback
+                // Fallback timing - at least show it took some time,
+                // this is mainly for cross compat with other interceptor settings.
+                start: Date.now() - 1,
+                end: Date.now(),
+              },
+              size: {
+                headers: headersSize,
+                body: bodySize,
+                total: totalSize,
+              },
+            },
           })
         }
       }

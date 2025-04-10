@@ -26,15 +26,16 @@ const encodeParam = (value: string): string =>
 
 const processParams = (params: [string, string][]): [string, string][] => {
   const encodeMode = useSetting("ENCODE_MODE").value
+
   const needsEncoding = (v: string) =>
     /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(v)
 
   return params.map(([key, value]) => {
-    const encodedKey = encodeMode === "enable" ? encodeParam(key) : key
-    const encodedValue =
-      encodeMode === "enable" && needsEncoding(value)
-        ? encodeParam(value)
-        : value
+    const isEncodingRequired =
+      encodeMode === "enable" || (encodeMode === "auto" && needsEncoding(value))
+
+    const encodedKey = isEncodingRequired ? encodeParam(key) : key
+    const encodedValue = isEncodingRequired ? encodeParam(value) : value
 
     return [encodedKey, encodedValue]
   })
@@ -50,10 +51,7 @@ const updateUrl = (
       (e) => new Error(`Invalid URL: ${e}`)
     ),
     E.map((u) => {
-      processParams(params).forEach(([k, v]) => {
-        console.log("adding param", k, v)
-        return u.searchParams.append(k, v)
-      })
+      processParams(params).forEach(([k, v]) => u.searchParams.append(k, v))
       return decodeURIComponent(u.toString())
     })
   )

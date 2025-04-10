@@ -151,6 +151,12 @@
         <div v-if="auth.authType === 'aws-signature'">
           <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'hawk'">
+          <HttpAuthorizationHAWK v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'akamai-eg'">
+          <HttpAuthorizationAkamaiEG v-model="auth" :envs="envs" />
+        </div>
         <div v-if="auth.authType === 'digest'">
           <HttpAuthorizationDigest v-model="auth" :envs="envs" />
         </div>
@@ -191,6 +197,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import { getDefaultAuthCodeOauthFlowParams } from "~/services/oauth/flows/authCode"
 import {
   HoppRESTAuth,
+  HoppRESTAuthAkamaiEdgeGrid,
   HoppRESTAuthAWSSignature,
   HoppRESTAuthDigest,
   HoppRESTAuthOAuth2,
@@ -265,6 +272,39 @@ const selectAWSSignatureAuthType = () => {
   }
 }
 
+const selectHAWKAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "hawk",
+  } as HoppRESTAuth
+}
+
+const selectAkamaiEGAuthType = () => {
+  const {
+    clientToken = "",
+    clientSecret = "",
+    accessToken = "",
+    host = "",
+    nonce = "",
+    timestamp = "",
+    headersToSign = "",
+    maxBodySize = "",
+  } = auth.value as HoppRESTAuthAkamaiEdgeGrid
+
+  auth.value = {
+    ...auth.value,
+    authType: "akamai-eg",
+    clientToken,
+    clientSecret,
+    accessToken,
+    host,
+    nonce,
+    timestamp,
+    headersToSign,
+    maxBodySize,
+  } as HoppRESTAuth
+}
+
 const selectDigestAuthType = () => {
   const {
     username = "",
@@ -317,6 +357,16 @@ const authTypes: AuthType[] = [
     key: "aws-signature",
     label: "AWS Signature",
     handler: selectAWSSignatureAuthType,
+  },
+  {
+    key: "hawk",
+    label: "HAWK",
+    handler: selectHAWKAuthType,
+  },
+  {
+    key: "akamai-eg",
+    label: "Akamai EdgeGrid",
+    handler: selectAkamaiEGAuthType,
   },
 ]
 

@@ -7,7 +7,7 @@ import SettingsExtensionSubtitle from "~/components/settings/ExtensionSubtitle.v
 import * as E from "fp-ts/Either"
 import { getI18n } from "~/modules/i18n"
 import { until } from "@vueuse/core"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import type {
   KernelInterceptor,

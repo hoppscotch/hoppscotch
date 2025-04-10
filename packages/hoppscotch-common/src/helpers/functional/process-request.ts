@@ -3,6 +3,8 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { cloneDeep } from "lodash-es"
+import superjson from "superjson"
+
 import { useSetting } from "~/composables/settings"
 
 const isEncoded = (value: string): boolean =>
@@ -66,3 +68,6 @@ export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>
         )
       : req
   )
+
+export const postProcessRelayRequest = (req: RelayRequest): RelayRequest =>
+  pipe(cloneDeep(req), (req) => superjson.serialize(req).json)

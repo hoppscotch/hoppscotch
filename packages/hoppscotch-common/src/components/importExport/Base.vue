@@ -50,6 +50,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  hasTeamWriteAccess: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const {
@@ -87,6 +91,7 @@ const chooseImporterOrExporter = defineStep(
       disabled: exporter.metadata.disabled,
       loading: exporter.metadata.isLoading?.value ?? false,
     })),
+    hasTeamWriteAccess: props.hasTeamWriteAccess,
     "onImporter-selected": (id: string) => {
       selectedImporterID.value = id
 

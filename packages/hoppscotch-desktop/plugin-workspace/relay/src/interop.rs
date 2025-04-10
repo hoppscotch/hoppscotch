@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use bytes::Bytes;
 use http::{Method, StatusCode, Version};
-use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 use time::OffsetDateTime;
@@ -59,7 +58,7 @@ pub enum FormValue {
     },
 }
 
-pub type FormData = IndexMap<String, Vec<FormValue>>;
+pub type FormData = Vec<(String, Vec<FormValue>)>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "camelCase")]

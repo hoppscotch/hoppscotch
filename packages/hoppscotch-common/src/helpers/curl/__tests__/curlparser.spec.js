@@ -1004,6 +1004,12 @@ data2: {"type":"test2","typeId":"123"}`,
       headers: [
         {
           active: true,
+          key: "Authorization",
+          value: "Basic YXNkZmdoOjEyMzQ=",
+          description: "",
+        },
+        {
+          active: true,
           key: "User-Agent",
           value:
             "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
@@ -1013,12 +1019,6 @@ data2: {"type":"test2","typeId":"123"}`,
           active: true,
           key: "foo",
           value: "bar",
-          description: "",
-        },
-        {
-          active: true,
-          key: "Authorization",
-          value: "Basic YXNkZmdoOjEyMzQ=",
           description: "",
         },
       ],

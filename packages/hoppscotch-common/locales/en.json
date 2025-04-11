@@ -755,6 +755,7 @@
     "url": "URL"
   },
   "navigation": {
+    "admin_dashboard": "Dashboard",
     "doc": "Docs",
     "graphql": "GraphQL",
     "profile": "Profile",

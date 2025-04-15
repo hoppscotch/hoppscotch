@@ -691,7 +691,11 @@
     "use_experimental_url_bar": "Utilizar la barra de URL experimental con resaltado de entorno",
     "user": "Usuario",
     "verified_email": "Correo electrónico verificado",
-    "verify_email": "Verificar correo electrónico"
+    "verify_email": "Verificar correo electrónico",
+    "general": "General",
+    "general_description": "Configuración general utilizada en la aplicación",
+    "query_parameters_encoding": "Codificación de parámetros de consulta",
+    "query_parameters_encoding_description": "Configura la codificación para los parámetros de consulta en las solicitudes"
   },
   "shared_requests": {
     "button": "Botón",

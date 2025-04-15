@@ -663,6 +663,8 @@
     "follow": "Síguenos",
     "interceptor": "Interceptador",
     "interceptor_description": "Middleware entre la aplicación y las APIs.",
+    "kernel_interceptor": "Interceptador",
+    "kernel_interceptor_description": "Middleware entre la aplicación y las APIs.",
     "language": "Idioma",
     "light_mode": "Luz",
     "official_proxy_hosting": "El proxy oficial está alojado en Hoppscotch.",

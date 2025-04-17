@@ -1,7 +1,5 @@
 name: Build Desktop Self Host - AIO
 on:
-  release:
-    types: [created]
   workflow_dispatch:
     inputs:
       version:

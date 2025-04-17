@@ -199,6 +199,7 @@
                     tabindex="0"
                     @keyup.p="profile.$el.click()"
                     @keyup.s="settings.$el.click()"
+                    @keyup.d="dashboard.$el.click()"
                     @keyup.l="logout.$el.click()"
                     @keyup.escape="hide()"
                   >
@@ -229,6 +230,15 @@
                       :icon="IconSettings"
                       :label="t('navigation.settings')"
                       :shortcut="['S']"
+                      @click="hide()"
+                    />
+                    <HoppSmartItem
+                      v-if="isUserAdmin"
+                      ref="dashboard"
+                      to="/admin/dashboard"
+                      :icon="IconLayoutDashboard"
+                      :label="t('navigation.admin_dashboard')"
+                      :shortcut="['D']"
                       @click="hide()"
                     />
                     <FirebaseLogout
@@ -284,7 +294,7 @@ import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, onMounted, reactive, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
@@ -304,6 +314,7 @@ import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
 import IconChevronDown from "~icons/lucide/chevron-down"
+import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
 
 const t = useI18n()
 const toast = useToast()
@@ -312,6 +323,8 @@ const instanceSwitcherService =
   kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
 const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+
+const isUserAdmin = ref(false)
 
 const currentState =
   kernelMode === "desktop" && instanceSwitcherService
@@ -345,6 +358,21 @@ const workspaceSelectorFlagEnabled = computed(
  */
 
 const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
+
+/**
+ * Show the dashboard link if the user is not on the default cloud instance and is an admin
+ */
+onMounted(async () => {
+  const { organization } = platform
+
+  if (!organization || organization.isDefaultCloudInstance) return
+
+  const orgInfo = await organization.getOrgInfo()
+
+  if (orgInfo) {
+    isUserAdmin.value = !!orgInfo.isAdmin
+  }
+})
 
 const showTeamsModal = ref(false)
 
@@ -517,6 +545,7 @@ const deleteTeam = () => {
 const tippyActions = ref<any | null>(null)
 const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
+const dashboard = ref<any | null>(null)
 const logout = ref<any | null>(null)
 const accountActions = ref<any | null>(null)
 

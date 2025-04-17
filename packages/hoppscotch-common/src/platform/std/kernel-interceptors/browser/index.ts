@@ -12,7 +12,7 @@ import type {
 } from "~/services/kernel-interceptor.service"
 
 import { getI18n } from "~/modules/i18n"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 
 import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
 

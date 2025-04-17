@@ -30,6 +30,13 @@ import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { html } from "@codemirror/legacy-modes/mode/xml"
 import { shell } from "@codemirror/legacy-modes/mode/shell"
 import { yaml } from "@codemirror/legacy-modes/mode/yaml"
+import { rust } from "@codemirror/legacy-modes/mode/rust"
+import { go } from "@codemirror/legacy-modes/mode/go"
+import { clojure } from "@codemirror/legacy-modes/mode/clojure"
+import { http } from "@codemirror/legacy-modes/mode/http"
+import { csharp, java } from "@codemirror/legacy-modes/mode/clike"
+import { powerShell } from "@codemirror/legacy-modes/mode/powershell"
+import { python } from "@codemirror/legacy-modes/mode/python"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
@@ -160,7 +167,10 @@ const hoppLang = (
 const getLanguage = (langMime: string): Language | null => {
   if (isJSONContentType(langMime)) {
     return jsoncLanguage
-  } else if (langMime === "application/javascript") {
+  } else if (
+    langMime === "application/javascript" ||
+    langMime === "javascript"
+  ) {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
@@ -168,14 +178,32 @@ const getLanguage = (langMime: string): Language | null => {
     return xmlLanguage
   } else if (langMime === "htmlmixed") {
     return StreamLanguage.define(html)
-  } else if (langMime === "application/x-sh") {
+  } else if (langMime === "application/x-sh" || langMime === "shell") {
     return StreamLanguage.define(shell)
   } else if (langMime === "text/x-yaml") {
     return StreamLanguage.define(yaml)
+  } else if (langMime === "rust") {
+    return StreamLanguage.define(rust)
+  } else if (langMime === "clojure") {
+    return StreamLanguage.define(clojure)
+  } else if (langMime === "csharp") {
+    return StreamLanguage.define(csharp)
+  } else if (langMime === "go") {
+    return StreamLanguage.define(go)
+  } else if (langMime === "http") {
+    return StreamLanguage.define(http)
+  } else if (langMime === "java") {
+    return StreamLanguage.define(java)
+  } else if (langMime === "powershell") {
+    return StreamLanguage.define(powerShell)
+  } else if (langMime === "python") {
+    return StreamLanguage.define(python)
+  } else if (langMime === "python") {
+    return StreamLanguage.define(python)
   }
 
-  // None matched, so return null
-  return null
+  // Default to javascript if no language is found
+  return javascriptLanguage
 }
 
 const formatXML = (doc: string) => {

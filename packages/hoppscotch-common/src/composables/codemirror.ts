@@ -179,7 +179,6 @@ const streamLanguageMap: Record<string, any> = {
   powershell: powerShell,
   python,
   shell,
-  yaml,
   html,
 }
 
@@ -210,6 +209,8 @@ const getLanguage = (langMime: string): Language | null => {
     return StreamLanguage.define(html)
   } else if (langMime === "application/x-sh") {
     return StreamLanguage.define(shell)
+  } else if (langMime === "text/x-yaml") {
+    return StreamLanguage.define(yaml)
   }
 
   // Handle cases where langMime directly matches the import name

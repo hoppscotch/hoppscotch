@@ -164,7 +164,37 @@ const hoppLang = (
   return language ? new LanguageSupport(language, exts) : exts
 }
 
+/**
+ * Map of language MIME types to their corresponding language definitions
+ * where the import name matches the langMime string exactly.
+ * These are used with `StreamLanguage.define(...)` to register the language.
+ */
+const streamLanguageMap: Record<string, any> = {
+  rust,
+  clojure,
+  csharp,
+  go,
+  http,
+  java,
+  powershell: powerShell,
+  python,
+  shell,
+  yaml,
+  html,
+}
+
+/**
+ * Returns the appropriate CodeMirror language object based on the provided MIME type.
+ *
+ * Handles specific content types like JSON, JavaScript, GraphQL, XML, etc.
+ * For simpler languages that directly match the import name, uses a lookup map
+ * to reduce repetition and automatically defines the StreamLanguage.
+ *
+ * @param langMime - The MIME type or shorthand language identifier (e.g., "javascript", "go", "python")
+ * @returns The corresponding CodeMirror Language object
+ */
 const getLanguage = (langMime: string): Language | null => {
+  // Special case for JSON types
   if (isJSONContentType(langMime)) {
     return jsoncLanguage
   } else if (
@@ -178,32 +208,18 @@ const getLanguage = (langMime: string): Language | null => {
     return xmlLanguage
   } else if (langMime === "htmlmixed") {
     return StreamLanguage.define(html)
-  } else if (langMime === "application/x-sh" || langMime === "shell") {
+  } else if (langMime === "application/x-sh") {
     return StreamLanguage.define(shell)
-  } else if (langMime === "text/x-yaml") {
-    return StreamLanguage.define(yaml)
-  } else if (langMime === "rust") {
-    return StreamLanguage.define(rust)
-  } else if (langMime === "clojure") {
-    return StreamLanguage.define(clojure)
-  } else if (langMime === "csharp") {
-    return StreamLanguage.define(csharp)
-  } else if (langMime === "go") {
-    return StreamLanguage.define(go)
-  } else if (langMime === "http") {
-    return StreamLanguage.define(http)
-  } else if (langMime === "java") {
-    return StreamLanguage.define(java)
-  } else if (langMime === "powershell") {
-    return StreamLanguage.define(powerShell)
-  } else if (langMime === "python") {
-    return StreamLanguage.define(python)
-  } else if (langMime === "python") {
-    return StreamLanguage.define(python)
   }
 
-  // Default to javascript if no language is found
-  return javascriptLanguage
+  // Handle cases where langMime directly matches the import name
+  const streamLang = streamLanguageMap[langMime]
+  if (streamLang) {
+    return StreamLanguage.define(streamLang)
+  }
+
+  // If no match is found, return null
+  return null
 }
 
 const formatXML = (doc: string) => {

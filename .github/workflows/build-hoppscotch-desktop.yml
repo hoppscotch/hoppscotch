@@ -21,10 +21,6 @@ on:
         description: Release notes for the update
         required: false
         default: "PLACEHOLDER RELEASE NOTES"
-      env_content:
-        description: Custom .env file content (highest prio, overrides existing .env and .env.example)
-        required: false
-        default: ""
       disable_signing:
         description: Disable executable signing
         required: false
@@ -88,12 +84,16 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
+      - name: Setup environment
         run: |
-          if [ ! -z "${{ inputs.env_content }}" ]; then
-            echo "${{ inputs.env_content }}" > ${{ env.WORKSPACE_PATH }}/.env
-          elif [ ! -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
             cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
       - name: Build web app
@@ -179,12 +179,17 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
+      - name: Setup environment
+        shell: pwsh
         run: |
-          if ("${{ inputs.env_content }}" -ne "") {
-            "${{ inputs.env_content }}" | Out-File -FilePath ${{ env.WORKSPACE_PATH }}\.env -Encoding utf8
-          } elseif (-not (Test-Path -Path "${{ env.WORKSPACE_PATH }}\.env")) {
+          if ("${{ secrets.ENV_FILE_CONTENT }}" -ne "") {
+            "${{ secrets.ENV_FILE_CONTENT }}" | Out-File -FilePath ${{ env.WORKSPACE_PATH }}\.env -Encoding utf8
+            Write-Host "Created .env file from repository secret"
+          } elseif (Test-Path -Path "${{ env.WORKSPACE_PATH }}\.env") {
+            Write-Host "Using existing .env file found in repository"
+          } else {
             Copy-Item ${{ env.WORKSPACE_PATH }}\.env.example ${{ env.WORKSPACE_PATH }}\.env
+            Write-Host "No .env found, copied from .env.example template"
           }
           pnpm install -f --shamefully-hoist --ignore-scripts
           pnpm --filter hoppscotch-backend exec prisma generate
@@ -276,12 +281,16 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-x86_64-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
+      - name: Setup environment
         run: |
-          if [ ! -z "${{ inputs.env_content }}" ]; then
-            echo "${{ inputs.env_content }}" > ${{ env.WORKSPACE_PATH }}/.env
-          elif [ ! -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
             cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
       - name: Build web app
@@ -368,12 +377,16 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-aarch64-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
+      - name: Setup environment
         run: |
-          if [ ! -z "${{ inputs.env_content }}" ]; then
-            echo "${{ inputs.env_content }}" > ${{ env.WORKSPACE_PATH }}/.env
-          elif [ ! -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
             cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
           fi
           pnpm install --dir ${{ env.DESKTOP_PATH }}
       - name: Build web app

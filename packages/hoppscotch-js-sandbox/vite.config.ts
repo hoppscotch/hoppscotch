@@ -17,6 +17,9 @@ export default defineConfig({
       external: ["module"],
     },
   },
+  worker: {
+    format: "es",
+  },
   test: {
     environment: "node",
     setupFiles: ["./setupFiles.ts"],

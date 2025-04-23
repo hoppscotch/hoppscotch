@@ -52,7 +52,9 @@
   "license": "MIT",
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
+    "@jitl/quickjs-wasmfile-release-asyncify": "0.31.0",
     "@types/lodash-es": "4.17.12",
+    "faraday-cage": "0.0.6",
     "fp-ts": "2.16.9",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21"

@@ -284,6 +284,8 @@ export function runRESTRequest$(
             }
           )
 
+          console.error(`Result is `, runResult)
+
           if (E.isRight(runResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res

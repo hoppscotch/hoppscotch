@@ -11,26 +11,28 @@ import {
   TestResult,
 } from "./types"
 
+import { defineCageModule, defineSandboxFn } from "faraday-cage/modules"
+
 const getEnv = (envName: string, envs: TestResult["envs"]) => {
   return O.fromNullable(
     envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
-      envs.global.find((x: GlobalEnvItem) => x.key === envName)
+      envs.global.find((x: GlobalEnvItem) => x.key === envName),
   )
 }
 
 const findEnvIndex = (
   envName: string,
-  envList: SelectedEnvItem[] | GlobalEnvItem[]
+  envList: SelectedEnvItem[] | GlobalEnvItem[],
 ): number => {
   return envList.findIndex(
-    (envItem: SelectedEnvItem) => envItem.key === envName
+    (envItem: SelectedEnvItem) => envItem.key === envName,
   )
 }
 
 const setEnv = (
   envName: string,
   envValue: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
@@ -61,7 +63,7 @@ const setEnv = (
 
 const unsetEnv = (
   envName: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
@@ -93,8 +95,8 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       O.fold(
         () => undefined,
-        (env) => String(env.value)
-      )
+        (env) => String(env.value),
+      ),
     )
 
     return result
@@ -115,12 +117,12 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
           ]), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.value)
-        )
+          E.getOrElse(() => e.value),
+        ),
       ),
       E.map((x) => String(x)),
 
-      E.getOrElseW(() => undefined)
+      E.getOrElseW(() => undefined),
     )
 
     return result
@@ -160,7 +162,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
         ...updatedEnvs.selected,
         ...updatedEnvs.global,
       ]),
-      E.getOrElse(() => value)
+      E.getOrElse(() => value),
     )
 
     return String(result)
@@ -211,7 +213,7 @@ const getResolvedExpectValue = (expectVal: any) => {
 }
 
 export function preventCyclicObjects(
-  obj: Record<string, any>
+  obj: Record<string, any>,
 ): E.Left<string> | E.Right<Record<string, any>> {
   let jsonString
 
@@ -239,7 +241,7 @@ export function preventCyclicObjects(
 export const createExpectation = (
   expectVal: any,
   negated: boolean,
-  currTestStack: TestDescriptor[]
+  currTestStack: TestDescriptor[],
 ) => {
   const result: Record<string, unknown> = {}
 
@@ -269,7 +271,7 @@ export const createExpectation = (
   const toBeLevelXxx = (
     level: string,
     rangeStart: number,
-    rangeEnd: number
+    rangeEnd: number,
   ) => {
     const parsedExpectVal = parseInt(resolvedExpectVal)
 
@@ -469,6 +471,313 @@ export const createExpectation = (
 export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
   const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
   return { pw: methods, updatedEnvs }
+}
+
+export const createPwModule = (envs: TestResult["envs"]) => {
+  const testRunStack: TestDescriptor[] = [
+    { descriptor: "root", expectResults: [], children: [] },
+  ]
+
+  const { methods, updatedEnvs } = getSharedMethods(envs)
+
+  return {
+    pw: defineCageModule((ctx) => {
+      const vm = ctx.vm
+      const global = vm.global
+
+      const pwObj = ctx.scope.manage(vm.newObject())
+      vm.setProp(global, "pw", pwObj)
+
+      const envObj = ctx.scope.manage(vm.newObject())
+      vm.setProp(pwObj, "env", envObj)
+
+      for (const [key, fn] of Object.entries(methods.env)) {
+        const wrapped = defineSandboxFn(ctx, `pw.env.${key}`, fn)
+        vm.setProp(envObj, key, wrapped)
+      }
+
+      // --- Attach test/expect methods ---
+      const testFn = defineSandboxFn(ctx, "pw.test", (desc: any, func: any) => {
+        if (typeof desc !== "string")
+          throw new Error("Expected test description to be a string")
+
+        testRunStack.push({
+          descriptor: desc,
+          expectResults: [],
+          children: [],
+        })
+
+        const result = ctx.vm.callFunction(func, ctx.vm.undefined)
+        ctx.scope.manage(result) // cleanup if needed
+
+        const child = testRunStack.pop()!
+        testRunStack[testRunStack.length - 1].children.push(child)
+      })
+
+      const expectFn = ctx.vm.newFunction("expect", (actualHandle: any) => {
+        const resolvedExpectVal = ctx.vm.dump(actualHandle)
+        const matcherObj = ctx.scope.manage(ctx.vm.newObject())
+
+        const pushResult = (status: string, message: string) => {
+          testRunStack[testRunStack.length - 1].expectResults.push({
+            // @ts-expect-error: Look into the type error here
+            status,
+            message,
+          })
+        }
+
+        const defineMatcher = (
+          name: string,
+          matcher: (...args: any[]) => void,
+        ) => {
+          const matcherFn = ctx.vm.newFunction(name, (...argHandles: any[]) => {
+            const args = argHandles.map((h) => ctx.vm.dump(h))
+            matcher(...args)
+            return ctx.vm.undefined
+          })
+          ctx.scope.manage(matcherFn)
+          ctx.vm.setProp(matcherObj, name, matcherFn)
+        }
+
+        const notMatcherObj = ctx.scope.manage(ctx.vm.newObject())
+
+        const defineNotMatcher = (
+          name: string,
+          matcher: (...args: any[]) => void,
+        ) => {
+          const notMatcherFn = ctx.vm.newFunction(
+            name,
+            (...argHandles: any[]) => {
+              const args = argHandles.map((h) => ctx.vm.dump(h))
+              matcher(...args)
+              return ctx.vm.undefined
+            },
+          )
+          ctx.scope.manage(notMatcherFn)
+          ctx.vm.setProp(notMatcherObj, name, notMatcherFn)
+        }
+
+        defineMatcher("toBe", (expectedVal) => {
+          const assertion = resolvedExpectVal === expectedVal
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected '${resolvedExpectVal}' to be '${expectedVal}'`
+          pushResult(status, message)
+        })
+
+        defineNotMatcher("toBe", (expectedVal) => {
+          const assertion = resolvedExpectVal !== expectedVal
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected '${resolvedExpectVal}' not to be '${expectedVal}'`
+          pushResult(status, message)
+        })
+
+        const toBeLevelXxx = (
+          label: string,
+          min: number,
+          max: number,
+          negate = false,
+        ) => {
+          const parsedVal = parseInt(resolvedExpectVal)
+          if (!Number.isNaN(parsedVal)) {
+            const assertion = parsedVal >= min && parsedVal <= max
+            const finalAssertion = negate ? !assertion : assertion
+            const status = finalAssertion ? "pass" : "fail"
+            const prefix = negate ? "not " : ""
+            const message = `Expected '${parsedVal}' ${prefix}to be ${label}-level status`
+            pushResult(status, message)
+          } else {
+            const prefix = negate ? "not " : ""
+            pushResult(
+              "error",
+              `Expected ${prefix}${label}-level status but could not parse value '${resolvedExpectVal}'`,
+            )
+          }
+        }
+
+        defineMatcher("toBeLevel2xx", () => toBeLevelXxx("200", 200, 299))
+        defineNotMatcher("toBeLevel2xx", () =>
+          toBeLevelXxx("200", 200, 299, true),
+        )
+
+        defineMatcher("toBeLevel3xx", () => toBeLevelXxx("300", 300, 399))
+        defineNotMatcher("toBeLevel3xx", () =>
+          toBeLevelXxx("300", 300, 399, true),
+        )
+
+        defineMatcher("toBeLevel4xx", () => toBeLevelXxx("400", 400, 499))
+        defineNotMatcher("toBeLevel4xx", () =>
+          toBeLevelXxx("400", 400, 499, true),
+        )
+
+        defineMatcher("toBeLevel5xx", () => toBeLevelXxx("500", 500, 599))
+        defineNotMatcher("toBeLevel5xx", () =>
+          toBeLevelXxx("500", 500, 599, true),
+        )
+
+        defineMatcher("toBeType", (expectedType) => {
+          const validTypes = [
+            "string",
+            "boolean",
+            "number",
+            "object",
+            "undefined",
+            "bigint",
+            "symbol",
+            "function",
+          ]
+          if (!validTypes.includes(expectedType)) {
+            pushResult(
+              "error",
+              "Argument for toBeType should be one of: " +
+                validTypes.join(", "),
+            )
+            return
+          }
+          const assertion = typeof resolvedExpectVal === expectedType
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected '${resolvedExpectVal}' to be type '${expectedType}'`
+          pushResult(status, message)
+        })
+
+        defineNotMatcher("toBeType", (expectedType) => {
+          const validTypes = [
+            "string",
+            "boolean",
+            "number",
+            "object",
+            "undefined",
+            "bigint",
+            "symbol",
+            "function",
+          ]
+          if (!validTypes.includes(expectedType)) {
+            pushResult(
+              "error",
+              "Argument for toBeType should be one of: " +
+                validTypes.join(", "),
+            )
+            return
+          }
+          const assertion = typeof resolvedExpectVal !== expectedType
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected '${resolvedExpectVal}' not to be type '${expectedType}'`
+          pushResult(status, message)
+        })
+
+        defineMatcher("toHaveLength", (expectedLength) => {
+          if (
+            !Array.isArray(resolvedExpectVal) &&
+            typeof resolvedExpectVal !== "string"
+          ) {
+            pushResult(
+              "error",
+              "Expected toHaveLength to be called for an array or string",
+            )
+            return
+          }
+          if (
+            typeof expectedLength !== "number" ||
+            Number.isNaN(expectedLength)
+          ) {
+            pushResult("error", "Argument for toHaveLength should be a number")
+            return
+          }
+          const assertion = resolvedExpectVal.length === expectedLength
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected the array to be of length '${expectedLength}'`
+          pushResult(status, message)
+        })
+
+        defineNotMatcher("toHaveLength", (expectedLength) => {
+          if (
+            !Array.isArray(resolvedExpectVal) &&
+            typeof resolvedExpectVal !== "string"
+          ) {
+            pushResult(
+              "error",
+              "Expected toHaveLength to be called for an array or string",
+            )
+            return
+          }
+          if (
+            typeof expectedLength !== "number" ||
+            Number.isNaN(expectedLength)
+          ) {
+            pushResult("error", "Argument for toHaveLength should be a number")
+            return
+          }
+          const assertion = resolvedExpectVal.length !== expectedLength
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected the array not to be of length '${expectedLength}'`
+          pushResult(status, message)
+        })
+
+        defineMatcher("toInclude", (needle) => {
+          if (
+            !Array.isArray(resolvedExpectVal) &&
+            typeof resolvedExpectVal !== "string"
+          ) {
+            pushResult(
+              "error",
+              "Expected toInclude to be called for an array or string",
+            )
+            return
+          }
+          if (needle == null) {
+            pushResult(
+              "error",
+              `Argument for toInclude should not be ${needle}`,
+            )
+            return
+          }
+          const assertion = resolvedExpectVal.includes(needle)
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected ${JSON.stringify(
+            resolvedExpectVal,
+          )} to include ${JSON.stringify(needle)}`
+          pushResult(status, message)
+        })
+
+        defineNotMatcher("toInclude", (needle) => {
+          if (
+            !Array.isArray(resolvedExpectVal) &&
+            typeof resolvedExpectVal !== "string"
+          ) {
+            pushResult(
+              "error",
+              "Expected toInclude to be called for an array or string",
+            )
+            return
+          }
+          if (needle == null) {
+            pushResult(
+              "error",
+              `Argument for toInclude should not be ${needle}`,
+            )
+            return
+          }
+          const assertion = !resolvedExpectVal.includes(needle)
+          const status = assertion ? "pass" : "fail"
+          const message = `Expected ${JSON.stringify(
+            resolvedExpectVal,
+          )} not to include ${JSON.stringify(needle)}`
+          pushResult(status, message)
+        })
+
+        ctx.vm.setProp(matcherObj, "not", notMatcherObj)
+
+        return matcherObj
+      })
+
+      ctx.scope.manage(expectFn)
+
+      vm.setProp(pwObj, "test", testFn)
+      vm.setProp(pwObj, "expect", expectFn)
+    }),
+
+    getTestRunStack: () => testRunStack,
+    getUpdatedEnvs: () => updatedEnvs,
+  }
 }
 
 /**

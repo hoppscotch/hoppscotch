@@ -7,14 +7,14 @@ import Worker from "./worker?worker&inline"
 export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   return new Promise((resolve) => {
     const worker = new Worker()
 
     // Listen for the results from the web worker
     worker.addEventListener("message", (event: MessageEvent) =>
-      resolve(event.data.results)
+      resolve(event.data.results),
     )
 
     // Send the script to the web worker

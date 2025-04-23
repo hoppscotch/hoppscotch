@@ -1,30 +1,46 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 
+import { createPwModule, preventCyclicObjects } from "~/shared-utils"
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
-import {
-  getTestRunnerScriptMethods,
-  preventCyclicObjects,
-} from "~/shared-utils"
 
-const executeScriptInContext = (
+import asyncWasmLocation from "@jitl/quickjs-wasmfile-release-asyncify/wasm?url"
+
+import { FaradayCage } from "faraday-cage"
+import {
+  blobPolyfill,
+  console as consoleModule,
+  esmModuleLoader,
+} from "faraday-cage/modules"
+
+const executeScriptInContext = async (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
-): TE.TaskEither<string, SandboxTestResult> => {
+  response: TestResponse,
+): Promise<TE.TaskEither<string, SandboxTestResult>> => {
   try {
     const responseObjHandle = preventCyclicObjects(response)
     if (E.isLeft(responseObjHandle)) {
       return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
     }
 
-    const { pw, testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
+    const cage = await FaradayCage.createFromQJSWasmLocation(asyncWasmLocation)
 
-    // Create a function from the test script using the `Function` constructor
-    const executeScript = new Function("pw", testScript)
+    const { pw, getTestRunStack, getUpdatedEnvs } = createPwModule(envs)
 
-    // Execute the script
-    executeScript({ ...pw, response: responseObjHandle.right })
+    cage.runCode(testScript, [
+      pw,
+      blobPolyfill,
+      esmModuleLoader,
+      consoleModule({
+        onLog(...args) {
+          console.log(...args)
+        },
+      }),
+    ])
+
+    const testRunStack = getTestRunStack()
+    const updatedEnvs = getUpdatedEnvs()
 
     return TE.right(<SandboxTestResult>{
       tests: testRunStack[0],
@@ -39,7 +55,9 @@ const executeScriptInContext = (
 self.addEventListener("message", async (event) => {
   const { testScript, envs, response } = event.data
 
-  const results = await executeScriptInContext(testScript, envs, response)()
+  const results = await (
+    await executeScriptInContext(testScript, envs, response)
+  )()
 
   // Post the result back to the main thread
   self.postMessage({ results })

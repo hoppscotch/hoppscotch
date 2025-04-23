@@ -10,7 +10,12 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts", "vite/client"],
+    "types": [
+      "@types/node",
+      "@types/jest",
+      "@relmify/jest-fp-ts",
+      "vite/client"
+    ],
     "outDir": "./dist/",
     "declaration": true,
     "declarationMap": true,

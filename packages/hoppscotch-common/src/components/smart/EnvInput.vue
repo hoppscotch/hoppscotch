@@ -9,7 +9,7 @@
         v-model="secretText"
         name="secret"
         :placeholder="t('environment.secret_value')"
-        class="flex flex-1 bg-transparent px-4"
+        class="flex flex-1 bg-transparent pl-4"
         :class="styles"
         type="password"
       />
@@ -17,7 +17,7 @@
         v-else
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1"
+        class="flex flex-1 truncate"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"

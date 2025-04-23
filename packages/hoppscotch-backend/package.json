@@ -1,17 +1,19 @@
 {
   "name": "hoppscotch-backend",
-  "version": "2025.3.1",
+  "version": "2025.3.2",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
   "files": [
     "prisma",
-    "dist"
+    "dist",
+    "src/mailer/templates"
   ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "postbuild": "mkdir -p dist/mailer && cp -r src/mailer/templates dist/mailer/templates",
     "generate-gql-sdl": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' GENERATE_GQL_SCHEMA=true WHITELISTED_ORIGINS='' nest start",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

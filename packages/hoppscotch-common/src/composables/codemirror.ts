@@ -37,6 +37,9 @@ import { http } from "@codemirror/legacy-modes/mode/http"
 import { csharp, java } from "@codemirror/legacy-modes/mode/clike"
 import { powerShell } from "@codemirror/legacy-modes/mode/powershell"
 import { python } from "@codemirror/legacy-modes/mode/python"
+import { r } from "@codemirror/legacy-modes/mode/r"
+import { ruby } from "@codemirror/legacy-modes/mode/ruby"
+import { swift } from "@codemirror/legacy-modes/mode/swift"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
@@ -180,6 +183,9 @@ const streamLanguageMap: Record<string, any> = {
   python,
   shell,
   html,
+  r,
+  ruby,
+  swift,
 }
 
 /**

@@ -28,7 +28,7 @@
   "configs": {
     "auth_providers": {
       "auth_provider_config": "Authentication Configurations",
-      "auth_provider_description": "Configure authentication providers for your Hoppscotch instance using OAuth, SSO, or email-based methods.",
+      "auth_provider_description": "Set up authentication methods for your Hoppscotch instance using OAuth or Email.",
       "callback_url": "CALLBACK URL",
       "client_id": "CLIENT ID",
       "client_secret": "CLIENT SECRET",
@@ -41,7 +41,7 @@
       "scope": "SCOPE",
       "sso": "SSO",
       "tenant": "TENANT",
-      "title": "Authentication Providers",
+      "title": "OAuth Providers",
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
@@ -101,8 +101,8 @@
     "tabs": {
       "auth": "Authentication",
       "activity": "Activity",
+      "infra_tokens": "Infra Tokens",
       "smtp": "SMTP",
-      "tokens": "Tokens",
       "miscellaneous": "Miscellaneous",
       "reset": "Reset Configurations"
     },

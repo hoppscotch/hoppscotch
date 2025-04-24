@@ -28,7 +28,7 @@
         </div>
       </HoppSmartTab>
 
-      <HoppSmartTab :id="'token'" :label="t('configs.tabs.tokens')">
+      <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
       </HoppSmartTab>
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">

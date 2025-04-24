@@ -36,15 +36,6 @@
           <div v-if="smtpConfigs.enabled" class="ml-12">
             <div class="flex flex-col items-start gap-5">
               <HoppSmartCheckbox
-                :on="smtpConfigs.fields.email_auth"
-                @change="
-                  smtpConfigs.fields.email_auth = !smtpConfigs.fields.email_auth
-                "
-              >
-                {{ t('configs.mail_configs.enable_email_auth') }}
-              </HoppSmartCheckbox>
-
-              <HoppSmartCheckbox
                 :on="smtpConfigs.fields.mailer_use_custom_configs"
                 :title="t('configs.mail_configs.custom_smtp_configs')"
                 @change="

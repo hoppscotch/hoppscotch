@@ -1,3 +1,4 @@
+pub mod logger;
 pub mod server;
 pub mod updater;
 
@@ -18,6 +19,12 @@ fn hopp_auth_port() -> u16 {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
+
+    let server_port = portpicker::pick_unused_port().expect("Cannot find unused port");
+    SERVER_PORT
+        .set(server_port)
+        .expect("Failed to set server port");
+    tracing::info!("Selected server port: {}", server_port);
 
     tauri::Builder::default()
         .plugin(
@@ -61,14 +68,20 @@ pub fn run() {
         })
         .setup(|app| {
             let handle = app.handle().clone();
-            let port = portpicker::pick_unused_port().expect("Cannot find unused port");
-            SERVER_PORT.set(port).expect("Failed to set server port");
+
+            let port = *SERVER_PORT.get().expect("Server port not initialized");
+            tracing::info!(port = port, "Initializing server with pre-selected port");
             let port = server::init(port, handle);
             tracing::info!(port = port, "Server initialization complete");
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
+        .setup(|app| {
+            logger::setup(app.handle().clone())?;
+            tracing::info!("Logger setup complete");
+            Ok(())
+        })
         .plugin(tauri_plugin_appload::init(
             VendorConfigBuilder::new().bundle(
                 include_bytes!("../../bundle.zip").to_vec(),

@@ -2033,7 +2033,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.3.2"
+version = "25.4.0"
 dependencies = [
  "axum",
  "file-rotate",

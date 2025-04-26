@@ -19,14 +19,14 @@
           active
           @click="expandNavigation"
         />
-        <HoppSmartItem
+        <!--<HoppSmartItem
           :icon="IconSidebarOpen"
           :label="SIDEBAR ? t('hide.collection') : t('show.collection')"
           :description="t('layout.collapse_collection')"
           :info-icon="IconChevronRight"
           active
           @click="expandCollection"
-        />
+        />-->
         <h2 class="p-4 font-bold font-semibold text-secondaryDark">
           {{ t("support.title") }}
         </h2>

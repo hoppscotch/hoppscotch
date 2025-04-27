@@ -18,35 +18,24 @@ fn hopp_auth_port() -> u16 {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
-
-    let server_port = portpicker::pick_unused_port().expect("Cannot find unused port");
-    SERVER_PORT
-        .set(server_port)
-        .expect("Failed to set server port");
-    tracing::info!("Selected server port: {}", server_port);
-
     tauri::Builder::default()
-        .plugin(
-            tauri_plugin_window_state::Builder::new()
-                .with_state_flags(
-                    StateFlags::SIZE
-                        | StateFlags::POSITION
-                        | StateFlags::MAXIMIZED
-                        | StateFlags::FULLSCREEN,
-                )
-                .with_denylist(&["main"])
-                .build(),
-        )
-        .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(tauri_plugin_deep_link::init())
-        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let handle = app.handle().clone();
-            tracing::info!(app_name = %app.package_info().name, "Configuring deep link handler");
 
+            logger::setup(app.handle().clone())?;
+            tracing::info!("Logger setup complete");
+
+            let server_port = portpicker::pick_unused_port().expect("Cannot find unused port");
+            tracing::info!("Selected server port: {}", server_port);
+            SERVER_PORT
+                .set(server_port)
+                .expect("Failed to set server port");
+            let port = *SERVER_PORT.get().expect("Server port not initialized");
+            tracing::info!(port = port, "Initializing server with pre-selected port");
+            let port = server::init(port, handle.clone());
+            tracing::info!(port = port, "Server initialization complete");
+
+            tracing::info!(app_name = %app.package_info().name, "Configuring deep link handler");
             app.deep_link().on_open_url(move |event| {
                 let urls = event.urls();
                 tracing::info!(
@@ -64,24 +53,29 @@ pub fn run() {
                         );
                     });
             });
-            Ok(())
-        })
-        .setup(|app| {
-            let handle = app.handle().clone();
 
-            let port = *SERVER_PORT.get().expect("Server port not initialized");
-            tracing::info!(port = port, "Initializing server with pre-selected port");
-            let port = server::init(port, handle);
-            tracing::info!(port = port, "Server initialization complete");
+            tracing::info!("Starting Hoppscotch Desktop v{}", env!("CARGO_PKG_VERSION"));
+
             Ok(())
         })
+        .plugin(
+            tauri_plugin_window_state::Builder::new()
+                .with_state_flags(
+                    StateFlags::SIZE
+                        | StateFlags::POSITION
+                        | StateFlags::MAXIMIZED
+                        | StateFlags::FULLSCREEN,
+                )
+                .with_denylist(&["main"])
+                .build(),
+        )
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
-        .setup(|app| {
-            logger::setup(app.handle().clone())?;
-            tracing::info!("Logger setup complete");
-            Ok(())
-        })
         .plugin(tauri_plugin_appload::init(
             VendorConfigBuilder::new().bundle(
                 include_bytes!("../../bundle.zip").to_vec(),

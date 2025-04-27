@@ -28,7 +28,7 @@ async function generateNonce(length: number = 6): Promise<string> {
 function sha256Hash(data: string): Promise<ArrayBuffer> {
   const encoder = new TextEncoder()
   const dataBuffer = encoder.encode(data)
-  return crypto.subtle.digest('SHA-256', dataBuffer)
+  return crypto.subtle.digest("SHA-256", dataBuffer)
 }
 
 async function hmacSign(
@@ -41,7 +41,7 @@ async function hmacSign(
   const messageData = encoder.encode(message)
 
   const cryptoAlgo = algorithm === "sha256" ? "SHA-256" : "SHA-1"
-  
+
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     keyData,
@@ -54,7 +54,7 @@ async function hmacSign(
   )
 
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData)
-  
+
   // Convert to base64 string
   return btoa(String.fromCharCode.apply(null, [...new Uint8Array(signature)]))
 }
@@ -82,13 +82,16 @@ async function getPayloadContent(
 export async function calculateHawkHeader(
   options: HawkOptions
 ): Promise<string> {
-  // Use provided timestamp or generate a new one (seconds since epoch)
-  const timestamp = options.timestamp !== undefined && options.timestamp !== "" 
-    ? options.timestamp 
-    : Math.floor(Date.now() / 1000)
-  
+  const timestamp =
+    options.timestamp !== undefined && options.timestamp !== null
+      ? options.timestamp
+      : Math.floor(Date.now() / 1000)
+
   // Use provided nonce or generate a new one
-  const nonce = options.nonce && options.nonce !== "" ? options.nonce : await generateNonce()
+  const nonce =
+    options.nonce && options.nonce !== ""
+      ? options.nonce
+      : await generateNonce()
 
   // Parse URL
   const urlObj = new URL(options.url)
@@ -105,7 +108,7 @@ export async function calculateHawkHeader(
     host: host,
     port: port,
     hash: "",
-    ext: options.ext || ""
+    ext: options.ext || "",
   }
 
   // Calculate payload hash if needed
@@ -114,7 +117,9 @@ export async function calculateHawkHeader(
     const contentType = "text/plain"
     const hashBase = `hawk.1.payload\n${contentType}\n${content}\n`
     const contentHash = await sha256Hash(hashBase)
-    artifacts.hash = btoa(String.fromCharCode.apply(null, [...new Uint8Array(contentHash)]))
+    artifacts.hash = btoa(
+      String.fromCharCode.apply(null, [...new Uint8Array(contentHash)])
+    )
   }
 
   // Construct the string to sign according to Hawk spec
@@ -128,7 +133,7 @@ export async function calculateHawkHeader(
     `Hawk id="${options.id}"`,
     `ts="${artifacts.ts}"`,
     `nonce="${artifacts.nonce}"`,
-    `mac="${mac}"`
+    `mac="${mac}"`,
   ]
 
   // Add optional parameters if present

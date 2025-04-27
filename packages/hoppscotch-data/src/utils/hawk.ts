@@ -19,7 +19,16 @@ interface HawkOptions {
 async function generateNonce(length: number = 6): Promise<string> {
   const array = new Uint8Array(length)
   crypto.getRandomValues(array)
-  return btoa(String.fromCharCode(...array))
+  return Array.from(array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+    .substring(0, length)
+}
+
+function sha256Hash(data: string): Promise<ArrayBuffer> {
+  const encoder = new TextEncoder()
+  const dataBuffer = encoder.encode(data)
+  return crypto.subtle.digest('SHA-256', dataBuffer)
 }
 
 async function hmacSign(
@@ -31,20 +40,23 @@ async function hmacSign(
   const keyData = encoder.encode(key)
   const messageData = encoder.encode(message)
 
+  const cryptoAlgo = algorithm === "sha256" ? "SHA-256" : "SHA-1"
+  
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     keyData,
     {
       name: "HMAC",
-      hash: { name: `SHA-${algorithm === "sha256" ? "256" : "1"}` },
+      hash: { name: cryptoAlgo },
     },
     false,
     ["sign"]
   )
 
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData)
-
-  return btoa(String.fromCharCode(...new Uint8Array(signature)))
+  
+  // Convert to base64 string
+  return btoa(String.fromCharCode.apply(null, [...new Uint8Array(signature)]))
 }
 
 async function getPayloadContent(
@@ -70,46 +82,60 @@ async function getPayloadContent(
 export async function calculateHawkHeader(
   options: HawkOptions
 ): Promise<string> {
-  const timestamp =
-    options.timestamp || Math.floor(Date.now() / 1000).toString()
-  const nonce = options.nonce || (await generateNonce())
+  // Use provided timestamp or generate a new one (seconds since epoch)
+  const timestamp = options.timestamp !== undefined && options.timestamp !== "" 
+    ? options.timestamp 
+    : Math.floor(Date.now() / 1000)
+  
+  // Use provided nonce or generate a new one
+  const nonce = options.nonce && options.nonce !== "" ? options.nonce : await generateNonce()
 
-  const url = new URL(options.url)
-  const port = url.port || (url.protocol === "https:" ? "443" : "80")
+  // Parse URL
+  const urlObj = new URL(options.url)
+  const host = urlObj.hostname
+  const port = urlObj.port || (urlObj.protocol === "https:" ? "443" : "80")
+  const path = urlObj.pathname + urlObj.search
 
-  let payloadHash = ""
-  if (options.includePayloadHash && options.payload) {
-    const content = await getPayloadContent(options.payload)
-    const hash = await hmacSign(options.key, content, options.algorithm)
-    payloadHash = `hash="${hash}"`
+  // Create the normalized string
+  const artifacts = {
+    ts: timestamp,
+    nonce: nonce,
+    method: options.method.toUpperCase(),
+    resource: path,
+    host: host,
+    port: port,
+    hash: "",
+    ext: options.ext || ""
   }
 
-  const normalized = [
-    timestamp,
-    nonce,
-    options.method.toUpperCase(),
-    url.pathname + url.search,
-    url.host,
-    port,
-    payloadHash,
-    options.ext || "",
-    options.app || "",
-    options.dlg || "",
-  ].join("\n")
+  // Calculate payload hash if needed
+  if (options.includePayloadHash && options.payload) {
+    const content = await getPayloadContent(options.payload)
+    const contentType = "text/plain"
+    const hashBase = `hawk.1.payload\n${contentType}\n${content}\n`
+    const contentHash = await sha256Hash(hashBase)
+    artifacts.hash = btoa(String.fromCharCode.apply(null, [...new Uint8Array(contentHash)]))
+  }
 
-  const mac = await hmacSign(options.key, normalized, options.algorithm)
+  // Construct the string to sign according to Hawk spec
+  const macBaseString = `hawk.1.header\n${artifacts.ts}\n${artifacts.nonce}\n${artifacts.method}\n${artifacts.resource}\n${artifacts.host}\n${artifacts.port}\n${artifacts.hash}\n${artifacts.ext}\n`
 
+  // Calculate MAC
+  const mac = await hmacSign(options.key, macBaseString, options.algorithm)
+
+  // Construct the Hawk header
   const header = [
     `Hawk id="${options.id}"`,
-    `ts="${timestamp}"`,
-    `nonce="${nonce}"`,
-    `mac="${mac}"`,
+    `ts="${artifacts.ts}"`,
+    `nonce="${artifacts.nonce}"`,
+    `mac="${mac}"`
   ]
 
-  if (options.ext) header.push(`ext="${options.ext}"`)
-  if (options.app) header.push(`app="${options.app}"`)
-  if (options.dlg) header.push(`dlg="${options.dlg}"`)
-  if (payloadHash) header.push(payloadHash)
+  // Add optional parameters if present
+  if (options.ext && options.ext !== "") header.push(`ext="${options.ext}"`)
+  if (options.app && options.app !== "") header.push(`app="${options.app}"`)
+  if (options.dlg && options.dlg !== "") header.push(`dlg="${options.dlg}"`)
+  if (artifacts.hash !== "") header.push(`hash="${artifacts.hash}"`)
 
   return header.join(", ")
 }

@@ -36,7 +36,6 @@ import {
   generateDigestAuthHeader,
 } from "../auth/digest"
 import { calculateHawkHeader } from "@hoppscotch/data"
-import { calculateAkamaiEdgeGridHeader } from "@hoppscotch/data"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -283,47 +282,6 @@ export const getComputedAuthHeaders = async (
       active: true,
       key: "Authorization",
       value: hawkHeader,
-      description: "",
-    })
-  } else if (request.auth.authType === "akamai-eg") {
-    const { method, endpoint } = req as HoppRESTRequest
-
-    // Get the request body
-    const reqBody = getFinalBodyFromRequest(
-      req as HoppRESTRequest,
-      envVars,
-      showKeyIfSecret
-    )
-
-    const authHeader = await calculateAkamaiEdgeGridHeader({
-      accessToken: parseTemplateString(request.auth.accessToken, envVars),
-      clientToken: parseTemplateString(request.auth.clientToken, envVars),
-      clientSecret: parseTemplateString(request.auth.clientSecret, envVars),
-      url: parseTemplateString(endpoint, envVars),
-      method: method,
-      // Pass the request body to the function
-      body: typeof reqBody === "string" ? reqBody : undefined,
-      nonce: request.auth.nonce
-        ? parseTemplateString(request.auth.nonce, envVars)
-        : undefined,
-      timestamp: request.auth.timestamp
-        ? parseTemplateString(request.auth.timestamp, envVars)
-        : undefined,
-      host: request.auth.host
-        ? parseTemplateString(request.auth.host, envVars)
-        : undefined,
-      headersToSign: request.auth.headersToSign
-        ? parseTemplateString(request.auth.headersToSign, envVars)
-        : undefined,
-      maxBodySize: request.auth.maxBodySize
-        ? parseTemplateString(request.auth.maxBodySize, envVars)
-        : undefined,
-    })
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: authHeader,
       description: "",
     })
   }

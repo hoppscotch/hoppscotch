@@ -7,7 +7,7 @@ import SettingsExtensionSubtitle from "~/components/settings/ExtensionSubtitle.v
 import * as E from "fp-ts/Either"
 import { getI18n } from "~/modules/i18n"
 import { until } from "@vueuse/core"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 import type {
   KernelInterceptor,
@@ -227,6 +227,7 @@ export class ExtensionKernelInterceptorService
     }
 
     try {
+      const startTime = Date.now()
       let requestData: any = null
 
       if (request.content) {
@@ -276,19 +277,45 @@ export class ExtensionKernelInterceptorService
         await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
           url: request.url,
           method: request.method,
-          headers: request.headers,
+          headers: request.headers ?? {},
           data: requestData,
           wantsBinary: true,
         })
 
+      const endTime = Date.now()
+
+      const headersSize = JSON.stringify(extensionResponse.headers).length
+      const bodySize = extensionResponse.data?.byteLength || 0
+      const totalSize = headersSize + bodySize
+
+      const timingMeta = extensionResponse.timeData
+        ? {
+            start: extensionResponse.timeData.startTime,
+            end: extensionResponse.timeData.endTime,
+          }
+        : {
+            start: startTime,
+            end: endTime,
+          }
+
       return E.right({
+        id: request.id,
         status: extensionResponse.status,
         statusText: extensionResponse.statusText,
+        version: request.version,
         headers: extensionResponse.headers,
         body: body.body(
           extensionResponse.data,
           extensionResponse.headers["content-type"]
         ),
+        meta: {
+          timing: timingMeta,
+          size: {
+            headers: headersSize,
+            body: bodySize,
+            total: totalSize,
+          },
+        },
       })
     } catch (e) {
       console.error(e)
@@ -296,11 +323,37 @@ export class ExtensionKernelInterceptorService
       if (e instanceof Error && "response" in e) {
         const response = (e as any).response
         if (response) {
+          const headersSize = JSON.stringify(response.headers).length
+          const bodySize = response.data?.byteLength || 0
+          const totalSize = headersSize + bodySize
+
+          const timingMeta = response.timeData
+            ? {
+                start: response.timeData.startTime,
+                end: response.timeData.endTime,
+              }
+            : {
+                // Fallback timing - at least show it took some time,
+                // this is mainly for cross compat with other interceptor settings.
+                start: Date.now() - 1,
+                end: Date.now(),
+              }
+
           return E.right({
+            id: request.id,
             status: response.status,
             statusText: response.statusText,
+            version: request.version,
             headers: response.headers,
             body: body.body(response.data, response.headers["content-type"]),
+            meta: {
+              timing: timingMeta,
+              size: {
+                headers: headersSize,
+                body: bodySize,
+                total: totalSize,
+              },
+            },
           })
         }
       }

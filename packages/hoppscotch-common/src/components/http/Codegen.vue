@@ -45,6 +45,7 @@
               @click="
                 () => {
                   codegenType = codegen.name
+                  codegenMode = codegen.lang
                   hide()
                 }
               "
@@ -124,6 +125,7 @@ import {
   CodegenDefinitions,
   CodegenName,
   generateCode,
+  CodegenLang,
 } from "~/helpers/new-codegen"
 import {
   getEffectiveRESTRequest,
@@ -171,6 +173,7 @@ const currentActiveTabDocument = computed(() =>
 )
 
 const codegenType = ref<CodegenName>("shell-curl")
+const codegenMode = ref<CodegenLang>("shell")
 const errorState = ref(false)
 
 defineProps({
@@ -289,7 +292,7 @@ useCodemirror(
   requestCode,
   reactive({
     extendedEditorConfig: {
-      mode: "text/plain",
+      mode: codegenMode,
       readOnly: true,
       lineWrapping: WRAP_LINES,
     },

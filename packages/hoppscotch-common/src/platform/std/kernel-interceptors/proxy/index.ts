@@ -21,7 +21,7 @@ import { pipe } from "fp-ts/function"
 import { getI18n } from "~/modules/i18n"
 import { v4 } from "uuid"
 
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 import { parseBytesToJSON } from "~/helpers/functional/json"
 import { decodeB64StringToArrayBuffer } from "~/helpers/utils/b64"
 

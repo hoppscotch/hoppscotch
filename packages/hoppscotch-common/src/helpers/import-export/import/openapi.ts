@@ -29,8 +29,9 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { cloneDeep, isNumber } from "lodash-es"
+import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
+import { isNumeric } from "~/helpers/utils/number"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -54,6 +55,29 @@ const objectHasProperty = <T extends string>(
   typeof obj === "object" &&
   Object.prototype.hasOwnProperty.call(obj, propName)
 
+// Helper function to check for unresolved references in a document
+const hasUnresolvedRefs = (obj: unknown, visited = new WeakSet()): boolean => {
+  // Handle non-objects or null
+  if (!obj || typeof obj !== "object") return false
+
+  // Check for circular references
+  if (visited.has(obj)) return false
+
+  // Add current object to visited set
+  visited.add(obj)
+
+  // Check if current object has $ref property
+  if ("$ref" in obj && typeof obj.$ref === "string") return true
+
+  // Check arrays
+  if (Array.isArray(obj)) {
+    return obj.some((item) => hasUnresolvedRefs(item, visited))
+  }
+
+  // Check object properties
+  return Object.values(obj).some((value) => hasUnresolvedRefs(value, visited))
+}
+
 // basic validation for OpenAPI V2 Document
 const isOpenAPIV2Document = (doc: unknown): doc is OpenAPIV2.Document => {
   return (
@@ -71,22 +95,6 @@ const isOpenAPIV3Document = (
     objectHasProperty(doc, "openapi") &&
     typeof doc.openapi === "string" &&
     doc.openapi.startsWith("3.")
-  )
-}
-
-const hasRequiredOpenAPIFields = (doc: unknown): boolean => {
-  return (
-    objectHasProperty(doc, "info") &&
-    objectHasProperty(doc.info, "title") &&
-    objectHasProperty(doc.info, "version") &&
-    objectHasProperty(doc, "paths")
-  )
-}
-
-const isABasicOpenAPIDoc = (doc: unknown): boolean => {
-  return (
-    (isOpenAPIV2Document(doc) || isOpenAPIV3Document(doc)) &&
-    hasRequiredOpenAPIFields(doc)
   )
 }
 
@@ -172,7 +180,7 @@ const parseOpenAPIV3Responses = (
 
     const name = response.description ?? key
 
-    const code = isNumber(key) ? Number(key) : 200
+    const code = isNumeric(key) ? Number(key) : 200
 
     const status = getStatusCodeReasonPhrase(code)
 
@@ -230,7 +238,7 @@ const parseOpenAPIV2Responses = (
 
     const name = response.description ?? key
 
-    const code = isNumber(Number(key)) ? Number(key) : 200
+    const code = isNumeric(Number(key)) ? Number(key) : 200
     const status = getStatusCodeReasonPhrase(code)
 
     const headers: HoppRESTHeader[] = [
@@ -745,8 +753,8 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
-    const { host = "<<baseUrl>>", basePath = "" } =
-      doc satisfies OpenAPIV2.Document
+    const host = doc.host?.trim() || "<<baseUrl>>"
+    const basePath = doc.basePath?.trim() || ""
     return `${host}${basePath}`
   }
 
@@ -759,7 +767,7 @@ const parseOpenAPIUrl = (
     return doc.servers?.[0]?.url ?? "<<baseUrl>>"
   }
 
-  // If the document is neither v2 nor v3 then return a env variable as placeholder
+  // If the document is neither v2 nor v3 or missing required fields
   return "<<baseUrl>>"
 }
 
@@ -852,7 +860,17 @@ const convertPathToHoppReqs = (
 
 const convertOpenApiDocsToHopp = (
   docs: OpenAPI.Document[]
-): TE.TaskEither<never, HoppCollection[]> => {
+): TE.TaskEither<string, HoppCollection[]> => {
+  // checking for unresolved references before conversion
+  for (const doc of docs) {
+    if (hasUnresolvedRefs(doc)) {
+      console.warn(
+        "Document contains unresolved references which may affect import quality"
+      )
+      // continue anyway to provide a best-effort import
+    }
+  }
+
   const collections = docs.map((doc) => {
     const name = doc.info.title
 
@@ -929,15 +947,28 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
 
             for (const docObj of docArr) {
               try {
-                const isValidOpenAPISpec = isABasicOpenAPIDoc(docObj)
+                // More lenient check - if it has paths, we'll try to import it
+                const isValidOpenAPISpec =
+                  objectHasProperty(docObj, "paths") &&
+                  (isOpenAPIV2Document(docObj) ||
+                    isOpenAPIV3Document(docObj) ||
+                    objectHasProperty(docObj, "info"))
 
                 if (!isValidOpenAPISpec) {
                   throw new Error("INVALID_OPENAPI_SPEC")
                 }
 
-                const validatedDoc = await validateDocs(docObj)
-
-                resultDoc.push(validatedDoc)
+                try {
+                  const validatedDoc = await validateDocs(docObj)
+                  resultDoc.push(validatedDoc)
+                } catch (validationError) {
+                  // If validation fails but it has basic OpenAPI structure, add it anyway
+                  if (objectHasProperty(docObj, "paths")) {
+                    resultDoc.push(docObj as OpenAPI.Document)
+                  } else {
+                    throw validationError
+                  }
+                }
               } catch (err) {
                 if (
                   err instanceof Error &&
@@ -959,10 +990,11 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
                 }
               }
             }
-
             return resultDoc
           },
-          () => IMPORTER_INVALID_FILE_FORMAT
+          () => {
+            return IMPORTER_INVALID_FILE_FORMAT
+          }
         )
       )
     }),
@@ -974,14 +1006,27 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
             const resultDoc = []
 
             for (const docObj of docArr) {
-              const validatedDoc = await dereferenceDocs(docObj)
+              try {
+                const validatedDoc = await dereferenceDocs(docObj)
+                resultDoc.push(validatedDoc)
+              } catch (error) {
+                // Check if the document has unresolved references
+                if (hasUnresolvedRefs(docObj)) {
+                  console.warn(
+                    "Document contains unresolved references which may affect import quality"
+                  )
+                }
 
-              resultDoc.push(validatedDoc)
+                // If dereferencing fails, use the original document
+                resultDoc.push(docObj)
+              }
             }
 
             return resultDoc
           },
-          () => OPENAPI_DEREF_ERROR
+          () => {
+            return OPENAPI_DEREF_ERROR
+          }
         )
       )
     ),

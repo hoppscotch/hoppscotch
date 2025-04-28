@@ -8,7 +8,10 @@ import { EffectiveHoppRESTRequest } from "~/helpers/utils/EffectiveURL"
 
 import { transformAuth, transformContent } from "~/helpers/kernel/common"
 import { defaultAuth } from "~/helpers/kernel/common/auth"
-import { filterActiveToRecord } from "~/helpers/functional/filter-active"
+import {
+  filterActiveToRecord,
+  filterActiveParams,
+} from "~/helpers/functional/filter-active"
 
 export const RESTRequest = {
   async toRequest(request: EffectiveHoppRESTRequest): Promise<RelayRequest> {
@@ -24,7 +27,7 @@ export const RESTRequest = {
     )()
 
     const headers = filterActiveToRecord(request.effectiveFinalHeaders)
-    const params = filterActiveToRecord(request.effectiveFinalParams)
+    const params = filterActiveParams(request.effectiveFinalParams)
 
     return {
       id: Date.now(),

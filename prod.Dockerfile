@@ -23,8 +23,8 @@ RUN go get github.com/golang/glog@v1.2.4
 RUN go get github.com/go-jose/go-jose/v3@v3.0.4
 # Patch to resolve CVE-2025-22869 on crypto
 RUN go get golang.org/x/crypto@v0.35.0
-# Patch to resolve CVE-2025-22870 on net
-RUN go get golang.org/x/net@v0.37.0
+# Patch to resolve CVE-2025-22872 on net
+RUN go get golang.org/x/net@v0.38.0
 
 RUN go mod vendor
 

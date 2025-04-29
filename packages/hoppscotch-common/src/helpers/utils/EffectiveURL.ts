@@ -276,8 +276,6 @@ export const getComputedAuthHeaders = async (
         : undefined,
     })
 
-    console.log(hawkHeader)
-
     headers.push({
       active: true,
       key: "Authorization",

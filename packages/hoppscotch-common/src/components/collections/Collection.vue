@@ -242,6 +242,7 @@ import {
   currentReorderingStatus$,
 } from "~/newstore/reordering"
 import IconCheckCircle from "~icons/lucide/check-circle"
+import IconCheckStar from "~icons/lucide/star"
 import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
@@ -347,7 +348,7 @@ watch(
 
 const collectionIcon = computed(() => {
   if (props.isSelected) return IconCheckCircle
-  else if (!props.isOpen) return IconFolder
+  else if (!props.isOpen) return IconCheckStar
   else if (props.isOpen) return IconFolderOpen
   return IconFolder
 })

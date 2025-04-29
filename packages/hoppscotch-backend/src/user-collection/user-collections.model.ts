@@ -29,6 +29,7 @@ export class UserCollection {
   parentID: string | null;
 
   userID: string;
+
 }
 
 @ObjectType()

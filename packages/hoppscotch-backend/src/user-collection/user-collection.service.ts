@@ -281,6 +281,7 @@ export class UserCollectionService {
         orderIndex: !parentUserCollectionID
           ? (await this.getRootCollectionsCount(user.uid)) + 1
           : (await this.getChildCollectionsCount(parentUserCollectionID)) + 1,
+        isFavorite: false,
       },
     });
 
@@ -1019,6 +1020,7 @@ export class UserCollectionService {
         ),
       },
       data: folder.data ?? undefined,
+      isFavorite: false 
     };
   }
 

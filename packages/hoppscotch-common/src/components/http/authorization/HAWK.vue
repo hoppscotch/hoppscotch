@@ -121,14 +121,15 @@
     </div>
   </div>
 
-  <div class="px-4 my-6">
+  <!-- TODO: implement include payload hash -->
+  <!-- <div class="px-4 my-6">
     <HoppSmartCheckbox
       :on="auth.includePayloadHash"
       @change="auth.includePayloadHash = !auth.includePayloadHash"
     >
       Include Payload Hash
     </HoppSmartCheckbox>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">

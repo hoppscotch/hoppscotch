@@ -196,6 +196,7 @@ import {
   HoppRESTAuth,
   HoppRESTAuthAWSSignature,
   HoppRESTAuthDigest,
+  HoppRESTAuthHAWK,
   HoppRESTAuthOAuth2,
 } from "@hoppscotch/data"
 
@@ -269,9 +270,11 @@ const selectAWSSignatureAuthType = () => {
 }
 
 const selectHAWKAuthType = () => {
+  const { algorithm = "sha256" } = auth.value as HoppRESTAuthHAWK
   auth.value = {
     ...auth.value,
     authType: "hawk",
+    algorithm,
   } as HoppRESTAuth
 }
 

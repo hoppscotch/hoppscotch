@@ -18,7 +18,9 @@
 
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight"> Algorithm </label>
+      <label class="ml-4 text-secondaryLight">
+        {{ t("authorization.digest.algorithm") }}
+      </label>
       <tippy
         interactive
         trigger="click"

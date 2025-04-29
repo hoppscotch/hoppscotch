@@ -66,12 +66,4 @@ impl<'a> HeadersBuilder<'a> {
             }
         })
     }
-
-    #[tracing::instrument(skip(self), level = "debug")]
-    pub(crate) fn add_content_type(&mut self, content_type: &str) -> Result<()> {
-        tracing::info!(content_type = %content_type, "Adding content-type header");
-        let mut headers = HashMap::new();
-        headers.insert("Content-Type".to_string(), content_type.to_string());
-        self.add_headers(Some(&headers))
-    }
 }

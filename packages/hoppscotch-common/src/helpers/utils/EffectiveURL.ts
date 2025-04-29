@@ -70,9 +70,36 @@ export const getComputedAuthHeaders = async (
   showKeyIfSecret = false
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
-  // If Authorization header is also being user-defined, that takes priority
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
-    return []
+
+  /**
+   * Handling Authorization header priority rules:
+   *
+   * 1. If a user-defined "Authorization" header exists in the request:
+   *    a. We generally give it priority over auth-generated headers
+   *    b. EXCEPTION: API Key auth that uses a different header name should still be included
+   *
+   * 2. We need to check both:
+   *    - req.auth (the current request's auth settings)
+   *    - auth param (possibly inherited auth from a parent collection)
+   *
+   * 3. Only return empty array (blocking auth headers) when:
+   *    - Neither req.auth nor auth param is using API Key auth, OR
+   *    - API Key auth is being used but specifically with the "Authorization" header name
+   *    - This prevents API Key auth from being blocked when using custom header names
+   */
+  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization")) {
+    // Only return empty array if not using API key auth or if API key is using "authorization" header
+    if (
+      (!req.auth ||
+        req.auth.authType !== "api-key" ||
+        req.auth.key.toLowerCase() === "authorization") &&
+      (!auth ||
+        auth.authType !== "api-key" ||
+        auth.key.toLowerCase() === "authorization")
+    ) {
+      return []
+    }
+  }
 
   if (!request) return []
 

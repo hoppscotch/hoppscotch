@@ -2,22 +2,17 @@
   <div class="h-screen p-5 flex flex-col gap-y-2">
     <h1 class="font-bold text-lg text-white">{{ pipe(state(), getTitle) }}</h1>
 
-    <template v-if="isOtpView(state())">
-      <div v-if="state().otp" class="flex-grow">
+    <template v-if="O.isSome(state().otp)">
+      <div class="flex-grow">
         <p class="tracking-wide">
           An app is trying to register against the Hoppscotch Agent. If this was intentional, copy the given code into
-          the app to complete the registration process. Please hide the window if you did not initiate this request.
-          Do not hide this window until the verification code is entered. The window will hide automatically once done.
+          the app to complete the registration process. Please cancel the registration if you did not initiate this request.
+          The window will hide automatically once registration succeeds. If you minimize this window during registration,
+          you can access it again from the tray by selecting "Maximize Window".
         </p>
         <p
           class="font-bold text-5xl tracking-wider text-center pt-10 text-white"
         >{{ pipe(state().otp, O.getOrElse(() => "")) }}</p>
-      </div>
-      <div v-else class="text-center pt-10 flex-grow">
-        <p class="tracking-wide">Waiting for registration requests...</p>
-        <p
-          class="text-sm text-gray-400 mt-2"
-        >You can hide this window and access it again from the tray icon.</p>
       </div>
     </template>
 
@@ -38,7 +33,27 @@
         :icon="copyIcon"
         @click="copyOtp"
       />
-      <HoppButtonPrimary label="Hide Window" outline @click="hideWindow" />
+      <div class="flex gap-2">
+        <template v-if="O.isSome(state().otp)">
+          <HoppButtonSecondary
+            label="Cancel Registration"
+            outline
+            @click="getCurrentWindow().close()"
+          />
+          <HoppButtonPrimary
+            label="Minimize to Tray"
+            outline
+            @click="hideWindow"
+          />
+        </template>
+
+          <HoppButtonPrimary
+            v-else
+            label="Minimize to Tray"
+            outline
+            @click="hideWindow"
+          />
+      </div>
     </div>
   </div>
 </template>
@@ -94,10 +109,9 @@ const appState = ref<AppState>({
 
 const state = () => appState.value
 
-const isOtpView = (s: AppState): boolean => s.view === "otp"
 const getTitle = (s: AppState): string =>
-  s.view === "otp" ? "Agent Registration Request" : "Agent Registrations"
-const shouldShowCopy = (s: AppState): boolean => isOtpView(s) && O.isSome(s.otp)
+  O.isSome(s.otp) ? "Agent Registration Request" : "Agent Registrations"
+const shouldShowCopy = (s: AppState): boolean => O.isSome(s.otp)
 const formatDate = (date: string): string => new Date(date).toLocaleString()
 
 const getOtp = TE.tryCatch(
@@ -166,7 +180,11 @@ onMounted(async () => {
   await pipe(
     getOtp,
     TE.map((otp: string) => {
-      if (otp) appState.value = { ...state(), otp: O.some(otp) }
+      if (otp) {
+        appState.value = { ...state(), otp: O.some(otp) }
+      } else {
+        updateRegistrations();
+      }
     })
   )()
 
@@ -181,6 +199,18 @@ onMounted(async () => {
     ),
     listen("authenticated", handleAuthenticated),
     listen("show-registrations", handleShowRegistrations),
+    listen("show-otp-view", async () => {
+      await pipe(
+        getOtp,
+        TE.map((otp: string) => {
+          if (otp) {
+            appState.value = { ...state(), otp: O.some(otp) };
+          } else {
+            updateRegistrations();
+          }
+        })
+      )();
+    }),
   ])
 })
 </script>

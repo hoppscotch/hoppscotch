@@ -6,51 +6,16 @@
     <div
       v-if="
         !store.authKey.value &&
-        (!store.isAgentRunning.value || !hasCheckedAgent)
+        store.hasInitiatedRegistration.value &&
+        store.hasCheckedAgent.value
       "
       class="flex flex-1 items-center space-x-2"
     >
-      <div class="relative flex-1 border border-divider rounded p-2">
-        <span>{{ t("settings.agent_not_running_short") }}</span>
-      </div>
-      <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.retry')"
-        :icon="IconRefresh"
-        outline
-        class="rounded"
-        @click="handleAgentCheck"
-      />
-    </div>
-
-    <div
-      v-else-if="!store.authKey.value && !hasInitiatedRegistration"
-      class="flex flex-1 items-center space-x-2"
-    >
-      <div
-        class="relative flex-1 border border-divider rounded p-2 text-accent"
-      >
-        <span>{{ t("settings.agent_running") }}</span>
-      </div>
-      <HoppButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.register')"
-        :icon="IconPlus"
-        outline
-        class="rounded"
-        @click="initiateRegistration"
-      />
-    </div>
-
-    <div
-      v-else-if="!store.authKey.value"
-      class="flex flex-1 items-center space-x-2"
-    >
       <HoppSmartInput
-        v-model="registrationOTP"
+        v-model="store.registrationOTP.value"
         :autofocus="false"
         :placeholder="' '"
-        :disabled="isRegistering"
+        :disabled="store.isRegistering.value"
         :label="t('settings.enter_otp')"
         input-styles="input floating-input"
         class="flex-1"
@@ -59,38 +24,50 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.confirm')"
         :icon="IconCheck"
-        :loading="isRegistering"
+        :loading="store.isRegistering.value"
         outline
         class="rounded"
         @click="register"
       />
     </div>
 
-    <div v-else class="flex relative flex-1 items-center space-x-2">
+    <div
+      v-else-if="store.maskedAuthKey.value"
+      class="flex relative flex-1 items-center space-x-2"
+    >
       <label
-        class="text-secondaryLight text-tiny absolute -top-2 left-2 px-1 bg-primary"
+        class="text-secondaryLight text-tiny absolute -top-2 left-2 px-1"
         >{{ t("settings.agent_registered") }}</label
       >
       <div
         class="w-full p-2 border border-dividerLight rounded bg-primary text-secondaryDark cursor-text select-all"
       >
-        {{ maskedAuthKey }}
+        {{ store.maskedAuthKey.value }}
       </div>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="t('settings.agent_reset_registration')"
-        :icon="iconClear"
+        :title="t('settings.agent_discard_registration')"
+        :icon="IconClose"
         outline
         class="rounded"
         @click="resetRegistration"
+      />
+    </div>
+
+    <div v-else>
+      <HoppButtonSecondary
+        :icon="IconPlus"
+        :label="t('settings.register_agent')"
+        outline
+        class="rounded"
+        @click="handleAgentCheck"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
-import { refAutoReset } from "@vueuse/core"
+import { computed, onMounted } from "vue"
 import { useService } from "dioc/vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -98,76 +75,77 @@ import { KernelInterceptorAgentStore } from "~/platform/std/kernel-interceptors/
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 import IconPlus from "~icons/lucide/plus"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconCheck from "~icons/lucide/check"
-import IconRefresh from "~icons/lucide/refresh-cw"
+import IconClose from "~icons/lucide/x"
 
 const t = useI18n()
 const toast = useToast()
 const store = useService(KernelInterceptorAgentStore)
 const interceptorService = useService(KernelInterceptorService)
-const iconClear = refAutoReset<typeof IconRotateCCW | typeof IconCheck>(
-  IconRotateCCW,
-  1000
-)
 
 const isSelected = computed(
   () => interceptorService.current.value?.id === "agent"
 )
 
-const hasInitiatedRegistration = ref(false)
-const maskedAuthKey = ref("")
-const hasCheckedAgent = ref(false)
-const registrationOTP = ref(store.authKey.value ? null : "")
-const isRegistering = ref(false)
-
-async function handleAgentCheck() {
+const handleAgentCheck = async () => {
   try {
     await store.checkAgentStatus()
-    hasCheckedAgent.value = true
+    store.hasCheckedAgent.value = true
     if (!store.isAgentRunning.value) {
       toast.error(t("settings.agent_not_running"))
+    } else {
+      await initiateRegistration()
     }
-  } catch (e) {
-    hasCheckedAgent.value = false
+  } catch {
+    store.hasCheckedAgent.value = false
     toast.error(t("settings.agent_check_failed"))
   }
 }
 
-async function initiateRegistration() {
+const initiateRegistration = async () => {
   try {
     await store.initiateRegistration()
-    hasInitiatedRegistration.value = true
-  } catch (e) {}
-}
-
-async function register() {
-  if (!registrationOTP.value) return
-  isRegistering.value = true
-  try {
-    await store.verifyRegistration(registrationOTP.value)
-    await updateMaskedAuthKey()
-    toast.success(t("settings.agent_registration_successful"))
-    registrationOTP.value = ""
-  } catch (e) {
-  } finally {
-    isRegistering.value = false
+    store.hasInitiatedRegistration.value = true
+    toast.success(t("settings.agent_running"))
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      if (e.message === "There is already an existing registration happening") {
+        toast.error(t("settings.agent_registration_already_in_progress"))
+      } else {
+        toast.error(t("settings.agent_registration_failed"))
+      }
+    }
   }
 }
 
-function resetRegistration() {
-  store.authKey.value = null
-  maskedAuthKey.value = ""
-  registrationOTP.value = ""
-  hasInitiatedRegistration.value = false
+const register = async () => {
+  if (!store.registrationOTP.value) return
+  store.isRegistering.value = true
+  try {
+    await store.verifyRegistration(store.registrationOTP.value)
+    await updateMaskedAuthKey()
+    toast.success(t("settings.agent_registration_successful"))
+    store.registrationOTP.value = ""
+  } catch (e) {
+  } finally {
+    store.isRegistering.value = false
+  }
 }
 
-async function updateMaskedAuthKey() {
+const resetRegistration = async () => {
+  await store.resetAuthKey()
+  store.maskedAuthKey.value = ""
+  store.registrationOTP.value = ""
+  store.hasInitiatedRegistration.value = false
+  store.hasCheckedAgent.value = false
+}
+
+const updateMaskedAuthKey = async () => {
   if (!store.authKey.value) return
 
   try {
     const registration = await store.fetchRegistrationInfo()
-    maskedAuthKey.value = registration.auth_key_hash
+    store.maskedAuthKey.value = registration.auth_key_hash
   } catch (e) {}
 }
 

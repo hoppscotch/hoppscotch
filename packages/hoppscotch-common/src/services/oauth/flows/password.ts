@@ -76,7 +76,7 @@ const initPasswordOauthFlow = async ({
         client_secret: clientSecret,
       }),
       ...(scopes && {
-        scopes: scopes,
+        scope: scopes,
       }),
     }),
   })

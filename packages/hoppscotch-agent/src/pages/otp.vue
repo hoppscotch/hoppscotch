@@ -24,7 +24,13 @@
         :icon="copyIcon"
         @click="copyCode"
       />
-      <HoppButtonPrimary label="Hide Window" outline @click="hideWindow" />
+      <div class="flex gap-2">
+        <HoppButtonSecondary
+          label="Cancel Registration"
+          outline
+          @click="getCurrentWindow().close()"
+        />
+      </div>
     </div>
   </div>
 </template>

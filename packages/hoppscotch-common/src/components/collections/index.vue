@@ -137,7 +137,6 @@
     <CollectionsAddRequest
       :show="showModalAddRequest"
       :loading-state="modalLoadingState"
-      :request-context="requestContext"
       @add-request="onAddRequest"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -585,17 +584,21 @@ const filteredCollections = computed(() => {
 
   const isMatch = (text: string) => text.toLowerCase().includes(filterText)
 
+  const isRequestMatch = (request: HoppRESTRequest) =>
+    isMatch(request.name) || isMatch(request.endpoint)
+
   for (const collection of collections) {
     const filteredRequests = []
     const filteredFolders = []
     for (const request of collection.requests) {
-      if (isMatch(request.name)) filteredRequests.push(request)
+      if (isRequestMatch(request as HoppRESTRequest))
+        filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
       if (isMatch(folder.name)) filteredFolders.push(folder)
       const filteredFolderRequests = []
       for (const request of folder.requests) {
-        if (isMatch(request.name)) filteredFolderRequests.push(request)
+        if (isRequestMatch(request)) filteredFolderRequests.push(request)
       }
       if (filteredFolderRequests.length > 0) {
         const filteredFolder = Object.assign({}, folder)
@@ -820,24 +823,9 @@ const addRequest = (payload: {
   displayModalAddRequest(true)
 }
 
-const requestContext = computed(() => {
-  return tabs.currentActiveTab.value.document.type === "request"
-    ? tabs.currentActiveTab.value.document.request
-    : null
-})
-
 const onAddRequest = (requestName: string) => {
-  const request =
-    tabs.currentActiveTab.value.document.type === "request"
-      ? tabs.currentActiveTab.value.document.request
-      : getDefaultRESTRequest()
-
-  if (!request) return
-
   const newRequest = {
-    ...(tabs.currentActiveTab.value.document.type === "request"
-      ? cloneDeep(tabs.currentActiveTab.value.document.request)
-      : getDefaultRESTRequest()),
+    ...getDefaultRESTRequest(),
     name: requestName,
   }
 

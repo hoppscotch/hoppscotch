@@ -27,6 +27,7 @@ export const V7_SCHEMA: z.ZodType<Output, z.ZodTypeDef, Input> =
 export default defineVersion({
   initial: false,
   schema: V7_SCHEMA,
+  // @ts-expect-error
   up(old: z.infer<typeof V6_SCHEMA>) {
     return {
       ...old,

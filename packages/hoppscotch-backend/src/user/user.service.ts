@@ -12,6 +12,7 @@ import {
   USERS_NOT_FOUND,
   USER_NOT_FOUND,
   USER_SHORT_DISPLAY_NAME,
+  USER_EMAIL,
 } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
@@ -22,6 +23,7 @@ import { User as DbUser } from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { GetUserWorkspacesResponse } from 'src/infra-token/request-response.dto';
 import { TeamMemberRole } from 'src/team/team.model';
+import { validateEmail } from '../utils';
 
 @Injectable()
 export class UserService {
@@ -307,6 +309,34 @@ export class UserService {
       const dbUpdatedUser = await this.prisma.user.update({
         where: { uid: userUID },
         data: { displayName },
+      });
+
+      const updatedUser = this.convertDbUserToUser(dbUpdatedUser);
+
+      // Publish subscription for user updates
+      await this.pubsub.publish(`user/${updatedUser.uid}/updated`, updatedUser);
+
+      return E.right(updatedUser);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a user's email
+   * @param userUID User UID
+   * @param email User's email
+   * @returns a Either of User or error
+   */
+  async updateUserEmail(userUID: string, email: string) {
+    if (!email || email.length === 0 || !validateEmail(email)) {
+      return E.left(USER_EMAIL);
+    }
+
+    try {
+      const dbUpdatedUser = await this.prisma.user.update({
+        where: { uid: userUID },
+        data: { email },
       });
 
       const updatedUser = this.convertDbUserToUser(dbUpdatedUser);

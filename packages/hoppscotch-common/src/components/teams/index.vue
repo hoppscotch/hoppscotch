@@ -43,24 +43,52 @@
     </div>
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->
-    <TeamsEdit
-      v-if="!loading && myTeams.length > 0"
-      :team="myTeams[0]"
-      :show="showModalEdit"
-      :editing-team="editingTeam"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalEdit(false)"
-      @invite-team="inviteTeam(editingTeam, editingTeamID)"
-      @refetch-teams="refetchTeams"
-    />
-    <TeamsInvite
-      v-if="!loading && myTeams.length > 0"
-      :team="myTeams[0]"
-      :show="showModalInvite"
-      :editing-team="editingTeam"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
-    />
+
+    <template v-if="platform.ui?.teamEditComponent">
+      <component
+        :is="platform.ui.teamEditComponent"
+        :team="editingTeam"
+        :show="showModalEdit"
+        :editing-team="editingTeam"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalEdit(false)"
+        @invite-team="inviteTeam(editingTeam, editingTeamID)"
+        @refetch-teams="refetchTeams"
+      />
+    </template>
+    <template v-else>
+      <TeamsEdit
+        v-if="!loading && myTeams.length > 0"
+        :team="myTeams[0]"
+        :show="showModalEdit"
+        :editing-team="editingTeam"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalEdit(false)"
+        @invite-team="inviteTeam(editingTeam, editingTeamID)"
+        @refetch-teams="refetchTeams"
+      />
+    </template>
+
+    <template v-if="platform.ui?.teamInviteComponent">
+      <component
+        :is="platform.ui.teamInviteComponent"
+        :team="editingTeam"
+        :show="showModalInvite"
+        :editing-team="editingTeam"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
+    <template v-else>
+      <TeamsInvite
+        v-if="!loading && myTeams.length > 0"
+        :team="myTeams[0]"
+        :show="showModalInvite"
+        :editing-team="editingTeam"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
   </div>
 </template>
 
@@ -72,6 +100,7 @@ import { useColorMode } from "@composables/theming"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
 import IconPlus from "~icons/lucide/plus"
+import { platform } from "~/platform"
 
 const t = useI18n()
 

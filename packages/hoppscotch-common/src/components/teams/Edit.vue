@@ -101,7 +101,10 @@
                         :active="member.role === 'OWNER'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'OWNER')
+                            updateMemberRole(
+                              member.userID,
+                              TeamMemberRole.Owner
+                            )
                             hide()
                           }
                         "
@@ -114,7 +117,10 @@
                         :active="member.role === 'EDITOR'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'EDITOR')
+                            updateMemberRole(
+                              member.userID,
+                              TeamMemberRole.Editor
+                            )
                             hide()
                           }
                         "
@@ -127,7 +133,10 @@
                         :active="member.role === 'VIEWER'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'VIEWER')
+                            updateMemberRole(
+                              member.userID,
+                              TeamMemberRole.Viewer
+                            )
                             hide()
                           }
                         "

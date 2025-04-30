@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "25.3.2"
+version = "25.4.0"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"
@@ -24,6 +24,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = [] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-appender = { version = "0.2.3" }
 tauri-plugin-store = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
 tauri-plugin-fs = "2.2.0"
@@ -35,6 +36,7 @@ tower-http = { version = "0.6.2", features = ["cors"] }
 portpicker = "0.1.1"
 tokio = "1.43.0"
 tauri-plugin-process = "2.2.0"
+file-rotate = "0.8.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2.3.1"

@@ -77,6 +77,22 @@ export class RequestInspectorService extends Service implements Inspector {
       }),
     },
     {
+      matcher: (req) => (req.auth.authType === "hawk" ? {} : null),
+      requires: { type: "auth", name: "hawk" },
+      createInspection: () => ({
+        id: "hawk-auth",
+        icon: markRaw(IconAlertTriangle),
+        text: { type: "text", text: this.t("inspections.auth.hawk") },
+        severity: 2,
+        isApplicable: true,
+        locations: { type: "url" },
+        doc: {
+          text: this.t("action.learn_more"),
+          link: "https://docs.hoppscotch.io/documentation/features/inspections",
+        },
+      }),
+    },
+    {
       matcher: (req) => {
         const index = req.headers.findIndex((h) =>
           h.key.toLowerCase().includes("cookie")

@@ -194,6 +194,11 @@ export const CodegenDefinitions = [
 export type CodegenName = (typeof CodegenDefinitions)[number]["name"]
 
 /**
+ * A type which defines all the valid code generator languages
+ */
+export type CodegenLang = (typeof CodegenDefinitions)[number]["lang"]
+
+/**
  * Generates Source Code for the given codgen
  * @param codegen The codegen to apply
  * @param req The request to generate using

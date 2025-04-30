@@ -252,6 +252,7 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
     teamID: props.editingTeamID,
   },
   pollDuration: 10000,
+  pollLoadingEnabled: false,
   defer: true,
   updateSubs: computed(() => {
     if (props.editingTeamID) {

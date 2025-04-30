@@ -60,6 +60,16 @@ export type UIPlatformDef = {
   additionalSidebarHeaderItem?: Component
 
   /**
+   * Custom invite user group component to be shown in the invite user group page
+   */
+  teamInviteComponent?: Component
+
+  /**
+   * Custom edit user group component to be shown in the edit user group page
+   */
+  teamEditComponent?: Component
+
+  /**
    * More info shown in the danger zone section while attempting user deletion
    * Sample use case includes displaying the instance information on cloud instances
    */

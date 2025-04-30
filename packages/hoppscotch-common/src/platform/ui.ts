@@ -60,12 +60,12 @@ export type UIPlatformDef = {
   additionalSidebarHeaderItem?: Component
 
   /**
-   * Custom invite user group component to be shown in the invite user group page
+   * Custom invite component to be shown in the team invite page
    */
   teamInviteComponent?: Component
 
   /**
-   * Custom edit user group component to be shown in the edit user group page
+   * Custom edit component to be shown in the team edit page
    */
   teamEditComponent?: Component
 

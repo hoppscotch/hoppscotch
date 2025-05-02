@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2025.3.2",
+  "version": "2025.4.0",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -48,6 +48,7 @@
     "@shopify/lang-jsonc": "1.0.0",
     "@tauri-apps/plugin-store": "2.2.0",
     "@types/markdown-it": "14.1.2",
+    "@types/hawk": "9.0.6",
     "@unhead/vue": "1.11.10",
     "@urql/core": "5.0.6",
     "@urql/devtools": "2.0.3",
@@ -66,6 +67,7 @@
     "graphql": "16.9.0",
     "graphql-language-service-interface": "2.10.2",
     "graphql-tag": "2.12.6",
+    "hawk": "9.0.2",
     "insomnia-importers": "3.6.0",
     "io-ts": "2.2.21",
     "js-md5": "0.8.3",

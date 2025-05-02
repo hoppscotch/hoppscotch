@@ -35,8 +35,12 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
+<<<<<<< HEAD
 import { calculateHawkHeader } from "@hoppscotch/data"
 
+=======
+import { parseUrlAndPath } from "./uri"
+>>>>>>> 086f2a24 (fix(EffectiveURL.ts): reused a utility function, parseUrlAndPath, and removed my regex)
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -64,9 +68,9 @@ export const getComputedAuthHeaders = async (
   req?:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    },
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   auth?: HoppRESTRequest["auth"],
   parse = true,
   showKeyIfSecret = false
@@ -113,19 +117,19 @@ export const getComputedAuthHeaders = async (
   if (request.auth.authType === "basic") {
     const username = parse
       ? parseTemplateString(
-        request.auth.username,
-        envVars,
-        false,
-        showKeyIfSecret
-      )
+          request.auth.username,
+          envVars,
+          false,
+          showKeyIfSecret
+        )
       : request.auth.username
     const password = parse
       ? parseTemplateString(
-        request.auth.password,
-        envVars,
-        false,
-        showKeyIfSecret
-      )
+          request.auth.password,
+          envVars,
+          false,
+          showKeyIfSecret
+        )
       : request.auth.password
 
     headers.push({
@@ -192,10 +196,11 @@ export const getComputedAuthHeaders = async (
     headers.push({
       active: true,
       key: "Authorization",
-      value: `Bearer ${parse
-        ? parseTemplateString(token, envVars, false, showKeyIfSecret)
-        : token
-        }`,
+      value: `Bearer ${
+        parse
+          ? parseTemplateString(token, envVars, false, showKeyIfSecret)
+          : token
+      }`,
       description: "",
     })
   } else if (request.auth.authType === "api-key") {
@@ -206,11 +211,11 @@ export const getComputedAuthHeaders = async (
         key: parseTemplateString(key, envVars, false, showKeyIfSecret),
         value: parse
           ? parseTemplateString(
-            request.auth.value ?? "",
-            envVars,
-            false,
-            showKeyIfSecret
-          )
+              request.auth.value ?? "",
+              envVars,
+              false,
+              showKeyIfSecret
+            )
           : (request.auth.value ?? ""),
         description: "",
       })
@@ -295,9 +300,9 @@ export const getComputedBodyHeaders = (
   req:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    }
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      }
 ): HoppRESTHeader[] => {
   // If a content-type is already defined, that will override this
   if (
@@ -366,9 +371,9 @@ export const getComputedHeaders = async (
   req:
     | HoppRESTRequest
     | {
-      auth: HoppRESTAuth
-      headers: HoppRESTHeaders
-    },
+        auth: HoppRESTAuth
+        headers: HoppRESTHeaders
+      },
   envVars: Environment["variables"],
   parse = true,
   showKeyIfSecret = false
@@ -608,17 +613,17 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-            key: parseTemplateString(x.key, envVariables),
-            value: v as string | Blob,
-            contentType: x.contentType,
-          }))
-          : [
-            {
               key: parseTemplateString(x.key, envVariables),
-              value: parseTemplateString(x.value, envVariables),
+              value: v as string | Blob,
               contentType: x.contentType,
-            },
-          ]
+            }))
+          : [
+              {
+                key: parseTemplateString(x.key, envVariables),
+                value: parseTemplateString(x.value, envVariables),
+                contentType: x.contentType,
+              },
+            ]
       ),
       toFormData
     )
@@ -714,26 +719,11 @@ export async function getEffectiveRESTRequest(
     environment.variables,
     showKeyIfSecret
   )
-  const regex = /(<<\w+>>)+/g
-  function replaceAll(_: string, group: string) {
-    for (let i = 0; i < environment.variables.length; i++) {
-      if (group.slice(2, -2) == environment.variables[i].key) {
-        const elem = environment.variables[i] as {
-          value: string
-          key: string
-          secret: false
-        }
-        if (elem.value) {
-          return elem.value.replace(" ", "+")
-        }
-      }
-    }
-    return group
-  }
+
   return {
     ...request,
     effectiveFinalURL: parseTemplateString(
-      request.endpoint.replace(regex, replaceAll),
+      parseUrlAndPath(request.endpoint).url,
       environment.variables,
       false,
       showKeyIfSecret

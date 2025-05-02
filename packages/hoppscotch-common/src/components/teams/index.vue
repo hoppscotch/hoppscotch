@@ -44,51 +44,53 @@
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->
 
-    <template v-if="platform.ui?.additioinalTeamEditComponent">
-      <component
-        :is="platform.ui.additioinalTeamEditComponent"
-        :team="editingTeam"
-        :show="showModalEdit"
-        :editing-team="editingTeam"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalEdit(false)"
-        @invite-team="inviteTeam(editingTeam, editingTeamID)"
-        @refetch-teams="refetchTeams"
-      />
-    </template>
-    <template v-else>
-      <TeamsEdit
-        v-if="!loading && myTeams.length > 0"
-        :team="myTeams[0]"
-        :show="showModalEdit"
-        :editing-team="editingTeam"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalEdit(false)"
-        @invite-team="inviteTeam(editingTeam, editingTeamID)"
-        @refetch-teams="refetchTeams"
-      />
-    </template>
+    <component
+      v-if="
+        platform.ui?.additioinalTeamEditComponent &&
+        !loading &&
+        myTeams.length > 0
+      "
+      :is="platform.ui.additioinalTeamEditComponent"
+      :team="editingTeam"
+      :show="showModalEdit"
+      :editing-team="editingTeam"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeam, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
+    <TeamsEdit
+      v-else-if="!loading && myTeams.length > 0"
+      :team="myTeams[0]"
+      :show="showModalEdit"
+      :editing-team="editingTeam"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeam, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
 
-    <template v-if="platform.ui?.additionalTeamInviteComponent">
-      <component
-        :is="platform.ui.additionalTeamInviteComponent"
-        :team="editingTeam"
-        :show="showModalInvite"
-        :editing-team="editingTeam"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalInvite(false)"
-      />
-    </template>
-    <template v-else>
-      <TeamsInvite
-        v-if="!loading && myTeams.length > 0"
-        :team="myTeams[0]"
-        :show="showModalInvite"
-        :editing-team="editingTeam"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalInvite(false)"
-      />
-    </template>
+    <component
+      v-if="
+        platform.ui?.additionalTeamInviteComponent &&
+        !loading &&
+        myTeams.length > 0
+      "
+      :is="platform.ui.additionalTeamInviteComponent"
+      :team="editingTeam"
+      :show="showModalInvite"
+      :editing-team="editingTeam"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
+    <TeamsInvite
+      v-else-if="!loading && myTeams.length > 0"
+      :team="myTeams[0]"
+      :show="showModalInvite"
+      :editing-team="editingTeam"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
   </div>
 </template>
 

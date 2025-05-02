@@ -35,6 +35,12 @@ type UseQueryOptions<T = any, V = object> = {
   updateSubs?: MaybeRef<GraphQLRequest<any, object>[]>
   defer?: boolean
   pollDuration?: number | undefined
+
+  /**
+   * Determines the behavior of the loading state during polling.
+   * If true, the loading state toggles each time the poller runs;
+   * if false, it is set to true only once when the poller starts.
+   */
   pollLoadingEnabled?: boolean
 }
 

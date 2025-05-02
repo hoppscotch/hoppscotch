@@ -260,44 +260,47 @@
       @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
-    <template v-if="platform.ui?.additionalTeamInviteComponent">
-      <component
-        :is="platform.ui.additionalTeamInviteComponent"
-        :show="showModalInvite"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalInvite(false)"
-      />
-    </template>
-    <template v-else>
-      <TeamsInvite
-        v-if="workspace.type === 'team' && workspace.teamID"
-        :show="showModalInvite"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalInvite(false)"
-      />
-    </template>
 
-    <template v-if="platform.ui?.additioinalTeamEditComponent">
-      <component
-        :is="platform.ui.additioinalTeamEditComponent"
-        :show="showModalEdit"
-        :editing-team="editingTeamName"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalEdit(false)"
-        @invite-team="inviteTeam(editingTeamName, editingTeamID)"
-        @refetch-teams="refetchTeams"
-      />
-    </template>
-    <template v-else>
-      <TeamsEdit
-        :show="showModalEdit"
-        :editing-team="editingTeamName"
-        :editing-team-i-d="editingTeamID"
-        @hide-modal="displayModalEdit(false)"
-        @invite-team="inviteTeam(editingTeamName, editingTeamID)"
-        @refetch-teams="refetchTeams"
-      />
-    </template>
+    <component
+      v-if="
+        platform.ui?.additionalTeamInviteComponent &&
+        workspace.type === 'team' &&
+        workspace.teamID
+      "
+      :is="platform.ui.additionalTeamInviteComponent"
+      :show="showModalInvite"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
+
+    <TeamsInvite
+      v-else-if="workspace.type === 'team' && workspace.teamID"
+      :show="showModalInvite"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
+
+    <component
+      v-if="platform.ui?.additioinalTeamEditComponent"
+      :is="platform.ui.additioinalTeamEditComponent"
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
+
+    <TeamsEdit
+      v-else
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
+
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="t('confirm.remove_team')"

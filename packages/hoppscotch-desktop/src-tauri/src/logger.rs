@@ -1,16 +1,18 @@
+use std::path::PathBuf;
+
 use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
-use tauri::{AppHandle, Manager, Runtime};
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+use crate::HOPPSCOTCH_DESKTOP_IDENTIFIER;
 
 pub struct LogGuard(pub tracing_appender::non_blocking::WorkerGuard);
 
-pub fn setup<R: Runtime>(app_handle: AppHandle<R>) -> Result<(), Box<dyn std::error::Error>> {
-    let log_dir = app_handle.path().app_log_dir()?;
-    std::fs::create_dir_all(&log_dir)?;
+pub fn setup(log_dir: &PathBuf) -> Result<LogGuard, Box<dyn std::error::Error>> {
+    std::fs::create_dir_all(log_dir)?;
 
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| format!("debug").into());
 
-    let log_file_path = log_dir.join("io.hoppscotch.desktop.log");
+    let log_file_path = log_dir.join(&format!("{}.log", HOPPSCOTCH_DESKTOP_IDENTIFIER));
     tracing::info!(log_file_path =? &log_file_path);
 
     let file = FileRotate::new(
@@ -41,12 +43,10 @@ pub fn setup<R: Runtime>(app_handle: AppHandle<R>) -> Result<(), Box<dyn std::er
         .with(console_layer)
         .init();
 
-    app_handle.manage(LogGuard(guard));
-
     tracing::info!(
         log_file = %log_file_path.display(),
         "Logging initialized with single file"
     );
 
-    Ok(())
+    Ok(LogGuard(guard))
 }

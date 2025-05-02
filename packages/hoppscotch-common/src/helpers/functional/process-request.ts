@@ -81,10 +81,10 @@ const updateUrl = (
 
 export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>
   pipe(cloneDeep(req), (req) =>
-    req.params && req.params.length > 0
+    req.params
       ? pipe(
           updateUrl(req.url, req.params),
-          E.map((url) => ({ ...req, url, params: [] })),
+          E.map((url) => ({ ...req, url, params: {} })),
           E.getOrElse(() => req)
         )
       : req

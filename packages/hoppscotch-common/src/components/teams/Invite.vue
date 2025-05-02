@@ -499,6 +499,7 @@ const pendingInvites = useGQLQuery<
     teamID: props.editingTeamID,
   }),
   pollDuration: 10000,
+  pollLoadingEnabled: false,
   updateSubs: computed(() =>
     !props.editingTeamID
       ? []

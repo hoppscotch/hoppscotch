@@ -260,13 +260,31 @@
       @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
-    <TeamsInvite
-      v-if="workspace.type === 'team' && workspace.teamID"
-      :show="showModalInvite"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
-    />
-    <TeamsEdit
+
+    <template v-if="workspace.type === 'team' && workspace.teamID">
+      <component
+        :is="platform.ui.additionalTeamInviteComponent"
+        v-if="
+          platform.ui?.additionalTeamInviteComponent &&
+          workspace.type === 'team' &&
+          workspace.teamID
+        "
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+
+      <TeamsInvite
+        v-else
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
+
+    <component
+      :is="platform.ui.additionalTeamEditComponent"
+      v-if="platform.ui?.additionalTeamEditComponent"
       :show="showModalEdit"
       :editing-team="editingTeamName"
       :editing-team-i-d="editingTeamID"
@@ -274,6 +292,17 @@
       @invite-team="inviteTeam(editingTeamName, editingTeamID)"
       @refetch-teams="refetchTeams"
     />
+
+    <TeamsEdit
+      v-else
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
+
     <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="t('confirm.remove_team')"

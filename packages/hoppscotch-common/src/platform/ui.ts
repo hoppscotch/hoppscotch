@@ -62,12 +62,12 @@ export type UIPlatformDef = {
   /**
    * Custom invite component to be shown in the team invite page
    */
-  teamInviteComponent?: Component
+  additionalTeamInviteComponent?: Component
 
   /**
    * Custom edit component to be shown in the team edit page
    */
-  teamEditComponent?: Component
+  additioinalTeamEditComponent?: Component
 
   /**
    * More info shown in the danger zone section while attempting user deletion

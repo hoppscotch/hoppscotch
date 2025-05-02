@@ -260,9 +260,9 @@
       @dismiss="dismissBanner"
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
-    <template v-if="platform.ui?.teamInviteComponent">
+    <template v-if="platform.ui?.additionalTeamInviteComponent">
       <component
-        :is="platform.ui.teamInviteComponent"
+        :is="platform.ui.additionalTeamInviteComponent"
         :show="showModalInvite"
         :editing-team-i-d="editingTeamID"
         @hide-modal="displayModalInvite(false)"
@@ -277,9 +277,9 @@
       />
     </template>
 
-    <template v-if="platform.ui?.teamEditComponent">
+    <template v-if="platform.ui?.additioinalTeamEditComponent">
       <component
-        :is="platform.ui.teamEditComponent"
+        :is="platform.ui.additioinalTeamEditComponent"
         :show="showModalEdit"
         :editing-team="editingTeamName"
         :editing-team-i-d="editingTeamID"

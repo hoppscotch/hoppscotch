@@ -44,9 +44,9 @@
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->
 
-    <template v-if="platform.ui?.teamEditComponent">
+    <template v-if="platform.ui?.additioinalTeamEditComponent">
       <component
-        :is="platform.ui.teamEditComponent"
+        :is="platform.ui.additioinalTeamEditComponent"
         :team="editingTeam"
         :show="showModalEdit"
         :editing-team="editingTeam"
@@ -69,9 +69,9 @@
       />
     </template>
 
-    <template v-if="platform.ui?.teamInviteComponent">
+    <template v-if="platform.ui?.additionalTeamInviteComponent">
       <component
-        :is="platform.ui.teamInviteComponent"
+        :is="platform.ui.additionalTeamInviteComponent"
         :team="editingTeam"
         :show="showModalInvite"
         :editing-team="editingTeam"

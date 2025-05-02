@@ -261,28 +261,30 @@
     />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
 
-    <component
-      v-if="
-        platform.ui?.additionalTeamInviteComponent &&
-        workspace.type === 'team' &&
-        workspace.teamID
-      "
-      :is="platform.ui.additionalTeamInviteComponent"
-      :show="showModalInvite"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
-    />
+    <template v-if="workspace.type === 'team' && workspace.teamID">
+      <component
+        :is="platform.ui.additionalTeamInviteComponent"
+        v-if="
+          platform.ui?.additionalTeamInviteComponent &&
+          workspace.type === 'team' &&
+          workspace.teamID
+        "
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
 
-    <TeamsInvite
-      v-else-if="workspace.type === 'team' && workspace.teamID"
-      :show="showModalInvite"
-      :editing-team-i-d="editingTeamID"
-      @hide-modal="displayModalInvite(false)"
-    />
+      <TeamsInvite
+        v-else
+        :show="showModalInvite"
+        :editing-team-i-d="editingTeamID"
+        @hide-modal="displayModalInvite(false)"
+      />
+    </template>
 
     <component
-      v-if="platform.ui?.additioinalTeamEditComponent"
-      :is="platform.ui.additioinalTeamEditComponent"
+      :is="platform.ui.additionalTeamEditComponent"
+      v-if="platform.ui?.additionalTeamEditComponent"
       :show="showModalEdit"
       :editing-team="editingTeamName"
       :editing-team-i-d="editingTeamID"

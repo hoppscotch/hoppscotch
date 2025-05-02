@@ -67,7 +67,7 @@ export type UIPlatformDef = {
   /**
    * Custom edit component to be shown in the team edit page
    */
-  additioinalTeamEditComponent?: Component
+  additionalTeamEditComponent?: Component
 
   /**
    * More info shown in the danger zone section while attempting user deletion

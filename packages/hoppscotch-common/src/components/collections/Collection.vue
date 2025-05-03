@@ -206,6 +206,19 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    ref="favoriteAction"
+                    :icon="IconFavorite"
+                    :label="t('action.favorite')"
+                    :loading="favoriteCollectionLoading"
+                    :shortcut="['F']"
+                    @click="
+                      () => {
+                        emit('favorite-collection'),
+                          collectionsType === 'my-collections' ? hide() : null
+                      }
+                    "
+                  />
                 </div>
               </template>
             </tippy>
@@ -243,6 +256,7 @@ import {
 } from "~/newstore/reordering"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
+import IconFavorite from "~icons/lucide/heart"
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"

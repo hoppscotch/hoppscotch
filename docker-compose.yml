@@ -230,9 +230,10 @@ services:
 # 2. Default deployment without database:
 #    docker compose --profile default-no-db up
 #    This will start: AIO only (use when you have an external database)
-#
+
 # 3. Individual service deployment:
 #    docker compose --profile backend up  # Just the backend
+          #    docker compose --profile backend #Sarah says to do just this for solely backend, do similar for frontend
 #    docker compose --profile app up      # Just the app and webapp server
 #    docker compose --profile admin up    # Just the admin dashboard
 #    docker compose --profile database up # Just the database

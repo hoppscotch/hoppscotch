@@ -65,6 +65,9 @@
       @select-request="selectRequest"
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
+      @favorite-collection="favoriteCollection"
+      @favorite-request="favoriteRequest"
+      @favorite-response="favoriteResponse"
     />
     <CollectionsTeamCollections
       v-else
@@ -81,6 +84,8 @@
       :export-loading="exportLoading"
       :duplicate-request-loading="duplicateRequestLoading"
       :duplicate-collection-loading="duplicateCollectionLoading"
+      :favorite-request-loading="favoriteRequestLoading"
+      :favorite-collection-loading="favoriteCollectionLoading"
       :save-request="saveRequest"
       :picked="picked"
       :collection-move-loading="collectionMoveLoading"

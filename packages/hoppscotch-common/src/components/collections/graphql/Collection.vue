@@ -149,7 +149,7 @@
                   ref="propertiesAction"
                   :icon="IconSettings2"
                   :label="t('action.properties')"
-                  :shortcut="['P']"
+                  :shortcut="['F']"
                   @click="
                     () => {
                       emit('edit-properties', {
@@ -160,6 +160,19 @@
                     }
                   "
                 />
+                <HoppSmartItem
+                    ref="favoriteAction"
+                    :icon="IconFavorite"
+                    :label="t('action.favorite')"
+                    :loading="favoriteCollectionLoading"
+                    :shortcut="['F']"
+                    @click="
+                      () => {
+                        emit('favorite-collection'),
+                          collectionsType === 'my-collections' ? hide() : null
+                      }
+                    "
+                  />
               </div>
             </template>
           </tippy>
@@ -258,6 +271,7 @@ import { removeGraphqlCollection } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
+import IconFavorite from "~icons/lucide/heart"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
 import IconFolder from "~icons/lucide/folder"

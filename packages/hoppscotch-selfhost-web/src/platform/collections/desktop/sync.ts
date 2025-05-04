@@ -369,6 +369,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     collectionIndex: collectionPath,
     destinationCollectionIndex: destinationCollectionPath,
   }) {
+  
     const collections = restCollectionStore.value.state
 
     const sourcePathIndexes = getParentPathIndexesFromPath(collectionPath)

@@ -58,6 +58,11 @@
             </span>
           </span>
         </div>
+        <span v-if="isFavorite" 
+          class="pointer-events-none flex items-center justify-center px-4"
+          > 
+            <component :is="favoriteIcon" />
+        </span> 
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -292,6 +297,7 @@ const props = withDefaults(
     collectionMoveLoading?: string[]
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
+    isFavorite: boolean
   }>(),
   {
     id: "",
@@ -304,6 +310,7 @@ const props = withDefaults(
     hasNoTeamAccess: false,
     isLastItem: false,
     duplicateLoading: false,
+    isFavorite: false
   }
 )
 
@@ -362,10 +369,12 @@ watch(
 
 const collectionIcon = computed(() => {
   if (props.isSelected) return IconCheckCircle
-  else if (!props.isOpen) return IconCheckStar
+  else if (!props.isOpen) return IconFolder
   else if (props.isOpen) return IconFolderOpen
   return IconFolder
 })
+
+const favoriteIcon = computed(() => { return IconFavorite })
 
 const collectionName = computed(() => {
   if ((props.data as HoppCollection).name)

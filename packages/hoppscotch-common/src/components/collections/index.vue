@@ -1937,9 +1937,13 @@ const onRemoveResponse = () => {
   }
 }
 
-const favoriteCollection = () => {
+const favoriteCollection = (payload: {
+  collectionIndex: string
+  collection: HoppCollection | TeamCollection
+}) => {
   console.log("favoriting the collection \n")
-  favoriteRESTCollection()
+  const { collection, collectionIndex } = payload
+  favoriteRESTCollection(collection, collectionIndex)
 }
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {

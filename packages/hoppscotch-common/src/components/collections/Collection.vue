@@ -7,7 +7,7 @@
           'bg-accentDark': isReorderable,
         },
       ]"
-      @drop="orderUpdateCollectionEvent"
+      @drop="orderUpdateCollectionEvexnt"
       @dragover.prevent="ordering = true"
       @dragleave="ordering = false"
       @dragend="resetDragState"
@@ -114,7 +114,6 @@
                   @keyup.f="favoriteAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.escape="hide()"
-                  @keyup.f="favoriteAction?.$el.click()"
                 >
                   <HoppSmartItem
                     ref="requestAction"
@@ -230,12 +229,20 @@
                   <HoppSmartItem
                     ref="favoriteAction"
                     :icon="IconFavorite"
-                    :label="props.data.isFavorited ? t('action.unfavorite') : t('action.favorite')"
+                    :label="
+                      props.data.isFavorited
+                        ? t('action.unfavorite')
+                        : t('action.favorite')
+                    "
                     :loading="favoriteCollectionLoading"
                     :shortcut="['F']"
                     @click="
                       () => {
-                        emit(props.data.isFavorited ? 'unfavorite-collection' : 'favorite-collection')
+                        emit(
+                          props.data.isFavorited
+                            ? 'unfavorite-collection'
+                            : 'favorite-collection'
+                        )
                         hide()
                       }
                     "
@@ -336,7 +343,7 @@ const props = withDefaults(
     hasNoTeamAccess: false,
     isLastItem: false,
     duplicateLoading: false,
-    favoriteLoading:false,
+    favoriteLoading: false,
   }
 )
 
@@ -371,7 +378,6 @@ const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)
-const favoriteAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
@@ -380,12 +386,13 @@ const orderingLastItem = ref(false)
 const dropItemID = ref("")
 
 const toggleFavorite = (collectionID: string) => {
-  const collection = collections.find((c) => c.id === collectionID);
+  const collection = collections.find((c) => c.id === collectionID)
   if (collection) {
-    collection.isFavorited = !collection.isFavorited;
+    collection.isFavorited = !collection.isFavorited
     // Optionally, make an API call to persist the change
   }
-};
+}
+console.log(`toggle favorite ${toggleFavorite} \n`)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -424,9 +431,21 @@ const collectionName = computed(() => {
 })
 
 watch(
-  () => [props.exportLoading, props.duplicateCollectionLoading, props.favoriteCollectionLoading],
-  ([newExportLoadingVal, newDuplicateCollectionLoadingVal, newFavoriteCollectionLoadingVal]) => {
-    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal && !newFavoriteCollectionLoadingVal) {
+  () => [
+    props.exportLoading,
+    props.duplicateCollectionLoading,
+    props.favoriteCollectionLoading,
+  ],
+  ([
+    newExportLoadingVal,
+    newDuplicateCollectionLoadingVal,
+    newFavoriteCollectionLoadingVal,
+  ]) => {
+    if (
+      !newExportLoadingVal &&
+      !newDuplicateCollectionLoadingVal &&
+      !newFavoriteCollectionLoadingVal
+    ) {
       options.value!.tippy?.hide()
     }
   }

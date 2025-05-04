@@ -503,18 +503,23 @@ const restCollectionDispatchers = defineDispatchers({
     { state }: RESTCollectionStoreType,
     {
       collectionIndex,
-      destinationCollectionIndex,
+      collection,
     }: {
       collectionIndex: string
-      destinationCollectionIndex: string | null
+      collection: HoppCollection
     }
   ) {
     console.log(
-      `updating favorite collection: ${collectionIndex}, ${destinationCollectionIndex}\n`
+      `updating favorite collection: ${collectionIndex}, ${collection}\n`
     )
 
+    console.log(`state: ${state} \n`)
+    console.log(state)
+    console.log(`collection: ${collection} \n`)
+    console.log(collection)
+    // newState.data.isFavorited = true
     return {
-      state: state,
+      state: state
     }
   },
 
@@ -1499,13 +1504,13 @@ export function updateRESTRequestOrder(
 
 export function favoriteRESTCollection(
   collectionIndex: string,
-  destinationCollectionIndex: string | null
+  collection: HoppCollection
 ) {
   restCollectionStore.dispatch({
     dispatcher: "favoriteCollection",
     payload: {
       collectionIndex,
-      destinationCollectionIndex,
+      collection,
     },
   })
 }

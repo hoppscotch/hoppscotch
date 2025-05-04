@@ -124,6 +124,14 @@
                     })
               }
             "
+            @favorite-collection="
+            ()=> {
+              emit('favorite-collection',{
+                  collectionIndex: node.id,
+                  collection: node.data.data.data,
+                })
+              }
+            "
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
@@ -619,6 +627,13 @@ const emit = defineEmits<{
   (event: "select", payload: Picked | null): void
   (event: "display-modal-import-export"): void
   (event: "select-response", payload: ResponsePayload): void
+  (
+    event: "favorite-collection",
+    payload: {
+      collectionIndex: string
+      collection: HoppCollection
+    }
+  ): void
 }>()
 
 const refFilterCollection = toRef(props, "filteredCollections")

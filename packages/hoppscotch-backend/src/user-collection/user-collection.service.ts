@@ -717,6 +717,7 @@ export class UserCollectionService {
     nextCollectionID: string | null,
     userID: string,
   ) {
+    console.log("updating the collection order in the backend\n")
     // Throw error if collectionID and nextCollectionID are the same
     if (collectionID === nextCollectionID)
       return E.left(USER_COLL_SAME_NEXT_COLL);

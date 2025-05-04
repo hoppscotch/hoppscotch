@@ -66,8 +66,8 @@
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
       @favorite-collection="favoriteCollection"
-      @favorite-request="favoriteRequest"
-      @favorite-response="favoriteResponse"
+      @favorite-request="favoriteCollection"
+      @favorite-response="favoriteCollection"
     />
     <CollectionsTeamCollections
       v-else
@@ -124,6 +124,7 @@
       @select="selectPicked"
       @update-request-order="updateRequestOrder"
       @update-collection-order="updateCollectionOrder"
+      @favorite-collection="favoriteCollection"
     />
     <div
       class="py-15 hidden flex-1 flex-col items-center justify-center bg-primaryDark px-4 text-secondaryLight"
@@ -292,6 +293,7 @@ import {
   restCollections$,
   saveRESTRequestAs,
   updateRESTCollectionOrder,
+  favoriteRESTCollection,
   updateRESTRequestOrder,
 } from "~/newstore/collections"
 
@@ -698,6 +700,8 @@ const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
+// const showModalFavoriteCollection = ref(false)
+
 const showCollectionsRunnerModal = ref(false)
 const collectionRunnerData = ref<CollectionRunnerData | null>(null)
 
@@ -766,6 +770,12 @@ const displayTeamModalAdd = (show: boolean) => {
 
   teamListAdapter.fetchList()
 }
+
+// const displayModalFavoriteCollection = (show: boolean) => {
+//   showModalFavoriteCollection.value = show
+
+//   if (!show) resetSelectedData()
+// }
 
 const addNewRootCollection = (name: string) => {
   if (collectionsType.value.type === "my-collections") {
@@ -1927,6 +1937,10 @@ const onRemoveResponse = () => {
   }
 }
 
+const favoriteCollection = () => {
+  console.log("favoriting the collection \n")
+  favoriteRESTCollection()
+}
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {
   emit("select", payload)
@@ -2568,6 +2582,7 @@ const updateCollectionOrder = (payload: {
     destinationCollectionParentIndex: string | null
   }
 }) => {
+  console.log("updating the collection order\n")
   const { dragedCollectionIndex, destinationCollection } = payload
   const { destinationCollectionIndex, destinationCollectionParentIndex } =
     destinationCollection
@@ -2705,6 +2720,7 @@ const editProperties = (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
+  console.log("editing properties\n")
   const { collection, collectionIndex } = payload
 
   if (collectionsType.value.type === "my-collections") {

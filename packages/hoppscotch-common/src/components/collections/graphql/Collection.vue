@@ -161,18 +161,18 @@
                   "
                 />
                 <HoppSmartItem
-                    ref="favoriteAction"
-                    :icon="IconFavorite"
-                    :label="t('action.favorite')"
-                    :loading="favoriteCollectionLoading"
-                    :shortcut="['F']"
-                    @click="
-                      () => {
-                        emit('favorite-collection'),
-                          collectionsType === 'my-collections' ? hide() : null
-                      }
-                    "
-                  />
+                  ref="favoriteAction"
+                  :icon="IconFavorite"
+                  :label="t('action.favorite')"
+                  :loading="favoriteCollectionLoading"
+                  :shortcut="['F']"
+                  @click="
+                    () => {
+                      emit('favorite-collection'),
+                        collectionsType === 'my-collections' ? hide() : null
+                    }
+                  "
+                />
               </div>
             </template>
           </tippy>
@@ -304,6 +304,7 @@ const emit = defineEmits<{
   (e: "add-request", i: any): void
   (e: "add-folder", i: any): void
   (e: "edit-folder", i: any): void
+  (e: "favorite-collection", i: any): void
   (
     e: "duplicate-collection",
     payload: {

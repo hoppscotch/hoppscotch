@@ -907,6 +907,7 @@ export class TeamCollectionService {
     collectionID: string,
     nextCollectionID: string | null,
   ) {
+    // console.log(`updating collection order in /Users/elizabethterveen/Desktop/CMU/17313/hoppscotch/packages/hoppscotch-backend/src/team-collection/team-collection.service.ts`)
     // Throw error if collectionID and nextCollectionID are the same
     if (collectionID === nextCollectionID)
       return E.left(TEAM_COL_SAME_NEXT_COLL);

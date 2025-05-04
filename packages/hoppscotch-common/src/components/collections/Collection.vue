@@ -58,11 +58,12 @@
             </span>
           </span>
         </div>
-        <span v-if="isFavorite" 
+        <span
+          v-if="isFavorite"
           class="pointer-events-none flex items-center justify-center px-4"
-          > 
-            <component :is="favoriteIcon" />
-        </span> 
+        >
+          <component :is="favoriteIcon" />
+        </span>
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -110,6 +111,7 @@
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
+                  @keyup.f="favoriteAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
@@ -215,12 +217,11 @@
                     ref="favoriteAction"
                     :icon="IconFavorite"
                     :label="t('action.favorite')"
-                    :loading="favoriteCollectionLoading"
                     :shortcut="['F']"
                     @click="
                       () => {
-                        emit('favorite-collection'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        emit('favorite-collection')
+                        hide()
                       }
                     "
                   />
@@ -260,7 +261,6 @@ import {
   currentReorderingStatus$,
 } from "~/newstore/reordering"
 import IconCheckCircle from "~icons/lucide/check-circle"
-import IconCheckStar from "~icons/lucide/star"
 import IconCopy from "~icons/lucide/copy"
 import IconFavorite from "~icons/lucide/heart"
 import IconDownload from "~icons/lucide/download"
@@ -310,7 +310,7 @@ const props = withDefaults(
     hasNoTeamAccess: false,
     isLastItem: false,
     duplicateLoading: false,
-    isFavorite: false
+    isFavorite: false,
   }
 )
 
@@ -321,6 +321,7 @@ const emit = defineEmits<{
   (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
+  (event: "favorite-collection"): void
   (event: "duplicate-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
@@ -341,6 +342,7 @@ const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)
+const favoriteAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
@@ -374,7 +376,9 @@ const collectionIcon = computed(() => {
   return IconFolder
 })
 
-const favoriteIcon = computed(() => { return IconFavorite })
+const favoriteIcon = computed(() => {
+  return IconFavorite
+})
 
 const collectionName = computed(() => {
   if ((props.data as HoppCollection).name)

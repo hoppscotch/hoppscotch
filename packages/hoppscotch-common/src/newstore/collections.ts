@@ -429,6 +429,9 @@ const restCollectionDispatchers = defineDispatchers({
       destinationCollectionIndex: string | null
     }
   ) {
+    console.log(
+      "updating collection order in /Users/elizabethterveen/Desktop/CMU/17313/hoppscotch/packages/hoppscotch-common/src/newstore/collections.ts"
+    )
     const newState = state
 
     const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
@@ -493,6 +496,25 @@ const restCollectionDispatchers = defineDispatchers({
 
     return {
       state: newState,
+    }
+  },
+
+  favoriteCollection(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string | null
+    }
+  ) {
+    console.log(
+      `updating favorite collection: ${collectionIndex}, ${destinationCollectionIndex}\n`
+    )
+
+    return {
+      state: state,
     }
   },
 
@@ -1471,6 +1493,19 @@ export function updateRESTRequestOrder(
       requestIndex,
       destinationRequestIndex,
       destinationCollectionPath,
+    },
+  })
+}
+
+export function favoriteRESTCollection(
+  collectionIndex: string,
+  destinationCollectionIndex: string | null
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "favoriteCollection",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }

@@ -107,6 +107,7 @@
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.escape="hide()"
+                  @keyup.f="favoriteAction?.$el.click()"
                 >
                   <HoppSmartItem
                     ref="requestAction"
@@ -206,7 +207,7 @@
                       }
                     "
                   />
-                  <HoppSmartItem
+                  <!-- <HoppSmartItem
                     ref="favoriteAction"
                     :icon="IconFavorite"
                     :label="t('action.favorite')"
@@ -218,7 +219,29 @@
                           collectionsType === 'my-collections' ? hide() : null
                       }
                     "
-                  />
+                  /> -->
+                  <HoppSmartItem
+                    ref="favoriteAction"
+                    :icon="IconFavorite"
+                    :label="props.data.isFavorited ? t('action.unfavorite') : t('action.favorite')"
+                    :loading="favoriteCollectionLoading"
+                    :shortcut="['F']"
+                    @click="
+                      () => {
+                        emit(props.data.isFavorited ? 'unfavorite-collection' : 'favorite-collection')
+                        hide()
+                      }
+                    "
+                  >
+                    <template #icon>
+                      <component
+                        :is="IconFavorite"
+                        :fill="props.data.isFavorited ? 'white' : 'none'"
+                        stroke="white"
+                        stroke-width="2"
+                      />
+                    </template>
+                  </HoppSmartItem>
                 </div>
               </template>
             </tippy>
@@ -257,6 +280,7 @@ import {
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
 import IconFavorite from "~icons/lucide/heart"
+// import IconFavoriteFilled from "~icons/lucide/heart-filled";
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
@@ -291,6 +315,7 @@ const props = withDefaults(
     collectionMoveLoading?: string[]
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
+    favoriteCollectionLoading?: boolean
   }>(),
   {
     id: "",
@@ -303,6 +328,7 @@ const props = withDefaults(
     hasNoTeamAccess: false,
     isLastItem: false,
     duplicateLoading: false,
+    favoriteLoading:false,
   }
 )
 
@@ -314,6 +340,8 @@ const emit = defineEmits<{
   (event: "edit-collection"): void
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void
+  (event: "favorite-collection"): void
+  (event: "unfavorite-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -329,6 +357,7 @@ const requestAction = ref<HTMLButtonElement | null>(null)
 const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
+const favoriteAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -339,6 +368,14 @@ const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
+
+const toggleFavorite = (collectionID: string) => {
+  const collection = collections.find((c) => c.id === collectionID);
+  if (collection) {
+    collection.isFavorited = !collection.isFavorited;
+    // Optionally, make an API call to persist the change
+  }
+};
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -373,9 +410,9 @@ const collectionName = computed(() => {
 })
 
 watch(
-  () => [props.exportLoading, props.duplicateCollectionLoading],
-  ([newExportLoadingVal, newDuplicateCollectionLoadingVal]) => {
-    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal) {
+  () => [props.exportLoading, props.duplicateCollectionLoading, props.favoriteCollectionLoading],
+  ([newExportLoadingVal, newDuplicateCollectionLoadingVal, newFavoriteCollectionLoadingVal]) => {
+    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal && !newFavoriteCollectionLoadingVal) {
       options.value!.tippy?.hide()
     }
   }

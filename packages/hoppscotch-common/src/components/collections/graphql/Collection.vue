@@ -149,7 +149,7 @@
                   ref="propertiesAction"
                   :icon="IconSettings2"
                   :label="t('action.properties')"
-                  :shortcut="['F']"
+                  :shortcut="['P']"
                   @click="
                     () => {
                       emit('edit-properties', {

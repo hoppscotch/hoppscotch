@@ -59,8 +59,8 @@
           </span>
         </div>
         <span
-          v-if="isFavorite"
-          class="pointer-events-none flex items-center justify-center px-4"
+          v-if="isFavoriteRef"
+          class="pointer-events-none flex items-center justify-center px-4 group-hover:text-secondaryDark"
         >
           <component :is="favoriteIcon" />
         </span>
@@ -230,7 +230,7 @@
                     ref="favoriteAction"
                     :icon="IconFavorite"
                     :label="
-                      props.isFavorite
+                      isFavoriteRef
                         ? t('action.unfavorite')
                         : t('action.favorite')
                     "
@@ -238,11 +238,10 @@
                     :shortcut="['F']"
                     @click="
                       () => {
-                        emit(
-                          props.isFavorite
-                            ? 'unfavorite-collection'
-                            : 'favorite-collection'
-                        )
+                        if (isFavoriteRef) emit('unfavorite-collection')
+                        else emit('favorite-collection')
+
+                        isFavoriteRef = !isFavoriteRef
                         hide()
                       }
                     "
@@ -250,7 +249,7 @@
                     <template #icon>
                       <component
                         :is="IconFavorite"
-                        :fill="props.isFavorite ? 'white' : 'none'"
+                        :fill="isFavoriteRef ? 'white' : 'none'"
                         stroke="white"
                         stroke-width="2"
                       />
@@ -355,9 +354,8 @@ const emit = defineEmits<{
   (event: "edit-collection"): void
   (event: "edit-properties"): void
   (event: "favorite-collection"): void
-  (event: "duplicate-collection"): void
-  (event: "favorite-collection"): void
   (event: "unfavorite-collection"): void
+  (event: "duplicate-collection"): void
   (event: "export-data"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
@@ -384,16 +382,7 @@ const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
-
-// const toggleFavorite = (collectionID: string) => {
-//   props.isFavorite = !props.isFavorite
-//   // const collection = collections.find((c) => c.id === collectionID)
-//   // if (collection) {
-//   //   collection.isFavorited = !collection.isFavorited
-//   //   // Optionally, make an API call to persist the change
-//   // }
-// }
-// console.log(`toggle favorite ${toggleFavorite} \n`)
+const isFavoriteRef = ref(false)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",

@@ -1942,6 +1942,7 @@ const favoriteCollection = (payload: {
   collection: HoppCollection | TeamCollection
 }) => {
   console.log("favoriting the collection \n")
+  console.log(collectionsType.value)
   const { collection, collectionIndex } = payload
   favoriteRESTCollection(collection, collectionIndex)
 }

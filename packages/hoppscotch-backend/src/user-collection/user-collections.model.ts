@@ -30,6 +30,9 @@ export class UserCollection {
 
   userID: string;
 
+  isFavorite: boolean | null;
+
+
 }
 
 @ObjectType()

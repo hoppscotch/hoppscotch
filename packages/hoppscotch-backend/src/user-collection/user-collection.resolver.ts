@@ -211,6 +211,17 @@ export class UserCollectionResolver {
   }
 
   // Mutations
+  @Mutation(() => UserCollection)
+  async toggleFavorite(
+    @Args() args: CreateRootUserCollectionArgs
+  ){
+    const newCollection = await this.userCollectionService.toggleUserCollectionFavorite(
+      args.data
+    )
+    return newCollection
+
+  }
+
   @Mutation(() => UserCollection, {
     description: 'Creates root REST user collection(no parent user collection)',
   })

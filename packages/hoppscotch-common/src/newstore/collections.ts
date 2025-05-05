@@ -519,7 +519,7 @@ const restCollectionDispatchers = defineDispatchers({
     console.log(collection)
     // newState.data.isFavorited = true
     return {
-      state: state
+      state: state,
     }
   },
 

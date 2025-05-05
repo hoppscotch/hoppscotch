@@ -239,9 +239,7 @@
                     @click="
                       () => {
                         emit(
-                          props.data.isFavorited
-                            ? 'unfavorite-collection'
-                            : 'favorite-collection'
+                          props.data.isFavorited ? 'unfavorite-collection' : 'favorite-collection'
                         )
                         hide()
                       }
@@ -386,11 +384,12 @@ const orderingLastItem = ref(false)
 const dropItemID = ref("")
 
 const toggleFavorite = (collectionID: string) => {
-  const collection = collections.find((c) => c.id === collectionID)
-  if (collection) {
-    collection.isFavorited = !collection.isFavorited
-    // Optionally, make an API call to persist the change
-  }
+  props.isFavorite = !props.isFavorite
+  // const collection = collections.find((c) => c.id === collectionID)
+  // if (collection) {
+  //   collection.isFavorited = !collection.isFavorited
+  //   // Optionally, make an API call to persist the change
+  // }
 }
 console.log(`toggle favorite ${toggleFavorite} \n`)
 

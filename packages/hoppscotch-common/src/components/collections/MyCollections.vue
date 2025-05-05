@@ -125,8 +125,8 @@
               }
             "
             @favorite-collection="
-            ()=> {
-              emit('favorite-collection',{
+              () => {
+                emit('favorite-collection', {
                   collectionIndex: node.id,
                   collection: node.data.data.data,
                 })

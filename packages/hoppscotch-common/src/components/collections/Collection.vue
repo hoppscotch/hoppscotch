@@ -230,7 +230,7 @@
                     ref="favoriteAction"
                     :icon="IconFavorite"
                     :label="
-                      props.data.isFavorited
+                      props.isFavorite
                         ? t('action.unfavorite')
                         : t('action.favorite')
                     "
@@ -239,7 +239,9 @@
                     @click="
                       () => {
                         emit(
-                          props.data.isFavorited ? 'unfavorite-collection' : 'favorite-collection'
+                          props.isFavorite
+                            ? 'unfavorite-collection'
+                            : 'favorite-collection'
                         )
                         hide()
                       }
@@ -248,7 +250,7 @@
                     <template #icon>
                       <component
                         :is="IconFavorite"
-                        :fill="props.data.isFavorited ? 'white' : 'none'"
+                        :fill="props.isFavorite ? 'white' : 'none'"
                         stroke="white"
                         stroke-width="2"
                       />
@@ -383,15 +385,15 @@ const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
 
-const toggleFavorite = (collectionID: string) => {
-  props.isFavorite = !props.isFavorite
-  // const collection = collections.find((c) => c.id === collectionID)
-  // if (collection) {
-  //   collection.isFavorited = !collection.isFavorited
-  //   // Optionally, make an API call to persist the change
-  // }
-}
-console.log(`toggle favorite ${toggleFavorite} \n`)
+// const toggleFavorite = (collectionID: string) => {
+//   props.isFavorite = !props.isFavorite
+//   // const collection = collections.find((c) => c.id === collectionID)
+//   // if (collection) {
+//   //   collection.isFavorited = !collection.isFavorited
+//   //   // Optionally, make an API call to persist the change
+//   // }
+// }
+// console.log(`toggle favorite ${toggleFavorite} \n`)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",

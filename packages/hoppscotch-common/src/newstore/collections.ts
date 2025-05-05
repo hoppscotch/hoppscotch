@@ -499,6 +499,7 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  // TODO: update the collection state on the backend
   favoriteCollection(
     { state }: RESTCollectionStoreType,
     {
@@ -509,15 +510,6 @@ const restCollectionDispatchers = defineDispatchers({
       collection: HoppCollection
     }
   ) {
-    console.log(
-      `updating favorite collection: ${collectionIndex}, ${collection}\n`
-    )
-
-    console.log(`state: ${state} \n`)
-    console.log(state)
-    console.log(`collection: ${collection} \n`)
-    console.log(collection)
-    // newState.data.isFavorited = true
     return {
       state: state,
     }

@@ -700,7 +700,6 @@ const showModalEditProperties = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
-// const showModalFavoriteCollection = ref(false)
 
 const showCollectionsRunnerModal = ref(false)
 const collectionRunnerData = ref<CollectionRunnerData | null>(null)
@@ -770,12 +769,6 @@ const displayTeamModalAdd = (show: boolean) => {
 
   teamListAdapter.fetchList()
 }
-
-// const displayModalFavoriteCollection = (show: boolean) => {
-//   showModalFavoriteCollection.value = show
-
-//   if (!show) resetSelectedData()
-// }
 
 const addNewRootCollection = (name: string) => {
   if (collectionsType.value.type === "my-collections") {
@@ -1937,12 +1930,16 @@ const onRemoveResponse = () => {
   }
 }
 
+
+/**
+ * This function is called when the user clicks on a request
+ * @param collectionIndex the ordering of the collection Index
+ * @param collection Collection to be updated
+ */
 const favoriteCollection = (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
-  console.log("favoriting the collection \n")
-  console.log(collectionsType.value)
   const { collection, collectionIndex } = payload
   favoriteRESTCollection(collection, collectionIndex)
 }

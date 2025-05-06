@@ -29,6 +29,11 @@ export class UserCollection {
   parentID: string | null;
 
   userID: string;
+
+  @Field({
+    description: 'Whether user collection is favorited',
+  })
+  favorited: boolean;
 }
 
 @ObjectType()

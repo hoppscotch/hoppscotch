@@ -56,6 +56,7 @@ export class UserCollectionService {
       type: collection.type,
       parentID: collection.parentID,
       userID: collection.userUid,
+      favorited: false,
       data,
     };
   }
@@ -160,6 +161,35 @@ export class UserCollectionService {
 
     return !parent ? null : this.cast(parent);
   }
+
+  /**
+   * Toggle favorite collection status
+   *
+   * @param collectionID The collection ID
+   */
+    async toggleFavoriteCollection(
+      collectionID: string,
+    ) {
+      try {
+        const userCollection = await this.prisma.userCollection.findFirstOrThrow({
+          where: {
+            id: collectionID
+          }
+        });
+        const updatedUserCollection = await this.prisma.userCollection.update({
+          where: {
+            id: collectionID,
+          },
+          data: {
+            favorited: userCollection.favorited
+          },
+        });
+  
+        return E.right(this.cast(updatedUserCollection));
+      } catch (error) {
+        return E.left(USER_COLL_NOT_FOUND);
+      }
+    }
 
   /**
    * Get child collections of given Collection ID

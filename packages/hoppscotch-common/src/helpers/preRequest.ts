@@ -10,10 +10,18 @@ import {
 import { TestResult } from "@hoppscotch/js-sandbox"
 import { getService } from "~/modules/dioc"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
 
-const unsecretEnvironments = (
+/**
+ * Popultae the currentValue of the environment variables and set the secret values
+ * @param selected
+ * @param global
+ * @returns
+ */
+const unWrapEnvironments = (
   selected: Environment,
   global: Environment["variables"]
 ) => {
@@ -22,18 +30,18 @@ const unsecretEnvironments = (
       "Global",
       index
     )
+    const currentVar = currentEnvironmentValueService.getEnvironmentVariable(
+      "Global",
+      index
+    )
+
     if (secretVar) {
       return {
         ...globalVar,
-        value: secretVar.value,
-      }
-    } else if (!("value" in globalVar) || !globalVar.value) {
-      return {
-        ...globalVar,
-        value: "",
+        currentValue: secretVar.value,
       }
     }
-    return globalVar
+    return { ...globalVar, currentValue: currentVar?.currentValue ?? "" }
   })
 
   const resolvedSelectedWithSecrets = selected.variables.map(
@@ -42,18 +50,17 @@ const unsecretEnvironments = (
         selected.id,
         index
       )
+      const currentVar = currentEnvironmentValueService.getEnvironmentVariable(
+        selected.id,
+        index
+      )
       if (secretVar) {
         return {
           ...selectedVar,
-          value: secretVar.value,
-        }
-      } else if (!("value" in selectedVar) || !selectedVar.value) {
-        return {
-          ...selectedVar,
-          value: "",
+          currentValue: secretVar.value,
         }
       }
-      return selectedVar
+      return { ...selectedVar, currentValue: currentVar?.currentValue ?? "" }
     }
   )
 
@@ -64,7 +71,7 @@ const unsecretEnvironments = (
 }
 
 export const getCombinedEnvVariables = (temp?: Environment["variables"]) => {
-  const reformedVars = unsecretEnvironments(
+  const reformedVars = unWrapEnvironments(
     getCurrentEnvironment(),
     getGlobalVariables()
   )

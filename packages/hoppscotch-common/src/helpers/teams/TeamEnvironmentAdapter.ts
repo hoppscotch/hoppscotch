@@ -118,7 +118,7 @@ export default class TeamEnvironmentAdapter {
               id: x.id,
               teamID: x.teamID,
               environment: {
-                v: 1,
+                v: 2,
                 id: x.id,
                 name: x.name,
                 variables: JSON.parse(x.variables),
@@ -198,7 +198,7 @@ export default class TeamEnvironmentAdapter {
                 id: x.id,
                 teamID: x.teamID,
                 environment: {
-                  v: 1,
+                  v: 2,
                   id: x.id,
                   name: x.name,
                   variables: JSON.parse(x.variables),
@@ -253,7 +253,7 @@ export default class TeamEnvironmentAdapter {
                 id: x.id,
                 teamID: x.teamID,
                 environment: {
-                  v: 1,
+                  v: 2,
                   id: x.id,
                   name: x.name,
                   variables: JSON.parse(x.variables),

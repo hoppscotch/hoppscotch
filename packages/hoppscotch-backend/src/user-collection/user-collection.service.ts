@@ -57,6 +57,7 @@ export class UserCollectionService {
       parentID: collection.parentID,
       userID: collection.userUid,
       data,
+      isFavorite: collection.isFavorite
     };
   }
 

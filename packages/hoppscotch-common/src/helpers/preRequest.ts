@@ -16,7 +16,7 @@ const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
 
 /**
- * Popultae the currentValue of the environment variables and set the secret values
+ * Populate the currentValue of the environment variables and set the secret values
  * @param selected
  * @param global
  * @returns

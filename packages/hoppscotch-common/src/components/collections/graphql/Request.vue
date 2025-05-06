@@ -112,22 +112,6 @@
                     }
                   "
                 />
-                <HoppSmartItem
-                  ref="favorite"
-                  :icon="IconCopy"
-                  :label="`${t('action.favorite')}`"
-                  :shortcut="['F']"
-                  @click="
-                    () => {
-                      $emit('favorite-request', {
-                        request,
-                        requestIndex,
-                        folderPath,
-                      })
-                      hide()
-                    }
-                  "
-                />
               </div>
             </template>
           </tippy>
@@ -197,7 +181,6 @@ const emit = defineEmits([
   "select",
   "edit-request",
   "duplicate-request",
-  "favorite-request",
   "select-request",
 ])
 

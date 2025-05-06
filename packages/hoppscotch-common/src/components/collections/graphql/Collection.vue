@@ -160,19 +160,6 @@
                     }
                   "
                 />
-                <HoppSmartItem
-                  ref="favoriteAction"
-                  :icon="IconFavorite"
-                  :label="t('action.favorite')"
-                  :loading="favoriteCollectionLoading"
-                  :shortcut="['F']"
-                  @click="
-                    () => {
-                      emit('favorite-collection'),
-                        collectionsType === 'my-collections' ? hide() : null
-                    }
-                  "
-                />
               </div>
             </template>
           </tippy>
@@ -271,7 +258,6 @@ import { removeGraphqlCollection } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
-import IconFavorite from "~icons/lucide/heart"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
 import IconFolder from "~icons/lucide/folder"
@@ -304,7 +290,6 @@ const emit = defineEmits<{
   (e: "add-request", i: any): void
   (e: "add-folder", i: any): void
   (e: "edit-folder", i: any): void
-  (e: "favorite-collection", i: any): void
   (
     e: "duplicate-collection",
     payload: {

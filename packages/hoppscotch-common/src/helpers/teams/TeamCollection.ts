@@ -11,6 +11,7 @@ import { TeamRequest } from "./TeamRequest"
 export interface TeamCollection {
   id: string
   title: string
+  favorited: boolean
   children: TeamCollection[] | null
   requests: TeamRequest[] | null
   data: string | null

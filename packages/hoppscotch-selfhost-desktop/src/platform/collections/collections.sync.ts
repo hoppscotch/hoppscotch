@@ -303,7 +303,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     collectionIndex: collectionPath,
     destinationCollectionIndex: destinationCollectionPath,
   }) {
-    // console.log("updating collection order in /Users/elizabethterveen/Desktop/CMU/17313/hoppscotch/packages/hoppscotch-selfhost-desktop/src/platform/collections/collections.sync.ts")
     const collections = restCollectionStore.value.state
 
     const sourcePathIndexes = getParentPathIndexesFromPath(collectionPath)

@@ -61,9 +61,8 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<boolean> {
-    const isDeleted = await this.teamEnvironmentsService.deleteTeamEnvironment(
-      id,
-    );
+    const isDeleted =
+      await this.teamEnvironmentsService.deleteTeamEnvironment(id);
 
     if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return isDeleted.right;
@@ -125,9 +124,8 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<TeamEnvironment> {
-    const res = await this.teamEnvironmentsService.createDuplicateEnvironment(
-      id,
-    );
+    const res =
+      await this.teamEnvironmentsService.createDuplicateEnvironment(id);
 
     if (E.isLeft(res)) throwErr(res.left);
     return res.right;

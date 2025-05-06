@@ -57,9 +57,8 @@ export class TeamRequestResolver {
     complexity: 3,
   })
   async collection(@Parent() req: TeamRequest) {
-    const teamCollection = await this.teamRequestService.getCollectionOfRequest(
-      req,
-    );
+    const teamCollection =
+      await this.teamRequestService.getCollectionOfRequest(req);
     if (E.isLeft(teamCollection)) throwErr(teamCollection.left);
     return teamCollection.right;
   }
@@ -196,9 +195,8 @@ export class TeamRequestResolver {
     })
     requestID: string,
   ) {
-    const isDeleted = await this.teamRequestService.deleteTeamRequest(
-      requestID,
-    );
+    const isDeleted =
+      await this.teamRequestService.deleteTeamRequest(requestID);
     if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return isDeleted.right;
   }

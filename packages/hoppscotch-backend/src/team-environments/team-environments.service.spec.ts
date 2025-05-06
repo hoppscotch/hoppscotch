@@ -122,9 +122,8 @@ describe('TeamEnvironmentsService', () => {
     test('should throw TEAM_ENVIRONMMENT_NOT_FOUND if given id is invalid', async () => {
       mockPrisma.teamEnvironment.delete.mockRejectedValue('RecordNotFound');
 
-      const result = await teamEnvironmentsService.deleteTeamEnvironment(
-        'invalidid',
-      );
+      const result =
+        await teamEnvironmentsService.deleteTeamEnvironment('invalidid');
 
       expect(result).toEqualLeft(TEAM_ENVIRONMENT_NOT_FOUND);
     });

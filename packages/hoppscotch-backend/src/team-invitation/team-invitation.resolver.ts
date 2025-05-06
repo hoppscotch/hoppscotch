@@ -85,9 +85,8 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<TeamInvitation> {
-    const teamInvitation = await this.teamInvitationService.getInvitation(
-      inviteID,
-    );
+    const teamInvitation =
+      await this.teamInvitationService.getInvitation(inviteID);
     if (O.isNone(teamInvitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
     return teamInvitation.value;
   }
@@ -125,9 +124,8 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<true> {
-    const isRevoked = await this.teamInvitationService.revokeInvitation(
-      inviteID,
-    );
+    const isRevoked =
+      await this.teamInvitationService.revokeInvitation(inviteID);
     if (E.isLeft(isRevoked)) throwErr(isRevoked.left);
     return true;
   }

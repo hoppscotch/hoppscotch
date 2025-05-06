@@ -537,9 +537,8 @@ describe('getParentOfCollection', () => {
   test('should return null with invalid collectionID', async () => {
     mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(null);
 
-    const result = await teamCollectionService.getParentOfCollection(
-      'invalidID',
-    );
+    const result =
+      await teamCollectionService.getParentOfCollection('invalidID');
     expect(result).toEqual(null);
   });
 });

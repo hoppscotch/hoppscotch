@@ -8,7 +8,10 @@ import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
 import { UserRequestModule } from './user-request/user-request.module';
 import { UserHistoryModule } from './user-history/user-history.module';
-import { subscriptionContextCookieParser, extractAccessTokenFromAuthRecords } from './auth/helper';
+import {
+  subscriptionContextCookieParser,
+  extractAccessTokenFromAuthRecords,
+} from './auth/helper';
 import { TeamModule } from './team/team.module';
 import { TeamEnvironmentsModule } from './team-environments/team-environments.module';
 import { TeamCollectionModule } from './team-collection/team-collection.module';
@@ -56,8 +59,9 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
                 const websocketHeaders = websocket?.upgradeReq?.headers;
 
                 try {
-                  const accessToken = extractAccessTokenFromAuthRecords(connectionParams);
-                  const authorization = `Bearer ${accessToken}`
+                  const accessToken =
+                    extractAccessTokenFromAuthRecords(connectionParams);
+                  const authorization = `Bearer ${accessToken}`;
 
                   return { headers: { ...websocketHeaders, authorization } };
                 } catch (authError) {
@@ -74,7 +78,7 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
 
                   return { headers: { ...websocketHeaders, cookies } };
                 }
-              }
+              },
             },
           },
           context: ({ req, res, connection }) => ({

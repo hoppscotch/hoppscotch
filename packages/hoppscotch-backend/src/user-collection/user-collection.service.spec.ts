@@ -639,9 +639,8 @@ describe('getParentOfUserCollection', () => {
       childRESTUserCollection,
     );
 
-    const result = await userCollectionService.getParentOfUserCollection(
-      'invalidId',
-    );
+    const result =
+      await userCollectionService.getParentOfUserCollection('invalidId');
     //TODO: check it not null
     expect(result).toEqual(null);
   });

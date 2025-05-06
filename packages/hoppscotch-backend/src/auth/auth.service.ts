@@ -256,9 +256,8 @@ export class AuthService {
   async verifyMagicLinkTokens(
     magicLinkIDTokens: VerifyMagicDto,
   ): Promise<E.Right<AuthTokens> | E.Left<RESTError>> {
-    const passwordlessTokens = await this.validatePasswordlessTokens(
-      magicLinkIDTokens,
-    );
+    const passwordlessTokens =
+      await this.validatePasswordlessTokens(magicLinkIDTokens);
     if (O.isNone(passwordlessTokens))
       return E.left({
         message: INVALID_MAGIC_LINK_DATA,

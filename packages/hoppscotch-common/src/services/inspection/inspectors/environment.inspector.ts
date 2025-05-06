@@ -213,7 +213,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 ...this.aggregateEnvsWithSecrets.value,
               ])
 
-            console.log("env", environmentVariables)
             environmentVariables.forEach((env) => {
               const hasSecretEnv = this.secretEnvs.hasSecretValue(
                 env.sourceEnv !== "Global"
@@ -227,15 +226,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                   ? currentSelectedEnvironment.id
                   : "Global",
                 env.key
-              )
-
-              console.log(
-                "hasCurrentValue",
-                env.sourceEnv !== "Global"
-                  ? currentSelectedEnvironment.id
-                  : "Global",
-                env.key,
-                hasCurrentValue
               )
 
               if (env.key === formattedExEnv) {

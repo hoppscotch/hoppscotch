@@ -11,7 +11,7 @@ import * as E from 'fp-ts/Either';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
-import { TeamMemberRole } from '@prisma/client';
+import { TeamAccessRole } from '@prisma/client';
 import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
 import { throwHTTPErr } from 'src/utils';
 import { RESTError } from 'src/types/RESTError';
@@ -24,9 +24,9 @@ export class TeamCollectionController {
 
   @Get('search/:teamID')
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   @UseGuards(JwtAuthGuard, RESTTeamMemberGuard)
   async searchByTitle(

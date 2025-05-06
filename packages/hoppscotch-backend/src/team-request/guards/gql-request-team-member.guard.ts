@@ -3,7 +3,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { TeamRequestService } from '../team-request.service';
 import { TeamService } from '../../team/team.service';
 import { Reflector } from '@nestjs/core';
-import { TeamMemberRole } from '../../team/team.model';
+import { TeamAccessRole } from '../../team/team.model';
 import {
   BUG_AUTH_NO_USER_CTX,
   BUG_TEAM_REQ_NO_REQ_ID,
@@ -23,7 +23,7 @@ export class GqlRequestTeamMemberGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requireRoles = this.reflector.get<TeamMemberRole[]>(
+    const requireRoles = this.reflector.get<TeamAccessRole[]>(
       'requiresTeamRole',
       context.getHandler(),
     );

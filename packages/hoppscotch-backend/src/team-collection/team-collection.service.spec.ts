@@ -1778,7 +1778,7 @@ describe('getCollectionForCLI', () => {
   //   mockTeamService.getTeamMember.mockResolvedValue({
   //     membershipID: 'sdc3sfdv',
   //     userUid: user.uid,
-  //     role: TeamMemberRole.OWNER,
+  //     role: TeamAccessRole.OWNER,
   //   });
 
   //   const result = await teamCollectionService.getCollectionForCLI(

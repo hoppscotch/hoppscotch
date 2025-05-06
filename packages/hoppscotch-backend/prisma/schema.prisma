@@ -20,7 +20,7 @@ model Team {
 
 model TeamMember {
   id      String         @id @default(uuid()) // Membership ID
-  role    TeamMemberRole
+  role    TeamAccessRole
   userUid String
   teamID  String
   team    Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
@@ -34,7 +34,7 @@ model TeamInvitation {
   team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
   creatorUid   String
   inviteeEmail String
-  inviteeRole  TeamMemberRole
+  inviteeRole  TeamAccessRole
 
   @@unique([teamID, inviteeEmail])
   @@index([teamID])
@@ -207,7 +207,7 @@ model UserCollection {
   updatedOn  DateTime         @updatedAt @db.Timestamp(3)
 }
 
-enum TeamMemberRole {
+enum TeamAccessRole {
   OWNER
   VIEWER
   EDITOR

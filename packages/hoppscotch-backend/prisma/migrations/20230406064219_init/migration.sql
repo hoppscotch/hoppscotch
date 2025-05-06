@@ -2,7 +2,7 @@
 CREATE TYPE "ReqType" AS ENUM ('REST', 'GQL');
 
 -- CreateEnum
-CREATE TYPE "TeamMemberRole" AS ENUM ('OWNER', 'VIEWER', 'EDITOR');
+CREATE TYPE "TeamAccessRole" AS ENUM ('OWNER', 'VIEWER', 'EDITOR');
 
 -- CreateTable
 CREATE TABLE "Team" (
@@ -15,7 +15,7 @@ CREATE TABLE "Team" (
 -- CreateTable
 CREATE TABLE "TeamMember" (
     "id" TEXT NOT NULL,
-    "role" "TeamMemberRole" NOT NULL,
+    "role" "TeamAccessRole" NOT NULL,
     "userUid" TEXT NOT NULL,
     "teamID" TEXT NOT NULL,
 
@@ -28,7 +28,7 @@ CREATE TABLE "TeamInvitation" (
     "teamID" TEXT NOT NULL,
     "creatorUid" TEXT NOT NULL,
     "inviteeEmail" TEXT NOT NULL,
-    "inviteeRole" "TeamMemberRole" NOT NULL,
+    "inviteeRole" "TeamAccessRole" NOT NULL,
 
     CONSTRAINT "TeamInvitation_pkey" PRIMARY KEY ("id")
 );

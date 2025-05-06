@@ -9,7 +9,7 @@ import {
   GetInviteDetailsQueryVariables,
   GetMyTeamsQuery,
   GetUserShortcodesQuery,
-  TeamMemberRole,
+  TeamAccessRole,
 } from "~/helpers/backend/graphql"
 
 import { useGQLQuery } from "~/composables/graphql"
@@ -51,7 +51,7 @@ export type BackendPlatformDef = {
 
   createTeamInvitation: <CreateTeamInvitationErrors extends string>(
     inviteeEmail: Email,
-    inviteeRole: TeamMemberRole,
+    inviteeRole: TeamAccessRole,
     teamID: string
   ) => TE.TaskEither<
     GQLError<CreateTeamInvitationErrors>,

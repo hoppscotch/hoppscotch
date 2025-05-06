@@ -196,13 +196,13 @@ import {
   GetTeamQueryVariables,
   TeamMemberAddedDocument,
   TeamMemberRemovedDocument,
-  TeamMemberRole,
+  TeamAccessRole,
   TeamMemberUpdatedDocument,
 } from "~/helpers/backend/graphql"
 import {
   removeTeamMember,
   renameTeam,
-  updateTeamMemberRole,
+  updateTeamAccessRole,
 } from "~/helpers/backend/mutations/Team"
 import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
 
@@ -307,7 +307,7 @@ watch(
 const roleUpdates = ref<
   {
     userID: string
-    role: TeamMemberRole
+    role: TeamAccessRole
   }[]
 >([])
 
@@ -330,7 +330,7 @@ watch(
   }
 )
 
-const updateMemberRole = (userID: string, role: TeamMemberRole) => {
+const updateMemberRole = (userID: string, role: TeamAccessRole) => {
   const updateIndex = roleUpdates.value.findIndex(
     (item) => item.userID === userID
   )
@@ -404,7 +404,7 @@ const saveTeam = async () => {
         toast.error(`${t("error.something_went_wrong")}`)
       } else {
         roleUpdates.value.forEach(async (update) => {
-          const updateMemberRoleResult = await updateTeamMemberRole(
+          const updateMemberRoleResult = await updateTeamAccessRole(
             update.userID,
             props.editingTeamID,
             update.role

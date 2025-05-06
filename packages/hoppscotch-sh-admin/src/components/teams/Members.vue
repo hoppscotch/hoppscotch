@@ -76,7 +76,7 @@
                       :active="member.role === 'OWNER'"
                       @click="
                         () => {
-                          updateMemberRole(member.userID, TeamMemberRole.Owner);
+                          updateMemberRole(member.userID, TeamAccessRole.Owner);
                           hide();
                         }
                       "
@@ -91,7 +91,7 @@
                         () => {
                           updateMemberRole(
                             member.userID,
-                            TeamMemberRole.Editor
+                            TeamAccessRole.Editor
                           );
                           hide();
                         }
@@ -107,7 +107,7 @@
                         () => {
                           updateMemberRole(
                             member.userID,
-                            TeamMemberRole.Viewer
+                            TeamAccessRole.Viewer
                           );
                           hide();
                         }
@@ -179,7 +179,7 @@ import {
   RemoveUserFromTeamByAdminDocument,
   TeamInfoDocument,
   TeamInfoQuery,
-  TeamMemberRole,
+  TeamAccessRole,
 } from '../../helpers/backend/graphql';
 
 const t = useI18n();
@@ -226,7 +226,7 @@ const tippyActions = ref<any | null>(null);
 const currentMemberRoles = ref<
   {
     userID: string;
-    role: TeamMemberRole;
+    role: TeamAccessRole;
   }[]
 >([]);
 
@@ -234,7 +234,7 @@ const currentMemberRoles = ref<
 const updatedMemberRoles = ref<
   {
     userID: string;
-    role: TeamMemberRole;
+    role: TeamAccessRole;
   }[]
 >(cloneDeep(currentMemberRoles.value));
 
@@ -246,7 +246,7 @@ const areRolesUpdated = computed(() =>
 );
 
 // Update the role of the member selected in the UI
-const updateMemberRole = (userID: string, role: TeamMemberRole) => {
+const updateMemberRole = (userID: string, role: TeamAccessRole) => {
   const updateIndex = updatedMemberRoles.value.findIndex(
     (item) => item.userID === userID
   );
@@ -287,7 +287,7 @@ const changeUserRoleInTeamMutation = useMutation(
 const changeUserRoleInTeam = (
   userUID: string,
   teamID: string,
-  newRole: TeamMemberRole
+  newRole: TeamAccessRole
 ) => {
   return changeUserRoleInTeamMutation.executeMutation({
     userUID,
@@ -303,7 +303,7 @@ const saveUpdatedTeam = async () => {
   isLoading.value = true;
 
   const isOwnerPresent = membersList.value.some(
-    (member) => member.role === TeamMemberRole.Owner
+    (member) => member.role === TeamAccessRole.Owner
   );
 
   if (!isOwnerPresent) {

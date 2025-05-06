@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 6,
+    v: 7,
     name: "Echo",
     requests: [
       {
@@ -57,7 +57,7 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 6,
+    v: 7,
     name: "Echo",
     requests: [
       {

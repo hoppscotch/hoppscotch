@@ -909,11 +909,13 @@ const convertOpenApiDocsToHopp = (
           folders: [],
           auth: { authType: "inherit", authActive: true },
           headers: [],
+          favorited: false,
         })
       ),
       requests: requestsWithoutTags,
       auth: { authType: "inherit", authActive: true },
       headers: [],
+      favorited: false,
     })
   })
 

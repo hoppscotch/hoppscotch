@@ -77,6 +77,11 @@
                   collection: node.data.data.data,
                 })
             "
+            @toggle-favorite-collection="
+              emit('toggle-favorite-collection', {
+                collectionIndex: node.id,
+              })
+            "
             @duplicate-collection="
               node.data.type === 'collections' &&
                 emit('duplicate-collection', {
@@ -173,6 +178,11 @@
                   folderPath: node.id,
                   folder: node.data.data.data,
                 })
+            "
+            @toggle-favorite-collection="
+              emit('toggle-favorite-collection', {
+                collectionIndex: node.id,
+              })
             "
             @duplicate-collection="
               node.data.type === 'folders' &&
@@ -511,6 +521,12 @@ const emit = defineEmits<{
     payload: {
       path: string
       folder: HoppCollection
+    }
+  ): void
+  (
+    event: "toggle-favorite-collection",
+    payload: {
+      collectionIndex: string
     }
   ): void
   (

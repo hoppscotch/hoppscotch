@@ -83,25 +83,35 @@ impl ResponseHandler {
     fn determine_media_type(&self) -> MediaType {
         tracing::trace!("Determining response content type");
 
-        // TODO: Check for other capitalizations, `content-type` or `CONTENT-TYPE`
         self.headers
-            .get("Content-Type")
-            .and_then(|content_type| content_type.parse::<Mime>().ok())
-            .and_then(|mime| match (mime.type_(), mime.subtype()) {
-                (mime::APPLICATION, mime::JSON) => Some(MediaType::Json),
-                (mime::APPLICATION, name) if name == "ld+json" => Some(MediaType::JsonLd),
-                (mime::APPLICATION, mime::XML) => Some(MediaType::Xml),
-                (mime::APPLICATION, mime::WWW_FORM_URLENCODED) => Some(MediaType::FormUrlEncoded),
-                (mime::APPLICATION, mime::OCTET_STREAM) => Some(MediaType::OctetStream),
-                (mime::TEXT, mime::PLAIN) => Some(MediaType::TextPlain),
-                (mime::TEXT, mime::HTML) => Some(MediaType::TextHtml),
-                (mime::TEXT, mime::CSS) => Some(MediaType::TextCss),
-                (mime::TEXT, mime::CSV) => Some(MediaType::TextCsv),
-                (mime::TEXT, mime::XML) => Some(MediaType::TextXml),
-                (mime::MULTIPART, name) if name == "form-data" => {
-                    Some(MediaType::MultipartFormData)
+            .iter()
+            .find_map(|(k, v)| {
+                if k.to_lowercase() == "content-type" {
+                    v.parse::<Mime>()
+                        .ok()
+                        .and_then(|mime| match (mime.type_(), mime.subtype()) {
+                            (mime::APPLICATION, mime::JSON) => Some(MediaType::Json),
+                            (mime::APPLICATION, mime::XML) => Some(MediaType::Xml),
+                            (mime::APPLICATION, mime::OCTET_STREAM) => Some(MediaType::OctetStream),
+                            (mime::TEXT, mime::PLAIN) => Some(MediaType::TextPlain),
+                            (mime::TEXT, mime::HTML) => Some(MediaType::TextHtml),
+                            (mime::TEXT, mime::CSS) => Some(MediaType::TextCss),
+                            (mime::TEXT, mime::CSV) => Some(MediaType::TextCsv),
+                            (mime::TEXT, mime::XML) => Some(MediaType::TextXml),
+                            (mime::APPLICATION, mime::WWW_FORM_URLENCODED) => {
+                                Some(MediaType::FormUrlEncoded)
+                            }
+                            (mime::APPLICATION, name) if name == "ld+json" => {
+                                Some(MediaType::JsonLd)
+                            }
+                            (mime::MULTIPART, name) if name == "form-data" => {
+                                Some(MediaType::MultipartFormData)
+                            }
+                            _ => None,
+                        })
+                } else {
+                    None
                 }
-                _ => None,
             })
             .or(infer::get(&self.body)
                 .map(|kind| MediaType::from_str(kind.mime_type()).ok())

@@ -155,6 +155,7 @@ const teamCollectionJSONToHoppRESTColl = (
     requests: coll.requests,
     auth,
     headers,
+    favorited: false,
   })
 }
 
@@ -225,6 +226,7 @@ export const teamCollToHoppRESTColl = (
     requests: coll.requests?.map((x) => x.request) ?? [],
     auth: auth ?? { authType: "inherit", authActive: true },
     headers: headers ?? [],
+    favorited: coll.favorited,
   })
 }
 

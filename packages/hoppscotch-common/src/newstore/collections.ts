@@ -29,6 +29,7 @@ const defaultRESTCollectionState = {
         authActive: false,
       },
       headers: [],
+      favorited: false,
     }),
   ],
 }
@@ -44,6 +45,7 @@ const defaultGraphqlCollectionState = {
         authActive: false,
       },
       headers: [],
+      favorited: false,
     }),
   ],
 }
@@ -222,6 +224,21 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  toggleFavoriteCollection(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+    }: {
+      collectionIndex: number
+    }
+  ) {
+    return {
+      state: state.map((col, index) =>
+        index === collectionIndex ? { ...col, favorited: !col.favorited } : col
+      ),
+    }
+  },
+
   editCollection(
     { state }: RESTCollectionStoreType,
     {
@@ -254,6 +271,7 @@ const restCollectionDispatchers = defineDispatchers({
         authActive: true,
       },
       headers: [],
+      favorited: false,
     })
 
     const newState = state
@@ -879,6 +897,7 @@ const gqlCollectionDispatchers = defineDispatchers({
         authActive: true,
       },
       headers: [],
+      favorited: false,
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -1196,6 +1215,15 @@ export function addRESTCollection(collection: HoppCollection) {
     dispatcher: "addCollection",
     payload: {
       collection,
+    },
+  })
+}
+
+export function toggleRESTFavorite(collectionIndex: number) {
+  restCollectionStore.dispatch({
+    dispatcher: "toggleFavoriteCollection",
+    payload: {
+      collectionIndex,
     },
   })
 }

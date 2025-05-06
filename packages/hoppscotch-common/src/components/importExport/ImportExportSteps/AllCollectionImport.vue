@@ -339,6 +339,7 @@ const getTeamCollection = async (
     requests: childRequests.right.requestsInCollection.map((req) => {
       return JSON.parse(req.request) as HoppRESTRequest | HoppGQLRequest
     }),
+    favorited: false,
   })
 
   return E.right(collectionInHoppFormat)

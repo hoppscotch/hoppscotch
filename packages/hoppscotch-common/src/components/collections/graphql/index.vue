@@ -62,6 +62,7 @@
         @select="$emit('select', $event)"
         @select-request="selectRequest($event)"
         @drop-request="dropRequest($event)"
+        @toggle-favorite-collection="toggleFavoriteCollection(index)"
       />
     </div>
     <HoppSmartPlaceholder
@@ -170,6 +171,7 @@ import {
   editGraphqlFolder,
   moveGraphqlRequest,
   duplicateGraphQLCollection,
+  toggleRESTFavorite,
 } from "~/newstore/collections"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -384,6 +386,10 @@ const editCollection = (
   editingCollection.value = collection
   editingCollectionIndex.value = collectionIndex
   displayModalEdit(true)
+}
+
+const toggleFavoriteCollection = (collectionIndex: number) => {
+  toggleRESTFavorite(collectionIndex)
 }
 
 const duplicateCollection = ({

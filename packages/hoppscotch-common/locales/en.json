@@ -40,6 +40,8 @@
     "more": "More",
     "new": "New",
     "no": "No",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
     "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",

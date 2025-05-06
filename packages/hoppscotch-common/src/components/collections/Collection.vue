@@ -58,6 +58,12 @@
             </span>
           </span>
         </div>
+        <span
+          v-if="props.data.favorited"
+          class="pointer-events-none flex items-center justify-center px-4 group-hover:text-secondaryDark"
+        >
+          <component :is="IconFavorite" />
+        </span>
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -206,6 +212,31 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    ref="favoriteAction"
+                    :icon="IconFavorite"
+                    :label="
+                      props.data.favorited
+                        ? t('action.unfavorite')
+                        : t('action.favorite')
+                    "
+                    :shortcut="['F']"
+                    @click="
+                      () => {
+                        emit('toggle-favorite-collection')
+                        hide()
+                      }
+                    "
+                  >
+                    <template #icon>
+                      <component
+                        :is="IconFavorite"
+                        :fill="props.data.favorited ? 'white' : 'none'"
+                        stroke="white"
+                        stroke-width="2"
+                      />
+                    </template>
+                  </HoppSmartItem>
                 </div>
               </template>
             </tippy>
@@ -246,6 +277,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
+import IconFavorite from "~icons/lucide/heart"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import IconFolderPlus from "~icons/lucide/folder-plus"
@@ -301,6 +333,7 @@ const emit = defineEmits<{
   (event: "edit-properties"): void
   (event: "duplicate-collection"): void
   (event: "export-data"): void
+  (event: "toggle-favorite-collection"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
   (event: "drag-event", payload: DataTransfer): void

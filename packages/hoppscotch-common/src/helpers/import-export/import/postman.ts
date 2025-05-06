@@ -438,7 +438,6 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
     requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
     auth: getHoppReqAuth(ig.auth),
     headers: [],
-    favorited: false,
   })
 
 export const getHoppCollections = (collections: PMCollection[]) => {

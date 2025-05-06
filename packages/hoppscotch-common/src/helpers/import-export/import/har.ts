@@ -37,7 +37,6 @@ export const harImporter = (
         authActive: true,
       },
       headers: [],
-      favorited: false,
     })
 
     return E.right([collection])

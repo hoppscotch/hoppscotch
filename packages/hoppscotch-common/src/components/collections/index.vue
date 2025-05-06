@@ -44,7 +44,6 @@
       @add-request="addRequest"
       @edit-request="editRequest"
       @edit-collection="editCollection"
-      @toggle-favorite-collection="toggleFavoriteCollection"
       @edit-folder="editFolder"
       @edit-response="editResponse"
       @drop-request="dropRequest"
@@ -102,7 +101,6 @@
       @display-modal-add="displayModalAdd(true)"
       @display-modal-import-export="displayModalImportExport(true)"
       @edit-collection="editCollection"
-      @toggle-favorite-collection="toggleFavoriteCollection"
       @edit-folder="editFolder"
       @edit-request="editRequest"
       @edit-response="editResponse"
@@ -294,7 +292,6 @@ import {
   restCollectionStore,
   restCollections$,
   saveRESTRequestAs,
-  toggleRESTFavorite,
   updateRESTCollectionOrder,
   favoriteRESTCollection,
   updateRESTRequestOrder,
@@ -785,7 +782,6 @@ const addNewRootCollection = (name: string) => {
           authType: "none",
           authActive: true,
         },
-        favorited: false,
       })
     )
 
@@ -986,18 +982,10 @@ const onAddFolder = (folderName: string) => {
   }
 }
 
-const toggleFavoriteCollection = (payload: { collectionIndex: string }) => {
-  console.log("Triggered favorite collection dispatch")
-  const { collectionIndex } = payload
-  const index = parseInt(collectionIndex)
-  toggleRESTFavorite(index)
-}
-
 const editCollection = (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
-  console.log("Triggered edit collection")
   const { collectionIndex, collection } = payload
   editingCollection.value = collection
   if (collectionsType.value.type === "my-collections") {

@@ -56,8 +56,8 @@ export class UserCollectionService {
       type: collection.type,
       parentID: collection.parentID,
       userID: collection.userUid,
+      favorited: false,
       data,
-      isFavorite: collection.isFavorite
     };
   }
 
@@ -119,29 +119,6 @@ export class UserCollectionService {
     }
   }
 
-  async toggleUserCollectionFavorite(collectionData: string){
-    const collectionDataJSON = stringToJson(collectionData);
-    if (E.isLeft(collectionDataJSON)) return E.left(USER_COLL_DATA_INVALID);
-      const data = collectionDataJSON.right;
-    try {
-    
-      const userCollection = await this.prisma.userCollection.findUniqueOrThrow(
-        {
-          where: {
-            id: data.id,
-          },
-          include: {
-            user: true,
-          },
-        },
-      );
-      userCollection.isFavorite = true;
-      return E.right(userCollection);
-    } catch (error) {
-      return E.left(USER_NOT_FOUND);
-    }
-
-  }
   /**
    * Get User of given Collection ID
    *
@@ -186,6 +163,35 @@ export class UserCollectionService {
   }
 
   /**
+   * Toggle favorite collection status
+   *
+   * @param collectionID The collection ID
+   */
+    async toggleFavoriteCollection(
+      collectionID: string,
+    ) {
+      try {
+        const userCollection = await this.prisma.userCollection.findFirstOrThrow({
+          where: {
+            id: collectionID
+          }
+        });
+        const updatedUserCollection = await this.prisma.userCollection.update({
+          where: {
+            id: collectionID,
+          },
+          data: {
+            favorited: userCollection.favorited
+          },
+        });
+  
+        return E.right(this.cast(updatedUserCollection));
+      } catch (error) {
+        return E.left(USER_COLL_NOT_FOUND);
+      }
+    }
+
+  /**
    * Get child collections of given Collection ID
    *
    * @param collectionID The collection ID
@@ -227,7 +233,6 @@ export class UserCollectionService {
    * @returns An Either of the Collection details
    */
   async getUserCollection(collectionID: string) {
-    console.log('get user collection \n');
     try {
       const userCollection = await this.prisma.userCollection.findUniqueOrThrow(
         {
@@ -258,7 +263,6 @@ export class UserCollectionService {
     parentUserCollectionID: string | null,
     type: ReqType,
   ) {
-    console.log('create user collection \n');
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
@@ -307,7 +311,6 @@ export class UserCollectionService {
         orderIndex: !parentUserCollectionID
           ? (await this.getRootCollectionsCount(user.uid)) + 1
           : (await this.getChildCollectionsCount(parentUserCollectionID)) + 1,
-        isFavorite: false,
       },
     });
 
@@ -574,7 +577,6 @@ export class UserCollectionService {
     collection: UserCollection,
     destCollection: UserCollection,
   ): Promise<O.Option<boolean>> {
-    console.log('checking if isParent \n');
     // Check if collection and destCollection are same
     if (collection === destCollection) {
       return O.none;
@@ -635,7 +637,6 @@ export class UserCollectionService {
     destCollectionID: string | null,
     userID: string,
   ) {
-    console.log('moving user collection \n');
     // Get collection details of collectionID
     const collection = await this.getUserCollection(userCollectionID);
     if (E.isLeft(collection)) return E.left(USER_COLL_NOT_FOUND);
@@ -745,7 +746,6 @@ export class UserCollectionService {
     nextCollectionID: string | null,
     userID: string,
   ) {
-    console.log("updating the collection order in the backend\n")
     // Throw error if collectionID and nextCollectionID are the same
     if (collectionID === nextCollectionID)
       return E.left(USER_COLL_SAME_NEXT_COLL);
@@ -1049,7 +1049,6 @@ export class UserCollectionService {
         ),
       },
       data: folder.data ?? undefined,
-      isFavorite: false 
     };
   }
 

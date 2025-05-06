@@ -59,6 +59,7 @@ export class TestRunnerService extends Service {
       headers: collection.headers,
       folders: [],
       requests: [],
+      favorited: false,
     }
 
     this.runTestCollection(tab, collection, options)

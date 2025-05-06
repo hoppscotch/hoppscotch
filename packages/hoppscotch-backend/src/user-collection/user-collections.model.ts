@@ -30,9 +30,10 @@ export class UserCollection {
 
   userID: string;
 
-  isFavorite: boolean | null;
-
-
+  @Field({
+    description: 'Whether user collection is favorited',
+  })
+  favorited: boolean;
 }
 
 @ObjectType()

@@ -7,7 +7,7 @@
           'bg-accentDark': isReorderable,
         },
       ]"
-      @drop="orderUpdateCollectionEvexnt"
+      @drop="orderUpdateCollectionEvent"
       @dragover.prevent="ordering = true"
       @dragleave="ordering = false"
       @dragend="resetDragState"
@@ -58,6 +58,12 @@
             </span>
           </span>
         </div>
+        <span
+          v-if="props.data.favorited"
+          class="pointer-events-none flex items-center justify-center px-4 group-hover:text-secondaryDark"
+        >
+          <component :is="IconFavorite" />
+        </span>
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -105,7 +111,6 @@
                   @keyup.delete="deleteAction?.$el.click()"
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
-                  @keyup.f="favoriteAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
@@ -207,6 +212,31 @@
                       }
                     "
                   />
+                  <HoppSmartItem
+                    ref="favoriteAction"
+                    :icon="IconFavorite"
+                    :label="
+                      props.data.favorited
+                        ? t('action.unfavorite')
+                        : t('action.favorite')
+                    "
+                    :shortcut="['F']"
+                    @click="
+                      () => {
+                        emit('toggle-favorite-collection')
+                        hide()
+                      }
+                    "
+                  >
+                    <template #icon>
+                      <component
+                        :is="IconFavorite"
+                        :fill="props.data.favorited ? 'white' : 'none'"
+                        stroke="white"
+                        stroke-width="2"
+                      />
+                    </template>
+                  </HoppSmartItem>
                 </div>
               </template>
             </tippy>
@@ -244,11 +274,10 @@ import {
 } from "~/newstore/reordering"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
-import IconFavorite from "~icons/lucide/heart"
-// import IconFavoriteFilled from "~icons/lucide/heart-filled";
 import IconDownload from "~icons/lucide/download"
 import IconEdit from "~icons/lucide/edit"
 import IconFilePlus from "~icons/lucide/file-plus"
+import IconFavorite from "~icons/lucide/heart"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import IconFolderPlus from "~icons/lucide/folder-plus"
@@ -280,8 +309,6 @@ const props = withDefaults(
     collectionMoveLoading?: string[]
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
-    isFavorite: boolean
-    favoriteCollectionLoading?: boolean
   }>(),
   {
     id: "",
@@ -294,7 +321,6 @@ const props = withDefaults(
     hasNoTeamAccess: false,
     isLastItem: false,
     duplicateLoading: false,
-    favoriteLoading: false,
   }
 )
 
@@ -305,10 +331,9 @@ const emit = defineEmits<{
   (event: "run-collection"): void
   (event: "edit-collection"): void
   (event: "edit-properties"): void
-  (event: "favorite-collection"): void
-  (event: "unfavorite-collection"): void
   (event: "duplicate-collection"): void
   (event: "export-data"): void
+  (event: "toggle-favorite-collection"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
   (event: "drag-event", payload: DataTransfer): void
@@ -323,7 +348,6 @@ const requestAction = ref<HTMLButtonElement | null>(null)
 const folderAction = ref<HTMLButtonElement | null>(null)
 const edit = ref<HTMLButtonElement | null>(null)
 const duplicateAction = ref<HTMLButtonElement | null>(null)
-const favoriteAction = ref<HTMLButtonElement | null>(null)
 const deleteAction = ref<HTMLButtonElement | null>(null)
 const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
@@ -334,7 +358,6 @@ const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
-const isFavoriteRef = ref(false)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -362,10 +385,6 @@ const collectionIcon = computed(() => {
   return IconFolder
 })
 
-const favoriteIcon = computed(() => {
-  return IconFavorite
-})
-
 const collectionName = computed(() => {
   if ((props.data as HoppCollection).name)
     return (props.data as HoppCollection).name
@@ -373,21 +392,9 @@ const collectionName = computed(() => {
 })
 
 watch(
-  () => [
-    props.exportLoading,
-    props.duplicateCollectionLoading,
-    props.favoriteCollectionLoading,
-  ],
-  ([
-    newExportLoadingVal,
-    newDuplicateCollectionLoadingVal,
-    newFavoriteCollectionLoadingVal,
-  ]) => {
-    if (
-      !newExportLoadingVal &&
-      !newDuplicateCollectionLoadingVal &&
-      !newFavoriteCollectionLoadingVal
-    ) {
+  () => [props.exportLoading, props.duplicateCollectionLoading],
+  ([newExportLoadingVal, newDuplicateCollectionLoadingVal]) => {
+    if (!newExportLoadingVal && !newDuplicateCollectionLoadingVal) {
       options.value!.tippy?.hide()
     }
   }

@@ -29,6 +29,7 @@ const defaultRESTCollectionState = {
         authActive: false,
       },
       headers: [],
+      favorited: false,
     }),
   ],
 }
@@ -44,6 +45,7 @@ const defaultGraphqlCollectionState = {
         authActive: false,
       },
       headers: [],
+      favorited: false,
     }),
   ],
 }
@@ -222,6 +224,21 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  toggleFavoriteCollection(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+    }: {
+      collectionIndex: number
+    }
+  ) {
+    return {
+      state: state.map((col, index) =>
+        index === collectionIndex ? { ...col, favorited: !col.favorited } : col
+      ),
+    }
+  },
+
   editCollection(
     { state }: RESTCollectionStoreType,
     {
@@ -254,6 +271,7 @@ const restCollectionDispatchers = defineDispatchers({
         authActive: true,
       },
       headers: [],
+      favorited: false,
     })
 
     const newState = state
@@ -429,9 +447,6 @@ const restCollectionDispatchers = defineDispatchers({
       destinationCollectionIndex: string | null
     }
   ) {
-    console.log(
-      "updating collection order in /Users/elizabethterveen/Desktop/CMU/17313/hoppscotch/packages/hoppscotch-common/src/newstore/collections.ts"
-    )
     const newState = state
 
     const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
@@ -496,22 +511,6 @@ const restCollectionDispatchers = defineDispatchers({
 
     return {
       state: newState,
-    }
-  },
-
-  // TODO: update the collection state on the backend
-  favoriteCollection(
-    { state }: RESTCollectionStoreType,
-    {
-      collectionIndex,
-      collection,
-    }: {
-      collectionIndex: string
-      collection: HoppCollection
-    }
-  ) {
-    return {
-      state: state,
     }
   },
 
@@ -898,6 +897,7 @@ const gqlCollectionDispatchers = defineDispatchers({
         authActive: true,
       },
       headers: [],
+      favorited: false,
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))
@@ -1219,6 +1219,15 @@ export function addRESTCollection(collection: HoppCollection) {
   })
 }
 
+export function toggleRESTFavorite(collectionIndex: number) {
+  restCollectionStore.dispatch({
+    dispatcher: "toggleFavoriteCollection",
+    payload: {
+      collectionIndex,
+    },
+  })
+}
+
 export function removeRESTCollection(
   collectionIndex: number,
   collectionID?: string
@@ -1490,19 +1499,6 @@ export function updateRESTRequestOrder(
       requestIndex,
       destinationRequestIndex,
       destinationCollectionPath,
-    },
-  })
-}
-
-export function favoriteRESTCollection(
-  collectionIndex: string,
-  collection: HoppCollection
-) {
-  restCollectionStore.dispatch({
-    dispatcher: "favoriteCollection",
-    payload: {
-      collectionIndex,
-      collection,
     },
   })
 }

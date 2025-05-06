@@ -215,11 +215,10 @@ export class UserCollectionResolver {
   async toggleFavorite(
     @Args() args: CreateRootUserCollectionArgs
   ){
-    const newCollection = await this.userCollectionService.toggleUserCollectionFavorite(
+    const newCollection = await this.userCollectionService.toggleFavoriteCollection(
       args.data
     )
     return newCollection
-
   }
 
   @Mutation(() => UserCollection, {

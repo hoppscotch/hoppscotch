@@ -26,6 +26,7 @@ import IconEdit from "~icons/lucide/edit?raw"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
 import { isComment } from "./helpers"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -38,6 +39,8 @@ const HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT = "global-variable-highlight"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
+
 const restTabs = getService(RESTTabService)
 
 /**
@@ -54,7 +57,7 @@ const filterNonEmptyEnvironmentVariables = (
     if (envsMap.has(env.key)) {
       const existingEnv = envsMap.get(env.key)
 
-      if (existingEnv?.value === "" && env.value !== "") {
+      if (existingEnv?.currentValue === "" && env.currentValue !== "") {
         envsMap.set(env.key, env)
       }
     } else {
@@ -110,11 +113,20 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         (env) => env.key === parsedEnvKey
       )
 
+      const currentSelectedEnvironment = getCurrentEnvironment()
+
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
       let envValue = "Not Found"
-
-      const currentSelectedEnvironment = getCurrentEnvironment()
+      const envTooltipValue =
+        tooltipEnv?.sourceEnv !== "RequestVariable"
+          ? (currentEnvironmentValueService.getEnvironmentByKey(
+              tooltipEnv?.sourceEnv !== "Global"
+                ? currentSelectedEnvironment.id
+                : "Global",
+              tooltipEnv?.key ?? ""
+            )?.currentValue ?? "")
+          : tooltipEnv?.currentValue
 
       const hasSecretEnv = secretEnvironmentService.hasSecretValue(
         tooltipEnv?.sourceEnv !== "Global"
@@ -123,14 +135,15 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         tooltipEnv?.key ?? ""
       )
 
-      if (!tooltipEnv?.secret && tooltipEnv?.value) envValue = tooltipEnv.value
-      else if (tooltipEnv?.secret && hasSecretEnv) {
+      if (!tooltipEnv?.secret && envTooltipValue) {
+        envValue = envTooltipValue
+      } else if (tooltipEnv?.secret && hasSecretEnv) {
         envValue = "******"
       } else if (tooltipEnv?.secret && !hasSecretEnv) {
         envValue = "Empty"
       } else if (!tooltipEnv?.sourceEnv) {
         envValue = "Not Found"
-      } else if (!tooltipEnv?.value) {
+      } else if (!envTooltipValue) {
         envValue = "Empty"
       }
 
@@ -295,7 +308,8 @@ export class HoppEnvironmentPlugin {
         this.envs = [
           ...requestVariables.map(({ key, value }) => ({
             key,
-            value,
+            currentValue: value,
+            initialValue: value,
             sourceEnv: "RequestVariable",
             secret: false,
           })),
@@ -318,7 +332,8 @@ export class HoppEnvironmentPlugin {
       this.envs = [
         ...requestVariables.map(({ key, value }) => ({
           key,
-          value,
+          currentValue: value,
+          initialValue: value,
           sourceEnv: "RequestVariable",
           secret: false,
         })),

@@ -68,7 +68,7 @@ export async function loadInfraConfiguration() {
 
     const infraConfigs = await prisma.infraConfig.findMany();
 
-    let environmentObject: Record<string, any> = {};
+    const environmentObject: Record<string, any> = {};
     infraConfigs.forEach((infraConfig) => {
       if (infraConfig.isEncrypted) {
         environmentObject[infraConfig.name] = decrypt(infraConfig.value);
@@ -323,7 +323,7 @@ export async function syncInfraConfigWithEnvFile() {
   const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
 
   for (const dbConfig of dbInfraConfigs) {
-    let envValue = process.env[dbConfig.name];
+    const envValue = process.env[dbConfig.name];
 
     // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
     if (!dbConfig.lastSyncedEnvFileValue && envValue) {
@@ -398,7 +398,7 @@ export function stopApp() {
 export function getConfiguredSSOProvidersFromEnvFile() {
   const allowedAuthProviders: string[] =
     process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
-  let configuredAuthProviders: string[] = [];
+  const configuredAuthProviders: string[] = [];
 
   const addProviderIfConfigured = (provider) => {
     const configParameters: string[] = AuthProviderConfigurations[provider];
@@ -439,7 +439,7 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
 
   const allowedAuthProviders: string[] =
     env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
-  let configuredAuthProviders: string[] = [];
+  const configuredAuthProviders: string[] = [];
 
   const addProviderIfConfigured = (provider) => {
     const configParameters: string[] = AuthProviderConfigurations[provider];

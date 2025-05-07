@@ -325,7 +325,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { computed, onMounted, reactive, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
-import { GetMyTeamsQuery, TeamMemberRole } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { platform } from "~/platform"
 import {
@@ -600,7 +600,7 @@ defineActionHandler(
 )
 
 defineActionHandler("modals.team.delete", ({ teamId }) => {
-  if (selectedTeam.value?.myRole !== TeamMemberRole.Owner) return noPermission()
+  if (selectedTeam.value?.myRole !== TeamAccessRole.Owner) return noPermission()
   teamID.value = teamId
   confirmRemove.value = true
 })

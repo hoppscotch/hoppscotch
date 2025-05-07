@@ -5,7 +5,7 @@ import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
-import { TeamMemberRole } from "~/helpers/backend/graphql"
+import { TeamAccessRole } from "~/helpers/backend/graphql"
 
 /**
  * Defines a workspace and its information
@@ -19,7 +19,7 @@ export type TeamWorkspace = {
   type: "team"
   teamID: string
   teamName: string
-  role: TeamMemberRole | null | undefined
+  role: TeamAccessRole | null | undefined
 }
 
 export type Workspace = PersonalWorkspace | TeamWorkspace

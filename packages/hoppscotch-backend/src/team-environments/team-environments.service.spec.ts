@@ -9,7 +9,7 @@ import {
   TEAM_MEMBER_NOT_FOUND,
 } from 'src/errors';
 import { TeamService } from 'src/team/team.service';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 
@@ -394,7 +394,7 @@ describe('TeamEnvironmentsService', () => {
       mockTeamService.getTeamMember.mockResolvedValue({
         membershipID: 'sdc3sfdv',
         userUid: '123454',
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       });
 
       const result = await teamEnvironmentsService.getTeamEnvironmentForCLI(

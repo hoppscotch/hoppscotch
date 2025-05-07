@@ -8,7 +8,7 @@ import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
 import { GqlTeamEnvTeamGuard } from './gql-team-env-team.guard';
 import { TeamEnvironment } from './team-environments.model';
@@ -33,7 +33,7 @@ export class TeamEnvironmentsResolver {
     description: 'Create a new Team Environment for given Team ID',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async createTeamEnvironment(
     @Args() args: CreateTeamEnvironmentArgs,
   ): Promise<TeamEnvironment> {
@@ -52,7 +52,7 @@ export class TeamEnvironmentsResolver {
     description: 'Delete a Team Environment for given Team ID',
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async deleteTeamEnvironment(
     @Args({
       name: 'id',
@@ -74,7 +74,7 @@ export class TeamEnvironmentsResolver {
       'Add/Edit a single environment variable or variables to a Team Environment',
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async updateTeamEnvironment(
     @Args()
     args: UpdateTeamEnvironmentArgs,
@@ -94,7 +94,7 @@ export class TeamEnvironmentsResolver {
     description: 'Delete all variables from a Team Environment',
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async deleteAllVariablesFromTeamEnvironment(
     @Args({
       name: 'id',
@@ -116,7 +116,7 @@ export class TeamEnvironmentsResolver {
     description: 'Create a duplicate of an existing environment',
   })
   @UseGuards(GqlAuthGuard, GqlTeamEnvTeamGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER, TeamMemberRole.EDITOR)
+  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async createDuplicateEnvironment(
     @Args({
       name: 'id',
@@ -142,9 +142,9 @@ export class TeamEnvironmentsResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   teamEnvironmentUpdated(
     @Args({
@@ -164,9 +164,9 @@ export class TeamEnvironmentsResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   teamEnvironmentCreated(
     @Args({
@@ -186,9 +186,9 @@ export class TeamEnvironmentsResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   teamEnvironmentDeleted(
     @Args({

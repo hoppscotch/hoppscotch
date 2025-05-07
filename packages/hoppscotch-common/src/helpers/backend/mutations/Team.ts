@@ -15,10 +15,10 @@ import {
   RenameTeamDocument,
   RenameTeamMutation,
   RenameTeamMutationVariables,
-  TeamMemberRole,
-  UpdateTeamMemberRoleDocument,
-  UpdateTeamMemberRoleMutation,
-  UpdateTeamMemberRoleMutationVariables,
+  TeamAccessRole,
+  UpdateTeamAccessRoleDocument,
+  UpdateTeamAccessRoleMutation,
+  UpdateTeamAccessRoleMutationVariables,
 } from "../graphql"
 import { platform } from "~/platform"
 
@@ -40,7 +40,7 @@ type RenameTeamErrors =
   | "team/invalid_id"
   | "team/not_required_role"
 
-type UpdateTeamMemberRoleErrors =
+type UpdateTeamAccessRoleErrors =
   | "ea/not_invite_or_admin"
   | "team/invalid_id"
   | "team/not_required_role"
@@ -96,22 +96,22 @@ export const renameTeam = (teamID: string, newName: TeamName) =>
     TE.map(({ renameTeam }) => renameTeam)
   )
 
-export const updateTeamMemberRole = (
+export const updateTeamAccessRole = (
   userUid: string,
   teamID: string,
-  newRole: TeamMemberRole
+  newRole: TeamAccessRole
 ) =>
   pipe(
     runMutation<
-      UpdateTeamMemberRoleMutation,
-      UpdateTeamMemberRoleMutationVariables,
-      UpdateTeamMemberRoleErrors
-    >(UpdateTeamMemberRoleDocument, {
+      UpdateTeamAccessRoleMutation,
+      UpdateTeamAccessRoleMutationVariables,
+      UpdateTeamAccessRoleErrors
+    >(UpdateTeamAccessRoleDocument, {
       newRole,
       userUid,
       teamID,
     }),
-    TE.map(({ updateTeamMemberRole }) => updateTeamMemberRole)
+    TE.map(({ updateTeamAccessRole }) => updateTeamAccessRole)
   )
 
 export const removeTeamMember = (userUid: string, teamID: string) =>

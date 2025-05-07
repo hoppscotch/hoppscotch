@@ -22,18 +22,18 @@ export class TeamMember {
 
   userUid: string;
 
-  @Field(() => TeamMemberRole, {
+  @Field(() => TeamAccessRole, {
     description: 'Role of the given team member in the given team',
   })
-  role: TeamMemberRole;
+  role: TeamAccessRole;
 }
 
-export enum TeamMemberRole {
+export enum TeamAccessRole {
   OWNER = 'OWNER',
   VIEWER = 'VIEWER',
   EDITOR = 'EDITOR',
 }
 
-registerEnumType(TeamMemberRole, {
-  name: 'TeamMemberRole',
+registerEnumType(TeamAccessRole, {
+  name: 'TeamAccessRole',
 });

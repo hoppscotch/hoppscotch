@@ -72,7 +72,7 @@
                       :active="member.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamAccessRole.Owner);
+                          updateNewAccessRole(index, TeamAccessRole.Owner);
                           hide();
                         }
                       "
@@ -85,7 +85,7 @@
                       :active="member.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamAccessRole.Editor);
+                          updateNewAccessRole(index, TeamAccessRole.Editor);
                           hide();
                         }
                       "
@@ -98,7 +98,7 @@
                       :active="member.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamAccessRole.Viewer);
+                          updateNewAccessRole(index, TeamAccessRole.Viewer);
                           hide();
                         }
                       "
@@ -272,7 +272,7 @@ const addNewMember = () => {
   });
 };
 
-const updateNewMemberRole = (index: number, role: TeamAccessRole) => {
+const updateNewAccessRole = (index: number, role: TeamAccessRole) => {
   newMembersList.value[index].value = role;
 };
 

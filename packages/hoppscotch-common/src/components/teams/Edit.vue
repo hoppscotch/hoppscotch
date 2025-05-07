@@ -101,9 +101,9 @@
                         :active="member.role === 'OWNER'"
                         @click="
                           () => {
-                            updateMemberRole(
+                            updateAccessRole(
                               member.userID,
-                              TeamMemberRole.Owner
+                              TeamAccessRole.Owner
                             )
                             hide()
                           }
@@ -117,9 +117,9 @@
                         :active="member.role === 'EDITOR'"
                         @click="
                           () => {
-                            updateMemberRole(
+                            updateAccessRole(
                               member.userID,
-                              TeamMemberRole.Editor
+                              TeamAccessRole.Editor
                             )
                             hide()
                           }
@@ -133,9 +133,9 @@
                         :active="member.role === 'VIEWER'"
                         @click="
                           () => {
-                            updateMemberRole(
+                            updateAccessRole(
                               member.userID,
-                              TeamMemberRole.Viewer
+                              TeamAccessRole.Viewer
                             )
                             hide()
                           }
@@ -330,7 +330,7 @@ watch(
   }
 )
 
-const updateMemberRole = (userID: string, role: TeamAccessRole) => {
+const updateAccessRole = (userID: string, role: TeamAccessRole) => {
   const updateIndex = roleUpdates.value.findIndex(
     (item) => item.userID === userID
   )
@@ -404,14 +404,14 @@ const saveTeam = async () => {
         toast.error(`${t("error.something_went_wrong")}`)
       } else {
         roleUpdates.value.forEach(async (update) => {
-          const updateMemberRoleResult = await updateTeamAccessRole(
+          const updateAccessRoleResult = await updateTeamAccessRole(
             update.userID,
             props.editingTeamID,
             update.role
           )()
-          if (E.isLeft(updateMemberRoleResult)) {
+          if (E.isLeft(updateAccessRoleResult)) {
             toast.error(`${t("error.something_went_wrong")}`)
-            console.error(updateMemberRoleResult.left.error)
+            console.error(updateAccessRoleResult.left.error)
           }
         })
       }

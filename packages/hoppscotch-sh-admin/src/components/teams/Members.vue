@@ -76,7 +76,7 @@
                       :active="member.role === 'OWNER'"
                       @click="
                         () => {
-                          updateMemberRole(member.userID, TeamAccessRole.Owner);
+                          updateAccessRole(member.userID, TeamAccessRole.Owner);
                           hide();
                         }
                       "
@@ -89,7 +89,7 @@
                       :active="member.role === 'EDITOR'"
                       @click="
                         () => {
-                          updateMemberRole(
+                          updateAccessRole(
                             member.userID,
                             TeamAccessRole.Editor
                           );
@@ -105,7 +105,7 @@
                       :active="member.role === 'VIEWER'"
                       @click="
                         () => {
-                          updateMemberRole(
+                          updateAccessRole(
                             member.userID,
                             TeamAccessRole.Viewer
                           );
@@ -223,7 +223,7 @@ const updateMembers = async () => {
 const tippyActions = ref<any | null>(null);
 
 // Roles of the members in the team
-const currentMemberRoles = ref<
+const currentAccessRoles = ref<
   {
     userID: string;
     role: TeamAccessRole;
@@ -231,31 +231,31 @@ const currentMemberRoles = ref<
 >([]);
 
 // Roles of the members in the team after the updates but before saving
-const updatedMemberRoles = ref<
+const updatedAccessRoles = ref<
   {
     userID: string;
     role: TeamAccessRole;
   }[]
->(cloneDeep(currentMemberRoles.value));
+>(cloneDeep(currentAccessRoles.value));
 
 // Check if the roles of the members have been updated
 const areRolesUpdated = computed(() =>
-  currentMemberRoles.value && updatedMemberRoles.value
-    ? !isEqual(currentMemberRoles.value, updatedMemberRoles.value)
+  currentAccessRoles.value && updatedAccessRoles.value
+    ? !isEqual(currentAccessRoles.value, updatedAccessRoles.value)
     : false
 );
 
 // Update the role of the member selected in the UI
-const updateMemberRole = (userID: string, role: TeamAccessRole) => {
-  const updateIndex = updatedMemberRoles.value.findIndex(
+const updateAccessRole = (userID: string, role: TeamAccessRole) => {
+  const updateIndex = updatedAccessRoles.value.findIndex(
     (item) => item.userID === userID
   );
   if (updateIndex !== -1) {
     // Role Update exists
-    updatedMemberRoles.value[updateIndex].role = role;
+    updatedAccessRoles.value[updateIndex].role = role;
   } else {
     // Role Update does not exist
-    updatedMemberRoles.value.push({
+    updatedAccessRoles.value.push({
       userID,
       role,
     });
@@ -266,7 +266,7 @@ const updateMemberRole = (userID: string, role: TeamAccessRole) => {
 const membersList = computed(() => {
   if (!team.value) return [];
   const members = (team.value.teamMembers ?? []).map((member) => {
-    const updatedRole = updatedMemberRoles.value.find(
+    const updatedRole = updatedAccessRoles.value.find(
       (update) => update.userID === member.user.uid
     );
 
@@ -312,20 +312,20 @@ const saveUpdatedTeam = async () => {
     return;
   }
 
-  updatedMemberRoles.value.forEach(async (update) => {
+  updatedAccessRoles.value.forEach(async (update) => {
     if (!team.value) return;
 
-    const updateMemberRoleResult = await changeUserRoleInTeam(
+    const updateAccessRoleResult = await changeUserRoleInTeam(
       update.userID,
       team.value.id,
       update.role
     );
-    if (updateMemberRoleResult.error) {
+    if (updateAccessRoleResult.error) {
       toast.error(t('state.role_update_failed'));
     } else {
       toast.success(t('state.role_update_success'));
-      currentMemberRoles.value = updatedMemberRoles.value;
-      updatedMemberRoles.value = cloneDeep(currentMemberRoles.value);
+      currentAccessRoles.value = updatedAccessRoles.value;
+      updatedAccessRoles.value = cloneDeep(currentAccessRoles.value);
     }
     isLoading.value = false;
   });

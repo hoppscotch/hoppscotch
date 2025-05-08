@@ -70,9 +70,6 @@ export const recordToHoppHeaders = (
       description: "",
     })),
     A.filter(
-      (header) =>
-        header.key !== "Authorization" &&
-        header.key !== "content-type" &&
-        header.key !== "Content-Type"
+      (header) => header.key !== "content-type" && header.key !== "Content-Type"
     )
   )

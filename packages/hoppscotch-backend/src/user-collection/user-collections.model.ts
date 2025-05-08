@@ -1,5 +1,4 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import { User } from '@prisma/client';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserRequest } from 'src/user-request/user-request.model';
 

@@ -2,9 +2,7 @@ import {
   Args,
   ID,
   Mutation,
-  Parent,
   Query,
-  ResolveField,
   Resolver,
   Subscription,
 } from '@nestjs/graphql';

@@ -84,13 +84,6 @@ const rootTeamCollection_2: DBTeamCollection = {
   updatedOn: currentTime,
 };
 
-const rootTeamCollection_2Casted: TeamCollection = {
-  id: 'erv',
-  parentID: null,
-  data: JSON.stringify(rootTeamCollection_2.data),
-  title: 'Root Collection 1',
-};
-
 const childTeamCollection: DBTeamCollection = {
   id: 'rfe',
   orderIndex: 1,
@@ -755,7 +748,7 @@ describe('createCollection', () => {
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
 
-    const result = await teamCollectionService.createCollection(
+    await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
@@ -778,7 +771,7 @@ describe('createCollection', () => {
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
-    const result = await teamCollectionService.createCollection(
+    await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
       'abcdefg',
       JSON.stringify(rootTeamCollection.data),
@@ -848,7 +841,7 @@ describe('renameCollection', () => {
       title: 'NewTitle',
     });
 
-    const result = await teamCollectionService.renameCollection(
+    await teamCollectionService.renameCollection(
       rootTeamCollection.id,
       'NewTitle',
     );
@@ -937,9 +930,7 @@ describe('deleteCollection', () => {
     // deleteCollectionData --> removeUserCollection
     mockPrisma.teamCollection.delete.mockResolvedValueOnce(rootTeamCollection);
 
-    const result = await teamCollectionService.deleteCollection(
-      rootTeamCollection.id,
-    );
+    await teamCollectionService.deleteCollection(rootTeamCollection.id);
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_coll/${rootTeamCollection.teamID}/coll_removed`,
       rootTeamCollection.id,
@@ -1112,10 +1103,7 @@ describe('moveCollection', () => {
       orderIndex: 2,
     });
 
-    const result = await teamCollectionService.moveCollection(
-      childTeamCollection.id,
-      null,
-    );
+    await teamCollectionService.moveCollection(childTeamCollection.id, null);
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_coll/${childTeamCollection.teamID}/coll_moved`,
       {
@@ -1193,7 +1181,7 @@ describe('moveCollection', () => {
       orderIndex: 1,
     });
 
-    const result = await teamCollectionService.moveCollection(
+    await teamCollectionService.moveCollection(
       rootTeamCollection.id,
       childTeamCollection_2.id,
     );
@@ -1274,7 +1262,7 @@ describe('moveCollection', () => {
       orderIndex: 1,
     });
 
-    const result = await teamCollectionService.moveCollection(
+    await teamCollectionService.moveCollection(
       childTeamCollection.id,
       childTeamCollection_2.id,
     );
@@ -1371,7 +1359,7 @@ describe('updateCollectionOrder', () => {
       orderIndex: rootTeamCollectionList.length,
     });
 
-    const result = await teamCollectionService.updateCollectionOrder(
+    await teamCollectionService.updateCollectionOrder(
       rootTeamCollectionList[4].id,
       null,
     );
@@ -1452,7 +1440,7 @@ describe('updateCollectionOrder', () => {
       .mockResolvedValueOnce(childTeamCollectionList[4])
       .mockResolvedValueOnce(childTeamCollectionList[2]);
 
-    const result = await teamCollectionService.updateCollectionOrder(
+    await teamCollectionService.updateCollectionOrder(
       childTeamCollectionList[4].id,
       childTeamCollectionList[2].id,
     );
@@ -1519,7 +1507,7 @@ describe('importCollectionsFromJSON', () => {
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
 
-    const result = await teamCollectionService.importCollectionsFromJSON(
+    await teamCollectionService.importCollectionsFromJSON(
       jsonString,
       rootTeamCollection.teamID,
       null,
@@ -1638,7 +1626,7 @@ describe('replaceCollectionsWithJSON', () => {
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
     mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
 
-    const result = await teamCollectionService.replaceCollectionsWithJSON(
+    await teamCollectionService.replaceCollectionsWithJSON(
       jsonString,
       rootTeamCollection.teamID,
       null,
@@ -1730,7 +1718,7 @@ describe('updateTeamCollection', () => {
   test('should send pubsub message to "team_coll/<teamID>/coll_updated" if TeamCollection is updated successfully', async () => {
     mockPrisma.teamCollection.update.mockResolvedValueOnce(rootTeamCollection);
 
-    const result = await teamCollectionService.updateTeamCollection(
+    await teamCollectionService.updateTeamCollection(
       rootTeamCollection.id,
       JSON.stringify(rootTeamCollection.data),
       rootTeamCollection.title,

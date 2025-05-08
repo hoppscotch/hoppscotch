@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostHog } from 'posthog-node';
-import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CronJob } from 'cron';

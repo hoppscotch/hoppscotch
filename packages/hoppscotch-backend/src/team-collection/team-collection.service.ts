@@ -932,7 +932,7 @@ export class TeamCollectionService {
             },
           });
           // Step 2: Update orderIndex of collection to length of list
-          const updatedTeamCollection = await tx.teamCollection.update({
+          await tx.teamCollection.update({
             where: { id: collection.right.id },
             data: {
               orderIndex: await this.getCollectionCount(
@@ -989,7 +989,7 @@ export class TeamCollectionService {
           },
         });
         // Step 3: Update OrderIndex of collection
-        const updatedTeamCollection = await tx.teamCollection.update({
+        await tx.teamCollection.update({
           where: { id: collection.right.id },
           data: {
             orderIndex: isMovingUp

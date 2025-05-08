@@ -3,7 +3,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
 import {
-  JSON_INVALID,
   TEAM_ENVIRONMENT_NOT_FOUND,
   TEAM_ENVIRONMENT_SHORT_NAME,
   TEAM_MEMBER_NOT_FOUND,
@@ -92,7 +91,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/created" if team environment is created successfully', async () => {
       mockPrisma.teamEnvironment.create.mockResolvedValue(teamEnvironment);
 
-      const result = await teamEnvironmentsService.createTeamEnvironment(
+      await teamEnvironmentsService.createTeamEnvironment(
         teamEnvironment.name,
         teamEnvironment.teamID,
         JSON.stringify(teamEnvironment.variables),
@@ -131,9 +130,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/deleted" if team environment is deleted successfully', async () => {
       mockPrisma.teamEnvironment.delete.mockResolvedValueOnce(teamEnvironment);
 
-      const result = await teamEnvironmentsService.deleteTeamEnvironment(
-        teamEnvironment.id,
-      );
+      await teamEnvironmentsService.deleteTeamEnvironment(teamEnvironment.id);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `team_environment/${teamEnvironment.teamID}/deleted`,
@@ -243,7 +240,7 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/updated" if team environment is updated successfully', async () => {
       mockPrisma.teamEnvironment.update.mockResolvedValueOnce(teamEnvironment);
 
-      const result = await teamEnvironmentsService.updateTeamEnvironment(
+      await teamEnvironmentsService.updateTeamEnvironment(
         teamEnvironment.id,
         teamEnvironment.name,
         JSON.stringify([{ key: 'value' }]),
@@ -288,10 +285,9 @@ describe('TeamEnvironmentsService', () => {
     test('should send pubsub message to "team_environment/<teamID>/updated" if team environment is updated successfully', async () => {
       mockPrisma.teamEnvironment.update.mockResolvedValueOnce(teamEnvironment);
 
-      const result =
-        await teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
-          teamEnvironment.id,
-        );
+      await teamEnvironmentsService.deleteAllVariablesFromTeamEnvironment(
+        teamEnvironment.id,
+      );
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `team_environment/${teamEnvironment.teamID}/updated`,
@@ -347,7 +343,7 @@ describe('TeamEnvironmentsService', () => {
         ...teamEnvironment,
       });
 
-      const result = await teamEnvironmentsService.createDuplicateEnvironment(
+      await teamEnvironmentsService.createDuplicateEnvironment(
         teamEnvironment.id,
       );
 

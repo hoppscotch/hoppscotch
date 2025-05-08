@@ -1,8 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Mutation, Args, Subscription, ID } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { pipe } from 'fp-ts/function';
-import * as TE from 'fp-ts/TaskEither';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';

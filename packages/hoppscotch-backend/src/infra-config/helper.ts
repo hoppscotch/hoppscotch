@@ -1,7 +1,6 @@
 import { AuthProvider } from 'src/auth/helper';
 import {
   AUTH_PROVIDER_NOT_CONFIGURED,
-  DATABASE_TABLE_NOT_EXIST,
   ENV_INVALID_DATA_ENCRYPTION_KEY,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';

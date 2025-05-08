@@ -27,10 +27,9 @@ const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
 const mockUserCollectionService = mockDeep<UserCollectionService>();
 
-// @ts-ignore
 const userRequestService = new UserRequestService(
   mockPrisma,
-  mockPubSub as any,
+  mockPubSub,
   mockUserCollectionService,
 );
 
@@ -541,7 +540,7 @@ describe('UserRequestService', () => {
       mockPrisma.userRequest.findFirst.mockResolvedValue(dbUserRequests[0]);
       mockPrisma.userRequest.delete.mockResolvedValue(null);
 
-      const result = await userRequestService.deleteRequest(id, user);
+      await userRequestService.deleteRequest(id, user);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user_request/${dbUserRequests[0].userUid}/deleted`,

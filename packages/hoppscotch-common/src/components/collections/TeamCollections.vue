@@ -90,6 +90,11 @@
                   collection: node.data.data.data,
                 })
             "
+            @toggle-favorite-collection="
+              emit('toggle-favorite-collection', {
+                collectionIndex: node.id,
+              })
+            "
             @duplicate-collection="
               node.data.type === 'collections' &&
                 emit('duplicate-collection', {
@@ -209,6 +214,11 @@
             @remove-collection="
               node.data.type === 'folders' &&
                 emit('remove-folder', node.data.data.data.id)
+            "
+            @toggle-favorite-collection="
+              emit('toggle-favorite-collection', {
+                collectionIndex: node.id,
+              })
             "
             @drop-event="dropEvent($event, node.data.data.data.id)"
             @drag-event="dragEvent($event, node.data.data.data.id)"
@@ -555,6 +565,12 @@ const emit = defineEmits<{
     payload: {
       path: string
       folder: TeamCollection
+    }
+  ): void
+  (
+    event: "toggle-favorite-collection",
+    payload: {
+      collectionIndex: string
     }
   ): void
   (

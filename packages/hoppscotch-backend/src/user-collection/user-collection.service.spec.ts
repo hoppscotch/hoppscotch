@@ -55,6 +55,20 @@ const rootRESTUserCollection: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
+};
+
+const rootRESTUserFavorited: DBUserCollection = {
+  id: '123',
+  orderIndex: 1,
+  parentID: null,
+  title: 'Root Collection 1',
+  userUid: user.uid,
+  type: ReqType.REST,
+  createdOn: currentTime,
+  updatedOn: currentTime,
+  data: {},
+  favorited: true,
 };
 
 const rootRESTUserCollectionCasted: UserCollection = {
@@ -64,6 +78,7 @@ const rootRESTUserCollectionCasted: UserCollection = {
   title: 'Root Collection 1',
   type: ReqType.REST,
   data: JSON.stringify(rootRESTUserCollection.data),
+  favorited: false,
 };
 
 const rootGQLUserCollection: DBUserCollection = {
@@ -76,6 +91,20 @@ const rootGQLUserCollection: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
+};
+
+const rootGQLUserCollectionFavorite: DBUserCollection = {
+  id: '123',
+  orderIndex: 1,
+  parentID: null,
+  title: 'Root Collection 1',
+  userUid: user.uid,
+  type: ReqType.GQL,
+  createdOn: currentTime,
+  updatedOn: currentTime,
+  data: {},
+  favorited: true,
 };
 
 const rootGQLUserCollectionCasted: UserCollection = {
@@ -85,6 +114,7 @@ const rootGQLUserCollectionCasted: UserCollection = {
   userID: user.uid,
   type: ReqType.GQL,
   data: JSON.stringify(rootGQLUserCollection.data),
+  favorited: false,
 };
 
 const rootRESTUserCollection_2: DBUserCollection = {
@@ -97,6 +127,7 @@ const rootRESTUserCollection_2: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
 };
 
 const rootRESTUserCollection_2Casted: UserCollection = {
@@ -106,6 +137,7 @@ const rootRESTUserCollection_2Casted: UserCollection = {
   userID: user.uid,
   type: ReqType.REST,
   data: JSON.stringify(rootRESTUserCollection_2.data),
+  favorited: false,
 };
 
 const rootGQLUserCollection_2: DBUserCollection = {
@@ -118,6 +150,7 @@ const rootGQLUserCollection_2: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
 };
 
 const rootGQLUserCollection_2Casted: UserCollection = {
@@ -127,6 +160,7 @@ const rootGQLUserCollection_2Casted: UserCollection = {
   userID: user.uid,
   type: ReqType.GQL,
   data: JSON.stringify(rootGQLUserCollection_2.data),
+  favorited: false,
 };
 
 const childRESTUserCollection: DBUserCollection = {
@@ -139,7 +173,22 @@ const childRESTUserCollection: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
 };
+
+const childRESTUserCollectionFavorited: DBUserCollection = {
+  id: '234',
+  orderIndex: 1,
+  parentID: rootRESTUserCollection.id,
+  title: 'Child Collection 1',
+  userUid: user.uid,
+  type: ReqType.REST,
+  createdOn: currentTime,
+  updatedOn: currentTime,
+  data: {},
+  favorited: true,
+};
+
 
 const childRESTUserCollectionCasted: UserCollection = {
   id: '234',
@@ -148,6 +197,7 @@ const childRESTUserCollectionCasted: UserCollection = {
   userID: user.uid,
   type: ReqType.REST,
   data: JSON.stringify({}),
+  favorited: false,
 };
 
 const childGQLUserCollection: DBUserCollection = {
@@ -160,6 +210,20 @@ const childGQLUserCollection: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
+};
+
+const childGQLUserCollectionFavorited: DBUserCollection = {
+  id: '234',
+  orderIndex: 1,
+  parentID: rootRESTUserCollection.id,
+  title: 'Child Collection 1',
+  userUid: user.uid,
+  type: ReqType.GQL,
+  createdOn: currentTime,
+  updatedOn: currentTime,
+  data: {},
+  favorited: true,
 };
 
 const childGQLUserCollectionCasted: UserCollection = {
@@ -169,6 +233,7 @@ const childGQLUserCollectionCasted: UserCollection = {
   userID: user.uid,
   type: ReqType.GQL,
   data: JSON.stringify({}),
+  favorited: false,
 };
 
 const childRESTUserCollection_2: DBUserCollection = {
@@ -181,6 +246,7 @@ const childRESTUserCollection_2: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
 };
 
 const childRESTUserCollection_2Casted: UserCollection = {
@@ -190,6 +256,7 @@ const childRESTUserCollection_2Casted: UserCollection = {
   userID: user.uid,
   type: ReqType.REST,
   data: JSON.stringify({}),
+  favorited: false,
 };
 
 const childGQLUserCollection_2: DBUserCollection = {
@@ -202,6 +269,7 @@ const childGQLUserCollection_2: DBUserCollection = {
   createdOn: currentTime,
   updatedOn: currentTime,
   data: {},
+  favorited: false,
 };
 
 const childGQLUserCollection_2Casted: UserCollection = {
@@ -211,6 +279,7 @@ const childGQLUserCollection_2Casted: UserCollection = {
   userID: user.uid,
   type: ReqType.GQL,
   data: JSON.stringify({}),
+  favorited: false,
 };
 
 const childRESTUserCollectionList: DBUserCollection[] = [
@@ -224,6 +293,7 @@ const childRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '345',
@@ -235,6 +305,7 @@ const childRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '456',
@@ -246,6 +317,7 @@ const childRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '567',
@@ -257,6 +329,7 @@ const childRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '678',
@@ -268,6 +341,7 @@ const childRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
 ];
 
@@ -279,6 +353,7 @@ const childRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '345',
@@ -287,6 +362,7 @@ const childRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '456',
@@ -295,6 +371,7 @@ const childRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '567',
@@ -303,6 +380,7 @@ const childRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '678',
@@ -311,6 +389,7 @@ const childRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
 ];
 
@@ -325,6 +404,7 @@ const childGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '345',
@@ -336,6 +416,7 @@ const childGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '456',
@@ -347,6 +428,7 @@ const childGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '567',
@@ -358,6 +440,7 @@ const childGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '678',
@@ -369,6 +452,7 @@ const childGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
 ];
 
@@ -380,6 +464,7 @@ const childGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '345',
@@ -388,6 +473,7 @@ const childGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '456',
@@ -396,6 +482,7 @@ const childGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '567',
@@ -404,6 +491,7 @@ const childGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '678',
@@ -412,6 +500,7 @@ const childGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
 ];
 
@@ -426,6 +515,7 @@ const rootRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '234',
@@ -437,6 +527,7 @@ const rootRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '345',
@@ -448,6 +539,7 @@ const rootRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '456',
@@ -459,6 +551,7 @@ const rootRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '567',
@@ -470,6 +563,7 @@ const rootRESTUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
 ];
 
@@ -481,6 +575,7 @@ const rootRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '234',
@@ -489,6 +584,7 @@ const rootRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '345',
@@ -497,6 +593,7 @@ const rootRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '456',
@@ -505,6 +602,7 @@ const rootRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '567',
@@ -513,6 +611,7 @@ const rootRESTUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.REST,
     data: JSON.stringify({}),
+    favorited: false,
   },
 ];
 
@@ -527,6 +626,7 @@ const rootGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '234',
@@ -538,6 +638,7 @@ const rootGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '345',
@@ -549,6 +650,7 @@ const rootGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '456',
@@ -560,6 +662,7 @@ const rootGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
   {
     id: '567',
@@ -571,6 +674,7 @@ const rootGQLUserCollectionList: DBUserCollection[] = [
     createdOn: currentTime,
     updatedOn: currentTime,
     data: {},
+    favorited: false,
   },
 ];
 
@@ -582,6 +686,7 @@ const rootGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '234',
@@ -590,6 +695,7 @@ const rootGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '345',
@@ -598,6 +704,7 @@ const rootGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '456',
@@ -606,6 +713,7 @@ const rootGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
   {
     id: '567',
@@ -614,6 +722,7 @@ const rootGQLUserCollectionListCasted: UserCollection[] = [
     userID: user.uid,
     type: ReqType.GQL,
     data: JSON.stringify({}),
+    favorited: false,
   },
 ];
 
@@ -621,6 +730,63 @@ beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
 });
+
+describe('favoriteCollection',() => {
+  test('should change a REST user collection from default state (unfavorite) to favorited', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      rootRESTUserCollection,
+    );
+
+    const result = await userCollectionService.toggleFavoriteCollection(
+      rootRESTUserCollection.id
+    );
+    expect(result).toEqualRight(rootRESTUserFavorited);
+
+  });
+  test('should change a GQL user collection from default state (unfavorite) to favorited', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      rootGQLUserCollection,
+    );
+
+    const result = await userCollectionService.toggleFavoriteCollection(
+      rootGQLUserCollection.id
+    );
+    expect(result).toEqualRight(rootGQLUserCollectionFavorite);
+
+  });
+  test('should change a REST child collection from default state (unfavorite) to favorited', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      childRESTUserCollection,
+    );
+
+    const result = await userCollectionService.toggleFavoriteCollection(
+      childRESTUserCollection.id
+    );
+    expect(result).toEqualRight(childRESTUserCollectionFavorited);
+
+  });
+  test('should change a child GQL user collection from default state (unfavorite) to favorited', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      childGQLUserCollection,
+    );
+
+    const result = await userCollectionService.toggleFavoriteCollection(
+      childGQLUserCollection.id
+    );
+    expect(result).toEqualRight(childGQLUserCollectionFavorited);
+
+  });
+  test('should return null with invalid collectionID', async () => {
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      childRESTUserCollection,
+    );
+
+    const result = await userCollectionService.toggleFavoriteCollection(
+      'invalidID!!!'
+    );
+    expect(result).toEqual(null);
+  });
+})
 
 describe('getParentOfUserCollection', () => {
   test('should return a user-collection successfully with valid collectionID', async () => {

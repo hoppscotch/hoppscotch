@@ -8,6 +8,7 @@ import { throwErr } from '../utils';
 @Resolver(() => User)
 export class UserEnvsUserResolver {
   constructor(private userEnvironmentsService: UserEnvironmentsService) {}
+
   @ResolveField(() => [UserEnvironment], {
     description: 'Returns a list of users personal environments',
   })

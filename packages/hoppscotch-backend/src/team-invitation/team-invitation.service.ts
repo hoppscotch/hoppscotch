@@ -38,7 +38,7 @@ export class TeamInvitationService {
    * @param dbTeamInvitation database TeamInvitation
    * @returns TeamInvitation model
    */
-  cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
+  private cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
     return {
       ...dbTeamInvitation,
       inviteeRole: TeamAccessRole[dbTeamInvitation.inviteeRole],

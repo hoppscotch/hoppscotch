@@ -15,7 +15,7 @@ export class PostHogService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-    private schedulerRegistry: SchedulerRegistry,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
   async onModuleInit() {

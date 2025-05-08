@@ -37,6 +37,7 @@ portpicker = "0.1.1"
 tokio = "1.43.0"
 tauri-plugin-process = "2.2.0"
 file-rotate = "0.8.0"
+dirs = "6.0.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2.3.1"

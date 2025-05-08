@@ -9,6 +9,7 @@ use tauri_plugin_appload::VendorConfigBuilder;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_window_state::StateFlags;
 
+pub const HOPPSCOTCH_DESKTOP_IDENTIFIER: &'static str = "io.hoppscotch.desktop";
 static SERVER_PORT: OnceLock<u16> = OnceLock::new();
 
 #[tauri::command]
@@ -21,9 +22,6 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let handle = app.handle().clone();
-
-            logger::setup(app.handle().clone())?;
-            tracing::info!("Logger setup complete");
 
             let server_port = portpicker::pick_unused_port().expect("Cannot find unused port");
             tracing::info!("Selected server port: {}", server_port);

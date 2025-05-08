@@ -52,7 +52,7 @@
       "execa@0.10.0": "2.0.0",
       "@babel/runtime@<7.26.10": "7.26.10",
       "apiconnect-wsdl": "2.0.36",
-      "@xmldom/xmldom": "0.9.8"
+      "@xmldom/xmldom": "0.8.10"
     },
     "packageExtensions": {
       "@hoppscotch/httpsnippet": {

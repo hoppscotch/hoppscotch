@@ -34,11 +34,27 @@ const processParams = (params: [string, string][]): [string, string][] => {
     const isEncodingRequired =
       encodeMode === "enable" || (encodeMode === "auto" && needsEncoding(value))
 
-    const encodedKey = isEncodingRequired ? encodeParam(key) : key
     const encodedValue = isEncodingRequired ? encodeParam(value) : value
 
-    return [encodedKey, encodedValue]
+    return [key, encodedValue]
   })
+}
+
+const buildQueryString = (params: [string, string][]): string =>
+  params.map(([k, v]) => `${encodeURIComponent(k)}=${v}`).join("&")
+
+const combineWithExistingSearch = (urlObj: URL, queryString: string): URL => {
+  const existingSearch =
+    urlObj.search.length > 1 ? urlObj.search.substring(1) : ""
+
+  urlObj.search = pipe(
+    existingSearch,
+    O.fromPredicate((s) => s.length > 0),
+    O.map((s) => `${s}&${queryString}`),
+    O.getOrElse(() => queryString)
+  )
+
+  return urlObj
 }
 
 const updateUrl = (
@@ -50,10 +66,17 @@ const updateUrl = (
       () => new URL(url),
       (e) => new Error(`Invalid URL: ${e}`)
     ),
-    E.map((u) => {
-      processParams(params).forEach(([k, v]) => u.searchParams.append(k, v))
-      return decodeURIComponent(u.toString())
-    })
+    E.map((urlObj) => {
+      const processedParams = processParams(params)
+
+      if (processedParams.length > 0) {
+        const queryString = buildQueryString(processedParams)
+        return combineWithExistingSearch(urlObj, queryString)
+      }
+
+      return urlObj
+    }),
+    E.map((u) => u.toString())
   )
 
 export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>

@@ -41,7 +41,6 @@ export class TeamInvitationResolver {
     private readonly userService: UserService,
     private readonly teamService: TeamService,
     private readonly teamInvitationService: TeamInvitationService,
-
     private readonly pubsub: PubSubService,
   ) {}
 

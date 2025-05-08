@@ -39,8 +39,8 @@ import { ServiceStatus } from 'src/infra-config/helper';
 @Resolver(() => Infra)
 export class InfraResolver {
   constructor(
-    private adminService: AdminService,
-    private infraConfigService: InfraConfigService,
+    private readonly adminService: AdminService,
+    private readonly infraConfigService: InfraConfigService,
   ) {}
 
   @Query(() => Infra, {

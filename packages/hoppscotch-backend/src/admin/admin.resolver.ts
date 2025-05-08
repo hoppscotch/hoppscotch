@@ -31,7 +31,7 @@ import { UserDeletionResult } from 'src/user/user.model';
 @Resolver(() => Admin)
 export class AdminResolver {
   constructor(
-    private adminService: AdminService,
+    private readonly adminService: AdminService,
     private readonly pubsub: PubSubService,
   ) {}
 

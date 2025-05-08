@@ -804,7 +804,7 @@ export const DATABASE_TABLE_NOT_EXIST =
  * PostHog client is not initialized
  * (InfraConfigService)
  */
-export const POSTHOG_CLIENT_NOT_INITIALIZED = 'posthog/client_not_initialized';
+export const POST_HOG_CLIENT_NOT_INITIALIZED = 'posthog/client_not_initialized';
 
 /**
  * Inputs supplied are invalid

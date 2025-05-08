@@ -34,6 +34,7 @@ futures = "0.3.31"
 mime_guess = "2.0.5"
 rayon = "1.10.0"
 hex_color = "3.0.0"
+dunce = "1.0.5"
 
 [build-dependencies]
 tauri-plugin = { version = "2.0.1", features = ["build"] }

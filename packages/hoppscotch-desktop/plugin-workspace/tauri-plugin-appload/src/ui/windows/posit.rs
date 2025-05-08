@@ -65,7 +65,7 @@ impl<R: Runtime> WindowsWindow<R> {
 
     fn set_dark_mode(&self) {
         if let Some(version) = WindowsVersion::detect() {
-            if version.major() >= 10 && version.build() >= MIN_WIN11_BUILD {
+            if version.major >= 10 && version.build >= MIN_WIN11_BUILD {
                 unsafe {
                     let use_dark_mode = BOOL::from(true);
                     let _ = DwmSetWindowAttribute(
@@ -81,7 +81,7 @@ impl<R: Runtime> WindowsWindow<R> {
 
     fn set_caption_color(&self, color: HexColor) {
         if let Some(version) = WindowsVersion::detect() {
-            if version.major() >= 10 && version.build() >= MIN_WIN11_BUILD {
+            if version.major >= 10 && version.build >= MIN_WIN11_BUILD {
                 unsafe {
                     let color_ref = self.hex_color_to_colorref(color);
                     let _ = DwmSetWindowAttribute(

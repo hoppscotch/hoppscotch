@@ -4061,6 +4061,7 @@ dependencies = [
  "chrono",
  "cocoa",
  "dashmap",
+ "dunce",
  "ed25519-dalek",
  "flate2",
  "futures",

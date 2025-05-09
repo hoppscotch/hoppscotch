@@ -1,8 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Mutation, Args, Subscription, ID } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { pipe } from 'fp-ts/function';
-import * as TE from 'fp-ts/TaskEither';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -61,9 +59,8 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<boolean> {
-    const isDeleted = await this.teamEnvironmentsService.deleteTeamEnvironment(
-      id,
-    );
+    const isDeleted =
+      await this.teamEnvironmentsService.deleteTeamEnvironment(id);
 
     if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return isDeleted.right;
@@ -125,9 +122,8 @@ export class TeamEnvironmentsResolver {
     })
     id: string,
   ): Promise<TeamEnvironment> {
-    const res = await this.teamEnvironmentsService.createDuplicateEnvironment(
-      id,
-    );
+    const res =
+      await this.teamEnvironmentsService.createDuplicateEnvironment(id);
 
     if (E.isLeft(res)) throwErr(res.left);
     return res.right;

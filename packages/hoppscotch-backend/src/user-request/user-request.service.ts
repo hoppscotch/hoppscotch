@@ -120,9 +120,8 @@ export class UserRequestService {
     const jsonRequest = stringToJson(request);
     if (E.isLeft(jsonRequest)) return E.left(jsonRequest.left);
 
-    const collection = await this.userCollectionService.getUserCollection(
-      collectionID,
-    );
+    const collection =
+      await this.userCollectionService.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
     if (collection.right.userUid !== user.uid)
@@ -132,9 +131,8 @@ export class UserRequestService {
       return E.left(USER_REQUEST_INVALID_TYPE);
 
     try {
-      const requestCount = await this.getRequestsCountInCollection(
-        collectionID,
-      );
+      const requestCount =
+        await this.getRequestsCountInCollection(collectionID);
 
       const request = await this.prisma.userRequest.create({
         data: {

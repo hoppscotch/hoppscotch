@@ -19,8 +19,6 @@ const mockPrisma = mockDeep<PrismaService>();
 const mockConfigService = mockDeep<ConfigService>();
 const mockPubsub = mockDeep<PubSubService>();
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const infraConfigService = new InfraConfigService(
   mockPrisma,
   mockConfigService,
@@ -66,90 +64,84 @@ beforeEach(() => {
 describe('InfraConfigService', () => {
   describe('update', () => {
     it('should update the infra config without backend server restart', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
-      const value = 'true';
+      const name = dbInfraConfigs[0].name;
+      const value = 'newValue';
 
-      // @ts-ignore
-      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
-        isEncrypted: false,
-      });
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce(
+        dbInfraConfigs[0],
+      );
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
-        id: '',
+        ...dbInfraConfigs[0],
         name,
         value,
-        lastSyncedEnvFileValue: value,
-        isEncrypted: false,
-        createdOn: new Date(),
-        updatedOn: new Date(),
       });
 
       jest.spyOn(helper, 'stopApp').mockReturnValueOnce();
-      const result = await infraConfigService.update(name, value);
+      const result = await infraConfigService.update(
+        name as InfraConfigEnum,
+        value,
+      );
 
       expect(helper.stopApp).not.toHaveBeenCalled();
       expect(result).toEqualRight({ name, value });
     });
 
     it('should update the infra config with backend server restart', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
-      const value = 'true';
+      const name = dbInfraConfigs[0].name;
+      const value = 'newValue';
 
-      // @ts-ignore
-      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
-        isEncrypted: false,
-      });
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce(
+        dbInfraConfigs[0],
+      );
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
-        id: '',
+        ...dbInfraConfigs[0],
         name,
         value,
-        lastSyncedEnvFileValue: value,
-        isEncrypted: false,
-        createdOn: new Date(),
-        updatedOn: new Date(),
       });
       jest.spyOn(helper, 'stopApp').mockReturnValueOnce();
 
-      const result = await infraConfigService.update(name, value, true);
+      const result = await infraConfigService.update(
+        name as InfraConfigEnum,
+        value,
+        true,
+      );
 
       expect(helper.stopApp).toHaveBeenCalledTimes(1);
       expect(result).toEqualRight({ name, value });
     });
 
     it('should update the infra config', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
-      const value = 'true';
+      const name = dbInfraConfigs[0].name;
+      const value = 'newValue';
 
-      // @ts-ignore
-      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
-        isEncrypted: false,
-      });
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce(
+        dbInfraConfigs[0],
+      );
       mockPrisma.infraConfig.update.mockResolvedValueOnce({
-        id: '',
+        ...dbInfraConfigs[0],
         name,
         value,
-        lastSyncedEnvFileValue: value,
-        isEncrypted: false,
-        createdOn: new Date(),
-        updatedOn: new Date(),
       });
       jest.spyOn(helper, 'stopApp').mockReturnValueOnce();
 
-      const result = await infraConfigService.update(name, value);
+      const result = await infraConfigService.update(
+        name as InfraConfigEnum,
+        value,
+      );
       expect(result).toEqualRight({ name, value });
     });
 
     it('should pass correct params to prisma update', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
-      const value = 'true';
+      const name = dbInfraConfigs[0].name;
+      const value = 'newValue';
 
-      // @ts-ignore
-      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce({
-        isEncrypted: false,
-      });
+      mockPrisma.infraConfig.findUnique.mockResolvedValueOnce(
+        dbInfraConfigs[0],
+      );
 
       jest.spyOn(helper, 'stopApp').mockReturnValueOnce();
 
-      await infraConfigService.update(name, value);
+      await infraConfigService.update(name as InfraConfigEnum, value);
 
       expect(mockPrisma.infraConfig.update).toHaveBeenCalledWith({
         where: { name },
@@ -171,19 +163,13 @@ describe('InfraConfigService', () => {
 
   describe('get', () => {
     it('should get the infra config', async () => {
-      const name = InfraConfigEnum.GOOGLE_CLIENT_ID;
-      const value = 'true';
+      const name = dbInfraConfigs[0].name;
+      const value = dbInfraConfigs[0].value;
 
-      mockPrisma.infraConfig.findUniqueOrThrow.mockResolvedValueOnce({
-        id: '',
-        name,
-        value,
-        lastSyncedEnvFileValue: value,
-        isEncrypted: false,
-        createdOn: new Date(),
-        updatedOn: new Date(),
-      });
-      const result = await infraConfigService.get(name);
+      mockPrisma.infraConfig.findUniqueOrThrow.mockResolvedValueOnce(
+        dbInfraConfigs[0],
+      );
+      const result = await infraConfigService.get(name as InfraConfigEnum);
       expect(result).toEqualRight({ name, value });
     });
 

@@ -36,9 +36,8 @@ export class GqlCollectionTeamMemberGuard implements CanActivate {
     const { collectionID } = gqlExecCtx.getArgs<{ collectionID: string }>();
     if (!collectionID) throw new Error(BUG_TEAM_COLL_NO_COLL_ID);
 
-    const collection = await this.teamCollectionService.getCollection(
-      collectionID,
-    );
+    const collection =
+      await this.teamCollectionService.getCollection(collectionID);
     if (E.isLeft(collection)) throw new Error(TEAM_INVALID_COLL_ID);
 
     const member = await this.teamService.getTeamMember(

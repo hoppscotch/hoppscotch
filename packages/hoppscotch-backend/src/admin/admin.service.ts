@@ -12,7 +12,6 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
-  TEAM_INVITE_NO_INVITE_FOUND,
   USERS_NOT_FOUND,
   USER_ALREADY_INVITED,
   USER_INVITATION_DELETION_FAILED,
@@ -464,7 +463,7 @@ export class AdminService {
     });
 
     const nonAdminUsers = allUsersList.filter((user) => !user.isAdmin);
-    let deletedUserEmails: string[] = [];
+    const deletedUserEmails: string[] = [];
 
     // step 3: delete non-admin users
     const deletionPromises = nonAdminUsers.map((user) => {

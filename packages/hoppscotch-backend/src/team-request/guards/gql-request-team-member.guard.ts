@@ -36,9 +36,8 @@ export class GqlRequestTeamMemberGuard implements CanActivate {
     const { requestID } = gqlExecCtx.getArgs<{ requestID: string }>();
     if (!requestID) throw new Error(BUG_TEAM_REQ_NO_REQ_ID);
 
-    const team = await this.teamRequestService.getTeamOfRequestFromID(
-      requestID,
-    );
+    const team =
+      await this.teamRequestService.getTeamOfRequestFromID(requestID);
     if (O.isNone(team)) throw new Error(TEAM_REQ_NOT_FOUND);
 
     const member = await this.teamService.getTeamMember(

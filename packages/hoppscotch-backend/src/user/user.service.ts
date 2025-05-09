@@ -26,7 +26,7 @@ import { TeamAccessRole } from 'src/team/team.model';
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
+    private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
 

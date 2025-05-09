@@ -94,9 +94,8 @@ export class TeamCollectionResolver {
     @Args({ name: 'teamID', description: 'ID of the team', type: () => ID })
     teamID: string,
   ) {
-    const jsonString = await this.teamCollectionService.exportCollectionsToJSON(
-      teamID,
-    );
+    const jsonString =
+      await this.teamCollectionService.exportCollectionsToJSON(teamID);
 
     if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
     return jsonString.right;
@@ -167,9 +166,8 @@ export class TeamCollectionResolver {
     })
     collectionID: string,
   ) {
-    const teamCollections = await this.teamCollectionService.getCollection(
-      collectionID,
-    );
+    const teamCollections =
+      await this.teamCollectionService.getCollection(collectionID);
 
     if (E.isLeft(teamCollections)) throwErr(teamCollections.left);
     return <TeamCollection>{
@@ -307,9 +305,8 @@ export class TeamCollectionResolver {
     })
     collectionID: string,
   ) {
-    const result = await this.teamCollectionService.deleteCollection(
-      collectionID,
-    );
+    const result =
+      await this.teamCollectionService.deleteCollection(collectionID);
 
     if (E.isLeft(result)) throwErr(result.left);
     return result.right;

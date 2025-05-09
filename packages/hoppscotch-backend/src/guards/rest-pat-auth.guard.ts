@@ -36,9 +36,7 @@ export class PATAuthGuard implements CanActivate {
     const today = DateTime.now().toISO();
     if (accessToken.expiresOn.toISOString() > today) return true;
 
-    throw new BadRequestException(
-      createCLIErrorResponse(ACCESS_TOKEN_EXPIRED),
-    );
+    throw new BadRequestException(createCLIErrorResponse(ACCESS_TOKEN_EXPIRED));
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

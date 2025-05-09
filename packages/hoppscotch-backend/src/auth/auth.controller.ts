@@ -204,7 +204,7 @@ export class AuthController {
     if (!redirectUri || !redirectUri.startsWith('http://localhost')) {
       throwHTTPErr({
         message: 'Invalid desktop callback URL',
-        statusCode: 400
+        statusCode: 400,
       });
     }
 

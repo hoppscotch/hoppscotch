@@ -33,6 +33,8 @@ import { HealthModule } from './health/health.module';
 import { AccessTokenModule } from './access-token/access-token.module';
 import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.interceptor';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { PubSubModule } from './pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -99,6 +101,8 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
         },
       ],
     }),
+    PrismaModule,
+    PubSubModule,
     MailerModule.register(),
     UserModule,
     AuthModule.register(),

@@ -4,8 +4,12 @@ import {
   HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import {
+  SandboxTestResult,
+  TestDescriptor,
+  TestResponse,
+  TestResult,
+} from "@hoppscotch/js-sandbox"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
@@ -44,6 +48,8 @@ import {
   getTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
+
+import SandboxWorker from "./sandbox.worker?worker"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 
@@ -170,6 +176,28 @@ const filterNonEmptyEnvironmentVariables = (
   })
 
   return Array.from(envsMap.values())
+}
+
+const runTestScript = (
+  testScript: string,
+  envs: TestResult["envs"],
+  response: TestResponse
+): Promise<E.Either<string, SandboxTestResult>> => {
+  return new Promise((resolve) => {
+    const worker = new SandboxWorker()
+
+    // Listen for the results from the web worker
+    worker.addEventListener("message", (event: MessageEvent) =>
+      resolve(event.data.results)
+    )
+
+    // Send the script to the web worker
+    worker.postMessage({
+      testScript,
+      envs,
+      response,
+    })
+  })
 }
 
 export function runRESTRequest$(

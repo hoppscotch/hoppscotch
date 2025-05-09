@@ -1,27 +1,45 @@
 import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
 
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
 
-import Worker from "./worker?worker&inline"
+import asyncWasmLocation from "@jitl/quickjs-wasmfile-release-asyncify?url"
+import { FaradayCage } from "faraday-cage"
+import {
+  blobPolyfill,
+  console as ConsoleModule,
+  esmModuleLoader,
+} from "faraday-cage/modules"
+import { getTestRunnerScriptMethods } from "~/shared-utils"
 
-export const runTestScript = (
-  testScript: string,
+export const runTestScript = async (
+  _testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  _response: TestResponse,
 ): Promise<E.Either<string, SandboxTestResult>> => {
-  return new Promise((resolve) => {
-    const worker = new Worker()
+  const cage = await FaradayCage.create()
+  await cage.runCode(
+    `
+    console.log('Hello from the sandbox!')
+      import isEven from "https://esm.sh/is-even"
 
-    // Listen for the results from the web worker
-    worker.addEventListener("message", (event: MessageEvent) =>
-      resolve(event.data.results)
-    )
+      console.log(isEven(1))
+    `,
+    [
+      blobPolyfill,
+      esmModuleLoader,
+      ConsoleModule({
+        // onLog(...args) {
+        //   console.log(...args)
+        // },
+      }),
+    ],
+  )
 
-    // Send the script to the web worker
-    worker.postMessage({
-      testScript,
-      envs,
-      response,
-    })
-  })
+  const { testRunStack, updatedEnvs } = getTestRunnerScriptMethods(envs)
+
+  return TE.right(<SandboxTestResult>{
+    tests: testRunStack[0],
+    envs: updatedEnvs,
+  })()
 }

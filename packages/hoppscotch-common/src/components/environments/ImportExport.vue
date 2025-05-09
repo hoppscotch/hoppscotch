@@ -170,7 +170,7 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
     disabled: false,
   },
   component: FileSource({
-    acceptedFileTypes: "application/json",
+    acceptedFileTypes: ".json, .yaml, .yml",
     caption: "import.insomnia_environment_description",
     onImportFromFile: async (environments) => {
       isInsomniaImporterInProgress.value = true
@@ -362,8 +362,8 @@ const handleImportToStore = async (
 ) => {
   // Add global envs to the store
   globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, value, secret }) => {
-      addGlobalEnvVariable({ key, value, secret })
+    variables.forEach(({ key, initialValue, currentValue, secret }) => {
+      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
     })
   })
 

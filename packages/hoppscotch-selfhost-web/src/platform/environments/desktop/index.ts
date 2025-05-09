@@ -84,7 +84,7 @@ async function loadUserEnvironments() {
       runDispatchWithOutSyncing(() => {
         replaceEnvironments(
           environments.map(({ id, variables, name }) => ({
-            v: 1,
+            v: 2,
             id,
             name,
             variables: JSON.parse(variables),
@@ -176,7 +176,7 @@ function setupUserEnvironmentUpdatedSubscription() {
         if ((localIndex || localIndex == 0) && name) {
           runDispatchWithOutSyncing(() => {
             updateEnvironment(localIndex, {
-              v: 1,
+              v: 2,
               id,
               name,
               variables: JSON.parse(variables),

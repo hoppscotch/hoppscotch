@@ -52,11 +52,12 @@ export const postmanEnvImporter = (contents: string[]) => {
   const environments: Environment[] = validationResult.data.map(
     ({ name, values }) => ({
       id: uniqueID(),
-      v: 1,
+      v: 2,
       name,
       variables: values.map(({ key, value, type }) => ({
         key,
-        value,
+        initialValue: value,
+        currentValue: value,
         secret: type === "secret",
       })),
     })

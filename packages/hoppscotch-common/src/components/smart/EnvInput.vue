@@ -374,11 +374,13 @@ const envVars = computed(() => {
   if (props.envs) {
     return props.envs.map((x) => {
       const { key, secret } = x
-      const value = secret ? "********" : x.value
+      const currentValue = secret ? "********" : x.currentValue
+      const initialValue = secret ? "********" : x.initialValue
       const sourceEnv = "sourceEnv" in x ? x.sourceEnv : null
       return {
         key,
-        value,
+        currentValue,
+        initialValue,
         sourceEnv,
         secret,
       }
@@ -393,12 +395,14 @@ const envVars = computed(() => {
         ? tabs.currentActiveTab.value.document.request.requestVariables
         : []
 
+  // Transform request variables to match the env format
   return [
     ...requestVariables.map(({ active, key, value }) =>
       active
         ? {
             key,
-            value,
+            currentValue: value,
+            initialValue: value,
             sourceEnv: "RequestVariable",
             secret: false,
           }
@@ -412,7 +416,7 @@ function envAutoCompletion(context: CompletionContext) {
   const options = (envVars.value ?? [])
     .map((env) => ({
       label: env?.key ? `<<${env.key}>>` : "",
-      info: env?.value ?? "",
+      info: env?.currentValue ?? "",
       apply: env?.key ? `<<${env.key}>>` : "",
     }))
     .filter(Boolean)
@@ -539,6 +543,7 @@ const getExtensions = (readonly: boolean): Extension => {
           override: [envAutoCompletion],
         })
       : [],
+
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {

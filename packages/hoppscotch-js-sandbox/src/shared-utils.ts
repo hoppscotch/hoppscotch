@@ -39,16 +39,18 @@ const setEnv = (
 
   if (indexInSelected >= 0) {
     const selectedEnv = selected[indexInSelected]
-    if ("value" in selectedEnv) {
-      selectedEnv.value = envValue
+    if ("currentValue" in selectedEnv) {
+      selectedEnv.currentValue = envValue
     }
   } else if (indexInGlobal >= 0) {
-    if ("value" in global[indexInGlobal])
-      (global[indexInGlobal] as { value: string }).value = envValue
+    if ("currentValue" in global[indexInGlobal])
+      (global[indexInGlobal] as { currentValue: string }).currentValue =
+        envValue
   } else {
     selected.push({
       key: envName,
-      value: envValue,
+      currentValue: envValue,
+      initialValue: envValue,
       secret: false,
     })
   }
@@ -93,7 +95,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       O.fold(
         () => undefined,
-        (env) => String(env.value)
+        (env) => String(env.currentValue)
       )
     )
 
@@ -111,11 +113,11 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE(e.value, [
+          parseTemplateStringE(e.currentValue, [
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
           ]), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.value)
+          E.getOrElse(() => e.currentValue)
         )
       ),
       E.map((x) => String(x)),

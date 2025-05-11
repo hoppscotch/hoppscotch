@@ -92,8 +92,8 @@
     "REQUEST_DELETE": "Binura ang request {title}"
   },
   "add": {
-    "new": "Add new",
-    "star": "Add star"
+    "new": "Magdagdag ng bago",
+    "star": "Magdagdag ng star"
   },
   "agent": {
     "registration_instruction": "Mangyari lamang na i-registrer ang Hoppscotch Agent sa iyong web client upang magpatuloy.",

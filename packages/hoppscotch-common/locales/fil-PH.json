@@ -334,7 +334,7 @@
   },
   "count": {
     "header": "Header {count}",
-    "message": "Message {count}",
+    "message": "Mensahe {count}",
     "parameter": "Parameter {count}",
     "key": "Key {count}",
     "description": "Description {count}",

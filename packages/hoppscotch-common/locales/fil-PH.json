@@ -189,12 +189,12 @@
     "we_sent_magic_link_description": "I-check ang iyong inbox - nagpadala kami ng email sa {email}. Mayroon itong magic link na pwedeng gamitin para makapag log in."
   },
   "authorization": {
-    "generate_token": "Generate Token",
-    "refresh_token": "Refresh Token",
-    "graphql_headers": "Authorization Headers are sent as part of the payload to connection_init",
-    "include_in_url": "Include in URL",
-    "inherited_from": "Inherited {auth} from parent collection {collection} ",
-    "learn": "Learn how",
+    "generate_token": "Mag-generate ng Token",
+    "refresh_token": "I-refresh ang Token",
+    "graphql_headers": "Ipinadala ang Authorization Headers bilang parte ng payload same connection_init",
+    "include_in_url": "Isama sa URL",
+    "inherited_from": "Minana ang {auth} mula sa parent koleksyon {collection} ",
+    "learn": "Alamin kung paano",
     "oauth": {
       "redirect_auth_server_returned_error": "Auth Server returned an error state",
       "redirect_auth_token_request_failed": "Request to get the auth token failed",

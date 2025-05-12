@@ -150,7 +150,7 @@ export const parseCurlCommand = (curlCommand: string) => {
     hasBodyBeenParsed = true
   }
 
-  const urlString = decodeURIComponent(concatParams(urlObject, danglingParams))
+  const urlString = concatParams(urlObject, danglingParams)
 
   let multipartUploads: Record<string, string> = pipe(
     O.of(parsedArguments),

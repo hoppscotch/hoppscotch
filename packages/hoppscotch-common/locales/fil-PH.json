@@ -310,9 +310,9 @@
     "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
   },
   "context_menu": {
-    "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "add_parameters": "Idagdag sa mga parameter",
+    "open_request_in_new_tab": "Buksan ang request sa bagong tab",
+    "set_environment_variable": "I-set bilang variable"
   },
   "cookies": {
     "modal": {

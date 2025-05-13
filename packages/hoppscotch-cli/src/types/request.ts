@@ -37,4 +37,5 @@ export type ProcessRequestParams = {
   envs: HoppEnvs;
   path: string;
   delay: number;
+  legacySandbox: boolean;
 };

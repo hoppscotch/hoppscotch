@@ -1,15 +1,24 @@
+import { FaradayCage } from "faraday-cage"
+import {
+  blobPolyfill,
+  console as ConsoleModule,
+  crypto,
+  esmModuleLoader,
+  fetch,
+} from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { createRequire } from "module"
-
 import type ivmT from "isolated-vm"
+import { cloneDeep } from "lodash"
+import { createRequire } from "module"
+import { pwPostRequestModule } from "~/cage-modules/pw"
 
-import { TestResponse, TestResult } from "~/types"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
 } from "~/shared-utils"
+import { TestDescriptor, TestResponse, TestResult } from "~/types"
 import { getSerializedAPIMethods } from "./utils"
 
 const nodeRequire = createRequire(import.meta.url)
@@ -18,42 +27,133 @@ const ivm = nodeRequire("isolated-vm")
 export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
-): TE.TaskEither<string, TestResult> =>
-  pipe(
-    TE.tryCatch(
-      async () => {
-        const isolate: ivmT.Isolate = new ivm.Isolate()
-        const context = await isolate.createContext()
-        return { isolate, context }
-      },
-      (reason) => `Context initialization failed: ${reason}`
-    ),
-    TE.chain(({ isolate, context }) =>
-      pipe(
-        TE.tryCatch(
-          async () =>
-            executeScriptInContext(
-              testScript,
-              envs,
-              response,
-              isolate,
-              context
-            ),
-          (reason) => `Script execution failed: ${reason}`
-        ),
-        TE.chain((result) =>
+  response: TestResponse,
+  experimentalScriptingSandbox = true
+): TE.TaskEither<string, TestResult> => {
+  const responseObjHandle = preventCyclicObjects(response)
+
+  if (E.isLeft(responseObjHandle)) {
+    return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
+  }
+
+  if (!experimentalScriptingSandbox) {
+    return pipe(
+      TE.tryCatch(
+        async () => {
+          const isolate: ivmT.Isolate = new ivm.Isolate()
+          const context = await isolate.createContext()
+          return { isolate, context }
+        },
+        (reason) => `Context initialization failed: ${reason}`
+      ),
+      TE.chain(({ isolate, context }) =>
+        pipe(
           TE.tryCatch(
-            async () => {
-              await isolate.dispose()
-              return result
-            },
-            (disposeReason) => `Isolate disposal failed: ${disposeReason}`
+            async () =>
+              executeScriptInContext(
+                testScript,
+                envs,
+                response,
+                isolate,
+                context
+              ),
+            (reason) => `Script execution failed: ${reason}`
+          ),
+          TE.chain((result) =>
+            TE.tryCatch(
+              async () => {
+                await isolate.dispose()
+                return result
+              },
+              (disposeReason) => `Isolate disposal failed: ${disposeReason}`
+            )
           )
         )
       )
     )
+  }
+
+  return pipe(
+    TE.tryCatch(
+      async (): Promise<TestResult> => {
+        const testRunStack: TestDescriptor[] = [
+          { descriptor: "root", expectResults: [], children: [] },
+        ]
+
+        let finalEnvs = envs
+        let finalTestResults = testRunStack
+
+        const cage = await FaradayCage.create()
+
+        const result = await cage.runCode(testScript, [
+          pwPostRequestModule({
+            envs: cloneDeep(envs),
+            testRunStack: cloneDeep(testRunStack),
+            response,
+            handleSandboxResults: ({ envs, testRunStack }) => {
+              finalEnvs = envs
+              finalTestResults = testRunStack
+            },
+          }),
+          blobPolyfill,
+          ConsoleModule({
+            onLog(...args) {
+              console[args[0]](...args)
+            },
+            onCount(...args) {
+              console.count(args[0])
+            },
+            onTime(...args) {
+              console.timeEnd(args[0])
+            },
+            onTimeLog(...args) {
+              console.timeLog(...args)
+            },
+            onGroup(...args) {
+              console.group(...args)
+            },
+            onGroupEnd(...args) {
+              console.groupEnd(...args)
+            },
+            onClear(...args) {
+              console.clear(...args)
+            },
+            onAssert(...args) {
+              console.assert(...args)
+            },
+            onDir(...args) {
+              console.dir(...args)
+            },
+            onTable(...args) {
+              console.table(...args)
+            },
+          }),
+          crypto(),
+          esmModuleLoader,
+          fetch(),
+        ])
+
+        if (result.type === "error") {
+          throw result.err
+        }
+
+        return {
+          tests: finalTestResults,
+          envs: finalEnvs,
+        }
+      },
+      (error) => {
+        if (error !== null && typeof error === "object" && "message" in error) {
+          const reason = `${"name" in error ? error.name : ""}: ${error.message}`
+          return `Script execution failed: ${reason}`
+        }
+
+        return `Script execution failed: ${String(error)}`
+      }
+    )
   )
+}
+
 const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],

@@ -5,6 +5,7 @@ import { pipe } from "fp-ts/lib/function"
 import { cloneDeep } from "lodash-es"
 
 import {
+  Expectation,
   GlobalEnvItem,
   SelectedEnvItem,
   TestDescriptor,
@@ -83,7 +84,7 @@ const unsetEnv = (
 }
 
 // Compiles shared scripting API methods for use in both pre and post request scripts
-const getSharedMethods = (envs: TestResult["envs"]) => {
+export const getSharedMethods = (envs: TestResult["envs"]) => {
   let updatedEnvs = envs
 
   const envGetFn = (key: any) => {
@@ -242,9 +243,7 @@ export const createExpectation = (
   expectVal: any,
   negated: boolean,
   currTestStack: TestDescriptor[]
-) => {
-  const result: Record<string, unknown> = {}
-
+): Expectation => {
   // Non-primitive values supplied are stringified in the isolate context
   const resolvedExpectVal = getResolvedExpectValue(expectVal)
 
@@ -445,14 +444,16 @@ export const createExpectation = (
     return undefined
   }
 
-  result.toBe = toBeFn
-  result.toBeLevel2xx = toBeLevel2xxFn
-  result.toBeLevel3xx = toBeLevel3xxFn
-  result.toBeLevel4xx = toBeLevel4xxFn
-  result.toBeLevel5xx = toBeLevel5xxFn
-  result.toBeType = toBeTypeFn
-  result.toHaveLength = toHaveLengthFn
-  result.toInclude = toIncludeFn
+  const result = {
+    toBe: toBeFn,
+    toBeLevel2xx: toBeLevel2xxFn,
+    toBeLevel3xx: toBeLevel3xxFn,
+    toBeLevel4xx: toBeLevel4xxFn,
+    toBeLevel5xx: toBeLevel5xxFn,
+    toBeType: toBeTypeFn,
+    toHaveLength: toHaveLengthFn,
+    toInclude: toIncludeFn,
+  } as Expectation
 
   Object.defineProperties(result, {
     not: {

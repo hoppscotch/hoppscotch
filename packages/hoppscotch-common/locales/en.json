@@ -956,6 +956,7 @@
     "ai_request_naming_style_pascal_case": "Pascal Case ( PascalCase )",
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
+    "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",
@@ -1851,5 +1852,9 @@
       "update_billing_cycle": "Are you sure you want to update the billing cycle to {newBillingCycle}?"
     },
     "cancel_subscription": "Cancel subscription"
+  },
+  "app_console": {
+    "entries": "Console entries",
+    "no_entries": "No entries"
   }
 }

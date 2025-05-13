@@ -1,6 +1,14 @@
 import * as E from "fp-ts/Either"
 import { expect } from "vitest"
 
+globalThis.Worker = class {
+  constructor() {}
+  postMessage = () => {}
+  terminate = () => {}
+  onmessage = null
+  onerror = null
+} as any
+
 expect.extend({
   toBeLeft(received, expected) {
     const { isNot } = this

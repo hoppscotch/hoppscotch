@@ -4,8 +4,12 @@ import {
   HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import {
+  SandboxPreRequestResult,
+  SandboxTestResult,
+  TestDescriptor,
+  TestResult,
+} from "@hoppscotch/js-sandbox"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
@@ -15,6 +19,9 @@ import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
 
+import { map } from "fp-ts/Either"
+
+import { runTestScript } from "@hoppscotch/js-sandbox/web"
 import { getService } from "~/modules/dioc"
 import {
   environmentsStore,
@@ -31,15 +38,8 @@ import {
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
-import {
-  getCombinedEnvVariables,
-  getFinalEnvsFromPreRequest,
-} from "./preRequest"
+import { getFinalEnvsFromPreRequest } from "./preRequest"
 import { HoppRequestDocument } from "./rest/document"
-import { HoppRESTResponse } from "./types/HoppRESTResponse"
-import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
-import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
-import { isJSONContentType } from "./utils/contenttypes"
 import {
   getTemporaryVariables,
   setTemporaryVariables,
@@ -48,9 +48,30 @@ import {
   CurrentValueService,
   Variable,
 } from "~/services/current-environment-value.service"
+import { HoppRESTResponse } from "./types/HoppRESTResponse"
+import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
+import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
+import { isJSONContentType } from "./utils/contenttypes"
+import { getCombinedEnvVariables } from "./utils/environments"
+import { useSetting } from "~/composables/settings"
+import {
+  OutgoingSandboxPostRequestWorkerMessage,
+  OutgoingSandboxPreRequestWorkerMessage,
+} from "./workers/sandbox.worker"
+
+const sandboxWorker = new Worker(
+  new URL("./workers/sandbox.worker.ts", import.meta.url),
+  {
+    type: "module",
+  }
+)
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
 
 export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -226,6 +247,88 @@ const filterNonEmptyEnvironmentVariables = (
   return Array.from(envsMap.values())
 }
 
+const runPreRequestScript = (
+  script: string,
+  envs: {
+    global: Environment["variables"]
+    selected: Environment["variables"]
+    temp: Environment["variables"]
+  }
+): Promise<E.Either<string, SandboxPreRequestResult>> => {
+  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
+    return getFinalEnvsFromPreRequest(script, envs, false)
+  }
+
+  return new Promise((resolve) => {
+    const handleMessage = (
+      event: MessageEvent<OutgoingSandboxPreRequestWorkerMessage>
+    ) => {
+      if (event.data.type === "PRE_REQUEST_SCRIPT_ERROR") {
+        const error =
+          event.data.data instanceof Error
+            ? event.data.data.message
+            : String(event.data.data)
+
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(E.left(error))
+      }
+
+      if (event.data.type === "PRE_REQUEST_SCRIPT_RESULT") {
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(event.data.data)
+      }
+    }
+
+    sandboxWorker.addEventListener("message", handleMessage)
+
+    sandboxWorker.postMessage({
+      type: "pre",
+      script,
+      envs,
+    })
+  })
+}
+
+const runPostRequestScript = (
+  script: string,
+  envs: TestResult["envs"],
+  response: HoppRESTResponse
+): Promise<E.Either<string, SandboxTestResult>> => {
+  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
+    return runTestScript(script, envs, response, false)
+  }
+
+  return new Promise((resolve) => {
+    const handleMessage = (
+      event: MessageEvent<OutgoingSandboxPostRequestWorkerMessage>
+    ) => {
+      if (event.data.type === "POST_REQUEST_SCRIPT_ERROR") {
+        const error =
+          event.data.data instanceof Error
+            ? event.data.data.message
+            : String(event.data.data)
+
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(E.left(error))
+      }
+
+      if (event.data.type === "POST_REQUEST_SCRIPT_RESULT") {
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(event.data.data)
+      }
+    }
+
+    sandboxWorker.addEventListener("message", handleMessage)
+
+    sandboxWorker.postMessage({
+      type: "post",
+      script,
+      envs,
+      response,
+    })
+  })
+}
+
 export function runRESTRequest$(
   tab: Ref<HoppTab<HoppRequestDocument>>
 ): [
@@ -243,14 +346,14 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const res = getFinalEnvsFromPreRequest(
+  const res = runPreRequestScript(
     tab.value.document.request.preRequestScript,
     getCombinedEnvVariables()
-  ).then(async (envs) => {
+  ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
-    if (E.isLeft(envs)) {
-      console.error(envs.left)
+    if (E.isLeft(preRequestScriptResult)) {
+      console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
     }
 
@@ -302,7 +405,7 @@ export function runRESTRequest$(
 
     const finalEnvs = {
       requestVariables: finalRequestVariables as Environment["variables"],
-      environments: envs.right,
+      environments: preRequestScriptResult.right.envs,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
@@ -326,9 +429,9 @@ export function runRESTRequest$(
         if (res.type === "success" || res.type === "fail") {
           executedResponses$.next(res)
 
-          const runResult = await runTestScript(
+          const postRequestScriptResult = await runPostRequestScript(
             res.req.testScript,
-            envs.right,
+            preRequestScriptResult.right.envs,
             {
               status: res.statusCode,
               body: getTestableBody(res),
@@ -336,13 +439,26 @@ export function runRESTRequest$(
             }
           )
 
-          if (E.isRight(runResult)) {
+          if (E.isRight(postRequestScriptResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
-            tab.value.document.testResults = translateToSandboxTestResults(
-              runResult.right
-            )
-            updateEnvsAfterTestScript(runResult)
+
+            // Combine console entries from pre and post request scripts
+            const combinedResult = pipe(
+              postRequestScriptResult,
+              map((result) => ({
+                ...result,
+                consoleEntries: [
+                  ...(preRequestScriptResult.right.consoleEntries ?? []),
+                  ...(result.consoleEntries ?? []),
+                ],
+              }))
+            ) as E.Right<SandboxTestResult>
+
+            const updatedRunResult = updateEnvsAfterTestScript(combinedResult)
+
+            tab.value.document.testResults =
+              translateToSandboxTestResults(updatedRunResult)
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -361,6 +477,7 @@ export function runRESTRequest$(
                 },
               },
               scriptError: true,
+              consoleEntries: [],
             }
           }
 
@@ -452,12 +569,12 @@ export function runTestRunnerRequest(
     }>
   | undefined
 > {
-  return getFinalEnvsFromPreRequest(
+  return runPreRequestScript(
     request.preRequestScript,
     getCombinedEnvVariables()
-  ).then(async (envs) => {
-    if (E.isLeft(envs)) {
-      console.error(envs.left)
+  ).then(async (preRequestScriptResult) => {
+    if (E.isLeft(preRequestScriptResult)) {
+      console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
     }
 
@@ -467,7 +584,7 @@ export function runTestRunnerRequest(
       name: "Env",
       variables: combineEnvVariables({
         environments: {
-          ...envs.right,
+          ...preRequestScriptResult.right.envs,
           temp: !persistEnv ? getTemporaryVariables() : [],
         },
         requestVariables: [],
@@ -483,9 +600,9 @@ export function runTestRunnerRequest(
         if (res?.type === "success" || res?.type === "fail") {
           executedResponses$.next(res)
 
-          const runResult = await runTestScript(
+          const postRequestScriptResult = await runPostRequestScript(
             res.req.testScript,
-            envs.right,
+            preRequestScriptResult.right.envs,
             {
               status: res.statusCode,
               body: getTestableBody(res),
@@ -493,19 +610,27 @@ export function runTestRunnerRequest(
             }
           )
 
-          if (E.isRight(runResult)) {
-            const sandboxTestResult = translateToSandboxTestResults(
-              runResult.right
-            )
+          if (E.isRight(postRequestScriptResult)) {
+            // Combine console entries from pre and post request scripts
+            const combinedResult = {
+              ...postRequestScriptResult.right,
+              consoleEntries: [
+                ...(preRequestScriptResult.right.consoleEntries ?? []),
+                ...(postRequestScriptResult.right.consoleEntries ?? []),
+              ],
+            }
+
+            const sandboxTestResult =
+              translateToSandboxTestResults(combinedResult)
 
             // Update the environment variables after running the test script when persistEnv is true. else store the updated environment variables in the store as a temporary variable.
             if (persistEnv) {
-              updateEnvsAfterTestScript(runResult)
+              updateEnvsAfterTestScript(postRequestScriptResult)
             } else {
               // Combine global and selected environment changes
               const allChanges = [
-                ...runResult.right.envs.global,
-                ...runResult.right.envs.selected,
+                ...postRequestScriptResult.right.envs.global,
+                ...postRequestScriptResult.right.envs.selected,
               ]
 
               setTemporaryVariables(allChanges)
@@ -533,6 +658,7 @@ export function runTestRunnerRequest(
               },
             },
             scriptError: true,
+            consoleEntries: [],
           }
           return E.right({
             response: res,
@@ -631,5 +757,6 @@ function translateToSandboxTestResults(
         updations: getUpdatedEnvVariables(envVars, testDesc.envs.selected),
       },
     },
+    consoleEntries: testDesc.consoleEntries,
   }
 }

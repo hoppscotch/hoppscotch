@@ -43,6 +43,9 @@ export default defineConfig({
       maxParallelFileOps: 2,
     },
   },
+  worker: {
+    format: "es",
+  },
   resolve: {
     alias: {
       "tailwind.config.cjs": path.resolve(

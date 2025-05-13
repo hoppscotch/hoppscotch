@@ -35,8 +35,12 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
+<<<<<<< HEAD
 import { calculateHawkHeader } from "@hoppscotch/data"
 
+=======
+import { parseUrlAndPath } from "./uri"
+>>>>>>> 086f2a24 (fix(EffectiveURL.ts): reused a utility function, parseUrlAndPath, and removed my regex)
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -719,7 +723,7 @@ export async function getEffectiveRESTRequest(
   return {
     ...request,
     effectiveFinalURL: parseTemplateString(
-      request.endpoint,
+      parseUrlAndPath(request.endpoint).url,
       environment.variables,
       false,
       showKeyIfSecret

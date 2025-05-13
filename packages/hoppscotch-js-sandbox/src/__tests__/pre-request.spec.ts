@@ -18,7 +18,12 @@ describe("runPreRequestScript", () => {
               initialValue: "oldbob",
               secret: false,
             },
-            { key: "foo", value: "bar", secret: false },
+            {
+              key: "foo",
+              currentValue: "bar",
+              initialValue: "bar",
+              secret: false,
+            },
           ],
         }
       )()
@@ -28,7 +33,7 @@ describe("runPreRequestScript", () => {
         {
           key: "bob",
           currentValue: "newbob",
-          initialValue: "newbob",
+          initialValue: "oldbob",
           secret: false,
         },
         {

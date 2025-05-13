@@ -49,7 +49,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             currentValue: "c",
-            initialValue: "c",
+            initialValue: "b",
             secret: false,
           },
         ],
@@ -81,7 +81,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             currentValue: "c",
-            initialValue: "c",
+            initialValue: "b",
             secret: false,
           },
         ],
@@ -128,7 +128,7 @@ describe("pw.env.set", () => {
           {
             key: "a",
             currentValue: "c",
-            initialValue: "c",
+            initialValue: "d",
             secret: false,
           },
         ],

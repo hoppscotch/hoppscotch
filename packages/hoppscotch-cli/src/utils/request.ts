@@ -42,8 +42,10 @@ const processVariables = (variable: Environment["variables"][number]) => {
   if (variable.secret) {
     return {
       ...variable,
-      value:
-        "value" in variable ? variable.value : process.env[variable.key] || "",
+      currentValue:
+        "currentValue" in variable && variable.currentValue !== ""
+          ? variable.currentValue
+          : process.env[variable.key] || "",
     };
   }
   return variable;

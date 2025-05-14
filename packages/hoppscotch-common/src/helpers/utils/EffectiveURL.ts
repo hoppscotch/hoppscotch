@@ -248,7 +248,14 @@ export const getComputedAuthHeaders = async (
       })
     }
   } else if (request.auth.authType === "hawk") {
-    const { method, endpoint } = req as HoppRESTRequest
+    const { method, endpoint, body } = req as HoppRESTRequest
+
+    // Get the body content for payload hash calculation
+    const payload = getFinalBodyFromRequest(
+      req as HoppRESTRequest,
+      envVars,
+      showKeyIfSecret
+    )
 
     const hawkHeader = await calculateHawkHeader({
       url: parseTemplateString(endpoint, envVars), // URL
@@ -256,6 +263,10 @@ export const getComputedAuthHeaders = async (
       id: parseTemplateString(request.auth.authId, envVars),
       key: parseTemplateString(request.auth.authKey, envVars),
       algorithm: request.auth.algorithm,
+
+      // Add content type and payload
+      contentType: body.contentType,
+      payload,
 
       // advanced parameters (optional)
       includePayloadHash: request.auth.includePayloadHash,
@@ -608,7 +619,8 @@ function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? x.value.map((v) => ({
+          ? // @ts-expect-error TODO: Fix this type error
+            x.value.map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
               contentType: x.contentType,

@@ -73,6 +73,88 @@ let i18nInstance: I18n<
   true
 > | null = null
 
+// Store additional message registrations keyed by locale
+const additionalMessages: Record<string, Record<string, unknown>[]> = {}
+
+/**
+ * Register additional i18n messages for a specific locale.
+ * This allows other packages to extend the translations of the common package.
+ *
+ * @param locale The locale code to extend (e.g., 'en', 'fr', etc.)
+ * @param messages The additional messages to merge with existing translations
+ */
+export const registerAdditionalMessages = (
+  locale: string,
+  messages: Record<string, unknown>
+): void => {
+  if (!additionalMessages[locale]) {
+    additionalMessages[locale] = []
+  }
+
+  additionalMessages[locale].push(messages)
+
+  // If i18n is already initialized, merge the messages immediately
+  if (i18nInstance && i18nInstance.global.availableLocales.includes(locale)) {
+    mergeAdditionalMessages(locale)
+  }
+}
+
+/**
+ * Merge all registered additional messages for a locale with the base messages
+ *
+ * @param locale The locale code to merge messages for
+ */
+const mergeAdditionalMessages = (locale: string): void => {
+  if (
+    !i18nInstance ||
+    !additionalMessages[locale] ||
+    additionalMessages[locale].length === 0
+  ) {
+    return
+  }
+
+  // Get current messages for the locale
+  const currentMessages = i18nInstance.global.getLocaleMessage(locale)
+
+  // Deep merge additional messages with current messages
+  const newMessages = additionalMessages[locale].reduce(
+    (acc, messages) => deepMergeMessages(acc, messages),
+    { ...currentMessages }
+  )
+
+  // Update the locale messages
+  i18nInstance.global.setLocaleMessage(locale, newMessages)
+}
+
+/**
+ * Deep merge two message objects
+ */
+const deepMergeMessages = (
+  target: Record<string, unknown>,
+  source: Record<string, unknown>
+): Record<string, unknown> => {
+  const result = { ...target }
+
+  for (const key in source) {
+    if (
+      key in target &&
+      typeof target[key] === "object" &&
+      typeof source[key] === "object" &&
+      target[key] !== null &&
+      source[key] !== null
+    ) {
+      result[key] = deepMergeMessages(
+        target[key] as Record<string, unknown>,
+        source[key] as Record<string, unknown>
+      )
+    } else {
+      result[key] = source[key]
+    }
+  }
+
+  return result
+}
+
 const resolveCurrentLocale = async () =>
   pipe(
     // Resolve from locale and make sure it is in languages
@@ -121,6 +203,9 @@ export const changeAppLanguage = async (locale: string) => {
   }
 
   i18nInstance.global.setLocaleMessage(locale, localeData)
+
+  // Apply any additional messages for this locale
+  mergeAdditionalMessages(locale)
 
   // TODO: Look into the type issues here
   i18nInstance.global.locale.value = locale

@@ -41,7 +41,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  console.log(`Running in production:  ${configService.get('PRODUCTION')}`);
+  console.log(`Running in production: ${configService.get('PRODUCTION')}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
   checkEnvironmentAuthProvider(
@@ -62,19 +62,19 @@ async function bootstrap() {
     }),
   );
 
-if (configService.get('PRODUCTION') === 'false') { 
-  console.log('Enabling CORS with development settings'); 
-  app.enableCors({
-    origin: configService.get('DEV_WHITELISTED_ORIGINS').split(','), 
-    credentials: true,
-  }); 
-} else { 
-  console.log('Enabling CORS with production settings'); 
-  app.enableCors({
-    origin: configService.get('PROD_WHITELISTED_ORIGINS'), 
-    credentials: true,
-  });
-}
+  if (configService.get('PRODUCTION') === 'true') {
+    console.log('Enabling CORS with production settings');
+    app.enableCors({
+      origin: configService.get('WHITELISTED_ORIGINS').split(','),
+      credentials: true,
+    });
+  } else {
+    console.log('Enabling CORS with development settings');
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
 
   app.enableVersioning({
     type: VersioningType.URI,

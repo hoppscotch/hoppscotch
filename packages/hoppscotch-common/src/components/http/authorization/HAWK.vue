@@ -18,7 +18,9 @@
 
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight"> Algorithm </label>
+      <label class="ml-4 text-secondaryLight">
+        {{ t("authorization.digest.algorithm") }}
+      </label>
       <tippy
         interactive
         trigger="click"
@@ -59,10 +61,15 @@
 
   <!-- advanced config -->
 
-  <div>
+  <div class="flex flex-col divide-y divide-dividerLight">
     <!-- label as advanced config here -->
-    <div class="p-4">
-      <label class="text-secondaryLight"> Optional Config </label>
+    <div class="p-4 flex flex-col space-y-1">
+      <label>
+        {{ t("authorization.advance_config") }}
+      </label>
+      <p class="text-secondaryLight">
+        {{ t("authorization.advance_config_description") }}
+      </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <SmartEnvInput
@@ -114,14 +121,15 @@
     </div>
   </div>
 
-  <div class="px-4 mt-6">
+  <!-- TODO: implement include payload hash -->
+  <!-- <div class="px-4 my-6">
     <HoppSmartCheckbox
       :on="auth.includePayloadHash"
       @change="auth.includePayloadHash = !auth.includePayloadHash"
     >
       Include Payload Hash
     </HoppSmartCheckbox>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">

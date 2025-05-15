@@ -483,6 +483,24 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       expect(error).toBeTruthy();
     });
+
+    describe("HAWK Authentication", () => {
+      test("Correctly generates and attaches authorization headers to the request ", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "hawk-auth-success-coll.json",
+          "collection"
+        );
+        const ENV_PATH = getTestJsonFilePath(
+          "hawk-auth-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
+        const { error } = await runCLI(args);
+
+        expect(error).toBeNull();
+      });
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --delay <delay_in_ms>` command:", () => {

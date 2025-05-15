@@ -312,7 +312,14 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic dXNlcjpwYXNz",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -335,7 +342,14 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic 77898dXNlcjpwYXNz",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -360,7 +374,15 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -980,6 +1002,12 @@ data2: {"type":"test2","typeId":"123"}`,
       },
       params: [],
       headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic YXNkZmdoOjEyMzQ=",
+          description: "",
+        },
         {
           active: true,
           key: "User-Agent",

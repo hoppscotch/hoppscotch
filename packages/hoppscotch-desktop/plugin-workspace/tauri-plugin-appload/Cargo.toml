@@ -28,7 +28,7 @@ blake3 = { version = "1.5.4", features = ["serde"] }
 ed25519-dalek = { version = "2.1.1", features = ["rand_core", "serde"] }
 hex = "0.4.3"
 lru = "0.12.5"
-sys-info = "0.9.1"
+sysinfo = "0.34.2"
 humantime-serde = "1.1.1"
 futures = "0.3.31"
 mime_guess = "2.0.5"

@@ -32,6 +32,8 @@ import {
   generateDigestAuthHeader,
 } from "./auth/digest";
 
+import { calculateHawkHeader } from "@hoppscotch/data";
+
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
  * applies them on current request to generate updated request.
@@ -285,6 +287,44 @@ export async function getEffectiveRESTRequest(
         active: true,
         key: "Authorization",
         value: authHeaderValue,
+        description: "",
+      });
+    } else if (request.auth.authType === "hawk") {
+      const { method, endpoint } = request;
+
+      const hawkHeader = await calculateHawkHeader({
+        url: parseTemplateString(endpoint, resolvedVariables), // URL
+        method: method, // HTTP method
+        id: parseTemplateString(request.auth.authId, resolvedVariables),
+        key: parseTemplateString(request.auth.authKey, resolvedVariables),
+        algorithm: request.auth.algorithm,
+
+        // advanced parameters (optional)
+        includePayloadHash: request.auth.includePayloadHash,
+        nonce: request.auth.nonce
+          ? parseTemplateString(request.auth.nonce, resolvedVariables)
+          : undefined,
+        ext: request.auth.ext
+          ? parseTemplateString(request.auth.ext, resolvedVariables)
+          : undefined,
+        app: request.auth.app
+          ? parseTemplateString(request.auth.app, resolvedVariables)
+          : undefined,
+        dlg: request.auth.dlg
+          ? parseTemplateString(request.auth.dlg, resolvedVariables)
+          : undefined,
+        timestamp: request.auth.timestamp
+          ? parseInt(
+              parseTemplateString(request.auth.timestamp, resolvedVariables),
+              10
+            )
+          : undefined,
+      });
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: hawkHeader,
         description: "",
       });
     }

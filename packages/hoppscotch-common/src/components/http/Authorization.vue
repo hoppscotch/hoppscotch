@@ -151,6 +151,9 @@
         <div v-if="auth.authType === 'aws-signature'">
           <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'hawk'">
+          <HttpAuthorizationHAWK v-model="auth" :envs="envs" />
+        </div>
         <div v-if="auth.authType === 'digest'">
           <HttpAuthorizationDigest v-model="auth" :envs="envs" />
         </div>
@@ -193,6 +196,7 @@ import {
   HoppRESTAuth,
   HoppRESTAuthAWSSignature,
   HoppRESTAuthDigest,
+  HoppRESTAuthHAWK,
   HoppRESTAuthOAuth2,
 } from "@hoppscotch/data"
 
@@ -265,6 +269,15 @@ const selectAWSSignatureAuthType = () => {
   }
 }
 
+const selectHAWKAuthType = () => {
+  const { algorithm = "sha256" } = auth.value as HoppRESTAuthHAWK
+  auth.value = {
+    ...auth.value,
+    authType: "hawk",
+    algorithm,
+  } as HoppRESTAuth
+}
+
 const selectDigestAuthType = () => {
   const {
     username = "",
@@ -317,6 +330,11 @@ const authTypes: AuthType[] = [
     key: "aws-signature",
     label: "AWS Signature",
     handler: selectAWSSignatureAuthType,
+  },
+  {
+    key: "hawk",
+    label: "HAWK",
+    handler: selectHAWKAuthType,
   },
 ]
 

@@ -32,6 +32,7 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
+import { restCollectionStore } from "~/newstore/collections"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -858,6 +859,50 @@ const convertPathToHoppReqs = (
     RA.toArray
   )
 
+function getAllRootCollections(): { name: string }[] {
+  // Returns all root-level collections (not folders)
+  const collections = restCollectionStore.value.state.map((col) => ({ name: col.name }))
+  return collections
+}
+
+function generateVersionAwareCollectionName(baseName: string, version: string | undefined): string {
+  // Returns a name like "baseName [version]" if version is present
+  const name = version ? `${baseName} [${version}]` : baseName
+  return name
+}
+
+function getUniqueCollectionName(baseName: string, version: string | undefined): string {
+  // Implements the naming rules:
+  // 1. If no collection with baseName exists, use baseName
+  // 2. If exists, but not with this version, use baseName [version]
+  // 3. If exists with this version, use baseName [version] copy, or increment
+  const all = getAllRootCollections()
+  const baseExists = all.some((c) => c.name === baseName)
+  if (!baseExists) return baseName
+  if (version) {
+    const versionedName = generateVersionAwareCollectionName(baseName, version)
+    const versionExists = all.some((c) => c.name === versionedName)
+    if (!versionExists) return versionedName
+    // Find next available copy suffix
+    let copyIndex = 1
+    let candidate: string
+    do {
+      candidate = `${versionedName} copy${copyIndex > 1 ? ` ${copyIndex}` : ""}`
+      copyIndex++
+    } while (all.some((c) => c.name === candidate))
+    return candidate
+  }
+  // If no version, but base exists, fallback to baseName copy
+  let copyIndex = 1
+  let candidate: string
+  do {
+    candidate = `${baseName} copy${copyIndex > 1 ? ` ${copyIndex}` : ""}`
+    copyIndex++
+  } while (all.some((c) => c.name === candidate))
+  return candidate
+}
+
+// Patch convertOpenApiDocsToHopp to use version-aware naming
 const convertOpenApiDocsToHopp = (
   docs: OpenAPI.Document[]
 ): TE.TaskEither<string, HoppCollection[]> => {
@@ -872,8 +917,9 @@ const convertOpenApiDocsToHopp = (
   }
 
   const collections = docs.map((doc) => {
-    const name = doc.info.title
-
+    const baseName = doc.info.title
+    const version = doc.info.version
+    const name = getUniqueCollectionName(baseName, version)
     const paths = Object.entries(doc.paths ?? {})
       .map(([pathName, pathObj]) =>
         convertPathToHoppReqs(doc, pathName, pathObj)

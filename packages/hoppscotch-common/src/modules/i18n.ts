@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as R from "fp-ts/Record"
 import { createI18n, I18n, I18nOptions } from "vue-i18n"
+import { merge } from "lodash-es"
 import { HoppModule } from "."
 
 import languages from "../../languages.json"
@@ -118,41 +119,12 @@ const mergeAdditionalMessages = (locale: string): void => {
 
   // Deep merge additional messages with current messages
   const newMessages = additionalMessages[locale].reduce(
-    (acc, messages) => deepMergeMessages(acc, messages),
+    (acc, messages) => merge(acc, messages),
     { ...currentMessages }
   )
 
   // Update the locale messages
   i18nInstance.global.setLocaleMessage(locale, newMessages)
-}
-
-/**
- * Deep merge two message objects
- */
-const deepMergeMessages = (
-  target: Record<string, unknown>,
-  source: Record<string, unknown>
-): Record<string, unknown> => {
-  const result = { ...target }
-
-  for (const key in source) {
-    if (
-      key in target &&
-      typeof target[key] === "object" &&
-      typeof source[key] === "object" &&
-      target[key] !== null &&
-      source[key] !== null
-    ) {
-      result[key] = deepMergeMessages(
-        target[key] as Record<string, unknown>,
-        source[key] as Record<string, unknown>
-      )
-    } else {
-      result[key] = source[key]
-    }
-  }
-
-  return result
 }
 
 const resolveCurrentLocale = async () =>
@@ -207,8 +179,8 @@ export const changeAppLanguage = async (locale: string) => {
   // Apply any additional messages for this locale
   mergeAdditionalMessages(locale)
 
-  // TODO: Look into the type issues here
-  i18nInstance.global.locale.value = locale
+  // Set the locale using the appropriate method for Vue I18n
+  i18nInstance.global.locale = locale
 
   await persistenceService.setLocalConfig("locale", locale)
 }

@@ -179,8 +179,8 @@ export const changeAppLanguage = async (locale: string) => {
   // Apply any additional messages for this locale
   mergeAdditionalMessages(locale)
 
-  // Set the locale using the appropriate method for Vue I18n
-  i18nInstance.global.locale = locale
+  // TODO: Look into the type issues here
+  i18nInstance.global.locale.value = locale
 
   await persistenceService.setLocalConfig("locale", locale)
 }

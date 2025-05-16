@@ -58,10 +58,6 @@ export class UserCollectionRemovedData {
   type: ReqType;
 }
 
-registerEnumType(ReqType, {
-  name: 'CollType',
-});
-
 @ObjectType()
 export class UserCollectionExportJSONData {
   @Field(() => ID, {
@@ -119,7 +115,3 @@ export class UserCollectionDuplicatedData {
   })
   requests: UserRequest[];
 }
-
-registerEnumType(ReqType, {
-  name: 'CollType',
-});

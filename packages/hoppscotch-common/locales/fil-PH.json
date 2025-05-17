@@ -256,10 +256,10 @@
       "nonce": "Nonce",
       "algorithm": "Algorithm",
       "qop": "qop",
-      "nonce_count": "Nonce Count",
+      "nonce_count": "Bilang ng Nonce",
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
-      "disable_retry": "Disable Retrying Request"
+      "disable_retry": "I-Disable ang Pag-Retry ng Request"
     }
   },
   "collection": {

@@ -247,7 +247,7 @@
     "aws_signature": {
       "access_key": "Access Key",
       "secret_key": "Secret Key",
-      "service_name": "Service Name",
+      "service_name": "Pangalan ng Service",
       "aws_region": "AWS Region",
       "service_token": "Service Token"
     },

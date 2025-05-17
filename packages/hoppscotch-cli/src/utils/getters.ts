@@ -275,9 +275,15 @@ export const getResolvedVariables = (
   requestVariables: HoppRESTRequestVariables,
   environmentVariables: EnvironmentVariable[]
 ): EnvironmentVariable[] => {
+  // Transforming request variables to the shape of environment variables
   const activeRequestVariables = requestVariables
     .filter(({ active, value }) => active && value)
-    .map(({ key, value }) => ({ key, value, secret: false }));
+    .map(({ key, value }) => ({
+      key,
+      initialValue: value,
+      currentValue: value,
+      secret: false,
+    }));
 
   const requestVariableKeys = activeRequestVariables.map(({ key }) => key);
 
@@ -286,5 +292,17 @@ export const getResolvedVariables = (
     ({ key }) => !requestVariableKeys.includes(key)
   );
 
-  return [...activeRequestVariables, ...filteredEnvironmentVariables];
+  // Setting currentValue to initialValue for environment variables
+  // because the exported file might not have the currentValue field
+  const processedEnvironmentVariables = filteredEnvironmentVariables.map(
+    ({ key, initialValue, currentValue, secret }) => ({
+      key,
+      initialValue,
+      currentValue:
+        currentValue && currentValue !== "" ? currentValue : initialValue,
+      secret,
+    })
+  );
+
+  return [...activeRequestVariables, ...processedEnvironmentVariables];
 };

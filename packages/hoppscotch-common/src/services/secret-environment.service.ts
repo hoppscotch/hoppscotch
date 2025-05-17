@@ -57,7 +57,7 @@ export class SecretEnvironmentService extends Service {
    * Used to get the value of a secret environment variable.
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
-=   */
+   */
   public getSecretEnvironmentVariableValue(id: string, varIndex: number) {
     const secretVar = this.getSecretEnvironmentVariable(id, varIndex)
     return secretVar?.value
@@ -101,7 +101,7 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Used to update thye ID of a secret environment.
+   * Used to update the ID of a secret environment.
    * Used while syncing with the server.
    * @param oldID old ID of the environment
    * @param newID new ID of the environment

@@ -75,7 +75,8 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
                 (key) =>
                   <IterationDataItem>{
                     key: key,
-                    value: iterationDataItem[key],
+                    initialValue: iterationDataItem[key],
+                    currentValue: iterationDataItem[key],
                     secret: false,
                   }
               )

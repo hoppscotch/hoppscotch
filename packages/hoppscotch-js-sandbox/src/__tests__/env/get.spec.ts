@@ -31,7 +31,8 @@ describe("pw.env.get", () => {
           selected: [
             {
               key: "a",
-              value: "b",
+              currentValue: "b",
+              initialValue: "b",
               secret: false,
             },
           ],
@@ -60,7 +61,8 @@ describe("pw.env.get", () => {
           global: [
             {
               key: "a",
-              value: "b",
+              currentValue: "b",
+              initialValue: "b",
               secret: false,
             },
           ],
@@ -114,14 +116,16 @@ describe("pw.env.get", () => {
           global: [
             {
               key: "a",
-              value: "global val",
+              currentValue: "global val",
+              initialValue: "global val",
               secret: false,
             },
           ],
           selected: [
             {
               key: "a",
-              value: "selected val",
+              currentValue: "selected val",
+              initialValue: "selected val",
               secret: false,
             },
           ],
@@ -151,7 +155,8 @@ describe("pw.env.get", () => {
           selected: [
             {
               key: "a",
-              value: "<<hello>>",
+              currentValue: "<<hello>>",
+              initialValue: "<<hello>>",
               secret: false,
             },
           ],

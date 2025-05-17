@@ -36,7 +36,8 @@ describe("pw.env.unset", () => {
           selected: [
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
@@ -59,7 +60,8 @@ describe("pw.env.unset", () => {
           global: [
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
@@ -83,14 +85,16 @@ describe("pw.env.unset", () => {
           global: [
             {
               key: "baseUrl",
-              value: "https://httpbin.org",
+              currentValue: "https://httpbin.org",
+              initialValue: "https://httpbin.org",
               secret: false,
             },
           ],
           selected: [
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
@@ -101,7 +105,8 @@ describe("pw.env.unset", () => {
         global: [
           {
             key: "baseUrl",
-            value: "https://httpbin.org",
+            currentValue: "https://httpbin.org",
+            initialValue: "https://httpbin.org",
             secret: false,
           },
         ],
@@ -120,19 +125,22 @@ describe("pw.env.unset", () => {
           global: [
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
           selected: [
             {
               key: "baseUrl",
-              value: "https://httpbin.org",
+              currentValue: "https://httpbin.org",
+              initialValue: "https://httpbin.org",
               secret: false,
             },
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
@@ -143,14 +151,16 @@ describe("pw.env.unset", () => {
         global: [
           {
             key: "baseUrl",
-            value: "https://echo.hoppscotch.io",
+            currentValue: "https://echo.hoppscotch.io",
+            initialValue: "https://echo.hoppscotch.io",
             secret: false,
           },
         ],
         selected: [
           {
             key: "baseUrl",
-            value: "https://echo.hoppscotch.io",
+            currentValue: "https://echo.hoppscotch.io",
+            initialValue: "https://echo.hoppscotch.io",
             secret: false,
           },
         ],
@@ -168,12 +178,14 @@ describe("pw.env.unset", () => {
           global: [
             {
               key: "baseUrl",
-              value: "https://httpbin.org/",
+              currentValue: "https://httpbin.org",
+              initialValue: "https://httpbin.org",
               secret: false,
             },
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],
@@ -185,7 +197,8 @@ describe("pw.env.unset", () => {
         global: [
           {
             key: "baseUrl",
-            value: "https://echo.hoppscotch.io",
+            currentValue: "https://echo.hoppscotch.io",
+            initialValue: "https://echo.hoppscotch.io",
             secret: false,
           },
         ],
@@ -239,7 +252,8 @@ describe("pw.env.unset", () => {
           selected: [
             {
               key: "baseUrl",
-              value: "https://echo.hoppscotch.io",
+              currentValue: "https://echo.hoppscotch.io",
+              initialValue: "https://echo.hoppscotch.io",
               secret: false,
             },
           ],

@@ -24,8 +24,8 @@ export const hoppEnvImporter = (contents: string[]) => {
           ...contentEntry,
           variables: contentEntry.variables?.map((valueEntry) => ({
             ...valueEntry,
-            ...("value" in valueEntry
-              ? { value: String(valueEntry.value) }
+            ...("initialValue" in valueEntry
+              ? { value: String(valueEntry.initialValue) }
               : {}),
           })),
         }

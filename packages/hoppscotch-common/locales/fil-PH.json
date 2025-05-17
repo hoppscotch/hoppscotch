@@ -316,20 +316,20 @@
   },
   "cookies": {
     "modal": {
-      "cookie_expires": "Expires",
-      "cookie_name": "Name",
+      "cookie_expires": "Mag-e-expire",
+      "cookie_name": "Pangalan",
       "cookie_path": "Path",
       "cookie_string": "Cookie string",
       "cookie_value": "Value",
-      "empty_domain": "Domain is empty",
-      "empty_domains": "Domain list is empty",
-      "enter_cookie_string": "Enter cookie string",
-      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
+      "empty_domain": "Walang laman ang domain",
+      "empty_domains": "Walang laman ang listahan ng domain",
+      "enter_cookie_string": "Ilagay ang cookie string",
+      "interceptor_no_support": "Hindi sinusuportahan ang cookies ng napiling interceptor. Pumili ng ibang Interceptor at subukan muli.",
       "managed_tab": "Managed",
-      "new_domain_name": "New domain name",
-      "no_cookies_in_domain": "No cookies set for this domain",
+      "new_domain_name": "Bagong pangalan ng domain",
+      "no_cookies_in_domain": "Walang itinalagang cookies para sa domain na ito",
       "raw_tab": "Raw",
-      "set": "Set a cookie"
+      "set": "Mag-lagay ng cookie"
     }
   },
   "count": {

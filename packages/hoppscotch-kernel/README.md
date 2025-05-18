@@ -86,7 +86,8 @@ await kernel.store.set("collections", "team-a", data, {
 })
 
 // Watch for changes
-kernel.store.watch("collections", "team-a").on("change", 
+const watcher = await kernel.store.watch("collections", "team-a")
+watcher.on("change", 
   (update) => console.log("Collection updated:", update)
 )
 ```

@@ -222,8 +222,12 @@ export const getComputedAuthHeaders = async (
       const currentDate = new Date()
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
       const { method, endpoint } = req as HoppRESTRequest
+
+      const body = getFinalBodyFromRequest(request, envVars)
+
       const signer = new AwsV4Signer({
         method: method,
+        body: body?.toString(),
         datetime: amzDate,
         accessKeyId: parseTemplateString(request.auth.accessKey, envVars),
         secretAccessKey: parseTemplateString(request.auth.secretKey, envVars),

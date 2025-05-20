@@ -132,7 +132,16 @@ export const parseCurlCommand = (curlCommand: string) => {
     danglingParams = [...danglingParams, ...newQueries.danglingParams]
     hasBodyBeenParsed = true
   } else if (
-    rawContentType.includes("application/x-www-form-urlencoded") &&
+    (rawContentType.includes("application/x-www-form-urlencoded") ||
+      /**
+       * When using the -d option with curl for a POST operation,
+       * curl includes a default header: Content-Type: application/x-www-form-urlencoded.
+       * https://everything.curl.dev/http/post/content-type.html
+       */
+      (!rawContentType &&
+        method === "POST" &&
+        rawData &&
+        rawData.length > 0)) &&
     !!pairs &&
     Array.isArray(rawData)
   ) {

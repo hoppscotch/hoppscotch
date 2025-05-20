@@ -421,16 +421,16 @@
   },
   "error": {
     "network": {
-      "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "heading": "Error sa Network",
+      "description": "Nag-fail ang koneksyon sa network. {message}: {cause}"
     },
     "timeout": {
       "heading": "Timeout Error",
-      "description": "Request timed out during {phase}. {message}"
+      "description": "Ang request ay nag-time out habang {phase}. {message}"
     },
     "certificate": {
-      "heading": "Certificate Error",
-      "description": "Invalid certificate. {message}: {cause}"
+      "heading": "Error sa Certificate",
+      "description": "Hindi wastong certificate. {message}: {cause}"
     },
     "auth": {
       "heading": "Authentication Error",

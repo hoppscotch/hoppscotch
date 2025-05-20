@@ -46,11 +46,7 @@ async function hashData(
   data: string,
   algorithm: "sha256" | "sha1"
 ): Promise<ArrayBuffer> {
-  if (algorithm === "sha256") {
-    return sha256Hash(data)
-  } else {
-    return sha1Hash(data)
-  }
+  return algorithm === "sha256" ? sha256Hash(data) : sha1Hash(data)
 }
 
 async function hmacSign(

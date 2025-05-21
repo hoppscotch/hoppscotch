@@ -118,6 +118,13 @@
     "add_pfx_or_pkcs_file": "Add PFX/PKCS12 File"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "cookies": "Cookies",
@@ -128,13 +135,6 @@
     "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
     "discord": "Discord",
     "documentation": "Documentation",
-    "downloadable_links": {
-      "macOS": "macOS",
-      "windows": "Windows",
-      "linux": "Linux",
-      "web_app": "Web App",
-      "cli": "CLI"
-    },
     "github": "GitHub",
     "help": "Help & feedback",
     "home": "Home",

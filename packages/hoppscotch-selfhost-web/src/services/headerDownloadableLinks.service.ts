@@ -15,7 +15,7 @@ import {
 
 const macOS: Link = {
   id: "whats-new",
-  text: (t) => t("app.downloadable_links.macOS"),
+  text: (t) => t("app.additional_links.macOS"),
   icon: markRaw(IconApple),
   action: {
     type: "link",
@@ -25,7 +25,7 @@ const macOS: Link = {
 
 const windows: Link = {
   id: "windows",
-  text: (t) => t("app.downloadable_links.windows"),
+  text: (t) => t("app.additional_links.windows"),
   icon: markRaw(IconWindows),
   action: {
     type: "link",
@@ -35,7 +35,7 @@ const windows: Link = {
 
 const linux: Link = {
   id: "linux",
-  text: (t) => t("app.downloadable_links.linux"),
+  text: (t) => t("app.additional_links.linux"),
   icon: markRaw(IconLinux),
   action: {
     type: "link",
@@ -45,7 +45,7 @@ const linux: Link = {
 
 const pwa: Link = {
   id: "pwa",
-  text: (t) => t("app.downloadable_links.web_app"),
+  text: (t) => t("app.additional_links.web_app"),
   icon: IconGlobe,
   action: {
     type: "custom",

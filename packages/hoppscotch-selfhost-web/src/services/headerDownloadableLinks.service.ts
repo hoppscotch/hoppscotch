@@ -58,7 +58,7 @@ const pwa: Link = {
 
 const cli: Link = {
   id: "cli",
-  text: (t) => t("app.downloadable_links.cli"),
+  text: (t) => t("app.additional_links.cli"),
   icon: IconCLI,
   action: {
     type: "link",

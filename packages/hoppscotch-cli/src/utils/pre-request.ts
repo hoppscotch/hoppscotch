@@ -202,8 +202,11 @@ export async function getEffectiveRESTRequest(
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
       const { method, endpoint } = request;
 
+      const body = getFinalBodyFromRequest(request, resolvedVariables);
+
       const signer = new AwsV4Signer({
         method,
+        body: E.isRight(body) ? body.right?.toString() : undefined,
         datetime: amzDate,
         signQuery: addTo === "QUERY_PARAMS",
         accessKeyId: parseTemplateString(

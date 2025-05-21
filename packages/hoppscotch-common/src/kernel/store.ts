@@ -6,8 +6,6 @@ import type {
 } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { getModule } from "."
-import { invoke } from "@tauri-apps/api/core"
-import { join } from "@tauri-apps/api/path"
 
 const STORE_PATH = `${window.location.host}.hoppscotch.store`
 

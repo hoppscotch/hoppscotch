@@ -23,12 +23,14 @@ import * as S from "fp-ts/string"
 import qs from "qs"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
+import * as jwt from "jsonwebtoken"
 
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
+import { generateJWTToken } from "../auth/jwt"
 
 import {
   DigestAuthParams,
@@ -297,6 +299,41 @@ export const getComputedAuthHeaders = async (
       value: hawkHeader,
       description: "",
     })
+  } else if (
+    request.auth.authType === "jwt" &&
+    request.auth.addTo === "HEADERS"
+  ) {
+    try {
+      // Generate JWT token using the helper function
+      const token = generateJWTToken(
+        request.auth.secret,
+        request.auth.isSecretBase64Encoded,
+        request.auth.payload,
+        request.auth.algorithm,
+        request.auth.jwtHeaders,
+        envVars,
+        showKeyIfSecret
+      )
+
+      if (token) {
+        // Get prefix (defaults to "Bearer " if not specified)
+        const headerPrefix = parseTemplateString(
+          request.auth.headerPrefix,
+          envVars,
+          false,
+          showKeyIfSecret
+        )
+
+        headers.push({
+          active: true,
+          key: "Authorization",
+          value: `${headerPrefix}${token}`,
+          description: "",
+        })
+      }
+    } catch (e) {
+      console.error("Error generating JWT token:", e)
+    }
   }
 
   return headers
@@ -432,7 +469,8 @@ export const getComputedParams = async (
   if (
     req.auth.authType !== "api-key" &&
     req.auth.authType !== "oauth-2" &&
-    req.auth.authType !== "aws-signature"
+    req.auth.authType !== "aws-signature" &&
+    req.auth.authType !== "jwt"
   )
     return []
 
@@ -503,6 +541,41 @@ export const getComputedParams = async (
       },
     ]
   }
+
+  if (req.auth.authType === "jwt") {
+    try {
+      // Generate JWT token using the helper function
+      const token = generateJWTToken(
+        req.auth.secret,
+        req.auth.isSecretBase64Encoded,
+        req.auth.payload,
+        req.auth.algorithm,
+        req.auth.jwtHeaders,
+        envVars
+      )
+
+      if (token) {
+        // Get param name (defaults to "token" if not specified)
+        const paramName = parseTemplateString(req.auth.paramName, envVars)
+
+        return [
+          {
+            source: "auth",
+            param: {
+              active: true,
+              key: paramName,
+              value: token,
+              description: "",
+            },
+          },
+        ]
+      }
+    } catch (e) {
+      console.error("Error generating JWT token for query param:", e)
+    }
+    return []
+  }
+
   return []
 }
 

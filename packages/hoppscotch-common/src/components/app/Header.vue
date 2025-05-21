@@ -59,14 +59,47 @@
         class="col-span-2 flex items-center justify-between space-x-2"
       >
         <div class="flex">
-          <HoppButtonSecondary
-            v-if="showInstallButton"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('header.install_pwa')"
-            :icon="IconDownload"
-            class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-            @click="installPWA()"
-          />
+          <tippy
+            v-if="
+              kernelMode === 'web' &&
+              downloadableLinks &&
+              downloadableLinks.length > 0
+            "
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => downloadableLinksRef.focus()"
+          >
+            <HoppButtonSecondary
+              :icon="IconDownload"
+              class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+            />
+            <template #content="{ hide }">
+              <div
+                ref="downloadableLinksRef"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <template v-for="link in downloadableLinks" :key="link.id">
+                  <HoppButtonSecondary
+                    v-if="link.show ?? true"
+                    :icon="link.icon"
+                    :label="link.text(t)"
+                    :blank="true"
+                    class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark justify-between"
+                    :to="
+                      link.action.type === 'link' ? link.action.href : undefined
+                    "
+                    @click="
+                      link.action.type === 'custom' ? link.action.do() : null
+                    "
+                  />
+                </template>
+              </div>
+            </template>
+          </tippy>
+
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             :title="`${
@@ -318,7 +351,6 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
-import { installPWA, pwaDefferedPrompt } from "@modules/pwa"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
@@ -344,6 +376,7 @@ import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
+import { AdditionalLinksService } from "~/services/additionalLinks.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -352,6 +385,8 @@ const instanceSwitcherService =
   kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
 const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+const downloadableLinksRef =
+  kernelMode === "web" ? ref<any | null>(null) : ref(null)
 
 const isUserAdmin = ref(false)
 
@@ -379,14 +414,6 @@ const instanceDisplayName = computed(() => {
 const workspaceSelectorFlagEnabled = computed(
   () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
 )
-
-/**
- * Once the PWA code is initialized, this holds a method
- * that can be called to show the user the installation
- * prompt.
- */
-
-const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
 
 /**
  * Show the dashboard link if the user is not on the default cloud instance and is an admin
@@ -419,6 +446,24 @@ const offlineBanner: BannerContent = {
   score: BANNER_PRIORITY_LOW,
   dismissible: true,
 }
+
+const additionalLinks = useService(AdditionalLinksService)
+
+platform.additionalLinks?.forEach((linkSet) => {
+  useService(linkSet)
+})
+
+const downloadableLinks = computed(() => {
+  if (kernelMode !== "web") return null
+
+  const headerDownloadableLink = additionalLinks?.getLinkSet(
+    "HEADER_DOWNLOADABLE_LINKS"
+  )
+
+  if (!headerDownloadableLink) return null
+
+  return headerDownloadableLink.getLinks().value
+})
 
 // Show the offline banner if the app is offline
 const network = reactive(useNetwork())

@@ -118,6 +118,13 @@
     "add_pfx_or_pkcs_file": "Add PFX/PKCS12 File"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "cookies": "Cookies",

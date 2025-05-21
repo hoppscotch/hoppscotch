@@ -1,87 +1,20 @@
 <template>
-  <div class="space-y-4 px-4 py-2">
-    <div>
-      <h4 class="font-semibold tracking-wide text-secondaryDark">
-        {{ t("authorization.jwt.secret") }}
-      </h4>
-      <div class="flex gap-2">
-        <SmartEnvInput
-          v-model="secret"
-          :placeholder="t('authorization.jwt.secret_placeholder')"
-          :auto-complete-env="true"
-          :envs="envs"
-          class="mt-2 flex flex-1"
-        />
-        <div class="mt-2">
-          <HoppSmartCheckbox
-            v-model="isSecretBase64Encoded"
-            :label="t('authorization.jwt.is_secret_base64')"
-          />
-        </div>
-      </div>
-    </div>
-    <div>
-      <h4 class="font-semibold tracking-wide text-secondaryDark">
-        {{ t("authorization.jwt.algorithm") }}
-      </h4>
-      <div class="mt-2">
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          class="pr-8"
-          :label="auth.algorithm"
-          @click="showAlgorithmOptions = !showAlgorithmOptions"
-        />
-        <HoppSmartModal
-          v-if="showAlgorithmOptions"
-          dialog
-          :title="t('authorization.jwt.algorithm')"
-          @close="showAlgorithmOptions = false"
-        >
-          <template #body>
-            <div class="flex flex-col">
-              <HoppSmartItem
-                v-for="algo in algorithms"
-                :key="algo"
-                :label="algo"
-                :active="auth.algorithm === algo"
-                @click="
-                  () => {
-                    auth.algorithm = algo
-                    showAlgorithmOptions = false
-                  }
-                "
-              />
-            </div>
-          </template>
-        </HoppSmartModal>
-      </div>
-    </div>
-    <div>
-      <h4 class="font-semibold tracking-wide text-secondaryDark">
-        {{ t("authorization.jwt.payload") }}
-      </h4>
-      <div class="mt-2">
-        <HoppSmartTextarea
-          v-model="payload"
-          :placeholder="t('authorization.jwt.payload_placeholder')"
-          :line-numbers="true"
-          :language="'json'"
-        />
-      </div>
-    </div>
-
+  <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
       <label class="ml-4 text-secondaryLight">
-        {{ t("authorization.pass_key_by") }}
+        {{ t("authorization.digest.algorithm") }}
       </label>
       <tippy
         interactive
         trigger="click"
         theme="popover"
-        :on-shown="() => authTippyActions?.focus()"
+        :on-shown="() => authTippyActions.focus()"
       >
         <HoppSmartSelectWrapper>
-          <HoppButtonSecondary :label="passBy" class="ml-2 rounded-none pr-8" />
+          <HoppButtonSecondary
+            :label="auth.algorithm"
+            class="ml-2 rounded-none pr-8"
+          />
         </HoppSmartSelectWrapper>
         <template #content="{ hide }">
           <div
@@ -91,14 +24,14 @@
             @keyup.escape="hide()"
           >
             <HoppSmartItem
-              v-for="addToTarget in addToTargets"
-              :key="addToTarget.id"
-              :label="addToTarget.label"
-              :icon="auth.addTo === addToTarget.id ? IconCircleDot : IconCircle"
-              :active="auth.addTo === addToTarget.id"
+              v-for="alg in algorithms"
+              :key="alg"
+              :icon="auth.algorithm === alg ? IconCircleDot : IconCircle"
+              :active="auth.algorithm === alg"
+              :label="alg"
               @click="
                 () => {
-                  auth.addTo = addToTarget.id
+                  auth.algorithm = alg
                   hide()
                 }
               "
@@ -107,57 +40,130 @@
         </template>
       </tippy>
     </span>
+  </div>
+  <div class="flex flex-1 border-b border-dividerLight">
+    <SmartEnvInput
+      v-model="auth.secret"
+      :auto-complete-env="true"
+      :placeholder="t('authorization.secret')"
+      :envs="envs"
+    />
+  </div>
+  <div class="px-4 py-2 flex items-center">
+    <span class="text-secondaryLight font-semibold mr-6">
+      {{ t("authorization.jwt.secret_base64_encoded") }}
+    </span>
+    <HoppSmartCheckbox
+      class="text-secondaryLight flex"
+      :on="auth.isSecretBase64Encoded"
+      @change="auth.isSecretBase64Encoded = !auth.isSecretBase64Encoded"
+    ></HoppSmartCheckbox>
+  </div>
 
-    <HoppAccordion :open="false">
-      <template #summary>
-        <span class="flex items-center gap-2 text-secondaryDark">
-          {{ t("authorization.jwt.advanced") }}
-        </span>
-      </template>
-      <template #body>
-        <div class="space-y-4">
-          <div v-if="auth.addTo === 'HEADERS'">
-            <h4 class="font-semibold tracking-wide text-secondaryDark">
-              {{ t("authorization.jwt.header_prefix") }}
-            </h4>
-            <div class="mt-2">
-              <SmartEnvInput
-                v-model="headerPrefix"
-                :auto-complete-env="true"
-                :placeholder="t('authorization.jwt.header_prefix_placeholder')"
-                :envs="envs"
+  <div class="ml-4 py-2 border-b border-dividerLight">
+    <label class="text-secondaryLight">
+      {{ t("authorization.payload") }}
+    </label>
+    <div class="mt-2">
+      <textarea
+        v-model="payload"
+        :placeholder="t('authorization.payload_placeholder')"
+        :line-numbers="true"
+        :language="'json'"
+      >
+      </textarea>
+    </div>
+  </div>
+
+  <div class="flex flex-col divide-y divide-dividerLight">
+    <!-- label as advanced config here -->
+    <div class="p-4 flex flex-col space-y-1">
+      <label>
+        {{ t("authorization.advance_config") }}
+      </label>
+      <p class="text-secondaryLight">
+        {{ t("authorization.advance_config_description") }}
+      </p>
+    </div>
+
+    <div class="flex items-center border-b border-dividerLight">
+      <span class="flex items-center">
+        <label class="ml-4 text-secondaryLight">
+          {{ t("authorization.pass_key_by") }}
+        </label>
+        <tippy
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => authTippyActions?.focus()"
+        >
+          <HoppSmartSelectWrapper>
+            <HoppButtonSecondary
+              :label="passBy"
+              class="ml-2 rounded-none pr-8"
+            />
+          </HoppSmartSelectWrapper>
+          <template #content="{ hide }">
+            <div
+              ref="authTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-for="addToTarget in addToTargets"
+                :key="addToTarget.id"
+                :label="addToTarget.label"
+                :icon="
+                  auth.addTo === addToTarget.id ? IconCircleDot : IconCircle
+                "
+                :active="auth.addTo === addToTarget.id"
+                @click="
+                  () => {
+                    auth.addTo = addToTarget.id
+                    hide()
+                  }
+                "
               />
             </div>
-          </div>
-          <div v-else>
-            <h4 class="font-semibold tracking-wide text-secondaryDark">
-              {{ t("authorization.jwt.param_name") }}
-            </h4>
-            <div class="mt-2">
-              <SmartEnvInput
-                v-model="paramName"
-                :auto-complete-env="true"
-                :placeholder="t('authorization.jwt.param_name_placeholder')"
-                :envs="envs"
-              />
-            </div>
-          </div>
-          <div>
-            <h4 class="font-semibold tracking-wide text-secondaryDark">
-              {{ t("authorization.jwt.jwt_headers") }}
-            </h4>
-            <div class="mt-2">
-              <HoppSmartTextarea
-                v-model="jwtHeaders"
-                :placeholder="t('authorization.jwt.jwt_headers_placeholder')"
-                :line-numbers="true"
-                :language="'json'"
-              />
-            </div>
-          </div>
-        </div>
-      </template>
-    </HoppAccordion>
+          </template>
+        </tippy>
+      </span>
+    </div>
+
+    <!-- passby conditional prefix or name -->
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-if="auth.addTo === 'HEADERS'"
+        v-model="auth.headerPrefix"
+        :auto-complete-env="true"
+        :placeholder="t('authorization.jwt.placeholder_request_header')"
+        :envs="envs"
+      />
+
+      <SmartEnvInput
+        v-else
+        v-model="auth.paramName"
+        :auto-complete-env="true"
+        :placeholder="t('authorization.jwt.placeholder_request_param')"
+        :envs="envs"
+      />
+    </div>
+  </div>
+
+  <div class="ml-4 py-2 border-b border-dividerLight">
+    <label class="text-secondaryLight">
+      {{ t("authorization.jwt.headers") }}
+    </label>
+    <div class="mt-2">
+      <textarea
+        v-model="jwtHeaders"
+        :placeholder="t('authorization.jwt.placeholder_headers')"
+        :line-numbers="true"
+        :language="'json'"
+      >
+      </textarea>
+    </div>
   </div>
 </template>
 

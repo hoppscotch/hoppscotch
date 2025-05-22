@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserRequest } from 'src/user-request/user-request.model';
 

@@ -19,8 +19,14 @@
           inputs.expectToBeLevel4xx(expectVal, expectedVal),
         toBeLevel5xx: (expectedVal) =>
           inputs.expectToBeLevel5xx(expectVal, expectedVal),
-        toBeType: (expectedVal) =>
-          inputs.expectToBeType(expectVal, expectedVal),
+        toBeType: (expectedVal) => {
+          const isExpectValDateInstance = expectVal instanceof Date
+          return inputs.expectToBeType(
+            expectVal,
+            expectedVal,
+            isExpectValDateInstance
+          )
+        },
         toHaveLength: (expectedVal) =>
           inputs.expectToHaveLength(expectVal, expectedVal),
         toInclude: (expectedVal) =>
@@ -35,8 +41,14 @@
             inputs.expectNotToBeLevel4xx(expectVal, expectedVal),
           toBeLevel5xx: (expectedVal) =>
             inputs.expectNotToBeLevel5xx(expectVal, expectedVal),
-          toBeType: (expectedVal) =>
-            inputs.expectNotToBeType(expectVal, expectedVal),
+          toBeType: (expectedVal) => {
+            const isExpectValDateInstance = expectVal instanceof Date
+            return inputs.expectNotToBeType(
+              expectVal,
+              expectedVal,
+              isExpectValDateInstance
+            )
+          },
           toHaveLength: (expectedVal) =>
             inputs.expectNotToHaveLength(expectVal, expectedVal),
           toInclude: (expectedVal) =>

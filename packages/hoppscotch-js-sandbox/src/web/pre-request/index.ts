@@ -103,7 +103,7 @@ export const runPreRequestScript = async (
       return TE.left(`Script execution failed: ${result.err.message}`)()
     }
 
-    throw TE.left(`Script execution failed: ${String(result.err)}`)()
+    return TE.left(`Script execution failed: ${String(result.err)}`)()
   }
 
   return TE.right({

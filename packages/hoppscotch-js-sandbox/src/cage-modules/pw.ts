@@ -90,10 +90,20 @@ const createPwInputsObj = (
       expectToBeType: defineSandboxFn(
         ctx,
         "toBeType",
-        (expectVal, expectedType) =>
-          createExpectation(expectVal, false, postConfig.testRunStack).toBeType(
-            expectedType
-          )
+        (expectVal, expectedType, isExpectValDateInstance) => {
+          // Supplying `new Date()` in the script gets serialized in the sandbox context
+          // Parse the string back to a date instance
+          const resolvedExpectVal =
+            isExpectValDateInstance && typeof expectVal === "string"
+              ? new Date(expectVal)
+              : expectVal
+
+          return createExpectation(
+            resolvedExpectVal,
+            false,
+            postConfig.testRunStack
+          ).toBeType(expectedType)
+        }
       ),
       expectToHaveLength: defineSandboxFn(
         ctx,
@@ -158,12 +168,20 @@ const createPwInputsObj = (
       expectNotToBeType: defineSandboxFn(
         ctx,
         "notToBeType",
-        (expectVal, expectedType) =>
-          createExpectation(
-            expectVal,
+        (expectVal, expectedType, isExpectValDateInstance) => {
+          // Supplying `new Date()` in the script gets serialized in the sandbox context
+          // Parse the string back to a date instance
+          const resolvedExpectVal =
+            isExpectValDateInstance && typeof expectVal === "string"
+              ? new Date(expectVal)
+              : expectVal
+
+          return createExpectation(
+            resolvedExpectVal,
             false,
             postConfig.testRunStack
           ).not.toBeType(expectedType)
+        }
       ),
       expectNotToHaveLength: defineSandboxFn(
         ctx,

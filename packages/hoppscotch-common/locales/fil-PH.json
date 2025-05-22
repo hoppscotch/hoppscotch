@@ -433,33 +433,33 @@
       "description": "Hindi wastong certificate. {message}: {cause}"
     },
     "auth": {
-      "heading": "Authentication Error",
-      "description": "Access denied. {message}: {cause}"
+      "heading": "Error sa Authentication",
+      "description": "Na-denyy ang access. {message}: {cause}"
     },
     "proxy": {
-      "heading": "Proxy Error",
-      "description": "Proxy connection failed. {message}: {cause}"
+      "heading": "Error sa Proxy",
+      "description": "Nag-fail ang proxy connection. {message}: {cause}"
     },
     "parse": {
-      "heading": "Parse Error",
-      "description": "Failed to parse response. {message}: {cause}"
+      "heading": "Error sa Pag-Parse",
+      "description": "Nag-fail sa pag parse ng response. {message}: {cause}"
     },
     "version": {
-      "heading": "Version Error",
-      "description": "Incompatible versions. {message}: {cause}"
+      "heading": "Error sa Bersyon",
+      "description": "Hindi magkatugmang bersyon. {message}: {cause}"
     },
     "abort": {
-      "heading": "Request Aborted",
-      "description": "Operation cancelled. {message}: {cause}"
+      "heading": "Nahinto ang Request",
+      "description": "Kinansela ang operasyon. {message}: {cause}"
     },
     "unknown": {
       "heading": "Unknown Error",
-      "description": "An unknown error occurred.",
-      "cause": "Unknown cause"
+      "description": "May unknown error na nangyari.",
+      "cause": "Hindi alam ang sanhi"
     },
     "extension": {
-      "heading": "Extension error",
-      "description": "Failed running request on extension"
+      "heading": "Error sa Extension",
+      "description": "Nag-fail ang pagpapatakbo ng request sa extension"
     },
     "authproviders_load_error": "Unable to load auth providers",
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",

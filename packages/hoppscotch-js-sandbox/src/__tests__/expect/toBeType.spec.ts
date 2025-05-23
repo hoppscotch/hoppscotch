@@ -28,6 +28,14 @@ describe("toBeType", () => {
           pw.expect(true).toBeType("boolean")
           pw.expect({}).toBeType("object")
           pw.expect(undefined).toBeType("undefined")
+
+          const utcDate = new Date("2025-05-22T17:42:26Z")
+          const istOffset = 5.5 * 60 * 60 * 1000 // 5.5 hours in ms
+          const istDate = new Date(utcDate.getTime() + istOffset)
+
+          pw.expect(istDate).toBeType("object")
+          pw.expect(istDate.toISOString()).toBeType("string")
+          pw.expect(JSON.stringify(istDate)).toBeType("string")
         `,
         fakeResponse
       )()
@@ -44,6 +52,18 @@ describe("toBeType", () => {
           {
             status: "pass",
             message: `Expected 'undefined' to be type 'undefined'`,
+          },
+          {
+            message: expect.stringMatching(/to be type 'object'$/),
+            status: "pass",
+          },
+          {
+            message: "Expected '2025-05-22T23:12:26.000Z' to be type 'string'",
+            status: "pass",
+          },
+          {
+            message: `Expected '"2025-05-22T23:12:26.000Z"' to be type 'string'`,
+            status: "pass",
           },
         ],
       }),
@@ -124,6 +144,14 @@ describe("toBeType", () => {
           pw.expect(true).not.toBeType("string")
           pw.expect({}).not.toBeType("number")
           pw.expect(undefined).not.toBeType("number")
+
+          const utcDate = new Date("2025-05-22T17:42:26Z")
+          const istOffset = 5.5 * 60 * 60 * 1000 // 5.5 hours in ms
+          const istDate = new Date(utcDate.getTime() + istOffset)
+
+          pw.expect(istDate).not.toBeType("string")
+          pw.expect(istDate.toISOString()).not.toBeType("object")
+          pw.expect(JSON.stringify(istDate)).not.toBeType("object")
         `,
         fakeResponse
       )()
@@ -143,6 +171,19 @@ describe("toBeType", () => {
           {
             status: "pass",
             message: `Expected 'undefined' to not be type 'number'`,
+          },
+          {
+            message: expect.stringMatching(/to not be type 'string'$/),
+            status: "pass",
+          },
+          {
+            message:
+              "Expected '2025-05-22T23:12:26.000Z' to not be type 'object'",
+            status: "pass",
+          },
+          {
+            message: `Expected '"2025-05-22T23:12:26.000Z"' to not be type 'object'`,
+            status: "pass",
           },
         ],
       }),

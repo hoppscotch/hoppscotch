@@ -20,8 +20,14 @@ import { parseCollectionData } from "../utils/mutators";
 
 export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
   try {
-    const { delay, env, iterationCount, iterationData, reporterJunit } =
-      options;
+    const {
+      delay,
+      env,
+      iterationCount,
+      iterationData,
+      reporterJunit,
+      legacySandbox,
+    } = options;
 
     if (
       iterationCount !== undefined &&
@@ -86,12 +92,15 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
         .filter((item) => item.length > 0);
     }
 
+    const resolvedLegacySandbox = Boolean(legacySandbox);
+
     const report = await collectionsRunner({
       collections,
       envs,
       delay: resolvedDelay,
       iterationData: transformedIterationData,
       iterationCount,
+      legacySandbox: resolvedLegacySandbox,
     });
     const hasSucceeded = collectionsRunnerResult(report, reporterJunit);
 

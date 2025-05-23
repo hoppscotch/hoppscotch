@@ -82,6 +82,8 @@ const SettingsDefSchema = z.object({
     .optional()
     .catch("DESCRIPTIVE_WITH_SPACES"),
   CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
+
+  EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
@@ -431,6 +433,7 @@ const HoppTestResultSchema = z
           .strict(),
       })
       .strict(),
+    consoleEntries: z.array(z.record(z.string(), z.unknown()).optional()),
   })
   .strict()
 

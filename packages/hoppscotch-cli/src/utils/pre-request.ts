@@ -44,15 +44,18 @@ import { calculateHawkHeader } from "@hoppscotch/data";
  */
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
-  envs: HoppEnvs
+  envs: HoppEnvs,
+  legacySandbox: boolean
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
-> =>
-  pipe(
+> => {
+  const experimentalScriptingSandbox = !legacySandbox;
+
+  return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs)
+      runPreRequestScript(preRequestScript, envs, experimentalScriptingSandbox)
     ),
     TE.map(
       ({ selected, global }) =>
@@ -77,6 +80,7 @@ export const preRequestScriptRunner = (
           })
     )
   );
+};
 
 /**
  * Outputs an executable request format with environment variables applied

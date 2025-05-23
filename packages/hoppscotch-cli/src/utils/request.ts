@@ -202,7 +202,7 @@ export const processRequest =
     params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
-    const { envs, path, request, delay } = params;
+    const { envs, path, request, delay, legacySandbox } = params;
 
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
     const result = {
@@ -235,7 +235,8 @@ export const processRequest =
     // Executing pre-request-script
     const preRequestRes = await preRequestScriptRunner(
       request,
-      processedEnvs
+      processedEnvs,
+      legacySandbox
     )();
     if (E.isLeft(preRequestRes)) {
       printPreRequestRunner.fail();
@@ -287,7 +288,8 @@ export const processRequest =
     const testScriptParams = getTestScriptParams(
       _requestRunnerRes,
       request,
-      updatedEnvs
+      updatedEnvs,
+      legacySandbox
     );
 
     // Executing test-runner.

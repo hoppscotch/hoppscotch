@@ -340,11 +340,13 @@
     }
   },
   "count": {
+    "currentValue": "Current value {count}",
+    "description": "Description {count}",
     "header": "Header {count}",
+    "initialValue": "Initial value {count}",
+    "key": "Key {count}",
     "message": "Message {count}",
     "parameter": "Parameter {count}",
-    "key": "Key {count}",
-    "description": "Description {count}",
     "protocol": "Protocol {count}",
     "value": "Value {count}",
     "variable": "Variable {count}"

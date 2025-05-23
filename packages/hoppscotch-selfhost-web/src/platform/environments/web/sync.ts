@@ -110,7 +110,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         name: "",
         variables: entries,
         id: "",
-        v: 1,
+        v: 2,
       })()
     }
   },

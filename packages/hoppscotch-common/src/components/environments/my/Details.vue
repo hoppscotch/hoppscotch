@@ -3,6 +3,7 @@
     v-if="show"
     dialog
     :title="t(`environment.${action}`)"
+    styles="sm:max-w-3xl"
     @close="hideModal"
   >
     <template #body>
@@ -74,7 +75,7 @@
                 <template v-else>
                   <div
                     v-for="({ id, env }, index) in tab.variables"
-                    :key="`variable-${id}-${index}`"
+                    :key="`${tab.id}-${id}-${index}`"
                     class="flex divide-x divide-dividerLight"
                   >
                     <input
@@ -84,13 +85,23 @@
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :name="'variable' + index"
                     />
                     <SmartEnvInput
-                      v-model="env.value"
-                      :placeholder="`${t('count.value', { count: index + 1 })}`"
+                      v-model="env.initialValue"
+                      :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
                       :envs="liveEnvs"
-                      :name="'value' + index"
+                      :name="'initialValue' + index"
+                      :secret="tab.isSecret"
+                      :select-text-on-mount="
+                        env.key ? env.key === editingVariableName : false
+                      "
+                    />
+                    <SmartEnvInput
+                      v-model="env.currentValue"
+                      :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
+                      :envs="liveEnvs"
+                      :name="'currentValue' + index"
                       :secret="tab.isSecret"
                       :select-text-on-mount="
                         env.key ? env.key === editingVariableName : false
@@ -162,6 +173,7 @@ import {
   updateEnvironment,
 } from "~/newstore/environments"
 import { platform } from "~/platform"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconDone from "~icons/lucide/check"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -171,11 +183,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 
 type EnvironmentVariable = {
   id: number
-  env: {
-    value: string
-    key: string
-    secret: boolean
-  }
+  env: Environment["variables"][number]
 }
 
 const t = useI18n()
@@ -237,10 +245,14 @@ const tabsData: ComputedRef<
 const editingName = ref<string | null>(null)
 const editingID = ref<string>("")
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
+  {
+    id: idTicker.value++,
+    env: { key: "", currentValue: "", initialValue: "", secret: false },
+  },
 ])
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const secretVars = computed(() =>
   pipe(
@@ -302,8 +314,9 @@ const evnExpandError = computed(() => {
 
   return pipe(
     variables,
-    A.filter(({ secret }) => !secret),
-    A.exists(({ value }) => E.isLeft(parseTemplateStringE(value, variables)))
+    A.exists(({ currentValue }) =>
+      E.isLeft(parseTemplateStringE(currentValue, variables))
+    )
   )
 })
 
@@ -314,12 +327,12 @@ const liveEnvs = computed(() => {
 
   if (props.editingEnvironmentIndex === "Global") {
     return [
-      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+      ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
     ]
   }
   return [
-    ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
-    ...globalEnv.value.variables.map((x) => ({ ...x, source: "Global" })),
+    ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
+    ...globalEnv.value.variables.map((x) => ({ ...x, sourceEnv: "Global" })),
   ]
 })
 
@@ -332,6 +345,16 @@ const workingEnvID = computed(() => {
 
   return uniqueID()
 })
+
+const getCurrentValue = (id: string | "Global", varIndex: number) => {
+  const env = workingEnv.value?.variables[varIndex]
+  if (env && env.secret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
+      ?.value
+  }
+  return currentEnvironmentValueService.getEnvironmentVariable(id, varIndex)
+    ?.currentValue
+}
 
 watch(
   () => props.show,
@@ -351,17 +374,14 @@ watch(
           id: idTicker.value++,
           env: {
             key: e.key,
-            value: e.secret
-              ? (secretEnvironmentService.getSecretEnvironmentVariable(
-                  props.editingEnvironmentIndex === "Global"
-                    ? "Global"
-                    : workingEnvID.value,
-                  index
-                )?.value ??
-                // @ts-expect-error `value` field can exist for secret environment variables as inferred while importing
-                e.value ??
-                "")
-              : e.value,
+            currentValue:
+              getCurrentValue(
+                props.editingEnvironmentIndex === "Global"
+                  ? "Global"
+                  : workingEnvID.value,
+                index
+              ) ?? "",
+            initialValue: e.initialValue,
             secret: e.secret,
           },
         }))
@@ -384,7 +404,8 @@ const addEnvironmentVariable = () => {
     id: idTicker.value++,
     env: {
       key: "",
-      value: "",
+      currentValue: "",
+      initialValue: "",
       secret: selectedEnvOption.value === "secret",
     },
   })
@@ -421,26 +442,75 @@ const saveEnvironment = () => {
   const secretVariables = pipe(
     filteredVariables,
     A.filterMapWithIndex((i, e) =>
-      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
+      e.secret
+        ? O.some({
+            key: e.key,
+            value: e.currentValue,
+            varIndex: i,
+          })
+        : O.none
     )
   )
 
-  if (editingID.value) {
-    secretEnvironmentService.addSecretEnvironment(
-      editingID.value,
-      secretVariables
+  const nonSecretVariables = pipe(
+    filteredVariables,
+    A.filterMapWithIndex((i, e) =>
+      !e.secret
+        ? O.some({
+            key: e.key,
+            currentValue: e.currentValue,
+            varIndex: i,
+            isSecret: e.secret,
+          })
+        : O.none
     )
-  } else if (props.editingEnvironmentIndex === "Global") {
-    secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+  )
+
+  if (secretVariables.length > 0) {
+    if (editingID.value) {
+      secretEnvironmentService.addSecretEnvironment(
+        editingID.value,
+        secretVariables
+      )
+    } else if (props.editingEnvironmentIndex === "Global") {
+      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+    }
+  }
+  if (nonSecretVariables.length > 0) {
+    if (editingID.value) {
+      currentEnvironmentValueService.addEnvironment(
+        editingID.value,
+        nonSecretVariables
+      )
+    } else if (props.editingEnvironmentIndex === "Global") {
+      currentEnvironmentValueService.addEnvironment(
+        "Global",
+        nonSecretVariables
+      )
+    }
   }
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) => (e.secret ? { key: e.key, secret: e.secret } : e))
+    A.map((e) =>
+      e.secret
+        ? {
+            key: e.key,
+            secret: e.secret,
+            initialValue: e.initialValue,
+            currentValue: "",
+          }
+        : {
+            key: e.key,
+            secret: e.secret,
+            initialValue: e.initialValue,
+            currentValue: "",
+          }
+    )
   )
 
   const environmentUpdated: Environment = {
-    v: 1,
+    v: 2,
     id: uniqueID(),
     name: editingName.value,
     variables,

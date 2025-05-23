@@ -95,6 +95,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const testFixtures = [
           { fileName: "env-v0.json", version: 0 },
           { fileName: "env-v1.json", version: 1 },
+          { fileName: "env-v2.json", version: 2 },
         ];
 
         testFixtures.forEach(({ fileName, version }) => {

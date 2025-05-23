@@ -44,8 +44,13 @@ import {
   getTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
+import {
+  CurrentValueService,
+  Variable,
+} from "~/services/current-environment-value.service"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
 
 export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -99,11 +104,12 @@ export const executedResponses$ = new Subject<
  * @param type Whether the environment variables are global or selected
  * @returns the updated environment variables
  */
-const updateEnvironmentsWithSecret = (
+const updateEnvironments = (
   envs: Environment["variables"] &
     {
       secret: true
-      value: string | undefined
+      currentValue: string
+      initialValue: string
       key: string
     }[],
   type: "global" | "selected"
@@ -112,6 +118,7 @@ const updateEnvironmentsWithSecret = (
     type === "selected" ? getCurrentEnvironment().id : "Global"
 
   const updatedSecretEnvironments: SecretVariable[] = []
+  const nonSecretVariables: Variable[] = []
 
   const updatedEnv = pipe(
     envs,
@@ -119,16 +126,35 @@ const updateEnvironmentsWithSecret = (
       if (e.secret) {
         updatedSecretEnvironments.push({
           key: e.key,
-          value: e.value ?? "",
+          value: e.currentValue ?? "",
           varIndex: index,
         })
 
         // delete the value from the environment
         // so that it doesn't get saved in the environment
-        delete e.value
-        return e
+
+        return {
+          key: e.key,
+          secret: e.secret,
+          initialValue: e.initialValue ?? "",
+          currentValue: "",
+        }
       }
-      return e
+
+      nonSecretVariables.push({
+        key: e.key,
+        isSecret: e.secret,
+        varIndex: index,
+        currentValue: e.currentValue ?? "",
+      })
+      // set the current value as empty string
+      // so that it doesn't get saved in the environment
+      return {
+        key: e.key,
+        secret: e.secret,
+        initialValue: e.initialValue ?? "",
+        currentValue: "",
+      }
     })
   )
   if (currentEnvID) {
@@ -136,8 +162,37 @@ const updateEnvironmentsWithSecret = (
       currentEnvID,
       updatedSecretEnvironments
     )
+
+    currentEnvironmentValueService.addEnvironment(
+      currentEnvID,
+      nonSecretVariables
+    )
   }
   return updatedEnv
+}
+
+/**
+ * Get the environment variable value from the current environment
+ * @param envID The environment ID
+ * @param index The index of the environment variable
+ * @param isSecret Whether the environment variable is a secret
+ * @returns The environment variable value
+ */
+const getEnvironmentVariableValue = (
+  envID: string,
+  index: number,
+  isSecret: boolean
+): string | undefined => {
+  if (isSecret) {
+    return secretEnvironmentService.getSecretEnvironmentVariableValue(
+      envID,
+      index
+    )
+  }
+  return currentEnvironmentValueService.getEnvironmentVariableValue(
+    envID,
+    index
+  )
 }
 
 /**
@@ -149,7 +204,6 @@ const filterNonEmptyEnvironmentVariables = (
   envs: Environment["variables"]
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()
-
   envs.forEach((env) => {
     if (env.secret) {
       envsMap.set(env.key, env)
@@ -158,9 +212,9 @@ const filterNonEmptyEnvironmentVariables = (
 
       if (
         existingEnv &&
-        "value" in existingEnv &&
-        existingEnv.value === "" &&
-        env.value !== ""
+        "currentValue" in existingEnv &&
+        existingEnv.currentValue === "" &&
+        env.currentValue !== ""
       ) {
         envsMap.set(env.key, env)
       }
@@ -231,7 +285,8 @@ export function runRESTRequest$(
           if (v.active) {
             return {
               key: v.key,
-              value: v.value,
+              initialValue: v.value,
+              currentValue: v.value,
               secret: false,
             }
           }
@@ -256,7 +311,7 @@ export function runRESTRequest$(
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
-      v: 1,
+      v: 2,
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -269,10 +324,7 @@ export function runRESTRequest$(
       .pipe(filter((res) => res.type === "success" || res.type === "fail"))
       .subscribe(async (res) => {
         if (res.type === "success" || res.type === "fail") {
-          executedResponses$.next(
-            // @ts-expect-error Typescript can't figure out this inference for some reason
-            res
-          )
+          executedResponses$.next(res)
 
           const runResult = await runTestScript(
             res.req.testScript,
@@ -287,10 +339,10 @@ export function runRESTRequest$(
           if (E.isRight(runResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
-            const updatedRunResult = updateEnvsAfterTestScript(runResult)
-            tab.value.document.testResults =
-              // @ts-expect-error Typescript can't figure out this inference for some reason
-              translateToSandboxTestResults(updatedRunResult)
+            tab.value.document.testResults = translateToSandboxTestResults(
+              runResult.right
+            )
+            updateEnvsAfterTestScript(runResult)
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -323,13 +375,13 @@ export function runRESTRequest$(
 }
 
 function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
-  const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
+  const updatedGlobalEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     cloneDeep(runResult.right.envs.global),
     "global"
   )
 
-  const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
+  const updatedSelectedEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     cloneDeep(runResult.right.envs.selected),
     "selected"
@@ -343,14 +395,14 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     },
   }
 
-  const globalEnvVariables = updateEnvironmentsWithSecret(
+  const globalEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     runResult.right.envs.global,
     "global"
   )
 
   setGlobalEnvVariables({
-    v: 1,
+    v: 2,
     variables: globalEnvVariables,
   })
   if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
@@ -360,7 +412,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
       name: env.name,
-      v: 1,
+      v: 2,
       id: "id" in env ? env.id : "",
       variables: updatedRunResult.envs.selected,
     })
@@ -411,7 +463,7 @@ export function runTestRunnerRequest(
 
     const effectiveRequest = await getEffectiveRESTRequest(request, {
       id: "env-id",
-      v: 1,
+      v: 2,
       name: "Env",
       variables: combineEnvVariables({
         environments: {
@@ -429,10 +481,7 @@ export function runTestRunnerRequest(
       .toPromise()
       .then(async (res) => {
         if (res?.type === "success" || res?.type === "fail") {
-          executedResponses$.next(
-            // @ts-expect-error Typescript can't figure out this inference for some reason
-            res
-          )
+          executedResponses$.next(res)
 
           const runResult = await runTestScript(
             res.req.testScript,
@@ -528,12 +577,12 @@ const getUpdatedEnvVariables = (
         ),
         O.chain(
           O.fromPredicate(
-            ({ env, index }) => env.value !== current[index].value
+            ({ env, index }) => env.currentValue !== current[index].currentValue
           )
         ),
         O.map(({ env, index }) => ({
           ...env,
-          previousValue: current[index].value,
+          previousValue: current[index].currentValue,
         }))
       )
     )
@@ -550,8 +599,21 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = cloneDeep(getGlobalVariables())
-  const env = getCurrentEnvironment()
+  const globals = cloneDeep(getGlobalVariables()).map((g, index) => ({
+    ...g,
+    currentValue: getEnvironmentVariableValue("Global", index, g.secret) ?? "",
+  }))
+
+  const envVars = getCurrentEnvironment().variables.map((e, index) => ({
+    ...e,
+    currentValue:
+      getEnvironmentVariableValue(
+        getCurrentEnvironment().id,
+        index,
+        e.secret
+      ) ?? "",
+  }))
+
   return {
     description: "",
     expectResults: testDesc.tests.expectResults,
@@ -564,15 +626,9 @@ function translateToSandboxTestResults(
         updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
       },
       selected: {
-        additions: getAddedEnvVariables(env.variables, testDesc.envs.selected),
-        deletions: getRemovedEnvVariables(
-          env.variables,
-          testDesc.envs.selected
-        ),
-        updations: getUpdatedEnvVariables(
-          env.variables,
-          testDesc.envs.selected
-        ),
+        additions: getAddedEnvVariables(envVars, testDesc.envs.selected),
+        deletions: getRemovedEnvVariables(envVars, testDesc.envs.selected),
+        updations: getUpdatedEnvVariables(envVars, testDesc.envs.selected),
       },
     },
   }

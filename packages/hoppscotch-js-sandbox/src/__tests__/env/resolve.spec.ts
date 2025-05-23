@@ -44,7 +44,8 @@ describe("pw.env.resolve", () => {
           global: [
             {
               key: "hello",
-              value: "there",
+              initialValue: "there",
+              currentValue: "there",
               secret: false,
             },
           ],
@@ -75,7 +76,8 @@ describe("pw.env.resolve", () => {
           selected: [
             {
               key: "hello",
-              value: "there",
+              initialValue: "there",
+              currentValue: "there",
               secret: false,
             },
           ],
@@ -104,14 +106,16 @@ describe("pw.env.resolve", () => {
           global: [
             {
               key: "hello",
-              value: "yo",
+              initialValue: "yo",
+              currentValue: "yo",
               secret: false,
             },
           ],
           selected: [
             {
               key: "hello",
-              value: "there",
+              initialValue: "there",
+              currentValue: "there",
               secret: false,
             },
           ],
@@ -141,12 +145,14 @@ describe("pw.env.resolve", () => {
           selected: [
             {
               key: "hello",
-              value: "<<there>>",
+              currentValue: "<<there>>",
+              initialValue: "<<there>>",
               secret: false,
             },
             {
               key: "there",
-              value: "<<hello>>",
+              currentValue: "<<hello>>",
+              initialValue: "<<hello>>",
               secret: false,
             },
           ],

@@ -44,7 +44,8 @@ export type TestDescriptor = {
 // Representation of a transformed state for environment variables in the sandbox
 type TransformedEnvironmentVariable = {
   key: string
-  value: string
+  currentValue: string
+  initialValue: string
   secret: boolean
 }
 

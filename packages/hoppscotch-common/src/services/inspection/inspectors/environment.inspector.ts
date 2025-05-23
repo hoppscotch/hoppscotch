@@ -23,6 +23,7 @@ import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -46,6 +47,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
+  private readonly currentEnvs = this.bind(CurrentValueService)
   private readonly restTabs = this.bind(RESTTabService)
 
   private aggregateEnvsWithSecrets = useStreamStatic(
@@ -157,7 +159,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
       if (envsMap.has(env.key)) {
         const existingEnv = envsMap.get(env.key)
 
-        if (existingEnv?.value === "" && env.value !== "") {
+        if (existingEnv?.currentValue === "" && env.currentValue !== "") {
           envsMap.set(env.key, env)
         }
       } else {
@@ -200,8 +202,11 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
             const environmentVariables =
               this.filterNonEmptyEnvironmentVariables([
+                // Transform the request variables to environment variables
                 ...(currentTabRequest?.requestVariables ?? []).map((env) => ({
-                  ...env,
+                  key: env.key,
+                  currentValue: env.value,
+                  initialValue: env.value,
                   secret: false,
                   sourceEnv: "RequestVariable",
                 })),
@@ -216,8 +221,15 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 env.key
               )
 
+              const hasCurrentValue = this.currentEnvs.hasValue(
+                env.sourceEnv !== "Global"
+                  ? currentSelectedEnvironment.id
+                  : "Global",
+                env.key
+              )
+
               if (env.key === formattedExEnv) {
-                if (env.secret ? !hasSecretEnv : env.value === "") {
+                if (env.secret ? !hasSecretEnv : !hasCurrentValue) {
                   const itemLocation: InspectorLocation = {
                     type: locations.type,
                     position:

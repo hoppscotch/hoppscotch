@@ -66,6 +66,7 @@
               () => {
                 $emit('update:modelValue', {
                   type: 'global',
+                  variables: globalVals.variables,
                 })
                 hide()
               }
@@ -364,9 +365,10 @@ import IconEye from "~icons/lucide/eye"
 import IconGlobe from "~icons/lucide/globe"
 import IconLayers from "~icons/lucide/layers"
 
-type Scope =
+export type Scope =
   | {
       type: "global"
+      variables: GlobalEnvironment["variables"]
     }
   | {
       type: "my-environment"
@@ -591,6 +593,7 @@ const selectedEnv = computed(() => {
     return {
       type: "global",
       name: "Global",
+      variables: globalVals.value.variables,
     }
   }
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
@@ -657,6 +660,7 @@ onMounted(() => {
     } else {
       emit("update:modelValue", {
         type: "global",
+        variables: globalVals.value.variables,
       })
     }
   }

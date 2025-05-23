@@ -1,4 +1,5 @@
 import { Service } from "dioc"
+import { cloneDeep } from "lodash-es"
 import { reactive, computed } from "vue"
 
 /**
@@ -42,6 +43,23 @@ export class CurrentValueService extends Service {
    */
   public getEnvironment(id: string) {
     return this.environments.get(id)
+  }
+
+  /**
+   * Add a new environment variable to the environment.
+   * If the environment does not exist, it will be created.
+   * @param id ID of the environment
+   * @param variable Environment variable to add
+   */
+  public addEnvironmentVariable(id: string, variable: Variable) {
+    const vars = this.getEnvironment(id)
+    if (vars) {
+      const newVars = cloneDeep(vars)
+      newVars.push(variable)
+      this.environments.set(id, newVars)
+    } else {
+      this.environments.set(id, [variable])
+    }
   }
 
   /**

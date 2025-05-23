@@ -5,10 +5,10 @@
     >
       <input
         v-if="isSecret"
-        id="secret"
+        :id="`secret-${uniqueID()}`"
         v-model="secretText"
         name="secret"
-        :placeholder="t('environment.secret_value')"
+        :placeholder="placeholder"
         class="flex flex-1 bg-transparent pl-4"
         :class="styles"
         type="password"
@@ -97,6 +97,7 @@ import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const t = useI18n()
 

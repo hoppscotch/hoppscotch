@@ -75,7 +75,7 @@
                 <template v-else>
                   <div
                     v-for="({ id, env }, index) in tab.variables"
-                    :key="`variable-${id}-${index}`"
+                    :key="`${tab.id}-${id}-${index}`"
                     class="flex divide-x divide-dividerLight"
                   >
                     <input
@@ -85,7 +85,7 @@
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :name="'variable' + index"
                     />
                     <SmartEnvInput
                       v-model="env.initialValue"
@@ -331,7 +331,7 @@ const liveEnvs = computed(() => {
     ]
   }
   return [
-    ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+    ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
     ...globalEnv.value.variables.map((x) => ({ ...x, sourceEnv: "Global" })),
   ]
 })

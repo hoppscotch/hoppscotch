@@ -104,7 +104,7 @@ const environmentType = ref<EnvironmentsChooseType>({
 const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const globalEnvironment = computed<Environment>(() => ({
-  v: 1 as const,
+  v: 2 as const,
   id: "Global",
   name: "Global",
   variables: globalEnv.value.variables,

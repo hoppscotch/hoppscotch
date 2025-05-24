@@ -61,6 +61,15 @@ export type GQLResponseEvent =
       operationType: OperationType
       data: string
       rawQuery?: RunQueryOptions
+      document?: {
+        type: string
+        statusCode: number
+        statusText: string
+        meta: {
+          responseSize: number
+          responseDuration: number
+        }
+      }
     }
   | {
       type: "error"
@@ -366,6 +375,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   } else {
     runHeaders = clone(request.headers)
   }
+  const timeStart = Date.now()
 
   const finalHeaders: Record<string, string> = {}
 
@@ -456,7 +466,20 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       throw new Error(parsedResponse.error.message)
     }
 
-    gqlMessageEvent.value = parsedResponse
+    const timeEnd = Date.now()
+
+    gqlMessageEvent.value = {
+      ...parsedResponse,
+      document: {
+        type: "success",
+        statusCode: relayResponse.status,
+        statusText: relayResponse.statusText,
+        meta: {
+          responseSize: relayResponse.body.body.byteLength,
+          responseDuration: timeEnd - timeStart,
+        },
+      },
+    }
 
     addQueryToHistory(options, parsedResponse.data)
 

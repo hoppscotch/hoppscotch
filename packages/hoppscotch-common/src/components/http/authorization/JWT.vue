@@ -50,32 +50,22 @@
     />
   </div>
   <div class="px-4 py-2 flex items-center">
-    <span class="text-secondaryLight font-semibold mr-6">
-      {{ t("authorization.jwt.secret_base64_encoded") }}
-    </span>
     <HoppSmartCheckbox
-      class="text-secondaryLight flex"
       :on="auth.isSecretBase64Encoded"
       @change="auth.isSecretBase64Encoded = !auth.isSecretBase64Encoded"
-    ></HoppSmartCheckbox>
+    >
+      {{ t("authorization.jwt.secret_base64_encoded") }}
+    </HoppSmartCheckbox>
   </div>
 
   <div class="ml-4 py-2 border-b border-dividerLight">
     <label class="text-secondaryLight">
       {{ t("authorization.payload") }}
     </label>
-    <div class="mt-2">
-      <textarea
-        v-model="payload"
-        :placeholder="t('authorization.payload_placeholder')"
-        :line-numbers="true"
-        :language="'json'"
-      >
-      </textarea>
-    </div>
+    <div ref="payloadEditor" class="mt-2 h-32"></div>
   </div>
 
-  <div class="flex flex-col divide-y divide-dividerLight">
+  <div class="flex flex-col">
     <!-- label as advanced config here -->
     <div class="p-4 flex flex-col space-y-1">
       <label>
@@ -155,23 +145,16 @@
     <label class="text-secondaryLight">
       {{ t("authorization.jwt.headers") }}
     </label>
-    <div class="mt-2">
-      <textarea
-        v-model="jwtHeaders"
-        :placeholder="t('authorization.jwt.placeholder_headers')"
-        :line-numbers="true"
-        :language="'json'"
-      >
-      </textarea>
-    </div>
+    <div ref="headersEditor" class="mt-2 h-32"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { ref, computed } from "vue"
-import { useVModel } from "@vueuse/core"
 import { HoppRESTAuthJWT } from "@hoppscotch/data"
+import { useVModel } from "@vueuse/core"
+import { computed, reactive, ref } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
@@ -195,16 +178,9 @@ const emit = defineEmits<{
 
 const auth = useVModel(props, "modelValue", emit)
 
-// Setup refs for every field to help with reactivity
-const secret = computed({
-  get: () => auth.value.secret,
-  set: (value) => {
-    auth.value = {
-      ...auth.value,
-      secret: value,
-    }
-  },
-})
+// Template refs for CodeMirror editors
+const payloadEditor = ref<any | null>(null)
+const headersEditor = ref<any | null>(null)
 
 const payload = computed({
   get: () => auth.value.payload,
@@ -212,46 +188,6 @@ const payload = computed({
     auth.value = {
       ...auth.value,
       payload: value,
-    }
-  },
-})
-
-const addTo = computed({
-  get: () => auth.value.addTo,
-  set: (value) => {
-    auth.value = {
-      ...auth.value,
-      addTo: value,
-    }
-  },
-})
-
-const isSecretBase64Encoded = computed({
-  get: () => auth.value.isSecretBase64Encoded,
-  set: (value) => {
-    auth.value = {
-      ...auth.value,
-      isSecretBase64Encoded: value,
-    }
-  },
-})
-
-const headerPrefix = computed({
-  get: () => auth.value.headerPrefix,
-  set: (value) => {
-    auth.value = {
-      ...auth.value,
-      headerPrefix: value,
-    }
-  },
-})
-
-const paramName = computed({
-  get: () => auth.value.paramName,
-  set: (value) => {
-    auth.value = {
-      ...auth.value,
-      paramName: value,
     }
   },
 })
@@ -266,6 +202,38 @@ const jwtHeaders = computed({
   },
 })
 
+// Initialize CodeMirror for payload editor
+useCodemirror(
+  payloadEditor,
+  payload,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/json",
+      readOnly: false,
+      lineWrapping: true,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
+
+// Initialize CodeMirror for headers editor
+useCodemirror(
+  headersEditor,
+  jwtHeaders,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/json",
+      readOnly: false,
+      lineWrapping: true,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
+
 const algorithms: HoppRESTAuthJWT["algorithm"][] = [
   "HS256",
   "HS384",
@@ -277,8 +245,6 @@ const algorithms: HoppRESTAuthJWT["algorithm"][] = [
   "ES384",
   "ES512",
 ]
-
-const showAlgorithmOptions = ref(false)
 
 const addToTargets = [
   {

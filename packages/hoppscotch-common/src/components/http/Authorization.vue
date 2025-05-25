@@ -61,8 +61,9 @@
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
-          >{{ t("state.enabled") }}</HoppSmartCheckbox
         >
+          {{ t("state.enabled") }}
+        </HoppSmartCheckbox>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/features/authorization"

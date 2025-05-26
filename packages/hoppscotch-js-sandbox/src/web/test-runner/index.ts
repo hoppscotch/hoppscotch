@@ -7,21 +7,12 @@ import {
   TestResult,
 } from "~/types"
 
-import {
-  blobPolyfill,
-  ConsoleEntry,
-  console as ConsoleModule,
-  crypto,
-  esmModuleLoader,
-  fetch,
-} from "faraday-cage/modules"
-
 import { FaradayCage } from "faraday-cage"
-
+import { ConsoleEntry } from "faraday-cage/modules"
 import * as TE from "fp-ts/lib/TaskEither"
-
 import { cloneDeep } from "lodash-es"
-import { pwPostRequestModule } from "~/cage-modules/pw"
+
+import { defaultModules, pwPostRequestModule } from "~/cage-modules"
 import { preventCyclicObjects } from "~/shared-utils"
 
 import Worker from "./worker?worker&inline"
@@ -30,7 +21,7 @@ export const runTestScript = async (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
-  experimentalScriptingSandbox = true
+  experimentalScriptingSandbox = true,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
@@ -52,7 +43,7 @@ export const runTestScript = async (
 
       // Listen for the results from the web worker
       worker.addEventListener("message", (event: MessageEvent) =>
-        resolve(event.data.results)
+        resolve(event.data.results),
       )
 
       // Send the script to the web worker
@@ -67,6 +58,10 @@ export const runTestScript = async (
   const cage = await FaradayCage.create()
 
   const result = await cage.runCode(testScript, [
+    ...defaultModules({
+      handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
+    }),
+
     pwPostRequestModule({
       envs: cloneDeep(envs),
       testRunStack: cloneDeep(testRunStack),
@@ -76,46 +71,9 @@ export const runTestScript = async (
         finalTestResults = testRunStack
       },
     }),
-    blobPolyfill,
-    ConsoleModule({
-      onLog(...args) {
-        console[args[0]](...args.slice(1))
-      },
-      onCount(...args) {
-        console.count(args[0])
-      },
-      onTime(...args) {
-        console.timeEnd(args[0])
-      },
-      onTimeLog(...args) {
-        console.timeLog(...args)
-      },
-      onGroup(...args) {
-        console.group(...args)
-      },
-      onGroupEnd(...args) {
-        console.groupEnd(...args)
-      },
-      onClear(...args) {
-        console.clear(...args)
-      },
-      onAssert(...args) {
-        console.assert(...args)
-      },
-      onDir(...args) {
-        console.dir(...args)
-      },
-      onTable(...args) {
-        console.table(...args)
-      },
-      onFinish(entries) {
-        consoleEntries.push(...entries)
-      },
-    }),
-    crypto(),
-    esmModuleLoader,
-    fetch(),
   ])
+
+  console.error(`Done with tests`)
 
   if (result.type === "error") {
     if (result.type === "error") {

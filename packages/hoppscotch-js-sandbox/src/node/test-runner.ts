@@ -1,19 +1,12 @@
 import { FaradayCage } from "faraday-cage"
-import {
-  blobPolyfill,
-  console as ConsoleModule,
-  crypto,
-  esmModuleLoader,
-  fetch,
-} from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import type ivmT from "isolated-vm"
 import { cloneDeep } from "lodash"
 import { createRequire } from "module"
-import { pwPostRequestModule } from "~/cage-modules/pw"
 
+import { defaultModules, pwPostRequestModule } from "~/cage-modules"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
@@ -28,7 +21,7 @@ export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
-  experimentalScriptingSandbox = true
+  experimentalScriptingSandbox = true,
 ): TE.TaskEither<string, TestResult> => {
   const responseObjHandle = preventCyclicObjects(response)
 
@@ -44,7 +37,7 @@ export const runTestScript = (
           const context = await isolate.createContext()
           return { isolate, context }
         },
-        (reason) => `Context initialization failed: ${reason}`
+        (reason) => `Context initialization failed: ${reason}`,
       ),
       TE.chain(({ isolate, context }) =>
         pipe(
@@ -55,9 +48,9 @@ export const runTestScript = (
                 envs,
                 response,
                 isolate,
-                context
+                context,
               ),
-            (reason) => `Script execution failed: ${reason}`
+            (reason) => `Script execution failed: ${reason}`,
           ),
           TE.chain((result) =>
             TE.tryCatch(
@@ -65,11 +58,11 @@ export const runTestScript = (
                 await isolate.dispose()
                 return result
               },
-              (disposeReason) => `Isolate disposal failed: ${disposeReason}`
-            )
-          )
-        )
-      )
+              (disposeReason) => `Isolate disposal failed: ${disposeReason}`,
+            ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -86,6 +79,8 @@ export const runTestScript = (
         const cage = await FaradayCage.create()
 
         const result = await cage.runCode(testScript, [
+          ...defaultModules(),
+
           pwPostRequestModule({
             envs: cloneDeep(envs),
             testRunStack: cloneDeep(testRunStack),
@@ -95,42 +90,6 @@ export const runTestScript = (
               finalTestResults = testRunStack
             },
           }),
-          blobPolyfill,
-          ConsoleModule({
-            onLog(...args) {
-              console[args[0]](...args)
-            },
-            onCount(...args) {
-              console.count(args[0])
-            },
-            onTime(...args) {
-              console.timeEnd(args[0])
-            },
-            onTimeLog(...args) {
-              console.timeLog(...args)
-            },
-            onGroup(...args) {
-              console.group(...args)
-            },
-            onGroupEnd(...args) {
-              console.groupEnd(...args)
-            },
-            onClear(...args) {
-              console.clear(...args)
-            },
-            onAssert(...args) {
-              console.assert(...args)
-            },
-            onDir(...args) {
-              console.dir(...args)
-            },
-            onTable(...args) {
-              console.table(...args)
-            },
-          }),
-          crypto(),
-          esmModuleLoader,
-          fetch(),
         ])
 
         if (result.type === "error") {
@@ -149,8 +108,8 @@ export const runTestScript = (
         }
 
         return `Script execution failed: ${String(error)}`
-      }
-    )
+      },
+    ),
   )
 }
 
@@ -159,7 +118,7 @@ const executeScriptInContext = (
   envs: TestResult["envs"],
   response: TestResponse,
   isolate: ivmT.Isolate,
-  context: ivmT.Context
+  context: ivmT.Context,
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
     // Parse response object

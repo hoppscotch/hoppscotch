@@ -1,20 +1,12 @@
 import { FaradayCage } from "faraday-cage"
-import {
-  blobPolyfill,
-  console as ConsoleModule,
-  crypto,
-  esmModuleLoader,
-  fetch,
-} from "faraday-cage/modules"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import type ivmT from "isolated-vm"
 import { cloneDeep } from "lodash"
-import { pwPreRequestModule } from "~/cage-modules/pw"
-
 import { createRequire } from "module"
 import { TestResult } from "~/types"
 
+import { defaultModules, pwPreRequestModule } from "~/cage-modules"
 import { getPreRequestScriptMethods } from "~/shared-utils"
 import { getSerializedAPIMethods } from "./utils"
 
@@ -24,7 +16,7 @@ const ivm = nodeRequire("isolated-vm")
 export const runPreRequestScript = (
   preRequestScript: string,
   envs: TestResult["envs"],
-  experimentalScriptingSandbox = true
+  experimentalScriptingSandbox = true,
 ): TE.TaskEither<string, TestResult["envs"]> => {
   if (!experimentalScriptingSandbox) {
     return pipe(
@@ -34,7 +26,7 @@ export const runPreRequestScript = (
           const context = await isolate.createContext()
           return { isolate, context }
         },
-        (reason) => `Context initialization failed: ${reason}`
+        (reason) => `Context initialization failed: ${reason}`,
       ),
       TE.chain(({ isolate, context }) =>
         pipe(
@@ -74,7 +66,7 @@ export const runPreRequestScript = (
               await script.run(context)
               return updatedEnvs
             },
-            (reason) => reason
+            (reason) => reason,
           ),
           TE.fold(
             (error) => TE.left(`Script execution failed: ${error}`),
@@ -85,12 +77,12 @@ export const runPreRequestScript = (
                     await isolate.dispose()
                     return result
                   },
-                  (disposeError) => `Isolate disposal failed: ${disposeError}`
-                )
-              )
-          )
-        )
-      )
+                  (disposeError) => `Isolate disposal failed: ${disposeError}`,
+                ),
+              ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -102,48 +94,14 @@ export const runPreRequestScript = (
         const cage = await FaradayCage.create()
 
         const result = await cage.runCode(preRequestScript, [
+          ...defaultModules(),
+
           pwPreRequestModule({
             envs: cloneDeep(envs),
             handleSandboxResults: ({ envs }) => {
               finalEnvs = envs
             },
           }),
-          blobPolyfill,
-          ConsoleModule({
-            onLog(...args) {
-              console[args[0]](...args)
-            },
-            onCount(...args) {
-              console.count(args[0])
-            },
-            onTime(...args) {
-              console.timeEnd(args[0])
-            },
-            onTimeLog(...args) {
-              console.timeLog(...args)
-            },
-            onGroup(...args) {
-              console.group(...args)
-            },
-            onGroupEnd(...args) {
-              console.groupEnd(...args)
-            },
-            onClear(...args) {
-              console.clear(...args)
-            },
-            onAssert(...args) {
-              console.assert(...args)
-            },
-            onDir(...args) {
-              console.dir(...args)
-            },
-            onTable(...args) {
-              console.table(...args)
-            },
-          }),
-          crypto(),
-          esmModuleLoader,
-          fetch(),
         ])
 
         if (result.type === "error") {
@@ -159,7 +117,7 @@ export const runPreRequestScript = (
         }
 
         return `Script execution failed: ${String(error)}`
-      }
-    )
+      },
+    ),
   )
 }

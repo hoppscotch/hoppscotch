@@ -26,6 +26,7 @@
         type="url"
         class="input"
         :placeholder="`${t('import.from_url')}`"
+        v-focus
       />
     </p>
 

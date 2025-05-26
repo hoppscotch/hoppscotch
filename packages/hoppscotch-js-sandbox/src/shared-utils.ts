@@ -213,9 +213,9 @@ const getResolvedExpectValue = (expectVal: any) => {
   }
 }
 
-export function preventCyclicObjects(
-  obj: Record<string, any>
-): E.Left<string> | E.Right<Record<string, any>> {
+export function preventCyclicObjects<T extends object = Record<string, any>>(
+  obj: T
+): E.Left<string> | E.Right<T> {
   let jsonString
 
   try {

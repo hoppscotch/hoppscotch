@@ -1,128 +1,29 @@
-import { FaradayCage } from "faraday-cage"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import type ivmT from "isolated-vm"
-import { cloneDeep } from "lodash"
 import { createRequire } from "module"
 
-import { defaultModules, pwPostRequestModule } from "~/cage-modules"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
 } from "~/shared-utils"
-import { TestDescriptor, TestResponse, TestResult } from "~/types"
-import { getSerializedAPIMethods } from "./utils"
+import { TestResponse, TestResult } from "~/types"
+import { getSerializedAPIMethods } from "../utils"
 
 const nodeRequire = createRequire(import.meta.url)
 const ivm = nodeRequire("isolated-vm")
-
-export const runTestScript = (
-  testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse,
-  experimentalScriptingSandbox = true,
-): TE.TaskEither<string, TestResult> => {
-  const responseObjHandle = preventCyclicObjects(response)
-
-  if (E.isLeft(responseObjHandle)) {
-    return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
-  }
-
-  if (!experimentalScriptingSandbox) {
-    return pipe(
-      TE.tryCatch(
-        async () => {
-          const isolate: ivmT.Isolate = new ivm.Isolate()
-          const context = await isolate.createContext()
-          return { isolate, context }
-        },
-        (reason) => `Context initialization failed: ${reason}`,
-      ),
-      TE.chain(({ isolate, context }) =>
-        pipe(
-          TE.tryCatch(
-            async () =>
-              executeScriptInContext(
-                testScript,
-                envs,
-                response,
-                isolate,
-                context,
-              ),
-            (reason) => `Script execution failed: ${reason}`,
-          ),
-          TE.chain((result) =>
-            TE.tryCatch(
-              async () => {
-                await isolate.dispose()
-                return result
-              },
-              (disposeReason) => `Isolate disposal failed: ${disposeReason}`,
-            ),
-          ),
-        ),
-      ),
-    )
-  }
-
-  return pipe(
-    TE.tryCatch(
-      async (): Promise<TestResult> => {
-        const testRunStack: TestDescriptor[] = [
-          { descriptor: "root", expectResults: [], children: [] },
-        ]
-
-        let finalEnvs = envs
-        let finalTestResults = testRunStack
-
-        const cage = await FaradayCage.create()
-
-        const result = await cage.runCode(testScript, [
-          ...defaultModules(),
-
-          pwPostRequestModule({
-            envs: cloneDeep(envs),
-            testRunStack: cloneDeep(testRunStack),
-            response,
-            handleSandboxResults: ({ envs, testRunStack }) => {
-              finalEnvs = envs
-              finalTestResults = testRunStack
-            },
-          }),
-        ])
-
-        if (result.type === "error") {
-          throw result.err
-        }
-
-        return {
-          tests: finalTestResults,
-          envs: finalEnvs,
-        }
-      },
-      (error) => {
-        if (error !== null && typeof error === "object" && "message" in error) {
-          const reason = `${"name" in error ? error.name : ""}: ${error.message}`
-          return `Script execution failed: ${reason}`
-        }
-
-        return `Script execution failed: ${String(error)}`
-      },
-    ),
-  )
-}
 
 const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
   isolate: ivmT.Isolate,
-  context: ivmT.Context,
+  context: ivmT.Context
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
     // Parse response object
-    const responseObjHandle = preventCyclicObjects(response)
+    const responseObjHandle = preventCyclicObjects<TestResponse>(response)
     if (E.isLeft(responseObjHandle)) {
       return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }
@@ -273,4 +174,45 @@ const executeScriptInContext = (
         reject(error)
       })
   })
+}
+
+export const runTestScriptWithIsolatedVm = (
+  testScript: string,
+  envs: TestResult["envs"],
+  response: TestResponse
+): TE.TaskEither<string, TestResult> => {
+  return pipe(
+    TE.tryCatch(
+      async () => {
+        const isolate: ivmT.Isolate = new ivm.Isolate()
+        const context = await isolate.createContext()
+        return { isolate, context }
+      },
+      (reason) => `Context initialization failed: ${reason}`
+    ),
+    TE.chain(({ isolate, context }) =>
+      pipe(
+        TE.tryCatch(
+          async () =>
+            executeScriptInContext(
+              testScript,
+              envs,
+              response,
+              isolate,
+              context
+            ),
+          (reason) => `Script execution failed: ${reason}`
+        ),
+        TE.chain((result) =>
+          TE.tryCatch(
+            async () => {
+              await isolate.dispose()
+              return result
+            },
+            (disposeReason) => `Isolate disposal failed: ${disposeReason}`
+          )
+        )
+      )
+    )
+  )
 }

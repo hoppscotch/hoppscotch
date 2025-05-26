@@ -34,19 +34,19 @@ const createPwInputsObj = (
   ctx: any,
   methods: any,
   type: PwModuleType,
-  config: PwModuleConfig,
+  config: PwModuleConfig
 ) => {
   const baseInputs = {
     envGet: defineSandboxFn(ctx, "get", (key) => methods.env.get(key)),
     envGetResolve: defineSandboxFn(ctx, "getResolve", (key) =>
-      methods.env.getResolve(key),
+      methods.env.getResolve(key)
     ),
     envSet: defineSandboxFn(ctx, "set", (key, value) => {
       return methods.env.set(key, value)
     }),
     envUnset: defineSandboxFn(ctx, "unset", (key) => methods.env.unset(key)),
     envResolve: defineSandboxFn(ctx, "resolve", (key) =>
-      methods.env.resolve(key),
+      methods.env.resolve(key)
     ),
   }
 
@@ -56,36 +56,36 @@ const createPwInputsObj = (
       ...baseInputs,
       expectToBe: defineSandboxFn(ctx, "toBe", (expectVal, expectedVal) =>
         createExpectation(expectVal, false, postConfig.testRunStack).toBe(
-          expectedVal,
-        ),
+          expectedVal
+        )
       ),
       expectToBeLevel2xx: defineSandboxFn(ctx, "toBeLevel2xx", (expectVal) =>
         createExpectation(
           expectVal,
           false,
-          postConfig.testRunStack,
-        ).toBeLevel2xx(),
+          postConfig.testRunStack
+        ).toBeLevel2xx()
       ),
       expectToBeLevel3xx: defineSandboxFn(ctx, "toBeLevel3xx", (expectVal) =>
         createExpectation(
           expectVal,
           false,
-          postConfig.testRunStack,
-        ).toBeLevel3xx(),
+          postConfig.testRunStack
+        ).toBeLevel3xx()
       ),
       expectToBeLevel4xx: defineSandboxFn(ctx, "toBeLevel4xx", (expectVal) =>
         createExpectation(
           expectVal,
           false,
-          postConfig.testRunStack,
-        ).toBeLevel4xx(),
+          postConfig.testRunStack
+        ).toBeLevel4xx()
       ),
       expectToBeLevel5xx: defineSandboxFn(ctx, "toBeLevel5xx", (expectVal) =>
         createExpectation(
           expectVal,
           false,
-          postConfig.testRunStack,
-        ).toBeLevel5xx(),
+          postConfig.testRunStack
+        ).toBeLevel5xx()
       ),
       expectToBeType: defineSandboxFn(
         ctx,
@@ -101,9 +101,9 @@ const createPwInputsObj = (
           return createExpectation(
             resolvedExpectVal,
             false,
-            postConfig.testRunStack,
+            postConfig.testRunStack
           ).toBeType(expectedType)
-        },
+        }
       ),
       expectToHaveLength: defineSandboxFn(
         ctx,
@@ -112,18 +112,18 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).toHaveLength(expectedLength),
+            postConfig.testRunStack
+          ).toHaveLength(expectedLength)
       ),
       expectToInclude: defineSandboxFn(ctx, "toInclude", (expectVal, needle) =>
         createExpectation(expectVal, false, postConfig.testRunStack).toInclude(
-          needle,
-        ),
+          needle
+        )
       ),
       expectNotToBe: defineSandboxFn(ctx, "notToBe", (expectVal, expectedVal) =>
         createExpectation(expectVal, false, postConfig.testRunStack).not.toBe(
-          expectedVal,
-        ),
+          expectedVal
+        )
       ),
       expectNotToBeLevel2xx: defineSandboxFn(
         ctx,
@@ -132,8 +132,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toBeLevel2xx(),
+            postConfig.testRunStack
+          ).not.toBeLevel2xx()
       ),
       expectNotToBeLevel3xx: defineSandboxFn(
         ctx,
@@ -142,8 +142,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toBeLevel3xx(),
+            postConfig.testRunStack
+          ).not.toBeLevel3xx()
       ),
       expectNotToBeLevel4xx: defineSandboxFn(
         ctx,
@@ -152,8 +152,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toBeLevel4xx(),
+            postConfig.testRunStack
+          ).not.toBeLevel4xx()
       ),
       expectNotToBeLevel5xx: defineSandboxFn(
         ctx,
@@ -162,8 +162,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toBeLevel5xx(),
+            postConfig.testRunStack
+          ).not.toBeLevel5xx()
       ),
       expectNotToBeType: defineSandboxFn(
         ctx,
@@ -179,9 +179,9 @@ const createPwInputsObj = (
           return createExpectation(
             resolvedExpectVal,
             false,
-            postConfig.testRunStack,
+            postConfig.testRunStack
           ).not.toBeType(expectedType)
-        },
+        }
       ),
       expectNotToHaveLength: defineSandboxFn(
         ctx,
@@ -190,8 +190,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toHaveLength(expectedLength),
+            postConfig.testRunStack
+          ).not.toHaveLength(expectedLength)
       ),
       expectNotToInclude: defineSandboxFn(
         ctx,
@@ -200,8 +200,8 @@ const createPwInputsObj = (
           createExpectation(
             expectVal,
             false,
-            postConfig.testRunStack,
-          ).not.toInclude(needle),
+            postConfig.testRunStack
+          ).not.toInclude(needle)
       ),
       preTest: defineSandboxFn(ctx, "preTest", (descriptor: any) => {
         postConfig.testRunStack.push({
@@ -219,7 +219,7 @@ const createPwInputsObj = (
       getResponse: defineSandboxFn(
         ctx,
         "getResponse",
-        () => postConfig.response,
+        () => postConfig.response
       ),
     }
   }
@@ -230,7 +230,7 @@ const createPwInputsObj = (
 const createPwModule = (
   type: PwModuleType,
   bootstrapCode: string,
-  config: PwModuleConfig,
+  config: PwModuleConfig
 ) => {
   return defineCageModule((ctx) => {
     const funcHandle = ctx.scope.manage(ctx.vm.evalCode(bootstrapCode)).unwrap()
@@ -239,7 +239,7 @@ const createPwModule = (
 
     const inputsObj = defineSandboxObject(
       ctx,
-      createPwInputsObj(ctx, methods, type, config),
+      createPwInputsObj(ctx, methods, type, config)
     )
 
     ctx.vm.callFunction(funcHandle, ctx.vm.undefined, inputsObj)

@@ -1133,8 +1133,8 @@ importers:
         specifier: 4.17.12
         version: 4.17.12
       faraday-cage:
-        specifier: 0.0.15
-        version: 0.0.15
+        specifier: 0.0.16
+        version: 0.0.16
       fp-ts:
         specifier: 2.16.9
         version: 2.16.9
@@ -8859,8 +8859,8 @@ packages:
     resolution: {integrity: sha512-FuoE1qtbJ4bBVvv94CC7s0oTnKUGvQs+Rjf1L2SJFfS+HTVVjhPFtehPdQ0JiGPqVNfSSZvL5yzHHQq2Z4WNhQ==}
     engines: {node: ^12.20 || >= 14.13}
 
-  faraday-cage@0.0.15:
-    resolution: {integrity: sha512-ZERKHFsea2fZ0gfDVFOkXmtryhp+7CyUBFaa9nvRq7Gbf6XVnZ0f0dKsZjwoBzYqSD3Lhl2DFfK8bW4PEo1y0g==}
+  faraday-cage@0.0.16:
+    resolution: {integrity: sha512-+BHq/8LnqSsZ+qygj4+dgdis3iR+bBtB5dbWcw8ZNhdhoYQ+X9FS00qhQ6B6tIoEBNBHBSeQN3ydMXOjoE0y3Q==}
 
   fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
@@ -10938,6 +10938,7 @@ packages:
   multer@1.4.5-lts.2:
     resolution: {integrity: sha512-VzGiVigcG9zUAoCNU+xShztrlr1auZOlurXynNvO9GiWD1/mTBbUljOKY+qMeazBqXgRnjzeEgJI/wyjJUHg9A==}
     engines: {node: '>= 6.0.0'}
+    deprecated: Multer 1.x is impacted by a number of vulnerabilities, which have been patched in 2.x. You should upgrade to the latest 2.x version.
 
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
@@ -24439,7 +24440,7 @@ snapshots:
 
   extract-files@11.0.0: {}
 
-  faraday-cage@0.0.15:
+  faraday-cage@0.0.16:
     dependencies:
       '@jitl/quickjs-ffi-types': 0.31.0
       '@jitl/quickjs-singlefile-mjs-release-asyncify': 0.31.0

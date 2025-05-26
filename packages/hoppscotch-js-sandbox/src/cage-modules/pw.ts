@@ -261,8 +261,8 @@ const createPwModule = (
   })
 }
 
-export const pwPostRequestModule = (config: PwPostRequestModuleConfig) =>
-  createPwModule("post", postRequestBootstrapCode, config)
-
 export const pwPreRequestModule = (config: PwPreRequestModuleConfig) =>
   createPwModule("pre", preRequestBootstrapCode, config)
+
+export const pwPostRequestModule = (config: PwPostRequestModuleConfig) =>
+  createPwModule("post", postRequestBootstrapCode, config)

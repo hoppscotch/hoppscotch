@@ -9,52 +9,37 @@
       resolve: (key) => inputs.envResolve(key),
     },
     expect: (expectVal) => {
-      return {
+      const isDateInstance = expectVal instanceof Date
+
+      const expectation = {
         toBe: (expectedVal) => inputs.expectToBe(expectVal, expectedVal),
-        toBeLevel2xx: (expectedVal) =>
-          inputs.expectToBeLevel2xx(expectVal, expectedVal),
-        toBeLevel3xx: (expectedVal) =>
-          inputs.expectToBeLevel3xx(expectVal, expectedVal),
-        toBeLevel4xx: (expectedVal) =>
-          inputs.expectToBeLevel4xx(expectVal, expectedVal),
-        toBeLevel5xx: (expectedVal) =>
-          inputs.expectToBeLevel5xx(expectVal, expectedVal),
-        toBeType: (expectedVal) => {
-          const isExpectValDateInstance = expectVal instanceof Date
-          return inputs.expectToBeType(
-            expectVal,
-            expectedVal,
-            isExpectValDateInstance
-          )
-        },
-        toHaveLength: (expectedVal) =>
-          inputs.expectToHaveLength(expectVal, expectedVal),
-        toInclude: (expectedVal) =>
-          inputs.expectToInclude(expectVal, expectedVal),
-        not: {
-          toBe: (expectedVal) => inputs.expectNotToBe(expectVal, expectedVal),
-          toBeLevel2xx: (expectedVal) =>
-            inputs.expectNotToBeLevel2xx(expectVal, expectedVal),
-          toBeLevel3xx: (expectedVal) =>
-            inputs.expectNotToBeLevel3xx(expectVal, expectedVal),
-          toBeLevel4xx: (expectedVal) =>
-            inputs.expectNotToBeLevel4xx(expectVal, expectedVal),
-          toBeLevel5xx: (expectedVal) =>
-            inputs.expectNotToBeLevel5xx(expectVal, expectedVal),
-          toBeType: (expectedVal) => {
-            const isExpectValDateInstance = expectVal instanceof Date
-            return inputs.expectNotToBeType(
-              expectVal,
-              expectedVal,
-              isExpectValDateInstance
-            )
-          },
-          toHaveLength: (expectedVal) =>
-            inputs.expectNotToHaveLength(expectVal, expectedVal),
-          toInclude: (expectedVal) =>
-            inputs.expectNotToInclude(expectVal, expectedVal),
-        },
+        toBeLevel2xx: () => inputs.expectToBeLevel2xx(expectVal),
+        toBeLevel3xx: () => inputs.expectToBeLevel3xx(expectVal),
+        toBeLevel4xx: () => inputs.expectToBeLevel4xx(expectVal),
+        toBeLevel5xx: () => inputs.expectToBeLevel5xx(expectVal),
+        toBeType: (expectedType) =>
+          inputs.expectToBeType(expectVal, expectedType, isDateInstance),
+        toHaveLength: (expectedLength) =>
+          inputs.expectToHaveLength(expectVal, expectedLength),
+        toInclude: (needle) => inputs.expectToInclude(expectVal, needle),
       }
+
+      Object.defineProperty(expectation, "not", {
+        get: () => ({
+          toBe: (expectedVal) => inputs.expectNotToBe(expectVal, expectedVal),
+          toBeLevel2xx: () => inputs.expectNotToBeLevel2xx(expectVal),
+          toBeLevel3xx: () => inputs.expectNotToBeLevel3xx(expectVal),
+          toBeLevel4xx: () => inputs.expectNotToBeLevel4xx(expectVal),
+          toBeLevel5xx: () => inputs.expectNotToBeLevel5xx(expectVal),
+          toBeType: (expectedType) =>
+            inputs.expectNotToBeType(expectVal, expectedType, isDateInstance),
+          toHaveLength: (expectedLength) =>
+            inputs.expectNotToHaveLength(expectVal, expectedLength),
+          toInclude: (needle) => inputs.expectNotToInclude(expectVal, needle),
+        }),
+      })
+
+      return expectation
     },
     test: (descriptor, testFn) => {
       inputs.preTest(descriptor)

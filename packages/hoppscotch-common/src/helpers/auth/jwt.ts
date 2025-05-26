@@ -1,70 +1,99 @@
-import * as jwt from "jsonwebtoken"
-import { Environment } from "@hoppscotch/data"
-import { parseTemplateString } from "@hoppscotch/data"
+import * as jose from "jose"
+
+export interface JWTTokenParams {
+  algorithm: string
+  secret: string
+  privateKey: string
+  payload: string
+  jwtHeaders: string
+  isSecretBase64Encoded: boolean
+}
 
 /**
- * Generates a JWT token based on the provided parameters
- *
- * @param secret The secret key for signing the JWT
- * @param isSecretBase64Encoded Whether the secret is base64 encoded
- * @param payload JSON payload string to be included in the JWT
- * @param algorithm JWT algorithm to use (HS256, RS256, etc)
- * @param jwtHeaders JSON headers string to be included in the JWT
- * @param envVars Environment variables to use for template parsing
- * @param showKeyIfSecret Whether to show key if it's a secret
- * @returns The generated JWT token
+ * Generates a JWT token using the provided parameters
+ * @param params JWT token generation parameters with pre-parsed values
+ * @returns Promise<string | null> - The generated JWT token or null if generation fails
  */
-export function generateJWTToken(
-  secret: string,
-  isSecretBase64Encoded: boolean,
-  payload: string,
-  algorithm: string,
-  jwtHeaders: string,
-  envVars: Environment["variables"],
-  showKeyIfSecret: boolean = false
-): string {
+export async function generateJWTToken(
+  params: JWTTokenParams
+): Promise<string | null> {
+  const {
+    algorithm,
+    secret,
+    privateKey,
+    payload,
+    jwtHeaders,
+    isSecretBase64Encoded,
+  } = params
+
+  // Parse the payload and headers from JSON strings
+  let parsedPayload = {}
+  let parsedHeaders = {}
+
+  // Safely parse payload JSON
   try {
-    // Parse the payload and headers from JSON strings
-    let parsedPayload = {}
-    let parsedHeaders = {}
-
-    try {
-      parsedPayload = JSON.parse(
-        parseTemplateString(payload, envVars, false, showKeyIfSecret) || "{}"
-      )
-    } catch (e) {
-      console.error("Failed to parse JWT payload JSON:", e)
+    const payloadString = payload?.trim() || "{}"
+    if (payloadString === "") {
+      parsedPayload = {}
+    } else {
+      parsedPayload = JSON.parse(payloadString)
     }
+  } catch (e) {
+    console.error("Failed to parse JWT payload JSON:", e)
+    console.error("Payload value:", payload)
+    return null
+  }
 
-    try {
-      parsedHeaders = JSON.parse(
-        parseTemplateString(jwtHeaders, envVars, false, showKeyIfSecret) || "{}"
-      )
-    } catch (e) {
-      console.error("Failed to parse JWT headers JSON:", e)
+  // Safely parse headers JSON
+  try {
+    const headersString = jwtHeaders?.trim() || "{}"
+    if (headersString === "") {
+      parsedHeaders = {}
+    } else {
+      parsedHeaders = JSON.parse(headersString)
     }
+  } catch (e) {
+    console.error("Failed to parse JWT headers JSON:", e)
+    console.error("Headers value:", jwtHeaders)
+    return null
+  }
 
-    // Get secret from environment variables if needed
-    const parsedSecret = parseTemplateString(
-      secret,
-      envVars,
-      false,
-      showKeyIfSecret
-    )
+  try {
+    let cryptoKey: Uint8Array
 
-    // Generate token based on algorithm type
-    return jwt.sign(
-      parsedPayload,
-      isSecretBase64Encoded
-        ? Buffer.from(parsedSecret, "base64")
-        : parsedSecret,
-      {
-        algorithm: algorithm as jwt.Algorithm,
-        ...parsedHeaders,
+    // Use private key for RSA/ECDSA algorithms, secret for HMAC algorithms
+    if (
+      algorithm.startsWith("RS") ||
+      algorithm.startsWith("ES") ||
+      algorithm.startsWith("PS")
+    ) {
+      // RSA or ECDSA algorithms - use private key
+      if (!privateKey) {
+        console.error("Private key is required for RSA/ECDSA algorithms")
+        return null
       }
-    )
+      cryptoKey = new TextEncoder().encode(privateKey)
+    } else {
+      // HMAC algorithms - use secret
+      if (!secret) {
+        console.error("Secret is required for HMAC algorithms")
+        return null
+      }
+      cryptoKey = isSecretBase64Encoded
+        ? Uint8Array.from(Buffer.from(secret, "base64"))
+        : new TextEncoder().encode(secret)
+    }
+
+    const token = await new jose.SignJWT(parsedPayload)
+      .setProtectedHeader({
+        alg: algorithm,
+        ...parsedHeaders,
+      })
+      .sign(cryptoKey)
+
+    return token
   } catch (e) {
     console.error("Error generating JWT token:", e)
-    return ""
+    return null
   }
 }

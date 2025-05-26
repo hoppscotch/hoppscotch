@@ -41,21 +41,38 @@
       </tippy>
     </span>
   </div>
-  <div class="flex flex-1 border-b border-dividerLight">
-    <SmartEnvInput
-      v-model="auth.secret"
-      :auto-complete-env="true"
-      :placeholder="t('authorization.secret')"
-      :envs="envs"
-    />
+
+  <!-- Private Key field for RSA/ECDSA algorithms -->
+
+  <div
+    v-if="isAsymmetricAlgorithm"
+    class="ml-4 py-2 border-b border-dividerLight"
+  >
+    <label class="text-secondaryLight">
+      {{ t("authorization.jwt.private_key") }}
+    </label>
+    <div ref="privateKeyEditor" class="mt-2 h-32"></div>
   </div>
-  <div class="px-4 py-2 flex items-center">
-    <HoppSmartCheckbox
-      :on="auth.isSecretBase64Encoded"
-      @change="auth.isSecretBase64Encoded = !auth.isSecretBase64Encoded"
-    >
-      {{ t("authorization.jwt.secret_base64_encoded") }}
-    </HoppSmartCheckbox>
+
+  <!-- Secret field for HMAC algorithms -->
+  <div v-else>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput
+        v-model="auth.secret"
+        :auto-complete-env="true"
+        :placeholder="t('authorization.secret')"
+        :envs="envs"
+      />
+    </div>
+
+    <div class="px-4 py-2 flex items-center">
+      <HoppSmartCheckbox
+        :on="auth.isSecretBase64Encoded"
+        @change="auth.isSecretBase64Encoded = !auth.isSecretBase64Encoded"
+      >
+        {{ t("authorization.jwt.secret_base64_encoded") }}
+      </HoppSmartCheckbox>
+    </div>
   </div>
 
   <div class="ml-4 py-2 border-b border-dividerLight">
@@ -181,6 +198,7 @@ const auth = useVModel(props, "modelValue", emit)
 // Template refs for CodeMirror editors
 const payloadEditor = ref<any | null>(null)
 const headersEditor = ref<any | null>(null)
+const privateKeyEditor = ref<any | null>(null)
 
 const payload = computed({
   get: () => auth.value.payload,
@@ -198,6 +216,16 @@ const jwtHeaders = computed({
     auth.value = {
       ...auth.value,
       jwtHeaders: value,
+    }
+  },
+})
+
+const privateKey = computed({
+  get: () => auth.value.privateKey,
+  set: (value) => {
+    auth.value = {
+      ...auth.value,
+      privateKey: value,
     }
   },
 })
@@ -234,6 +262,24 @@ useCodemirror(
   })
 )
 
+useCodemirror(
+  privateKeyEditor,
+  privateKey,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/plain",
+      readOnly: false,
+      lineWrapping: true,
+      placeholder: `-----BEGIN PRIVATE KEY-----
+Your private key here
+-----END PRIVATE KEY-----`,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
+
 const algorithms: HoppRESTAuthJWT["algorithm"][] = [
   "HS256",
   "HS384",
@@ -261,6 +307,14 @@ const passBy = computed(() => {
   return (
     addToTargets.find((target) => target.id === auth.value.addTo)?.label ||
     t("state.none")
+  )
+})
+
+const isAsymmetricAlgorithm = computed(() => {
+  return (
+    auth.value.algorithm.startsWith("RS") ||
+    auth.value.algorithm.startsWith("ES") ||
+    auth.value.algorithm.startsWith("PS")
   )
 })
 </script>

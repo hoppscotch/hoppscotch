@@ -279,6 +279,7 @@
       "placeholder_request_param": "Request params name",
       "secret_base64_encoded": "Secret Base64 Encoded",
       "headers": "JWT Headers",
+      "private_key": "Private Key",
       "placeholder_headers": "JWT Headers"
     }
   },

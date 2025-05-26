@@ -617,6 +617,9 @@ importers:
       io-ts:
         specifier: 2.2.21
         version: 2.2.21(fp-ts@2.16.9)
+      jose:
+        specifier: 6.0.11
+        version: 6.0.11
       js-md5:
         specifier: 0.8.3
         version: 0.8.3
@@ -629,9 +632,6 @@ importers:
       jsonpath-plus:
         specifier: 10.0.0
         version: 10.0.0
-      jsonwebtoken:
-        specifier: 9.0.2
-        version: 9.0.2
       lodash-es:
         specifier: 4.17.21
         version: 4.17.21
@@ -10204,6 +10204,9 @@ packages:
 
   jose@5.9.3:
     resolution: {integrity: sha512-egLIoYSpcd+QUF+UHgobt5YzI2Pkw/H39ou9suW687MY6PmCwPmkNV/4TNjn1p2tX5xO3j0d0sq5hiYE24bSlg==}
+
+  jose@6.0.11:
+    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -26192,6 +26195,8 @@ snapshots:
   jiti@2.4.2: {}
 
   jose@5.9.3: {}
+
+  jose@6.0.11: {}
 
   joycon@3.1.1: {}
 

@@ -16,6 +16,7 @@ import { HoppRESTAuthOAuth2 } from "./11"
 export const HoppRESTAuthJWT = z.object({
   authType: z.literal("jwt"),
   secret: z.string().catch(""),
+  privateKey: z.string().catch(""), // For RSA/ECDSA algorithms
   algorithm: z
     .enum([
       "HS256",
@@ -24,6 +25,9 @@ export const HoppRESTAuthJWT = z.object({
       "RS256",
       "RS384",
       "RS512",
+      "PS256",
+      "PS384",
+      "PS512",
       "ES256",
       "ES384",
       "ES512",

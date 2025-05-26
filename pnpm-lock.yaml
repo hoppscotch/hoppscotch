@@ -617,9 +617,6 @@ importers:
       io-ts:
         specifier: 2.2.21
         version: 2.2.21(fp-ts@2.16.9)
-      jose:
-        specifier: 6.0.11
-        version: 6.0.11
       js-md5:
         specifier: 0.8.3
         version: 0.8.3
@@ -951,6 +948,9 @@ importers:
       io-ts:
         specifier: 2.2.21
         version: 2.2.21(fp-ts@2.16.9)
+      jose:
+        specifier: 6.0.11
+        version: 6.0.11
       lodash:
         specifier: 4.17.21
         version: 4.17.21

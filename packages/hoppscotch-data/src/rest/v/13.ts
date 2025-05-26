@@ -7,6 +7,7 @@ import {
 import { HoppRESTAuthAPIKey } from "./4"
 import { HoppRESTAuthAWSSignature } from "./7"
 import { HoppRESTAuthDigest } from "./8"
+
 import { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid, V12_SCHEMA } from "./12"
 
 import { z } from "zod"
@@ -73,7 +74,7 @@ export const V13_SCHEMA = V12_SCHEMA.extend({
 export default defineVersion({
   schema: V13_SCHEMA,
   initial: false,
-  up(old: z.infer<typeof V12_SCHEMA>) {
+  up(old: any) {
     return {
       ...old,
       v: "13" as const,

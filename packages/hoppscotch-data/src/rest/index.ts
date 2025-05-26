@@ -19,7 +19,7 @@ import V9_VERSION from "./v/9"
 import V10_VERSION, { HoppRESTReqBody } from "./v/10"
 import V11_VERSION, { HoppRESTRequestResponses } from "./v/11"
 import V12_VERSION from "./v/12"
-import V13_VERSION, { HoppRESTAuth, HoppRESTAuthJWT } from "./v/13"
+import V13_VERSION, { HoppRESTAuth } from "./v/13"
 
 export * from "./content-types"
 
@@ -52,11 +52,11 @@ export {
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
   HoppRESTRequestResponses,
+  HoppRESTAuthOAuth2,
+  ClientCredentialsGrantTypeParams,
 } from "./v/11"
 
 export { HoppRESTReqBody } from "./v/10"
-
-export { HoppRESTAuthOAuth2, ClientCredentialsGrantTypeParams } from "./v/11"
 
 export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12"
 

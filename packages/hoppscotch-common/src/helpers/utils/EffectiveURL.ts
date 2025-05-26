@@ -29,14 +29,12 @@ import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
-import { generateJWTToken } from "../auth/jwt"
-
 import {
   DigestAuthParams,
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
-import { calculateHawkHeader } from "@hoppscotch/data"
+import { calculateHawkHeader, generateJWTToken } from "@hoppscotch/data"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**

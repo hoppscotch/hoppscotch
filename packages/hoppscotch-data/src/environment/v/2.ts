@@ -1,4 +1,4 @@
-import { boolean, z } from "zod"
+import { z } from "zod"
 import { defineVersion } from "verzod"
 import { V1_SCHEMA } from "./1"
 
@@ -27,10 +27,10 @@ export default defineVersion({
         // else set initialValue and currentValue to value
         // and delete value
         return {
-          ...variable,
+          key: variable.key,
+          secret: variable.secret,
           initialValue: variable.secret ? "" : variable.value,
           currentValue: variable.secret ? "" : variable.value,
-          value: undefined,
         }
       }),
     }

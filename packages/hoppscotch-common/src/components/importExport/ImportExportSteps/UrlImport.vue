@@ -24,7 +24,7 @@
       <input
         v-model="inputChooseGistToImportFrom"
         v-focus
-        :placeholder="`${t('import.from_url')}`"
+        :placeholder="t('import.from_url')"
         type="url"
         class="input"
       />

@@ -70,7 +70,8 @@
     "yes": "Yes",
     "verify": "Verify",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "assign": "Assign"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Activity log has been deleted",

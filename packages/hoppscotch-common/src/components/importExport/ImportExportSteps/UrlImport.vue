@@ -23,10 +23,10 @@
     <p class="flex flex-col">
       <input
         v-model="inputChooseGistToImportFrom"
+        v-focus
+        :placeholder="`${t('import.from_url')}`"
         type="url"
         class="input"
-        :placeholder="`${t('import.from_url')}`"
-        v-focus
       />
     </p>
 

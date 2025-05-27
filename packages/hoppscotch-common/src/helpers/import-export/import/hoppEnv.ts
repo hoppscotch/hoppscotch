@@ -28,7 +28,9 @@ export const hoppEnvImporter = (contents: string[]) => {
                 ...valueEntry,
                 value: String(valueEntry.value),
               }
-            } else if ("initialValue" in valueEntry) {
+            }
+
+            if ("initialValue" in valueEntry) {
               return {
                 ...valueEntry,
                 initialValue: String(valueEntry.initialValue),

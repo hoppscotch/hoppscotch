@@ -101,7 +101,7 @@ export const HoppRESTRequestResponse = z.object({
   name: z.string(),
   originalRequest: HoppRESTResponseOriginalRequest,
   status: z.string(),
-  code: z.optional(ValidCodes),
+  code: z.optional(ValidCodes).nullable().catch(null),
   headers: HoppRESTResponseHeaders,
   body: z.string(),
 })

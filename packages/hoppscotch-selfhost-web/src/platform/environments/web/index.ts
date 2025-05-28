@@ -18,7 +18,10 @@ import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environ
 
 import { environnmentsSyncer } from "@platform/environments/web/sync"
 
-import { GlobalEnvironment } from "@hoppscotch/data"
+import {
+  GlobalEnvironment,
+  translateToNewEnvironmentVariables,
+} from "@hoppscotch/data"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import {
   createUserGlobalEnvironment,
@@ -87,7 +90,9 @@ async function loadUserEnvironments() {
             v: 2,
             id,
             name,
-            variables: JSON.parse(variables),
+            variables: JSON.parse(variables).map((v) =>
+              translateToNewEnvironmentVariables(v)
+            ),
           }))
         )
       })

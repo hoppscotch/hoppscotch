@@ -10,6 +10,7 @@ import {
   TeamEnvironmentUpdatedDocument,
 } from "../backend/graphql"
 import { TeamEnvironment } from "./TeamEnvironment"
+import { translateToNewEnvironmentVariables } from "@hoppscotch/data"
 
 type EntityType = "environment"
 type EntityID = `${EntityType}-${string}`
@@ -121,7 +122,9 @@ export default class TeamEnvironmentAdapter {
                 v: 2,
                 id: x.id,
                 name: x.name,
-                variables: JSON.parse(x.variables),
+                variables: JSON.parse(x.variables).map((v: any) =>
+                  translateToNewEnvironmentVariables(v)
+                ),
               },
             }
         )

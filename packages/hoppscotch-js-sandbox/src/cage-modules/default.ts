@@ -5,9 +5,8 @@ import {
   crypto,
   encoding,
   esmModuleLoader,
-  fetch,
-  urlPolyfill,
   timers,
+  urlPolyfill,
 } from "faraday-cage/modules"
 
 type DefaultModulesConfig = {
@@ -61,7 +60,6 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
     }),
 
     esmModuleLoader,
-    fetch(),
     encoding(),
     timers(),
   ]

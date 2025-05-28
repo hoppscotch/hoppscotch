@@ -78,7 +78,7 @@ export function getSuitableLenses(response: HoppRESTResponse): Lens[] {
 
     // If no matching lenses found, include all lenses to give user full control
     if (matchingLenses.length === 0) {
-      return [...lenses]
+      return lenses
     }
 
     // Always include raw lens for viewing the raw response

@@ -61,8 +61,9 @@
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
-          >{{ t("state.enabled") }}</HoppSmartCheckbox
         >
+          {{ t("state.enabled") }}
+        </HoppSmartCheckbox>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/features/authorization"
@@ -157,6 +158,9 @@
         <div v-if="auth.authType === 'digest'">
           <HttpAuthorizationDigest v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'jwt'">
+          <HttpAuthorizationJWT v-model="auth" :envs="envs" />
+        </div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
@@ -198,6 +202,7 @@ import {
   HoppRESTAuthDigest,
   HoppRESTAuthHAWK,
   HoppRESTAuthOAuth2,
+  HoppRESTAuthJWT,
 } from "@hoppscotch/data"
 
 const t = useI18n()
@@ -294,6 +299,21 @@ const selectDigestAuthType = () => {
   } as HoppRESTAuth
 }
 
+const selectJWTAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "jwt",
+    secret: "",
+    algorithm: "HS256",
+    payload: "{}",
+    addTo: "HEADERS",
+    isSecretBase64Encoded: false,
+    headerPrefix: "Bearer ",
+    paramName: "token",
+    jwtHeaders: "{}",
+  } as HoppRESTAuthJWT
+}
+
 const authTypes: AuthType[] = [
   {
     key: "inherit",
@@ -335,6 +355,11 @@ const authTypes: AuthType[] = [
     key: "hawk",
     label: "HAWK",
     handler: selectHAWKAuthType,
+  },
+  {
+    key: "jwt",
+    label: "JWT",
+    handler: selectJWTAuthType,
   },
 ]
 

@@ -252,6 +252,9 @@
     "username": "Username",
     "advance_config": "Advanced Configuration",
     "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided",
+    "algorithm": "Algorithm",
+    "payload": "Payload",
+    "secret": "Secret",
     "aws_signature": {
       "access_key": "Access Key",
       "secret_key": "Secret Key",
@@ -268,6 +271,16 @@
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request"
+    },
+    "jwt": {
+      "params_name": "Params Name",
+      "header_prefix": "Header Prefix",
+      "placeholder_request_header": "Request header prefix",
+      "placeholder_request_param": "Request params name",
+      "secret_base64_encoded": "Secret Base64 Encoded",
+      "headers": "JWT Headers",
+      "private_key": "Private Key",
+      "placeholder_headers": "JWT Headers"
     }
   },
   "collection": {

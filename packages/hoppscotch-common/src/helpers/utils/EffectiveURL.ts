@@ -29,13 +29,12 @@ import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
-
 import {
   DigestAuthParams,
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
-import { calculateHawkHeader } from "@hoppscotch/data"
+import { calculateHawkHeader, generateJWTToken } from "@hoppscotch/data"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -297,6 +296,35 @@ export const getComputedAuthHeaders = async (
       value: hawkHeader,
       description: "",
     })
+  } else if (
+    request.auth.authType === "jwt" &&
+    request.auth.addTo === "HEADERS"
+  ) {
+    const token = await generateJWTToken({
+      algorithm: request.auth.algorithm || "HS256",
+      secret: parseTemplateString(request.auth.secret, envVars, false),
+      privateKey: parseTemplateString(request.auth.privateKey, envVars, false),
+      payload: parseTemplateString(request.auth.payload, envVars, false),
+      jwtHeaders: parseTemplateString(request.auth.jwtHeaders, envVars, false),
+      isSecretBase64Encoded: request.auth.isSecretBase64Encoded,
+    })
+
+    if (token) {
+      // Get prefix (defaults to "Bearer " if not specified)
+      const headerPrefix = parseTemplateString(
+        request.auth.headerPrefix,
+        envVars,
+        false,
+        showKeyIfSecret
+      )
+
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `${headerPrefix}${token}`,
+        description: "",
+      })
+    }
   }
 
   return headers
@@ -432,7 +460,8 @@ export const getComputedParams = async (
   if (
     req.auth.authType !== "api-key" &&
     req.auth.authType !== "oauth-2" &&
-    req.auth.authType !== "aws-signature"
+    req.auth.authType !== "aws-signature" &&
+    req.auth.authType !== "jwt"
   )
     return []
 
@@ -503,6 +532,36 @@ export const getComputedParams = async (
       },
     ]
   }
+
+  if (req.auth.authType === "jwt") {
+    const token = await generateJWTToken({
+      algorithm: req.auth.algorithm || "HS256",
+      secret: parseTemplateString(req.auth.secret, envVars, false),
+      privateKey: parseTemplateString(req.auth.privateKey, envVars, false),
+      payload: parseTemplateString(req.auth.payload, envVars, false),
+      jwtHeaders: parseTemplateString(req.auth.jwtHeaders, envVars, false),
+      isSecretBase64Encoded: req.auth.isSecretBase64Encoded,
+    })
+
+    if (token) {
+      // Get param name (defaults to "token" if not specified)
+      const paramName = parseTemplateString(req.auth.paramName, envVars)
+
+      return [
+        {
+          source: "auth",
+          param: {
+            active: true,
+            key: paramName,
+            value: token,
+            description: "",
+          },
+        },
+      ]
+    }
+    return []
+  }
+
   return []
 }
 

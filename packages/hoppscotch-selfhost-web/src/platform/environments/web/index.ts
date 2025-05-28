@@ -96,7 +96,12 @@ async function loadUserEnvironments() {
             const parsedEnv =
               entityReference(Environment).safeParse(environment)
 
-            return parsedEnv.success ? parsedEnv.data : environment
+            return parsedEnv.success
+              ? parsedEnv.data
+              : {
+                  ...environment,
+                  v: 2,
+                }
           })
         )
       })

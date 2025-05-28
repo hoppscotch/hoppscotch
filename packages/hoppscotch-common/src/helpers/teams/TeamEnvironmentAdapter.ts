@@ -129,7 +129,10 @@ export default class TeamEnvironmentAdapter {
             teamID: x.teamID,
             environment: parsedEnvironment.success
               ? parsedEnvironment.data
-              : environment,
+              : {
+                  ...environment,
+                  v: 2,
+                },
           }
         })
       )

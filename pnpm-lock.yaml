@@ -715,7 +715,7 @@ importers:
         version: 10.0.0
       verzod:
         specifier: 0.2.4
-        version: 0.2.4(zod@3.23.8)
+        version: 0.2.4(zod@3.25.32)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.3.3)
@@ -750,8 +750,8 @@ importers:
         specifier: 21.1.1
         version: 21.1.1
       zod:
-        specifier: 3.23.8
-        version: 3.23.8
+        specifier: 3.25.32
+        version: 3.25.32
     devDependencies:
       '@esbuild-plugins/node-globals-polyfill':
         specifier: 0.2.3

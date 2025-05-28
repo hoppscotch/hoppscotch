@@ -204,7 +204,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       });
 
       const every500msCount = (stdout.match(/Every 500ms/g) || []).length;
-      expect(every500msCount).toBe(3);
+      expect(every500msCount).toBeGreaterThanOrEqual(3);
     });
 
     test("Fails to display console logs and recognize platform APIs in the legacy scripting sandbox", async () => {

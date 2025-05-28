@@ -18,7 +18,8 @@
     {
       "key": "url",
       "currentValue": "",
-      "initialValue": "https://test.insightres.org/digest/"
+      "initialValue": "https://test.insightres.org/digest/",
+      "secret": false
     }
   ]
 }

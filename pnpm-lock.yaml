@@ -962,10 +962,10 @@ importers:
         version: 10.0.0
       verzod:
         specifier: 0.2.4
-        version: 0.2.4(zod@3.23.8)
+        version: 0.2.4(zod@3.25.32)
       zod:
-        specifier: 3.23.8
-        version: 3.23.8
+        specifier: 3.25.32
+        version: 3.25.32
     devDependencies:
       '@types/lodash':
         specifier: 4.17.10
@@ -974,8 +974,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       typescript:
-        specifier: 5.6.3
-        version: 5.6.3
+        specifier: 5.8.3
+        version: 5.8.3
       vite:
         specifier: 5.4.9
         version: 5.4.9(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2)
@@ -14540,6 +14540,9 @@ packages:
 
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+
+  zod@3.25.32:
+    resolution: {integrity: sha512-OSm2xTIRfW8CV5/QKgngwmQW/8aPfGdaQFlrGoErlgg/Epm7cjb6K6VEyExfe65a3VybUOnu381edLb0dfJl0g==}
 
 snapshots:
 
@@ -30695,6 +30698,10 @@ snapshots:
     dependencies:
       zod: 3.23.8
 
+  verzod@0.2.4(zod@3.25.32):
+    dependencies:
+      zod: 3.25.32
+
   vite-node@2.1.2(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2):
     dependencies:
       cac: 6.7.14
@@ -32102,3 +32109,5 @@ snapshots:
   zod@3.22.4: {}
 
   zod@3.23.8: {}
+
+  zod@3.25.32: {}

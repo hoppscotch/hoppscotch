@@ -32,7 +32,7 @@ export default defineVersion({
           key,
           secret,
           initialValue: secret ? "" : variable.value,
-          currentValue: secret ? "" : variable.value,
+          currentValue: "",
         }
       }),
     }

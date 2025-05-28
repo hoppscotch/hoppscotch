@@ -165,7 +165,7 @@
     "rollup-plugin-polyfill-node": "0.13.0",
     "sass": "1.79.5",
     "tailwindcss": "3.4.14",
-    "typescript": "5.3.3",
+    "typescript": "5.8.3",
     "unplugin-fonts": "1.1.1",
     "unplugin-icons": "0.19.3",
     "unplugin-vue-components": "0.27.4",

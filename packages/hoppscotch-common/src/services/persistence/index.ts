@@ -462,6 +462,7 @@ export class PersistenceService extends Service {
           const translatedData = result.data.map(translateToNewRESTCollection)
           setRESTCollections(translatedData)
         } else {
+          console.error(`Failed with `, result.error, data)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
           await Store.set(
             STORE_NAMESPACE,

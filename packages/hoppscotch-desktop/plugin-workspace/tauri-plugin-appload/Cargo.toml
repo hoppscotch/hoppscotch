@@ -9,7 +9,7 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
 links = "tauri-plugin-appload"
 
 [dependencies]
-tauri = { version = "2.0.6", features = ["unstable"] }
+tauri = { version = "2.0.6" }
 serde = "1.0"
 serde_json = { version = "1", features = [] }
 thiserror = { version = "2.0.3", features = [] }

@@ -17,9 +17,9 @@ import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
 import V8_VERSION from "./v/8"
 import V9_VERSION from "./v/9"
 import V10_VERSION, { HoppRESTReqBody } from "./v/10"
-import V11_VERSION, { HoppRESTRequestResponses } from "./v/11"
+import V11_VERSION from "./v/11"
 import V12_VERSION from "./v/12"
-import V13_VERSION, { HoppRESTAuth } from "./v/13"
+import V13_VERSION, { HoppRESTAuth, HoppRESTRequestResponses } from "./v/13"
 
 export * from "./content-types"
 
@@ -48,19 +48,19 @@ export { HoppRESTAuthDigest, PasswordGrantTypeParams } from "./v/8"
 
 export { FormDataKeyValue } from "./v/9"
 
-export {
-  HoppRESTResponseOriginalRequest,
-  HoppRESTRequestResponse,
-  HoppRESTRequestResponses,
-  HoppRESTAuthOAuth2,
-  ClientCredentialsGrantTypeParams,
-} from "./v/11"
+export { HoppRESTAuthOAuth2, ClientCredentialsGrantTypeParams } from "./v/11"
 
 export { HoppRESTReqBody } from "./v/10"
 
 export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12"
 
-export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/13"
+export {
+  HoppRESTAuth,
+  HoppRESTAuthJWT,
+  HoppRESTRequestResponses,
+  HoppRESTResponseOriginalRequest,
+  HoppRESTRequestResponse,
+} from "./v/13"
 
 const versionedObject = z.object({
   // v is a stringified number
@@ -127,6 +127,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
 })
 
 export const RESTReqSchemaVersion = "13"
+export const RESTResOriginalReqSchemaVersion = "5" as const
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]

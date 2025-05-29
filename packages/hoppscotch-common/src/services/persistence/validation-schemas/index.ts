@@ -433,7 +433,7 @@ const HoppTestResultSchema = z
           .strict(),
       })
       .strict(),
-    consoleEntries: z.array(z.record(z.string(), z.unknown()).optional()),
+    consoleEntries: z.optional(z.array(z.record(z.string(), z.unknown()))),
   })
   .strict()
 

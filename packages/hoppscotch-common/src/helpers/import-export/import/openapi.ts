@@ -20,6 +20,7 @@ import {
   HoppRESTRequest,
   HoppRESTRequestResponses,
   HoppRESTResponseOriginalRequest,
+  RESTResOriginalReqSchemaVersion,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -843,7 +844,7 @@ const convertPathToHoppReqs = (
             requestVariables: parseOpenAPIVariables(
               (info.parameters as OpenAPIParamsType[] | undefined) ?? []
             ),
-            v: "3",
+            v: RESTResOriginalReqSchemaVersion,
           }),
         }),
         metadata: {

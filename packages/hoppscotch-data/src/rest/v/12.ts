@@ -12,6 +12,11 @@ import { z } from "zod"
 import { defineVersion } from "verzod"
 import { HoppRESTAuthOAuth2, V11_SCHEMA } from "./11"
 
+import {
+  HoppRESTResponseOriginalRequest as HoppRESTResponseOriginalRequestOld,
+  HoppRESTRequestResponse as HoppRESTRequestResponseOld,
+} from "./9"
+
 export const HoppRESTAuthHAWK = z.object({
   authType: z.literal("hawk"),
   authId: z.string().catch(""),
@@ -68,18 +73,56 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
+export const HoppRESTResponseOriginalRequest =
+  HoppRESTResponseOriginalRequestOld.extend({
+    v: z.literal("4"),
+    auth: HoppRESTAuth,
+  })
+
+export type HoppRESTResponseOriginalRequest = z.infer<
+  typeof HoppRESTResponseOriginalRequest
+>
+
+export const HoppRESTRequestResponse = HoppRESTRequestResponseOld.extend({
+  originalRequest: HoppRESTResponseOriginalRequest,
+})
+
+export type HoppRESTRequestResponse = z.infer<typeof HoppRESTRequestResponse>
+
+export const HoppRESTRequestResponses = z.record(
+  z.string(),
+  HoppRESTRequestResponse
+)
+
+export type HoppRESTRequestResponses = z.infer<typeof HoppRESTRequestResponses>
+
 export const V12_SCHEMA = V11_SCHEMA.extend({
   v: z.literal("12"),
   auth: HoppRESTAuth,
+  responses: HoppRESTRequestResponses,
 })
 
 export default defineVersion({
   schema: V12_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V11_SCHEMA>) {
+    // update the version number of response original request
+    const responses = Object.fromEntries(
+      Object.entries(old.responses).map(([key, response]) => [
+        key,
+        {
+          ...response,
+          originalRequest: {
+            ...response.originalRequest,
+            v: "4" as const,
+          },
+        },
+      ])
+    )
     return {
       ...old,
       v: "12" as const,
+      responses,
     }
   },
 })

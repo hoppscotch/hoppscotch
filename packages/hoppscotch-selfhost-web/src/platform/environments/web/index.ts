@@ -18,7 +18,11 @@ import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environ
 
 import { environnmentsSyncer } from "@platform/environments/web/sync"
 
-import { GlobalEnvironment } from "@hoppscotch/data"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import {
   createUserGlobalEnvironment,
@@ -82,13 +86,27 @@ async function loadUserEnvironments() {
 
     if (environments.length > 0) {
       runDispatchWithOutSyncing(() => {
+        const formatedEnvironments = environments.map(
+          (env) =>
+            <Environment>{
+              id: env.id,
+              name: env.name,
+              variables: JSON.parse(env.variables),
+            }
+        )
+
         replaceEnvironments(
-          environments.map(({ id, variables, name }) => ({
-            v: 2,
-            id,
-            name,
-            variables: JSON.parse(variables),
-          }))
+          formatedEnvironments.map((environment) => {
+            const parsedEnv =
+              entityReference(Environment).safeParse(environment)
+
+            return parsedEnv.success
+              ? parsedEnv.data
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+          })
         )
       })
     }

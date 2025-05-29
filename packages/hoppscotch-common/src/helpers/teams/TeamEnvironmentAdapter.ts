@@ -10,7 +10,7 @@ import {
   TeamEnvironmentUpdatedDocument,
 } from "../backend/graphql"
 import { TeamEnvironment } from "./TeamEnvironment"
-import { Environment } from "@hoppscotch/data"
+import { Environment, EnvironmentSchemaVersion } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 
 type EntityType = "environment"
@@ -131,7 +131,7 @@ export default class TeamEnvironmentAdapter {
               ? parsedEnvironment.data
               : {
                   ...environment,
-                  v: 2,
+                  v: EnvironmentSchemaVersion,
                 },
           }
         })

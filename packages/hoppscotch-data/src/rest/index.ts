@@ -127,6 +127,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
 })
 
 export const RESTReqSchemaVersion = "13"
+export const RESTResOriginalReqSchemaVersion = "5" as const
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]

@@ -18,7 +18,11 @@ import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environ
 
 import { environnmentsSyncer } from "@platform/environments/web/sync"
 
-import { Environment, GlobalEnvironment } from "@hoppscotch/data"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import {
   createUserGlobalEnvironment,
@@ -100,7 +104,7 @@ async function loadUserEnvironments() {
               ? parsedEnv.data
               : {
                   ...environment,
-                  v: 2,
+                  v: EnvironmentSchemaVersion,
                 }
           })
         )

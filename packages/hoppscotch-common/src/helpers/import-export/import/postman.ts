@@ -10,6 +10,7 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
+  RESTResOriginalReqSchemaVersion,
   ValidContentTypes,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
@@ -177,7 +178,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: "3" as const,
+            v: RESTResOriginalReqSchemaVersion,
           },
         }
         return [response.name, res]

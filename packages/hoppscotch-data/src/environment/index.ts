@@ -204,7 +204,7 @@ export const translateToNewEnvironmentVariables = (
   return {
     key: x.key,
     initialValue: x.initialValue ?? x.value ?? "",
-    currentValue: "",
+    currentValue: x.currentValue ?? x.value ?? "",
     secret: false,
   }
 }

@@ -347,7 +347,7 @@ watch(
                   props.editingEnvironment?.id ?? "",
                   index,
                   e.secret
-                ) ?? "",
+                ) ?? e.currentValue,
               initialValue: e.initialValue,
               secret: e.secret,
             },

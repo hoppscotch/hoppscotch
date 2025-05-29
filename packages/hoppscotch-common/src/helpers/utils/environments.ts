@@ -38,7 +38,13 @@ const unWrapEnvironments = (
         currentValue: secretVar.value,
       }
     }
-    return { ...globalVar, currentValue: currentVar?.currentValue ?? "" }
+    return {
+      ...globalVar,
+      currentValue:
+        currentVar?.currentValue ??
+        globalVar.currentValue ??
+        globalVar.initialValue,
+    }
   })
 
   const resolvedSelectedWithSecrets = selected.variables.map(
@@ -57,7 +63,13 @@ const unWrapEnvironments = (
           currentValue: secretVar.value,
         }
       }
-      return { ...selectedVar, currentValue: currentVar?.currentValue ?? "" }
+      return {
+        ...selectedVar,
+        currentValue:
+          currentVar?.currentValue ??
+          selectedVar.currentValue ??
+          selectedVar.initialValue,
+      }
     }
   )
 

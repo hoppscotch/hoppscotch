@@ -125,7 +125,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
                 ? currentSelectedEnvironment.id
                 : "Global",
               tooltipEnv?.key ?? ""
-            )?.currentValue ?? "")
+            )?.currentValue ?? tooltipEnv?.currentValue)
           : tooltipEnv?.currentValue
 
       const hasSecretEnv = secretEnvironmentService.hasSecretValue(

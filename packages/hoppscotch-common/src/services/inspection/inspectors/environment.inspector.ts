@@ -221,12 +221,13 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 env.key
               )
 
-              const hasCurrentValue = this.currentEnvs.hasValue(
-                env.sourceEnv !== "Global"
-                  ? currentSelectedEnvironment.id
-                  : "Global",
-                env.key
-              )
+              const hasCurrentValue =
+                this.currentEnvs.hasValue(
+                  env.sourceEnv !== "Global"
+                    ? currentSelectedEnvironment.id
+                    : "Global",
+                  env.key
+                ) || env.currentValue !== ""
 
               if (env.key === formattedExEnv) {
                 if (env.secret ? !hasSecretEnv : !hasCurrentValue) {

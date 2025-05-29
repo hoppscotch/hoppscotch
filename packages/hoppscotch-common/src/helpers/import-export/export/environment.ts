@@ -47,7 +47,7 @@ export const transformEnvironmentVariables = ({
         key,
         secret,
         initialValue,
-        currentValue: "",
+        currentValue: variable.secret ? "" : (variable.currentValue ?? ""),
       }
     }),
   }

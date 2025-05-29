@@ -76,7 +76,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
           ([key, value]) => ({
             key,
             initialValue: value,
-            currentValue: "",
+            currentValue: value,
             secret: false,
           })
         ),

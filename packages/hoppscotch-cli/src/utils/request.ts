@@ -45,7 +45,7 @@ const processVariables = (variable: Environment["variables"][number]) => {
       currentValue:
         "currentValue" in variable && variable.currentValue !== ""
           ? variable.currentValue
-          : process.env[variable.key] || "",
+          : process.env[variable.key] || variable.initialValue,
     };
   }
   return variable;

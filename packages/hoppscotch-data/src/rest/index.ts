@@ -48,18 +48,19 @@ export { HoppRESTAuthDigest, PasswordGrantTypeParams } from "./v/8"
 
 export { FormDataKeyValue } from "./v/9"
 
-export {
-  HoppRESTResponseOriginalRequest,
-  HoppRESTRequestResponse,
-  HoppRESTAuthOAuth2,
-  ClientCredentialsGrantTypeParams,
-} from "./v/11"
+export { HoppRESTAuthOAuth2, ClientCredentialsGrantTypeParams } from "./v/11"
 
 export { HoppRESTReqBody } from "./v/10"
 
 export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12"
 
-export { HoppRESTAuth, HoppRESTAuthJWT, HoppRESTRequestResponses } from "./v/13"
+export {
+  HoppRESTAuth,
+  HoppRESTAuthJWT,
+  HoppRESTRequestResponses,
+  HoppRESTResponseOriginalRequest,
+  HoppRESTRequestResponse,
+} from "./v/13"
 
 const versionedObject = z.object({
   // v is a stringified number

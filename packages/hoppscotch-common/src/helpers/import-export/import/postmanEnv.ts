@@ -57,7 +57,7 @@ export const postmanEnvImporter = (contents: string[]) => {
       variables: values.map(({ key, value, type }) => ({
         key,
         initialValue: value,
-        currentValue: value,
+        currentValue: "",
         secret: type === "secret",
       })),
     })

@@ -380,7 +380,7 @@ watch(
                   ? "Global"
                   : workingEnvID.value,
                 index
-              ) ?? "",
+              ) ?? e.currentValue,
             initialValue: e.initialValue,
             secret: e.secret,
           },

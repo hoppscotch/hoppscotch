@@ -523,17 +523,16 @@ export function getAggregateEnvs() {
 
 export function getAggregateEnvsWithSecrets() {
   const currentEnv = getCurrentEnvironment()
+
   return [
     ...currentEnv.variables.map((x, index) => {
-      let currentValue
+      let currentValue = x.currentValue
       if (x.secret) {
         currentValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             currentEnv.id,
             index
-          )
-      } else {
-        currentValue = x.currentValue
+          ) ?? ""
       }
 
       return <AggregateEnvironment>{
@@ -545,15 +544,13 @@ export function getAggregateEnvsWithSecrets() {
       }
     }),
     ...getGlobalVariables().map((x, index) => {
-      let currentValue
+      let currentValue = x.currentValue
       if (x.secret) {
         currentValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             "Global",
             index
-          )
-      } else {
-        currentValue = x.currentValue
+          ) ?? ""
       }
       return <AggregateEnvironment>{
         key: x.key,
@@ -571,19 +568,17 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
     map(([selectedEnv, globalEnv]) => {
       const results: AggregateEnvironment[] = []
       selectedEnv?.variables.map((x, index) => {
-        let currentValue
+        let currentValue = x.currentValue
         if (x.secret) {
           currentValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               selectedEnv.id,
               index
-            )
-        } else {
-          currentValue = x.currentValue
+            ) ?? ""
         }
         results.push({
           key: x.key,
-          currentValue: currentValue ?? "",
+          currentValue: currentValue,
           initialValue: x.initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,
@@ -591,19 +586,17 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
       })
 
       globalEnv.variables.map((x, index) => {
-        let currentValue
+        let currentValue = x.currentValue
         if (x.secret) {
           currentValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               "Global",
               index
-            )
-        } else {
-          currentValue = x.currentValue
+            ) ?? ""
         }
         results.push({
           key: x.key,
-          currentValue: currentValue ?? "",
+          currentValue: currentValue,
           initialValue: x.initialValue,
           secret: x.secret,
           sourceEnv: "Global",

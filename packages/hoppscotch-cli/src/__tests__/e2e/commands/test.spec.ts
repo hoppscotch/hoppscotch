@@ -95,6 +95,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const testFixtures = [
           { fileName: "env-v0.json", version: 0 },
           { fileName: "env-v1.json", version: 1 },
+          { fileName: "env-v2.json", version: 2 },
         ];
 
         testFixtures.forEach(({ fileName, version }) => {
@@ -178,6 +179,44 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
         expect(error).toBeNull();
       });
+    });
+
+    test("Successfully display console logs and recognizes platform APIs in the experimental scripting sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "test-scripting-sandbox-modes-coll.json",
+        "collection"
+      )}`;
+      const { error, stdout } = await runCLI(args);
+
+      expect(error).toBeNull();
+
+      const expectedStaticParts = [
+        "https://example.com/path?foo=bar&baz=qux",
+        "'0': 72",
+        "'12': 33",
+        "Decoded: Hello, world!",
+        "Hello after 1s",
+      ];
+
+      // Assert that each stable part appears in the output
+      expectedStaticParts.forEach((part) => {
+        expect(stdout).toContain(part);
+      });
+
+      const every500msCount = (stdout.match(/Every 500ms/g) || []).length;
+      expect(every500msCount).toBeGreaterThanOrEqual(3);
+    });
+
+    test("Fails to display console logs and recognize platform APIs in the legacy scripting sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "test-scripting-sandbox-modes-coll.json",
+        "collection"
+      )} --legacy-sandbox`;
+      const { error, stdout } = await runCLI(args);
+
+      expect(error).toBeTruthy();
+      expect(stdout).not.toContain("https://example.com/path?foo=bar&baz=qux");
+      expect(stdout).not.toContain("Encoded");
     });
   });
 

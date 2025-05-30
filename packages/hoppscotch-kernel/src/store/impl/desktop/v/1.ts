@@ -13,28 +13,47 @@ import {
     StoreEventEmitter,
 } from '@store/v/1';
 
-const STORE_PATH = `${window.location.host}.hoppscotch.store`
-
 type NamespacedData = Record<string, Record<string, StoredData>>;
 
 class TauriStoreManager {
-    private static instance: TauriStoreManager;
+    private static instances: Map<string, TauriStoreManager> = new Map();
     private store: Store | null = null;
     private listeners = new Map<string, Set<(payload: StoreEvents['change']) => void>>();
     private data: NamespacedData = {};
+    private storePath: string;
 
-    private constructor() {}
+    private constructor(storePath: string) {
+        this.storePath = storePath;
+    }
 
-    static new(): TauriStoreManager {
-        if (!TauriStoreManager.instance) {
-            TauriStoreManager.instance = new TauriStoreManager();
+    static new(storePath: string): TauriStoreManager {
+        if (TauriStoreManager.instances.has(storePath)) {
+            return TauriStoreManager.instances.get(storePath)!;
         }
-        return TauriStoreManager.instance;
+
+        const instance = new TauriStoreManager(storePath);
+        TauriStoreManager.instances.set(storePath, instance);
+        return instance;
+    }
+
+    static async closeAll(): Promise<void> {
+        const closePromises = Array.from(TauriStoreManager.instances.values())
+            .map(instance => instance.close());
+        await Promise.all(closePromises);
+        TauriStoreManager.instances.clear();
+    }
+
+    static async closeStore(storePath: string): Promise<void> {
+        const instance = TauriStoreManager.instances.get(storePath);
+        if (instance) {
+            await instance.close();
+            TauriStoreManager.instances.delete(storePath);
+        }
     }
 
     async init(): Promise<void> {
         if (!this.store) {
-            this.store = await Store.load(STORE_PATH);
+            this.store = await Store.load(this.storePath);
             const loadedData = await this.store.get<NamespacedData>('data');
             this.data = loadedData ?? {};
 
@@ -123,7 +142,7 @@ class TauriStoreManager {
         return Object.keys(this.data[namespace] || {});
     }
 
-    watch(namespace: string, key: string): StoreEventEmitter<StoreEvents> {
+    async watch(namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>> {
         const watchKey = `${namespace}:${key}`;
         return {
             on: <K extends keyof StoreEvents>(
@@ -172,6 +191,7 @@ class TauriStoreManager {
             this.store = null;
             this.data = {};
             this.listeners.clear();
+            TauriStoreManager.instances.delete(this.storePath);
         }
     }
 }
@@ -182,9 +202,9 @@ export const implementation: VersionedAPI<StoreV1> = {
         id: 'tauri-store',
         capabilities: new Set(['permanent', 'structured', 'watch', 'namespace', 'secure']),
 
-        async init() {
+        async init(storePath: string) {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 await manager.init();
                 return E.right(undefined);
             } catch (error) {
@@ -196,9 +216,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async set(namespace: string, key: string, value: unknown, options?: StorageOptions): Promise<E.Either<StoreError, void>> {
+        async set(storePath: string, namespace: string, key: string, value: unknown, options?: StorageOptions): Promise<E.Either<StoreError, void>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 const existingData = await manager.getRaw(namespace, key);
                 const createdAt = existingData?.metadata.createdAt || new Date().toISOString()
                 const updatedAt = new Date().toISOString()
@@ -227,9 +247,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async get<T>(namespace: string, key: string): Promise<E.Either<StoreError, T | undefined>> {
+        async get<T>(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, T | undefined>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 return E.right(await manager.get<T>(namespace, key));
             } catch (error) {
                 return E.left({
@@ -240,9 +260,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async has(namespace: string, key: string): Promise<E.Either<StoreError, boolean>> {
+        async has(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, boolean>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 return E.right(await manager.has(namespace, key));
             } catch (error) {
                 return E.left({
@@ -253,9 +273,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async remove(namespace: string, key: string): Promise<E.Either<StoreError, boolean>> {
+        async remove(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, boolean>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 return E.right(await manager.delete(namespace, key));
             } catch (error) {
                 return E.left({
@@ -266,9 +286,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async clear(namespace?: string): Promise<E.Either<StoreError, void>> {
+        async clear(storePath: string, namespace?: string): Promise<E.Either<StoreError, void>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 await manager.clear(namespace);
                 return E.right(undefined);
             } catch (error) {
@@ -280,9 +300,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async listNamespaces(): Promise<E.Either<StoreError, string[]>> {
+        async listNamespaces(storePath: string): Promise<E.Either<StoreError, string[]>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 return E.right(await manager.listNamespaces());
             } catch (error) {
                 return E.left({
@@ -293,9 +313,9 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async listKeys(namespace: string): Promise<E.Either<StoreError, string[]>> {
+        async listKeys(storePath: string, namespace: string): Promise<E.Either<StoreError, string[]>> {
             try {
-                const manager = TauriStoreManager.new();
+                const manager = TauriStoreManager.new(storePath);
                 return E.right(await manager.listKeys(namespace));
             } catch (error) {
                 return E.left({
@@ -306,8 +326,8 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        watch(namespace: string, key: string): StoreEventEmitter<StoreEvents> {
-            const manager = TauriStoreManager.new();
+        async watch(storePath: string, namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>> {
+            const manager = TauriStoreManager.new(storePath);
             return manager.watch(namespace, key);
         },
     },

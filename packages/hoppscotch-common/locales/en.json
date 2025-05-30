@@ -70,7 +70,8 @@
     "yes": "Yes",
     "verify": "Verify",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "assign": "Assign"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Activity log has been deleted",
@@ -118,6 +119,13 @@
     "add_pfx_or_pkcs_file": "Add PFX/PKCS12 File"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "cookies": "Cookies",
@@ -244,6 +252,9 @@
     "username": "Username",
     "advance_config": "Advanced Configuration",
     "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided",
+    "algorithm": "Algorithm",
+    "payload": "Payload",
+    "secret": "Secret",
     "aws_signature": {
       "access_key": "Access Key",
       "secret_key": "Secret Key",
@@ -260,6 +271,16 @@
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request"
+    },
+    "jwt": {
+      "params_name": "Params Name",
+      "header_prefix": "Header Prefix",
+      "placeholder_request_header": "Request header prefix",
+      "placeholder_request_param": "Request params name",
+      "secret_base64_encoded": "Secret Base64 Encoded",
+      "headers": "JWT Headers",
+      "private_key": "Private Key",
+      "placeholder_headers": "JWT Headers"
     }
   },
   "collection": {
@@ -333,11 +354,13 @@
     }
   },
   "count": {
+    "currentValue": "Current value {count}",
+    "description": "Description {count}",
     "header": "Header {count}",
+    "initialValue": "Initial value {count}",
+    "key": "Key {count}",
     "message": "Message {count}",
     "parameter": "Parameter {count}",
-    "key": "Key {count}",
-    "description": "Description {count}",
     "protocol": "Protocol {count}",
     "value": "Value {count}",
     "variable": "Variable {count}"
@@ -947,6 +970,7 @@
     "ai_request_naming_style_pascal_case": "Pascal Case ( PascalCase )",
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
+    "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",
@@ -1842,5 +1866,9 @@
       "update_billing_cycle": "Are you sure you want to update the billing cycle to {newBillingCycle}?"
     },
     "cancel_subscription": "Cancel subscription"
+  },
+  "app_console": {
+    "entries": "Console entries",
+    "no_entries": "No entries"
   }
 }

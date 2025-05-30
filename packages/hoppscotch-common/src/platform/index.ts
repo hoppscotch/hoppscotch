@@ -20,6 +20,7 @@ import { UIPlatformDef } from "./ui"
 import { BackendPlatformDef } from "./backend"
 import { OrganizationPlatformDef } from "./organization"
 import { KernelIO } from "./kernel-io"
+import { AdditionalLinksPlatformDef } from "./additionalLinks"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -69,6 +70,7 @@ export type PlatformDef = {
   experiments?: ExperimentsPlatformDef
   backend: BackendPlatformDef
   organization?: OrganizationPlatformDef
+  additionalLinks?: AdditionalLinksPlatformDef
 }
 
 export let platform: PlatformDef

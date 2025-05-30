@@ -90,8 +90,9 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
-  private setupWatchers() {
-    Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS).on(
+  private async setupWatchers() {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
+    watcher.on(
       "change",
       async ({ value }) => {
         if (value) {

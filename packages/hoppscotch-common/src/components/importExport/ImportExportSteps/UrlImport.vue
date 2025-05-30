@@ -23,9 +23,10 @@
     <p class="flex flex-col">
       <input
         v-model="inputChooseGistToImportFrom"
+        v-focus
+        :placeholder="t('import.from_url')"
         type="url"
         class="input"
-        :placeholder="`${t('import.from_url')}`"
       />
     </p>
 
@@ -49,7 +50,7 @@ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
-import { parseBodyAsJSON } from "~/helpers/functional/json"
+import { parseBodyAsJSONOrYAML } from "~/helpers/functional/json"
 
 const interceptorService = useService(KernelInterceptorService)
 
@@ -98,7 +99,7 @@ const urlFetchLogic =
       return E.left("REQUEST_FAILED")
     }
 
-    const responsePayload = parseBodyAsJSON<unknown>(res.right.body)
+    const responsePayload = parseBodyAsJSONOrYAML<unknown>(res.right.body)
 
     if (O.isSome(responsePayload)) {
       // stringify the response payload

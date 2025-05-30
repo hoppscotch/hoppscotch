@@ -147,7 +147,7 @@ export class AgentKernelInterceptorService
           ...effectiveRequest.headers,
           "User-Agent": existingUserAgentHeader
             ? effectiveRequest.headers[existingUserAgentHeader]
-            : "HoppscotchKernel/0.1.0",
+            : "HoppscotchKernel/0.2.0",
         },
       }
 

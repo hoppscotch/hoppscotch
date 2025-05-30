@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TeamService } from '../team.service';
-import { TeamMemberRole } from '../team.model';
+import { TeamAccessRole } from '../team.model';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import {
   TEAM_NOT_REQUIRED_ROLE,
@@ -19,7 +19,7 @@ export class GqlTeamMemberGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requireRoles = this.reflector.get<TeamMemberRole[]>(
+    const requireRoles = this.reflector.get<TeamAccessRole[]>(
       'requiresTeamRole',
       context.getHandler(),
     );

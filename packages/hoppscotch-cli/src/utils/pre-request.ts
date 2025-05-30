@@ -6,6 +6,7 @@ import {
   parseRawKeyValueEntriesE,
   parseTemplateString,
   parseTemplateStringE,
+  generateJWTToken,
 } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
@@ -44,15 +45,18 @@ import { calculateHawkHeader } from "@hoppscotch/data";
  */
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
-  envs: HoppEnvs
+  envs: HoppEnvs,
+  legacySandbox: boolean
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
-> =>
-  pipe(
+> => {
+  const experimentalScriptingSandbox = !legacySandbox;
+
+  return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs)
+      runPreRequestScript(preRequestScript, envs, experimentalScriptingSandbox)
     ),
     TE.map(
       ({ selected, global }) =>
@@ -77,6 +81,7 @@ export const preRequestScriptRunner = (
           })
     )
   );
+};
 
 /**
  * Outputs an executable request format with environment variables applied
@@ -202,8 +207,11 @@ export async function getEffectiveRESTRequest(
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
       const { method, endpoint } = request;
 
+      const body = getFinalBodyFromRequest(request, resolvedVariables);
+
       const signer = new AwsV4Signer({
         method,
+        body: E.isRight(body) ? body.right?.toString() : undefined,
         datetime: amzDate,
         signQuery: addTo === "QUERY_PARAMS",
         accessKeyId: parseTemplateString(
@@ -327,6 +335,50 @@ export async function getEffectiveRESTRequest(
         value: hawkHeader,
         description: "",
       });
+    } else if (request.auth.authType === "jwt") {
+      const { addTo } = request.auth;
+
+      // Generate JWT token
+      const token = await generateJWTToken({
+        algorithm: request.auth.algorithm || "HS256",
+        secret: parseTemplateString(request.auth.secret, resolvedVariables),
+        privateKey: parseTemplateString(
+          request.auth.privateKey,
+          resolvedVariables
+        ),
+        payload: parseTemplateString(request.auth.payload, resolvedVariables),
+        jwtHeaders: parseTemplateString(
+          request.auth.jwtHeaders,
+          resolvedVariables
+        ),
+        isSecretBase64Encoded: request.auth.isSecretBase64Encoded,
+      });
+
+      if (token) {
+        if (addTo === "HEADERS") {
+          const headerPrefix =
+            parseTemplateString(request.auth.headerPrefix, resolvedVariables) ||
+            "Bearer ";
+
+          effectiveFinalHeaders.push({
+            active: true,
+            key: "Authorization",
+            value: `${headerPrefix}${token}`,
+            description: "",
+          });
+        } else if (addTo === "QUERY_PARAMS") {
+          const paramName =
+            parseTemplateString(request.auth.paramName, resolvedVariables) ||
+            "token";
+
+          effectiveFinalParams.push({
+            active: true,
+            key: paramName,
+            value: token,
+            description: "",
+          });
+        }
+      }
     }
   }
 

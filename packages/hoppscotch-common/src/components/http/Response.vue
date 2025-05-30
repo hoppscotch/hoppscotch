@@ -26,6 +26,7 @@ import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import {
   HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
+  RESTResOriginalReqSchemaVersion,
 } from "@hoppscotch/data"
 import { editRESTRequest } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
@@ -94,7 +95,7 @@ const onSaveAsExample = () => {
     } = response.req
 
     const originalRequest: HoppRESTResponseOriginalRequest = {
-      v: "3",
+      v: RESTResOriginalReqSchemaVersion,
       method,
       endpoint,
       headers,

@@ -22,11 +22,13 @@ import {
 } from "./api"
 import { SecretEnvironmentService } from "@hoppscotch/common/services/secret-environment.service"
 import { getService } from "@hoppscotch/common/modules/dioc"
+import { CurrentValueService } from "@hoppscotch/common/services/current-environment-value.service"
 
 export const environmentsMapper = createMapper<number, string>()
 export const globalEnvironmentMapper = createMapper<number, string>()
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof environmentsStore
@@ -40,6 +42,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       const id = res.right.createUserEnvironment.id
 
       secretEnvironmentService.updateSecretEnvironmentID(
+        environmentsStore.value.environments[lastCreatedEnvIndex].id,
+        id
+      )
+
+      currentEnvironmentValueService.updateEnvironmentID(
         environmentsStore.value.environments[lastCreatedEnvIndex].id,
         id
       )
@@ -110,7 +117,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         name: "",
         variables: entries,
         id: "",
-        v: 1,
+        v: 2,
       })()
     }
   },

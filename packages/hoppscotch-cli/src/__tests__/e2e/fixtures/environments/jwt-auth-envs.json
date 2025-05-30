@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "id": "cm0dsn3v70004p4qk3l9b7sjn",
+  "name": "JWT Auth - environments",
+  "variables": [
+    {
+      "key": "url",
+      "value": "http://localhost:8888/auth/jwt"
+    },
+    {
+      "key": "algorithm",
+      "value": "HS256"
+    },
+    {
+      "key": "secret",
+      "value": "secret-1"
+    },
+    {
+      "key": "privateKey",
+      "value": ""
+    },
+    {
+      "key": "payload",
+      "value": "{\"user\":\"test\",\"role\":\"admin\"}"
+    },
+    {
+      "key": "jwtHeaders",
+      "value": "{}"
+    },
+    {
+      "key": "headerPrefix",
+      "value": "Bearer "
+    },
+    {
+      "key": "paramName",
+      "value": "token"
+    },
+    {
+      "key": "isSecretBase64Encoded",
+      "value": "false"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2025.4.2",
+  "version": "2025.5.1",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -47,7 +47,7 @@
     "verzod": "0.2.4",
     "vue": "3.5.12",
     "workbox-window": "7.1.0",
-    "zod": "3.23.8"
+    "zod": "3.25.32"
   },
   "devDependencies": {
     "@graphql-codegen/add": "5.0.3",
@@ -76,7 +76,7 @@
     "postcss": "8.4.47",
     "prettier-plugin-tailwindcss": "0.6.8",
     "tailwindcss": "3.4.13",
-    "typescript": "5.3.3",
+    "typescript": "5.8.3",
     "unplugin-fonts": "1.1.1",
     "unplugin-icons": "0.19.3",
     "unplugin-vue-components": "0.27.4",

@@ -149,11 +149,20 @@
                           )
                         "
                         rows="4"
-                      />
+                      >
+                      </textarea>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="flex items-center">
+              <HoppSmartToggle
+                :on="EXPERIMENTAL_SCRIPTING_SANDBOX"
+                @change="toggleSetting('EXPERIMENTAL_SCRIPTING_SANDBOX')"
+              >
+                {{ t("settings.experimental_scripting_sandbox") }}
+              </HoppSmartToggle>
             </div>
           </section>
         </div>
@@ -341,6 +350,10 @@ const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")
 const AI_REQUEST_NAMING_STYLE = useSetting("AI_REQUEST_NAMING_STYLE")
 const CUSTOM_NAMING_STYLE = useSetting("CUSTOM_NAMING_STYLE")
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
 
 const supportedNamingStyles = [
   {

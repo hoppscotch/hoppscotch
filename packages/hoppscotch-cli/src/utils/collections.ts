@@ -47,7 +47,14 @@ const { WARN, FAIL, INFO } = exceptionColors;
 export const collectionsRunner = async (
   param: CollectionRunnerParam
 ): Promise<RequestReport[]> => {
-  const { collections, envs, delay, iterationCount, iterationData } = param;
+  const {
+    collections,
+    envs,
+    delay,
+    iterationCount,
+    iterationData,
+    legacySandbox,
+  } = param;
 
   const resolvedDelay = delay ?? 0;
 
@@ -87,7 +94,8 @@ export const collectionsRunner = async (
         path,
         envs,
         resolvedDelay,
-        requestsReport
+        requestsReport,
+        legacySandbox
       );
     }
   }
@@ -100,7 +108,8 @@ const processCollection = async (
   path: string,
   envs: HoppEnvs,
   delay: number,
-  requestsReport: RequestReport[]
+  requestsReport: RequestReport[],
+  legacySandbox?: boolean
 ) => {
   // Process each request in the collection
   for (const request of collection.requests) {
@@ -111,6 +120,7 @@ const processCollection = async (
       request: _request,
       envs,
       delay,
+      legacySandbox,
     };
 
     // Request processing initiated message.
@@ -156,7 +166,8 @@ const processCollection = async (
       `${path}/${updatedFolder.name}`,
       envs,
       delay,
-      requestsReport
+      requestsReport,
+      legacySandbox
     );
   }
 };

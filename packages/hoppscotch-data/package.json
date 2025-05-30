@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/lodash": "4.17.10",
     "@types/uuid": "10.0.0",
-    "typescript": "5.6.3",
+    "typescript": "5.8.3",
     "vite": "5.4.9"
   },
   "dependencies": {
@@ -45,8 +45,9 @@
     "io-ts": "2.2.21",
     "lodash": "4.17.21",
     "parser-ts": "0.7.0",
+    "jose": "6.0.11",
     "uuid": "10.0.0",
     "verzod": "0.2.4",
-    "zod": "3.23.8"
+    "zod": "3.25.32"
   }
 }

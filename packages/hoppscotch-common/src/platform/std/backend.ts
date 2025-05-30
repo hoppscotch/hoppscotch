@@ -28,7 +28,7 @@ import {
   GetUserShortcodesDocument,
   GetUserShortcodesQuery,
   GetUserShortcodesQueryVariables,
-  TeamMemberRole,
+  TeamAccessRole,
 } from "../../helpers/backend/graphql"
 
 const getInviteDetails = <GetInviteDetailsError extends string>(
@@ -81,7 +81,7 @@ export const createTeam = <CreateTeamErrors extends string>(name: TeamName) => {
 
 export const createTeamInvitation = <CreateTeamInvitationErrors extends string>(
   inviteeEmail: Email,
-  inviteeRole: TeamMemberRole,
+  inviteeRole: TeamAccessRole,
   teamID: string
 ) => {
   return runMutation<

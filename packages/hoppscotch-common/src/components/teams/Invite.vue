@@ -232,7 +232,7 @@
                       :active="invitee.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Owner)
+                          updateNewInviteeRole(index, TeamAccessRole.Owner)
                           hide()
                         }
                       "
@@ -245,7 +245,7 @@
                       :active="invitee.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Editor)
+                          updateNewInviteeRole(index, TeamAccessRole.Editor)
                           hide()
                         }
                       "
@@ -258,7 +258,7 @@
                       :active="invitee.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Viewer)
+                          updateNewInviteeRole(index, TeamAccessRole.Viewer)
                           hide()
                         }
                       "
@@ -360,7 +360,7 @@
               newInvites = [
                 {
                   key: '',
-                  value: TeamMemberRole.Viewer,
+                  value: TeamAccessRole.Viewer,
                 },
               ]
             }
@@ -404,7 +404,7 @@ import {
   GetPendingInvitesQueryVariables,
   TeamInvitationAddedDocument,
   TeamInvitationRemovedDocument,
-  TeamMemberRole,
+  TeamAccessRole,
 } from "../../helpers/backend/graphql"
 import {
   createTeamInvitation,
@@ -499,6 +499,7 @@ const pendingInvites = useGQLQuery<
     teamID: props.editingTeamID,
   }),
   pollDuration: 10000,
+  pollLoadingEnabled: false,
   updateSubs: computed(() =>
     !props.editingTeamID
       ? []
@@ -557,21 +558,21 @@ const removeInvitee = async (id: string, index: number) => {
   isLoadingIndex.value = null
 }
 
-const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([
+const newInvites = ref<Array<{ key: string; value: TeamAccessRole }>>([
   {
     key: "",
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   },
 ])
 
 const addNewInvitee = () => {
   newInvites.value.push({
     key: "",
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   })
 }
 
-const updateNewInviteeRole = (index: number, role: TeamMemberRole) => {
+const updateNewInviteeRole = (index: number, role: TeamAccessRole) => {
   newInvites.value[index].value = role
 }
 
@@ -622,7 +623,7 @@ const sendInvites = async () => {
   const validationResult = pipe(
     newInvites.value,
     O.fromPredicate(
-      (invites): invites is Array<{ key: Email; value: TeamMemberRole }> =>
+      (invites): invites is Array<{ key: Email; value: TeamAccessRole }> =>
         pipe(
           invites,
           A.every((invitee) => EmailCodec.is(invitee.key))
@@ -696,7 +697,7 @@ const hideModal = () => {
   newInvites.value = [
     {
       key: "",
-      value: TeamMemberRole.Viewer,
+      value: TeamAccessRole.Viewer,
     },
   ]
   emit("hide-modal")

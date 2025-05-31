@@ -20,6 +20,9 @@
                 :value="tab.document.request.method"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
+                :style="{
+                  color: getMethodLabelColor(tab.document.request.method),
+                }"
                 @input="onSelectMethod($event)"
               />
             </HoppSmartSelectWrapper>

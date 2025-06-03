@@ -15,7 +15,7 @@ import { HoppRESTAuthOAuth2, V11_SCHEMA } from "./11"
 import {
   HoppRESTResponseOriginalRequest as HoppRESTResponseOriginalRequestOld,
   HoppRESTRequestResponse as HoppRESTRequestResponseOld,
-} from "./9"
+} from "./11"
 
 export const HoppRESTAuthHAWK = z.object({
   authType: z.literal("hawk"),

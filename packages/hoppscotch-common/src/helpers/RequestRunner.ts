@@ -455,10 +455,10 @@ export function runRESTRequest$(
               }))
             ) as E.Right<SandboxTestResult>
 
-            const updatedRunResult = updateEnvsAfterTestScript(combinedResult)
-
-            tab.value.document.testResults =
-              translateToSandboxTestResults(updatedRunResult)
+            tab.value.document.testResults = translateToSandboxTestResults(
+              combinedResult.right
+            )
+            updateEnvsAfterTestScript(combinedResult)
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -492,23 +492,11 @@ export function runRESTRequest$(
 }
 
 function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
-  const updatedGlobalEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.global),
-    "global"
-  )
-
-  const updatedSelectedEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.selected),
-    "selected"
-  )
-
   const updatedRunResult = {
     ...runResult.right,
     envs: {
-      global: updatedGlobalEnvVariables,
-      selected: updatedSelectedEnvVariables,
+      global: runResult.right.envs.global,
+      selected: runResult.right.envs.selected,
     },
   }
 
@@ -522,6 +510,11 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     v: 2,
     variables: globalEnvVariables,
   })
+  updateEnvironments(
+    // @ts-expect-error Typescript can't figure out this inference for some reason
+    cloneDeep(runResult.right.envs.selected),
+    "selected"
+  )
   if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
     const env = getEnvironment({
       type: "MY_ENV",

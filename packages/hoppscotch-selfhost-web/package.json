@@ -44,7 +44,7 @@
     "rxjs": "7.8.1",
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
-    "verzod": "0.2.4",
+    "verzod": "0.3.0",
     "vue": "3.5.12",
     "workbox-window": "7.1.0",
     "zod": "3.25.32"

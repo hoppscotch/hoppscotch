@@ -1365,7 +1365,81 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
     },
   ];
 
-export const WORKSPACE_ENVIRONMENT_MOCK: WorkspaceEnvironment = {
+export const WORKSPACE_ENVIRONMENT_V0_FORMAT_MOCK = {
+  id: "clwudd68q00079rufju8uo3om",
+  teamID: "clws3hg58000011o8h07glsb1",
+  name: "Workspace environment v0 format",
+  variables: [
+    {
+      key: "firstName",
+      value: "John",
+    },
+    {
+      key: "lastName",
+      value: "Doe",
+    },
+  ],
+};
+
+export const TRANSFORMED_ENVIRONMENT_V0_FORMAT_MOCK: Environment = {
+  v: EnvironmentSchemaVersion,
+  id: "clwudd68q00079rufju8uo3om",
+  name: "Workspace environment v0 format",
+  variables: [
+    {
+      key: "firstName",
+      initialValue: "John",
+      currentValue: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      initialValue: "Doe",
+      currentValue: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const WORKSPACE_ENVIRONMENT_V1_FORMAT_MOCK = {
+  id: "clwudd68q00079rufju8uo3om",
+  teamID: "clws3hg58000011o8h07glsb1",
+  name: "Workspace environment v1 format",
+  variables: [
+    {
+      key: "firstName",
+      value: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      value: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const TRANSFORMED_ENVIRONMENT_V1_FORMAT_MOCK: Environment = {
+  v: EnvironmentSchemaVersion,
+  id: "clwudd68q00079rufju8uo3om",
+  name: "Workspace environment v1 format",
+  variables: [
+    {
+      key: "firstName",
+      initialValue: "John",
+      currentValue: "John",
+      secret: false,
+    },
+    {
+      key: "lastName",
+      initialValue: "Doe",
+      currentValue: "Doe",
+      secret: false,
+    },
+  ],
+};
+
+export const WORKSPACE_ENVIRONMENT_V2_FORMAT_MOCK: WorkspaceEnvironment = {
   id: "clwudd68q00079rufju8uo3on",
   teamID: "clws3hg58000011o8h07glsb1",
   name: "Response body sample",
@@ -1421,7 +1495,7 @@ export const WORKSPACE_ENVIRONMENT_MOCK: WorkspaceEnvironment = {
   ],
 };
 
-export const TRANSFORMED_ENVIRONMENT_MOCK: Environment = {
+export const TRANSFORMED_ENVIRONMENT_V2_FORMAT_MOCK: Environment = {
   v: EnvironmentSchemaVersion,
   id: "clwudd68q00079rufju8uo3on",
   name: "Response body sample",

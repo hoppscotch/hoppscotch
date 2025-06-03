@@ -56,12 +56,32 @@ export const transformWorkspaceEnvironment = (
 ): Environment => {
   const { teamID, variables, ...rest } = workspaceEnvironment;
 
-  // Add `secret` field if the data conforms to an older schema
+  // Apply relevant migrations for data conforming to older formats
   const transformedEnvVars = variables.map((variable) => {
-    if (!("secret" in variable)) {
+    if (
+      !("secret" in variable) ||
+      !("initialValue" in variable) ||
+      !("currentValue" in variable)
+    ) {
+      const envPair = variable as HoppEnvPair;
+
+      const initialValue = envPair.secret
+        ? ""
+        : "value" in envPair
+          ? envPair.value
+          : envPair.initialValue;
+
+      const currentValue = envPair.secret
+        ? ""
+        : "value" in envPair
+          ? envPair.value
+          : envPair.currentValue;
+
       return {
-        ...(variable as HoppEnvPair),
+        key: envPair.key,
         secret: false,
+        initialValue,
+        currentValue,
       } as HoppEnvPair;
     }
 
@@ -96,19 +116,34 @@ export const transformWorkspaceCollections = (
     const { auth = { authType: "inherit", authActive: true }, headers = [] } =
       parsedData;
 
+    const migratedAuth: HoppRESTAuth =
+      auth.authType === "oauth-2"
+        ? {
+            ...auth,
+            grantTypeInfo:
+              auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
+                ? {
+                    ...auth.grantTypeInfo,
+                    clientAuthentication: "IN_BODY",
+                  }
+                : auth.grantTypeInfo,
+          }
+        : auth;
+
     const migratedHeaders = headers.map((header) =>
       header.description ? header : { ...header, description: "" }
     );
 
     // The response doesn't include a way to infer the schema version, so it's set to the latest version
     // Any relevant migrations have to be accounted here
+    // `ref_id` field isn't necessary being applicable only to personal workspace and asociates with syncing
     return {
       v: CollectionSchemaVersion,
       id,
       name: title,
       folders: transformWorkspaceCollections(folders),
       requests: transformWorkspaceRequests(requests),
-      auth,
+      auth: migratedAuth,
       headers: migratedHeaders,
     };
   });

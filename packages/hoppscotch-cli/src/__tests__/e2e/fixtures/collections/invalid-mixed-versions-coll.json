@@ -1,0 +1,48 @@
+{
+  "v": 5,
+  "id": "cmbgcmyly10yhdjet63hiorps",
+  "name": "Invalid mixed versions collection",
+  "folders": [
+    {
+      "v": 8,
+      "id": "cmbgnb4h100v613phgrz6vku9",
+      "name": "fold1",
+      "folders": [],
+      "requests": [
+        {
+          "v": "13",
+          "name": "req",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mbgnb8zy_eab190e2-6770-428c-8645-f49e88a3fe90"
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mbgnb8zy_7c3f6eca-bd94-44a5-90e3-3f7c2126d63e"
+}

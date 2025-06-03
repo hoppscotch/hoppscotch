@@ -422,8 +422,8 @@ importers:
         specifier: 6.13.0
         version: 6.13.0
       verzod:
-        specifier: 0.2.4
-        version: 0.2.4(zod@3.25.32)
+        specifier: 0.3.0
+        version: 0.3.0(zod@3.25.32)
       xmlbuilder2:
         specifier: 3.1.1
         version: 3.1.1
@@ -526,7 +526,7 @@ importers:
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
         specifier: github:CuriousCorrelation/tauri-plugin-appload
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7'
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8ff3fdffeebd72749f32b3a06cd5a0c37fc'
       '@hoppscotch/ui':
         specifier: 0.2.2
         version: 0.2.2(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
@@ -714,8 +714,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       verzod:
-        specifier: 0.2.4
-        version: 0.2.4(zod@3.25.32)
+        specifier: 0.3.0
+        version: 0.3.0(zod@3.25.32)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.8.3)
@@ -961,8 +961,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       verzod:
-        specifier: 0.2.4
-        version: 0.2.4(zod@3.25.32)
+        specifier: 0.3.0
+        version: 0.3.0(zod@3.25.32)
       zod:
         specifier: 3.25.32
         version: 3.25.32
@@ -996,7 +996,7 @@ importers:
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
         specifier: github:CuriousCorrelation/tauri-plugin-appload
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7'
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8ff3fdffeebd72749f32b3a06cd5a0c37fc'
       '@hoppscotch/ui':
         specifier: 0.2.1
         version: 0.2.1(eslint@9.27.0(jiti@2.4.2))(terser@5.39.2)(typescript@5.7.2)(vite@5.4.11(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2))(vue@3.5.12(typescript@5.7.2))
@@ -1316,8 +1316,8 @@ importers:
         specifier: 0.12.5
         version: 0.12.5
       verzod:
-        specifier: 0.2.4
-        version: 0.2.4(zod@3.22.4)
+        specifier: 0.3.0
+        version: 0.3.0(zod@3.25.32)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@4.9.5)
@@ -1325,8 +1325,8 @@ importers:
         specifier: 6.6.0
         version: 6.6.0
       zod:
-        specifier: 3.22.4
-        version: 3.22.4
+        specifier: 3.25.32
+        version: 3.25.32
     devDependencies:
       '@graphql-codegen/add':
         specifier: 5.0.0
@@ -1512,8 +1512,8 @@ importers:
         specifier: 0.12.5
         version: 0.12.5
       verzod:
-        specifier: 0.2.4
-        version: 0.2.4(zod@3.25.32)
+        specifier: 0.3.0
+        version: 0.3.0(zod@3.25.32)
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.8.3)
@@ -1835,8 +1835,8 @@ packages:
       graphql:
         optional: true
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7}
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8ff3fdffeebd72749f32b3a06cd5a0c37fc':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8ff3fdffeebd72749f32b3a06cd5a0c37fc}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b075f1f6fa9171799a961c435454c0c9a2':
@@ -13609,8 +13609,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  verzod@0.2.4:
-    resolution: {integrity: sha512-xli0iwB1nxtWiJTjekTuPm9DuHXU8zdu6vKG2QXT0ZYKn9HanS/azJDSvbvT5IQ5HHltoV9h2Jf4Y+dwk8Fa5Q==}
+  verzod@0.3.0:
+    resolution: {integrity: sha512-h3L33u54/U/KWQh5z2sEaB0esQt3K3BhCCiriACW9t+83fLD7ebQnzcdckhIwZeZWfgQHNI7PTEDITlCqHTtZw==}
     engines: {node: '>=16'}
     peerDependencies:
       zod: ^3.22.0
@@ -14550,7 +14550,7 @@ snapshots:
     optionalDependencies:
       graphql: 16.11.0
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7':
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8ff3fdffeebd72749f32b3a06cd5a0c37fc':
     dependencies:
       '@tauri-apps/api': 2.1.1
 
@@ -30416,11 +30416,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  verzod@0.2.4(zod@3.22.4):
-    dependencies:
-      zod: 3.22.4
-
-  verzod@0.2.4(zod@3.25.32):
+  verzod@0.3.0(zod@3.25.32):
     dependencies:
       zod: 3.25.32
 

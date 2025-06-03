@@ -36,10 +36,10 @@
     "tauri": "link:@tauri-apps/api/tauri",
     "tauri-plugin-store-api": "0.0.0",
     "util": "0.12.5",
-    "verzod": "0.2.4",
+    "verzod": "0.3.0",
     "vue": "3.3.9",
     "workbox-window": "6.6.0",
-    "zod": "3.22.4"
+    "zod": "3.25.32"
   },
   "devDependencies": {
     "@graphql-codegen/add": "5.0.0",

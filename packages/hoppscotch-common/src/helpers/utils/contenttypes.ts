@@ -14,6 +14,7 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "text/html": "html",
   "text/plain": "plain",
   "text/xml": "xml",
+  "application/graphql": "json",
 }
 
 type ContentTypeTitle =
@@ -41,7 +42,11 @@ export const segmentedContentTypes: SegmentedContentType[] = [
   },
   {
     title: "request.content_type_titles.structured",
-    contentTypes: ["application/x-www-form-urlencoded", "multipart/form-data"],
+    contentTypes: [
+      "application/graphql",
+      "application/x-www-form-urlencoded",
+      "multipart/form-data",
+    ],
   },
   {
     title: "request.content_type_titles.binary",
@@ -54,5 +59,5 @@ export const segmentedContentTypes: SegmentedContentType[] = [
 ]
 
 export function isJSONContentType(contentType: string) {
-  return /\bjson\b/i.test(contentType)
+  return /\bjson\b/i.test(contentType) || contentType === "application/graphql"
 }

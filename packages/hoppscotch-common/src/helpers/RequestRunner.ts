@@ -373,13 +373,26 @@ export function runRESTRequest$(
         return []
       })
 
+    const graphqlHeader: HoppRESTHeaders =
+      tab.value.document.request.body.contentType === "application/graphql"
+        ? [
+            {
+              active: true,
+              description: "",
+              key: "Content-Type",
+              value: "application/json",
+            },
+          ]
+        : []
+
     if (inheritedHeaders) {
       requestHeaders = [
         ...inheritedHeaders,
         ...tab.value.document.request.headers,
+        ...graphqlHeader,
       ]
     } else {
-      requestHeaders = [...tab.value.document.request.headers]
+      requestHeaders = [...tab.value.document.request.headers, ...graphqlHeader]
     }
 
     const finalRequestVariables =

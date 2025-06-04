@@ -7,6 +7,7 @@ describe("isJSONContentType", () => {
     expect(isJSONContentType("application/vnd.api+json")).toBe(true)
     expect(isJSONContentType("application/hal+json")).toBe(true)
     expect(isJSONContentType("application/ld+json")).toBe(true)
+    expect(isJSONContentType("application/graphql")).toBe(true)
   })
 
   test("returns true for JSON types with charset specified", () => {

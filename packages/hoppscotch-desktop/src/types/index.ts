@@ -31,8 +31,4 @@ export interface UpdateState {
   status: UpdateStatus;
   version?: string;
   message?: string;
-  progress?: {
-    downloaded: number;
-    total?: number;
-  };
 }

@@ -97,10 +97,6 @@ export class UpdaterService {
 
       await this.saveUpdateState({
         status: UpdateStatus.DOWNLOADING,
-        progress: {
-          downloaded: 0,
-          total: undefined
-        }
       });
 
       await updateResult.downloadAndInstall(

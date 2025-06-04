@@ -5,7 +5,6 @@ import {
   makeGQLRequest,
 } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
-import { AwsV4Signer } from "aws4fetch"
 import * as E from "fp-ts/Either"
 import {
   GraphQLEnumType,
@@ -31,6 +30,7 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
 import { GQLRequest } from "~/helpers/kernel/gql/request"
 import { GQLResponse } from "~/helpers/kernel/gql/response"
+import { authRegistry } from "~/helpers/auth/AuthRegistry"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -481,58 +481,59 @@ const generateAuthHeader = async (
   const finalHeaders: Record<string, string> = {}
   const params: Record<string, string> = {}
 
-  if (auth?.authActive) {
-    if (auth.authType === "basic") {
-      const username = auth.username
-      const password = auth.password
-      finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
-    } else if (auth.authType === "bearer") {
-      finalHeaders.Authorization = `Bearer ${auth.token}`
-    } else if (auth.authType === "oauth-2") {
-      const { addTo } = auth
+  if (!auth?.authActive) {
+    return { authHeaders: finalHeaders, authParams: params }
+  }
 
-      if (addTo === "HEADERS") {
-        finalHeaders.Authorization = `Bearer ${auth.grantTypeInfo.token}`
-      } else if (addTo === "QUERY_PARAMS") {
-        params["access_token"] = auth.grantTypeInfo.token
-      }
-    } else if (auth.authType === "api-key") {
-      const { key, value, addTo } = auth
-      if (addTo === "HEADERS") {
-        finalHeaders[key] = value
-      } else if (addTo === "QUERY_PARAMS") {
-        params[key] = value
-      }
-    } else if (auth.authType === "aws-signature") {
-      const { accessKey, secretKey, region, serviceName, addTo, serviceToken } =
-        auth
+  // Convert GQL auth to REST auth format for strategy compatibility
+  const restAuth = {
+    ...auth,
+    authActive: auth.authActive,
+  } as any
 
-      const currentDate = new Date()
-      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+  // Create a mock request object for strategy methods
+  const mockRequest = {
+    method: "POST",
+    endpoint: url,
+    headers: [],
+    params: [],
+    body: { contentType: "application/json", body: "" },
+    auth: restAuth,
+  } as any
 
-      const signer = new AwsV4Signer({
-        datetime: amzDate,
-        signQuery: addTo === "QUERY_PARAMS",
-        accessKeyId: accessKey,
-        secretAccessKey: secretKey,
-        region: region ?? "us-east-1",
-        service: serviceName,
-        url,
-        sessionToken: serviceToken,
+  // Get the appropriate strategy and generate headers
+  const strategy = authRegistry.getStrategy(auth.authType)
+  if (strategy) {
+    try {
+      const authHeaders = await strategy.generateHeaders(
+        restAuth,
+        mockRequest,
+        []
+      )
+      const authParams = await strategy.generateParams(
+        restAuth,
+        mockRequest,
+        []
+      )
+
+      // Convert headers to object format
+      authHeaders.forEach((header) => {
+        if (header.active && header.key) {
+          finalHeaders[header.key] = header.value
+        }
       })
 
-      const sign = await signer.sign()
-
-      if (addTo === "HEADERS") {
-        sign.headers.forEach((v, k) => {
-          finalHeaders[k] = v
-        })
-      } else if (addTo === "QUERY_PARAMS") {
-        for (const [k, v] of sign.url.searchParams) {
-          params[k] = v
+      // Convert params to object format
+      authParams.forEach((param) => {
+        if (param.active && param.key) {
+          params[param.key] = param.value
         }
-      }
+      })
+    } catch (error) {
+      console.warn(`Error generating auth for type ${auth.authType}:`, error)
     }
+  } else {
+    console.warn(`No auth strategy found for type: ${auth.authType}`)
   }
 
   return { authHeaders: finalHeaders, authParams: params }

@@ -5,6 +5,7 @@ const mimeToMode = {
   "application/hal+json": "application/ld+json",
   "application/vnd.api+json": "application/ld+json",
   "application/json": "application/ld+json",
+  "application/graphql": "application/ld+json",
 }
 
 export function getEditorLangForMimeType(mimeType: string): string {

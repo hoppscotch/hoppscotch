@@ -1,0 +1,37 @@
+{
+    "_type": "export",
+    "__export_format": 4,
+    "__export_date": "2021-09-21T12:34:56.789Z",
+    "__export_source": "insomnia.desktop",
+    "resources": [
+      {
+        "_id": "wrk_baabb247546846cf8c0f517c48d8693f",
+        "parentId": null,
+        "modified": 1632159723321,
+        "created": 1628207663044,
+        "name": "Insomnia Sample JSON",
+        "description": "",
+        "scope": "collection",
+        "_type": "workspace"
+      },
+      {
+        "_id": "req_1",
+        "parentId": "wrk_baabb247546846cf8c0f517c48d8693f",
+        "_type": "request",
+        "name": "GraphQL Sample Request",
+        "method": "POST",
+        "url": "https://echo.hoppscotch.io/graphql",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/graphql"
+          }
+        ],
+        "body": {
+          "mimeType": "application/graphql",
+          "text": "{\"query\":\"query Request {\n  method\n  url\n  headers {\n    key\n    value\n  }\n}\",\"variables\":{\"id\":\"1\"}}"
+        }
+      }
+    ]
+  }
+  

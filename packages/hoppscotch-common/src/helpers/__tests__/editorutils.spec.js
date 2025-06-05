@@ -6,6 +6,7 @@ describe("getEditorLangForMimeType", () => {
     expect(getEditorLangForMimeType("application/json")).toMatch("json")
     expect(getEditorLangForMimeType("application/hal+json")).toMatch("json")
     expect(getEditorLangForMimeType("application/vnd.api+json")).toMatch("json")
+    expect(getEditorLangForMimeType("application/graphql")).toMatch("json")
   })
 
   test("returns 'xml' for valid XML mimes", () => {

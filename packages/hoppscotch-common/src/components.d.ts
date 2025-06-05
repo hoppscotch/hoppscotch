@@ -164,6 +164,7 @@ declare module 'vue' {
     HttpAuthorizationOAuth2: typeof import('./components/http/authorization/OAuth2.vue')['default']
     HttpBody: typeof import('./components/http/Body.vue')['default']
     HttpBodyBinary: typeof import('./components/http/BodyBinary.vue')['default']
+    HttpBodyGraphQL: typeof import('./components/http/BodyGraphQL.vue')['default']
     HttpBodyParameters: typeof import('./components/http/BodyParameters.vue')['default']
     HttpCodegen: typeof import('./components/http/Codegen.vue')['default']
     HttpCodegenModal: typeof import('./components/http/CodegenModal.vue')['default']

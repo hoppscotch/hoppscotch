@@ -61,6 +61,7 @@ const getProcessor = (contentType: string) => {
     case "application/ld+json":
     case "application/hal+json":
     case "application/vnd.api+json":
+    case "application/graphql":
       return Processors.json.process
     case "application/xml":
     case "text/xml":

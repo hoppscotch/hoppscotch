@@ -386,7 +386,10 @@ export const getComputedBodyHeaders = (
     {
       active: true,
       key: "content-type",
-      value: req.body.contentType,
+      value:
+        req.body.contentType === "application/graphql"
+          ? "application/json"
+          : req.body.contentType,
       description: "",
     },
   ]

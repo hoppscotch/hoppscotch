@@ -49,6 +49,7 @@ export const HoppRESTReqBody = z.union([
       z.literal("application/x-www-form-urlencoded"),
       z.literal("text/html"),
       z.literal("text/plain"),
+      z.literal("application/graphql"),
     ]),
     body: z.string().catch(""),
   }),

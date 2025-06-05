@@ -15,7 +15,11 @@
         >
           <HoppSmartSelectWrapper>
             <HoppButtonSecondary
-              :label="body.contentType || t('state.none')"
+              :label="
+                body.contentType === 'application/graphql'
+                  ? 'GraphQL'
+                  : body.contentType || t('state.none')
+              "
               class="ml-2 rounded-none pr-8"
             />
           </HoppSmartSelectWrapper>
@@ -58,7 +62,11 @@
                       contentTypeItem, contentTypeIndex
                     ) in contentTypeItems.contentTypes"
                     :key="`contentTypeItem-${contentTypeIndex}`"
-                    :label="contentTypeItem"
+                    :label="
+                      contentTypeItem === 'application/graphql'
+                        ? 'GraphQL'
+                        : contentTypeItem
+                    "
                     :info-icon="
                       contentTypeItem === body.contentType
                         ? IconDone
@@ -111,6 +119,10 @@
     />
     <HttpBodyBinary
       v-else-if="body.contentType === 'application/octet-stream'"
+      v-model="body"
+    />
+    <HttpBodyGraphQL
+      v-if="body.contentType === 'application/graphql'"
       v-model="body"
     />
     <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />

@@ -33,6 +33,7 @@ export const HoppRESTReqBody = z.union([
       z.literal("binary"),
       z.literal("text/html"),
       z.literal("text/plain"),
+      z.literal("application/graphql"),
     ]),
     body: z.string().catch(""),
   }),

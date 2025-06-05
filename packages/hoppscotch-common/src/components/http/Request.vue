@@ -240,7 +240,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
-import { computed, ref, onUnmounted } from "vue"
+import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
@@ -613,4 +613,13 @@ const isCustomMethod = computed(() => {
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const tabResults = inspectionService.getResultViewFor(tabs.currentTabID.value)
+
+watch(
+  () => tab.value.document.request.body.contentType,
+  (newContentType) => {
+    if (newContentType === "application/graphql") {
+      updateMethod("POST")
+    }
+  }
+)
 </script>

@@ -1,0 +1,35 @@
+{
+    "info": {
+        "_postman_id": "some-id",
+        "name": "Postman GraphQL Example",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "GraphQL Request Example",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "graphql",
+                    "graphql": {
+                        "query": "{ allUsers { id name } }",
+                        "variables": "{}"
+                    }
+                },
+                "url": {
+                    "raw": "https://api.example.com/graphql",
+                    "protocol": "https",
+                    "host": ["api", "example", "com"],
+                    "path": ["graphql"]
+                }
+            },
+            "response": []
+        }
+    ]
+}

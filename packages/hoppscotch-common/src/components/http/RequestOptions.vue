@@ -81,7 +81,10 @@
       <HttpTests v-if="'testScript' in request" v-model="request.testScript" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="properties?.includes('requestVariables') ?? true"
+      v-if="
+        request.body.contentType !== 'application/graphql' &&
+        (properties?.includes('requestVariables') ?? true)
+      "
       :id="'requestVariables'"
       :label="`${t('tab.variables')}`"
       :info="`${newActiveRequestVariablesCount}`"

@@ -89,6 +89,24 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
             expect(error).toBeNull();
           });
         });
+
+        describe("Mixed versions", () => {
+          test("Successfully processes children based on valid version ranges", async () => {
+            const args = `test ${getTestJsonFilePath("valid-mixed-versions-coll.json", "collection")}`;
+            const { error } = await runCLI(args);
+
+            expect(error).toBeNull();
+          });
+
+          test("Errors with the code `MALFORMED_COLLECTION` if the children fall out of valid version ranges", async () => {
+            const args = `test ${getTestJsonFilePath("invalid-mixed-versions-coll.json", "collection")}`;
+
+            const { stderr } = await runCLI(args);
+            const out = getErrorCode(stderr);
+
+            expect(out).toBe<HoppErrorCode>("MALFORMED_COLLECTION");
+          });
+        });
       });
 
       describe("Environments", () => {

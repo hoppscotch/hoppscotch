@@ -528,8 +528,8 @@ importers:
         specifier: github:CuriousCorrelation/tauri-plugin-appload#5939b8f
         version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f'
       '@hoppscotch/ui':
-        specifier: 0.2.2
-        version: 0.2.2(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
+        specifier: 0.2.5
+        version: 0.2.5(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
       '@hoppscotch/vue-toasted':
         specifier: 0.1.0
         version: 0.1.0(vue@3.5.12(typescript@5.8.3))
@@ -4565,6 +4565,12 @@ packages:
 
   '@hoppscotch/ui@0.2.2':
     resolution: {integrity: sha512-rDRfG9onpmlDCO2KjJZN6UIlFC5Ewif689guvtVCZh9a+soy9nUUTbwMHI9913oBIJpbZ4GTLHGpdCl1YHUiVQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.5.12
+
+  '@hoppscotch/ui@0.2.5':
+    resolution: {integrity: sha512-EiWODKPBxvx/BoylxbyrlBIzC3iZR9XmxYAyL3Oi5cEl+RBuhoV+A0UiGiBYbqNLUUWigZTpiftcYcJ9S3IMCg==}
     engines: {node: '>=16'}
     peerDependencies:
       vue: 3.5.12
@@ -18622,30 +18628,6 @@ snapshots:
       - typescript
       - vite
 
-  '@hoppscotch/ui@0.2.2(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
-      '@fontsource-variable/inter': 5.0.15
-      '@fontsource-variable/material-symbols-rounded': 5.0.16
-      '@fontsource-variable/roboto-mono': 5.0.16
-      '@hoppscotch/vue-sonner': 1.2.3
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.8.3))
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.39.2)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
-      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.8.3))
-      fp-ts: 2.16.10
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
-      vue: 3.5.12(typescript@5.8.3)
-      vue-promise-modals: 0.1.0(typescript@5.8.3)
-      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - typescript
-      - vite
-
   '@hoppscotch/ui@0.2.2(eslint@9.27.0(jiti@2.4.2))(terser@5.39.2)(typescript@5.8.3)(vite@5.4.11(@types/node@22.7.6)(sass@1.80.3)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
     dependencies:
       '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
@@ -18660,6 +18642,30 @@ snapshots:
       lodash-es: 4.17.21
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@9.27.0(jiti@2.4.2))(vite@5.4.11(@types/node@22.7.6)(sass@1.80.3)(terser@5.39.2))
+      vue: 3.5.12(typescript@5.8.3)
+      vue-promise-modals: 0.1.0(typescript@5.8.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.5(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
+      '@fontsource-variable/inter': 5.1.0
+      '@fontsource-variable/material-symbols-rounded': 5.1.3
+      '@fontsource-variable/roboto-mono': 5.1.0
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.8.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.39.2)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.8.3))
+      fp-ts: 2.16.10
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
       vue: 3.5.12(typescript@5.8.3)
       vue-promise-modals: 0.1.0(typescript@5.8.3)
       vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))

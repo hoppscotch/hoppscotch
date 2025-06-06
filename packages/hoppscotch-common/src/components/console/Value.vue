@@ -1,20 +1,22 @@
 <template>
-  <div class="whitespace-pre-wrap font-mono text-sm">
+  <div class="whitespace-pre-wrap font-mono text-[12px]">
     <VueJsonPretty
       v-if="isObjectOrArray"
       :data="parsedValue"
+      :theme="treeViewTheme"
+      :show-line="false"
+      :show-line-numbers="true"
       :deep="2"
-      :class="snippetColors"
+      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded !font-mono"
     />
 
     <pre
-      v-else-if="isStringifiedObject"
-      class="overflow-auto max-h-96 p-4"
-      :class="snippetColors"
-      >{{ prettyStringified }}
+      v-else-if="parsedJSON"
+      class="overflow-auto max-h-96 p-4 bg-primary text-secondaryDark border !border-dividerLight rounded"
+      >{{ formattedJSONString }}
     </pre>
 
-    <pre v-else
+    <pre v-else class="truncate"
       >{{ formattedPrimitive }}
     </pre>
   </div>
@@ -25,52 +27,51 @@ import { computed } from "vue"
 import VueJsonPretty from "vue-json-pretty"
 
 import "vue-json-pretty/lib/styles.css"
+import { useColorMode } from "~/composables/theming"
 
 const props = defineProps<{ value: unknown }>()
 
-const snippetColors = `
-  border rounded-md bg-gray-50 text-black !border-gray-200
-  dark:bg-gray-900 dark:text-gray-100 dark:!border-gray-700
-`
+const theme = useColorMode()
 
-const isObjectOrArray = computed(() => {
-  return typeof props.value === "object" && props.value !== null
-})
+const isObjectOrArray = computed(
+  () => typeof props.value === "object" && props.value !== null
+)
 
-const isStringifiedObject = computed(() => {
-  if (typeof props.value !== "string") return false
+const parsedJSON = computed(() => {
+  if (typeof props.value !== "string") {
+    return null
+  }
+
   try {
     const parsed = JSON.parse(props.value)
-    return typeof parsed === "object" && parsed !== null
+    return typeof parsed === "object" && parsed !== null ? parsed : null
   } catch {
-    return false
+    return null
   }
 })
 
-const parsedValue = computed(() => {
-  if (isObjectOrArray.value) return props.value
+const parsedValue = computed(() =>
+  isObjectOrArray.value ? props.value : parsedJSON.value
+)
 
-  if (isStringifiedObject.value && typeof props.value === "string") {
-    try {
-      return JSON.parse(props.value)
-    } catch {
-      return null
-    }
+const formattedJSONString = computed(() => {
+  if (typeof props.value !== "string") {
+    return ""
   }
 
-  return null
-})
+  if (parsedJSON.value) {
+    // Return the original string if it looks already formatted
+    const hasNewlines = props.value.includes("\n")
+    const hasIndentation = props.value.match(/^\s{2,}["[{]/m) !== null
 
-const prettyStringified = computed(() => {
-  if (typeof props.value === "string") {
-    try {
-      const parsed = JSON.parse(props.value)
-      return JSON.stringify(parsed, null, 2)
-    } catch {
+    if (hasNewlines || hasIndentation) {
       return props.value
     }
+
+    return JSON.stringify(parsedJSON.value, null, 2)
   }
-  return ""
+
+  return props.value
 })
 
 const formattedPrimitive = computed(() => {
@@ -98,4 +99,16 @@ const formattedPrimitive = computed(() => {
     return "[Unserializable]"
   }
 })
+
+const isDarkTheme = computed(() => ["dark", "black"].includes(theme.value))
+
+const treeViewTheme = computed(() => (isDarkTheme.value ? "dark" : "light"))
 </script>
+
+<style>
+.vjs-tree-node.is-highlight,
+.vjs-tree-node:hover {
+  background-color: var(--primary-light-color) !important;
+  color: var(--secondary-dark-color) !important;
+}
+</style>

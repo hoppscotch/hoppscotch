@@ -7,7 +7,7 @@
       :show-line="false"
       :show-line-numbers="true"
       :deep="2"
-      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded"
+      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded !font-mono"
     />
 
     <pre

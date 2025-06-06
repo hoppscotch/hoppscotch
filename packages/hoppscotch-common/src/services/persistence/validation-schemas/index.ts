@@ -407,7 +407,7 @@ const HoppTestResultSchema = z
             updations: z.array(
               z.intersection(
                 EnvironmentVariablesSchema,
-                z.object({ previousValue: z.string() })
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
@@ -419,7 +419,7 @@ const HoppTestResultSchema = z
             updations: z.array(
               z.intersection(
                 EnvironmentVariablesSchema,
-                z.object({ previousValue: z.string() })
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),

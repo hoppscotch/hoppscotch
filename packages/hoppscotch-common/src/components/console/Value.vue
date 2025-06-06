@@ -1,22 +1,22 @@
 <template>
-  <div class="whitespace-pre-wrap font-mono text-sm">
+  <div class="whitespace-pre-wrap font-mono text-[12px]">
     <VueJsonPretty
       v-if="isObjectOrArray"
       :data="parsedValue"
       :theme="treeViewTheme"
+      :show-line="false"
+      :show-line-numbers="true"
       :deep="2"
-      class="p-4"
-      :class="snippetColors"
+      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded"
     />
 
     <pre
       v-else-if="parsedJSON"
-      class="overflow-auto max-h-96 p-4"
-      :class="[snippetColors, formattedJSONViewHoverClasses]"
+      class="overflow-auto max-h-96 p-4 bg-primary text-secondaryDark border !border-dividerLight rounded"
       >{{ formattedJSONString }}
     </pre>
 
-    <pre v-else
+    <pre v-else class="truncate"
       >{{ formattedPrimitive }}
     </pre>
   </div>
@@ -103,14 +103,12 @@ const formattedPrimitive = computed(() => {
 const isDarkTheme = computed(() => ["dark", "black"].includes(theme.value))
 
 const treeViewTheme = computed(() => (isDarkTheme.value ? "dark" : "light"))
-
-const snippetColors = computed(() =>
-  isDarkTheme.value
-    ? "bg-gray-900 text-gray-100 !border-gray-700"
-    : "border rounded-md bg-gray-50 !border-gray-200"
-)
-
-const formattedJSONViewHoverClasses = computed(() =>
-  isDarkTheme.value ? "hover:bg-gray-800" : "hover:bg-gray-100"
-)
 </script>
+
+<style>
+.vjs-tree-node.is-highlight,
+.vjs-tree-node:hover {
+  background-color: var(--primary-light-color) !important;
+  color: var(--secondary-dark-color) !important;
+}
+</style>

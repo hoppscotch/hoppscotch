@@ -5,7 +5,7 @@
   >
     <component :is="icon" class="mr-2 shrink-0 svg-icons" />
 
-    <div class="flex flex-col space-y-1 overflow-x-auto text-xs flex-1">
+    <div class="flex flex-col space-y-2 overflow-x-auto text-xs flex-1">
       <div class="text-secondary">{{ formattedTimestamp }}</div>
 
       <div class="flex flex-col space-y-1">

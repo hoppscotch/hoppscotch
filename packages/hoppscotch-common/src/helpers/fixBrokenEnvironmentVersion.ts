@@ -16,19 +16,18 @@ import {
  * @param envs - The array of environments to fix.
  * @returns The fixed array of environments with updated variable formats.
  */
-export const fixBrokenEnvironmentVersion = (
-  envs: Environment[]
-): Environment[] => {
+export const fixBrokenEnvironmentVersion = (envs: Environment[]) => {
   if (!envs || !Array.isArray(envs)) {
     return envs
   }
 
   return envs.map((env) => {
-    return {
-      ...env,
-      variables: env.variables.map((x) =>
-        translateToNewEnvironmentVariables(x)
-      ),
-    }
+    if ("variables" in env)
+      return {
+        ...env,
+        variables: env.variables.map((x) =>
+          translateToNewEnvironmentVariables(x)
+        ),
+      }
   })
 }

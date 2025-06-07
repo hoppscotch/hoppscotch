@@ -10,8 +10,9 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
-  RESTResOriginalReqSchemaVersion,
   ValidContentTypes,
+  HoppRESTRequestResponses,
+  makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
@@ -31,7 +32,6 @@ import {
 import { stringArrayJoin } from "~/helpers/functional/array"
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { HoppRESTRequestResponses } from "@hoppscotch/data"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -160,7 +160,7 @@ const getHoppResponses = (
           body: response.body ?? "",
           headers: getHoppReqHeaders(response.headers),
           code: response.code,
-          originalRequest: {
+          originalRequest: makeHoppRESTResponseOriginalRequest({
             auth: getHoppReqAuth(response.originalRequest?.auth),
             body: getHoppReqBody({
               body: response.originalRequest?.body,
@@ -178,8 +178,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: RESTResOriginalReqSchemaVersion,
-          },
+          }),
         }
         return [response.name, res]
       })

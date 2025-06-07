@@ -22,14 +22,15 @@ export default defineVersion({
       ...old,
       v: 2,
       variables: old.variables.map((variable) => {
+        const { key, secret } = variable
         // if the variable is secret, set initialValue and currentValue to empty string
         // else set initialValue and currentValue to value
         // and delete value
         return {
-          ...variable,
+          key,
+          secret: secret ?? false,
           initialValue: variable.secret ? "" : variable.value,
           currentValue: variable.secret ? "" : variable.value,
-          value: undefined,
         }
       }),
     }

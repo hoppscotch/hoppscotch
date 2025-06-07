@@ -17,7 +17,7 @@ import { HoppRESTAuthOAuth2 } from "./11"
 import {
   HoppRESTResponseOriginalRequest as HoppRESTResponseOriginalRequestOld,
   HoppRESTRequestResponse as HoppRESTRequestResponseOld,
-} from "./9"
+} from "./12"
 
 export const HoppRESTAuthJWT = z.object({
   authType: z.literal("jwt"),

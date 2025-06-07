@@ -405,12 +405,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine(
-                (x) => "secret" in x && !x.secret
-              ).and(
-                z.object({
-                  previousValue: z.optional(z.string()),
-                })
+              z.intersection(
+                EnvironmentVariablesSchema,
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
@@ -420,12 +417,9 @@ const HoppTestResultSchema = z
           .object({
             additions: z.array(EnvironmentVariablesSchema),
             updations: z.array(
-              EnvironmentVariablesSchema.refine(
-                (x) => "secret" in x && !x.secret
-              ).and(
-                z.object({
-                  previousValue: z.optional(z.string()),
-                })
+              z.intersection(
+                EnvironmentVariablesSchema,
+                z.object({ previousValue: z.optional(z.string()) })
               )
             ),
             deletions: z.array(EnvironmentVariablesSchema),
@@ -582,7 +576,7 @@ export const REST_TAB_STATE_SCHEMA = z
           }),
           z.object({
             type: z.literal("example-response").catch("example-response"),
-            response: HoppRESTRequestResponse,
+            response: entityReference(HoppRESTRequestResponse),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),
           }),

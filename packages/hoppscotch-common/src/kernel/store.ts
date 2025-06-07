@@ -57,11 +57,16 @@ export const Store = (() => {
       return module().listNamespaces(STORE_PATH)
     },
 
-    listKeys: async (namespace: string): Promise<E.Either<StoreError, string[]>> => {
+    listKeys: async (
+      namespace: string
+    ): Promise<E.Either<StoreError, string[]>> => {
       return module().listKeys(STORE_PATH, namespace)
     },
 
-    watch: async (namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>> => {
+    watch: async (
+      namespace: string,
+      key: string
+    ): Promise<StoreEventEmitter<StoreEvents>> => {
       return module().watch(STORE_PATH, namespace, key)
     },
   } as const

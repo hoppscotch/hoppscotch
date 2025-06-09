@@ -11,9 +11,9 @@
       <div class="flex items-center gap-4">
         <IconLucidePackage />
         <div class="flex flex-col">
-          <span class="font-semibold uppercase">Hoppscotch</span>
+          <span class="font-semibold uppercase">{{ platform.instance.displayConfig.displayName }}</span>
           <div class="flex items-center gap-1">
-            <span class="text-xs">On-prem</span>
+            <span class="text-xs capitalize">{{ platform.instance.displayConfig.description }}</span>
             <span class="text-xs"> app </span>
           </div>
         </div>
@@ -235,6 +235,7 @@ import {
   InstanceSwitcherService,
   InstanceType,
 } from "~/services/instance-switcher.service"
+import { platform } from "~/platform"
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
@@ -285,7 +286,7 @@ const connectionError = computed(() => {
 })
 
 const isVendored = computed(() => {
-  return currentInstance.value?.type === "vendored"
+  return currentInstance.value?.type === platform.instance.instanceType
 })
 
 const isValidUrl = computed(() => {

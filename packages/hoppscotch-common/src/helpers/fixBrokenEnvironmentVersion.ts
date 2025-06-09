@@ -17,17 +17,11 @@ import {
  * @returns The fixed array of environments with updated variable formats.
  */
 export const fixBrokenEnvironmentVersion = (envs: Environment[]) => {
-  if (!envs || !Array.isArray(envs)) {
+  if (!Array.isArray(envs)) {
     return envs
   }
-
-  return envs.map((env) => {
-    if ("variables" in env)
-      return {
-        ...env,
-        variables: env.variables.map((x) =>
-          translateToNewEnvironmentVariables(x)
-        ),
-      }
-  })
+  return envs.map((env) => ({
+    ...env,
+    variables: (env.variables ?? []).map(translateToNewEnvironmentVariables),
+  }))
 }

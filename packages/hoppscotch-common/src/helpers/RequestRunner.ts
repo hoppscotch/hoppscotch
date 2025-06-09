@@ -492,14 +492,6 @@ export function runRESTRequest$(
 }
 
 function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
-  const updatedRunResult = {
-    ...runResult.right,
-    envs: {
-      global: runResult.right.envs.global,
-      selected: runResult.right.envs.selected,
-    },
-  }
-
   const globalEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     runResult.right.envs.global,
@@ -524,7 +516,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
-      variables: updatedRunResult.envs.selected,
+      variables: runResult.right.envs.selected,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -534,14 +526,12 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(updatedRunResult.envs.selected),
+        JSON.stringify(runResult.right.envs.selected),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )
     )()
   }
-
-  return updatedRunResult
 }
 
 /**

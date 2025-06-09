@@ -385,7 +385,7 @@ const getHoppReqBody = ({
     }
 
     return {
-      contentType: "application/json",
+      contentType: "application/graphql",
       body: pipe(
         JSON.stringify(formattedQuery, null, 2),
         replacePMVarTemplating

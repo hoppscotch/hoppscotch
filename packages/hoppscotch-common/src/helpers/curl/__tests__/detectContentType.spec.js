@@ -26,6 +26,13 @@ describe("detect content type", () => {
         `)
       ).toBe("application/json")
     })
+    test("should return application/json for GraphQL query JSON", () => {
+      const graphqlQueryJSON = JSON.stringify({
+        query: `query GetUser($userId: ID!) { user(id: $userId) { id, name }}`,
+        variables: { userId: "1" },
+      })
+      expect(detectContentType(graphqlQueryJSON)).toBe("application/json")
+    })
   })
 
   // describe("application/xml", () => {

@@ -10,6 +10,7 @@ export const knownContentTypes = {
   "application/octet-stream": "binary",
   "text/html": "html",
   "text/plain": "plain",
+  "application/graphql": "json",
 }
 
 export type ValidContentTypes = keyof typeof knownContentTypes

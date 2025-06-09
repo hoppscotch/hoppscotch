@@ -1,3 +1,5 @@
+console.log("7.ts rest")
+
 import { z } from "zod"
 import { defineVersion } from "verzod"
 import {

@@ -14,12 +14,10 @@ import {
 import { ImplicitOauthFlowParams } from "./3"
 import { z } from "zod"
 
-import { HoppRESTReqBody, V10_SCHEMA } from "./10"
+import { V10_SCHEMA } from "./10"
 import { defineVersion } from "verzod"
-import {
-  HoppRESTResponseOriginalRequest as HoppRESTResponseOriginalRequestOld,
-  HoppRESTRequestResponse as HoppRESTRequestResponseOld,
-} from "./9"
+
+import { HoppRESTRequestResponses } from "../../rest-request-response"
 
 export const ClientCredentialsGrantTypeParams =
   ClientCredentialsGrantTypeParamsOld.extend({
@@ -58,34 +56,9 @@ export const HoppRESTAuth = z
 
 export type HoppRESTAuth = z.infer<typeof HoppRESTAuth>
 
-export const HoppRESTResponseOriginalRequest =
-  HoppRESTResponseOriginalRequestOld.extend({
-    v: z.literal("3"),
-    auth: HoppRESTAuth,
-    body: HoppRESTReqBody,
-  })
-
-export type HoppRESTResponseOriginalRequest = z.infer<
-  typeof HoppRESTResponseOriginalRequest
->
-
-export const HoppRESTRequestResponse = HoppRESTRequestResponseOld.extend({
-  originalRequest: HoppRESTResponseOriginalRequest,
-})
-
-export type HoppRESTRequestResponse = z.infer<typeof HoppRESTRequestResponse>
-
-export const HoppRESTRequestResponses = z.record(
-  z.string(),
-  HoppRESTRequestResponse
-)
-
-export type HoppRESTRequestResponses = z.infer<typeof HoppRESTRequestResponses>
-
 export const V11_SCHEMA = V10_SCHEMA.extend({
   v: z.literal("11"),
   auth: HoppRESTAuth,
-  responses: HoppRESTRequestResponses,
 })
 
 export default defineVersion({
@@ -93,36 +66,6 @@ export default defineVersion({
   initial: false,
   up(old: z.infer<typeof V10_SCHEMA>) {
     const auth = old.auth
-
-    // update auth for responses
-    const responses = Object.fromEntries(
-      Object.entries(old.responses).map(([key, response]) => [
-        key,
-        {
-          ...response,
-          originalRequest: {
-            ...response.originalRequest,
-
-            auth:
-              auth.authType === "oauth-2"
-                ? {
-                    ...auth,
-                    grantTypeInfo:
-                      auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
-                        ? {
-                            ...auth.grantTypeInfo,
-                            clientAuthentication: "IN_BODY" as const,
-                          }
-                        : auth.grantTypeInfo,
-                  }
-                : auth,
-
-            // just following the previous pattern here, but is this a good idea to overwrite the request version ?
-            v: "3" as const,
-          },
-        },
-      ])
-    )
 
     return {
       ...old,
@@ -140,7 +83,6 @@ export default defineVersion({
                   : auth.grantTypeInfo,
             }
           : auth,
-      responses,
     }
   },
 })

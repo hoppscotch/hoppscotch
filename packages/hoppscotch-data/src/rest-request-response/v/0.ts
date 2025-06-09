@@ -1,9 +1,29 @@
+console.log("0.ts rest response")
+
 import { defineVersion, entityReference } from "verzod"
 import { z } from "zod"
-import { HoppRESTResponseHeaders, ValidCodes } from "../../rest/v/8"
 import { HoppRESTResponseOriginalRequest } from "../original-request"
+import { StatusCodes } from "../../utils/statusCodes"
+
+export const ValidCodes = z.union(
+  Object.keys(StatusCodes).map((code) => z.literal(parseInt(code))) as [
+    z.ZodLiteral<number>,
+    z.ZodLiteral<number>,
+    ...z.ZodLiteral<number>[]
+  ]
+)
+
+export const HoppRESTResponseHeaders = z.array(
+  z.object({
+    key: z.string(),
+    value: z.string(),
+  })
+)
+
+export type HoppRESTResponseHeader = z.infer<typeof HoppRESTResponseHeaders>
 
 export const V0_SCHEMA = z.object({
+  v: z.literal(0),
   name: z.string(),
   originalRequest: entityReference(HoppRESTResponseOriginalRequest),
   status: z.string(),

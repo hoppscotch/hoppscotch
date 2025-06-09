@@ -1,5 +1,9 @@
+console.log("original-request.ts")
+
 import { InferredEntity, createVersionedEntity } from "verzod"
 import { z } from "zod"
+import V1_VERSION from "./v/1"
+import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
@@ -12,6 +16,8 @@ const versionedObject = z.object({
 export const HoppRESTResponseOriginalRequest = createVersionedEntity({
   latestVersion: 5,
   versionMap: {
+    1: V1_VERSION,
+    2: V2_VERSION,
     3: V3_VERSION,
     4: V4_VERSION,
     5: V5_VERSION,
@@ -22,10 +28,10 @@ export const HoppRESTResponseOriginalRequest = createVersionedEntity({
 
     if (versionCheck.success) return versionCheck.data.v
 
-    // For V0 we have to check the schema
-    const result = V3_VERSION.schema.safeParse(data)
+    // For V1 we have to check the schema
+    const result = V1_VERSION.schema.safeParse(data)
 
-    return result.success ? 3 : null
+    return result.success ? 1 : null
   },
 })
 

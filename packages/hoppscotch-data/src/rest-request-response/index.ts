@@ -1,3 +1,5 @@
+console.log("rest-req-response/index.ts")
+
 import { InferredEntity, createVersionedEntity, entityReference } from "verzod"
 import { z } from "zod"
 import V0_VERSION from "./v/0"
@@ -32,6 +34,8 @@ export const HoppRESTRequestResponse = createVersionedEntity({
 export type HoppRESTRequestResponse = InferredEntity<
   typeof HoppRESTRequestResponse
 >
+
+debugger
 
 export const HoppRESTRequestResponses = z.record(
   z.string(),

@@ -6,7 +6,6 @@ import { HoppRESTRequestResponses } from "../../rest-request-response"
 // Update the HoppRESTRequestResponses while migrating HoppRESTRequest
 export const V14_SCHEMA = V13_SCHEMA.extend({
   v: z.literal("14"),
-  responses: HoppRESTRequestResponses,
 })
 
 export default defineVersion({

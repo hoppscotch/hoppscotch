@@ -40,11 +40,14 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
   private store!: LazyStore
   private toast = useToast()
 
-  private getVendoredInstance(): VendoredInstance {
+  public getVendoredInstance(): VendoredInstance {
+    const { instanceType, displayConfig } = platform.instance
+    const { displayName, version } = displayConfig
+
     return {
-      type: platform.instance.instanceType,
-      displayName: platform.instance.displayConfig.displayName,
-      version: platform.instance.displayConfig.version,
+      type: instanceType,
+      displayName,
+      version,
     }
   }
 
@@ -129,7 +132,12 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
       await this.saveCurrentState()
 
-      this.toast.success(`Connecting to ${this.getVendoredInstance().type}`)
+      this.toast.success(
+        platform.instance.displayConfig.connectingMessage.replace(
+          "{instanceName}",
+          this.getVendoredInstance().displayName
+        )
+      )
 
       const loadResponse = await load({
         bundleName: "Hoppscotch",
@@ -137,10 +145,17 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       })
 
       if (!loadResponse.success) {
-        throw new Error(`Failed to load ${this.getVendoredInstance().type} bundle`)
+        throw new Error(
+          `Failed to load ${this.getVendoredInstance().type} bundle`
+        )
       }
 
-      this.toast.success(`Connected to ${this.getVendoredInstance().type}`)
+      this.toast.success(
+        platform.instance.displayConfig.connectedMessage.replace(
+          "{instanceName}",
+          this.getVendoredInstance().displayName
+        )
+      )
       return true
     } catch (error) {
       const errorMessage =
@@ -322,7 +337,10 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
   public isCurrentlyVendored(): boolean {
     const state = this.state$.value
-    return state.status === "connected" && state.instance.type === this.getVendoredInstance().type
+    return (
+      state.status === "connected" &&
+      state.instance.type === this.getVendoredInstance().type
+    )
   }
 
   public isCurrentlyConnectedTo(serverUrl: string): boolean {

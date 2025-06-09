@@ -11,9 +11,27 @@
       <div class="flex items-center gap-4">
         <IconLucidePackage />
         <div class="flex flex-col">
-          <span class="font-semibold uppercase">{{ platform.instance.displayConfig.displayName }}</span>
+          <span class="font-semibold uppercase">{{
+            platform.instance.displayConfig.displayName
+          }}</span>
           <div class="flex items-center gap-1">
-            <span class="text-xs capitalize">{{ platform.instance.displayConfig.description }}</span>
+            <!-- NOTE:
+                 If this is set to `platform.instance.displayConfig.description`
+                 it'll be bound to app's perspective, i.e.
+                 when in vendored cloud app, it'll show `Cloud`
+                 and in vendored self-hosted app, it'll show `On-Prem`
+                 even tho both are actually pointing to the same bundle.
+                 Essentially switching instance is a **perspective shift**
+                 for the underlying desktop app launcher.
+
+                 The best way to solve this would be to make instance information
+                 into "links" to the bundles hosted by the `appload` plugin,
+                 which is already underway in HFE-829.
+
+                 This is a workaround for the time being. See `Header.vue`
+                 for code that maintains backwards compatibility.
+            -->
+            <span class="text-xs">Default</span>
             <span class="text-xs"> app </span>
           </div>
         </div>

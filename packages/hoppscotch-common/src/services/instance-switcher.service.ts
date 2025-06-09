@@ -19,7 +19,7 @@ type ServerInstance = {
 }
 
 type VendoredInstance = {
-  type: "vendored" | "cloud"
+  type: "vendored"
   displayName: string
   version: string
 }

@@ -1,5 +1,5 @@
 export type InstancePlatformDef = {
-  instanceType: 'vendored' | 'cloud'
+  instanceType: 'vendored'
   displayConfig: {
     displayName: string
     description: string

@@ -46,6 +46,37 @@ const transformWorkspaceRequests = (
 ): HoppRESTRequest[] => requests.map(({ request }) => JSON.parse(request));
 
 /**
+ * Apply relevant migrations for data conforming to older formats
+ *
+ * @param {HoppEnvPair} variable - The environment variable to normalize.
+ * @returns {HoppEnvPair} The normalized environment variable conforming to the `HoppEnvPair` type.
+ */
+const normalizeEnvironmentVariable = (variable: HoppEnvPair): HoppEnvPair => {
+  if (
+    "secret" in variable &&
+    "initialValue" in variable &&
+    "currentValue" in variable
+  ) {
+    return variable;
+  }
+
+  const envPair = variable as Partial<HoppEnvPair> & {
+    key: string;
+    value?: string;
+  };
+
+  const isSecret = !!envPair.secret;
+  const value = envPair.value ?? "";
+
+  return {
+    key: envPair.key,
+    secret: isSecret,
+    initialValue: isSecret ? "" : (envPair.initialValue ?? value),
+    currentValue: isSecret ? "" : (envPair.currentValue ?? value),
+  };
+};
+
+/**
  * Transforms workspace environment data to the `HoppEnvironment` format.
  *
  * @param {WorkspaceEnvironment} workspaceEnvironment - The workspace environment object to transform.
@@ -56,23 +87,11 @@ export const transformWorkspaceEnvironment = (
 ): Environment => {
   const { teamID, variables, ...rest } = workspaceEnvironment;
 
-  // Add `secret` field if the data conforms to an older schema
-  const transformedEnvVars = variables.map((variable) => {
-    if (!("secret" in variable)) {
-      return {
-        ...(variable as HoppEnvPair),
-        secret: false,
-      } as HoppEnvPair;
-    }
-
-    return variable;
-  });
-
   // The response doesn't include a way to infer the schema version, so it's set to the latest version
   // Any relevant migrations have to be accounted here
   return {
     v: EnvironmentSchemaVersion,
-    variables: transformedEnvVars,
+    variables: variables.map(normalizeEnvironmentVariable),
     ...rest,
   };
 };
@@ -96,19 +115,34 @@ export const transformWorkspaceCollections = (
     const { auth = { authType: "inherit", authActive: true }, headers = [] } =
       parsedData;
 
+    const migratedAuth: HoppRESTAuth =
+      auth.authType === "oauth-2"
+        ? {
+            ...auth,
+            grantTypeInfo:
+              auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
+                ? {
+                    ...auth.grantTypeInfo,
+                    clientAuthentication: "IN_BODY",
+                  }
+                : auth.grantTypeInfo,
+          }
+        : auth;
+
     const migratedHeaders = headers.map((header) =>
       header.description ? header : { ...header, description: "" }
     );
 
     // The response doesn't include a way to infer the schema version, so it's set to the latest version
     // Any relevant migrations have to be accounted here
+    // `ref_id` field isn't necessary being applicable only to personal workspace and asociates with syncing
     return {
       v: CollectionSchemaVersion,
       id,
       name: title,
       folders: transformWorkspaceCollections(folders),
       requests: transformWorkspaceRequests(requests),
-      auth,
+      auth: migratedAuth,
       headers: migratedHeaders,
     };
   });

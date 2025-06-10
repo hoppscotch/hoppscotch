@@ -134,10 +134,9 @@ export const getSharedMethods = (envs: TestResult["envs"]) => {
       throw new Error("Expected key to be a string")
     }
 
-    // Convert value to a string if it's not already to ensure compatibility.
-    // This simplifies the process of setting environment variables from
-    // responses in test scripts where the value may not be a string.
-    updatedEnvs = setEnv(key, String(value), updatedEnvs)
+    // Ensure that value is not null; convert it to a string if not null, otherwise default to an empty string.
+    const envValue = value === null ? "" : String(value)
+    updatedEnvs = setEnv(key, envValue, updatedEnvs)
 
     return undefined
   }

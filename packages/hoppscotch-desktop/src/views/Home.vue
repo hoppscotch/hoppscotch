@@ -213,10 +213,6 @@ const setupUpdateStateWatcher = async () => {
       updateStatus.value = newValue.status
       updateMessage.value = newValue.message || ""
 
-      if (newValue.progress) {
-        downloadProgress.value = newValue.progress
-      }
-
       if (newValue.status === UpdateStatus.AVAILABLE) {
         appState.value = AppState.UPDATE_AVAILABLE
       } else if (newValue.status === UpdateStatus.ERROR) {

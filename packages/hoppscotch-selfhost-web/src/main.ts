@@ -79,14 +79,14 @@ async function initApp() {
     auth: platformDefs.auth.get(kernelMode),
     kernelIO,
     instance: {
-      instanceType: 'vendored',
+      instanceType: "vendored",
       displayConfig: {
-        displayName: 'Hoppscotch',
-        description: 'On-Prem',
-        version: '25.5.1',
-        connectingMessage: 'Connecting to On-prem',
-        connectedMessage: 'Connected to On-prem'
-      }
+        displayName: "Hoppscotch",
+        description: "On-Prem",
+        version: "25.5.2",
+        connectingMessage: "Connecting to On-prem",
+        connectedMessage: "Connected to On-prem",
+      },
     },
     sync: {
       environments: platformDefs.environments.get(kernelMode),

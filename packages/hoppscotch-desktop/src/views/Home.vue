@@ -105,6 +105,11 @@ import IconLucideDownload from "~icons/lucide/download";
 
 const APP_STORE_PATH = "hoppscotch-desktop.store";
 
+// `InstanceSwitcherService` store path.
+// NOTE: This should be removed eventually,
+// right now this is part 1/5 of HFE-864
+const INSTANCE_STORE_PATH = "hopp.store.json";
+
 enum AppState {
   LOADING = "loading",
   UPDATE_AVAILABLE = "update_available",
@@ -214,16 +219,37 @@ const loadVendored = async () => {
   try {
     statusMessage.value = "Loading application...";
 
+    // Standardized vendored instance data.
+    // NOTE: This should be removed eventually,
+    // right now this is part 1/5 of HFE-864
     const vendoredInstance: VendoredInstance = {
       type: "vendored",
-      displayName: "Vendored",
-      version: "vendored"
+      displayName: "Hoppscotch",
+      version: "25.5.1"
     };
 
-    await saveConnectionState({
+    const connectionState: ConnectionState = {
       status: "connected",
       instance: vendoredInstance
-    });
+    };
+
+    // Save to current app store.
+    // NOTE: This is existing behavior
+    await saveConnectionState(connectionState);
+
+    // ALSO save to `InstanceSwitcherService` store,
+    // NOTE: This should be removed eventually,
+    // right now this is part 1/5 of HFE-864
+    try {
+      const instanceStore = new LazyStore(INSTANCE_STORE_PATH);
+      await instanceStore.init();
+      await instanceStore.set("connectionState", connectionState);
+      await instanceStore.save();
+      console.log("Successfully saved vendored state to `InstanceSwitcherService` store");
+    } catch (instanceStoreError) {
+      console.error("Failed to save to `InstanceSwitcherService` store:", instanceStoreError);
+      // Don't need to fail the flow if this fails.
+    }
 
     console.log("Loading vendored app...");
     const loadResp = await load({

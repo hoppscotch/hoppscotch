@@ -21,6 +21,7 @@ import { BackendPlatformDef } from "./backend"
 import { OrganizationPlatformDef } from "./organization"
 import { KernelIO } from "./kernel-io"
 import { AdditionalLinksPlatformDef } from "./additionalLinks"
+import { InstancePlatformDef } from "./instance"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -31,6 +32,7 @@ export type PlatformDef = {
   // NOTE: To be deprecated
   // io: IOPlatformDef
   kernelIO: KernelIO
+  instance: InstancePlatformDef
   sync: {
     environments: EnvironmentsPlatformDef
     collections: CollectionsPlatformDef

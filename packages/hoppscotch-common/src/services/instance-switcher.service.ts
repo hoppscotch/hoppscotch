@@ -119,7 +119,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
     this.state$.next({
       status: "connecting",
-      target: this.getVendoredInstance().type,
+      target: this.getVendoredInstance().displayName,
     })
     this.emit(this.state$.value)
 
@@ -162,7 +162,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         error instanceof Error ? error.message : String(error)
       this.state$.next({
         status: "error",
-        target: this.getVendoredInstance().type,
+        target: this.getVendoredInstance().displayName,
         message: errorMessage,
       })
       this.emit(this.state$.value)

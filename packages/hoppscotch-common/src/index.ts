@@ -14,6 +14,15 @@ import App from "./App.vue"
 import { getService } from "./modules/dioc"
 import { InitializationService } from "./services/initialization.service"
 
+import * as monaco from "monaco-editor"
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
+import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker"
+import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker"
+import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker"
+import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
+
+import { loader } from "@guolao/vue-monaco-editor"
+
 export async function createHoppApp(
   el: string | Element,
   platformDef: PlatformDef
@@ -35,6 +44,26 @@ export async function createHoppApp(
       "Failed connecting to the backend, make sure the service is running and accessible on the network"
     )
   }
+
+  self.MonacoEnvironment = {
+    getWorker(_, label) {
+      if (label === "json") {
+        return new jsonWorker()
+      }
+      if (label === "css" || label === "scss" || label === "less") {
+        return new cssWorker()
+      }
+      if (label === "html" || label === "handlebars" || label === "razor") {
+        return new htmlWorker()
+      }
+      if (label === "typescript" || label === "javascript") {
+        return new tsWorker()
+      }
+      return new editorWorker()
+    },
+  }
+
+  loader.config({ monaco })
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
   platformDef.addedHoppModules?.forEach((mod) => mod.onVueAppInit?.(app))

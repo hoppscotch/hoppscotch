@@ -253,6 +253,8 @@ declare module 'vue' {
     LensesRenderersVideoLensRenderer: typeof import('./components/lenses/renderers/VideoLensRenderer.vue')['default']
     LensesRenderersXMLLensRenderer: typeof import('./components/lenses/renderers/XMLLensRenderer.vue')['default']
     LensesResponseBodyRenderer: typeof import('./components/lenses/ResponseBodyRenderer.vue')['default']
+    MonacoEditor: typeof import('./components/MonacoEditor.vue')['default']
+    MonacoScriptEditor: typeof import('./components/MonacoScriptEditor.vue')['default']
     ProfileUserDelete: typeof import('./components/profile/UserDelete.vue')['default']
     RealtimeCommunication: typeof import('./components/realtime/Communication.vue')['default']
     RealtimeConnectionConfig: typeof import('./components/realtime/ConnectionConfig.vue')['default']

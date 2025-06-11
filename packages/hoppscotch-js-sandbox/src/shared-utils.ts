@@ -5,6 +5,7 @@ import { pipe } from "fp-ts/lib/function"
 import { cloneDeep } from "lodash-es"
 
 import {
+  Expectation,
   GlobalEnvItem,
   SelectedEnvItem,
   TestDescriptor,
@@ -39,16 +40,18 @@ const setEnv = (
 
   if (indexInSelected >= 0) {
     const selectedEnv = selected[indexInSelected]
-    if ("value" in selectedEnv) {
-      selectedEnv.value = envValue
+    if ("currentValue" in selectedEnv) {
+      selectedEnv.currentValue = envValue
     }
   } else if (indexInGlobal >= 0) {
-    if ("value" in global[indexInGlobal])
-      (global[indexInGlobal] as { value: string }).value = envValue
+    if ("currentValue" in global[indexInGlobal])
+      (global[indexInGlobal] as { currentValue: string }).currentValue =
+        envValue
   } else {
     selected.push({
       key: envName,
-      value: envValue,
+      currentValue: envValue,
+      initialValue: envValue,
       secret: false,
     })
   }
@@ -81,7 +84,7 @@ const unsetEnv = (
 }
 
 // Compiles shared scripting API methods for use in both pre and post request scripts
-const getSharedMethods = (envs: TestResult["envs"]) => {
+export const getSharedMethods = (envs: TestResult["envs"]) => {
   let updatedEnvs = envs
 
   const envGetFn = (key: any) => {
@@ -93,7 +96,7 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
       getEnv(key, updatedEnvs),
       O.fold(
         () => undefined,
-        (env) => String(env.value)
+        (env) => String(env.currentValue)
       )
     )
 
@@ -111,11 +114,11 @@ const getSharedMethods = (envs: TestResult["envs"]) => {
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE(e.value, [
+          parseTemplateStringE(e.currentValue, [
             ...updatedEnvs.selected,
             ...updatedEnvs.global,
           ]), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.value)
+          E.getOrElse(() => e.currentValue)
         )
       ),
       E.map((x) => String(x)),
@@ -210,9 +213,9 @@ const getResolvedExpectValue = (expectVal: any) => {
   }
 }
 
-export function preventCyclicObjects(
-  obj: Record<string, any>
-): E.Left<string> | E.Right<Record<string, any>> {
+export function preventCyclicObjects<T extends object = Record<string, any>>(
+  obj: T
+): E.Left<string> | E.Right<T> {
   let jsonString
 
   try {
@@ -240,9 +243,7 @@ export const createExpectation = (
   expectVal: any,
   negated: boolean,
   currTestStack: TestDescriptor[]
-) => {
-  const result: Record<string, unknown> = {}
-
+): Expectation => {
   // Non-primitive values supplied are stringified in the isolate context
   const resolvedExpectVal = getResolvedExpectValue(expectVal)
 
@@ -443,14 +444,16 @@ export const createExpectation = (
     return undefined
   }
 
-  result.toBe = toBeFn
-  result.toBeLevel2xx = toBeLevel2xxFn
-  result.toBeLevel3xx = toBeLevel3xxFn
-  result.toBeLevel4xx = toBeLevel4xxFn
-  result.toBeLevel5xx = toBeLevel5xxFn
-  result.toBeType = toBeTypeFn
-  result.toHaveLength = toHaveLengthFn
-  result.toInclude = toIncludeFn
+  const result = {
+    toBe: toBeFn,
+    toBeLevel2xx: toBeLevel2xxFn,
+    toBeLevel3xx: toBeLevel3xxFn,
+    toBeLevel4xx: toBeLevel4xxFn,
+    toBeLevel5xx: toBeLevel5xxFn,
+    toBeType: toBeTypeFn,
+    toHaveLength: toHaveLengthFn,
+    toInclude: toIncludeFn,
+  } as Expectation
 
   Object.defineProperties(result, {
     not: {

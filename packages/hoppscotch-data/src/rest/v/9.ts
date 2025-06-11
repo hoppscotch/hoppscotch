@@ -20,7 +20,7 @@ export const FormDataKeyValue = z
     z.union([
       z.object({
         isFile: z.literal(true),
-        value: z.array(z.instanceof(Blob).nullable()),
+        value: z.array(z.instanceof(Blob).nullable()).catch([]),
       }),
       z.object({
         isFile: z.literal(false),
@@ -28,6 +28,19 @@ export const FormDataKeyValue = z
       }),
     ])
   )
+  .transform((data) => {
+    // Sample use case about restoring the `value` field in an empty state during page reload
+    // for files chosen in the previous attempt
+    if (data.isFile && Array.isArray(data.value) && data.value.length === 0) {
+      return {
+        ...data,
+        isFile: false,
+        value: "",
+      }
+    }
+
+    return data
+  })
 
 export type FormDataKeyValue = z.infer<typeof FormDataKeyValue>
 
@@ -88,7 +101,7 @@ export const HoppRESTRequestResponse = z.object({
   name: z.string(),
   originalRequest: HoppRESTResponseOriginalRequest,
   status: z.string(),
-  code: z.optional(ValidCodes),
+  code: z.optional(ValidCodes).nullable().catch(null),
   headers: HoppRESTResponseHeaders,
   body: z.string(),
 })

@@ -61,8 +61,9 @@
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
-          >{{ t("state.enabled") }}</HoppSmartCheckbox
         >
+          {{ t("state.enabled") }}
+        </HoppSmartCheckbox>
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/documentation/features/authorization"
@@ -151,8 +152,14 @@
         <div v-if="auth.authType === 'aws-signature'">
           <HttpAuthorizationAWSSign v-model="auth" :envs="envs" />
         </div>
+        <div v-if="auth.authType === 'hawk'">
+          <HttpAuthorizationHAWK v-model="auth" :envs="envs" />
+        </div>
         <div v-if="auth.authType === 'digest'">
           <HttpAuthorizationDigest v-model="auth" :envs="envs" />
+        </div>
+        <div v-if="auth.authType === 'jwt'">
+          <HttpAuthorizationJWT v-model="auth" :envs="envs" />
         </div>
       </div>
       <div
@@ -193,7 +200,9 @@ import {
   HoppRESTAuth,
   HoppRESTAuthAWSSignature,
   HoppRESTAuthDigest,
+  HoppRESTAuthHAWK,
   HoppRESTAuthOAuth2,
+  HoppRESTAuthJWT,
 } from "@hoppscotch/data"
 
 const t = useI18n()
@@ -265,6 +274,15 @@ const selectAWSSignatureAuthType = () => {
   }
 }
 
+const selectHAWKAuthType = () => {
+  const { algorithm = "sha256" } = auth.value as HoppRESTAuthHAWK
+  auth.value = {
+    ...auth.value,
+    authType: "hawk",
+    algorithm,
+  } as HoppRESTAuth
+}
+
 const selectDigestAuthType = () => {
   const {
     username = "",
@@ -279,6 +297,21 @@ const selectDigestAuthType = () => {
     password,
     algorithm,
   } as HoppRESTAuth
+}
+
+const selectJWTAuthType = () => {
+  auth.value = {
+    ...auth.value,
+    authType: "jwt",
+    secret: "",
+    algorithm: "HS256",
+    payload: "{}",
+    addTo: "HEADERS",
+    isSecretBase64Encoded: false,
+    headerPrefix: "Bearer ",
+    paramName: "token",
+    jwtHeaders: "{}",
+  } as HoppRESTAuthJWT
 }
 
 const authTypes: AuthType[] = [
@@ -317,6 +350,16 @@ const authTypes: AuthType[] = [
     key: "aws-signature",
     label: "AWS Signature",
     handler: selectAWSSignatureAuthType,
+  },
+  {
+    key: "hawk",
+    label: "HAWK",
+    handler: selectHAWKAuthType,
+  },
+  {
+    key: "jwt",
+    label: "JWT",
+    handler: selectJWTAuthType,
   },
 ]
 

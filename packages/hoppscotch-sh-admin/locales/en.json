@@ -17,20 +17,36 @@
     "open_navigation": "Open Navigation",
     "read_documentation": "Read Documentation"
   },
+  "auth": {
+    "email_auth": "Email Authentication",
+    "email_auth_description": "Enable or disable email-based authentication for your users.",
+    "email_auth_enabled": "Email authentication is enabled and ready to use.",
+    "email_auth_smtp_note": "To use email-based authentication, you need to enable and configure SMTP in the SMTP tab first.",
+    "enable_email_auth": "Enable Email Authentication",
+    "smtp_required": "SMTP must be enabled and configured to use email based authentication."
+  },
   "configs": {
     "auth_providers": {
+      "auth_provider_config": "Authentication Configurations",
+      "auth_provider_description": "Set up authentication methods for your Hoppscotch instance using OAuth or Email.",
       "callback_url": "CALLBACK URL",
       "client_id": "CLIENT ID",
       "client_secret": "CLIENT SECRET",
       "description": "Configure authentication providers for your server",
+      "email": "Email",
+      "github_enterprise": "Enable Github Enterprise",
+      "oauth": "OAuth",
+      "oauth_providers": "OAuth Providers",
       "provider_not_specified": "Please enable at least one authentication provider",
       "scope": "SCOPE",
+      "sso": "SSO",
       "tenant": "TENANT",
-      "title": "Authentication Providers",
+      "title": "OAuth Providers",
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
     "input_empty": "Please fill all the fields before updating the configurations",
+    "input_validation_error": "Some fields have invalid values. Please correct them before updating the configurations",
     "data_sharing": {
       "title": "Data Sharing",
       "description": "Help improve Hoppscotch by sharing anonymous data",
@@ -48,6 +64,7 @@
       "enable_email_auth": "Enable Email based authentication",
       "enable_smtp": "Enable SMTP",
       "host": "MAILER HOST",
+      "input_validation": "SMTP URL should start with smtp(s)://",
       "password": "MAILER PASSWORD",
       "port": "MAILER PORT",
       "secure": "MAILER SECURE",
@@ -81,6 +98,14 @@
       "title": "Server is restarting"
     },
     "save_changes": "Save Changes",
+    "tabs": {
+      "auth": "Authentication",
+      "activity": "Activity",
+      "infra_tokens": "Infra Tokens",
+      "smtp": "SMTP",
+      "miscellaneous": "Miscellaneous",
+      "reset": "Reset Configurations"
+    },
     "title": "Configurations",
     "update_failure": "Failed to update server configurations"
   },
@@ -232,7 +257,7 @@
     "remove_admin_for_deletion": "Remove admin status before attempting deletion!!",
     "remove_owner_for_deletion": "One or more users are team owners. Update ownership before deletion!!",
     "remove_invitee_failure": "Removal of invitee failed!!",
-    "remove_invitee_success": "Removal of invitee is successfull!!",
+    "remove_invitee_success": "Removal of invitee is successful!!",
     "remove_member_failure": "Member couldn't be removed!!",
     "remove_member_success": "Member removed successfully!!",
     "rename_team_failure": "Failed to rename workspace!!",

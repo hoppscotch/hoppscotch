@@ -29,12 +29,13 @@ import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
-
 import {
   DigestAuthParams,
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "../auth/digest"
+import { calculateHawkHeader, generateJWTToken } from "@hoppscotch/data"
+
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -44,7 +45,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: HoppRESTHeaders
   effectiveFinalParams: HoppRESTParams
-  effectiveFinalBody: FormData | string | null | File
+  effectiveFinalBody: FormData | string | null | File | Blob
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
 
@@ -70,9 +71,36 @@ export const getComputedAuthHeaders = async (
   showKeyIfSecret = false
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
-  // If Authorization header is also being user-defined, that takes priority
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization"))
-    return []
+
+  /**
+   * Handling Authorization header priority rules:
+   *
+   * 1. If a user-defined "Authorization" header exists in the request:
+   *    a. We generally give it priority over auth-generated headers
+   *    b. EXCEPTION: API Key auth that uses a different header name should still be included
+   *
+   * 2. We need to check both:
+   *    - req.auth (the current request's auth settings)
+   *    - auth param (possibly inherited auth from a parent collection)
+   *
+   * 3. Only return empty array (blocking auth headers) when:
+   *    - Neither req.auth nor auth param is using API Key auth, OR
+   *    - API Key auth is being used but specifically with the "Authorization" header name
+   *    - This prevents API Key auth from being blocked when using custom header names
+   */
+  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization")) {
+    // Only return empty array if not using API key auth or if API key is using "authorization" header
+    if (
+      (!req.auth ||
+        req.auth.authType !== "api-key" ||
+        req.auth.key.toLowerCase() === "authorization") &&
+      (!auth ||
+        auth.authType !== "api-key" ||
+        auth.key.toLowerCase() === "authorization")
+    ) {
+      return []
+    }
+  }
 
   if (!request) return []
 
@@ -193,8 +221,12 @@ export const getComputedAuthHeaders = async (
       const currentDate = new Date()
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
       const { method, endpoint } = req as HoppRESTRequest
+
+      const body = getFinalBodyFromRequest(request, envVars)
+
       const signer = new AwsV4Signer({
         method: method,
+        body: body?.toString(),
         datetime: amzDate,
         accessKeyId: parseTemplateString(request.auth.accessKey, envVars),
         secretAccessKey: parseTemplateString(request.auth.secretKey, envVars),
@@ -216,6 +248,81 @@ export const getComputedAuthHeaders = async (
           value: x,
           description: "",
         })
+      })
+    }
+  } else if (request.auth.authType === "hawk") {
+    const { method, endpoint, body } = req as HoppRESTRequest
+
+    // Get the body content for payload hash calculation
+    const payload = getFinalBodyFromRequest(
+      req as HoppRESTRequest,
+      envVars,
+      showKeyIfSecret
+    )
+
+    const hawkHeader = await calculateHawkHeader({
+      url: parseTemplateString(endpoint, envVars), // URL
+      method: method, // HTTP method
+      id: parseTemplateString(request.auth.authId, envVars),
+      key: parseTemplateString(request.auth.authKey, envVars),
+      algorithm: request.auth.algorithm,
+
+      // Add content type and payload
+      contentType: body.contentType,
+      payload,
+
+      // advanced parameters (optional)
+      includePayloadHash: request.auth.includePayloadHash,
+      nonce: request.auth.nonce
+        ? parseTemplateString(request.auth.nonce, envVars)
+        : undefined,
+      ext: request.auth.ext
+        ? parseTemplateString(request.auth.ext, envVars)
+        : undefined,
+      app: request.auth.app
+        ? parseTemplateString(request.auth.app, envVars)
+        : undefined,
+      dlg: request.auth.dlg
+        ? parseTemplateString(request.auth.dlg, envVars)
+        : undefined,
+      timestamp: request.auth.timestamp
+        ? parseInt(parseTemplateString(request.auth.timestamp, envVars), 10)
+        : undefined,
+    })
+
+    headers.push({
+      active: true,
+      key: "Authorization",
+      value: hawkHeader,
+      description: "",
+    })
+  } else if (
+    request.auth.authType === "jwt" &&
+    request.auth.addTo === "HEADERS"
+  ) {
+    const token = await generateJWTToken({
+      algorithm: request.auth.algorithm || "HS256",
+      secret: parseTemplateString(request.auth.secret, envVars, false),
+      privateKey: parseTemplateString(request.auth.privateKey, envVars, false),
+      payload: parseTemplateString(request.auth.payload, envVars, false),
+      jwtHeaders: parseTemplateString(request.auth.jwtHeaders, envVars, false),
+      isSecretBase64Encoded: request.auth.isSecretBase64Encoded,
+    })
+
+    if (token) {
+      // Get prefix (defaults to "Bearer " if not specified)
+      const headerPrefix = parseTemplateString(
+        request.auth.headerPrefix,
+        envVars,
+        false,
+        showKeyIfSecret
+      )
+
+      headers.push({
+        active: true,
+        key: "Authorization",
+        value: `${headerPrefix}${token}`,
+        description: "",
       })
     }
   }
@@ -353,7 +460,8 @@ export const getComputedParams = async (
   if (
     req.auth.authType !== "api-key" &&
     req.auth.authType !== "oauth-2" &&
-    req.auth.authType !== "aws-signature"
+    req.auth.authType !== "aws-signature" &&
+    req.auth.authType !== "jwt"
   )
     return []
 
@@ -424,6 +532,36 @@ export const getComputedParams = async (
       },
     ]
   }
+
+  if (req.auth.authType === "jwt") {
+    const token = await generateJWTToken({
+      algorithm: req.auth.algorithm || "HS256",
+      secret: parseTemplateString(req.auth.secret, envVars, false),
+      privateKey: parseTemplateString(req.auth.privateKey, envVars, false),
+      payload: parseTemplateString(req.auth.payload, envVars, false),
+      jwtHeaders: parseTemplateString(req.auth.jwtHeaders, envVars, false),
+      isSecretBase64Encoded: req.auth.isSecretBase64Encoded,
+    })
+
+    if (token) {
+      // Get param name (defaults to "token" if not specified)
+      const paramName = parseTemplateString(req.auth.paramName, envVars)
+
+      return [
+        {
+          source: "auth",
+          param: {
+            active: true,
+            key: paramName,
+            value: token,
+            description: "",
+          },
+        },
+      ]
+    }
+    return []
+  }
+
   return []
 }
 
@@ -467,6 +605,10 @@ export const resolvesEnvsInBody = (
 
   if (isJSONContentType(body.contentType))
     bodyContent = stripComments(body.body)
+
+  if (body.contentType === "application/x-www-form-urlencoded") {
+    bodyContent = body.body
+  }
 
   return {
     contentType: body.contentType,
@@ -540,7 +682,8 @@ function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? x.value.map((v) => ({
+          ? // @ts-expect-error TODO: Fix this type error
+            x.value.map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
               contentType: x.contentType,

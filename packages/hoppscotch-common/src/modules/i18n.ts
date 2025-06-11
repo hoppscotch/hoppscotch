@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as R from "fp-ts/Record"
 import { createI18n, I18n, I18nOptions } from "vue-i18n"
+import { merge } from "lodash-es"
 import { HoppModule } from "."
 
 import languages from "../../languages.json"
@@ -12,6 +13,8 @@ import { PersistenceService } from "~/services/persistence"
 import { getService } from "./dioc"
 
 import FALLBACK_LANG_MESSAGES from "../../locales/en.json"
+
+import messages from "@intlify/unplugin-vue-i18n/messages"
 
 /*
   In context of this file, we have 2 main kinds of things.
@@ -71,10 +74,63 @@ let i18nInstance: I18n<
   true
 > | null = null
 
-const resolveCurrentLocale = () =>
+// Store additional message registrations keyed by locale
+const additionalMessages: Record<string, Record<string, unknown>[]> = {}
+
+/**
+ * Register additional i18n messages for a specific locale.
+ * This allows other packages to extend the translations of the common package.
+ *
+ * @param locale The locale code to extend (e.g., 'en', 'fr', etc.)
+ * @param messages The additional messages to merge with existing translations
+ */
+export const registerAdditionalMessages = (
+  locale: string,
+  messages: Record<string, unknown>
+): void => {
+  if (!additionalMessages[locale]) {
+    additionalMessages[locale] = []
+  }
+
+  additionalMessages[locale].push(messages)
+
+  // If i18n is already initialized, merge the messages immediately
+  if (i18nInstance && i18nInstance.global.availableLocales.includes(locale)) {
+    mergeAdditionalMessages(locale)
+  }
+}
+
+/**
+ * Merge all registered additional messages for a locale with the base messages
+ *
+ * @param locale The locale code to merge messages for
+ */
+const mergeAdditionalMessages = (locale: string): void => {
+  if (
+    !i18nInstance ||
+    !additionalMessages[locale] ||
+    additionalMessages[locale].length === 0
+  ) {
+    return
+  }
+
+  // Get current messages for the locale
+  const currentMessages = i18nInstance.global.getLocaleMessage(locale)
+
+  // Deep merge additional messages with current messages
+  const newMessages = additionalMessages[locale].reduce(
+    (acc, messages) => merge(acc, messages),
+    { ...currentMessages }
+  )
+
+  // Update the locale messages
+  i18nInstance.global.setLocaleMessage(locale, newMessages)
+}
+
+const resolveCurrentLocale = async () =>
   pipe(
     // Resolve from locale and make sure it is in languages
-    persistenceService.getLocalConfig("locale"),
+    await persistenceService.getLocalConfig("locale"),
     O.fromNullable,
     O.filter((locale) =>
       pipe(
@@ -120,10 +176,13 @@ export const changeAppLanguage = async (locale: string) => {
 
   i18nInstance.global.setLocaleMessage(locale, localeData)
 
+  // Apply any additional messages for this locale
+  mergeAdditionalMessages(locale)
+
   // TODO: Look into the type issues here
   i18nInstance.global.locale.value = locale
 
-  persistenceService.setLocalConfig("locale", locale)
+  await persistenceService.setLocalConfig("locale", locale)
 }
 
 /**
@@ -134,12 +193,13 @@ export function getI18n() {
 }
 
 export default <HoppModule>{
-  onVueAppInit(app) {
+  async onVueAppInit(app) {
     const i18n = createI18n(<I18nOptions>{
       locale: "en", // TODO: i18n system!
       fallbackLocale: "en",
       legacy: false,
       allowComposition: true,
+      messages,
     })
 
     app.use(i18n)
@@ -153,10 +213,10 @@ export default <HoppModule>{
     )
 
     // TODO: Global loading state to hide the resolved lang loading
-    const currentLocale = resolveCurrentLocale()
+    const currentLocale = await resolveCurrentLocale()
     changeAppLanguage(currentLocale)
 
-    persistenceService.setLocalConfig("locale", currentLocale)
+    await persistenceService.setLocalConfig("locale", currentLocale)
   },
   onBeforeRouteChange(to, _, router) {
     // Convert old locale path format to new format

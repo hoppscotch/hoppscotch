@@ -16,13 +16,17 @@
         @edit-environment="editEnvironment('Global')"
       />
     </div>
-    <EnvironmentsMy v-show="isPersonalEnvironmentType" />
+    <EnvironmentsMy
+      v-show="isPersonalEnvironmentType"
+      @select-environment="handleEnvironmentChange"
+    />
     <EnvironmentsTeams
       v-show="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"
       :adapter-error="adapterError"
+      @select-environment="handleEnvironmentChange"
     />
     <EnvironmentsMyDetails
       :show="showModalDetails"
@@ -67,6 +71,7 @@ import {
   deleteTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   createEnvironment,
@@ -99,7 +104,7 @@ const environmentType = ref<EnvironmentsChooseType>({
 const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const globalEnvironment = computed<Environment>(() => ({
-  v: 1 as const,
+  v: 2 as const,
   id: "Global",
   name: "Global",
   variables: globalEnv.value.variables,
@@ -172,6 +177,7 @@ watch(
     // if navigating away from a team workspace
     if (
       selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+      newTeamID &&
       selectedEnvironmentIndex.value.teamID !== newTeamID
     ) {
       setSelectedEnvironmentIndex({
@@ -212,6 +218,38 @@ const displayModalEdit = (shouldDisplay: boolean) => {
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()
+}
+
+export type HandleEnvChangeProp = {
+  index: number
+  env?:
+    | {
+        type: "my-environment"
+        environment: Environment
+      }
+    | {
+        type: "team-environment"
+        environment: TeamEnvironment
+      }
+}
+
+const handleEnvironmentChange = ({ index, env }: HandleEnvChangeProp) => {
+  if (env?.type === "my-environment") {
+    selectedEnvironmentIndex.value = {
+      type: "MY_ENV",
+      index,
+    }
+    return
+  }
+
+  if (env?.type === "team-environment") {
+    selectedEnvironmentIndex.value = {
+      type: "TEAM_ENV",
+      teamEnvID: env.environment.id,
+      teamID: env.environment.teamID,
+      environment: env.environment.environment,
+    }
+  }
 }
 
 const editEnvironment = (environmentIndex: "Global") => {

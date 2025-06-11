@@ -53,6 +53,7 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
+    "faraday-cage": "0.0.16",
     "fp-ts": "2.16.9",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21"

@@ -10,6 +10,7 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
+  RESTResOriginalReqSchemaVersion,
   ValidContentTypes,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
@@ -177,7 +178,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: "3" as const,
+            v: RESTResOriginalReqSchemaVersion,
           },
         }
         return [response.name, res]
@@ -200,7 +201,7 @@ const getVariableValue = (defs: VariableDefinition[], key: string) =>
 const getHoppReqAuth = (
   hoppAuth: Item["request"]["auth"] | null
 ): HoppRESTAuth => {
-  if (!hoppAuth) return { authType: "inherit", authActive: false }
+  if (!hoppAuth) return { authType: "inherit", authActive: true }
 
   const auth = hoppAuth as unknown as PMRequestAuthDef
 
@@ -296,7 +297,7 @@ const getHoppReqBody = ({
             <FormDataKeyValue>{
               key: replacePMVarTemplating(param.key),
               value: replacePMVarTemplating(
-                param.type === "text" ? (param.value as string) : ""
+                param.type === "text" ? String(param.value) : ""
               ),
               active: !param.disabled,
               isFile: false, // TODO: Preserve isFile state ?
@@ -313,7 +314,7 @@ const getHoppReqBody = ({
           (param) =>
             `${replacePMVarTemplating(
               param.key ?? ""
-            )}: ${replacePMVarTemplating(param.value ?? "")}`
+            )}: ${replacePMVarTemplating(String(param.value ?? ""))}`
         ),
         stringArrayJoin("\n")
       ),
@@ -336,7 +337,7 @@ const getHoppReqBody = ({
               contentType in knownContentTypes
           ),
 
-          // Back-up plan, assume language from raw language defintion
+          // Back-up plan, assume language from raw language definition
           O.alt(() =>
             pipe(
               body.options?.raw?.language,
@@ -371,10 +372,28 @@ const getHoppReqBody = ({
           }
       )
     )
+  } else if (body.mode === "graphql") {
+    const formattedQuery = {
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      query: body.graphql?.query,
+      variables: pipe(
+        // @ts-expect-error - this is a valid option, but seems like the types are not updated
+        body.graphql?.variables,
+        safeParseJSON,
+        O.getOrElse(() => undefined)
+      ),
+    }
+
+    return {
+      contentType: "application/json",
+      body: pipe(
+        JSON.stringify(formattedQuery, null, 2),
+        replacePMVarTemplating
+      ),
+    }
   }
 
   // TODO: File
-  // TODO: GraphQL ?
 
   return { contentType: null, body: null }
 }

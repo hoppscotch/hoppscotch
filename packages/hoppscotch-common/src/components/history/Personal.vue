@@ -318,8 +318,10 @@ const clearHistory = () => {
 // NOTE: For GQL, the HistoryGraphqlCard component already implements useEntry
 // (That is not a really good behaviour tho ¯\_(ツ)_/¯)
 const tabs = useService(RESTTabService)
+
 const useHistory = (entry: RESTHistoryEntry) => {
   tabs.createNewTab({
+    type: "request",
     request: entry.request,
     isDirty: false,
   })

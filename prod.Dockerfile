@@ -1,6 +1,6 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
-FROM alpine:3.21.2 AS caddy_builder
+FROM alpine:3.21.3 AS caddy_builder
 RUN apk add curl go
 
 RUN mkdir -p /tmp/caddy-build
@@ -19,6 +19,13 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz
 
 # Patch to resolve CVE-2024-45339 on glog
 RUN go get github.com/golang/glog@v1.2.4
+# Patch to resolve CVE-2025-2714 on go-jose
+RUN go get github.com/go-jose/go-jose/v3@v3.0.4
+# Patch to resolve CVE-2025-22869 on crypto
+RUN go get golang.org/x/crypto@v0.35.0
+# Patch to resolve CVE-2025-22872 on net
+RUN go get golang.org/x/net@v0.38.0
+
 RUN go mod vendor
 
 WORKDIR /tmp/caddy-build/cmd/caddy
@@ -26,7 +33,7 @@ RUN go build
 
 
 
-FROM alpine:3.19.6 AS base_builder
+FROM alpine:3.19.7 AS base_builder
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -40,12 +47,12 @@ ENV HOPP_ALLOW_RUNTIME_ENV=true
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
 RUN apk add python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.2.1
 COPY pnpm-lock.yaml .
 RUN pnpm fetch
 
 COPY . .
-RUN pnpm install -f --offline
+RUN pnpm install -f --prefer-offline
 
 
 
@@ -53,11 +60,11 @@ FROM base_builder AS backend_builder
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 RUN pnpm exec prisma generate
 RUN pnpm run build
-RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod
+RUN pnpm --filter=hoppscotch-backend deploy /dist/backend --prod --legacy
 WORKDIR /dist/backend
 RUN pnpm exec prisma generate
 
-FROM alpine:3.19.6 AS backend
+FROM alpine:3.19.7 AS backend
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -67,7 +74,7 @@ RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.2.1
 
 COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
@@ -91,10 +98,16 @@ FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
+FROM rust:1-alpine AS webapp_server_builder
+WORKDIR /usr/src/app
+RUN apk add --no-cache musl-dev
+COPY . .
+WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
+RUN cargo build --release
 
 
 
-FROM alpine:3.19.6 AS app
+FROM alpine:3.19.7 AS app
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -103,6 +116,9 @@ RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh
 
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
+
+# Copy over webapp server bin
+COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
 
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
@@ -113,10 +129,12 @@ RUN npm install -g @import-meta-env/cli
 
 EXPOSE 80
 EXPOSE 3000
+EXPOSE 3200
 
 WORKDIR /site
 
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile"]
+# Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
+CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
 
 
 
@@ -132,7 +150,7 @@ RUN pnpm run build --outDir dist-subpath-access --base /admin/
 
 
 
-FROM alpine:3.19.6 AS sh_admin
+FROM alpine:3.19.7 AS sh_admin
 RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
@@ -158,7 +176,7 @@ WORKDIR /site
 
 CMD ["node","/site/prod_run.mjs"]
 
-FROM alpine:3.19.6 AS aio
+FROM alpine:3.19.7 AS aio
 
 RUN apk add nodejs curl
 
@@ -181,13 +199,18 @@ LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch"
 
 RUN apk add tini
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.2.1
 
 # Copy necessary files
 # Backend files
 COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
 COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
+
+# Static Server
+COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
+RUN mkdir -p /site/selfhost-web
+COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 
 # FE Files
 COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
@@ -211,4 +234,5 @@ CMD ["node", "/usr/src/app/aio_run.mjs"]
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100
+EXPOSE 3200
 EXPOSE 80

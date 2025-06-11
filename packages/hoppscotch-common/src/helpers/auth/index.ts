@@ -1,8 +1,8 @@
 import { getService } from "~/modules/dioc"
-import { getCombinedEnvVariables } from "../preRequest"
 import { RESTTabService } from "~/services/tab/rest"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import { getCombinedEnvVariables } from "../utils/environments"
 
 export const replaceTemplateStringsInObjectValues = <
   T extends Record<string, unknown>,

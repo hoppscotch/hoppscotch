@@ -8,6 +8,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequestResponse,
   HoppCollection,
+  GlobalEnvironment,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -35,6 +36,7 @@ const SettingsDefSchema = z.object({
   syncEnvironments: z.boolean(),
   PROXY_URL: z.string(),
   CURRENT_INTERCEPTOR_ID: z.string(),
+  CURRENT_KERNEL_INTERCEPTOR_ID: z.string(),
   URL_EXCLUDES: z.object({
     auth: z.boolean(),
     httpUser: z.boolean(),
@@ -80,6 +82,8 @@ const SettingsDefSchema = z.object({
     .optional()
     .catch("DESCRIPTIVE_WITH_SPACES"),
   CUSTOM_NAMING_STYLE: z.string().optional().catch(""),
+
+  EXPERIMENTAL_SCRIPTING_SANDBOX: z.optional(z.boolean()),
 })
 
 const HoppRESTRequestSchema = entityReference(HoppRESTRequest)
@@ -155,6 +159,8 @@ export const GQL_COLLECTION_SCHEMA = HoppGQLCollectionSchema
 
 export const ENVIRONMENTS_SCHEMA = z.array(entityReference(Environment))
 
+export const GLOBAL_ENVIRONMENT_SCHEMA = entityReference(GlobalEnvironment)
+
 export const SELECTED_ENV_INDEX_SCHEMA = z.nullable(
   z.discriminatedUnion("type", [
     z
@@ -224,12 +230,9 @@ export const MQTT_REQUEST_SCHEMA = z.nullable(
 const EnvironmentVariablesSchema = z.union([
   z.object({
     key: z.string(),
-    value: z.string(),
-    secret: z.literal(false).catch(false),
-  }),
-  z.object({
-    key: z.string(),
-    secret: z.literal(true),
+    initialValue: z.string(),
+    currentValue: z.string(),
+    secret: z.boolean(),
   }),
   z.object({
     key: z.string(),
@@ -372,6 +375,24 @@ export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
   ),
 ])
 
+export const CURRENT_ENVIRONMENT_VALUE_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.array(
+      z
+        .object({
+          key: z.string(),
+          currentValue: z.string(),
+          varIndex: z.number(),
+          isSecret: z.boolean(),
+        })
+        .strict()
+    )
+  ),
+])
+
 const HoppTestResultSchema = z
   .object({
     tests: z.array(HoppTestDataSchema),
@@ -412,6 +433,7 @@ const HoppTestResultSchema = z
           .strict(),
       })
       .strict(),
+    consoleEntries: z.optional(z.array(z.record(z.string(), z.unknown()))),
   })
   .strict()
 

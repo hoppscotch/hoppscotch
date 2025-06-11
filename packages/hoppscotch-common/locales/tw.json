@@ -11,7 +11,7 @@
     "connect": "連線",
     "connecting": "正在連接",
     "copy": "複製",
-    "create": "Create",
+    "create": "建立",
     "delete": "刪除",
     "disconnect": "斷開連線",
     "dismiss": "忽略",
@@ -328,6 +328,7 @@
     "danger_zone": "危險地帶",
     "delete_account": "您的帳號目前為這些團隊的擁有者：",
     "delete_account_description": "您在刪除帳號前必須先將您自己從團隊中移除、轉移擁有權，或是刪除團隊。",
+    "empty_email_address": "Email Address cannot be empty",
     "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "空請求名稱",
     "f12_details": "（按下 F12 以獲悉詳情）",
@@ -348,6 +349,7 @@
     "page_not_found": "找不到此頁面",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy 錯誤",
+    "same_email_address": "Updated email address is same as the current email address",
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
@@ -389,10 +391,10 @@
     "schema": "綱要",
     "subscriptions": "訂閱",
     "switch_connection": "切換連線",
-    "url_placeholder": "Enter a GraphQL endpoint URL"
+    "url_placeholder": "輸入 GraphQL 端點 URL"
   },
   "graphql_collections": {
-    "title": "GraphQL Collections"
+    "title": "GraphQL 集合"
   },
   "group": {
     "time": "時間",
@@ -692,29 +694,29 @@
     "verify_email": "確認電子郵件地址"
   },
   "shared_requests": {
-    "button": "Button",
-    "button_info": "Create a 'Run in Hoppscotch' button for your website, blog or a README.",
-    "copy_html": "Copy HTML",
-    "copy_link": "Copy Link",
-    "copy_markdown": "Copy Markdown",
-    "creating_widget": "Creating widget",
-    "customize": "Customize",
-    "deleted": "Shared request deleted",
-    "description": "Select a widget, you can change and customize this later",
-    "embed": "Embed",
-    "embed_info": "Add a mini 'Hoppscotch API Playground' to your website, blog or documentation.",
-    "link": "Link",
-    "link_info": "Create a shareable link to share with anyone on the internet with view access.",
-    "modified": "Shared request modified",
-    "not_found": "Shared request not found",
-    "open_new_tab": "Open in new tab",
-    "preview": "Preview",
-    "run_in_hoppscotch": "Run in Hoppscotch",
+    "button": "按鈕",
+    "button_info": "為你的網站、部落格或 README 文件建立「在 Hoppscotch 執行」按鈕。",
+    "copy_html": "複製 HTML",
+    "copy_link": "複製連結",
+    "copy_markdown": "複製 Markdown",
+    "creating_widget": "正在建立元件",
+    "customize": "自訂",
+    "deleted": "已刪除共享請求",
+    "description": "選擇一個元件，你可以稍後進行修改與自訂。",
+    "embed": "嵌入",
+    "embed_info": "在你的網站、部落格或文件中新增「Hoppscotch API Playground」小工具。",
+    "link": "連結",
+    "link_info": "建立任何人均可檢視的分享連結。",
+    "modified": "已修改共享請求",
+    "not_found": "找不到共享請求",
+    "open_new_tab": "在新分頁開啟",
+    "preview": "預覽",
+    "run_in_hoppscotch": "在 Hoppscotch 執行",
     "theme": {
-      "dark": "Dark",
-      "light": "Light",
-      "system": "System",
-      "title": "Theme"
+      "dark": "暗色",
+      "light": "亮色",
+      "system": "系統預設",
+      "title": "佈景主題"
     }
   },
   "shortcut": {
@@ -759,7 +761,7 @@
       "save_request": "儲存請求",
       "save_to_collections": "儲存到集合",
       "send_request": "傳送請求",
-      "share_request": "Share Request",
+      "share_request": "分享請求",
       "show_code": "產生程式碼片段",
       "title": "請求",
       "copy_request_link": "複製請求連結"

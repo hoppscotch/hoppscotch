@@ -98,6 +98,7 @@ import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { computedAsync } from "@vueuse/core"
 
 const t = useI18n()
 const persistenceService = useService(PersistenceService)
@@ -129,23 +130,29 @@ const responseName = computed(() => {
 })
 
 const { responseBodyText } = useResponseBody(props.response)
+
+const filename = t("filename.lens", {
+  request_name: responseName.value,
+})
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
   responseBodyText,
-  t("filename.lens", {
-    request_name: responseName.value,
-  })
+  `${filename}.html`
 )
-const defaultPreview =
-  persistenceService.getLocalConfig("lens_html_preview") === "true"
+
+const defaultPreview = computedAsync(
+  async () =>
+    (await persistenceService.getLocalConfig("lens_html_preview")) === "true",
+  false
+)
 
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
   defaultPreview,
   responseBodyText
 )
 
-const doTogglePreview = () => {
-  persistenceService.setLocalConfig(
+const doTogglePreview = async () => {
+  await persistenceService.setLocalConfig(
     "lens_html_preview",
     previewEnabled.value ? "false" : "true"
   )

@@ -50,7 +50,7 @@
         :on="auth.retryingRequest"
         @change="auth.retryingRequest = !auth.retryingRequest"
       >
-        Disable Retrying Requset
+        Disable Retrying Request
       </HoppSmartCheckbox>
     </div>
   </div>

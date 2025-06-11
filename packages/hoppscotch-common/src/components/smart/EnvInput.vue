@@ -5,11 +5,11 @@
     >
       <input
         v-if="isSecret"
-        id="secret"
+        :id="`secret-${uniqueID()}`"
         v-model="secretText"
         name="secret"
-        :placeholder="t('environment.secret_value')"
-        class="flex flex-1 bg-transparent px-4"
+        :placeholder="placeholder"
+        class="flex flex-1 bg-transparent pl-4"
         :class="styles"
         type="password"
       />
@@ -17,7 +17,7 @@
         v-else
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1"
+        class="flex flex-1 truncate"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
@@ -73,7 +73,12 @@ import {
   keymap,
   tooltips,
 } from "@codemirror/view"
-import { EditorSelection, EditorState, Extension } from "@codemirror/state"
+import {
+  Compartment,
+  EditorSelection,
+  EditorState,
+  Extension,
+} from "@codemirror/state"
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
@@ -92,6 +97,7 @@ import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const t = useI18n()
 
@@ -155,6 +161,9 @@ const autoCompleteWrapper = ref<any | null>(null)
 const isSecret = ref(props.secret)
 
 const secretText = ref(props.modelValue)
+
+// Compartment to store the readOnly state of the editor
+const readOnly = new Compartment()
 
 watch(
   () => secretText.value,
@@ -366,11 +375,13 @@ const envVars = computed(() => {
   if (props.envs) {
     return props.envs.map((x) => {
       const { key, secret } = x
-      const value = secret ? "********" : x.value
+      const currentValue = secret ? "********" : x.currentValue
+      const initialValue = secret ? "********" : x.initialValue
       const sourceEnv = "sourceEnv" in x ? x.sourceEnv : null
       return {
         key,
-        value,
+        currentValue,
+        initialValue,
         sourceEnv,
         secret,
       }
@@ -385,12 +396,14 @@ const envVars = computed(() => {
         ? tabs.currentActiveTab.value.document.request.requestVariables
         : []
 
+  // Transform request variables to match the env format
   return [
     ...requestVariables.map(({ active, key, value }) =>
       active
         ? {
             key,
-            value,
+            currentValue: value,
+            initialValue: value,
             sourceEnv: "RequestVariable",
             secret: false,
           }
@@ -404,7 +417,7 @@ function envAutoCompletion(context: CompletionContext) {
   const options = (envVars.value ?? [])
     .map((env) => ({
       label: env?.key ? `<<${env.key}>>` : "",
-      info: env?.value ?? "",
+      info: env?.currentValue ?? "",
       apply: env?.key ? `<<${env.key}>>` : "",
     }))
     .filter(Boolean)
@@ -478,16 +491,14 @@ const initView = (el: any) => {
 }
 
 const getExtensions = (readonly: boolean): Extension => {
-  const extensions: Extension = [
-    EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
-    EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
+  const readOnlyConfigs = [
     EditorView.updateListener.of((update) => {
       if (readonly) {
         update.view.contentDOM.inputMode = "none"
+        update.view.contentDOM.contentEditable = "false"
       }
     }),
     EditorState.changeFilter.of(() => !readonly),
-    inputTheme,
     readonly
       ? EditorView.theme({
           ".cm-content": {
@@ -498,6 +509,13 @@ const getExtensions = (readonly: boolean): Extension => {
           },
         })
       : EditorView.theme({}),
+  ]
+
+  const extensions: Extension = [
+    EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
+    EditorView.contentAttributes.of({ "data-enable-grammarly": "false" }),
+    inputTheme,
+    readOnly.of(readOnlyConfigs),
     tooltips({
       parent: document.body,
       position: "absolute",
@@ -526,10 +544,12 @@ const getExtensions = (readonly: boolean): Extension => {
           override: [envAutoCompletion],
         })
       : [],
+
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
-          if (readonly) return
+          // since the readonly prop is reactive, we need to check if it has changed
+          if (props.readonly) return
 
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
@@ -610,6 +630,51 @@ watch(editor, () => {
     view.value = undefined
   }
 })
+
+/**
+ * Watch for changes in the readonly prop
+ * and update the editor state accordingly
+ */
+watch(
+  () => props.readonly,
+  (isReadOnly) => {
+    if (isReadOnly) {
+      view.value?.dispatch({
+        effects: readOnly.reconfigure([
+          EditorView.theme({
+            ".cm-content": {
+              caretColor: "var(--secondary-dark-color)",
+              color: "var(--secondary-dark-color)",
+              backgroundColor: "var(--divider-color)",
+              opacity: 0.25,
+            },
+          }),
+          EditorState.changeFilter.of(() => false),
+          EditorState.readOnly.of(true),
+        ]),
+      })
+
+      //change input mode and contenteditable to false to prevent keyboard input
+      view.value?.contentDOM.setAttribute("inputmode", "none")
+      view.value?.contentDOM.setAttribute("contenteditable", "false")
+    } else {
+      view.value?.dispatch({
+        effects: readOnly.reconfigure([
+          EditorView.theme({}),
+          EditorState.changeFilter.of(() => true),
+          EditorState.readOnly.of(false),
+        ]),
+      })
+
+      //change input mode and contenteditable to true to allow keyboard input
+      view.value?.contentDOM.setAttribute("inputmode", "text")
+      view.value?.contentDOM.setAttribute("contenteditable", "true")
+    }
+  },
+  {
+    immediate: true,
+  }
+)
 </script>
 
 <style lang="scss" scoped>

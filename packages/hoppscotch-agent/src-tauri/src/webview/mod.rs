@@ -34,7 +34,7 @@
 /// See: https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
 ///
 /// Our implementation uses Approach 1, checking both the 32-bit (WOW6432Node) and 64-bit registry locations
-/// to make sure we have critical dependencis compatibility with different system architectures.
+/// to make sure we have critical dependency compatibility with different system architectures.
 pub mod error;
 
 use std::{io, ops::Not};
@@ -182,7 +182,7 @@ pub fn init_webview() {
     )
     .not()
     {
-        log::warn!("Declined to setup WebView.");
+        tracing::warn!("Declined to setup WebView.");
 
         std::process::exit(1);
     }
@@ -196,7 +196,7 @@ pub fn init_webview() {
         ));
 
         if let Err(e) = open_install_website() {
-            log::warn!("Failed to launch WebView website:\n{}", e);
+            tracing::warn!("Failed to launch WebView website:\n{}", e);
         }
 
         std::process::exit(1);

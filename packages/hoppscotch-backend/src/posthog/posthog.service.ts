@@ -1,20 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PostHog } from 'posthog-node';
-import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CronJob } from 'cron';
 import { POSTHOG_CLIENT_NOT_INITIALIZED } from 'src/errors';
 import { throwErr } from 'src/utils';
+
 @Injectable()
-export class PosthogService {
+export class PostHogService {
   private postHogClient: PostHog;
   private POSTHOG_API_KEY = 'phc_9CipPajQC22mSkk2wxe2TXsUA0Ysyupe8dt5KQQELqx';
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prismaService: PrismaService,
-    private schedulerRegistry: SchedulerRegistry,
+    private readonly prisma: PrismaService,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
   async onModuleInit() {
@@ -48,8 +49,8 @@ export class PosthogService {
       event: 'sh_instance',
       properties: {
         type: 'COMMUNITY',
-        total_user_count: await this.prismaService.user.count(),
-        total_workspace_count: await this.prismaService.team.count(),
+        total_user_count: await this.prisma.user.count(),
+        total_workspace_count: await this.prisma.team.count(),
         version: this.configService.get('npm_package_version'),
       },
     });

@@ -1,0 +1,477 @@
+name: Build Desktop Self Host - AIO
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Tag of the version to build
+        required: true
+      repository:
+        description: Repository to checkout
+        required: false
+        default: "hoppscotch/hoppscotch"
+      branch:
+        description: Branch to checkout
+        required: false
+        default: "main"
+      tag:
+        description: Tag to checkout (takes precedence over branch if provided)
+        required: false
+        default: ""
+      release_notes:
+        description: Release notes for the update
+        required: false
+        default: "PLACEHOLDER RELEASE NOTES"
+      disable_signing:
+        description: Disable executable signing
+        required: false
+        type: boolean
+        default: false
+env:
+  CARGO_TERM_COLOR: always
+  WORKSPACE_PATH: ${{ github.workspace }}
+  WEB_PATH: ${{ github.workspace }}/packages/hoppscotch-selfhost-web
+  DESKTOP_PATH: ${{ github.workspace }}/packages/hoppscotch-desktop
+  BUNDLER_PATH: ${{ github.workspace }}/packages/hoppscotch-desktop/crates/webapp-bundler
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
+          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.2.1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Install additional tools
+        run: |
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.2.0/cargo-tauri-x86_64-unknown-linux-gnu.tgz"
+          tar -xzf cargo-tauri-x86_64-unknown-linux-gnu.tgz
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - name: Install system dependencies
+        run: |
+          sudo apt update;
+          sudo apt install -y \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libgtk-3-dev \
+            libappindicator3-dev \
+            librsvg2-dev;
+
+          sudo apt install -y \
+            libwebkit2gtk-4.1-0=2.44.0-2 \
+            libwebkit2gtk-4.1-dev=2.44.0-2 \
+            libjavascriptcoregtk-4.1-0=2.44.0-2 \
+            libjavascriptcoregtk-4.1-dev=2.44.0-2 \
+            gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
+            gir1.2-webkit2-4.1=2.44.0-2;
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup environment
+        run: |
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
+            cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
+          fi
+          pnpm install --dir ${{ env.DESKTOP_PATH }}
+      - name: Build web app
+        run: |
+          pnpm install --dir ${{ env.WEB_PATH }}
+          pnpm --dir ${{ env.WEB_PATH }} generate
+      - name: Build and run webapp-bundler
+        run: |
+          cargo build --release --manifest-path ${{ env.BUNDLER_PATH }}/Cargo.toml
+          ${{ env.BUNDLER_PATH }}/target/release/webapp-bundler \
+            --input ${{ env.WEB_PATH }}/dist \
+            --output ${{ env.DESKTOP_PATH }}/bundle.zip \
+            --manifest ${{ env.DESKTOP_PATH }}/manifest.json
+      - name: Build AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b appimage -b updater
+      - name: Build DEB
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b deb -b updater
+      - name: Prepare artifacts
+        run: |
+          ls -lahR ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/
+          mkdir -p dist
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/appimage/*.AppImage dist/Hoppscotch_SelfHost_linux_x64.AppImage
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/appimage/*.AppImage.sig dist/Hoppscotch_SelfHost_linux_x64.AppImage.sig
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/deb/*.deb dist/Hoppscotch_SelfHost_linux_x64.deb
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
+          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+      - name: Set Perl environment variables
+        shell: pwsh
+        run: |
+          echo "PERL=$((where.exe perl)[0])" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          echo "OPENSSL_SRC_PERL=$((where.exe perl)[0])" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.2.1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Download trusted-signing-cli
+        if: ${{ inputs.disable_signing != true }}
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest -Uri "https://github.com/Levminer/trusted-signing-cli/releases/download/0.5.0/trusted-signing-cli.exe" -OutFile "trusted-signing-cli.exe"
+          Move-Item -Path "trusted-signing-cli.exe" -Destination "$env:GITHUB_WORKSPACE\trusted-signing-cli.exe"
+          echo "$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Setting up Windows Signing Environment
+        if: ${{ inputs.disable_signing != true }}
+        timeout-minutes: 20
+        shell: bash
+        env:
+          WINDOWS_SIGN_COMMAND: trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} %1
+        run: |
+          cat "${{ env.DESKTOP_PATH }}/src-tauri/tauri.conf.json" | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > "${{ env.DESKTOP_PATH }}/src-tauri/temp.json" && mv "${{ env.DESKTOP_PATH }}/src-tauri/temp.json" "${{ env.DESKTOP_PATH }}/src-tauri/tauri.conf.json"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup environment
+        shell: pwsh
+        run: |
+          if ("${{ secrets.ENV_FILE_CONTENT }}" -ne "") {
+            "${{ secrets.ENV_FILE_CONTENT }}" | Out-File -FilePath ${{ env.WORKSPACE_PATH }}\.env -Encoding utf8
+            Write-Host "Created .env file from repository secret"
+          } elseif (Test-Path -Path "${{ env.WORKSPACE_PATH }}\.env") {
+            Write-Host "Using existing .env file found in repository"
+          } else {
+            Copy-Item ${{ env.WORKSPACE_PATH }}\.env.example ${{ env.WORKSPACE_PATH }}\.env
+            Write-Host "No .env found, copied from .env.example template"
+          }
+          pnpm install -f --shamefully-hoist --ignore-scripts
+          pnpm --filter hoppscotch-backend exec prisma generate
+          pnpm install -f --shamefully-hoist --dir ${{ env.DESKTOP_PATH }}
+      - name: Build web app
+        shell: pwsh
+        run: |
+          pnpm install --dir ${{ env.WEB_PATH }}
+          pnpm --dir ${{ env.WEB_PATH }} generate
+      - name: Build and run webapp-bundler
+        shell: pwsh
+        run: |
+          cargo build --release --manifest-path ${{ env.BUNDLER_PATH }}\Cargo.toml
+          ${{ env.BUNDLER_PATH }}\target\release\webapp-bundler.exe `
+            --input ${{ env.WEB_PATH }}\dist `
+            --output ${{ env.DESKTOP_PATH }}\bundle.zip `
+            --manifest ${{ env.DESKTOP_PATH }}\manifest.json
+      - name: Build Tauri app with Azure signing
+        if: ${{ inputs.disable_signing != true }}
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b msi -b updater
+      - name: Build Tauri app without Azure signing
+        if: ${{ inputs.disable_signing == true }}
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose -b msi -b updater
+      - name: Prepare artifacts
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse ${{ env.DESKTOP_PATH }}\src-tauri\target\release\bundle
+          mkdir dist
+          Copy-Item ${{ env.DESKTOP_PATH }}\src-tauri\target\release\bundle\msi\*_x64_en-US.msi dist\Hoppscotch_SelfHost_win_x64.msi
+          Copy-Item ${{ env.DESKTOP_PATH }}\src-tauri\target\release\bundle\msi\*_x64_en-US.msi.sig dist\Hoppscotch_SelfHost_win_x64.msi.sig
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+  build-macos-x64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
+          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.2.1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Install Rust target
+        run: rustup target add x86_64-apple-darwin
+      - name: Install additional tools
+        run: |
+          mkdir __dist/
+          cd __dist/
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.2.0/cargo-tauri-x86_64-apple-darwin.zip"
+          unzip cargo-tauri-x86_64-apple-darwin.zip
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - uses: apple-actions/import-codesign-certs@v3
+        if: ${{ inputs.disable_signing != true }}
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-x86_64-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup environment
+        run: |
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
+            cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
+          fi
+          pnpm install --dir ${{ env.DESKTOP_PATH }}
+      - name: Build web app
+        run: |
+          pnpm install --dir ${{ env.WEB_PATH }}
+          pnpm --dir ${{ env.WEB_PATH }} generate
+      - name: Build and run webapp-bundler
+        run: |
+          cargo build --release --manifest-path ${{ env.BUNDLER_PATH }}/Cargo.toml
+          ${{ env.BUNDLER_PATH }}/target/release/webapp-bundler \
+            --input ${{ env.WEB_PATH }}/dist \
+            --output ${{ env.DESKTOP_PATH }}/bundle.zip \
+            --manifest ${{ env.DESKTOP_PATH }}/manifest.json
+      - name: Build Tauri app with Apple signing
+        if: ${{ inputs.disable_signing != true }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target x86_64-apple-darwin
+      - name: Build Tauri app without Apple signing
+        if: ${{ inputs.disable_signing == true }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target x86_64-apple-darwin
+      - name: Prepare artifacts
+        run: |
+          ls -lahR ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/
+          mkdir -p dist
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg dist/Hoppscotch_SelfHost_mac_x64.dmg
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz dist/Hoppscotch_SelfHost_mac_x64.tar.gz
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz.sig dist/Hoppscotch_SelfHost_mac_x64.tar.gz.sig
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64
+          path: dist/*
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
+          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.2.1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Install Rust target
+        run: rustup target add aarch64-apple-darwin
+      - name: Install additional tools
+        run: |
+          mkdir __dist/
+          cd __dist/
+          curl -LO "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.2.0/cargo-tauri-aarch64-apple-darwin.zip"
+          unzip cargo-tauri-aarch64-apple-darwin.zip
+          chmod +x cargo-tauri
+          sudo mv cargo-tauri /usr/local/bin/tauri
+      - uses: apple-actions/import-codesign-certs@v3
+        if: ${{ inputs.disable_signing != true }}
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-aarch64-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup environment
+        run: |
+          if [ ! -z "${{ secrets.ENV_FILE_CONTENT }}" ]; then
+            echo "${{ secrets.ENV_FILE_CONTENT }}" > ${{ env.WORKSPACE_PATH }}/.env
+            echo "Created .env file from repository secret"
+          elif [ -f "${{ env.WORKSPACE_PATH }}/.env" ]; then
+            echo "Using existing .env file found in repository"
+          else
+            cp ${{ env.WORKSPACE_PATH }}/.env.example ${{ env.WORKSPACE_PATH }}/.env
+            echo "No .env found, copied from .env.example template"
+          fi
+          pnpm install --dir ${{ env.DESKTOP_PATH }}
+      - name: Build web app
+        run: |
+          pnpm install --dir ${{ env.WEB_PATH }}
+          pnpm --dir ${{ env.WEB_PATH }} generate
+      - name: Build and run webapp-bundler
+        run: |
+          cargo build --release --manifest-path ${{ env.BUNDLER_PATH }}/Cargo.toml
+          ${{ env.BUNDLER_PATH }}/target/release/webapp-bundler \
+            --input ${{ env.WEB_PATH }}/dist \
+            --output ${{ env.DESKTOP_PATH }}/bundle.zip \
+            --manifest ${{ env.DESKTOP_PATH }}/manifest.json
+      - name: Build Tauri app with Apple signing
+        if: ${{ inputs.disable_signing != true }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target aarch64-apple-darwin
+      - name: Build Tauri app without Apple signing
+        if: ${{ inputs.disable_signing == true }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          RUST_LOG: debug
+        run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target aarch64-apple-darwin
+      - name: Prepare artifacts
+        run: |
+          ls -lahR ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/
+          mkdir -p dist
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg dist/Hoppscotch_SelfHost_mac_aarch64.dmg
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz dist/Hoppscotch_SelfHost_mac_aarch64.tar.gz
+          cp ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz.sig dist/Hoppscotch_SelfHost_mac_aarch64.tar.gz.sig
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-aarch64
+          path: dist/*
+  create-update-manifest:
+    needs: [build-linux, build-windows, build-macos-x64, build-macos-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create update manifest
+        run: |
+          VERSION="${{ inputs.version }}"
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          cat > artifacts/hoppscotch-selfhost-desktop.json << EOF
+          {
+            "version": "${VERSION}",
+            "notes": "${{ inputs.release_notes }}",
+            "pub_date": "${CURRENT_DATE}",
+            "platforms": {
+              "linux-x86_64": {
+                "signature": "$(cat artifacts/linux/Hoppscotch_SelfHost_linux_x64.AppImage.sig)",
+                "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_linux_x64.AppImage"
+              },
+              "windows-x86_64": {
+                "signature": "$(cat artifacts/windows/Hoppscotch_SelfHost_win_x64.msi.sig)",
+                "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_win_x64.msi"
+              },
+              "darwin-x86_64": {
+                "signature": "$(cat artifacts/macos-x64/Hoppscotch_SelfHost_mac_x64.tar.gz.sig)",
+                "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_mac_x64.tar.gz"
+              },
+              "darwin-aarch64": {
+                "signature": "$(cat artifacts/macos-aarch64/Hoppscotch_SelfHost_mac_aarch64.tar.gz.sig)",
+                "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_mac_aarch64.tar.gz"
+              }
+            }
+          }
+          EOF
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-manifest
+          path: artifacts/hoppscotch-selfhost-desktop.json

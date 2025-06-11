@@ -12,7 +12,6 @@ import {
   INVALID_EMAIL,
   ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
-  TEAM_INVITE_NO_INVITE_FOUND,
   USERS_NOT_FOUND,
   USER_ALREADY_INVITED,
   USER_INVITATION_DELETION_FAILED,
@@ -26,7 +25,7 @@ import { TeamCollectionService } from '../team-collection/team-collection.servic
 import { TeamRequestService } from '../team-request/team-request.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';
 import { TeamInvitationService } from '../team-invitation/team-invitation.service';
-import { TeamMemberRole } from '../team/team.model';
+import { TeamAccessRole } from '../team/team.model';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -292,9 +291,9 @@ export class AdminService {
   async changeRoleOfUserTeam(
     userUid: string,
     teamID: string,
-    newRole: TeamMemberRole,
+    newRole: TeamAccessRole,
   ) {
-    const updatedTeamMember = await this.teamService.updateTeamMemberRole(
+    const updatedTeamMember = await this.teamService.updateTeamAccessRole(
       teamID,
       userUid,
       newRole,
@@ -325,7 +324,7 @@ export class AdminService {
    * @param role team member role for the user
    * @returns an Either of boolean or error
    */
-  async addUserToTeam(teamID: string, userEmail: string, role: TeamMemberRole) {
+  async addUserToTeam(teamID: string, userEmail: string, role: TeamAccessRole) {
     if (!validateEmail(userEmail)) return E.left(INVALID_EMAIL);
 
     const user = await this.userService.findUserByEmail(userEmail);
@@ -464,7 +463,7 @@ export class AdminService {
     });
 
     const nonAdminUsers = allUsersList.filter((user) => !user.isAdmin);
-    let deletedUserEmails: string[] = [];
+    const deletedUserEmails: string[] = [];
 
     // step 3: delete non-admin users
     const deletionPromises = nonAdminUsers.map((user) => {

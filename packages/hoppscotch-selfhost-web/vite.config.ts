@@ -4,7 +4,7 @@ import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
 import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
-import VueI18n from "@intlify/vite-plugin-vue-i18n"
+import VueI18n from "@intlify/unplugin-vue-i18n/vite"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
@@ -27,6 +27,7 @@ export default defineConfig({
   define: {
     // For 'util' polyfill required by dep of '@apidevtools/swagger-parser'
     "process.env": {},
+    "process.platform": '"browser"',
   },
   server: {
     port: 3000,
@@ -41,6 +42,9 @@ export default defineConfig({
     rollupOptions: {
       maxParallelFileOps: 2,
     },
+  },
+  worker: {
+    format: "es",
   },
   resolve: {
     alias: {
@@ -71,6 +75,8 @@ export default defineConfig({
       ),
       "@workers": path.resolve(__dirname, "../hoppscotch-common/src/workers"),
       "@platform": path.resolve(__dirname, "./src/platform"),
+      "@platform-components": path.resolve(__dirname, "./src/components"),
+      "@api": path.resolve(__dirname, "./src/api"),
       "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
@@ -86,7 +92,7 @@ export default defineConfig({
     Vue(),
     Pages({
       routeStyle: "nuxt",
-      dirs: "../hoppscotch-common/src/pages",
+      dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
         generateSitemap({

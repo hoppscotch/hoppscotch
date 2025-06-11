@@ -36,7 +36,8 @@ describe("pw.env.set", () => {
           selected: [
             {
               key: "a",
-              value: "b",
+              currentValue: "b",
+              initialValue: "b",
               secret: false,
             },
           ],
@@ -47,7 +48,8 @@ describe("pw.env.set", () => {
         selected: [
           {
             key: "a",
-            value: "c",
+            currentValue: "c",
+            initialValue: "b",
             secret: false,
           },
         ],
@@ -65,7 +67,8 @@ describe("pw.env.set", () => {
           global: [
             {
               key: "a",
-              value: "b",
+              currentValue: "b",
+              initialValue: "b",
               secret: false,
             },
           ],
@@ -77,7 +80,8 @@ describe("pw.env.set", () => {
         global: [
           {
             key: "a",
-            value: "c",
+            currentValue: "c",
+            initialValue: "b",
             secret: false,
           },
         ],
@@ -95,14 +99,16 @@ describe("pw.env.set", () => {
           global: [
             {
               key: "a",
-              value: "b",
+              currentValue: "b",
+              initialValue: "b",
               secret: false,
             },
           ],
           selected: [
             {
               key: "a",
-              value: "d",
+              currentValue: "d",
+              initialValue: "d",
               secret: false,
             },
           ],
@@ -113,14 +119,16 @@ describe("pw.env.set", () => {
         global: [
           {
             key: "a",
-            value: "b",
+            currentValue: "b",
+            initialValue: "b",
             secret: false,
           },
         ],
         selected: [
           {
             key: "a",
-            value: "c",
+            currentValue: "c",
+            initialValue: "d",
             secret: false,
           },
         ],
@@ -145,7 +153,8 @@ describe("pw.env.set", () => {
         selected: [
           {
             key: "a",
-            value: "c",
+            currentValue: "c",
+            initialValue: "c",
             secret: false,
           },
         ],

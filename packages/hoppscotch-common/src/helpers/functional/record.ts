@@ -19,9 +19,9 @@ export const tupleToRecord = <
 /**
  * Converts an array of key-value tuples (for e.g ["key", "value"]), into a record.
  * (for eg. output -> { "key": ["value"] })
- * NOTE: If you do not want the array as values (because of duplicate keys) and want to instead get the last occurance, use `tupleToRecord`
+ * NOTE: If you do not want the array as values (because of duplicate keys) and want to instead get the last occurrence, use `tupleToRecord`
  * @param tuples Array of tuples ([key, value])
- * @returns A Record with values being arrays corresponding to each key occurance
+ * @returns A Record with values being arrays corresponding to each key occurrence
  */
 export const tupleWithSameKeysToRecord = <
   KeyType extends string | number | symbol,
@@ -29,7 +29,7 @@ export const tupleWithSameKeysToRecord = <
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType[]> => {
-  // By the end of the function we do ensure this typing, this can't be infered now though, hence the assertion
+  // By the end of the function we do ensure this typing, this can't be inferred now though, hence the assertion
   const out = {} as Record<KeyType, ValueType[]>
 
   for (const [key, value] of tuples) {

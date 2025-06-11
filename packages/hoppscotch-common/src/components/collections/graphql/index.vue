@@ -116,7 +116,6 @@
     <CollectionsGraphqlAddRequest
       :show="showModalAddRequest"
       :folder-path="editingFolderPath"
-      :request-context="requestContext"
       @add-request="onAddRequest($event)"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -182,7 +181,11 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import {
+  getDefaultGQLRequest,
+  HoppCollection,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
@@ -243,9 +246,9 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<GQLOptionTabs>("headers")
 
-onMounted(() => {
+onMounted(async () => {
   const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
+    await persistenceService.getLocalConfig("oauth_temp_config")
 
   if (!localOAuthTempConfig) {
     return
@@ -260,9 +263,8 @@ onMounted(() => {
 
   if (context?.type === "collection-properties") {
     // load the unsaved editing properties
-    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
-      "unsaved_collection_properties"
-    )
+    const unsavedCollectionPropertiesString =
+      await persistenceService.getLocalConfig("unsaved_collection_properties")
 
     if (unsavedCollectionPropertiesString) {
       const unsavedCollectionProperties: EditingProperties = JSON.parse(
@@ -284,7 +286,7 @@ onMounted(() => {
       editingProperties.value = unsavedCollectionProperties
     }
 
-    persistenceService.removeLocalConfig("oauth_temp_config")
+    await persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
@@ -329,10 +331,6 @@ const filteredCollections = computed(() => {
   }
 
   return filteredCollections
-})
-
-const requestContext = computed(() => {
-  return tabs.currentActiveTab.value.document.request
 })
 
 const displayModalAdd = (shouldDisplay: boolean) => {
@@ -398,7 +396,7 @@ const duplicateCollection = ({
 
 const onAddRequest = ({ name, path }: { name: string; path: string }) => {
   const newRequest = {
-    ...tabs.currentActiveTab.value.document.request,
+    ...getDefaultGQLRequest(),
     name,
   }
 

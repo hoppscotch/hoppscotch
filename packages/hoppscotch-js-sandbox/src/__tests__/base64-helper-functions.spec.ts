@@ -11,13 +11,27 @@ describe("Base64 helper functions", () => {
     atob: {
       script: `pw.env.set("atob", atob("SGVsbG8gV29ybGQ="))`,
       environment: {
-        selected: [{ key: "atob", value: "Hello World", secret: false }],
+        selected: [
+          {
+            key: "atob",
+            currentValue: "Hello World",
+            initialValue: "Hello World",
+            secret: false,
+          },
+        ],
       },
     },
     btoa: {
       script: `pw.env.set("btoa", btoa("Hello World"))`,
       environment: {
-        selected: [{ key: "btoa", value: "SGVsbG8gV29ybGQ=", secret: false }],
+        selected: [
+          {
+            key: "btoa",
+            currentValue: "SGVsbG8gV29ybGQ=",
+            initialValue: "SGVsbG8gV29ybGQ=",
+            secret: false,
+          },
+        ],
       },
     },
   }

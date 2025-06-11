@@ -139,9 +139,8 @@ export class UserCollectionResolver {
     })
     userCollectionID: string,
   ) {
-    const userCollection = await this.userCollectionService.getUserCollection(
-      userCollectionID,
-    );
+    const userCollection =
+      await this.userCollectionService.getUserCollection(userCollectionID);
 
     if (E.isLeft(userCollection)) throwErr(userCollection.left);
     return <UserCollection>{

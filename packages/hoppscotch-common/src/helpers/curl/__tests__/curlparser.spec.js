@@ -312,7 +312,14 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic dXNlcjpwYXNz",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -335,7 +342,14 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic 77898dXNlcjpwYXNz",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -360,7 +374,15 @@ const samples = [
         body: null,
       },
       params: [],
-      headers: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+          description: "",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
       requestVariables: [],
@@ -949,6 +971,54 @@ data2: {"type":"test2","typeId":"123"}`,
           active: true,
           key: "Accept",
           value: "application/vnd.test-data.v2.1+json",
+          description: "",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  {
+    command: `curl --request GET \
+    --url https://echo.hoppscotch.io/ \
+    --header 'Authorization:Basic YXNkZmdoOjEyMzQ=' \
+    --header 'User-Agent:Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
+    --header 'foo:bar'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://echo.hoppscotch.io/",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "asdfgh",
+        password: "1234",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "Authorization",
+          value: "Basic YXNkZmdoOjEyMzQ=",
+          description: "",
+        },
+        {
+          active: true,
+          key: "User-Agent",
+          value:
+            "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+          description: "",
+        },
+        {
+          active: true,
+          key: "foo",
+          value: "bar",
           description: "",
         },
       ],

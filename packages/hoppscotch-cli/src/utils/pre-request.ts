@@ -6,6 +6,7 @@ import {
   parseRawKeyValueEntriesE,
   parseTemplateString,
   parseTemplateStringE,
+  generateJWTToken,
 } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
@@ -32,6 +33,8 @@ import {
   generateDigestAuthHeader,
 } from "./auth/digest";
 
+import { calculateHawkHeader } from "@hoppscotch/data";
+
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
  * applies them on current request to generate updated request.
@@ -42,15 +45,18 @@ import {
  */
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
-  envs: HoppEnvs
+  envs: HoppEnvs,
+  legacySandbox: boolean
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
-> =>
-  pipe(
+> => {
+  const experimentalScriptingSandbox = !legacySandbox;
+
+  return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs)
+      runPreRequestScript(preRequestScript, envs, experimentalScriptingSandbox)
     ),
     TE.map(
       ({ selected, global }) =>
@@ -75,6 +81,7 @@ export const preRequestScriptRunner = (
           })
     )
   );
+};
 
 /**
  * Outputs an executable request format with environment variables applied
@@ -200,8 +207,11 @@ export async function getEffectiveRESTRequest(
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
       const { method, endpoint } = request;
 
+      const body = getFinalBodyFromRequest(request, resolvedVariables);
+
       const signer = new AwsV4Signer({
         method,
+        body: E.isRight(body) ? body.right?.toString() : undefined,
         datetime: amzDate,
         signQuery: addTo === "QUERY_PARAMS",
         accessKeyId: parseTemplateString(
@@ -287,6 +297,88 @@ export async function getEffectiveRESTRequest(
         value: authHeaderValue,
         description: "",
       });
+    } else if (request.auth.authType === "hawk") {
+      const { method, endpoint } = request;
+
+      const hawkHeader = await calculateHawkHeader({
+        url: parseTemplateString(endpoint, resolvedVariables), // URL
+        method: method, // HTTP method
+        id: parseTemplateString(request.auth.authId, resolvedVariables),
+        key: parseTemplateString(request.auth.authKey, resolvedVariables),
+        algorithm: request.auth.algorithm,
+
+        // advanced parameters (optional)
+        includePayloadHash: request.auth.includePayloadHash,
+        nonce: request.auth.nonce
+          ? parseTemplateString(request.auth.nonce, resolvedVariables)
+          : undefined,
+        ext: request.auth.ext
+          ? parseTemplateString(request.auth.ext, resolvedVariables)
+          : undefined,
+        app: request.auth.app
+          ? parseTemplateString(request.auth.app, resolvedVariables)
+          : undefined,
+        dlg: request.auth.dlg
+          ? parseTemplateString(request.auth.dlg, resolvedVariables)
+          : undefined,
+        timestamp: request.auth.timestamp
+          ? parseInt(
+              parseTemplateString(request.auth.timestamp, resolvedVariables),
+              10
+            )
+          : undefined,
+      });
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: hawkHeader,
+        description: "",
+      });
+    } else if (request.auth.authType === "jwt") {
+      const { addTo } = request.auth;
+
+      // Generate JWT token
+      const token = await generateJWTToken({
+        algorithm: request.auth.algorithm || "HS256",
+        secret: parseTemplateString(request.auth.secret, resolvedVariables),
+        privateKey: parseTemplateString(
+          request.auth.privateKey,
+          resolvedVariables
+        ),
+        payload: parseTemplateString(request.auth.payload, resolvedVariables),
+        jwtHeaders: parseTemplateString(
+          request.auth.jwtHeaders,
+          resolvedVariables
+        ),
+        isSecretBase64Encoded: request.auth.isSecretBase64Encoded,
+      });
+
+      if (token) {
+        if (addTo === "HEADERS") {
+          const headerPrefix =
+            parseTemplateString(request.auth.headerPrefix, resolvedVariables) ||
+            "Bearer ";
+
+          effectiveFinalHeaders.push({
+            active: true,
+            key: "Authorization",
+            value: `${headerPrefix}${token}`,
+            description: "",
+          });
+        } else if (addTo === "QUERY_PARAMS") {
+          const paramName =
+            parseTemplateString(request.auth.paramName, resolvedVariables) ||
+            "token";
+
+          effectiveFinalParams.push({
+            active: true,
+            key: paramName,
+            value: token,
+            description: "",
+          });
+        }
+      }
     }
   }
 

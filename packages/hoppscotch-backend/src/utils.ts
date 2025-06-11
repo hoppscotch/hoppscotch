@@ -16,7 +16,7 @@ import {
   ENV_NOT_SUPPORT_AUTH_PROVIDERS,
   JSON_INVALID,
 } from './errors';
-import { TeamMemberRole } from './team/team.model';
+import { TeamAccessRole } from './team/team.model';
 import { RESTError } from './types/RESTError';
 import * as crypto from 'crypto';
 
@@ -76,7 +76,7 @@ export const getAnnotatedRequiredRoles = (
   context: ExecutionContext,
 ) =>
   pipe(
-    reflector.get<TeamMemberRole[]>('requiresTeamRole', context.getHandler()),
+    reflector.get<TeamAccessRole[]>('requiresTeamRole', context.getHandler()),
     O.fromNullable,
   );
 

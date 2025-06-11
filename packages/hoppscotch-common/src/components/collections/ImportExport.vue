@@ -4,6 +4,7 @@
     modal-title="modal.collections"
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
+    :has-team-write-access="hasTeamWriteAccess"
     @hide-modal="emit('hide-modal')"
   />
 </template>
@@ -625,7 +626,7 @@ const HoppGistCollectionsExporter: ImporterOrExporter = {
         platform: "rest",
       })
 
-      platform.io.openExternalLink(res.right)
+      platform.kernelIO.openExternalLink({ url: res.right })
     } else {
       toast.error(collectionJSON.left)
     }
@@ -696,7 +697,8 @@ const importerModules = computed(() => {
     }
 
     return isTeams
-      ? importer.metadata.applicableTo.includes("team-workspace")
+      ? importer.metadata.applicableTo.includes("team-workspace") &&
+          hasTeamWriteAccess.value
       : importer.metadata.applicableTo.includes("personal-workspace")
   })
 })

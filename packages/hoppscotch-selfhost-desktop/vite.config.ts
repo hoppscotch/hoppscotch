@@ -4,7 +4,7 @@ import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
 import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
-import VueI18n from "@intlify/vite-plugin-vue-i18n"
+import VueI18n from "@intlify/unplugin-vue-i18n/vite"
 import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
@@ -64,6 +64,7 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
+      querystring: "qs",
     },
     dedupe: ["vue"],
   },
@@ -78,7 +79,7 @@ export default defineConfig({
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
       onRoutesGenerated(routes) {
-        return ((generateSitemap as any) as typeof generateSitemap)({
+        return (generateSitemap as any as typeof generateSitemap)({
           routes,
           nuxtStyle: true,
           allowRobots: true,
@@ -106,10 +107,7 @@ export default defineConfig({
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
-      dirs: [
-        "../hoppscotch-common/src/components",
-        "./src/components"
-      ],
+      dirs: ["../hoppscotch-common/src/components", "./src/components"],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({

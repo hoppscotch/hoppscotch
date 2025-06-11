@@ -5,18 +5,39 @@
   >
     <span
       class="flex cursor-pointer items-center justify-center px-4"
-      @click="emit('edit-environment')"
+      @click="emit('select-environment')"
     >
-      <icon-lucide-layers class="svg-icons" />
+      <icon-lucide-check-circle
+        v-if="selected"
+        class="svg-icons text-green-500"
+      />
+      <icon-lucide-layers v-else class="svg-icons" />
     </span>
     <span
       class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
-      @click="emit('edit-environment')"
+      @click="emit('select-environment')"
     >
       <span class="truncate">
         {{ environment.environment.name }}
       </span>
     </span>
+
+    <div class="flex">
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconEdit"
+        :title="`${t('action.edit')}`"
+        class="hidden group-hover:inline-flex"
+        @click="emit('edit-environment')"
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :icon="IconCopy"
+        :title="`${t('action.duplicate')}`"
+        class="hidden group-hover:inline-flex"
+        @click="duplicateEnvironment"
+      />
+    </div>
     <span>
       <tippy
         ref="options"
@@ -145,6 +166,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -152,14 +174,17 @@ const toast = useToast()
 const props = defineProps<{
   environment: TeamEnvironment
   isViewer: boolean
+  selected?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: "edit-environment"): void
   (e: "show-environment-properties"): void
+  (e: "select-environment"): void
 }>()
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const confirmRemove = ref(false)
 
@@ -191,6 +216,7 @@ const removeEnvironment = () => {
       () => {
         toast.success(`${t("team_environment.deleted")}`)
         secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
+        currentEnvironmentValueService.deleteEnvironment(props.environment.id)
       }
     )
   )()

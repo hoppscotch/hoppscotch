@@ -14,7 +14,9 @@
         :text="t('cookies.modal.interceptor_no_support')"
       >
         <template #body>
-          <AppInterceptor class="rounded border border-dividerLight p-2" />
+          <AppKernelInterceptor
+            class="rounded border border-dividerLight p-2"
+          />
         </template>
       </HoppSmartPlaceholder>
       <div v-else class="flex flex-col">
@@ -149,10 +151,10 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconPlus from "~icons/lucide/plus"
 import { cloneDeep } from "lodash-es"
 import { ref, watch, computed } from "vue"
-import { InterceptorService } from "~/services/interceptor.service"
 import { EditCookieConfig } from "./EditCookie.vue"
 import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 const props = defineProps<{
   show: boolean
@@ -168,17 +170,16 @@ const toast = useToast()
 
 const newDomainText = ref("")
 
-const interceptorService = useService(InterceptorService)
+const interceptorService = useService(KernelInterceptorService)
 const cookieJarService = useService(CookieJarService)
 
 const workingCookieJar = ref(cloneDeep(cookieJarService.cookieJar.value))
 
 const currentInterceptorSupportsCookies = computed(() => {
-  const currentInterceptor = interceptorService.currentInterceptor.value
+  const capabilities = interceptorService.current.value?.capabilities
+  const supportsCookies = capabilities["advanced"].has("cookies")
 
-  if (!currentInterceptor) return true
-
-  return currentInterceptor.supportsCookies ?? false
+  return supportsCookies ?? false
 })
 
 function addNewDomain() {

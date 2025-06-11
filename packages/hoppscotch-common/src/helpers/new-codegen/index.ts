@@ -157,6 +157,12 @@ export const CodegenDefinitions = [
     caption: "Ruby - Ruby Native",
   },
   {
+    name: "rust-reqwest",
+    lang: "rust",
+    mode: "reqwest",
+    caption: "Rust - Reqwest",
+  },
+  {
     name: "shell-curl",
     lang: "shell",
     mode: "curl",
@@ -186,6 +192,11 @@ export const CodegenDefinitions = [
  * A type which defines all the valid code generators
  */
 export type CodegenName = (typeof CodegenDefinitions)[number]["name"]
+
+/**
+ * A type which defines all the valid code generator languages
+ */
+export type CodegenLang = (typeof CodegenDefinitions)[number]["lang"]
 
 /**
  * Generates Source Code for the given codgen

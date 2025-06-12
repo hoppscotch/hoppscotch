@@ -1,5 +1,3 @@
-console.log("original-request.ts")
-
 import { InferredEntity, createVersionedEntity } from "verzod"
 import { z } from "zod"
 import V1_VERSION from "./v/1"

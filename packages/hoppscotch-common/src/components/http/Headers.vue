@@ -269,7 +269,6 @@ import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
   ComputedHeader,
   getComputedAuthHeaders,
@@ -279,6 +278,7 @@ import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
+  getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { InspectionService, InspectorResult } from "~/services/inspection"
@@ -294,6 +294,8 @@ import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { RESTOptionTabs } from "./RequestOptions.vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -310,6 +312,8 @@ const bulkEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpHeaders")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // v-model integration with props and emit
 const props = defineProps<{
@@ -554,9 +558,25 @@ const computedHeaders: Ref<
   }[]
 > = ref([])
 
+const currentSelectedEnvironment = getCurrentEnvironment()
+
 watch([props.modelValue, aggregateEnvs], async () => {
+  const resolvedEnvs = aggregateEnvs.value.map((env) => {
+    return {
+      ...env,
+      currentValue:
+        env.currentValue !== ""
+          ? env.currentValue
+          : (currentEnvironmentValueService.getEnvironmentByKey(
+              env?.sourceEnv !== "Global"
+                ? currentSelectedEnvironment.id
+                : "Global",
+              env?.key ?? ""
+            )?.currentValue ?? ""),
+    }
+  })
   computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, aggregateEnvs.value, false)
+    await getComputedHeaders(props.modelValue, resolvedEnvs, true)
   ).map((header, index) => ({
     id: `header-${index}`,
     ...header,

@@ -69,6 +69,7 @@ import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
 import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
 
 import {
+  CURRENT_ENVIRONMENT_VALUE_SCHEMA,
   ENVIRONMENTS_SCHEMA,
   GLOBAL_ENVIRONMENT_SCHEMA,
   GQL_COLLECTION_SCHEMA,
@@ -92,6 +93,10 @@ import {
 import { PersistableTabState } from "../tab"
 import { HoppTabDocument } from "~/helpers/rest/document"
 import { HoppGQLDocument } from "~/helpers/graphql/document"
+import {
+  CurrentValueService,
+  Variable,
+} from "../current-environment-value.service"
 
 export const STORE_NAMESPACE = "persistence.v1"
 
@@ -113,6 +118,7 @@ export const STORE_KEYS = {
   REST_TABS: "restTabs",
   GQL_TABS: "gqlTabs",
   SECRET_ENVIRONMENTS: "secretEnvironments",
+  CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   SCHEMA_VERSION: "schema_version",
 } as const
 
@@ -175,6 +181,8 @@ export class PersistenceService extends Service {
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
   )
+  private readonly currentEnvironmentValueService =
+    this.bind(CurrentValueService)
 
   private showErrorToast(key: string) {
     const toast = useToast()
@@ -454,6 +462,7 @@ export class PersistenceService extends Service {
           const translatedData = result.data.map(translateToNewRESTCollection)
           setRESTCollections(translatedData)
         } else {
+          console.error(`Failed with `, result.error, data)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
           await Store.set(
             STORE_NAMESPACE,
@@ -593,6 +602,55 @@ export class PersistenceService extends Service {
         await Store.set(
           STORE_NAMESPACE,
           STORE_KEYS.SECRET_ENVIRONMENTS,
+          newData
+        )
+      },
+      { debounce: 500 }
+    )
+  }
+
+  private async setupCurrentEnvironmentValuePersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.CURRENT_ENVIRONMENT_VALUE
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = CURRENT_ENVIRONMENT_VALUE_SCHEMA.safeParse(
+          loadResult.right
+        )
+
+        if (result.success) {
+          this.currentEnvironmentValueService.loadEnvironmentsFromPersistedState(
+            result.data
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.CURRENT_ENVIRONMENT_VALUE)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.CURRENT_ENVIRONMENT_VALUE}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted CURRENT_ENVIRONMENT_VALUE:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (e) {
+      console.error(
+        `Failed parsing persisted CURRENT_ENVIRONMENT_VALUE:`,
+        loadResult
+      )
+    }
+
+    watchDebounced(
+      this.currentEnvironmentValueService.persistableEnvironments,
+      async (newData: Record<string, Variable[]>) => {
+        await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.CURRENT_ENVIRONMENT_VALUE,
           newData
         )
       },
@@ -914,6 +972,7 @@ export class PersistenceService extends Service {
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),
+      this.setupCurrentEnvironmentValuePersistence(),
     ])
   }
 

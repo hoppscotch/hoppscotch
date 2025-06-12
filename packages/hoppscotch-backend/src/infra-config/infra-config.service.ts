@@ -134,7 +134,7 @@ export class InfraConfigService implements OnModuleInit {
    * @param dbInfraConfig database InfraConfig
    * @returns InfraConfig model
    */
-  cast(dbInfraConfig: DBInfraConfig) {
+  private cast(dbInfraConfig: DBInfraConfig) {
     switch (dbInfraConfig.name) {
       case InfraConfigEnum.USER_HISTORY_STORE_ENABLED:
         dbInfraConfig.value =

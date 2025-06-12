@@ -30,6 +30,16 @@ import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { html } from "@codemirror/legacy-modes/mode/xml"
 import { shell } from "@codemirror/legacy-modes/mode/shell"
 import { yaml } from "@codemirror/legacy-modes/mode/yaml"
+import { rust } from "@codemirror/legacy-modes/mode/rust"
+import { go } from "@codemirror/legacy-modes/mode/go"
+import { clojure } from "@codemirror/legacy-modes/mode/clojure"
+import { http } from "@codemirror/legacy-modes/mode/http"
+import { csharp, java } from "@codemirror/legacy-modes/mode/clike"
+import { powerShell } from "@codemirror/legacy-modes/mode/powershell"
+import { python } from "@codemirror/legacy-modes/mode/python"
+import { r } from "@codemirror/legacy-modes/mode/r"
+import { ruby } from "@codemirror/legacy-modes/mode/ruby"
+import { swift } from "@codemirror/legacy-modes/mode/swift"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
@@ -157,10 +167,45 @@ const hoppLang = (
   return language ? new LanguageSupport(language, exts) : exts
 }
 
+/**
+ * Map of language MIME types to their corresponding language definitions
+ * where the import name matches the langMime string exactly.
+ * These are used with `StreamLanguage.define(...)` to register the language.
+ */
+const streamLanguageMap: Record<string, any> = {
+  rust,
+  clojure,
+  csharp,
+  go,
+  http,
+  java,
+  powershell: powerShell,
+  python,
+  shell,
+  html,
+  r,
+  ruby,
+  swift,
+}
+
+/**
+ * Returns the appropriate CodeMirror language object based on the provided MIME type.
+ *
+ * Handles specific content types like JSON, JavaScript, GraphQL, XML, etc.
+ * For simpler languages that directly match the import name, uses a lookup map
+ * to reduce repetition and automatically defines the StreamLanguage.
+ *
+ * @param langMime - The MIME type or shorthand language identifier (e.g., "javascript", "go", "python")
+ * @returns The corresponding CodeMirror Language object
+ */
 const getLanguage = (langMime: string): Language | null => {
+  // Special case for JSON types
   if (isJSONContentType(langMime)) {
     return jsoncLanguage
-  } else if (langMime === "application/javascript") {
+  } else if (
+    langMime === "application/javascript" ||
+    langMime === "javascript"
+  ) {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
@@ -174,7 +219,13 @@ const getLanguage = (langMime: string): Language | null => {
     return StreamLanguage.define(yaml)
   }
 
-  // None matched, so return null
+  // Handle cases where langMime directly matches the import name
+  const streamLang = streamLanguageMap[langMime]
+  if (streamLang) {
+    return StreamLanguage.define(streamLang)
+  }
+
+  // If no match is found, return null
   return null
 }
 
@@ -279,7 +330,7 @@ export function useCodemirror(
       }
 
       const text = view.value?.state.doc.sliceString(from, to)
-      const coords = view.value?.coordsAtPos(from)
+      const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
       const left = coords?.left ?? 0
       if (text?.trim()) {

@@ -1,3 +1,5 @@
+import { ConsoleEntry } from "faraday-cage/modules"
+
 /**
  * The response object structure exposed to the test script
  */
@@ -44,7 +46,8 @@ export type TestDescriptor = {
 // Representation of a transformed state for environment variables in the sandbox
 type TransformedEnvironmentVariable = {
   key: string
-  value: string
+  currentValue: string
+  initialValue: string
   secret: boolean
 }
 
@@ -63,4 +66,23 @@ export type TestResult = {
 export type GlobalEnvItem = TestResult["envs"]["global"][number]
 export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
-export type SandboxTestResult = TestResult & { tests: TestDescriptor }
+export type SandboxTestResult = TestResult & { tests: TestDescriptor } & {
+  consoleEntries?: ConsoleEntry[]
+}
+
+export type SandboxPreRequestResult = {
+  envs: TestResult["envs"]
+  consoleEntries?: ConsoleEntry[]
+}
+
+export interface Expectation {
+  toBe(expectedVal: any): void
+  toBeLevel2xx(): void
+  toBeLevel3xx(): void
+  toBeLevel4xx(): void
+  toBeLevel5xx(): void
+  toBeType(expectedType: any): void
+  toHaveLength(expectedLength: any): void
+  toInclude(needle: any): void
+  readonly not: Expectation
+}

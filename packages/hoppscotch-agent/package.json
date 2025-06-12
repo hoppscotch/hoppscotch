@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-agent",
   "private": true,
-  "version": "0.1.7",
+  "version": "0.1.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,7 +14,7 @@
     "@tauri-apps/api": "^2.0.2",
     "@tauri-apps/plugin-shell": "^2.0.0",
     "@vueuse/core": "^11.1.0",
-    "axios": "^1.7.7",
+    "axios": "1.8.2",
     "fp-ts": "^2.16.9",
     "lodash-es": "4.17.21",
     "vue": "3.3.9"

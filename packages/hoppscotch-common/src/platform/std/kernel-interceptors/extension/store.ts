@@ -88,7 +88,8 @@ export class KernelInterceptorExtensionStore extends Service {
       this.setupExtensionStatusListener()
     }
 
-    Store.watch(STORE_NAMESPACE, SETTINGS_KEY).on(
+    const watcher = await Store.watch(STORE_NAMESPACE, SETTINGS_KEY)
+    watcher.on(
       "change",
       async ({ value }) => {
         if (value) {

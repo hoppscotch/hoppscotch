@@ -116,7 +116,7 @@
                       v-model="emailAddress"
                       :autofocus="false"
                       styles="flex mt-2 md:max-w-sm"
-                      :placeholder="`${t('settings.profile_name')}`"
+                      :placeholder="`${t('settings.profile_email')}`"
                     >
                       <template #button>
                         <HoppButtonSecondary
@@ -249,19 +249,20 @@ const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName || ""))
 
 const updateDisplayName = async () => {
-  if (!displayName.value) {
+  const inputName = displayName.value.trim()
+  if (!inputName) {
     toast.error(`${t("error.empty_profile_name")}`)
     return
   }
 
-  if (currentUser.value?.displayName === displayName.value) {
+  if (currentUser.value?.displayName === inputName) {
     toast.error(`${t("error.same_profile_name")}`)
     return
   }
 
   updatingDisplayName.value = true
 
-  const res = await platform.auth.setDisplayName(displayName.value)
+  const res = await platform.auth.setDisplayName(inputName)
 
   if (E.isLeft(res)) {
     toast.error(t("error.something_went_wrong"))
@@ -277,9 +278,20 @@ const updatingEmailAddress = ref(false)
 watchEffect(() => (emailAddress.value = currentUser.value?.email || ""))
 
 const updateEmailAddress = () => {
+  const inputEmailAddress = emailAddress.value.trim()
+  if (!inputEmailAddress) {
+    toast.error(`${t("error.empty_email_address")}`)
+    return
+  }
+
+  if (currentUser.value?.email === inputEmailAddress) {
+    toast.error(`${t("error.same_email_address")}`)
+    return
+  }
+
   updatingEmailAddress.value = true
   platform.auth
-    .setEmailAddress(emailAddress.value as string)
+    .setEmailAddress(inputEmailAddress as string)
     .then(() => {
       toast.success(`${t("profile.updated")}`)
     })

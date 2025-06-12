@@ -14,7 +14,7 @@ import * as O from "fp-ts/Option"
 import parser from "yargs-parser/browser"
 import { getAuthObject } from "./sub_helpers/auth"
 import { getHeaders, recordToHoppHeaders } from "./sub_helpers/headers"
-// import { getCookies } from "./sub_helpers/cookies"
+import { getCookies } from "./sub_helpers/cookies"
 import {
   objHasArrayProperty,
   objHasProperty,
@@ -66,7 +66,22 @@ export const parseCurlCommand = (curlCommand: string) => {
   )
 
   const method = getMethod(parsedArguments)
-  // const cookies = getCookies(parsedArguments)
+  const cookies = getCookies(parsedArguments)
+
+  // Add cookies to headers if they exist
+  if (Object.keys(cookies).length > 0) {
+    const cookieString = Object.entries(cookies)
+      .map(([key, value]) => `${key}=${value}`)
+      .join("; ")
+
+    hoppHeaders.push({
+      key: "Cookie",
+      value: cookieString,
+      active: true,
+      description: "",
+    })
+  }
+
   const urlObject = getURLObject(parsedArguments)
   const auth = getAuthObject(parsedArguments, headers, urlObject)
 
@@ -117,7 +132,16 @@ export const parseCurlCommand = (curlCommand: string) => {
     danglingParams = [...danglingParams, ...newQueries.danglingParams]
     hasBodyBeenParsed = true
   } else if (
-    rawContentType.includes("application/x-www-form-urlencoded") &&
+    (rawContentType.includes("application/x-www-form-urlencoded") ||
+      /**
+       * When using the -d option with curl for a POST operation,
+       * curl includes a default header: Content-Type: application/x-www-form-urlencoded.
+       * https://everything.curl.dev/http/post/content-type.html
+       */
+      (!rawContentType &&
+        method === "POST" &&
+        rawData &&
+        rawData.length > 0)) &&
     !!pairs &&
     Array.isArray(rawData)
   ) {

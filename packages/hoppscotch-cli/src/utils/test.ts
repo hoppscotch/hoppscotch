@@ -37,9 +37,15 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ testScript, response, envs }) =>
-          runTestScript(testScript, envs, response)
-        )
+        TE.chain(({ testScript, response, envs, legacySandbox }) => {
+          const experimentalScriptingSandbox = !legacySandbox;
+          return runTestScript(
+            testScript,
+            envs,
+            response,
+            experimentalScriptingSandbox
+          );
+        })
       )
     ),
 
@@ -137,7 +143,8 @@ export const testDescriptorParser = (
 export const getTestScriptParams = (
   reqRunnerRes: RequestRunnerResponse,
   request: HoppRESTRequest,
-  envs: HoppEnvs
+  envs: HoppEnvs,
+  legacySandbox: boolean
 ) => {
   const testScriptParams: TestScriptParams = {
     testScript: request.testScript,
@@ -146,7 +153,8 @@ export const getTestScriptParams = (
       status: reqRunnerRes.status,
       headers: reqRunnerRes.headers,
     },
-    envs: envs,
+    envs,
+    legacySandbox,
   };
   return testScriptParams;
 };

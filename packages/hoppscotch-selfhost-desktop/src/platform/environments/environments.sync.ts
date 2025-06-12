@@ -97,7 +97,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      updateUserEnvironment(backendId, { name: "", variables: entries })()
+      updateUserEnvironment(backendId, {
+        name: "",
+        variables: entries,
+        id: "",
+        v: 2,
+      })()
     }
   },
   clearGlobalVariables() {

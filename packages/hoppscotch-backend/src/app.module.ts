@@ -8,7 +8,10 @@ import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
 import { UserRequestModule } from './user-request/user-request.module';
 import { UserHistoryModule } from './user-history/user-history.module';
-import { subscriptionContextCookieParser, extractAccessTokenFromAuthRecords } from './auth/helper';
+import {
+  subscriptionContextCookieParser,
+  extractAccessTokenFromAuthRecords,
+} from './auth/helper';
 import { TeamModule } from './team/team.module';
 import { TeamEnvironmentsModule } from './team-environments/team-environments.module';
 import { TeamCollectionModule } from './team-collection/team-collection.module';
@@ -24,12 +27,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InfraConfigModule } from './infra-config/infra-config.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { MailerModule } from './mailer/mailer.module';
-import { PosthogModule } from './posthog/posthog.module';
+import { PostHogModule } from './posthog/posthog.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './health/health.module';
 import { AccessTokenModule } from './access-token/access-token.module';
 import { UserLastActiveOnInterceptor } from './interceptors/user-last-active-on.interceptor';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { PubSubModule } from './pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -56,8 +61,9 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
                 const websocketHeaders = websocket?.upgradeReq?.headers;
 
                 try {
-                  const accessToken = extractAccessTokenFromAuthRecords(connectionParams);
-                  const authorization = `Bearer ${accessToken}`
+                  const accessToken =
+                    extractAccessTokenFromAuthRecords(connectionParams);
+                  const authorization = `Bearer ${accessToken}`;
 
                   return { headers: { ...websocketHeaders, authorization } };
                 } catch (authError) {
@@ -74,7 +80,7 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
 
                   return { headers: { ...websocketHeaders, cookies } };
                 }
-              }
+              },
             },
           },
           context: ({ req, res, connection }) => ({
@@ -95,6 +101,8 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
         },
       ],
     }),
+    PrismaModule,
+    PubSubModule,
     MailerModule.register(),
     UserModule,
     AuthModule.register(),
@@ -111,7 +119,7 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
     UserCollectionModule,
     ShortcodeModule,
     InfraConfigModule,
-    PosthogModule,
+    PostHogModule,
     ScheduleModule.forRoot(),
     HealthModule,
     AccessTokenModule,

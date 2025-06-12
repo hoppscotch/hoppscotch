@@ -120,7 +120,9 @@ export const printErrorsReport = (
   errorsReport: HoppCLIError[]
 ) => {
   if (errorsReport.length > 0) {
-    const REPORTED_ERRORS_TITLE = FAIL(`\n${chalk.bold(path)} reported errors:`);
+    const REPORTED_ERRORS_TITLE = FAIL(
+      `\n${chalk.bold(path)} reported errors:`
+    );
 
     group(REPORTED_ERRORS_TITLE);
     for (const errorReport of errorsReport) {

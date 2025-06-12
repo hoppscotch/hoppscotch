@@ -744,7 +744,7 @@ export class UserCollectionService {
             },
           });
           // Step 2: Update orderIndex of collection to length of list
-          const updatedUserCollection = await tx.userCollection.update({
+          await tx.userCollection.update({
             where: { id: collection.right.id },
             data: {
               orderIndex: await this.getCollectionCount(
@@ -805,7 +805,7 @@ export class UserCollectionService {
           },
         });
         // Step 3: Update OrderIndex of collection
-        const updatedUserCollection = await tx.userCollection.update({
+        await tx.userCollection.update({
           where: { id: collection.right.id },
           data: {
             orderIndex: isMovingUp

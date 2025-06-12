@@ -26,6 +26,7 @@ import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy"
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
+import { HeaderDownloadableLinksService } from "./services/headerDownloadableLinks.service"
 
 type Platform = "web" | "desktop"
 
@@ -90,12 +91,15 @@ async function initApp() {
     platformFeatureFlags: {
       exportAsGIST: false,
       hasTelemetry: false,
+      cookiesEnabled: kernelMode === "desktop",
+      promptAsUsingCookies: false,
     },
     limits: {
       collectionImportSizeLimit: 50,
     },
     infra: InfraPlatform,
     backend: stdBackendDef,
+    additionalLinks: [HeaderDownloadableLinksService],
   })
 
   if (kernelMode === "desktop") {

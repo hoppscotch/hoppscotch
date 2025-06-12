@@ -10,6 +10,7 @@ import {
   knownContentTypes,
   makeCollection,
   makeRESTRequest,
+  RESTResOriginalReqSchemaVersion,
   ValidContentTypes,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
@@ -177,7 +178,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: "3" as const,
+            v: RESTResOriginalReqSchemaVersion,
           },
         }
         return [response.name, res]
@@ -371,10 +372,28 @@ const getHoppReqBody = ({
           }
       )
     )
+  } else if (body.mode === "graphql") {
+    const formattedQuery = {
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      query: body.graphql?.query,
+      variables: pipe(
+        // @ts-expect-error - this is a valid option, but seems like the types are not updated
+        body.graphql?.variables,
+        safeParseJSON,
+        O.getOrElse(() => undefined)
+      ),
+    }
+
+    return {
+      contentType: "application/json",
+      body: pipe(
+        JSON.stringify(formattedQuery, null, 2),
+        replacePMVarTemplating
+      ),
+    }
   }
 
   // TODO: File
-  // TODO: GraphQL ?
 
   return { contentType: null, body: null }
 }

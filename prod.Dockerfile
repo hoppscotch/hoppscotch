@@ -1,6 +1,6 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
-FROM alpine:3.21.2 AS caddy_builder
+FROM alpine:3.21.3 AS caddy_builder
 RUN apk add curl go
 
 RUN mkdir -p /tmp/caddy-build
@@ -23,6 +23,9 @@ RUN go get github.com/golang/glog@v1.2.4
 RUN go get github.com/go-jose/go-jose/v3@v3.0.4
 # Patch to resolve CVE-2025-22869 on crypto
 RUN go get golang.org/x/crypto@v0.35.0
+# Patch to resolve CVE-2025-22872 on net
+RUN go get golang.org/x/net@v0.38.0
+
 RUN go mod vendor
 
 WORKDIR /tmp/caddy-build/cmd/caddy

@@ -12,6 +12,19 @@ use windows::Win32::{
 };
 use winver::WindowsVersion;
 
+// Windows 11 Build 22000 is the minimum version required for
+// DWMWA_USE_IMMERSIVE_DARK_MODE and DWMWA_CAPTION_COLOR.
+//
+// According to Microsoft documentation:
+// https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
+//
+// "DWMWA_USE_IMMERSIVE_DARK_MODE: Use with DwmSetWindowAttribute.
+// [...] This value is supported starting with Windows 11 Build 22000."
+//
+// "DWMWA_CAPTION_COLOR: Use with DwmSetWindowAttribute.
+// [...] This value is supported starting with Windows 11 Build 22000."
+const MIN_WIN11_BUILD: u32 = 22000;
+
 #[derive(Debug)]
 pub struct WindowsWindow<R: Runtime> {
     window: WebviewWindow<R>,
@@ -51,30 +64,32 @@ impl<R: Runtime> WindowsWindow<R> {
     }
 
     fn set_dark_mode(&self) {
-        unsafe {
-            let use_dark_mode = BOOL::from(true);
-            DwmSetWindowAttribute(
-                self.hwnd,
-                DWMWA_USE_IMMERSIVE_DARK_MODE,
-                ptr::addr_of!(use_dark_mode) as *const c_void,
-                size_of::<BOOL>().try_into().unwrap(),
-            )
-            .expect("Failed to set dark mode");
+        if let Some(version) = WindowsVersion::detect() {
+            if version.major >= 10 && version.build >= MIN_WIN11_BUILD {
+                unsafe {
+                    let use_dark_mode = BOOL::from(true);
+                    let _ = DwmSetWindowAttribute(
+                        self.hwnd,
+                        DWMWA_USE_IMMERSIVE_DARK_MODE,
+                        ptr::addr_of!(use_dark_mode) as *const c_void,
+                        size_of::<BOOL>().try_into().unwrap(),
+                    );
+                }
+            }
         }
     }
 
     fn set_caption_color(&self, color: HexColor) {
         if let Some(version) = WindowsVersion::detect() {
-            if version >= WindowsVersion::new(10, 0, 22000) {
+            if version.major >= 10 && version.build >= MIN_WIN11_BUILD {
                 unsafe {
                     let color_ref = self.hex_color_to_colorref(color);
-                    DwmSetWindowAttribute(
+                    let _ = DwmSetWindowAttribute(
                         self.hwnd,
                         DWMWA_CAPTION_COLOR,
                         ptr::addr_of!(color_ref) as *const c_void,
                         size_of::<COLORREF>().try_into().unwrap(),
-                    )
-                    .expect("Failed to set caption color");
+                    );
                 }
             }
         }

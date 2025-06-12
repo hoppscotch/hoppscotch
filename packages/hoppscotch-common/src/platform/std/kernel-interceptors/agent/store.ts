@@ -2,7 +2,6 @@ import { Service } from "dioc"
 import { ref } from "vue"
 import * as E from "fp-ts/Either"
 import axios from "axios"
-import superjson from "superjson"
 import { Store } from "~/kernel/store"
 import type { PluginRequest, PluginResponse } from "@hoppscotch/kernel"
 import { x25519 } from "@noble/curves/ed25519"
@@ -51,6 +50,13 @@ export class KernelInterceptorAgentStore extends Service {
   public authKey = ref<string | null>(null)
   private sharedSecretB16 = ref<string | null>(null)
 
+  // AgentSubtitle component shared variables for unified display across multiple components
+  public hasInitiatedRegistration = ref(false)
+  public maskedAuthKey = ref("")
+  public hasCheckedAgent = ref(false)
+  public registrationOTP = ref(this.authKey.value ? null : "")
+  public isRegistering = ref(false)
+
   override async onServiceInit() {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
@@ -84,8 +90,9 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
-  private setupWatchers() {
-    Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS).on(
+  private async setupWatchers() {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
+    watcher.on(
       "change",
       async ({ value }) => {
         if (value) {
@@ -117,6 +124,12 @@ export class KernelInterceptorAgentStore extends Service {
     if (E.isLeft(saveResult)) {
       console.error("[AgentStore] Failed to save store:", saveResult.left)
     }
+  }
+
+  public async resetAuthKey(): Promise<void> {
+    this.authKey.value = null
+    this.sharedSecretB16.value = null
+    await this.persistStore()
   }
 
   private mergeSecurity(
@@ -195,7 +208,7 @@ export class KernelInterceptorAgentStore extends Service {
     )
 
     if (response.data.message !== "Registration received and stored") {
-      throw new Error("Registration failed")
+      throw new Error(response.data.message ?? "Registration failed")
     }
 
     return otp
@@ -251,6 +264,7 @@ export class KernelInterceptorAgentStore extends Service {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           this.authKey.value = null
+          await this.persistStore()
         }
       }
       throw error
@@ -261,9 +275,7 @@ export class KernelInterceptorAgentStore extends Service {
     request: PluginRequest,
     reqID: number
   ): Promise<[string, ArrayBuffer]> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { json, meta: _ } = superjson.serialize({ ...request, id: reqID })
-    const reqJSON = JSON.stringify(json)
+    const reqJSON = JSON.stringify({ ...request, id: reqID })
     const reqJSONBytes = new TextEncoder().encode(reqJSON)
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()

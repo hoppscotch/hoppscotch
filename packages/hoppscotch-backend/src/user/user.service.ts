@@ -21,12 +21,12 @@ import { UserDataHandler } from './user.data.handler';
 import { User as DbUser } from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { GetUserWorkspacesResponse } from 'src/infra-token/request-response.dto';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
+    private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
 
@@ -626,13 +626,13 @@ export class UserService {
     const workspaces: GetUserWorkspacesResponse[] = [];
     team.forEach((t) => {
       const ownerCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.OWNER,
+        (m) => m.role === TeamAccessRole.OWNER,
       ).length;
       const editorCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.EDITOR,
+        (m) => m.role === TeamAccessRole.EDITOR,
       ).length;
       const viewerCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.VIEWER,
+        (m) => m.role === TeamAccessRole.VIEWER,
       ).length;
       const memberCount = t.members.length;
 

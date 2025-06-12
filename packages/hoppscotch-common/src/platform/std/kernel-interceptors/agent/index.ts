@@ -4,7 +4,10 @@ import { body, relayRequestToNativeAdapter } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import axios, { CancelTokenSource } from "axios"
-import { preProcessRelayRequest } from "~/helpers/functional/preprocess"
+import {
+  postProcessRelayRequest,
+  preProcessRelayRequest,
+} from "~/helpers/functional/process-request"
 import {
   RelayRequest,
   RelayResponse,
@@ -62,7 +65,7 @@ export class AgentKernelInterceptorService
       "urlencoded",
       "compression",
     ]),
-    auth: new Set(["basic", "bearer", "apikey", "digest", "aws"]),
+    auth: new Set(["basic", "bearer", "apikey", "digest", "aws", "hawk"]),
     security: new Set([
       "clientcertificates",
       "cacertificates",
@@ -132,8 +135,29 @@ export class AgentKernelInterceptorService
           .join(";")
       }
 
+      const existingUserAgentHeader = Object.keys(
+        effectiveRequest.headers || {}
+      ).find((header) => header.toLowerCase() === "user-agent")
+
+      // A temporary workaround to add a User-Agent header to the request
+      // This will be removed once the agent is updated to add User-Agent header by default
+      const effectiveRequestWithUserAgent = {
+        ...effectiveRequest,
+        headers: {
+          ...effectiveRequest.headers,
+          "User-Agent": existingUserAgentHeader
+            ? effectiveRequest.headers[existingUserAgentHeader]
+            : "HoppscotchKernel/0.2.0",
+        },
+      }
+
+      const nativeRequest = await relayRequestToNativeAdapter(
+        effectiveRequestWithUserAgent
+      )
+      const postProcessedRequest = postProcessRelayRequest(nativeRequest)
+
       const [nonceB16, encryptedReq] = await this.store.encryptRequest(
-        await relayRequestToNativeAdapter(effectiveRequest),
+        postProcessedRequest,
         reqID
       )
 

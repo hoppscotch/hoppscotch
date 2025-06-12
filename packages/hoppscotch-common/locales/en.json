@@ -68,10 +68,10 @@
     "turn_on": "Turn on",
     "undo": "Undo",
     "yes": "Yes",
-    "confirm": "Confirm",
     "verify": "Verify",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "assign": "Assign"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Activity log has been deleted",
@@ -119,6 +119,13 @@
     "add_pfx_or_pkcs_file": "Add PFX/PKCS12 File"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "cookies": "Cookies",
@@ -157,7 +164,7 @@
     "we_use_cookies": "We use cookies",
     "updated_text": "Hoppscotch has been updated to v{version} 🎉",
     "whats_new": "What's new?",
-    "see_whats_new": "See what’s new",
+    "see_whats_new": "See what's new",
     "wiki": "Wiki",
     "collapse_sidebar": "Collapse Sidebar",
     "continue_to_dashboard": "Continue to Dashboard",
@@ -168,6 +175,7 @@
     "default": "default: {value}"
   },
   "auth": {
+    "account_deactivated": "Your account has been deactivated. Contact the admin to get access.",
     "account_exists": "Account exists with different credential - Login to link both accounts",
     "all_sign_in_options": "All sign in options",
     "continue_with_auth_provider": "Continue with {provider}",
@@ -244,6 +252,9 @@
     "username": "Username",
     "advance_config": "Advanced Configuration",
     "advance_config_description": "Hoppscotch automatically assigns default values to certain fields if no explicit value is provided",
+    "algorithm": "Algorithm",
+    "payload": "Payload",
+    "secret": "Secret",
     "aws_signature": {
       "access_key": "Access Key",
       "secret_key": "Secret Key",
@@ -260,6 +271,16 @@
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request"
+    },
+    "jwt": {
+      "params_name": "Params Name",
+      "header_prefix": "Header Prefix",
+      "placeholder_request_header": "Request header prefix",
+      "placeholder_request_param": "Request params name",
+      "secret_base64_encoded": "Secret Base64 Encoded",
+      "headers": "JWT Headers",
+      "private_key": "Private Key",
+      "placeholder_headers": "JWT Headers"
     }
   },
   "collection": {
@@ -333,11 +354,13 @@
     }
   },
   "count": {
+    "currentValue": "Current value {count}",
+    "description": "Description {count}",
     "header": "Header {count}",
+    "initialValue": "Initial value {count}",
+    "key": "Key {count}",
     "message": "Message {count}",
     "parameter": "Parameter {count}",
-    "key": "Key {count}",
-    "description": "Description {count}",
     "protocol": "Protocol {count}",
     "value": "Value {count}",
     "variable": "Variable {count}"
@@ -367,6 +390,7 @@
     "protocols": "Protocols are empty",
     "request_variables": "This request does not have any request variables",
     "schema": "Connect to a GraphQL endpoint to view schema",
+    "search_environment": "No matching environment found for",
     "secret_environments": "Secrets are not synced to Hoppscotch",
     "shared_requests": "Shared requests are empty",
     "shared_requests_logout": "Login to view your shared requests or create a new one",
@@ -470,6 +494,7 @@
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these workspaces before you can delete your account.",
     "delete_activity_log": "Failed to delete activity log",
     "delete_all_activity_logs": "Failed to delete all activity logs",
+    "empty_email_address": "Email Address cannot be empty",
     "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Empty Request Name",
     "fetch_activity_logs": "Failed to fetch activity logs",
@@ -492,6 +517,7 @@
     "page_not_found": "This page could not be found",
     "please_install_extension": "Please install the extension and add origin to the extension.",
     "proxy_error": "Proxy error",
+    "same_email_address": "Updated email address is same as the current email address",
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
@@ -536,11 +562,13 @@
     "renamed": "Folder renamed"
   },
   "graphql": {
+    "arguments": "Arguments",
     "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
     "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
     "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
     "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
     "deprecated": "Deprecated",
+    "fields": "Fields",
     "mutation": "Mutation",
     "mutations": "Mutations",
     "schema": "Schema",
@@ -654,7 +682,7 @@
       "add_environment": "Add to Environment",
       "add_environment_value": "Add value",
       "empty_value": "Environment value is empty for the variable '{variable}' ",
-      "not_found": "Environment variable “{environment}” not found."
+      "not_found": "Environment variable '{environment}' not found."
     },
     "header": {
       "cookie": "The browser doesn't allow Hoppscotch to set Cookie Headers. Please use Authorization Headers instead. However, our Hoppscotch Desktop App is live now and supports Cookies."
@@ -675,7 +703,8 @@
       "localaccess_unsupported": "Current interceptor does not support local access, please consider using Agent, Extension interceptors or the Desktop App"
     },
     "auth": {
-      "digest": "Agent interceptor or the Hoppscotch Desktop app are recommended when using Digest Authorization."
+      "digest": "Agent interceptor on the web app or Native interceptor on the Desktop app are recommended when using Digest Authorization.",
+      "hawk": "Agent interceptor on the web app or Native interceptor on the Desktop app are recommended when using Hawk Authorization."
     },
     "body": {
       "binary": "Sending binary data via the current interceptor is not supported yet."
@@ -752,6 +781,7 @@
     "url": "URL"
   },
   "navigation": {
+    "admin_dashboard": "Dashboard",
     "doc": "Docs",
     "graphql": "GraphQL",
     "profile": "Profile",
@@ -880,14 +910,15 @@
     "account_email_description": "Your primary email address.",
     "account_name_description": "This is your display name.",
     "additional": "Additional Settings",
-    "agent_not_running": "Hoppscotch Agent not detected - click `Retry` to check again.",
+    "agent_not_running": "Hoppscotch Agent not detected. Please check if the Agent is running.",
     "agent_not_running_short": "Check Agent's status.",
     "agent_running": "Hoppscotch Agent is live.",
     "agent_running_short": "Hoppscotch Agent is live.",
-    "agent_reset_registration": "Reset Registration",
+    "agent_discard_registration": "Discard Agent Registration",
     "agent_registered": "Agent Registered",
     "agent_registration_successful": "Agent Registered Successfully",
-    "agent_registration_fetch_failed": "Couldn't fetch Agent registration information",
+    "agent_registration_fetch_failed": "Couldn't fetch Agent registration information. Please re-register the Agent.",
+    "agent_registration_already_in_progress": "Agent registration is already in progress. Please complete or cancel the current registration and try again.",
     "auto_encode_mode": "Auto",
     "auto_encode_mode_tooltip": "Encode the parameters in the request only if some special characters are present",
     "background": "Background",
@@ -926,6 +957,7 @@
     "proxy_url": "Proxy URL",
     "proxy_use_toggle": "Use the proxy middleware to send requests",
     "read_the": "Read the",
+    "register_agent": "Register Agent",
     "reset_default": "Use Default Proxy",
     "short_codes": "Short codes",
     "short_codes_description": "Short codes which were created by you.",
@@ -938,6 +970,7 @@
     "ai_request_naming_style_pascal_case": "Pascal Case ( PascalCase )",
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
+    "experimental_scripting_sandbox": "Experimental scripting sandbox",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",
@@ -1230,6 +1263,7 @@
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
     "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
     "waiting_send_request": "Waiting to send request",
+    "user_deactivated": "Your account is deactivated. Please contact admin to reactivate your account.",
     "add_user_failure": "Failed to add user to the workspace!!",
     "add_user_success": "User is now a member of the workspace!!",
     "admin_failure": "Failed to make user an admin!!",
@@ -1832,5 +1866,9 @@
       "update_billing_cycle": "Are you sure you want to update the billing cycle to {newBillingCycle}?"
     },
     "cancel_subscription": "Cancel subscription"
+  },
+  "app_console": {
+    "entries": "Console entries",
+    "no_entries": "No entries"
   }
 }

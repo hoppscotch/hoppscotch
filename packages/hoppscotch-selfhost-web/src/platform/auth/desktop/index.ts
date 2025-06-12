@@ -97,6 +97,7 @@ async function getInitialUserDetails(): Promise<
       version: "HTTP/1.1",
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
       content: content.json({
         query: `query Me {
@@ -164,6 +165,9 @@ export async function setInitialUser() {
   isGettingInitialUser.value = true
   const res = await getInitialUserDetails()
 
+  // NOTE: This is required for further diagnosis,
+  //       to be removed after patch confirmation.
+  console.info("Auth response structure:", JSON.stringify(res, null, 2))
   if ("error" in res) {
     await setUser(null)
     isGettingInitialUser.value = false
@@ -258,6 +262,9 @@ async function sendMagicLink(email: string) {
     url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/signin?origin=desktop`,
     version: "HTTP/1.1",
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     content: content.json({ email }),
   })
 
@@ -460,6 +467,9 @@ export const def: AuthPlatformDef = {
       url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
       version: "HTTP/1.1",
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       content: content.json({
         token: verifyToken,
         deviceIdentifier,

@@ -10,7 +10,7 @@ export type FormDataValue = {
     contentType: string;
     data: Uint8Array;
 };
-export type FormData = Map<string, FormDataValue[]>;
+export type FormData = [string, FormDataValue[]][];
 export declare enum MediaType {
     TEXT_PLAIN = "text/plain",
     TEXT_HTML = "text/html",

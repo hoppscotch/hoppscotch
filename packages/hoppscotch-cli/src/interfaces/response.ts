@@ -43,6 +43,7 @@ export interface TestScriptParams {
   testScript: string;
   response: TestResponse;
   envs: HoppEnvs;
+  legacySandbox: boolean;
 }
 
 /**

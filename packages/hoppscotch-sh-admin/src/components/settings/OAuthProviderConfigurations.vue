@@ -1,5 +1,5 @@
 <template>
-  <div v-if="workingConfigs" class="grid md:grid-cols-3 gap-8 md:gap-4">
+  <div v-if="workingConfigs" class="grid md:grid-cols-3 gap-8 md:gap-4 pt-8">
     <div class="md:col-span-1">
       <h3 class="heading">{{ t('configs.auth_providers.title') }}</h3>
       <p class="my-1 text-secondaryLight">

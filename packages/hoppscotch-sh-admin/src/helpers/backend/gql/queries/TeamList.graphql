@@ -6,6 +6,9 @@ query TeamList($cursor: ID, $take: Int) {
       members {
         membershipID
       }
+      teamMembers {
+        membershipID
+      }
     }
   }
 }

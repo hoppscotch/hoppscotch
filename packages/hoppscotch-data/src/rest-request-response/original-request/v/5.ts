@@ -1,7 +1,7 @@
 import { defineVersion } from "verzod"
 import { z } from "zod"
-import { HoppRESTAuth } from "../../../rest/v/13"
 import { V4_SCHEMA } from "./4"
+import { HoppRESTAuth } from "../../../rest/v/13/auth"
 
 export const V5_SCHEMA = V4_SCHEMA.extend({
   v: z.literal("5"),

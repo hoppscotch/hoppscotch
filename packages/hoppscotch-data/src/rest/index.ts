@@ -16,10 +16,12 @@ import V6_VERSION from "./v/6"
 import V7_VERSION, { HoppRESTHeaders, HoppRESTParams } from "./v/7"
 import V8_VERSION from "./v/8"
 import V9_VERSION from "./v/9"
-import V10_VERSION, { HoppRESTReqBody } from "./v/10"
+import V10_VERSION from "./v/10"
+import { HoppRESTReqBody } from "./v/10/body"
 import V11_VERSION from "./v/11"
 import V12_VERSION from "./v/12"
-import V13_VERSION, { HoppRESTAuth } from "./v/13"
+import V13_VERSION from "./v/13"
+import { HoppRESTAuth } from "./v/13/auth"
 import V14_VERSION from "./v/14"
 import { HoppRESTRequestResponses } from "../rest-request-response"
 
@@ -46,17 +48,20 @@ export {
   HoppRESTParams,
 } from "./v/7"
 
-export { HoppRESTAuthDigest, PasswordGrantTypeParams } from "./v/8"
+export { HoppRESTAuthDigest, PasswordGrantTypeParams } from "./v/8/auth"
 
-export { FormDataKeyValue } from "./v/9"
+export { FormDataKeyValue } from "./v/9/body"
 
-export { HoppRESTAuthOAuth2, ClientCredentialsGrantTypeParams } from "./v/11"
+export {
+  HoppRESTAuthOAuth2,
+  ClientCredentialsGrantTypeParams,
+} from "./v/11/auth"
 
-export { HoppRESTReqBody } from "./v/10"
+export { HoppRESTReqBody } from "./v/10/body"
 
-export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12"
+export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12/auth"
 
-export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/13"
+export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/13/auth"
 
 export {
   HoppRESTRequestResponse,

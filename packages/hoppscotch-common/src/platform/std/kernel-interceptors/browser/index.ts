@@ -61,31 +61,7 @@ export class BrowserKernelInterceptorService
       promise.then((either) =>
         pipe(
           either,
-          E.map((response) => {
-            const headersSize = JSON.stringify(response.headers ?? {}).length
-            const body = response.body.body
-            const bodySize =
-              body instanceof ArrayBuffer
-                ? body.byteLength
-                : ArrayBuffer.isView(body) 
-                ? body.byteLength
-                  : typeof body === "string"
-                    ? body.length
-                    : typeof body === "object"
-                      ? JSON.stringify(body).length
-                      : 0
-
-
-            response.meta = {
-              ...response.meta,
-              size: {
-                headers: headersSize,
-                body: bodySize,
-                total: headersSize + bodySize,
-              },
-            }
-            return response
-          }),
+          E.map((response) => response),
           E.mapLeft((error): KernelInterceptorError => {
             const humanMessage = {
               heading: (t: ReturnType<typeof getI18n>) => {

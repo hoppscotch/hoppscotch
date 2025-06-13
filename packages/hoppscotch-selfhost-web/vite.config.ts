@@ -78,6 +78,18 @@ export default defineConfig({
       "@platform-components": path.resolve(__dirname, "./src/components"),
       "@api": path.resolve(__dirname, "./src/api"),
       "@lib": path.resolve(__dirname, "./src/lib"),
+      // Add these new kernel-related aliases
+      "@relay/v/1": path.resolve(
+        __dirname,
+        "../hoppscotch-kernel/src/relay/v/1"
+      ),
+      "@store/v/1": path.resolve(
+        __dirname,
+        "../hoppscotch-kernel/src/store/v/1"
+      ),
+      "@io/v/1": path.resolve(__dirname, "../hoppscotch-kernel/src/io/v/1"),
+      
+      // Existing node polyfills
       stream: "stream-browserify",
       util: "util",
       querystring: "qs",

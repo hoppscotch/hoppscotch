@@ -88,7 +88,10 @@
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :class="{
+                        'opacity-25': isViewer,
+                      }"
+                      :name="'variable' + index"
                       :disabled="isViewer"
                     />
                     <SmartEnvInput
@@ -100,6 +103,7 @@
                       :select-text-on-mount="
                         env.key ? env.key === editingVariableName : false
                       "
+                      :readonly="isViewer"
                     />
                     <SmartEnvInput
                       v-model="env.currentValue"
@@ -495,8 +499,13 @@ const saveEnvironment = async () => {
         secretVariables
       )
 
+      currentEnvironmentValueService.addEnvironment(
+        editingID.value,
+        nonSecretVariables
+      )
+
       // If the user is a viewer, we don't need to update the environment in BE
-      // just update the secret environment in the local storage
+      // just update the secret environment and current environment in the local storage
       if (props.isViewer) {
         hideModal()
         toast.success(`${t("environment.updated")}`)
@@ -521,12 +530,6 @@ const saveEnvironment = async () => {
             toast.success(`${t("environment.updated")}`)
 
             isLoading.value = false
-            if (editingID.value) {
-              currentEnvironmentValueService.addEnvironment(
-                editingID.value,
-                nonSecretVariables
-              )
-            }
           }
         )
       )()

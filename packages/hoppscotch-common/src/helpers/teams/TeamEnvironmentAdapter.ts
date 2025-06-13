@@ -11,7 +11,6 @@ import {
 } from "../backend/graphql"
 import { TeamEnvironment } from "./TeamEnvironment"
 import { Environment, EnvironmentSchemaVersion } from "@hoppscotch/data"
-import { entityReference } from "verzod"
 
 type EntityType = "environment"
 type EntityID = `${EntityType}-${string}`
@@ -121,18 +120,18 @@ export default class TeamEnvironmentAdapter {
             variables: JSON.parse(x.variables),
           }
 
-          const parsedEnvironment =
-            entityReference(Environment).safeParse(environment)
+          const parsedEnvironment = Environment.safeParse(environment)
 
           return <TeamEnvironment>{
             id: x.id,
             teamID: x.teamID,
-            environment: parsedEnvironment.success
-              ? parsedEnvironment.data
-              : {
-                  ...environment,
-                  v: EnvironmentSchemaVersion,
-                },
+            environment:
+              parsedEnvironment.type === "ok"
+                ? parsedEnvironment.value
+                : {
+                    ...environment,
+                    v: EnvironmentSchemaVersion,
+                  },
           }
         })
       )

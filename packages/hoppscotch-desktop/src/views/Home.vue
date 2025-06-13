@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onUnmounted } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
 import { load } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
@@ -183,6 +183,8 @@ const appVersion = ref("...")
 
 const updaterService = new UpdaterService(appStore)
 
+let progressPollingInterval: ReturnType<typeof setInterval> | undefined
+
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes"
 
@@ -211,27 +213,52 @@ const setupUpdateStateWatcher = async () => {
       updateStatus.value = newValue.status
       updateMessage.value = newValue.message || ""
 
-      if (newValue.progress) {
-        downloadProgress.value = newValue.progress
-      }
-
       if (newValue.status === UpdateStatus.AVAILABLE) {
         appState.value = AppState.UPDATE_AVAILABLE
       } else if (newValue.status === UpdateStatus.ERROR) {
         error.value = newValue.message || "Unknown error"
         appState.value = AppState.ERROR
+        // Stop progress polling on error
+        stopProgressPolling()
       } else if (
         newValue.status === UpdateStatus.DOWNLOADING ||
         newValue.status === UpdateStatus.INSTALLING
       ) {
         appState.value = AppState.UPDATE_IN_PROGRESS
+        // Start progress polling when downloading
+        if (newValue.status === UpdateStatus.DOWNLOADING) {
+          startProgressPolling()
+        } else {
+          // Stop progress polling when installing
+          stopProgressPolling()
+        }
       } else if (newValue.status === UpdateStatus.READY_TO_RESTART) {
         appState.value = AppState.UPDATE_READY
+        // Stop progress polling when ready to restart
+        stopProgressPolling()
       }
     }
   )
 
   return unsubscribe
+}
+
+const startProgressPolling = () => {
+  if (progressPollingInterval) return
+
+  progressPollingInterval = setInterval(() => {
+    const currentProgress = updaterService.getCurrentProgress()
+    if (currentProgress.downloaded > downloadProgress.value.downloaded) {
+      downloadProgress.value = currentProgress
+    }
+  }, 100)
+}
+
+const stopProgressPolling = () => {
+  if (progressPollingInterval) {
+    clearInterval(progressPollingInterval)
+    progressPollingInterval = undefined
+  }
 }
 
 const installUpdate = async () => {
@@ -244,6 +271,7 @@ const installUpdate = async () => {
     const errorMessage = err instanceof Error ? err.message : String(err)
     error.value = `Failed to install update: ${errorMessage}`
     appState.value = AppState.ERROR
+    stopProgressPolling()
   }
 }
 
@@ -332,6 +360,7 @@ const initialize = async () => {
   appState.value = AppState.LOADING
   error.value = ""
   downloadProgress.value = { downloaded: 0 }
+  stopProgressPolling()
 
   try {
     try {
@@ -367,5 +396,9 @@ const initialize = async () => {
 
 onMounted(() => {
   initialize()
+})
+
+onUnmounted(() => {
+  stopProgressPolling()
 })
 </script>

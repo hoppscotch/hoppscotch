@@ -1,20 +1,21 @@
 import { HOPP_MODULES } from "@modules/."
 import { createApp } from "vue"
 import { PlatformDef, setPlatformDef } from "./platform"
-import { initKernel, getKernelMode } from "C:/Users/Vansh/Desktop/DESKTOP/hoppscotch/packages/hoppscotch-kernel/src/index"
+import {
+  initKernel,
+  getKernelMode,
+} from "C:/Users/Vansh/Desktop/DESKTOP/hoppscotch/packages/hoppscotch-kernel/src/index"
 
 import "../assets/scss/tailwind.scss"
 import "../assets/themes/themes.scss"
 import "../assets/scss/styles.scss"
 import "nprogress/nprogress.css"
 
-
 import "unfonts.css"
 
 import App from "./App.vue"
 import { getService } from "./modules/dioc"
 import { InitializationService } from "./services/initialization.service"
-
 
 export async function createHoppApp(
   el: string | Element,

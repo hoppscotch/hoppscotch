@@ -88,7 +88,7 @@ export default defineConfig({
         "../hoppscotch-kernel/src/store/v/1"
       ),
       "@io/v/1": path.resolve(__dirname, "../hoppscotch-kernel/src/io/v/1"),
-      
+
       // Existing node polyfills
       stream: "stream-browserify",
       util: "util",
@@ -108,13 +108,13 @@ export default defineConfig({
       importMode: "async",
       onRoutesGenerated(routes) {
         console.log("Routes generated:", routes.length)
-        // generateSitemap({
-        //   routes,
-        //   nuxtStyle: true,
-        //   allowRobots: true,
-        //   dest: ".sitemap-gen",
-        //   hostname: ENV.VITE_BASE_URL,
-        // })
+        generateSitemap({
+          routes,
+          nuxtStyle: true,
+          allowRobots: true,
+          dest: ".sitemap-gen",
+          hostname: ENV.VITE_BASE_URL,
+        })
       },
     }),
     StaticCopy({

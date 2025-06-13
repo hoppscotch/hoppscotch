@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { V9_SCHEMA } from "../9"
-import { HoppRESTReqBody } from "../10/body"
+import { HoppRESTReqBody } from "./body"
 import { defineVersion } from "verzod"
 
 export const V10_SCHEMA = V9_SCHEMA.extend({

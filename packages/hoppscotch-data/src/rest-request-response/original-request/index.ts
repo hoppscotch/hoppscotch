@@ -21,7 +21,6 @@ export const HoppRESTResponseOriginalRequest = createVersionedEntity({
     5: V5_VERSION,
   },
   getVersion(data) {
-    // For V1 onwards we have the v string storing the number
     const versionCheck = versionedObject.safeParse(data)
 
     if (versionCheck.success) return versionCheck.data.v

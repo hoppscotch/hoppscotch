@@ -878,7 +878,7 @@ export class PersistenceService extends Service {
 
         const transformedTabs = {
           ...loadResult.right,
-          orderedDocs: orderedDocs,
+          orderedDocs,
         }
         const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {

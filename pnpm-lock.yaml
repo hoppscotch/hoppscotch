@@ -1137,8 +1137,8 @@ importers:
         specifier: 4.17.12
         version: 4.17.12
       faraday-cage:
-        specifier: 0.0.16
-        version: 0.0.16
+        specifier: 0.1.0
+        version: 0.1.0
       fp-ts:
         specifier: 2.16.9
         version: 2.16.9
@@ -8869,8 +8869,8 @@ packages:
     resolution: {integrity: sha512-FuoE1qtbJ4bBVvv94CC7s0oTnKUGvQs+Rjf1L2SJFfS+HTVVjhPFtehPdQ0JiGPqVNfSSZvL5yzHHQq2Z4WNhQ==}
     engines: {node: ^12.20 || >= 14.13}
 
-  faraday-cage@0.0.16:
-    resolution: {integrity: sha512-+BHq/8LnqSsZ+qygj4+dgdis3iR+bBtB5dbWcw8ZNhdhoYQ+X9FS00qhQ6B6tIoEBNBHBSeQN3ydMXOjoE0y3Q==}
+  faraday-cage@0.1.0:
+    resolution: {integrity: sha512-tzTqTDYO/OKrJ2y9GDfztPM6YuqGkD0GLwtdpf9mX1n29jRiOcgpElljp4F6Pr8iq7UIkVUXjV2yNnKuNSgzBQ==}
 
   fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
@@ -24306,7 +24306,7 @@ snapshots:
 
   extract-files@11.0.0: {}
 
-  faraday-cage@0.0.16:
+  faraday-cage@0.1.0:
     dependencies:
       '@jitl/quickjs-ffi-types': 0.31.0
       '@jitl/quickjs-singlefile-mjs-release-asyncify': 0.31.0

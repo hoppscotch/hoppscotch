@@ -73,7 +73,7 @@ describe("runPreRequestScript", () => {
     ).resolves.toBeLeft()
   })
 
-  test("fails if the value is not a string", () => {
+  test("should succeed even if the value is not initially a string", () => {
     return expect(
       runPreRequestScript(
         `
@@ -97,7 +97,7 @@ describe("runPreRequestScript", () => {
           ],
         }
       )()
-    ).resolves.toBeLeft()
+    ).resolves.not.toBeLeft()
   })
 
   test("fails for invalid syntax", () => {

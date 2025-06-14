@@ -3,10 +3,10 @@
     class="flex items-start px-4 py-2 text-tiny text-secondaryDark rounded-md"
     :class="color"
   >
-    <component :is="icon" class="mr-2 shrink-0" />
+    <component :is="icon" class="mr-2 shrink-0 svg-icons" />
 
-    <div class="flex flex-col space-y-1 overflow-x-auto text-xs">
-      <div class="text-secondaryLight">{{ formattedTimestamp }}</div>
+    <div class="flex flex-col space-y-2 overflow-x-auto text-xs flex-1">
+      <div class="text-secondary">{{ formattedTimestamp }}</div>
 
       <div class="flex flex-col space-y-1">
         <ConsoleValue

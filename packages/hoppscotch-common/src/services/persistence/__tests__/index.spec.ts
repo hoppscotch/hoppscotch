@@ -954,10 +954,10 @@ describe("PersistenceService", () => {
         // Invalid shape for `environments`
         const environments = [
           // `entries` -> `variables`
+          // no name for the environment
           {
             v: 1,
             id: "ENV_1",
-            name: "Test",
             entries: [{ key: "test-key", value: "test-value", secret: false }],
           },
         ]

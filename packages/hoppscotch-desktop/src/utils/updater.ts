@@ -4,12 +4,18 @@ import { type LazyStore } from "@tauri-apps/plugin-store";
 import { UpdateStatus, CheckResult, UpdateState } from "~/types";
 
 export class UpdaterService {
+  private currentProgress: { downloaded: number; total?: number } = { downloaded: 0 };
+
   constructor(private store: LazyStore) {}
 
   async initialize(): Promise<void> {
     await this.saveUpdateState({
       status: UpdateStatus.IDLE
     });
+  }
+
+  getCurrentProgress(): { downloaded: number; total?: number } {
+    return this.currentProgress;
   }
 
   async checkForUpdates(timeout = 5000): Promise<CheckResult> {
@@ -86,41 +92,36 @@ export class UpdaterService {
         throw new Error("No update available to install");
       }
 
-      await this.saveUpdateState({
-        status: UpdateStatus.DOWNLOADING,
-        progress: {
-          downloaded: 0,
-          total: undefined
-        }
-      });
-
       let totalBytes: number | undefined;
       let downloadedBytes = 0;
 
+      await this.saveUpdateState({
+        status: UpdateStatus.DOWNLOADING,
+      });
+
       await updateResult.downloadAndInstall(
         (event: DownloadEvent) => {
-          if (event.event === 'Started') {
-            totalBytes = event.data.contentLength;
-            this.saveUpdateState({
-              status: UpdateStatus.DOWNLOADING,
-              progress: {
-                downloaded: 0,
-                total: totalBytes
-              }
-            });
-          } else if (event.event === 'Progress') {
-            downloadedBytes += event.data.chunkLength;
-            this.saveUpdateState({
-              status: UpdateStatus.DOWNLOADING,
-              progress: {
+          try {
+            if (event.event === 'Started') {
+              totalBytes = event.data.contentLength;
+              downloadedBytes = 0;
+              console.log(`Download started, total size: ${totalBytes} bytes`);
+            } else if (event.event === 'Progress') {
+              downloadedBytes += event.data.chunkLength;
+              console.log(`Download progress: ${downloadedBytes}/${totalBytes} bytes`);
+
+              this.currentProgress = {
                 downloaded: downloadedBytes,
                 total: totalBytes
-              }
-            });
-          } else if (event.event === 'Finished') {
-            this.saveUpdateState({
-              status: UpdateStatus.INSTALLING
-            });
+              };
+            } else if (event.event === 'Finished') {
+              console.log("Download finished, starting installation");
+              this.saveUpdateState({
+                status: UpdateStatus.INSTALLING
+              });
+            }
+          } catch (error) {
+            console.warn('Progress tracking error:', error);
           }
         }
       );

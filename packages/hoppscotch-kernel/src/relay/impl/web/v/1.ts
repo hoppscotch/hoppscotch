@@ -17,6 +17,7 @@ import * as E from "fp-ts/Either"
 import * as R from "fp-ts/Record"
 import { pipe } from "fp-ts/function"
 
+
 const isStatusCode = (status: number): status is StatusCode =>
   status >= 100 && status < 600
 
@@ -59,6 +60,7 @@ export const implementation: VersionedAPI<RelayV1> = {
     },
 
     canHandle(request: RelayRequest) {
+      console.warn("Rejected request due to:", request)
       if (!this.capabilities.method.has(request.method)) {
         return E.left({
           kind: "unsupported_feature",
@@ -117,6 +119,9 @@ export const implementation: VersionedAPI<RelayV1> = {
         once: () => () => {},
         off: () => {},
       }
+
+
+
 
       const response: Promise<E.Either<RelayError, RelayResponse>> =
         (async () => {
@@ -222,6 +227,20 @@ export const implementation: VersionedAPI<RelayV1> = {
               normalizedHeaders["Content-Type"] ||
               normalizedHeaders["CONTENT-TYPE"]
 
+              const rawBody = axiosResponse.data
+              const bodySize =
+                rawBody instanceof ArrayBuffer
+                  ? rawBody.byteLength
+                  : ArrayBuffer.isView(rawBody)
+                    ? rawBody.byteLength
+                    : typeof rawBody === "string"
+                      ? rawBody.length
+                      : typeof rawBody === "object"
+                        ? JSON.stringify(rawBody).length
+                        : 0
+
+            const headerSize = JSON.stringify(axiosResponse.headers).length
+
             const response: RelayResponse = {
               id: request.id,
               status: axiosResponse.status,
@@ -235,11 +254,10 @@ export const implementation: VersionedAPI<RelayV1> = {
                   end: endTime,
                 },
                 size: {
-                  headers: JSON.stringify(axiosResponse.headers).length,
-                  body: axiosResponse.data?.length ?? 0,
+                  headers: headerSize,
+                  body: bodySize,
                   total:
-                    JSON.stringify(axiosResponse.headers).length +
-                    (axiosResponse.data?.length ?? 0),
+                    headerSize+bodySize,
                 },
               },
             }

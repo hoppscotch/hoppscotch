@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/common",
   "private": true,
-  "version": "2025.5.1",
+  "version": "2025.5.2",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "test": "vitest --run",
@@ -21,7 +21,7 @@
     "do-lintfix": "pnpm run lintfix"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "10.1.1",
+    "@apidevtools/swagger-parser": "11.0.1",
     "@codemirror/autocomplete": "6.18.1",
     "@codemirror/commands": "6.7.0",
     "@codemirror/lang-javascript": "6.2.2",
@@ -39,8 +39,8 @@
     "@hoppscotch/httpsnippet": "3.0.7",
     "@hoppscotch/js-sandbox": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload",
-    "@hoppscotch/ui": "0.2.2",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#5939b8f",
+    "@hoppscotch/ui": "0.2.5",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.0",
     "@noble/curves": "1.6.0",

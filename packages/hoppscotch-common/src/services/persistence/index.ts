@@ -97,6 +97,9 @@ import {
   CurrentValueService,
   Variable,
 } from "../current-environment-value.service"
+import { cloneDeep } from "lodash-es"
+import { fixBrokenRequestVersion } from "~/helpers/fixBrokenRequestVersion"
+import { fixBrokenEnvironmentVersion } from "~/helpers/fixBrokenEnvironmentVersion"
 
 export const STORE_NAMESPACE = "persistence.v1"
 
@@ -528,7 +531,9 @@ export class PersistenceService extends Service {
     try {
       if (E.isRight(loadResult)) {
         const data = loadResult.right ?? []
-        const result = ENVIRONMENTS_SCHEMA.safeParse(data)
+        const environments = fixBrokenEnvironmentVersion(data)
+
+        const result = ENVIRONMENTS_SCHEMA.safeParse(environments)
 
         if (result.success) {
           // Check for and handle globals
@@ -866,8 +871,16 @@ export class PersistenceService extends Service {
 
     try {
       if (E.isRight(loadResult) && loadResult.right) {
-        const result = REST_TAB_STATE_SCHEMA.safeParse(loadResult.right)
+        // Correcting the request schema for broken data
+        const orderedDocs = fixBrokenRequestVersion(
+          cloneDeep(loadResult.right.orderedDocs) ?? []
+        )
 
+        const transformedTabs = {
+          ...loadResult.right,
+          orderedDocs,
+        }
+        const result = REST_TAB_STATE_SCHEMA.safeParse(transformedTabs)
         if (result.success) {
           // SAFETY: We know the schema matches
           this.restTabService.loadTabsFromPersistedState(

@@ -97,11 +97,10 @@ async function loadUserEnvironments() {
 
         replaceEnvironments(
           formatedEnvironments.map((environment) => {
-            const parsedEnv =
-              entityReference(Environment).safeParse(environment)
+            const parsedEnv = Environment.safeParse(environment)
 
-            return parsedEnv.success
-              ? parsedEnv.data
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
               : {
                   ...environment,
                   v: EnvironmentSchemaVersion,

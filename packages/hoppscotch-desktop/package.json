@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-desktop",
   "private": true,
-  "version": "25.5.1",
+  "version": "25.5.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,7 +16,7 @@
     "@fontsource-variable/material-symbols-rounded": "5.1.3",
     "@fontsource-variable/roboto-mono": "5.1.0",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#5939b8f",
     "@hoppscotch/ui": "0.2.1",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-process": "2.2.0",

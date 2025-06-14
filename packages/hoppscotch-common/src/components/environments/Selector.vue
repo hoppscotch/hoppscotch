@@ -35,7 +35,6 @@
             :placeholder="`${t('action.search')}`"
             :context-menu-enabled="false"
             class="border border-dividerDark focus:border-primaryDark rounded"
-            :readonly="isFilterInputDisabled"
           />
           <HoppSmartItem
             v-if="!isScopeSelector"
@@ -700,14 +699,6 @@ const environmentVariables = computed(() => {
 const editGlobalEnv = () => {
   invokeAction("modals.global.environment.update", {})
 }
-
-// Filter input disabled if no environments are available
-const isFilterInputDisabled = computed(() => {
-  if (selectedEnvTab.value === "my-environments") {
-    return myEnvironments.value.length === 0
-  }
-  return teamEnvironmentList.value.length === 0
-})
 
 const editEnv = () => {
   if (selectedEnv.value.type === "MY_ENV" && selectedEnv.value.name) {

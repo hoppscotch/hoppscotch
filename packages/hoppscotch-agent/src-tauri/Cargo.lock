@@ -1477,6 +1477,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "file-rotate"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e8e2fa049328a1f3295991407a88585805d126dfaadf74b9fe8c194c730aafc"
+dependencies = [
+ "chrono",
+ "flate2",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2066,7 +2076,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-agent"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "aes-gcm",
  "axum",
@@ -2074,6 +2084,8 @@ dependencies = [
  "base16",
  "chrono",
  "dashmap",
+ "dirs 6.0.0",
+ "file-rotate",
  "lazy_static",
  "native-dialog",
  "rand 0.8.5",
@@ -6208,7 +6220,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

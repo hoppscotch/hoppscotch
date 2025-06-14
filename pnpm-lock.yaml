@@ -471,8 +471,8 @@ importers:
   packages/hoppscotch-common:
     dependencies:
       '@apidevtools/swagger-parser':
-        specifier: 10.1.1
-        version: 10.1.1(openapi-types@12.1.3)
+        specifier: 11.0.1
+        version: 11.0.1(openapi-types@12.1.3)
       '@codemirror/autocomplete':
         specifier: 6.18.1
         version: 6.18.1(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.25.1)(@lezer/common@1.2.1)
@@ -525,11 +525,11 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#5939b8f
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f'
       '@hoppscotch/ui':
-        specifier: 0.2.2
-        version: 0.2.2(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
+        specifier: 0.2.5
+        version: 0.2.5(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
       '@hoppscotch/vue-toasted':
         specifier: 0.1.0
         version: 0.1.0(vue@3.5.12(typescript@5.8.3))
@@ -995,8 +995,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#5939b8f
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f'
       '@hoppscotch/ui':
         specifier: 0.2.1
         version: 0.2.1(eslint@9.27.0(jiti@2.4.2))(terser@5.39.2)(typescript@5.7.2)(vite@5.4.11(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2))(vue@3.5.12(typescript@5.7.2))
@@ -1137,8 +1137,8 @@ importers:
         specifier: 4.17.12
         version: 4.17.12
       faraday-cage:
-        specifier: 0.0.16
-        version: 0.0.16
+        specifier: 0.1.0
+        version: 0.1.0
       fp-ts:
         specifier: 2.16.9
         version: 2.16.9
@@ -1201,8 +1201,8 @@ importers:
   packages/hoppscotch-kernel:
     dependencies:
       '@hoppscotch/plugin-relay':
-        specifier: github:CuriousCorrelation/tauri-plugin-relay
-        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b075f1f6fa9171799a961c435454c0c9a2'
+        specifier: github:CuriousCorrelation/tauri-plugin-relay#3273b9b
+        version: '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b'
       '@tauri-apps/api':
         specifier: 2.1.1
         version: 2.1.1
@@ -1835,12 +1835,12 @@ packages:
       graphql:
         optional: true
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7}
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f}
     version: 0.1.0
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b075f1f6fa9171799a961c435454c0c9a2':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b075f1f6fa9171799a961c435454c0c9a2}
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b}
     version: 0.1.0
 
   '@alloc/quick-lru@5.2.0':
@@ -1900,8 +1900,8 @@ packages:
     peerDependencies:
       ajv: '>=8'
 
-  '@apidevtools/json-schema-ref-parser@11.7.2':
-    resolution: {integrity: sha512-4gY54eEGEstClvEkGnwVkTkrx0sqwemEFG5OSRRn3tD91XH0+Q8XIkYIfo7IwEWPpJZwILb9GUXeShtplRc/eA==}
+  '@apidevtools/json-schema-ref-parser@13.0.2':
+    resolution: {integrity: sha512-ThpknSFmb1zJXU16ba8cFbDRL3WRs6WETW323gOhj7Gwdj9GUqNpA5JFhdAINxINyAz03gqgF5Y4UydAjE3Pdg==}
     engines: {node: '>= 16'}
 
   '@apidevtools/json-schema-ref-parser@9.1.2':
@@ -1924,8 +1924,8 @@ packages:
     peerDependencies:
       openapi-types: '>=7'
 
-  '@apidevtools/swagger-parser@10.1.1':
-    resolution: {integrity: sha512-u/kozRnsPO/x8QtKYJOqoGtC4kH6yg1lfYkB9Au0WhYB0FNLpyFusttQtvhlwjtG3rOwiRz4D8DnnXa8iEpIKA==}
+  '@apidevtools/swagger-parser@11.0.1':
+    resolution: {integrity: sha512-0OzWjKPUr7dvXOgQi6hsNLpwgQRtPgyQoYMuaIB+Zj50Qjbwxph/nu4BndwOA446FtQUTwkR3BxLnORpVYLHYw==}
     peerDependencies:
       openapi-types: '>=7'
 
@@ -4565,6 +4565,12 @@ packages:
 
   '@hoppscotch/ui@0.2.2':
     resolution: {integrity: sha512-rDRfG9onpmlDCO2KjJZN6UIlFC5Ewif689guvtVCZh9a+soy9nUUTbwMHI9913oBIJpbZ4GTLHGpdCl1YHUiVQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      vue: 3.5.12
+
+  '@hoppscotch/ui@0.2.5':
+    resolution: {integrity: sha512-EiWODKPBxvx/BoylxbyrlBIzC3iZR9XmxYAyL3Oi5cEl+RBuhoV+A0UiGiBYbqNLUUWigZTpiftcYcJ9S3IMCg==}
     engines: {node: '>=16'}
     peerDependencies:
       vue: 3.5.12
@@ -8863,8 +8869,8 @@ packages:
     resolution: {integrity: sha512-FuoE1qtbJ4bBVvv94CC7s0oTnKUGvQs+Rjf1L2SJFfS+HTVVjhPFtehPdQ0JiGPqVNfSSZvL5yzHHQq2Z4WNhQ==}
     engines: {node: ^12.20 || >= 14.13}
 
-  faraday-cage@0.0.16:
-    resolution: {integrity: sha512-+BHq/8LnqSsZ+qygj4+dgdis3iR+bBtB5dbWcw8ZNhdhoYQ+X9FS00qhQ6B6tIoEBNBHBSeQN3ydMXOjoE0y3Q==}
+  faraday-cage@0.1.0:
+    resolution: {integrity: sha512-tzTqTDYO/OKrJ2y9GDfztPM6YuqGkD0GLwtdpf9mX1n29jRiOcgpElljp4F6Pr8iq7UIkVUXjV2yNnKuNSgzBQ==}
 
   fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
@@ -14550,11 +14556,11 @@ snapshots:
     optionalDependencies:
       graphql: 16.11.0
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/87e78a8d35c02e53366d3b56286d0350f772efb7':
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/5939b8f':
     dependencies:
       '@tauri-apps/api': 2.1.1
 
-  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b075f1f6fa9171799a961c435454c0c9a2':
+  '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/3273b9b':
     dependencies:
       '@tauri-apps/api': 2.1.1
 
@@ -14640,9 +14646,8 @@ snapshots:
       jsonpointer: 5.0.1
       leven: 3.1.0
 
-  '@apidevtools/json-schema-ref-parser@11.7.2':
+  '@apidevtools/json-schema-ref-parser@13.0.2':
     dependencies:
-      '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.0
 
@@ -14677,12 +14682,11 @@ snapshots:
       openapi-types: 12.1.3
       z-schema: 5.0.5
 
-  '@apidevtools/swagger-parser@10.1.1(openapi-types@12.1.3)':
+  '@apidevtools/swagger-parser@11.0.1(openapi-types@12.1.3)':
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.7.2
+      '@apidevtools/json-schema-ref-parser': 13.0.2
       '@apidevtools/openapi-schemas': 2.1.0
       '@apidevtools/swagger-methods': 3.0.2
-      '@jsdevtools/ono': 7.1.3
       ajv: 8.17.1
       ajv-draft-04: 1.0.0(ajv@8.17.1)
       call-me-maybe: 1.0.2
@@ -18622,30 +18626,6 @@ snapshots:
       - typescript
       - vite
 
-  '@hoppscotch/ui@0.2.2(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
-    dependencies:
-      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
-      '@fontsource-variable/inter': 5.0.15
-      '@fontsource-variable/material-symbols-rounded': 5.0.16
-      '@fontsource-variable/roboto-mono': 5.0.16
-      '@hoppscotch/vue-sonner': 1.2.3
-      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.8.3))
-      '@vitejs/plugin-legacy': 2.3.0(terser@5.39.2)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
-      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.8.3))
-      fp-ts: 2.16.10
-      lodash-es: 4.17.21
-      path: 0.12.7
-      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
-      vue: 3.5.12(typescript@5.8.3)
-      vue-promise-modals: 0.1.0(typescript@5.8.3)
-      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - eslint
-      - terser
-      - typescript
-      - vite
-
   '@hoppscotch/ui@0.2.2(eslint@9.27.0(jiti@2.4.2))(terser@5.39.2)(typescript@5.8.3)(vite@5.4.11(@types/node@22.7.6)(sass@1.80.3)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
     dependencies:
       '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
@@ -18660,6 +18640,30 @@ snapshots:
       lodash-es: 4.17.21
       path: 0.12.7
       vite-plugin-eslint: 1.8.1(eslint@9.27.0(jiti@2.4.2))(vite@5.4.11(@types/node@22.7.6)(sass@1.80.3)(terser@5.39.2))
+      vue: 3.5.12(typescript@5.8.3)
+      vue-promise-modals: 0.1.0(typescript@5.8.3)
+      vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - eslint
+      - terser
+      - typescript
+      - vite
+
+  '@hoppscotch/ui@0.2.5(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))':
+    dependencies:
+      '@boringer-avatars/vue3': 0.2.1(vue@3.5.12(typescript@5.8.3))
+      '@fontsource-variable/inter': 5.1.0
+      '@fontsource-variable/material-symbols-rounded': 5.1.3
+      '@fontsource-variable/roboto-mono': 5.1.0
+      '@hoppscotch/vue-sonner': 1.2.3
+      '@hoppscotch/vue-toasted': 0.1.0(vue@3.5.12(typescript@5.8.3))
+      '@vitejs/plugin-legacy': 2.3.0(terser@5.39.2)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
+      '@vueuse/core': 8.9.4(vue@3.5.12(typescript@5.8.3))
+      fp-ts: 2.16.10
+      lodash-es: 4.17.21
+      path: 0.12.7
+      vite-plugin-eslint: 1.8.1(eslint@8.57.0)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))
       vue: 3.5.12(typescript@5.8.3)
       vue-promise-modals: 0.1.0(typescript@5.8.3)
       vuedraggable-es: 4.1.1(vue@3.5.12(typescript@5.8.3))
@@ -24302,7 +24306,7 @@ snapshots:
 
   extract-files@11.0.0: {}
 
-  faraday-cage@0.0.16:
+  faraday-cage@0.1.0:
     dependencies:
       '@jitl/quickjs-ffi-types': 0.31.0
       '@jitl/quickjs-singlefile-mjs-release-asyncify': 0.31.0

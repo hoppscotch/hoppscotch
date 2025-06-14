@@ -455,10 +455,10 @@ export function runRESTRequest$(
               }))
             ) as E.Right<SandboxTestResult>
 
-            const updatedRunResult = updateEnvsAfterTestScript(combinedResult)
-
-            tab.value.document.testResults =
-              translateToSandboxTestResults(updatedRunResult)
+            tab.value.document.testResults = translateToSandboxTestResults(
+              combinedResult.right
+            )
+            updateEnvsAfterTestScript(combinedResult)
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -492,26 +492,6 @@ export function runRESTRequest$(
 }
 
 function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
-  const updatedGlobalEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.global),
-    "global"
-  )
-
-  const updatedSelectedEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.selected),
-    "selected"
-  )
-
-  const updatedRunResult = {
-    ...runResult.right,
-    envs: {
-      global: updatedGlobalEnvVariables,
-      selected: updatedSelectedEnvVariables,
-    },
-  }
-
   const globalEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     runResult.right.envs.global,
@@ -522,6 +502,11 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     v: 2,
     variables: globalEnvVariables,
   })
+  updateEnvironments(
+    // @ts-expect-error Typescript can't figure out this inference for some reason
+    cloneDeep(runResult.right.envs.selected),
+    "selected"
+  )
   if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
     const env = getEnvironment({
       type: "MY_ENV",
@@ -531,7 +516,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
-      variables: updatedRunResult.envs.selected,
+      variables: runResult.right.envs.selected,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -541,14 +526,12 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(updatedRunResult.envs.selected),
+        JSON.stringify(runResult.right.envs.selected),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )
     )()
   }
-
-  return updatedRunResult
 }
 
 /**

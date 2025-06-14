@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-agent"
-version = "0.1.10"
+version = "0.1.11"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
 authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"
@@ -45,6 +45,8 @@ tauri-plugin-single-instance = "2.0.1"
 tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
 native-dialog = "0.7.0"
 sha2 = "0.10.8"
+file-rotate = "0.8.0"
+dirs = "6.0.0"
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.13.0" }

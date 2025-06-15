@@ -110,6 +110,12 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: false,
     },
     {
+      name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+      value: null,
+      lastSyncedEnvFileValue: null,
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.JWT_SECRET,
       value: encrypt(process.env.JWT_SECRET ?? randomBytes(32).toString('hex')),
       lastSyncedEnvFileValue: encrypt(process.env.JWT_SECRET),

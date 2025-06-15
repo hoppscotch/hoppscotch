@@ -83,6 +83,7 @@ export async function loadInfraConfiguration() {
 
     // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
     // Reason for not throwing error is, we want successful build during 'postinstall' and generate dist files
+    console.log('Error from loadInfraConfiguration', error);
     return { INFRA: {} };
   }
 }
@@ -97,8 +98,73 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
   const configuredSSOProviders = getConfiguredSSOProvidersFromEnvFile();
   const generatedAnalyticsUserId = generateAnalyticsUserId();
+  const isSecureCookies = determineAllowSecureCookies(
+    process.env.VITE_BASE_URL,
+  );
 
   const infraConfigDefaultObjs: DefaultInfraConfig[] = [
+    {
+      name: InfraConfigEnum.ONBOARDING_COMPLETED,
+      value: 'false',
+      lastSyncedEnvFileValue: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.JWT_SECRET,
+      value: encrypt(process.env.JWT_SECRET ?? randomBytes(32).toString('hex')),
+      lastSyncedEnvFileValue: encrypt(process.env.JWT_SECRET),
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.SESSION_SECRET,
+      value: encrypt(
+        process.env.SESSION_SECRET ?? randomBytes(32).toString('hex'),
+      ),
+      lastSyncedEnvFileValue: encrypt(process.env.SESSION_SECRET),
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.TOKEN_SALT_COMPLEXITY,
+      value: process.env.TOKEN_SALT_COMPLEXITY ?? '10',
+      lastSyncedEnvFileValue: process.env.TOKEN_SALT_COMPLEXITY ?? '10',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY,
+      value: process.env.MAGIC_LINK_TOKEN_VALIDITY ?? '3', // 3 hours
+      lastSyncedEnvFileValue: process.env.MAGIC_LINK_TOKEN_VALIDITY ?? '3',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.REFRESH_TOKEN_VALIDITY,
+      value: process.env.REFRESH_TOKEN_VALIDITY ?? '604800000', // 7 days in milliseconds
+      lastSyncedEnvFileValue: process.env.REFRESH_TOKEN_VALIDITY ?? '604800000',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.ACCESS_TOKEN_VALIDITY,
+      value: process.env.ACCESS_TOKEN_VALIDITY ?? '86400000', // 1 day in milliseconds
+      lastSyncedEnvFileValue: process.env.ACCESS_TOKEN_VALIDITY ?? '86400000',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.ALLOW_SECURE_COOKIES,
+      value: isSecureCookies.toString(),
+      lastSyncedEnvFileValue: process.env.ALLOW_SECURE_COOKIES,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.RATE_LIMIT_TTL,
+      value: process.env.RATE_LIMIT_TTL ?? '60',
+      lastSyncedEnvFileValue: process.env.RATE_LIMIT_TTL ?? '60',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.RATE_LIMIT_MAX,
+      value: process.env.RATE_LIMIT_MAX ?? '100',
+      lastSyncedEnvFileValue: process.env.RATE_LIMIT_MAX ?? '100',
+      isEncrypted: false,
+    },
     {
       name: InfraConfigEnum.MAILER_SMTP_ENABLE,
       value: process.env.MAILER_SMTP_ENABLE ?? 'true',
@@ -475,4 +541,12 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
 export function generateAnalyticsUserId() {
   const hashedUserID = randomBytes(20).toString('hex');
   return hashedUserID;
+}
+
+/**
+ * Determine if ALLOW_SECURE_COOKIES should be true or false
+ * @returns boolean
+ */
+export function determineAllowSecureCookies(appBaseUrl: string) {
+  return appBaseUrl.startsWith('https');
 }

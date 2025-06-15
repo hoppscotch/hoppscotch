@@ -342,7 +342,7 @@ const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
 export function encrypt(text: string, key = process.env.DATA_ENCRYPTION_KEY) {
   if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
 
-  if (text === null || text === undefined) return text;
+  if (!text || text === '') return text;
 
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
@@ -367,7 +367,7 @@ export function decrypt(
 ) {
   if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
 
-  if (encryptedData === null || encryptedData === undefined) {
+  if (!encryptedData || encryptedData === '') {
     return encryptedData;
   }
 

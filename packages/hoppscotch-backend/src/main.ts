@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 
-function setupSwagger(app) {
+function setupSwagger(app, isProduction: boolean) {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
@@ -29,7 +29,7 @@ function setupSwagger(app) {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    include: [InfraTokenModule],
+    include: isProduction ? [InfraTokenModule] : [],
   });
   SwaggerModule.setup(swaggerDocPath, app, document, {
     swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
@@ -40,8 +40,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
+  const isProduction = configService.get('PRODUCTION') === 'true';
 
-  console.log(`Running in production: ${configService.get('PRODUCTION')}`);
+  console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
   checkEnvironmentAuthProvider(
@@ -62,7 +63,7 @@ async function bootstrap() {
     }),
   );
 
-  if (configService.get('PRODUCTION') === 'true') {
+  if (isProduction) {
     console.log('Enabling CORS with production settings');
     app.enableCors({
       origin: configService.get('WHITELISTED_ORIGINS').split(','),
@@ -86,7 +87,7 @@ async function bootstrap() {
     }),
   );
 
-  await setupSwagger(app);
+  await setupSwagger(app, isProduction);
 
   await app.listen(configService.get('PORT') || 3170);
 

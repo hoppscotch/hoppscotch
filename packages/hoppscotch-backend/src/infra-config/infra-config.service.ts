@@ -34,6 +34,14 @@ import {
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { UserService } from 'src/user/user.service';
+import {
+  GetOnboardingConfigResponse,
+  GetOnboardingStatusResponse,
+  SaveOnboardingConfigRequest,
+  SaveOnboardingConfigResponse,
+} from './dto/onboarding.dto';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -41,6 +49,7 @@ export class InfraConfigService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly pubsub: PubSubService,
+    private readonly userService: UserService,
   ) {}
 
   // Following fields are not updatable by `infraConfigs` Mutation. Use dedicated mutations for these fields instead.
@@ -210,10 +219,16 @@ export class InfraConfigService implements OnModuleInit {
    * @param infraConfigs InfraConfigs to update
    * @returns InfraConfig model
    */
-  async updateMany(infraConfigs: InfraConfigArgs[]) {
-    for (let i = 0; i < infraConfigs.length; i++) {
-      if (this.EXCLUDE_FROM_UPDATE_CONFIGS.includes(infraConfigs[i].name))
-        return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+  async updateMany(
+    infraConfigs: InfraConfigArgs[],
+    checkDisallowedKeys: boolean = true,
+  ) {
+    if (checkDisallowedKeys) {
+      // Check if the names are allowed to update by client
+      for (let i = 0; i < infraConfigs.length; i++) {
+        if (this.EXCLUDE_FROM_UPDATE_CONFIGS.includes(infraConfigs[i].name))
+          return E.left(INFRA_CONFIG_OPERATION_NOT_ALLOWED);
+      }
     }
 
     const isValidate = this.validateEnvValues(infraConfigs);
@@ -483,6 +498,75 @@ export class InfraConfigService implements OnModuleInit {
 
     if (E.isLeft(infraConfig)) return E.left(infraConfig.left);
     return E.right(infraConfig.right);
+  }
+
+  /**
+   * Get onboarding status
+   * @returns GetOnboardingStatusResponse
+   */
+  async getOnboardingStatus() {
+    const isComplete = await this.get(InfraConfigEnum.ONBOARDING_COMPLETED);
+    if (E.isLeft(isComplete)) return E.left(isComplete.left);
+
+    const usersCount = await this.userService.getUsersCount();
+
+    return E.right({
+      onboardingCompleted: isComplete.right.value === 'true',
+      canReRunOnboarding: usersCount === 0,
+    } as GetOnboardingStatusResponse);
+  }
+
+  /**
+   * Update the onboarding configuration
+   * @param dto SaveOnboardingConfigRequest
+   */
+  async updateOnboardingConfig(dto: SaveOnboardingConfigRequest) {
+    const onboardingRecoveryToken = crypto.randomUUID();
+
+    const configEntries: InfraConfigArgs[] = [
+      ...Object.entries(dto).map(([key, value]) => ({
+        name: key as InfraConfigEnum,
+        value,
+      })),
+      {
+        name: InfraConfigEnum.ONBOARDING_COMPLETED,
+        value: 'true',
+      },
+      {
+        name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+        value: onboardingRecoveryToken,
+      },
+    ];
+
+    const isUpdated = await this.updateMany(configEntries, false);
+    if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
+
+    return E.right({
+      token: onboardingRecoveryToken,
+    } as SaveOnboardingConfigResponse);
+  }
+
+  /**
+   * Get onboarding configuration
+   * @param token Onboarding recovery token
+   * @returns GetOnboardingConfigResponse
+   */
+  async getOnboardingConfig(token: string) {
+    const configs = await this.getMany(Object.values(InfraConfigEnum), false);
+    if (E.isLeft(configs)) return E.left(configs.left);
+
+    // Check if the onboarding recovery token is valid
+    const recoveryToken = configs.right.find(
+      (config) => config.name === InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+    )?.value;
+    const tokenIsValid = token === recoveryToken;
+
+    const onboardingConfig = configs.right.reduce((acc, config) => {
+      acc[config.name] = tokenIsValid ? config.value : null;
+      return acc;
+    }, {} as GetOnboardingConfigResponse);
+
+    return E.right(onboardingConfig);
   }
 
   /**

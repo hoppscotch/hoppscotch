@@ -2796,6 +2796,11 @@ const setCollectionProperties = (newCollection: {
   path: string
 }) => {
   const { collection, path, isRootCollection } = newCollection
+
+  // We default to using collection.id but during the callback to our application, collection.id is not being preserved.
+  // Since path is being preserved, we extract the collectionId from path instead
+  const collectionId = (collection?.id ?? path?.split("/").pop()) as string
+
   if (!collection) return
 
   if (collectionsType.value.type === "my-collections") {
@@ -2818,13 +2823,13 @@ const setCollectionProperties = (newCollection: {
       )
     })
     toast.success(t("collection.properties_updated"))
-  } else if (hasTeamWriteAccess.value && collection.id) {
+  } else if (hasTeamWriteAccess.value && collectionId) {
     const data = {
       auth: collection.auth,
       headers: collection.headers,
     }
     pipe(
-      updateTeamCollection(collection.id, JSON.stringify(data), undefined),
+      updateTeamCollection(collectionId, JSON.stringify(data), undefined),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)

@@ -9,10 +9,10 @@ import { EffectiveHoppRESTRequest } from "~/helpers/utils/EffectiveURL"
 
 const Processors = {
   json: {
-    process: (body: string): E.Either<Error, ContentType> =>
+    process: (body: unknown): E.Either<Error, ContentType> =>
       pipe(
-        parseJSONAs<unknown>(body),
-        E.map((json) => content.json(json, MediaType.APPLICATION_JSON)),
+        typeof body === "string" ? parseJSONAs<unknown>(body) : E.right(body),
+        E.map(() => content.json(body, MediaType.APPLICATION_JSON)),
         E.orElse(() => E.right(content.text(body, MediaType.TEXT_PLAIN)))
       ),
   },
@@ -38,9 +38,7 @@ const Processors = {
     process: (body: string): E.Either<Error, ContentType> =>
       pipe(
         E.right(body),
-        E.map((contents) => {
-          return content.urlencoded(contents)
-        })
+        E.map((contents) => content.urlencoded(contents))
       ),
   },
 

@@ -460,7 +460,7 @@ const saveEnvironment = () => {
             key: e.key,
             currentValue: e.currentValue,
             varIndex: i,
-            isSecret: e.secret,
+            isSecret: e.secret ?? false,
           })
         : O.none
     )

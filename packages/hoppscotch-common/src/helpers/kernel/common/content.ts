@@ -11,8 +11,12 @@ const Processors = {
   json: {
     process: (body: unknown): E.Either<Error, ContentType> =>
       pipe(
-        typeof body === "string" ? parseJSONAs<unknown>(body) : E.right(body),
-        E.map(() => content.json(body, MediaType.APPLICATION_JSON)),
+        typeof body === "string"
+          ? parseJSONAs<unknown>(body, true)
+          : E.right(body),
+        E.map((parsedBody) =>
+          content.json(parsedBody, MediaType.APPLICATION_JSON)
+        ),
         E.orElse(() => E.right(content.text(body, MediaType.TEXT_PLAIN)))
       ),
   },

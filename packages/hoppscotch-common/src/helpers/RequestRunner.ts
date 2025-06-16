@@ -164,7 +164,7 @@ const updateEnvironments = (
 
       nonSecretVariables.push({
         key: e.key,
-        isSecret: e.secret,
+        isSecret: e.secret ?? false,
         varIndex: index,
         currentValue: e.currentValue ?? "",
       })

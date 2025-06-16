@@ -386,7 +386,7 @@ export const CURRENT_ENVIRONMENT_VALUE_SCHEMA = z.union([
           key: z.string(),
           currentValue: z.string(),
           varIndex: z.number(),
-          isSecret: z.boolean(),
+          isSecret: z.boolean().catch(false),
         })
         .strict()
     )

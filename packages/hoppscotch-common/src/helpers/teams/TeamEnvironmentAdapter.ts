@@ -118,6 +118,7 @@ export default class TeamEnvironmentAdapter {
     if (result.right.team) {
       results.push(
         ...result.right.team.teamEnvironments.map((x) => {
+          // Keep the environment structure consistent with the new schema
           const environment = <Environment>{
             v: EnvironmentSchemaVersion,
             id: x.id,

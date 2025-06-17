@@ -357,6 +357,10 @@ export function runRESTRequest$(
       return E.left("script_fail" as const)
     }
 
+    // Update environment variables immediately after pre-request script execution
+    // This ensures that subsequent concurrent requests can access the updated variables
+    updateEnvironmentsAfterPreRequest(preRequestScriptResult)
+
     const requestAuth =
       tab.value.document.request.auth.authType === "inherit" &&
       tab.value.document.request.auth.authActive
@@ -491,10 +495,10 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
+function updateEnvironmentsFromScript(envs: { global: any; selected: any }) {
   const globalEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
-    runResult.right.envs.global,
+    envs.global,
     "global"
   )
 
@@ -504,7 +508,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
   })
   updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.selected),
+    cloneDeep(envs.selected),
     "selected"
   )
   if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
@@ -516,7 +520,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
-      variables: runResult.right.envs.selected,
+      variables: envs.selected,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -526,12 +530,20 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(runResult.right.envs.selected),
+        JSON.stringify(envs.selected),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )
     )()
   }
+}
+
+function updateEnvironmentsAfterPreRequest(preRequestResult: E.Right<SandboxPreRequestResult>) {
+  updateEnvironmentsFromScript(preRequestResult.right.envs)
+}
+
+function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
+  updateEnvironmentsFromScript(runResult.right.envs)
 }
 
 /**
@@ -559,6 +571,12 @@ export function runTestRunnerRequest(
     if (E.isLeft(preRequestScriptResult)) {
       console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
+    }
+
+    // Update environment variables immediately after pre-request script execution
+    // This ensures that subsequent concurrent requests can access the updated variables
+    if (persistEnv) {
+      updateEnvironmentsAfterPreRequest(preRequestScriptResult)
     }
 
     const effectiveRequest = await getEffectiveRESTRequest(request, {

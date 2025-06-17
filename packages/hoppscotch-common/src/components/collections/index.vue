@@ -2801,7 +2801,7 @@ const setCollectionProperties = (newCollection: {
 
   // We default to using collection.id but during the callback to our application, collection.id is not being preserved.
   // Since path is being preserved, we extract the collectionId from path instead
-  const collectionId = collection?.id ?? path?.split("/").pop()
+  const collectionId = collection.id ?? path.split("/").pop()
 
   if (collectionsType.value.type === "my-collections") {
     if (isRootCollection) {

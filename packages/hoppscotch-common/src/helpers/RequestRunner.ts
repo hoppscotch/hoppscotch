@@ -222,7 +222,7 @@ const getEnvironmentVariableValue = (
  * @param env The environment variable to be transformed
  * @returns The transformed environment variable with currentValue set to initialValue if empty
  */
-const getTranformedEnvs = (
+const getTransformedEnvs = (
   env: Environment["variables"][number]
 ): Environment["variables"][number] => {
   return {
@@ -242,7 +242,7 @@ const filterNonEmptyEnvironmentVariables = (
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()
   envs.forEach((env) => {
-    const transformedEnv = getTranformedEnvs(env)
+    const transformedEnv = getTransformedEnvs(env)
 
     if (transformedEnv.secret) {
       envsMap.set(transformedEnv.key, transformedEnv)

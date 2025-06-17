@@ -40,10 +40,7 @@ const unWrapEnvironments = (
     }
     return {
       ...globalVar,
-      currentValue:
-        currentVar?.currentValue ??
-        globalVar.currentValue ??
-        globalVar.initialValue,
+      currentValue: currentVar?.currentValue || globalVar.currentValue,
     }
   })
 
@@ -65,10 +62,7 @@ const unWrapEnvironments = (
       }
       return {
         ...selectedVar,
-        currentValue:
-          currentVar?.currentValue ??
-          selectedVar.currentValue ??
-          selectedVar.initialValue,
+        currentValue: currentVar?.currentValue || selectedVar.currentValue,
       }
     }
   )

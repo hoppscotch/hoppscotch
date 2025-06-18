@@ -28,7 +28,7 @@ import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
 import { stripComments } from "../editor/linting/jsonc"
-import { authRegistry } from "../auth/AuthRegistry"
+import { generateAuthHeaders, generateAuthParams } from "../auth/auth-types"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -66,42 +66,9 @@ export const getComputedAuthHeaders = async (
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
 
-  /**
-   * Handling Authorization header priority rules:
-   *
-   * 1. If a user-defined "Authorization" header exists in the request:
-   *    a. We generally give it priority over auth-generated headers
-   *    b. EXCEPTION: API Key auth that uses a different header name should still be included
-   *
-   * 2. We need to check both:
-   *    - req.auth (the current request's auth settings)
-   *    - auth param (possibly inherited auth from a parent collection)
-   *
-   * 3. Only return empty array (blocking auth headers) when:
-   *    - Neither req.auth nor auth param is using API Key auth, OR
-   *    - API Key auth is being used but specifically with the "Authorization" header name
-   *    - This prevents API Key auth from being blocked when using custom header names
-   */
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization")) {
-    // Check for conflicts with existing Authorization header
-    if (request && request.auth) {
-      const strategy = authRegistry.getStrategy(request.auth.authType)
-      if (strategy && strategy.hasConflict(request.auth, req.headers)) {
-        return []
-      }
-    }
-  }
-
   if (!request || !request.auth || !request.auth.authActive) return []
 
-  // Get the appropriate strategy and generate headers
-  const strategy = authRegistry.getStrategy(request.auth.authType)
-  if (!strategy) {
-    console.warn(`No auth strategy found for type: ${request.auth.authType}`)
-    return []
-  }
-
-  return await strategy.generateHeaders(
+  return await generateAuthHeaders(
     request.auth,
     req as HoppRESTRequest,
     envVars,
@@ -234,14 +201,7 @@ export const getComputedParams = async (
 ): Promise<ComputedParam[]> => {
   if (!req.auth || !req.auth.authActive) return []
 
-  // Get the appropriate strategy and generate params
-  const strategy = authRegistry.getStrategy(req.auth.authType)
-  if (!strategy) {
-    console.warn(`No auth strategy found for type: ${req.auth.authType}`)
-    return []
-  }
-
-  const params = await strategy.generateParams(req.auth, req, envVars)
+  const params = await generateAuthParams(req.auth, req, envVars)
   return params.map((param) => ({ source: "auth" as const, param }))
 }
 

@@ -55,16 +55,3 @@ export const replaceTemplateStringsInObjectValues = <
 
   return newObj as T
 }
-
-// Auth index file
-export { AuthRegistry, authRegistry, type AuthStrategy } from "./AuthRegistry"
-
-// Export individual strategies for advanced usage
-export { BasicAuthStrategy } from "./strategies/BasicAuthStrategy"
-export { BearerAuthStrategy } from "./strategies/BearerAuthStrategy"
-export { ApiKeyAuthStrategy } from "./strategies/ApiKeyAuthStrategy"
-export { OAuth2AuthStrategy } from "./strategies/OAuth2AuthStrategy"
-export { DigestAuthStrategy } from "./strategies/DigestAuthStrategy"
-export { AwsSignatureAuthStrategy } from "./strategies/AwsSignatureAuthStrategy"
-export { HawkAuthStrategy } from "./strategies/HawkAuthStrategy"
-export { JwtAuthStrategy } from "./strategies/JwtAuthStrategy"

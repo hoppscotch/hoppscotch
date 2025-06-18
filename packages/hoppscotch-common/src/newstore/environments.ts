@@ -447,24 +447,6 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
     const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
 
-    selectedEnv?.variables.forEach((variable) => {
-      const { key, secret } = variable
-      const currentValue =
-        "currentValue" in variable ? variable.currentValue : ""
-      const initialValue =
-        "initialValue" in variable ? variable.initialValue : ""
-
-      if (!aggregateEnvKeys.includes(key)) {
-        effectiveAggregateEnvs.push({
-          key,
-          currentValue,
-          initialValue,
-          secret,
-          sourceEnv: selectedEnv.name,
-        })
-      }
-    })
-
     globalEnv.variables.forEach((variable) => {
       const { key, secret } = variable
       const currentValue =
@@ -483,6 +465,24 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
       }
     })
 
+    selectedEnv?.variables.forEach((variable) => {
+      const { key, secret } = variable
+      const currentValue =
+        "currentValue" in variable ? variable.currentValue : ""
+      const initialValue =
+        "initialValue" in variable ? variable.initialValue : ""
+
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({
+          key,
+          currentValue,
+          initialValue,
+          secret,
+          sourceEnv: selectedEnv.name,
+        })
+      }
+    })
+
     return effectiveAggregateEnvs
   }),
   distinctUntilChanged(isEqual)
@@ -492,7 +492,7 @@ export function getAggregateEnvs() {
   const currentEnv = getCurrentEnvironment()
   return [
     ...currentEnv.variables.map((x) => {
-      let currentValue
+      let currentValue = ""
       if (!x.secret) {
         currentValue = x.currentValue
       }
@@ -506,7 +506,7 @@ export function getAggregateEnvs() {
       }
     }),
     ...getGlobalVariables().map((x) => {
-      let currentValue
+      let currentValue = ""
       if (!x.secret) {
         currentValue = x.currentValue
       }

@@ -520,7 +520,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     v: 2,
     variables: globalEnvVariables,
   })
-  updateEnvironments(
+  const selectedEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     cloneDeep(runResult.right.envs.selected),
     "selected"
@@ -534,7 +534,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
-      variables: runResult.right.envs.selected,
+      variables: selectedEnvVariables,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -544,7 +544,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(runResult.right.envs.selected),
+        JSON.stringify(selectedEnvVariables),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )

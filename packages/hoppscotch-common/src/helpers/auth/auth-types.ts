@@ -13,19 +13,10 @@ import {
   generateAwsSignatureAuthHeaders,
   generateAwsSignatureAuthParams,
 } from "./types/aws-signature"
-import {
-  generateBasicAuthHeaders,
-  generateBasicAuthParams,
-} from "./types/basic"
-import {
-  generateBearerAuthHeaders,
-  generateBearerAuthParams,
-} from "./types/bearer"
-import {
-  generateDigestAuthHeaders,
-  generateDigestAuthParams,
-} from "./types/digest"
-import { generateHawkAuthHeaders, generateHawkAuthParams } from "./types/hawk"
+import { generateBasicAuthHeaders } from "./types/basic"
+import { generateBearerAuthHeaders } from "./types/bearer"
+import { generateDigestAuthHeaders } from "./types/digest"
+import { generateHawkAuthHeaders } from "./types/hawk"
 import { generateJwtAuthHeaders, generateJwtAuthParams } from "./types/jwt"
 import {
   generateOAuth2AuthHeaders,
@@ -80,18 +71,12 @@ export async function generateAuthParams(
   showKeyIfSecret = false
 ): Promise<HoppRESTParam[]> {
   switch (auth.authType) {
-    case "basic":
-      return generateBasicAuthParams()
-    case "bearer":
-      return generateBearerAuthParams()
     case "api-key":
       return auth.addTo === "QUERY_PARAMS"
         ? generateApiKeyAuthParams(auth, request, envVars, showKeyIfSecret)
         : []
     case "oauth-2":
       return generateOAuth2AuthParams(auth, request, envVars, showKeyIfSecret)
-    case "digest":
-      return generateDigestAuthParams()
     case "aws-signature":
       return generateAwsSignatureAuthParams(
         auth,
@@ -99,8 +84,6 @@ export async function generateAuthParams(
         envVars,
         showKeyIfSecret
       )
-    case "hawk":
-      return generateHawkAuthParams()
     case "jwt":
       return generateJwtAuthParams(auth, request, envVars, showKeyIfSecret)
     default:

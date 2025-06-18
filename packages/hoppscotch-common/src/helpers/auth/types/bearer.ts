@@ -24,7 +24,3 @@ export async function generateBearerAuthHeaders(
     },
   ]
 }
-
-export async function generateBearerAuthParams(): Promise<HoppRESTParam[]> {
-  return [] // Bearer auth doesn't use query params
-}

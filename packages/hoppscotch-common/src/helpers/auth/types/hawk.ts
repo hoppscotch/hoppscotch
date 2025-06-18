@@ -53,14 +53,3 @@ export async function generateHawkAuthHeaders(
     },
   ]
 }
-
-export async function generateHawkAuthParams(): Promise<HoppRESTParam[]> {
-  return [] // Hawk auth doesn't use query params
-}
-
-export function hasHawkAuthConflict(
-  auth: HoppRESTAuth,
-  existingHeaders: HoppRESTHeader[]
-): boolean {
-  return existingHeaders.some((h) => h.key.toLowerCase() === "authorization")
-}

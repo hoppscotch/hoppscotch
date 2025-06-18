@@ -100,6 +100,16 @@ export const getTestableBody = (
   return x
 }
 
+/**
+ * Combines the environment variables from the request and the selected, global, and temporary environments.
+ * The priority is as follows:
+ * 1. Request variables
+ * 2. Temporary variables (if any)
+ * 3. Selected environment variables
+ * 4. Global environment variables
+ * @param variables The environment variables to combine
+ * @returns The combined environment variables
+ */
 export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
@@ -244,9 +254,7 @@ const filterNonEmptyEnvironmentVariables = (
   envs.forEach((env) => {
     const transformedEnv = getTransformedEnvs(env)
 
-    if (transformedEnv.secret) {
-      envsMap.set(transformedEnv.key, transformedEnv)
-    } else if (envsMap.has(transformedEnv.key)) {
+    if (envsMap.has(transformedEnv.key)) {
       const existingEnv = envsMap.get(transformedEnv.key)
 
       if (

@@ -427,6 +427,10 @@ export type AggregateEnvironment = {
  * Stream returning all the environment variables accessible in
  * the current state (Global + The Selected Environment).
  * NOTE: The source environment attribute will be "Global" for Global Env as source.
+ * The priority of the variables is as follows:
+ * 1. Pre-defined variables
+ * 2. Selected Environment Variables
+ * 3. Global Environment Variables
  */
 export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
@@ -447,24 +451,6 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
     const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
 
-    globalEnv.variables.forEach((variable) => {
-      const { key, secret } = variable
-      const currentValue =
-        "currentValue" in variable ? variable.currentValue : ""
-      const initialValue =
-        "initialValue" in variable ? variable.initialValue : ""
-
-      if (!aggregateEnvKeys.includes(key)) {
-        effectiveAggregateEnvs.push({
-          key,
-          currentValue,
-          initialValue,
-          secret,
-          sourceEnv: "Global",
-        })
-      }
-    })
-
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
       const currentValue =
@@ -479,6 +465,24 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
           initialValue,
           secret,
           sourceEnv: selectedEnv.name,
+        })
+      }
+    })
+
+    globalEnv.variables.forEach((variable) => {
+      const { key, secret } = variable
+      const currentValue =
+        "currentValue" in variable ? variable.currentValue : ""
+      const initialValue =
+        "initialValue" in variable ? variable.initialValue : ""
+
+      if (!aggregateEnvKeys.includes(key)) {
+        effectiveAggregateEnvs.push({
+          key,
+          currentValue,
+          initialValue,
+          secret,
+          sourceEnv: "Global",
         })
       }
     })
@@ -567,6 +571,7 @@ export const aggregateEnvsWithSecrets$: Observable<AggregateEnvironment[]> =
   combineLatest([currentEnvironment$, globalEnv$]).pipe(
     map(([selectedEnv, globalEnv]) => {
       const results: AggregateEnvironment[] = []
+
       selectedEnv?.variables.map((x, index) => {
         let currentValue = x.currentValue
         if (x.secret) {

@@ -35,7 +35,3 @@ export async function generateBasicAuthHeaders(
     },
   ]
 }
-
-export async function generateBasicAuthParams(): Promise<HoppRESTParam[]> {
-  return [] // Basic auth doesn't use query params
-}

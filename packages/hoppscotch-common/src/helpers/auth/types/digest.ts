@@ -64,14 +64,3 @@ export async function generateDigestAuthHeaders(
     },
   ]
 }
-
-export async function generateDigestAuthParams(): Promise<HoppRESTParam[]> {
-  return [] // Digest auth doesn't use query params
-}
-
-export function hasDigestAuthConflict(
-  auth: HoppRESTAuth,
-  existingHeaders: HoppRESTHeader[]
-): boolean {
-  return existingHeaders.some((h) => h.key.toLowerCase() === "authorization")
-}

@@ -64,6 +64,7 @@ export function initKernel(mode?: KernelMode): KernelAPI {
       relay: WEB_RELAY_IMPLS.v1.api,
       store: WEB_STORE_IMPLS.v1.api
     }
+
     window.__KERNEL__ = kernel
     return kernel
   }

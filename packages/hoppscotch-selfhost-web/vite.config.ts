@@ -78,7 +78,6 @@ export default defineConfig({
       "@platform-components": path.resolve(__dirname, "./src/components"),
       "@api": path.resolve(__dirname, "./src/api"),
       "@lib": path.resolve(__dirname, "./src/lib"),
-
       stream: "stream-browserify",
       util: "util",
       querystring: "qs",

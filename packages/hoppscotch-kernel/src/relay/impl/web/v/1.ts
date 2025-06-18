@@ -17,7 +17,6 @@ import * as E from "fp-ts/Either"
 import * as R from "fp-ts/Record"
 import { pipe } from "fp-ts/function"
 
-
 const isStatusCode = (status: number): status is StatusCode =>
   status >= 100 && status < 600
 
@@ -60,7 +59,6 @@ export const implementation: VersionedAPI<RelayV1> = {
     },
 
     canHandle(request: RelayRequest) {
-      console.warn("Rejected request due to:", request)
       if (!this.capabilities.method.has(request.method)) {
         return E.left({
           kind: "unsupported_feature",
@@ -119,9 +117,6 @@ export const implementation: VersionedAPI<RelayV1> = {
         once: () => () => {},
         off: () => {},
       }
-
-
-
 
       const response: Promise<E.Either<RelayError, RelayResponse>> =
         (async () => {
@@ -227,8 +222,8 @@ export const implementation: VersionedAPI<RelayV1> = {
               normalizedHeaders["Content-Type"] ||
               normalizedHeaders["CONTENT-TYPE"]
 
-              const rawBody = axiosResponse.data
-              const bodySize = rawBody.byteLength
+            const rawBody = axiosResponse.data
+            const bodySize = rawBody.byteLength
 
             const headerSize = JSON.stringify(axiosResponse.headers).length
 
@@ -247,8 +242,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                 size: {
                   headers: headerSize,
                   body: bodySize,
-                  total:
-                    headerSize+bodySize,
+                  total: headerSize + bodySize,
                 },
               },
             }

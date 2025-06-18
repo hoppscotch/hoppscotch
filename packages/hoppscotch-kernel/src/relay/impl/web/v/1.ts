@@ -228,16 +228,7 @@ export const implementation: VersionedAPI<RelayV1> = {
               normalizedHeaders["CONTENT-TYPE"]
 
               const rawBody = axiosResponse.data
-              const bodySize =
-                rawBody instanceof ArrayBuffer
-                  ? rawBody.byteLength
-                  : ArrayBuffer.isView(rawBody)
-                    ? rawBody.byteLength
-                    : typeof rawBody === "string"
-                      ? rawBody.length
-                      : typeof rawBody === "object"
-                        ? JSON.stringify(rawBody).length
-                        : 0
+              const bodySize = rawBody.byteLength
 
             const headerSize = JSON.stringify(axiosResponse.headers).length
 

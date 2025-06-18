@@ -61,7 +61,6 @@ export class BrowserKernelInterceptorService
       promise.then((either) =>
         pipe(
           either,
-          E.map((response) => response),
           E.mapLeft((error): KernelInterceptorError => {
             const humanMessage = {
               heading: (t: ReturnType<typeof getI18n>) => {

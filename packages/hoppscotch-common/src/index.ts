@@ -4,7 +4,7 @@ import { PlatformDef, setPlatformDef } from "./platform"
 import {
   initKernel,
   getKernelMode,
-} from "C:/Users/Vansh/Desktop/DESKTOP/hoppscotch/packages/hoppscotch-kernel/src/index"
+} from ""
 
 import "../assets/scss/tailwind.scss"
 import "../assets/themes/themes.scss"

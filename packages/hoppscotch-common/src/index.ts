@@ -1,10 +1,7 @@
 import { HOPP_MODULES } from "@modules/."
 import { createApp } from "vue"
 import { PlatformDef, setPlatformDef } from "./platform"
-import {
-  initKernel,
-  getKernelMode,
-} from ""
+import { initKernel, getKernelMode } from "@hoppscotch/kernel"
 
 import "../assets/scss/tailwind.scss"
 import "../assets/themes/themes.scss"

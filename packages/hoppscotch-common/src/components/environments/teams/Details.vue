@@ -437,7 +437,7 @@ const saveEnvironment = async () => {
     A.map((e) => ({
       key: e.key,
       secret: e.secret,
-      initialValue: e.initialValue,
+      initialValue: e.initialValue || "",
       currentValue: "",
     }))
   )

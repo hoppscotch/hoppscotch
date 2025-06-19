@@ -416,8 +416,8 @@
     "post_request_tests": "Testskript er skrevet i JavaScript og kjøres etter at svaret er mottatt.",
     "pre_request_script": "Skript for forespørsel er skrevet i JavaScript og kjøres før forespørselen sendes.",
     "script_fail": "Det ser ut til at det er en feil i forhåndsforespørselsskriptet. Sjekk feilen nedenfor og fiks skriptet deretter.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "post_request_script": "Skriv et testskript for å automatisere feilsøking."
+    "post_request_script_fail": "Det ser ut til å være en feil med skriptet etter forespørselen. Vennligst rett opp feilene og kjør skriptene på nytt.",
+    "post_request_script": "Skriv et post-request skript for å automatisere feilsøking."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

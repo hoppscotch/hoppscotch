@@ -416,7 +416,7 @@
     "post_request_tests": "Testscripts zijn geschreven in JavaScript en worden uitgevoerd nadat het antwoord is ontvangen.",
     "pre_request_script": "Pre-request scripts zijn geschreven in JavaScript en worden uitgevoerd voordat het verzoek wordt verzonden.",
     "script_fail": "Het lijkt erop dat er een storing is in het pre-request script. Controleer de onderstaande fout en corrigeer het script dienovereenkomstig.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script_fail": "Er lijkt een fout te zijn in het test script. Corrigeer de fouten en voer de tests opnieuw uit.",
     "post_request_script": "Schrijf een testscript om foutopsporing te automatiseren."
   },
   "hide": {

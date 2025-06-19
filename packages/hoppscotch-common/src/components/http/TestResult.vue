@@ -169,16 +169,16 @@
     <HoppSmartPlaceholder
       v-else-if="testResults && testResults.scriptError"
       :src="`/images/states/${colorMode.value}/upload_error.svg`"
-      :alt="`${t('error.test_script_fail')}`"
-      :heading="t('error.test_script_fail')"
-      :text="t('helpers.test_script_fail')"
+      :alt="`${t('error.post_request_script_fail')}`"
+      :heading="t('error.post_request_script_fail')"
+      :text="t('helpers.post_request_script_fail')"
     />
     <HoppSmartPlaceholder
       v-else
       :src="`/images/states/${colorMode.value}/validation.svg`"
       :alt="`${t('empty.tests')}`"
       :heading="t('empty.tests')"
-      :text="t('helpers.tests')"
+      :text="t('helpers.post_request_script')"
     >
       <template #body>
         <HoppButtonSecondary

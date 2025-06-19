@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "something_went_wrong": "문제가 발생했습니다.",
-    "test_script_fail": "테스트 스크립트를 실행할 수 없습니다.",
+    "post_request_script_fail": "테스트 스크립트를 실행할 수 없습니다.",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "테스트 스크립트는 JavaScript로 작성되며 응답을 받은 후 실행됩니다.",
     "pre_request_script": "사전 요청 스크립트는 JavaScript로 작성되며 요청이 전송되기 전에 실행됩니다.",
     "script_fail": "사전 요청 스크립트에 결함이 있는 것 같습니다. 아래 오류를 확인하고 스크립트를 수정하세요.",
-    "test_script_fail": "테스트 스크립트에 결함이 있는 것 같습니다. 오류를 수정하고 테스트를 다시 실행하세요.",
-    "tests": "디버깅을 자동화하는 테스트 스크립트를 작성하세요."
+    "post_request_script_fail": "테스트 스크립트에 결함이 있는 것 같습니다. 오류를 수정하고 테스트를 다시 실행하세요.",
+    "post_request_script": "디버깅을 자동화하는 테스트 스크립트를 작성하세요."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

@@ -57,7 +57,11 @@ const filterNonEmptyEnvironmentVariables = (
     if (envsMap.has(env.key)) {
       const existingEnv = envsMap.get(env.key)
 
-      if (existingEnv?.currentValue === "" && env.currentValue !== "") {
+      if (
+        existingEnv?.currentValue === "" &&
+        existingEnv?.initialValue === "" &&
+        (env.currentValue || env.initialValue)
+      ) {
         envsMap.set(env.key, env)
       }
     } else {

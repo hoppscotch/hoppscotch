@@ -150,7 +150,7 @@
     "options": "Options",
     "proxy_privacy_policy": "Proxy privacy policy",
     "reload": "Reload",
-    "search": "Search",
+    "search": "Search and commands",
     "share": "Share",
     "shortcuts": "Shortcuts",
     "social_description": "Follow us on social media to stay updated with the latest news, updates and releases.",
@@ -522,7 +522,7 @@
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
     "subscription_error": "Failed to subscribe to the topic: {error}",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -599,11 +599,11 @@
     "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
     "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
     "offline_short": "You're using Hoppscotch offline.",
-    "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
+    "post_request_tests": "Post-request scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Write a test script to automate debugging."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "Write a post-request script to automate debugging."
   },
   "hide": {
     "collection": "Collapse Collection Panel",
@@ -662,7 +662,7 @@
     "import_summary_requests_title": "Requests",
     "import_summary_responses_title": "Responses",
     "import_summary_pre_request_scripts_title": "Pre-request scripts",
-    "import_summary_test_scripts_title": "Test scripts",
+    "import_summary_post_request_scripts_title": "Post request scripts",
     "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now."
   },
   "instances": {
@@ -1396,6 +1396,7 @@
     "history": "History",
     "mqtt": "MQTT",
     "parameters": "Parameters",
+    "post_request_script": "Post-request Script",
     "pre_request_script": "Pre-request Script",
     "queries": "Queries",
     "query": "Query",
@@ -1406,7 +1407,6 @@
     "share_tab_request": "Share tab request",
     "socketio": "Socket.IO",
     "sse": "SSE",
-    "tests": "Tests",
     "types": "Types",
     "variables": "Variables",
     "websocket": "WebSocket",
@@ -1589,8 +1589,8 @@
     "feedback_cta_request_name": "Did you like the generated name?",
     "modify_request_body_error": "Failed to modify request body",
     "generate_or_modify_prerequest_input_placeholder": "Enter a prompt to generate or modify the pre-request script",
-    "generate_or_modify_test_script_input_placeholder": "Enter a prompt to generate or modify the test script",
-    "modify_test_script_error": "Failed to modify test script",
+    "generate_or_modify_post_request_script_input_placeholder": "Enter a prompt to generate or modify the post-request script",
+    "modify_post_request_script_error": "Failed to modify post-request script",
     "modify_prerequest_error": "Failed to modify pre-request script"
   },
   "configs": {

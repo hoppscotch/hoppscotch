@@ -157,7 +157,7 @@ const toast = useToast()
 const props = withDefaults(
   defineProps<{
     show: boolean
-    loadingState: boolean
+    loadingState?: boolean
     editingProperties: EditingProperties
     source: "REST" | "GraphQL"
     modelValue: string

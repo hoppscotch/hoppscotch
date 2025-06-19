@@ -100,6 +100,16 @@ export const getTestableBody = (
   return x
 }
 
+/**
+ * Combines the environment variables from the request and the selected, global, and temporary environments.
+ * The priority is as follows:
+ * 1. Request variables
+ * 2. Temporary variables (if any)
+ * 3. Selected environment variables
+ * 4. Global environment variables
+ * @param variables The environment variables to combine
+ * @returns The combined environment variables
+ */
 export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
@@ -119,8 +129,8 @@ export const executedResponses$ = new Subject<
 >()
 
 /**
- * Used to update the environment schema with the secret variables
- * and store the secret variable values in the secret environment service
+ * This will update the environment variables in the current environment
+ * and secret environment service.
  * @param envs The environment variables to update
  * @param type Whether the environment variables are global or selected
  * @returns the updated environment variables
@@ -164,7 +174,7 @@ const updateEnvironments = (
 
       nonSecretVariables.push({
         key: e.key,
-        isSecret: e.secret,
+        isSecret: e.secret ?? false,
         varIndex: index,
         currentValue: e.currentValue ?? "",
       })
@@ -217,7 +227,23 @@ const getEnvironmentVariableValue = (
 }
 
 /**
+ * Set currentValue as initialValue if currentValue is empty
+ * This is set just for request runtime and it will not be persisted.
+ * @param env The environment variable to be transformed
+ * @returns The transformed environment variable with currentValue set to initialValue if empty
+ */
+const getTransformedEnvs = (
+  env: Environment["variables"][number]
+): Environment["variables"][number] => {
+  return {
+    ...env,
+    currentValue: env.currentValue || env.initialValue,
+  }
+}
+
+/**
  * Transforms the environment list to a list with unique keys with value
+ * and set currentValue as initialValue if currentValue is empty.
  * @param envs The environment list to be transformed
  * @returns The transformed environment list with keys with value
  */
@@ -226,21 +252,21 @@ const filterNonEmptyEnvironmentVariables = (
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()
   envs.forEach((env) => {
-    if (env.secret) {
-      envsMap.set(env.key, env)
-    } else if (envsMap.has(env.key)) {
-      const existingEnv = envsMap.get(env.key)
+    const transformedEnv = getTransformedEnvs(env)
+
+    if (envsMap.has(transformedEnv.key)) {
+      const existingEnv = envsMap.get(transformedEnv.key)
 
       if (
         existingEnv &&
         "currentValue" in existingEnv &&
         existingEnv.currentValue === "" &&
-        env.currentValue !== ""
+        transformedEnv.currentValue !== ""
       ) {
-        envsMap.set(env.key, env)
+        envsMap.set(transformedEnv.key, transformedEnv)
       }
     } else {
-      envsMap.set(env.key, env)
+      envsMap.set(transformedEnv.key, transformedEnv)
     }
   })
 
@@ -502,7 +528,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     v: 2,
     variables: globalEnvVariables,
   })
-  updateEnvironments(
+  const selectedEnvVariables = updateEnvironments(
     // @ts-expect-error Typescript can't figure out this inference for some reason
     cloneDeep(runResult.right.envs.selected),
     "selected"
@@ -516,7 +542,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
-      variables: runResult.right.envs.selected,
+      variables: selectedEnvVariables,
     })
   } else if (
     environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
@@ -526,7 +552,7 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     })
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(runResult.right.envs.selected),
+        JSON.stringify(selectedEnvVariables),
         environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
         env.name
       )
@@ -565,13 +591,15 @@ export function runTestRunnerRequest(
       id: "env-id",
       v: 2,
       name: "Env",
-      variables: combineEnvVariables({
-        environments: {
-          ...preRequestScriptResult.right.envs,
-          temp: !persistEnv ? getTemporaryVariables() : [],
-        },
-        requestVariables: [],
-      }),
+      variables: filterNonEmptyEnvironmentVariables(
+        combineEnvVariables({
+          environments: {
+            ...preRequestScriptResult.right.envs,
+            temp: !persistEnv ? getTemporaryVariables() : [],
+          },
+          requestVariables: [],
+        })
+      ),
     })
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)

@@ -416,7 +416,7 @@
     "post_request_tests": "测试脚本使用 JavaScript 编写，并在收到响应后执行。",
     "pre_request_script": "预请求脚本使用 JavaScript 编写，并在请求发送前执行。",
     "script_fail": "预请求脚本中似乎存在故障。 检查下面的错误并相应地修复脚本。",
-    "post_request_script_fail": "测试脚本似乎有一个错误。请修复错误并再次运行测试",
+    "post_request_script_fail": "后请求脚本似乎有一个错误。请修复错误并再次运行测试",
     "post_request_script": "编写测试脚本以自动调试。"
   },
   "hide": {

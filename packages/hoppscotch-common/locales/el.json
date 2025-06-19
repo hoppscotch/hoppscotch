@@ -416,7 +416,7 @@
     "post_request_tests": "Τα σενάρια δοκιμής γράφονται σε JavaScript και εκτελούνται μετά τη λήψη της απάντησης.",
     "pre_request_script": "Τα σενάρια προ-αίτησης είναι γραμμένα σε JavaScript και εκτελούνται πριν από την αποστολή του αιτήματος.",
     "script_fail": "Φαίνεται ότι υπάρχει ένα σφάλμα στο σενάριο πριν από το αίτημα. Ελέγξτε το παρακάτω σφάλμα και διορθώστε το σενάριο ανάλογα.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
     "post_request_script": "Γράψτε ένα δοκιμαστικό σενάριο για να αυτοματοποιήσετε τον εντοπισμό σφαλμάτων."
   },
   "hide": {

@@ -416,7 +416,7 @@
     "post_request_tests": "A tesztparancsfájlokat JavaScriptben írták, és a válasz megérkezése után lesznek futtatva.",
     "pre_request_script": "A kérés előtti parancsfájlokat JavaScriptben írták, és a kérés elküldése előtt lesznek futtatva.",
     "script_fail": "Úgy tűnik, hogy működési hiba van a kérés előtti parancsfájlban. Nézze meg az alábbi hibát, és annak megfelelően javítsa a parancsfájlt.",
-    "post_request_script_fail": "Úgy tűnik, hogy hiba van a tesztparancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
+    "post_request_script_fail": "Úgy tűnik, hogy hiba van az utólagos kérés parancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
     "post_request_script": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
   },
   "hide": {

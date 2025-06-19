@@ -416,7 +416,7 @@
     "post_request_tests": "Els scripts de prova s'escriuen en JavaScript i s'executen després de rebre la resposta.",
     "pre_request_script": "Els scripts de sol·licitud prèvia s'escriuen en JavaScript i s'executen abans que s'enviï la sol·licitud.",
     "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
-    "post_request_script_fail": "Sembla que hi ha un error amb l'script de prova. Corregiu els errors i torneu a fer proves.",
+    "post_request_script_fail": "Sembla que hi ha un error amb l'script de sol·licitud posterior. Corregiu els errors i torneu a fer proves.",
     "post_request_script": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {

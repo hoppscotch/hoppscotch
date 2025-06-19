@@ -416,7 +416,7 @@
     "post_request_tests": "Gli script di test sono scritti in JavaScript e vengono eseguiti dopo aver ricevuto la risposta.",
     "pre_request_script": "Gli script di pre-richiesta sono scritti in JavaScript e vengono eseguiti prima dell'invio della richiesta.",
     "script_fail": "Sembra che ci sia un errore nello script di pre-richiesta. Controllare l&#39;errore di seguito e correggere lo script di conseguenza.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
     "post_request_script": "Scrivi uno script di test per automatizzare il debug."
   },
   "hide": {

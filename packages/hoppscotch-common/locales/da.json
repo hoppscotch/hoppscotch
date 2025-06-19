@@ -413,7 +413,7 @@
     "post_request_tests": "Testscripts er skrevet i JavaScript og køres efter svaret er modtaget.",
     "pre_request_script": "Pre-request scripts er skrevet i JavaScript og køres før anmodningen sendes.",
     "script_fail": "Det ser ud til, at der er en fejl i pre-request scriptet. Tjek fejlen nedenfor og ret scriptet i overensstemmelse hermed.",
-    "post_request_script_fail": "Der ser ud til at være en fejl med testscriptet. Ret venligst fejlene og kør tests igen",
+    "post_request_script_fail": "Der ser ud til at være en fejl med post-request scriptet. Ret venligst fejlene og kør tests igen",
     "post_request_script": "Skriv et testscript for at automatisere fejlfinding."
   },
   "hide": {

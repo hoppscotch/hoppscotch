@@ -416,7 +416,7 @@
     "post_request_tests": "Los scripts de prueba están escritos en JavaScript y se ejecutan después de recibir la respuesta.",
     "pre_request_script": "Los scripts previos a la solicitud están escritos en JavaScript y se ejecutan antes de que se envíe la solicitud.",
     "script_fail": "Parece que hay un problema técnico en el script de solicitud previa. Comprueba el error a continuación y corrige el script en consecuencia.",
-    "post_request_script_fail": "Parece que hay un error con el script de prueba. Por favor, corrige los errores y ejecute las pruebas de nuevo",
+    "post_request_script_fail": "Parece que hay un error con el script posterior a la solicitud. Por favor, corrige los errores y vuelve a ejecutar el script.",
     "post_request_script": "Escribir un script de prueba para automatizar la depuración."
   },
   "hide": {

@@ -416,7 +416,7 @@
     "post_request_tests": "Pengujian scripts ditulis dalam JavaScript, dan dijalankan setelah respons diterima.",
     "pre_request_script": "Pre-request scripts ditulis dalam JavaScript, dan dijalankan sebelum request dikirim.",
     "script_fail": "Sepertinya ada kesalahan dalam pre-request script. Periksa kesalahan di bawah ini dan perbaiki script yang sesuai.",
-    "post_request_script_fail": "Tampaknya ada kesalahan dengan test script. Harap perbaiki kesalahan dan jalankan tes lagi",
+    "post_request_script_fail": "Tampaknya ada kesalahan dengan post-request script. Harap perbaiki kesalahan dan jalankan tes lagi",
     "post_request_script": "Tulis test script untuk mengotomatiskan debugging."
   },
   "hide": {

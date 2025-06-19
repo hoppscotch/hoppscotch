@@ -417,7 +417,7 @@
     "post_request_tests": "Testovací skripty jsou napsány v JavaScriptu a jsou spuštěny po přijetí odpovědi.",
     "pre_request_script": "Skripty před požadavkem jsou napsány v JavaScriptu a jsou spuštěny před odesláním požadavku.",
     "script_fail": "Zdá se, že ve skriptu předběžného požadavku je chyba. Zkontrolujte níže uvedenou chybu a opravte skript odpovídajícím způsobem.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
     "post_request_script": "Napište testovací skript pro automatizaci ladění."
   },
   "hide": {

@@ -416,7 +416,7 @@
     "post_request_tests": "Testikomentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan vastauksen vastaanottamisen jälkeen.",
     "pre_request_script": "Pyyntöä edeltävät komentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan ennen pyynnön lähettämistä.",
     "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
-    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
     "post_request_script": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
   },
   "hide": {

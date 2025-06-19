@@ -353,7 +353,7 @@
     "same_profile_name": "更新后的配置文件名称与当前配置文件名称相同",
     "script_fail": "无法执行预请求脚本",
     "something_went_wrong": "发生了一些错误",
-    "test_script_fail": "无法执行请求脚本",
+    "post_request_script_fail": "无法执行请求脚本",
     "reading_files": "读取一个或多个文件时出错。",
     "fetching_access_tokens_list": "获取令牌列表时出错",
     "generate_access_token": "生成访问令牌时出错",
@@ -416,8 +416,8 @@
     "post_request_tests": "测试脚本使用 JavaScript 编写，并在收到响应后执行。",
     "pre_request_script": "预请求脚本使用 JavaScript 编写，并在请求发送前执行。",
     "script_fail": "预请求脚本中似乎存在故障。 检查下面的错误并相应地修复脚本。",
-    "test_script_fail": "测试脚本似乎有一个错误。请修复错误并再次运行测试",
-    "tests": "编写测试脚本以自动调试。"
+    "post_request_script_fail": "后请求脚本似乎有一个错误。请修复错误并再次运行测试",
+    "post_request_script": "编写测试脚本以自动调试。"
   },
   "hide": {
     "collection": "隐藏集合",

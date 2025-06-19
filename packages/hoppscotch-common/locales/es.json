@@ -353,7 +353,7 @@
     "same_profile_name": "El nombre del perfil actualizado es el mismo que el nombre del perfil actual",
     "script_fail": "No se pudo ejecutar el script de solicitud previa",
     "something_went_wrong": "Algo salió mal",
-    "test_script_fail": "No se ha podido ejecutar la secuencia de comandos posterior a la solicitud",
+    "post_request_script_fail": "No se ha podido ejecutar la secuencia de comandos posterior a la solicitud",
     "reading_files": "Error al leer uno o más archivos.",
     "fetching_access_tokens_list": "Algo ha ido mal al obtener la lista de tokens",
     "generate_access_token": "Algo ha ido mal al generar el token de acceso",
@@ -416,8 +416,8 @@
     "post_request_tests": "Los scripts de prueba están escritos en JavaScript y se ejecutan después de recibir la respuesta.",
     "pre_request_script": "Los scripts previos a la solicitud están escritos en JavaScript y se ejecutan antes de que se envíe la solicitud.",
     "script_fail": "Parece que hay un problema técnico en el script de solicitud previa. Comprueba el error a continuación y corrige el script en consecuencia.",
-    "test_script_fail": "Parece que hay un error con el script de prueba. Por favor, corrige los errores y ejecute las pruebas de nuevo",
-    "tests": "Escribir un script de prueba para automatizar la depuración."
+    "post_request_script_fail": "Parece que hay un error con el script posterior a la solicitud. Por favor, corrige los errores y vuelve a ejecutar el script.",
+    "post_request_script": "Escribir un script de prueba para automatizar la depuración."
   },
   "hide": {
     "collection": "Colapsar el panel de colecciones",

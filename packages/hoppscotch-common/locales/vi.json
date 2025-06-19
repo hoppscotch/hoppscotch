@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Không thể thực thi kịch bản trước request",
     "something_went_wrong": "Đã xảy ra lỗi",
-    "test_script_fail": "Không thể thực thi kịch bản sau request",
+    "post_request_script_fail": "Không thể thực thi kịch bản sau request",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Kịch bản kiểm tra được viết bằng JavaScript và được chạy sau khi nhận phản hồi.",
     "pre_request_script": "Kịch bản trước request được viết bằng JavaScript và được chạy trước khi gửi request.",
     "script_fail": "Có vẻ như có lỗi trong kịch bản trước request. Kiểm tra lỗi bên dưới và sửa kịch bản tương ứng.",
-    "test_script_fail": "Có vẻ như có lỗi trong kịch bản kiểm tra. Vui lòng sửa các lỗi và chạy lại kiểm tra",
-    "tests": "Viết một kịch bản kiểm tra để tự động hóa việc gỡ lỗi."
+    "post_request_script_fail": "Có vẻ như có lỗi trong kịch bản kiểm tra. Vui lòng sửa các lỗi và chạy lại kiểm tra",
+    "post_request_script": "Viết một kịch bản kiểm tra để tự động hóa việc gỡ lỗi."
   },
   "hide": {
     "collection": "Thu gọn bảng điều khiển bộ sưu tập",

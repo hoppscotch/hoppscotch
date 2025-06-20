@@ -128,68 +128,83 @@ async function initApp() {
 
     const ALLOWED_DROP_SELECTORS = [
       '[draggable="true"]',
-      '.draggable-content',
-      '.draggable-handle',
-      '.sortable-ghost',
-      '.sortable-drag',
-      '.sortable-chosen',
-      '.vue-draggable',
+      ".draggable-content",
+      ".draggable-handle",
+      ".sortable-ghost",
+      ".sortable-drag",
+      ".sortable-chosen",
+      ".vue-draggable",
 
       'input[type="file"]',
       'label[for*="attachment"]',
-      '.file-chips-container',
-      '.file-chips-wrapper',
+      ".file-chips-container",
+      ".file-chips-wrapper",
 
-      '.cm-editor',
-      '.cm-content',
-      '.cm-scroller',
-      '.ace_editor',
+      ".cm-editor",
+      ".cm-content",
+      ".cm-scroller",
+      ".ace_editor",
 
-      '[data-allow-drop]',
-      '.drop-zone',
+      "[data-allow-drop]",
+      ".drop-zone",
 
-      '[ondrop]',
-      '[data-drop-handler]'
-    ].join(', ');
+      "[ondrop]",
+      "[data-drop-handler]",
+    ].join(", ")
 
     const isAllowedDropTarget = (target: EventTarget | null): boolean => {
       if (!target || !(target instanceof HTMLElement)) {
-        return false;
+        return false
       }
 
       if (target.closest(ALLOWED_DROP_SELECTORS)) {
-        return true;
+        return true
       }
 
-      const element = target as any;
+      const element = target as any
       if (element._vei?.onDrop || element.__vueListeners__?.drop) {
-        return true;
+        return true
       }
 
-      return false;
-    };
+      return false
+    }
 
-    document.addEventListener('drop', (e) => {
-      if (!isAllowedDropTarget(e.target)) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, false);
+    document.addEventListener(
+      "drop",
+      (e) => {
+        if (!isAllowedDropTarget(e.target)) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      },
+      false
+    )
 
-    document.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    }, false);
+    document.addEventListener(
+      "dragover",
+      (e) => {
+        e.preventDefault()
+      },
+      false
+    )
 
-    document.addEventListener('dragstart', (e) => {
-      if (!e.target || !(e.target instanceof HTMLElement)) {
-        return;
-      }
+    document.addEventListener(
+      "dragstart",
+      (e) => {
+        if (!e.target || !(e.target instanceof HTMLElement)) {
+          return
+        }
 
-      const target = e.target as HTMLElement;
-      if (!target.draggable && !target.closest('[draggable="true"], .draggable-content')) {
-        e.preventDefault();
-      }
-    }, false);
+        const target = e.target as HTMLElement
+        if (
+          !target.draggable &&
+          !target.closest('[draggable="true"], .draggable-content')
+        ) {
+          e.preventDefault()
+        }
+      },
+      false
+    )
 
     window.addEventListener(
       "keydown",

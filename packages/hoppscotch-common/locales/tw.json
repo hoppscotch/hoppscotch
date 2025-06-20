@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
-    "test_script_fail": "無法執行測試指令碼",
+    "post_request_script_fail": "無法執行測試指令碼",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",
     "pre_request_script": "預請求指令碼使用 JavaScript 編寫，並在請求傳送前執行。",
     "script_fail": "預請求指令碼似乎有問題。請檢查下方的錯誤並進行相應修正。",
-    "test_script_fail": "測試指令碼似乎有誤，請修復錯誤並重新執行測試。",
-    "tests": "編寫測試指令碼以自動除錯。"
+    "post_request_script_fail": "測試指令碼似乎有誤，請修復錯誤並重新執行測試。",
+    "post_request_script": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
     "collection": "隱藏集合面板",

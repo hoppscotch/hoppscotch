@@ -399,7 +399,7 @@
     "same_profile_name": "Der aktualisierte Profilname ist identisch mit dem aktuellen Profilnamen",
     "script_fail": "Pre-Request-Skripte konnte nicht ausgeführt werden",
     "something_went_wrong": "Etwas ist schief gelaufen",
-    "test_script_fail": "Testskripts konnten nicht ausgeführt werden",
+    "post_request_script_fail": "Testskripts konnten nicht ausgeführt werden",
     "reading_files": "Fehler beim Lesen einer oder mehrerer Dateien.",
     "fetching_access_tokens_list": "Beim Abrufen der Liste der Tokens ist etwas schiefgegangen.",
     "generate_access_token": "Beim Generieren des Zugriffstokens ist etwas schiefgegangen.",
@@ -469,8 +469,8 @@
     "post_request_tests": "Testskripts werden in JavaScript geschrieben und nach Erhalt der Antwort ausgeführt.",
     "pre_request_script": "Pre-Request-Skripte sind in JavaScript geschrieben und werden ausgeführt, bevor die Anfrage gesendet wird.",
     "script_fail": "Es scheint ein Fehler im Pre-Request-Skript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
-    "test_script_fail": "Es scheint ein Fehler im Testskript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
-    "tests": "Schreibe ein Testskript, um das Debuggen zu automatisieren."
+    "post_request_script_fail": "Es scheint ein Fehler im Post-Request-Skript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
+    "post_request_script": "Schreibe ein Testskript, um das Debuggen zu automatisieren."
   },
   "hide": {
     "collection": "Sammlungsbereich einklappen",

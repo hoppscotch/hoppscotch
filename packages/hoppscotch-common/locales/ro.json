@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Nu s-a putut executa scriptul",
     "something_went_wrong": "Ceva nu a mers bine",
-    "test_script_fail": "Nu s-a putut executa scriptul",
+    "post_request_script_fail": "Nu s-a putut executa scriptul",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Scripturile de testare sunt scrise în JavaScript și se execută după primirea răspunsului.",
     "pre_request_script": "Scripturile de cerere prealabilă sunt scrise în JavaScript și sunt rulate înainte de trimiterea cererii.",
     "script_fail": "Se pare că există o eroare în script. Verificați eroarea de mai jos și remediați scriptul în consecință.",
-    "test_script_fail": "Se pare că există o eroare în script-ul de test. Verificați eroarea de mai jos și remediați scriptul în consecință.",
-    "tests": "Scrieți un script de test pentru automatizarea depanării."
+    "post_request_script_fail": "Se pare că există o eroare în script-ul de test. Verificați eroarea de mai jos și remediați scriptul în consecință.",
+    "post_request_script": "Scrieți un script de test pentru automatizarea depanării."
   },
   "hide": {
     "collection": "Restrângeți panoul de colecții",

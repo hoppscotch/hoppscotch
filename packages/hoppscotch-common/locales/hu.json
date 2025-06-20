@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Nem sikerült végrehajtani a kérés előtti parancsfájlt",
     "something_went_wrong": "Valami elromlott",
-    "test_script_fail": "Nem sikerült végrehajtani a kérés utáni parancsfájlt",
+    "post_request_script_fail": "Nem sikerült végrehajtani a kérés utáni parancsfájlt",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "A tesztparancsfájlokat JavaScriptben írták, és a válasz megérkezése után lesznek futtatva.",
     "pre_request_script": "A kérés előtti parancsfájlokat JavaScriptben írták, és a kérés elküldése előtt lesznek futtatva.",
     "script_fail": "Úgy tűnik, hogy működési hiba van a kérés előtti parancsfájlban. Nézze meg az alábbi hibát, és annak megfelelően javítsa a parancsfájlt.",
-    "test_script_fail": "Úgy tűnik, hogy hiba van a tesztparancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
-    "tests": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
+    "post_request_script_fail": "Úgy tűnik, hogy hiba van az utólagos kérés parancsfájlokkal. Javítsa ki a hibákat, és futtassa újra a teszteket.",
+    "post_request_script": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
   },
   "hide": {
     "collection": "Gyűjteménypanel összecsukása",

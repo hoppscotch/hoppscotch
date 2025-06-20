@@ -4,6 +4,7 @@ import { computed } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
 import { download, load, clear, remove } from "@hoppscotch/plugin-appload"
 import { useToast } from "~/composables/toast"
+import { platform } from "~/platform"
 
 const STORE_PATH = "hopp.store.json"
 const MAX_RECENT_INSTANCES = 10
@@ -39,21 +40,26 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
   private store!: LazyStore
   private toast = useToast()
 
+  public getVendoredInstance(): VendoredInstance {
+    const { instanceType, displayConfig } = platform.instance
+    const { displayName, version } = displayConfig
+
+    return {
+      type: instanceType,
+      displayName,
+      version,
+    }
+  }
+
   override async onServiceInit(): Promise<void> {
     this.store = new LazyStore(STORE_PATH)
     await this.store.init()
     await this.loadRecentInstances()
 
     if (this.inVendoredEnvironment()) {
-      const instance: VendoredInstance = {
-        type: "vendored",
-        displayName: "Hoppscotch",
-        version: "25.5.1",
-      }
-
       this.state$.next({
         status: "connected",
-        instance,
+        instance: this.getVendoredInstance(),
       })
       this.emit(this.state$.value)
     } else {
@@ -113,26 +119,25 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
     this.state$.next({
       status: "connecting",
-      target: "Vendored",
+      target: this.getVendoredInstance().displayName,
     })
     this.emit(this.state$.value)
 
     try {
-      const instance: VendoredInstance = {
-        type: "vendored",
-        displayName: "Hoppscotch",
-        version: "25.5.1",
-      }
-
       this.state$.next({
         status: "connected",
-        instance,
+        instance: this.getVendoredInstance(),
       })
       this.emit(this.state$.value)
 
       await this.saveCurrentState()
 
-      this.toast.success("Connecting to Vendored")
+      this.toast.success(
+        platform.instance.displayConfig.connectingMessage.replace(
+          "{instanceName}",
+          this.getVendoredInstance().displayName
+        )
+      )
 
       const loadResponse = await load({
         bundleName: "Hoppscotch",
@@ -140,17 +145,24 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       })
 
       if (!loadResponse.success) {
-        throw new Error("Failed to load vendored bundle")
+        throw new Error(
+          `Failed to load ${this.getVendoredInstance().type} bundle`
+        )
       }
 
-      this.toast.success("Connected to Vendored")
+      this.toast.success(
+        platform.instance.displayConfig.connectedMessage.replace(
+          "{instanceName}",
+          this.getVendoredInstance().displayName
+        )
+      )
       return true
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       this.state$.next({
         status: "error",
-        target: "Vendored",
+        target: this.getVendoredInstance().displayName,
         message: errorMessage,
       })
       this.emit(this.state$.value)
@@ -325,7 +337,10 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
   public isCurrentlyVendored(): boolean {
     const state = this.state$.value
-    return state.status === "connected" && state.instance.type === "vendored"
+    return (
+      state.status === "connected" &&
+      state.instance.type === this.getVendoredInstance().type
+    )
   }
 
   public isCurrentlyConnectedTo(serverUrl: string): boolean {

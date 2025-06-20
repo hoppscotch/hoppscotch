@@ -147,7 +147,7 @@ watch(
       },
       {
         count: testScriptsCount,
-        label: "import.import_summary_test_scripts_title",
+        label: "import.import_summary_post_request_scripts_title",
         id: "testScripts" as const,
       },
     ]

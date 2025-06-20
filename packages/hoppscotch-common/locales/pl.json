@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Nie można wykonać skryptu żądania wstępnego",
     "something_went_wrong": "Coś poszło nie tak",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Skrypty testowe są pisane w języku JavaScript i są uruchamiane po otrzymaniu odpowiedzi.",
     "pre_request_script": "Skrypty żądań wstępnych są napisane w języku JavaScript i są uruchamiane przed wysłaniem żądania.",
     "script_fail": "Wygląda na to, że w skrypcie żądania wstępnego jest usterka. Sprawdź poniższy błąd i odpowiednio napraw skrypt.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Napisz skrypt testowy, aby zautomatyzować debugowanie."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "Napisz skrypt testowy, aby zautomatyzować debugowanie."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

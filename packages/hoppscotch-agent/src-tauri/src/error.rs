@@ -53,9 +53,15 @@ pub enum AgentError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
     #[error("Log init error: {0}")]
-    LogInit(#[from] tracing_appender::rolling::InitError),
+    LogInit(String),
     #[error("Log init global error: {0}")]
     LogInitGlobal(#[from] tracing::subscriber::SetGlobalDefaultError),
+}
+
+impl From<tracing_appender::rolling::InitError> for AgentError {
+    fn from(err: tracing_appender::rolling::InitError) -> Self {
+        AgentError::LogInit(err.to_string())
+    }
 }
 
 impl IntoResponse for AgentError {

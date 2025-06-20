@@ -69,7 +69,7 @@
     <HoppSmartTab
       v-if="showTestsTab"
       :id="'tests'"
-      :label="`${t('tab.tests')}`"
+      :label="`${t('tab.post_request_script')}`"
       :indicator="
         'testScript' in request &&
         request.testScript &&

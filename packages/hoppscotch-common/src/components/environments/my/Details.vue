@@ -460,7 +460,7 @@ const saveEnvironment = () => {
             key: e.key,
             currentValue: e.currentValue,
             varIndex: i,
-            isSecret: e.secret,
+            isSecret: e.secret ?? false,
           })
         : O.none
     )
@@ -492,21 +492,12 @@ const saveEnvironment = () => {
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) =>
-      e.secret
-        ? {
-            key: e.key,
-            secret: e.secret,
-            initialValue: e.initialValue,
-            currentValue: "",
-          }
-        : {
-            key: e.key,
-            secret: e.secret,
-            initialValue: e.initialValue,
-            currentValue: "",
-          }
-    )
+    A.map((e) => ({
+      key: e.key,
+      secret: e.secret,
+      initialValue: e.initialValue || "",
+      currentValue: "",
+    }))
   )
 
   const environmentUpdated: Environment = {

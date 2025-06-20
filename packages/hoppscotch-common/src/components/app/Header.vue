@@ -22,11 +22,23 @@
             :on-shown="() => instanceSwitcherRef.focus()"
           >
             <div class="flex items-center cursor-pointer">
-              <span
-                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-              >
-                {{ instanceDisplayName }}
-              </span>
+              <div class="flex">
+                <span
+                  class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
+                >
+                  {{ instanceDisplayName }}
+                </span>
+                <span
+                  v-if="
+                    currentState.status === 'connected' &&
+                    'type' in currentState.instance &&
+                    currentState.instance.type === 'vendored'
+                  "
+                  class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
+                >
+                  {{ platform.instance.displayConfig.description }}
+                </span>
+              </div>
               <IconChevronDown class="h-4 w-4 text-secondaryDark" />
             </div>
             <template #content="{ hide }">

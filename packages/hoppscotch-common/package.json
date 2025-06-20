@@ -46,6 +46,7 @@
     "@noble/curves": "1.6.0",
     "@scure/base": "1.1.9",
     "@shopify/lang-jsonc": "1.0.0",
+    "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-store": "2.2.0",
     "@types/hawk": "9.0.6",
     "@types/markdown-it": "14.1.2",

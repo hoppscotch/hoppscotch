@@ -160,7 +160,7 @@ const getXMLBody = (rawData: string) =>
   )
 
 const getFormattedJSON = flow(
-  safeParseJSON,
+  (str: string) => safeParseJSON(str, false, true),
   O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
   O.getOrElse(() => "{ }")
 )

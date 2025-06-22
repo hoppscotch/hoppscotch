@@ -9,12 +9,27 @@ import { EffectiveHoppRESTRequest } from "~/helpers/utils/EffectiveURL"
 
 const Processors = {
   json: {
-    process: (body: string): E.Either<Error, ContentType> =>
-      pipe(
-        parseJSONAs<unknown>(body),
-        E.map((json) => content.json(json, MediaType.APPLICATION_JSON)),
-        E.orElse(() => E.right(content.text(body, MediaType.TEXT_PLAIN)))
-      ),
+    process: (body: string): E.Either<Error, ContentType> => {
+      const hasUnicodeEscapes = /\\u[0-9a-fA-F]{4}/.test(body)
+      if (hasUnicodeEscapes) {
+        return pipe(
+          E.tryCatch(() => {
+            JSON.parse(body) // Just validating it's valid JSON
+            return body
+          }, E.toError),
+          E.map((originalBody) =>
+            content.text(originalBody, MediaType.APPLICATION_JSON)
+          )
+        )
+      } else {
+        // For regular JSON without Unicode escapes, using the standard processing
+        return pipe(
+          parseJSONAs<unknown>(body),
+          E.map((json) => content.json(json, MediaType.APPLICATION_JSON)),
+          E.orElse(() => E.right(content.text(body, MediaType.TEXT_PLAIN)))
+        )
+      }
+    },
   },
 
   binary: {

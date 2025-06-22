@@ -79,18 +79,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             )
           ),
       ]),
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
-  async validate(payload: AccessTokenPayload) {
-    if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
+  async validate(payload: AccessTokenPayload): Promise<any> {
+    try {
+      if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
-    const user = await this.usersService.findUserById(payload.sub);
-    if (O.isNone(user)) {
-      throw new UnauthorizedException(USER_NOT_FOUND);
+      const user = await this.usersService.findUserById(payload.sub);
+      if (O.isNone(user)) {
+        throw new UnauthorizedException(USER_NOT_FOUND);
+      }
+
+      return user.value;
+    } catch (error) {
+      throw error;
     }
-
-    return user.value;
   }
 }

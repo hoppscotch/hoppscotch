@@ -25,7 +25,7 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          const RTCookie = request.cookies['refresh_token'];
+          const RTCookie = request.cookies?.['refresh_token'];
           if (!RTCookie) {
             console.error("`refresh_token` not found")
             throw new ForbiddenException(COOKIES_NOT_FOUND);
@@ -33,18 +33,22 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
           return RTCookie;
         },
       ]),
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
-  async validate(payload: RefreshTokenPayload) {
-    if (!payload) throw new ForbiddenException(INVALID_REFRESH_TOKEN);
+  async validate(payload: RefreshTokenPayload): Promise<any> {
+    try {
+      if (!payload) throw new ForbiddenException(INVALID_REFRESH_TOKEN);
 
-    const user = await this.usersService.findUserById(payload.sub);
-    if (O.isNone(user)) {
-      throw new UnauthorizedException(USER_NOT_FOUND);
+      const user = await this.usersService.findUserById(payload.sub);
+      if (O.isNone(user)) {
+        throw new UnauthorizedException(USER_NOT_FOUND);
+      }
+
+      return user.value;
+    } catch (error) {
+      throw error;
     }
-
-    return user.value;
   }
 }

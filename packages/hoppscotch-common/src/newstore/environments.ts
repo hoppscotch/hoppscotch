@@ -538,7 +538,7 @@ export function getAggregateEnvsWithCurrentValue() {
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             currentEnv.id,
             index
-          ) ?? currentValue
+          ) ?? ""
       }
 
       return <AggregateEnvironment>{
@@ -590,7 +590,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             selectedEnv.id,
             index
-          ) ?? currentValue
+          ) ?? ""
       }
       results.push({
         key: x.key,

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -393,7 +394,9 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   const providerConfigKeys = getAuthProviderRequiredKeys(env);
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',')
+      .map((p) => p.trim())
+      .filter((p) => p) ?? [];
 
   const configuredAuthProviders = allowedAuthProviders.filter((provider) => {
     const requiredKeys = providerConfigKeys[provider];

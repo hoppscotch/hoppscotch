@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "25.5.3"
+version = "25.5.4"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"

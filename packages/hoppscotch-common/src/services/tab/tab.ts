@@ -25,6 +25,8 @@ export abstract class TabService<Doc>
     HoppTab<Doc>
   > // TODO: The implicit cast is necessary as the reactive unwraps the inner types, creating weird type errors, this needs to be refactored and removed
   protected tabOrdering = ref<string[]>(["test"])
+  protected recentlyClosedTabs: Array<{ tab: HoppTab<Doc>; index: number }> = []
+  protected readonly MAX_CLOSED_TABS_HISTORY = 10
 
   public currentTabID = refWithControl("test", {
     onBeforeChange: (newTabID) => {
@@ -168,7 +170,12 @@ export abstract class TabService<Doc>
       return
     }
 
-    this.tabOrdering.value.splice(this.tabOrdering.value.indexOf(tabID), 1)
+    const tabIndex = this.tabOrdering.value.indexOf(tabID)
+    const tab = this.tabMap.get(tabID)!
+
+    this.addToRecentlyClosedTabs(tab, tabIndex)
+
+    this.tabOrdering.value.splice(tabIndex, 1)
 
     nextTick(() => {
       this.tabMap.delete(tabID)
@@ -190,6 +197,64 @@ export abstract class TabService<Doc>
     })
 
     this.currentTabID.value = tabID
+  }
+
+  public goToNextTab(): void {
+    const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
+    const nextIndex = (currentIndex + 1) % this.tabOrdering.value.length
+    const nextTabID = this.tabOrdering.value[nextIndex]
+    this.setActiveTab(nextTabID)
+  }
+
+  public goToPreviousTab(): void {
+    const currentIndex = this.tabOrdering.value.indexOf(this.currentTabID.value)
+    const prevIndex =
+      currentIndex === 0 ? this.tabOrdering.value.length - 1 : currentIndex - 1
+    const prevTabID = this.tabOrdering.value[prevIndex]
+    this.setActiveTab(prevTabID)
+  }
+
+  // NOTE: Currently inert, plumbing is done, some platform issues around shortcuts, WIP for future.
+  public goToTabByIndex(index: number): void {
+    if (index >= 1 && index <= this.tabOrdering.value.length) {
+      const tabID = this.tabOrdering.value[index - 1]
+      this.setActiveTab(tabID)
+    }
+  }
+
+  public goToFirstTab(): void {
+    const firstTabID = this.tabOrdering.value[0]
+    this.setActiveTab(firstTabID)
+  }
+
+  public goToLastTab(): void {
+    const lastTabID = this.tabOrdering.value[this.tabOrdering.value.length - 1]
+    this.setActiveTab(lastTabID)
+  }
+
+  public reopenClosedTab(): boolean {
+    if (this.recentlyClosedTabs.length === 0) {
+      return false
+    }
+
+    const { tab, index } = this.recentlyClosedTabs.pop()!
+
+    this.tabMap.set(tab.id, tab)
+
+    const insertIndex = Math.min(index, this.tabOrdering.value.length)
+    this.tabOrdering.value.splice(insertIndex, 0, tab.id)
+
+    this.setActiveTab(tab.id)
+
+    return true
+  }
+
+  private addToRecentlyClosedTabs(tab: HoppTab<Doc>, index: number): void {
+    this.recentlyClosedTabs.push({ tab, index })
+
+    if (this.recentlyClosedTabs.length > this.MAX_CLOSED_TABS_HISTORY) {
+      this.recentlyClosedTabs.shift()
+    }
   }
 
   public persistableTabState = computed<PersistableTabState<Doc>>(() => ({

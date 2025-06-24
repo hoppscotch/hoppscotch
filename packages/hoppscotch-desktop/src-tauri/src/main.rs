@@ -26,7 +26,7 @@ fn main() {
 
         println!("Starting Hoppscotch Desktop...");
 
-        return hoppscotch_desktop_lib::run()
+        return hoppscotch_desktop_lib::run();
     };
 
     let Ok(LogGuard(guard)) = logger::setup(&log_file_path) else {
@@ -34,7 +34,7 @@ fn main() {
 
         println!("Starting Hoppscotch Desktop...");
 
-        return hoppscotch_desktop_lib::run()
+        return hoppscotch_desktop_lib::run();
     };
 
     // This keeps the guard alive, this is scoped to `main`

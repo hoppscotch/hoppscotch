@@ -33,6 +33,11 @@ export type HoppAction =
   | "tab.close-current" // Close current tab
   | "tab.close-other" // Close other tabs
   | "tab.open-new" // Open new tab
+  | "tab.next" // Switch to next tab
+  | "tab.prev" // Switch to previous tab
+  | "tab.switch-to-first" // Switch to first tab
+  | "tab.switch-to-last" // Switch to last tab
+  | "tab.reopen-closed" // Reopen recently closed tab
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout

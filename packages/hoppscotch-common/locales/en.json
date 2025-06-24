@@ -1199,6 +1199,10 @@
       "close_others": "Close all other tabs",
       "duplicate": "Duplicate current tab",
       "new_tab": "Open a new tab",
+      "next": "Switch to next tab",
+      "previous": "Switch to previous tab",
+      "switch_to_first": "Switch to first tab",
+      "switch_to_last": "Switch to last tab",
       "title": "Tabs"
     },
     "workspace": {

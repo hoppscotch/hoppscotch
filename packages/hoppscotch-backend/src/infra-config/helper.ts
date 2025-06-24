@@ -1,13 +1,9 @@
 import { AuthProvider } from 'src/auth/helper';
-import {
-  AUTH_PROVIDER_NOT_CONFIGURED,
-  ENV_INVALID_DATA_ENCRYPTION_KEY,
-} from 'src/errors';
+import { ENV_INVALID_DATA_ENCRYPTION_KEY } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
-import { decrypt, encrypt, throwErr } from 'src/utils';
+import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
-import { InfraConfig } from '@prisma/client';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -17,7 +13,6 @@ export enum ServiceStatus {
 type DefaultInfraConfig = {
   name: InfraConfigEnum;
   value: string;
-  lastSyncedEnvFileValue: string;
   isEncrypted: boolean;
 };
 
@@ -64,10 +59,9 @@ const AuthProviderConfigurations = {
 export async function loadInfraConfiguration() {
   try {
     const prisma = new PrismaService();
-
     const infraConfigs = await prisma.infraConfig.findMany();
 
-    const environmentObject: Record<string, any> = {};
+    const environmentObject: Record<string, string> = {};
     infraConfigs.forEach((infraConfig) => {
       if (infraConfig.isEncrypted) {
         environmentObject[infraConfig.name] = decrypt(infraConfig.value);
@@ -96,7 +90,7 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
   const prisma = new PrismaService();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
-  const configuredSSOProviders = getConfiguredSSOProvidersFromEnvFile();
+  const onboardingCompleteStatus = await isOnboardingCompleted();
   const generatedAnalyticsUserId = generateAnalyticsUserId();
   const isSecureCookies = determineAllowSecureCookies(
     process.env.VITE_BASE_URL,
@@ -105,238 +99,197 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
   const infraConfigDefaultObjs: DefaultInfraConfig[] = [
     {
       name: InfraConfigEnum.ONBOARDING_COMPLETED,
-      value: 'false',
-      lastSyncedEnvFileValue: null,
+      value: onboardingCompleteStatus.toString(),
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
       value: null,
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.JWT_SECRET,
-      value: encrypt(process.env.JWT_SECRET ?? randomBytes(32).toString('hex')),
-      lastSyncedEnvFileValue: encrypt(process.env.JWT_SECRET),
+      value: encrypt(randomBytes(32).toString('hex')),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.SESSION_SECRET,
-      value: encrypt(
-        process.env.SESSION_SECRET ?? randomBytes(32).toString('hex'),
-      ),
-      lastSyncedEnvFileValue: encrypt(process.env.SESSION_SECRET),
+      value: encrypt(randomBytes(32).toString('hex')),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.TOKEN_SALT_COMPLEXITY,
-      value: process.env.TOKEN_SALT_COMPLEXITY ?? '10',
-      lastSyncedEnvFileValue: process.env.TOKEN_SALT_COMPLEXITY ?? '10',
+      value: '10',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY,
-      value: process.env.MAGIC_LINK_TOKEN_VALIDITY ?? '3', // 3 hours
-      lastSyncedEnvFileValue: process.env.MAGIC_LINK_TOKEN_VALIDITY ?? '3',
+      value: '3', // 3 hours
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.REFRESH_TOKEN_VALIDITY,
-      value: process.env.REFRESH_TOKEN_VALIDITY ?? '604800000', // 7 days in milliseconds
-      lastSyncedEnvFileValue: process.env.REFRESH_TOKEN_VALIDITY ?? '604800000',
+      value: '604800000', // 7 days in milliseconds
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ACCESS_TOKEN_VALIDITY,
-      value: process.env.ACCESS_TOKEN_VALIDITY ?? '86400000', // 1 day in milliseconds
-      lastSyncedEnvFileValue: process.env.ACCESS_TOKEN_VALIDITY ?? '86400000',
+      value: '86400000', // 1 day in milliseconds
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ALLOW_SECURE_COOKIES,
       value: isSecureCookies.toString(),
-      lastSyncedEnvFileValue: process.env.ALLOW_SECURE_COOKIES,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.RATE_LIMIT_TTL,
-      value: process.env.RATE_LIMIT_TTL ?? '60',
-      lastSyncedEnvFileValue: process.env.RATE_LIMIT_TTL ?? '60',
+      value: '10000', // in milliseconds (10 seconds)
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.RATE_LIMIT_MAX,
-      value: process.env.RATE_LIMIT_MAX ?? '100',
-      lastSyncedEnvFileValue: process.env.RATE_LIMIT_MAX ?? '100',
+      value: '100', // 100 requests per IP per RATE_LIMIT_TTL
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_ENABLE,
-      value: process.env.MAILER_SMTP_ENABLE ?? 'true',
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_ENABLE ?? 'true',
+      value: 'false',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
-      value: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
-      lastSyncedEnvFileValue: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_URL,
-      value: encrypt(process.env.MAILER_SMTP_URL),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_URL),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_ADDRESS_FROM,
-      value: process.env.MAILER_ADDRESS_FROM,
-      lastSyncedEnvFileValue: process.env.MAILER_ADDRESS_FROM,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_HOST,
-      value: process.env.MAILER_SMTP_HOST,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_HOST,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PORT,
-      value: process.env.MAILER_SMTP_PORT,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_PORT,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_SECURE,
-      value: process.env.MAILER_SMTP_SECURE,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_SECURE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_USER,
-      value: process.env.MAILER_SMTP_USER,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_USER,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PASSWORD,
-      value: encrypt(process.env.MAILER_SMTP_PASSWORD),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_PASSWORD),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-      value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
-      lastSyncedEnvFileValue: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-      value: encrypt(process.env.GOOGLE_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-      value: encrypt(process.env.GOOGLE_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
-      value: process.env.GOOGLE_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GOOGLE_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_SCOPE,
-      value: process.env.GOOGLE_SCOPE,
-      lastSyncedEnvFileValue: process.env.GOOGLE_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_ID,
-      value: encrypt(process.env.GITHUB_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
-      value: encrypt(process.env.GITHUB_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CALLBACK_URL,
-      value: process.env.GITHUB_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GITHUB_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_SCOPE,
-      value: process.env.GITHUB_SCOPE,
-      lastSyncedEnvFileValue: process.env.GITHUB_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
-      value: encrypt(process.env.MICROSOFT_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-      value: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-      value: process.env.MICROSOFT_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_SCOPE,
-      value: process.env.MICROSOFT_SCOPE,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_TENANT,
-      value: process.env.MICROSOFT_TENANT,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_TENANT,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-      value: configuredSSOProviders,
-      lastSyncedEnvFileValue: configuredSSOProviders,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
       value: false.toString(),
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ANALYTICS_USER_ID,
       value: generatedAnalyticsUserId,
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
       value: (await prisma.infraConfig.count()) === 0 ? 'true' : 'false',
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.USER_HISTORY_STORE_ENABLED,
       value: 'true',
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
   ];
@@ -384,48 +337,6 @@ export async function getEncryptionRequiredInfraConfigEntries(
 }
 
 /**
- * Sync the 'infra_config' table with .env file
- * @returns Array of InfraConfig
- */
-export async function syncInfraConfigWithEnvFile() {
-  const prisma = new PrismaService();
-  const dbInfraConfigs = await prisma.infraConfig.findMany();
-
-  const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
-
-  for (const dbConfig of dbInfraConfigs) {
-    const envValue = process.env[dbConfig.name];
-
-    // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
-    if (!dbConfig.lastSyncedEnvFileValue && envValue) {
-      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
-      updateRequiredObjs.push({
-        id: dbConfig.id,
-        value: dbConfig.value === null ? configValue : undefined,
-        lastSyncedEnvFileValue: configValue,
-      });
-      continue;
-    }
-
-    // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
-    const rawLastSyncedEnvFileValue = dbConfig.isEncrypted
-      ? decrypt(dbConfig.lastSyncedEnvFileValue)
-      : dbConfig.lastSyncedEnvFileValue;
-
-    if (rawLastSyncedEnvFileValue != envValue) {
-      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
-      updateRequiredObjs.push({
-        id: dbConfig.id,
-        value: configValue ?? null,
-        lastSyncedEnvFileValue: configValue ?? null,
-      });
-    }
-  }
-
-  return updateRequiredObjs;
-}
-
-/**
  * Verify if 'infra_config' table is loaded with all entries
  * @returns boolean
  */
@@ -462,45 +373,6 @@ export function stopApp() {
 }
 
 /**
- * Get the configured SSO providers from .env file
- * @description This function verify if the required parameters for each SSO provider are configured in .env file. Usage on first time setup and reset.
- * @returns Array of configured SSO providers
- */
-export function getConfiguredSSOProvidersFromEnvFile() {
-  const allowedAuthProviders: string[] =
-    process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
-  const configuredAuthProviders: string[] = [];
-
-  const addProviderIfConfigured = (provider) => {
-    const configParameters: string[] = AuthProviderConfigurations[provider];
-
-    const isConfigured = configParameters.every((configParameter) => {
-      return process.env[configParameter];
-    });
-    if (isConfigured) configuredAuthProviders.push(provider);
-  };
-
-  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
-
-  if (configuredAuthProviders.length === 0) {
-    throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
-  } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
-    const unConfiguredAuthProviders = allowedAuthProviders.filter(
-      (provider) => {
-        return !configuredAuthProviders.includes(provider);
-      },
-    );
-    console.log(
-      `${unConfiguredAuthProviders.join(
-        ',',
-      )} SSO auth provider(s) are not configured properly in .env file. Do configure them from Admin Dashboard.`,
-    );
-  }
-
-  return configuredAuthProviders.join(',');
-}
-
-/**
  * Get the configured SSO providers from 'infra_config' table.
  * @description Usage every time the app starts by AuthModule to initiate Strategies.
  * @returns Array of configured SSO providers
@@ -509,7 +381,8 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   const env = await loadInfraConfiguration();
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
+
   const configuredAuthProviders: string[] = [];
 
   const addProviderIfConfigured = (provider) => {
@@ -541,6 +414,24 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
 }
 
 /**
+ * Check if the onboarding is completed by verifying if the allowed auth providers are configured
+ * @returns boolean
+ */
+export async function isOnboardingCompleted(): Promise<boolean> {
+  const prisma = new PrismaService();
+  const allowedProviders = await prisma.infraConfig.findUnique({
+    where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
+    select: { value: true },
+  });
+
+  if (!allowedProviders?.value || allowedProviders.value === '') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Generate a hashed valued for analytics
  * @returns Generated hashed value
  */
@@ -555,4 +446,24 @@ export function generateAnalyticsUserId() {
  */
 export function determineAllowSecureCookies(appBaseUrl: string) {
   return appBaseUrl.startsWith('https');
+}
+
+/**
+ * Builds a map of environment variables that are derived from other configuration values
+ * @returns Record<string, string>
+ */
+export async function buildDerivedEnv() {
+  const envConfigMap = await loadInfraConfiguration();
+  const derivedEnv: Record<string, string> = {};
+
+  // ALLOW_SECURE_COOKIES
+  const baseUrl = process.env.VITE_BASE_URL || '';
+  const expectedSecureCookieSetting =
+    determineAllowSecureCookies(baseUrl).toString();
+  const currentSecureCookieSetting = envConfigMap.INFRA.ALLOW_SECURE_COOKIES;
+  if (currentSecureCookieSetting !== expectedSecureCookieSetting) {
+    derivedEnv.ALLOW_SECURE_COOKIES = expectedSecureCookieSetting;
+  }
+
+  return derivedEnv;
 }

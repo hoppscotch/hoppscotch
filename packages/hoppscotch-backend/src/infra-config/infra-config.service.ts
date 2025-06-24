@@ -25,11 +25,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
+  buildDerivedEnv,
   getDefaultInfraConfigs,
   getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
   stopApp,
-  syncInfraConfigWithEnvFile,
 } from './helper';
 import { EnableAndDisableSSOArgs, InfraConfigArgs } from './input-args';
 import { AuthProvider } from 'src/auth/helper';
@@ -103,14 +103,14 @@ export class InfraConfigService implements OnModuleInit {
         await Promise.allSettled(dbOperations);
       }
 
-      // Sync the InfraConfigs with the .env file, if .env file updates later on
-      const envFileChangesRequired = await syncInfraConfigWithEnvFile();
-      if (envFileChangesRequired.length > 0) {
-        const dbOperations = envFileChangesRequired.map((dbConfig) => {
-          const { id, ...dataObj } = dbConfig;
+      // Derive env variables programmatically if they don't exist or need to be updated
+      const derivedEnv = await buildDerivedEnv();
+
+      if (Object.keys(derivedEnv).length > 0) {
+        const dbOperations = Object.entries(derivedEnv).map(([name, value]) => {
           return this.prisma.infraConfig.update({
-            where: { id: dbConfig.id },
-            data: dataObj,
+            where: { name: name as InfraConfigEnum },
+            data: { value },
           });
         });
         await Promise.allSettled(dbOperations);
@@ -120,7 +120,7 @@ export class InfraConfigService implements OnModuleInit {
       if (
         propsToInsert.length > 0 ||
         encryptionRequiredEntries.length > 0 ||
-        envFileChangesRequired.length > 0
+        Object.keys(derivedEnv).length > 0
       ) {
         stopApp();
       }

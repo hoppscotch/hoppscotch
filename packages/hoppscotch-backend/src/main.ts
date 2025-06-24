@@ -6,7 +6,6 @@ import * as crypto from 'crypto';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import { checkEnvironmentAuthProvider } from './utils';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
@@ -45,11 +44,6 @@ async function bootstrap() {
 
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
-
-  checkEnvironmentAuthProvider(
-    configService.get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS') ??
-      configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
-  );
 
   app.use(
     session({

@@ -122,7 +122,7 @@ export function authProviderCheck(
   }
 
   const envVariables = VITE_ALLOWED_AUTH_PROVIDERS
-    ? VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
+    ? VITE_ALLOWED_AUTH_PROVIDERS?.split(',').map((provider) =>
         provider.trim().toUpperCase(),
       )
     : [];

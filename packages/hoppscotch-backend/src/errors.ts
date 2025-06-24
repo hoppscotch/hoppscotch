@@ -69,18 +69,6 @@ export const ENV_INVALID_DATA_ENCRYPTION_KEY =
   '"DATA_ENCRYPTION_KEY" value changed in .env file. Please undo the changes and restart the server';
 
 /**
- * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
- */
-export const ENV_EMPTY_AUTH_PROVIDERS =
-  '"VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file';
-
-/**
- * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" contains unsupported provider in .env file
- */
-export const ENV_NOT_SUPPORT_AUTH_PROVIDERS =
-  '"VITE_ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider in .env file';
-
-/**
  * Tried to delete a user data document from fb firestore but failed.
  * (FirebaseService)
  */

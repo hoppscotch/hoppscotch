@@ -8,14 +8,7 @@ import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
 import * as T from 'fp-ts/Task';
 import * as TE from 'fp-ts/TaskEither';
-import { AuthProvider } from './auth/helper';
-import {
-  ENV_EMPTY_AUTH_PROVIDERS,
-  ENV_NOT_FOUND_KEY_AUTH_PROVIDERS,
-  ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY,
-  ENV_NOT_SUPPORT_AUTH_PROVIDERS,
-  JSON_INVALID,
-} from './errors';
+import { ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY, JSON_INVALID } from './errors';
 import { TeamAccessRole } from './team/team.model';
 import { RESTError } from './types/RESTError';
 import * as crypto from 'crypto';
@@ -232,36 +225,6 @@ export function isValidLength(title: string, length: number) {
   }
 
   return true;
-}
-
-/**
- * This function is called by bootstrap() in main.ts
- * It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
- * If not, it throws an error.
- */
-export function checkEnvironmentAuthProvider(
-  VITE_ALLOWED_AUTH_PROVIDERS: string,
-) {
-  if (!VITE_ALLOWED_AUTH_PROVIDERS) {
-    throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
-  }
-
-  if (VITE_ALLOWED_AUTH_PROVIDERS === '') {
-    throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
-  }
-
-  const givenAuthProviders = VITE_ALLOWED_AUTH_PROVIDERS.split(',').map(
-    (provider) => provider.toLocaleUpperCase(),
-  );
-  const supportedAuthProviders = Object.values(AuthProvider).map(
-    (provider: string) => provider.toLocaleUpperCase(),
-  );
-
-  for (const givenAuthProvider of givenAuthProviders) {
-    if (!supportedAuthProviders.includes(givenAuthProvider)) {
-      throw new Error(ENV_NOT_SUPPORT_AUTH_PROVIDERS);
-    }
-  }
 }
 
 /**

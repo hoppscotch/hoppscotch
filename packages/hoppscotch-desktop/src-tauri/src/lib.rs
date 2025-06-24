@@ -79,6 +79,7 @@ pub fn run() {
                 .item(&next_tab)
                 .item(&prev_tab)
                 .separator()
+                .item(&tab_first)
                 .item(&tab_last)
                 .build()
                 .expect("Failed to build tabs menu");
@@ -134,6 +135,10 @@ pub fn run() {
                                 "Previous Tab menu item triggered (CMD+Alt+Left/Ctrl+Alt+Left)"
                             );
                             Some("ctrl-alt-left")
+                        }
+                        "tab_first" => {
+                            tracing::info!("Switch to First Tab menu item triggered (CMD+0/Ctrl+0)");
+                            Some("ctrl-0")
                         }
                         "tab_last" => {
                             tracing::info!("Switch to Last Tab menu item triggered (CMD+9/Ctrl+9)");

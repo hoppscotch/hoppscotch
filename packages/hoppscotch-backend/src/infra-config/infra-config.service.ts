@@ -542,6 +542,43 @@ export class InfraConfigService implements OnModuleInit {
       },
     ];
 
+    const isValidated = this.validateEnvValues(configEntries);
+    if (E.isLeft(isValidated)) return E.left(isValidated.left);
+
+    // Verify MAILER_SMTP_ENABLE
+    if (
+      dto[InfraConfigEnum.MAILER_SMTP_ENABLE] === 'true' &&
+      !this.isServiceConfigured(
+        AuthProvider.EMAIL,
+        dto as unknown as Record<string, string>,
+      )
+    ) {
+      return E.left(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
+    }
+
+    // Verify VITE_ALLOWED_AUTH_PROVIDERS
+    const allowedAuthProviders = dto[
+      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS
+    ]
+      .split(',')
+      .map((p) => p.trim())
+      .filter((p) => p);
+    if (allowedAuthProviders.length === 0) {
+      return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
+    }
+    for (const provider of allowedAuthProviders) {
+      if (
+        !Object.values(AuthProvider).includes(provider as AuthProvider) ||
+        !this.isServiceConfigured(
+          provider as AuthProvider,
+          dto as unknown as Record<string, string>,
+        )
+      ) {
+        return E.left(INFRA_CONFIG_SERVICE_NOT_CONFIGURED);
+      }
+    }
+
+    // Move forward with updating the InfraConfigs
     const isUpdated = await this.updateMany(configEntries, false);
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
 
@@ -665,6 +702,18 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnum.GITHUB_CALLBACK_URL:
         case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
           if (!validateUrl(value)) return fail();
+          break;
+
+        case InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS:
+          const allowedAuthProviders = value.split(',');
+          if (
+            allowedAuthProviders.length === 0 ||
+            allowedAuthProviders.some(
+              (p) => !Object.values(AuthProvider).includes(p as AuthProvider),
+            )
+          ) {
+            return fail();
+          }
           break;
 
         default:

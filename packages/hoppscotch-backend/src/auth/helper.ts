@@ -47,24 +47,24 @@ export const authCookieHandler = (
   const currentTime = DateTime.now();
   const accessTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(configService.get('ACCESS_TOKEN_VALIDITY')),
+      milliseconds: parseInt(configService.get('INFRA.ACCESS_TOKEN_VALIDITY')),
     })
     .toMillis();
   const refreshTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(configService.get('REFRESH_TOKEN_VALIDITY')),
+      milliseconds: parseInt(configService.get('INFRA.REFRESH_TOKEN_VALIDITY')),
     })
     .toMillis();
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
     maxAge: accessTokenValidity,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
   });

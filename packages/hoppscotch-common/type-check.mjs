@@ -34,7 +34,10 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Define the directory paths and file patterns to perform type checks on
-const directoryPaths = [path.resolve(__dirname, "src", "services")]
+const directoryPaths = [
+  path.resolve(__dirname, "src", "services"),
+  path.resolve(__dirname, "src", "helpers", "auth"),
+]
 const filePatterns = ["**/*.ts"]
 
 const tsConfigFileName = path.resolve(__dirname, "tsconfig.json")

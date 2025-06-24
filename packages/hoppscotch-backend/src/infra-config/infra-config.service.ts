@@ -472,9 +472,13 @@ export class InfraConfigService implements OnModuleInit {
    * @returns string[]
    */
   getAllowedAuthProviders() {
-    return this.configService
-      .get<string>('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
-      .split(',');
+    return (
+      this.configService
+        .get<string>('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
+        ?.split(',')
+        .map((p) => p.trim())
+        .filter((p) => p) ?? []
+    );
   }
 
   /**
@@ -614,98 +618,55 @@ export class InfraConfigService implements OnModuleInit {
       value: string;
     }[],
   ) {
-    for (let i = 0; i < infraConfigs.length; i++) {
-      switch (infraConfigs[i].name) {
+    for (const config of infraConfigs) {
+      const { name, value } = config;
+
+      const fail = () => {
+        console.error(
+          `[Infra Validation Failed] Key: ${name}, Value: ${value}`,
+        );
+        return E.left(INFRA_CONFIG_INVALID_INPUT);
+      };
+
+      switch (name) {
         case InfraConfigEnum.MAILER_SMTP_ENABLE:
-          if (
-            infraConfigs[i].value !== 'true' &&
-            infraConfigs[i].value !== 'false'
-          )
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS:
-          if (
-            infraConfigs[i].value !== 'true' &&
-            infraConfigs[i].value !== 'false'
-          )
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_SMTP_URL:
-          const isValidUrl = validateSMTPUrl(infraConfigs[i].value);
-          if (!isValidUrl) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_ADDRESS_FROM:
-          const isValidEmail = validateSMTPEmail(infraConfigs[i].value);
-          if (!isValidEmail) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_SMTP_HOST:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_SMTP_PORT:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MAILER_SMTP_SECURE:
-          if (
-            infraConfigs[i].value !== 'true' &&
-            infraConfigs[i].value !== 'false'
-          )
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_SMTP_USER:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MAILER_SMTP_PASSWORD:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED:
-          if (
-            infraConfigs[i].value !== 'true' &&
-            infraConfigs[i].value !== 'false'
-          )
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
+          if (value !== 'true' && value !== 'false') return fail();
           break;
+
+        case InfraConfigEnum.MAILER_SMTP_URL:
+          if (!validateSMTPUrl(value)) return fail();
+          break;
+
+        case InfraConfigEnum.MAILER_ADDRESS_FROM:
+          if (!validateSMTPEmail(value)) return fail();
+          break;
+
+        case InfraConfigEnum.MAILER_SMTP_HOST:
+        case InfraConfigEnum.MAILER_SMTP_PORT:
+        case InfraConfigEnum.MAILER_SMTP_USER:
+        case InfraConfigEnum.MAILER_SMTP_PASSWORD:
         case InfraConfigEnum.GOOGLE_CLIENT_ID:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.GOOGLE_CLIENT_SECRET:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.GOOGLE_CALLBACK_URL:
-          if (!validateUrl(infraConfigs[i].value))
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.GOOGLE_SCOPE:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.GITHUB_CLIENT_ID:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.GITHUB_CLIENT_SECRET:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.GITHUB_CALLBACK_URL:
-          if (!validateUrl(infraConfigs[i].value))
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.GITHUB_SCOPE:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MICROSOFT_CLIENT_ID:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MICROSOFT_CLIENT_SECRET:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
-        case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
-          if (!validateUrl(infraConfigs[i].value))
-            return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MICROSOFT_SCOPE:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
-          break;
         case InfraConfigEnum.MICROSOFT_TENANT:
-          if (!infraConfigs[i].value) return E.left(INFRA_CONFIG_INVALID_INPUT);
+          if (!value) return fail();
           break;
+
+        case InfraConfigEnum.GOOGLE_CALLBACK_URL:
+        case InfraConfigEnum.GITHUB_CALLBACK_URL:
+        case InfraConfigEnum.MICROSOFT_CALLBACK_URL:
+          if (!validateUrl(value)) return fail();
+          break;
+
         default:
           break;
       }

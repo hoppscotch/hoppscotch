@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -16,39 +17,49 @@ type DefaultInfraConfig = {
   isEncrypted: boolean;
 };
 
-const AuthProviderConfigurations = {
-  [AuthProvider.GOOGLE]: [
-    InfraConfigEnum.GOOGLE_CLIENT_ID,
-    InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-    InfraConfigEnum.GOOGLE_CALLBACK_URL,
-    InfraConfigEnum.GOOGLE_SCOPE,
-  ],
-  [AuthProvider.GITHUB]: [
-    InfraConfigEnum.GITHUB_CLIENT_ID,
-    InfraConfigEnum.GITHUB_CLIENT_SECRET,
-    InfraConfigEnum.GITHUB_CALLBACK_URL,
-    InfraConfigEnum.GITHUB_SCOPE,
-  ],
-  [AuthProvider.MICROSOFT]: [
-    InfraConfigEnum.MICROSOFT_CLIENT_ID,
-    InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-    InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-    InfraConfigEnum.MICROSOFT_SCOPE,
-    InfraConfigEnum.MICROSOFT_TENANT,
-  ],
-  [AuthProvider.EMAIL]:
-    process.env.MAILER_USE_CUSTOM_CONFIGS === 'true'
-      ? [
-          InfraConfigEnum.MAILER_SMTP_HOST,
-          InfraConfigEnum.MAILER_SMTP_PORT,
-          InfraConfigEnum.MAILER_SMTP_SECURE,
-          InfraConfigEnum.MAILER_SMTP_USER,
-          InfraConfigEnum.MAILER_SMTP_PASSWORD,
-          InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-          InfraConfigEnum.MAILER_ADDRESS_FROM,
-        ]
-      : [InfraConfigEnum.MAILER_SMTP_URL, InfraConfigEnum.MAILER_ADDRESS_FROM],
-};
+/**
+ * Returns a mapping of authentication providers to their required configuration keys based on the current environment configuration.
+ */
+export function getAuthProviderRequiredKeys(
+  env: Record<string, any>,
+): Record<AuthProvider, InfraConfigEnum[]> {
+  return {
+    [AuthProvider.GOOGLE]: [
+      InfraConfigEnum.GOOGLE_CLIENT_ID,
+      InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+      InfraConfigEnum.GOOGLE_CALLBACK_URL,
+      InfraConfigEnum.GOOGLE_SCOPE,
+    ],
+    [AuthProvider.GITHUB]: [
+      InfraConfigEnum.GITHUB_CLIENT_ID,
+      InfraConfigEnum.GITHUB_CLIENT_SECRET,
+      InfraConfigEnum.GITHUB_CALLBACK_URL,
+      InfraConfigEnum.GITHUB_SCOPE,
+    ],
+    [AuthProvider.MICROSOFT]: [
+      InfraConfigEnum.MICROSOFT_CLIENT_ID,
+      InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+      InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      InfraConfigEnum.MICROSOFT_SCOPE,
+      InfraConfigEnum.MICROSOFT_TENANT,
+    ],
+    [AuthProvider.EMAIL]:
+      env['INFRA'].MAILER_USE_CUSTOM_CONFIGS === 'true'
+        ? [
+            InfraConfigEnum.MAILER_SMTP_HOST,
+            InfraConfigEnum.MAILER_SMTP_PORT,
+            InfraConfigEnum.MAILER_SMTP_SECURE,
+            InfraConfigEnum.MAILER_SMTP_USER,
+            InfraConfigEnum.MAILER_SMTP_PASSWORD,
+            InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
+            InfraConfigEnum.MAILER_ADDRESS_FROM,
+          ]
+        : [
+            InfraConfigEnum.MAILER_SMTP_URL,
+            InfraConfigEnum.MAILER_ADDRESS_FROM,
+          ],
+  };
+}
 
 /**
  * Load environment variables from the database and set them in the process
@@ -378,28 +389,27 @@ export function stopApp() {
  * @returns Array of configured SSO providers
  */
 export async function getConfiguredSSOProvidersFromInfraConfig() {
+  const prisma = new PrismaService();
   const env = await loadInfraConfiguration();
+  const providerConfigKeys = getAuthProviderRequiredKeys(env);
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',')
+      .map((p) => p.trim())
+      .filter((p) => p) ?? [];
 
-  const configuredAuthProviders: string[] = [];
-
-  const addProviderIfConfigured = (provider) => {
-    const configParameters: string[] = AuthProviderConfigurations[provider];
-
-    const isConfigured = configParameters.every((configParameter) => {
-      return env['INFRA'][configParameter];
-    });
-    if (isConfigured) configuredAuthProviders.push(provider);
-  };
-
-  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
+  const configuredAuthProviders = allowedAuthProviders.filter((provider) => {
+    const requiredKeys = providerConfigKeys[provider];
+    return requiredKeys?.every((key) => env['INFRA'][key]);
+  });
 
   if (configuredAuthProviders.length === 0) {
+    await prisma.infraConfig.update({
+      where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
+      data: { value: null },
+    });
     return '';
   } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
-    const prisma = new PrismaService();
     await prisma.infraConfig.update({
       where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
       data: { value: configuredAuthProviders.join(',') },

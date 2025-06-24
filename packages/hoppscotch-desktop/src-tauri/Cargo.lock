@@ -2054,7 +2054,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.5.3"
+version = "25.5.4"
 dependencies = [
  "axum",
  "dirs 6.0.0",

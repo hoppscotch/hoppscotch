@@ -129,7 +129,7 @@ export function hookKeybindingsListener() {
           }
         )
       } catch (error) {
-        console.warn("Failed to setup Tauri event listener:", error)
+        console.error("Failed to setup Tauri event listener:", error)
       }
     }
   })

@@ -66,12 +66,12 @@ pub fn run() {
                 .expect("Failed to build previous tab menu item");
 
             let tab_first = MenuItemBuilder::with_id("tab_first", "Switch to First Tab")
-                .accelerator("CmdOrCtrl+Alt+0")
+                .accelerator("CmdOrCtrl+Alt+9")
                 .build(app)
                 .expect("Failed to build first tab menu item");
 
             let tab_last = MenuItemBuilder::with_id("tab_last", "Switch to Last Tab")
-                .accelerator("CmdOrCtrl+Alt+9")
+                .accelerator("CmdOrCtrl+Alt+0")
                 .build(app)
                 .expect("Failed to build last tab menu item");
 
@@ -137,12 +137,12 @@ pub fn run() {
                             Some("ctrl-alt-left")
                         }
                         "tab_first" => {
-                            tracing::info!("Switch to First Tab menu item triggered (CMD+0/Ctrl+0)");
-                            Some("ctrl-0")
+                            tracing::info!("Switch to First Tab menu item triggered (CMD+Alt+9/Ctrl+Alt+9)");
+                            Some("ctrl-alt-9")
                         }
                         "tab_last" => {
-                            tracing::info!("Switch to Last Tab menu item triggered (CMD+9/Ctrl+9)");
-                            Some("ctrl-9")
+                            tracing::info!("Switch to Last Tab menu item triggered (CMD+Alt+0/Ctrl+Alt+0)");
+                            Some("ctrl-alt-0")
                         }
                         _ => None,
                     };

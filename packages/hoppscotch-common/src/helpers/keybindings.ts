@@ -87,8 +87,8 @@ const desktopBindings: {
   "ctrl-t": "tab.open-new",
   "ctrl-alt-left": "tab.prev",
   "ctrl-alt-right": "tab.next",
-  "ctrl-0": "tab.switch-to-first",
-  "ctrl-9": "tab.switch-to-last",
+  "ctrl-alt-0": "tab.switch-to-last",
+  "ctrl-alt-9": "tab.switch-to-first",
 }
 
 /**

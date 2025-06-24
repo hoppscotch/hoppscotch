@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -33,6 +33,7 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { scrollMap } from "~/composables/scrollStore"
 import * as E from "fp-ts/Either"
 
 const t = useI18n()
@@ -40,6 +41,7 @@ const toast = useToast()
 
 const props = defineProps<{
   document: HoppRequestDocument
+  tabId: string
   isEmbed: boolean
 }>()
 
@@ -68,9 +70,75 @@ const loading = computed(() => doc.value.response?.type === "loading")
 
 const saveAsExample = () => {
   showSaveResponseName.value = true
-
   responseName.value = doc.value.request.name
 }
+
+let bigScroller: HTMLElement | null = null
+let indexScroller: HTMLElement | null = null
+let observer: MutationObserver | null = null
+let resizeObserver: ResizeObserver | null = null
+
+function onBigScroll() {
+  if (bigScroller && props.tabId) {
+    scrollMap.set(props.tabId, bigScroller.scrollTop)
+  }
+}
+
+function setScrollPositionWhenReady(el: HTMLElement, target: number) {
+  let applied = false
+
+  resizeObserver = new ResizeObserver(() => {
+    if (applied) return
+
+    nextTick(() => {
+      el.scrollTop = target
+      applied = true
+    })
+  })
+
+  resizeObserver.observe(el)
+}
+
+onMounted(() => {
+  observer = new MutationObserver(() => {
+    const scrollers = Array.from(
+      document.querySelectorAll(".cm-scroller")
+    ) as HTMLElement[]
+
+    if (!bigScroller) {
+      bigScroller = scrollers.find((sc) => sc.scrollHeight > 5000) || null
+      if (bigScroller) {
+        const savedScroll = scrollMap.get(props.tabId) ?? 0
+        setScrollPositionWhenReady(bigScroller, savedScroll)
+        bigScroller.addEventListener("scroll", onBigScroll)
+      }
+    }
+
+    if (!indexScroller) {
+      indexScroller = scrollers[8] || null
+      if (indexScroller) {
+        setScrollPositionWhenReady(indexScroller, 0)
+      }
+    }
+
+    if (bigScroller && indexScroller) {
+      observer?.disconnect()
+      observer = null
+    }
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+})
+
+onBeforeUnmount(() => {
+  if (bigScroller && props.tabId) {
+    scrollMap.set(props.tabId, bigScroller.scrollTop)
+  }
+
+  bigScroller?.removeEventListener("scroll", onBigScroll)
+  observer?.disconnect()
+  resizeObserver?.disconnect()
+})
 
 const onSaveAsExample = () => {
   const response = doc.value.response
@@ -125,14 +193,13 @@ const onSaveAsExample = () => {
     showSaveResponseName.value = false
 
     const saveCtx = doc.value.saveContext
-
     if (!saveCtx) return
 
     const req = doc.value.request
+
     if (saveCtx.originLocation === "user-collection") {
       try {
         editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
         toast.success(`${t("response.saved")}`)
         responseName.value = ""
       } catch (e) {
@@ -152,7 +219,6 @@ const onSaveAsExample = () => {
           responseName.value = ""
         } else {
           doc.value.isDirty = false
-
           toast.success(`${t("request.saved")}`)
           responseName.value = ""
         }

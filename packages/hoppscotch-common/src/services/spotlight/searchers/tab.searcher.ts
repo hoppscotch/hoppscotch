@@ -101,7 +101,10 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       alternates: ["tab", "previous", "prev", "switch"],
       icon: markRaw(IconArrowLeft),
       excludeFromSearch: computed(
-        () => !this.showAction.value || !this.isDesktopMode.value || this.isOnlyTab.value
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
       ),
     },
     tab_next: {
@@ -109,23 +112,38 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       alternates: ["tab", "next", "switch"],
       icon: markRaw(IconArrowRight),
       excludeFromSearch: computed(
-        () => !this.showAction.value || !this.isDesktopMode.value || this.isOnlyTab.value
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
       ),
     },
     tab_switch_to_first: {
-      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.switch_to_first")],
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_first"),
+      ],
       alternates: ["tab", "first", "switch", "go to first"],
       icon: markRaw(IconChevronsLeft),
       excludeFromSearch: computed(
-        () => !this.showAction.value || !this.isDesktopMode.value || this.isOnlyTab.value
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
       ),
     },
     tab_switch_to_last: {
-      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.switch_to_last")],
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_last"),
+      ],
       alternates: ["tab", "last", "switch", "go to last"],
       icon: markRaw(IconChevronsRight),
       excludeFromSearch: computed(
-        () => !this.showAction.value || !this.isDesktopMode.value || this.isOnlyTab.value
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
       ),
     },
   })

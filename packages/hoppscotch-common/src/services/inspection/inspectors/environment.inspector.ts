@@ -14,7 +14,7 @@ import {
 } from "@hoppscotch/data"
 import {
   AggregateEnvironment,
-  aggregateEnvsWithSecrets$,
+  aggregateEnvsWithCurrentValue$,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
@@ -50,8 +50,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   private readonly currentEnvs = this.bind(CurrentValueService)
   private readonly restTabs = this.bind(RESTTabService)
 
-  private aggregateEnvsWithSecrets = useStreamStatic(
-    aggregateEnvsWithSecrets$,
+  private aggregateEnvsWithValue = useStreamStatic(
+    aggregateEnvsWithCurrentValue$,
     [],
     () => {
       /* noop */
@@ -85,7 +85,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
     const environmentVariables = [
       ...(currentTabRequest?.requestVariables ?? []),
-      ...this.aggregateEnvsWithSecrets.value,
+      ...this.aggregateEnvsWithValue.value,
     ]
 
     const envKeys = environmentVariables.map((e) => e.key)
@@ -171,7 +171,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
-   * Checks if the environment variables in the target array are empty
+   * Checks if the environment variables in the target have empty current value or initial value.
    * @param target The target array to validate
    * @param locations The location where results are to be displayed
    * @returns The results array containing the results of the validation
@@ -210,7 +210,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                   secret: false,
                   sourceEnv: "RequestVariable",
                 })),
-                ...this.aggregateEnvsWithSecrets.value,
+                ...this.aggregateEnvsWithValue.value,
               ])
 
             environmentVariables.forEach((env) => {
@@ -221,16 +221,18 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                 env.key
               )
 
-              const hasCurrentValue =
+              const hasValue =
                 this.currentEnvs.hasValue(
                   env.sourceEnv !== "Global"
                     ? currentSelectedEnvironment.id
                     : "Global",
                   env.key
-                ) || env.currentValue !== ""
+                ) ||
+                env.currentValue !== "" ||
+                env.initialValue !== ""
 
               if (env.key === formattedExEnv) {
-                if (env.secret ? !hasSecretEnv : !hasCurrentValue) {
+                if (env.secret ? !hasSecretEnv : !hasValue) {
                   const itemLocation: InspectorLocation = {
                     type: locations.type,
                     position:

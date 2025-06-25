@@ -16,7 +16,7 @@ vi.mock("~/newstore/environments", async () => {
 
   return {
     __esModule: true,
-    aggregateEnvsWithSecrets$: new BehaviorSubject([
+    aggregateEnvsWithCurrentValue$: new BehaviorSubject([
       {
         key: "EXISTING_ENV_VAR",
         currentValue: "test_value",

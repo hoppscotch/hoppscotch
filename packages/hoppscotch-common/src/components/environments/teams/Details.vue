@@ -74,6 +74,7 @@
                         :label="
                           t('environment.replace_all_initial_with_current')
                         "
+                        :disabled="isViewer"
                         @click="
                           () => {
                             vars.forEach((v) => {

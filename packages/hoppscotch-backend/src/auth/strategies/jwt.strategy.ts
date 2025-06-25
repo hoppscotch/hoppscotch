@@ -93,7 +93,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             ),
           ),
       ]),
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 

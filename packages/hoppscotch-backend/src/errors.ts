@@ -37,19 +37,6 @@ export const JSON_INVALID = 'json_invalid';
 export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
 
 /**
- * Auth Provider not specified
- * (Auth)
- */
-export const AUTH_PROVIDER_NOT_CONFIGURED =
-  'auth/provider_not_configured_correctly';
-
-/**
- * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file
- */
-export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =
-  '"VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file';
-
-/**
  * Environment variable "DATA_ENCRYPTION_KEY" is not present in .env file
  */
 export const ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY =
@@ -60,18 +47,6 @@ export const ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY =
  */
 export const ENV_INVALID_DATA_ENCRYPTION_KEY =
   '"DATA_ENCRYPTION_KEY" value changed in .env file. Please undo the changes and restart the server';
-
-/**
- * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file
- */
-export const ENV_EMPTY_AUTH_PROVIDERS =
-  '"VITE_ALLOWED_AUTH_PROVIDERS" is empty in .env file';
-
-/**
- * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" contains unsupported provider in .env file
- */
-export const ENV_NOT_SUPPORT_AUTH_PROVIDERS =
-  '"VITE_ALLOWED_AUTH_PROVIDERS" contains an unsupported auth provider in .env file';
 
 /**
  * Tried to delete a user data document from fb firestore but failed.

@@ -44,6 +44,13 @@ export const AUTH_PROVIDER_NOT_CONFIGURED =
   'auth/provider_not_configured_correctly';
 
 /**
+ * Email not provided by OAuth provider
+ * (SSO Strategies)
+ */
+export const AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH =
+  'auth/email_not_provided_by_oauth';
+
+/**
  * Environment variable "VITE_ALLOWED_AUTH_PROVIDERS" is not present in .env file
  */
 export const ENV_NOT_FOUND_KEY_AUTH_PROVIDERS =

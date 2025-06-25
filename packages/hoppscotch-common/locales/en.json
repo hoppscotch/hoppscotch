@@ -414,7 +414,6 @@
     "empty_variables": "No variables",
     "global": "Global",
     "global_variables": "Global variables",
-    "initial_value": "Initial value",
     "import_or_create": "Import or create a environment",
     "initial_value": "Initial value",
     "invalid_name": "Please provide a name for the environment",

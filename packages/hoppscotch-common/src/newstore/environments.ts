@@ -583,6 +583,17 @@ export const aggregateEnvsWithCurrentValue$: Observable<
   map(([selectedEnv, globalEnv]) => {
     const results: AggregateEnvironment[] = []
 
+    // Ensure pre-defined variables are prioritised over other environment variables with the same name
+    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
+      results.push({
+        key,
+        currentValue: getValue(),
+        initialValue: getValue(),
+        secret: false,
+        sourceEnv: selectedEnv?.name ?? "Global",
+      })
+    })
+
     selectedEnv?.variables.map((x, index) => {
       let currentValue = x.currentValue
       if (x.secret) {

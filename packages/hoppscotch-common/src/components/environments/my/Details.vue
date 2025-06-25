@@ -46,6 +46,59 @@
                   :title="t('add.new')"
                   @click="addEnvironmentVariable"
                 />
+                <tippy
+                  ref="options"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                  :on-shown="() => tippyActions!.focus()"
+                >
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('action.more')"
+                    :icon="IconMoreVertical"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      role="menu"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyLeft"
+                        :label="
+                          t('environment.replace_all_initial_with_current')
+                        "
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.initialValue = v.env.currentValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyRight"
+                        :label="
+                          t('environment.replace_all_current_with_initial')
+                        "
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.currentValue = v.env.initialValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                    </div>
+                  </template>
+                </tippy>
               </div>
             </template>
 
@@ -87,26 +140,52 @@
                       })}`"
                       :name="'variable' + index"
                     />
-                    <SmartEnvInput
-                      v-model="env.initialValue"
-                      :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
-                      :envs="liveEnvs"
-                      :name="'initialValue' + index"
-                      :secret="tab.isSecret"
-                      :select-text-on-mount="
-                        env.key ? env.key === editingVariableName : false
-                      "
-                    />
-                    <SmartEnvInput
-                      v-model="env.currentValue"
-                      :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
-                      :envs="liveEnvs"
-                      :name="'currentValue' + index"
-                      :secret="tab.isSecret"
-                      :select-text-on-mount="
-                        env.key ? env.key === editingVariableName : false
-                      "
-                    />
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.initialValue"
+                        :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'initialValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_initial_with_current')"
+                        :icon="IconCopyLeft"
+                        @click="
+                          () => {
+                            env.initialValue = env.currentValue
+                          }
+                        "
+                      />
+                    </div>
+
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.currentValue"
+                        :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'currentValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_current_with_initial')"
+                        :icon="IconCopyRight"
+                        @click="
+                          () => {
+                            env.currentValue = env.initialValue
+                          }
+                        "
+                      />
+                    </div>
+
                     <div class="flex">
                       <HoppButtonSecondary
                         id="variable"
@@ -180,6 +259,10 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconCopyRight from "~icons/lucide/clipboard-paste"
+import IconCopyLeft from "~icons/lucide/clipboard-copy"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import { TippyComponent } from "vue-tippy"
 
 type EnvironmentVariable = {
   id: number
@@ -241,6 +324,9 @@ const tabsData: ComputedRef<
     },
   ]
 })
+
+const options = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLDivElement | null>(null)
 
 const editingName = ref<string | null>(null)
 const editingID = ref<string>("")

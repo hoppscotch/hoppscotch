@@ -98,17 +98,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: AccessTokenPayload): Promise<any> {
-    try {
-      if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
+    if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
-      const user = await this.usersService.findUserById(payload.sub);
-      if (O.isNone(user)) {
-        throw new UnauthorizedException(USER_NOT_FOUND);
-      }
-
-      return user.value;
-    } catch (error) {
-      throw error;
+    const user = await this.usersService.findUserById(payload.sub);
+    if (O.isNone(user)) {
+      throw new UnauthorizedException(USER_NOT_FOUND);
     }
+
+    return user.value;
   }
 }

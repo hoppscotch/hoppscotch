@@ -38,17 +38,13 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   }
 
   async validate(payload: RefreshTokenPayload): Promise<any> {
-    try {
-      if (!payload) throw new ForbiddenException(INVALID_REFRESH_TOKEN);
+    if (!payload) throw new ForbiddenException(INVALID_REFRESH_TOKEN);
 
-      const user = await this.usersService.findUserById(payload.sub);
-      if (O.isNone(user)) {
-        throw new UnauthorizedException(USER_NOT_FOUND);
-      }
-
-      return user.value;
-    } catch (error) {
-      throw error;
+    const user = await this.usersService.findUserById(payload.sub);
+    if (O.isNone(user)) {
+      throw new UnauthorizedException(USER_NOT_FOUND);
     }
+
+    return user.value;
   }
 }

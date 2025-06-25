@@ -1,4 +1,4 @@
-import { Strategy, Profile } from 'passport-microsoft';
+import { Strategy } from 'passport-microsoft';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
@@ -6,6 +6,8 @@ import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { ConfigService } from '@nestjs/config';
+import { validateEmail } from 'src/utils';
+import { AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH } from 'src/errors';
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy) {
@@ -27,58 +29,53 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: Profile,
-    done: Function,
+    profile,
+    done,
   ): Promise<any> {
-    try {
-      if (!profile.emails || profile.emails.length === 0) {
-        return done(new UnauthorizedException('Email not provided by Microsoft'), false);
-      }
+    const email = profile?.emails?.[0]?.value;
 
-      const email = profile.emails[0].value;
-      const user = await this.usersService.findUserByEmail(email);
+    if (!validateEmail(email))
+      throw new UnauthorizedException(AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH);
 
-      if (O.isNone(user)) {
-        const createdUser = await this.usersService.createUserSSO(
-          accessToken,
-          refreshToken,
-          profile,
-        );
-        return done(null, createdUser);
-      }
+    const user = await this.usersService.findUserByEmail(email);
 
-      /**
-       * * displayName and photoURL maybe null if user logged-in via magic-link before SSO
-       */
-      if (!user.value.displayName || !user.value.photoURL) {
-        const updatedUser = await this.usersService.updateUserDetails(
-          user.value,
-          profile,
-        );
-        if (E.isLeft(updatedUser)) {
-          return done(new UnauthorizedException(updatedUser.left), false);
-        }
-      }
-
-      /**
-       * * Check to see if entry for Microsoft is present in the Account table for user
-       * * If user was created with another provider findUserByEmail may return true
-       */
-      const providerAccountExists =
-        await this.authService.checkIfProviderAccountExists(user.value, profile);
-
-      if (O.isNone(providerAccountExists)) {
-        await this.usersService.createProviderAccount(
-          user.value,
-          accessToken,
-          refreshToken,
-          profile,
-        );
-      }
-
-      return done(null, user.value);
-    } catch (error) {
-      return done(error, false);
+    if (O.isNone(user)) {
+      const createdUser = await this.usersService.createUserSSO(
+        accessToken,
+        refreshToken,
+        profile,
+      );
+      return createdUser;
     }
+
+    /**
+     * displayName and photoURL maybe null if user logged-in via magic-link before SSO
+     */
+    if (!user.value.displayName || !user.value.photoURL) {
+      const updatedUser = await this.usersService.updateUserDetails(
+        user.value,
+        profile,
+      );
+      if (E.isLeft(updatedUser)) {
+        throw new UnauthorizedException(updatedUser.left);
+      }
+    }
+
+    /**
+     * Check to see if entry for Microsoft is present in the Account table for user
+     * If user was created with another provider findUserByEmail may return true
+     */
+    const providerAccountExists =
+      await this.authService.checkIfProviderAccountExists(user.value, profile);
+
+    if (O.isNone(providerAccountExists))
+      await this.usersService.createProviderAccount(
+        user.value,
+        accessToken,
+        refreshToken,
+        profile,
+      );
+
+    return user.value;
   }
 }

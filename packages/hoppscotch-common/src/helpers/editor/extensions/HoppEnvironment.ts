@@ -136,8 +136,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             )?.currentValue || tooltipEnv?.currentValue
           : tooltipEnv?.currentValue
 
-      // Check if the environment is a secret and if it has a secret value stored in the secret environment service
-      const hasSecretEnv = secretEnvironmentService.hasSecretValue(
+      const isSecret = tooltipEnv?.secret === true
+      const hasSource = Boolean(tooltipEnv?.sourceEnv)
+      const hasSecretStored = secretEnvironmentService.hasSecretValue(
         tooltipEnv?.sourceEnv !== "Global"
           ? currentSelectedEnvironment.id
           : "Global",
@@ -151,32 +152,40 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       // If the environment is not found, we need to show "Not Found" in the tooltip
       // If the source environment is not found, we need to show "Not Found" in the tooltip, ie the the environment
       // is not defined in the selected environment or the global environment
-      if (tooltipEnv?.secret && !hasSecretEnv && envInitialValue) {
-        envInitialValue = "******"
-      } else if (tooltipEnv?.secret && hasSecretEnv && !envInitialValue) {
-        envCurrentValue = "******"
-      } else if (tooltipEnv?.secret && !hasSecretEnv) {
-        envCurrentValue = "Empty"
-        envInitialValue = "Empty"
-      } else if (!tooltipEnv?.sourceEnv) {
-        envCurrentValue = "Not Found"
+      if (isSecret) {
+        if (!hasSecretStored && envInitialValue) {
+          envInitialValue = "******"
+        } else if (hasSecretStored && !envInitialValue) {
+          envCurrentValue = "******"
+        } else if (hasSecretStored && envInitialValue) {
+          envInitialValue = "******"
+          envCurrentValue = "******"
+        } else {
+          envInitialValue = "Empty"
+          envCurrentValue = "Empty"
+        }
+      } else if (!hasSource) {
         envInitialValue = "Not Found"
-      } else if (!envCurrentValue && envInitialValue) {
-        const parsedInitialValue = parseTemplateStringE(
-          envInitialValue,
-          aggregateEnvs
-        )
-        envInitialValue = E.isLeft(parsedInitialValue)
-          ? "error"
-          : parsedInitialValue.right
-      } else if (!envInitialValue && envCurrentValue) {
-        const parsedCurrentValue = parseTemplateStringE(
-          envCurrentValue,
-          aggregateEnvs
-        )
-        envCurrentValue = E.isLeft(parsedCurrentValue)
-          ? "error"
-          : parsedCurrentValue.right
+        envCurrentValue = "Not Found"
+      } else {
+        // Parse templates only if needed and values are not already masked
+        if (!envCurrentValue && envInitialValue) {
+          const parsedInitial = parseTemplateStringE(
+            envInitialValue,
+            aggregateEnvs
+          )
+          envInitialValue = E.isLeft(parsedInitial)
+            ? "error"
+            : parsedInitial.right
+        } else if (!envInitialValue && envCurrentValue) {
+          const parsedCurrent = parseTemplateStringE(
+            envCurrentValue,
+            aggregateEnvs
+          )
+          envCurrentValue = E.isLeft(parsedCurrent)
+            ? "error"
+            : parsedCurrent.right
+        }
       }
 
       const selectedEnvType = getSelectedEnvironmentType()
@@ -270,12 +279,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           const initialValueBlock = document.createElement("div")
           initialValueBlock.className = "flex items-center space-x-2"
-          const initailValueTitle = document.createElement("div")
+          const initialValueTitle = document.createElement("div")
           const initialValue = document.createElement("span")
           initialValue.textContent = envInitialValue || ""
-          initailValueTitle.textContent = "Initial "
-          initailValueTitle.className = "font-bold mr-4 "
-          initialValueBlock.appendChild(initailValueTitle)
+          initialValueTitle.textContent = "Initial"
+          initialValueTitle.className = "font-bold mr-4 "
+          initialValueBlock.appendChild(initialValueTitle)
           initialValueBlock.appendChild(initialValue)
 
           const currentValueBlock = document.createElement("div")

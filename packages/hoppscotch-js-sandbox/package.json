@@ -71,7 +71,7 @@
     "eslint-plugin-prettier": "5.2.1",
     "io-ts": "2.2.21",
     "prettier": "3.3.3",
-    "typescript": "5.5.4",
+    "typescript": "5.8.3",
     "vite": "5.4.9",
     "vitest": "2.1.3"
   },

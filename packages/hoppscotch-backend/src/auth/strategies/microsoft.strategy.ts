@@ -31,7 +31,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
     refreshToken: string,
     profile,
     done,
-  ): Promise<any> {
+  ) {
     const email = profile?.emails?.[0]?.value;
 
     if (!validateEmail(email))

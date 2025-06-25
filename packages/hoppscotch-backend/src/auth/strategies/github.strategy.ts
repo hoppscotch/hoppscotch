@@ -30,7 +30,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     refreshToken: string,
     profile: Profile,
     done,
-  ): Promise<any> {
+  ) {
     const email = profile.emails?.[0].value;
 
     if (!validateEmail(email))

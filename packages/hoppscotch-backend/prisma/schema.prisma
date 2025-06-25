@@ -217,7 +217,7 @@ model InfraConfig {
   id                     String   @id @default(cuid())
   name                   String   @unique
   value                  String?
-  lastSyncedEnvFileValue String? // deprecated, use `value` instead
+  lastSyncedEnvFileValue String?
   isEncrypted            Boolean  @default(false) // Use case: Let's say, Admin wants to store a Secret Key, but doesn't want to store it in plain text in `value` column
   createdOn              DateTime @default(now()) @db.Timestamp(3)
   updatedOn              DateTime @updatedAt @db.Timestamp(3)

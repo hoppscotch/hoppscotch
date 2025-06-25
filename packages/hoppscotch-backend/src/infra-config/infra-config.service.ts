@@ -509,13 +509,11 @@ export class InfraConfigService implements OnModuleInit {
    * @returns GetOnboardingStatusResponse
    */
   async getOnboardingStatus() {
-    const isComplete = await this.get(InfraConfigEnum.ONBOARDING_COMPLETED);
-    if (E.isLeft(isComplete)) return E.left(isComplete.left);
-
+    const configMap = await this.getInfraConfigsMap();
     const usersCount = await this.userService.getUsersCount();
 
     return E.right({
-      onboardingCompleted: isComplete.right.value === 'true',
+      onboardingCompleted: configMap.ONBOARDING_COMPLETED === 'true',
       canReRunOnboarding: usersCount === 0,
     } as GetOnboardingStatusResponse);
   }

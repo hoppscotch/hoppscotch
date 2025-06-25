@@ -17,7 +17,7 @@
         v-else
         ref="editor"
         :placeholder="placeholder"
-        class="flex flex-1 truncate"
+        class="flex flex-1 truncate relative"
         :class="styles"
         @click="emit('click', $event)"
         @keydown="handleKeystroke"
@@ -85,7 +85,10 @@ import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
 import { useReadonlyStream } from "@composables/stream"
-import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  aggregateEnvsWithCurrentValue$,
+} from "~/newstore/environments"
 import { platform } from "~/platform"
 import { onClickOutside, useDebounceFn } from "@vueuse/core"
 import { InspectorResult } from "~/services/inspection"
@@ -365,9 +368,10 @@ watch(
 let clipboardEv: ClipboardEvent | null = null
 let pastedValue: string | null = null
 
-const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
-  AggregateEnvironment[]
->
+const aggregateEnvs = useReadonlyStream(
+  aggregateEnvsWithCurrentValue$,
+  []
+) as Ref<AggregateEnvironment[]>
 
 const tabs = useService(RESTTabService)
 
@@ -377,7 +381,7 @@ const envVars = computed(() => {
       const { key, secret } = x
       const currentValue = secret ? "********" : x.currentValue
       const initialValue = secret ? "********" : x.initialValue
-      const sourceEnv = "sourceEnv" in x ? x.sourceEnv : null
+      const sourceEnv = "sourceEnv" in x ? x.sourceEnv : ""
       return {
         key,
         currentValue,

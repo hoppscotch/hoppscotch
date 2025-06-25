@@ -15,8 +15,8 @@ import { invokeAction } from "~/helpers/actions"
 import { getService } from "~/modules/dioc"
 import {
   AggregateEnvironment,
-  aggregateEnvsWithSecrets$,
-  getAggregateEnvs,
+  aggregateEnvsWithCurrentValue$,
+  getAggregateEnvsWithCurrentValue,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
@@ -25,6 +25,8 @@ import { RESTTabService } from "~/services/tab/rest"
 import IconEdit from "~icons/lucide/edit?raw"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
+import IconGlobe from "~icons/lucide/globe?raw"
+import IconVariable from "~icons/lucide/variable?raw"
 import { isComment } from "./helpers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
@@ -121,49 +123,82 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
-      let envValue = "Not Found"
-      const envTooltipValue =
+      let envInitialValue = tooltipEnv?.initialValue
+
+      // If the environment is not a request variable, get the current value from the current environment service
+      let envCurrentValue =
         tooltipEnv?.sourceEnv !== "RequestVariable"
-          ? (currentEnvironmentValueService.getEnvironmentByKey(
+          ? currentEnvironmentValueService.getEnvironmentByKey(
               tooltipEnv?.sourceEnv !== "Global"
                 ? currentSelectedEnvironment.id
                 : "Global",
               tooltipEnv?.key ?? ""
-            )?.currentValue ?? tooltipEnv?.currentValue)
+            )?.currentValue || tooltipEnv?.currentValue
           : tooltipEnv?.currentValue
 
-      const hasSecretEnv = secretEnvironmentService.hasSecretValue(
+      const isSecret = tooltipEnv?.secret === true
+      const hasSource = Boolean(tooltipEnv?.sourceEnv)
+      const hasSecretStored = secretEnvironmentService.hasSecretValue(
         tooltipEnv?.sourceEnv !== "Global"
           ? currentSelectedEnvironment.id
           : "Global",
         tooltipEnv?.key ?? ""
       )
 
-      if (!tooltipEnv?.secret && envTooltipValue) {
-        envValue = envTooltipValue
-      } else if (tooltipEnv?.secret && hasSecretEnv) {
-        envValue = "******"
-      } else if (tooltipEnv?.secret && !hasSecretEnv) {
-        envValue = "Empty"
-      } else if (!tooltipEnv?.sourceEnv) {
-        envValue = "Not Found"
-      } else if (!envTooltipValue) {
-        envValue = "Empty"
+      // We need to check if the environment is a secret and if it has a secret value stored in the secret environment service
+      // If it is a secret and has a secret value, we need to show "******" in the tooltip
+      // If it is a secret and does not have a secret value, we need to show "Empty" in the tooltip
+      // If it is not a secret, we need to show the current value or initial value
+      // If the environment is not found, we need to show "Not Found" in the tooltip
+      // If the source environment is not found, we need to show "Not Found" in the tooltip, ie the the environment
+      // is not defined in the selected environment or the global environment
+      if (isSecret) {
+        if (!hasSecretStored && envInitialValue) {
+          envInitialValue = "******"
+        } else if (hasSecretStored && !envInitialValue) {
+          envCurrentValue = "******"
+        } else if (hasSecretStored && envInitialValue) {
+          envInitialValue = "******"
+          envCurrentValue = "******"
+        } else {
+          envInitialValue = "Empty"
+          envCurrentValue = "Empty"
+        }
+      } else if (!hasSource) {
+        envInitialValue = "Not Found"
+        envCurrentValue = "Not Found"
+      } else {
+        // Parse templates only if needed and values are not already masked
+        if (!envCurrentValue && envInitialValue) {
+          const parsedInitial = parseTemplateStringE(
+            envInitialValue,
+            aggregateEnvs
+          )
+          envInitialValue = E.isLeft(parsedInitial)
+            ? "error"
+            : parsedInitial.right
+        } else if (!envInitialValue && envCurrentValue) {
+          const parsedCurrent = parseTemplateStringE(
+            envCurrentValue,
+            aggregateEnvs
+          )
+          envCurrentValue = E.isLeft(parsedCurrent)
+            ? "error"
+            : parsedCurrent.right
+        }
       }
-
-      const result = parseTemplateStringE(envValue, aggregateEnvs)
-
-      let finalEnv = E.isLeft(result) ? "error" : result.right
-
-      // If the request variable has an secret variable
-      // parseTemplateStringE is passed the secret value which has value undefined
-      // So, we need to check if the result is undefined and then set the finalEnv to ******
-      if (finalEnv === "undefined") finalEnv = "******"
 
       const selectedEnvType = getSelectedEnvironmentType()
 
+      // Set the icon based on the source environment
       const envTypeIcon = `<span class="inline-flex items-center justify-center my-1">${
-        selectedEnvType === "TEAM_ENV" ? IconUsers : IconUser
+        tooltipEnv?.sourceEnv === "Global"
+          ? IconGlobe
+          : tooltipEnv?.sourceEnv === "RequestVariable"
+            ? IconVariable
+            : selectedEnvType === "TEAM_ENV"
+              ? IconUsers
+              : IconUser
       }</span>`
 
       const appendEditAction = (tooltip: HTMLElement) => {
@@ -205,22 +240,66 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       }
 
       return {
-        pos: start,
-        end: to,
-        above: true,
+        // The start and end positions of the environment variable in the text
+        // We add 2 to the end position to include the closing `>>` in the tooltip
+        // and -1 to the start position to include the opening `<<` in the tooltip
+        pos: start - 1,
+        end: end + 2,
         arrow: true,
         create() {
-          const dom = document.createElement("span")
-          const tooltipContainer = document.createElement("span")
-          const kbd = document.createElement("kbd")
+          const dom = document.createElement("div")
+
+          const tooltipContainer = document.createElement("div")
+
+          const tooltipHeaderBlock = document.createElement("div")
+          tooltipHeaderBlock.className =
+            "flex items-center justify-between w-full space-x-2 "
+          tooltipContainer.appendChild(tooltipHeaderBlock)
+
+          const iconNameContainer = document.createElement("div")
+          iconNameContainer.className =
+            "flex items-center space-x-2 flex-1 mr-4 "
+          tooltipHeaderBlock.appendChild(iconNameContainer)
+
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
-          icon.className = "mr-2"
-          kbd.textContent = finalEnv
-          tooltipContainer.appendChild(icon)
-          tooltipContainer.appendChild(document.createTextNode(`${envName} `))
-          tooltipContainer.appendChild(kbd)
-          if (tooltipEnv) appendEditAction(tooltipContainer)
+
+          const envNameBlock = document.createElement("span")
+          envNameBlock.innerText = envName
+
+          iconNameContainer.appendChild(icon)
+          iconNameContainer.appendChild(envNameBlock)
+
+          if (tooltipEnv) appendEditAction(tooltipHeaderBlock)
+
+          const envContainer = document.createElement("div")
+          tooltipContainer.appendChild(envContainer)
+          envContainer.className =
+            "flex flex-col items-start space-y-1 flex-1 w-full mt-2"
+
+          const initialValueBlock = document.createElement("div")
+          initialValueBlock.className = "flex items-center space-x-2"
+          const initialValueTitle = document.createElement("div")
+          const initialValue = document.createElement("span")
+          initialValue.textContent = envInitialValue || ""
+          initialValueTitle.textContent = "Initial"
+          initialValueTitle.className = "font-bold mr-4 "
+          initialValueBlock.appendChild(initialValueTitle)
+          initialValueBlock.appendChild(initialValue)
+
+          const currentValueBlock = document.createElement("div")
+          currentValueBlock.className = "flex items-center space-x-2"
+          const currentValueTitle = document.createElement("div")
+          const currentValue = document.createElement("span")
+          currentValue.textContent = envCurrentValue || ""
+          currentValueTitle.textContent = "Current "
+          currentValueTitle.className = "font-bold mr-1.5"
+          currentValueBlock.appendChild(currentValueTitle)
+          currentValueBlock.appendChild(currentValue)
+
+          envContainer.appendChild(initialValueBlock)
+          envContainer.appendChild(currentValueBlock)
+
           tooltipContainer.className = "tippy-content"
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
@@ -294,13 +373,15 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    const aggregateEnvs = getAggregateEnvs()
+    const aggregateEnvs = getAggregateEnvsWithCurrentValue()
     const currentTab = restTabs.currentActiveTab.value
 
     const currentTabRequest =
       currentTab.document.type === "example-response"
         ? currentTab.document.response.originalRequest
         : currentTab.document.request
+
+    if (!currentTabRequest) return
 
     watch(
       currentTabRequest,
@@ -332,7 +413,7 @@ export class HoppEnvironmentPlugin {
 
     const requestVariables = currentTabRequest?.requestVariables ?? []
 
-    subscribeToStream(aggregateEnvsWithSecrets$, (envs) => {
+    subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
       this.envs = [
         ...requestVariables.map(({ key, value }) => ({
           key,

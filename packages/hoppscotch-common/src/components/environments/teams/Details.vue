@@ -159,7 +159,11 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import {
+  Environment,
+  GlobalEnvironment,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { clone } from "lodash-es"
 import { useToast } from "@composables/toast"
@@ -181,6 +185,8 @@ import { useService } from "dioc/vue"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { useReadonlyStream } from "~/composables/stream"
+import { globalEnv$ } from "~/newstore/environments"
 
 type EnvironmentVariable = {
   id: number
@@ -259,6 +265,8 @@ const vars = ref<EnvironmentVariable[]>([
 const secretEnvironmentService = useService(SecretEnvironmentService)
 const currentEnvironmentValueService = useService(CurrentValueService)
 
+const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+
 const secretVars = computed(() =>
   pipe(
     vars.value,
@@ -302,6 +310,7 @@ const liveEnvs = computed(() => {
   }
   return [
     ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
+    ...globalEnv.value.variables.map((x) => ({ ...x, sourceEnv: "Global" })),
   ]
 })
 

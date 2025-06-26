@@ -211,6 +211,7 @@ async function initApp() {
       "keydown",
       function (e) {
         // Prevent backspace navigation
+        // NOTE: Only for "non-text" inputs
         if (e.key === "Backspace" && !isTextInput(e.target)) {
           e.preventDefault()
           return

@@ -73,6 +73,12 @@
     "name": "Français"
   },
   {
+    "code": "tl",
+    "file": "fil-PH.json",
+    "iso": "fil-PH",
+    "name": "Filipino"
+  },
+  {
     "code": "he",
     "file": "he.json",
     "iso": "he-HE",

@@ -85,6 +85,7 @@
             :shortcut="['W']"
             @click="
               () => {
+                cleanupScrollForTab(props.tab.id)
                 emit('close-tab')
                 hide()
               }
@@ -98,6 +99,7 @@
             :shortcut="['X']"
             @click="
               () => {
+                cleanupAllScroll()
                 emit('close-other-tabs')
                 hide()
               }
@@ -111,6 +113,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
+import { cleanupScrollForTab , cleanupAllScroll} from "~/composables/scrollStore"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"

@@ -2,9 +2,11 @@
   <div class="relative flex flex-1 flex-col">
     <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
     <LensesResponseBodyRenderer
+      ref="lensBodyRendererRef"
       v-if="!loading && hasResponse"
       v-model:document="doc"
       :is-editable="false"
+      :tab-id="tabId"
       @save-as-example="saveAsExample"
     />
   </div>
@@ -19,7 +21,7 @@
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
-import { computed, ref, onMounted, onBeforeUnmount, nextTick } from "vue"
+import { computed, ref } from "vue"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -33,7 +35,6 @@ import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import { scrollMap } from "~/composables/scrollStore"
 import * as E from "fp-ts/Either"
 
 const t = useI18n()
@@ -72,73 +73,6 @@ const saveAsExample = () => {
   showSaveResponseName.value = true
   responseName.value = doc.value.request.name
 }
-
-let bigScroller: HTMLElement | null = null
-let indexScroller: HTMLElement | null = null
-let observer: MutationObserver | null = null
-let resizeObserver: ResizeObserver | null = null
-
-function onBigScroll() {
-  if (bigScroller && props.tabId) {
-    scrollMap.set(props.tabId, bigScroller.scrollTop)
-  }
-}
-
-function setScrollPositionWhenReady(el: HTMLElement, target: number) {
-  let applied = false
-
-  resizeObserver = new ResizeObserver(() => {
-    if (applied) return
-
-    nextTick(() => {
-      el.scrollTop = target
-      applied = true
-    })
-  })
-
-  resizeObserver.observe(el)
-}
-
-onMounted(() => {
-  observer = new MutationObserver(() => {
-    const scrollers = Array.from(
-      document.querySelectorAll(".cm-scroller")
-    ) as HTMLElement[]
-
-    if (!bigScroller) {
-      bigScroller = scrollers.find((sc) => sc.scrollHeight > 5000) || null
-      if (bigScroller) {
-        const savedScroll = scrollMap.get(props.tabId) ?? 0
-        setScrollPositionWhenReady(bigScroller, savedScroll)
-        bigScroller.addEventListener("scroll", onBigScroll)
-      }
-    }
-
-    if (!indexScroller) {
-      indexScroller = scrollers[8] || null
-      if (indexScroller) {
-        setScrollPositionWhenReady(indexScroller, 0)
-      }
-    }
-
-    if (bigScroller && indexScroller) {
-      observer?.disconnect()
-      observer = null
-    }
-  })
-
-  observer.observe(document.body, { childList: true, subtree: true })
-})
-
-onBeforeUnmount(() => {
-  if (bigScroller && props.tabId) {
-    scrollMap.set(props.tabId, bigScroller.scrollTop)
-  }
-
-  bigScroller?.removeEventListener("scroll", onBigScroll)
-  observer?.disconnect()
-  resizeObserver?.disconnect()
-})
 
 const onSaveAsExample = () => {
   const response = doc.value.response

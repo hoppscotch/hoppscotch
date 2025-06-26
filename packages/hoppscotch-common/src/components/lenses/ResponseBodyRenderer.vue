@@ -13,9 +13,11 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
+        :ref="el => setLensRef(el, lens.renderer)" 
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
+         :tab-id="props.tabId" 
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -63,7 +65,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { computed, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { useSetting } from "~/composables/settings"
 import {
   getLensRenderers,
@@ -76,6 +78,7 @@ import { ConsoleEntry } from "../console/Panel.vue"
 const props = defineProps<{
   document: HoppRequestDocument
   isEditable: boolean
+  tabId: string
   isTestRunner?: boolean
 }>()
 
@@ -194,6 +197,15 @@ watch(
   },
   { immediate: true }
 )
+
+const lensRefs = reactive<Record<string, any>>({})
+
+function setLensRef(el: any, key: string) {
+  if (el) lensRefs[key] = el
+}
+
+defineExpose({ lensRefs }) 
+
 
 watch(selectedLensTab, (newLensID) => {
   if (props.isTestRunner) return

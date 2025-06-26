@@ -12,7 +12,7 @@ const Processors = {
     process: (body: string): E.Either<Error, ContentType> =>
       pipe(
         parseJSONAs<unknown>(body),
-        E.map((json) => content.json(json, MediaType.APPLICATION_JSON)),
+        E.map(() => content.text(body, MediaType.APPLICATION_JSON)),
         E.orElse(() => E.right(content.text(body, MediaType.TEXT_PLAIN)))
       ),
   },

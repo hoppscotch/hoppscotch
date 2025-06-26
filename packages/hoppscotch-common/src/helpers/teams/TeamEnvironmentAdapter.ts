@@ -10,7 +10,11 @@ import {
   TeamEnvironmentUpdatedDocument,
 } from "../backend/graphql"
 import { TeamEnvironment } from "./TeamEnvironment"
-import { Environment, EnvironmentSchemaVersion } from "@hoppscotch/data"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  translateToNewEnvironmentVariables,
+} from "@hoppscotch/data"
 
 type EntityType = "environment"
 type EntityID = `${EntityType}-${string}`
@@ -114,10 +118,15 @@ export default class TeamEnvironmentAdapter {
     if (result.right.team) {
       results.push(
         ...result.right.team.teamEnvironments.map((x) => {
+          // Keep the environment structure consistent with the new schema
           const environment = <Environment>{
+            v: EnvironmentSchemaVersion,
             id: x.id,
             name: x.name,
-            variables: JSON.parse(x.variables),
+            variables: JSON.parse(x.variables).map(
+              (variable: Environment["variables"][number]) =>
+                translateToNewEnvironmentVariables(variable)
+            ),
           }
 
           const parsedEnvironment = Environment.safeParse(environment)
@@ -128,10 +137,7 @@ export default class TeamEnvironmentAdapter {
             environment:
               parsedEnvironment.type === "ok"
                 ? parsedEnvironment.value
-                : {
-                    ...environment,
-                    v: EnvironmentSchemaVersion,
-                  },
+                : environment,
           }
         })
       )

@@ -26,6 +26,6 @@
     "mocha": "9.2.2",
     "rollup": "3.29.4",
     "@rollup/plugin-typescript": "12.1.1",
-    "typescript": "5.2.2"
+    "typescript": "5.8.3"
   }
 }

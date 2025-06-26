@@ -239,9 +239,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -252,7 +257,13 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
                     {{ variable.currentValue }}
@@ -297,9 +308,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -310,7 +326,13 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
                     {{ variable.currentValue }}

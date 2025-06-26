@@ -4,7 +4,7 @@ pub mod updater;
 
 use std::sync::OnceLock;
 
-use tauri::Emitter;
+use tauri::{Emitter, Manager};
 use tauri_plugin_appload::VendorConfigBuilder;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_window_state::StateFlags;
@@ -21,8 +21,6 @@ fn hopp_auth_port() -> u16 {
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let handle = app.handle().clone();
-
             let server_port = portpicker::pick_unused_port().expect("Cannot find unused port");
             tracing::info!("Selected server port: {}", server_port);
             SERVER_PORT
@@ -30,10 +28,11 @@ pub fn run() {
                 .expect("Failed to set server port");
             let port = *SERVER_PORT.get().expect("Server port not initialized");
             tracing::info!(port = port, "Initializing server with pre-selected port");
-            let port = server::init(port, handle.clone());
+            let port = server::init(port, app.handle().clone());
             tracing::info!(port = port, "Server initialization complete");
 
             tracing::info!(app_name = %app.package_info().name, "Configuring deep link handler");
+            let handle = app.handle().clone();
             app.deep_link().on_open_url(move |event| {
                 let urls = event.urls();
                 tracing::info!(

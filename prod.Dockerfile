@@ -1,7 +1,7 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
-FROM alpine:3.21.3 AS caddy_builder
-RUN apk add curl go
+FROM alpine:3.22.0 AS caddy_builder
+RUN apk add curl go git
 
 RUN mkdir -p /tmp/caddy-build
 
@@ -25,6 +25,8 @@ RUN go get github.com/go-jose/go-jose/v3@v3.0.4
 RUN go get golang.org/x/crypto@v0.35.0
 # Patch to resolve CVE-2025-22872 on net
 RUN go get golang.org/x/net@v0.38.0
+# Patch to resolve GHSA-vrw8-fxc6-2r93 on chi
+RUN go get github.com/go-chi/chi/v5@v5.2.2
 
 RUN go mod vendor
 
@@ -38,7 +40,7 @@ RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
 # TODO: Find a better method which is resistant to supply chain attacks
-RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh"
 
 WORKDIR /usr/src/app
 
@@ -47,7 +49,7 @@ ENV HOPP_ALLOW_RUNTIME_ENV=true
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
 RUN apk add python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev
 
-RUN npm install -g pnpm@10.2.1
+RUN npm install -g pnpm@10.12.3
 COPY pnpm-lock.yaml .
 RUN pnpm fetch
 
@@ -69,12 +71,12 @@ RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
 # TODO: Find a better method which is resistant to supply chain attacks
-RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh"
 
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
-RUN npm install -g pnpm@10.2.1
+RUN npm install -g pnpm@10.12.3
 
 COPY --from=base_builder  /usr/src/app/packages/hoppscotch-backend/backend.Caddyfile /etc/caddy/backend.Caddyfile
 COPY --from=backend_builder /dist/backend /dist/backend
@@ -112,7 +114,7 @@ RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
 # TODO: Find a better method which is resistant to supply chain attacks
-RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh"
 
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
@@ -155,7 +157,7 @@ RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
 # TODO: Find a better method which is resistant to supply chain attacks
-RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh"
 
 # Install caddy
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
@@ -182,7 +184,7 @@ RUN apk add nodejs curl
 
 # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
 # TODO: Find a better method which is resistant to supply chain attacks
-RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=10.9.2 sh"
+RUN sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh"
 
 # Caddy install
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
@@ -199,7 +201,7 @@ LABEL org.opencontainers.image.source="https://github.com/hoppscotch/hoppscotch"
 
 RUN apk add tini
 
-RUN npm install -g pnpm@10.2.1
+RUN npm install -g pnpm@10.12.3
 
 # Copy necessary files
 # Backend files

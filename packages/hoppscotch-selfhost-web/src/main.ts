@@ -1,5 +1,6 @@
 import { ref } from "vue"
-import { listen } from "@tauri-apps/api/event"
+import { listen, emit } from "@tauri-apps/api/event"
+
 import { createHoppApp } from "@hoppscotch/common"
 
 import { def as webAuth } from "@platform/auth/web"
@@ -209,8 +210,63 @@ async function initApp() {
     window.addEventListener(
       "keydown",
       function (e) {
+        // Prevent backspace navigation
         if (e.key === "Backspace" && !isTextInput(e.target)) {
           e.preventDefault()
+          return
+        }
+
+        const isCtrlOrCmd = e.ctrlKey || e.metaKey
+        let shortcutEvent: string | null = null
+
+        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "t") {
+          // Ctrl/Cmd + T - New Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-t"
+        } else if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "w") {
+          // Ctrl/Cmd + W - Close Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-w"
+        } else if (isCtrlOrCmd && e.shiftKey && !e.altKey && e.key === "T") {
+          // Ctrl/Cmd + Shift + T - Reopen Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-shift-t"
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          e.key === "ArrowRight"
+        ) {
+          // Ctrl/Cmd + Alt + Right - Next Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-alt-right"
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          e.key === "ArrowLeft"
+        ) {
+          // Ctrl/Cmd + Alt + Left - Previous Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-alt-left"
+        } else if (isCtrlOrCmd && !e.shiftKey && e.altKey && e.key === "9") {
+          // Ctrl/Cmd + Alt + 9 - First Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-alt-9"
+        } else if (isCtrlOrCmd && !e.shiftKey && e.altKey && e.key === "0") {
+          // Ctrl/Cmd + Alt + 0 - Last Tab
+          e.preventDefault()
+          shortcutEvent = "ctrl-alt-0"
+        } else if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "l") {
+          // Ctrl/Cmd + L - Focus Address Bar
+          e.preventDefault()
+          shortcutEvent = "focus-url"
+        }
+
+        if (shortcutEvent) {
+          emit("hoppscotch_desktop_shortcut", shortcutEvent).catch((error) => {
+            console.error("Failed to emit shortcut event:", error)
+          })
         }
       },
       true

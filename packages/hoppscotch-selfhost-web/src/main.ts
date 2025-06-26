@@ -220,17 +220,38 @@ async function initApp() {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey
         let shortcutEvent: string | null = null
 
-        if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "t") {
+        if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          !e.altKey &&
+          e.key.toLowerCase() === "t"
+        ) {
           // Ctrl/Cmd + T - New Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-t"
-        } else if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "w") {
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          !e.altKey &&
+          e.key.toLowerCase() === "w"
+        ) {
           // Ctrl/Cmd + W - Close Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-w"
-        } else if (isCtrlOrCmd && e.shiftKey && !e.altKey && e.key === "T") {
+        } else if (
+          isCtrlOrCmd &&
+          e.shiftKey &&
+          !e.altKey &&
+          e.key.toLowerCase() === "t"
+        ) {
           // Ctrl/Cmd + Shift + T - Reopen Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-shift-t"
         } else if (
           isCtrlOrCmd &&
@@ -240,6 +261,8 @@ async function initApp() {
         ) {
           // Ctrl/Cmd + Alt + Right - Next Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-right"
         } else if (
           isCtrlOrCmd &&
@@ -249,25 +272,52 @@ async function initApp() {
         ) {
           // Ctrl/Cmd + Alt + Left - Previous Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-left"
-        } else if (isCtrlOrCmd && !e.shiftKey && e.altKey && e.key === "9") {
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          (e.key === "9" || e.code === "Digit9")
+        ) {
           // Ctrl/Cmd + Alt + 9 - First Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-9"
-        } else if (isCtrlOrCmd && !e.shiftKey && e.altKey && e.key === "0") {
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          (e.key === "0" || e.code === "Digit0")
+        ) {
           // Ctrl/Cmd + Alt + 0 - Last Tab
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "ctrl-alt-0"
-        } else if (isCtrlOrCmd && !e.shiftKey && !e.altKey && e.key === "l") {
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          !e.altKey &&
+          e.key.toLowerCase() === "l"
+        ) {
           // Ctrl/Cmd + L - Focus Address Bar
           e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
           shortcutEvent = "focus-url"
         }
 
         if (shortcutEvent) {
-          emit("hoppscotch_desktop_shortcut", shortcutEvent).catch((error) => {
-            console.error("Failed to emit shortcut event:", error)
-          })
+          setTimeout(() => {
+            emit("hoppscotch_desktop_shortcut", shortcutEvent).catch(
+              (error) => {
+                console.error("Failed to emit shortcut event:", error)
+              }
+            )
+          }, 0)
         }
       },
       true

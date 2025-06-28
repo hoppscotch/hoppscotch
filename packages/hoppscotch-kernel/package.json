@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/kernel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cross-platform runtime kernel for Hoppscotch platform-ops",
   "type": "module",
   "main": "dist/hoppscotch-kernel.cjs",
@@ -57,6 +57,6 @@
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
     "@tauri-apps/plugin-store": "2.2.0",
-    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay"
+    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#3273b9b"
   }
 }

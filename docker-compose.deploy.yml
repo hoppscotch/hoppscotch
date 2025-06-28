@@ -13,7 +13,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"
+          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'",
         ]
       interval: 5s
       timeout: 5s
@@ -28,21 +28,32 @@ services:
     environment:
       # DATABASE_URL is read from the .env file to allow the backend to connect with an external database.
       # This allows the backend to retain existing data and prevents database resets during deployments.
-      # DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
+      # - DATABASE_URL=postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch
       - ENABLE_SUBPATH_BASED_ACCESS=true
     env_file:
       - ./.env
     depends_on:
       hoppscotch-db:
         condition: service_healthy
-    command: ["sh", "-c", "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs"]
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm exec prisma migrate deploy && node /usr/src/app/aio_run.mjs",
+      ]
     healthcheck:
       test:
-        - CMD
-        - curl
-        - '-f'
-        - 'http://localhost:80'
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "-s",
+          "-o",
+          "/dev/null",
+          "-w",
+          "%{http_code}",
+          "http://localhost:80",
+        ]
       interval: 2s
       timeout: 10s
       retries: 30
-

@@ -24,8 +24,9 @@ import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import {
-  HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
+  HoppRESTResponseOriginalRequest,
+  makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { editRESTRequest } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
@@ -93,17 +94,17 @@ const onSaveAsExample = () => {
       requestVariables,
     } = response.req
 
-    const originalRequest: HoppRESTResponseOriginalRequest = {
-      v: "3",
-      method,
-      endpoint,
-      headers,
-      body,
-      auth,
-      params,
-      name,
-      requestVariables,
-    }
+    const originalRequest: HoppRESTResponseOriginalRequest =
+      makeHoppRESTResponseOriginalRequest({
+        method,
+        endpoint,
+        headers,
+        body,
+        auth,
+        params,
+        name,
+        requestVariables,
+      })
 
     const resName = responseName.value.trim()
 

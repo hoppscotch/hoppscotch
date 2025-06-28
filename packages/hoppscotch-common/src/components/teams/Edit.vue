@@ -101,7 +101,10 @@
                         :active="member.role === 'OWNER'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'OWNER')
+                            updateAccessRole(
+                              member.userID,
+                              TeamAccessRole.Owner
+                            )
                             hide()
                           }
                         "
@@ -114,7 +117,10 @@
                         :active="member.role === 'EDITOR'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'EDITOR')
+                            updateAccessRole(
+                              member.userID,
+                              TeamAccessRole.Editor
+                            )
                             hide()
                           }
                         "
@@ -127,7 +133,10 @@
                         :active="member.role === 'VIEWER'"
                         @click="
                           () => {
-                            updateMemberRole(member.userID, 'VIEWER')
+                            updateAccessRole(
+                              member.userID,
+                              TeamAccessRole.Viewer
+                            )
                             hide()
                           }
                         "
@@ -187,13 +196,13 @@ import {
   GetTeamQueryVariables,
   TeamMemberAddedDocument,
   TeamMemberRemovedDocument,
-  TeamMemberRole,
+  TeamAccessRole,
   TeamMemberUpdatedDocument,
 } from "~/helpers/backend/graphql"
 import {
   removeTeamMember,
   renameTeam,
-  updateTeamMemberRole,
+  updateTeamAccessRole,
 } from "~/helpers/backend/mutations/Team"
 import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
 
@@ -252,6 +261,7 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
     teamID: props.editingTeamID,
   },
   pollDuration: 10000,
+  pollLoadingEnabled: false,
   defer: true,
   updateSubs: computed(() => {
     if (props.editingTeamID) {
@@ -297,7 +307,7 @@ watch(
 const roleUpdates = ref<
   {
     userID: string
-    role: TeamMemberRole
+    role: TeamAccessRole
   }[]
 >([])
 
@@ -320,7 +330,7 @@ watch(
   }
 )
 
-const updateMemberRole = (userID: string, role: TeamMemberRole) => {
+const updateAccessRole = (userID: string, role: TeamAccessRole) => {
   const updateIndex = roleUpdates.value.findIndex(
     (item) => item.userID === userID
   )
@@ -394,14 +404,14 @@ const saveTeam = async () => {
         toast.error(`${t("error.something_went_wrong")}`)
       } else {
         roleUpdates.value.forEach(async (update) => {
-          const updateMemberRoleResult = await updateTeamMemberRole(
+          const updateAccessRoleResult = await updateTeamAccessRole(
             update.userID,
             props.editingTeamID,
             update.role
           )()
-          if (E.isLeft(updateMemberRoleResult)) {
+          if (E.isLeft(updateAccessRoleResult)) {
             toast.error(`${t("error.something_went_wrong")}`)
-            console.error(updateMemberRoleResult.left.error)
+            console.error(updateAccessRoleResult.left.error)
           }
         })
       }

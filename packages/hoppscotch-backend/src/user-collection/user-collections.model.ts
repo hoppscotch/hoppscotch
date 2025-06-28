@@ -1,5 +1,4 @@
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import { User } from '@prisma/client';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserRequest } from 'src/user-request/user-request.model';
 
@@ -59,10 +58,6 @@ export class UserCollectionRemovedData {
   type: ReqType;
 }
 
-registerEnumType(ReqType, {
-  name: 'CollType',
-});
-
 @ObjectType()
 export class UserCollectionExportJSONData {
   @Field(() => ID, {
@@ -120,7 +115,3 @@ export class UserCollectionDuplicatedData {
   })
   requests: UserRequest[];
 }
-
-registerEnumType(ReqType, {
-  name: 'CollType',
-});

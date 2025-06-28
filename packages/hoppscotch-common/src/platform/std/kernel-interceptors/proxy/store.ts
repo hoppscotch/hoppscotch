@@ -38,15 +38,13 @@ export class KernelInterceptorProxyStore extends Service {
 
     await this.loadSettings()
 
-    Store.watch(STORE_NAMESPACE, SETTINGS_KEY).on(
-      "change",
-      async ({ value }) => {
-        if (value) {
-          const storedData = value as StoredData
-          this.settings = storedData.settings
-        }
+    const watcher = await Store.watch(STORE_NAMESPACE, SETTINGS_KEY)
+    watcher.on("change", async ({ value }) => {
+      if (value) {
+        const storedData = value as StoredData
+        this.settings = storedData.settings
       }
-    )
+    })
   }
 
   private async loadSettings(): Promise<void> {

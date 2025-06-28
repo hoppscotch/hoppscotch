@@ -8,7 +8,6 @@ import { emitGQLSchemaFile } from './gql-schema';
 import { checkEnvironmentAuthProvider } from './utils';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { InfraTokensController } from './infra-token/infra-token.controller';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 
 function setupSwagger(app) {
@@ -42,7 +41,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  console.log(`Running in production:  ${configService.get('PRODUCTION')}`);
+  console.log(`Running in production: ${configService.get('PRODUCTION')}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
   checkEnvironmentAuthProvider(
@@ -63,21 +62,20 @@ async function bootstrap() {
     }),
   );
 
-  if (configService.get('PRODUCTION') === 'false') {
-    console.log('Enabling CORS with development settings');
-
+  if (configService.get('PRODUCTION') === 'true') {
+    console.log('Enabling CORS with production settings');
     app.enableCors({
       origin: configService.get('WHITELISTED_ORIGINS').split(','),
       credentials: true,
     });
   } else {
-    console.log('Enabling CORS with production settings');
-
+    console.log('Enabling CORS with development settings');
     app.enableCors({
-      origin: configService.get('WHITELISTED_ORIGINS').split(','),
+      origin: true,
       credentials: true,
     });
   }
+
   app.enableVersioning({
     type: VersioningType.URI,
   });

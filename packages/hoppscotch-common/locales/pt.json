@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Não foi possível executar o script de pré-solicitação",
     "something_went_wrong": "Algo deu errado",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Os scripts de teste são gravados em JavaScript e executados após o recebimento da resposta.",
     "pre_request_script": "Os scripts de pré-solicitação são gravados em JavaScript e executados antes do envio da solicitação.",
     "script_fail": "Parece que há uma falha no script de pré-solicitação. Verifique o erro abaixo e corrija o script de acordo.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Escreva um script de teste para automatizar a depuração."
+    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script": "Escreva um script de teste para automatizar a depuração."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

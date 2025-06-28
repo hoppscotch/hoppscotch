@@ -23,11 +23,7 @@ import { UserCollection } from './user-collections.model';
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
 
-// @ts-ignore
-const userCollectionService = new UserCollectionService(
-  mockPrisma,
-  mockPubSub as any,
-);
+const userCollectionService = new UserCollectionService(mockPrisma, mockPubSub);
 
 const currentTime = new Date();
 
@@ -99,36 +95,6 @@ const rootRESTUserCollection_2: DBUserCollection = {
   data: {},
 };
 
-const rootRESTUserCollection_2Casted: UserCollection = {
-  id: '4gf',
-  parentID: null,
-  title: 'Root Collection 2',
-  userID: user.uid,
-  type: ReqType.REST,
-  data: JSON.stringify(rootRESTUserCollection_2.data),
-};
-
-const rootGQLUserCollection_2: DBUserCollection = {
-  id: '4gf',
-  orderIndex: 2,
-  parentID: null,
-  title: 'Root Collection 2',
-  userUid: user.uid,
-  type: ReqType.GQL,
-  createdOn: currentTime,
-  updatedOn: currentTime,
-  data: {},
-};
-
-const rootGQLUserCollection_2Casted: UserCollection = {
-  id: '4gf',
-  parentID: null,
-  title: 'Root Collection 2',
-  userID: user.uid,
-  type: ReqType.GQL,
-  data: JSON.stringify(rootGQLUserCollection_2.data),
-};
-
 const childRESTUserCollection: DBUserCollection = {
   id: '234',
   orderIndex: 1,
@@ -189,27 +155,6 @@ const childRESTUserCollection_2Casted: UserCollection = {
   title: 'Child Collection 2',
   userID: user.uid,
   type: ReqType.REST,
-  data: JSON.stringify({}),
-};
-
-const childGQLUserCollection_2: DBUserCollection = {
-  id: '0kn',
-  orderIndex: 2,
-  parentID: rootRESTUserCollection_2.id,
-  title: 'Child Collection 2',
-  userUid: user.uid,
-  type: ReqType.GQL,
-  createdOn: currentTime,
-  updatedOn: currentTime,
-  data: {},
-};
-
-const childGQLUserCollection_2Casted: UserCollection = {
-  id: '0kn',
-  parentID: rootRESTUserCollection_2.id,
-  title: 'Child Collection 2',
-  userID: user.uid,
-  type: ReqType.GQL,
   data: JSON.stringify({}),
 };
 
@@ -639,9 +584,8 @@ describe('getParentOfUserCollection', () => {
       childRESTUserCollection,
     );
 
-    const result = await userCollectionService.getParentOfUserCollection(
-      'invalidId',
-    );
+    const result =
+      await userCollectionService.getParentOfUserCollection('invalidId');
     //TODO: check it not null
     expect(result).toEqual(null);
   });
@@ -899,7 +843,7 @@ describe('createUserCollection', () => {
       childRESTUserCollection,
     );
 
-    const result = await userCollectionService.createUserCollection(
+    await userCollectionService.createUserCollection(
       user,
       childRESTUserCollection.title,
       JSON.stringify(childRESTUserCollection.data),
@@ -924,7 +868,7 @@ describe('createUserCollection', () => {
       childGQLUserCollection,
     );
 
-    const result = await userCollectionService.createUserCollection(
+    await userCollectionService.createUserCollection(
       user,
       childGQLUserCollection.title,
       JSON.stringify(childGQLUserCollection.data),
@@ -949,7 +893,7 @@ describe('createUserCollection', () => {
       rootRESTUserCollection,
     );
 
-    const result = await userCollectionService.createUserCollection(
+    await userCollectionService.createUserCollection(
       user,
       rootRESTUserCollection.title,
       JSON.stringify(rootRESTUserCollection.data),
@@ -974,7 +918,7 @@ describe('createUserCollection', () => {
       rootGQLUserCollection,
     );
 
-    const result = await userCollectionService.createUserCollection(
+    await userCollectionService.createUserCollection(
       user,
       rootGQLUserCollection.title,
       JSON.stringify(rootGQLUserCollection.data),
@@ -1057,7 +1001,7 @@ describe('renameUserCollection', () => {
       title: 'NewTitle',
     });
 
-    const result = await userCollectionService.renameUserCollection(
+    await userCollectionService.renameUserCollection(
       'NewTitle',
       rootRESTUserCollection.id,
       user.uid,
@@ -1162,7 +1106,7 @@ describe('deleteUserCollection', () => {
       rootRESTUserCollection,
     );
 
-    const result = await userCollectionService.deleteUserCollection(
+    await userCollectionService.deleteUserCollection(
       rootRESTUserCollection.id,
       user.uid,
     );
@@ -1384,7 +1328,7 @@ describe('moveUserCollection', () => {
       orderIndex: 2,
     });
 
-    const result = await userCollectionService.moveUserCollection(
+    await userCollectionService.moveUserCollection(
       childRESTUserCollection.id,
       null,
       user.uid,
@@ -1507,7 +1451,7 @@ describe('moveUserCollection', () => {
       orderIndex: 1,
     });
 
-    const result = await userCollectionService.moveUserCollection(
+    await userCollectionService.moveUserCollection(
       rootRESTUserCollection.id,
       childRESTUserCollection.id,
       user.uid,
@@ -1624,7 +1568,7 @@ describe('updateUserCollectionOrder', () => {
       orderIndex: childRESTUserCollectionList.length,
     });
 
-    const result = await userCollectionService.updateUserCollectionOrder(
+    await userCollectionService.updateUserCollectionOrder(
       childRESTUserCollectionList[4].id,
       null,
       user.uid,
@@ -1711,7 +1655,7 @@ describe('updateUserCollectionOrder', () => {
       .mockResolvedValueOnce(childRESTUserCollectionList[4])
       .mockResolvedValueOnce(childRESTUserCollectionList[2]);
 
-    const result = await userCollectionService.updateUserCollectionOrder(
+    await userCollectionService.updateUserCollectionOrder(
       childRESTUserCollectionList[4].id,
       childRESTUserCollectionList[2].id,
       user.uid,
@@ -1818,7 +1762,7 @@ describe('updateUserCollection', () => {
       rootRESTUserCollection,
     );
 
-    const result = await userCollectionService.updateUserCollection(
+    await userCollectionService.updateUserCollection(
       'new_title',
       JSON.stringify({ foo: 'bar' }),
       rootRESTUserCollection.id,

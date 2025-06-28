@@ -4,7 +4,10 @@ import * as O from "fp-ts/Option"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 
 import { z } from "zod"
-import { NonSecretEnvironment } from "@hoppscotch/data"
+import {
+  EnvironmentSchemaVersion,
+  NonSecretEnvironment,
+} from "@hoppscotch/data"
 import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 
@@ -64,14 +67,18 @@ export const insomniaEnvImporter = (contents: string[]) => {
 
   insomniaEnvs.forEach((insomniaEnv) => {
     const parsedInsomniaEnv = insomniaEnvSchema.safeParse(insomniaEnv)
-
     if (parsedInsomniaEnv.success) {
       const environment: NonSecretEnvironment = {
         id: uniqueID(),
-        v: 1,
+        v: EnvironmentSchemaVersion,
         name: parsedInsomniaEnv.data.name,
         variables: Object.entries(parsedInsomniaEnv.data.data).map(
-          ([key, value]) => ({ key, value, secret: false })
+          ([key, value]) => ({
+            key,
+            initialValue: value,
+            currentValue: value,
+            secret: false,
+          })
         ),
       }
 
@@ -83,7 +90,8 @@ export const insomniaEnvImporter = (contents: string[]) => {
     ...env,
     variables: env.variables.map((variable) => ({
       ...variable,
-      value: replaceInsomniaTemplating(variable.value),
+      initialValue: replaceInsomniaTemplating(variable.initialValue),
+      currentValue: replaceInsomniaTemplating(variable.currentValue),
     })),
   }))
 

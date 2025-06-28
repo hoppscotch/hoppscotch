@@ -1,7 +1,6 @@
 import { AuthProvider } from 'src/auth/helper';
 import {
   AUTH_PROVIDER_NOT_CONFIGURED,
-  DATABASE_TABLE_NOT_EXIST,
   ENV_INVALID_DATA_ENCRYPTION_KEY,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -67,7 +66,7 @@ export async function loadInfraConfiguration(prisma: PrismaService) {
     // const prisma = new PrismaService();
     const infraConfigs = await prisma.infraConfig.findMany();
 
-    let environmentObject: Record<string, any> = {};
+    const environmentObject: Record<string, any> = {};
     infraConfigs.forEach((infraConfig) => {
       if (infraConfig.isEncrypted) {
         environmentObject[infraConfig.name] = decrypt(infraConfig.value);
@@ -324,7 +323,11 @@ export async function syncInfraConfigWithEnvFile(prisma: PrismaService) {
   const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
 
   for (const dbConfig of dbInfraConfigs) {
+<<<<<<< HEAD
     let envValue = process.env[dbConfig.name] ?? '';
+=======
+    const envValue = process.env[dbConfig.name];
+>>>>>>> a45dcb57b911a591019fa35d79e0a5bdab8d7ff5
 
     // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
     if (!dbConfig.lastSyncedEnvFileValue && envValue) {
@@ -398,8 +401,13 @@ export function stopApp() {
  */
 export function getConfiguredSSOProvidersFromEnvFile() {
   const allowedAuthProviders: string[] =
+<<<<<<< HEAD
     (process.env.VITE_ALLOWED_AUTH_PROVIDERS ?? '').split(',');
   let configuredAuthProviders: string[] = [];
+=======
+    process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+  const configuredAuthProviders: string[] = [];
+>>>>>>> a45dcb57b911a591019fa35d79e0a5bdab8d7ff5
 
   const addProviderIfConfigured = (provider) => {
     const configParameters: string[] = AuthProviderConfigurations[provider];
@@ -439,8 +447,13 @@ export async function getConfiguredSSOProvidersFromInfraConfig(prisma: PrismaSer
   const env = await loadInfraConfiguration(prisma);
 
   const allowedAuthProviders: string[] =
+<<<<<<< HEAD
     (env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS ?? '').split(',');
   let configuredAuthProviders: string[] = [];
+=======
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+  const configuredAuthProviders: string[] = [];
+>>>>>>> a45dcb57b911a591019fa35d79e0a5bdab8d7ff5
 
   const addProviderIfConfigured = (provider) => {
     const configParameters: string[] = AuthProviderConfigurations[provider];

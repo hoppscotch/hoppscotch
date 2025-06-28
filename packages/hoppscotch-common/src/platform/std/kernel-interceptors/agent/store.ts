@@ -90,18 +90,16 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
-  private setupWatchers() {
-    Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS).on(
-      "change",
-      async ({ value }) => {
-        if (value) {
-          const store = value as StoredData
-          this.domainSettings = new Map(Object.entries(store.domains))
-          this.authKey.value = store.auth.key
-          this.sharedSecretB16.value = store.auth.sharedSecret
-        }
+  private async setupWatchers() {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
+    watcher.on("change", async ({ value }) => {
+      if (value) {
+        const store = value as StoredData
+        this.domainSettings = new Map(Object.entries(store.domains))
+        this.authKey.value = store.auth.key
+        this.sharedSecretB16.value = store.auth.sharedSecret
       }
-    )
+    })
   }
 
   private async persistStore(): Promise<void> {

@@ -1,59 +1,19 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import type ivmT from "isolated-vm"
 import { createRequire } from "module"
 
-import type ivmT from "isolated-vm"
-
-import { TestResponse, TestResult } from "~/types"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
 } from "~/shared-utils"
-import { getSerializedAPIMethods } from "./utils"
+import { TestResponse, TestResult } from "~/types"
+import { getSerializedAPIMethods } from "../utils"
 
 const nodeRequire = createRequire(import.meta.url)
 const ivm = nodeRequire("isolated-vm")
 
-export const runTestScript = (
-  testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse
-): TE.TaskEither<string, TestResult> =>
-  pipe(
-    TE.tryCatch(
-      async () => {
-        const isolate: ivmT.Isolate = new ivm.Isolate()
-        const context = await isolate.createContext()
-        return { isolate, context }
-      },
-      (reason) => `Context initialization failed: ${reason}`
-    ),
-    TE.chain(({ isolate, context }) =>
-      pipe(
-        TE.tryCatch(
-          async () =>
-            executeScriptInContext(
-              testScript,
-              envs,
-              response,
-              isolate,
-              context
-            ),
-          (reason) => `Script execution failed: ${reason}`
-        ),
-        TE.chain((result) =>
-          TE.tryCatch(
-            async () => {
-              await isolate.dispose()
-              return result
-            },
-            (disposeReason) => `Isolate disposal failed: ${disposeReason}`
-          )
-        )
-      )
-    )
-  )
 const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
@@ -63,7 +23,7 @@ const executeScriptInContext = (
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
     // Parse response object
-    const responseObjHandle = preventCyclicObjects(response)
+    const responseObjHandle = preventCyclicObjects<TestResponse>(response)
     if (E.isLeft(responseObjHandle)) {
       return reject(`Response parsing failed: ${responseObjHandle.left}`)
     }
@@ -214,4 +174,45 @@ const executeScriptInContext = (
         reject(error)
       })
   })
+}
+
+export const runTestScriptWithIsolatedVm = (
+  testScript: string,
+  envs: TestResult["envs"],
+  response: TestResponse
+): TE.TaskEither<string, TestResult> => {
+  return pipe(
+    TE.tryCatch(
+      async () => {
+        const isolate: ivmT.Isolate = new ivm.Isolate()
+        const context = await isolate.createContext()
+        return { isolate, context }
+      },
+      (reason) => `Context initialization failed: ${reason}`
+    ),
+    TE.chain(({ isolate, context }) =>
+      pipe(
+        TE.tryCatch(
+          async () =>
+            executeScriptInContext(
+              testScript,
+              envs,
+              response,
+              isolate,
+              context
+            ),
+          (reason) => `Script execution failed: ${reason}`
+        ),
+        TE.chain((result) =>
+          TE.tryCatch(
+            async () => {
+              await isolate.dispose()
+              return result
+            },
+            (disposeReason) => `Isolate disposal failed: ${disposeReason}`
+          )
+        )
+      )
+    )
+  )
 }

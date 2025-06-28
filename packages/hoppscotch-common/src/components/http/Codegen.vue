@@ -131,7 +131,7 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { getAggregateEnvs } from "~/newstore/environments"
+import { AggregateEnvironment, getAggregateEnvs } from "~/newstore/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -144,10 +144,13 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { getCurrentEnvironment } from "../../newstore/environments"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
@@ -187,6 +190,18 @@ const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
 
+const getCurrentValue = (env: AggregateEnvironment) => {
+  const currentSelectedEnvironment = getCurrentEnvironment()
+
+  if (env && env.secret) {
+    return env.currentValue
+  }
+  return currentEnvironmentValueService.getEnvironmentByKey(
+    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
+    env?.key ?? ""
+  )?.currentValue
+}
+
 const requestCode = asyncComputed(async () => {
   // Generate code snippet action only applies to request documents
   if (currentActiveTabDocument.value.type !== "request") {
@@ -200,19 +215,23 @@ const requestCode = asyncComputed(async () => {
       if (requestVariable.active)
         return {
           key: requestVariable.key,
-          value: requestVariable.value,
+          currentValue: requestVariable.value,
+          initialValue: requestVariable.value,
           secret: false,
         }
       return {}
     }
   )
   const env: Environment = {
-    v: 1,
+    v: 2,
     id: "env",
     name: "Env",
     variables: [
       ...(requestVariables as Environment["variables"]),
-      ...aggregateEnvs,
+      ...aggregateEnvs.map((env) => ({
+        ...env,
+        currentValue: getCurrentValue(env) ?? env.currentValue,
+      })),
     ],
   }
 

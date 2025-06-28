@@ -5,10 +5,10 @@
     >
       <input
         v-if="isSecret"
-        id="secret"
+        :id="`secret-${uniqueID()}`"
         v-model="secretText"
         name="secret"
-        :placeholder="t('environment.secret_value')"
+        :placeholder="placeholder"
         class="flex flex-1 bg-transparent pl-4"
         :class="styles"
         type="password"
@@ -97,6 +97,7 @@ import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
+import { uniqueID } from "~/helpers/utils/uniqueID"
 
 const t = useI18n()
 
@@ -374,11 +375,13 @@ const envVars = computed(() => {
   if (props.envs) {
     return props.envs.map((x) => {
       const { key, secret } = x
-      const value = secret ? "********" : x.value
+      const currentValue = secret ? "********" : x.currentValue
+      const initialValue = secret ? "********" : x.initialValue
       const sourceEnv = "sourceEnv" in x ? x.sourceEnv : null
       return {
         key,
-        value,
+        currentValue,
+        initialValue,
         sourceEnv,
         secret,
       }
@@ -393,12 +396,14 @@ const envVars = computed(() => {
         ? tabs.currentActiveTab.value.document.request.requestVariables
         : []
 
+  // Transform request variables to match the env format
   return [
     ...requestVariables.map(({ active, key, value }) =>
       active
         ? {
             key,
-            value,
+            currentValue: value,
+            initialValue: value,
             sourceEnv: "RequestVariable",
             secret: false,
           }
@@ -412,7 +417,7 @@ function envAutoCompletion(context: CompletionContext) {
   const options = (envVars.value ?? [])
     .map((env) => ({
       label: env?.key ? `<<${env.key}>>` : "",
-      info: env?.value ?? "",
+      info: env?.currentValue ?? "",
       apply: env?.key ? `<<${env.key}>>` : "",
     }))
     .filter(Boolean)
@@ -539,6 +544,7 @@ const getExtensions = (readonly: boolean): Extension => {
           override: [envAutoCompletion],
         })
       : [],
+
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {

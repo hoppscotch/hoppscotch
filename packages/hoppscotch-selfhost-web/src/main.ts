@@ -26,6 +26,7 @@ import { AgentKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/proxy"
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
+import { HeaderDownloadableLinksService } from "./services/headerDownloadableLinks.service"
 
 type Platform = "web" | "desktop"
 
@@ -77,6 +78,16 @@ async function initApp() {
     },
     auth: platformDefs.auth.get(kernelMode),
     kernelIO,
+    instance: {
+      instanceType: "vendored",
+      displayConfig: {
+        displayName: "Hoppscotch",
+        description: "On-Prem",
+        version: "25.5.4",
+        connectingMessage: "Connecting to On-prem",
+        connectedMessage: "Connected to On-prem",
+      },
+    },
     sync: {
       environments: platformDefs.environments.get(kernelMode),
       collections: platformDefs.collections.get(kernelMode),
@@ -98,6 +109,7 @@ async function initApp() {
     },
     infra: InfraPlatform,
     backend: stdBackendDef,
+    additionalLinks: [HeaderDownloadableLinksService],
   })
 
   if (kernelMode === "desktop") {
@@ -114,7 +126,86 @@ async function initApp() {
     headerPaddingTop.value = "0px"
     headerPaddingLeft.value = "80px"
 
-    // Add backspace prevention for non-text inputs
+    const ALLOWED_DROP_SELECTORS = [
+      '[draggable="true"]',
+      ".draggable-content",
+      ".draggable-handle",
+      ".sortable-ghost",
+      ".sortable-drag",
+      ".sortable-chosen",
+      ".vue-draggable",
+
+      'input[type="file"]',
+      'label[for*="attachment"]',
+      ".file-chips-container",
+      ".file-chips-wrapper",
+
+      ".cm-editor",
+      ".cm-content",
+      ".cm-scroller",
+      ".ace_editor",
+
+      "[data-allow-drop]",
+      ".drop-zone",
+
+      "[ondrop]",
+      "[data-drop-handler]",
+    ].join(", ")
+
+    const isAllowedDropTarget = (target: EventTarget | null): boolean => {
+      if (!target || !(target instanceof HTMLElement)) {
+        return false
+      }
+
+      if (target.closest(ALLOWED_DROP_SELECTORS)) {
+        return true
+      }
+
+      const element = target as any
+      if (element._vei?.onDrop || element.__vueListeners__?.drop) {
+        return true
+      }
+
+      return false
+    }
+
+    document.addEventListener(
+      "drop",
+      (e) => {
+        if (!isAllowedDropTarget(e.target)) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      },
+      false
+    )
+
+    document.addEventListener(
+      "dragover",
+      (e) => {
+        e.preventDefault()
+      },
+      false
+    )
+
+    document.addEventListener(
+      "dragstart",
+      (e) => {
+        if (!e.target || !(e.target instanceof HTMLElement)) {
+          return
+        }
+
+        const target = e.target as HTMLElement
+        if (
+          !target.draggable &&
+          !target.closest('[draggable="true"], .draggable-content')
+        ) {
+          e.preventDefault()
+        }
+      },
+      false
+    )
+
     window.addEventListener(
       "keydown",
       function (e) {

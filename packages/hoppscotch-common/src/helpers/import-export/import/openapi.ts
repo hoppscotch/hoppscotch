@@ -20,6 +20,7 @@ import {
   HoppRESTRequest,
   HoppRESTRequestResponses,
   HoppRESTResponseOriginalRequest,
+  makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -827,24 +828,27 @@ const convertPathToHoppReqs = (
             (info.parameters as OpenAPIParamsType[] | undefined) ?? []
           ),
 
-          responses: parseOpenAPIResponses(doc, info, {
-            name: info.operationId ?? info.summary ?? "Untitled Request",
-            auth: parseOpenAPIAuth(doc, info),
-            body: parseOpenAPIBody(doc, info),
-            endpoint,
-            // We don't need to worry about reference types as the Dereferencing pass should remove them
-            params: parseOpenAPIParams(
-              (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-            ),
-            headers: parseOpenAPIHeaders(
-              (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-            ),
-            method: method.toUpperCase(),
-            requestVariables: parseOpenAPIVariables(
-              (info.parameters as OpenAPIParamsType[] | undefined) ?? []
-            ),
-            v: "3",
-          }),
+          responses: parseOpenAPIResponses(
+            doc,
+            info,
+            makeHoppRESTResponseOriginalRequest({
+              name: info.operationId ?? info.summary ?? "Untitled Request",
+              auth: parseOpenAPIAuth(doc, info),
+              body: parseOpenAPIBody(doc, info),
+              endpoint,
+              // We don't need to worry about reference types as the Dereferencing pass should remove them
+              params: parseOpenAPIParams(
+                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+              ),
+              headers: parseOpenAPIHeaders(
+                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+              ),
+              method: method.toUpperCase(),
+              requestVariables: parseOpenAPIVariables(
+                (info.parameters as OpenAPIParamsType[] | undefined) ?? []
+              ),
+            })
+          ),
         }),
         metadata: {
           tags: info.tags ?? [],

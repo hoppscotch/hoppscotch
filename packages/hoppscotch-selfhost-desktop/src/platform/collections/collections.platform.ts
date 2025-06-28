@@ -134,7 +134,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: restCollection.id,
-      v: 7,
+      v: 8,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -196,7 +196,7 @@ function exportedCollectionToHoppCollection(
 
     return {
       id: gqlCollection.id,
-      v: 7,
+      v: 8,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -374,7 +374,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 7,
+                v: 8,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })
@@ -382,7 +382,7 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 7,
+                v: 8,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
               })
@@ -607,7 +607,7 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 7,
+        v: 8,
         auth,
         headers: addDescriptionField(headers),
       }
@@ -1037,7 +1037,7 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 7,
+        v: 8,
         auth,
         headers: addDescriptionField(headers),
       }

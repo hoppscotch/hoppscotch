@@ -28,7 +28,7 @@ export class MailerModule {
     // If mailer is ENABLED, return the module with configuration (service, etc.)
 
     // Determine transport configuration based on custom config flag
-    let transportOption = getTransportOption(env, config);
+    const transportOption = getTransportOption(env, config);
     // Get mailer address from environment or config
     const mailerAddressFrom = getMailerAddressFrom(env, config);
 

@@ -155,6 +155,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -183,6 +184,7 @@ const emit = defineEmits<{
 const confirmRemove = ref(false)
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 watch(
   () => props.duplicateGlobalEnvironmentLoading,
@@ -216,6 +218,7 @@ const removeEnvironment = () => {
   if (!isGlobalEnvironment.value) {
     deleteEnvironment(props.environmentIndex as number, props.environment.id)
     secretEnvironmentService.deleteSecretEnvironment(props.environment.id)
+    currentEnvironmentValueService.deleteEnvironment(props.environment.id)
   }
   toast.success(`${t("state.deleted")}`)
 }

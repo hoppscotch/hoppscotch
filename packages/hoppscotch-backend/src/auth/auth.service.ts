@@ -34,12 +34,12 @@ import { InfraConfigService } from 'src/infra-config/infra-config.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UserService,
-    private prismaService: PrismaService,
-    private jwtService: JwtService,
+    private readonly usersService: UserService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
-    private infraConfigService: InfraConfigService,
+    private readonly infraConfigService: InfraConfigService,
   ) {}
 
   /**
@@ -59,7 +59,7 @@ export class AuthService {
       .toISO()
       .toString();
 
-    const idToken = await this.prismaService.verificationToken.create({
+    const idToken = await this.prisma.verificationToken.create({
       data: {
         deviceIdentifier: salt,
         userUid: user.uid,
@@ -78,15 +78,14 @@ export class AuthService {
    */
   private async validatePasswordlessTokens(magicLinkTokens: VerifyMagicDto) {
     try {
-      const tokens =
-        await this.prismaService.verificationToken.findUniqueOrThrow({
-          where: {
-            passwordless_deviceIdentifier_tokens: {
-              deviceIdentifier: magicLinkTokens.deviceIdentifier,
-              token: magicLinkTokens.token,
-            },
+      const tokens = await this.prisma.verificationToken.findUniqueOrThrow({
+        where: {
+          passwordless_deviceIdentifier_tokens: {
+            deviceIdentifier: magicLinkTokens.deviceIdentifier,
+            token: magicLinkTokens.token,
           },
-        });
+        },
+      });
       return O.some(tokens);
     } catch (error) {
       return O.none;
@@ -160,7 +159,7 @@ export class AuthService {
   ) {
     try {
       const deletedPasswordlessToken =
-        await this.prismaService.verificationToken.delete({
+        await this.prisma.verificationToken.delete({
           where: {
             passwordless_deviceIdentifier_tokens: {
               deviceIdentifier: passwordlessTokens.deviceIdentifier,
@@ -182,7 +181,7 @@ export class AuthService {
    * @returns Either of existing user provider Account
    */
   async checkIfProviderAccountExists(user: AuthUser, SSOUserData) {
-    const provider = await this.prismaService.account.findUnique({
+    const provider = await this.prisma.account.findUnique({
       where: {
         verifyProviderAccount: {
           provider: SSOUserData.provider,
@@ -256,9 +255,8 @@ export class AuthService {
   async verifyMagicLinkTokens(
     magicLinkIDTokens: VerifyMagicDto,
   ): Promise<E.Right<AuthTokens> | E.Left<RESTError>> {
-    const passwordlessTokens = await this.validatePasswordlessTokens(
-      magicLinkIDTokens,
-    );
+    const passwordlessTokens =
+      await this.validatePasswordlessTokens(magicLinkIDTokens);
     if (O.isNone(passwordlessTokens))
       return E.left({
         message: INVALID_MAGIC_LINK_DATA,

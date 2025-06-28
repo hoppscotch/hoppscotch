@@ -3,6 +3,7 @@
     v-if="show"
     dialog
     :title="t(`environment.${action}`)"
+    styles="sm:max-w-3xl"
     @close="hideModal"
   >
     <template #body>
@@ -87,19 +88,32 @@
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :class="{
+                        'opacity-25': isViewer,
+                      }"
+                      :name="'variable' + index"
                       :disabled="isViewer"
                     />
                     <SmartEnvInput
-                      v-model="env.value"
+                      v-model="env.initialValue"
+                      :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
+                      :envs="liveEnvs"
+                      :name="'initialValue' + index"
+                      :secret="tab.isSecret"
                       :select-text-on-mount="
                         env.key ? env.key === editingVariableName : false
                       "
-                      :placeholder="`${t('count.value', { count: index + 1 })}`"
+                      :readonly="isViewer"
+                    />
+                    <SmartEnvInput
+                      v-model="env.currentValue"
+                      :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
                       :envs="liveEnvs"
-                      :name="'value' + index"
+                      :name="'currentValue' + index"
                       :secret="tab.isSecret"
-                      :readonly="isViewer && !tab.isSecret"
+                      :select-text-on-mount="
+                        env.key ? env.key === editingVariableName : false
+                      "
                     />
                     <div v-if="!isViewer" class="flex">
                       <HoppButtonSecondary
@@ -166,14 +180,11 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 type EnvironmentVariable = {
   id: number
-  env: {
-    key: string
-    value: string
-    secret: boolean
-  }
+  env: Environment["variables"][number]
 }
 
 const t = useI18n()
@@ -239,10 +250,14 @@ const tabsData: ComputedRef<
 const editingName = ref<string | null>(null)
 const editingID = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
+  {
+    id: idTicker.value++,
+    env: { key: "", currentValue: "", initialValue: "", secret: false },
+  },
 ])
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const secretVars = computed(() =>
   pipe(
@@ -275,7 +290,9 @@ const evnExpandError = computed(() => {
 
   return pipe(
     variables,
-    A.exists(({ value }) => E.isLeft(parseTemplateStringE(value, variables)))
+    A.exists(({ currentValue }) =>
+      E.isLeft(parseTemplateStringE(currentValue, variables))
+    )
   )
 })
 
@@ -283,8 +300,27 @@ const liveEnvs = computed(() => {
   if (evnExpandError.value) {
     return []
   }
-  return [...vars.value.map((x) => ({ ...x.env, source: editingName.value! }))]
+  return [
+    ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
+  ]
 })
+
+const getCurrentValue = (
+  editingID: string,
+  varIndex: number,
+  isSecret: boolean
+) => {
+  if (isSecret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(
+      editingID,
+      varIndex
+    )?.value
+  }
+  return currentEnvironmentValueService.getEnvironmentVariable(
+    editingID,
+    varIndex
+  )?.currentValue
+}
 
 watch(
   () => props.show,
@@ -310,15 +346,13 @@ watch(
             id: idTicker.value++,
             env: {
               key: e.key,
-              value: e.secret
-                ? (secretEnvironmentService.getSecretEnvironmentVariable(
-                    editingID.value ?? "",
-                    index
-                  )?.value ??
-                  // @ts-expect-error `value` field can exist for secret environment variables as inferred while importing
-                  e.value ??
-                  "")
-                : e.value,
+              currentValue:
+                getCurrentValue(
+                  props.editingEnvironment?.id ?? "",
+                  index,
+                  e.secret
+                ) ?? e.currentValue,
+              initialValue: e.initialValue,
               secret: e.secret,
             },
           }))
@@ -339,7 +373,8 @@ const addEnvironmentVariable = () => {
     id: idTicker.value++,
     env: {
       key: "",
-      value: "",
+      currentValue: "",
+      initialValue: "",
       secret: selectedEnvOption.value === "secret",
     },
   })
@@ -377,17 +412,38 @@ const saveEnvironment = async () => {
   const secretVariables = pipe(
     filteredVariables,
     A.filterMapWithIndex((i, e) =>
-      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
+      e.secret
+        ? O.some({ key: e.key, value: e.currentValue, varIndex: i })
+        : O.none
+    )
+  )
+
+  const nonSecretVariables = pipe(
+    filteredVariables,
+    A.filterMapWithIndex((i, e) =>
+      !e.secret
+        ? O.some({
+            key: e.key,
+            currentValue: e.currentValue,
+            varIndex: i,
+            isSecret: e.secret ?? false,
+          })
+        : O.none
     )
   )
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) => (e.secret ? { key: e.key, secret: e.secret } : e))
+    A.map((e) => ({
+      key: e.key,
+      secret: e.secret,
+      initialValue: e.initialValue || "",
+      currentValue: "",
+    }))
   )
 
   const environmentUpdated: Environment = {
-    v: 1,
+    v: 2,
     id: editingID.value ?? "",
     name: editingName.value,
     variables,
@@ -419,6 +475,10 @@ const saveEnvironment = async () => {
                 envID,
                 secretVariables
               )
+              currentEnvironmentValueService.addEnvironment(
+                envID,
+                nonSecretVariables
+              )
             }
             hideModal()
             toast.success(`${t("environment.created")}`)
@@ -439,8 +499,13 @@ const saveEnvironment = async () => {
         secretVariables
       )
 
+      currentEnvironmentValueService.addEnvironment(
+        editingID.value,
+        nonSecretVariables
+      )
+
       // If the user is a viewer, we don't need to update the environment in BE
-      // just update the secret environment in the local storage
+      // just update the secret environment and current environment in the local storage
       if (props.isViewer) {
         hideModal()
         toast.success(`${t("environment.updated")}`)
@@ -463,6 +528,7 @@ const saveEnvironment = async () => {
           () => {
             hideModal()
             toast.success(`${t("environment.updated")}`)
+
             isLoading.value = false
           }
         )

@@ -43,7 +43,7 @@ const AuthProviderConfigurations = {
     InfraConfigEnum.MICROSOFT_TENANT,
   ],
   [AuthProvider.EMAIL]:
-    process.env.MAILER_USE_CUSTOM_CONFIGS === 'true'
+    (process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false') === 'true'
       ? [
           InfraConfigEnum.MAILER_SMTP_HOST,
           InfraConfigEnum.MAILER_SMTP_PORT,
@@ -62,10 +62,9 @@ const AuthProviderConfigurations = {
  * @Description Fetch the 'infra_config' table from the database and return it as an object
  * (ConfigModule will set the environment variables in the process)
  */
-export async function loadInfraConfiguration() {
+export async function loadInfraConfiguration(prisma: PrismaService) {
   try {
-    const prisma = new PrismaService();
-
+    // const prisma = new PrismaService();
     const infraConfigs = await prisma.infraConfig.findMany();
 
     let environmentObject: Record<string, any> = {};
@@ -92,8 +91,8 @@ export async function loadInfraConfiguration() {
  * Read the default values from .env file and return them as an array
  * @returns Array of default infra configs
  */
-export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
-  const prisma = new PrismaService();
+export async function getDefaultInfraConfigs(prisma: PrismaService): Promise<DefaultInfraConfig[]> {
+  // const prisma = new PrismaService();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
   const configuredSSOProviders = getConfiguredSSOProvidersFromEnvFile();
@@ -114,128 +113,128 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_URL,
-      value: encrypt(process.env.MAILER_SMTP_URL),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_URL),
+      value: encrypt(process.env.MAILER_SMTP_URL ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_URL ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_ADDRESS_FROM,
-      value: process.env.MAILER_ADDRESS_FROM,
-      lastSyncedEnvFileValue: process.env.MAILER_ADDRESS_FROM,
+      value: process.env.MAILER_ADDRESS_FROM ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_ADDRESS_FROM ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_HOST,
-      value: process.env.MAILER_SMTP_HOST,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_HOST,
+      value: process.env.MAILER_SMTP_HOST ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_HOST ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PORT,
-      value: process.env.MAILER_SMTP_PORT,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_PORT,
+      value: process.env.MAILER_SMTP_PORT ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_PORT ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_SECURE,
-      value: process.env.MAILER_SMTP_SECURE,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_SECURE,
+      value: process.env.MAILER_SMTP_SECURE ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_SECURE ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_USER,
-      value: process.env.MAILER_SMTP_USER,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_USER,
+      value: process.env.MAILER_SMTP_USER ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_SMTP_USER ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PASSWORD,
-      value: encrypt(process.env.MAILER_SMTP_PASSWORD),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_PASSWORD),
+      value: encrypt(process.env.MAILER_SMTP_PASSWORD ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_PASSWORD ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-      value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
-      lastSyncedEnvFileValue: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
+      value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED ?? '',
+      lastSyncedEnvFileValue: process.env.MAILER_TLS_REJECT_UNAUTHORIZED ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-      value: encrypt(process.env.GOOGLE_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_ID),
+      value: encrypt(process.env.GOOGLE_CLIENT_ID ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_ID ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-      value: encrypt(process.env.GOOGLE_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_SECRET),
+      value: encrypt(process.env.GOOGLE_CLIENT_SECRET ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_SECRET ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
-      value: process.env.GOOGLE_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GOOGLE_CALLBACK_URL,
+      value: process.env.GOOGLE_CALLBACK_URL ?? '',
+      lastSyncedEnvFileValue: process.env.GOOGLE_CALLBACK_URL ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_SCOPE,
-      value: process.env.GOOGLE_SCOPE,
-      lastSyncedEnvFileValue: process.env.GOOGLE_SCOPE,
+      value: process.env.GOOGLE_SCOPE ?? '',
+      lastSyncedEnvFileValue: process.env.GOOGLE_SCOPE ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_ID,
-      value: encrypt(process.env.GITHUB_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_ID),
+      value: encrypt(process.env.GITHUB_CLIENT_ID ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_ID ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
-      value: encrypt(process.env.GITHUB_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_SECRET),
+      value: encrypt(process.env.GITHUB_CLIENT_SECRET ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_SECRET ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CALLBACK_URL,
-      value: process.env.GITHUB_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GITHUB_CALLBACK_URL,
+      value: process.env.GITHUB_CALLBACK_URL ?? '',
+      lastSyncedEnvFileValue: process.env.GITHUB_CALLBACK_URL ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_SCOPE,
-      value: process.env.GITHUB_SCOPE,
-      lastSyncedEnvFileValue: process.env.GITHUB_SCOPE,
+      value: process.env.GITHUB_SCOPE ?? '',
+      lastSyncedEnvFileValue: process.env.GITHUB_SCOPE ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
-      value: encrypt(process.env.MICROSOFT_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_ID),
+      value: encrypt(process.env.MICROSOFT_CLIENT_ID ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_ID ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-      value: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
+      value: encrypt(process.env.MICROSOFT_CLIENT_SECRET ?? ''),
+      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_SECRET ?? ''),
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-      value: process.env.MICROSOFT_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_CALLBACK_URL,
+      value: process.env.MICROSOFT_CALLBACK_URL ?? '',
+      lastSyncedEnvFileValue: process.env.MICROSOFT_CALLBACK_URL ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_SCOPE,
-      value: process.env.MICROSOFT_SCOPE,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_SCOPE,
+      value: process.env.MICROSOFT_SCOPE ?? '',
+      lastSyncedEnvFileValue: process.env.MICROSOFT_SCOPE ?? '',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_TENANT,
-      value: process.env.MICROSOFT_TENANT,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_TENANT,
+      value: process.env.MICROSOFT_TENANT ?? '',
+      lastSyncedEnvFileValue: process.env.MICROSOFT_TENANT ?? '',
       isEncrypted: false,
     },
     {
@@ -279,8 +278,9 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
  */
 export async function getMissingInfraConfigEntries(
   infraConfigDefaultObjs: DefaultInfraConfig[],
+  prisma: PrismaService,
 ) {
-  const prisma = new PrismaService();
+  // const prisma = new PrismaService();
   const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const missingEntries = infraConfigDefaultObjs.filter(
@@ -297,8 +297,9 @@ export async function getMissingInfraConfigEntries(
  */
 export async function getEncryptionRequiredInfraConfigEntries(
   infraConfigDefaultObjs: DefaultInfraConfig[],
+  prisma: PrismaService,
 ) {
-  const prisma = new PrismaService();
+  // const prisma = new PrismaService();
   const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const requiredEncryption = dbInfraConfigs.filter((dbConfig) => {
@@ -316,14 +317,14 @@ export async function getEncryptionRequiredInfraConfigEntries(
  * Sync the 'infra_config' table with .env file
  * @returns Array of InfraConfig
  */
-export async function syncInfraConfigWithEnvFile() {
-  const prisma = new PrismaService();
+export async function syncInfraConfigWithEnvFile(prisma: PrismaService) {
+  // const prisma = new PrismaService();
   const dbInfraConfigs = await prisma.infraConfig.findMany();
 
   const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
 
   for (const dbConfig of dbInfraConfigs) {
-    let envValue = process.env[dbConfig.name];
+    let envValue = process.env[dbConfig.name] ?? '';
 
     // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
     if (!dbConfig.lastSyncedEnvFileValue && envValue) {
@@ -358,11 +359,11 @@ export async function syncInfraConfigWithEnvFile() {
  * Verify if 'infra_config' table is loaded with all entries
  * @returns boolean
  */
-export async function isInfraConfigTablePopulated(): Promise<boolean> {
+export async function isInfraConfigTablePopulated(prisma: PrismaService): Promise<boolean> {
   try {
-    const defaultInfraConfigs = await getDefaultInfraConfigs();
+    const defaultInfraConfigs = await getDefaultInfraConfigs(prisma);
     const propsRemainingToInsert =
-      await getMissingInfraConfigEntries(defaultInfraConfigs);
+      await getMissingInfraConfigEntries(defaultInfraConfigs, prisma);
 
     if (propsRemainingToInsert.length > 0) {
       console.log(
@@ -397,7 +398,7 @@ export function stopApp() {
  */
 export function getConfiguredSSOProvidersFromEnvFile() {
   const allowedAuthProviders: string[] =
-    process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+    (process.env.VITE_ALLOWED_AUTH_PROVIDERS ?? '').split(',');
   let configuredAuthProviders: string[] = [];
 
   const addProviderIfConfigured = (provider) => {
@@ -434,11 +435,11 @@ export function getConfiguredSSOProvidersFromEnvFile() {
  * @description Usage every time the app starts by AuthModule to initiate Strategies.
  * @returns Array of configured SSO providers
  */
-export async function getConfiguredSSOProvidersFromInfraConfig() {
-  const env = await loadInfraConfiguration();
+export async function getConfiguredSSOProvidersFromInfraConfig(prisma: PrismaService) {
+  const env = await loadInfraConfiguration(prisma);
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
+    (env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS ?? '').split(',');
   let configuredAuthProviders: string[] = [];
 
   const addProviderIfConfigured = (provider) => {
@@ -455,7 +456,7 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   if (configuredAuthProviders.length === 0) {
     return '';
   } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
-    const prisma = new PrismaService();
+    // const prisma = new PrismaService();
     await prisma.infraConfig.update({
       where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
       data: { value: configuredAuthProviders.join(',') },

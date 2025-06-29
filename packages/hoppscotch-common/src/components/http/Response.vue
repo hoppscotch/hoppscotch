@@ -2,9 +2,11 @@
   <div class="relative flex flex-1 flex-col">
     <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
     <LensesResponseBodyRenderer
+      ref="lensBodyRendererRef"
       v-if="!loading && hasResponse"
       v-model:document="doc"
       :is-editable="false"
+      :tab-id="tabId"
       @save-as-example="saveAsExample"
     />
   </div>
@@ -40,6 +42,7 @@ const toast = useToast()
 
 const props = defineProps<{
   document: HoppRequestDocument
+  tabId: string
   isEmbed: boolean
 }>()
 
@@ -68,7 +71,6 @@ const loading = computed(() => doc.value.response?.type === "loading")
 
 const saveAsExample = () => {
   showSaveResponseName.value = true
-
   responseName.value = doc.value.request.name
 }
 
@@ -125,14 +127,13 @@ const onSaveAsExample = () => {
     showSaveResponseName.value = false
 
     const saveCtx = doc.value.saveContext
-
     if (!saveCtx) return
 
     const req = doc.value.request
+
     if (saveCtx.originLocation === "user-collection") {
       try {
         editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
         toast.success(`${t("response.saved")}`)
         responseName.value = ""
       } catch (e) {
@@ -152,7 +153,6 @@ const onSaveAsExample = () => {
           responseName.value = ""
         } else {
           doc.value.isDirty = false
-
           toast.success(`${t("request.saved")}`)
           responseName.value = ""
         }

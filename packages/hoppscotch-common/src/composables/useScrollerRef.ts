@@ -58,8 +58,8 @@ export function useScrollerRef(
 
         scroller.addEventListener("scroll", onScroll)
       })
-      .catch(() => {
-        // Silently fail
+      .catch((error) => {
+        console.error(`[${label}] Failed to initialize scroller:`, error.message);
       })
   })
 

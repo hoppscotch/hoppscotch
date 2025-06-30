@@ -198,9 +198,9 @@ watch(
   { immediate: true }
 )
 
-const lensRefs = reactive<Record<string, any>>({})
+const lensRefs = reactive<Record<string, HTMLElement | null>>({})
 
-function setLensRef(el: any, key: string) {
+function setLensRef(el: HTMLElement | null, key: string) {
   if (el) lensRefs[key] = el
 }
 

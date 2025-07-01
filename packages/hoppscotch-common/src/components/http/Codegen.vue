@@ -291,8 +291,6 @@ const requestCode = asyncComputed(async () => {
     true
   )
 
-  console.log("effective-url", getFinalURL(effectiveRequest.effectiveFinalURL))
-
   const result = generateCode(
     lang,
     makeRESTRequest({

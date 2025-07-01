@@ -158,7 +158,9 @@ const getHoppResponseBody = (
   if (typeof body === "string")
     return body.replace(UNSUPPORTED_UNICODES_REGEX, "")
   if (body instanceof ArrayBuffer) {
-    return new TextDecoder().decode(body)
+    return new TextDecoder()
+      .decode(body)
+      .replace(UNSUPPORTED_UNICODES_REGEX, "")
   }
 
   return ""

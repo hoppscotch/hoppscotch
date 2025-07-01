@@ -3,8 +3,10 @@ import { Container, ServiceClassInstance } from "dioc"
 import { diocPlugin } from "dioc/vue"
 import { DebugService } from "~/services/debug.service"
 import { platform } from "~/platform"
+import { ScrollService } from "~/services/scroll.service"
 
 const serviceContainer = new Container()
+serviceContainer.bind(ScrollService)
 
 if (import.meta.env.DEV) {
   serviceContainer.bind(DebugService)

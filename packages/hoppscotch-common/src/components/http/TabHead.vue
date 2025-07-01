@@ -85,7 +85,7 @@
             :shortcut="['W']"
             @click="
               () => {
-                cleanupScrollForTab(props.tab.id)
+                scrollService.cleanupScrollForTab(props.tab.id)
                 emit('close-tab')
                 hide()
               }
@@ -99,7 +99,7 @@
             :shortcut="['X']"
             @click="
               () => {
-                cleanupAllScroll()
+                scrollService.cleanupAllScroll()
                 emit('close-other-tabs')
                 hide()
               }
@@ -113,7 +113,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { cleanupScrollForTab , cleanupAllScroll} from "~/composables/scrollStore"
 import { TippyComponent } from "vue-tippy"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 import { useI18n } from "~/composables/i18n"
@@ -123,6 +122,8 @@ import IconFileEdit from "~icons/lucide/file-edit"
 import IconCopy from "~icons/lucide/copy"
 import IconShare2 from "~icons/lucide/share-2"
 import { HoppTab } from "~/services/tab"
+import { useService } from "dioc/vue"
+import { ScrollService } from "~/services/scroll.service"
 import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
@@ -134,6 +135,8 @@ const props = defineProps<{
   tab: HoppTab<HoppRequestDocument | HoppSavedExampleDocument>
   isRemovable: boolean
 }>()
+
+const scrollService = useService(ScrollService)
 
 const tabState = computed(() => {
   if (props.tab.document.type === "request") {

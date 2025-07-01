@@ -151,7 +151,10 @@ import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
-import { cleanupScrollForTab } from "~/composables/scrollStore"
+import { ScrollService } from "~/services/scroll.service"
+
+const scrollService = useService(ScrollService)
+
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -250,7 +253,7 @@ const removeTab = (tabID: string) => {
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
-    cleanupScrollForTab(tabState.id)
+    scrollService.cleanupScrollForTab(tabState.id)
     tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }

@@ -1,7 +1,7 @@
 import { ref, onMounted, onBeforeUnmount, defineExpose } from "vue"
-import { globalScrollMap } from "./scrollStore"
-// This composable provides a way to manage a scrollable container reference
-// and its scroll position, allowing for persistence across component lifecycles. 
+import { useService } from "dioc/vue"
+import { ScrollService } from "~/services/scroll.service"
+
 export function useScrollerRef(
   label: string = "Lens",
   classSelector: string = ".cm-scroller",
@@ -10,6 +10,8 @@ export function useScrollerRef(
 ) {
   const containerRef = ref<HTMLElement | null>(null)
   const scrollerRef = ref<HTMLElement | null>(null)
+
+  const scrollService = useService(ScrollService)
 
   function waitUntilScrollable(maxTries = 60, delay = 16): Promise<HTMLElement> {
     return new Promise((resolve, reject) => {
@@ -43,8 +45,8 @@ export function useScrollerRef(
         scrollerRef.value = scroller
 
         requestAnimationFrame(() => {
-          if (scrollKey && globalScrollMap.has(scrollKey)) {
-            scroller.scrollTop = globalScrollMap.get(scrollKey)!
+          if (scrollKey && scrollService.getScrollForKey(scrollKey) !== undefined) {
+            scroller.scrollTop = scrollService.getScrollForKey(scrollKey)!
           } else if (initialScrollTop !== undefined) {
             scroller.scrollTop = initialScrollTop
           }
@@ -52,14 +54,14 @@ export function useScrollerRef(
 
         onScroll = () => {
           if (scrollKey) {
-            globalScrollMap.set(scrollKey, scroller.scrollTop)
+            scrollService.setScrollForKey(scrollKey, scroller.scrollTop)
           }
         }
 
         scroller.addEventListener("scroll", onScroll)
       })
       .catch((error) => {
-        console.error(`[${label}] Failed to initialize scroller:`, error.message);
+        console.error(`[${label}] Failed to initialize scroller:`, error.message)
       })
   })
 
@@ -67,7 +69,6 @@ export function useScrollerRef(
     if (scrollerRef.value && onScroll) {
       scrollerRef.value.removeEventListener("scroll", onScroll)
     }
-    
   })
 
   defineExpose({ containerRef, scrollerRef })

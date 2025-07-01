@@ -61,7 +61,7 @@
         />
       </div>
     </div>
-    <div v-show="!previewEnabled" class="h-full relative flex flex-col flex-1">
+    <div ref="containerRef" v-show="!previewEnabled" class="h-full relative flex flex-col flex-1">
       <div ref="htmlResponse" class="absolute inset-0"></div>
     </div>
     <iframe
@@ -99,6 +99,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { computedAsync } from "@vueuse/core"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 const persistenceService = useService(PersistenceService)
@@ -109,7 +110,16 @@ const props = defineProps<{
     | HoppRESTRequestResponse
   isSavable: boolean
   isEditable: boolean
+  tabId: string
 }>()
+
+const { containerRef, scrollerRef } = useScrollerRef(
+  "HTMLLens",
+  ".cm-scroller",
+  undefined, // skip initial
+  `${props.tabId}::html`
+)
+defineExpose({ scrollerRef })
 
 const emit = defineEmits<{
   (e: "save-as-example"): void

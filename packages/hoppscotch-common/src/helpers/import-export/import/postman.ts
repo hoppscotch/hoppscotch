@@ -149,14 +149,14 @@ const getHoppReqVariables = (
 
 // This regex is used to remove unsupported unicode characters from the response body which fails in Prisma
 // https://dba.stackexchange.com/questions/115029/unicode-error-with-u0000-on-copy-of-large-json-file-into-postgres
-const UNSUPORTED_UNICODES_REGEX = /[\u0000]/g
+const UNSUPPORTED_UNICODES_REGEX = /[\u0000]/g
 
 const getHoppResponseBody = (
   body: string | ArrayBuffer | undefined
 ): string => {
   if (!body) return ""
   if (typeof body === "string")
-    return body.replace(UNSUPORTED_UNICODES_REGEX, "")
+    return body.replace(UNSUPPORTED_UNICODES_REGEX, "")
   if (body instanceof ArrayBuffer) {
     return new TextDecoder().decode(body)
   }

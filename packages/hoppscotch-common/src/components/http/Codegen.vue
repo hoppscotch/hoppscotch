@@ -202,6 +202,27 @@ const getCurrentValue = (env: AggregateEnvironment) => {
   )?.currentValue
 }
 
+const getFinalURL = (url: string) => {
+  // If the URL is empty, return "http://"
+  // This is to ensure that the URL is always valid and can be used in code generation
+  if (!url) return "https://"
+
+  // If the URL is not empty, trim it and check if it starts with http:// or https://
+  // If it does not, check if it starts with <<, if it does not,
+  // then check if it is a valid domain or localhost, and prepend http:// or https accordingly
+  const endpoint = url.trim()
+  if (!/^http[s]?:\/\//.test(endpoint) && !endpoint.startsWith("<<")) {
+    const domain = endpoint.split(/[/:#?]+/)[0]
+    if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
+      url = "http://" + endpoint
+    } else {
+      url = "https://" + endpoint
+    }
+  }
+
+  return url
+}
+
 const requestCode = asyncComputed(async () => {
   // Generate code snippet action only applies to request documents
   if (currentActiveTabDocument.value.type !== "request") {
@@ -230,7 +251,8 @@ const requestCode = asyncComputed(async () => {
       ...(requestVariables as Environment["variables"]),
       ...aggregateEnvs.map((env) => ({
         ...env,
-        currentValue: getCurrentValue(env) ?? env.currentValue,
+        currentValue:
+          getCurrentValue(env) || env.currentValue || env.initialValue,
       })),
     ],
   }
@@ -269,6 +291,8 @@ const requestCode = asyncComputed(async () => {
     true
   )
 
+  console.log("effective-url", getFinalURL(effectiveRequest.effectiveFinalURL))
+
   const result = generateCode(
     lang,
     makeRESTRequest({
@@ -282,7 +306,7 @@ const requestCode = asyncComputed(async () => {
         ...param,
         active: true,
       })),
-      endpoint: effectiveRequest.effectiveFinalURL,
+      endpoint: getFinalURL(effectiveRequest.effectiveFinalURL),
       requestVariables: effectiveRequest.effectiveFinalRequestVariables.map(
         (requestVariable) => ({
           ...requestVariable,

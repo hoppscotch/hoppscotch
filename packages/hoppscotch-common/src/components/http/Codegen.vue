@@ -203,7 +203,7 @@ const getCurrentValue = (env: AggregateEnvironment) => {
 }
 
 const getFinalURL = (url: string) => {
-  // If the URL is empty, return "http://"
+  // If the URL is empty, return "https://"
   // This is to ensure that the URL is always valid and can be used in code generation
   if (!url) return "https://"
 
@@ -251,8 +251,7 @@ const requestCode = asyncComputed(async () => {
       ...(requestVariables as Environment["variables"]),
       ...aggregateEnvs.map((env) => ({
         ...env,
-        currentValue:
-          getCurrentValue(env) || env.currentValue || env.initialValue,
+        currentValue: getCurrentValue(env) || env.initialValue,
       })),
     ],
   }

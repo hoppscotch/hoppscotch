@@ -13,7 +13,6 @@
     >
       <component
         :is="lensRendererFor(lens.renderer)"
-        :ref="el => setLensRef(el, lens.renderer)" 
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
@@ -65,7 +64,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { useSetting } from "~/composables/settings"
 import {
   getLensRenderers,
@@ -198,13 +197,6 @@ watch(
   { immediate: true }
 )
 
-const lensRefs = reactive<Record<string, HTMLElement | null>>({})
-
-function setLensRef(el: HTMLElement | null, key: string) {
-  if (el) lensRefs[key] = el
-}
-
-defineExpose({ lensRefs }) 
 
 
 watch(selectedLensTab, (newLensID) => {

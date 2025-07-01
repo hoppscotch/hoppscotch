@@ -2,7 +2,6 @@
   <div class="relative flex flex-1 flex-col">
     <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
     <LensesResponseBodyRenderer
-      ref="lensBodyRendererRef"
       v-if="!loading && hasResponse"
       v-model:document="doc"
       :is-editable="false"

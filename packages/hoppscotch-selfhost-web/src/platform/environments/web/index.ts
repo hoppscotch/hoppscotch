@@ -97,11 +97,10 @@ async function loadUserEnvironments() {
 
         replaceEnvironments(
           formatedEnvironments.map((environment) => {
-            const parsedEnv =
-              entityReference(Environment).safeParse(environment)
+            const parsedEnv = Environment.safeParse(environment)
 
-            return parsedEnv.success
-              ? parsedEnv.data
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
               : {
                   ...environment,
                   v: EnvironmentSchemaVersion,
@@ -192,13 +191,24 @@ function setupUserEnvironmentUpdatedSubscription() {
         )
 
         if ((localIndex || localIndex == 0) && name) {
+          const environment = {
+            id,
+            name,
+            variables: JSON.parse(variables),
+          }
+
+          const parsedEnvResult = Environment.safeParse(environment)
+
+          const parsedEnv: Environment =
+            parsedEnvResult.type === "ok"
+              ? parsedEnvResult.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+
           runDispatchWithOutSyncing(() => {
-            updateEnvironment(localIndex, {
-              v: 2,
-              id,
-              name,
-              variables: JSON.parse(variables),
-            })
+            updateEnvironment(localIndex, parsedEnv)
           })
         }
       }

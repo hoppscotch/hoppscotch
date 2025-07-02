@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Impossible d'exécuter le script de pré-requête",
     "something_went_wrong": "Quelque chose s'est mal passé",
-    "test_script_fail": "Impossible d'exécuter le script post-requête",
+    "post_request_script_fail": "Impossible d'exécuter le script post-requête",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Les scripts de test sont écrits en JavaScript et sont exécutés après réception de la réponse.",
     "pre_request_script": "Les scripts de pré-requête sont écrits en JavaScript et sont exécutés avant l'envoi de la requête.",
     "script_fail": "Il semble qu'il y ait un problème dans le script de pré-requête. Vérifiez l'erreur ci-dessous et corrigez le script en conséquence.",
-    "test_script_fail": "Il semble y avoir une erreur avec le script de test. Veuillez corriger les erreurs et recommencer les tests",
-    "tests": "Ecrivez un script de test pour automatiser le débogage."
+    "post_request_script_fail": "Il semble y avoir une erreur avec le script de post-requête. Veuillez corriger les erreurs et recommencer les tests",
+    "post_request_script": "Ecrivez un script de test pour automatiser le débogage."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

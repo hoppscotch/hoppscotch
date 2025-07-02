@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament",
-    "test_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud",
+    "post_request_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Els scripts de prova s'escriuen en JavaScript i s'executen després de rebre la resposta.",
     "pre_request_script": "Els scripts de sol·licitud prèvia s'escriuen en JavaScript i s'executen abans que s'enviï la sol·licitud.",
     "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
-    "test_script_fail": "Sembla que hi ha un error amb l'script de prova. Corregiu els errors i torneu a fer proves.",
-    "tests": "Escriviu un script de prova per automatitzar la depuració."
+    "post_request_script_fail": "Sembla que hi ha un error amb l'script de sol·licitud posterior. Corregiu els errors i torneu a fer proves.",
+    "post_request_script": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {
     "collection": "Redueix el tauler de col·lecció",

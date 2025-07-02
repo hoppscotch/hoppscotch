@@ -48,6 +48,60 @@
                   :title="t('add.new')"
                   @click="addEnvironmentVariable"
                 />
+                <tippy
+                  ref="options"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                  :on-shown="() => tippyActions!.focus()"
+                >
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('action.more')"
+                    :icon="IconMoreVertical"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      role="menu"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyLeft"
+                        :label="
+                          t('environment.replace_all_initial_with_current')
+                        "
+                        :disabled="isViewer"
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.initialValue = v.env.currentValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyRight"
+                        :label="
+                          t('environment.replace_all_current_with_initial')
+                        "
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.currentValue = v.env.initialValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                    </div>
+                  </template>
+                </tippy>
               </div>
             </template>
 
@@ -88,29 +142,60 @@
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :class="{
+                        'opacity-25': isViewer,
+                      }"
+                      :name="'variable' + index"
                       :disabled="isViewer"
                     />
-                    <SmartEnvInput
-                      v-model="env.initialValue"
-                      :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
-                      :envs="liveEnvs"
-                      :name="'initialValue' + index"
-                      :secret="tab.isSecret"
-                      :select-text-on-mount="
-                        env.key ? env.key === editingVariableName : false
-                      "
-                    />
-                    <SmartEnvInput
-                      v-model="env.currentValue"
-                      :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
-                      :envs="liveEnvs"
-                      :name="'currentValue' + index"
-                      :secret="tab.isSecret"
-                      :select-text-on-mount="
-                        env.key ? env.key === editingVariableName : false
-                      "
-                    />
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.initialValue"
+                        :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'initialValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                        :readonly="isViewer"
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_initial_with_current')"
+                        :icon="IconCopyLeft"
+                        :disabled="isViewer"
+                        @click="
+                          () => {
+                            env.initialValue = env.currentValue
+                          }
+                        "
+                      />
+                    </div>
+
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.currentValue"
+                        :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'currentValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_current_with_initial')"
+                        :icon="IconCopyRight"
+                        @click="
+                          () => {
+                            env.currentValue = env.initialValue
+                          }
+                        "
+                      />
+                    </div>
+
                     <div v-if="!isViewer" class="flex">
                       <HoppButtonSecondary
                         id="variable"
@@ -155,7 +240,11 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import {
+  Environment,
+  GlobalEnvironment,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { clone } from "lodash-es"
 import { useToast } from "@composables/toast"
@@ -167,16 +256,22 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useColorMode } from "~/composables/theming"
-import IconTrash from "~icons/lucide/trash"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconDone from "~icons/lucide/check"
-import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
 import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { useReadonlyStream } from "~/composables/stream"
+import { globalEnv$ } from "~/newstore/environments"
+import IconTrash from "~icons/lucide/trash"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconDone from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconCopyRight from "~icons/lucide/clipboard-paste"
+import IconCopyLeft from "~icons/lucide/clipboard-copy"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import { TippyComponent } from "vue-tippy"
 
 type EnvironmentVariable = {
   id: number
@@ -243,6 +338,9 @@ const tabsData: ComputedRef<
   ]
 })
 
+const options = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLDivElement | null>(null)
+
 const editingName = ref<string | null>(null)
 const editingID = ref<string | null>(null)
 const vars = ref<EnvironmentVariable[]>([
@@ -254,6 +352,8 @@ const vars = ref<EnvironmentVariable[]>([
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
 const currentEnvironmentValueService = useService(CurrentValueService)
+
+const globalEnv = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
 
 const secretVars = computed(() =>
   pipe(
@@ -298,6 +398,7 @@ const liveEnvs = computed(() => {
   }
   return [
     ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
+    ...globalEnv.value.variables.map((x) => ({ ...x, sourceEnv: "Global" })),
   ]
 })
 
@@ -422,7 +523,7 @@ const saveEnvironment = async () => {
             key: e.key,
             currentValue: e.currentValue,
             varIndex: i,
-            isSecret: e.secret,
+            isSecret: e.secret ?? false,
           })
         : O.none
     )
@@ -433,7 +534,7 @@ const saveEnvironment = async () => {
     A.map((e) => ({
       key: e.key,
       secret: e.secret,
-      initialValue: e.initialValue,
+      initialValue: e.initialValue || "",
       currentValue: "",
     }))
   )
@@ -495,8 +596,13 @@ const saveEnvironment = async () => {
         secretVariables
       )
 
+      currentEnvironmentValueService.addEnvironment(
+        editingID.value,
+        nonSecretVariables
+      )
+
       // If the user is a viewer, we don't need to update the environment in BE
-      // just update the secret environment in the local storage
+      // just update the secret environment and current environment in the local storage
       if (props.isViewer) {
         hideModal()
         toast.success(`${t("environment.updated")}`)
@@ -521,12 +627,6 @@ const saveEnvironment = async () => {
             toast.success(`${t("environment.updated")}`)
 
             isLoading.value = false
-            if (editingID.value) {
-              currentEnvironmentValueService.addEnvironment(
-                editingID.value,
-                nonSecretVariables
-              )
-            }
           }
         )
       )()

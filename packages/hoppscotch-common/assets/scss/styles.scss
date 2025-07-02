@@ -158,7 +158,6 @@ a {
     @apply shadow-none #{!important};
     @apply fixed;
     @apply inline-flex;
-    @apply -mt-7;
   }
 }
 
@@ -169,7 +168,7 @@ a {
   @apply shadow;
 
   .tippy-content {
-    @apply flex;
+    @apply flex flex-col;
     @apply text-tiny text-primary;
     @apply font-semibold;
     @apply px-2 py-1;

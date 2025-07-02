@@ -53,7 +53,7 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
-    "faraday-cage": "0.0.16",
+    "faraday-cage": "0.1.0",
     "fp-ts": "2.16.9",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21"
@@ -71,7 +71,7 @@
     "eslint-plugin-prettier": "5.2.1",
     "io-ts": "2.2.21",
     "prettier": "3.3.3",
-    "typescript": "5.5.4",
+    "typescript": "5.8.3",
     "vite": "5.4.9",
     "vitest": "2.1.3"
   },

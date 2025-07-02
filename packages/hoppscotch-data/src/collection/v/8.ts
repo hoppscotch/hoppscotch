@@ -2,7 +2,7 @@ import { defineVersion, entityRefUptoVersion } from "verzod"
 import { z } from "zod"
 
 import { HoppGQLAuth } from "../../graphql/v/8"
-import { HoppRESTAuth } from "../../rest/v/13"
+import { HoppRESTAuth } from "../../rest/v/13/auth"
 
 import { HoppCollection } from ".."
 import { v7_baseCollectionSchema, V7_SCHEMA } from "./7"

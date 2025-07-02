@@ -11,10 +11,15 @@ import IconCopy from "~icons/lucide/copy"
 import IconCopyPlus from "~icons/lucide/copy-plus"
 import IconXCircle from "~icons/lucide/x-circle"
 import IconXSquare from "~icons/lucide/x-square"
+import IconArrowLeft from "~icons/lucide/arrow-left"
+import IconArrowRight from "~icons/lucide/arrow-right"
+import IconChevronsLeft from "~icons/lucide/chevrons-left"
+import IconChevronsRight from "~icons/lucide/chevrons-right"
 import { invokeAction } from "~/helpers/actions"
 import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
 import { Container } from "dioc"
+import { getKernelMode } from "@hoppscotch/kernel"
 
 type Doc = {
   text: string | string[]
@@ -53,6 +58,8 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       : this.restTab.getActiveTabs().value.length === 1
   )
 
+  private isDesktopMode = computed(() => getKernelMode() === "desktop")
+
   private documents: Record<string, Doc> = reactive({
     duplicate_tab: {
       text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.duplicate")],
@@ -88,6 +95,57 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       icon: markRaw(IconCopyPlus),
       excludeFromSearch: computed(() => !this.showAction.value),
     },
+    // NOTE: Desktop-only actions
+    tab_prev: {
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.previous")],
+      alternates: ["tab", "previous", "prev", "switch"],
+      icon: markRaw(IconArrowLeft),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
+    tab_next: {
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.next")],
+      alternates: ["tab", "next", "switch"],
+      icon: markRaw(IconArrowRight),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
+    tab_switch_to_first: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_first"),
+      ],
+      alternates: ["tab", "first", "switch", "go to first"],
+      icon: markRaw(IconChevronsLeft),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
+    tab_switch_to_last: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.switch_to_last"),
+      ],
+      alternates: ["tab", "last", "switch", "go to last"],
+      icon: markRaw(IconChevronsRight),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
   })
 
   // TODO: Constructors are no longer recommended as of dioc > 3, use onServiceInit instead
@@ -122,5 +180,9 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     if (id === "close_current_tab") invokeAction("tab.close-current")
     if (id === "close_other_tabs") invokeAction("tab.close-other")
     if (id === "open_new_tab") invokeAction("tab.open-new")
+    if (id === "tab_prev") invokeAction("tab.prev")
+    if (id === "tab_next") invokeAction("tab.next")
+    if (id === "tab_switch_to_first") invokeAction("tab.switch-to-first")
+    if (id === "tab_switch_to_last") invokeAction("tab.switch-to-last")
   }
 }

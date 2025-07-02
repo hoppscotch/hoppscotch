@@ -10,7 +10,7 @@ pub struct LogGuard(pub tracing_appender::non_blocking::WorkerGuard);
 pub fn setup(log_dir: &PathBuf) -> Result<LogGuard, Box<dyn std::error::Error>> {
     std::fs::create_dir_all(log_dir)?;
 
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| format!("debug").into());
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| "debug".into());
 
     let log_file_path = log_dir.join(&format!("{}.log", HOPPSCOTCH_DESKTOP_IDENTIFIER));
     tracing::info!(log_file_path =? &log_file_path);
@@ -45,7 +45,7 @@ pub fn setup(log_dir: &PathBuf) -> Result<LogGuard, Box<dyn std::error::Error>> 
 
     tracing::info!(
         log_file = %log_file_path.display(),
-        "Logging initialized with single file"
+        "Logging initialized with rotating file"
     );
 
     Ok(LogGuard(guard))

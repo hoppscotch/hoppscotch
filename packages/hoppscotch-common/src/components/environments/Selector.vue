@@ -35,7 +35,6 @@
             :placeholder="`${t('action.search')}`"
             :context-menu-enabled="false"
             class="border border-dividerDark focus:border-primaryDark rounded"
-            :readonly="isFilterInputDisabled"
           />
           <HoppSmartItem
             v-if="!isScopeSelector"
@@ -240,9 +239,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -253,7 +257,13 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
                     {{ variable.currentValue }}
@@ -298,9 +308,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -311,7 +326,13 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
                     {{ variable.currentValue }}
@@ -700,14 +721,6 @@ const environmentVariables = computed(() => {
 const editGlobalEnv = () => {
   invokeAction("modals.global.environment.update", {})
 }
-
-// Filter input disabled if no environments are available
-const isFilterInputDisabled = computed(() => {
-  if (selectedEnvTab.value === "my-environments") {
-    return myEnvironments.value.length === 0
-  }
-  return teamEnvironmentList.value.length === 0
-})
 
 const editEnv = () => {
   if (selectedEnv.value.type === "MY_ENV" && selectedEnv.value.name) {

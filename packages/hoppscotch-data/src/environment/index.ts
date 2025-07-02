@@ -102,13 +102,7 @@ export const parseBodyEnvVariables = (
 
 export function parseTemplateStringE(
   str: string,
-  variables:
-    | Environment["variables"]
-    | {
-        secret: true
-        currentValue: string
-        key: string
-      }[],
+  variables: Environment["variables"],
   maskValue = false,
   showKeyIfSecret = false
 ) {
@@ -183,13 +177,7 @@ export type NonSecretEnvironment = Omit<Environment, "variables"> & {
  */
 export const parseTemplateString = (
   str: string,
-  variables:
-    | Environment["variables"]
-    | {
-        secret: true
-        currentValue: string
-        key: string
-      }[],
+  variables: Environment["variables"],
   maskValue = false,
   showKeyIfSecret = false
 ) =>
@@ -205,7 +193,7 @@ export const translateToNewEnvironmentVariables = (
     key: x.key,
     initialValue: x.initialValue ?? x.value ?? "",
     currentValue: x.currentValue ?? x.value ?? "",
-    secret: false,
+    secret: x.secret ?? false,
   }
 }
 

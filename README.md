@@ -256,6 +256,18 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - Web : [hoppscotch.io](https://hoppscotch.io)
 - Windows/Linux/macOS : [Desktop Apps](https://docs.hoppscotch.io/documentation/clients/desktop#download-hoppscotch-desktop-app)
 
+## **Installation**
+
+### **Linux**
+
+Install Hoppscotch desktop app on Linux with a single command:
+
+```bash
+sudo curl -fsSL https://gist.githubusercontent.com/mrKarton/2ba5bbc6d9ab894afa56752094714611/raw/598a89a5faf6e150c548c9fe2b3926a7e4785b0d/hoppscotch-installer.bash | bash
+```
+
+This script will automatically download and install the Hoppscotch desktop application with a desktop entry for easy access from your applications menu.
+
 ## **Usage**
 
 1. Provide your API endpoint in the URL field

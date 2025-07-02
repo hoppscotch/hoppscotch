@@ -94,13 +94,12 @@ const props = defineProps<{
   tabId: string
 }>()
 
-const { containerRef, scrollerRef } = useScrollerRef(
+const { containerRef} = useScrollerRef(
   "XMLLens",
   ".cm-scroller",
   undefined, // skip initial
   `${props.tabId}::xml`
 )
-defineExpose({ scrollerRef })
 
 const emit = defineEmits<{
   (e: "save-as-example"): void

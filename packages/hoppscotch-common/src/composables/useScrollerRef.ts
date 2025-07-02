@@ -1,4 +1,4 @@
-import { ref, onMounted, onBeforeUnmount, defineExpose } from "vue"
+import { ref, onMounted, onBeforeUnmount } from "vue"
 import { useService } from "dioc/vue"
 import { ScrollService } from "~/services/scroll.service"
 
@@ -70,8 +70,6 @@ export function useScrollerRef(
       scrollerRef.value.removeEventListener("scroll", onScroll)
     }
   })
-
-  defineExpose({ containerRef, scrollerRef })
 
   return { containerRef, scrollerRef }
 }

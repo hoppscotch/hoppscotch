@@ -285,13 +285,12 @@ const props = defineProps<{
   tabId: string
 }>()
 
-const { containerRef, scrollerRef } = useScrollerRef(
+const { containerRef } = useScrollerRef(
   "JSONLens",
   ".cm-scroller",
   undefined, // skip initial
   `${props.tabId}::json`
 )
-defineExpose({ scrollerRef })
 
 const emit = defineEmits<{
   (e: "save-as-example"): void

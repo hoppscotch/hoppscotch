@@ -52,7 +52,10 @@
         />
       </div>
     </div>
-    <div class="h-full relative overflow-auto flex flex-col flex-1">
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
       <div ref="rawResponse" class="absolute inset-0"></div>
     </div>
   </div>
@@ -81,6 +84,7 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
@@ -90,6 +94,7 @@ const props = defineProps<{
     | HoppRESTRequestResponse
   isEditable: boolean
   isSavable: boolean
+  tabId: string
 }>()
 
 const emit = defineEmits<{
@@ -101,6 +106,13 @@ const emit = defineEmits<{
   ): void
   (e: "save-as-example"): void
 }>()
+
+const { containerRef } = useScrollerRef(
+  "RawLens",
+  ".cm-scroller",
+  undefined, // skip initial scrollTop
+  `${props.tabId}::raw` // unique scroll key for RawLens
+)
 
 const { responseBodyText } = useResponseBody(props.response)
 

@@ -43,10 +43,12 @@ export class ScrollService extends Service {
    * @param tabId ID of the tab
    */
   public cleanupScrollForTab(tabId: string) {
-    const suffixes = ["json", "raw", "html", "xml", "preview"]
-    for (const suffix of suffixes) {
-      const key = `${tabId}::${suffix}`
-      this.scrollMap.delete(key)
+    const keysToDelete = Array.from(this.scrollMap.keys())
+    for (const key of keysToDelete) {
+      const tabKey = key.split("::")[0]
+      if (tabKey === tabId) {
+        this.scrollMap.delete(key)
+      }
     }
   }
 

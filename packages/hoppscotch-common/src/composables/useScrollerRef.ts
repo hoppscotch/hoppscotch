@@ -31,6 +31,7 @@ export function useScrollerRef(
    * (i.e., content overflows and scrolling is possible).
    * Retries for a limited number of times before failing.
    */
+  let isUnmounted = false
   function waitUntilScrollable(
     maxTries = 60,
     delay = 16
@@ -39,6 +40,11 @@ export function useScrollerRef(
       let tries = 0
 
       const tryFind = () => {
+        if (isUnmounted) {
+          reject(new Error(`[${label}] Aborted: component unmounted`))
+          return
+        }
+
         const scroller = containerRef.value?.querySelector(
           classSelector
         ) as HTMLElement | null
@@ -101,6 +107,7 @@ export function useScrollerRef(
 
   // Clean up scroll listener on unmount
   onBeforeUnmount(() => {
+    isUnmounted = true
     if (scrollerRef.value && onScroll) {
       scrollerRef.value.removeEventListener("scroll", onScroll)
     }

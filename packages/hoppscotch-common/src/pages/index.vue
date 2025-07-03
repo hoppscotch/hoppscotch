@@ -155,7 +155,6 @@ import { ScrollService } from "~/services/scroll.service"
 
 const scrollService = useService(ScrollService)
 
-
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
 const confirmingCloseAllTabs = ref(false)
@@ -271,6 +270,7 @@ const closeOtherTabsAction = (tabID: string) => {
     unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
+    scrollService.cleanupAllScroll()
     tabs.closeOtherTabs(tabID)
   }
 }

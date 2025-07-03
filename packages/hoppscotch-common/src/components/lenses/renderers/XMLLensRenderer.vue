@@ -94,7 +94,7 @@ const props = defineProps<{
   tabId: string
 }>()
 
-const { containerRef} = useScrollerRef(
+const { containerRef } = useScrollerRef(
   "XMLLens",
   ".cm-scroller",
   undefined, // skip initial

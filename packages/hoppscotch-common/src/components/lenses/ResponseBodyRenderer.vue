@@ -16,7 +16,7 @@
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
-         :tab-id="props.tabId" 
+        :tab-id="props.tabId"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -196,8 +196,6 @@ watch(
   },
   { immediate: true }
 )
-
-
 
 watch(selectedLensTab, (newLensID) => {
   if (props.isTestRunner) return

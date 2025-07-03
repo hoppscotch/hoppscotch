@@ -31,12 +31,17 @@ export function useScrollerRef(
    * (i.e., content overflows and scrolling is possible).
    * Retries for a limited number of times before failing.
    */
-  function waitUntilScrollable(maxTries = 60, delay = 16): Promise<HTMLElement> {
+  function waitUntilScrollable(
+    maxTries = 60,
+    delay = 16
+  ): Promise<HTMLElement> {
     return new Promise((resolve, reject) => {
       let tries = 0
 
       const tryFind = () => {
-        const scroller = containerRef.value?.querySelector(classSelector) as HTMLElement | null
+        const scroller = containerRef.value?.querySelector(
+          classSelector
+        ) as HTMLElement | null
 
         if (scroller && scroller.scrollHeight > scroller.clientHeight) {
           resolve(scroller) // Found a scrollable element
@@ -45,7 +50,9 @@ export function useScrollerRef(
 
         tries++
         if (tries >= maxTries) {
-          reject(new Error(`[${label}] Timeout: ${classSelector} never scrollable`))
+          reject(
+            new Error(`[${label}] Timeout: ${classSelector} never scrollable`)
+          )
         } else {
           setTimeout(tryFind, delay) // Retry after delay
         }
@@ -65,7 +72,10 @@ export function useScrollerRef(
 
         // Restore scroll position from service (if available)
         requestAnimationFrame(() => {
-          if (scrollKey && scrollService.getScrollForKey(scrollKey) !== undefined) {
+          if (
+            scrollKey &&
+            scrollService.getScrollForKey(scrollKey) !== undefined
+          ) {
             scroller.scrollTop = scrollService.getScrollForKey(scrollKey)!
           } else if (initialScrollTop !== undefined) {
             scroller.scrollTop = initialScrollTop
@@ -82,7 +92,10 @@ export function useScrollerRef(
         scroller.addEventListener("scroll", onScroll)
       })
       .catch((error) => {
-        console.error(`[${label}] Failed to initialize scroller:`, error.message)
+        console.error(
+          `[${label}] Failed to initialize scroller:`,
+          error.message
+        )
       })
   })
 

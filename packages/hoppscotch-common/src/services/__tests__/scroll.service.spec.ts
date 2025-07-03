@@ -12,6 +12,7 @@ describe("ScrollService", () => {
 
   it("should store and retrieve scroll position for tab and suffix", () => {
     service.setScroll("tab1", "json", 100)
+
     expect(service.getScroll("tab1", "json")).toBe(100)
   })
 
@@ -22,6 +23,7 @@ describe("ScrollService", () => {
   it("should clean up scroll positions for a specific tab", () => {
     service.setScroll("tab1", "json", 100)
     service.setScroll("tab1", "html", 200)
+
     service.cleanupScrollForTab("tab1")
 
     expect(service.getScroll("tab1", "json")).toBeUndefined()
@@ -39,6 +41,7 @@ describe("ScrollService", () => {
 
   it("should store and retrieve scroll position using a custom key", () => {
     service.setScrollForKey("customKey", 999)
+
     expect(service.getScrollForKey("customKey")).toBe(999)
   })
 
@@ -47,24 +50,26 @@ describe("ScrollService", () => {
   })
 
   it("should overwrite an existing scroll value", () => {
-  service.setScroll("tab1", "json", 100)
-  service.setScroll("tab1", "json", 300)
-  expect(service.getScroll("tab1", "json")).toBe(300)
+    service.setScroll("tab1", "json", 100)
+    service.setScroll("tab1", "json", 300)
+
+    expect(service.getScroll("tab1", "json")).toBe(300)
   })
 
   it("custom key and tab+suffix keys do not interfere when keys are different", () => {
-  service.setScroll("tab1", "json", 111)
-  service.setScrollForKey("custom-tab1-json", 999)
-  expect(service.getScroll("tab1", "json")).toBe(111)
-  expect(service.getScrollForKey("custom-tab1-json")).toBe(999)
+    service.setScroll("tab1", "json", 111)
+    service.setScrollForKey("custom-tab1-json", 999)
+    expect(service.getScroll("tab1", "json")).toBe(111)
+    expect(service.getScrollForKey("custom-tab1-json")).toBe(999)
   })
 
   it("cleanupScrollForTab should not remove other tab data", () => {
-  service.setScroll("tab1", "json", 100)
-  service.setScroll("tab2", "json", 200)
-  service.cleanupScrollForTab("tab1")
-  expect(service.getScroll("tab1", "json")).toBeUndefined()
-  expect(service.getScroll("tab2", "json")).toBe(200)
-  })
+    service.setScroll("tab1", "json", 100)
+    service.setScroll("tab2", "json", 200)
 
+    service.cleanupScrollForTab("tab1")
+
+    expect(service.getScroll("tab1", "json")).toBeUndefined()
+    expect(service.getScroll("tab2", "json")).toBe(200)
+  })
 })

@@ -52,7 +52,10 @@
         />
       </div>
     </div>
-    <div ref="containerRef" class="h-full relative overflow-auto flex flex-col flex-1">
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
       <div ref="rawResponse" class="absolute inset-0"></div>
     </div>
   </div>
@@ -104,14 +107,12 @@ const emit = defineEmits<{
   (e: "save-as-example"): void
 }>()
 
-const { containerRef, scrollerRef } = useScrollerRef(
+const { containerRef } = useScrollerRef(
   "RawLens",
   ".cm-scroller",
   undefined, // skip initial scrollTop
   `${props.tabId}::raw` // unique scroll key for RawLens
 )
-defineExpose({ scrollerRef })
-
 
 const { responseBodyText } = useResponseBody(props.response)
 

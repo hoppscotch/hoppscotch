@@ -61,7 +61,11 @@
         />
       </div>
     </div>
-    <div ref="containerRef" v-show="!previewEnabled" class="h-full relative flex flex-col flex-1">
+    <div
+      v-show="!previewEnabled"
+      ref="containerRef"
+      class="h-full relative flex flex-col flex-1"
+    >
       <div ref="htmlResponse" class="absolute inset-0"></div>
     </div>
     <iframe
@@ -113,13 +117,12 @@ const props = defineProps<{
   tabId: string
 }>()
 
-const { containerRef} = useScrollerRef(
+const { containerRef } = useScrollerRef(
   "HTMLLens",
   ".cm-scroller",
   undefined, // skip initial
   `${props.tabId}::html`
 )
-
 
 const emit = defineEmits<{
   (e: "save-as-example"): void

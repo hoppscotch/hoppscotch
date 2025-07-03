@@ -4,7 +4,7 @@ import { Service } from "dioc"
  * This service is used to store and manage scroll positions for different tabs and views.
  * It keeps track of scroll positions using a key-value mapping where each key
  * is a combination of tab ID and view suffix (like json, raw, html, etc.).
- * 
+ *
  * The scroll data is maintained in-memory and not persisted anywhere.
  */
 export class ScrollService extends Service {

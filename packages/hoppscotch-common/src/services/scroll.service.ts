@@ -1,6 +1,12 @@
 import { Service } from "dioc"
 
 /**
+ * Suffix type for different views in the application.
+ * This is used to identify the type of view for which the scroll position is being stored.
+ */
+export type Suffix = "json" | "raw" | "html" | "xml" | "preview"
+
+/**
  * This service is used to store and manage scroll positions for different tabs and views.
  * It keeps track of scroll positions using a key-value mapping where each key
  * is a combination of tab ID and view suffix (like json, raw, html, etc.).
@@ -22,7 +28,7 @@ export class ScrollService extends Service {
    * @param suffix View identifier (e.g., 'json', 'html', etc.)
    * @param position Scroll position to store
    */
-  public setScroll(tabId: string, suffix: string, position: number) {
+  public setScroll(tabId: string, suffix: Suffix, position: number) {
     const key = `${tabId}::${suffix}`
     this.scrollMap.set(key, position)
   }
@@ -33,7 +39,7 @@ export class ScrollService extends Service {
    * @param suffix View identifier
    * @returns Scroll position if available, otherwise undefined
    */
-  public getScroll(tabId: string, suffix: string): number | undefined {
+  public getScroll(tabId: string, suffix: Suffix): number | undefined {
     const key = `${tabId}::${suffix}`
     return this.scrollMap.get(key)
   }

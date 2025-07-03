@@ -288,7 +288,10 @@ const duplicateTab = (tabID: string) => {
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) {
+    scrollService.cleanupAllScroll(exceptedTabID.value)
+    tabs.closeOtherTabs(exceptedTabID.value)
+  }
   confirmingCloseAllTabs.value = false
 }
 

@@ -52,8 +52,8 @@ export class ScrollService extends Service {
 
   /**
    * Clear all scroll positions from the service.
-   * @param tabId Clear all scroll positions except those for a specific tab.
    * If no tabId is provided, all scroll positions will be cleared.
+   * @param tabId - ID of the tab not to clear.
    */
   public cleanupAllScroll(tabId?: string) {
     if (tabId) {

@@ -39,6 +39,15 @@ describe("ScrollService", () => {
     expect(service.getScroll("tab2", "html")).toBeUndefined()
   })
 
+  it("should clean up scroll positions for all tabs except a specific one", () => {
+    service.setScroll("tab1", "json", 100)
+    service.setScroll("tab2", "html", 200)
+    service.cleanupAllScroll("tab1")
+
+    expect(service.getScroll("tab1", "json")).toBe(100)
+    expect(service.getScroll("tab2", "html")).toBeUndefined()
+  })
+
   it("should store and retrieve scroll position using a custom key", () => {
     service.setScrollForKey("customKey", 999)
 

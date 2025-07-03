@@ -270,7 +270,7 @@ const closeOtherTabsAction = (tabID: string) => {
     unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
-    scrollService.cleanupAllScroll()
+    scrollService.cleanupAllScroll(tabID)
     tabs.closeOtherTabs(tabID)
   }
 }

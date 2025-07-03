@@ -52,9 +52,21 @@ export class ScrollService extends Service {
 
   /**
    * Clear all scroll positions from the service.
+   * @param tabId Clear all scroll positions except those for a specific tab.
+   * If no tabId is provided, all scroll positions will be cleared.
    */
-  public cleanupAllScroll() {
-    this.scrollMap.clear()
+  public cleanupAllScroll(tabId?: string) {
+    if (tabId) {
+      const keysToDelete = Array.from(this.scrollMap.keys())
+      for (const key of keysToDelete) {
+        const tabKey = key.split("::")[0]
+        if (tabKey !== tabId) {
+          this.scrollMap.delete(key)
+        }
+      }
+    } else {
+      this.scrollMap.clear()
+    }
   }
 
   /**

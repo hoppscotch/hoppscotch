@@ -17,3 +17,8 @@ export function isTypableElement(el: HTMLElement): boolean {
 
   return false
 }
+
+export function isCodeMirrorInput(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false
+  return el.closest(".cm-editor") !== null
+}

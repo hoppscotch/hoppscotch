@@ -156,15 +156,23 @@ impl StorageManager {
         // NOTE: There cannot be more than one user config storage disk,
         // although even if there is, defaulting to the first one we found
         // is as good of a guess as any.
-        let disk = disks.into_iter().find(|disk| {
-            // Convert both paths to the same format for comparison, Windows...
-            let normalized_storage =
-                dunce::canonicalize(&storage_path).unwrap_or(storage_path.clone());
-            let normalized_disk = dunce::canonicalize(disk.mount_point())
-                .unwrap_or_else(|_| disk.mount_point().to_path_buf());
-
-            normalized_storage.starts_with(&normalized_disk)
-        });
+        // Find the disk with the longest matching mount point
+        let disk = disks
+            .into_iter()
+            .filter(|disk| {
+                // Convert both paths to the same format for comparison, Windows...
+                let normalized_storage =
+                    dunce::canonicalize(&storage_path).unwrap_or(storage_path.clone());
+                let normalized_disk = dunce::canonicalize(disk.mount_point())
+                    .unwrap_or_else(|_| disk.mount_point().to_path_buf());
+                normalized_storage.starts_with(&normalized_disk)
+            })
+            .max_by_key(|disk| {
+                dunce::canonicalize(disk.mount_point())
+                    .unwrap_or_else(|_| disk.mount_point().to_path_buf())
+                    .as_os_str()
+                    .len()
+            });
 
         let Some(disk) = disk else {
             tracing::error!(

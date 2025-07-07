@@ -69,11 +69,11 @@ import * as O from "fp-ts/Option"
 import { computed, ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
 import { parseBodyAsJSONOrYAML } from "~/helpers/functional/json"
-import { AgentKernelInterceptorService } from "~/platform/std/kernel-interceptors/agent"
+import { ProxyKernelInterceptorService } from "~/platform/std/kernel-interceptors/proxy"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 
 const interceptorService = useService(KernelInterceptorService)
-const proxyInterceptorService = useService(AgentKernelInterceptorService)
+const proxyInterceptorService = useService(ProxyKernelInterceptorService)
 
 const t = useI18n()
 const toast = useToast()

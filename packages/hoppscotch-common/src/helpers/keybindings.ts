@@ -1,7 +1,7 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
-import { isCodeMirrorInput, isDOMElement, isTypableElement } from "./utils/dom"
+import { isCodeMirrorEditor, isDOMElement, isTypableElement } from "./utils/dom"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
@@ -197,7 +197,7 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
     if (
       modifierKey === "alt" &&
       (key === "up" || key === "down") &&
-      isCodeMirrorInput(target)
+      isCodeMirrorEditor(target)
     ) {
       return null
     }

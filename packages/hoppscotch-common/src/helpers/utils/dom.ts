@@ -18,7 +18,12 @@ export function isTypableElement(el: HTMLElement): boolean {
   return false
 }
 
-export function isCodeMirrorInput(el: EventTarget | null): boolean {
+/**
+ * Checks if an element is a CodeMirror editor.
+ * @param el The element to check. If this is not an HTMLElement, the function will return false.
+ * @returns True if the element is a CodeMirror editor, false otherwise.
+ */
+export function isCodeMirrorEditor(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
   return el.closest(".cm-editor") !== null
 }

@@ -2,9 +2,16 @@
 import { watch } from "vue"
 
 type BinaryBody = {
-  contentType: "application/octet-stream"
+  contentType:
+    | "application/octet-stream"
+    | "audio/x-m4a"
+    | "audio/mpeg"
+    | "video/mp4"
+    | "audio/wav"
+    | "audio/ogg"
   body: File | null
 }
+
 
 const props = defineProps<{
   modelValue: BinaryBody
@@ -38,22 +45,38 @@ watch(
   }
 )
 
+const guessMimeType = (filename: string): BinaryBody["contentType"] => {
+  const ext = filename.split(".").pop()?.toLowerCase()
+  switch (ext) {
+    case "m4a":
+      return "audio/x-m4a"
+    case "mp3":
+      return "audio/mpeg"
+    case "mp4":
+      return "video/mp4"
+    case "wav":
+      return "audio/wav"
+    case "ogg":
+      return "audio/ogg"
+    default:
+      return "application/octet-stream"
+  }
+}
+
+
 const handleFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
 
-  if (file) {
-    emit("update:modelValue", {
-      body: file,
-      contentType: "application/octet-stream",
-    })
-  } else {
-    emit("update:modelValue", {
-      body: null,
-      contentType: "application/octet-stream",
-    })
-  }
+  const mimeType = file ? guessMimeType(file.name) : "application/octet-stream"
+
+  emit("update:modelValue", {
+    body: file ?? null,
+    contentType: mimeType,
+  })
 }
+
+
 </script>
 <template>
   <div class="flex items-center px-4 py-2">

@@ -1114,6 +1114,16 @@
       "download": "Download response as file",
       "title": "Response"
     },
+    "tabs": {
+      "title": "Tabs",
+      "new_tab": "New Tab",
+      "close_tab": "Close Tab",
+      "reopen_tab": "Reopen Closed Tab",
+      "next_tab": "Next Tab",
+      "previous_tab": "Previous Tab",
+      "first_tab": "Switch to First Tab",
+      "last_tab": "Switch to Last Tab"
+    },
     "theme": {
       "black": "Switch theme to Black Mode",
       "dark": "Switch theme to Dark Mode",

@@ -45,33 +45,34 @@ watch(
   }
 )
 
+/**
+ * Determines the MIME type of a file based on its extension.
+ *
+ * @param {string} filename - The name of the file, including its extension.
+ * @returns {BinaryBody["contentType"]} - The MIME type corresponding to the file extension.
+ * Returns "application/octet-stream" if the extension is not recognized.
+ */
 const guessMimeType = (filename: string): BinaryBody["contentType"] => {
-  const ext = filename.split(".").pop()?.toLowerCase()
-  switch (ext) {
-    case "m4a":
-      return "audio/x-m4a"
-    case "mp3":
-      return "audio/mpeg"
-    case "mp4":
-      return "video/mp4"
-    case "wav":
-      return "audio/wav"
-    case "ogg":
-      return "audio/ogg"
-    default:
-      return "application/octet-stream"
+  const mimeMap: Record<string, BinaryBody["contentType"]> = {
+    m4a: "audio/x-m4a",
+    mp3: "audio/mpeg",
+    mp4: "video/mp4",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
   }
+
+  const ext = filename.slice(filename.lastIndexOf(".") + 1).toLowerCase()
+  return mimeMap[ext] || "application/octet-stream"
 }
 
-
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  const mimeType = file ? guessMimeType(file.name) : "application/octet-stream"
+const handleFileChange = (e: Event): void => {
+  const target = e.target as HTMLInputElement | null
+  if (!target || !target.files?.[0]) return
+  const file = target.files[0]
+  const mimeType = guessMimeType(file.name)
 
   emit("update:modelValue", {
-    body: file ?? null,
+    body: file,
     contentType: mimeType,
   })
 }

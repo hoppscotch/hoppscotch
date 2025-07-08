@@ -61,6 +61,7 @@ export const getComputedAuthHeaders = async (
         headers: HoppRESTHeaders
       },
   auth?: HoppRESTRequest["auth"],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   parse = true,
   showKeyIfSecret = false
 ) => {

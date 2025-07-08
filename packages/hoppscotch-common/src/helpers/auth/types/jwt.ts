@@ -49,6 +49,7 @@ export async function generateJwtAuthParams(
   auth: HoppRESTAuth & { authType: "jwt" },
   request: HoppRESTRequest,
   envVars: Environment["variables"],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showKeyIfSecret = false
 ): Promise<HoppRESTParam[]> {
   if (auth.addTo !== "QUERY_PARAMS") return []

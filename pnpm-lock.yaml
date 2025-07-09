@@ -138,7 +138,7 @@ importers:
         specifier: ^3.4.13
         version: 3.4.13(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@22.7.5)(typescript@5.8.3))
       typescript:
-        specifier: ^5.8.3
+        specifier: 5.8.3
         version: 5.8.3
       unplugin-icons:
         specifier: ^0.19.3
@@ -150,8 +150,8 @@ importers:
         specifier: ^5.4.8
         version: 5.4.9(@types/node@22.7.5)(sass@1.80.3)(terser@5.39.2)
       vue-tsc:
-        specifier: ^2.1.6
-        version: 2.1.6(typescript@5.8.3)
+        specifier: 2.2.0
+        version: 2.2.0(typescript@5.8.3)
 
   packages/hoppscotch-backend:
     dependencies:
@@ -1070,7 +1070,7 @@ importers:
         specifier: ^5.3.1
         version: 5.4.11(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2)
       vue-tsc:
-        specifier: ^2.2.0
+        specifier: 2.2.0
         version: 2.2.0(typescript@5.8.3)
 
   packages/hoppscotch-desktop/plugin-workspace/tauri-plugin-appload:

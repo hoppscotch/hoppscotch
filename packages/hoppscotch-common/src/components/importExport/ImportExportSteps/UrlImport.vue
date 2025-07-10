@@ -104,7 +104,6 @@ watch(inputChooseGistToImportFrom, (url) => {
 const disableImportCTA = computed(() => !hasURL.value || props.loading)
 
 const isCorsError = (error: any): boolean => {
-  console.log("Checking for CORS error:", error)
   // Check for common CORS error patterns
   return (
     error?.kind === "network" ||
@@ -140,7 +139,6 @@ const urlFetchLogic =
       // Return the actual error from the failed request
       return E.left(E.isLeft(res) ? res.left : "REQUEST_FAILED")
     } catch (error) {
-      console.error("Error in URL fetch:", error)
       // Return the caught error for proper CORS detection
       return E.left(error)
     }
@@ -184,7 +182,6 @@ async function fetchUrlData() {
   if (E.isLeft(res)) {
     // @ts-ignore
     if (isCorsError(res.left?.error)) {
-      console.log("CORS error detected")
       showCorsError.value = true
     } else {
       toast.error(t("import.failed"))

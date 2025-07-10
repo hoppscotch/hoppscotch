@@ -360,9 +360,9 @@ export async function getEffectiveRESTRequest(
   showKeyIfSecret = false
 ): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
-    (await getComputedHeaders(request, environment.variables)).map(
-      (h) => h.header
-    ),
+    (
+      await getComputedHeaders(request, environment.variables, showKeyIfSecret)
+    ).map((h) => h.header),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({

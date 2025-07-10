@@ -1,7 +1,7 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
-import { isDOMElement, isTypableElement } from "./utils/dom"
+import { isCodeMirrorEditor, isDOMElement, isTypableElement } from "./utils/dom"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
@@ -189,6 +189,15 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
       modifierKey === "shift" &&
       isDOMElement(target) &&
       isTypableElement(target)
+    ) {
+      return null
+    }
+
+    // Restrict alt+up and alt+down when the target is a codemirror editor
+    if (
+      modifierKey === "alt" &&
+      (key === "up" || key === "down") &&
+      isCodeMirrorEditor(target)
     ) {
       return null
     }

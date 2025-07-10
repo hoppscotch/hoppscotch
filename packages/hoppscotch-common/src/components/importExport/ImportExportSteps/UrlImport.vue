@@ -9,7 +9,7 @@
           <p class="text-secondaryDark">
             {{ t("import.cors_error_modal.description") }}
           </p>
-          <p class="text-secondaryLight text-sm mt-2">
+          <p class="text-secondaryLight mt-2">
             {{ t("import.cors_error_modal.explanation") }}
           </p>
         </div>

@@ -180,7 +180,7 @@ async function fetchUrlData() {
   const res = await urlFetchLogic(inputChooseGistToImportFrom.value)
 
   if (E.isLeft(res)) {
-    // @ts-ignore
+    // @ts-expect-error Assuming error is of type Error
     if (isCorsError(res.left?.error)) {
       showCorsError.value = true
     } else {

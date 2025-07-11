@@ -23,12 +23,12 @@ import qs from "qs"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 
+import { generateAuthHeaders, generateAuthParams } from "../auth/auth-types"
+import { stripComments } from "../editor/linting/jsonc"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
-import { stripComments } from "../editor/linting/jsonc"
-import { generateAuthHeaders, generateAuthParams } from "../auth/auth-types"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -61,7 +61,6 @@ export const getComputedAuthHeaders = async (
         headers: HoppRESTHeaders
       },
   auth?: HoppRESTRequest["auth"],
-  parse = true,
   showKeyIfSecret = false
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
@@ -160,18 +159,11 @@ export const getComputedHeaders = async (
         headers: HoppRESTHeaders
       },
   envVars: Environment["variables"],
-  parse = true,
   showKeyIfSecret = false
 ): Promise<ComputedHeader[]> => {
   return [
     ...(
-      await getComputedAuthHeaders(
-        envVars,
-        req,
-        undefined,
-        parse,
-        showKeyIfSecret
-      )
+      await getComputedAuthHeaders(envVars, req, undefined, showKeyIfSecret)
     ).map((header) => ({
       source: "auth" as const,
       header,
@@ -368,9 +360,9 @@ export async function getEffectiveRESTRequest(
   showKeyIfSecret = false
 ): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
-    (await getComputedHeaders(request, environment.variables)).map(
-      (h) => h.header
-    ),
+    (
+      await getComputedHeaders(request, environment.variables, showKeyIfSecret)
+    ).map((h) => h.header),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({

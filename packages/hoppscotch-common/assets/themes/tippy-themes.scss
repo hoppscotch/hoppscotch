@@ -33,6 +33,8 @@
         @apply my-0 ml-1;
         @apply truncate;
         @apply sm:inline-flex;
+        @apply justify-center;
+        min-width: 17px;
       }
 
       .env-icon {
@@ -96,7 +98,7 @@
       @apply text-secondary;
 
       kbd {
-        background-color: rgba(107, 114, 128, 0.2);
+        background-color: rgba(0, 0, 0, 0.1);
         @apply text-secondaryDark;
       }
     }
@@ -128,26 +130,26 @@
   @include base-tippy-styles;
 
   .tippy-box[data-theme~="tooltip"] {
-    @apply bg-popover;
-    @apply border-solid border-divider;
+    @apply bg-primaryDark;
+    @apply border-solid;
     @apply shadow-lg;
 
     .tippy-content {
       @apply text-secondary;
 
       kbd {
-        background-color: rgba(156, 163, 175, 0.2);
-        @apply text-primary;
+        background-color: rgba(255, 255, 255, 0.1);
+        @apply text-secondary;
       }
     }
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-divider;
+        @apply fill-primaryDark;
       }
 
       svg:last-child {
-        @apply fill-popover;
+        @apply fill-primaryDark;
       }
     }
   }
@@ -168,26 +170,26 @@
   @include base-tippy-styles;
 
   .tippy-box[data-theme~="tooltip"] {
-    @apply bg-popover;
-    @apply border-solid border-divider;
+    @apply bg-primaryLight;
+    @apply border-solid border-[#33363d];
     @apply shadow-lg;
 
     .tippy-content {
       @apply text-secondary;
 
       kbd {
-        background-color: rgba(156, 163, 175, 0.2);
-        @apply text-primary;
+        background-color: rgba(255, 255, 255, 0.1);
+        @apply text-secondary;
       }
     }
 
     .tippy-svg-arrow {
       svg:first-child {
-        @apply fill-divider;
+        @apply fill-primaryLight;
       }
 
       svg:last-child {
-        @apply fill-popover;
+        @apply fill-primaryLight;
       }
     }
   }

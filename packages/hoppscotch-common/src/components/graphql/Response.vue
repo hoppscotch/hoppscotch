@@ -1,13 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
-    <HttpResponseMeta
-      v-if="
-        response?.length &&
-        response.length > 0 &&
-        response[0].type === 'response'
-      "
-      :response="response?.[0]?.document"
-    />
+    <GraphqlResponseMeta :response="response" />
     <div
       v-if="
         response && response.length === 1 && response[0].type === 'response'

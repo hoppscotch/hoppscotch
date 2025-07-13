@@ -111,6 +111,7 @@ declare module 'vue' {
     GraphqlRequestOptions: typeof import('./components/graphql/RequestOptions.vue')['default']
     GraphqlRequestTab: typeof import('./components/graphql/RequestTab.vue')['default']
     GraphqlResponse: typeof import('./components/graphql/Response.vue')['default']
+    GraphqlResponseMeta: typeof import('./components/graphql/ResponseMeta.vue')['default']
     GraphqlSchemaDocumentation: typeof import('./components/graphql/SchemaDocumentation.vue')['default']
     GraphqlSchemaSearch: typeof import('./components/graphql/SchemaSearch.vue')['default']
     GraphqlSidebar: typeof import('./components/graphql/Sidebar.vue')['default']

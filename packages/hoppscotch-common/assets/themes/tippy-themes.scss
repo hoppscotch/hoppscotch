@@ -1,0 +1,205 @@
+// Base shared styles for all tippy themes
+@mixin base-tippy-styles {
+  .cm-tooltip {
+    .tippy-box {
+      @apply shadow-none #{!important};
+      @apply fixed;
+      @apply inline-flex;
+      @apply -mt-7;
+    }
+  }
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply rounded;
+
+    .env-tooltip-content {
+      @apply flex-col;
+    }
+
+    .tippy-content {
+      @apply flex;
+      @apply text-tiny;
+      @apply font-semibold;
+      @apply px-2 py-1;
+      @apply truncate;
+      @apply leading-body;
+      @apply items-center;
+
+      kbd {
+        @apply hidden;
+        @apply font-sans;
+        @apply rounded-sm;
+        @apply px-1;
+        @apply my-0 ml-1;
+        @apply truncate;
+        @apply sm:inline-flex;
+      }
+
+      .env-icon {
+        @apply transition;
+        @apply inline-flex;
+        @apply items-center;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply bg-popover;
+    @apply border-solid;
+    @apply rounded;
+    @apply max-w-[45vw] #{!important};
+
+    .tippy-content {
+      @apply flex flex-col;
+      @apply max-h-[45vh];
+      @apply items-stretch;
+      @apply overflow-y-auto;
+      @apply text-body text-secondary;
+      @apply p-2;
+      @apply leading-body;
+      @apply focus:outline-none;
+      scroll-behavior: smooth;
+
+      & > span {
+        @apply block #{!important};
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  [data-v-tippy] {
+    @apply flex flex-1;
+    @apply truncate;
+  }
+
+  [interactive] > div {
+    @apply flex flex-1;
+    @apply h-full;
+  }
+}
+
+// Theme-specific styles
+@mixin light-tippy-theme {
+  @include base-tippy-styles;
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-popover;
+    @apply border-solid border-dividerDark;
+    @apply shadow;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(107, 114, 128, 0.2);
+        @apply text-secondaryDark;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-dividerDark;
+      }
+
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-dividerDark;
+    @apply shadow-lg;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-dividerDark;
+      }
+    }
+  }
+}
+
+@mixin dark-tippy-theme {
+  @include base-tippy-styles;
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-popover;
+    @apply border-solid border-divider;
+    @apply shadow-lg;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(156, 163, 175, 0.2);
+        @apply text-primary;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-divider;
+    @apply shadow-xl;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+    }
+  }
+}
+
+@mixin black-tippy-theme {
+  @include base-tippy-styles;
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-popover;
+    @apply border-solid border-divider;
+    @apply shadow-lg;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(156, 163, 175, 0.2);
+        @apply text-primary;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-divider;
+    @apply shadow-xl;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+    }
+  }
+}

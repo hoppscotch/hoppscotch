@@ -766,9 +766,11 @@ const parseOpenAPIUrl = (
    * And host and basePath are in the document's servers property.
    * Relevant v3 reference: https://swagger.io/specification/#server-object
    **/
-  // if (objectHasProperty(doc, "servers")) {
-  // TODO: dynamically add doc.servers[0].url value as variable in the environment if available. or notify user to add it.
-  // }
+  if (objectHasProperty(doc, "servers")) {
+    // TODO: dynamically add server URL value as variable in the environment if available, or notify user to add it.
+    const serverUrl = doc.servers?.[0]?.url
+    return !serverUrl || serverUrl === "./" ? "<<baseUrl>>" : serverUrl
+  }
 
   // If the document is neither v2 nor v3 or missing required fields
   return "<<baseUrl>>"

@@ -88,6 +88,13 @@
 @mixin light-tippy-theme {
   @include base-tippy-styles;
 
+  .cm-tooltip {
+    .cm-tooltip-arrow:after,
+    .cm-tooltip-arrow:before {
+      border-bottom-color: theme("colors.primaryDark") !important;
+    }
+  }
+
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-popover;
     @apply border-solid border-dividerDark;
@@ -128,6 +135,13 @@
 @mixin dark-tippy-theme {
   @include base-tippy-styles;
 
+  .cm-tooltip {
+    .cm-tooltip-arrow::after,
+    .cm-tooltip-arrow::before {
+      border-bottom-color: theme("colors.primaryDark") !important;
+    }
+  }
+
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryDark;
     @apply border-solid;
@@ -167,6 +181,13 @@
 
 @mixin black-tippy-theme {
   @include base-tippy-styles;
+
+  .cm-tooltip {
+    .cm-tooltip-arrow:after,
+    .cm-tooltip-arrow:before {
+      border-bottom-color: theme("colors.primaryLight") !important;
+    }
+  }
 
   .tippy-box[data-theme~="tooltip"] {
     @apply bg-primaryLight;

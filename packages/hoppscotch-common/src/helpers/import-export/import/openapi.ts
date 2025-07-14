@@ -756,9 +756,9 @@ const parseOpenAPIUrl = (
   if (objectHasProperty(doc, "swagger")) {
     // TODO: dynamically add doc.host, doc.basePath value as variables in the environment if available. or notify user to add it.
     // add base url variable to each request
-    const hostVar = "<<baseUrl>>"
-    const basePathVar = doc.basePath ? "<<basePath>>" : ""
-    return `${hostVar}${basePathVar}`
+    const host = doc.host?.trim() || "<<baseUrl>>"
+    const basePath = doc.basePath?.trim() || ""
+    return `${host}${basePath}`
   }
 
   /**

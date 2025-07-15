@@ -371,4 +371,10 @@ export const def: AuthPlatformDef = {
     }
   },
   getAllowedAuthProviders,
+
+  /**
+   * This is used to determine whether the email address is editable by the user or not.
+   * This is set false for the self-hosted version of Hoppscotch
+   */
+  isEmailEditable: false,
 }

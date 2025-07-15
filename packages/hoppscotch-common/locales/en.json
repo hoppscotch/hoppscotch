@@ -857,7 +857,8 @@
     "roles_description": "Roles are used to control access to the shared collections.",
     "updated": "Profile updated",
     "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests."
+    "viewer_description": "Viewers can only view and use requests.",
+    "verified_email_sent": "A verification email has been sent to your email address. Please refresh the page after verifying your email address."
   },
   "remove": {
     "star": "Remove star"

@@ -308,7 +308,7 @@ const updateEmailAddress = async () => {
   if (result.type === "success") {
     toast.success(`${t("profile.updated")}`)
   } else if (result.type === "email-already-in-use") {
-    toast.error(`${t("error.email_already_exist")}`)
+    toast.error(`${t("error.email_already_exists")}`)
   } else if (result.type === "requires-recent-login") {
     await result.link()
   } else {

@@ -533,6 +533,7 @@
     "delete_account_description": "You must either remove yourself, transfer ownership, or delete these workspaces before you can delete your account.",
     "delete_activity_log": "Failed to delete activity log",
     "delete_all_activity_logs": "Failed to delete all activity logs",
+    "email_already_exist": "This email already exists with a different account. Please set a different email address.",
     "empty_email_address": "Email Address cannot be empty",
     "empty_profile_name": "Profile name cannot be empty",
     "empty_req_name": "Empty Request Name",

@@ -2,6 +2,7 @@ import {
   graphqlCollectionStore,
   navigateToFolderWithIndexPath,
   removeDuplicateRESTCollectionOrFolder,
+  removeRESTCollection,
   restCollectionStore,
 } from "@hoppscotch/common/newstore/collections"
 import {
@@ -84,6 +85,7 @@ const recursivelySyncCollections = async (
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
+      return res.left
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
@@ -126,6 +128,8 @@ const recursivelySyncCollections = async (
         childCollectionId,
         `${collectionPath}`
       )
+    } else {
+      return res.left
     }
   }
 
@@ -195,7 +199,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
 
-    recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
+    const result = await recursivelySyncCollections(
+      collection,
+      `${lastCreatedCollectionIndex}`
+    )
+    if (result) {
+      const errorMessage = "Error while creating collection. Please try again."
+      removeRESTCollection(lastCreatedCollectionIndex, undefined, errorMessage)
+      return result
+    }
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

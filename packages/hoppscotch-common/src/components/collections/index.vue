@@ -273,6 +273,8 @@ import {
   addRESTCollection,
   addRESTFolder,
   cascadeParentCollectionForHeaderAuth,
+  clearCollectionSyncError,
+  collectionSyncError,
   duplicateRESTCollection,
   editRESTCollection,
   editRESTFolder,
@@ -404,6 +406,15 @@ const {
 watch(teamsSearchResults, (newSearchResults) => {
   if (newSearchResults.length === 1 && filterTexts.value.length > 0) {
     expandCollection(newSearchResults[0].id)
+  }
+})
+
+// Watch for collection sync errors and show toast
+watch(collectionSyncError, (error) => {
+  if (error) {
+    toast.error(error)
+    // Clear the error after showing the toast
+    clearCollectionSyncError()
   }
 })
 

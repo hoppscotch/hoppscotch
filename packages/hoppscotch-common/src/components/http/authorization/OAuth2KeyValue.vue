@@ -31,8 +31,6 @@
           key: $event,
           value: value,
           active: entityActive,
-          description: description ?? '',
-          sendIn: sendIn,
         })
       "
     />
@@ -49,80 +47,10 @@
           key: name,
           value: $event,
           active: entityActive,
-          description: description ?? '',
-          sendIn: sendIn,
         })
       "
     />
-    <SmartEnvInput
-      v-if="!sendInOptions"
-      :class="{ 'opacity-50': !entityActive }"
-      :model-value="description"
-      :placeholder="t('count.description')"
-      :auto-complete-env="true"
-      :envs="envs"
-      @update:model-value="emit('update:description', $event)"
-      @change="
-        updateEntity(index, {
-          id: entityId,
-          key: name,
-          value: value,
-          active: entityActive,
-          description: $event,
-          sendIn: sendIn,
-        })
-      "
-    />
-    <!-- Send In dropdown for OAuth2 -->
-    <div v-else class="flex items-center px-4 py-3 bg-primaryLight">
-      <span class="text-xs font-semibold text-secondaryLight mr-2">
-        {{ t("authorization.oauth.send_in") }}:
-      </span>
-      <tippy
-        placement="bottom"
-        interactive
-        trigger="click"
-        theme="popover"
-        class="!flex-initial"
-      >
-        <HoppSmartSelectWrapper>
-          <HoppButtonSecondary
-            class="rounded-none pr-8"
-            :label="
-              sendInOptions.find((opt) => opt.value === sendIn)?.label ||
-              sendInOptions[0].label
-            "
-          />
-        </HoppSmartSelectWrapper>
-        <template #content="{ hide }">
-          <div
-            class="flex flex-col focus:outline-none"
-            tabindex="0"
-            @keyup.escape="hide()"
-          >
-            <HoppSmartItem
-              v-for="option in sendInOptions"
-              :key="option.value"
-              :label="option.label"
-              :active="sendIn === option.value"
-              @click="
-                () => {
-                  updateEntity(index, {
-                    id: entityId,
-                    key: name,
-                    value: value,
-                    active: entityActive,
-                    description: description ?? '',
-                    sendIn: option.value,
-                  })
-                  hide()
-                }
-              "
-            />
-          </div>
-        </template>
-      </tippy>
-    </div>
+
     <span>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -138,8 +66,6 @@
             key: name,
             value: value,
             active: !entityActive,
-            description: description ?? '',
-            sendIn: sendIn,
           })
         "
       />
@@ -169,8 +95,6 @@ interface Entity {
   key: string
   value: string
   active: boolean
-  description: string
-  sendIn?: string
 }
 
 interface SendInOption {
@@ -188,8 +112,6 @@ defineProps<{
   entityActive: boolean
   name: string
   value: string
-  description?: string
-  sendIn?: string
   envs?: AggregateEnvironment[]
   sendInOptions?: SendInOption[]
 }>()
@@ -197,7 +119,6 @@ defineProps<{
 const emit = defineEmits<{
   (e: "update:name", value: string): void
   (e: "update:value", value: string): void
-  (e: "update:description", value: string): void
   (e: "deleteEntity", value: number): void
   (
     e: "updateEntity",

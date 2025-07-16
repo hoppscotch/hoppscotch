@@ -53,24 +53,52 @@
         })
       "
     />
-    <!-- Send In auto-completable input -->
-    <SmartEnvInput
-      :class="{ 'opacity-50': !entityActive }"
-      :model-value="sendIn"
-      :placeholder="t('authorization.oauth.send_in')"
-      :auto-complete-source="sendInOptions"
-      :auto-complete-env="false"
-      @update:model-value="emit('update:sendIn', $event)"
-      @change="
-        updateEntity(index, {
-          id: entityId,
-          key: name,
-          value: value,
-          active: entityActive,
-          sendIn: $event,
-        })
-      "
-    />
+    <!-- Send In dropdown select -->
+    <div class="flex flex-1">
+      <tippy
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => sendInTippyActions?.focus()"
+      >
+        <HoppSmartSelectWrapper>
+          <HoppButtonSecondary
+            :class="{ 'opacity-50': !entityActive }"
+            class="flex-1 rounded-none text-left"
+            :label="sendIn || t('authorization.oauth.send_in')"
+          />
+        </HoppSmartSelectWrapper>
+        <template #content="{ hide }">
+          <div
+            ref="sendInTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.escape="hide()"
+          >
+            <HoppSmartItem
+              v-for="option in sendInOptions"
+              :key="option"
+              :label="option"
+              :icon="option === sendIn ? IconCircleDot : IconCircle"
+              :active="option === sendIn"
+              @click="
+                () => {
+                  emit('update:sendIn', option)
+                  updateEntity(index, {
+                    id: entityId,
+                    key: name,
+                    value: value,
+                    active: entityActive,
+                    sendIn: option,
+                  })
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+    </div>
     <span>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -104,11 +132,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { AggregateEnvironment } from "~/newstore/environments"
 import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
 import IconTrash from "~icons/lucide/trash"
 
 interface Entity {
@@ -120,6 +150,7 @@ interface Entity {
 }
 
 const t = useI18n()
+const sendInTippyActions = ref<HTMLDivElement>()
 
 defineProps<{
   total: number

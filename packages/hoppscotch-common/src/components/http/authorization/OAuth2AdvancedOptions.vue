@@ -49,7 +49,6 @@
             :key="`auth-request-param-${param.id}`"
             v-model:name="param.key"
             v-model:value="param.value"
-            v-model:description="param.description"
             :total="workingAuthRequestParams.length"
             :index="index"
             :entity-id="param.id"
@@ -131,7 +130,7 @@
 
           <!-- Parameter rows -->
           <div class="divide-y divide-dividerLight">
-            <OAuth2KeyValueWithSendIn
+            <HttpAuthorizationOAuth2KeyValueWithSendIn
               v-for="(param, index) in workingTokenRequestParams"
               :key="`token-request-param-${param.id}`"
               v-model:name="param.key"
@@ -220,7 +219,7 @@
 
           <!-- Parameter rows -->
           <div class="divide-y divide-dividerLight">
-            <OAuth2KeyValueWithSendIn
+            <HttpAuthorizationOAuth2KeyValueWithSendIn
               v-for="(param, index) in workingRefreshRequestParams"
               :key="`refresh-request-param-${param.id}`"
               v-model:name="param.key"
@@ -257,8 +256,6 @@ import {
   commonOAuth2RefreshParams,
   sendInOptions,
 } from "~/helpers/oauth2Params"
-import HttpKeyValue from "../KeyValue.vue"
-import OAuth2KeyValueWithSendIn from "./OAuth2KeyValueWithSendIn.vue"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 
@@ -282,7 +279,7 @@ defineProps<Props>()
 
 // Working arrays that include empty rows for UI
 const workingAuthRequestParams = ref<AdditionalParam[]>([
-  { id: 1, key: "", value: "", active: true, description: "" },
+  { id: 1, key: "", value: "", active: true },
 ])
 
 const workingTokenRequestParams = ref<AdditionalParam[]>([

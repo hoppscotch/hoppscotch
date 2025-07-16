@@ -25,7 +25,6 @@
       :auto-complete-source="keyAutoCompleteSource"
       :auto-complete-env="true"
       :envs="envs"
-      :inspection-results="inspectionKeyResult"
       @update:model-value="emit('update:name', $event)"
       @change="
         updateEntity(index, {
@@ -33,7 +32,7 @@
           key: $event,
           value: value,
           active: entityActive,
-          description: description ?? '',
+          sendIn: sendIn,
         })
       "
     />
@@ -43,7 +42,6 @@
       :placeholder="t('count.value')"
       :auto-complete-env="true"
       :envs="envs"
-      :inspection-results="inspectionValueResult"
       @update:model-value="emit('update:value', $event)"
       @change="
         updateEntity(index, {
@@ -51,54 +49,72 @@
           key: name,
           value: $event,
           active: entityActive,
-          description: description ?? '',
+          sendIn: sendIn,
         })
       "
     />
-
-    <input
-      v-if="showDescription"
-      :value="description"
-      :placeholder="t('count.description')"
-      class="flex flex-1 px-4 bg-transparent"
-      type="text"
-      :class="{ 'opacity-50': !entityActive }"
-      @update:value="emit('update:description', $event.target.value)"
-      @input="
-        updateEntity(index, {
-          id: entityId,
-          key: name,
-          value,
-          active: entityActive,
-          description: ($event.target as HTMLInputElement).value,
-        })
-      "
-    />
+    <!-- Send In dropdown select -->
+    <div class="flex flex-1">
+      <tippy
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => sendInTippyActions?.focus()"
+      >
+        <HoppSmartSelectWrapper>
+          <HoppButtonSecondary
+            :class="{ 'opacity-50': !entityActive }"
+            class="flex-1 rounded-none text-left"
+            :label="sendIn || t('authorization.oauth.send_in')"
+          />
+        </HoppSmartSelectWrapper>
+        <template #content="{ hide }">
+          <div
+            ref="sendInTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.escape="hide()"
+          >
+            <HoppSmartItem
+              v-for="option in sendInOptions"
+              :key="option"
+              :label="option"
+              :icon="option === sendIn ? IconCircleDot : IconCircle"
+              :active="option === sendIn"
+              @click="
+                () => {
+                  emit('update:sendIn', option)
+                  updateEntity(index, {
+                    id: entityId,
+                    key: name,
+                    value: value,
+                    active: entityActive,
+                    sendIn: option,
+                  })
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+    </div>
     <span>
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="
-          isActive
-            ? entityActive
-              ? t('action.turn_off')
-              : t('action.turn_on')
-            : t('action.turn_off')
-        "
-        :icon="
-          isActive
-            ? entityActive
-              ? IconCheckCircle
-              : IconCircle
-            : IconCheckCircle
-        "
+        :title="entityActive ? t('action.turn_off') : t('action.turn_on')"
+        :icon="entityActive ? IconCheckCircle : IconCircle"
         color="green"
+        :class="{
+          'text-accent': entityActive,
+        }"
         @click="
           updateEntity(index, {
             id: entityId,
             key: name,
             value: value,
-            active: isActive ? !entityActive : false,
-            description: description ?? '',
+            active: !entityActive,
+            sendIn: sendIn,
           })
         "
       />
@@ -116,54 +132,44 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue"
+import { useI18n } from "@composables/i18n"
+import { AggregateEnvironment } from "~/newstore/environments"
 import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
+import IconCircleDot from "~icons/lucide/circle-dot"
 import IconTrash from "~icons/lucide/trash"
-import { useI18n } from "~/composables/i18n"
-import { AggregateEnvironment } from "~/newstore/environments"
-import { InspectorResult } from "~/services/inspection"
 
-type Entity = {
+interface Entity {
   id: number
   key: string
   value: string
   active: boolean
-  description: string
+  sendIn?: string
 }
 
 const t = useI18n()
+const sendInTippyActions = ref<HTMLDivElement>()
 
-withDefaults(
-  defineProps<{
-    showDescription?: boolean
-    total: number
-    index: number
-    entityId: number
-    isActive: boolean
-    entityActive: boolean
-    name: string
-    value: string
-    inspectionKeyResult?: InspectorResult[]
-    inspectionValueResult?: InspectorResult[]
-    description?: string
-    envs?: AggregateEnvironment[]
-    keyAutoCompleteSource?: string[]
-  }>(),
-  {
-    showDescription: true,
-    description: "",
-    inspectionKeyResult: () => [],
-    inspectionValueResult: () => [],
-    envs: () => [],
-    keyAutoCompleteSource: () => [],
-  }
-)
+defineProps<{
+  total: number
+  index: number
+  entityId: number
+  isActive: boolean
+  entityActive: boolean
+  name: string
+  value: string
+  sendIn?: string
+  envs?: AggregateEnvironment[]
+  keyAutoCompleteSource?: string[]
+  sendInOptions?: string[]
+}>()
 
 const emit = defineEmits<{
   (e: "update:name", value: string): void
   (e: "update:value", value: string): void
-  (e: "update:description", value: string): void
+  (e: "update:sendIn", value: string): void
   (e: "deleteEntity", value: number): void
   (
     e: "updateEntity",

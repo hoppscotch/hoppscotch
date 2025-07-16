@@ -178,6 +178,9 @@
         @click="refreshOauthToken()"
       />
     </div>
+
+    <!-- Advanced Configuration Section -->
+    <OAuth2AdvancedOptions :envs="envs || []" />
   </div>
 </template>
 
@@ -192,6 +195,7 @@ import { refWithCallbackOnChange } from "~/composables/ref"
 import { useToast } from "~/composables/toast"
 import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
 import { AggregateEnvironment } from "~/newstore/environments"
+import OAuth2AdvancedOptions from "./OAuth2AdvancedOptions.vue"
 import authCode, {
   AuthCodeOauthFlowParams,
   AuthCodeOauthRefreshParams,

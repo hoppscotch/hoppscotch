@@ -2,6 +2,7 @@ import { TestResponse } from "@hoppscotch/js-sandbox";
 import { Method } from "axios";
 import { ExpectResult } from "../types/response";
 import { HoppEnvs } from "../types/request";
+import { HoppRESTRequest } from "@hoppscotch/data";
 
 /**
  * Defines column headers for table stream used to write table
@@ -34,13 +35,13 @@ export interface RequestRunnerResponse extends TestResponse {
 
 /**
  * Describes test script details.
- * @property {string} name Request name within collection.
- * @property {string} testScript Stringified hoppscotch testScript, used while
- * running testRunner.
+ * @property {HoppRESTRequest} request Supplied request.
  * @property {TestResponse} response Response structure for test script runner.
+ * @property {HoppEnvs} envs Environment variables for test script runner.
+ * @property {boolean} legacySandbox Whether to use the legacy sandbox.
  */
 export interface TestScriptParams {
-  testScript: string;
+  request: HoppRESTRequest;
   response: TestResponse;
   envs: HoppEnvs;
   legacySandbox: boolean;

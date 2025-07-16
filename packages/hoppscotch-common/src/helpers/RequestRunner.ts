@@ -1,5 +1,7 @@
 import {
+  Cookie,
   Environment,
+  HoppRESTHeader,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
@@ -21,7 +23,8 @@ import { Ref } from "vue"
 
 import { map } from "fp-ts/Either"
 
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
+import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
 import {
   environmentsStore,
@@ -31,6 +34,12 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { platform } from "~/platform"
+import { CookieJarService } from "~/services/cookie-jar.service"
+import {
+  CurrentValueService,
+  Variable,
+} from "~/services/current-environment-value.service"
 import {
   SecretEnvironmentService,
   SecretVariable,
@@ -38,22 +47,16 @@ import {
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
-import { getFinalEnvsFromPreRequest } from "./preRequest"
 import { HoppRequestDocument } from "./rest/document"
 import {
   getTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
-import {
-  CurrentValueService,
-  Variable,
-} from "~/services/current-environment-value.service"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
 import { getCombinedEnvVariables } from "./utils/environments"
-import { useSetting } from "~/composables/settings"
 import {
   OutgoingSandboxPostRequestWorkerMessage,
   OutgoingSandboxPreRequestWorkerMessage,
@@ -68,6 +71,7 @@ const sandboxWorker = new Worker(
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
+const cookieJarService = getService(CookieJarService)
 
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
@@ -77,7 +81,7 @@ export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
 ) => {
   const contentTypeHeader = res.headers.find(
-    (h) => h.key.toLowerCase() === "content-type"
+    (h: HoppRESTHeader) => h.key.toLowerCase() === "content-type"
   )
 
   const rawBody = new TextDecoder("utf-8")
@@ -273,16 +277,22 @@ const filterNonEmptyEnvironmentVariables = (
   return Array.from(envsMap.values())
 }
 
-const runPreRequestScript = (
-  script: string,
+const delegatePreRequestScriptRunner = (
+  request: HoppRESTRequest,
   envs: {
     global: Environment["variables"]
     selected: Environment["variables"]
     temp: Environment["variables"]
-  }
+  },
+  cookies?: Cookie[]
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
+  const { preRequestScript } = request
+
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    return getFinalEnvsFromPreRequest(script, envs, false)
+    return runPreRequestScript(preRequestScript, {
+      envs,
+      experimentalScriptingSandbox: false,
+    })
   }
 
   return new Promise((resolve) => {
@@ -309,19 +319,28 @@ const runPreRequestScript = (
 
     sandboxWorker.postMessage({
       type: "pre",
-      script,
+      script: preRequestScript,
       envs,
+      request: JSON.stringify(request),
+      cookies: cookies ? JSON.stringify(cookies) : undefined,
     })
   })
 }
 
 const runPostRequestScript = (
-  script: string,
   envs: TestResult["envs"],
-  response: HoppRESTResponse
+  request: HoppRESTRequest,
+  response: HoppRESTResponse,
+  cookies?: Cookie[]
 ): Promise<E.Either<string, SandboxTestResult>> => {
+  const { testScript } = request
+
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    return runTestScript(script, envs, response, false)
+    return runTestScript(testScript, {
+      envs,
+      response,
+      experimentalScriptingSandbox: false,
+    })
   }
 
   return new Promise((resolve) => {
@@ -348,9 +367,11 @@ const runPostRequestScript = (
 
     sandboxWorker.postMessage({
       type: "post",
-      script,
+      script: testScript,
       envs,
+      request: JSON.stringify(request),
       response,
+      cookies: cookies ? JSON.stringify(cookies) : undefined,
     })
   })
 }
@@ -372,9 +393,12 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const res = runPreRequestScript(
-    tab.value.document.request.preRequestScript,
-    getCombinedEnvVariables()
+  const cookieJarEntries = getCookieJarEntries()
+
+  const res = delegatePreRequestScriptRunner(
+    tab.value.document.request,
+    getCombinedEnvVariables(),
+    cookieJarEntries
   ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
@@ -427,11 +451,15 @@ export function runRESTRequest$(
       ...tab.value.document.request,
       auth: requestAuth ?? { authType: "none", authActive: false },
       headers: requestHeaders as HoppRESTHeaders,
+      ...(preRequestScriptResult.right.updatedRequest ?? {}),
     }
+
+    // Propagate changes from the underlying request to the UI
+    tab.value.document.request = finalRequest
 
     const finalEnvs = {
       requestVariables: finalRequestVariables as Environment["variables"],
-      environments: preRequestScriptResult.right.envs,
+      environments: preRequestScriptResult.right.updatedEnvs,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
@@ -456,13 +484,14 @@ export function runRESTRequest$(
           executedResponses$.next(res)
 
           const postRequestScriptResult = await runPostRequestScript(
-            res.req.testScript,
-            preRequestScriptResult.right.envs,
+            preRequestScriptResult.right.updatedEnvs,
+            res.req,
             {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
-            }
+            },
+            preRequestScriptResult.right.updatedCookies
           )
 
           if (E.isRight(postRequestScriptResult)) {
@@ -485,6 +514,24 @@ export function runRESTRequest$(
               combinedResult.right
             )
             updateEnvsAfterTestScript(combinedResult)
+
+            const updatedCookies = postRequestScriptResult.right.updatedCookies
+
+            if (updatedCookies) {
+              const newCookieMap = new Map<string, Cookie[]>()
+
+              for (const cookie of updatedCookies) {
+                const domain = cookie.domain
+
+                if (!newCookieMap.has(domain)) {
+                  newCookieMap.set(domain, [])
+                }
+
+                newCookieMap.get(domain)!.push(cookie)
+              }
+
+              cookieJarService.cookieJar.value = newCookieMap
+            }
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -560,6 +607,19 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
   }
 }
 
+const getCookieJarEntries = () => {
+  // Exclusive to the Desktop App
+  if (!platform.platformFeatureFlags.cookiesEnabled) {
+    return undefined
+  }
+
+  const cookieJarEntries = Array.from(
+    cookieJarService.cookieJar.value.values()
+  ).flatMap((cookies) => cookies)
+
+  return cookieJarEntries
+}
+
 /**
  * Run the test runner request
  * @param request The request to run
@@ -578,9 +638,12 @@ export function runTestRunnerRequest(
     }>
   | undefined
 > {
-  return runPreRequestScript(
-    request.preRequestScript,
-    getCombinedEnvVariables()
+  const cookieJarEntries = getCookieJarEntries()
+
+  return delegatePreRequestScriptRunner(
+    request,
+    getCombinedEnvVariables(),
+    cookieJarEntries
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
       console.error(preRequestScriptResult.left)
@@ -598,20 +661,23 @@ export function runTestRunnerRequest(
       }))
     )
 
-    const effectiveRequest = await getEffectiveRESTRequest(request, {
-      id: "env-id",
-      v: 2,
-      name: "Env",
-      variables: filterNonEmptyEnvironmentVariables(
-        combineEnvVariables({
-          environments: {
-            ...preRequestScriptResult.right.envs,
-            temp: !persistEnv ? getTemporaryVariables() : [],
-          },
-          requestVariables: finalRequestVariables,
-        })
-      ),
-    })
+    const effectiveRequest = await getEffectiveRESTRequest(
+      { ...request, ...(preRequestScriptResult.right.updatedRequest ?? {}) },
+      {
+        id: "env-id",
+        v: 2,
+        name: "Env",
+        variables: filterNonEmptyEnvironmentVariables(
+          combineEnvVariables({
+            environments: {
+              ...preRequestScriptResult.right.updatedEnvs,
+              temp: !persistEnv ? getTemporaryVariables() : [],
+            },
+            requestVariables: finalRequestVariables,
+          })
+        ),
+      }
+    )
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
 
@@ -623,13 +689,14 @@ export function runTestRunnerRequest(
           executedResponses$.next(res)
 
           const postRequestScriptResult = await runPostRequestScript(
-            res.req.testScript,
-            preRequestScriptResult.right.envs,
+            preRequestScriptResult.right.updatedEnvs,
+            res.req,
             {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
-            }
+            },
+            preRequestScriptResult.right.updatedCookies
           )
 
           if (E.isRight(postRequestScriptResult)) {

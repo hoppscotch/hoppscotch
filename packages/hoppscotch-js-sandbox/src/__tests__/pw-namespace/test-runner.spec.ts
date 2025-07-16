@@ -1,11 +1,12 @@
+import { getDefaultRESTRequest } from "@hoppscotch/data"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-
 import { describe, expect, test } from "vitest"
 
 import { runTestScript } from "~/node"
 import { TestResponse } from "~/types"
 
+const defaultRequest = getDefaultRESTRequest()
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
@@ -14,8 +15,12 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, res: TestResponse) =>
   pipe(
-    runTestScript(script, { global: [], selected: [] }, res),
-    TE.map((x) => x.tests)
+    runTestScript(script, {
+      envs: { global: [], selected: [] },
+      request: defaultRequest,
+      response: res,
+    }),
+    TE.map((x) => x.tests),
   )
 
 describe("runTestScript", () => {
@@ -31,8 +36,8 @@ describe("runTestScript", () => {
             pw.expect(size / 4).toBe(250);
           });
         `,
-        fakeResponse
-      )()
+        fakeResponse,
+      )(),
     ).resolves.toBeRight()
   })
 
@@ -48,8 +53,8 @@ describe("runTestScript", () => {
             pw.expect(size / 4).not.toBe(250);
           });
         `,
-        fakeResponse
-      )()
+        fakeResponse,
+      )(),
     ).resolves.toBeRight()
   })
 
@@ -66,8 +71,8 @@ describe("runTestScript", () => {
             pw.expect(size / 4).not.toBe(250);
           });
         `,
-        fakeResponse
-      )()
+        fakeResponse,
+      )(),
     ).resolves.toBeLeft()
   })
 })

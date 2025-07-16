@@ -1,3 +1,4 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { FaradayCage } from "faraday-cage"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -6,10 +7,12 @@ import { cloneDeep } from "lodash"
 import { defaultModules, pwPostRequestModule } from "~/cage-modules"
 import { TestDescriptor, TestResponse, TestResult } from "~/types"
 
-export const runTestScriptWithFaradayCage = (
+// TODO: Update return type to be based on `SandboxTestResult`
+export const runPostRequestScriptWithFaradayCage = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  request: HoppRESTRequest,
+  response: TestResponse,
 ): TE.TaskEither<string, TestResult> => {
   return pipe(
     TE.tryCatch(
@@ -29,7 +32,10 @@ export const runTestScriptWithFaradayCage = (
           pwPostRequestModule({
             envs: cloneDeep(envs),
             testRunStack: cloneDeep(testRunStack),
-            response,
+            request: cloneDeep(request),
+            response: cloneDeep(response),
+            // TODO: Post type update, accomodate for cookies although platform support is limited
+            cookies: [],
             handleSandboxResults: ({ envs, testRunStack }) => {
               finalEnvs = envs
               finalTestResults = testRunStack
@@ -53,7 +59,7 @@ export const runTestScriptWithFaradayCage = (
         }
 
         return `Script execution failed: ${String(error)}`
-      }
-    )
+      },
+    ),
   )
 }

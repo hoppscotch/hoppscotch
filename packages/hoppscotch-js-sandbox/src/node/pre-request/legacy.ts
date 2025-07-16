@@ -3,8 +3,8 @@ import * as TE from "fp-ts/lib/TaskEither"
 import type ivmT from "isolated-vm"
 import { createRequire } from "module"
 
-import { getPreRequestScriptMethods } from "~/shared-utils"
-import { TestResult } from "~/types"
+import { getPreRequestScriptMethods } from "~/utils/shared"
+import { SandboxPreRequestResult, TestResult } from "~/types"
 import { getSerializedAPIMethods } from "../utils"
 
 const nodeRequire = createRequire(import.meta.url)
@@ -12,8 +12,8 @@ const ivm = nodeRequire("isolated-vm")
 
 export const runPreRequestScriptWithIsolatedVm = (
   preRequestScript: string,
-  envs: TestResult["envs"]
-): TE.TaskEither<string, TestResult["envs"]> => {
+  envs: TestResult["envs"],
+): TE.TaskEither<string, SandboxPreRequestResult> => {
   return pipe(
     TE.tryCatch(
       async () => {
@@ -21,7 +21,7 @@ export const runPreRequestScriptWithIsolatedVm = (
         const context = await isolate.createContext()
         return { isolate, context }
       },
-      (reason) => `Context initialization failed: ${reason}`
+      (reason) => `Context initialization failed: ${reason}`,
     ),
     TE.chain(({ isolate, context }) =>
       pipe(
@@ -59,9 +59,9 @@ export const runPreRequestScriptWithIsolatedVm = (
             const script = await isolate.compileScript(finalScript)
             // Run the pre-request script in the provided context
             await script.run(context)
-            return updatedEnvs
+            return { updatedEnvs }
           },
-          (reason) => reason
+          (reason) => reason,
         ),
         TE.fold(
           (error) => TE.left(`Script execution failed: ${error}`),
@@ -72,11 +72,11 @@ export const runPreRequestScriptWithIsolatedVm = (
                   await isolate.dispose()
                   return result
                 },
-                (disposeError) => `Isolate disposal failed: ${disposeError}`
-              )
-            )
-        )
-      )
-    )
+                (disposeError) => `Isolate disposal failed: ${disposeError}`,
+              ),
+            ),
+        ),
+      ),
+    ),
   )
 }

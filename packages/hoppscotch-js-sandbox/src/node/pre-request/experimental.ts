@@ -1,19 +1,24 @@
+import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { FaradayCage } from "faraday-cage"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import { cloneDeep } from "lodash"
 
 import { defaultModules, pwPreRequestModule } from "~/cage-modules"
-import { TestResult } from "~/types"
+import { SandboxPreRequestResult, TestResult } from "~/types"
 
 export const runPreRequestScriptWithFaradayCage = (
   preRequestScript: string,
-  envs: TestResult["envs"]
-): TE.TaskEither<string, TestResult["envs"]> => {
+  envs: TestResult["envs"],
+  request: HoppRESTRequest,
+  cookies?: Cookie[],
+): TE.TaskEither<string, SandboxPreRequestResult> => {
   return pipe(
     TE.tryCatch(
-      async (): Promise<TestResult["envs"]> => {
+      async (): Promise<SandboxPreRequestResult> => {
         let finalEnvs = envs
+        let finalRequest = request
+        let finalCookies = cookies
 
         const cage = await FaradayCage.create()
 
@@ -22,8 +27,12 @@ export const runPreRequestScriptWithFaradayCage = (
 
           pwPreRequestModule({
             envs: cloneDeep(envs),
-            handleSandboxResults: ({ envs }) => {
+            request: cloneDeep(request),
+            cookies: cookies ? cloneDeep(cookies) : undefined,
+            handleSandboxResults: ({ envs, request, cookies }) => {
               finalEnvs = envs
+              finalRequest = request
+              finalCookies = cookies
             },
           }),
         ])
@@ -32,7 +41,11 @@ export const runPreRequestScriptWithFaradayCage = (
           throw result.err
         }
 
-        return finalEnvs
+        return {
+          updatedEnvs: finalEnvs,
+          updatedRequest: finalRequest,
+          updatedCookies: finalCookies,
+        }
       },
       (error) => {
         if (error !== null && typeof error === "object" && "message" in error) {
@@ -41,7 +54,7 @@ export const runPreRequestScriptWithFaradayCage = (
         }
 
         return `Script execution failed: ${String(error)}`
-      }
-    )
+      },
+    ),
   )
 }

@@ -1,11 +1,12 @@
+import { getDefaultRESTRequest } from "@hoppscotch/data"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-
 import { describe, expect, test } from "vitest"
 
 import { runTestScript } from "~/node"
 import { TestResponse, TestResult } from "~/types"
 
+const defaultRequest = getDefaultRESTRequest()
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
@@ -14,14 +15,22 @@ const fakeResponse: TestResponse = {
 
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    runTestScript(script, envs, fakeResponse),
-    TE.map((x) => x.envs)
+    runTestScript(script, {
+      envs,
+      request: defaultRequest,
+      response: fakeResponse,
+    }),
+    TE.map((x) => x.envs),
   )
 
 const funcTest = (script: string, envs: TestResult["envs"]) =>
   pipe(
-    runTestScript(script, envs, fakeResponse),
-    TE.map((x) => x.tests)
+    runTestScript(script, {
+      envs,
+      request: defaultRequest,
+      response: fakeResponse,
+    }),
+    TE.map((x) => x.tests),
   )
 
 describe("pw.env.set", () => {
@@ -41,8 +50,8 @@ describe("pw.env.set", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight(
       expect.objectContaining({
         selected: [
@@ -53,7 +62,7 @@ describe("pw.env.set", () => {
             secret: false,
           },
         ],
-      })
+      }),
     )
   })
 
@@ -73,8 +82,8 @@ describe("pw.env.set", () => {
             },
           ],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight(
       expect.objectContaining({
         global: [
@@ -85,7 +94,7 @@ describe("pw.env.set", () => {
             secret: false,
           },
         ],
-      })
+      }),
     )
   })
 
@@ -112,8 +121,8 @@ describe("pw.env.set", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight(
       expect.objectContaining({
         global: [
@@ -132,7 +141,7 @@ describe("pw.env.set", () => {
             secret: false,
           },
         ],
-      })
+      }),
     )
   })
 
@@ -145,8 +154,8 @@ describe("pw.env.set", () => {
         {
           global: [],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight(
       expect.objectContaining({
         global: [],
@@ -158,7 +167,7 @@ describe("pw.env.set", () => {
             secret: false,
           },
         ],
-      })
+      }),
     )
   })
 
@@ -171,8 +180,8 @@ describe("pw.env.set", () => {
         {
           global: [],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -185,8 +194,8 @@ describe("pw.env.set", () => {
         {
           global: [],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -199,8 +208,8 @@ describe("pw.env.set", () => {
         {
           global: [],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -214,8 +223,8 @@ describe("pw.env.set", () => {
         {
           global: [],
           selected: [],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [

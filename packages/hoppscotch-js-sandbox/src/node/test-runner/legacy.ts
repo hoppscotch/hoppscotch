@@ -7,7 +7,7 @@ import { createRequire } from "module"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
-} from "~/shared-utils"
+} from "~/utils/shared"
 import { TestResponse, TestResult } from "~/types"
 import { getSerializedAPIMethods } from "../utils"
 
@@ -19,7 +19,7 @@ const executeScriptInContext = (
   envs: TestResult["envs"],
   response: TestResponse,
   isolate: ivmT.Isolate,
-  context: ivmT.Context
+  context: ivmT.Context,
 ): Promise<TestResult> => {
   return new Promise((resolve, reject) => {
     // Parse response object
@@ -176,10 +176,10 @@ const executeScriptInContext = (
   })
 }
 
-export const runTestScriptWithIsolatedVm = (
+export const runPostRequestScriptWithIsolatedVm = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): TE.TaskEither<string, TestResult> => {
   return pipe(
     TE.tryCatch(
@@ -188,7 +188,7 @@ export const runTestScriptWithIsolatedVm = (
         const context = await isolate.createContext()
         return { isolate, context }
       },
-      (reason) => `Context initialization failed: ${reason}`
+      (reason) => `Context initialization failed: ${reason}`,
     ),
     TE.chain(({ isolate, context }) =>
       pipe(
@@ -199,9 +199,9 @@ export const runTestScriptWithIsolatedVm = (
               envs,
               response,
               isolate,
-              context
+              context,
             ),
-          (reason) => `Script execution failed: ${reason}`
+          (reason) => `Script execution failed: ${reason}`,
         ),
         TE.chain((result) =>
           TE.tryCatch(
@@ -209,10 +209,10 @@ export const runTestScriptWithIsolatedVm = (
               await isolate.dispose()
               return result
             },
-            (disposeReason) => `Isolate disposal failed: ${disposeReason}`
-          )
-        )
-      )
-    )
+            (disposeReason) => `Isolate disposal failed: ${disposeReason}`,
+          ),
+        ),
+      ),
+    ),
   )
 }

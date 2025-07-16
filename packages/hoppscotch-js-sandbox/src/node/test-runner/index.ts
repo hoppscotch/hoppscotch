@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 
-import { preventCyclicObjects } from "~/shared-utils"
+import { preventCyclicObjects } from "~/utils/shared"
 import { TestResponse, TestResult } from "~/types"
 import { runTestScriptWithFaradayCage } from "./experimental"
 import { runTestScriptWithIsolatedVm } from "./legacy"
@@ -10,7 +10,7 @@ export const runTestScript = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
-  experimentalScriptingSandbox = true
+  experimentalScriptingSandbox = true,
 ): TE.TaskEither<string, TestResult> => {
   const responseObjHandle = preventCyclicObjects<TestResponse>(response)
 

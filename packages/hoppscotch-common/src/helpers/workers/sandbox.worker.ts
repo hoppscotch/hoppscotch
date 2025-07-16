@@ -1,13 +1,12 @@
-import { Environment } from "@hoppscotch/data"
+import { Environment, HoppRESTRequest } from "@hoppscotch/data"
 import {
   SandboxPreRequestResult,
   SandboxTestResult,
   TestResult,
 } from "@hoppscotch/js-sandbox"
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as E from "fp-ts/Either"
 
-import { getFinalEnvsFromPreRequest } from "../preRequest"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 
 interface PreRequestMessage {
@@ -18,6 +17,7 @@ interface PreRequestMessage {
     selected: Environment["variables"]
     temp: Environment["variables"]
   }
+  request: string // JSON stringified request
 }
 
 interface PostRequestMessage {
@@ -61,13 +61,25 @@ self.addEventListener(
   "message",
   async (event: MessageEvent<IncomingSandboxWorkerMessage>) => {
     const { type, script, envs } = event.data
-
     if (type === "pre") {
+      const request = JSON.parse(event.data.request) as HoppRESTRequest
+
+      const parsedRequest = HoppRESTRequest.safeParse(request)
+
+      if (parsedRequest.type === "err") {
+        const err: PreRequestScriptErrorMessage = {
+          type: "PRE_REQUEST_SCRIPT_ERROR",
+          data: parsedRequest.error,
+        }
+        self.postMessage(err)
+        return
+      }
+
       try {
-        const preRequestScriptResult = await getFinalEnvsFromPreRequest(
-          script,
-          envs
-        )
+        const preRequestScriptResult = await runPreRequestScript(script, {
+          envs,
+          request: parsedRequest.value,
+        })
         const result: PreRequestScriptResultMessage = {
           type: "PRE_REQUEST_SCRIPT_RESULT",
           data: preRequestScriptResult,

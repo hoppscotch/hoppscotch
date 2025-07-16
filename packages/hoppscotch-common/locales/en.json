@@ -241,7 +241,10 @@
       "label_send_as": "Client Authentication",
       "label_send_in_body": "Send Credentials in Body",
       "label_send_as_basic_auth": "Send Credentials as Basic Auth",
-      "enter_value": "Enter value"
+      "enter_value": "Enter value",
+      "auth_request": "Auth Request",
+      "token_request": "Token Request",
+      "refresh_request": "Refresh Request"
     },
     "pass_key_by": "Pass by",
     "pass_by_query_params_label": "Query Parameters",

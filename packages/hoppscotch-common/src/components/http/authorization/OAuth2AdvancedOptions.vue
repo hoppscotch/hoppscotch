@@ -43,25 +43,50 @@
           </span>
         </div>
 
-        <div v-else class="divide-y divide-dividerLight">
-          <HttpKeyValue
-            :show-description="false"
-            v-for="(param, index) in workingAuthRequestParams"
-            :key="`auth-request-param-${param.id}`"
-            v-model:name="param.key"
-            v-model:value="param.value"
-            :total="workingAuthRequestParams.length"
-            :index="index"
-            :entity-id="param.id"
-            :entity-active="param.active"
-            :is-active="param.hasOwnProperty('active')"
-            :envs="envs"
-            :key-auto-complete-source="commonOAuth2AuthParams"
-            @update-entity="
-              updateAuthRequestParam($event.index, $event.payload)
-            "
-            @delete-entity="deleteAuthRequestParam($event)"
-          />
+        <div v-else>
+          <!-- Column Headers -->
+          <div
+            class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+          >
+            <span class="w-8"></span>
+            <!-- Drag handle space -->
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.key") }}
+            </span>
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.value") }}
+            </span>
+            <span class="w-8"></span>
+            <!-- Active/Inactive toggle space -->
+            <span class="w-8"></span>
+            <!-- Delete button space -->
+          </div>
+
+          <!-- Parameter rows -->
+          <div class="divide-y divide-dividerLight">
+            <HttpKeyValue
+              :show-description="false"
+              v-for="(param, index) in workingAuthRequestParams"
+              :key="`auth-request-param-${param.id}`"
+              v-model:name="param.key"
+              v-model:value="param.value"
+              :total="workingAuthRequestParams.length"
+              :index="index"
+              :entity-id="param.id"
+              :entity-active="param.active"
+              :is-active="param.hasOwnProperty('active')"
+              :envs="envs"
+              :key-auto-complete-source="commonOAuth2AuthParams"
+              @update-entity="
+                updateAuthRequestParam($event.index, $event.payload)
+              "
+              @delete-entity="deleteAuthRequestParam($event)"
+            />
+          </div>
         </div>
       </div>
 

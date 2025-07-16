@@ -104,15 +104,11 @@ import {
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import * as monaco from "monaco-editor"
-import { computed, onUnmounted, watch } from "vue"
+import { computed } from "vue"
 
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"
-
-import postRequestPWModDefn from "~/types/post-request.d.ts?raw"
-import preRequestPWModDefn from "~/types/pre-request.d.ts?raw"
 
 const VALID_OPTION_TABS = [
   "params",
@@ -149,36 +145,6 @@ const emit = defineEmits<{
 
 const request = useVModel(props, "modelValue", emit)
 const selectedOptionTab = useVModel(props, "optionTab", emit)
-
-let extraLibRef: monaco.IDisposable | null = null
-
-const libDefs = {
-  "pre-request": preRequestPWModDefn,
-  "post-request": postRequestPWModDefn,
-}
-
-const scriptEditorTabs = ["preRequestScript", "tests"]
-
-onUnmounted(() => extraLibRef?.dispose())
-
-watch(
-  () => selectedOptionTab.value,
-  (newTab) => {
-    if (!scriptEditorTabs.includes(newTab)) {
-      return
-    }
-
-    extraLibRef?.dispose()
-
-    monaco.languages.typescript.typescriptDefaults.setExtraLibs([])
-
-    extraLibRef = monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      libDefs[newTab === "preRequestScript" ? "pre-request" : "post-request"],
-      `inmemory://lib/pw-${newTab}.d.ts`
-    )
-  },
-  { immediate: true }
-)
 
 const showPreRequestScriptTab = computed(() => {
   return (

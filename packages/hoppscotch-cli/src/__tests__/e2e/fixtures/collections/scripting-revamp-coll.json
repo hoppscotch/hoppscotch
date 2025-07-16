@@ -1,0 +1,255 @@
+{
+  "id": "cmfhzf0oo0091qt0iu8yy94rw",
+  "_ref_id": "coll_mfhz1cx0_5ae46b4c-d9d4-4ef8-92bc-af63525a73d7",
+  "v": 10,
+  "name": "scripting-revamp-coll",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "id": "cmfhzf0oo0092qt0if5rvd2g4",
+      "name": "json-response-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "test header"
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.body.asJSON()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(hopp.response.body.asJSON().data)\n\n    hopp.expect(parsedData.name).toBe('John Doe')\n    hopp.expect(parsedData.age).toBeType(\"number\")\n})\n\npm.test(\"`pm.response.json()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(pm.response.json().data)\n\n    pm.expect(parsedData.name).toBe('John Doe')\n    pm.expect(parsedData.age).toBeType(\"number\")\n})\n\nhopp.test(\"`hopp.response.body.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\nhopp.test(\"hopp.response.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(123)\n})\n\npm.test(\"pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(123)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"John Doe\",\n  \"age\": 35\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0093qt0ictgoxymy",
+      "name": "html-response-test",
+      "method": "GET",
+      "endpoint": "https://hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "Test header"
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude(\"Open source API development ecosystem\")\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude(\"Open source API development ecosystem\")\n})\n\nhopp.test(\"`hopp.response.body.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(60)\n})\n\npm.test(\"`pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(60)\n})\n\n\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0094qt0ixbo9rqnw",
+      "name": "environment-variables-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\nhopp.env.set('test_key', 'test_value')\nhopp.env.set('recursive_key', '<<test_key>>')\nhopp.env.global.set('global_key', 'global_value')\nhopp.env.active.set('active_key', 'active_value')\n\n// `pm` namespace equivalents\npm.variables.set('pm_test_key', 'pm_test_value')\npm.environment.set('pm_active_key', 'pm_active_value')\npm.globals.set('pm_global_key', 'pm_global_value')\n",
+      "testScript": "export {};\n\nhopp.test('`hopp.env.get()` retrieves environment variables', () => {\n    const value = hopp.env.get('test_key')\n    hopp.expect(value).toBe('test_value')\n})\n\npm.test('`pm.variables.get()` retrieves environment variables', () => {\n    const value = pm.variables.get('test_key')\n    pm.expect(value).toBe('test_value')\n})\n\nhopp.test('`hopp.env.getRaw()` retrieves raw environment variables without resolution', () => {\n    const rawValue = hopp.env.getRaw('recursive_key')\n    hopp.expect(rawValue).toBe('<<test_key>>')\n})\n\nhopp.test('`hopp.env.get()` resolves recursive environment variables', () => {\n    const resolvedValue = hopp.env.get('recursive_key')\n    hopp.expect(resolvedValue).toBe('test_value')\n})\n\npm.test('`pm.variables.replaceIn()` resolves template variables', () => {\n    const resolved = pm.variables.replaceIn('Value is {{test_key}}')\n    pm.expect(resolved).toBe('Value is test_value')\n})\n\nhopp.test('`hopp.env.global.get()` retrieves global environment variables', () => {\n    const globalValue = hopp.env.global.get('global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (globalValue) {\n      hopp.expect(globalValue).toBe('global_value')\n    }\n})\n\npm.test('`pm.globals.get()` retrieves global environment variables', () => {\n    const globalValue = pm.globals.get('global_key')\n\n    // `pm.globals` would be empty for the CLI\n    if (globalValue) {\n        pm.expect(globalValue).toBe('global_value')\n    }\n})\n\nhopp.test('`hopp.env.active.get()` retrieves active environment variables', () => {\n    const activeValue = hopp.env.active.get('active_key')\n    hopp.expect(activeValue).toBe('active_value')\n})\n\npm.test('`pm.environment.get()` retrieves active environment variables', () => {\n    const activeValue = pm.environment.get('active_key')\n    pm.expect(activeValue).toBe('active_value')\n})\n\nhopp.test('Environment methods return null for non-existent keys', () => {\n    hopp.expect(hopp.env.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.getRaw('non_existent')).toBe(null)\n    hopp.expect(hopp.env.global.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.active.get('non_existent')).toBe(null)\n})\n\npm.test('`pm` environment methods handle non-existent keys correctly', () => {\n    pm.expect(pm.variables.get('non_existent')).toBe(null)\n    pm.expect(pm.environment.get('non_existent')).toBe(null)\n    pm.expect(pm.globals.get('non_existent')).toBe(null)\n    pm.expect(pm.variables.has('non_existent')).toBe(false)\n    pm.expect(pm.environment.has('non_existent')).toBe(false)\n    pm.expect(pm.globals.has('non_existent')).toBe(false)\n})\n\npm.test('`pm` variables set in pre-request script are accessible', () => {\n    pm.expect(pm.variables.get('pm_test_key')).toBe('pm_test_value')\n    pm.expect(pm.environment.get('pm_active_key')).toBe('pm_active_value')\n\n    const pmGlobalValue = hopp.env.global.get('pm_global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (pmGlobalValue) {\n      hopp.expect(pmGlobalValue).toBe('pm_global_value')\n    }\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0095qt0ieogkxx1w",
+      "name": "request-modification-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [
+        {
+          "key": "original_param",
+          "value": "original-param",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [
+        {
+          "key": "Original-Header",
+          "value": "original_value",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\nhopp.request.setUrl('https://echo.hoppscotch.io/modified')\nhopp.request.setMethod('POST')\nhopp.request.setHeader('Modified-Header', 'modified_value')\nhopp.request.setParam('new_param', 'new_value')\n\nhopp.request.setBody({\n  contentType: 'application/json',\n  body: JSON.stringify({ modified: true, timestamp: Date.now() })\n})\n\nhopp.request.setAuth({\n  authType: 'bearer',\n  token: 'test-bearer-token',\n  authActive: true\n})",
+      "testScript": "export {};\n\nhopp.test('Request URL was modified by pre-request script', () => {\n    hopp.expect(hopp.request.url).toInclude('/modified')\n    pm.expect(pm.request.url.toString()).toInclude('/modified')\n})\n\nhopp.test('Request method was modified by pre-request script', () => {\n    hopp.expect(hopp.request.method).toBe('POST')\n    pm.expect(pm.request.method).toBe('POST')\n})\n\nhopp.test('Request headers contain both original and modified headers', () => {\n    const headers = hopp.request.headers\n    const hasOriginal = headers.some(h => h.key === 'Original-Header')\n    const hasModified = headers.some(h => h.key === 'Modified-Header')\n    hopp.expect(hasOriginal).toBe(true)\n    hopp.expect(hasModified).toBe(true)\n})\n\npm.test('PM request headers can be accessed and checked', () => {\n    pm.expect(pm.request.headers.has('Original-Header')).toBe(true)\n    pm.expect(pm.request.headers.has('Modified-Header')).toBe(true)\n    pm.expect(pm.request.headers.get('Modified-Header')).toBe('modified_value')\n})\n\nhopp.test('Request parameters contain both original and new parameters', () => {\n    const params = hopp.request.params\n    const hasOriginal = params.some(p => p.key === 'original_param')\n    const hasNew = params.some(p => p.key === 'new_param')\n    hopp.expect(hasOriginal).toBe(true)\n    hopp.expect(hasNew).toBe(true)\n})\n\nhopp.test('Request body was modified by pre-request script', () => {\n    hopp.expect(hopp.request.body.contentType).toBe('application/json')\n    pm.expect(pm.request.body.contentType).toBe('application/json')\n    const bodyData = hopp.request.body\n\n    if (typeof bodyData.body === \"string\") {\n        hopp.expect(JSON.parse(bodyData.body).modified).toBe(true)\n        pm.expect(JSON.parse(bodyData.body).modified).toBe(true)\n    } else {\n        throw new Error(`Unexpected body type: ${bodyData.body}`)\n    }\n})\n\n\nhopp.test('Request auth was modified by pre-request script', () => {\n    const auth = hopp.request.auth\n\n    if (auth.authType === 'bearer') {\n        hopp.expect(auth.token).toBe('test-bearer-token')\n        pm.expect(auth.token).toBe('test-bearer-token')\n    } else {\n        throw new Error(`Unexpected auth type: ${auth.authType}`)\n    }\n\n    hopp.expect(auth.token).toBe('test-bearer-token')\n    pm.expect(auth.token).toBe('test-bearer-token')\n})\n\n",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0096qt0i6wellfus",
+      "name": "response-parsing-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\nhopp.test('`hopp.response.statusCode` returns the response status code', () => {\n    hopp.expect(hopp.response.statusCode).toBe(200)\n})\n\npm.test('`pm.response.code` returns the response status code', () => {\n    pm.expect(pm.response.code).toBe(200)\n})\n\nhopp.test('`hopp.response.statusText` returns the response status text', () => {\n    hopp.expect(hopp.response.statusText).toBeType('string')\n})\n\npm.test('`pm.response.status` returns the response status text', () => {\n    pm.expect(pm.response.status).toBeType('string')\n})\n\nhopp.test('`hopp.response.headers` contains response headers', () => {\n    const { headers } = hopp.response\n\n    hopp.expect(headers).toBeType('object')\n    hopp.expect(headers.length > 0).toBe(true)\n})\n\npm.test('`pm.response.headers` contains response headers', () => {\n    const headersAll = pm.response.headers.all()\n    pm.expect(headersAll).toBeType('object')\n    pm.expect(Object.keys(headersAll).length > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.responseTime` is a positive number', () => {\n    hopp.expect(hopp.response.responseTime).toBeType('number')\n    hopp.expect(hopp.response.responseTime > 0).toBe(true)\n})\n\npm.test('`pm.response.responseTime` is a positive number', () => {\n    pm.expect(pm.response.responseTime).toBeType('number')\n    pm.expect(pm.response.responseTime > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.text()` returns response as text', () => {\n    const responseText = hopp.response.body.asText()\n    hopp.expect(responseText).toBeType('string')\n    hopp.expect(responseText.length > 0).toBe(true)\n})\n\npm.test('`pm.response.text()` returns response as text', () => {\n    const responseText = pm.response.text()\n    pm.expect(responseText).toBeType('string')\n    pm.expect(responseText.length > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.json()` parses JSON response', () => {\n    const responseJSON = hopp.response.body.asJSON()\n    hopp.expect(responseJSON).toBeType('object')\n})\n\npm.test('`pm.response.json()` parses JSON response', () => {\n    const responseJSON = pm.response.json()\n    pm.expect(responseJSON).toBeType('object')\n})\n\n\nhopp.test('`hopp.response.bytes()` returns the raw response', () => {\n    const responseBuffer = hopp.response.body.bytes()\n    hopp.expect(responseBuffer).toBeType('object')\n    hopp.expect(responseBuffer.constructor.name).toBe('Object')\n})\n\npm.test('`pm.response.stream` returns the raw response', () => {\n    const responseBuffer = pm.response.stream\n    pm.expect(responseBuffer).toBeType('object')\n    pm.expect(responseBuffer.constructor.name).toBe('Object')\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"test\": \"response parsing\",\n  \"timestamp\": \"{{$timestamp}}\",\n  \"data\": {\n    \"nested\": true,\n    \"value\": 42\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0097qt0ia4wf0lej",
+      "name": "request-variables-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "// Test request variables\nhopp.request.variables.set('dynamic_var', 'dynamic_value')\nhopp.request.variables.set('calculated_var', `timestamp_${Date.now()}`)",
+      "testScript": "export {};\n\nhopp.test('`hopp.request.variables.get()` retrieves request variables', () => {\n    const dynamicValue = hopp.request.variables.get('dynamic_var')\n    hopp.expect(dynamicValue).toBe('dynamic_value')\n})\n\nhopp.test('Request variables can store calculated values', () => {\n    const calculatedValue = hopp.request.variables.get('calculated_var')\n    hopp.expect(calculatedValue).toInclude('timestamp_')\n})\n\nhopp.test('Request variables return null for non-existent keys', () => {\n    const nonExistent = hopp.request.variables.get('non_existent_var')\n    hopp.expect(nonExistent).toBe(null)\n})\n\nhopp.test('Pre-defined request variables are accessible', () => {\n    const preDefinedVar = hopp.request.variables.get('req_var_1')\n    hopp.expect(preDefinedVar).toBe('request_variable_value')\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "req_var_1",
+          "value": "request_variable_value",
+          "active": true
+        },
+        {
+          "key": "dynamic_var",
+          "value": "dynamic_value",
+          "active": true
+        },
+        {
+          "key": "calculated_var",
+          "value": "timestamp_1757751657020",
+          "active": true
+        }
+      ],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0098qt0ii9fguj6e",
+      "name": "info-context-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('`pm.info.eventName` indicates the script context', () => {\n    pm.expect(pm.info.eventName).toBe('post-request')\n})\n\npm.test('`pm.info.requestName` returns the request name', () => {\n    pm.expect(pm.info.requestName).toBe('info-context-test')\n})\n\npm.test('`pm.info.requestId` returns an optional request identifier', () => {\n    const requestId = pm.info.requestId\n    if (requestId) {\n      pm.expect(requestId).toBeType('string')\n      pm.expect(requestId?.length > 0).toBe(true)\n    } else {\n        pm.expect(requestId).toBe(undefined)\n    }\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0099qt0iamthw97r",
+      "name": "pm-namespace-additional-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n// Test `pm` namespace specific features\npm.environment.set('pm_pre_key', 'pm_pre_value')\npm.globals.set('pm_global_pre', 'pm_global_pre_value')\npm.variables.set('pm_var_pre', 'pm_var_pre_value')\n",
+      "testScript": "export {};\n\npm.test('`pm` namespace environment operations work correctly', () => {\n    // Test environment has() method\n    pm.expect(pm.environment.has('pm_pre_key')).toBe(true)\n    pm.expect(pm.environment.has('non_existent_key')).toBe(false)\n    \n    // Test globals has() method\n    const globalValue = pm.globals.has('pm_global_pre')\n    // `pm.globals` would be empty for the CLI\n    if (globalValue) {\n        pm.expect(pm.globals.has('pm_global_pre')).toBe(true)\n    }\n    \n    pm.expect(pm.globals.has('non_existent_global')).toBe(false)\n    \n    // Test variables has() method\n    pm.expect(pm.variables.has('pm_var_pre')).toBe(true)\n    pm.expect(pm.variables.has('non_existent_var')).toBe(false)\n})\n\npm.test('`pm` variables.replaceIn() handles template replacement', () => {\n    const template = 'Hello {{pm_pre_key}}, global: {{pm_global_pre}}'\n    const resolved = pm.variables.replaceIn(template)\n    pm.expect(resolved).toInclude('pm_pre_value')\n    pm.expect(resolved).toInclude('pm_global_pre_value')\n})\n\npm.test('`pm` request object provides URL as object with toString', () => {\n    const url = pm.request.url\n    pm.expect(url.toString()).toBeType('string')\n    pm.expect(url.toString()).toInclude('echo.hoppscotch.io')\n})\n\npm.test('`pm` request headers object methods work correctly', () => {\n    // Test headers.all() returns object\n    const allHeaders = pm.request.headers.all()\n    pm.expect(allHeaders).toBeType('object')\n    \n    // Test headers.has() and headers.get() methods\n    if (Object.keys(allHeaders).length > 0) {\n        const firstHeaderKey = Object.keys(allHeaders)[0]\n        pm.expect(pm.request.headers.has(firstHeaderKey)).toBe(true)\n        pm.expect(pm.request.headers.get(firstHeaderKey)).toBeType('string')\n    }\n    \n    // Test non-existent header\n    pm.expect(pm.request.headers.has('non-existent-header')).toBe(false)\n    pm.expect(pm.request.headers.get('non-existent-header')).toBe(null)\n})\n\npm.test('`pm` response headers work correctly', () => {\n    // Test response headers all() method\n    const allResponseHeaders = pm.response.headers.all()\n    pm.expect(allResponseHeaders).toBeType('object')\n    \n    // Test headers has() and get() for common headers\n    if (Object.keys(allResponseHeaders).length > 0) {\n        const firstKey = Object.keys(allResponseHeaders)[0]\n        pm.expect(pm.response.headers.has(firstKey)).toBe(true)\n        pm.expect(pm.response.headers.get(firstKey)).toBeType('string')\n    }\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op009aqt0inw3j6dq9",
+      "name": "expectation-methods-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\nhopp.test('Basic equality expectations work correctly', () => {\n    hopp.expect(1).toBe(1)\n    hopp.expect('test').toBe('test')\n    hopp.expect(true).toBe(true)\n    hopp.expect(null).toBe(null)\n})\n\npm.test('`pm` basic equality expectations work correctly', () => {\n    pm.expect(1).toBe(1)\n    pm.expect('test').toBe('test')\n    pm.expect(true).toBe(true)\n    pm.expect(null).toBe(null)\n})\n\nhopp.test('Type checking expectations work correctly', () => {\n    hopp.expect(42).toBeType('number')\n    hopp.expect('hello').toBeType('string')\n    hopp.expect(true).toBeType('boolean')\n    hopp.expect({}).toBeType('object')\n    hopp.expect([]).toBeType('object')\n})\n\npm.test('`pm` type checking expectations work correctly', () => {\n    pm.expect(42).toBeType('number')\n    pm.expect('hello').toBeType('string')\n    pm.expect(true).toBeType('boolean')\n    pm.expect({}).toBeType('object')\n    pm.expect([]).toBeType('object')\n})\n\n\nhopp.test('String and array inclusion expectations work correctly', () => {\n    hopp.expect('hello world').toInclude('world')\n    hopp.expect([1, 2, 3]).toInclude(2)\n})\n\npm.test('`pm` string and array inclusion expectations work correctly', () => {\n    pm.expect('hello world').toInclude('world')\n    pm.expect([1, 2, 3]).toInclude(2)\n})\n\n\nhopp.test('Length expectations work correctly', () => {\n    hopp.expect('hello').toHaveLength(5)\n    hopp.expect([1, 2, 3]).toHaveLength(3)\n})\n\npm.test('`pm` length expectations work correctly', () => {\n    pm.expect('hello').toHaveLength(5)\n    pm.expect([1, 2, 3]).toHaveLength(3)\n})\n\nhopp.test('Response-based expectations work correctly', () => {\n    const responseData = hopp.response.body.asJSON()\n    hopp.expect(responseData).toBeType('object')\n    hopp.expect(hopp.response.statusCode).toBe(200)\n})\n\npm.test('`pm` response-based expectations work correctly', () => {\n    const responseData = pm.response.json()\n    pm.expect(responseData).toBeType('object')\n    pm.expect(pm.response.code).toBe(200)\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"message\": \"Test expectation methods\",\n  \"numbers\": [1, 2, 3, 4, 5],\n  \"metadata\": {\n    \"timestamp\": \"{{$timestamp}}\",\n    \"test\": true\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": []
+}

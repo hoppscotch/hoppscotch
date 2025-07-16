@@ -3,18 +3,20 @@ import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 
-import { defaultModules, pwPostRequestModule } from "~/cage-modules"
-import { preventCyclicObjects } from "~/shared-utils"
+import { defaultModules, postRequestModule } from "~/cage-modules"
 import {
+  RunPostRequestScriptOptions,
   SandboxTestResult,
   TestDescriptor,
   TestResponse,
   TestResult,
 } from "~/types"
+import { preventCyclicObjects } from "~/utils/shared"
 
+import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import Worker from "./worker?worker&inline"
 
-const runTestScriptWithWebWorker = (
+const runPostRequestScriptWithWebWorker = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse
@@ -36,10 +38,12 @@ const runTestScriptWithWebWorker = (
   })
 }
 
-const runTestScriptWithFaradayCage = async (
+const runPostRequestScriptWithFaradayCage = async (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  request: HoppRESTRequest,
+  response: TestResponse,
+  cookies: Cookie[] | null
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
@@ -48,6 +52,7 @@ const runTestScriptWithFaradayCage = async (
   let finalEnvs = envs
   let finalTestResults = testRunStack
   const consoleEntries: ConsoleEntry[] = []
+  let finalCookies = cookies
 
   const cage = await FaradayCage.create()
 
@@ -56,13 +61,16 @@ const runTestScriptWithFaradayCage = async (
       handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
     }),
 
-    pwPostRequestModule({
+    postRequestModule({
       envs: cloneDeep(envs),
       testRunStack: cloneDeep(testRunStack),
-      response,
-      handleSandboxResults: ({ envs, testRunStack }) => {
+      request: cloneDeep(request),
+      response: cloneDeep(response),
+      cookies: cookies ? cloneDeep(cookies) : null,
+      handleSandboxResults: ({ envs, testRunStack, cookies }) => {
         finalEnvs = envs
         finalTestResults = testRunStack
+        finalCookies = cookies
       },
     }),
   ])
@@ -83,22 +91,38 @@ const runTestScriptWithFaradayCage = async (
     tests: finalTestResults[0],
     envs: finalEnvs,
     consoleEntries,
+    updatedCookies: finalCookies,
   })
 }
 
 export const runTestScript = async (
   testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse,
-  experimentalScriptingSandbox = true
+  options: RunPostRequestScriptOptions
 ): Promise<E.Either<string, SandboxTestResult>> => {
-  const responseObjHandle = preventCyclicObjects<TestResponse>(response)
+  const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
   if (E.isLeft(responseObjHandle)) {
     return E.left(`Response marshalling failed: ${responseObjHandle.left}`)
   }
 
-  return experimentalScriptingSandbox
-    ? runTestScriptWithFaradayCage(testScript, envs, responseObjHandle.right)
-    : runTestScriptWithWebWorker(testScript, envs, responseObjHandle.right)
+  const resolvedResponse = responseObjHandle.right
+
+  const { envs, experimentalScriptingSandbox = true } = options
+
+  if (experimentalScriptingSandbox) {
+    const { request, cookies } = options as Extract<
+      RunPostRequestScriptOptions,
+      { experimentalScriptingSandbox: true }
+    >
+
+    return runPostRequestScriptWithFaradayCage(
+      testScript,
+      envs,
+      request,
+      resolvedResponse,
+      cookies
+    )
+  }
+
+  return runPostRequestScriptWithWebWorker(testScript, envs, resolvedResponse)
 }

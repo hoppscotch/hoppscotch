@@ -299,15 +299,16 @@ export class TestRunnerService extends Service {
       }
 
       if (results && E.isRight(results)) {
-        const { response, testResult } = results.right
+        const { response, testResult, updatedRequest } = results.right
         const { passed, failed } = this.getTestResultInfo(testResult)
 
         tab.value.document.testRunnerMeta.totalTests += passed + failed
         tab.value.document.testRunnerMeta.passedTests += passed
         tab.value.document.testRunnerMeta.failedTests += failed
 
-        // Update request with results in the result collection
+        // Update request with results and propagate pre-request script changes in the result collection
         this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          ...updatedRequest,
           testResults: testResult,
           response: options.persistResponses ? response : null,
           isLoading: false,

@@ -57,6 +57,7 @@
     />
 
     <input
+      v-if="showDescription"
       :value="description"
       :placeholder="t('count.description')"
       class="flex flex-1 px-4 bg-transparent"
@@ -133,20 +134,31 @@ type Entity = {
 
 const t = useI18n()
 
-defineProps<{
-  total: number
-  index: number
-  entityId: number
-  isActive: boolean
-  entityActive: boolean
-  name: string
-  value: string
-  inspectionKeyResult?: InspectorResult[]
-  inspectionValueResult?: InspectorResult[]
-  description?: string
-  envs?: AggregateEnvironment[]
-  keyAutoCompleteSource?: string[]
-}>()
+withDefaults(
+  defineProps<{
+    showDescription?: boolean
+    total: number
+    index: number
+    entityId: number
+    isActive: boolean
+    entityActive: boolean
+    name: string
+    value: string
+    inspectionKeyResult?: InspectorResult[]
+    inspectionValueResult?: InspectorResult[]
+    description?: string
+    envs?: AggregateEnvironment[]
+    keyAutoCompleteSource?: string[]
+  }>(),
+  {
+    showDescription: true,
+    description: "",
+    inspectionKeyResult: () => [],
+    inspectionValueResult: () => [],
+    envs: () => [],
+    keyAutoCompleteSource: () => [],
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:name", value: string): void

@@ -244,7 +244,8 @@
       "enter_value": "Enter value",
       "auth_request": "Auth Request",
       "token_request": "Token Request",
-      "refresh_request": "Refresh Request"
+      "refresh_request": "Refresh Request",
+      "send_in": "Send In"
     },
     "pass_key_by": "Pass by",
     "pass_by_query_params_label": "Query Parameters",

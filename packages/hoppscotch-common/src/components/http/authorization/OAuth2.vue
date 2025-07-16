@@ -187,129 +187,7 @@
     </div>
 
     <!-- Advanced Configuration Section -->
-    <details class="flex flex-col">
-      <summary
-        class="flex cursor-pointer items-center justify-between py-2 pl-4 text-secondaryLight transition hover:text-secondary"
-      >
-        <span class="select-none">{{ t("state.advanced") }}</span>
-      </summary>
-
-      <div class="flex flex-col border-t border-dividerLight">
-        <!-- Auth Request Parameters Section -->
-        <div class="border-b border-dividerLight">
-          <div class="flex items-center justify-between p-4">
-            <label class="font-semibold text-secondaryLight">
-              {{ t("authorization.oauth.auth_request") }}
-            </label>
-            <div class="flex">
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.clear_all')"
-                :icon="IconTrash2"
-                @click="clearAuthRequestParams"
-              />
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('add.new')"
-                :icon="IconPlus"
-                @click="addAuthRequestParam"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="workingAuthRequestParams.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <img
-              :src="`/images/states/${colorMode.value}/add_category.svg`"
-              :alt="`${t('empty.parameters')}`"
-              class="mb-4 w-16 flex-shrink-0 text-center opacity-50"
-            />
-            <span class="text-center">
-              {{ t("empty.parameters") }}
-            </span>
-          </div>
-
-          <div v-else class="divide-y divide-dividerLight">
-            <HttpKeyValue
-              v-for="(param, index) in workingAuthRequestParams"
-              :key="`auth-request-param-${param.id}`"
-              v-model:name="param.key"
-              v-model:value="param.value"
-              v-model:description="param.description"
-              :total="workingAuthRequestParams.length"
-              :index="index"
-              :entity-id="param.id"
-              :entity-active="param.active"
-              :is-active="param.hasOwnProperty('active')"
-              :envs="envs"
-              @update-entity="
-                updateAuthRequestParam($event.index, $event.payload)
-              "
-              @delete-entity="deleteAuthRequestParam($event)"
-            />
-          </div>
-        </div>
-
-        <!-- Token Request Parameters Section -->
-        <div>
-          <div class="flex items-center justify-between p-4">
-            <label class="font-semibold text-secondaryLight">
-              {{ t("authorization.oauth.token_request") }}
-            </label>
-            <div class="flex">
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.clear_all')"
-                :icon="IconTrash2"
-                @click="clearTokenRequestParams"
-              />
-              <HoppButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('add.new')"
-                :icon="IconPlus"
-                @click="addTokenRequestParam"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="workingTokenRequestParams.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <img
-              :src="`/images/states/${colorMode.value}/add_category.svg`"
-              :alt="`${t('empty.parameters')}`"
-              class="mb-4 w-16 flex-shrink-0 text-center opacity-50"
-            />
-            <span class="text-center">
-              {{ t("empty.parameters") }}
-            </span>
-          </div>
-
-          <div v-else class="divide-y divide-dividerLight">
-            <HttpKeyValue
-              v-for="(param, index) in workingTokenRequestParams"
-              :key="`token-request-param-${param.id}`"
-              v-model:name="param.key"
-              v-model:value="param.value"
-              v-model:description="param.description"
-              :total="workingTokenRequestParams.length"
-              :index="index"
-              :entity-id="param.id"
-              :entity-active="param.active"
-              :is-active="param.hasOwnProperty('active')"
-              :envs="envs"
-              @update-entity="
-                updateTokenRequestParam($event.index, $event.payload)
-              "
-              @delete-entity="deleteTokenRequestParam($event)"
-            />
-          </div>
-        </div>
-      </div>
-    </details>
+    <OAuth2AdvancedOptions :envs="envs || []" />
   </div>
 </template>
 
@@ -317,14 +195,14 @@
 import { HoppGQLAuthOAuth2, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref, watch } from "vue"
+import { Ref, computed, ref } from "vue"
 import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
 import { useToast } from "~/composables/toast"
-import { useColorMode } from "~/composables/theming"
 import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
 import { AggregateEnvironment } from "~/newstore/environments"
+import OAuth2AdvancedOptions from "./OAuth2AdvancedOptions.vue"
 import authCode, {
   AuthCodeOauthFlowParams,
   AuthCodeOauthRefreshParams,
@@ -351,12 +229,9 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
-import IconPlus from "~icons/lucide/plus"
-import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 const toast = useToast()
-const colorMode = useColorMode()
 
 const gqlTabsService = useService(GQLTabService)
 const persistenceService = useService(PersistenceService)
@@ -370,129 +245,6 @@ const props = defineProps<{
 }>()
 
 const auth = ref(props.modelValue)
-
-// Type for additional parameters
-type AdditionalParam = {
-  id: number
-  key: string
-  value: string
-  active: boolean
-  description: string
-}
-
-// Working arrays that include empty rows for UI
-const workingAuthRequestParams = ref<AdditionalParam[]>([
-  { id: 1, key: "", value: "", active: true, description: "" },
-])
-const workingTokenRequestParams = ref<AdditionalParam[]>([
-  { id: 2, key: "", value: "", active: true, description: "" },
-])
-
-// Watch for changes in working params and sync them
-let authRequestIdCounter = 1000
-let tokenRequestIdCounter = 2000
-
-// Auto-add empty rows for auth request params
-watch(
-  workingAuthRequestParams,
-  (newParams) => {
-    if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
-      workingAuthRequestParams.value.push({
-        id: authRequestIdCounter++,
-        key: "",
-        value: "",
-        active: true,
-        description: "",
-      })
-    }
-  },
-  { deep: true }
-)
-
-// Auto-add empty rows for token request params
-watch(
-  workingTokenRequestParams,
-  (newParams) => {
-    if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
-      workingTokenRequestParams.value.push({
-        id: tokenRequestIdCounter++,
-        key: "",
-        value: "",
-        active: true,
-        description: "",
-      })
-    }
-  },
-  { deep: true }
-)
-
-// Functions for auth request params
-const addAuthRequestParam = () => {
-  workingAuthRequestParams.value.push({
-    id: authRequestIdCounter++,
-    key: "",
-    value: "",
-    active: true,
-    description: "",
-  })
-}
-
-const updateAuthRequestParam = (index: number, payload: AdditionalParam) => {
-  workingAuthRequestParams.value[index] = payload
-}
-
-const deleteAuthRequestParam = (index: number) => {
-  workingAuthRequestParams.value.splice(index, 1)
-  if (workingAuthRequestParams.value.length === 0) {
-    addAuthRequestParam()
-  }
-}
-
-const clearAuthRequestParams = () => {
-  workingAuthRequestParams.value = [
-    {
-      id: authRequestIdCounter++,
-      key: "",
-      value: "",
-      active: true,
-      description: "",
-    },
-  ]
-}
-
-// Functions for token request params
-const addTokenRequestParam = () => {
-  workingTokenRequestParams.value.push({
-    id: tokenRequestIdCounter++,
-    key: "",
-    value: "",
-    active: true,
-    description: "",
-  })
-}
-
-const updateTokenRequestParam = (index: number, payload: AdditionalParam) => {
-  workingTokenRequestParams.value[index] = payload
-}
-
-const deleteTokenRequestParam = (index: number) => {
-  workingTokenRequestParams.value.splice(index, 1)
-  if (workingTokenRequestParams.value.length === 0) {
-    addTokenRequestParam()
-  }
-}
-
-const clearTokenRequestParams = () => {
-  workingTokenRequestParams.value = [
-    {
-      id: tokenRequestIdCounter++,
-      key: "",
-      value: "",
-      active: true,
-      description: "",
-    },
-  ]
-}
 
 const addToTargets = [
   {

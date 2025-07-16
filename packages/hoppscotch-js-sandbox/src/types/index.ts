@@ -1,3 +1,4 @@
+import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { ConsoleEntry } from "faraday-cage/modules"
 
 /**
@@ -6,12 +7,25 @@ import { ConsoleEntry } from "faraday-cage/modules"
 export type TestResponse = {
   /** Status Code of the response */
   status: number
+
+  /** Status text of the response (e.g., "OK", "Not Found", "Internal Server Error") */
+  statusText: string
+
+  /** Time taken for the request to complete in milliseconds */
+  responseTime: string
+
   /** List of headers returned */
   headers: { key: string; value: string }[]
+
   /**
    * Body of the response, this will be the JSON object if it is a JSON content type, else body string
    */
   body: string | object
+
+  /**
+   * Raw body of the response
+   */
+  rawBody: ArrayBuffer
 }
 
 /**
@@ -68,11 +82,14 @@ export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
 export type SandboxTestResult = TestResult & { tests: TestDescriptor } & {
   consoleEntries?: ConsoleEntry[]
+  updatedCookies?: Cookie[]
 }
 
 export type SandboxPreRequestResult = {
-  envs: TestResult["envs"]
+  updatedEnvs: TestResult["envs"]
   consoleEntries?: ConsoleEntry[]
+  updatedRequest?: HoppRESTRequest
+  updatedCookies?: Cookie[]
 }
 
 export interface Expectation {
@@ -86,3 +103,29 @@ export interface Expectation {
   toInclude(needle: any): void
   readonly not: Expectation
 }
+
+export type RunPreRequestScriptOptions =
+  | {
+      envs: TestResult["envs"]
+      request: HoppRESTRequest
+      cookies?: Cookie[] // Exclusive to the Desktop App
+      experimentalScriptingSandbox: true
+    }
+  | {
+      envs: TestResult["envs"]
+      experimentalScriptingSandbox?: false
+    }
+
+export type RunPostRequestScriptOptions =
+  | {
+      envs: TestResult["envs"]
+      request: HoppRESTRequest
+      response: TestResponse
+      cookies?: Cookie[] // Exclusive to the Desktop App
+      experimentalScriptingSandbox: true
+    }
+  | {
+      envs: TestResult["envs"]
+      response: TestResponse
+      experimentalScriptingSandbox?: false
+    }

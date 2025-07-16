@@ -37,14 +37,14 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ testScript, response, envs, legacySandbox }) => {
+        TE.chain(({ request, response, envs, legacySandbox }) => {
           const experimentalScriptingSandbox = !legacySandbox;
-          return runTestScript(
-            testScript,
+          return runTestScript(request.testScript, {
             envs,
+            request,
             response,
-            experimentalScriptingSandbox
-          );
+            experimentalScriptingSandbox,
+          });
         })
       )
     ),
@@ -147,10 +147,13 @@ export const getTestScriptParams = (
   legacySandbox: boolean
 ) => {
   const testScriptParams: TestScriptParams = {
-    testScript: request.testScript,
+    request,
     response: {
       body: reqRunnerRes.body,
+      rawBody: reqRunnerRes.rawBody,
       status: reqRunnerRes.status,
+      statusText: reqRunnerRes.statusText,
+      responseTime: reqRunnerRes.responseTime,
       headers: reqRunnerRes.headers,
     },
     envs,

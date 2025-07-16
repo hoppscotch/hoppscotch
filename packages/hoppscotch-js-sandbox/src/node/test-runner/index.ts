@@ -1,24 +1,39 @@
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 
-import { preventCyclicObjects } from "~/shared-utils"
-import { TestResponse, TestResult } from "~/types"
-import { runTestScriptWithFaradayCage } from "./experimental"
-import { runTestScriptWithIsolatedVm } from "./legacy"
+import { RunPostRequestScriptOptions, TestResponse, TestResult } from "~/types"
+import { preventCyclicObjects } from "~/utils/shared"
+import { runPostRequestScriptWithFaradayCage } from "./experimental"
+import { runPostRequestScriptWithIsolatedVm } from "./legacy"
 
+// TODO: Update return type to be based on `SandboxTestResult`
+// No involvement of cookies in the CLI context currently
 export const runTestScript = (
   testScript: string,
-  envs: TestResult["envs"],
-  response: TestResponse,
-  experimentalScriptingSandbox = true
+  options: RunPostRequestScriptOptions
 ): TE.TaskEither<string, TestResult> => {
-  const responseObjHandle = preventCyclicObjects<TestResponse>(response)
+  const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
   if (E.isLeft(responseObjHandle)) {
     return TE.left(`Response marshalling failed: ${responseObjHandle.left}`)
   }
 
-  return experimentalScriptingSandbox
-    ? runTestScriptWithFaradayCage(testScript, envs, responseObjHandle.right)
-    : runTestScriptWithIsolatedVm(testScript, envs, responseObjHandle.right)
+  const resolvedResonse = responseObjHandle.right
+  const { envs, experimentalScriptingSandbox = true } = options
+
+  if (experimentalScriptingSandbox) {
+    const { request } = options as Extract<
+      RunPostRequestScriptOptions,
+      { experimentalScriptingSandbox: true }
+    >
+
+    return runPostRequestScriptWithFaradayCage(
+      testScript,
+      envs,
+      request,
+      resolvedResonse
+    )
+  }
+
+  return runPostRequestScriptWithIsolatedVm(testScript, envs, resolvedResonse)
 }

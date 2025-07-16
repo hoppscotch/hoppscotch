@@ -1,0 +1,68 @@
+{
+  "v": 10,
+  "name": "hopp-namespace-additions",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "json-response",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "test header"
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.body.asJSON()` parses response body as JSON\", () => {\n    const responseJSON = hopp.response.body.asJSON()\n    const data = JSON.parse(responseJSON.data)\n    hopp.expect(data.name).toBe('John Doe');\n    hopp.expect(data.age).toBeType(\"number\")\n})\n\nhopp.test(\"`hopp.response.body.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\nhopp.test(\"hopp.response.body.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n    hopp.expect(rawResponse[0]).toBe(123)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"John Doe\",\n  \"age\": 35\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "html-response",
+      "method": "GET",
+      "endpoint": "https://hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "Test header"
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.body.asText()` Parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude(\"Open source API development ecosystem\")\n})\n\nhopp.test(\"`hopp.response.body.bytes()` Parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n    hopp.expect(rawResponse[0]).toBe(60)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "_ref_id": "coll_mf3wcc42_1e54a1ce-ebe2-48bd-b134-7ca7cd87d7b9"
+}

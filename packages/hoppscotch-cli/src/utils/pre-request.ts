@@ -58,21 +58,36 @@ export const preRequestScriptRunner = (
   return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs, experimentalScriptingSandbox)
+      runPreRequestScript(preRequestScript, {
+        envs,
+        experimentalScriptingSandbox,
+        request,
+      })
     ),
-    TE.map(
-      ({ selected, global }) =>
-        <Environment>{
+    TE.map(({ updatedEnvs, updatedRequest }) => {
+      const { selected, global } = updatedEnvs;
+
+      return {
+        updatedEnvs: <Environment>{
           name: "Env",
           variables: [...(selected ?? []), ...(global ?? [])],
-        }
-    ),
-    TE.chainW((env) =>
-      TE.tryCatch(
-        () => getEffectiveRESTRequest(request, env, collectionVariables),
+        },
+        updatedRequest: updatedRequest ?? {},
+      };
+    }),
+    TE.chainW(({ updatedEnvs, updatedRequest }) => {
+      const finalRequest = { ...request, ...updatedRequest };
+
+      return TE.tryCatch(
+        () =>
+          getEffectiveRESTRequest(
+            finalRequest,
+            updatedEnvs,
+            collectionVariables
+          ),
         (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
-      )
-    ),
+      );
+    }),
     TE.chainEitherKW((effectiveRequest) => effectiveRequest),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)

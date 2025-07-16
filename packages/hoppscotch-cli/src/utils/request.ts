@@ -120,6 +120,8 @@ export const requestRunner =
         endpoint: getRequest.endpoint(config.url),
         method: getRequest.method(config.method),
         body: baseResponse.data,
+        rawBody: baseResponse.data,
+        responseTime: "0",
         duration: 0,
       };
 
@@ -134,10 +136,12 @@ export const requestRunner =
         endpoint: "",
         method: "GET",
         body: {},
+        rawBody: new ArrayBuffer(),
         statusText: responseErrors[400],
         status: 400,
         headers: [],
         duration: 0,
+        responseTime: "0",
       };
 
       if (axios.isAxiosError(e)) {
@@ -265,7 +269,9 @@ export const processRequest =
       headers: [],
       status: 400,
       statusText: "",
+      responseTime: "0",
       body: Object(null),
+      rawBody: Object(null),
       duration: 0,
     };
     // Executing request-runner.

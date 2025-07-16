@@ -4,13 +4,13 @@ import * as TE from "fp-ts/TaskEither"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
-} from "~/shared-utils"
+} from "~/utils/shared"
 import { SandboxTestResult, TestResponse, TestResult } from "~/types"
 
 const executeScriptInContext = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): TE.TaskEither<string, SandboxTestResult> => {
   try {
     const responseObjHandle = preventCyclicObjects(response)

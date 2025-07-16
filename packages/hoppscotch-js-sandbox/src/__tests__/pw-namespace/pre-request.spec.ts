@@ -25,8 +25,8 @@ describe("runPreRequestScript", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toEqualRight({
       global: [],
       selected: [
@@ -68,8 +68,8 @@ describe("runPreRequestScript", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -95,8 +95,8 @@ describe("runPreRequestScript", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -122,8 +122,8 @@ describe("runPreRequestScript", () => {
               secret: false,
             },
           ],
-        }
-      )()
+        },
+      )(),
     ).resolves.toBeLeft()
   })
 
@@ -133,8 +133,8 @@ describe("runPreRequestScript", () => {
         `
           pw.env.set("foo", "bar")
         `,
-        { selected: [], global: [] }
-      )()
+        { selected: [], global: [] },
+      )(),
     ).resolves.toEqualRight({
       global: [],
       selected: [

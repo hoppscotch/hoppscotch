@@ -1,3 +1,4 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { ConsoleEntry } from "faraday-cage/modules"
 
 /**
@@ -71,8 +72,9 @@ export type SandboxTestResult = TestResult & { tests: TestDescriptor } & {
 }
 
 export type SandboxPreRequestResult = {
-  envs: TestResult["envs"]
+  updatedEnvs: TestResult["envs"]
   consoleEntries?: ConsoleEntry[]
+  updatedRequest?: HoppRESTRequest
 }
 
 export interface Expectation {
@@ -86,3 +88,14 @@ export interface Expectation {
   toInclude(needle: any): void
   readonly not: Expectation
 }
+
+export type RunPreRequestScriptOptions =
+  | {
+      envs: TestResult["envs"]
+      request: HoppRESTRequest
+      experimentalScriptingSandbox: true
+    }
+  | {
+      envs: TestResult["envs"]
+      experimentalScriptingSandbox?: false
+    }

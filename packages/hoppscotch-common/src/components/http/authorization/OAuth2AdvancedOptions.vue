@@ -1,10 +1,10 @@
 <template>
-  <details class="flex flex-col">
-    <summary
+  <div class="flex flex-col">
+    <div
       class="flex cursor-pointer items-center justify-between py-2 pl-4 text-secondaryLight transition hover:text-secondary"
     >
       <span class="select-none">{{ t("authorization.advance_config") }}</span>
-    </summary>
+    </div>
 
     <div class="flex flex-col border-t border-dividerLight">
       <!-- Auth Request Parameters Section -->
@@ -44,7 +44,7 @@
         </div>
 
         <div v-else class="divide-y divide-dividerLight">
-          <OAuth2KeyValue
+          <HttpKeyValue
             v-for="(param, index) in workingAuthRequestParams"
             :key="`auth-request-param-${param.id}`"
             v-model:name="param.key"
@@ -56,6 +56,7 @@
             :entity-active="param.active"
             :is-active="param.hasOwnProperty('active')"
             :envs="envs"
+            :key-auto-complete-source="commonOAuth2AuthParams"
             @update-entity="
               updateAuthRequestParam($event.index, $event.payload)
             "
@@ -100,25 +101,56 @@
           </span>
         </div>
 
-        <div v-else class="divide-y divide-dividerLight">
-          <OAuth2KeyValue
-            v-for="(param, index) in workingTokenRequestParams"
-            :key="`token-request-param-${param.id}`"
-            v-model:name="param.key"
-            v-model:value="param.value"
-            :send-in="param.sendIn"
-            :total="workingTokenRequestParams.length"
-            :index="index"
-            :entity-id="param.id"
-            :entity-active="param.active"
-            :is-active="param.hasOwnProperty('active')"
-            :envs="envs"
-            :send-in-options="tokenRequestSendInOptions"
-            @update-entity="
-              updateTokenRequestParam($event.index, $event.payload)
-            "
-            @delete-entity="deleteTokenRequestParam($event)"
-          />
+        <div v-else>
+          <!-- Column Headers -->
+          <div
+            class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+          >
+            <span class="w-8"></span>
+            <!-- Drag handle space -->
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.key") }}
+            </span>
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.value") }}
+            </span>
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("authorization.oauth.send_in") }}
+            </span>
+            <span class="w-8"></span>
+            <!-- Active/Inactive toggle space -->
+            <span class="w-8"></span>
+            <!-- Delete button space -->
+          </div>
+
+          <!-- Parameter rows -->
+          <div class="divide-y divide-dividerLight">
+            <OAuth2KeyValueWithSendIn
+              v-for="(param, index) in workingTokenRequestParams"
+              :key="`token-request-param-${param.id}`"
+              v-model:name="param.key"
+              v-model:value="param.value"
+              v-model:send-in="param.sendIn"
+              :total="workingTokenRequestParams.length"
+              :index="index"
+              :entity-id="param.id"
+              :entity-active="param.active"
+              :is-active="param.hasOwnProperty('active')"
+              :envs="envs"
+              :key-auto-complete-source="commonOAuth2TokenParams"
+              :send-in-options="sendInOptions"
+              @update-entity="
+                updateTokenRequestParam($event.index, $event.payload)
+              "
+              @delete-entity="deleteTokenRequestParam($event)"
+            />
+          </div>
         </div>
       </div>
 
@@ -158,29 +190,60 @@
           </span>
         </div>
 
-        <div v-else class="divide-y divide-dividerLight">
-          <OAuth2KeyValue
-            v-for="(param, index) in workingRefreshRequestParams"
-            :key="`refresh-request-param-${param.id}`"
-            v-model:name="param.key"
-            v-model:value="param.value"
-            :send-in="param.sendIn"
-            :total="workingRefreshRequestParams.length"
-            :index="index"
-            :entity-id="param.id"
-            :entity-active="param.active"
-            :is-active="param.hasOwnProperty('active')"
-            :envs="envs"
-            :send-in-options="refreshRequestSendInOptions"
-            @update-entity="
-              updateRefreshRequestParam($event.index, $event.payload)
-            "
-            @delete-entity="deleteRefreshRequestParam($event)"
-          />
+        <div v-else>
+          <!-- Column Headers -->
+          <div
+            class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+          >
+            <span class="w-8"></span>
+            <!-- Drag handle space -->
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.key") }}
+            </span>
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("count.value") }}
+            </span>
+            <span
+              class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+            >
+              {{ t("authorization.oauth.send_in") }}
+            </span>
+            <span class="w-8"></span>
+            <!-- Active/Inactive toggle space -->
+            <span class="w-8"></span>
+            <!-- Delete button space -->
+          </div>
+
+          <!-- Parameter rows -->
+          <div class="divide-y divide-dividerLight">
+            <OAuth2KeyValueWithSendIn
+              v-for="(param, index) in workingRefreshRequestParams"
+              :key="`refresh-request-param-${param.id}`"
+              v-model:name="param.key"
+              v-model:value="param.value"
+              v-model:send-in="param.sendIn"
+              :total="workingRefreshRequestParams.length"
+              :index="index"
+              :entity-id="param.id"
+              :entity-active="param.active"
+              :is-active="param.hasOwnProperty('active')"
+              :envs="envs"
+              :key-auto-complete-source="commonOAuth2RefreshParams"
+              :send-in-options="sendInOptions"
+              @update-entity="
+                updateRefreshRequestParam($event.index, $event.payload)
+              "
+              @delete-entity="deleteRefreshRequestParam($event)"
+            />
+          </div>
         </div>
       </div>
     </div>
-  </details>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -188,7 +251,14 @@ import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "~/composables/theming"
 import { AggregateEnvironment } from "~/newstore/environments"
-import OAuth2KeyValue from "./OAuth2KeyValue.vue"
+import {
+  commonOAuth2AuthParams,
+  commonOAuth2TokenParams,
+  commonOAuth2RefreshParams,
+  sendInOptions,
+} from "~/helpers/oauth2Params"
+import HttpKeyValue from "../KeyValue.vue"
+import OAuth2KeyValueWithSendIn from "./OAuth2KeyValueWithSendIn.vue"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 
@@ -210,30 +280,17 @@ interface Props {
 
 defineProps<Props>()
 
-// Send In options for token and refresh request parameters
-const tokenRequestSendInOptions = [
-  { value: "body", label: "Request Body" },
-  { value: "url", label: "Request URL" },
-  { value: "headers", label: "Request Headers" },
-]
-
-const refreshRequestSendInOptions = [
-  { value: "body", label: "Request Body" },
-  { value: "url", label: "Request URL" },
-  { value: "headers", label: "Request Headers" },
-]
-
 // Working arrays that include empty rows for UI
 const workingAuthRequestParams = ref<AdditionalParam[]>([
   { id: 1, key: "", value: "", active: true, description: "" },
 ])
 
 const workingTokenRequestParams = ref<AdditionalParam[]>([
-  { id: 2, key: "", value: "", active: true, sendIn: "body" },
+  { id: 2, key: "", value: "", active: true, sendIn: "Request Body" },
 ])
 
 const workingRefreshRequestParams = ref<AdditionalParam[]>([
-  { id: 3, key: "", value: "", active: true, sendIn: "body" },
+  { id: 3, key: "", value: "", active: true, sendIn: "Request Body" },
 ])
 
 // Watch for changes in working params and sync them
@@ -268,7 +325,7 @@ watch(
         key: "",
         value: "",
         active: true,
-        sendIn: "body",
+        sendIn: "Request Body",
       })
     }
   },
@@ -285,7 +342,7 @@ watch(
         key: "",
         value: "",
         active: true,
-        sendIn: "body",
+        sendIn: "Request Body",
       })
     }
   },
@@ -333,7 +390,7 @@ const addTokenRequestParam = () => {
     key: "",
     value: "",
     active: true,
-    sendIn: "body",
+    sendIn: "Request Body",
   })
 }
 
@@ -355,7 +412,7 @@ const clearTokenRequestParams = () => {
       key: "",
       value: "",
       active: true,
-      sendIn: "body",
+      sendIn: "Request Body",
     },
   ]
 }
@@ -367,7 +424,7 @@ const addRefreshRequestParam = () => {
     key: "",
     value: "",
     active: true,
-    sendIn: "body",
+    sendIn: "Request Body",
   })
 }
 
@@ -389,7 +446,7 @@ const clearRefreshRequestParams = () => {
       key: "",
       value: "",
       active: true,
-      sendIn: "body",
+      sendIn: "Request Body",
     },
   ]
 }

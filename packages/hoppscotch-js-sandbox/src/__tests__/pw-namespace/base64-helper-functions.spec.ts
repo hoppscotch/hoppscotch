@@ -3,14 +3,18 @@ import { pipe } from "fp-ts/function"
 
 import { describe, expect, test } from "vitest"
 
+import { getDefaultRESTRequest } from "@hoppscotch/data"
 import { runPreRequestScript, runTestScript } from "~/node"
 import { TestResponse, TestResult } from "~/types"
+
+const defaultRequest = getDefaultRESTRequest()
 
 describe("Base64 helper functions", () => {
   const scriptExpectations = {
     atob: {
       script: `pw.env.set("atob", atob("SGVsbG8gV29ybGQ="))`,
       environment: {
+        global: [],
         selected: [
           {
             key: "atob",
@@ -24,6 +28,7 @@ describe("Base64 helper functions", () => {
     btoa: {
       script: `pw.env.set("btoa", btoa("Hello World"))`,
       environment: {
+        global: [],
         selected: [
           {
             key: "btoa",
@@ -41,11 +46,16 @@ describe("Base64 helper functions", () => {
       test("successfully decodes the input string", () => {
         return expect(
           runPreRequestScript(scriptExpectations.atob.script, {
-            global: [],
-            selected: [],
-          })()
+            envs: {
+              global: [],
+              selected: [],
+            },
+            request: defaultRequest,
+          })(),
         ).resolves.toEqualRight(
-          expect.objectContaining(scriptExpectations.atob.environment)
+          expect.objectContaining({
+            updatedEnvs: scriptExpectations.atob.environment,
+          }),
         )
       })
     })
@@ -54,11 +64,16 @@ describe("Base64 helper functions", () => {
       test("successfully encodes the input string", () => {
         return expect(
           runPreRequestScript(scriptExpectations.btoa.script, {
-            global: [],
-            selected: [],
-          })()
+            envs: {
+              global: [],
+              selected: [],
+            },
+            request: defaultRequest,
+          })(),
         ).resolves.toEqualRight(
-          expect.objectContaining(scriptExpectations.btoa.environment)
+          expect.objectContaining({
+            updatedEnvs: scriptExpectations.btoa.environment,
+          }),
         )
       })
     })
@@ -73,16 +88,20 @@ describe("Base64 helper functions", () => {
 
     const func = (script: string, envs: TestResult["envs"]) =>
       pipe(
-        runTestScript(script, envs, fakeResponse),
-        TE.map((x) => x.envs)
+        runTestScript(script, {
+          envs,
+          request: defaultRequest,
+          response: fakeResponse,
+        }),
+        TE.map((x) => x.envs),
       )
 
     describe("atob", () => {
       test("successfully decodes the input string", () => {
         return expect(
-          func(scriptExpectations.atob.script, { global: [], selected: [] })()
+          func(scriptExpectations.atob.script, { global: [], selected: [] })(),
         ).resolves.toEqualRight(
-          expect.objectContaining(scriptExpectations.atob.environment)
+          expect.objectContaining(scriptExpectations.atob.environment),
         )
       })
     })
@@ -90,9 +109,9 @@ describe("Base64 helper functions", () => {
     describe("btoa", () => {
       test("successfully encodes the input string", () => {
         return expect(
-          func(scriptExpectations.btoa.script, { global: [], selected: [] })()
+          func(scriptExpectations.btoa.script, { global: [], selected: [] })(),
         ).resolves.toEqualRight(
-          expect.objectContaining(scriptExpectations.btoa.environment)
+          expect.objectContaining(scriptExpectations.btoa.environment),
         )
       })
     })

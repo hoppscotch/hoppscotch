@@ -1,3 +1,4 @@
+import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { ConsoleEntry } from "faraday-cage/modules"
 
 /**
@@ -68,11 +69,14 @@ export type SelectedEnvItem = TestResult["envs"]["selected"][number]
 
 export type SandboxTestResult = TestResult & { tests: TestDescriptor } & {
   consoleEntries?: ConsoleEntry[]
+  updatedCookies?: Cookie[]
 }
 
 export type SandboxPreRequestResult = {
-  envs: TestResult["envs"]
+  updatedEnvs: TestResult["envs"]
   consoleEntries?: ConsoleEntry[]
+  updatedRequest?: HoppRESTRequest
+  updatedCookies?: Cookie[]
 }
 
 export interface Expectation {
@@ -86,3 +90,29 @@ export interface Expectation {
   toInclude(needle: any): void
   readonly not: Expectation
 }
+
+export type RunPreRequestScriptOptions =
+  | {
+      envs: TestResult["envs"]
+      request: HoppRESTRequest
+      cookies?: Cookie[]
+      experimentalScriptingSandbox: true
+    }
+  | {
+      envs: TestResult["envs"]
+      experimentalScriptingSandbox?: false
+    }
+
+export type RunPostRequestScriptOptions =
+  | {
+      envs: TestResult["envs"]
+      request: HoppRESTRequest
+      response: TestResponse
+      cookies?: Cookie[]
+      experimentalScriptingSandbox: true
+    }
+  | {
+      envs: TestResult["envs"]
+      response: TestResponse
+      experimentalScriptingSandbox?: false
+    }

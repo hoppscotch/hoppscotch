@@ -1,11 +1,11 @@
 import * as TE from "fp-ts/TaskEither"
 
-import { getPreRequestScriptMethods } from "~/shared-utils"
+import { getPreRequestScriptMethods } from "~/utils/shared"
 import { SandboxPreRequestResult, TestResult } from "~/types"
 
 const executeScriptInContext = (
   preRequestScript: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
 ): TE.TaskEither<string, SandboxPreRequestResult> => {
   try {
     const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
@@ -17,7 +17,7 @@ const executeScriptInContext = (
     executeScript(pw)
 
     return TE.right({
-      envs: updatedEnvs,
+      updatedEnvs,
     })
   } catch (error) {
     return TE.left(`Script execution failed: ${(error as Error).message}`)

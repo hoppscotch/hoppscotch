@@ -1,19 +1,22 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { FaradayCage } from "faraday-cage"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import { cloneDeep } from "lodash"
 
 import { defaultModules, pwPreRequestModule } from "~/cage-modules"
-import { TestResult } from "~/types"
+import { SandboxPreRequestResult, TestResult } from "~/types"
 
 export const runPreRequestScriptWithFaradayCage = (
   preRequestScript: string,
-  envs: TestResult["envs"]
-): TE.TaskEither<string, TestResult["envs"]> => {
+  envs: TestResult["envs"],
+  request: HoppRESTRequest,
+): TE.TaskEither<string, SandboxPreRequestResult> => {
   return pipe(
     TE.tryCatch(
-      async (): Promise<TestResult["envs"]> => {
+      async (): Promise<SandboxPreRequestResult> => {
         let finalEnvs = envs
+        let finalRequest = request
 
         const cage = await FaradayCage.create()
 
@@ -22,8 +25,10 @@ export const runPreRequestScriptWithFaradayCage = (
 
           pwPreRequestModule({
             envs: cloneDeep(envs),
-            handleSandboxResults: ({ envs }) => {
+            request,
+            handleSandboxResults: ({ envs, request }) => {
               finalEnvs = envs
+              finalRequest = request
             },
           }),
         ])
@@ -32,7 +37,10 @@ export const runPreRequestScriptWithFaradayCage = (
           throw result.err
         }
 
-        return finalEnvs
+        return {
+          updatedEnvs: finalEnvs,
+          updatedRequest: finalRequest,
+        }
       },
       (error) => {
         if (error !== null && typeof error === "object" && "message" in error) {
@@ -41,7 +49,7 @@ export const runPreRequestScriptWithFaradayCage = (
         }
 
         return `Script execution failed: ${String(error)}`
-      }
-    )
+      },
+    ),
   )
 }

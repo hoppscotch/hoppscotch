@@ -2,15 +2,20 @@ import { FaradayCage } from "faraday-cage"
 import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash"
-import { SandboxPreRequestResult, TestResult } from "~/types"
+import {
+  RunPreRequestScriptOptions,
+  SandboxPreRequestResult,
+  TestResult,
+} from "~/types"
 
 import { defaultModules, pwPreRequestModule } from "~/cage-modules"
 
+import { HoppRESTRequest } from "@hoppscotch/data"
 import Worker from "./worker?worker&inline"
 
 const runPreRequestScriptWithWebWorker = (
   preRequestScript: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   return new Promise((resolve) => {
     const worker = new Worker()
@@ -31,10 +36,12 @@ const runPreRequestScriptWithWebWorker = (
 
 const runPreRequestScriptWithFaradayCage = async (
   preRequestScript: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
+  request: HoppRESTRequest,
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const consoleEntries: ConsoleEntry[] = []
   let finalEnvs = envs
+  let finalRequest = request
 
   const cage = await FaradayCage.create()
 
@@ -45,7 +52,11 @@ const runPreRequestScriptWithFaradayCage = async (
 
     pwPreRequestModule({
       envs: cloneDeep(envs),
-      handleSandboxResults: ({ envs }) => (finalEnvs = envs),
+      request: cloneDeep(request),
+      handleSandboxResults: ({ envs, request }) => {
+        finalEnvs = envs
+        finalRequest = request
+      },
     }),
   ])
 
@@ -62,16 +73,26 @@ const runPreRequestScriptWithFaradayCage = async (
   }
 
   return E.right({
-    envs: finalEnvs,
+    updatedEnvs: finalEnvs,
     consoleEntries,
-  })
+    updatedRequest: finalRequest,
+  } satisfies SandboxPreRequestResult)
 }
 
 export const runPreRequestScript = async (
   preRequestScript: string,
-  envs: TestResult["envs"],
-  experimentalScriptingSandbox = true
-): Promise<E.Either<string, SandboxPreRequestResult>> =>
-  experimentalScriptingSandbox
-    ? runPreRequestScriptWithFaradayCage(preRequestScript, envs)
-    : runPreRequestScriptWithWebWorker(preRequestScript, envs)
+  options: RunPreRequestScriptOptions,
+): Promise<E.Either<string, SandboxPreRequestResult>> => {
+  const { envs, experimentalScriptingSandbox = true } = options
+
+  if (experimentalScriptingSandbox) {
+    const { request } = options as Extract<
+      RunPreRequestScriptOptions,
+      { experimentalScriptingSandbox: true }
+    >
+
+    return runPreRequestScriptWithFaradayCage(preRequestScript, envs, request)
+  }
+
+  return runPreRequestScriptWithWebWorker(preRequestScript, envs)
+}

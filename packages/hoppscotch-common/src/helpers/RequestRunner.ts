@@ -21,7 +21,8 @@ import { Ref } from "vue"
 
 import { map } from "fp-ts/Either"
 
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
+import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
 import {
   environmentsStore,
@@ -32,28 +33,26 @@ import {
   updateEnvironment,
 } from "~/newstore/environments"
 import {
+  CurrentValueService,
+  Variable,
+} from "~/services/current-environment-value.service"
+import {
   SecretEnvironmentService,
   SecretVariable,
 } from "~/services/secret-environment.service"
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
-import { getFinalEnvsFromPreRequest } from "./preRequest"
 import { HoppRequestDocument } from "./rest/document"
 import {
   getTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
-import {
-  CurrentValueService,
-  Variable,
-} from "~/services/current-environment-value.service"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { isJSONContentType } from "./utils/contenttypes"
 import { getCombinedEnvVariables } from "./utils/environments"
-import { useSetting } from "~/composables/settings"
 import {
   OutgoingSandboxPostRequestWorkerMessage,
   OutgoingSandboxPreRequestWorkerMessage,
@@ -273,16 +272,21 @@ const filterNonEmptyEnvironmentVariables = (
   return Array.from(envsMap.values())
 }
 
-const runPreRequestScript = (
-  script: string,
+const delegatePreRequestScriptRunner = (
+  request: HoppRESTRequest,
   envs: {
     global: Environment["variables"]
     selected: Environment["variables"]
     temp: Environment["variables"]
   }
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
+  const { preRequestScript } = request
+
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    return getFinalEnvsFromPreRequest(script, envs, false)
+    return runPreRequestScript(preRequestScript, {
+      envs,
+      experimentalScriptingSandbox: false,
+    })
   }
 
   return new Promise((resolve) => {
@@ -309,8 +313,9 @@ const runPreRequestScript = (
 
     sandboxWorker.postMessage({
       type: "pre",
-      script,
+      script: preRequestScript,
       envs,
+      request: JSON.stringify(request),
     })
   })
 }
@@ -372,8 +377,8 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const res = runPreRequestScript(
-    tab.value.document.request.preRequestScript,
+  const res = delegatePreRequestScriptRunner(
+    tab.value.document.request,
     getCombinedEnvVariables()
   ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
@@ -425,13 +430,17 @@ export function runRESTRequest$(
 
     const finalRequest = {
       ...tab.value.document.request,
+      ...(preRequestScriptResult.right.updatedRequest ?? {}),
       auth: requestAuth ?? { authType: "none", authActive: false },
       headers: requestHeaders as HoppRESTHeaders,
     }
 
+    // Propagate changes from the underlying request to the UI
+    tab.value.document.request = finalRequest
+
     const finalEnvs = {
       requestVariables: finalRequestVariables as Environment["variables"],
-      environments: preRequestScriptResult.right.envs,
+      environments: preRequestScriptResult.right.updatedEnvs,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
@@ -457,7 +466,7 @@ export function runRESTRequest$(
 
           const postRequestScriptResult = await runPostRequestScript(
             res.req.testScript,
-            preRequestScriptResult.right.envs,
+            preRequestScriptResult.right.updatedEnvs,
             {
               status: res.statusCode,
               body: getTestableBody(res),
@@ -578,8 +587,8 @@ export function runTestRunnerRequest(
     }>
   | undefined
 > {
-  return runPreRequestScript(
-    request.preRequestScript,
+  return delegatePreRequestScriptRunner(
+    request,
     getCombinedEnvVariables()
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
@@ -587,20 +596,23 @@ export function runTestRunnerRequest(
       return E.left("script_fail" as const)
     }
 
-    const effectiveRequest = await getEffectiveRESTRequest(request, {
-      id: "env-id",
-      v: 2,
-      name: "Env",
-      variables: filterNonEmptyEnvironmentVariables(
-        combineEnvVariables({
-          environments: {
-            ...preRequestScriptResult.right.envs,
-            temp: !persistEnv ? getTemporaryVariables() : [],
-          },
-          requestVariables: [],
-        })
-      ),
-    })
+    const effectiveRequest = await getEffectiveRESTRequest(
+      { ...request, ...(preRequestScriptResult.right.updatedRequest ?? {}) },
+      {
+        id: "env-id",
+        v: 2,
+        name: "Env",
+        variables: filterNonEmptyEnvironmentVariables(
+          combineEnvVariables({
+            environments: {
+              ...preRequestScriptResult.right.updatedEnvs,
+              temp: !persistEnv ? getTemporaryVariables() : [],
+            },
+            requestVariables: [],
+          })
+        ),
+      }
+    )
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
 
@@ -613,7 +625,7 @@ export function runTestRunnerRequest(
 
           const postRequestScriptResult = await runPostRequestScript(
             res.req.testScript,
-            preRequestScriptResult.right.envs,
+            preRequestScriptResult.right.updatedEnvs,
             {
               status: res.statusCode,
               body: getTestableBody(res),

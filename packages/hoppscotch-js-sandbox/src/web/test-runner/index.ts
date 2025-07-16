@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 
 import { defaultModules, pwPostRequestModule } from "~/cage-modules"
-import { preventCyclicObjects } from "~/shared-utils"
+import { preventCyclicObjects } from "~/utils/shared"
 import {
   SandboxTestResult,
   TestDescriptor,
@@ -17,14 +17,14 @@ import Worker from "./worker?worker&inline"
 const runTestScriptWithWebWorker = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   return new Promise((resolve) => {
     const worker = new Worker()
 
     // Listen for the results from the web worker
     worker.addEventListener("message", (event: MessageEvent) =>
-      resolve(event.data.results)
+      resolve(event.data.results),
     )
 
     // Send the script to the web worker
@@ -39,7 +39,7 @@ const runTestScriptWithWebWorker = (
 const runTestScriptWithFaradayCage = async (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
@@ -90,7 +90,7 @@ export const runTestScript = async (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse,
-  experimentalScriptingSandbox = true
+  experimentalScriptingSandbox = true,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const responseObjHandle = preventCyclicObjects<TestResponse>(response)
 

@@ -858,7 +858,7 @@
     "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests.",
-    "verified_email_sent": "A verification email has been sent to your email address. Please refresh the page after verifying your email address."
+    "verified_email_sent": "A verification email has been sent to your email address. Please refresh the page after verifying your email address. You will receive an email if this email is not associated with any other account."
   },
   "remove": {
     "star": "Remove star"

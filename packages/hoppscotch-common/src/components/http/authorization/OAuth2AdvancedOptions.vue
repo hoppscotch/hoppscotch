@@ -45,6 +45,7 @@
 
         <div v-else class="divide-y divide-dividerLight">
           <HttpKeyValue
+            :show-description="false"
             v-for="(param, index) in workingAuthRequestParams"
             :key="`auth-request-param-${param.id}`"
             v-model:name="param.key"

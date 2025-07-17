@@ -62,7 +62,7 @@
                 )
               }}%</span
             >
-            <span class="text-xs">
+            <span class="text-sm">
               {{ formatBytes(downloadProgress.downloaded) }} /
               {{ formatBytes(downloadProgress.total) }}
             </span>
@@ -121,7 +121,7 @@
         />
       </div>
 
-      <div class="text-secondaryLight text-xs mt-4">
+      <div class="text-secondaryLight text-sm mt-4">
         <p>Version {{ appVersion }}</p>
       </div>
     </div>
@@ -130,18 +130,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue"
-import { LazyStore } from "@tauri-apps/plugin-store"
-import { load } from "@hoppscotch/plugin-appload"
+import { close, load } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
+import { invoke } from "@tauri-apps/api/core"
+import { LazyStore } from "@tauri-apps/plugin-store"
 
-import { UpdateStatus, CheckResult, UpdateState } from "~/types"
-import { UpdaterService } from "~/utils/updater"
+import { UpdateStatus, CheckResult } from "~/types"
+import { UpdaterService } from "~/services/updater.service"
+import { DesktopPersistenceService } from "~/services/persistence.service"
+import type { ConnectionState } from "@hoppscotch/common/platform/instance"
 
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import IconLucideRefreshCw from "~icons/lucide/refresh-cw"
 import IconLucideDownload from "~icons/lucide/download"
 
-const APP_STORE_PATH = "hoppscotch-desktop.store"
+const persistence = DesktopPersistenceService.getInstance()
 
 // `InstanceSwitcherService` store path.
 // NOTE: This should be removed eventually,
@@ -163,14 +166,6 @@ interface VendoredInstance {
   version: string
 }
 
-interface ConnectionState {
-  status: "idle" | "connecting" | "connected" | "error"
-  instance?: VendoredInstance
-  target?: string
-  message?: string
-}
-
-const appStore = new LazyStore(APP_STORE_PATH)
 const appState = ref<AppState>(AppState.LOADING)
 const updateStatus = ref("")
 const updateMessage = ref("")
@@ -181,7 +176,7 @@ const error = ref("")
 const statusMessage = ref("Initializing...")
 const appVersion = ref("...")
 
-const updaterService = new UpdaterService(appStore)
+const updaterService = new UpdaterService()
 
 let progressPollingInterval: ReturnType<typeof setInterval> | undefined
 
@@ -197,50 +192,10 @@ const formatBytes = (bytes: number): string => {
 
 const saveConnectionState = async (state: ConnectionState) => {
   try {
-    await appStore.set("connectionState", state)
-    await appStore.save()
+    await persistence.setConnectionState(state)
   } catch (err) {
     console.error("Failed to save connection state:", err)
   }
-}
-
-const setupUpdateStateWatcher = async () => {
-  const unsubscribe = await appStore.onKeyChange<UpdateState>(
-    "updateState",
-    (newValue) => {
-      if (!newValue) return
-
-      updateStatus.value = newValue.status
-      updateMessage.value = newValue.message || ""
-
-      if (newValue.status === UpdateStatus.AVAILABLE) {
-        appState.value = AppState.UPDATE_AVAILABLE
-      } else if (newValue.status === UpdateStatus.ERROR) {
-        error.value = newValue.message || "Unknown error"
-        appState.value = AppState.ERROR
-        // Stop progress polling on error
-        stopProgressPolling()
-      } else if (
-        newValue.status === UpdateStatus.DOWNLOADING ||
-        newValue.status === UpdateStatus.INSTALLING
-      ) {
-        appState.value = AppState.UPDATE_IN_PROGRESS
-        // Start progress polling when downloading
-        if (newValue.status === UpdateStatus.DOWNLOADING) {
-          startProgressPolling()
-        } else {
-          // Stop progress polling when installing
-          stopProgressPolling()
-        }
-      } else if (newValue.status === UpdateStatus.READY_TO_RESTART) {
-        appState.value = AppState.UPDATE_READY
-        // Stop progress polling when ready to restart
-        stopProgressPolling()
-      }
-    }
-  )
-
-  return unsubscribe
 }
 
 const startProgressPolling = () => {
@@ -259,6 +214,40 @@ const stopProgressPolling = () => {
     clearInterval(progressPollingInterval)
     progressPollingInterval = undefined
   }
+}
+
+const setupUpdateStateWatcher = async () => {
+  return persistence.watchUpdateState((newValue) => {
+    if (!newValue) return
+
+    updateStatus.value = newValue.status
+    updateMessage.value = newValue.message || ""
+
+    if (newValue.status === UpdateStatus.AVAILABLE) {
+      appState.value = AppState.UPDATE_AVAILABLE
+    } else if (newValue.status === UpdateStatus.ERROR) {
+      error.value = newValue.message || "Unknown error"
+      appState.value = AppState.ERROR
+      // Stop progress polling on error
+      stopProgressPolling()
+    } else if (
+      newValue.status === UpdateStatus.DOWNLOADING ||
+      newValue.status === UpdateStatus.INSTALLING
+    ) {
+      appState.value = AppState.UPDATE_IN_PROGRESS
+      // Start progress polling when downloading
+      if (newValue.status === UpdateStatus.DOWNLOADING) {
+        startProgressPolling()
+      } else {
+        // Stop progress polling when installing
+        stopProgressPolling()
+      }
+    } else if (newValue.status === UpdateStatus.READY_TO_RESTART) {
+      appState.value = AppState.UPDATE_READY
+      // Stop progress polling when ready to restart
+      stopProgressPolling()
+    }
+  })
 }
 
 const installUpdate = async () => {
@@ -302,14 +291,12 @@ const loadVendored = async () => {
       version: "25.6.1",
     }
 
-    const connectionState: ConnectionState = {
-      status: "connected",
-      instance: vendoredInstance,
-    }
-
     // Save to current app store.
     // NOTE: This is existing behavior
-    await saveConnectionState(connectionState)
+    await saveConnectionState({
+      status: "connected",
+      instance: vendoredInstance,
+    })
 
     // ALSO save to `InstanceSwitcherService` store,
     // NOTE: This should be removed eventually,
@@ -317,7 +304,10 @@ const loadVendored = async () => {
     try {
       const instanceStore = new LazyStore(INSTANCE_STORE_PATH)
       await instanceStore.init()
-      await instanceStore.set("connectionState", connectionState)
+      await instanceStore.set("connectionState", {
+        status: "connected",
+        instance: vendoredInstance,
+      })
       await instanceStore.save()
       console.log(
         "Successfully saved vendored state to `InstanceSwitcherService` store"
@@ -341,6 +331,7 @@ const loadVendored = async () => {
     }
 
     console.log("Vendored app loaded successfully")
+    await close({ windowLabel: "main" })
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     console.error("Error loading vendored app:", errorMessage)
@@ -354,6 +345,23 @@ const loadVendored = async () => {
 
     appState.value = AppState.ERROR
   }
+}
+
+const checkForUpdatesIfEnabled = async () => {
+  // Installed version - use the TypeScript updater service
+  await updaterService.initialize()
+  await setupUpdateStateWatcher()
+
+  statusMessage.value = "Checking for updates..."
+  const checkResult = await updaterService.checkForUpdates()
+
+  if (checkResult === CheckResult.AVAILABLE) {
+    console.log("Updates available (installed)")
+    appState.value = AppState.UPDATE_AVAILABLE
+    return true
+  }
+
+  return false
 }
 
 const initialize = async () => {
@@ -370,22 +378,21 @@ const initialize = async () => {
       appVersion.value = "unknown"
     }
 
-    statusMessage.value = "Initializing stores..."
-    await appStore.init()
-    await updaterService.initialize()
-
-    await setupUpdateStateWatcher()
-
-    statusMessage.value = "Checking for updates..."
-    const checkResult = await updaterService.checkForUpdates()
-
-    if (checkResult === CheckResult.AVAILABLE) {
-      console.log("Updates available, prompting for install")
-      appState.value = AppState.UPDATE_AVAILABLE
-      return
+    statusMessage.value = "Checking for version changes..."
+    try {
+      await invoke("check_and_backup_on_version_change")
+      console.log("Version backup check completed")
+    } catch (err) {
+      console.warn("Version backup check failed:", err)
     }
 
-    await loadVendored()
+    statusMessage.value = "Initializing stores..."
+    await persistence.init()
+
+    const hasUpdates = await checkForUpdatesIfEnabled()
+    if (!hasUpdates) {
+      await loadVendored()
+    }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     console.error("Initialization error:", errorMessage)

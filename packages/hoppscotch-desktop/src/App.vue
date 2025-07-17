@@ -9,7 +9,7 @@
         </div>
       </main>
     </div>
-    <Toaster position="bottom-right" richColors />
+    <Toaster position="bottom-right" rich-colors />
   </div>
 </template>
 

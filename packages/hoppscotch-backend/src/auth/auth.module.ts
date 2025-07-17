@@ -29,7 +29,7 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
     }),
     InfraConfigModule,
   ],
-  providers: [AuthService, JwtStrategy, RTJwtStrategy],
+  providers: [AuthService],
   controllers: [AuthController],
 })
 export class AuthModule {
@@ -56,7 +56,7 @@ export class AuthModule {
 
     return {
       module: AuthModule,
-      providers,
+      providers: [...providers, JwtStrategy, RTJwtStrategy],
     };
   }
 }

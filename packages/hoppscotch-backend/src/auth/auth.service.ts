@@ -50,11 +50,13 @@ export class AuthService {
    */
   private async generateMagicLinkTokens(user: AuthUser) {
     const salt = await bcrypt.genSalt(
-      parseInt(this.configService.get('TOKEN_SALT_COMPLEXITY')),
+      parseInt(this.configService.get('INFRA.TOKEN_SALT_COMPLEXITY')),
     );
     const expiresOn = DateTime.now()
       .plus({
-        hours: parseInt(this.configService.get('MAGIC_LINK_TOKEN_VALIDITY')),
+        hours: parseInt(
+          this.configService.get('INFRA.MAGIC_LINK_TOKEN_VALIDITY'),
+        ),
       })
       .toISO()
       .toString();
@@ -106,7 +108,7 @@ export class AuthService {
     };
 
     const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
-      expiresIn: this.configService.get('REFRESH_TOKEN_VALIDITY'), //7 Days
+      expiresIn: this.configService.get('INFRA.REFRESH_TOKEN_VALIDITY'), //7 Days
     });
 
     const refreshTokenHash = await argon2.hash(refreshToken);
@@ -142,7 +144,7 @@ export class AuthService {
 
     return E.right(<AuthTokens>{
       access_token: await this.jwtService.sign(accessTokenPayload, {
-        expiresIn: this.configService.get('ACCESS_TOKEN_VALIDITY'), //1 Day
+        expiresIn: this.configService.get('INFRA.ACCESS_TOKEN_VALIDITY'), //1 Day
       }),
       refresh_token: refreshToken.right,
     });

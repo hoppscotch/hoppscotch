@@ -44,7 +44,6 @@ import { PubSubModule } from './pubsub/pubsub.module';
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         return {
@@ -92,12 +91,11 @@ import { PubSubModule } from './pubsub/pubsub.module';
       },
     }),
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => [
         {
-          ttl: +configService.get('RATE_LIMIT_TTL'),
-          limit: +configService.get('RATE_LIMIT_MAX'),
+          ttl: +configService.get('INFRA.RATE_LIMIT_TTL'),
+          limit: +configService.get('INFRA.RATE_LIMIT_MAX'),
         },
       ],
     }),

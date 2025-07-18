@@ -19,7 +19,7 @@
   },
   "exports": {
     ".": {
-      "type": "./dist/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/hoppscotch-kernel.js",
       "require": "./dist/hoppscotch-kernel.cjs"
     }

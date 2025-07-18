@@ -22,6 +22,12 @@ export interface LoadResponse {
     success: boolean;
     windowLabel: string;
 }
+export interface CloseOptions {
+    windowLabel: string;
+}
+export interface CloseResponse {
+    success: boolean;
+}
 export interface RemoveOptions {
     bundleName: string;
     serverUrl: string;
@@ -32,6 +38,7 @@ export interface RemoveResponse {
 }
 export declare function download(options: DownloadOptions): Promise<DownloadResponse>;
 export declare function load(options: LoadOptions): Promise<LoadResponse>;
+export declare function close(options: CloseOptions): Promise<CloseResponse>;
 export declare function remove(options: RemoveOptions): Promise<RemoveResponse>;
 export declare function clear(): Promise<void>;
 //# sourceMappingURL=index.d.ts.map

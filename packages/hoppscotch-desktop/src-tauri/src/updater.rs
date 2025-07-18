@@ -1,36 +1,13 @@
-use tauri_plugin_dialog::DialogExt;
+use crate::{dialog, util};
+use native_dialog::MessageType;
 use tauri_plugin_updater::UpdaterExt;
 
+/// Check for updates using the updater and return whether updates are available
+/// This mimics the behavior of `checkForUpdates` in `updater.ts` but uses native dialogs when needed
 #[tauri::command]
-pub async fn check_updates_available(app: tauri::AppHandle) -> Result<bool, String> {
-    tracing::info!("Checking for updates...");
-    let updater = match app.updater() {
-        Ok(updater) => updater,
-        Err(e) => {
-            tracing::error!(error = %e, "Failed to initialize updater");
-            return Ok(false);
-        }
-    };
+pub async fn check_for_updates(app: tauri::AppHandle) -> Result<bool, String> {
+    tracing::info!("Checking for portable updates");
 
-    match updater.check().await {
-        Ok(Some(_update)) => {
-            tracing::info!("Update available");
-            Ok(true)
-        }
-        Ok(None) => {
-            tracing::info!("No updates available");
-            Ok(false)
-        }
-        Err(e) => {
-            tracing::error!(error = %e, "Failed to check for updates");
-            Err(format!("Failed to check for updates: {}", e))
-        }
-    }
-}
-
-#[tauri::command]
-pub async fn install_updates_and_restart(app: tauri::AppHandle) -> Result<(), String> {
-    tracing::info!("Installing updates...");
     let updater = match app.updater() {
         Ok(updater) => updater,
         Err(e) => {
@@ -44,48 +21,29 @@ pub async fn install_updates_and_restart(app: tauri::AppHandle) -> Result<(), St
             tracing::info!(
                 current_version = app.package_info().version.to_string(),
                 update_version = update.version.to_string(),
-                "Installing update"
+                "Update available"
+            );
+            let download_url = "https://hoppscotch.com/download";
+            let message = format!(
+                "An update (version {}) is available for Hoppscotch Desktop (Portable).\n\nWould you like to download it now?\n\n• Yes = Download now\n• No = Remind me later",
+                update.version
             );
 
-            let dialog = app.dialog();
-            let should_update = dialog
-                .message(format!(
-                    "A new version of Hoppscotch (v{}) is available.\n\n{}",
-                    update.version,
-                    update.body.as_ref().unwrap_or(&"".to_string())
-                ))
-                .title("Update Available")
-                .kind(tauri_plugin_dialog::MessageDialogKind::Info)
-                .buttons(tauri_plugin_dialog::MessageDialogButtons::YesNo)
-                .blocking_show();
-
-            if should_update {
-                tracing::info!("User agreed to update, starting download...");
-                match update.download_and_install(|_, _| {}, || {}).await {
-                    Ok(_) => {
-                        tracing::info!("Update installed successfully, restarting app");
-                        app.restart();
-                        Err("Unreachable - app should have restarted".to_string())
-                    }
-                    Err(e) => {
-                        tracing::error!(error = %e, "Failed to download or install update");
-                        let _ = app
-                            .dialog()
-                            .message(format!("Failed to install update: {}", e))
-                            .title("Update Error")
-                            .kind(tauri_plugin_dialog::MessageDialogKind::Error)
-                            .blocking_show();
-                        Err(format!("Failed to download or install update: {}", e))
-                    }
+            if dialog::confirm("Download Update", &message, MessageType::Info) {
+                if let None = util::open_link(download_url) {
+                    dialog::error(&format!(
+                        "Failed to open download page. Please visit {}",
+                        download_url
+                    ));
+                    return Err(format!("Failed to open download URL"));
                 }
-            } else {
-                tracing::info!("User declined the update");
-                Ok(())
             }
+
+            Ok(true)
         }
         Ok(None) => {
             tracing::info!("No updates available");
-            Ok(())
+            Ok(false)
         }
         Err(e) => {
             tracing::error!(error = %e, "Failed to check for updates");

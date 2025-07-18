@@ -29,7 +29,7 @@ export class UpdaterService {
         status: UpdateStatus.CHECKING,
       })
 
-      // This creats a timeout promise that is slightly longer than `check`'s internal timeout,
+      // This creates a timeout promise that is slightly longer than `check`'s internal timeout,
       // this is just to make sure we don't keep checking for updates indefinitely.
       // NOTE: `check` tends to hang indefinitely in dev mode, but works in build,
       // so this is just in case this ever happens on prod.

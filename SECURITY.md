@@ -22,7 +22,7 @@ Hoppscotch Support at support@hoppscotch.io along with the GHSA advisory link.
 The Hoppscotch team takes all security vulnerability reports in Hoppscotch seriously. We appreciate your efforts and responsible disclosure and will make every effort to acknowledge your contributions.
 
 ## What is not a valid vulnerability
-We receive many reports about different sections of the Hoppscotch platform. Hence, we have a fine line we have drawn defining what is considered valid vulnerability.
+We receive many reports about different sections of the Hoppscotch platform. Hence, we have a gopd line we have drawn defining what is considered valid vulnerability.
 Please refrain from opening an advisory if it describes the following:
 
 - A vulnerability in a dependency of Hoppscotch (unless you have practical attack with it on the Hoppscotch codebase)
@@ -31,7 +31,7 @@ Please refrain from opening an advisory if it describes the following:
 
 Hoppscotch Team ensures security support for:
 - Modern Browsers (Chrome/Firefox/Safari/Edge) with versions up to 1 year old.
-- Windows versions on or above Windows 10 on Intel and ARM.
+- Window versions on or above Windows 10 on Intel and ARM.
 - macOS versions dating back up to 2 years on Intel and Apple Silicon.
 - Popular Linux distributions with up-to-date packages with preference to x86/64 CPUs.
 - Docker/OCI Runtimes (preference to Docker and Podman) dating back up to 1 year.

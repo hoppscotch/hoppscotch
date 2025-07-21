@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.aws_signature.access_key") }}
+    </label>
     <SmartEnvInput
       v-model="auth.accessKey"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.aws_signature.secret_key") }}
+    </label>
     <SmartEnvInput
       v-model="auth.secretKey"
       :auto-complete-env="true"
@@ -29,6 +35,9 @@
       </p>
     </div>
     <div class="flex flex-1">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.aws_region") }}
+      </label>
       <SmartEnvInput
         v-model="auth.region"
         :auto-complete-env="true"
@@ -40,6 +49,9 @@
       />
     </div>
     <div class="flex flex-1">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.service_name") }}
+      </label>
       <SmartEnvInput
         v-model="auth.serviceName"
         :auto-complete-env="true"
@@ -48,6 +60,9 @@
       />
     </div>
     <div class="flex flex-1">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.aws_signature.service_token") }}
+      </label>
       <SmartEnvInput
         v-model="auth.serviceToken"
         :auto-complete-env="true"

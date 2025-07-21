@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.username") }}
+    </label>
     <SmartEnvInput
       v-model="auth.username"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.password") }}
+    </label>
     <input
       v-model="auth.password"
       name="password"
@@ -29,6 +35,9 @@
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Domain
+      </label>
       <SmartEnvInput
         v-model="auth.domain"
         :auto-complete-env="true"
@@ -37,6 +46,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Workstation
+      </label>
       <SmartEnvInput
         v-model="auth.workstation"
         :auto-complete-env="true"

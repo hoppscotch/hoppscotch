@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      HAWK Auth ID
+    </label>
     <SmartEnvInput
       v-model="auth.authId"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      HAWK Auth Key
+    </label>
     <SmartEnvInput
       v-model="auth.authKey"
       :auto-complete-env="true"
@@ -72,6 +78,9 @@
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.username") }}
+      </label>
       <SmartEnvInput
         v-model="auth.user"
         :auto-complete-env="true"
@@ -80,6 +89,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Nonce
+      </label>
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
@@ -88,6 +100,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        ext
+      </label>
       <SmartEnvInput
         v-model="auth.ext"
         :auto-complete-env="true"
@@ -96,6 +111,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        app
+      </label>
       <SmartEnvInput
         v-model="auth.app"
         :auto-complete-env="true"
@@ -104,6 +122,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        dlg
+      </label>
       <SmartEnvInput
         v-model="auth.dlg"
         :auto-complete-env="true"
@@ -112,6 +133,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Timestamp
+      </label>
       <SmartEnvInput
         v-model="auth.timestamp"
         :auto-complete-env="true"

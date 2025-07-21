@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.username") }}
+    </label>
     <SmartEnvInput
       v-model="auth.username"
       :placeholder="t('authorization.username')"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.password") }}
+    </label>
     <SmartEnvInput
       v-model="auth.password"
       :placeholder="t('authorization.password')"
@@ -31,6 +37,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.realm") }}
+      </label>
       <SmartEnvInput
         v-model="auth.realm"
         :auto-complete-env="true"
@@ -42,6 +51,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.nonce") }}
+      </label>
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
@@ -94,6 +106,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.qop") }}
+      </label>
       <SmartEnvInput
         v-model="auth.qop"
         :auto-complete-env="true"
@@ -103,6 +118,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.nonce_count") }}
+      </label>
       <SmartEnvInput
         v-model="auth.nc"
         :auto-complete-env="true"
@@ -112,6 +130,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.client_nonce") }}
+      </label>
       <SmartEnvInput
         v-model="auth.cnonce"
         :auto-complete-env="true"
@@ -121,6 +142,9 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.opaque") }}
+      </label>
       <SmartEnvInput
         v-model="auth.opaque"
         :auto-complete-env="true"

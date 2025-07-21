@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Issuer
+    </label>
     <SmartEnvInput
       v-model="auth.issuer"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Audience
+    </label>
     <SmartEnvInput
       v-model="auth.audience"
       :auto-complete-env="true"
@@ -16,6 +22,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Key ID
+    </label>
     <SmartEnvInput
       v-model="auth.keyId"
       :auto-complete-env="true"
@@ -96,6 +105,9 @@
       </div>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Subject
+      </label>
       <SmartEnvInput
         v-model="auth.subject"
         :auto-complete-env="true"
@@ -104,6 +116,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Expires In
+      </label>
       <SmartEnvInput
         v-model="auth.expiresIn"
         :auto-complete-env="true"

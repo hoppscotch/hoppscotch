@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Key
+    </label>
     <SmartEnvInput
       v-model="auth.key"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Value
+    </label>
     <SmartEnvInput
       v-model="auth.value"
       :auto-complete-env="true"

@@ -118,6 +118,11 @@
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
+            <label
+              class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
+            >
+              Token
+            </label>
             <SmartEnvInput
               v-model="auth.token"
               placeholder="Token"
@@ -129,6 +134,11 @@
         </div>
         <div v-if="auth.authType === 'oauth-2'" class="w-full">
           <div class="flex flex-1 border-b border-dividerLight">
+            <label
+              class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
+            >
+              Token
+            </label>
             <!-- Ensure a new object is assigned here to avoid reactivity issues -->
             <SmartEnvInput
               :model-value="auth.grantTypeInfo.token"

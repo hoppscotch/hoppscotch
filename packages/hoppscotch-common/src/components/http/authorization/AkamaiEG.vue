@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Access Token
+    </label>
     <SmartEnvInput
       v-model="auth.accessToken"
       :auto-complete-env="true"
@@ -8,6 +11,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Client Token
+    </label>
     <SmartEnvInput
       v-model="auth.clientToken"
       :auto-complete-env="true"
@@ -16,6 +22,9 @@
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      Client Secret
+    </label>
     <SmartEnvInput
       v-model="auth.clientSecret"
       :auto-complete-env="true"
@@ -36,6 +45,9 @@
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Nonce
+      </label>
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
@@ -44,6 +56,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Timestamp
+      </label>
       <SmartEnvInput
         v-model="auth.timestamp"
         :auto-complete-env="true"
@@ -52,6 +67,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Host
+      </label>
       <SmartEnvInput
         v-model="auth.host"
         :auto-complete-env="true"
@@ -60,6 +78,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Headers to Sign
+      </label>
       <SmartEnvInput
         v-model="auth.headersToSign"
         :auto-complete-env="true"
@@ -68,6 +89,9 @@
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        Max Body Size
+      </label>
       <SmartEnvInput
         v-model="auth.maxBodySize"
         :auto-complete-env="true"

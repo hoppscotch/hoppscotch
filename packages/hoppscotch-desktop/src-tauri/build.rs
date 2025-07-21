@@ -1,9 +1,12 @@
 fn main() {
-    #[cfg(feature = "portable")]
+    #[cfg(all(feature = "portable", target_os = "windows"))]
     {
         println!("cargo:rerun-if-changed=tauri.portable.windows.conf.json");
         println!("cargo:rustc-env=TAURI_CONFIG_FILE=tauri.portable.windows.conf.json");
+    }
 
+    #[cfg(all(feature = "portable", target_os = "macos"))]
+    {
         println!("cargo:rerun-if-changed=tauri.portable.macos.conf.json");
         println!("cargo:rustc-env=TAURI_CONFIG_FILE=tauri.portable.macos.conf.json");
     }

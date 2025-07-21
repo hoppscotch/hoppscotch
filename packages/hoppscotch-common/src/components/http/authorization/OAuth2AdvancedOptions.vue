@@ -299,27 +299,73 @@ interface AdditionalParam {
 
 interface Props {
   envs: AggregateEnvironment[]
+  authRequestParams?: AdditionalParam[]
+  tokenRequestParams?: AdditionalParam[]
+  refreshRequestParams?: AdditionalParam[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-// Working arrays that include empty rows for UI
-const workingAuthRequestParams = ref<AdditionalParam[]>([
-  { id: 1, key: "", value: "", active: true },
-])
+const emit = defineEmits<{
+  (e: "update:authRequestParams", value: AdditionalParam[]): void
+  (e: "update:tokenRequestParams", value: AdditionalParam[]): void
+  (e: "update:refreshRequestParams", value: AdditionalParam[]): void
+}>()
 
-const workingTokenRequestParams = ref<AdditionalParam[]>([
-  { id: 2, key: "", value: "", active: true, sendIn: "Request Body" },
-])
+// Initialize working arrays from props or default values
+const workingAuthRequestParams = ref<AdditionalParam[]>(
+  props.authRequestParams?.length
+    ? [...props.authRequestParams]
+    : [{ id: 1, key: "", value: "", active: true }]
+)
 
-const workingRefreshRequestParams = ref<AdditionalParam[]>([
-  { id: 3, key: "", value: "", active: true, sendIn: "Request Body" },
-])
+const workingTokenRequestParams = ref<AdditionalParam[]>(
+  props.tokenRequestParams?.length
+    ? [...props.tokenRequestParams]
+    : [{ id: 2, key: "", value: "", active: true, sendIn: "Request Body" }]
+)
+
+const workingRefreshRequestParams = ref<AdditionalParam[]>(
+  props.refreshRequestParams?.length
+    ? [...props.refreshRequestParams]
+    : [{ id: 3, key: "", value: "", active: true, sendIn: "Request Body" }]
+)
 
 // Watch for changes in working params and sync them
 let authRequestIdCounter = 1000
 let tokenRequestIdCounter = 2000
 let refreshRequestIdCounter = 3000
+
+// Watch for props changes to update working arrays
+watch(
+  () => props.authRequestParams,
+  (newParams) => {
+    if (newParams) {
+      workingAuthRequestParams.value = [...newParams]
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.tokenRequestParams,
+  (newParams) => {
+    if (newParams) {
+      workingTokenRequestParams.value = [...newParams]
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.refreshRequestParams,
+  (newParams) => {
+    if (newParams) {
+      workingRefreshRequestParams.value = [...newParams]
+    }
+  },
+  { deep: true }
+)
 
 // Auto-add empty rows for auth request params
 watch(
@@ -334,6 +380,11 @@ watch(
         description: "",
       })
     }
+    // Emit changes to parent (filter out empty rows)
+    const nonEmptyParams = newParams.filter(
+      (p) => p.key !== "" || p.value !== ""
+    )
+    emit("update:authRequestParams", nonEmptyParams)
   },
   { deep: true }
 )
@@ -351,6 +402,11 @@ watch(
         sendIn: "Request Body",
       })
     }
+    // Emit changes to parent (filter out empty rows)
+    const nonEmptyParams = newParams.filter(
+      (p) => p.key !== "" || p.value !== ""
+    )
+    emit("update:tokenRequestParams", nonEmptyParams)
   },
   { deep: true }
 )
@@ -368,6 +424,11 @@ watch(
         sendIn: "Request Body",
       })
     }
+    // Emit changes to parent (filter out empty rows)
+    const nonEmptyParams = newParams.filter(
+      (p) => p.key !== "" || p.value !== ""
+    )
+    emit("update:refreshRequestParams", nonEmptyParams)
   },
   { deep: true }
 )
@@ -404,6 +465,7 @@ const clearAuthRequestParams = () => {
       description: "",
     },
   ]
+  emit("update:authRequestParams", [])
 }
 
 // Functions for token request params
@@ -438,6 +500,7 @@ const clearTokenRequestParams = () => {
       sendIn: "Request Body",
     },
   ]
+  emit("update:tokenRequestParams", [])
 }
 
 // Functions for refresh request params
@@ -472,5 +535,6 @@ const clearRefreshRequestParams = () => {
       sendIn: "Request Body",
     },
   ]
+  emit("update:refreshRequestParams", [])
 }
 </script>

@@ -187,7 +187,15 @@
     </div>
 
     <!-- Advanced Configuration Section -->
-    <OAuth2AdvancedOptions :envs="envs || []" />
+    <OAuth2AdvancedOptions
+      :envs="envs || []"
+      :auth-request-params="authRequestParams"
+      :token-request-params="tokenRequestParams"
+      :refresh-request-params="refreshRequestParams"
+      @update:auth-request-params="updateAuthRequestParams"
+      @update:token-request-params="updateTokenRequestParams"
+      @update:refresh-request-params="updateRefreshRequestParams"
+    />
   </div>
 </template>
 
@@ -245,6 +253,34 @@ const props = defineProps<{
 }>()
 
 const auth = ref(props.modelValue)
+
+// Define the interface for advanced parameters
+interface OAuth2AdvancedParam {
+  id: number
+  key: string
+  value: string
+  active: boolean
+  description?: string
+  sendIn?: string
+}
+
+// Advanced parameters state
+const authRequestParams = ref<OAuth2AdvancedParam[]>([])
+const tokenRequestParams = ref<OAuth2AdvancedParam[]>([])
+const refreshRequestParams = ref<OAuth2AdvancedParam[]>([])
+
+// Handle updates from OAuth2AdvancedOptions
+const updateAuthRequestParams = (params: OAuth2AdvancedParam[]) => {
+  authRequestParams.value = params
+}
+
+const updateTokenRequestParams = (params: OAuth2AdvancedParam[]) => {
+  tokenRequestParams.value = params
+}
+
+const updateRefreshRequestParams = (params: OAuth2AdvancedParam[]) => {
+  refreshRequestParams.value = params
+}
 
 const addToTargets = [
   {

@@ -121,7 +121,7 @@ export class SaveOnboardingConfigResponse {
 export class GetOnboardingConfigResponse {
   @ApiProperty()
   @Expose()
-  [InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS]: boolean;
+  [InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS]: string;
 
   @ApiProperty({ default: null })
   @Expose()

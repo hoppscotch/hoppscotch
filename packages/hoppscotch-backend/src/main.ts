@@ -52,6 +52,9 @@ async function bootstrap() {
         crypto.randomBytes(16).toString('hex'),
       resave: false,
       saveUninitialized: false,
+      cookie: {
+        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      },
     }),
   );
 

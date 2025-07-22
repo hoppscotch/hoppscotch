@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.authId"
       :auto-complete-env="true"
-      placeholder="HAWK Auth ID"
+      placeholder="my-app-id"
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <SmartEnvInput
       v-model="auth.authKey"
       :auto-complete-env="true"
-      placeholder="HAWK Auth Key"
+      placeholder="werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn"
       :envs="envs"
     />
   </div>
@@ -84,7 +84,7 @@
       <SmartEnvInput
         v-model="auth.user"
         :auto-complete-env="true"
-        :placeholder="t('authorization.username')"
+        placeholder="john_doe"
         :envs="envs"
       />
     </div>
@@ -95,7 +95,7 @@
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
-        placeholder="Nonce"
+        placeholder="j4h3g2"
         :envs="envs"
       />
     </div>
@@ -106,7 +106,7 @@
       <SmartEnvInput
         v-model="auth.ext"
         :auto-complete-env="true"
-        placeholder="ext"
+        placeholder="some-app-ext-data"
         :envs="envs"
       />
     </div>
@@ -117,7 +117,7 @@
       <SmartEnvInput
         v-model="auth.app"
         :auto-complete-env="true"
-        placeholder="app"
+        placeholder="my-app-id"
         :envs="envs"
       />
     </div>
@@ -128,7 +128,7 @@
       <SmartEnvInput
         v-model="auth.dlg"
         :auto-complete-env="true"
-        placeholder="dlg"
+        placeholder="user-delegation"
         :envs="envs"
       />
     </div>
@@ -139,7 +139,7 @@
       <SmartEnvInput
         v-model="auth.timestamp"
         :auto-complete-env="true"
-        placeholder="Timestamp"
+        placeholder="1353832234"
         :envs="envs"
       />
     </div>

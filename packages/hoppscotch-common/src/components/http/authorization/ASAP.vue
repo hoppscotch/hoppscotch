@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.issuer"
       :auto-complete-env="true"
-      placeholder="Issuer"
+      placeholder="myapp.example.com"
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <SmartEnvInput
       v-model="auth.audience"
       :auto-complete-env="true"
-      placeholder="Audience"
+      placeholder="api.example.com"
       :envs="envs"
     />
   </div>
@@ -28,7 +28,7 @@
     <SmartEnvInput
       v-model="auth.keyId"
       :auto-complete-env="true"
-      placeholder="Key ID"
+      placeholder="myapp/rsa-key-1"
       :envs="envs"
     />
   </div>
@@ -122,7 +122,7 @@
       <SmartEnvInput
         v-model="auth.expiresIn"
         :auto-complete-env="true"
-        placeholder="Expires In"
+        placeholder="3600 (seconds)"
         :envs="envs"
       />
     </div>

@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.username"
       :auto-complete-env="true"
-      :placeholder="t('authorization.username')"
+      placeholder="DOMAIN\\username"
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <input
       v-model="auth.password"
       name="password"
-      :placeholder="t('authorization.password')"
+      placeholder="Enter password"
       class="flex flex-1 bg-transparent px-4 py-2"
       type="password"
     />
@@ -41,7 +41,7 @@
       <SmartEnvInput
         v-model="auth.domain"
         :auto-complete-env="true"
-        placeholder="Domain"
+        placeholder="CORPORATE"
         :envs="envs"
       />
     </div>
@@ -52,7 +52,7 @@
       <SmartEnvInput
         v-model="auth.workstation"
         :auto-complete-env="true"
-        placeholder="Workstation"
+        placeholder="MY-COMPUTER"
         :envs="envs"
       />
     </div>

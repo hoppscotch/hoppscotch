@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.accessKey"
       :auto-complete-env="true"
-      :placeholder="t('authorization.aws_signature.access_key')"
+      placeholder="AKIAIOSFODNN7EXAMPLE"
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <SmartEnvInput
       v-model="auth.secretKey"
       :auto-complete-env="true"
-      :placeholder="t('authorization.aws_signature.secret_key')"
+      placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
       :envs="envs"
     />
   </div>
@@ -41,10 +41,7 @@
       <SmartEnvInput
         v-model="auth.region"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.aws_signature.aws_region')} (${t(
-          'app.default',
-          { value: 'us-east-1' }
-        )})`"
+        :placeholder="`${t('app.default', { value: 'us-east-1' })}`"
         :envs="envs"
       />
     </div>
@@ -55,7 +52,7 @@
       <SmartEnvInput
         v-model="auth.serviceName"
         :auto-complete-env="true"
-        :placeholder="t('authorization.aws_signature.service_name')"
+        placeholder="s3"
         :envs="envs"
       />
     </div>
@@ -66,7 +63,7 @@
       <SmartEnvInput
         v-model="auth.serviceToken"
         :auto-complete-env="true"
-        :placeholder="t('authorization.aws_signature.service_token')"
+        placeholder="session-token-here"
         :envs="envs"
       />
     </div>

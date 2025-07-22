@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.accessToken"
       :auto-complete-env="true"
-      placeholder="Access Token"
+      placeholder="akzb-a1b2c3d4e5f6..."
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <SmartEnvInput
       v-model="auth.clientToken"
       :auto-complete-env="true"
-      placeholder="Client Token"
+      placeholder="akab-c1i2e3n4t5t6..."
       :envs="envs"
     />
   </div>
@@ -28,7 +28,7 @@
     <SmartEnvInput
       v-model="auth.clientSecret"
       :auto-complete-env="true"
-      placeholder="Client Secret"
+      placeholder="s3cr3tk3yh3r3..."
       :envs="envs"
     />
   </div>
@@ -51,7 +51,7 @@
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
-        placeholder="Nonce"
+        placeholder="e.g. 12345678-abcd-1234-abcd-123456789abc"
         :envs="envs"
       />
     </div>
@@ -62,7 +62,7 @@
       <SmartEnvInput
         v-model="auth.timestamp"
         :auto-complete-env="true"
-        placeholder="Timestamp"
+        placeholder="e.g. 20230101T12:00:00+0000"
         :envs="envs"
       />
     </div>
@@ -73,7 +73,7 @@
       <SmartEnvInput
         v-model="auth.host"
         :auto-complete-env="true"
-        placeholder="Host"
+        placeholder="api.example.com"
         :envs="envs"
       />
     </div>
@@ -84,7 +84,7 @@
       <SmartEnvInput
         v-model="auth.headersToSign"
         :auto-complete-env="true"
-        placeholder="Headers to Sign"
+        placeholder="x-timestamp;content-type"
         :envs="envs"
       />
     </div>
@@ -95,7 +95,7 @@
       <SmartEnvInput
         v-model="auth.maxBodySize"
         :auto-complete-env="true"
-        placeholder="Max Body Size"
+        placeholder="131072"
         :envs="envs"
       />
     </div>

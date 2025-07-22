@@ -6,7 +6,7 @@
     <SmartEnvInput
       v-model="auth.key"
       :auto-complete-env="true"
-      placeholder="Key"
+      placeholder="X-API-Key"
       :envs="envs"
     />
   </div>
@@ -17,7 +17,7 @@
     <SmartEnvInput
       v-model="auth.value"
       :auto-complete-env="true"
-      placeholder="Value"
+      placeholder="sk_live_abc123xyz789"
       :envs="envs"
     />
   </div>

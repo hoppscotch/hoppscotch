@@ -5,7 +5,7 @@
     </label>
     <SmartEnvInput
       v-model="auth.username"
-      :placeholder="t('authorization.username')"
+      placeholder="john_doe"
       :auto-complete-env="true"
       :envs="envs"
     />
@@ -16,7 +16,7 @@
     </label>
     <SmartEnvInput
       v-model="auth.password"
-      :placeholder="t('authorization.password')"
+      placeholder="Enter password"
       :auto-complete-env="true"
       :envs="envs"
     />

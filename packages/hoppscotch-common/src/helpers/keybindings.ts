@@ -89,6 +89,7 @@ const desktopBindings: {
   "ctrl-alt-right": "tab.next",
   "ctrl-alt-0": "tab.switch-to-last",
   "ctrl-alt-9": "tab.switch-to-first",
+  "ctrl-q": "app.quit",
 }
 
 /**

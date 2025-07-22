@@ -17,7 +17,7 @@ const replaceables: { [key: string]: string } = {
 }
 
 const paperCuts = flow(
-  // remove '\' and newlines - FIXED LINE
+  // remove backslash line continuations and normalize whitespace
   S.replace(/\\\s*\r?\n\s*/g, " "),
   S.replace(/\n/g, " "),
   // remove all $ symbols from start of argument values

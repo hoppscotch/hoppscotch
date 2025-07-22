@@ -51,7 +51,14 @@ async function bootstrap() {
 
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET'),
+      secret:
+        configService.get('INFRA.SESSION_SECRET') ||
+        crypto.randomBytes(16).toString('hex'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+      },
     }),
   );
 

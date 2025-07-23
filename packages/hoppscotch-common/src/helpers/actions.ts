@@ -10,6 +10,8 @@ import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { computed } from "vue"
+import { getKernelMode } from "@hoppscotch/kernel"
+import { invoke } from "@tauri-apps/api/core"
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -85,6 +87,7 @@ export type HoppAction =
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
   | "agent.open-registration-modal" // Open Hoppscotch Agent registration modal
+  | "app.quit" // Quit app
 
 /**
  * Defines the arguments, if present for a given type that is required to be passed on
@@ -320,3 +323,36 @@ export function defineActionHandler<A extends HoppAction>(
     )
   }
 }
+
+/**
+ * NOTE: This Sets up core app-level action handlers that
+ * should be available throughout the app's lifecycle.
+ * These handlers are bound immediately when the actions module
+ * is imported and don't depend on some component lifecycle.
+ */
+function setupCoreActionHandlers() {
+  //
+  // This action is triggered by either by
+  // keyboard shortcut: Cmd+Q (macOS) / Ctrl+Q (Windows/Linux)
+  // or `invokeAction("app.quit")`
+  //
+  // Desktop calls native `quit_app` command to close the app,
+  // and it's a no-op on web app.
+  //
+  // @see {@link https://docs.rs/tauri/latest/tauri/struct.AppHandle.html#method.exit}
+  // for native `app.exit` docs.
+  bindAction("app.quit", async () => {
+    if (getKernelMode() === "desktop") {
+      try {
+        await invoke("quit_app")
+      } catch (error) {
+        console.error("Failed to quit application:", error)
+        // NOTE: Don't call window.close() here as a fallback because
+        // if the native command fails, it likely means this not in
+        // the proper context, and window.close() would close the wrong thing.
+      }
+    }
+  })
+}
+
+setupCoreActionHandlers()

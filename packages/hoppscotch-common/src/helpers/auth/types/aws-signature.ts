@@ -9,6 +9,29 @@ import {
 import { AwsV4Signer } from "aws4fetch"
 import { getFinalBodyFromRequest } from "~/helpers/utils/EffectiveURL"
 
+function processQueryParameters(
+  request: HoppRESTRequest,
+  envVars: Environment["variables"],
+  baseUrl: string
+): { url: URL; sortedParams: Array<{ key: string; value: string }> } {
+  const url = new URL(baseUrl)
+
+  // add existing query parameters from the request in lexicographical order as per AWS documentation
+  const sortedParams = (request.params || [])
+    .filter((param) => param.active && param.key !== "")
+    .map((param) => ({
+      key: parseTemplateString(param.key, envVars),
+      value: parseTemplateString(param.value, envVars),
+    }))
+    .sort((a, b) => a.key.localeCompare(b.key))
+
+  sortedParams.forEach((param) => {
+    url.searchParams.append(param.key, param.value)
+  })
+
+  return { url, sortedParams }
+}
+
 export async function generateAwsSignatureAuthHeaders(
   auth: HoppRESTAuth & { authType: "aws-signature" },
   request: HoppRESTRequest,
@@ -24,20 +47,7 @@ export async function generateAwsSignatureAuthHeaders(
 
   // the full URL including existing query parameters
   const baseUrl = parseTemplateString(endpoint, envVars)
-  const url = new URL(baseUrl)
-
-  // add existing query parameters from the request in lexicographical order as per AWS documentation
-  const sortedParams = (request.params || [])
-    .filter((param) => param.active && param.key !== "")
-    .map((param) => ({
-      key: parseTemplateString(param.key, envVars),
-      value: parseTemplateString(param.value, envVars),
-    }))
-    .sort((a, b) => a.key.localeCompare(b.key))
-
-  sortedParams.forEach((param) => {
-    url.searchParams.append(param.key, param.value)
-  })
+  const { url } = processQueryParameters(request, envVars, baseUrl)
 
   const signer = new AwsV4Signer({
     method: method,
@@ -79,20 +89,11 @@ export async function generateAwsSignatureAuthParams(
 
   // the full URL including existing query parameters
   const baseUrl = parseTemplateString(request.endpoint, envVars)
-  const url = new URL(baseUrl)
-
-  // add existing query parameters from the request in lexicographical order as per AWS documentation
-  const sortedParams = (request.params || [])
-    .filter((param) => param.active && param.key !== "")
-    .map((param) => ({
-      key: parseTemplateString(param.key, envVars),
-      value: parseTemplateString(param.value, envVars),
-    }))
-    .sort((a, b) => a.key.localeCompare(b.key))
-
-  sortedParams.forEach((param) => {
-    url.searchParams.append(param.key, param.value)
-  })
+  const { url, sortedParams } = processQueryParameters(
+    request,
+    envVars,
+    baseUrl
+  )
 
   const signer = new AwsV4Signer({
     method: request.method,
@@ -111,11 +112,7 @@ export async function generateAwsSignatureAuthParams(
   const params: HoppRESTParam[] = []
 
   // Get the original parameters to exclude them from the returned auth params
-  const originalParams = new Set(
-    (request.params || [])
-      .filter((param) => param.active && param.key !== "")
-      .map((param) => parseTemplateString(param.key, envVars))
-  )
+  const originalParams = new Set(sortedParams.map((param) => param.key))
 
   // Only return AWS signature parameters, not the original request parameters
   for (const [key, value] of sign.url.searchParams) {

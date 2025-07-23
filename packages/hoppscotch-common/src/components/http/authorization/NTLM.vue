@@ -36,7 +36,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Domain
+        {{ t("authorization.ntlm.domain") }}
       </label>
       <SmartEnvInput
         v-model="auth.domain"
@@ -47,7 +47,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Workstation
+        {{ t("authorization.ntlm.workstation") }}
       </label>
       <SmartEnvInput
         v-model="auth.workstation"

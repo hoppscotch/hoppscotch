@@ -281,6 +281,10 @@
       "headers": "JWT Headers",
       "private_key": "Private Key",
       "placeholder_headers": "JWT Headers"
+    },
+    "ntlm": {
+      "domain": "Domain",
+      "workstation": "Workstation"
     }
   },
   "collection": {

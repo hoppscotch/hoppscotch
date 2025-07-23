@@ -54,6 +54,48 @@ describe("AWS Signature Auth", () => {
     },
   ]
 
+  // Helper function to create base auth configuration
+  const createBaseAuth = (
+    overrides: Partial<HoppRESTAuth & { authType: "aws-signature" }> = {}
+  ): HoppRESTAuth & { authType: "aws-signature" } => ({
+    authType: "aws-signature",
+    authActive: true,
+    addTo: "HEADERS",
+    accessKey: "test-access-key",
+    secretKey: "test-secret-key",
+    region: "us-east-1",
+    serviceName: "s3",
+    serviceToken: "",
+    ...overrides,
+  })
+
+  // Helper function to create base request
+  const createBaseRequest = (
+    overrides: Partial<Parameters<typeof makeRESTRequest>[0]> = {}
+  ) => {
+    const baseRequest: Parameters<typeof makeRESTRequest>[0] = {
+      method: "GET",
+      endpoint: "https://s3.amazonaws.com/bucket/key",
+      name: "Test Request",
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      requestVariables: [],
+      responses: {},
+    }
+
+    return makeRESTRequest({ ...baseRequest, ...overrides })
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
@@ -66,36 +108,8 @@ describe("AWS Signature Auth", () => {
 
   describe("generateAwsSignatureAuthHeaders", () => {
     test("should return empty array when addTo is not HEADERS", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthHeaders(
         auth,
@@ -106,36 +120,8 @@ describe("AWS Signature Auth", () => {
     })
 
     test("should generate AWS signature headers correctly", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth() // uses default HEADERS addTo
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthHeaders(
         auth,
@@ -168,36 +154,13 @@ describe("AWS Signature Auth", () => {
     })
 
     test("should parse template strings for auth parameters", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
+      const auth = createBaseAuth({
         accessKey: "<<AWS_ACCESS_KEY>>",
         secretKey: "<<AWS_SECRET_KEY>>",
         region: "<<AWS_REGION>>",
         serviceName: "<<AWS_SERVICE>>",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
       })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthHeaders(
         auth,
@@ -208,40 +171,14 @@ describe("AWS Signature Auth", () => {
     })
 
     test("should handle request parameters and sort them alphabetically", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
+      const auth = createBaseAuth()
+      const request = createBaseRequest({
         params: [
           { active: true, key: "z-param", value: "value1", description: "" },
           { active: true, key: "a-param", value: "value2", description: "" },
           { active: false, key: "inactive", value: "value3", description: "" },
           { active: true, key: "", value: "empty-key", description: "" },
         ],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
       })
 
       const result = await generateAwsSignatureAuthHeaders(
@@ -253,36 +190,8 @@ describe("AWS Signature Auth", () => {
     })
 
     test("should handle session token when provided", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "test-session-token",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ serviceToken: "test-session-token" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthHeaders(
         auth,
@@ -293,36 +202,8 @@ describe("AWS Signature Auth", () => {
     })
 
     test("should default to us-east-1 region when region is empty", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ region: "" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthHeaders(
         auth,
@@ -335,36 +216,8 @@ describe("AWS Signature Auth", () => {
 
   describe("generateAwsSignatureAuthParams", () => {
     test("should return empty array when addTo is not QUERY_PARAMS", async () => {
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "HEADERS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ addTo: "HEADERS" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthParams(
         auth,
@@ -389,36 +242,8 @@ describe("AWS Signature Auth", () => {
           }) as any
       )
 
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthParams(
         auth,
@@ -476,21 +301,8 @@ describe("AWS Signature Auth", () => {
           }) as any
       )
 
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
+      const request = createBaseRequest({
         params: [
           {
             active: true,
@@ -499,19 +311,6 @@ describe("AWS Signature Auth", () => {
             description: "",
           },
         ],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
       })
 
       const result = await generateAwsSignatureAuthParams(
@@ -542,16 +341,7 @@ describe("AWS Signature Auth", () => {
           }) as any
       )
 
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
 
       const envVarsWithHost: Environment["variables"] = [
         ...mockEnvVars,
@@ -563,24 +353,8 @@ describe("AWS Signature Auth", () => {
         },
       ]
 
-      const request = makeRESTRequest({
-        method: "GET",
+      const request = createBaseRequest({
         endpoint: "https://<<HOST>>/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
       })
 
       const result = await generateAwsSignatureAuthParams(
@@ -606,39 +380,13 @@ describe("AWS Signature Auth", () => {
           }) as any
       )
 
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
+      const request = createBaseRequest({
         params: [
           { active: true, key: "z-param", value: "value1", description: "" },
           { active: true, key: "a-param", value: "value2", description: "" },
           { active: false, key: "inactive", value: "value3", description: "" },
         ],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
       })
 
       const result = await generateAwsSignatureAuthParams(
@@ -669,36 +417,8 @@ describe("AWS Signature Auth", () => {
           }) as any
       )
 
-      const auth: HoppRESTAuth & { authType: "aws-signature" } = {
-        authType: "aws-signature",
-        authActive: true,
-        addTo: "QUERY_PARAMS",
-        accessKey: "test-access-key",
-        secretKey: "test-secret-key",
-        region: "us-east-1",
-        serviceName: "s3",
-        serviceToken: "",
-      }
-
-      const request = makeRESTRequest({
-        method: "GET",
-        endpoint: "https://s3.amazonaws.com/bucket/key",
-        name: "Test Request",
-        params: [],
-        headers: [],
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "inherit",
-          authActive: true,
-        },
-        body: {
-          contentType: null,
-          body: null,
-        },
-        requestVariables: [],
-        responses: {},
-      })
+      const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
+      const request = createBaseRequest()
 
       const result = await generateAwsSignatureAuthParams(
         auth,

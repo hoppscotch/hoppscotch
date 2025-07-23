@@ -116,6 +116,23 @@
                 : `${response.meta.responseSize} B`
             }}
           </span>
+          <!-- NEW: Server-Timing Display -->
+          <div v-if="serverTimings.length > 0" class="ml-4">
+            <div class="text-secondary mb-1">Server Timing:</div>
+            <div class="space-y-1">
+              <div
+                v-for="timing in serverTimings"
+                :key="timing.name"
+                class="text-xs flex justify-between items-center"
+              >
+                <span>
+                  <span class="font-mono">{{ timing.name }}</span>
+                  <span v-if="timing.description"> - {{ timing.description }}</span>
+                </span>
+                <span v-if="timing.duration" class="ml-2 font-mono">{{ timing.duration }}ms</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -151,6 +168,63 @@ const props = defineProps<{
   response: HoppRESTResponse | null | undefined
   isEmbed?: boolean
 }>()
+
+// Server-Timing interface
+interface ServerTiming {
+  name: string
+  description?: string
+  duration?: number
+}
+
+// Server-Timing parser function
+const parseServerTiming = (headerValue: string): ServerTiming[] => {
+  if (!headerValue) return []
+  
+  const timings: ServerTiming[] = []
+  const entries = headerValue.split(',')
+  
+  entries.forEach(entry => {
+    const trimmed = entry.trim()
+    const parts = trimmed.split(';')
+    
+    if (parts.length === 0) return
+    
+    const timing: ServerTiming = {
+      name: parts[0].trim()
+    }
+    
+    // Parse desc and dur parameters
+    parts.slice(1).forEach(part => {
+      const param = part.trim()
+      if (param.startsWith('desc=')) {
+        timing.description = param.substring(5).replace(/"/g, '')
+      } else if (param.startsWith('dur=')) {
+        timing.duration = parseFloat(param.substring(4))
+      }
+    })
+    
+    timings.push(timing)
+  })
+  
+  return timings
+}
+
+// Computed property to extract and parse Server-Timing header
+const serverTimings = computed(() => {
+  if (
+    !props.response ||
+    props.response.type !== 'success' ||
+    !props.response.headers
+  ) return []
+  
+  const serverTimingHeader = props.response.headers.find(
+    header => header.key.toLowerCase() === 'server-timing'
+  )
+  
+  if (!serverTimingHeader) return []
+  
+  return parseServerTiming(serverTimingHeader.value)
+})
 
 /**
  * Gives the response size in a human readable format

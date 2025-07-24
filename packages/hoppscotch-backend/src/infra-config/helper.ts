@@ -393,9 +393,7 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
   const providerConfigKeys = getAuthProviderRequiredKeys(env);
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',')
-      .map((p) => p.trim())
-      .filter((p) => p) ?? [];
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
 
   const configuredAuthProviders = allowedAuthProviders.filter((provider) => {
     const requiredKeys = providerConfigKeys[provider];

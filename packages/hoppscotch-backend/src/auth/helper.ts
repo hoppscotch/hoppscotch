@@ -119,11 +119,7 @@ export function authProviderCheck(
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS
-    ? VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
-        provider.trim().toUpperCase(),
-      )
-    : [];
+  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
 
   if (!envVariables.includes(provider.toUpperCase())) return false;
 

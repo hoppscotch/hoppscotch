@@ -263,7 +263,7 @@ export function useOnboardingConfigHandler() {
     );
   };
 
-  const addOnBoardingCongigs = async () => {
+  const addOnBoardingConfigs = async () => {
     submittingConfigs.value = true;
     const payload = {
       ...currentConfigs.value.oAuthProviders.GOOGLE,
@@ -286,7 +286,7 @@ export function useOnboardingConfigHandler() {
     };
 
     try {
-      const res = await auth.addOnBoardingCongigs(configWithAuth);
+      const res = await auth.addOnBoardingConfigs(configWithAuth);
       if (res?.token) {
         localStorage.setItem('access_token', res.token);
         toast.success('Onboarding configs added successfully');
@@ -354,6 +354,6 @@ export function useOnboardingConfigHandler() {
     toggleConfig,
     toggleSmtpConfig,
     enabledConfig: enableConfig,
-    addOnBoardingCongigs,
+    addOnBoardingConfigs,
   };
 }

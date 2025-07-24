@@ -15,11 +15,11 @@
         @complete-onboarding="
           (payload:{
       submittingConfigs: boolean;
-      sumarry: OnBoardingSummary;
+      summary: OnBoardingSummary;
     }) => {
             finishOnboarding()
-            onBoardingSummary = payload.sumarry;
-            sumbmittingConfigs = payload.submittingConfigs;
+            onBoardingSummary = payload.summary;
+            submittingConfigs = payload.submittingConfigs;
           }
         "
       />
@@ -27,7 +27,7 @@
       <CompleteOnboarding
         v-else
         :on-boarding-summary="onBoardingSummary"
-        :sumbmitting-configs="sumbmittingConfigs"
+        :submitting-configs="submittingConfigs"
         @back="prevStep"
         @finish="goToDashboard"
       />
@@ -63,7 +63,7 @@ const onBoardingSummary = ref<OnBoardingSummary>({
   message: '',
 });
 
-const sumbmittingConfigs = ref(false);
+const submittingConfigs = ref(false);
 
 // Sync from query param
 const syncStepFromRoute = () => {

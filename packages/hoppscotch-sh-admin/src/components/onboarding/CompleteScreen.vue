@@ -75,7 +75,7 @@ const router = useRouter();
 
 const props = defineProps<{
   onBoardingSummary: OnBoardingSummary;
-  sumbmittingConfigs: boolean;
+  submittingConfigs: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -99,7 +99,7 @@ const startCountdown = () => {
 };
 
 onMounted(() => {
-  if (props.sumbmittingConfigs && props.onBoardingSummary.type === 'success') {
+  if (props.submittingConfigs && props.onBoardingSummary.type === 'success') {
     startCountdown();
   }
 });

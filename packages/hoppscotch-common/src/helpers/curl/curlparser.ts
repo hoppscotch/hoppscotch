@@ -39,7 +39,7 @@ const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
  * @param str The string to test for environment variables.
  * @returns A boolean indicating whether the string contains environment variables.
  */
-const isContainsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
+const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
@@ -167,14 +167,12 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   const decodedURL = decodeURIComponent(concatedURL)
 
-  // if the URL contains environment variables, decode it without decoding the environment variables
-  // this is to ensure that environment variables are not decoded and remain in the format `<<variable_name>>`
-  // this is useful for code generation where environment variables are used to store sensitive information
+  // Decode the URL only if it’s safe to do so without corrupting environment variables.
+  // This is to ensure that environment variables are not decoded and remain in the format `<<variable_name>>`.
+  // This is useful for code generation where environment variables are used to store sensitive information
   // such as API keys, secrets, etc.
-  // if the URL does not contain environment variables, decode it normally
-  const urlString = isContainsEnvVariables(decodedURL)
-    ? decodeURIComponent(concatedURL)
-    : concatedURL
+  // If the URL does not contain environment variables, decode it normally.
+  const urlString = containsEnvVariables(decodedURL) ? decodedURL : concatedURL
 
   let multipartUploads: Record<string, string> = pipe(
     O.of(parsedArguments),

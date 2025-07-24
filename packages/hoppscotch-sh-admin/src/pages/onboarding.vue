@@ -90,9 +90,7 @@ watch(
 
 // Push to URL when step changes
 watch(step, (newStep) => {
-  if (isFirstTimeSetup.value) {
-    router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
-  }
+  router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
 });
 
 // Load onboarding status

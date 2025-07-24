@@ -3,18 +3,22 @@ import { useI18n } from './i18n';
 import { useToast } from './toast';
 import { auth } from '~/helpers/auth';
 import { InfraConfigEnum } from '~/helpers/backend/graphql';
+import { getLocalConfig, setLocalConfig } from '~/helpers/localpersistence';
 
 export type OAuthProvider = 'GOOGLE' | 'GITHUB' | 'MICROSOFT';
 export type EnabledConfig = OAuthProvider | 'MAILER' | 'EMAIL';
 
+// common OAuth keys used across providers
 type OAuthKeys = 'CLIENT_ID' | 'CLIENT_SECRET' | 'CALLBACK_URL' | 'SCOPE';
 
+// Microsoft specific keys
 type MicrosoftKeys = OAuthKeys | 'TENANT';
 
 type OAuthConfig<Keys extends string, Prefix extends string> = {
   [K in Keys as `${Prefix}_${K}`]: string;
 };
 
+// Mailer specific keys
 export type MailerConfigKeys =
   | 'SMTP_ENABLE'
   | 'USE_CUSTOM_CONFIGS'
@@ -45,6 +49,13 @@ export type OnBoardingSummary = {
   configsAdded: string[];
 };
 
+/**
+ * The makeReadableKey function formats a string to be more human-readable.
+ * It replaces underscores with spaces, converts it to lowercase,
+ * and capitalizes the first letter.
+ * @param string The string to be formatted
+ * @returns A human-readable version of the string
+ */
 export const makeReadableKey = (string: string) => {
   if (!string) return '';
   const val = string.replace(/_/g, ' ').toLocaleLowerCase();
@@ -95,6 +106,13 @@ function mapMailerConfigs(
   };
 }
 
+/**
+ * The handler for onboarding configuration.
+ * This composable manages the state and logic for onboarding configurations,
+ * including enabling/disabling configs, validating inputs,
+ * and submitting the onboarding form.
+ * @returns Composable for handling onboarding configuration.
+ */
 export function useOnboardingConfigHandler() {
   const t = useI18n();
   const toast = useToast();
@@ -154,6 +172,7 @@ export function useOnboardingConfigHandler() {
       current === 'true' ? 'false' : 'true';
   };
 
+  // Set callback URLs for OAuth providers based on the current backend API URL
   const setCallbackUrls = () => {
     const base = import.meta.env.VITE_BACKEND_API_URL;
     const oAuth = currentConfigs.value.oAuthProviders;
@@ -191,6 +210,13 @@ export function useOnboardingConfigHandler() {
     };
   };
 
+  /**
+   * Filters out unnecessary configs based on the current state.
+   * For example, if MAILER_USE_CUSTOM_CONFIGS is false,
+   * we don't need MAILER_SMTP_URL in the final config.
+   * @param keys Array of config keys to filter
+   * @returns Filtered array of keys that are needed based on the current state
+   */
   const filterNeededConfigs = (keys: string[]) => {
     const mailer = currentConfigs.value.mailerConfigs;
     const usingCustom = mailer.MAILER_USE_CUSTOM_CONFIGS === 'true';
@@ -207,6 +233,13 @@ export function useOnboardingConfigHandler() {
     });
   };
 
+  /**
+   * Validates the provided configs.
+   * Checks if all required fields are filled and returns a filtered object
+   * with only the enabled configs that have values.
+   * @param configs Object containing config key-value pairs
+   * @returns Filtered object with valid configs or undefined if validation fails
+   */
   const validateConfigs = (configs: Partial<Record<string, string>>) => {
     if (!configs || Object.keys(configs).length === 0) {
       toast.error(t('onboarding.addConfigsError'));
@@ -241,6 +274,13 @@ export function useOnboardingConfigHandler() {
     );
   };
 
+  /**
+   * Adds the onboarding configs to the backend.
+   * It validates the configs, prepares the payload,
+   * and sends it to the backend API.
+   * We set the token in localStorage for re-fetching configs later.
+   * @returns The token for re-fetching configs or undefined if failed
+   */
   const addOnBoardingConfigs = async () => {
     submittingConfigs.value = true;
     const payload = {
@@ -266,7 +306,7 @@ export function useOnboardingConfigHandler() {
     try {
       const res = await auth.addOnBoardingConfigs(configWithAuth);
       if (res?.token) {
-        localStorage.setItem('access_token', res.token);
+        setLocalConfig('access_token', res.token);
         toast.success('Onboarding configs added successfully');
         onBoardingSummary.value = makeOnboardingSummary();
         return res;
@@ -280,10 +320,13 @@ export function useOnboardingConfigHandler() {
     }
   };
 
+  // Fetch onboarding configs on mount and populate the currentConfigs
+  // and enabledConfigs based on the response.
+  // This is used to pre-fill the form with existing configs.
   onMounted(async () => {
     try {
       isProvidersLoading.value = true;
-      const token = localStorage.getItem('access_token');
+      const token = getLocalConfig('access_token');
       if (!token) return;
 
       const configs = await auth.getOnboardingConfigs(token);
@@ -305,6 +348,9 @@ export function useOnboardingConfigHandler() {
     }
   });
 
+  // Watch for changes in currentConfigs and update the callback URLs
+  // and enable/disable configs based on the SMTP settings.
+  // This ensures that the form reflects the current state of the configs.
   watch(
     currentConfigs,
     () => {
@@ -314,6 +360,9 @@ export function useOnboardingConfigHandler() {
         currentConfigs.value.mailerConfigs.MAILER_SMTP_ENABLE?.toLowerCase() ===
         'true'
       ) {
+        // Enable MAILER and EMAIL configs if SMTP is enabled
+        // because we need to add EMAIL in VITE_ALLOWED_AUTH_PROVIDERS
+        // and MAILER because the key is used in backend
         enableConfig('MAILER');
         enableConfig('EMAIL');
       }

@@ -645,6 +645,26 @@ export const content = {
     // })
 }
 
+/**
+ * Executable usage examples for content factory functions
+ * usage / patterns / executable guarantees.
+ *
+ * These examples show API usage patterns but also act as compile-time
+ * guarantees that the API works as documented. If the content factory functions
+ * change in breaking ways, these examples will fail to type-check,
+ * these aren't exactly docs nor tests but a mix,
+ * and these also prevent documentations drift.
+ *
+ * Pattern borrowed from Rust's documentation tests where executable code examples are
+ * embedded alongside API definitions.
+ * See: https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html
+ *
+ * Since TypeScript lacks built-in doc-tests, this provides somewhat similar
+ * guarantees, essentially serving as
+ * - discoverable docs that devs can copy-paste or import, and also
+ * - type-checked contracts so these cannot become outdated since they're actual
+ *   executable code validated at compile time.
+ */
 export const examples = {
     // Avoid double-encoding of pre-stringified JSON
     preStringifiedJson: content.text(

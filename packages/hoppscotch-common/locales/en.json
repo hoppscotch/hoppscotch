@@ -240,7 +240,8 @@
       "label_client_credentials": "Client Credentials",
       "label_send_as": "Client Authentication",
       "label_send_in_body": "Send Credentials in Body",
-      "label_send_as_basic_auth": "Send Credentials as Basic Auth"
+      "label_send_as_basic_auth": "Send Credentials as Basic Auth",
+      "enter_value": "Enter value"
     },
     "pass_key_by": "Pass by",
     "pass_by_query_params_label": "Query Parameters",
@@ -248,6 +249,11 @@
     "password": "Password",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
+    "access_token": "Access Token",
+    "client_token": "Client Token",
+    "client_secret": "Client Secret",
+    "timestamp": "Timestamp",
+    "host": "Host",
     "type": "Authorization Type",
     "username": "Username",
     "advance_config": "Advanced Configuration",
@@ -272,8 +278,21 @@
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request"
     },
+    "akamai": {
+      "headers_to_sign": "Headers to Sign",
+      "max_body_size": "Max Body Size"
+    },
+    "hawk": {
+      "id": "HAWK Auth ID",
+      "key": "HAWK Auth Key",
+      "ext": "ext",
+      "app": "app",
+      "dlg": "dlg",
+      "include": "Include Payload Hash"
+    },
     "jwt": {
       "params_name": "Params Name",
+      "param_name": "Parameter Name",
       "header_prefix": "Header Prefix",
       "placeholder_request_header": "Request header prefix",
       "placeholder_request_param": "Request params name",
@@ -281,6 +300,20 @@
       "headers": "JWT Headers",
       "private_key": "Private Key",
       "placeholder_headers": "JWT Headers"
+    },
+    "ntlm": {
+      "domain": "Domain",
+      "workstation": "Workstation",
+      "disable_retrying_request": "Disable Retrying Request"
+    },
+    "asap": {
+      "issuer": "Issuer",
+      "audience": "Audience",
+      "expires_in": "Expires In",
+      "key_id": "Key ID",
+      "optional_config": "Optional Configuration",
+      "subject": "Subject",
+      "additional_claims": "Additional Claims"
     }
   },
   "collection": {

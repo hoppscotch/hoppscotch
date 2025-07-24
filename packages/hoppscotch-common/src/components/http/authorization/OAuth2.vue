@@ -52,12 +52,19 @@
       :key="element.id"
       class="flex flex-1 border-b border-dividerLight"
     >
+      <label
+        v-if="element.type === 'text'"
+        class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
+      >
+        {{ element.label }}
+      </label>
       <SmartEnvInput
         v-if="element.type === 'text'"
         v-model="element.ref.value"
-        :placeholder="element.label"
+        :placeholder="getPlaceholderForField(element.id)"
         :envs="envs"
         :auto-complete-env="true"
+        class="px-4"
       />
       <div
         v-else-if="element.type === 'checkbox'"
@@ -1107,6 +1114,19 @@ const generateOAuthToken = async () => {
 
     return
   }
+}
+
+const getPlaceholderForField = (fieldId: string): string => {
+  const placeholders: Record<string, string> = {
+    authEndpoint: "https://example.com/oauth2/authorize",
+    tokenEndpoint: "https://example.com/oauth2/token",
+    clientId: "your_client_id_here",
+    clientSecret: "your_client_secret_here",
+    scopes: "read write",
+    username: "your_username",
+    password: "your_password",
+  }
+  return placeholders[fieldId] || t("authorization.oauth.enter_value")
 }
 
 const grantTypeTippyActions = ref<HTMLElement | null>(null)

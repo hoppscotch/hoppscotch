@@ -118,9 +118,14 @@
         </div>
         <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
+            <label
+              class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
+            >
+              {{ t("authorization.token") }}
+            </label>
             <SmartEnvInput
               v-model="auth.token"
-              placeholder="Token"
+              placeholder="Your Bearer Token (e.g. sk_live_abc123xyz789)"
               :auto-complete-env="true"
               :envs="envs"
               class="px-4"
@@ -129,10 +134,15 @@
         </div>
         <div v-if="auth.authType === 'oauth-2'" class="w-full">
           <div class="flex flex-1 border-b border-dividerLight">
+            <label
+              class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
+            >
+              {{ t("authorization.token") }}
+            </label>
             <!-- Ensure a new object is assigned here to avoid reactivity issues -->
             <SmartEnvInput
               :model-value="auth.grantTypeInfo.token"
-              placeholder="Token"
+              placeholder="Your OAuth 2.0 Token (e.g. sk_live_abc123xyz789)"
               :envs="envs"
               @update:model-value="
                 auth.grantTypeInfo = { ...auth.grantTypeInfo, token: $event }

@@ -12,16 +12,7 @@
       <AuthSetup
         v-else-if="step === STEP.AUTH"
         :is-first-time-setup="isFirstTimeSetup"
-        @complete-onboarding="
-          (payload:{
-      submittingConfigs: boolean;
-      summary: OnBoardingSummary;
-    }) => {
-            finishOnboarding()
-            onBoardingSummary = payload.summary;
-            submittingConfigs = payload.submittingConfigs;
-          }
-        "
+        @complete-onboarding="(payload:SuccessPayload) => finishOnboarding(payload)"
       />
 
       <CompleteOnboarding
@@ -51,6 +42,11 @@ enum STEP {
   AUTH = 2,
   COMPLETE = 3,
 }
+
+type SuccessPayload = {
+  submittingConfigs: boolean;
+  summary: OnBoardingSummary;
+};
 
 const step = ref<STEP>(STEP.WELCOME);
 const isFirstTimeSetup = ref(true);
@@ -115,7 +111,12 @@ onMounted(async () => {
 // Step Controls
 const nextStep = () => step.value++;
 const prevStep = () => step.value--;
-const finishOnboarding = () => {
+const finishOnboarding = (payload: {
+  submittingConfigs: boolean;
+  summary: OnBoardingSummary;
+}) => {
   step.value = STEP.COMPLETE;
+  onBoardingSummary.value = payload.summary;
+  submittingConfigs.value = payload.submittingConfigs;
 };
 </script>

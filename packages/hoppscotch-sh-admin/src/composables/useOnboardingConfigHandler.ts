@@ -290,16 +290,14 @@ export function useOnboardingConfigHandler() {
       if (res?.token) {
         localStorage.setItem('access_token', res.token);
         toast.success('Onboarding configs added successfully');
-        const summary = makeOnboardingSummary();
-        onBoardingSummary.value = summary;
-        submittingConfigs;
+        onBoardingSummary.value = makeOnboardingSummary();
         return res;
       }
     } catch (err) {
       console.error('Failed to add onboarding configs', err);
       toast.error('Failed to add onboarding configs');
-      const summary = makeOnboardingSummary(err as Error);
-      onBoardingSummary.value = summary;
+      onBoardingSummary.value = makeOnboardingSummary(err as Error);
+    } finally {
       submittingConfigs.value = false;
     }
   };

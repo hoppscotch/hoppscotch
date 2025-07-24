@@ -375,7 +375,6 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
   } else {
     runHeaders = clone(request.headers)
   }
-  const timeStart = Date.now()
 
   const finalHeaders: Record<string, string> = {}
 
@@ -466,6 +465,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
       throw new Error(parsedResponse.error.message)
     }
 
+    const timeStart = Date.now()
     const timeEnd = Date.now()
 
     gqlMessageEvent.value = {

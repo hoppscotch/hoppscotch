@@ -89,7 +89,6 @@
     >
       <GraphqlSubscriptionLog :log="response" />
     </div>
-    <!-- <AppShortcutsPrompt v-else class="p-4" /> -->
   </div>
 </template>
 

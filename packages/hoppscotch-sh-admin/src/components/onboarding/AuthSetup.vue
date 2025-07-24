@@ -229,7 +229,6 @@ const selectedOptions = ref<Array<'OAuth' | 'SMTP' | ''>>([]);
 watch(
   () => props.isFirstTimeSetup,
   (newValue) => {
-    console.log('isFirstTimeSetup changed:', newValue);
     if (!newValue) {
       authConfigStep.value = 2; // Skip to step 2 if not first time setup
       selectedOptions.value = ['OAuth', 'SMTP']; // Default to both options

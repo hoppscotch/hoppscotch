@@ -291,6 +291,7 @@
     },
     "jwt": {
       "params_name": "Params Name",
+      "param_name": "Parameter Name",
       "header_prefix": "Header Prefix",
       "placeholder_request_header": "Request header prefix",
       "placeholder_request_param": "Request params name",

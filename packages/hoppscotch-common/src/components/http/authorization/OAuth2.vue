@@ -203,7 +203,7 @@
 import { HoppGQLAuthOAuth2, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref } from "vue"
+import { Ref, computed, ref, watch } from "vue"
 import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
@@ -252,7 +252,38 @@ const props = defineProps<{
   source: "REST" | "GraphQL"
 }>()
 
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2): void
+}>()
+
 const auth = ref(props.modelValue)
+
+// Watch for changes in auth and emit updates to parent
+watch(
+  auth,
+  (newAuth) => {
+    emit("update:modelValue", newAuth)
+  },
+  { deep: true }
+)
+
+// Watch for changes in props.modelValue and update local auth
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    auth.value = newValue
+    // Also update advanced parameters if they exist
+    if (newValue.authType === "oauth-2") {
+      // @ts-expect-error - authRequestParams might not exist in older versions
+      authRequestParams.value = newValue.authRequestParams || []
+      // @ts-expect-error - tokenRequestParams might not exist in older versions
+      tokenRequestParams.value = newValue.tokenRequestParams || []
+      // @ts-expect-error - refreshRequestParams might not exist in older versions
+      refreshRequestParams.value = newValue.refreshRequestParams || []
+    }
+  },
+  { deep: true }
+)
 
 // Define the interface for advanced parameters
 interface OAuth2AdvancedParam {
@@ -264,22 +295,37 @@ interface OAuth2AdvancedParam {
   sendIn?: string
 }
 
-// Advanced parameters state
-const authRequestParams = ref<OAuth2AdvancedParam[]>([])
-const tokenRequestParams = ref<OAuth2AdvancedParam[]>([])
-const refreshRequestParams = ref<OAuth2AdvancedParam[]>([])
+// Advanced parameters state - initialize from auth data if available
+const authRequestParams = ref<OAuth2AdvancedParam[]>(
+  // @ts-expect-error - authRequestParams might not exist in older versions
+  auth.value.authRequestParams || []
+)
+const tokenRequestParams = ref<OAuth2AdvancedParam[]>(
+  // @ts-expect-error - tokenRequestParams might not exist in older versions
+  auth.value.tokenRequestParams || []
+)
+const refreshRequestParams = ref<OAuth2AdvancedParam[]>(
+  // @ts-expect-error - refreshRequestParams might not exist in older versions
+  auth.value.refreshRequestParams || []
+)
 
-// Handle updates from OAuth2AdvancedOptions
+// Handle updates from OAuth2AdvancedOptions and update auth
 const updateAuthRequestParams = (params: OAuth2AdvancedParam[]) => {
   authRequestParams.value = params
+  // @ts-expect-error - Update auth with advanced params
+  auth.value.authRequestParams = params
 }
 
 const updateTokenRequestParams = (params: OAuth2AdvancedParam[]) => {
   tokenRequestParams.value = params
+  // @ts-expect-error - Update auth with advanced params
+  auth.value.tokenRequestParams = params
 }
 
 const updateRefreshRequestParams = (params: OAuth2AdvancedParam[]) => {
   refreshRequestParams.value = params
+  // @ts-expect-error - Update auth with advanced params
+  auth.value.refreshRequestParams = params
 }
 
 const addToTargets = [

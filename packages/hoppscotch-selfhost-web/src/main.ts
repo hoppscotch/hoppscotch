@@ -224,6 +224,17 @@ async function initApp() {
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&
+          e.key.toLowerCase() === "q"
+        ) {
+          // Ctrl/Cmd + Q - Quit Application
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          shortcutEvent = "ctrl-q"
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          !e.altKey &&
           e.key.toLowerCase() === "t"
         ) {
           // Ctrl/Cmd + T - New Tab

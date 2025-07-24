@@ -1,16 +1,22 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.username") }}
+    </label>
     <SmartEnvInput
       v-model="auth.username"
-      :placeholder="t('authorization.username')"
+      placeholder="john_doe"
       :auto-complete-env="true"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.password") }}
+    </label>
     <SmartEnvInput
       v-model="auth.password"
-      :placeholder="t('authorization.password')"
+      placeholder="Enter password"
       :auto-complete-env="true"
       :envs="envs"
     />
@@ -31,21 +37,25 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.realm") }}
+      </label>
       <SmartEnvInput
         v-model="auth.realm"
         :auto-complete-env="true"
-        :placeholder="`${t(
-          'authorization.digest.realm'
-        )} (e.g. testrealm@example.com)`"
+        placeholder="testrealm@example.com"
         :envs="envs"
       />
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.nonce") }}
+      </label>
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
-        :placeholder="t('authorization.digest.nonce')"
+        placeholder="MTIzNDU2Nzg5MDEyMzQ1Njc4OTA="
         :envs="envs"
       />
     </div>
@@ -94,37 +104,49 @@
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.qop") }}
+      </label>
       <SmartEnvInput
         v-model="auth.qop"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.qop')} (e.g. auth-int)`"
+        placeholder="auth-int"
         :envs="envs"
       />
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.nonce_count") }}
+      </label>
       <SmartEnvInput
         v-model="auth.nc"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.nonce_count')} (e.g. 00000001)`"
+        placeholder="00000001"
         :envs="envs"
       />
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.client_nonce") }}
+      </label>
       <SmartEnvInput
         v-model="auth.cnonce"
         :auto-complete-env="true"
-        :placeholder="`${t('authorization.digest.client_nonce')} (e.g. Oa4f113b)`"
+        placeholder="Oa4f113b"
         :envs="envs"
       />
     </div>
 
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.opaque") }}
+      </label>
       <SmartEnvInput
         v-model="auth.opaque"
         :auto-complete-env="true"
-        :placeholder="t('authorization.digest.opaque')"
+        placeholder="5ccc069c403ebaf9f0171e9517f40e41"
         :envs="envs"
       />
     </div>

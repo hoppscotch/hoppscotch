@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight">
+      <label class="ml-4 text-secondaryLight min-w-[6rem]">
         {{ t("authorization.digest.algorithm") }}
       </label>
       <tippy
@@ -13,7 +13,7 @@
         <HoppSmartSelectWrapper>
           <HoppButtonSecondary
             :label="auth.algorithm"
-            class="ml-2 rounded-none pr-8"
+            class="rounded-none pr-8"
           />
         </HoppSmartSelectWrapper>
         <template #content="{ hide }">
@@ -57,11 +57,15 @@
   <!-- Secret field for HMAC algorithms -->
   <div v-else>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.secret") }}
+      </label>
       <SmartEnvInput
         v-model="auth.secret"
         :auto-complete-env="true"
-        :placeholder="t('authorization.secret')"
+        placeholder="your_secret_key_here"
         :envs="envs"
+        class="px-4"
       />
     </div>
 
@@ -95,7 +99,7 @@
 
     <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
-        <label class="ml-4 text-secondaryLight">
+        <label class="ml-4 text-secondaryLight min-w-[6rem]">
           {{ t("authorization.pass_key_by") }}
         </label>
         <tippy
@@ -105,10 +109,7 @@
           :on-shown="() => authTippyActions?.focus()"
         >
           <HoppSmartSelectWrapper>
-            <HoppButtonSecondary
-              :label="passBy"
-              class="ml-2 rounded-none pr-8"
-            />
+            <HoppButtonSecondary :label="passBy" class="rounded-none pr-8" />
           </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div
@@ -140,20 +141,29 @@
 
     <!-- passby conditional prefix or name -->
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{
+          auth.addTo === "HEADERS"
+            ? t("authorization.jwt.header_prefix")
+            : t("authorization.jwt.param_name")
+        }}
+      </label>
       <SmartEnvInput
         v-if="auth.addTo === 'HEADERS'"
         v-model="auth.headerPrefix"
         :auto-complete-env="true"
-        :placeholder="t('authorization.jwt.placeholder_request_header')"
+        placeholder="Bearer"
         :envs="envs"
+        class="px-4"
       />
 
       <SmartEnvInput
         v-else
         v-model="auth.paramName"
         :auto-complete-env="true"
-        :placeholder="t('authorization.jwt.placeholder_request_param')"
+        placeholder="access_token"
         :envs="envs"
+        class="px-4"
       />
     </div>
   </div>

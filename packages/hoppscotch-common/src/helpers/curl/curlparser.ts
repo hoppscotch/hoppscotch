@@ -28,6 +28,19 @@ import { concatParams, getURLObject } from "./sub_helpers/url"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
+/**
+ * Regex to match environment variables in the format `<<variable_name>>`.
+ * This is used to identify if the request contains environment variables that need to be handled specially.
+ */
+const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
+
+/**
+ *
+ * @param str The string to test for environment variables.
+ * @returns A boolean indicating whether the string contains environment variables.
+ */
+const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
+
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
   // const compressed = !!parsedArguments.compressed
@@ -150,7 +163,16 @@ export const parseCurlCommand = (curlCommand: string) => {
     hasBodyBeenParsed = true
   }
 
-  const urlString = decodeURIComponent(concatParams(urlObject, danglingParams))
+  const concatedURL = concatParams(urlObject, danglingParams)
+
+  const decodedURL = decodeURIComponent(concatedURL)
+
+  // Decode the URL only if it’s safe to do so without corrupting environment variables.
+  // This is to ensure that environment variables are not decoded and remain in the format `<<variable_name>>`.
+  // This is useful for code generation where environment variables are used to store sensitive information
+  // such as API keys, secrets, etc.
+  // If the URL does not contain environment variables, decode it normally.
+  const urlString = containsEnvVariables(decodedURL) ? decodedURL : concatedURL
 
   let multipartUploads: Record<string, string> = pipe(
     O.of(parsedArguments),

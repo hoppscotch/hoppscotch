@@ -1,17 +1,23 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.username") }}
+    </label>
     <SmartEnvInput
       v-model="auth.username"
       :auto-complete-env="true"
-      :placeholder="t('authorization.username')"
+      placeholder="DOMAIN\\username"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.password") }}
+    </label>
     <input
       v-model="auth.password"
       name="password"
-      :placeholder="t('authorization.password')"
+      placeholder="Enter password"
       class="flex flex-1 bg-transparent px-4 py-2"
       type="password"
     />
@@ -22,25 +28,32 @@
   <div>
     <!-- label as advanced config here -->
     <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
+      <label class="text-secondaryLight">{{
+        t("authorization.advance_config")
+      }}</label>
       <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
+        {{ t("authorization.advance_config_description") }}
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.ntlm.domain") }}
+      </label>
       <SmartEnvInput
         v-model="auth.domain"
         :auto-complete-env="true"
-        placeholder="Domain"
+        placeholder="CORPORATE"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.ntlm.workstation") }}
+      </label>
       <SmartEnvInput
         v-model="auth.workstation"
         :auto-complete-env="true"
-        placeholder="Workstation"
+        placeholder="MY-COMPUTER"
         :envs="envs"
       />
     </div>
@@ -50,7 +63,7 @@
         :on="auth.retryingRequest"
         @change="auth.retryingRequest = !auth.retryingRequest"
       >
-        Disable Retrying Request
+        {{ t("authorization.ntlm.disable_retrying_request") }}
       </HoppSmartCheckbox>
     </div>
   </div>

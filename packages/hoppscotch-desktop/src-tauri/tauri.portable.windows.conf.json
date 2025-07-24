@@ -33,16 +33,14 @@
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "targets": "all",
-    "createUpdaterArtifacts": true,
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ]
+    "windows": {
+      "webviewInstallMode": {
+        "type": "skip"
+      }
+    },
+    "createUpdaterArtifacts": false
   },
   "plugins": {
     "deep-link": {
@@ -55,7 +53,7 @@
       "endpoints": [
         "https://releases.hoppscotch.com/hoppscotch-selfhost-desktop.json"
       ],
-      "dialog": true,
+      "dialog": false,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYwOURFNEY4RDRGMDQxNTgKUldSWVFmRFUrT1NkWUc1RDM0Z2ZjTHE2dG52Q3ZlYzg3ZXVpZU9KaENPWTBMd3MwY0hWa1lreDcK"
     }
   }

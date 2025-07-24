@@ -31,7 +31,7 @@ export default {
     }),
   getFirstTimeInfraSetupStatus: () => restApi.get('/site/setup'),
   updateFirstTimeInfraSetupStatus: () => restApi.put('/site/setup'),
-  addOnBoardingCongigs: (config: Record<string, any>) =>
+  addOnBoardingConfigs: (config: Record<string, any>) =>
     restApi.post('/onboarding/config', config),
   getOnboardingStatus: () => restApi.get('/onboarding/status'),
   getOnBoardingConfigs: (token: string) =>

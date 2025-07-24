@@ -177,7 +177,7 @@
         </div>
         <HoppButtonPrimary
           :label="'Save Auth Configs'"
-          @click="addOnBoardingConfigs"
+          @click="addOnboardingConfigs"
           :reverse="true"
           :icon="IconLucideSave"
           class="mt-4"
@@ -217,7 +217,7 @@ const emit = defineEmits<{
     e: 'complete-onboarding',
     payload: {
       submittingConfigs: boolean;
-      sumarry: OnBoardingSummary;
+      summary: OnBoardingSummary;
     }
   ): void;
 }>();
@@ -247,7 +247,7 @@ const {
   isProvidersLoading,
   submittingConfigs,
   onBoardingSummary,
-  addOnBoardingCongigs,
+  addOnBoardingConfigs,
   toggleConfig,
   toggleSmtpConfig,
 } = useOnboardingConfigHandler();
@@ -275,12 +275,12 @@ watch(
   { immediate: true }
 );
 
-const addOnBoardingConfigs = async () => {
-  const res = await addOnBoardingCongigs();
+const addOnboardingConfigs = async () => {
+  const res = await addOnBoardingConfigs();
   if (res && res.token) {
     emit('complete-onboarding', {
       submittingConfigs: submittingConfigs.value,
-      sumarry: onBoardingSummary.value,
+      summary: onBoardingSummary.value,
     });
   }
 };

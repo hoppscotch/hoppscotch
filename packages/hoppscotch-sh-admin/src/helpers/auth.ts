@@ -268,9 +268,9 @@ export const auth = {
     }
   },
 
-  addOnBoardingCongigs: async (config: Record<string, any>) => {
+  addOnBoardingConfigs: async (config: Record<string, any>) => {
     try {
-      const res = await authQuery.addOnBoardingCongigs(config);
+      const res = await authQuery.addOnBoardingConfigs(config);
       return res.data as {
         token: string;
       };

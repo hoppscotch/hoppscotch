@@ -63,7 +63,7 @@
         :on="auth.retryingRequest"
         @change="auth.retryingRequest = !auth.retryingRequest"
       >
-        Disable Retrying Request
+        {{ t("authorization.ntlm.disable_retrying_request") }}
       </HoppSmartCheckbox>
     </div>
   </div>

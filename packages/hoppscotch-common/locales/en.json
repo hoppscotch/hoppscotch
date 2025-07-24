@@ -302,7 +302,8 @@
     },
     "ntlm": {
       "domain": "Domain",
-      "workstation": "Workstation"
+      "workstation": "Workstation",
+      "disable_retrying_request": "Disable Retrying Request"
     },
     "asap": {
       "issuer": "Issuer",

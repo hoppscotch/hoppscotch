@@ -389,7 +389,7 @@ export class InfraConfigService implements OnModuleInit {
     const infra = await this.get(InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS);
     if (E.isLeft(infra)) return E.left(infra.left);
 
-    const allowedAuthProviders = infra.right.value.split(',');
+    const allowedAuthProviders = infra.right.value?.split(',') ?? [];
     let updatedAuthProviders = allowedAuthProviders;
 
     const infraConfigMap = await this.getInfraConfigsMap();
@@ -475,9 +475,7 @@ export class InfraConfigService implements OnModuleInit {
     return (
       this.configService
         .get<string>('INFRA.VITE_ALLOWED_AUTH_PROVIDERS')
-        ?.split(',')
-        .map((p) => p.trim())
-        .filter((p) => p) ?? []
+        ?.split(',') ?? []
     );
   }
 
@@ -555,12 +553,9 @@ export class InfraConfigService implements OnModuleInit {
     }
 
     // Verify VITE_ALLOWED_AUTH_PROVIDERS
-    const allowedAuthProviders = dto[
-      InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS
-    ]
-      .split(',')
-      .map((p) => p.trim())
-      .filter((p) => p);
+    const allowedAuthProviders =
+      dto[InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS].split(',');
+
     if (allowedAuthProviders.length === 0) {
       return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
     }

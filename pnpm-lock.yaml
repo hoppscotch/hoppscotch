@@ -27,8 +27,6 @@ overrides:
   brace-expansion@2.0.1: 2.0.2
   brace-expansion@1.1.11: 1.1.12
 
-packageExtensionsChecksum: sha256-Qhsch/G1LLagBL1kRb8nf11C5HcyCWi8Px3h3uWxYUw=
-
 importers:
 
   .:
@@ -138,7 +136,7 @@ importers:
         specifier: ^3.4.13
         version: 3.4.13(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@22.7.5)(typescript@5.8.3))
       typescript:
-        specifier: ^5.8.3
+        specifier: 5.8.3
         version: 5.8.3
       unplugin-icons:
         specifier: ^0.19.3
@@ -150,8 +148,8 @@ importers:
         specifier: ^5.4.8
         version: 5.4.9(@types/node@22.7.5)(sass@1.80.3)(terser@5.39.2)
       vue-tsc:
-        specifier: ^2.1.6
-        version: 2.1.6(typescript@5.8.3)
+        specifier: 2.2.0
+        version: 2.2.0(typescript@5.8.3)
 
   packages/hoppscotch-backend:
     dependencies:
@@ -518,8 +516,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-data
       '@hoppscotch/httpsnippet':
-        specifier: 3.0.7
-        version: 3.0.7
+        specifier: 3.0.9
+        version: 3.0.9
       '@hoppscotch/js-sandbox':
         specifier: workspace:^
         version: link:../hoppscotch-js-sandbox
@@ -527,8 +525,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#0308b55e82f7f01d878a7fdf0f597d1dc975f2ce
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0308b55e82f7f01d878a7fdf0f597d1dc975f2ce'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#1b52e49d881926135838cf6cfebdc1643a9bec31
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1b52e49d881926135838cf6cfebdc1643a9bec31'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@8.57.0)(terser@5.39.2)(typescript@5.8.3)(vite@5.4.9(@types/node@22.15.19)(sass@1.79.5)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
@@ -1000,8 +998,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#0308b55e82f7f01d878a7fdf0f597d1dc975f2ce
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0308b55e82f7f01d878a7fdf0f597d1dc975f2ce'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#1b52e49d881926135838cf6cfebdc1643a9bec31
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1b52e49d881926135838cf6cfebdc1643a9bec31'
       '@hoppscotch/ui':
         specifier: 0.2.1
         version: 0.2.1(eslint@9.27.0(jiti@2.4.2))(terser@5.39.2)(typescript@5.8.3)(vite@5.4.11(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2))(vue@3.5.12(typescript@5.8.3))
@@ -1070,7 +1068,7 @@ importers:
         specifier: ^5.3.1
         version: 5.4.11(@types/node@22.15.19)(sass@1.80.3)(terser@5.39.2)
       vue-tsc:
-        specifier: ^2.2.0
+        specifier: 2.2.0
         version: 2.2.0(typescript@5.8.3)
 
   packages/hoppscotch-desktop/plugin-workspace/tauri-plugin-appload:
@@ -1840,8 +1838,8 @@ packages:
       graphql:
         optional: true
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0308b55e82f7f01d878a7fdf0f597d1dc975f2ce':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0308b55e82f7f01d878a7fdf0f597d1dc975f2ce}
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1b52e49d881926135838cf6cfebdc1643a9bec31':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1b52e49d881926135838cf6cfebdc1643a9bec31}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/0147ac1bb29d3b88d6652432a482bd86f0174506':
@@ -4557,8 +4555,8 @@ packages:
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
 
-  '@hoppscotch/httpsnippet@3.0.7':
-    resolution: {integrity: sha512-A7uoYLmkdjekFadnooOjpplFOIr0yHtY/wG63uoTbvL0hoEYH22fDQlJeYIlZe1kdv4q+xjnHj9VgdZQzMbauA==}
+  '@hoppscotch/httpsnippet@3.0.9':
+    resolution: {integrity: sha512-XTs2SYxOItC7Go38VsFYtnxEk6C5JhscEpZHgd9+klyah+Iy2uKLFaBFq9M/10YLhwfPNVP3UpGsL/jY50zQgQ==}
     engines: {node: '^14.19.1 || ^16.14.2 || ^18.0.0 '}
     hasBin: true
 
@@ -7022,9 +7020,6 @@ packages:
     resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
     peerDependencies:
       ajv: ^8.8.2
-
-  ajv@6.12.3:
-    resolution: {integrity: sha512-4K0cK3L1hsqk9xIb2z9vs/XU+PGJZ9PNpJRDS9YLzmNdX6jmVPfamLvTJr0aDAusnHyCHO6MjzlkAsgtqp9teA==}
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -14533,7 +14528,7 @@ snapshots:
     optionalDependencies:
       graphql: 16.11.0
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/0308b55e82f7f01d878a7fdf0f597d1dc975f2ce':
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/1b52e49d881926135838cf6cfebdc1643a9bec31':
     dependencies:
       '@tauri-apps/api': 2.1.1
 
@@ -18489,9 +18484,8 @@ snapshots:
 
   '@hapi/hoek@9.3.0': {}
 
-  '@hoppscotch/httpsnippet@3.0.7':
+  '@hoppscotch/httpsnippet@3.0.9':
     dependencies:
-      ajv: 6.12.3
       chalk: 4.1.2
       event-stream: 4.0.1
       form-data: 4.0.0
@@ -21607,13 +21601,6 @@ snapshots:
     dependencies:
       ajv: 8.17.1
       fast-deep-equal: 3.1.3
-
-  ajv@6.12.3:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      fast-json-stable-stringify: 2.1.0
-      json-schema-traverse: 0.4.1
-      uri-js: 4.4.1
 
   ajv@6.12.6:
     dependencies:

@@ -1,10 +1,10 @@
 import {
-  parseTemplateString,
-  HoppRESTAuth,
-  HoppRESTRequest,
   Environment,
+  HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTRequest,
+  parseTemplateString,
 } from "@hoppscotch/data"
 import { AwsV4Signer } from "aws4fetch"
 import { getFinalBodyFromRequest } from "~/helpers/utils/EffectiveURL"
@@ -12,8 +12,7 @@ import { getFinalBodyFromRequest } from "~/helpers/utils/EffectiveURL"
 export async function generateAwsSignatureAuthHeaders(
   auth: HoppRESTAuth & { authType: "aws-signature" },
   request: HoppRESTRequest,
-  envVars: Environment["variables"],
-  showKeyIfSecret = false
+  envVars: Environment["variables"]
 ): Promise<HoppRESTHeader[]> {
   if (auth.addTo !== "HEADERS") return []
 
@@ -54,8 +53,7 @@ export async function generateAwsSignatureAuthHeaders(
 export async function generateAwsSignatureAuthParams(
   auth: HoppRESTAuth & { authType: "aws-signature" },
   request: HoppRESTRequest,
-  envVars: Environment["variables"],
-  showKeyIfSecret = false
+  envVars: Environment["variables"]
 ): Promise<HoppRESTParam[]> {
   if (auth.addTo !== "QUERY_PARAMS") return []
 

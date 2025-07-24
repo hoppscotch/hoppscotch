@@ -167,8 +167,12 @@ a {
   @apply rounded;
   @apply shadow;
 
+  .env-tooltip-content {
+    @apply flex-col;
+  }
+
   .tippy-content {
-    @apply flex flex-col;
+    @apply flex;
     @apply text-tiny text-primary;
     @apply font-semibold;
     @apply px-2 py-1;

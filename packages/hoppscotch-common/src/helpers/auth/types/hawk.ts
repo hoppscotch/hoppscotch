@@ -5,7 +5,6 @@ import {
   HoppRESTRequest,
   Environment,
   HoppRESTHeader,
-  HoppRESTParam,
 } from "@hoppscotch/data"
 import { getFinalBodyFromRequest } from "~/helpers/utils/EffectiveURL"
 

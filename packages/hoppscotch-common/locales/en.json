@@ -669,7 +669,14 @@
     "import_summary_responses_title": "Responses",
     "import_summary_pre_request_scripts_title": "Pre-request scripts",
     "import_summary_post_request_scripts_title": "Post request scripts",
-    "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now."
+    "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now.",
+    "cors_error_modal": {
+      "title": "CORS Error Detected",
+      "description": "The import failed due to CORS (Cross-Origin Resource Sharing) restrictions imposed by the server.",
+      "explanation": "This is a security feature that prevents web pages from making requests to different domains. You can retry using our proxy service to bypass this restriction.",
+      "url_label": "Attempted URL",
+      "retry_with_proxy": "Retry with Proxy"
+    }
   },
   "instances": {
     "switch": "Switch Hoppscotch Instance",
@@ -1113,6 +1120,16 @@
       "copy": "Copy response to clipboard",
       "download": "Download response as file",
       "title": "Response"
+    },
+    "tabs": {
+      "title": "Tabs",
+      "new_tab": "New Tab",
+      "close_tab": "Close Tab",
+      "reopen_tab": "Reopen Closed Tab",
+      "next_tab": "Next Tab",
+      "previous_tab": "Previous Tab",
+      "first_tab": "Switch to First Tab",
+      "last_tab": "Switch to Last Tab"
     },
     "theme": {
       "black": "Switch theme to Black Mode",

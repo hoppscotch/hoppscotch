@@ -221,6 +221,7 @@ declare module 'vue' {
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
     IconLucideX: typeof import('~icons/lucide/x')['default']
     ImportExportBase: typeof import('./components/importExport/Base.vue')['default']
+    ImportExportCorsErrorModal: typeof import('./components/importExport/CorsErrorModal.vue')['default']
     ImportExportImportExportList: typeof import('./components/importExport/ImportExportList.vue')['default']
     ImportExportImportExportSourcesList: typeof import('./components/importExport/ImportExportSourcesList.vue')['default']
     ImportExportImportExportStepsAllCollectionImport: typeof import('./components/importExport/ImportExportSteps/AllCollectionImport.vue')['default']

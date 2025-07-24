@@ -300,7 +300,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           envContainer.appendChild(initialValueBlock)
           envContainer.appendChild(currentValueBlock)
 
-          tooltipContainer.className = "tippy-content"
+          tooltipContainer.className = "tippy-content env-tooltip-content"
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
           dom.appendChild(tooltipContainer)

@@ -121,7 +121,7 @@
             <label
               class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
             >
-              Token
+              {{ t("authorization.token") }}
             </label>
             <SmartEnvInput
               v-model="auth.token"
@@ -137,7 +137,7 @@
             <label
               class="flex items-center ml-4 text-secondaryLight min-w-[6rem]"
             >
-              Token
+              {{ t("authorization.token") }}
             </label>
             <!-- Ensure a new object is assigned here to avoid reactivity issues -->
             <SmartEnvInput

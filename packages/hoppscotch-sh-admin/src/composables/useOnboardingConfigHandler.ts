@@ -169,28 +169,6 @@ export function useOnboardingConfigHandler() {
     }
   };
 
-  const enableInitialConfigs = () => {
-    const { GOOGLE, GITHUB, MICROSOFT } = currentConfigs.value.oAuthProviders;
-    const { MAILER_SMTP_ENABLE } = currentConfigs.value.mailerConfigs;
-
-    if (GOOGLE.GOOGLE_CLIENT_ID && enabledConfigs.value.includes('GOOGLE'))
-      enableConfig('GOOGLE');
-    if (GITHUB.GITHUB_CLIENT_ID && enabledConfigs.value.includes('GITHUB'))
-      enableConfig('GITHUB');
-    if (
-      MICROSOFT.MICROSOFT_CLIENT_ID &&
-      enabledConfigs.value.includes('MICROSOFT')
-    )
-      enableConfig('MICROSOFT');
-
-    if (
-      MAILER_SMTP_ENABLE?.trim().toLowerCase() === 'true' &&
-      enabledConfigs.value.includes('EMAIL')
-    ) {
-      enableConfig('MAILER');
-    }
-  };
-
   const makeOnboardingSummary = (error?: Error): OnBoardingSummary => {
     const addedConfigs = enabledConfigs.value;
 
@@ -320,8 +298,6 @@ export function useOnboardingConfigHandler() {
         oAuthProviders: mapOAuthProviders(configs),
         mailerConfigs: mapMailerConfigs(configs),
       };
-
-      enableInitialConfigs();
     } catch (err) {
       console.error('Error fetching onboarding configs', err);
     } finally {

@@ -1126,7 +1126,7 @@ const getPlaceholderForField = (fieldId: string): string => {
     username: "your_username",
     password: "your_password",
   }
-  return placeholders[fieldId] || "Enter value"
+  return placeholders[fieldId] || t("authorization.oauth.enter_value")
 }
 
 const grantTypeTippyActions = ref<HTMLElement | null>(null)

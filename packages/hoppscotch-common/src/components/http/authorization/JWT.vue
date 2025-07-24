@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight">
+      <label class="ml-4 text-secondaryLight min-w-[6rem]">
         {{ t("authorization.digest.algorithm") }}
       </label>
       <tippy
@@ -13,7 +13,7 @@
         <HoppSmartSelectWrapper>
           <HoppButtonSecondary
             :label="auth.algorithm"
-            class="ml-2 rounded-none pr-8"
+            class="rounded-none pr-8"
           />
         </HoppSmartSelectWrapper>
         <template #content="{ hide }">
@@ -99,7 +99,7 @@
 
     <div class="flex items-center border-b border-dividerLight">
       <span class="flex items-center">
-        <label class="ml-4 text-secondaryLight">
+        <label class="ml-4 text-secondaryLight min-w-[6rem]">
           {{ t("authorization.pass_key_by") }}
         </label>
         <tippy
@@ -109,10 +109,7 @@
           :on-shown="() => authTippyActions?.focus()"
         >
           <HoppSmartSelectWrapper>
-            <HoppButtonSecondary
-              :label="passBy"
-              class="ml-2 rounded-none pr-8"
-            />
+            <HoppButtonSecondary :label="passBy" class="rounded-none pr-8" />
           </HoppSmartSelectWrapper>
           <template #content="{ hide }">
             <div

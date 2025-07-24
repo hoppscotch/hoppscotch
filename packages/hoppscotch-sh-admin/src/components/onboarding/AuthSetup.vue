@@ -99,12 +99,12 @@
             data-accordion="collapse"
             class="space-y-4"
           >
-            <UiAccordian
+            <UiAccordion
               v-if="selectedOptions.includes('OAuth')"
               :initial-open="isOAuthEnabled"
               class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
             >
-              <template v-slot:header="{ isOpen, toggleAccordian }">
+              <template v-slot:header="{ isOpen, toggleAccordion }">
                 <div class="w-full">
                   <div class="flex items-center justify-between flex-1 mb-2">
                     <span class="font-semibold text-[0.8rem]">OAuth </span>
@@ -114,7 +114,7 @@
                         :on="isOpen"
                         @change="
                           () => {
-                            toggleAccordian();
+                            toggleAccordion();
                             toggleConfig('OAUTH');
                           }
                         "
@@ -136,14 +136,14 @@
                   @toggleConfig="toggleConfig"
                 />
               </template>
-            </UiAccordian>
+            </UiAccordion>
 
-            <UiAccordian
+            <UiAccordion
               v-if="selectedOptions.includes('SMTP')"
               :initial-open="enabledConfigs.includes('MAILER')"
               class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
             >
-              <template v-slot:header="{ isOpen, toggleAccordian }">
+              <template v-slot:header="{ isOpen, toggleAccordion }">
                 <div class="w-full">
                   <div class="flex items-center justify-between flex-1 mb-2">
                     <span class="font-semibold text-[0.8rem]">SMTP</span>
@@ -152,7 +152,7 @@
                         :on="isOpen"
                         @change="
                           () => {
-                            toggleAccordian();
+                            toggleAccordion();
                             toggleConfig('EMAIL');
                             toggleSmtpConfig();
                           }
@@ -172,7 +172,7 @@
                   v-model:enabledConfigs="enabledConfigs"
                 />
               </template>
-            </UiAccordian>
+            </UiAccordion>
           </div>
         </div>
         <HoppButtonPrimary

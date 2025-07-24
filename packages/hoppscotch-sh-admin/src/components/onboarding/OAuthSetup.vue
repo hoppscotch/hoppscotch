@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-2 flex flex-col my-4">
-    <UiAccordian
+    <UiAccordion
       v-for="[provider, value] in Object.entries(currentConfigs.oAuthProviders)"
       :initial-open="enabledConfigs.includes(provider as EnabledConfig)"
     >
-      <template v-slot:header="{ isOpen, toggleAccordian }">
+      <template v-slot:header="{ isOpen, toggleAccordion }">
         <div class="flex items-center justify-between flex-1">
           <span class="font-semibold text-[.8rem] capitalize">{{
             provider.toLocaleLowerCase()
@@ -13,7 +13,7 @@
             <HoppSmartToggle
               :on="isOpen"
               @change="() => {
-                toggleAccordian()
+                toggleAccordion()
                 emit('toggleConfig', (provider as EnabledConfig));
               }"
               class="ml-2"
@@ -34,7 +34,7 @@
           />
         </div>
       </template>
-    </UiAccordian>
+    </UiAccordion>
   </div>
 </template>
 

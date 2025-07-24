@@ -8,7 +8,7 @@
       <slot
         name="header"
         :is-open="isOpen"
-        :toggle-accordian="toggleAccordion"
+        :toggle-accordion="toggleAccordion"
       />
     </div>
 
@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 
-const UID = 'accordian-' + Math.random().toString(36).substr(2, 9);
+const UID = 'accordion-' + Math.random().toString(36).substr(2, 9);
 
 const props = defineProps<{
   initialOpen?: boolean;

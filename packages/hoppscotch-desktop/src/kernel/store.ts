@@ -12,23 +12,23 @@ import { join } from "@tauri-apps/api/path"
 const STORE_PATH = "hoppscotch-unified.store"
 
 export const getConfigDir = async (): Promise<string> => {
-  return await invoke<string>("get_config_dir")
+  return invoke<string>("get_config_dir")
 }
 
 export const getBackupDir = async (): Promise<string> => {
-  return await invoke<string>("get_backup_dir")
+  return invoke<string>("get_backup_dir")
 }
 
 export const getLatestDir = async (): Promise<string> => {
-  return await invoke<string>("get_latest_dir")
+  return invoke<string>("get_latest_dir")
 }
 
 export const getStoreDir = async (): Promise<string> => {
-  return await invoke<string>("get_store_dir")
+  return invoke<string>("get_store_dir")
 }
 
 export const getInstanceDir = async (): Promise<string> => {
-  return await invoke<string>("get_instance_dir")
+  return invoke<string>("get_instance_dir")
 }
 
 const getStorePath = async (): Promise<string> => {

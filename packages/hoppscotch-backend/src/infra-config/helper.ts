@@ -134,7 +134,7 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
     },
     {
       name: InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY,
-      value: '3', // 3 hours
+      value: '24', // 24 hours
       isEncrypted: false,
     },
     {
@@ -463,13 +463,40 @@ export async function buildDerivedEnv() {
   const envConfigMap = await loadInfraConfiguration();
   const derivedEnv: Record<string, string> = {};
 
-  // ALLOW_SECURE_COOKIES
+  // Normalize URLs
   const baseUrl = process.env.VITE_BASE_URL || '';
-  const expectedSecureCookieSetting =
-    determineAllowSecureCookies(baseUrl).toString();
-  const currentSecureCookieSetting = envConfigMap.INFRA.ALLOW_SECURE_COOKIES;
-  if (currentSecureCookieSetting !== expectedSecureCookieSetting) {
-    derivedEnv.ALLOW_SECURE_COOKIES = expectedSecureCookieSetting;
+  const backendUrl = process.env.VITE_BACKEND_API_URL || '';
+  const normalizedBackendUrl = backendUrl?.replace(/\/+$/, ''); // remove trailing slash
+
+  // Set ALLOW_SECURE_COOKIES based on base URL protocol
+  const expectedSecure = determineAllowSecureCookies(baseUrl).toString();
+  const currentSecure = envConfigMap.INFRA.ALLOW_SECURE_COOKIES;
+  if (currentSecure !== expectedSecure) {
+    derivedEnv.ALLOW_SECURE_COOKIES = expectedSecure;
+  }
+
+  // Set GOOGLE_CALLBACK_URL, MICROSOFT_CALLBACK_URL, and GITHUB_CALLBACK_URL based on backend URL (self healing) if user changed the backend URL
+  // Callback URL definitions
+  const callbackConfigs = [
+    { key: InfraConfigEnum.GOOGLE_CALLBACK_URL, path: '/auth/google/callback' },
+    {
+      key: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      path: '/auth/microsoft/callback',
+    },
+    { key: InfraConfigEnum.GITHUB_CALLBACK_URL, path: '/auth/github/callback' },
+  ];
+  // Update callback URLs if they don't match the backend
+  for (const { key, path } of callbackConfigs) {
+    const currentCallback = envConfigMap.INFRA[key];
+    const expectedCallback = `${normalizedBackendUrl}${path}`;
+
+    if (
+      backendUrl.length > 0 &&
+      currentCallback &&
+      currentCallback !== expectedCallback
+    ) {
+      derivedEnv[key] = expectedCallback;
+    }
   }
 
   return derivedEnv;

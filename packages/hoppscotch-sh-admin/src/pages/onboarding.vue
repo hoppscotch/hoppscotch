@@ -38,7 +38,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthSetup from '~/components/onboarding/AuthSetup.vue';
-import CompleteOnboarding from '~/components/onboarding/CompleteOnboarding.vue';
+import CompleteOnboarding from '~/components/onboarding/CompleteScreen.vue';
 import WelcomeScreen from '~/components/onboarding/WelcomeScreen.vue';
 import { OnBoardingSummary } from '~/composables/useOnboardingConfigHandler';
 import { auth } from '~/helpers/auth';

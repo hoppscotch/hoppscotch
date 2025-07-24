@@ -28,10 +28,11 @@
   <div>
     <!-- label as advanced config here -->
     <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
+      <label class="text-secondaryLight">{{
+        t("authorization.advance_config")
+      }}</label>
       <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
+        {{ t("authorization.advance_config_description") }}
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">

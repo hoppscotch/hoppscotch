@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      HAWK Auth ID
+      {{ t("authorization.hawk.id") }}
     </label>
     <SmartEnvInput
       v-model="auth.authId"
@@ -12,7 +12,7 @@
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      HAWK Auth Key
+      {{ t("authorization.hawk.key") }}
     </label>
     <SmartEnvInput
       v-model="auth.authKey"
@@ -90,7 +90,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Nonce
+        {{ t("authorization.digest.nonce") }}
       </label>
       <SmartEnvInput
         v-model="auth.nonce"
@@ -101,7 +101,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        ext
+        {{ t("authorization.hawk.ext") }}
       </label>
       <SmartEnvInput
         v-model="auth.ext"
@@ -112,7 +112,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        app
+        {{ t("authorization.hawk.app") }}
       </label>
       <SmartEnvInput
         v-model="auth.app"
@@ -123,7 +123,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        dlg
+        {{ t("authorization.hawk.dlg") }}
       </label>
       <SmartEnvInput
         v-model="auth.dlg"
@@ -134,7 +134,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Timestamp
+        {{ t("authorization.timestamp") }}
       </label>
       <SmartEnvInput
         v-model="auth.timestamp"
@@ -150,7 +150,7 @@
       :on="auth.includePayloadHash"
       @change="auth.includePayloadHash = !auth.includePayloadHash"
     >
-      Include Payload Hash
+      {{ t("authorization.hawk.include") }}
     </HoppSmartCheckbox>
   </div>
 </template>

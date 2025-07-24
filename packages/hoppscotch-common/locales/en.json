@@ -248,6 +248,11 @@
     "password": "Password",
     "save_to_inherit": "Please save this request in any collection to inherit the authorization",
     "token": "Token",
+    "access_token": "Access Token",
+    "client_token": "Client Token",
+    "client_secret": "Client Secret",
+    "timestamp": "Timestamp",
+    "host": "Host",
     "type": "Authorization Type",
     "username": "Username",
     "advance_config": "Advanced Configuration",
@@ -271,6 +276,18 @@
       "client_nonce": "Client Nonce",
       "opaque": "Opaque",
       "disable_retry": "Disable Retrying Request"
+    },
+    "akamai": {
+      "headers_to_sign": "Headers to Sign",
+      "max_body_size": "Max Body Size"
+    },
+    "hawk": {
+      "id": "HAWK Auth ID",
+      "key": "HAWK Auth Key",
+      "ext": "ext",
+      "app": "app",
+      "dlg": "dlg",
+      "include": "Include Payload Hash"
     },
     "jwt": {
       "params_name": "Params Name",

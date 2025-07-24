@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Access Token
+      {{ t("authorization.token") }}
     </label>
     <SmartEnvInput
       v-model="auth.accessToken"
@@ -12,7 +12,7 @@
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Client Token
+      {{ t("authorization.client_token") }}
     </label>
     <SmartEnvInput
       v-model="auth.clientToken"
@@ -23,7 +23,7 @@
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Client Secret
+      {{ t("authorization.client_secret") }}
     </label>
     <SmartEnvInput
       v-model="auth.clientSecret"
@@ -38,15 +38,16 @@
   <div>
     <!-- label as advanced config here -->
     <div class="p-4">
-      <label class="text-secondaryLight"> Advanced Configuration </label>
+      <label class="text-secondaryLight">{{
+        t("authorization.advance_config")
+      }}</label>
       <p>
-        Hoppscotch automatically assigns default values to certain fields if no
-        explicit value is provided.
+        {{ t("authorization.advance_config_description") }}
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Nonce
+        {{ t("authorization.digest.nonce") }}
       </label>
       <SmartEnvInput
         v-model="auth.nonce"
@@ -57,7 +58,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Timestamp
+        {{ t("authorization.timestamp") }}
       </label>
       <SmartEnvInput
         v-model="auth.timestamp"
@@ -68,7 +69,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Host
+        {{ t("authorization.host") }}
       </label>
       <SmartEnvInput
         v-model="auth.host"
@@ -79,7 +80,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Headers to Sign
+        {{ t("authorization.akamai.headers_to_sign") }}
       </label>
       <SmartEnvInput
         v-model="auth.headersToSign"
@@ -90,7 +91,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Max Body Size
+        {{ t("authorization.akamai.max_body_size") }}
       </label>
       <SmartEnvInput
         v-model="auth.maxBodySize"
@@ -103,9 +104,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthAkamaiEdgeGrid } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { AggregateEnvironment } from "~/newstore/environments"
+
+const t = useI18n()
 
 const props = defineProps<{
   modelValue: HoppRESTAuthAkamaiEdgeGrid

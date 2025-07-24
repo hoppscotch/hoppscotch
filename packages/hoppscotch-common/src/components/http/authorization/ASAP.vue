@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Issuer
+      {{ t("authorization.asap.issuer") }}
     </label>
     <SmartEnvInput
       v-model="auth.issuer"
@@ -12,7 +12,7 @@
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Audience
+      {{ t("config.saml.audience") }}
     </label>
     <SmartEnvInput
       v-model="auth.audience"
@@ -23,7 +23,7 @@
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
     <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-      Key ID
+      {{ t("authorization.asap.key_id") }}
     </label>
     <SmartEnvInput
       v-model="auth.keyId"
@@ -35,7 +35,9 @@
 
   <div class="flex items-center border-b border-dividerLight">
     <span class="flex items-center">
-      <label class="ml-4 text-secondaryLight"> Algorithm </label>
+      <label class="ml-4 text-secondaryLight">
+        {{ t("authorization.digest.algorithm") }}
+      </label>
       <tippy
         interactive
         trigger="click"
@@ -75,7 +77,9 @@
   </div>
 
   <div class="flex flex-1 border-b border-dividerLight items-center">
-    <label class="ml-4 text-secondaryLight"> Private Key </label>
+    <label class="ml-4 text-secondaryLight">
+      {{ t("authorization.jwt.private_key") }}
+    </label>
     <label :for="`attachment`" class="p-0">
       <input
         :id="`attachment`"
@@ -96,17 +100,21 @@
   <div>
     <!-- label as advanced config here -->
     <div class="p-4">
-      <label class="text-secondaryLight"> Optional Configuration </label>
+      <label class="text-secondaryLight">
+        {{ t("authorization.asap.optional_config") }}
+      </label>
     </div>
     <div class="flex flex-1 border-b border-dividerLight h-[300px]">
-      <label class="ml-4 text-secondaryLight"> Additional Claims </label>
+      <label class="ml-4 text-secondaryLight">
+        {{ t("authorization.asap.additional_claims") }}
+      </label>
       <div class="h-full relative">
         <div ref="claimsRef" class="absolute inset-0"></div>
       </div>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Subject
+        {{ t("authorization.asap.subject") }}
       </label>
       <SmartEnvInput
         v-model="auth.subject"
@@ -117,7 +125,7 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
-        Expires In
+        {{ t("authorization.asap.expires_in") }}
       </label>
       <SmartEnvInput
         v-model="auth.expiresIn"

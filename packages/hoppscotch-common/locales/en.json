@@ -302,6 +302,15 @@
     "ntlm": {
       "domain": "Domain",
       "workstation": "Workstation"
+    },
+    "asap": {
+      "issuer": "Issuer",
+      "audience": "Audience",
+      "expires_in": "Expires In",
+      "key_id": "Key ID",
+      "optional_config": "Optional Configuration",
+      "subject": "Subject",
+      "additional_claims": "Additional Claims"
     }
   },
   "collection": {

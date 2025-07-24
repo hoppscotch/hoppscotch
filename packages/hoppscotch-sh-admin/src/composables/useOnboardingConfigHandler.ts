@@ -87,11 +87,11 @@ function mapMailerConfigs(
     MAILER_ADDRESS_FROM: configs.MAILER_ADDRESS_FROM ?? '',
     MAILER_SMTP_HOST: configs.MAILER_SMTP_HOST ?? '',
     MAILER_SMTP_PORT: configs.MAILER_SMTP_PORT ?? '',
-    MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || 'false',
+    MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || '',
     MAILER_SMTP_USER: configs.MAILER_SMTP_USER ?? '',
     MAILER_SMTP_PASSWORD: configs.MAILER_SMTP_PASSWORD ?? '',
     MAILER_TLS_REJECT_UNAUTHORIZED:
-      configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
+      configs.MAILER_TLS_REJECT_UNAUTHORIZED || '',
   };
 }
 
@@ -191,17 +191,16 @@ export function useOnboardingConfigHandler() {
     }
   };
 
-  const makeOnboardingSummary = (
-    configs: Record<string, string>,
-    error?: Error
-  ): OnBoardingSummary => {
+  const makeOnboardingSummary = (error?: Error): OnBoardingSummary => {
     const addedConfigs = enabledConfigs.value;
 
     if (addedConfigs.length === 0) {
       return {
         type: 'error',
         message: t('onboarding.addConfigsError'),
-        description: t('onboarding.addConfigsDescription'),
+        description: t('onboarding.addConfigsDescription', {
+          error: error?.message || t('onboarding.addConfigsDefaultError'),
+        }),
         configsAdded: [],
       };
     }
@@ -291,8 +290,7 @@ export function useOnboardingConfigHandler() {
       if (res?.token) {
         localStorage.setItem('access_token', res.token);
         toast.success('Onboarding configs added successfully');
-        const summary = makeOnboardingSummary(configWithAuth);
-        console.log(summary);
+        const summary = makeOnboardingSummary();
         onBoardingSummary.value = summary;
         submittingConfigs;
         return res;
@@ -300,7 +298,7 @@ export function useOnboardingConfigHandler() {
     } catch (err) {
       console.error('Failed to add onboarding configs', err);
       toast.error('Failed to add onboarding configs');
-      const summary = makeOnboardingSummary(configWithAuth, err as Error);
+      const summary = makeOnboardingSummary(err as Error);
       onBoardingSummary.value = summary;
       submittingConfigs.value = false;
     }

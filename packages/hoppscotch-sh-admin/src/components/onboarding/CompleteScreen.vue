@@ -99,7 +99,7 @@ const startCountdown = () => {
 };
 
 onMounted(() => {
-  if (props.submittingConfigs && props.onBoardingSummary.type === 'success') {
+  if (props.onBoardingSummary.type === 'success') {
     startCountdown();
   }
 });

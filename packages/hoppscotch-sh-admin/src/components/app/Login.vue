@@ -71,7 +71,7 @@
           :label="t('state.send_magic_link')"
         />
       </form>
-      <div v-if="!allowedAuthProviders || allowedAuthProviders.length === 0">
+      <div v-if="!allowedAuthProviders?.length">
         <p>{{ t('state.require_auth_provider') }}</p>
         <p>{{ t('state.configure_auth') }}</p>
         <div class="mt-5">

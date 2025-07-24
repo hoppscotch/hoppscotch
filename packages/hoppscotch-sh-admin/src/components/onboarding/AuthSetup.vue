@@ -1,0 +1,305 @@
+<template>
+  <div class="flex flex-col flex-1 py-8 p-4 justify-center w-full">
+    <div class="w-full max-w-screen-md mx-auto">
+      <div
+        v-if="isFirstTimeSetup && authConfigStep === 1"
+        class="py-8 rounded max-h-lg overflow-y-auto"
+      >
+        <div>
+          <h1 class="text-[1rem]">
+            Please select the authentication methods you want to set up.
+          </h1>
+        </div>
+        <div>
+          <div class="flex items-center space-x-4 my-8">
+            <div
+              class="flex flex-col space-y-2 p-5 h-40 cursor-pointer flex-1 border-2 bg-primaryLight rounded-lg border-primaryDark shadow hover:border-accent transition"
+              :class="{
+                '!bg-primary !border-accentDark':
+                  selectedOptions.includes('OAuth'),
+              }"
+              @click="toggleSelectedOption('OAuth')"
+            >
+              <span class="text-[0.9rem] text-secondaryDark"> OAuth </span>
+              <span class="text-secondaryLight h-10">
+                Set up OAuth providers like Google, GitHub, Microsoft, etc.
+              </span>
+              <div class="my-4">
+                <div class="flex items-center -space-x-2">
+                  <img
+                    alt="user 1"
+                    src="/assets/icons/auth/google.svg"
+                    class="relative inline-block h-6 w-6 rounded-full border-2 border-primary object-cover object-center hover:z-10 focus:z-10"
+                  />
+                  <img
+                    alt="user 2"
+                    src="/assets/icons/auth/github.svg"
+                    class="relative inline-block h-6 w-6 rounded-full border-2 border-primary object-cover object-center hover:z-10 focus:z-10"
+                  />
+                  <img
+                    alt="user 3"
+                    src="/assets/icons/auth/microsoft.svg"
+                    class="relative inline-block h-6 w-6 rounded-full border-2 border-primary object-cover object-center hover:z-10 focus:z-10"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex flex-col space-y-2 p-5 h-40 cursor-pointer flex-1 border-2 bg-primaryLight rounded-lg border-primaryDark shadow hover:border-accent transition"
+              :class="{
+                '!bg-primary !border-accentDark':
+                  selectedOptions.includes('SMTP'),
+              }"
+              @click="toggleSelectedOption('SMTP')"
+            >
+              <span class="text-[0.9rem] text-secondaryDark"> SMTP </span>
+              <span class="text-secondaryLight h-10">
+                Set up SMTP for email authentication.
+              </span>
+              <div class="my-4">
+                <div class="flex items-center -space-x-2">
+                  <img
+                    alt="user 2"
+                    src="/assets/icons/auth/email.svg"
+                    class="relative inline-block h-6 w-6 rounded-full border-2 border-primary object-cover object-center hover:z-10 focus:z-10"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <HoppButtonPrimary
+            :label="'Add Auth Configs'"
+            @click="addAuthConfig"
+            :icon="IconLucideArrowRight"
+            :reverse="true"
+            class="mt-6"
+          />
+        </div>
+      </div>
+
+      <!-- Auth setup step 2 -->
+      <div v-else-if="authConfigStep === 2">
+        <button
+          v-if="isFirstTimeSetup"
+          class="items-center flex space-x-2 cursor-pointer mb-4 group"
+          @click="authConfigStep = 1"
+        >
+          <span class="group-hover:opacity-80 transition-opacity">
+            <IconLucideArrowLeft class="svg-icons" />
+          </span>
+          <span class="group-hover:opacity-80 transition-opacity">Back</span>
+        </button>
+        <h2>
+          Please add the configurations for the selected authentication methods.
+        </h2>
+
+        <div class="my-5 overflow-y-auto max-h-[60vh]">
+          <div
+            id="accordion-nested-parent"
+            data-accordion="collapse"
+            class="space-y-4"
+          >
+            <UiAccordian
+              v-if="selectedOptions.includes('OAuth')"
+              :initial-open="isOAuthEnabled"
+              class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
+            >
+              <template v-slot:header="{ isOpen, toggleAccordian }">
+                <div class="w-full">
+                  <div class="flex items-center justify-between flex-1 mb-2">
+                    <span class="font-semibold text-[0.8rem]">OAuth </span>
+
+                    <span>
+                      <HoppSmartToggle
+                        :on="isOpen"
+                        @change="
+                          () => {
+                            toggleAccordian();
+                            toggleConfig('OAUTH');
+                          }
+                        "
+                        class="ml-2"
+                      />
+                    </span>
+                  </div>
+                  <span class="text-tiny text-secondaryLight">
+                    Select the OAuth providers you want to enable and provide
+                    <br />
+                    the necessary configurations.
+                  </span>
+                </div>
+              </template>
+              <template v-slot:content>
+                <OAuthSetup
+                  v-model:currentConfigs="currentConfigs"
+                  v-model:enabledConfigs="enabledConfigs"
+                  @toggleConfig="toggleConfig"
+                />
+              </template>
+            </UiAccordian>
+
+            <UiAccordian
+              v-if="selectedOptions.includes('SMTP')"
+              :initial-open="enabledConfigs.includes('MAILER')"
+              class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
+            >
+              <template v-slot:header="{ isOpen, toggleAccordian }">
+                <div class="w-full">
+                  <div class="flex items-center justify-between flex-1 mb-2">
+                    <span class="font-semibold text-[0.8rem]">SMTP</span>
+                    <span>
+                      <HoppSmartToggle
+                        :on="isOpen"
+                        @change="
+                          () => {
+                            toggleAccordian();
+                            toggleConfig('EMAIL');
+                            toggleSmtpConfig();
+                          }
+                        "
+                        class="ml-2"
+                      />
+                    </span>
+                  </div>
+                  <p class="text-secondaryLight text-tiny">
+                    Configure the SMTP settings for sending emails.
+                  </p>
+                </div>
+              </template>
+              <template v-slot:content>
+                <SmtpSetup
+                  v-model:currentConfigs="currentConfigs"
+                  v-model:enabledConfigs="enabledConfigs"
+                />
+              </template>
+            </UiAccordian>
+          </div>
+        </div>
+        <HoppButtonPrimary
+          :label="'Save Auth Configs'"
+          @click="addOnBoardingConfigs"
+          :reverse="true"
+          :icon="IconLucideSave"
+          class="mt-4"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref, watch } from 'vue';
+import {
+  OAuthProvider,
+  OnBoardingSummary,
+  useOnboardingConfigHandler,
+} from '~/composables/useOnboardingConfigHandler';
+import OAuthSetup from './OAuthSetup.vue';
+import SmtpSetup from './SmtpSetup.vue';
+import IconLucideArrowRight from '~icons/lucide/arrow-right';
+import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+import IconLucideSave from '~icons/lucide/save';
+import { useToast } from '~/composables/toast';
+
+const toast = useToast();
+
+const props = withDefaults(
+  defineProps<{
+    isFirstTimeSetup: boolean;
+  }>(),
+  {
+    isFirstTimeSetup: true,
+  }
+);
+
+const emit = defineEmits<{
+  (
+    e: 'complete-onboarding',
+    payload: {
+      submittingConfigs: boolean;
+      sumarry: OnBoardingSummary;
+    }
+  ): void;
+}>();
+
+const authConfigStep = ref(1);
+
+const selectedOptions = ref<Array<'OAuth' | 'SMTP' | ''>>([]);
+
+watch(
+  () => props.isFirstTimeSetup,
+  (newValue) => {
+    console.log('isFirstTimeSetup changed:', newValue);
+    if (!newValue) {
+      authConfigStep.value = 2; // Skip to step 2 if not first time setup
+      selectedOptions.value = ['OAuth', 'SMTP']; // Default to both options
+    } else {
+      authConfigStep.value = 1; // Reset to step 1 for first time setup
+      selectedOptions.value = []; // Reset selected options
+    }
+  },
+  { immediate: true }
+);
+
+const {
+  currentConfigs,
+  enabledConfigs,
+  isProvidersLoading,
+  submittingConfigs,
+  onBoardingSummary,
+  addOnBoardingCongigs,
+  toggleConfig,
+  toggleSmtpConfig,
+} = useOnboardingConfigHandler();
+
+const OAuthProviders: OAuthProvider[] = ['GOOGLE', 'GITHUB', 'MICROSOFT'];
+
+const isOAuthEnabled = ref(false);
+
+onMounted(() => {
+  // Check if any OAuth provider is enabled
+  isOAuthEnabled.value = OAuthProviders.some((provider) =>
+    enabledConfigs.value.includes(provider)
+  );
+});
+
+watch(
+  isProvidersLoading,
+  (isLoading) => {
+    if (!isLoading) {
+      isOAuthEnabled.value = OAuthProviders.some((provider) =>
+        enabledConfigs.value.includes(provider)
+      );
+    }
+  },
+  { immediate: true }
+);
+
+const addOnBoardingConfigs = async () => {
+  const res = await addOnBoardingCongigs();
+  if (res && res.token) {
+    emit('complete-onboarding', {
+      submittingConfigs: submittingConfigs.value,
+      sumarry: onBoardingSummary.value,
+    });
+  }
+};
+
+const toggleSelectedOption = (option: 'OAuth' | 'SMTP') => {
+  if (selectedOptions.value.includes(option)) {
+    selectedOptions.value = selectedOptions.value.filter(
+      (opt) => opt !== option
+    );
+  } else {
+    selectedOptions.value.push(option);
+  }
+};
+
+const addAuthConfig = () => {
+  if (selectedOptions.value.length === 0) {
+    toast.error('Please select at least one authentication method.');
+    return;
+  }
+  authConfigStep.value = 2;
+};
+</script>

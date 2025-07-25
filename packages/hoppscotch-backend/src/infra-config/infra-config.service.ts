@@ -653,7 +653,7 @@ export class InfraConfigService implements OnModuleInit {
 
       const fail = () => {
         console.error(
-          `[Infra Validation Failed] Key: ${name}, Value: ${value}`,
+          `[Infra Validation Failed] Key: ${name}`,
         );
         return E.left(INFRA_CONFIG_INVALID_INPUT);
       };

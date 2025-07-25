@@ -241,6 +241,7 @@
                 :entity-active="param.active"
                 :is-active="param.hasOwnProperty('active')"
                 :envs="envs"
+                :auto-complete-env="true"
                 :key-auto-complete-source="commonOAuth2AuthParams"
                 @update-entity="
                   updateAuthRequestParam($event.index, $event.payload)

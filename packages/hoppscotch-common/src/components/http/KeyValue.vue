@@ -23,7 +23,7 @@
       :model-value="name"
       :placeholder="t('count.key')"
       :auto-complete-source="keyAutoCompleteSource"
-      :auto-complete-env="true"
+      :auto-complete-env="autoCompleteEnv"
       :envs="envs"
       :inspection-results="inspectionKeyResult"
       @update:model-value="emit('update:name', $event)"
@@ -41,7 +41,7 @@
       :class="{ 'opacity-50': !entityActive }"
       :model-value="value"
       :placeholder="t('count.value')"
-      :auto-complete-env="true"
+      :auto-complete-env="autoCompleteEnv"
       :envs="envs"
       :inspection-results="inspectionValueResult"
       @update:model-value="emit('update:value', $event)"
@@ -148,6 +148,7 @@ withDefaults(
     inspectionValueResult?: InspectorResult[]
     description?: string
     envs?: AggregateEnvironment[]
+    autoCompleteEnv?: boolean
     keyAutoCompleteSource?: string[]
   }>(),
   {
@@ -156,6 +157,7 @@ withDefaults(
     inspectionKeyResult: () => [],
     inspectionValueResult: () => [],
     envs: () => [],
+    autoCompleteEnv: true,
     keyAutoCompleteSource: () => [],
   }
 )

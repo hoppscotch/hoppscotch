@@ -118,3 +118,8 @@ const finishOnboarding = (payload: {
   submittingConfigs.value = payload.submittingConfigs;
 };
 </script>
+
+<route lang="yaml">
+meta:
+  layout: empty
+</route>

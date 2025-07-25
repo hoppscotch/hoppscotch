@@ -25,7 +25,7 @@
 
         <div class="space-y-4 py-4">
           <div class="">
-            <div class="max-w-sm flex flex-col space-y-4">
+            <div class="max-w-xs flex flex-col space-y-4">
               <div class="flex flex-col space-y-2">
                 <label>{{ t('configs.rate_limit.rate_limit_ttl') }}</label>
                 <HoppSmartInput

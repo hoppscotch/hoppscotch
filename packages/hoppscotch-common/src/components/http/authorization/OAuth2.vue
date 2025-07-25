@@ -172,6 +172,87 @@
       </span>
     </div>
 
+    <div class="flex flex-col">
+      <div
+        class="flex cursor-pointer items-center justify-between py-2 pl-4 text-secondaryLight transition hover:text-secondary"
+      >
+        <span class="select-none">{{ t("authorization.advance_config") }}</span>
+      </div>
+
+      <div class="flex flex-col border-t border-dividerLight">
+        <!-- Auth Request Parameters Section -->
+        <div class="border-b border-dividerLight">
+          <div class="flex items-center justify-between p-4">
+            <label class="font-semibold text-secondaryLight">
+              {{ t("authorization.oauth.auth_request") }}
+            </label>
+          </div>
+
+          <div>
+            <!-- Column Headers -->
+            <div
+              class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+            >
+              <span class="w-8"></span>
+              <!-- Drag handle space -->
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.key") }}
+              </span>
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.value") }}
+              </span>
+              <span class="w-8"></span>
+              <!-- Active/Inactive toggle space -->
+              <span class="w-8"></span>
+              <!-- Delete button space -->
+            </div>
+
+            <div
+              v-if="!workingAuthRequestParams.length"
+              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            >
+              <span class="text-center">
+                {{ t("empty.parameters") }}
+              </span>
+
+              <HoppButtonSecondary
+                class="mt-2"
+                :icon="IconPlus"
+                :label="`${t('action.add')}`"
+                @click="addAuthRequestParam()"
+              />
+            </div>
+
+            <!-- Parameter rows -->
+            <div class="divide-y divide-dividerLight" v-else>
+              <HttpKeyValue
+                :show-description="false"
+                v-for="(param, index) in workingAuthRequestParams"
+                :key="`auth-request-param-${param.id}`"
+                v-model:name="param.key"
+                v-model:value="param.value"
+                :total="workingAuthRequestParams.length"
+                :index="index"
+                :entity-id="param.id"
+                :entity-active="param.active"
+                :is-active="param.hasOwnProperty('active')"
+                :envs="envs"
+                :key-auto-complete-source="commonOAuth2AuthParams"
+                @update-entity="
+                  updateAuthRequestParam($event.index, $event.payload)
+                "
+                @delete-entity="deleteAuthRequestParam($event)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="p-2 gap-1 flex">
       <HoppButtonSecondary
         filled
@@ -185,17 +266,6 @@
         @click="refreshOauthToken()"
       />
     </div>
-
-    <!-- Advanced Configuration Section -->
-    <OAuth2AdvancedOptions
-      :envs="envs || []"
-      :auth-request-params="authRequestParams"
-      :token-request-params="tokenRequestParams"
-      :refresh-request-params="refreshRequestParams"
-      @update:auth-request-params="updateAuthRequestParams"
-      @update:token-request-params="updateTokenRequestParams"
-      @update:refresh-request-params="updateRefreshRequestParams"
-    />
   </div>
 </template>
 
@@ -209,8 +279,8 @@ import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
 import { useToast } from "~/composables/toast"
 import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
+import { commonOAuth2AuthParams } from "~/helpers/oauth2Params"
 import { AggregateEnvironment } from "~/newstore/environments"
-import OAuth2AdvancedOptions from "./OAuth2AdvancedOptions.vue"
 import authCode, {
   AuthCodeOauthFlowParams,
   AuthCodeOauthRefreshParams,
@@ -237,6 +307,7 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCircle from "~icons/lucide/circle"
 import IconCircleDot from "~icons/lucide/circle-dot"
+import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
 const toast = useToast()
@@ -252,81 +323,7 @@ const props = defineProps<{
   source: "REST" | "GraphQL"
 }>()
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: HoppRESTAuthOAuth2 | HoppGQLAuthOAuth2): void
-}>()
-
 const auth = ref(props.modelValue)
-
-// Watch for changes in auth and emit updates to parent
-watch(
-  auth,
-  (newAuth) => {
-    emit("update:modelValue", newAuth)
-  },
-  { deep: true }
-)
-
-// Watch for changes in props.modelValue and update local auth
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    auth.value = newValue
-    // Also update advanced parameters if they exist
-    if (newValue.authType === "oauth-2") {
-      // @ts-expect-error - authRequestParams might not exist in older versions
-      authRequestParams.value = newValue.authRequestParams || []
-      // @ts-expect-error - tokenRequestParams might not exist in older versions
-      tokenRequestParams.value = newValue.tokenRequestParams || []
-      // @ts-expect-error - refreshRequestParams might not exist in older versions
-      refreshRequestParams.value = newValue.refreshRequestParams || []
-    }
-  },
-  { deep: true }
-)
-
-// Define the interface for advanced parameters
-interface OAuth2AdvancedParam {
-  id: number
-  key: string
-  value: string
-  active: boolean
-  description?: string
-  sendIn?: string
-}
-
-// Advanced parameters state - initialize from auth data if available
-const authRequestParams = ref<OAuth2AdvancedParam[]>(
-  // @ts-expect-error - authRequestParams might not exist in older versions
-  auth.value.authRequestParams || []
-)
-const tokenRequestParams = ref<OAuth2AdvancedParam[]>(
-  // @ts-expect-error - tokenRequestParams might not exist in older versions
-  auth.value.tokenRequestParams || []
-)
-const refreshRequestParams = ref<OAuth2AdvancedParam[]>(
-  // @ts-expect-error - refreshRequestParams might not exist in older versions
-  auth.value.refreshRequestParams || []
-)
-
-// Handle updates from OAuth2AdvancedOptions and update auth
-const updateAuthRequestParams = (params: OAuth2AdvancedParam[]) => {
-  authRequestParams.value = params
-  // @ts-expect-error - Update auth with advanced params
-  auth.value.authRequestParams = params
-}
-
-const updateTokenRequestParams = (params: OAuth2AdvancedParam[]) => {
-  tokenRequestParams.value = params
-  // @ts-expect-error - Update auth with advanced params
-  auth.value.tokenRequestParams = params
-}
-
-const updateRefreshRequestParams = (params: OAuth2AdvancedParam[]) => {
-  refreshRequestParams.value = params
-  // @ts-expect-error - Update auth with advanced params
-  auth.value.refreshRequestParams = params
-}
 
 const addToTargets = [
   {
@@ -1219,4 +1216,87 @@ const grantTypeTippyActions = ref<HTMLElement | null>(null)
 const pkceTippyActions = ref<HTMLElement | null>(null)
 const authTippyActions = ref<HTMLElement | null>(null)
 const clientAuthenticationTippyActions = ref<HTMLElement | null>(null)
+
+// Advanced Configuration: Auth Request Parameters
+interface OAuth2AdvancedParam {
+  id: number
+  key: string
+  value: string
+  active: boolean
+}
+
+let authRequestIdCounter = 1000
+
+// Initialize working auth request params
+const workingAuthRequestParams = ref<OAuth2AdvancedParam[]>([
+  { id: authRequestIdCounter++, key: "", value: "", active: true },
+])
+
+// Initialize working params from auth.value if they exist
+if (
+  "authRequestParams" in auth.value &&
+  auth.value.authRequestParams &&
+  auth.value.authRequestParams.length > 0
+) {
+  workingAuthRequestParams.value = auth.value.authRequestParams.map(
+    (param: any) => ({
+      id: param.id || authRequestIdCounter++,
+      key: param.key,
+      value: param.value,
+      active: param.active,
+    })
+  )
+}
+
+// Watch for changes in working auth request params
+watch(
+  workingAuthRequestParams,
+  (newParams: OAuth2AdvancedParam[]) => {
+    // Auto-add empty row when the last row is filled
+    if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
+      workingAuthRequestParams.value.push({
+        id: authRequestIdCounter++,
+        key: "",
+        value: "",
+        active: true,
+      })
+    }
+
+    // Update auth.value with non-empty params
+    const nonEmptyParams = newParams.filter(
+      (p: OAuth2AdvancedParam) => p.key !== "" || p.value !== ""
+    )
+
+    if ("authRequestParams" in auth.value) {
+      auth.value.authRequestParams = nonEmptyParams.map((param) => ({
+        id: param.id,
+        key: param.key,
+        value: param.value,
+        active: param.active,
+      }))
+    }
+  },
+  { deep: true }
+)
+
+// Functions for auth request params management
+const addAuthRequestParam = () => {
+  workingAuthRequestParams.value.push({
+    id: authRequestIdCounter++,
+    key: "",
+    value: "",
+    active: true,
+  })
+}
+
+const updateAuthRequestParam = (
+  index: number,
+  payload: OAuth2AdvancedParam
+) => {
+  workingAuthRequestParams.value[index] = payload
+}
+
+const deleteAuthRequestParam = (index: number) => {
+  workingAuthRequestParams.value.splice(index, 1)
+}
 </script>

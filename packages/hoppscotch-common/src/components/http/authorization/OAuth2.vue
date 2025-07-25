@@ -392,6 +392,146 @@
           </div>
         </div>
       </div>
+
+      <div class="flex flex-col border-t border-dividerLight">
+        <!-- Refresh Request Parameters Section -->
+        <div class="border-b border-dividerLight">
+          <div class="flex items-center justify-between p-4">
+            <label class="font-semibold text-secondaryLight">
+              {{ t("authorization.oauth.refresh_request") }}
+            </label>
+          </div>
+
+          <div>
+            <!-- Column Headers -->
+            <div
+              class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+            >
+              <span class="w-8"></span>
+              <!-- Drag handle space -->
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.key") }}
+              </span>
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.value") }}
+              </span>
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("authorization.oauth.send_in") }}
+              </span>
+              <span class="w-8"></span>
+              <!-- Active/Inactive toggle space -->
+              <span class="w-8"></span>
+              <!-- Delete button space -->
+            </div>
+
+            <div
+              v-if="!workingRefreshRequestParams.length"
+              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            >
+              <span class="text-center">
+                {{ t("empty.parameters") }}
+              </span>
+
+              <HoppButtonSecondary
+                class="mt-2"
+                :icon="IconPlus"
+                :label="`${t('action.add')}`"
+                @click="addRefreshRequestParam()"
+              />
+            </div>
+
+            <!-- Parameter rows -->
+            <div class="divide-y divide-dividerLight" v-else>
+              <HttpKeyValue
+                :show-description="false"
+                v-for="(param, index) in workingRefreshRequestParams"
+                :key="`refresh-request-param-${param.id}`"
+                v-model:name="param.key"
+                v-model:value="param.value"
+                :total="workingRefreshRequestParams.length"
+                :index="index"
+                :entity-id="param.id"
+                :entity-active="param.active"
+                :is-active="param.hasOwnProperty('active')"
+                :envs="envs"
+                :auto-complete-env="true"
+                :key-auto-complete-source="commonOAuth2RefreshParams"
+                @update-entity="
+                  updateRefreshRequestParam($event.index, {
+                    id: $event.payload.id,
+                    key: $event.payload.key,
+                    value: $event.payload.value,
+                    sendIn: param.sendIn,
+                    active: $event.payload.active,
+                  })
+                "
+                @delete-entity="deleteRefreshRequestParam($event)"
+              >
+                <template #after-value>
+                  <div class="flex flex-1">
+                    <tippy
+                      interactive
+                      trigger="click"
+                      theme="popover"
+                      :on-shown="() => refreshSendInTippyActions?.focus()"
+                    >
+                      <HoppSmartSelectWrapper>
+                        <HoppButtonSecondary
+                          :class="{ 'opacity-50': !param.active }"
+                          class="flex-1 rounded-none text-left"
+                          :label="
+                            sendInOptions.find(
+                              (option) => option.value === param.sendIn
+                            )?.label || t('authorization.oauth.send_in')
+                          "
+                        />
+                      </HoppSmartSelectWrapper>
+                      <template #content="{ hide }">
+                        <div
+                          ref="refreshSendInTippyActions"
+                          class="flex flex-col focus:outline-none"
+                          tabindex="0"
+                          @keyup.escape="hide()"
+                        >
+                          <HoppSmartItem
+                            v-for="option in sendInOptions"
+                            :key="option.value"
+                            :label="option.label"
+                            :icon="
+                              param.sendIn === option.value
+                                ? IconCircleDot
+                                : IconCircle
+                            "
+                            :active="param.sendIn === option.value"
+                            @click="
+                              () => {
+                                updateRefreshRequestParam(index, {
+                                  ...param,
+                                  sendIn: option.value as
+                                    | 'headers'
+                                    | 'body'
+                                    | 'url',
+                                })
+                                hide()
+                              }
+                            "
+                          />
+                        </div>
+                      </template>
+                    </tippy>
+                  </div>
+                </template>
+              </HttpKeyValue>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="p-2 gap-1 flex">
@@ -422,6 +562,7 @@ import { useToast } from "~/composables/toast"
 import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
 import {
   commonOAuth2AuthParams,
+  commonOAuth2RefreshParams,
   commonOAuth2TokenParams,
   sendInOptions,
 } from "~/helpers/oauth2Params"
@@ -1550,5 +1691,111 @@ const deleteTokenRequestParam = (index: number) => {
   }
 }
 
+// Refresh Request Parameters
+interface OAuth2RefreshParam {
+  id: number
+  key: string
+  value: string
+  sendIn: "headers" | "body" | "url"
+  active: boolean
+}
+
+let refreshRequestIdCounter = 3000
+
+// Initialize working refresh request params
+const workingRefreshRequestParams = ref<OAuth2RefreshParam[]>([
+  {
+    id: refreshRequestIdCounter++,
+    key: "",
+    value: "",
+    sendIn: "body",
+    active: true,
+  },
+])
+
+// Initialize working refresh params from auth.value if they exist
+if (
+  "refreshRequestParams" in auth.value &&
+  auth.value.refreshRequestParams &&
+  auth.value.refreshRequestParams.length > 0
+) {
+  workingRefreshRequestParams.value = [
+    ...auth.value.refreshRequestParams.map((param: any) => ({
+      id: param.id || refreshRequestIdCounter++,
+      key: param.key,
+      value: param.value,
+      sendIn: param.sendIn || "body",
+      active: param.active,
+    })),
+    // Always ensure there's an empty row at the end
+    {
+      id: refreshRequestIdCounter++,
+      key: "",
+      value: "",
+      sendIn: "body",
+      active: true,
+    },
+  ]
+}
+
+// Watch for changes in working refresh request params
+watch(
+  workingRefreshRequestParams,
+  (newParams: OAuth2RefreshParam[]) => {
+    // Auto-add empty row when the last row is filled
+    if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
+      workingRefreshRequestParams.value.push({
+        id: refreshRequestIdCounter++,
+        key: "",
+        value: "",
+        sendIn: "body",
+        active: true,
+      })
+    }
+
+    // Update auth.value with non-empty params
+    const nonEmptyParams = newParams.filter(
+      (p: OAuth2RefreshParam) => p.key !== "" || p.value !== ""
+    )
+
+    if ("refreshRequestParams" in auth.value) {
+      auth.value.refreshRequestParams = nonEmptyParams.map((param) => ({
+        id: param.id,
+        key: param.key,
+        value: param.value,
+        sendIn: param.sendIn,
+        active: param.active,
+      }))
+    }
+  },
+  { deep: true }
+)
+
+// Functions for refresh request params management
+const addRefreshRequestParam = () => {
+  workingRefreshRequestParams.value.push({
+    id: refreshRequestIdCounter++,
+    key: "",
+    value: "",
+    sendIn: "body",
+    active: true,
+  })
+}
+
+const updateRefreshRequestParam = (
+  index: number,
+  payload: OAuth2RefreshParam
+) => {
+  workingRefreshRequestParams.value[index] = payload
+}
+
+const deleteRefreshRequestParam = (index: number) => {
+  // Only delete if it's not the last empty row, or if there are multiple rows
+  if (workingRefreshRequestParams.value.length > 1) {
+    workingRefreshRequestParams.value.splice(index, 1)
+  }
+}
+
 const sendInTippyActions = ref<HTMLElement | null>(null)
+const refreshSendInTippyActions = ref<HTMLElement | null>(null)
 </script>

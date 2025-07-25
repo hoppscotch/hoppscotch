@@ -29,7 +29,7 @@
               :label="(makeReadableKey(key as string))"
               input-styles="floating-input !border-0"
               :autofocus="false"
-              class="!my-2 !bg-primaryLight flex-1"
+              class="!my-2 !bg-primaryLight flex-1 rounded border border-divider"
               :disabled="true"
             >
               <template

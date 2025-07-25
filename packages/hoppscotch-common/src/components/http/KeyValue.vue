@@ -56,6 +56,8 @@
       "
     />
 
+    <slot name="after-value"></slot>
+
     <input
       v-if="showDescription"
       :value="description"

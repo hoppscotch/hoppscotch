@@ -252,6 +252,146 @@
           </div>
         </div>
       </div>
+
+      <div class="flex flex-col border-t border-dividerLight">
+        <!-- Token Request Parameters Section -->
+        <div class="border-b border-dividerLight">
+          <div class="flex items-center justify-between p-4">
+            <label class="font-semibold text-secondaryLight">
+              {{ t("authorization.oauth.token_request") }}
+            </label>
+          </div>
+
+          <div>
+            <!-- Column Headers -->
+            <div
+              class="flex border-b divide-x divide-dividerLight border-dividerLight bg-primaryLight"
+            >
+              <span class="w-8"></span>
+              <!-- Drag handle space -->
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.key") }}
+              </span>
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("count.value") }}
+              </span>
+              <span
+                class="flex-1 px-4 py-2 text-xs font-semibold text-secondaryLight"
+              >
+                {{ t("authorization.oauth.send_in") }}
+              </span>
+              <span class="w-8"></span>
+              <!-- Active/Inactive toggle space -->
+              <span class="w-8"></span>
+              <!-- Delete button space -->
+            </div>
+
+            <div
+              v-if="!workingTokenRequestParams.length"
+              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            >
+              <span class="text-center">
+                {{ t("empty.parameters") }}
+              </span>
+
+              <HoppButtonSecondary
+                class="mt-2"
+                :icon="IconPlus"
+                :label="`${t('action.add')}`"
+                @click="addTokenRequestParam()"
+              />
+            </div>
+
+            <!-- Parameter rows -->
+            <div class="divide-y divide-dividerLight" v-else>
+              <HttpKeyValue
+                :show-description="false"
+                v-for="(param, index) in workingTokenRequestParams"
+                :key="`token-request-param-${param.id}`"
+                v-model:name="param.key"
+                v-model:value="param.value"
+                :total="workingTokenRequestParams.length"
+                :index="index"
+                :entity-id="param.id"
+                :entity-active="param.active"
+                :is-active="param.hasOwnProperty('active')"
+                :envs="envs"
+                :auto-complete-env="true"
+                :key-auto-complete-source="commonOAuth2TokenParams"
+                @update-entity="
+                  updateTokenRequestParam($event.index, {
+                    id: $event.payload.id,
+                    key: $event.payload.key,
+                    value: $event.payload.value,
+                    sendIn: param.sendIn,
+                    active: $event.payload.active,
+                  })
+                "
+                @delete-entity="deleteTokenRequestParam($event)"
+              >
+                <template #after-value>
+                  <div class="flex flex-1">
+                    <tippy
+                      interactive
+                      trigger="click"
+                      theme="popover"
+                      :on-shown="() => sendInTippyActions?.focus()"
+                    >
+                      <HoppSmartSelectWrapper>
+                        <HoppButtonSecondary
+                          :class="{ 'opacity-50': !param.active }"
+                          class="flex-1 rounded-none text-left"
+                          :label="
+                            sendInOptions.find(
+                              (option) => option.value === param.sendIn
+                            )?.label || t('authorization.oauth.send_in')
+                          "
+                        />
+                      </HoppSmartSelectWrapper>
+                      <template #content="{ hide }">
+                        <div
+                          ref="sendInTippyActions"
+                          class="flex flex-col focus:outline-none"
+                          tabindex="0"
+                          @keyup.escape="hide()"
+                        >
+                          <HoppSmartItem
+                            v-for="option in sendInOptions"
+                            :key="option.value"
+                            :label="option.label"
+                            :icon="
+                              param.sendIn === option.value
+                                ? IconCircleDot
+                                : IconCircle
+                            "
+                            :active="param.sendIn === option.value"
+                            @click="
+                              () => {
+                                updateTokenRequestParam(index, {
+                                  ...param,
+                                  sendIn: option.value as
+                                    | 'headers'
+                                    | 'body'
+                                    | 'url',
+                                })
+                                hide()
+                              }
+                            "
+                          />
+                        </div>
+                      </template>
+                    </tippy>
+                  </div>
+                </template>
+              </HttpKeyValue>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="p-2 gap-1 flex">
@@ -280,7 +420,11 @@ import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
 import { useToast } from "~/composables/toast"
 import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
-import { commonOAuth2AuthParams } from "~/helpers/oauth2Params"
+import {
+  commonOAuth2AuthParams,
+  commonOAuth2TokenParams,
+  sendInOptions,
+} from "~/helpers/oauth2Params"
 import { AggregateEnvironment } from "~/newstore/environments"
 import authCode, {
   AuthCodeOauthFlowParams,
@@ -1298,6 +1442,113 @@ const updateAuthRequestParam = (
 }
 
 const deleteAuthRequestParam = (index: number) => {
-  workingAuthRequestParams.value.splice(index, 1)
+  // Only delete if it's not the last empty row, or if there are multiple rows
+  if (workingAuthRequestParams.value.length > 1) {
+    workingAuthRequestParams.value.splice(index, 1)
+  }
 }
+
+// Token Request Parameters
+interface OAuth2TokenParam {
+  id: number
+  key: string
+  value: string
+  sendIn: "headers" | "body" | "url"
+  active: boolean
+}
+
+let tokenRequestIdCounter = 2000
+
+// Initialize working token request params
+const workingTokenRequestParams = ref<OAuth2TokenParam[]>([
+  {
+    id: tokenRequestIdCounter++,
+    key: "",
+    value: "",
+    sendIn: "body",
+    active: true,
+  },
+])
+
+// Initialize working token params from auth.value if they exist
+if (
+  "tokenRequestParams" in auth.value &&
+  auth.value.tokenRequestParams &&
+  auth.value.tokenRequestParams.length > 0
+) {
+  workingTokenRequestParams.value = [
+    ...auth.value.tokenRequestParams.map((param: any) => ({
+      id: param.id || tokenRequestIdCounter++,
+      key: param.key,
+      value: param.value,
+      sendIn: param.sendIn || "body",
+      active: param.active,
+    })),
+    // Always ensure there's an empty row at the end
+    {
+      id: tokenRequestIdCounter++,
+      key: "",
+      value: "",
+      sendIn: "body",
+      active: true,
+    },
+  ]
+}
+
+// Watch for changes in working token request params
+watch(
+  workingTokenRequestParams,
+  (newParams: OAuth2TokenParam[]) => {
+    // Auto-add empty row when the last row is filled
+    if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
+      workingTokenRequestParams.value.push({
+        id: tokenRequestIdCounter++,
+        key: "",
+        value: "",
+        sendIn: "body",
+        active: true,
+      })
+    }
+
+    // Update auth.value with non-empty params
+    const nonEmptyParams = newParams.filter(
+      (p: OAuth2TokenParam) => p.key !== "" || p.value !== ""
+    )
+
+    if ("tokenRequestParams" in auth.value) {
+      auth.value.tokenRequestParams = nonEmptyParams.map((param) => ({
+        id: param.id,
+        key: param.key,
+        value: param.value,
+        sendIn: param.sendIn,
+        active: param.active,
+      }))
+    }
+  },
+  { deep: true }
+)
+
+// Functions for token request params management
+const addTokenRequestParam = () => {
+  workingTokenRequestParams.value.push({
+    id: tokenRequestIdCounter++,
+    key: "",
+    value: "",
+    sendIn: "body",
+    active: true,
+  })
+}
+
+const updateTokenRequestParam = (index: number, payload: OAuth2TokenParam) => {
+  workingTokenRequestParams.value[index] = payload
+}
+
+const deleteTokenRequestParam = (index: number) => {
+  // Only delete if it's not the last empty row, or if there are multiple rows
+  if (workingTokenRequestParams.value.length > 1) {
+    workingTokenRequestParams.value.splice(index, 1)
+  }
+}
+
+const sendInTippyActions = ref<HTMLElement | null>(null)
 </script>

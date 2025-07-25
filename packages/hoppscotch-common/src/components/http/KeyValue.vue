@@ -23,7 +23,7 @@
       :model-value="name"
       :placeholder="t('count.key')"
       :auto-complete-source="keyAutoCompleteSource"
-      :auto-complete-env="true"
+      :auto-complete-env="autoCompleteEnv"
       :envs="envs"
       :inspection-results="inspectionKeyResult"
       @update:model-value="emit('update:name', $event)"
@@ -41,7 +41,7 @@
       :class="{ 'opacity-50': !entityActive }"
       :model-value="value"
       :placeholder="t('count.value')"
-      :auto-complete-env="true"
+      :auto-complete-env="autoCompleteEnv"
       :envs="envs"
       :inspection-results="inspectionValueResult"
       @update:model-value="emit('update:value', $event)"
@@ -56,7 +56,10 @@
       "
     />
 
+    <slot name="after-value"></slot>
+
     <input
+      v-if="showDescription"
       :value="description"
       :placeholder="t('count.description')"
       class="flex flex-1 px-4 bg-transparent"
@@ -133,20 +136,33 @@ type Entity = {
 
 const t = useI18n()
 
-defineProps<{
-  total: number
-  index: number
-  entityId: number
-  isActive: boolean
-  entityActive: boolean
-  name: string
-  value: string
-  inspectionKeyResult?: InspectorResult[]
-  inspectionValueResult?: InspectorResult[]
-  description?: string
-  envs?: AggregateEnvironment[]
-  keyAutoCompleteSource?: string[]
-}>()
+withDefaults(
+  defineProps<{
+    showDescription?: boolean
+    total: number
+    index: number
+    entityId: number
+    isActive: boolean
+    entityActive: boolean
+    name: string
+    value: string
+    inspectionKeyResult?: InspectorResult[]
+    inspectionValueResult?: InspectorResult[]
+    description?: string
+    envs?: AggregateEnvironment[]
+    autoCompleteEnv?: boolean
+    keyAutoCompleteSource?: string[]
+  }>(),
+  {
+    showDescription: true,
+    description: "",
+    inspectionKeyResult: () => [],
+    inspectionValueResult: () => [],
+    envs: () => [],
+    autoCompleteEnv: true,
+    keyAutoCompleteSource: () => [],
+  }
+)
 
 const emit = defineEmits<{
   (e: "update:name", value: string): void

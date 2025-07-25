@@ -22614,7 +22614,6 @@ snapshots:
       electron-to-chromium: 1.5.191
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.1)
-    optional: true
 
   bs-logger@0.2.6:
     dependencies:
@@ -22713,8 +22712,7 @@ snapshots:
 
   caniuse-lite@1.0.30001718: {}
 
-  caniuse-lite@1.0.30001727:
-    optional: true
+  caniuse-lite@1.0.30001727: {}
 
   canvas@2.11.2:
     dependencies:
@@ -23109,7 +23107,7 @@ snapshots:
 
   core-js-compat@3.42.0:
     dependencies:
-      browserslist: 4.24.5
+      browserslist: 4.25.1
 
   core-js@3.38.1: {}
 
@@ -23604,8 +23602,7 @@ snapshots:
 
   electron-to-chromium@1.5.155: {}
 
-  electron-to-chromium@1.5.191:
-    optional: true
+  electron-to-chromium@1.5.191: {}
 
   electron-to-chromium@1.5.35: {}
 
@@ -30607,7 +30604,6 @@ snapshots:
       browserslist: 4.25.1
       escalade: 3.2.0
       picocolors: 1.1.1
-    optional: true
 
   upper-case-first@2.0.2:
     dependencies:

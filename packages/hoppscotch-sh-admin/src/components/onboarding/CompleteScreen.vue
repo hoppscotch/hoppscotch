@@ -11,7 +11,8 @@
         You have successfully completed the onboarding process for your
         Hoppscotch instance.
         <br />
-        Click the button below to finish and start using your instance.
+        The page will automatically redirect to the dashboard in a few seconds
+        or you can reload once the server is restarted.
       </h2>
       <div
         class="my-4 p-4 bg-primaryLight rounded-lg border border-primaryDark shadow"

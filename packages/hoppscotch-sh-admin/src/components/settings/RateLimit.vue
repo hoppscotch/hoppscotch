@@ -1,6 +1,6 @@
 <template>
   <div v-if="rateLimitConfig" class="grid md:grid-cols-3 gap-4 md:gap-4 pt-8">
-    <div class="md:col-span-1">
+    <div class="md:col-span-1 px-4">
       <h3 class="heading">{{ t('configs.rate_limit.title') }}</h3>
       <p class="my-1 text-secondaryLight">
         {{ t('configs.rate_limit.description') }}

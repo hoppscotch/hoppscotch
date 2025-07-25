@@ -40,7 +40,7 @@
                   v-tippy="{ theme: 'tooltip' }"
                   :icon="IconLucideCopy"
                   :title="'Copy to clipboard'"
-                  @click="() => {}"
+                  @click="() => copyCallbackUrl(currentConfigs.oAuthProviders[provider as OAuthProvider][key])"
                   class="hover:bg-transparent"
                 />
               </template>
@@ -63,13 +63,19 @@
 <script lang="ts" setup>
 import { HoppSmartItem } from '@hoppscotch/ui';
 import { useVModel } from '@vueuse/core';
+import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 import {
   Configs,
   EnabledConfig,
   makeReadableKey,
   OAuthProvider,
 } from '~/composables/useOnboardingConfigHandler';
+import { copyToClipboard } from '~/helpers/utils/clipboard';
 import IconLucideCopy from '~icons/lucide/copy';
+
+const t = useI18n();
+const toast = useToast();
 
 const props = defineProps<{
   currentConfigs: Configs;
@@ -85,5 +91,12 @@ const currentConfigs = useVModel(props, 'currentConfigs');
 // check if the key is a callback URL
 const isCallbackUrl = (key: string): boolean => {
   return key.toLowerCase().includes('callback');
+};
+
+const copyCallbackUrl = (callbackURL: string): void => {
+  if (!callbackURL) return;
+  copyToClipboard(callbackURL);
+
+  toast.success(`${t('state.copied_to_clipboard')}`);
 };
 </script>

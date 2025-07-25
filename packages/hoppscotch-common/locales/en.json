@@ -1332,7 +1332,7 @@
     "admin_success": "User is now an admin!!",
     "and": "and",
     "clear_selection": "Clear Selection",
-    "configure_auth": "Check out the documentation to configure auth providers.",
+    "configure_auth": "Please set up an auth provider from the admin settings or check out the documentation to configure auth providers.",
     "confirm_admin_to_user": "Do you want to remove admin status from this user?",
     "confirm_admins_to_users": "Do you want to remove admin status from selected users?",
     "confirm_delete_infra_token": "Are you sure you want to delete the infra token {tokenLabel}?",

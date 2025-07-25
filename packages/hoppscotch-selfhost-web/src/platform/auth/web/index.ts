@@ -302,8 +302,9 @@ export const def: AuthPlatformDef = {
 
     const token = searchParams.get("token")
 
-    const deviceIdentifier =
-      await persistenceService.getLocalConfig("deviceIdentifier")
+    const deviceIdentifier = await persistenceService.getLocalConfig(
+      "deviceIdentifier"
+    )
 
     await axios.post(
       `${import.meta.env.VITE_BACKEND_API_URL}/auth/verify`,
@@ -355,8 +356,9 @@ export const def: AuthPlatformDef = {
 
   async processMagicLink() {
     if (this.isSignInWithEmailLink(window.location.href)) {
-      const deviceIdentifier =
-        await persistenceService.getLocalConfig("deviceIdentifier")
+      const deviceIdentifier = await persistenceService.getLocalConfig(
+        "deviceIdentifier"
+      )
 
       if (!deviceIdentifier) {
         throw new Error(
@@ -371,10 +373,4 @@ export const def: AuthPlatformDef = {
     }
   },
   getAllowedAuthProviders,
-
-  /**
-   * This is used to determine whether the email address is editable by the user or not.
-   * This is set false for the self-hosted version of Hoppscotch
-   */
-  isEmailEditable: false,
 }

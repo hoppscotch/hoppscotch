@@ -241,7 +241,7 @@ const probableUser = useReadonlyStream(
 )
 
 const isEmailEditable = computed(() => {
-  return platform.auth.isEmailEditable ?? true
+  return platform.auth.isEmailEditable ?? false
 })
 
 const loadingCurrentUser = computed(() => {

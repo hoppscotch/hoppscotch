@@ -272,6 +272,7 @@ export type AuthPlatformDef = {
   /**
    * Whether the email address is editable by the user or not.
    * This is used to determine whether the email address field should disabled in the user settings.
+   * If a value is not given, then the value is assumed to be false.
    */
   isEmailEditable?: boolean
 }

@@ -150,6 +150,13 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             config.value === 'ENABLE'
         ),
       },
+      rateLimitConfigs: {
+        name: 'rate_limit',
+        fields: {
+          rate_limit_ttl: getFieldValue(InfraConfigEnum.RateLimitTtl),
+          rate_limit_max: getFieldValue(InfraConfigEnum.RateLimitMax),
+        },
+      },
     };
 
     // Cloning the current configs to working configs
@@ -407,6 +414,46 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.user_history_store.toggle_failure'
     );
 
+  const updateRateLimitConfigs = (
+    updateRateLimitMutation: UseMutationResponse<UpdateInfraConfigsMutation>
+  ) => {
+    if (!updatedConfigs?.rateLimitConfigs) {
+      toast.error(t('configs.rate_limit.input_validation_error'));
+      return false;
+    }
+
+    const rateLimitTtl = String(
+      updatedConfigs?.rateLimitConfigs.fields.rate_limit_ttl
+    );
+    const rateLimitMax = String(
+      updatedConfigs?.rateLimitConfigs.fields.rate_limit_max
+    );
+
+    if (isFieldEmpty(rateLimitTtl) || isFieldEmpty(rateLimitMax)) {
+      toast.error(t('configs.rate_limit.input_validation_error'));
+      return false;
+    }
+
+    const rateLimitConfigs: InfraConfigArgs[] = [
+      {
+        name: InfraConfigEnum.RateLimitTtl,
+        value: String(rateLimitTtl),
+      },
+      {
+        name: InfraConfigEnum.RateLimitMax,
+        value: String(rateLimitMax),
+      },
+    ];
+
+    return executeMutation(
+      updateRateLimitMutation,
+      {
+        infraConfigs: rateLimitConfigs,
+      },
+      'configs.rate_limit.update_failure'
+    );
+  };
+
   return {
     currentConfigs,
     workingConfigs,
@@ -414,6 +461,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     updateDataSharingConfigs,
     toggleSMTPConfigs,
     toggleUserHistoryStore,
+    updateRateLimitConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

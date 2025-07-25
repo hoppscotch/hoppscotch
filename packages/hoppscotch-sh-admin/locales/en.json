@@ -85,6 +85,14 @@
       "toggle_failure": "Failed to toggle history!!",
       "clear_confirm": "Are you sure you want to clear all history?"
     },
+    "rate_limit": {
+      "description": "Configure rate limiting for your Hoppscotch instance",
+      "rate_limit_max": "Maximum Requests",
+      "rate_limit_ttl": "Time to Leave",
+      "title": "Rate Limit Configurations",
+      "update_failure": "Failed to update rate limit configurations!!",
+      "input_validation_error": "Please enter valid values for rate limit configurations"
+    },
     "reset": {
       "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
       "description": "Default configurations will be loaded as specified in the environment file",
@@ -102,6 +110,7 @@
       "auth": "Authentication",
       "activity": "Activity",
       "infra_tokens": "Infra Tokens",
+      "rate_limit": "Rate Limit",
       "smtp": "SMTP",
       "miscellaneous": "Miscellaneous",
       "reset": "Reset Configurations"

@@ -68,6 +68,7 @@ const {
   updateDataSharingConfigs,
   toggleSMTPConfigs,
   toggleUserHistoryStore,
+  updateRateLimitConfigs,
 } = useConfigHandler(props.workingConfigs);
 
 // Call relevant mutations on component mount and initiate server restart
@@ -132,6 +133,14 @@ onMounted(async () => {
     );
 
     if (!userHistoryStoreResult) {
+      return triggerComponentUnMount();
+    }
+
+    const rateLimitResult = await updateRateLimitConfigs(
+      updateInfraConfigsMutation
+    );
+
+    if (!rateLimitResult) {
       return triggerComponentUnMount();
     }
   }

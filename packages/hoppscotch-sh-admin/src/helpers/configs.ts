@@ -67,6 +67,14 @@ export type ServerConfigs = {
     name: string;
     enabled: boolean;
   };
+
+  rateLimitConfigs: {
+    name: string;
+    fields: {
+      rate_limit_ttl: string;
+      rate_limit_max: string;
+    };
+  };
 };
 
 export type UpdatedConfigs = {
@@ -211,6 +219,48 @@ export const HISTORY_STORE_CONFIG: Config[] = [
   },
 ];
 
+export const RATE_LIMIT_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.RateLimitTtl,
+    key: 'rate_limit_ttl',
+  },
+  {
+    name: InfraConfigEnum.RateLimitMax,
+    key: 'rate_limit_max',
+  },
+];
+
+export const TOKEN_VALIDATION_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.JwtSecret,
+    key: 'jwt_secret',
+  },
+  {
+    name: InfraConfigEnum.SessionSecret,
+    key: 'session_secret',
+  },
+  {
+    name: InfraConfigEnum.TokenSaltComplexity,
+    key: 'token_salt_complexity',
+  },
+  {
+    name: InfraConfigEnum.MagicLinkTokenValidity,
+    key: 'magic_link_token_validity',
+  },
+  {
+    name: InfraConfigEnum.RefreshTokenValidity,
+    key: 'refresh_token_validity',
+  },
+  {
+    name: InfraConfigEnum.AccessTokenValidity,
+    key: 'access_token_validity',
+  },
+  {
+    name: InfraConfigEnum.AllowSecureCookies,
+    key: 'allow_secure_cookies',
+  },
+];
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -219,4 +269,6 @@ export const ALL_CONFIGS = [
   CUSTOM_MAIL_CONFIGS,
   DATA_SHARING_CONFIGS,
   HISTORY_STORE_CONFIG,
+  RATE_LIMIT_CONFIGS,
+  TOKEN_VALIDATION_CONFIGS,
 ];

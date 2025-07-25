@@ -136,6 +136,25 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             getFieldValue(InfraConfigEnum.MailerUseCustomConfigs) === 'true',
         },
       },
+      tokenConfigs: {
+        name: 'token',
+        fields: {
+          jwt_secret: getFieldValue(InfraConfigEnum.JwtSecret),
+          token_salt_complexity: getFieldValue(
+            InfraConfigEnum.TokenSaltComplexity
+          ),
+          magic_link_token_validity: getFieldValue(
+            InfraConfigEnum.MagicLinkTokenValidity
+          ),
+          refresh_token_validity: getFieldValue(
+            InfraConfigEnum.RefreshTokenValidity
+          ),
+          access_token_validity: getFieldValue(
+            InfraConfigEnum.AccessTokenValidity
+          ),
+          session_secret: getFieldValue(InfraConfigEnum.SessionSecret),
+        },
+      },
       dataSharingConfigs: {
         name: 'data_sharing',
         enabled: !!infraConfigs.value.find(
@@ -184,6 +203,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       config.providers.google,
       config.providers.microsoft,
       config.mailConfigs,
+      config.rateLimitConfigs,
+      config.tokenConfigs,
     ];
 
     const hasSectionWithEmptyFields = sections.some((section) => {
@@ -202,6 +223,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
               key !== 'mailer_smtp_password'
           )
         );
+      }
+
+      if (!('enabled' in section)) {
+        return Object.values(section.fields).some(isFieldEmpty);
       }
 
       return (
@@ -454,6 +479,78 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     );
   };
 
+  const updateAuthTokenConfigs = (
+    updateAuthTokenMutation: UseMutationResponse<UpdateInfraConfigsMutation>
+  ) => {
+    if (!updatedConfigs?.tokenConfigs) {
+      toast.error(t('configs.auth_providers.token.update_failure'));
+      return false;
+    }
+
+    const jwtSecret = String(updatedConfigs?.tokenConfigs.fields.jwt_secret);
+    const tokenSaltComplexity = String(
+      updatedConfigs?.tokenConfigs.fields.token_salt_complexity
+    );
+    const magicLinkTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.magic_link_token_validity
+    );
+    const refreshTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.refresh_token_validity
+    );
+    const accessTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.access_token_validity
+    );
+    const sessionSecret = String(
+      updatedConfigs?.tokenConfigs.fields.session_secret
+    );
+    if (
+      isFieldEmpty(jwtSecret) ||
+      isFieldEmpty(tokenSaltComplexity) ||
+      isFieldEmpty(magicLinkTokenValidity) ||
+      isFieldEmpty(refreshTokenValidity) ||
+      isFieldEmpty(accessTokenValidity) ||
+      isFieldEmpty(sessionSecret)
+    ) {
+      toast.error(t('configs.auth_providers.token.update_failure'));
+      return false;
+    }
+
+    const authTokenConfigs: InfraConfigArgs[] = [
+      {
+        name: InfraConfigEnum.JwtSecret,
+        value: jwtSecret,
+      },
+      {
+        name: InfraConfigEnum.TokenSaltComplexity,
+        value: tokenSaltComplexity,
+      },
+      {
+        name: InfraConfigEnum.MagicLinkTokenValidity,
+        value: magicLinkTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.RefreshTokenValidity,
+        value: refreshTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.AccessTokenValidity,
+        value: accessTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.SessionSecret,
+        value: sessionSecret,
+      },
+    ];
+
+    return executeMutation(
+      updateAuthTokenMutation,
+      {
+        infraConfigs: authTokenConfigs,
+      },
+      'configs.auth_providers.token.update_failure'
+    );
+  };
+
   return {
     currentConfigs,
     workingConfigs,
@@ -462,6 +559,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     toggleSMTPConfigs,
     toggleUserHistoryStore,
     updateRateLimitConfigs,
+    updateAuthTokenConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

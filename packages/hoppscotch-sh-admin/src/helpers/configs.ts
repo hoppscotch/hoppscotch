@@ -58,6 +58,18 @@ export type ServerConfigs = {
     };
   };
 
+  tokenConfigs: {
+    name: string;
+    fields: {
+      jwt_secret: string;
+      token_salt_complexity: string;
+      magic_link_token_validity: string;
+      refresh_token_validity: string;
+      access_token_validity: string;
+      session_secret: string;
+    };
+  };
+
   historyConfig: {
     name: string;
     enabled: boolean;
@@ -90,7 +102,7 @@ export type ConfigTransform = {
 
 export type ConfigSection = {
   name: SsoAuthProviders | string;
-  enabled: boolean;
+  enabled?: boolean;
   fields: Record<string, string | boolean>;
 };
 
@@ -254,10 +266,6 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.AccessTokenValidity,
     key: 'access_token_validity',
-  },
-  {
-    name: InfraConfigEnum.AllowSecureCookies,
-    key: 'allow_secure_cookies',
   },
 ];
 

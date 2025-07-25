@@ -5,7 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';

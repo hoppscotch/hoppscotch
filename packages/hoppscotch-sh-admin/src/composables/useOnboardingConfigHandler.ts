@@ -98,11 +98,11 @@ function mapMailerConfigs(
     MAILER_ADDRESS_FROM: configs.MAILER_ADDRESS_FROM ?? '',
     MAILER_SMTP_HOST: configs.MAILER_SMTP_HOST ?? '',
     MAILER_SMTP_PORT: configs.MAILER_SMTP_PORT ?? '',
-    MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || '',
+    MAILER_SMTP_SECURE: configs.MAILER_SMTP_SECURE || 'false',
     MAILER_SMTP_USER: configs.MAILER_SMTP_USER ?? '',
     MAILER_SMTP_PASSWORD: configs.MAILER_SMTP_PASSWORD ?? '',
     MAILER_TLS_REJECT_UNAUTHORIZED:
-      configs.MAILER_TLS_REJECT_UNAUTHORIZED || '',
+      configs.MAILER_TLS_REJECT_UNAUTHORIZED || 'false',
   };
 }
 
@@ -213,7 +213,7 @@ export function useOnboardingConfigHandler() {
   /**
    * Filters out unnecessary configs based on the current state.
    * For example, if MAILER_USE_CUSTOM_CONFIGS is false,
-   * we don't need MAILER_SMTP_URL in the final config.
+   * we don't need MAILER_SMTP_URL, MAILER_TLS_REJECT_UNAUTHORIZED, MAILER_SMTP_SECURE.
    * @param keys Array of config keys to filter
    * @returns Filtered array of keys that are needed based on the current state
    */
@@ -229,7 +229,12 @@ export function useOnboardingConfigHandler() {
         return ['MAILER_SMTP_URL', 'MAILER_ADDRESS_FROM'].includes(key);
       }
 
-      return key !== 'MAILER_SMTP_URL'; // URL not needed in custom config
+      return [
+        'MAILER_SMTP_HOST',
+        'MAILER_SMTP_PORT',
+        'MAILER_SMTP_USER',
+        'MAILER_SMTP_PASSWORD',
+      ].includes(key);
     });
   };
 
@@ -257,9 +262,7 @@ export function useOnboardingConfigHandler() {
       neededKeys.forEach((key) => {
         if (!configs[key])
           toast.error(
-            `Please fill the required field: ${makeReadableKey(
-              key.replace(/_/g, ' ')
-            )}`
+            `Please fill the required field: ${makeReadableKey(key)}`
           );
       });
       return;
@@ -291,6 +294,7 @@ export function useOnboardingConfigHandler() {
     };
 
     const validated = validateConfigs(payload);
+
     if (!validated || Object.keys(validated).length === 0) {
       toast.error('Please add at least one config');
       return;

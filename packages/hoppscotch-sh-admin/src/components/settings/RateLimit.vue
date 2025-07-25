@@ -73,7 +73,7 @@ const emit = defineEmits<{
 
 const workingConfigs = useVModel(props, 'config', emit);
 
-// Get or set smtpConfigs from workingConfigs
+// Get or set rate limit from workingConfigs
 const rateLimitConfig = computed({
   get() {
     return workingConfigs.value?.rateLimitConfigs;

@@ -42,6 +42,17 @@
       "sso": "SSO",
       "tenant": "TENANT",
       "title": "OAuth Providers",
+      "token": {
+        "description": "Configure token for your server",
+        "title": "Token",
+        "jwt_secret": " JWT Secret",
+        "token_salt_complexity": "Token Salt Complexity",
+        "magic_link_token_validity": "Magic Link Token Validity",
+        "refresh_token_validity": "Refresh Token Validity",
+        "access_token_validity": "Access Token Validity",
+        "session_secret": "Session Secret",
+        "update_failure": "Failed to update token configurations!!"
+      },
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",

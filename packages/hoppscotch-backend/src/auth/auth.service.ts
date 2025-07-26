@@ -3,7 +3,6 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { VerifyMagicDto } from './dto/verify-magic.dto';
-import { DateTime } from 'luxon';
 import * as argon2 from 'argon2';
 import * as bcrypt from 'bcrypt';
 import * as O from 'fp-ts/Option';
@@ -52,14 +51,13 @@ export class AuthService {
     const salt = await bcrypt.genSalt(
       parseInt(this.configService.get('INFRA.TOKEN_SALT_COMPLEXITY')),
     );
-    const expiresOn = DateTime.now()
-      .plus({
-        hours: parseInt(
-          this.configService.get('INFRA.MAGIC_LINK_TOKEN_VALIDITY'),
-        ),
-      })
-      .toISO()
-      .toString();
+
+    // Calculate expiration time by adding hours to current time
+    const validityInHours = parseInt(
+      this.configService.get('INFRA.MAGIC_LINK_TOKEN_VALIDITY'),
+    );
+    const expiresOn = new Date();
+    expiresOn.setHours(expiresOn.getHours() + validityInHours);
 
     const idToken = await this.prisma.verificationToken.create({
       data: {
@@ -296,8 +294,7 @@ export class AuthService {
       );
     }
 
-    const currentTime = DateTime.now().toISO();
-    if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
+    if (new Date() > passwordlessTokens.value.expiresOn)
       return E.left({
         message: MAGIC_LINK_EXPIRED,
         statusCode: HttpStatus.UNAUTHORIZED,

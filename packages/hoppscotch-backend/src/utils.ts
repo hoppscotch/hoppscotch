@@ -266,12 +266,12 @@ export function escapeSqlLikeString(str: string) {
 /**
  * Calculate the expiration date of the token
  *
- * @param expiresOn Number of days the token is valid for
+ * @param expiresInDays Number of days the token is valid for
  * @returns Date object of the expiration date
  */
-export function calculateExpirationDate(expiresOn: null | number) {
-  if (expiresOn === null) return null;
-  return new Date(Date.now() + expiresOn * 24 * 60 * 60 * 1000);
+export function calculateExpirationDate(expiresInDays: null | number) {
+  if (expiresInDays === null) return null;
+  return new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
 }
 
 /*

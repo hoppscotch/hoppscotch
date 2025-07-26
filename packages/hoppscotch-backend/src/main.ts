@@ -2,11 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import * as crypto from 'crypto';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
 import * as crypto from 'crypto';
+import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
@@ -91,6 +91,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.use(morgan(':method :url :status - :response-time ms'));
 
   await setupSwagger(app, isProduction);
 

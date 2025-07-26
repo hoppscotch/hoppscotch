@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostHog } from 'posthog-node';
-import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CronJob } from 'cron';
 import { POSTHOG_CLIENT_NOT_INITIALIZED } from 'src/errors';
 import { throwErr } from 'src/utils';
 
@@ -15,7 +14,6 @@ export class PostHogService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
   async onModuleInit() {
@@ -24,19 +22,14 @@ export class PostHogService {
       this.postHogClient = new PostHog(this.POSTHOG_API_KEY, {
         host: 'https://eu.posthog.com',
       });
-
-      // Schedule the cron job only if analytics collection is allowed
-      this.scheduleCronJob();
     }
   }
 
-  private scheduleCronJob() {
-    const job = new CronJob(CronExpression.EVERY_WEEK, async () => {
+  @Cron(CronExpression.EVERY_WEEK)
+  async handleCron() {
+    if (this.configService.get('INFRA.ALLOW_ANALYTICS_COLLECTION') === 'true') {
       await this.capture();
-    });
-
-    this.schedulerRegistry.addCronJob('captureAnalytics', job);
-    job.start();
+    }
   }
 
   async capture() {

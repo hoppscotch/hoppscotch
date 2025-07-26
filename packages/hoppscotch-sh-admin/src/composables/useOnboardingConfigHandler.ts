@@ -4,6 +4,7 @@ import { useToast } from './toast';
 import { auth } from '~/helpers/auth';
 import { InfraConfigEnum } from '~/helpers/backend/graphql';
 import { getLocalConfig, setLocalConfig } from '~/helpers/localpersistence';
+import { makeReadableKey } from '~/helpers/utils/readableKey';
 
 export type OAuthProvider = 'GOOGLE' | 'GITHUB' | 'MICROSOFT';
 export type EnabledConfig = OAuthProvider | 'MAILER' | 'EMAIL';
@@ -47,19 +48,6 @@ export type OnBoardingSummary = {
   message: string;
   description: string;
   configsAdded: string[];
-};
-
-/**
- * The makeReadableKey function formats a string to be more human-readable.
- * It replaces underscores with spaces, converts it to lowercase,
- * and capitalizes the first letter.
- * @param string The string to be formatted
- * @returns A human-readable version of the string
- */
-export const makeReadableKey = (string: string) => {
-  if (!string) return '';
-  const val = string.replace(/_/g, ' ').toLocaleLowerCase();
-  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 };
 
 function mapOAuthProviders(

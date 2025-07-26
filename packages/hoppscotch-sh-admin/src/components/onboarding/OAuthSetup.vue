@@ -26,7 +26,7 @@
             <HoppSmartInput
               v-if="isCallbackUrl(key as string)"
               v-model="currentConfigs.oAuthProviders[provider as OAuthProvider][key]"
-              :label="(makeReadableKey(key as string))"
+              :label="(makeReadableKey(key as string,true))"
               input-styles="floating-input !border-0"
               :autofocus="false"
               class="!my-2 !bg-primaryLight flex-1 rounded border border-divider"
@@ -48,7 +48,7 @@
             <HoppSmartInput
               v-else
               v-model="currentConfigs.oAuthProviders[provider as OAuthProvider][key]"
-              :label="(makeReadableKey(key as string))"
+              :label="(makeReadableKey(key as string,true))"
               input-styles="floating-input"
               :autofocus="false"
               class="!my-2 !bg-primaryLight flex-1"
@@ -68,10 +68,10 @@ import { useToast } from '~/composables/toast';
 import {
   Configs,
   EnabledConfig,
-  makeReadableKey,
   OAuthProvider,
 } from '~/composables/useOnboardingConfigHandler';
 import { copyToClipboard } from '~/helpers/utils/clipboard';
+import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconLucideCopy from '~icons/lucide/copy';
 
 const t = useI18n();

@@ -41,30 +41,29 @@ export const authCookieHandler = (
   authTokens: AuthTokens,
   redirect: boolean,
   redirectUrl: string | null,
+  configService: ConfigService,
 ) => {
-  const configService = new ConfigService();
-
   const currentTime = DateTime.now();
   const accessTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(configService.get('ACCESS_TOKEN_VALIDITY')),
+      milliseconds: parseInt(configService.get('INFRA.ACCESS_TOKEN_VALIDITY')),
     })
     .toMillis();
   const refreshTokenValidity = currentTime
     .plus({
-      milliseconds: parseInt(configService.get('REFRESH_TOKEN_VALIDITY')),
+      milliseconds: parseInt(configService.get('INFRA.REFRESH_TOKEN_VALIDITY')),
     })
     .toMillis();
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
     maxAge: accessTokenValidity,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
   });
@@ -74,12 +73,11 @@ export const authCookieHandler = (
   }
 
   // check to see if redirectUrl is a whitelisted url
-  const whitelistedOrigins = configService
-    .get('WHITELISTED_ORIGINS')
-    .split(',');
+  const whitelistedOrigins =
+    configService.get('WHITELISTED_ORIGINS')?.split(',') ?? [];
   if (!whitelistedOrigins.includes(redirectUrl))
-    // if it is not redirect by default to REDIRECT_URL
-    redirectUrl = configService.get('REDIRECT_URL');
+    // if it is not redirect by default to App
+    redirectUrl = configService.get('VITE_BASE_URL');
 
   return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
@@ -121,11 +119,7 @@ export function authProviderCheck(
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS
-    ? VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
-        provider.trim().toUpperCase(),
-      )
-    : [];
+  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
 
   if (!envVariables.includes(provider.toUpperCase())) return false;
 

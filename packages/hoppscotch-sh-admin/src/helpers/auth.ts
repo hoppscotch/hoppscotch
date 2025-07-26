@@ -48,6 +48,11 @@ export const authEvents$ = new Subject<
   AuthEvent | { event: 'token_refresh' }
 >();
 
+export type OnboardingStatus = {
+  canReRunOnboarding: boolean;
+  onboardingCompleted: boolean;
+};
+
 const currentUser$ = new BehaviorSubject<HoppUser | null>(null);
 
 const signOut = async (reloadWindow = false) => {
@@ -250,6 +255,38 @@ export const auth = {
     } catch (err) {
       console.error(err);
       return false;
+    }
+  },
+
+  getOnboardingStatus: async (): Promise<OnboardingStatus | null> => {
+    try {
+      const res = await authQuery.getOnboardingStatus();
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  },
+
+  addOnBoardingConfigs: async (config: Record<string, any>) => {
+    try {
+      const res = await authQuery.addOnBoardingConfigs(config);
+      return res.data as {
+        token: string;
+      };
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  },
+
+  getOnboardingConfigs: async (token: string) => {
+    try {
+      const res = await authQuery.getOnBoardingConfigs(token);
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      return null;
     }
   },
 };

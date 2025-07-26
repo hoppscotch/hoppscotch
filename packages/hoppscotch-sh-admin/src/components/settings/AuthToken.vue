@@ -38,7 +38,7 @@
                   <template #button>
                     <HoppButtonSecondary
                       :icon="isMasked('jwt_secret') ? IconEye : IconEyeOff"
-                      class="bg-primaryLight"
+                      class="bg-primaryLight rounded"
                       @click="toggleMask('jwt_secret')"
                     />
                   </template>
@@ -107,7 +107,7 @@
                   <template #button>
                     <HoppButtonSecondary
                       :icon="isMasked('session_secret') ? IconEye : IconEyeOff"
-                      class="bg-primaryLight"
+                      class="bg-primaryLight rounded"
                       @click="toggleMask('session_secret')"
                     />
                   </template>

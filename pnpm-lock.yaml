@@ -246,9 +246,6 @@ importers:
       io-ts:
         specifier: 2.2.22
         version: 2.2.22(fp-ts@2.16.10)
-      luxon:
-        specifier: 3.6.1
-        version: 3.6.1
       nodemailer:
         specifier: 7.0.3
         version: 7.0.3
@@ -316,9 +313,6 @@ importers:
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
-      '@types/luxon':
-        specifier: 3.6.2
-        version: 3.6.2
       '@types/node':
         specifier: 22.15.19
         version: 22.15.19

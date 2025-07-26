@@ -191,7 +191,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     Check if any of the config fields are empty
   */
   const isFieldEmpty = (field: string | boolean) => {
-    if (typeof field === 'boolean') {
+    if (typeof field === 'boolean' || typeof field === 'number') {
       return false;
     }
     return field.trim() === '';

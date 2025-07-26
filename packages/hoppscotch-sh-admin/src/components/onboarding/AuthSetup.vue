@@ -6,7 +6,7 @@
         class="py-8 rounded max-h-lg overflow-y-auto"
       >
         <div>
-          <h1 class="text-[1rem]">
+          <h1 class="text-[1rem] font-normal">
             Please select the authentication methods you want to set up.
           </h1>
         </div>

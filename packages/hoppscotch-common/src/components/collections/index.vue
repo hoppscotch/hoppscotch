@@ -475,10 +475,29 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
+const teamCollections = ref<TeamCollection[]>([])
+const pendingTeamCollectionPropertyPath = ref<string | null>(null)
+
 onMounted(async () => {
   teamCollectionsSubscription.value =
     teamCollectionAdapter.collections$.subscribe((vals) => {
       teamCollections.value = vals
+
+      // This subscription callback has closure over pendingTeamCollectionPropertyPath ref to ensure that we
+      // update properties of affected requests any time the properties of the collection changes.
+      if (pendingTeamCollectionPropertyPath.value) {
+        const { auth, headers } =
+          teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+            pendingTeamCollectionPropertyPath.value
+          )
+
+        updateInheritedPropertiesForAffectedRequests(
+          pendingTeamCollectionPropertyPath.value,
+          { auth, headers },
+          "rest"
+        )
+        pendingTeamCollectionPropertyPath.value = null
+      }
     })
 
   const localOAuthTempConfig =
@@ -741,25 +760,6 @@ const showTeamModalAdd = ref(false)
 
 const showCollectionsRunnerModal = ref(false)
 const collectionRunnerData = ref<CollectionRunnerData | null>(null)
-
-const teamCollections = ref<TeamCollection[]>([])
-const pendingTeamCollectionPropertyPath = ref<string | null>(null)
-
-watch(
-  [teamCollections, pendingTeamCollectionPropertyPath],
-  ([collections, pendingPath]) => {
-    if (collections.length > 0 && pendingPath) {
-      const { auth, headers } =
-        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(pendingPath)
-      updateInheritedPropertiesForAffectedRequests(
-        pendingPath,
-        { auth, headers },
-        "rest"
-      )
-      pendingTeamCollectionPropertyPath.value = null
-    }
-  }
-)
 
 const displayModalAdd = (show: boolean) => {
   showModalAdd.value = show
@@ -3109,11 +3109,10 @@ const setCollectionProperties = (newCollection: {
         },
         () => {
           toast.success(t("collection.properties_updated"))
+          pendingTeamCollectionPropertyPath.value = path
         }
       )
     )()
-
-    pendingTeamCollectionPropertyPath.value = path
   }
 
   displayModalEditProperties(false)

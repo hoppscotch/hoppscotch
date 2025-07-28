@@ -348,9 +348,8 @@
                             :class="{ 'opacity-50': !param.active }"
                             class="flex-1 rounded-none text-left"
                             :label="
-                              sendInOptions.find(
-                                (option) => option.value === param.sendIn
-                              )?.label || t('authorization.oauth.send_in')
+                              sendInOptionsLabels[param.sendIn] ||
+                              t('authorization.oauth.send_in')
                             "
                           />
                         </HoppSmartSelectWrapper>
@@ -362,22 +361,19 @@
                           >
                             <HoppSmartItem
                               v-for="option in sendInOptions"
-                              :key="option.value"
-                              :label="option.label"
+                              :key="option"
+                              :label="sendInOptionsLabels[option]"
                               :icon="
-                                param.sendIn === option.value
+                                param.sendIn === option
                                   ? IconCircleDot
                                   : IconCircle
                               "
-                              :active="param.sendIn === option.value"
+                              :active="param.sendIn === option"
                               @click="
                                 () => {
                                   updateTokenRequestParam(index, {
                                     ...param,
-                                    sendIn: option.value as
-                                      | 'headers'
-                                      | 'body'
-                                      | 'url',
+                                    sendIn: option,
                                   })
                                   hide()
                                 }
@@ -482,9 +478,8 @@
                             :class="{ 'opacity-50': !param.active }"
                             class="flex-1 rounded-none text-left"
                             :label="
-                              sendInOptions.find(
-                                (option) => option.value === param.sendIn
-                              )?.label || t('authorization.oauth.send_in')
+                              sendInOptionsLabels[param.sendIn] ||
+                              t('authorization.oauth.send_in')
                             "
                           />
                         </HoppSmartSelectWrapper>
@@ -496,22 +491,19 @@
                           >
                             <HoppSmartItem
                               v-for="option in sendInOptions"
-                              :key="option.value"
-                              :label="option.label"
+                              :key="option"
+                              :label="sendInOptionsLabels[option]"
                               :icon="
-                                param.sendIn === option.value
+                                param.sendIn === option
                                   ? IconCircleDot
                                   : IconCircle
                               "
-                              :active="param.sendIn === option.value"
+                              :active="param.sendIn === option"
                               @click="
                                 () => {
                                   updateRefreshRequestParam(index, {
                                     ...param,
-                                    sendIn: option.value as
-                                      | 'headers'
-                                      | 'body'
-                                      | 'url',
+                                    sendIn: option,
                                   })
                                   hide()
                                 }
@@ -564,6 +556,7 @@ import {
   commonOAuth2RefreshParams,
   commonOAuth2TokenParams,
   sendInOptions,
+  sendInOptionsLabels,
 } from "~/helpers/oauth2Params"
 import { AggregateEnvironment } from "~/newstore/environments"
 import authCode, {
@@ -738,6 +731,8 @@ const supportedGrantTypes = [
 
       const refreshToken = async () => {
         const grantTypeInfo = auth.value.grantTypeInfo
+
+        console.log("grantTypeInfo", grantTypeInfo)
 
         if (!("refreshToken" in grantTypeInfo)) {
           return E.left("NO_REFRESH_TOKEN_PRESENT" as const)

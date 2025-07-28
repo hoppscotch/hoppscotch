@@ -81,4 +81,19 @@ describe("ScrollService", () => {
     expect(service.getScroll("tab1", "json")).toBeUndefined()
     expect(service.getScroll("tab2", "json")).toBe(200)
   })
+
+  it("should handle empty tabId and suffix gracefully", () => {
+    service.setScroll("", "json", 123)
+    service.setScroll("tab1", "" as any, 456)
+
+    expect(service.getScroll("", "json")).toBe(123)
+    expect(service.getScroll("tab1", "" as any)).toBe(456)
+  })
+
+  it("should overwrite scroll position for custom keys", () => {
+    service.setScrollForKey("key1", 100)
+    service.setScrollForKey("key1", 300)
+
+    expect(service.getScrollForKey("key1")).toBe(300)
+  })
 })

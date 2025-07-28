@@ -61,6 +61,7 @@
     "handlebars": "4.7.8",
     "io-ts": "2.2.22",
     "luxon": "3.7.1",
+    "morgan": "1.10.1",
     "nodemailer": "7.0.5",
     "passport": "0.7.0",
     "passport-github2": "0.1.12",

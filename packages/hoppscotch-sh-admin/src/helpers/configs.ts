@@ -58,6 +58,18 @@ export type ServerConfigs = {
     };
   };
 
+  tokenConfigs: {
+    name: string;
+    fields: {
+      jwt_secret: string;
+      token_salt_complexity: string;
+      magic_link_token_validity: string;
+      refresh_token_validity: string;
+      access_token_validity: string;
+      session_secret: string;
+    };
+  };
+
   historyConfig: {
     name: string;
     enabled: boolean;
@@ -66,6 +78,14 @@ export type ServerConfigs = {
   dataSharingConfigs: {
     name: string;
     enabled: boolean;
+  };
+
+  rateLimitConfigs: {
+    name: string;
+    fields: {
+      rate_limit_ttl: string;
+      rate_limit_max: string;
+    };
   };
 };
 
@@ -82,7 +102,7 @@ export type ConfigTransform = {
 
 export type ConfigSection = {
   name: SsoAuthProviders | string;
-  enabled: boolean;
+  enabled?: boolean;
   fields: Record<string, string | boolean>;
 };
 
@@ -211,6 +231,44 @@ export const HISTORY_STORE_CONFIG: Config[] = [
   },
 ];
 
+export const RATE_LIMIT_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.RateLimitTtl,
+    key: 'rate_limit_ttl',
+  },
+  {
+    name: InfraConfigEnum.RateLimitMax,
+    key: 'rate_limit_max',
+  },
+];
+
+export const TOKEN_VALIDATION_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.JwtSecret,
+    key: 'jwt_secret',
+  },
+  {
+    name: InfraConfigEnum.SessionSecret,
+    key: 'session_secret',
+  },
+  {
+    name: InfraConfigEnum.TokenSaltComplexity,
+    key: 'token_salt_complexity',
+  },
+  {
+    name: InfraConfigEnum.MagicLinkTokenValidity,
+    key: 'magic_link_token_validity',
+  },
+  {
+    name: InfraConfigEnum.RefreshTokenValidity,
+    key: 'refresh_token_validity',
+  },
+  {
+    name: InfraConfigEnum.AccessTokenValidity,
+    key: 'access_token_validity',
+  },
+];
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -219,4 +277,6 @@ export const ALL_CONFIGS = [
   CUSTOM_MAIL_CONFIGS,
   DATA_SHARING_CONFIGS,
   HISTORY_STORE_CONFIG,
+  RATE_LIMIT_CONFIGS,
+  TOKEN_VALIDATION_CONFIGS,
 ];

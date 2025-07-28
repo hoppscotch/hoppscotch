@@ -31,6 +31,9 @@
       <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
       </HoppSmartTab>
+      <HoppSmartTab :id="'rate-limit'" :label="t('configs.tabs.rate_limit')">
+        <SettingsRateLimit v-model:config="workingConfigs" />
+      </HoppSmartTab>
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsDataSharing v-model:config="workingConfigs" />
@@ -76,7 +79,7 @@ const showSaveChangesModal = ref(false);
 const initiateServerRestart = ref(false);
 
 // Tabs
-type OptionTabs = 'auth' | 'smtp' | 'token' | 'miscellaneous';
+type OptionTabs = 'auth' | 'smtp' | 'token' | 'miscellaneous' | 'rate-limit';
 const selectedOptionTab = ref<OptionTabs>('auth');
 
 // Obtain the current and working configs from the useConfigHandler composable

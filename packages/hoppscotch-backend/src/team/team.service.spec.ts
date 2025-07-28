@@ -910,7 +910,7 @@ describe('deleteUserFromAllTeams', () => {
 
     const result = teamService.deleteUserFromAllTeams(dbTeamMember.userUid)();
 
-    await expect(result).rejects.toThrowError(TEAM_ONLY_ONE_OWNER);
+    await expect(result).rejects.toThrow(TEAM_ONLY_ONE_OWNER);
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       where: {
         userUid: dbTeamMember.userUid,
@@ -932,7 +932,7 @@ describe('deleteUserFromAllTeams', () => {
 
     const result = teamService.deleteUserFromAllTeams(dbTeamMember.userUid);
 
-    await expect(result).rejects.toThrowError(TEAM_INVALID_ID_OR_USER);
+    await expect(result).rejects.toThrow(TEAM_INVALID_ID_OR_USER);
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       where: {
         userUid: dbTeamMember.userUid,

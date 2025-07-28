@@ -17,7 +17,7 @@
 
   <div v-else class="flex flex-1 flex-col">
     <div
-      class="p-6 bg-primaryLight rounded-lg border border-primaryDark shadow"
+      class="p-4 bg-primaryLight rounded-lg border border-primaryDark shadow"
     >
       <div
         v-if="mode === 'sign-in' && allowedAuthProviders"
@@ -71,7 +71,10 @@
           :label="t('state.send_magic_link')"
         />
       </form>
-      <div v-if="!allowedAuthProviders">
+      <div
+        v-if="!allowedAuthProviders?.length"
+        class="flex flex-col items-center text-center"
+      >
         <p>{{ t('state.require_auth_provider') }}</p>
         <p>{{ t('state.configure_auth') }}</p>
         <div class="mt-5">
@@ -102,7 +105,16 @@
       </div>
     </div>
 
-    <section class="mt-16">
+    <div v-if="canReRunOnboarding" class="mt-4">
+      <span class="text-tiny"> Need to re-configure auth providers? </span>
+      <HoppSmartAnchor
+        class="link text-tiny"
+        :to="`/onboarding`"
+        label="Setup Authentication"
+      />
+    </div>
+
+    <section class="mt-8">
       <div
         v-if="
           mode === 'sign-in' &&
@@ -151,6 +163,7 @@
 </template>
 
 <script setup lang="ts">
+import { computedAsync } from '@vueuse/core';
 import { onMounted, ref } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
@@ -182,6 +195,15 @@ const mode = ref('sign-in');
 const nonAdminUser = ref(false);
 
 const allowedAuthProviders = ref<string[]>([]);
+
+// check if the user can re-run onboarding
+const canReRunOnboarding = computedAsync(async () => {
+  const onboardingStatus = await auth.getOnboardingStatus();
+
+  return (
+    onboardingStatus?.onboardingCompleted && onboardingStatus.canReRunOnboarding
+  );
+});
 
 onMounted(async () => {
   const user = auth.getCurrentUser();

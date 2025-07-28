@@ -42,9 +42,21 @@
       "sso": "SSO",
       "tenant": "TENANT",
       "title": "OAuth Providers",
+      "token": {
+        "description": "Configure token for your server",
+        "title": "Token",
+        "jwt_secret": " JWT Secret",
+        "token_salt_complexity": "Token Salt Complexity",
+        "magic_link_token_validity": "Magic Link Token Validity (in hour)",
+        "refresh_token_validity": "Refresh Token Validity (in milliseconds)",
+        "access_token_validity": "Access Token Validity (in milliseconds)",
+        "session_secret": "Session Secret",
+        "update_failure": "Failed to update token configurations!!"
+      },
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "invalid_number": "Please enter a valid number for the field",
     "input_empty": "Please fill all the fields before updating the configurations",
     "input_validation_error": "Some fields have invalid values. Please correct them before updating the configurations",
     "data_sharing": {
@@ -85,6 +97,14 @@
       "toggle_failure": "Failed to toggle history!!",
       "clear_confirm": "Are you sure you want to clear all history?"
     },
+    "rate_limit": {
+      "description": "Configure rate limiting for your Hoppscotch instance",
+      "rate_limit_max": "Maximum Requests",
+      "rate_limit_ttl": "Time to Leave (in seconds)",
+      "title": "Rate Limit Configurations",
+      "update_failure": "Failed to update rate limit configurations!!",
+      "input_validation_error": "Please enter valid values for rate limit configurations"
+    },
     "reset": {
       "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
       "description": "Default configurations will be loaded as specified in the environment file",
@@ -102,6 +122,7 @@
       "auth": "Authentication",
       "activity": "Activity",
       "infra_tokens": "Infra Tokens",
+      "rate_limit": "Rate Limit",
       "smtp": "SMTP",
       "miscellaneous": "Miscellaneous",
       "reset": "Reset Configurations"

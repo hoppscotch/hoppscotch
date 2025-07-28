@@ -711,6 +711,8 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY:
         case InfraConfigEnum.ACCESS_TOKEN_VALIDITY:
         case InfraConfigEnum.REFRESH_TOKEN_VALIDITY:
+        case InfraConfigEnum.RATE_LIMIT_TTL:
+        case InfraConfigEnum.RATE_LIMIT_MAX:
           if (!Number.isInteger(Number(value)) || Number(value) < 1)
             return fail();
           break;

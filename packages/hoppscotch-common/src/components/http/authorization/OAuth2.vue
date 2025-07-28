@@ -235,13 +235,13 @@
               </div>
 
               <!-- Parameter rows -->
-              <div class="divide-y divide-dividerLight" v-else>
+              <div v-else class="divide-y divide-dividerLight">
                 <HttpKeyValue
-                  :show-description="false"
                   v-for="(param, index) in workingAuthRequestParams"
                   :key="`auth-request-param-${param.id}`"
                   v-model:name="param.key"
                   v-model:value="param.value"
+                  :show-description="false"
                   :total="workingAuthRequestParams.length"
                   :index="index"
                   :entity-id="param.id"
@@ -314,13 +314,13 @@
               </div>
 
               <!-- Parameter rows -->
-              <div class="divide-y divide-dividerLight" v-else>
+              <div v-else class="divide-y divide-dividerLight">
                 <HttpKeyValue
-                  :show-description="false"
                   v-for="(param, index) in workingTokenRequestParams"
                   :key="`token-request-param-${param.id}`"
                   v-model:name="param.key"
                   v-model:value="param.value"
+                  :show-description="false"
                   :total="workingTokenRequestParams.length"
                   :index="index"
                   :entity-id="param.id"
@@ -448,13 +448,13 @@
               </div>
 
               <!-- Parameter rows -->
-              <div class="divide-y divide-dividerLight" v-else>
+              <div v-else class="divide-y divide-dividerLight">
                 <HttpKeyValue
-                  :show-description="false"
                   v-for="(param, index) in workingRefreshRequestParams"
                   :key="`refresh-request-param-${param.id}`"
                   v-model:name="param.key"
                   v-model:value="param.value"
+                  :show-description="false"
                   :total="workingRefreshRequestParams.length"
                   :index="index"
                   :entity-id="param.id"

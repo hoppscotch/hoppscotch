@@ -37,14 +37,7 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
   }
 )
 
-export type PasswordFlowParams = z.infer<typeof PasswordFlowParamsSchema> & {
-  tokenRequestParams?: Array<{
-    key: string
-    value: string
-    active: boolean
-    sendIn?: string
-  }>
-}
+export type PasswordFlowParams = z.infer<typeof PasswordFlowParamsSchema>
 
 export const getDefaultPasswordFlowParams = (): PasswordFlowParams => ({
   authEndpoint: "",
@@ -62,30 +55,8 @@ const initPasswordOauthFlow = async ({
   clientSecret,
   scopes,
   authEndpoint,
-  tokenRequestParams = [],
 }: PasswordFlowParams) => {
   const toast = useToast()
-
-  const baseParams = {
-    grant_type: "password",
-    client_id: clientID,
-    username,
-    password,
-    ...(clientSecret && {
-      client_secret: clientSecret,
-    }),
-    ...(scopes && {
-      scope: scopes,
-    }),
-  }
-
-  // Add custom token request parameters
-  const additionalParams: Record<string, string> = {}
-  tokenRequestParams?.forEach((param) => {
-    if (param.active && param.key && param.value) {
-      additionalParams[param.key] = param.value
-    }
-  })
 
   const { response } = interceptorService.execute({
     id: Date.now(),
@@ -97,8 +68,16 @@ const initPasswordOauthFlow = async ({
       Accept: "application/json",
     },
     content: content.urlencoded({
-      ...baseParams,
-      ...additionalParams,
+      grant_type: "password",
+      client_id: clientID,
+      username,
+      password,
+      ...(clientSecret && {
+        client_secret: clientSecret,
+      }),
+      ...(scopes && {
+        scope: scopes,
+      }),
     }),
   })
 

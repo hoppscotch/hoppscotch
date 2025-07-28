@@ -47,7 +47,7 @@
         "title": "Token",
         "jwt_secret": " JWT Secret",
         "token_salt_complexity": "Token Salt Complexity",
-        "magic_link_token_validity": "Magic Link Token Validity (in hours)",
+        "magic_link_token_validity": "Magic Link Token Validity (in hour)",
         "refresh_token_validity": "Refresh Token Validity (in milliseconds)",
         "access_token_validity": "Access Token Validity (in milliseconds)",
         "session_secret": "Session Secret",

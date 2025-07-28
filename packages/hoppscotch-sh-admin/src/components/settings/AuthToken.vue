@@ -62,7 +62,7 @@
                 }}</label>
                 <HoppSmartInput
                   v-model="authTokenConfig.fields.magic_link_token_validity"
-                  placeholder="e.g., 3 (in hours)"
+                  placeholder="e.g., 3 (in hour)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"

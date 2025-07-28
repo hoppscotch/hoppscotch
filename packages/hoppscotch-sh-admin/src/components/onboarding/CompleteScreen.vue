@@ -94,7 +94,7 @@ const startCountdown = () => {
       clearInterval(timer.value);
 
       // Redirect to dashboard after countdown
-      router.push({ name: 'dashboard' });
+      router.push({ name: 'index' });
     }
   }, 1000);
 };

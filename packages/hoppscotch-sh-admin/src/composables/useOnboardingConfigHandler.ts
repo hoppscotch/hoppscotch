@@ -111,8 +111,8 @@ export function useOnboardingConfigHandler() {
 
   const onBoardingSummary = ref<OnBoardingSummary>({
     type: 'success',
-    message: t('onboarding.addConfigsSuccess'),
-    description: t('onboarding.addConfigsDescription'),
+    message: t('onboarding.setup_complete.title'),
+    description: t('onboarding.setup_complete.description'),
     configsAdded: [] as string[],
   });
 
@@ -182,9 +182,10 @@ export function useOnboardingConfigHandler() {
     if (addedConfigs.length === 0) {
       return {
         type: 'error',
-        message: t('onboarding.addConfigsError'),
-        description: t('onboarding.addConfigsDescription', {
-          error: error?.message || t('onboarding.addConfigsDefaultError'),
+        message: t('onboarding.onboarding_incomplete.title'),
+        description: t('onboarding.onboarding_incomplete.description', {
+          error:
+            error?.message || t('onboarding.onboarding_incomplete.description'),
         }),
         configsAdded: [],
       };
@@ -192,8 +193,8 @@ export function useOnboardingConfigHandler() {
 
     return {
       type: 'success',
-      message: t('onboarding.addConfigsSuccess'),
-      description: t('onboarding.addConfigsDescription'),
+      message: t('onboarding.setup_complete.title'),
+      description: t('onboarding.setup_complete.description'),
       configsAdded: addedConfigs.filter((key) => key !== 'MAILER'),
     };
   };
@@ -235,7 +236,7 @@ export function useOnboardingConfigHandler() {
    */
   const validateConfigs = (configs: Partial<Record<string, string>>) => {
     if (!configs || Object.keys(configs).length === 0) {
-      toast.error(t('onboarding.addConfigsError'));
+      toast.error(t('onboarding.configuration_error'));
       return;
     }
 
@@ -250,7 +251,9 @@ export function useOnboardingConfigHandler() {
       neededKeys.forEach((key) => {
         if (!configs[key])
           toast.error(
-            `Please fill the required field: ${makeReadableKey(key)}`
+            t('onboarding.please_fill_configurations', {
+              fieldName: makeReadableKey(key),
+            })
           );
       });
       return;
@@ -284,7 +287,7 @@ export function useOnboardingConfigHandler() {
     const validated = validateConfigs(payload);
 
     if (!validated || Object.keys(validated).length === 0) {
-      toast.error('Please add at least one config');
+      toast.error(t('onboarding.add_atleast_one_auth_provider'));
       return;
     }
 
@@ -299,13 +302,13 @@ export function useOnboardingConfigHandler() {
       const res = await auth.addOnBoardingConfigs(configWithAuth);
       if (res?.token) {
         setLocalConfig('access_token', res.token);
-        toast.success('Onboarding configs added successfully');
+        toast.success(t('onboarding.configurations_added_successfully'));
         onBoardingSummary.value = makeOnboardingSummary();
         return res;
       }
     } catch (err) {
       console.error('Failed to add onboarding configs', err);
-      toast.error('Failed to add onboarding configs');
+      toast.error(t('onboarding.configurations_adding_failed'));
       onBoardingSummary.value = makeOnboardingSummary(err as Error);
     } finally {
       submittingConfigs.value = false;

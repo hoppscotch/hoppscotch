@@ -7,7 +7,7 @@
       >
         <div>
           <h1 class="text-[1rem] font-normal">
-            Please select the authentication methods you want to set up.
+            {{ t('onboarding.select_auth_provider') }}
           </h1>
         </div>
         <div>
@@ -20,9 +20,11 @@
               }"
               @click="toggleSelectedOption('OAuth')"
             >
-              <span class="text-[0.9rem] text-secondaryDark"> OAuth </span>
+              <span class="text-[0.9rem] text-secondaryDark">
+                {{ t('onboarding.oauth.title') }}
+              </span>
               <span class="text-secondaryLight h-10">
-                Set up OAuth providers like Google, GitHub, Microsoft, etc.
+                {{ t('onboarding.oauth.description') }}
               </span>
               <div class="my-4">
                 <div class="flex items-center -space-x-2">
@@ -52,9 +54,11 @@
               }"
               @click="toggleSelectedOption('SMTP')"
             >
-              <span class="text-[0.9rem] text-secondaryDark"> SMTP </span>
+              <span class="text-[0.9rem] text-secondaryDark">
+                {{ t('onboarding.smtp.title') }}
+              </span>
               <span class="text-secondaryLight h-10">
-                Set up SMTP for email authentication.
+                {{ t('onboarding.smtp.description') }}
               </span>
               <div class="my-4">
                 <div class="flex items-center -space-x-2">
@@ -68,7 +72,7 @@
             </div>
           </div>
           <HoppButtonPrimary
-            :label="'Add Auth Configs'"
+            :label="t('onboarding.add_oauth_config')"
             @click="addAuthConfig"
             :icon="IconLucideArrowRight"
             :reverse="true"
@@ -87,10 +91,12 @@
           <span class="group-hover:opacity-80 transition-opacity">
             <IconLucideArrowLeft class="svg-icons" />
           </span>
-          <span class="group-hover:opacity-80 transition-opacity">Back</span>
+          <span class="group-hover:opacity-80 transition-opacity">
+            {{ t('app.back') }}
+          </span>
         </button>
         <h2>
-          Please add the configurations for the selected authentication methods.
+          {{ t('onboarding.add_configurations') }}
         </h2>
 
         <div class="my-5 overflow-y-auto max-h-[60vh]">
@@ -107,7 +113,9 @@
               <template v-slot:header="{ isOpen, toggleAccordion }">
                 <div class="w-full">
                   <div class="flex items-center justify-between flex-1 mb-2">
-                    <span class="font-semibold text-[0.8rem]">OAuth </span>
+                    <span class="font-semibold text-[0.8rem]"
+                      >{{ t('onboarding.oauth.title') }}
+                    </span>
 
                     <span>
                       <HoppSmartToggle
@@ -123,9 +131,7 @@
                     </span>
                   </div>
                   <span class="text-tiny text-secondaryLight">
-                    Select the OAuth providers you want to enable and provide
-                    <br />
-                    the necessary configurations.
+                    {{ t('onboarding.oauth.description_accordian') }}
                   </span>
                 </div>
               </template>
@@ -146,7 +152,9 @@
               <template v-slot:header="{ isOpen, toggleAccordion }">
                 <div class="w-full">
                   <div class="flex items-center justify-between flex-1 mb-2">
-                    <span class="font-semibold text-[0.8rem]">SMTP</span>
+                    <span class="font-semibold text-[0.8rem]">
+                      {{ t('onboarding.smtp.title') }}
+                    </span>
                     <span>
                       <HoppSmartToggle
                         :on="isOpen"
@@ -162,7 +170,7 @@
                     </span>
                   </div>
                   <p class="text-secondaryLight text-tiny">
-                    Configure the SMTP settings for sending emails.
+                    {{ t('onboarding.smtp.description_accordian') }}
                   </p>
                 </div>
               </template>
@@ -176,7 +184,7 @@
           </div>
         </div>
         <HoppButtonPrimary
-          :label="'Save Auth Configs'"
+          :label="t('onboarding.save_auth_config')"
           @click="addOnboardingConfigs"
           :reverse="true"
           :icon="IconLucideSave"
@@ -200,7 +208,9 @@ import IconLucideArrowRight from '~icons/lucide/arrow-right';
 import IconLucideArrowLeft from '~icons/lucide/arrow-left';
 import IconLucideSave from '~icons/lucide/save';
 import { useToast } from '~/composables/toast';
+import { useI18n } from '~/composables/i18n';
 
+const t = useI18n();
 const toast = useToast();
 
 const props = withDefaults(
@@ -296,7 +306,7 @@ const toggleSelectedOption = (option: 'OAuth' | 'SMTP') => {
 
 const addAuthConfig = () => {
   if (selectedOptions.value.length === 0) {
-    toast.error('Please select at least one authentication method.');
+    toast.error(t('onboarding.select_atleast_one'));
     return;
   }
   authConfigStep.value = 2;

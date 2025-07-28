@@ -1583,7 +1583,7 @@ const authTippyActions = ref<HTMLElement | null>(null)
 const clientAuthenticationTippyActions = ref<HTMLElement | null>(null)
 
 // Advanced Configuration state
-const isAdvancedConfigExpanded = ref(false)
+const isAdvancedConfigExpanded = ref(true)
 
 const toggleAdvancedConfig = () => {
   isAdvancedConfigExpanded.value = !isAdvancedConfigExpanded.value
@@ -1598,11 +1598,11 @@ interface OAuth2AdvancedParam {
   sendIn?: string
 }
 
-let authRequestIdCounter = 1000
+let paramsIdCounter = 1000
 
 // Initialize working auth request params
 const workingAuthRequestParams = ref<OAuth2AdvancedParam[]>([
-  { id: authRequestIdCounter++, key: "", value: "", active: true },
+  { id: paramsIdCounter++, key: "", value: "", active: true },
 ])
 
 // Watch for changes in working auth request params
@@ -1612,7 +1612,7 @@ watch(
     // Auto-add empty row when the last row is filled
     if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
       workingAuthRequestParams.value.push({
-        id: authRequestIdCounter++,
+        id: paramsIdCounter++,
         key: "",
         value: "",
         active: true,
@@ -1641,7 +1641,7 @@ watch(
 // Functions for auth request params management
 const addAuthRequestParam = () => {
   workingAuthRequestParams.value.push({
-    id: authRequestIdCounter++,
+    id: paramsIdCounter++,
     key: "",
     value: "",
     active: true,
@@ -1671,12 +1671,10 @@ interface OAuth2TokenParam {
   active: boolean
 }
 
-let tokenRequestIdCounter = 2000
-
 // Initialize working token request params
 const workingTokenRequestParams = ref<OAuth2TokenParam[]>([
   {
-    id: tokenRequestIdCounter++,
+    id: paramsIdCounter++,
     key: "",
     value: "",
     sendIn: "body",
@@ -1691,7 +1689,7 @@ watch(
     // Auto-add empty row when the last row is filled
     if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
       workingTokenRequestParams.value.push({
-        id: tokenRequestIdCounter++,
+        id: paramsIdCounter++,
         key: "",
         value: "",
         sendIn: "body",
@@ -1722,7 +1720,7 @@ watch(
 // Functions for token request params management
 const addTokenRequestParam = () => {
   workingTokenRequestParams.value.push({
-    id: tokenRequestIdCounter++,
+    id: paramsIdCounter++,
     key: "",
     value: "",
     sendIn: "body",
@@ -1750,12 +1748,10 @@ interface OAuth2RefreshParam {
   active: boolean
 }
 
-let refreshRequestIdCounter = 3000
-
 // Initialize working refresh request params
 const workingRefreshRequestParams = ref<OAuth2RefreshParam[]>([
   {
-    id: refreshRequestIdCounter++,
+    id: paramsIdCounter++,
     key: "",
     value: "",
     sendIn: "body",
@@ -1770,7 +1766,7 @@ watch(
     // Auto-add empty row when the last row is filled
     if (newParams.length > 0 && newParams[newParams.length - 1].key !== "") {
       workingRefreshRequestParams.value.push({
-        id: refreshRequestIdCounter++,
+        id: paramsIdCounter++,
         key: "",
         value: "",
         sendIn: "body",
@@ -1801,7 +1797,7 @@ watch(
 // Functions for refresh request params management
 const addRefreshRequestParam = () => {
   workingRefreshRequestParams.value.push({
-    id: refreshRequestIdCounter++,
+    id: paramsIdCounter++,
     key: "",
     value: "",
     sendIn: "body",
@@ -1832,7 +1828,7 @@ onMounted(() => {
   ) {
     workingAuthRequestParams.value =
       auth.value.grantTypeInfo.authRequestParams.map((param: any) => ({
-        id: param.id || authRequestIdCounter++,
+        id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
         active: param.active,
@@ -1846,7 +1842,7 @@ onMounted(() => {
   ) {
     workingTokenRequestParams.value = [
       ...auth.value.grantTypeInfo.tokenRequestParams.map((param: any) => ({
-        id: param.id || tokenRequestIdCounter++,
+        id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
         sendIn: param.sendIn || "body",
@@ -1854,7 +1850,7 @@ onMounted(() => {
       })),
 
       {
-        id: tokenRequestIdCounter++,
+        id: paramsIdCounter++,
         key: "",
         value: "",
         sendIn: "body",
@@ -1870,7 +1866,7 @@ onMounted(() => {
   ) {
     workingRefreshRequestParams.value = [
       ...auth.value.grantTypeInfo.refreshRequestParams.map((param: any) => ({
-        id: param.id || refreshRequestIdCounter++,
+        id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
         sendIn: param.sendIn || "body",
@@ -1878,7 +1874,7 @@ onMounted(() => {
       })),
 
       {
-        id: refreshRequestIdCounter++,
+        id: paramsIdCounter++,
         key: "",
         value: "",
         sendIn: "body",

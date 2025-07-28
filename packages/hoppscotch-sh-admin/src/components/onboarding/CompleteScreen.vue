@@ -57,12 +57,6 @@
     <template v-else>
       <div class="flex flex-col space-y-4 p-4 max-w-screen-md mx-auto w-full">
         <h1 class="text-2xl font-bold text-white flex items-center space-x-2">
-          <span v-if="onBoardingSummary.type === 'success'">
-            {{ t('onboarding.setup_complete.title') }}
-          </span>
-          <span v-else>
-            {{ t('onboarding.onboarding_incomplete.title') }}
-          </span>
           <span>
             {{ t('onboarding.onboarding_incomplete.title') }}
           </span>

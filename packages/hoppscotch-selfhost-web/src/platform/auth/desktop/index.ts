@@ -62,19 +62,25 @@ async function logout() {
 
 async function signInUserWithGithubFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/github?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/github?redirect_uri=desktop`,
   })
 }
 
 async function signInUserWithGoogleFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/google?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/google?redirect_uri=desktop`,
   })
 }
 
 async function signInUserWithMicrosoftFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/microsoft?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/microsoft?redirect_uri=desktop`,
   })
 }
 
@@ -83,8 +89,9 @@ async function getInitialUserDetails(): Promise<
 > {
   try {
     const accessToken = await persistenceService.getLocalConfig("access_token")
-    const refreshToken =
-      await persistenceService.getLocalConfig("refresh_token")
+    const refreshToken = await persistenceService.getLocalConfig(
+      "refresh_token"
+    )
 
     if (!accessToken || !refreshToken) {
       return { error: "auth/cookies_not_found" }
@@ -217,8 +224,9 @@ export async function setInitialUser() {
 
 async function refreshToken() {
   try {
-    const refreshToken =
-      await persistenceService.getLocalConfig("refresh_token")
+    const refreshToken = await persistenceService.getLocalConfig(
+      "refresh_token"
+    )
     if (!refreshToken) return null
 
     const { response } = interceptorService.execute({
@@ -447,8 +455,9 @@ export const def: AuthPlatformDef = {
   },
 
   async signInWithEmailLink(_email: string, url: string) {
-    const deviceIdentifier =
-      await persistenceService.getLocalConfig("deviceIdentifier")
+    const deviceIdentifier = await persistenceService.getLocalConfig(
+      "deviceIdentifier"
+    )
 
     if (!deviceIdentifier) {
       throw new Error(

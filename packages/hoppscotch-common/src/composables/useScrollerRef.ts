@@ -71,38 +71,34 @@ export function useScrollerRef(
   // Scroll event handler to save scroll position
   let onScroll: (() => void) | null = null
 
-  onMounted(() => {
-    waitUntilScrollable()
-      .then((scroller) => {
-        scrollerRef.value = scroller
+  onMounted(async () => {
+    try {
+      const scroller = await waitUntilScrollable()
+      scrollerRef.value = scroller
 
-        // Restore scroll position from service (if available)
-        requestAnimationFrame(() => {
-          if (
-            scrollKey &&
-            scrollService.getScrollForKey(scrollKey) !== undefined
-          ) {
-            scroller.scrollTop = scrollService.getScrollForKey(scrollKey)!
-          } else if (initialScrollTop !== undefined) {
-            scroller.scrollTop = initialScrollTop
-          }
-        })
-
-        // Register scroll event to update position in ScrollService
-        onScroll = () => {
-          if (scrollKey) {
-            scrollService.setScrollForKey(scrollKey, scroller.scrollTop)
-          }
+      // Restore scroll position from service (if available)
+      requestAnimationFrame(() => {
+        if (
+          scrollKey &&
+          scrollService.getScrollForKey(scrollKey) !== undefined
+        ) {
+          scroller.scrollTop = scrollService.getScrollForKey(scrollKey)!
+        } else if (initialScrollTop !== undefined) {
+          scroller.scrollTop = initialScrollTop
         }
+      })
 
-        scroller.addEventListener("scroll", onScroll)
-      })
-      .catch((error) => {
-        console.error(
-          `[${label}] Failed to initialize scroller:`,
-          error.message
-        )
-      })
+      // Register scroll event to update position in ScrollService
+      onScroll = () => {
+        if (scrollKey) {
+          scrollService.setScrollForKey(scrollKey, scroller.scrollTop)
+        }
+      }
+
+      scroller.addEventListener("scroll", onScroll)
+    } catch (error: any) {
+      console.error(`[${label}] Failed to initialize scroller:`, error.message)
+    }
   })
 
   // Clean up scroll listener on unmount

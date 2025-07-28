@@ -37,7 +37,17 @@ export const HoppRESTAuthOAuth2 = z.object({
     ImplicitOauthFlowParams,
   ]),
   addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
-  authRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  authRequestParams: z
+    .array(
+      OAuth2AdvancedParam.pick({
+        id: true,
+        key: true,
+        value: true,
+        active: true,
+      })
+    )
+    .optional()
+    .default([]),
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
 })

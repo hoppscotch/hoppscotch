@@ -241,9 +241,6 @@ importers:
       io-ts:
         specifier: 2.2.22
         version: 2.2.22(fp-ts@2.16.10)
-      luxon:
-        specifier: 3.7.1
-        version: 3.7.1
       morgan:
         specifier: 1.10.1
         version: 1.10.1
@@ -314,9 +311,6 @@ importers:
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
-      '@types/luxon':
-        specifier: 3.6.2
-        version: 3.6.2
       '@types/node':
         specifier: 24.1.0
         version: 24.1.0
@@ -10915,10 +10909,6 @@ packages:
 
   luxon@3.6.1:
     resolution: {integrity: sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==}
-    engines: {node: '>=12'}
-
-  luxon@3.7.1:
-    resolution: {integrity: sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==}
     engines: {node: '>=12'}
 
   magic-string@0.25.9:
@@ -26932,8 +26922,6 @@ snapshots:
   lru-cache@7.18.3: {}
 
   luxon@3.6.1: {}
-
-  luxon@3.7.1: {}
 
   magic-string@0.25.9:
     dependencies:

@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DateTime } from 'luxon';
 import {
   INFRA_TOKEN_EXPIRED,
   INFRA_TOKEN_HEADER_MISSING,
@@ -37,8 +36,8 @@ export class InfraTokenGuard implements CanActivate {
     if (infraToken === null)
       throw new UnauthorizedException(INFRA_TOKEN_INVALID_TOKEN);
 
-    const currentTime = DateTime.now().toISO();
-    if (currentTime > infraToken.expiresOn?.toISOString()) {
+    // Check if token has expired (if expiresOn is set)
+    if (infraToken.expiresOn && new Date() > infraToken.expiresOn) {
       throw new UnauthorizedException(INFRA_TOKEN_EXPIRED);
     }
 

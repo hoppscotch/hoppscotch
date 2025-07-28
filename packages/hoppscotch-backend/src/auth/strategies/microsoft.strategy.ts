@@ -26,12 +26,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(
-    accessToken: string,
-    refreshToken: string,
-    profile,
-    done,
-  ) {
+  async validate(accessToken: string, refreshToken: string, profile, done) {
     const email = profile?.emails?.[0]?.value;
 
     if (!validateEmail(email))

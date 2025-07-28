@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { DateTime } from 'luxon';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 import * as cookie from 'cookie';
@@ -43,29 +42,29 @@ export const authCookieHandler = (
   redirectUrl: string | null,
   configService: ConfigService,
 ) => {
-  const currentTime = DateTime.now();
-  const accessTokenValidity = currentTime
-    .plus({
-      milliseconds: parseInt(configService.get('INFRA.ACCESS_TOKEN_VALIDITY')),
-    })
-    .toMillis();
-  const refreshTokenValidity = currentTime
-    .plus({
-      milliseconds: parseInt(configService.get('INFRA.REFRESH_TOKEN_VALIDITY')),
-    })
-    .toMillis();
+  // Calculate token validity periods in milliseconds
+  let accessTokenValidityInMs = parseInt(
+    configService.get('INFRA.ACCESS_TOKEN_VALIDITY'),
+  );
+  let refreshTokenValidityInMs = parseInt(
+    configService.get('INFRA.REFRESH_TOKEN_VALIDITY'),
+  );
+
+  // Set default values if parsing results in NaN
+  if (isNaN(accessTokenValidityInMs)) accessTokenValidityInMs = 86400000; // Default: 1 day
+  if (isNaN(refreshTokenValidityInMs)) refreshTokenValidityInMs = 604800000; // Default: 7 days
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: accessTokenValidity,
+    maxAge: Date.now() + accessTokenValidityInMs,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: refreshTokenValidity,
+    maxAge: Date.now() + refreshTokenValidityInMs,
   });
 
   if (!redirect) {

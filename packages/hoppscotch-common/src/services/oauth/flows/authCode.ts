@@ -45,13 +45,31 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
 
 export type AuthCodeOauthFlowParams = z.infer<
   typeof AuthCodeOauthFlowParamsSchema
->
+> & {
+  authRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+  }>
+  tokenRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+}
 
 export type AuthCodeOauthRefreshParams = {
   tokenEndpoint: string
   clientID: string
   clientSecret?: string
   refreshToken: string
+  refreshRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
 }
 
 export const getDefaultAuthCodeOauthFlowParams =
@@ -73,6 +91,7 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  authRequestParams = [],
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -99,6 +118,11 @@ const initAuthCodeOauthFlow = async ({
     codeVerifierMethod?: string
     codeChallenge?: string
     scopes?: string
+    authRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+    }>
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -109,6 +133,7 @@ const initAuthCodeOauthFlow = async ({
     isPKCE,
     codeVerifierMethod,
     scopes,
+    authRequestParams,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -126,7 +151,13 @@ const initAuthCodeOauthFlow = async ({
     ? { ...JSON.parse(localOAuthTempConfig) }
     : {}
 
-  const { grant_type, ...rest } = oauthTempConfig
+  const {
+    grant_type,
+    authRequestParams: authParams,
+    ...fieldsOnly
+  } = oauthTempConfig
+
+  console.log("fieldsOnly", authParams)
 
   // persist the state so we can compare it when we get redirected back
   // also persist the grant_type,tokenEndpoint and clientSecret so we can use them when we get redirected back
@@ -134,7 +165,10 @@ const initAuthCodeOauthFlow = async ({
     "oauth_temp_config",
     JSON.stringify(<PersistedOAuthConfig>{
       ...persistedOAuthConfig,
-      fields: rest,
+      fields: fieldsOnly,
+      advancedFields: {
+        authRequestParams: authParams,
+      },
       grant_type,
     })
   )
@@ -159,6 +193,14 @@ const initAuthCodeOauthFlow = async ({
     url.searchParams.set("code_challenge", codeChallenge)
     url.searchParams.set("code_challenge_method", codeVerifierMethod)
   }
+
+  // Add custom auth request parameters
+  console.log("authRequestParams", authRequestParams)
+  authRequestParams?.forEach((param) => {
+    if (param.active && param.key && param.value) {
+      url.searchParams.set(param.key, param.value)
+    }
+  })
 
   // Redirect to the authorization server
   window.location.assign(url.toString())
@@ -192,9 +234,27 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     codeChallenge: z.string().optional(),
   })
 
-  const decodedLocalConfig = expectedSchema.safeParse(
-    JSON.parse(localConfig).fields
+  const advancedFieldsSchema = z.object({
+    tokenRequestParams: z
+      .array(
+        z.object({
+          key: z.string(),
+          value: z.string(),
+          active: z.boolean(),
+          sendIn: z.string().optional(),
+        })
+      )
+      .optional()
+      .default([]),
+  })
+
+  const parsedConfig = JSON.parse(localConfig)
+  const decodedLocalConfig = expectedSchema.safeParse(parsedConfig.fields)
+  const decodedAdvancedFields = advancedFieldsSchema.safeParse(
+    parsedConfig.advancedFields || {}
   )
+
+  console.log("decodedLocalConfig", decodedLocalConfig)
 
   if (!decodedLocalConfig.success) {
     return E.left("INVALID_LOCAL_CONFIG")
@@ -206,24 +266,53 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
+  const baseTokenParams = {
+    code,
+    grant_type: "authorization_code",
+    client_id: decodedLocalConfig.data.clientID,
+    client_secret: decodedLocalConfig.data.clientSecret,
+    redirect_uri: OauthAuthService.redirectURI,
+    ...(decodedLocalConfig.data.codeVerifier && {
+      code_verifier: decodedLocalConfig.data.codeVerifier,
+    }),
+  }
+
+  // Add custom token request parameters based on sendIn property
+  const additionalTokenParams: Record<string, string> = {}
+  const additionalHeaders: Record<string, string> = {}
+  const tokenUrl = new URL(decodedLocalConfig.data.tokenEndpoint)
+
+  // Use advanced fields if validation succeeded, otherwise fallback to empty array
+  const tokenRequestParams = decodedAdvancedFields.success
+    ? decodedAdvancedFields.data.tokenRequestParams
+    : []
+
+  tokenRequestParams?.forEach((param) => {
+    if (param.active && param.key && param.value) {
+      if (param.sendIn === "headers") {
+        additionalHeaders[param.key] = param.value
+      } else if (param.sendIn === "url") {
+        tokenUrl.searchParams.set(param.key, param.value)
+      } else {
+        // Default to body if sendIn is not specified or is "body"
+        additionalTokenParams[param.key] = param.value
+      }
+    }
+  })
+
   const { response } = interceptorService.execute({
     id: Date.now(),
-    url: decodedLocalConfig.data.tokenEndpoint,
+    url: tokenUrl.toString(),
     method: "POST",
     version: "HTTP/1.1",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
+      ...additionalHeaders,
     },
     content: content.urlencoded({
-      code,
-      grant_type: "authorization_code",
-      client_id: decodedLocalConfig.data.clientID,
-      client_secret: decodedLocalConfig.data.clientSecret,
-      redirect_uri: OauthAuthService.redirectURI,
-      ...(decodedLocalConfig.data.codeVerifier && {
-        code_verifier: decodedLocalConfig.data.codeVerifier,
-      }),
+      ...baseTokenParams,
+      ...additionalTokenParams,
     }),
   })
 
@@ -298,7 +387,25 @@ const refreshToken = async ({
   clientID,
   refreshToken,
   clientSecret,
+  refreshRequestParams = [],
 }: AuthCodeOauthRefreshParams) => {
+  const baseRefreshParams = {
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+    client_id: clientID,
+    ...(clientSecret && {
+      client_secret: clientSecret,
+    }),
+  }
+
+  // Add custom refresh request parameters
+  const additionalRefreshParams: Record<string, string> = {}
+  refreshRequestParams?.forEach((param) => {
+    if (param.active && param.key && param.value) {
+      additionalRefreshParams[param.key] = param.value
+    }
+  })
+
   const { response } = interceptorService.execute({
     id: Date.now(),
     url: tokenEndpoint,
@@ -309,12 +416,8 @@ const refreshToken = async ({
       Accept: "application/json",
     },
     content: content.urlencoded({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: clientID,
-      ...(clientSecret && {
-        client_secret: clientSecret,
-      }),
+      ...baseRefreshParams,
+      ...additionalRefreshParams,
     }),
   })
 

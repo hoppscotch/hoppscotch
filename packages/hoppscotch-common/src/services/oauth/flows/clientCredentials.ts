@@ -38,7 +38,14 @@ const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
 
 export type ClientCredentialsFlowParams = z.infer<
   typeof ClientCredentialsFlowParamsSchema
->
+> & {
+  tokenRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+}
 
 export const getDefaultClientCredentialsFlowParams =
   (): ClientCredentialsFlowParams => ({
@@ -175,12 +182,31 @@ export default createFlowConfig(
 const getPayloadForViaBasicAuthHeader = (
   payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
 ): RelayRequest => {
-  const { clientID, clientSecret, scopes, authEndpoint } = payload
+  const {
+    clientID,
+    clientSecret,
+    scopes,
+    authEndpoint,
+    tokenRequestParams = [],
+  } = payload
 
   // RFC 6749 Section 2.3.1 states that the client ID and secret should be URL encoded.
   const encodedClientID = encodeBasicAuthComponent(clientID)
   const encodedClientSecret = encodeBasicAuthComponent(clientSecret || "")
   const basicAuthToken = btoa(`${encodedClientID}:${encodedClientSecret}`)
+
+  const baseParams = {
+    grant_type: "client_credentials",
+    ...(scopes && { scope: scopes }),
+  }
+
+  // Add custom token request parameters
+  const additionalParams: Record<string, string> = {}
+  tokenRequestParams?.forEach((param) => {
+    if (param.active && param.key && param.value) {
+      additionalParams[param.key] = param.value
+    }
+  })
 
   return {
     id: Date.now(),
@@ -193,8 +219,8 @@ const getPayloadForViaBasicAuthHeader = (
       Accept: "application/json",
     },
     content: content.urlencoded({
-      grant_type: "client_credentials",
-      ...(scopes && { scope: scopes }),
+      ...baseParams,
+      ...additionalParams,
     }),
   }
 }
@@ -202,7 +228,28 @@ const getPayloadForViaBasicAuthHeader = (
 const getPayloadForViaBody = (
   payload: Omit<ClientCredentialsFlowParams, "clientAuthentication">
 ): RelayRequest => {
-  const { clientID, clientSecret, scopes, authEndpoint } = payload
+  const {
+    clientID,
+    clientSecret,
+    scopes,
+    authEndpoint,
+    tokenRequestParams = [],
+  } = payload
+
+  const baseParams = {
+    grant_type: "client_credentials",
+    client_id: clientID,
+    ...(clientSecret && { client_secret: clientSecret }),
+    ...(scopes && { scope: scopes }),
+  }
+
+  // Add custom token request parameters
+  const additionalParams: Record<string, string> = {}
+  tokenRequestParams?.forEach((param) => {
+    if (param.active && param.key && param.value) {
+      additionalParams[param.key] = param.value
+    }
+  })
 
   return {
     id: Date.now(),
@@ -214,10 +261,8 @@ const getPayloadForViaBody = (
       Accept: "application/json",
     },
     content: content.urlencoded({
-      grant_type: "client_credentials",
-      client_id: clientID,
-      ...(clientSecret && { client_secret: clientSecret }),
-      ...(scopes && { scope: scopes }),
+      ...baseParams,
+      ...additionalParams,
     }),
   }
 }

@@ -753,6 +753,14 @@ const supportedGrantTypes = [
           clientSecret: clientSecret.value,
           tokenEndpoint: tokenEndpoint.value,
           refreshToken,
+          refreshRequestParams: workingRefreshRequestParams.value
+            .filter((p) => p.active && p.key && p.value)
+            .map((p) => ({
+              key: p.key,
+              value: p.value,
+              active: p.active,
+              sendIn: p.sendIn,
+            })),
         }
 
         const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -786,6 +794,22 @@ const supportedGrantTypes = [
           scopes: scopes.value,
           isPKCE: isPKCE.value,
           codeVerifierMethod: codeChallenge.value?.id,
+          authRequestParams: workingAuthRequestParams.value
+            .filter((p) => p.active && p.key && p.value)
+            .map((p) => ({
+              key: p.key,
+              value: p.value,
+              active: p.active,
+              sendIn: p.sendIn,
+            })),
+          tokenRequestParams: workingTokenRequestParams.value
+            .filter((p) => p.active && p.key && p.value)
+            .map((p) => ({
+              key: p.key,
+              value: p.value,
+              active: p.active,
+              sendIn: p.sendIn,
+            })),
         }
 
         const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -975,6 +999,14 @@ const supportedGrantTypes = [
             clientSecret: clientSecret.value,
             scopes: scopes.value,
             clientAuthentication: clientAuthentication.value.id,
+            tokenRequestParams: workingTokenRequestParams.value
+              .filter((p) => p.active && p.key && p.value)
+              .map((p) => ({
+                key: p.key,
+                value: p.value,
+                active: p.active,
+                sendIn: p.sendIn,
+              })),
           })
 
         const parsedArgs = clientCredentials.params.safeParse(values)
@@ -1137,6 +1169,14 @@ const supportedGrantTypes = [
             scopes: scopes.value,
             username: username.value,
             password: password.value,
+            tokenRequestParams: workingTokenRequestParams.value
+              .filter((p) => p.active && p.key && p.value)
+              .map((p) => ({
+                key: p.key,
+                value: p.value,
+                active: p.active,
+                sendIn: p.sendIn,
+              })),
           }
         )
 
@@ -1248,6 +1288,14 @@ const supportedGrantTypes = [
             authEndpoint: authEndpoint.value,
             clientID: clientID.value,
             scopes: scopes.value,
+            authRequestParams: workingAuthRequestParams.value
+              .filter((p) => p.active && p.key && p.value)
+              .map((p) => ({
+                key: p.key,
+                value: p.value,
+                active: p.active,
+                sendIn: p.sendIn,
+              })),
           })
 
         const unwrappedValues = replaceTemplateStringsInObjectValues(values)
@@ -1453,12 +1501,45 @@ const generateOAuthToken = async () => {
   if (
     grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
   ) {
+    // Prepare advanced fields with environment variable replacement
+    const prepareAdvancedFields = () => {
+      return {
+        authRequestParams: workingAuthRequestParams.value
+          .filter((p) => p.active && p.key && p.value)
+          .map((p) => ({
+            key: replaceTemplateStringsInObjectValues({ key: p.key }).key,
+            value: replaceTemplateStringsInObjectValues({ value: p.value })
+              .value,
+            active: p.active,
+          })),
+        tokenRequestParams: workingTokenRequestParams.value
+          .filter((p) => p.active && p.key && p.value)
+          .map((p) => ({
+            key: replaceTemplateStringsInObjectValues({ key: p.key }).key,
+            value: replaceTemplateStringsInObjectValues({ value: p.value })
+              .value,
+            active: p.active,
+            sendIn: p.sendIn,
+          })),
+        refreshRequestParams: workingRefreshRequestParams.value
+          .filter((p) => p.active && p.key && p.value)
+          .map((p) => ({
+            key: replaceTemplateStringsInObjectValues({ key: p.key }).key,
+            value: replaceTemplateStringsInObjectValues({ value: p.value })
+              .value,
+            active: p.active,
+            sendIn: p.sendIn,
+          })),
+      }
+    }
+
     const authConfig: PersistedOAuthConfig = {
       source: props.source,
       context: props.isCollectionProperty
         ? { type: "collection-properties", metadata: {} }
         : { type: "request-tab", metadata: {} },
       grant_type: auth.value.grantTypeInfo.grantType,
+      advancedFields: prepareAdvancedFields(),
     }
     await persistenceService.setLocalConfig(
       "oauth_temp_config",
@@ -1509,6 +1590,7 @@ interface OAuth2AdvancedParam {
   key: string
   value: string
   active: boolean
+  sendIn?: string
 }
 
 let authRequestIdCounter = 1000

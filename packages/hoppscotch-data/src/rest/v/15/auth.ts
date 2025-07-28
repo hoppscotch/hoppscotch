@@ -6,16 +6,17 @@ import {
   HoppRESTAuthNone,
 } from "../1"
 import { HoppRESTAuthAPIKey } from "../4"
-import { AuthCodeGrantTypeParams } from "../7"
+import { AuthCodeGrantTypeParams as AuthCodeGrantTypeParamsOld } from "../7"
 import { HoppRESTAuthAWSSignature } from "../7"
-import { HoppRESTAuthDigest, PasswordGrantTypeParams } from "../8/auth"
+import {
+  HoppRESTAuthDigest,
+  PasswordGrantTypeParams as PasswordGrantTypeParamsOld,
+} from "../8/auth"
 import { HoppRESTAuthAkamaiEdgeGrid, HoppRESTAuthHAWK } from "../12/auth"
 import { HoppRESTAuthJWT } from "../13/auth"
-import { ClientCredentialsGrantTypeParams } from "../11/auth"
-import { ImplicitOauthFlowParams } from "../3"
+import { ClientCredentialsGrantTypeParams as ClientCredentialsGrantTypeParamsOld } from "../11/auth"
+import { ImplicitOauthFlowParams as ImplicitOauthFlowParamsOld } from "../3"
 
-// Re-export for compatibility
-export { ClientCredentialsGrantTypeParams } from "../11/auth"
 export { HoppRESTAuthJWT } from "../13/auth"
 
 // Define the OAuth2 advanced parameter structure
@@ -25,6 +26,28 @@ const OAuth2AdvancedParam = z.object({
   value: z.string(),
   active: z.boolean(),
   sendIn: z.string().optional(),
+})
+
+export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
+  authRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+})
+
+export const ClientCredentialsGrantTypeParams =
+  ClientCredentialsGrantTypeParamsOld.extend({
+    tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+    refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  })
+
+export const PasswordGrantTypeParams = PasswordGrantTypeParamsOld.extend({
+  tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+})
+
+export const ImplicitOauthFlowParams = ImplicitOauthFlowParamsOld.extend({
+  authRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
 })
 
 // Extend OAuth2 with advanced parameters
@@ -37,19 +60,6 @@ export const HoppRESTAuthOAuth2 = z.object({
     ImplicitOauthFlowParams,
   ]),
   addTo: z.enum(["HEADERS", "QUERY_PARAMS"]).catch("HEADERS"),
-  authRequestParams: z
-    .array(
-      OAuth2AdvancedParam.pick({
-        id: true,
-        key: true,
-        value: true,
-        active: true,
-      })
-    )
-    .optional()
-    .default([]),
-  tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
-  refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
 })
 
 export type HoppRESTAuthOAuth2 = z.infer<typeof HoppRESTAuthOAuth2>

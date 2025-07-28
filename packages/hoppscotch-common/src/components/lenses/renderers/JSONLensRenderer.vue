@@ -132,7 +132,10 @@
         />
       </div>
     </div>
-    <div class="h-full relative overflow-auto flex flex-col flex-1">
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
       <div ref="jsonResponse" class="absolute inset-0 h-full"></div>
     </div>
     <div
@@ -274,6 +277,7 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
@@ -281,7 +285,15 @@ const props = defineProps<{
   response: HoppRESTResponse | HoppRESTRequestResponse
   isSavable: boolean
   isEditable: boolean
+  tabId: string
 }>()
+
+const { containerRef } = useScrollerRef(
+  "JSONLens",
+  ".cm-scroller",
+  undefined, // skip initial
+  `${props.tabId}::json`
+)
 
 const emit = defineEmits<{
   (e: "save-as-example"): void

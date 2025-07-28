@@ -16,6 +16,7 @@
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
+        :tab-id="props.tabId"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -76,6 +77,7 @@ import { ConsoleEntry } from "../console/Panel.vue"
 const props = defineProps<{
   document: HoppRequestDocument
   isEditable: boolean
+  tabId: string
   isTestRunner?: boolean
 }>()
 

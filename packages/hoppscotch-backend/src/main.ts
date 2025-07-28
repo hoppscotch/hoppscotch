@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import * as crypto from 'crypto';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
@@ -51,7 +52,16 @@ async function bootstrap() {
 
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET'),
+      secret:
+        configService.get('INFRA.SESSION_SECRET') ||
+        crypto.randomBytes(16).toString('hex'),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+        sameSite: 'lax',
+      },
     }),
   );
 

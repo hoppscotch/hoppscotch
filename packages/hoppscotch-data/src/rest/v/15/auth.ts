@@ -24,7 +24,6 @@ const OAuth2AdvancedParam = z.object({
   key: z.string(),
   value: z.string(),
   active: z.boolean(),
-  description: z.string().optional(),
   sendIn: z.string().optional(),
 })
 

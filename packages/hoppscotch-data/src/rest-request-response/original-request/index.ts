@@ -5,6 +5,7 @@ import V2_VERSION from "./v/2"
 import V3_VERSION from "./v/3"
 import V4_VERSION from "./v/4"
 import V5_VERSION from "./v/5"
+import V6_VERSION from "./v/6"
 
 const versionedObject = z.object({
   // v is a stringified number
@@ -12,13 +13,14 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTResponseOriginalRequest = createVersionedEntity({
-  latestVersion: 5,
+  latestVersion: 6,
   versionMap: {
     1: V1_VERSION,
     2: V2_VERSION,
     3: V3_VERSION,
     4: V4_VERSION,
     5: V5_VERSION,
+    6: V6_VERSION,
   },
   getVersion(data) {
     const versionCheck = versionedObject.safeParse(data)
@@ -32,7 +34,7 @@ export const HoppRESTResponseOriginalRequest = createVersionedEntity({
   },
 })
 
-export const HoppRESTResOriginalReqSchemaVersion = "5"
+export const HoppRESTResOriginalReqSchemaVersion = "6"
 
 export type HoppRESTResponseOriginalRequest = InferredEntity<
   typeof HoppRESTResponseOriginalRequest

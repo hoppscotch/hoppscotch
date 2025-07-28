@@ -401,7 +401,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     .forEach(({ key, value }) => (finalHeaders[key] = value))
 
   const gqlRequest: HoppGQLRequest = {
-    v: 8,
+    v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
     headers: request.headers,

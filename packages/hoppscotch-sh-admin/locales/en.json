@@ -203,8 +203,8 @@
     "please_fill_configurations": "Please fill the required field {fieldName}",
     "save_auth_config": "Save Auth Config",
     "setup_complete": {
-      "title": "Setup Complete ",
-      "description": " You have successfully completed the onboarding process for your Hoppscotch instance.",
+      "title": "Setup Complete",
+      "description": "You have successfully completed the onboarding process for your Hoppscotch instance.",
       "description_sub": "The page will automatically redirect to the dashboard in a few seconds or you can reload once the server is restarted."
     },
     "server_restarting": "Server is restarting in {time} seconds...",
@@ -214,7 +214,7 @@
       "title": "SMTP"
     },
     "smtp_advanced_config_enable": "Enable to configure your own SMTP credentials",
-    "select_auth_provider": " Please select the authentication methods you want to set up.",
+    "select_auth_provider": "Please select the authentication methods you want to set up.",
     "select_atleast_one": "Please select at least one authentication provider to continue.",
     "start_onboarding": "Start Onboarding",
     "welcome": "Welcome",

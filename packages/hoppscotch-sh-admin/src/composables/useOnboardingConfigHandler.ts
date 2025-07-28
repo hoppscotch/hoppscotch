@@ -288,6 +288,7 @@ export function useOnboardingConfigHandler() {
 
     if (!validated || Object.keys(validated).length === 0) {
       toast.error(t('onboarding.add_atleast_one_auth_provider'));
+      submittingConfigs.value = false;
       return;
     }
 

@@ -188,6 +188,7 @@
           @click="addOnboardingConfigs"
           :reverse="true"
           :icon="IconLucideSave"
+          :loading="submittingConfigs"
           class="mt-4"
         />
       </div>

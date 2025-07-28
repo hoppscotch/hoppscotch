@@ -101,8 +101,10 @@ watch(
 );
 
 // Push to URL when step changes
-watch(step, (newStep) => {
-  router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
+watch(step, async (newStep) => {
+  if (newStep !== STEP.COMPLETE) {
+    router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
+  }
 });
 
 // Load onboarding status

@@ -45,7 +45,14 @@ export default <HoppModule>{
       return next();
     }
 
-    const isAdmin = res.data?.me.isAdmin;
+    if (
+      !onboardingStatus?.onboardingCompleted &&
+      !onboardingStatus?.canReRunOnboarding &&
+      to.name !== 'index' &&
+      to.name === 'onboarding'
+    ) {
+      return next();
+    }
 
     if (
       onboardingStatus?.onboardingCompleted &&
@@ -56,6 +63,8 @@ export default <HoppModule>{
       return next({ name: 'index' });
     }
 
+    const isAdmin = res.data?.me.isAdmin;
+
     // Route Guards
     if (!isGuestRoute(to.name) && !isAdmin) {
       /**
@@ -65,7 +74,7 @@ export default <HoppModule>{
       return next({ name: 'index' });
     }
 
-    if (isAdmin) {
+    if (isAdmin && onboardingStatus?.onboardingCompleted) {
       // These route guards applies to the case where the user is logged in successfully and validated as an admin
       const isInfraNotSetup = await getFirstTimeInfraSetupStatus();
 

@@ -1382,19 +1382,16 @@ const setAccessTokenInActiveContext = (
   const tabService = props.source === "REST" ? restTabsService : gqlTabsService
 
   if (
-    // @ts-expect-error
     tabService.currentActiveTab.value.document.request.auth.authType ===
       "oauth-2" &&
     accessToken
   ) {
-    // @ts-expect-error
     tabService.currentActiveTab.value.document.request.auth.grantTypeInfo.token =
       accessToken
   }
 
   if (
     refreshToken &&
-    // @ts-expect-error
     tabService.currentActiveTab.value.document.request.auth.authType ===
       "oauth-2"
   ) {

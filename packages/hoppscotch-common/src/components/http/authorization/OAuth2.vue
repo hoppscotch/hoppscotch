@@ -554,7 +554,7 @@
 import { HoppGQLAuthOAuth2, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as E from "fp-ts/Either"
-import { Ref, computed, ref, watch } from "vue"
+import { Ref, computed, ref, watch, onMounted } from "vue"
 import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
@@ -1600,22 +1600,6 @@ const workingAuthRequestParams = ref<OAuth2AdvancedParam[]>([
   { id: authRequestIdCounter++, key: "", value: "", active: true },
 ])
 
-// Initialize working params from auth.value if they exist
-if (
-  "authRequestParams" in auth.value &&
-  auth.value.authRequestParams &&
-  auth.value.authRequestParams.length > 0
-) {
-  workingAuthRequestParams.value = auth.value.authRequestParams.map(
-    (param: any) => ({
-      id: param.id || authRequestIdCounter++,
-      key: param.key,
-      value: param.value,
-      active: param.active,
-    })
-  )
-}
-
 // Watch for changes in working auth request params
 watch(
   workingAuthRequestParams,
@@ -1630,18 +1614,20 @@ watch(
       })
     }
 
-    // Update auth.value with non-empty params
+    // Update auth.value.grantTypeInfo with non-empty params
     const nonEmptyParams = newParams.filter(
       (p: OAuth2AdvancedParam) => p.key !== "" || p.value !== ""
     )
 
-    if ("authRequestParams" in auth.value) {
-      auth.value.authRequestParams = nonEmptyParams.map((param) => ({
-        id: param.id,
-        key: param.key,
-        value: param.value,
-        active: param.active,
-      }))
+    if ("authRequestParams" in auth.value.grantTypeInfo) {
+      auth.value.grantTypeInfo.authRequestParams = nonEmptyParams.map(
+        (param) => ({
+          id: param.id,
+          key: param.key,
+          value: param.value,
+          active: param.active,
+        })
+      )
     }
   },
   { deep: true }
@@ -1693,31 +1679,6 @@ const workingTokenRequestParams = ref<OAuth2TokenParam[]>([
   },
 ])
 
-// Initialize working token params from auth.value if they exist
-if (
-  "tokenRequestParams" in auth.value &&
-  auth.value.tokenRequestParams &&
-  auth.value.tokenRequestParams.length > 0
-) {
-  workingTokenRequestParams.value = [
-    ...auth.value.tokenRequestParams.map((param: any) => ({
-      id: param.id || tokenRequestIdCounter++,
-      key: param.key,
-      value: param.value,
-      sendIn: param.sendIn || "body",
-      active: param.active,
-    })),
-    // Always ensure there's an empty row at the end
-    {
-      id: tokenRequestIdCounter++,
-      key: "",
-      value: "",
-      sendIn: "body",
-      active: true,
-    },
-  ]
-}
-
 // Watch for changes in working token request params
 watch(
   workingTokenRequestParams,
@@ -1733,19 +1694,21 @@ watch(
       })
     }
 
-    // Update auth.value with non-empty params
+    // Update auth.value.grantTypeInfo with non-empty params
     const nonEmptyParams = newParams.filter(
       (p: OAuth2TokenParam) => p.key !== "" || p.value !== ""
     )
 
-    if ("tokenRequestParams" in auth.value) {
-      auth.value.tokenRequestParams = nonEmptyParams.map((param) => ({
-        id: param.id,
-        key: param.key,
-        value: param.value,
-        sendIn: param.sendIn,
-        active: param.active,
-      }))
+    if ("tokenRequestParams" in auth.value.grantTypeInfo) {
+      auth.value.grantTypeInfo.tokenRequestParams = nonEmptyParams.map(
+        (param) => ({
+          id: param.id,
+          key: param.key,
+          value: param.value,
+          sendIn: param.sendIn,
+          active: param.active,
+        })
+      )
     }
   },
   { deep: true }
@@ -1795,31 +1758,6 @@ const workingRefreshRequestParams = ref<OAuth2RefreshParam[]>([
   },
 ])
 
-// Initialize working refresh params from auth.value if they exist
-if (
-  "refreshRequestParams" in auth.value &&
-  auth.value.refreshRequestParams &&
-  auth.value.refreshRequestParams.length > 0
-) {
-  workingRefreshRequestParams.value = [
-    ...auth.value.refreshRequestParams.map((param: any) => ({
-      id: param.id || refreshRequestIdCounter++,
-      key: param.key,
-      value: param.value,
-      sendIn: param.sendIn || "body",
-      active: param.active,
-    })),
-    // Always ensure there's an empty row at the end
-    {
-      id: refreshRequestIdCounter++,
-      key: "",
-      value: "",
-      sendIn: "body",
-      active: true,
-    },
-  ]
-}
-
 // Watch for changes in working refresh request params
 watch(
   workingRefreshRequestParams,
@@ -1835,19 +1773,21 @@ watch(
       })
     }
 
-    // Update auth.value with non-empty params
+    // Update auth.value.grantTypeInfo with non-empty params
     const nonEmptyParams = newParams.filter(
       (p: OAuth2RefreshParam) => p.key !== "" || p.value !== ""
     )
 
-    if ("refreshRequestParams" in auth.value) {
-      auth.value.refreshRequestParams = nonEmptyParams.map((param) => ({
-        id: param.id,
-        key: param.key,
-        value: param.value,
-        sendIn: param.sendIn,
-        active: param.active,
-      }))
+    if ("refreshRequestParams" in auth.value.grantTypeInfo) {
+      auth.value.grantTypeInfo.refreshRequestParams = nonEmptyParams.map(
+        (param) => ({
+          id: param.id,
+          key: param.key,
+          value: param.value,
+          sendIn: param.sendIn,
+          active: param.active,
+        })
+      )
     }
   },
   { deep: true }
@@ -1880,4 +1820,69 @@ const deleteRefreshRequestParam = (index: number) => {
 
 const sendInTippyActions = ref<HTMLElement | null>(null)
 const refreshSendInTippyActions = ref<HTMLElement | null>(null)
+
+// Initialize advanced parameters from the auth object when component mounts
+onMounted(() => {
+  if (
+    "authRequestParams" in auth.value.grantTypeInfo &&
+    auth.value.grantTypeInfo.authRequestParams &&
+    auth.value.grantTypeInfo.authRequestParams.length > 0
+  ) {
+    workingAuthRequestParams.value =
+      auth.value.grantTypeInfo.authRequestParams.map((param: any) => ({
+        id: param.id || authRequestIdCounter++,
+        key: param.key,
+        value: param.value,
+        active: param.active,
+      }))
+  }
+
+  if (
+    "tokenRequestParams" in auth.value.grantTypeInfo &&
+    auth.value.grantTypeInfo.tokenRequestParams &&
+    auth.value.grantTypeInfo.tokenRequestParams.length > 0
+  ) {
+    workingTokenRequestParams.value = [
+      ...auth.value.grantTypeInfo.tokenRequestParams.map((param: any) => ({
+        id: param.id || tokenRequestIdCounter++,
+        key: param.key,
+        value: param.value,
+        sendIn: param.sendIn || "body",
+        active: param.active,
+      })),
+
+      {
+        id: tokenRequestIdCounter++,
+        key: "",
+        value: "",
+        sendIn: "body",
+        active: true,
+      },
+    ]
+  }
+
+  if (
+    "refreshRequestParams" in auth.value.grantTypeInfo &&
+    auth.value.grantTypeInfo.refreshRequestParams &&
+    auth.value.grantTypeInfo.refreshRequestParams.length > 0
+  ) {
+    workingRefreshRequestParams.value = [
+      ...auth.value.grantTypeInfo.refreshRequestParams.map((param: any) => ({
+        id: param.id || refreshRequestIdCounter++,
+        key: param.key,
+        value: param.value,
+        sendIn: param.sendIn || "body",
+        active: param.active,
+      })),
+
+      {
+        id: refreshRequestIdCounter++,
+        key: "",
+        value: "",
+        sendIn: "body",
+        active: true,
+      },
+    ]
+  }
+})
 </script>

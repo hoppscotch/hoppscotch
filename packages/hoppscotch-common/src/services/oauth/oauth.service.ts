@@ -27,25 +27,6 @@ export type PersistedOAuthConfig = {
   fields?: (AuthCodeOauthFlowParams | ImplicitOauthFlowParams) & {
     state: string
   }
-  advancedFields?: {
-    authRequestParams?: Array<{
-      key: string
-      value: string
-      active: boolean
-    }>
-    tokenRequestParams?: Array<{
-      key: string
-      value: string
-      active: boolean
-      sendIn?: string
-    }>
-    refreshRequestParams?: Array<{
-      key: string
-      value: string
-      active: boolean
-      sendIn?: string
-    }>
-  }
   token?: string
   refresh_token?: string
 }

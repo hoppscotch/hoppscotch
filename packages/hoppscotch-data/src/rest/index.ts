@@ -37,11 +37,7 @@ export {
 
 export { HoppRESTRequestVariables } from "./v/2"
 
-export { ImplicitOauthFlowParams } from "./v/3"
-
 export { HoppRESTAuthAPIKey } from "./v/4"
-
-export { AuthCodeGrantTypeParams } from "./v/5"
 
 export {
   HoppRESTAuthAWSSignature,
@@ -49,20 +45,22 @@ export {
   HoppRESTParams,
 } from "./v/7"
 
-export { HoppRESTAuthDigest, PasswordGrantTypeParams } from "./v/8/auth"
+export { HoppRESTAuthDigest } from "./v/8/auth"
 
 export { FormDataKeyValue } from "./v/9/body"
-
-export {
-  HoppRESTAuthOAuth2,
-  ClientCredentialsGrantTypeParams,
-} from "./v/15/auth"
 
 export { HoppRESTReqBody } from "./v/10/body"
 
 export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12/auth"
 
 export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/15/auth"
+export { AuthCodeGrantTypeParams } from "./v/15/auth"
+export { PasswordGrantTypeParams } from "./v/15/auth"
+export { ImplicitOauthFlowParams } from "./v/15/auth"
+export {
+  HoppRESTAuthOAuth2,
+  ClientCredentialsGrantTypeParams,
+} from "./v/15/auth"
 
 export {
   HoppRESTRequestResponse,

@@ -751,14 +751,6 @@ const supportedGrantTypes = [
           clientSecret: clientSecret.value,
           tokenEndpoint: tokenEndpoint.value,
           refreshToken,
-          refreshRequestParams: workingRefreshRequestParams.value
-            .filter((p) => p.active && p.key && p.value)
-            .map((p) => ({
-              key: p.key,
-              value: p.value,
-              active: p.active,
-              sendIn: p.sendIn,
-            })),
         }
 
         const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -792,22 +784,6 @@ const supportedGrantTypes = [
           scopes: scopes.value,
           isPKCE: isPKCE.value,
           codeVerifierMethod: codeChallenge.value?.id,
-          authRequestParams: workingAuthRequestParams.value
-            .filter((p) => p.active && p.key && p.value)
-            .map((p) => ({
-              key: p.key,
-              value: p.value,
-              active: p.active,
-              sendIn: p.sendIn,
-            })),
-          tokenRequestParams: workingTokenRequestParams.value
-            .filter((p) => p.active && p.key && p.value)
-            .map((p) => ({
-              key: p.key,
-              value: p.value,
-              active: p.active,
-              sendIn: p.sendIn,
-            })),
         }
 
         const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -1537,7 +1513,6 @@ const generateOAuthToken = async () => {
         ? { type: "collection-properties", metadata: {} }
         : { type: "request-tab", metadata: {} },
       grant_type: auth.value.grantTypeInfo.grantType,
-      advancedFields: prepareAdvancedFields(),
     }
     await persistenceService.setLocalConfig(
       "oauth_temp_config",

@@ -56,6 +56,7 @@
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "invalid_number": "Please enter a valid number for the field",
     "input_empty": "Please fill all the fields before updating the configurations",
     "input_validation_error": "Some fields have invalid values. Please correct them before updating the configurations",
     "data_sharing": {

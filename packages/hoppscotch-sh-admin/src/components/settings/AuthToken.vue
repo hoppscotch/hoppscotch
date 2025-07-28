@@ -54,6 +54,11 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(
+                      authTokenConfig.fields.token_salt_complexity
+                    )
+                  "
                 />
               </div>
               <div class="flex flex-col space-y-2">
@@ -66,6 +71,11 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(
+                      authTokenConfig.fields.magic_link_token_validity
+                    )
+                  "
                 />
               </div>
               <div class="flex flex-col space-y-2">
@@ -78,6 +88,11 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(
+                      authTokenConfig.fields.refresh_token_validity
+                    )
+                  "
                 />
               </div>
               <div class="flex flex-col space-y-2">
@@ -90,6 +105,11 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(
+                      authTokenConfig.fields.access_token_validity
+                    )
+                  "
                 />
               </div>
               <div class="flex flex-col space-y-2">
@@ -129,8 +149,10 @@ import { ServerConfigs } from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
+import { useToast } from '~/composables/toast';
 
 const t = useI18n();
+const toast = useToast();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -144,12 +166,8 @@ const workingConfigs = useVModel(props, 'config', emit);
 
 // Get or set token from workingConfigs
 const authTokenConfig = computed({
-  get() {
-    return workingConfigs.value?.tokenConfigs;
-  },
-  set(value) {
-    workingConfigs.value.tokenConfigs = value;
-  },
+  get: () => workingConfigs.value?.tokenConfigs,
+  set: (value) => (workingConfigs.value.tokenConfigs = value),
 });
 
 const maskState = ref<Record<string, boolean>>({
@@ -161,8 +179,13 @@ const toggleMask = (fieldKey: string) => {
   maskState.value[fieldKey] = !maskState.value[fieldKey];
 };
 
-const isMasked = (fieldKey: string) => {
-  return maskState.value[fieldKey];
+const isMasked = (fieldKey: string) => maskState.value[fieldKey];
+
+const validateNumberValue = (value: string | number) => {
+  const num = typeof value === 'string' ? parseInt(value, 10) : value;
+  if (isNaN(num) || num <= 0) {
+    toast.error(t('configs.invalid_number'));
+  }
 };
 </script>
 

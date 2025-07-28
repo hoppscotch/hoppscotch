@@ -34,6 +34,9 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(rateLimitConfig.fields.rate_limit_ttl)
+                  "
                 />
               </div>
               <div class="flex flex-col space-y-2">
@@ -44,6 +47,9 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
                   type="number"
+                  @update:model-value="
+                    validateNumberValue(rateLimitConfig.fields.rate_limit_max)
+                  "
                 />
               </div>
             </div>
@@ -58,10 +64,12 @@
 import { useVModel } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from '~/composables/i18n';
+import { useToast } from '~/composables/toast';
 import { ServerConfigs } from '~/helpers/configs';
 import IconHelpCircle from '~icons/lucide/help-circle';
 
 const t = useI18n();
+const toast = useToast();
 
 const props = defineProps<{
   config: ServerConfigs;
@@ -75,13 +83,16 @@ const workingConfigs = useVModel(props, 'config', emit);
 
 // Get or set rate limit from workingConfigs
 const rateLimitConfig = computed({
-  get() {
-    return workingConfigs.value?.rateLimitConfigs;
-  },
-  set(value) {
-    workingConfigs.value.rateLimitConfigs = value;
-  },
+  get: () => workingConfigs.value?.rateLimitConfigs,
+  set: (value) => (workingConfigs.value.rateLimitConfigs = value),
 });
+
+const validateNumberValue = (value: string | number) => {
+  const num = typeof value === 'string' ? parseInt(value, 10) : value;
+  if (isNaN(num) || num <= 0) {
+    toast.error(t('configs.invalid_number'));
+  }
+};
 </script>
 
 <style lang="scss">

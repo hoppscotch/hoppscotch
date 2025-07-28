@@ -197,6 +197,25 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     return field.trim() === '';
   };
 
+  /**
+   * Check if the field is not valid
+   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
+   * @param field Field value to validate
+   * @returns Boolean indicating if the field is valid
+   */
+  const isFieldNotValid = (field: string | boolean) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+
+    const num = Number(field);
+    if (isNaN(num) && typeof field === 'string') {
+      return field.trim() === '';
+    }
+
+    return num <= 0;
+  };
+
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
     const sections: Array<ConfigSection> = [
       config.providers.github,
@@ -225,9 +244,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         );
       }
 
-      if (!('enabled' in section)) {
-        return Object.values(section.fields).some(isFieldEmpty);
-      }
+      // This section has no enabled property, so we check fields directly
+      // eg: tokenConfigs, rateLimitConfigs
+      if (!('enabled' in section))
+        Object.values(section.fields).some(isFieldNotValid);
 
       return (
         section.enabled && Object.values(section.fields).some(isFieldEmpty)

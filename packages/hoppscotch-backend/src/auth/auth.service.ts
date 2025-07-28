@@ -53,9 +53,11 @@ export class AuthService {
     );
 
     // Calculate expiration time by adding hours to current time
-    const validityInHours = parseInt(
+    let validityInHours = parseInt(
       this.configService.get('INFRA.MAGIC_LINK_TOKEN_VALIDITY'),
     );
+    if (isNaN(validityInHours)) validityInHours = 24; // Default: 24 hours
+
     const expiresOn = new Date();
     expiresOn.setHours(expiresOn.getHours() + validityInHours);
 
@@ -294,7 +296,8 @@ export class AuthService {
       );
     }
 
-    if (new Date() > passwordlessTokens.value.expiresOn)
+    const currentTime = new Date();
+    if (currentTime > passwordlessTokens.value.expiresOn)
       return E.left({
         message: MAGIC_LINK_EXPIRED,
         statusCode: HttpStatus.UNAUTHORIZED,

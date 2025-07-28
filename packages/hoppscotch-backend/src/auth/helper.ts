@@ -43,24 +43,28 @@ export const authCookieHandler = (
   configService: ConfigService,
 ) => {
   // Calculate token validity periods in milliseconds
-  const accessTokenValidity = parseInt(
+  let accessTokenValidityInMs = parseInt(
     configService.get('INFRA.ACCESS_TOKEN_VALIDITY'),
   );
-  const refreshTokenValidity = parseInt(
+  let refreshTokenValidityInMs = parseInt(
     configService.get('INFRA.REFRESH_TOKEN_VALIDITY'),
   );
+
+  // Set default values if parsing results in NaN
+  if (isNaN(accessTokenValidityInMs)) accessTokenValidityInMs = 86400000; // Default: 1 day
+  if (isNaN(refreshTokenValidityInMs)) refreshTokenValidityInMs = 604800000; // Default: 7 days
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: accessTokenValidity,
+    maxAge: Date.now() + accessTokenValidityInMs,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: refreshTokenValidity,
+    maxAge: Date.now() + refreshTokenValidityInMs,
   });
 
   if (!redirect) {

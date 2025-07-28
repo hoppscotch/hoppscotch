@@ -31,7 +31,13 @@ export class PATAuthGuard implements CanActivate {
     request.user = userAccessToken.right.user;
     const accessToken = userAccessToken.right;
 
-    if (accessToken.expiresOn !== null && accessToken.expiresOn < new Date()) {
+    // If token has no expiration, it's valid
+    if (accessToken.expiresOn === null) {
+      return true;
+    }
+
+    // Check if token has expired
+    if (new Date() > accessToken.expiresOn) {
       throw new BadRequestException(
         createCLIErrorResponse(ACCESS_TOKEN_EXPIRED),
       );

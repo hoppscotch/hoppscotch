@@ -1,6 +1,15 @@
 <template>
   <main class="flex h-screen flex-col items-center justify-center">
-    <div class="fixed top-0 left-0 p-5 text-md font-bold">HOPPSCOTCH</div>
+    <div
+      class="fixed top-0 left-0 p-5 flex items-center justify-between w-full"
+    >
+      <span class="text-md font-bold">HOPPSCOTCH</span>
+      <HoppButtonPrimary
+        v-if="!isFirstTimeSetup"
+        label="Go to Dashboard"
+        @click="goToDashboard"
+      />
+    </div>
 
     <div v-if="isLoading" class="flex flex-1 justify-center items-center">
       <HoppSmartSpinner />
@@ -26,6 +35,7 @@
   </main>
 </template>
 <script setup lang="ts">
+import { HoppButtonPrimary } from '@hoppscotch/ui';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthSetup from '~/components/onboarding/AuthSetup.vue';

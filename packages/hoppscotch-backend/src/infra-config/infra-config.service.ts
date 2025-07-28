@@ -652,9 +652,7 @@ export class InfraConfigService implements OnModuleInit {
       const { name, value } = config;
 
       const fail = () => {
-        console.error(
-          `[Infra Validation Failed] Key: ${name}`,
-        );
+        console.error(`[Infra Validation Failed] Key: ${name}`);
         return E.left(INFRA_CONFIG_INVALID_INPUT);
       };
 
@@ -707,6 +705,14 @@ export class InfraConfigService implements OnModuleInit {
           ) {
             return fail();
           }
+          break;
+
+        case InfraConfigEnum.TOKEN_SALT_COMPLEXITY:
+        case InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY:
+        case InfraConfigEnum.ACCESS_TOKEN_VALIDITY:
+        case InfraConfigEnum.REFRESH_TOKEN_VALIDITY:
+          if (!Number.isInteger(Number(value)) || Number(value) < 1)
+            return fail();
           break;
 
         default:

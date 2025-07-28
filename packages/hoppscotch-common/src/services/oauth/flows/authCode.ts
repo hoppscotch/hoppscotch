@@ -24,6 +24,9 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
   scopes: true,
   isPKCE: true,
   codeVerifierMethod: true,
+  authRequestParams: true,
+  refreshRequestParams: true,
+  tokenRequestParams: true,
 })
   .refine(
     (params) => {
@@ -63,6 +66,9 @@ export const getDefaultAuthCodeOauthFlowParams =
     scopes: undefined,
     isPKCE: false,
     codeVerifierMethod: "S256",
+    authRequestParams: [],
+    refreshRequestParams: [],
+    tokenRequestParams: [],
   })
 
 const initAuthCodeOauthFlow = async ({
@@ -73,6 +79,9 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  authRequestParams,
+  refreshRequestParams,
+  tokenRequestParams,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -99,6 +108,24 @@ const initAuthCodeOauthFlow = async ({
     codeVerifierMethod?: string
     codeChallenge?: string
     scopes?: string
+    authRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    refreshRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    tokenRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -109,6 +136,9 @@ const initAuthCodeOauthFlow = async ({
     isPKCE,
     codeVerifierMethod,
     scopes,
+    authRequestParams,
+    refreshRequestParams,
+    tokenRequestParams,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -158,6 +188,14 @@ const initAuthCodeOauthFlow = async ({
   if (codeVerifierMethod && codeChallenge) {
     url.searchParams.set("code_challenge", codeChallenge)
     url.searchParams.set("code_challenge_method", codeVerifierMethod)
+  }
+
+  if (authRequestParams.length > 0) {
+    authRequestParams.forEach((param) => {
+      if (param.active && param.key && param.value) {
+        url.searchParams.set(param.key, param.value)
+      }
+    })
   }
 
   // Redirect to the authorization server

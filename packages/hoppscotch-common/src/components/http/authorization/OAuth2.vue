@@ -555,7 +555,10 @@ import { z } from "zod"
 import { useI18n } from "~/composables/i18n"
 import { refWithCallbackOnChange } from "~/composables/ref"
 import { useToast } from "~/composables/toast"
-import { replaceTemplateStringsInObjectValues } from "~/helpers/auth"
+import {
+  replaceTemplateString,
+  replaceTemplateStringsInObjectValues,
+} from "~/helpers/auth"
 import {
   commonOAuth2AuthParams,
   commonOAuth2RefreshParams,
@@ -788,8 +791,8 @@ const supportedGrantTypes = [
             .filter((p) => p.active && p.key && p.value)
             .map((p) => ({
               id: p.id,
-              key: p.key,
-              value: p.value,
+              key: replaceTemplateString(p.key),
+              value: replaceTemplateString(p.value),
               active: p.active,
               sendIn: p.sendIn,
             })),
@@ -797,8 +800,8 @@ const supportedGrantTypes = [
             .filter((p) => p.active && p.key && p.value)
             .map((p) => ({
               id: p.id,
-              key: p.key,
-              value: p.value,
+              key: replaceTemplateString(p.key),
+              value: replaceTemplateString(p.value),
               active: p.active,
               sendIn: p.sendIn,
             })),
@@ -806,8 +809,8 @@ const supportedGrantTypes = [
             .filter((p) => p.active && p.key && p.value)
             .map((p) => ({
               id: p.id,
-              key: p.key,
-              value: p.value,
+              key: replaceTemplateString(p.key),
+              value: replaceTemplateString(p.value),
               active: p.active,
               sendIn: p.sendIn,
             })),

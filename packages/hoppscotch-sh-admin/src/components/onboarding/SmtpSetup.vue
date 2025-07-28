@@ -56,7 +56,7 @@
       {{ smtp.USE_CUSTOM_CONFIGS.text }}
     </HoppSmartCheckbox>
     <p class="text-secondaryLight text-tiny mt-2">
-      Enable to configure your own SMTP credentials
+      {{ t('onboarding.smtp_advanced_config_enable') }}
     </p>
   </div>
 </template>
@@ -69,6 +69,9 @@ import {
   EnabledConfig,
   MailerConfigKeys,
 } from '~/composables/useOnboardingConfigHandler';
+import { useI18n } from '~/composables/i18n';
+
+const t = useI18n();
 
 const props = defineProps<{
   currentConfigs: Configs;

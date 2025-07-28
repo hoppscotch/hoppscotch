@@ -9,6 +9,7 @@
     "save": "Save"
   },
   "app": {
+    "back": "Back",
     "collapse_sidebar": "Collapse Sidebar",
     "continue_to_dashboard": "Continue to Dashboard",
     "expand_sidebar": "Expand Sidebar",
@@ -172,6 +173,53 @@
     "title": "Stay in Touch",
     "toggle_description": "Get updates about the latest at Hoppscotch",
     "unsubscribe": "Unsubscribe"
+  },
+  "onboarding": {
+    "add_atleast_one_auth_provider": "Please add at least one authentication provider to continue.",
+    "add_configurations": "Please add the configurations for the selected authentication methods.",
+    "add_oauth_config": "Add Auth Configurations",
+    "auth_setup": "Authentication Setup",
+    "auth_successfully_configured": "authentication has been successfully configured.",
+    "complete": "Complete",
+    "complete_description": "You have completed the onboarding process. You can now start using Hoppscotch.",
+    "complete_title": "Onboarding Complete",
+    "configurations": "Configurations",
+    "configurations_added_successfully": "Onboarding Configurations added successfully.",
+    "configurations_adding_failed": "Failed to add onboarding configs, please try again.",
+    "configurations_description": "Configure your Hoppscotch instance settings.",
+    "configuration_error": "Failed to add configurations",
+    "configurations_title": "Server Configurations",
+    "configuration_summary": "Configuration Summary",
+    "oauth": {
+      "description": "Set up OAuth providers like Google, GitHub, Microsoft, etc.",
+      "description_accordian": "Select the OAuth providers you want to enable and provide the necessary configurations.",
+      "title": "OAuth"
+    },
+    "onboarding_incomplete": {
+      "description": "You have not completed the onboarding process. Please set up at least one authentication provider to continue.",
+      "title": "Onboarding Incomplete"
+    },
+    "onboarding_fail_help": "If you are facing issues with the onboarding process, please contact support or check",
+    "please_fill_configurations": "Please fill the required field {fieldName}",
+    "save_auth_config": "Save Auth Config",
+    "setup_complete": {
+      "title": "Setup Complete",
+      "description": "You have successfully completed the onboarding process for your Hoppscotch instance.",
+      "description_sub": "The page will automatically redirect to the dashboard in a few seconds or you can reload once the server is restarted."
+    },
+    "server_restarting": "Server is restarting in {time} seconds...",
+    "smtp": {
+      "description": "Set up SMTP for email authentication.",
+      "description_accordian": "Configure the SMTP settings for sending emails.",
+      "title": "SMTP"
+    },
+    "smtp_advanced_config_enable": "Enable to configure your own SMTP credentials",
+    "select_auth_provider": "Please select the authentication methods you want to set up.",
+    "select_atleast_one": "Please select at least one authentication provider to continue.",
+    "start_onboarding": "Start Onboarding",
+    "welcome": "Welcome",
+    "welcome_screen_description": "Welcome to Hoppscotch! Let's get started with the setup.",
+    "welcome_screen_sub_description": "Please set up either SMTP or OAuth for authentication."
   },
   "settings": {
     "settings": "Settings"

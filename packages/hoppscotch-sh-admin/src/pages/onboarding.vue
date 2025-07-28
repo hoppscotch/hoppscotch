@@ -3,10 +3,10 @@
     <div
       class="fixed top-0 left-0 p-5 flex items-center justify-between w-full"
     >
-      <span class="text-md font-bold">HOPPSCOTCH</span>
+      <span class="text-md font-bold">{{ t('app.name') }}</span>
       <HoppButtonPrimary
         v-if="!isFirstTimeSetup"
-        label="Go to Dashboard"
+        :label="t('app.continue_to_dashboard')"
         @click="goToDashboard"
       />
     </div>
@@ -41,9 +41,11 @@ import { useRouter } from 'vue-router';
 import AuthSetup from '~/components/onboarding/AuthSetup.vue';
 import CompleteOnboarding from '~/components/onboarding/CompleteScreen.vue';
 import WelcomeScreen from '~/components/onboarding/WelcomeScreen.vue';
+import { useI18n } from '~/composables/i18n';
 import { OnBoardingSummary } from '~/composables/useOnboardingConfigHandler';
 import { auth } from '~/helpers/auth';
 
+const t = useI18n();
 const router = useRouter();
 
 // Steps
@@ -99,8 +101,10 @@ watch(
 );
 
 // Push to URL when step changes
-watch(step, (newStep) => {
-  router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
+watch(step, async (newStep) => {
+  if (newStep !== STEP.COMPLETE) {
+    router.replace({ name: 'onboarding', query: { step: newStep.toString() } });
+  }
 });
 
 // Load onboarding status

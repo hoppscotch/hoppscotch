@@ -25,11 +25,14 @@ const OAuth2AdvancedParam = z.object({
   key: z.string(),
   value: z.string(),
   active: z.boolean(),
-  sendIn: z.string().optional(),
+  sendIn: z.enum(["headers", "url", "body"]).catch("headers"),
 })
 
+// omit sendIn from OAuth2AuthRequestParam
+const OAuth2AuthRequestParam = OAuth2AdvancedParam.omit({ sendIn: true })
+
 export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
-  authRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),
   tokenRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
 })
@@ -46,7 +49,7 @@ export const PasswordGrantTypeParams = PasswordGrantTypeParamsOld.extend({
 })
 
 export const ImplicitOauthFlowParams = ImplicitOauthFlowParamsOld.extend({
-  authRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
+  authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),
   refreshRequestParams: z.array(OAuth2AdvancedParam).optional().default([]),
 })
 

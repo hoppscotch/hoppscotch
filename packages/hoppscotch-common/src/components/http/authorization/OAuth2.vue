@@ -1539,12 +1539,12 @@ const toggleAdvancedConfig = () => {
 }
 
 // Advanced Configuration: Auth Request Parameters
-interface OAuth2AdvancedParam {
+type OAuth2AdvancedParam = {
   id: number
   key: string
   value: string
   active: boolean
-  sendIn?: string
+  sendIn?: "headers" | "url" | "body"
 }
 
 let paramsIdCounter = 1000
@@ -1776,7 +1776,7 @@ onMounted(() => {
     auth.value.grantTypeInfo.authRequestParams.length > 0
   ) {
     workingAuthRequestParams.value =
-      auth.value.grantTypeInfo.authRequestParams.map((param: any) => ({
+      auth.value.grantTypeInfo.authRequestParams.map((param) => ({
         id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
@@ -1790,7 +1790,7 @@ onMounted(() => {
     auth.value.grantTypeInfo.tokenRequestParams.length > 0
   ) {
     workingTokenRequestParams.value = [
-      ...auth.value.grantTypeInfo.tokenRequestParams.map((param: any) => ({
+      ...auth.value.grantTypeInfo.tokenRequestParams.map((param) => ({
         id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
@@ -1814,14 +1814,13 @@ onMounted(() => {
     auth.value.grantTypeInfo.refreshRequestParams.length > 0
   ) {
     workingRefreshRequestParams.value = [
-      ...auth.value.grantTypeInfo.refreshRequestParams.map((param: any) => ({
+      ...auth.value.grantTypeInfo.refreshRequestParams.map((param) => ({
         id: param.id || paramsIdCounter++,
         key: param.key,
         value: param.value,
         sendIn: param.sendIn || "body",
         active: param.active,
       })),
-
       {
         id: paramsIdCounter++,
         key: "",

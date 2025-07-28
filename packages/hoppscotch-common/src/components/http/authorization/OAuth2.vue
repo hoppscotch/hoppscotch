@@ -1532,7 +1532,7 @@ const authTippyActions = ref<HTMLElement | null>(null)
 const clientAuthenticationTippyActions = ref<HTMLElement | null>(null)
 
 // Advanced Configuration state
-const isAdvancedConfigExpanded = ref(true)
+const isAdvancedConfigExpanded = ref(false)
 
 const toggleAdvancedConfig = () => {
   isAdvancedConfigExpanded.value = !isAdvancedConfigExpanded.value

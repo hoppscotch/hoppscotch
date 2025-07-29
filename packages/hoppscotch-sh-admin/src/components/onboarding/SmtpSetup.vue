@@ -5,6 +5,7 @@
       <HoppSmartInput
         v-model="currentConfigs.mailerConfigs[smtp.ADDRESS_FROM.id]"
         :label="smtp.ADDRESS_FROM.text"
+        :autofocus="false"
         input-styles="floating-input"
         class="!my-2 !bg-primaryLight flex-1"
       />
@@ -12,6 +13,7 @@
         v-if="smtp.SMTP_URL.enabled"
         v-model="currentConfigs.mailerConfigs[smtp.SMTP_URL.id]"
         :label="smtp.SMTP_URL.text"
+        :autofocus="false"
         input-styles="floating-input"
         class="!my-2 !bg-primaryLight flex-1"
       />

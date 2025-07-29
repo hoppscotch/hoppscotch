@@ -51,19 +51,27 @@ async function bootstrap() {
     configService.get('INFRA.SESSION_SECRET') ||
       crypto.randomBytes(16).toString('hex'),
   );
+  // app.use(
+  //   session({
+  //     secret:
+  //       configService.get('INFRA.SESSION_SECRET') ||
+  //       crypto.randomBytes(16).toString('hex'),
+  //     resave: false,
+  //     saveUninitialized: false,
+  //     cookie: {
+  //       httpOnly: true,
+  //       secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
+  //       sameSite: 'lax',
+  //       maxAge: 24 * 60 * 60 * 1000, // 24 hours for session cookie
+  //     },
+  //   }),
+  // );
+
   app.use(
     session({
       secret:
         configService.get('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours for session cookie
-      },
     }),
   );
 

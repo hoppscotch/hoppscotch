@@ -71,7 +71,6 @@ watch(
 );
 
 const toggleAccordion = () => {
-  console.log('Toggling accordion:', isOpen.value);
   isOpen.value = !isOpen.value;
   emit('toggle', isOpen.value);
 };

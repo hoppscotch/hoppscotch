@@ -53,7 +53,8 @@
       "apiconnect-wsdl": "2.0.36",
       "@xmldom/xmldom": "0.8.10",
       "brace-expansion@2.0.1": "2.0.2",
-      "brace-expansion@1.1.11": "1.1.12"
+      "brace-expansion@1.1.11": "1.1.12",
+      "form-data@4.0.2": "4.0.4"
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",

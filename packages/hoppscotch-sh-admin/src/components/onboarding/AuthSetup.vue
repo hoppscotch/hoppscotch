@@ -8,7 +8,7 @@
           <span
             class="w-10 h-1 rounded-sm bg-primaryDark"
             :class="{
-              'bg-accent': authConfigStep === 2,
+              '!bg-accent': authConfigStep === 2,
             }"
           ></span>
         </div>
@@ -118,13 +118,6 @@
           </div>
 
           <div class="flex items-center space-x-4 mt-6">
-            <HoppButtonPrimary
-              :label="t('onboarding.save_auth_config')"
-              @click="submitConfigs"
-              :reverse="true"
-              :icon="IconLucideSave"
-              :loading="submittingConfigs"
-            />
             <HoppButtonSecondary
               v-if="isFirstTimeSetup && authConfigStep === 2"
               :label="t('app.back')"
@@ -139,6 +132,13 @@
               :icon="IconLucideArrowLeft"
               :loading="submittingConfigs"
               :outline="true"
+            />
+            <HoppButtonPrimary
+              :label="t('onboarding.save_auth_config')"
+              @click="submitConfigs"
+              :reverse="true"
+              :icon="IconLucideSave"
+              :loading="submittingConfigs"
             />
           </div>
         </template>

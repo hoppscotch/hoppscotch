@@ -46,6 +46,11 @@ async function bootstrap() {
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
+  console.log(
+    'Setting up session middleware',
+    configService.get('INFRA.SESSION_SECRET') ||
+      crypto.randomBytes(16).toString('hex'),
+  );
   app.use(
     session({
       secret:
@@ -57,6 +62,7 @@ async function bootstrap() {
         httpOnly: true,
         secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
         sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours for session cookie
       },
     }),
   );

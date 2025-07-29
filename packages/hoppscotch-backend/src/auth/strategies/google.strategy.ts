@@ -34,12 +34,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     profile: Profile,
     done: VerifyCallback,
   ) {
+    console.log('[GOOGLE STRATEGY] Validating Google OAuth');
+
     const email = profile.emails?.[0].value;
 
+    console.log('[GOOGLE STRATEGY] validating email');
     if (!validateEmail(email))
       throw new UnauthorizedException(AUTH_EMAIL_NOT_PROVIDED_BY_OAUTH);
 
     const user = await this.usersService.findUserByEmail(email);
+    console.log('[GOOGLE STRATEGY] User found:', user);
 
     if (O.isNone(user)) {
       const createdUser = await this.usersService.createUserSSO(
@@ -47,18 +51,25 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
         refreshToken,
         profile,
       );
+      console.log('[GOOGLE STRATEGY] Created new user:', createdUser);
       return createdUser;
     }
 
     /**
      * displayName and photoURL maybe null if user logged-in via magic-link before SSO
      */
+    console.log('[GOOGLE STRATEGY] User already exists:', user.value);
     if (!user.value.displayName || !user.value.photoURL) {
+      console.log('[GOOGLE STRATEGY] Updating user details with SSO profile');
       const updatedUser = await this.usersService.updateUserDetails(
         user.value,
         profile,
       );
       if (E.isLeft(updatedUser)) {
+        console.error(
+          '[GOOGLE STRATEGY] Error updating user details:',
+          updatedUser.left,
+        );
         throw new UnauthorizedException(updatedUser.left);
       }
     }
@@ -67,8 +78,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
      * Check to see if entry for Google is present in the Account table for user
      * If user was created with another provider findUserByEmail may return true
      */
+    console.log('[GOOGLE STRATEGY] Checking if provider account exists');
     const providerAccountExists =
       await this.authService.checkIfProviderAccountExists(user.value, profile);
+    console.log(
+      '[GOOGLE STRATEGY] Provider account exists:',
+      providerAccountExists,
+    );
 
     if (O.isNone(providerAccountExists))
       await this.usersService.createProviderAccount(

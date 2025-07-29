@@ -13,10 +13,10 @@
           <icon-lucide-badge-check class="svg-icons text-green-500 !h-8 !w-8" />
         </span>
       </h1>
-      <h2>
+      <h2 class="text-base">
         {{ t('onboarding.setup_complete.description') }}
         <br />
-        <span class="text-secondaryLight text-tiny">
+        <span class="text-secondaryLight text-[0.9rem]">
           {{ t('onboarding.setup_complete.description_sub') }}
         </span>
       </h2>

@@ -198,6 +198,32 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
   };
 
   /**
+   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
+   * It checks if the field is a number or a numeric string, and returns true if it is not valid.
+   * @param field Field value to validate
+   * @returns Boolean indicating if the field is not valid
+   */
+  const isNotValidNumber = (field: string | boolean | number) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+
+    // Accept numbers or numeric strings (e.g., "1000"), but not non-numeric strings (e.g., "abc")
+    if (typeof field === 'number') {
+      return isNaN(field);
+    }
+
+    if (typeof field === 'string') {
+      // Trim and check if the string is a valid number
+      const trimmed = field.trim();
+      if (trimmed === '') return true;
+      return isNaN(Number(trimmed));
+    }
+
+    return true;
+  };
+
+  /**
    * Check if the field is not valid
    * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
    * @param field Field value to validate
@@ -227,27 +253,35 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     ];
 
     const hasSectionWithEmptyFields = sections.some((section) => {
-      if (
-        section.name === 'email' &&
-        !section.fields.mailer_use_custom_configs
-      ) {
+      if (section.name === 'email') {
+        const { mailer_use_custom_configs, ...otherFields } = section.fields;
+
+        const excludeKeys = mailer_use_custom_configs
+          ? ['mailer_smtp_url']
+          : [
+              'mailer_smtp_host',
+              'mailer_smtp_port',
+              'mailer_smtp_user',
+              'mailer_smtp_password',
+            ];
+
         return (
           section.enabled &&
-          Object.entries(section.fields).some(
-            ([key, value]) =>
-              isFieldEmpty(value) &&
-              key !== 'mailer_smtp_host' &&
-              key !== 'mailer_smtp_port' &&
-              key !== 'mailer_smtp_user' &&
-              key !== 'mailer_smtp_password'
+          Object.entries(otherFields).some(
+            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
           )
         );
       }
 
       // This section has no enabled property, so we check fields directly
-      // eg: tokenConfigs, rateLimitConfigs
-      if (!('enabled' in section))
-        Object.values(section.fields).some(isFieldNotValid);
+      // for a valid number (>0) or non-empty string
+      if (section.name === 'token')
+        return Object.values(section.fields).some(isFieldNotValid);
+
+      // For rate limit section, we want to check if the values are not valid numbers
+      // and not empty strings
+      if (section.name === 'rate_limit')
+        return Object.values(section.fields).some(isNotValidNumber);
 
       return (
         section.enabled && Object.values(section.fields).some(isFieldEmpty)

@@ -33,7 +33,6 @@
                   placeholder="e.g., 60 (in seconds)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
-                  type="number"
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_ttl)
                   "
@@ -46,7 +45,6 @@
                   placeholder="e.g., 100 (requests per TTL)"
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1"
-                  type="number"
                   @update:model-value="
                     validateNumberValue(rateLimitConfig.fields.rate_limit_max)
                   "

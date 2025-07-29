@@ -7,7 +7,7 @@ import { getLocalConfig, setLocalConfig } from '~/helpers/localpersistence';
 import { makeReadableKey } from '~/helpers/utils/readableKey';
 
 export type OAuthProvider = 'GOOGLE' | 'GITHUB' | 'MICROSOFT';
-export type EnabledConfig = OAuthProvider | 'MAILER' | 'EMAIL';
+export type EnabledConfig = OAuthProvider | 'OAUTH' | 'MAILER' | 'EMAIL';
 
 // common OAuth keys used across providers
 type OAuthKeys = 'CLIENT_ID' | 'CLIENT_SECRET' | 'CALLBACK_URL' | 'SCOPE';
@@ -132,7 +132,6 @@ export function useOnboardingConfigHandler() {
       enabledConfigs.value = enabledConfigs.value.filter(
         (c) => !['GOOGLE', 'GITHUB', 'MICROSOFT'].includes(c)
       );
-      return;
     }
 
     if (key === 'EMAIL') {
@@ -292,11 +291,14 @@ export function useOnboardingConfigHandler() {
       return;
     }
 
+    const filteredEnabledConfigs = enabledConfigs.value.filter(
+      (config) => config !== 'OAUTH' && config !== 'MAILER'
+    );
+
     const configWithAuth = {
       ...validated,
-      [InfraConfigEnum.ViteAllowedAuthProviders]: enabledConfigs.value
-        .filter((x) => x !== 'MAILER')
-        .join(','),
+      [InfraConfigEnum.ViteAllowedAuthProviders]:
+        filteredEnabledConfigs.join(','),
     };
 
     try {

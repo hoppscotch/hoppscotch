@@ -42,6 +42,13 @@ export const authCookieHandler = (
   redirectUrl: string | null,
   configService: ConfigService,
 ) => {
+  console.log('[AUTH HELPER] Setting auth cookies');
+  console.log({
+    authTokens,
+    redirect,
+    redirectUrl,
+  });
+
   // Calculate token validity periods in milliseconds
   let accessTokenValidityInMs = parseInt(
     configService.get('INFRA.ACCESS_TOKEN_VALIDITY'),
@@ -53,6 +60,10 @@ export const authCookieHandler = (
   // Set default values if parsing results in NaN
   if (isNaN(accessTokenValidityInMs)) accessTokenValidityInMs = 86400000; // Default: 1 day
   if (isNaN(refreshTokenValidityInMs)) refreshTokenValidityInMs = 604800000; // Default: 7 days
+
+  console.log({ accessTokenValidityInMs, refreshTokenValidityInMs });
+
+  console.log('[AUTH HELPER] Setting cookies for access and refresh tokens');
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
@@ -66,6 +77,8 @@ export const authCookieHandler = (
     sameSite: 'lax',
     maxAge: Date.now() + refreshTokenValidityInMs,
   });
+
+  console.log('[AUTH HELPER] Cookies set successfully');
 
   if (!redirect) {
     return res.status(HttpStatus.OK).send();

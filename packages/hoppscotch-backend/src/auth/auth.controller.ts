@@ -115,7 +115,19 @@ export class AuthController {
   @UseInterceptors(UserLastLoginInterceptor)
   async googleAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
-    if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
+    console.log('[AUTH CONTROLLER] Google Auth Redirect', authTokens);
+
+    if (E.isLeft(authTokens)) {
+      console.error(
+        '[AUTH CONTROLLER] Error generating auth tokens',
+        authTokens.left,
+      );
+      throwHTTPErr(authTokens.left);
+    }
+
+    console.log(
+      '[AUTH CONTROLLER] Setting cookies for Google authCookieHandler',
+    );
     authCookieHandler(
       res,
       authTokens.right,

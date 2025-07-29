@@ -51,17 +51,10 @@ async function bootstrap() {
       secret:
         configService.get('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
-        sameSite: 'lax',
-      },
     }),
   );
 
-  // Increase fil upload limit to 50MB
+  // Increase file upload limit to 100MB
   app.use(
     json({
       limit: '100mb',

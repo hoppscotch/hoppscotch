@@ -43,9 +43,9 @@ export const commonOAuth2RefreshParams = [
   "resource",
 ]
 
-export const sendInOptions = ["headers", "url", "body"] as const
+export const sendInOptions = ["body", "url", "headers"] as const
 export const sendInOptionsLabels = {
-  headers: "Request Headers",
-  url: "Request URL",
   body: "Request Body",
+  url: "Request URL",
+  headers: "Request Headers",
 }

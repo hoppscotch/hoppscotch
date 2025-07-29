@@ -227,19 +227,22 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     ];
 
     const hasSectionWithEmptyFields = sections.some((section) => {
-      if (
-        section.name === 'email' &&
-        !section.fields.mailer_use_custom_configs
-      ) {
+      if (section.name === 'email') {
+        const { mailer_use_custom_configs, ...otherFields } = section.fields;
+
+        const excludeKeys = mailer_use_custom_configs
+          ? ['mailer_smtp_url']
+          : [
+              'mailer_smtp_host',
+              'mailer_smtp_port',
+              'mailer_smtp_user',
+              'mailer_smtp_password',
+            ];
+
         return (
           section.enabled &&
-          Object.entries(section.fields).some(
-            ([key, value]) =>
-              isFieldEmpty(value) &&
-              key !== 'mailer_smtp_host' &&
-              key !== 'mailer_smtp_port' &&
-              key !== 'mailer_smtp_user' &&
-              key !== 'mailer_smtp_password'
+          Object.entries(otherFields).some(
+            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
           )
         );
       }

@@ -57,8 +57,8 @@ async function bootstrap() {
       secret:
         configService.get('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
-      resave: true,
-      saveUninitialized: false,
+      // resave: true,
+      // saveUninitialized: false,
       cookie: {
         httpOnly: true,
         secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',

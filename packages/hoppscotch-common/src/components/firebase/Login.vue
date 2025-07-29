@@ -27,7 +27,11 @@
             @click="provider.action"
           />
 
-          <hr v-if="additionalLoginItems.length > 0" />
+          <hr
+            v-if="
+              additionalLoginItems.length > 0 && allowedAuthProviders.length
+            "
+          />
 
           <HoppSmartItem
             v-for="loginItem in additionalLoginItems"
@@ -58,7 +62,7 @@
         </form>
 
         <div
-          v-if="!allowedAuthProviders?.length"
+          v-if="!allowedAuthProviders?.length && !additionalLoginItems.length"
           class="flex flex-col items-center text-center"
         >
           <p>{{ t("state.require_auth_provider") }}</p>

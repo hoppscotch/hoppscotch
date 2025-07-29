@@ -176,7 +176,8 @@
   },
   "onboarding": {
     "add_atleast_one_auth_provider": "Please add at least one authentication provider to continue.",
-    "add_configurations": "Please add the configurations for the selected authentication methods.",
+    "add_configurations": "Add Configurations",
+    "add_configurations_description": "Please add the configurations for the selected authentication methods.",
     "add_oauth_config": "Add Auth Configurations",
     "auth_setup": "Authentication Setup",
     "auth_successfully_configured": "authentication has been successfully configured.",
@@ -214,7 +215,8 @@
       "title": "SMTP"
     },
     "smtp_advanced_config_enable": "Enable to configure your own SMTP credentials",
-    "select_auth_provider": "Please select the authentication methods you want to set up.",
+    "select_auth_methods": "Please select authentications",
+    "select_auth_provider": "You can select one or more authentication providers to continue.",
     "select_atleast_one": "Please select at least one authentication provider to continue.",
     "start_onboarding": "Start Onboarding",
     "welcome": "Welcome",

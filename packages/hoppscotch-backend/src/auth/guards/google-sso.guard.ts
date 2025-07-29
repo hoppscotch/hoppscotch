@@ -15,6 +15,7 @@ export class GoogleSSOGuard extends AuthGuard('google') implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    console.log('[GOOGLE SSO GUARD] Checking Google SSO Guard');
     if (
       !authProviderCheck(
         AuthProvider.GOOGLE,
@@ -28,6 +29,7 @@ export class GoogleSSOGuard extends AuthGuard('google') implements CanActivate {
   }
 
   getAuthenticateOptions(context: ExecutionContext) {
+    console.log('[GOOGLE SSO GUARD] Getting authentication options');
     const req = context.switchToHttp().getRequest();
 
     return {

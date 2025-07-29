@@ -114,6 +114,7 @@ export class AuthController {
   @UseGuards(GoogleSSOGuard)
   @UseInterceptors(UserLastLoginInterceptor)
   async googleAuthRedirect(@Request() req, @Res() res) {
+    console.log('[AUTH CONTROLLER] Google Auth Redirect');
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     console.log('[AUTH CONTROLLER] Google Auth Redirect', authTokens);
 

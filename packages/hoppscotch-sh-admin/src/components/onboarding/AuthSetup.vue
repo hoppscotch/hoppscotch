@@ -107,7 +107,9 @@
           >
             <UiAccordion
               v-if="selectedOptions.includes('OAuth')"
-              :initial-open="isOAuthEnabled"
+              :initial-open="
+                isOAuthEnabled || selectedOptions.includes('OAuth')
+              "
               class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
             >
               <template v-slot:header="{ isOpen, toggleAccordion }">
@@ -146,7 +148,10 @@
 
             <UiAccordion
               v-if="selectedOptions.includes('SMTP')"
-              :initial-open="enabledConfigs.includes('MAILER')"
+              :initial-open="
+                enabledConfigs.includes('MAILER') ||
+                selectedOptions.includes('SMTP')
+              "
               class="bg-primary rounded-lg border-primaryDark shadow p-4 border flex flex-col"
             >
               <template v-slot:header="{ isOpen, toggleAccordion }">

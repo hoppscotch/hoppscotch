@@ -214,7 +214,11 @@ export function useOnboardingConfigHandler() {
       if (!enabledConfigs.value.includes('MAILER')) return false;
 
       if (!usingCustom) {
-        return ['MAILER_SMTP_URL', 'MAILER_ADDRESS_FROM'].includes(key);
+        return [
+          'MAILER_SMTP_ENABLE',
+          'MAILER_SMTP_URL',
+          'MAILER_ADDRESS_FROM',
+        ].includes(key);
       }
 
       return [
@@ -222,6 +226,11 @@ export function useOnboardingConfigHandler() {
         'MAILER_SMTP_PORT',
         'MAILER_SMTP_USER',
         'MAILER_SMTP_PASSWORD',
+        'MAILER_ADDRESS_FROM',
+        'MAILER_USE_CUSTOM_CONFIGS',
+        'MAILER_SMTP_SECURE',
+        'MAILER_TLS_REJECT_UNAUTHORIZED',
+        'MAILER_SMTP_ENABLE',
       ].includes(key);
     });
   };

@@ -993,7 +993,7 @@
     "invited_to_team": "{owner} te ha invitado al espacio de trabajo {team}",
     "join": "Invitación aceptada",
     "join_team": "Entrar al espacio de trabajo {team}",
-    "joined_team": "Haz entrado al espacio de trabajo {team}",
+    "joined_team": "Has entrado al espacio de trabajo {team}",
     "joined_team_description": "Ahora eres miembro de este espacio de trabajo",
     "left": "Saliste del espacio de trabajo",
     "login_to_continue": "Iniciar sesión para continuar",

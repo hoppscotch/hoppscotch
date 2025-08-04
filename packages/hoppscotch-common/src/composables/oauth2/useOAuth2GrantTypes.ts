@@ -223,33 +223,11 @@ export const useOAuth2GrantTypes = (
             scopes: scopes.value,
             isPKCE: isPKCE.value,
             codeVerifierMethod: codeChallenge.value?.id,
-            authRequestParams: workingAuthRequestParams.value
-              .filter((p) => p.active && p.key && p.value)
-              .map((p) => ({
-                id: p.id,
-                key: replaceTemplateString(p.key),
-                value: replaceTemplateString(p.value),
-                active: p.active,
-                sendIn: p.sendIn,
-              })),
-            tokenRequestParams: workingTokenRequestParams.value
-              .filter((p) => p.active && p.key && p.value)
-              .map((p) => ({
-                id: p.id,
-                key: replaceTemplateString(p.key),
-                value: replaceTemplateString(p.value),
-                active: p.active,
-                sendIn: p.sendIn,
-              })),
-            refreshRequestParams: workingRefreshRequestParams.value
-              .filter((p) => p.active && p.key && p.value)
-              .map((p) => ({
-                id: p.id,
-                key: replaceTemplateString(p.key),
-                value: replaceTemplateString(p.value),
-                active: p.active,
-                sendIn: p.sendIn,
-              })),
+            authRequestParams: prepareRequestParams(workingAuthRequestParams),
+            tokenRequestParams: prepareRequestParams(workingTokenRequestParams),
+            refreshRequestParams: prepareRequestParams(
+              workingRefreshRequestParams
+            ),
           }
 
           const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -438,6 +416,12 @@ export const useOAuth2GrantTypes = (
               clientSecret: clientSecret.value,
               scopes: scopes.value,
               clientAuthentication: clientAuthentication.value.id,
+              tokenRequestParams: prepareRequestParams(
+                workingTokenRequestParams
+              ),
+              refreshRequestParams: prepareRequestParams(
+                workingRefreshRequestParams
+              ),
             })
 
           const parsedArgs = clientCredentials.params.safeParse(values)
@@ -600,6 +584,12 @@ export const useOAuth2GrantTypes = (
               scopes: scopes.value,
               username: username.value,
               password: password.value,
+              tokenRequestParams: prepareRequestParams(
+                workingTokenRequestParams
+              ),
+              refreshRequestParams: prepareRequestParams(
+                workingRefreshRequestParams
+              ),
             })
 
           const parsedArgs = passwordFlow.params.safeParse(values)
@@ -710,6 +700,10 @@ export const useOAuth2GrantTypes = (
               authEndpoint: authEndpoint.value,
               clientID: clientID.value,
               scopes: scopes.value,
+              authRequestParams: prepareRequestParams(workingAuthRequestParams),
+              refreshRequestParams: prepareRequestParams(
+                workingRefreshRequestParams
+              ),
             })
 
           const unwrappedValues = replaceTemplateStringsInObjectValues(values)
@@ -755,6 +749,20 @@ export const useOAuth2GrantTypes = (
       }),
     },
   ]
+
+  const prepareRequestParams = (
+    params: Ref<AuthRequestParam[] | TokenRequestParam[]>
+  ) => {
+    return params.value
+      .filter((p) => p.active && p.key && p.value)
+      .map((p) => ({
+        id: p.id,
+        key: replaceTemplateString(p.key),
+        value: replaceTemplateString(p.value),
+        active: p.active,
+        sendIn: p.sendIn,
+      }))
+  }
 
   const selectedGrantTypeID = computed(() => {
     const currentGrantType = auth.value.grantTypeInfo.grantType

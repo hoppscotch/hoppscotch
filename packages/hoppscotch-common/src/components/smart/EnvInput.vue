@@ -376,7 +376,7 @@ const aggregateEnvs = useReadonlyStream(
 const tabs = useService(RESTTabService)
 
 const envVars = computed(() => {
-  if (props.envs) {
+  if (props.envs && props.envs.length > 0) {
     return props.envs.map((x) => {
       const { key, secret } = x
       const currentValue = secret ? "********" : x.currentValue

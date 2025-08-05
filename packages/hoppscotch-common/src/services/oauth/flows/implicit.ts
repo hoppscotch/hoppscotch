@@ -16,6 +16,8 @@ const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParams.pick({
   authEndpoint: true,
   clientID: true,
   scopes: true,
+  authRequestParams: true,
+  refreshRequestParams: true,
 }).refine((params) => {
   return (
     params.authEndpoint.length >= 1 &&
@@ -33,12 +35,15 @@ export const getDefaultImplicitOauthFlowParams =
     authEndpoint: "",
     clientID: "",
     scopes: undefined,
+    authRequestParams: [],
+    refreshRequestParams: [],
   })
 
 const initImplicitOauthFlow = async ({
   clientID,
   scopes,
   authEndpoint,
+  authRequestParams,
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -59,6 +64,7 @@ const initImplicitOauthFlow = async ({
         authEndpoint,
         scopes,
         state,
+        authRequestParams,
       },
       grant_type: "IMPLICIT",
     })
@@ -78,6 +84,15 @@ const initImplicitOauthFlow = async ({
   url.searchParams.set("redirect_uri", OauthAuthService.redirectURI)
 
   if (scopes) url.searchParams.set("scope", scopes)
+
+  // Process additional auth request parameters
+  if (authRequestParams) {
+    authRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        url.searchParams.set(param.key, param.value)
+      })
+  }
 
   // Redirect to the authorization server
   window.location.assign(url.toString())

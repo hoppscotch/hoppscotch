@@ -51,6 +51,8 @@ async function bootstrap() {
       secret:
         configService.get('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
+      resave: false,
+      saveUninitialized: false,
     }),
   );
 

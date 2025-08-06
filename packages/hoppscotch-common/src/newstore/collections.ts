@@ -17,20 +17,6 @@ import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { ref } from "vue"
-
-// Reactive error state for collection operations
-export const collectionSyncError = ref<string | null>(null)
-
-// Function to set collection sync errors
-export function setCollectionSyncError(error: string | null) {
-  collectionSyncError.value = error
-}
-
-// Function to clear collection sync errors
-export function clearCollectionSyncError() {
-  collectionSyncError.value = null
-}
 
 const defaultRESTCollectionState = {
   state: [
@@ -227,13 +213,8 @@ const restCollectionDispatchers = defineDispatchers({
       // this collectionID is used to sync the collection removal
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       collectionID,
-      error,
-    }: { collectionIndex: number; collectionID?: string; error?: string }
+    }: { collectionIndex: number; collectionID?: string }
   ) {
-    if (error) {
-      setCollectionSyncError(error)
-    }
-
     return {
       state: (state as any).filter(
         (_: any, i: number) => i !== collectionIndex
@@ -1221,15 +1202,13 @@ export function addRESTCollection(collection: HoppCollection) {
 
 export function removeRESTCollection(
   collectionIndex: number,
-  collectionID?: string,
-  error?: string
+  collectionID?: string
 ) {
   restCollectionStore.dispatch({
     dispatcher: "removeCollection",
     payload: {
       collectionIndex,
       collectionID,
-      error,
     },
   })
 }

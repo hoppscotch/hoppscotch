@@ -49,7 +49,9 @@
       @drop-request="dropRequest"
       @drop-collection="dropCollection"
       @display-modal-add="displayModalAdd(true)"
-      @display-modal-import-export="displayModalImportExport(true)"
+      @display-modal-import-export="
+        displayModalImportExport(true, 'my-collections')
+      "
       @duplicate-collection="duplicateCollection"
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
@@ -235,6 +237,7 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
+  verifyAuthTokens,
 } from "~/helpers/backend/helpers"
 import {
   createChildCollection,
@@ -273,8 +276,6 @@ import {
   addRESTCollection,
   addRESTFolder,
   cascadeParentCollectionForHeaderAuth,
-  clearCollectionSyncError,
-  collectionSyncError,
   duplicateRESTCollection,
   editRESTCollection,
   editRESTFolder,
@@ -303,6 +304,8 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
+
+const SESSION_EXPIRED = "Session expired. Please log in again."
 
 const t = useI18n()
 const toast = useToast()
@@ -370,6 +373,29 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
+/**
+ * Validates user authentication and token validity by making an API call
+ * @returns {Promise<object>} Authentication status with user existence and token validity
+ */
+const isValidUser = async () => {
+  if (currentUser.value) {
+    try {
+      const hasValidTokens = await verifyAuthTokens()
+      return {
+        valid: hasValidTokens,
+        error: SESSION_EXPIRED,
+      }
+    } catch (error) {
+      console.debug("Token validation failed:", error)
+      return { valid: false, error: SESSION_EXPIRED }
+    }
+  }
+
+  // allow user to perform actions without being logged in
+  return { valid: true, error: "" }
+}
+
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
 // Dragging
@@ -406,15 +432,6 @@ const {
 watch(teamsSearchResults, (newSearchResults) => {
   if (newSearchResults.length === 1 && filterTexts.value.length > 0) {
     expandCollection(newSearchResults[0].id)
-  }
-})
-
-// Watch for collection sync errors and show toast
-watch(collectionSyncError, (error) => {
-  if (error) {
-    toast.error(error)
-    // Clear the error after showing the toast
-    clearCollectionSyncError()
   }
 })
 
@@ -749,7 +766,15 @@ const displayModalEditResponse = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
-const displayModalImportExport = (show: boolean) => {
+const displayModalImportExport = async (
+  show: boolean,
+  collectionType?: string
+) => {
+  const response: { valid: boolean; error: string } = await isValidUser()
+  if (!response.valid && collectionType === "my-collections") {
+    toast.error(response.error)
+    return
+  }
   showModalImportExport.value = show
 
   if (!show) resetSelectedData()
@@ -773,8 +798,15 @@ const displayTeamModalAdd = (show: boolean) => {
   teamListAdapter.fetchList()
 }
 
-const addNewRootCollection = (name: string) => {
+const addNewRootCollection = async (name: string) => {
   if (collectionsType.value.type === "my-collections") {
+    modalLoadingState.value = true
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      modalLoadingState.value = false
+      toast.error(response.error)
+      return
+    }
     addRESTCollection(
       makeCollection({
         name,
@@ -795,6 +827,7 @@ const addNewRootCollection = (name: string) => {
       isRootCollection: true,
     })
 
+    modalLoadingState.value = false
     displayModalAdd(false)
   } else if (hasTeamWriteAccess.value) {
     if (!collectionsType.value.selectedTeam) return
@@ -834,7 +867,7 @@ const addRequest = (payload: {
   displayModalAddRequest(true)
 }
 
-const onAddRequest = (requestName: string) => {
+const onAddRequest = async (requestName: string) => {
   const newRequest = {
     ...getDefaultRESTRequest(),
     name: requestName,
@@ -843,6 +876,13 @@ const onAddRequest = (requestName: string) => {
   const path = editingFolderPath.value
   if (!path) return
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+
+      toast.error(response.error)
+      return
+    }
+
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
@@ -936,11 +976,16 @@ const addFolder = (payload: {
   displayModalAddFolder(true)
 }
 
-const onAddFolder = (folderName: string) => {
+const onAddFolder = async (folderName: string) => {
   const path = editingFolderPath.value
 
   if (collectionsType.value.type === "my-collections") {
     if (!path) return
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     addRESTFolder(folderName, path)
 
     platform.analytics?.logEvent({
@@ -1001,7 +1046,7 @@ const editCollection = (payload: {
   displayModalEditCollection(true)
 }
 
-const updateEditingCollection = (newName: string) => {
+const updateEditingCollection = async (newName: string) => {
   if (!editingCollection.value) return
 
   if (!newName) {
@@ -1010,6 +1055,12 @@ const updateEditingCollection = (newName: string) => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+
+      toast.error(response.error)
+      return
+    }
     const collectionIndex = editingCollectionIndex.value
     if (collectionIndex === null) return
 
@@ -1059,10 +1110,15 @@ const editFolder = (payload: {
   displayModalEditFolder(true)
 }
 
-const updateEditingFolder = (newName: string) => {
+const updateEditingFolder = async (newName: string) => {
   if (!editingFolder.value) return
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     if (!editingFolderPath.value) return
 
     editRESTFolder(editingFolderPath.value, {
@@ -1105,6 +1161,11 @@ const duplicateCollection = async ({
   collectionSyncID?: string
 }) => {
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     duplicateRESTCollection(pathOrID, collectionSyncID)
   } else if (hasTeamWriteAccess.value) {
     duplicateCollectionLoading.value = true
@@ -1142,7 +1203,7 @@ const editRequest = (payload: {
   displayModalEditRequest(true)
 }
 
-const updateEditingRequest = (newName: string) => {
+const updateEditingRequest = async (newName: string) => {
   const request = editingRequest.value
   if (!request) return
 
@@ -1151,6 +1212,11 @@ const updateEditingRequest = (newName: string) => {
     name: newName || request.name,
   }
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -1382,7 +1448,7 @@ const updateEditingResponse = (newName: string) => {
   }
 }
 
-const duplicateRequest = (payload: {
+const duplicateRequest = async (payload: {
   folderPath: string
   request: HoppRESTRequest
 }) => {
@@ -1395,6 +1461,11 @@ const duplicateRequest = (payload: {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     saveRESTRequestAs(folderPath, newRequest)
     toast.success(t("request.duplicated"))
   } else if (hasTeamWriteAccess.value) {
@@ -1425,7 +1496,7 @@ const duplicateRequest = (payload: {
   }
 }
 
-const duplicateResponse = (payload: ResponseConfigPayload) => {
+const duplicateResponse = async (payload: ResponseConfigPayload) => {
   const { folderPath, requestIndex, request, responseName } = payload
 
   const response = request.responses[responseName]
@@ -1454,6 +1525,11 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     editRESTRequest(folderPath, parseInt(requestIndex), updatedRequest)
     toast.success(t("response.duplicated"))
 
@@ -1545,8 +1621,13 @@ const removeTeamCollectionOrFolder = async (collectionID: string) => {
   )()
 }
 
-const onRemoveCollection = () => {
+const onRemoveCollection = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const collectionIndex = editingCollectionIndex.value
 
     const collectionToRemove =
@@ -1608,8 +1689,13 @@ const removeFolder = (id: string) => {
   displayConfirmModal(true)
 }
 
-const onRemoveFolder = () => {
+const onRemoveFolder = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const folderPath = editingFolderPath.value
 
     if (!folderPath) return
@@ -1675,8 +1761,13 @@ const removeRequest = (payload: {
   displayConfirmModal(true)
 }
 
-const onRemoveRequest = () => {
+const onRemoveRequest = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -1788,7 +1879,7 @@ const removeResponse = (payload: ResponseConfigPayload) => {
   displayConfirmModal(true)
 }
 
-const onRemoveResponse = () => {
+const onRemoveResponse = async () => {
   const request = cloneDeep(editingRequest.value)
 
   if (!request) return
@@ -1803,6 +1894,11 @@ const onRemoveResponse = () => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -2100,7 +2196,7 @@ const pathToLastIndex = (path: string) => {
  * This function is called when the user drops the request inside a collection
  * @param payload Object that contains the folder path, request index and the destination collection index
  */
-const dropRequest = (payload: {
+const dropRequest = async (payload: {
   folderPath?: string | undefined
   requestIndex: string
   destinationCollectionIndex: string
@@ -2112,6 +2208,11 @@ const dropRequest = (payload: {
   let possibleTab = null
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     const { auth, headers } = cascadeParentCollectionForHeaderAuth(
       destinationCollectionIndex,
       "rest"
@@ -2263,7 +2364,7 @@ const isMoveToSameLocation = (
  * to a different collection or folder
  * @param payload - object containing the collection index dragged and the destination collection index
  */
-const dropCollection = (payload: {
+const dropCollection = async (payload: {
   collectionIndexDragged: string
   destinationCollectionIndex: string
 }) => {
@@ -2272,6 +2373,11 @@ const dropCollection = (payload: {
   if (collectionIndexDragged === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     if (
       checkIfCollectionIsAParentOfTheChildren(
         collectionIndexDragged,
@@ -2392,11 +2498,16 @@ const isAlreadyInRoot = (id: string) => {
  * to the root
  * @param payload - object containing the collection index dragged
  */
-const dropToRoot = ({ dataTransfer }: DragEvent) => {
+const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     const collectionIndexDragged = dataTransfer.getData("collectionIndex")
     if (!collectionIndexDragged) return
     if (collectionsType.value.type === "my-collections") {
+      const response: { valid: boolean; error: string } = await isValidUser()
+      if (!response.valid) {
+        toast.error(response.error)
+        return
+      }
       // check if the collection is already in the root
       if (isAlreadyInRoot(collectionIndexDragged)) {
         toast.error(`${t("collection.invalid_root_move")}`)
@@ -2496,7 +2607,7 @@ const isSameSameParent = (
  * @param payload - object containing the request index dragged and the destination request index
  *  with the destination collection index
  */
-const updateRequestOrder = (payload: {
+const updateRequestOrder = async (payload: {
   dragedRequestIndex: string
   destinationRequestIndex: string | null
   destinationCollectionIndex: string
@@ -2512,6 +2623,11 @@ const updateRequestOrder = (payload: {
   if (dragedRequestIndex === destinationRequestIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     if (
       !isSameSameParent(
         dragedRequestIndex,
@@ -2567,7 +2683,7 @@ const updateRequestOrder = (payload: {
  * This function is called when the user updates the collection or folder order
  * @param payload - object containing the collection index dragged and the destination collection index
  */
-const updateCollectionOrder = (payload: {
+const updateCollectionOrder = async (payload: {
   dragedCollectionIndex: string
   destinationCollection: {
     destinationCollectionIndex: string | null
@@ -2581,6 +2697,11 @@ const updateCollectionOrder = (payload: {
   if (dragedCollectionIndex === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+      toast.error(response.error)
+      return
+    }
     if (
       !isSameSameParent(
         dragedCollectionIndex,
@@ -2707,13 +2828,19 @@ const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
   }
 }
 
-const editProperties = (payload: {
+const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
 
   if (collectionsType.value.type === "my-collections") {
+    const response: { valid: boolean; error: string } = await isValidUser()
+    if (!response.valid) {
+
+      toast.error(response.error)
+      return
+    }
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
     let inheritedProperties = {

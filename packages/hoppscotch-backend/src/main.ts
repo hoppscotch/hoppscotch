@@ -47,7 +47,8 @@ async function bootstrap() {
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
-  app.set('trust proxy', 'loopback');
+  app.use(cookieParser());
+  app.set('trust proxy', 1);
   app.use(
     session({
       secret:
@@ -56,8 +57,9 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: false,
+        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
         httpOnly: true,
+        sameSite: 'lax',
       },
     }),
   );
@@ -86,7 +88,6 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
-  app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

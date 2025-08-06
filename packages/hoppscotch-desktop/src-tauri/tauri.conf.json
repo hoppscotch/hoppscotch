@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Hoppscotch",
-  "version": "25.6.1",
+  "version": "25.7.0",
   "identifier": "io.hoppscotch.desktop",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -14,7 +14,7 @@
       {
         "title": "main",
         "width": 500,
-        "height": 600,
+        "height": 700,
         "decorations": false,
         "alwaysOnTop": true,
         "resizable": false

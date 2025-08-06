@@ -43,7 +43,7 @@
               <template
                 v-if="field.applicableProviders.includes(provider.name)"
               >
-                <label>{{ field.name }}</label>
+                <label>{{ makeReadableKey(field.name, true) }}</label>
                 <span class="flex max-w-lg">
                   <HoppSmartInput
                     v-model="provider.fields[field.key as keyof typeof provider['fields']]"
@@ -51,15 +51,21 @@
                       isMasked(provider.name, field.key) ? 'password' : 'text'
                     "
                     :autofocus="false"
-                    class="!my-2 !bg-primaryLight flex-1"
-                  />
-                  <HoppButtonSecondary
-                    :icon="
-                      isMasked(provider.name, field.key) ? IconEye : IconEyeOff
-                    "
-                    class="bg-primaryLight h-9 mt-2"
-                    @click="toggleMask(provider.name, field.key)"
-                  />
+                    class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                    input-styles="!border-0"
+                  >
+                    <template #button>
+                      <HoppButtonSecondary
+                        :icon="
+                          isMasked(provider.name, field.key)
+                            ? IconEye
+                            : IconEyeOff
+                        "
+                        class="bg-primaryLight rounded"
+                        @click="toggleMask(provider.name, field.key)"
+                      />
+                    </template>
+                  </HoppSmartInput>
                 </span>
               </template>
             </div>
@@ -75,6 +81,7 @@ import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { ServerConfigs, SsoAuthProviders } from '~/helpers/configs';
+import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconCircleHelp from '~icons/lucide/circle-help';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';

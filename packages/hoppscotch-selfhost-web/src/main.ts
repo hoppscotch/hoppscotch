@@ -84,7 +84,7 @@ async function initApp() {
       displayConfig: {
         displayName: "Hoppscotch",
         description: "On-Prem",
-        version: "25.6.1",
+        version: "25.7.0",
         connectingMessage: "Connecting to On-prem",
         connectedMessage: "Connected to On-prem",
       },
@@ -221,6 +221,17 @@ async function initApp() {
         let shortcutEvent: string | null = null
 
         if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          !e.altKey &&
+          e.key.toLowerCase() === "q"
+        ) {
+          // Ctrl/Cmd + Q - Quit Application
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          shortcutEvent = "ctrl-q"
+        } else if (
           isCtrlOrCmd &&
           !e.shiftKey &&
           !e.altKey &&

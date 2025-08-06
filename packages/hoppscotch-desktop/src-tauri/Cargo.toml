@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "25.6.1"
+version = "25.7.0"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"
@@ -38,7 +38,20 @@ tokio = "1.43.0"
 tauri-plugin-process = "2.2.0"
 file-rotate = "0.8.0"
 dirs = "6.0.0"
+thiserror = "2.0.12"
+native-dialog = { version = "0.7.0" }
+tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
+tauri-plugin-opener = "2"
+semver = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+tempfile = { version = "3.13.0" }
+winreg = { version = "0.52.0" }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2.3.1"
 tauri-plugin-window-state = "2.2.1"
+
+[features]
+default = []
+portable = []

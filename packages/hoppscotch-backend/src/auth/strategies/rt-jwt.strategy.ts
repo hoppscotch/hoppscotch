@@ -33,7 +33,7 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
           return RTCookie;
         },
       ]),
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get('INFRA.JWT_SECRET'),
     });
   }
 

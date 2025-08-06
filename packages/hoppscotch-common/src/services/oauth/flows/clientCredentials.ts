@@ -12,6 +12,7 @@ import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { RelayRequest, content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
+import { refreshToken } from "../utils"
 
 const interceptorService = getService(KernelInterceptorService)
 
@@ -167,97 +168,6 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   return E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
-}
-
-const refreshToken = async ({
-  tokenEndpoint,
-  clientID,
-  refreshToken,
-  clientSecret,
-  refreshRequestParams,
-}: {
-  tokenEndpoint: string
-  clientID: string
-  refreshToken: string
-  clientSecret?: string
-  refreshRequestParams?: Array<{
-    id: number
-    key: string
-    value: string
-    active: boolean
-    sendIn?: "headers" | "url" | "body"
-  }>
-}) => {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
-  }
-
-  const bodyParams: Record<string, string> = {
-    grant_type: "refresh_token",
-    refresh_token: refreshToken,
-    client_id: clientID,
-    ...(clientSecret && {
-      client_secret: clientSecret,
-    }),
-  }
-
-  const urlParams: Record<string, string> = {}
-
-  // Process additional refresh request parameters
-  if (refreshRequestParams) {
-    refreshRequestParams
-      .filter((param) => param.active && param.key && param.value)
-      .forEach((param) => {
-        if (param.sendIn === "headers") {
-          headers[param.key] = param.value
-        } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
-        } else {
-          // Default to body
-          bodyParams[param.key] = param.value
-        }
-      })
-  }
-
-  const url = new URL(tokenEndpoint)
-  Object.entries(urlParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value)
-  })
-
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: url.toString(),
-    method: "POST",
-    version: "HTTP/1.1",
-    headers,
-    content: content.urlencoded(bodyParams),
-  })
-
-  const res = await response
-
-  if (E.isLeft(res)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const responsePayload = decodeResponseAsJSON(res.right)
-
-  if (E.isLeft(responsePayload)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const withAccessTokenAndRefreshTokenSchema = z.object({
-    access_token: z.string(),
-    refresh_token: z.string().optional(),
-  })
-
-  const parsedTokenResponse = withAccessTokenAndRefreshTokenSchema.safeParse(
-    responsePayload.right
-  )
-
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
 export default createFlowConfig(

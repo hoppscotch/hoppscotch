@@ -10,6 +10,7 @@ import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 function setupSwagger(app, isProduction: boolean) {
   const swaggerDocPath = '/api-docs';
@@ -38,7 +39,7 @@ function setupSwagger(app, isProduction: boolean) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
   const isProduction = configService.get('PRODUCTION') === 'true';
@@ -46,6 +47,7 @@ async function bootstrap() {
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
 
+  app.set('trust proxy', 'loopback');
   app.use(
     session({
       secret:

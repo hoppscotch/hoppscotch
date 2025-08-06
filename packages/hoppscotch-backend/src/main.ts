@@ -53,6 +53,9 @@ async function bootstrap() {
         crypto.randomBytes(16).toString('hex'),
       resave: false,
       saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+      },
     }),
   );
 

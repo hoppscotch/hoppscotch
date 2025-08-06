@@ -47,6 +47,33 @@ export const useOAuth2GrantTypes = (
   const t = useI18n()
   const toast = useToast()
 
+  // Helper function to prepare request parameters
+  const prepareRequestParams = (
+    params: Ref<AuthRequestParam[] | TokenRequestParam[]>
+  ) => {
+    return params.value
+      .filter((p) => p.active && p.key && p.value)
+      .map((p) => ({
+        id: p.id,
+        key: replaceTemplateString(p.key),
+        value: replaceTemplateString(p.value),
+        active: p.active,
+        sendIn: p.sendIn || "body",
+      }))
+  }
+
+  const preparedAuthRequestParams = computed(() => {
+    return prepareRequestParams(workingAuthRequestParams)
+  })
+
+  const preparedTokenRequestParams = computed(() => {
+    return prepareRequestParams(workingTokenRequestParams)
+  })
+
+  const preparedRefreshRequestParams = computed(() => {
+    return prepareRequestParams(workingRefreshRequestParams)
+  })
+
   const grantTypeMap: Record<
     GrantTypes,
     "authCode" | "clientCredentials" | "password" | "implicit"
@@ -223,11 +250,9 @@ export const useOAuth2GrantTypes = (
             scopes: scopes.value,
             isPKCE: isPKCE.value,
             codeVerifierMethod: codeChallenge.value?.id,
-            authRequestParams: prepareRequestParams(workingAuthRequestParams),
-            tokenRequestParams: prepareRequestParams(workingTokenRequestParams),
-            refreshRequestParams: prepareRequestParams(
-              workingRefreshRequestParams
-            ),
+            authRequestParams: preparedAuthRequestParams.value,
+            tokenRequestParams: preparedTokenRequestParams.value,
+            refreshRequestParams: preparedRefreshRequestParams.value,
           }
 
           const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -416,12 +441,8 @@ export const useOAuth2GrantTypes = (
               clientSecret: clientSecret.value,
               scopes: scopes.value,
               clientAuthentication: clientAuthentication.value.id,
-              tokenRequestParams: prepareRequestParams(
-                workingTokenRequestParams
-              ),
-              refreshRequestParams: prepareRequestParams(
-                workingRefreshRequestParams
-              ),
+              tokenRequestParams: preparedTokenRequestParams.value,
+              refreshRequestParams: preparedRefreshRequestParams.value,
             })
 
           const parsedArgs = clientCredentials.params.safeParse(values)
@@ -584,12 +605,8 @@ export const useOAuth2GrantTypes = (
               scopes: scopes.value,
               username: username.value,
               password: password.value,
-              tokenRequestParams: prepareRequestParams(
-                workingTokenRequestParams
-              ),
-              refreshRequestParams: prepareRequestParams(
-                workingRefreshRequestParams
-              ),
+              tokenRequestParams: preparedTokenRequestParams.value,
+              refreshRequestParams: preparedRefreshRequestParams.value,
             })
 
           const parsedArgs = passwordFlow.params.safeParse(values)
@@ -700,10 +717,8 @@ export const useOAuth2GrantTypes = (
               authEndpoint: authEndpoint.value,
               clientID: clientID.value,
               scopes: scopes.value,
-              authRequestParams: prepareRequestParams(workingAuthRequestParams),
-              refreshRequestParams: prepareRequestParams(
-                workingRefreshRequestParams
-              ),
+              authRequestParams: preparedAuthRequestParams.value,
+              refreshRequestParams: preparedRefreshRequestParams.value,
             })
 
           const unwrappedValues = replaceTemplateStringsInObjectValues(values)
@@ -749,20 +764,6 @@ export const useOAuth2GrantTypes = (
       }),
     },
   ]
-
-  const prepareRequestParams = (
-    params: Ref<AuthRequestParam[] | TokenRequestParam[]>
-  ) => {
-    return params.value
-      .filter((p) => p.active && p.key && p.value)
-      .map((p) => ({
-        id: p.id,
-        key: replaceTemplateString(p.key),
-        value: replaceTemplateString(p.value),
-        active: p.active,
-        sendIn: p.sendIn,
-      }))
-  }
 
   const selectedGrantTypeID = computed(() => {
     const currentGrantType = auth.value.grantTypeInfo.grantType

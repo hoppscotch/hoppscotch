@@ -54,6 +54,7 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       cookie: {
+        secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
         httpOnly: true,
       },
     }),

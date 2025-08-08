@@ -385,9 +385,7 @@ export class TeamCollectionService {
       where: {
         parentID: collectionID,
       },
-      orderBy: {
-        orderIndex: 'asc',
-      },
+      orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
       take: take, // default: 10
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
@@ -418,9 +416,7 @@ export class TeamCollectionService {
         teamID,
         parentID: null,
       },
-      orderBy: {
-        orderIndex: 'asc',
-      },
+      orderBy: [{ orderIndex: 'asc' }, { id: 'asc' }],
       take: take, // default: 10
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,

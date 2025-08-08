@@ -2,9 +2,16 @@
 import { watch } from "vue"
 
 type BinaryBody = {
-  contentType: "application/octet-stream"
+  contentType:
+    | "application/octet-stream"
+    | "audio/x-m4a"
+    | "audio/mpeg"
+    | "video/mp4"
+    | "audio/wav"
+    | "audio/ogg"
   body: File | null
 }
+
 
 const props = defineProps<{
   modelValue: BinaryBody
@@ -38,22 +45,39 @@ watch(
   }
 )
 
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  if (file) {
-    emit("update:modelValue", {
-      body: file,
-      contentType: "application/octet-stream",
-    })
-  } else {
-    emit("update:modelValue", {
-      body: null,
-      contentType: "application/octet-stream",
-    })
+/**
+ * Determines the MIME type of a file based on its extension.
+ *
+ * @param {string} filename - The name of the file, including its extension.
+ * @returns {BinaryBody["contentType"]} - The MIME type corresponding to the file extension.
+ * Returns "application/octet-stream" if the extension is not recognized.
+ */
+const guessMimeType = (filename: string): BinaryBody["contentType"] => {
+  const mimeMap: Record<string, BinaryBody["contentType"]> = {
+    m4a: "audio/x-m4a",
+    mp3: "audio/mpeg",
+    mp4: "video/mp4",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
   }
+
+  const ext = filename.slice(filename.lastIndexOf(".") + 1).toLowerCase()
+  return mimeMap[ext] || "application/octet-stream"
 }
+
+const handleFileChange = (e: Event): void => {
+  const target = e.target as HTMLInputElement | null
+  if (!target || !target.files?.[0]) return
+  const file = target.files[0]
+  const mimeType = guessMimeType(file.name)
+
+  emit("update:modelValue", {
+    body: file,
+    contentType: mimeType,
+  })
+}
+
+
 </script>
 <template>
   <div class="flex items-center px-4 py-2">

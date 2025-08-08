@@ -587,6 +587,17 @@ export function runTestRunnerRequest(
       return E.left("script_fail" as const)
     }
 
+    const finalRequestVariables = pipe(
+      request.requestVariables,
+      A.filter(({ active }) => active),
+      A.map(({ key, value }) => ({
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      }))
+    )
+
     const effectiveRequest = await getEffectiveRESTRequest(request, {
       id: "env-id",
       v: 2,
@@ -597,7 +608,7 @@ export function runTestRunnerRequest(
             ...preRequestScriptResult.right.envs,
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
-          requestVariables: [],
+          requestVariables: finalRequestVariables,
         })
       ),
     })

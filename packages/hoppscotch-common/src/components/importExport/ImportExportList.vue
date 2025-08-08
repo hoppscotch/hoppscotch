@@ -1,5 +1,10 @@
 <template>
-  <div class="flex flex-col">
+  <div
+    class="flex flex-col"
+    :class="{
+      'space-y-2': !hasTeamWriteAccess,
+    }"
+  >
     <div class="flex flex-col space-y-2">
       <HoppSmartItem
         v-for="importer in importers"
@@ -10,7 +15,7 @@
       />
     </div>
     <hr v-if="hasTeamWriteAccess" />
-    <div class="flex flex-col space-y-2 mt-2">
+    <div class="flex flex-col space-y-2">
       <template v-for="exporter in exporters" :key="exporter.id">
         <!-- adding the title to a span if the item is visible, otherwise the title won't be shown -->
 

@@ -589,11 +589,11 @@ export function runTestRunnerRequest(
 
     const finalRequestVariables = pipe(
       request.requestVariables,
-      A.filter((v): v is HoppRESTRequestVariable => v.active),
-      A.map((v) => ({
-        key: v.key,
-        initialValue: v.value,
-        currentValue: v.value,
+      A.filter(({ active }) => active),
+      A.map(({ key, value }) => ({
+        key,
+        initialValue: value,
+        currentValue: value,
         secret: false,
       }))
     )

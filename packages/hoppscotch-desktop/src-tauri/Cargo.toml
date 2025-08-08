@@ -33,7 +33,7 @@ tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plug
 tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "0147ac1bb29d3b88d6652432a482bd86f0174506" }
 axum = "0.8.1"
 tower-http = { version = "0.6.2", features = ["cors"] }
-portpicker = "0.1.1"
+random-port = "0.1.1"
 tokio = "1.43.0"
 tauri-plugin-process = "2.2.0"
 file-rotate = "0.8.0"

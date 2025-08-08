@@ -93,8 +93,8 @@
     "REQUEST_DELETE": "La requête {title} a été supprimée"
   },
   "add": {
-    "new": "Add new",
-    "star": "Add star"
+    "new": "Ajouter un nouveau",
+    "star": "Ajouter une étoile"
   },
   "agent": {
     "registration_instruction": "Please register Hoppscotch Agent with your web client to continue.",

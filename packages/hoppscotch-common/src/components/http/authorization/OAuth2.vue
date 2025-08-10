@@ -525,12 +525,14 @@
     <div class="p-2 gap-1 flex">
       <HoppButtonSecondary
         filled
+        :loading="isGeneratingToken"
         :label="`${t('authorization.generate_token')}`"
         @click="generateOAuthToken()"
       />
       <HoppButtonSecondary
         v-if="runTokenRefresh"
         filled
+        :loading="isRefreshingToken"
         :label="`${t('authorization.refresh_token')}`"
         @click="refreshOauthToken()"
       />
@@ -603,6 +605,10 @@ const props = defineProps<{
 }>()
 
 const auth = ref(props.modelValue)
+
+// Loading states
+const isGeneratingToken = ref(false)
+const isRefreshingToken = ref(false)
 
 // Advanced Configuration state
 const isAdvancedConfigExpanded = ref(false)
@@ -740,68 +746,80 @@ const refreshOauthToken = async () => {
     return
   }
 
-  const res = await runTokenRefresh.value()
+  isRefreshingToken.value = true
 
-  if (E.isLeft(res)) {
-    const errorMessages: Record<string, string> = {
-      NO_REFRESH_TOKEN_PRESENT: t(
-        "authorization.oauth.no_refresh_token_present"
-      ),
-      REFRESH_TOKEN_FUNCTION_NOT_DEFINED: t(
-        "authorization.oauth.refresh_token_request_failed"
-      ),
-      OAUTH_REFRESH_TOKEN_FAILED: t(
-        "authorization.oauth.refresh_token_request_failed"
-      ),
-    }
+  try {
+    const res = await runTokenRefresh.value()
 
-    const isKnownError = res.left in errorMessages
+    if (E.isLeft(res)) {
+      const errorMessages: Record<string, string> = {
+        NO_REFRESH_TOKEN_PRESENT: t(
+          "authorization.oauth.no_refresh_token_present"
+        ),
+        REFRESH_TOKEN_FUNCTION_NOT_DEFINED: t(
+          "authorization.oauth.refresh_token_request_failed"
+        ),
+        OAUTH_REFRESH_TOKEN_FAILED: t(
+          "authorization.oauth.refresh_token_request_failed"
+        ),
+      }
 
-    if (!isKnownError) {
-      toast.error(t("authorization.oauth.refresh_token_failed"))
-      return
-    }
+      const isKnownError = res.left in errorMessages
 
-    toast.error(errorMessages[res.left])
-    return
-  }
+      if (!isKnownError) {
+        toast.error(t("authorization.oauth.refresh_token_failed"))
+        return
+      }
 
-  toast.success(t("authorization.oauth.token_refreshed_successfully"))
-}
-
-const generateOAuthToken = async () => {
-  if (
-    grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
-  ) {
-    const authConfig: PersistedOAuthConfig = {
-      source: props.source,
-      context: props.isCollectionProperty
-        ? { type: "collection-properties", metadata: {} }
-        : { type: "request-tab", metadata: {} },
-      grant_type: auth.value.grantTypeInfo.grantType,
-    }
-    await persistenceService.setLocalConfig(
-      "oauth_temp_config",
-      JSON.stringify(authConfig)
-    )
-  }
-
-  const res = await runAction.value?.()
-
-  if (res && E.isLeft(res)) {
-    const errorMessages = {
-      VALIDATION_FAILED: t("authorization.oauth.validation_failed"),
-      OAUTH_TOKEN_FETCH_FAILED: t("authorization.oauth.token_fetch_failed"),
-    }
-    if (res.left in errorMessages) {
-      // @ts-expect-error - not possible to have a key that doesn't exist
       toast.error(errorMessages[res.left])
       return
     }
 
-    toast.error(t("error.something_went_wrong"))
+    toast.success(t("authorization.oauth.token_refreshed_successfully"))
+  } finally {
+    isRefreshingToken.value = false
+  }
+}
 
-    return
+const generateOAuthToken = async () => {
+  isGeneratingToken.value = true
+
+  try {
+    if (
+      grantTypesInvolvingRedirect.includes(auth.value.grantTypeInfo.grantType)
+    ) {
+      const authConfig: PersistedOAuthConfig = {
+        source: props.source,
+        context: props.isCollectionProperty
+          ? { type: "collection-properties", metadata: {} }
+          : { type: "request-tab", metadata: {} },
+        grant_type: auth.value.grantTypeInfo.grantType,
+      }
+      await persistenceService.setLocalConfig(
+        "oauth_temp_config",
+        JSON.stringify(authConfig)
+      )
+    }
+
+    const res = await runAction.value?.()
+
+    if (res && E.isLeft(res)) {
+      const errorMessages = {
+        VALIDATION_FAILED: t("authorization.oauth.validation_failed"),
+        OAUTH_TOKEN_FETCH_FAILED: t("authorization.oauth.token_fetch_failed"),
+      }
+      if (res.left in errorMessages) {
+        // @ts-expect-error - not possible to have a key that doesn't exist
+        toast.error(errorMessages[res.left])
+        return
+      }
+
+      toast.error(t("error.something_went_wrong"))
+
+      return
+    }
+  } finally {
+    isGeneratingToken.value = false
   }
 }
 </script>

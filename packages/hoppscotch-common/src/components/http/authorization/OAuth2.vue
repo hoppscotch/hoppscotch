@@ -172,7 +172,7 @@
       </span>
     </div>
 
-    <div v-if="selectedGrantTypeID === 'authCode'" class="flex flex-col">
+    <div class="flex flex-col">
       <div
         class="flex cursor-pointer items-center justify-between py-2 pl-4 text-secondaryLight transition hover:text-secondary"
         @click="toggleAdvancedConfig"

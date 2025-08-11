@@ -518,6 +518,9 @@ const resolveOpenAPIV3SecurityObj = (
           isPKCE: false,
           tokenEndpoint: scheme.flows.authorizationCode.tokenUrl ?? "",
           clientSecret: "",
+          authRequestParams: [],
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -531,6 +534,8 @@ const resolveOpenAPIV3SecurityObj = (
           clientID: "",
           token: "",
           scopes: _schemeData.join(" "),
+          authRequestParams: [],
+          refreshRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -547,6 +552,8 @@ const resolveOpenAPIV3SecurityObj = (
           username: "",
           token: "",
           scopes: _schemeData.join(" "),
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -562,6 +569,8 @@ const resolveOpenAPIV3SecurityObj = (
           scopes: _schemeData.join(" "),
           token: "",
           clientAuthentication: "IN_BODY",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -578,6 +587,9 @@ const resolveOpenAPIV3SecurityObj = (
         isPKCE: false,
         tokenEndpoint: "",
         clientSecret: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -594,6 +606,9 @@ const resolveOpenAPIV3SecurityObj = (
         isPKCE: false,
         tokenEndpoint: "",
         clientSecret: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -681,6 +696,9 @@ const resolveOpenAPIV2SecurityScheme = (
           token: "",
           isPKCE: false,
           tokenEndpoint: scheme.tokenUrl ?? "",
+          authRequestParams: [],
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -694,6 +712,8 @@ const resolveOpenAPIV2SecurityScheme = (
           grantType: "IMPLICIT",
           scopes: _schemeData.join(" "),
           token: "",
+          authRequestParams: [],
+          refreshRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -709,6 +729,8 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
           clientAuthentication: "IN_BODY",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -725,6 +747,8 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
           username: "",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -741,6 +765,9 @@ const resolveOpenAPIV2SecurityScheme = (
         token: "",
         isPKCE: false,
         tokenEndpoint: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }

@@ -176,7 +176,7 @@ describe("pw.env.set", () => {
     ).resolves.toBeLeft()
   })
 
-  test("values should be a string", () => {
+  test("values should be automatically converted to a string", () => {
     return expect(
       func(
         `
@@ -187,14 +187,14 @@ describe("pw.env.set", () => {
           selected: [],
         }
       )()
-    ).resolves.toBeLeft()
+    ).resolves.not.toBeLeft()
   })
 
-  test("both keys and values should be strings", () => {
+  test("keys must be strings, and values are converted to strings", () => {
     return expect(
       func(
         `
-          pw.env.set(5, 5)
+          pw.env.set(5, "someValue")
         `,
         {
           global: [],

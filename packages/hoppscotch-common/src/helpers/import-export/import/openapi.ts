@@ -120,6 +120,45 @@ const replaceOpenApiPathTemplating = flow(
   S.replace(/}/g, ">>")
 )
 
+// Helper function to generate a sample object from OpenAPI v2 schema
+const generateSampleFromSchema = (schema: any): any => {
+  if (!schema) return {}
+  if (schema.example !== undefined) return schema.example
+
+  if (schema.type === "object") {
+    const obj: any = {}
+    if (schema.properties) {
+      for (const [key, prop] of Object.entries(schema.properties)) {
+        obj[key] = generateSampleFromSchema(prop)
+      }
+    }
+    return obj
+  }
+
+  if (schema.type === "array") {
+    if (schema.items) return [generateSampleFromSchema(schema.items)]
+    return []
+  }
+
+  if (schema.type === "string") return schema.default ?? ""
+
+  if (schema.type === "number" || schema.type === "integer")
+    return schema.default ?? 0
+
+  if (schema.type === "boolean") return schema.default ?? false
+
+  // If no type specified, try to infer from properties
+  if (schema.properties) {
+    const obj: any = {}
+    for (const [key, prop] of Object.entries(schema.properties)) {
+      obj[key] = generateSampleFromSchema(prop)
+    }
+    return obj
+  }
+
+  return {}
+}
+
 const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
   pipe(
     params,
@@ -299,38 +338,58 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   if (!obj || !(obj in knownContentTypes))
     return { contentType: null, body: null }
 
-  // Textual Content Types, so we just parse it and keep
+  // For form data types, extract form fields
   if (
-    obj !== "multipart/form-data" &&
-    obj !== "application/x-www-form-urlencoded"
-  )
-    return { contentType: obj as any, body: "" }
+    obj === "multipart/form-data" ||
+    obj === "application/x-www-form-urlencoded"
+  ) {
+    const formDataValues = pipe(
+      (op.parameters ?? []) as OpenAPIV2.Parameter[],
 
-  const formDataValues = pipe(
-    (op.parameters ?? []) as OpenAPIV2.Parameter[],
-
-    A.filterMap(
-      flow(
-        O.fromPredicate((param) => param.in === "body"),
-        O.map(
-          (param) =>
-            <FormDataKeyValue>{
-              key: param.name,
-              isFile: false,
-              value: "",
-              active: true,
-            }
+      A.filterMap(
+        flow(
+          O.fromPredicate((param) => param.in === "formData"),
+          O.map(
+            (param) =>
+              <FormDataKeyValue>{
+                key: param.name,
+                isFile: param.type === "file",
+                value: "",
+                active: true,
+              }
+          )
         )
       )
     )
-  )
 
-  return obj === "application/x-www-form-urlencoded"
-    ? {
-        contentType: obj,
-        body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
+    return obj === "application/x-www-form-urlencoded"
+      ? {
+          contentType: obj,
+          body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
+        }
+      : { contentType: obj, body: formDataValues }
+  }
+
+  // For other content types (JSON, XML, etc.)
+  const bodyParam = (op.parameters ?? []).find(
+    (param) => (param as OpenAPIV2.Parameter).in === "body"
+  ) as OpenAPIV2.InBodyParameterObject | undefined
+
+  if (bodyParam && bodyParam.schema) {
+    try {
+      const sampleBody = generateSampleFromSchema(bodyParam.schema)
+      return {
+        contentType: obj as any,
+        body: JSON.stringify(sampleBody, null, 2),
       }
-    : { contentType: obj, body: formDataValues }
+    } catch (e) {
+      // else: return empty body
+      return { contentType: obj as any, body: "" }
+    }
+  }
+
+  // Fallback to empty body for textual content types
+  return { contentType: obj as any, body: "" }
 }
 
 const parseOpenAPIV3BodyFormData = (

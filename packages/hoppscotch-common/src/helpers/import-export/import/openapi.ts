@@ -383,6 +383,10 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
         body: JSON.stringify(sampleBody, null, 2),
       }
     } catch (e) {
+      console.error(
+        "Error generating sample from schema in parseOpenAPIV2Body:",
+        e
+      )
       // else: return empty body
       return { contentType: obj as any, body: "" }
     }

@@ -198,7 +198,10 @@
       v-model="collectionPropertiesModalActiveTab"
       :show="showModalEditProperties"
       :editing-properties="editingProperties"
-      :show-details="collectionsType.type === 'team-collections'"
+      :show-details="
+        collectionsType.type === 'team-collections' && hasTeamWriteAccess
+      "
+      :has-team-write-access="hasTeamWriteAccess"
       source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
@@ -225,8 +228,13 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
+
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import { flow } from "fp-ts/function"
+
 import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -301,6 +309,9 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
+import { HoppCollectionVariable } from "@hoppscotch/data"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -374,6 +385,10 @@ const myCollections = useReadonlyStream(restCollections$, [], "deep")
 const draggingToRoot = ref(false)
 const collectionMoveLoading = ref<string[]>([])
 const requestMoveLoading = ref<string[]>([])
+
+//collection variables current value and secret value
+const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
@@ -774,6 +789,7 @@ const addNewRootCollection = (name: string) => {
           authType: "none",
           authActive: true,
         },
+        variables: [],
       })
     )
 
@@ -834,8 +850,6 @@ const onAddRequest = (requestName: string) => {
   if (collectionsType.value.type === "my-collections") {
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
-
     tabs.createNewTab({
       type: "request",
       request: newRequest,
@@ -845,10 +859,7 @@ const onAddRequest = (requestName: string) => {
         folderPath: path,
         requestIndex: insertionIndex,
       },
-      inheritedProperties: {
-        auth,
-        headers,
-      },
+      inheritedProperties: cascadeParentCollectionForHeaderAuth(path, "rest"),
     })
 
     platform.analytics?.logEvent({
@@ -889,8 +900,7 @@ const onAddRequest = (requestName: string) => {
         },
         (result) => {
           const { createRequestInCollection } = result
-          const { auth, headers } =
-            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
+
           tabs.createNewTab({
             type: "request",
             request: newRequest,
@@ -901,10 +911,8 @@ const onAddRequest = (requestName: string) => {
               collectionID: path,
               teamID: createRequestInCollection.collection.team.id,
             },
-            inheritedProperties: {
-              auth,
-              headers,
-            },
+            inheritedProperties:
+              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path),
           })
 
           modalLoadingState.value = false
@@ -1569,6 +1577,17 @@ const onRemoveCollection = () => {
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
+
+    // delete the secret collection variables
+    // and current collection variables value if the collection is removed
+    if (collectionToRemove) {
+      secretEnvironmentService.deleteSecretEnvironment(
+        collectionToRemove._ref_id ?? `${collectionIndex}`
+      )
+      currentEnvironmentValueService.deleteEnvironment(
+        collectionToRemove._ref_id ?? `${collectionIndex}`
+      )
+    }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
 
@@ -1584,6 +1603,13 @@ const onRemoveCollection = () => {
 
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
+
+      // delete the secret collection variables
+      // and current collection variables value if the collection is removed
+      if (collectionID) {
+        secretEnvironmentService.deleteSecretEnvironment(collectionID)
+        currentEnvironmentValueService.deleteEnvironment(collectionID)
+      }
     })
   }
 }
@@ -1611,6 +1637,8 @@ const onRemoveFolder = () => {
       emit("select", null)
     }
 
+    const folderIndex = pathToLastIndex(folderPath)
+
     const folderToRemove = folderPath
       ? navigateToFolderWithIndexPath(
           restCollectionStore.value.state,
@@ -1630,6 +1658,17 @@ const onRemoveFolder = () => {
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
+
+    // delete the secret collection variables
+    // and current collection variables value if the collection is removed
+    if (folderToRemove) {
+      secretEnvironmentService.deleteSecretEnvironment(
+        folderToRemove.id ?? `${folderIndex}`
+      )
+      currentEnvironmentValueService.deleteEnvironment(
+        folderToRemove.id ?? `${folderIndex}`
+      )
+    }
   } else if (hasTeamWriteAccess.value) {
     const collectionID = editingCollectionID.value
 
@@ -1645,6 +1684,13 @@ const onRemoveFolder = () => {
 
     removeTeamCollectionOrFolder(collectionID).then(() => {
       resetTeamRequestsContext()
+
+      // delete the secret collection variables
+      // and current collection variables value if the collection is removed
+      if (collectionID) {
+        secretEnvironmentService.deleteSecretEnvironment(collectionID)
+        currentEnvironmentValueService.deleteEnvironment(collectionID)
+      }
     })
   }
 }
@@ -1978,10 +2024,6 @@ const selectRequest = (selectedRequest: {
       })
     }
   } else {
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      folderPath,
-      "rest"
-    )
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
@@ -2000,10 +2042,10 @@ const selectRequest = (selectedRequest: {
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
         },
-        inheritedProperties: {
-          auth,
-          headers,
-        },
+        inheritedProperties: cascadeParentCollectionForHeaderAuth(
+          folderPath,
+          "rest"
+        ),
       })
     }
   }
@@ -2045,6 +2087,10 @@ const selectResponse = (payload: {
           requestIndex: parseInt(requestIndex),
           exampleID: responseID,
         },
+        inheritedProperties: cascadeParentCollectionForHeaderAuth(
+          folderPath,
+          "rest"
+        ),
       })
     }
   } else {
@@ -2070,6 +2116,10 @@ const selectResponse = (payload: {
           collectionID: folderPath,
           exampleID: responseID,
         },
+        inheritedProperties:
+          teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+            folderPath
+          ),
       })
     }
   }
@@ -2101,11 +2151,6 @@ const dropRequest = (payload: {
   let possibleTab = null
 
   if (collectionsType.value.type === "my-collections") {
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      destinationCollectionIndex,
-      "rest"
-    )
-
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
@@ -2123,10 +2168,8 @@ const dropRequest = (payload: {
         ).length,
       }
 
-      possibleTab.value.document.inheritedProperties = {
-        auth,
-        headers,
-      }
+      possibleTab.value.document.inheritedProperties =
+        cascadeParentCollectionForHeaderAuth(destinationCollectionIndex, "rest")
     }
 
     // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
@@ -2164,10 +2207,6 @@ const dropRequest = (payload: {
             requestMoveLoading.value.indexOf(requestIndex),
             1
           )
-          const { auth, headers } =
-            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
-              destinationCollectionIndex
-            )
 
           possibleTab = tabs.getTabRefWithSaveContext({
             originLocation: "team-collection",
@@ -2179,10 +2218,10 @@ const dropRequest = (payload: {
               originLocation: "team-collection",
               requestID: requestIndex,
             }
-            possibleTab.value.document.inheritedProperties = {
-              auth,
-              headers,
-            }
+            possibleTab.value.document.inheritedProperties =
+              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+                destinationCollectionIndex
+              )
           }
           toast.success(`${t("request.moved")}`)
         }
@@ -2303,15 +2342,10 @@ const dropCollection = (payload: {
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
     )
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    const inheritedProperty = cascadeParentCollectionForHeaderAuth(
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
       "rest"
     )
-
-    const inheritedProperty = {
-      auth,
-      headers,
-    }
 
     updateInheritedPropertiesForAffectedRequests(
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
@@ -2345,15 +2379,10 @@ const dropCollection = (payload: {
             1
           )
 
-          const { auth, headers } =
+          const inheritedProperty =
             teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
               destinationCollectionIndex
             )
-
-          const inheritedProperty = {
-            auth,
-            headers,
-          }
 
           updateInheritedPropertiesForAffectedRequests(
             `${destinationCollectionIndex}`,
@@ -2696,16 +2725,43 @@ const shareRequest = ({ request }: { request: HoppRESTRequest }) => {
   }
 }
 
+/**
+ * Used to get the current value of a variable
+ * It checks if the variable is a secret or not and returns the value accordingly.
+ * @param isSecret If the variable is a secret
+ * @param varIndex The index of the variable in the collection
+ * @param collectionID The ID of the collection
+ * @returns The current value of the variable, either from the secret environment or the current environment service
+ */
+const getCurrentValue = (
+  isSecret: boolean,
+  varIndex: number,
+  collectionID: string
+) => {
+  if (isSecret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(
+      collectionID,
+      varIndex
+    )?.value
+  }
+  return currentEnvironmentValueService.getEnvironmentVariable(
+    collectionID,
+    varIndex
+  )?.currentValue
+}
+
 const editProperties = (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
 
+  const collectionId = collection.id ?? collectionIndex.split("/").pop()
+
   if (collectionsType.value.type === "my-collections") {
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
-    let inheritedProperties = {
+    let inheritedProperties: HoppInheritedProperty = {
       auth: {
         parentID: "",
         parentName: "",
@@ -2714,17 +2770,12 @@ const editProperties = (payload: {
           authActive: true,
         },
       },
-      headers: [
-        {
-          parentID: "",
-          parentName: "",
-          inheritedHeader: {},
-        },
-      ],
-    } as HoppInheritedProperty
+      headers: [],
+      variables: [],
+    }
 
     if (parentIndex) {
-      const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+      const { auth, headers, variables } = cascadeParentCollectionForHeaderAuth(
         parentIndex,
         "rest"
       )
@@ -2732,16 +2783,35 @@ const editProperties = (payload: {
       inheritedProperties = {
         auth,
         headers,
+        variables,
       }
     }
 
+    const collectionVariables = pipe(
+      (collection as HoppCollection).variables ?? [],
+      A.mapWithIndex((index, e) => {
+        return {
+          ...e,
+          currentValue:
+            getCurrentValue(
+              e.secret,
+              index,
+              (collection as HoppCollection)._ref_id ?? collectionId!
+            ) ?? e.currentValue,
+        }
+      })
+    )
+
     editingProperties.value = {
-      collection: collection as Partial<HoppCollection>,
+      collection: {
+        ...collection,
+        variables: collectionVariables,
+      } as Partial<HoppCollection>,
       isRootCollection: isAlreadyInRoot(collectionIndex),
       path: collectionIndex,
       inheritedProperties,
     }
-  } else if (hasTeamWriteAccess.value) {
+  } else {
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
     const data = (collection as TeamCollection).data
@@ -2757,25 +2827,39 @@ const editProperties = (payload: {
         authActive: true,
       } as HoppRESTAuth,
       headers: [] as HoppRESTHeaders,
+      variables: [] as HoppCollectionVariable[],
       folders: null,
       requests: null,
     }
 
     if (parentIndex) {
-      const { auth, headers } =
+      const { auth, headers, variables } =
         teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(parentIndex)
 
       inheritedProperties = {
         auth,
         headers,
+        variables,
       }
     }
 
     if (data) {
+      const collectionVariables = pipe(
+        (data.variables ?? []) as HoppCollectionVariable[],
+        A.mapWithIndex((index, e) => {
+          return {
+            ...e,
+            currentValue:
+              getCurrentValue(e.secret, index, collectionId!) ?? e.currentValue,
+          }
+        })
+      )
+
       coll = {
         ...coll,
         auth: data.auth,
         headers: data.headers as HoppRESTHeaders,
+        variables: collectionVariables as HoppCollectionVariable[],
       }
     }
 
@@ -2803,6 +2887,65 @@ const setCollectionProperties = (newCollection: {
   // Since path is being preserved, we extract the collectionId from path instead
   const collectionId = collection.id ?? path.split("/").pop()
 
+  //setting current value and secret values to of collection variables
+  if (collection.variables) {
+    const filteredVariables = pipe(
+      collection.variables,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map((e) => e)
+        )
+      )
+    )
+
+    const secretVariables = pipe(
+      filteredVariables,
+      A.filterMapWithIndex((i, e) =>
+        e.secret
+          ? O.some({
+              key: e.key,
+              value: e.currentValue,
+              varIndex: i,
+            })
+          : O.none
+      )
+    )
+
+    const nonSecretVariables = pipe(
+      filteredVariables,
+      A.filterMapWithIndex((i, e) =>
+        !e.secret
+          ? O.some({
+              key: e.key,
+              currentValue: e.currentValue,
+              varIndex: i,
+              isSecret: e.secret ?? false,
+            })
+          : O.none
+      )
+    )
+
+    secretEnvironmentService.addSecretEnvironment(
+      collection._ref_id ?? collectionId!,
+      secretVariables
+    )
+
+    currentEnvironmentValueService.addEnvironment(
+      collection._ref_id ?? collectionId!,
+      nonSecretVariables
+    )
+
+    //set current value and secret values to empty string
+    collection.variables = pipe(
+      filteredVariables,
+      A.map((e) => ({
+        ...e,
+        currentValue: "",
+      }))
+    )
+  }
+
   if (collectionsType.value.type === "my-collections") {
     if (isRootCollection) {
       editRESTCollection(parseInt(path), collection)
@@ -2810,15 +2953,12 @@ const setCollectionProperties = (newCollection: {
       editRESTFolder(path, collection)
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(path, "rest")
+    const inheritedProperty = cascadeParentCollectionForHeaderAuth(path, "rest")
 
     nextTick(() => {
       updateInheritedPropertiesForAffectedRequests(
         path,
-        {
-          auth,
-          headers,
-        },
+        inheritedProperty,
         "rest"
       )
     })
@@ -2827,6 +2967,7 @@ const setCollectionProperties = (newCollection: {
     const data = {
       auth: collection.auth,
       headers: collection.headers,
+      variables: collection.variables,
     }
     pipe(
       updateTeamCollection(collectionId, JSON.stringify(data), undefined),
@@ -2843,14 +2984,11 @@ const setCollectionProperties = (newCollection: {
     //This is a hack to update the inherited properties of the requests if there an tab opened
     // since it takes a little bit of time to update the collection tree
     setTimeout(() => {
-      const { auth, headers } =
+      const inheritedProperty =
         teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
       updateInheritedPropertiesForAffectedRequests(
         path,
-        {
-          auth,
-          headers,
-        },
+        inheritedProperty,
         "rest"
       )
     }, 200)

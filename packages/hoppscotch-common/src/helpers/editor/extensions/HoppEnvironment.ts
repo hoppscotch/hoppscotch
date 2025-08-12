@@ -27,6 +27,7 @@ import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
 import IconGlobe from "~icons/lucide/globe?raw"
 import IconVariable from "~icons/lucide/variable?raw"
+import IconLibrary from "~icons/lucide/library?raw"
 import { isComment } from "./helpers"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
@@ -36,6 +37,7 @@ const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 
 const HOPP_REQUEST_VARIABLE_HIGHLIGHT = "request-variable-highlight"
+const HOPP_COLLECTION_ENVIRONMENT_HIGHLIGHT = "collection-variable-highlight"
 const HOPP_ENVIRONMENT_HIGHLIGHT = "environment-variable-highlight"
 const HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT = "global-variable-highlight"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
@@ -138,10 +140,20 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
+
+      let tooltipSourceEnvID = "Global"
+
+      if (tooltipEnv?.sourceEnv === "Global") {
+        tooltipSourceEnvID = "Global"
+      } else {
+        tooltipSourceEnvID =
+          tooltipEnv?.sourceEnv === "CollectionVariable"
+            ? tooltipEnv.sourceEnvID!
+            : currentSelectedEnvironment.id
+      }
+
       const hasSecretStored = secretEnvironmentService.hasSecretValue(
-        tooltipEnv?.sourceEnv !== "Global"
-          ? currentSelectedEnvironment.id
-          : "Global",
+        tooltipSourceEnvID,
         tooltipEnv?.key ?? ""
       )
 
@@ -198,7 +210,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             ? IconVariable
             : selectedEnvType === "TEAM_ENV"
               ? IconUsers
-              : IconUser
+              : tooltipEnv?.sourceEnv === "CollectionVariable"
+                ? IconLibrary
+                : IconUser
       }</span>`
 
       const appendEditAction = (tooltip: HTMLElement) => {
@@ -236,7 +250,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           }
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
-        tooltip.appendChild(editIcon)
+        if (tooltipEnv?.sourceEnv !== "CollectionVariable") {
+          tooltip.appendChild(editIcon)
+        }
       }
 
       return {
@@ -275,7 +291,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const envContainer = document.createElement("div")
           tooltipContainer.appendChild(envContainer)
           envContainer.className =
-            "flex flex-col items-start space-y-1 flex-1 w-full mt-2"
+            "flex flex-col items-start space-y-1 flex-1 w-full mt-2 !z-[1002]"
 
           const initialValueBlock = document.createElement("div")
           initialValueBlock.className = "flex items-center space-x-2"
@@ -323,6 +339,8 @@ function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
 
   if (envSource === "RequestVariable")
     className = HOPP_REQUEST_VARIABLE_HIGHLIGHT
+  else if (envSource === "CollectionVariable")
+    className = HOPP_COLLECTION_ENVIRONMENT_HIGHLIGHT
   else if (envSource === "Global") className = HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT
   else if (envSource !== undefined) className = HOPP_ENVIRONMENT_HIGHLIGHT
 
@@ -374,56 +392,18 @@ export class HoppEnvironmentPlugin {
     private editorView: Ref<EditorView | undefined>
   ) {
     const aggregateEnvs = getAggregateEnvsWithCurrentValue()
-    const currentTab = restTabs.currentActiveTab.value
 
-    const currentTabRequest =
-      currentTab.document.type === "example-response"
-        ? currentTab.document.response.originalRequest
-        : currentTab.document.request
+    this.envs = [...aggregateEnvs]
 
-    if (!currentTabRequest) return
-
-    watch(
-      currentTabRequest,
-      (request) => {
-        const requestVariables = request?.requestVariables
-          ? request.requestVariables
-          : []
-
-        this.envs = [
-          ...requestVariables.map(({ key, value }) => ({
-            key,
-            currentValue: value,
-            initialValue: value,
-            sourceEnv: "RequestVariable",
-            secret: false,
-          })),
-          ...aggregateEnvs,
-        ]
-
-        this.editorView.value?.dispatch({
-          effects: this.compartment.reconfigure([
-            cursorTooltipField(this.envs),
-            environmentHighlightStyle(this.envs),
-          ]),
-        })
-      },
-      { immediate: true, deep: true }
-    )
-
-    const requestVariables = currentTabRequest?.requestVariables ?? []
+    this.editorView.value?.dispatch({
+      effects: this.compartment.reconfigure([
+        cursorTooltipField(this.envs),
+        environmentHighlightStyle(this.envs),
+      ]),
+    })
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
-      this.envs = [
-        ...requestVariables.map(({ key, value }) => ({
-          key,
-          currentValue: value,
-          initialValue: value,
-          sourceEnv: "RequestVariable",
-          secret: false,
-        })),
-        ...envs,
-      ]
+      this.envs = [...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

@@ -118,11 +118,11 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-collection', {
+                      ;(emit('duplicate-collection', {
                         path: folderPath,
                         collectionSyncID: folder.id,
                       }),
-                        hide()
+                        hide())
                     }
                   "
                 />

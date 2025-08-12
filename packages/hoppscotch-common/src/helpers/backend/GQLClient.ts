@@ -132,6 +132,7 @@ const createHoppClient = () => {
     ...(platform.auth.getGQLClientOptions
       ? platform.auth.getGQLClientOptions()
       : {}),
+    preferGetMethod: false,
   })
 }
 

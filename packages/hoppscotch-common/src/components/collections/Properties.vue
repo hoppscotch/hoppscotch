@@ -4,7 +4,7 @@
     dialog
     :title="t('collection.properties')"
     :full-width-body="true"
-    styles="sm:max-w-2xl"
+    styles="sm:max-w-3xl"
     @close="hideModal"
   >
     <template #body>
@@ -13,7 +13,11 @@
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10 !-py-4"
         render-inactive-tabs
       >
-        <HoppSmartTab id="headers" :label="`${t('tab.headers')}`">
+        <HoppSmartTab
+          v-if="hasTeamWriteAccess"
+          id="headers"
+          :label="`${t('tab.headers')}`"
+        >
           <HttpHeaders
             v-model="editableCollection"
             :is-collection-property="true"
@@ -27,7 +31,11 @@
           </div>
         </HoppSmartTab>
 
-        <HoppSmartTab id="authorization" :label="`${t('tab.authorization')}`">
+        <HoppSmartTab
+          v-if="hasTeamWriteAccess"
+          id="authorization"
+          :label="`${t('tab.authorization')}`"
+        >
           <HttpAuthorization
             v-model="editableCollection.auth"
             :is-collection-property="true"
@@ -41,6 +49,14 @@
             <icon-lucide-info class="svg-icons mr-2" />
             {{ t("helpers.collection_properties_authorization") }}
           </div>
+        </HoppSmartTab>
+
+        <HoppSmartTab id="variables" :label="`${t('tab.variables')}`">
+          <CollectionsVariables
+            v-model="editableCollection.variables"
+            :inherited-properties="editingProperties.inheritedProperties"
+            :has-team-write-access="hasTeamWriteAccess"
+          />
         </HoppSmartTab>
 
         <HoppSmartTab
@@ -121,6 +137,7 @@ import { useI18n } from "@composables/i18n"
 import {
   GQLHeader,
   HoppCollection,
+  HoppCollectionVariable,
   HoppGQLAuth,
   HoppRESTAuth,
   HoppRESTHeaders,
@@ -162,11 +179,13 @@ const props = withDefaults(
     source: "REST" | "GraphQL"
     modelValue: string
     showDetails: boolean
+    hasTeamWriteAccess: boolean
   }>(),
   {
     show: false,
     loadingState: false,
     showDetails: false,
+    hasTeamWriteAccess: true,
   }
 )
 
@@ -182,12 +201,27 @@ const emit = defineEmits<{
 const editableCollection = ref<{
   headers: HoppCollectionHeaders
   auth: HoppCollectionAuth
+  variables: HoppCollectionVariable[]
 }>({
   headers: [],
   auth: {
     authType: "inherit",
     authActive: false,
   },
+  variables: [
+    {
+      currentValue: "",
+      initialValue: "",
+      key: "",
+      secret: false,
+    },
+    {
+      currentValue: "",
+      initialValue: "",
+      key: "",
+      secret: true,
+    },
+  ],
 })
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -229,12 +263,24 @@ watch(
       activeTab.value = "headers"
     }
 
+    // If the user doesn't have write access to the team, switch to `Variables` tab
+    // when the `Headers` or `Authorization` tab is active
+    if (
+      !props.hasTeamWriteAccess &&
+      (activeTab.value === "headers" || activeTab.value === "authorization")
+    ) {
+      activeTab.value = "variables"
+    }
+
     if (show && props.editingProperties.collection) {
       editableCollection.value.auth = clone(
         props.editingProperties.collection.auth as HoppCollectionAuth
       )
       editableCollection.value.headers = clone(
         props.editingProperties.collection.headers as HoppCollectionHeaders
+      )
+      editableCollection.value.variables = clone(
+        props.editingProperties.collection.variables || []
       )
     } else {
       editableCollection.value = {
@@ -243,6 +289,7 @@ watch(
           authType: "inherit",
           authActive: false,
         },
+        variables: [],
       }
 
       await persistenceService.removeLocalConfig(

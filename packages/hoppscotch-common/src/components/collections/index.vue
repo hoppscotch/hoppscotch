@@ -201,7 +201,9 @@
       :show-details="
         collectionsType.type === 'team-collections' && hasTeamWriteAccess
       "
-      :has-team-write-access="hasTeamWriteAccess"
+      :has-team-write-access="
+        collectionsType.type === 'team-collections' ? hasTeamWriteAccess : true
+      "
       source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"

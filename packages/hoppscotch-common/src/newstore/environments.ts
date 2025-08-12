@@ -14,6 +14,7 @@ import DispatchingStore, {
 } from "~/newstore/DispatchingStore"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { RESTTabService } from "~/services/tab/rest"
 
 export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
@@ -48,6 +49,8 @@ const defaultEnvironmentsState = {
     type: "NO_ENV_SELECTED",
   } as SelectedEnvironmentIndex,
 }
+
+const restTabs = getService(RESTTabService)
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
@@ -423,6 +426,7 @@ export type AggregateEnvironment = {
   currentValue: string
   secret: boolean
   sourceEnv: string
+  sourceEnvID?: string
 }
 
 /**
@@ -431,13 +435,25 @@ export type AggregateEnvironment = {
  * NOTE: The source environment attribute will be "Global" for Global Env as source.
  * The priority of the variables is as follows:
  * 1. Pre-defined variables
- * 2. Selected Environment Variables
- * 3. Global Environment Variables
+ * 2. Request Variables (from the current request)
+ * 3. Selected Environment Variables
+ * 4. Global Environment Variables
  */
 export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
   map(([selectedEnv, globalEnv]) => {
+    const currentTab = restTabs.currentActiveTab.value
+
+    const currentTabRequest =
+      currentTab.document.type === "example-response"
+        ? currentTab.document.response.originalRequest
+        : currentTab.document.request
+
+    const requestVariables = currentTabRequest?.requestVariables
+      ? currentTabRequest.requestVariables
+      : []
+
     const effectiveAggregateEnvs: AggregateEnvironment[] = []
 
     // Ensure pre-defined variables are prioritised over other environment variables with the same name
@@ -452,6 +468,18 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
     })
 
     const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
+
+    requestVariables.forEach(({ key, value, active }) => {
+      if (!aggregateEnvKeys.includes(key) && active) {
+        effectiveAggregateEnvs.push({
+          key,
+          currentValue: value,
+          initialValue: value,
+          secret: false,
+          sourceEnv: "RequestVariable",
+        })
+      }
+    })
 
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
@@ -496,7 +524,44 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
 export function getAggregateEnvs() {
   const currentEnv = getCurrentEnvironment()
+  const currentTab = restTabs.currentActiveTab.value
+
+  const currentTabRequest =
+    currentTab.document.type === "example-response"
+      ? currentTab.document.response.originalRequest
+      : currentTab.document.request
+
+  const requestVariables = currentTabRequest?.requestVariables
+    ? currentTabRequest.requestVariables
+    : []
+
   return [
+    ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
+      return <AggregateEnvironment>{
+        key,
+        currentValue: getValue(),
+        initialValue: getValue(),
+        secret: false,
+        sourceEnv: currentEnv.name,
+      }
+    }),
+
+    ...requestVariables
+      .map(({ key, value, active }) => {
+        if (active) {
+          return <AggregateEnvironment>{
+            key,
+            currentValue: value,
+            initialValue: value,
+            sourceEnv: "RequestVariable",
+            secret: false,
+          }
+        }
+
+        return
+      })
+      .filter((v): v is AggregateEnvironment => v !== undefined),
+
     ...currentEnv.variables.map((x) => {
       let currentValue = ""
       if (!x.secret) {
@@ -529,8 +594,43 @@ export function getAggregateEnvs() {
 
 export function getAggregateEnvsWithCurrentValue() {
   const currentEnv = getCurrentEnvironment()
+  const currentTab = restTabs.currentActiveTab.value
+
+  const currentTabRequest =
+    currentTab.document.type === "example-response"
+      ? currentTab.document.response.originalRequest
+      : currentTab.document.request
+
+  const requestVariables = currentTabRequest?.requestVariables
+    ? currentTabRequest.requestVariables
+    : []
 
   return [
+    ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
+      return <AggregateEnvironment>{
+        key,
+        currentValue: getValue(),
+        initialValue: getValue(),
+        secret: false,
+        sourceEnv: currentEnv.name,
+      }
+    }),
+
+    ...requestVariables
+      .map(({ key, value, active }) => {
+        if (active) {
+          return <AggregateEnvironment>{
+            key,
+            currentValue: value,
+            initialValue: value,
+            sourceEnv: "RequestVariable",
+            secret: false,
+          }
+        }
+        return
+      })
+      .filter((v): v is AggregateEnvironment => v !== undefined),
+
     ...currentEnv.variables.map((x, index) => {
       let currentValue = x.currentValue
       if (x.secret) {
@@ -581,6 +681,17 @@ export const aggregateEnvsWithCurrentValue$: Observable<
   AggregateEnvironment[]
 > = combineLatest([currentEnvironment$, globalEnv$]).pipe(
   map(([selectedEnv, globalEnv]) => {
+    const currentTab = restTabs.currentActiveTab.value
+
+    const currentTabRequest =
+      currentTab.document.type === "example-response"
+        ? currentTab.document.response.originalRequest
+        : currentTab.document.request
+
+    const requestVariables = currentTabRequest?.requestVariables
+      ? currentTabRequest.requestVariables
+      : []
+
     const results: AggregateEnvironment[] = []
 
     // Ensure pre-defined variables are prioritised over other environment variables with the same name
@@ -592,6 +703,18 @@ export const aggregateEnvsWithCurrentValue$: Observable<
         secret: false,
         sourceEnv: selectedEnv?.name ?? "Global",
       })
+    })
+
+    requestVariables.map(({ key, value, active }) => {
+      if (active) {
+        results.push({
+          key,
+          currentValue: value,
+          initialValue: value,
+          secret: false,
+          sourceEnv: "RequestVariable",
+        })
+      }
     })
 
     selectedEnv?.variables.map((x, index) => {

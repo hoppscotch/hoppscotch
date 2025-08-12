@@ -58,6 +58,7 @@ const recursivelySyncCollections = async (
       },
       headers: collection.headers ?? [],
       _ref_id: collection._ref_id,
+      variables: collection.variables ?? [],
     }
     const res = await createRESTRootUserCollection(
       collection.name,
@@ -75,13 +76,18 @@ const recursivelySyncCollections = async (
             },
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
+            variables: [],
           }
 
       collection.id = parentCollectionID
       collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
-      removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
+      collection.variables = returnedData.variables
+      removeDuplicateRESTCollectionOrFolder(
+        parentCollectionID,
+        `${collectionPath}`
+      )
     } else {
       parentCollectionID = undefined
     }
@@ -94,6 +100,7 @@ const recursivelySyncCollections = async (
       },
       headers: collection.headers ?? [],
       _ref_id: collection._ref_id,
+      variables: collection.variables ?? [],
     }
 
     const res = await createRESTChildUserCollection(
@@ -114,6 +121,7 @@ const recursivelySyncCollections = async (
             },
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
+            variables: [],
           }
 
       collection.id = childCollectionId
@@ -121,6 +129,7 @@ const recursivelySyncCollections = async (
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -211,6 +220,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
+      variables: collection.variables,
     }
 
     if (collectionID) {
@@ -256,6 +266,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
+      variables: folder.variables,
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))

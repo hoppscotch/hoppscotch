@@ -127,6 +127,7 @@ function translateToTeamCollectionFormat(x: HoppCollection) {
   const data = {
     auth: x.auth,
     headers: x.headers,
+    variables: x.variables,
   }
 
   const obj = {

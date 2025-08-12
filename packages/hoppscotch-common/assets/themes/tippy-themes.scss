@@ -1,6 +1,7 @@
 // Base shared styles for all tippy themes
 @mixin base-tippy-styles {
   .cm-tooltip {
+    @apply z-[1000] #{!important};
     .tippy-box {
       @apply shadow-none #{!important};
       @apply fixed;

@@ -141,7 +141,7 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlRequest,
   editRESTRequest,
   saveGraphqlRequestAs,
@@ -358,7 +358,7 @@ const saveRequestAs = async () => {
     }
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(
+      cascadeParentCollectionForProperties(
         `${picked.value.collectionIndex}`,
         "rest"
       )
@@ -392,7 +392,7 @@ const saveRequestAs = async () => {
     }
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "rest")
+      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -424,7 +424,7 @@ const saveRequestAs = async () => {
     }
 
     RESTTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "rest")
+      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -521,7 +521,7 @@ const saveRequestAs = async () => {
     })
 
     GQLTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "graphql")
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
@@ -549,7 +549,7 @@ const saveRequestAs = async () => {
     })
 
     GQLTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "graphql")
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
@@ -577,7 +577,7 @@ const saveRequestAs = async () => {
     })
 
     GQLTabs.currentActiveTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(
+      cascadeParentCollectionForProperties(
         `${picked.value.collectionIndex}`,
         "graphql"
       )

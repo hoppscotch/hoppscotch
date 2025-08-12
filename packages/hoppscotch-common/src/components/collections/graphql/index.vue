@@ -165,7 +165,7 @@ import {
   graphqlCollections$,
   addGraphqlFolder,
   saveGraphqlRequestAs,
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlCollection,
   editGraphqlFolder,
   moveGraphqlRequest,
@@ -410,7 +410,7 @@ const onAddRequest = ({ name, path }: { name: string; path: string }) => {
     },
     request: newRequest,
     isDirty: false,
-    inheritedProperties: cascadeParentCollectionForHeaderAuth(path, "graphql"),
+    inheritedProperties: cascadeParentCollectionForProperties(path, "graphql"),
   })
 
   platform.analytics?.logEvent({
@@ -529,7 +529,7 @@ const selectRequest = ({
     },
     request: cloneDeep(request),
     isDirty: false,
-    inheritedProperties: cascadeParentCollectionForHeaderAuth(
+    inheritedProperties: cascadeParentCollectionForProperties(
       folderPath,
       "graphql"
     ),
@@ -560,7 +560,7 @@ const dropRequest = ({
     }
 
     possibleTab.value.document.inheritedProperties =
-      cascadeParentCollectionForHeaderAuth(`${collectionIndex}`, "graphql")
+      cascadeParentCollectionForProperties(`${collectionIndex}`, "graphql")
   }
 
   moveGraphqlRequest(folderPath, requestIndex, `${collectionIndex}`)
@@ -591,7 +591,7 @@ const editProperties = ({
   let inheritedProperties = undefined
 
   if (parentIndex) {
-    inheritedProperties = cascadeParentCollectionForHeaderAuth(
+    inheritedProperties = cascadeParentCollectionForProperties(
       parentIndex,
       "graphql"
     )
@@ -626,7 +626,7 @@ const setCollectionProperties = (newCollection: {
   nextTick(() => {
     updateInheritedPropertiesForAffectedRequests(
       path,
-      cascadeParentCollectionForHeaderAuth(path, "graphql"),
+      cascadeParentCollectionForProperties(path, "graphql"),
       "graphql"
     )
   })

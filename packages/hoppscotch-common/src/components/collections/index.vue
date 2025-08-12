@@ -282,7 +282,7 @@ import { Picked } from "~/helpers/types/HoppPicked"
 import {
   addRESTCollection,
   addRESTFolder,
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   duplicateRESTCollection,
   editRESTCollection,
   editRESTFolder,
@@ -410,7 +410,7 @@ const teamLoadingCollections = useReadonlyStream(
 const teamEnvironmentAdapter = new TeamEnvironmentAdapter(undefined)
 
 const {
-  cascadeParentCollectionForHeaderAuthForSearchResults,
+  cascadeParentCollectionForPropertiesForSearchResults,
   searchTeams,
   teamsSearchResults,
   teamsSearchResultsLoading,
@@ -861,7 +861,7 @@ const onAddRequest = (requestName: string) => {
         folderPath: path,
         requestIndex: insertionIndex,
       },
-      inheritedProperties: cascadeParentCollectionForHeaderAuth(path, "rest"),
+      inheritedProperties: cascadeParentCollectionForProperties(path, "rest"),
     })
 
     platform.analytics?.logEvent({
@@ -914,7 +914,7 @@ const onAddRequest = (requestName: string) => {
               teamID: createRequestInCollection.collection.team.id,
             },
             inheritedProperties:
-              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path),
+              teamCollectionAdapter.cascadeParentCollectionForProperties(path),
           })
 
           modalLoadingState.value = false
@@ -1998,10 +1998,10 @@ const selectRequest = (selectedRequest: {
       if (!collectionID) return
 
       inheritedProperties =
-        cascadeParentCollectionForHeaderAuthForSearchResults(collectionID)
+        cascadeParentCollectionForPropertiesForSearchResults(collectionID)
     } else {
       inheritedProperties =
-        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(folderPath)
+        teamCollectionAdapter.cascadeParentCollectionForProperties(folderPath)
     }
 
     const possibleTab = tabs.getTabRefWithSaveContext({
@@ -2044,7 +2044,7 @@ const selectRequest = (selectedRequest: {
           folderPath: folderPath!,
           requestIndex: parseInt(requestIndex),
         },
-        inheritedProperties: cascadeParentCollectionForHeaderAuth(
+        inheritedProperties: cascadeParentCollectionForProperties(
           folderPath,
           "rest"
         ),
@@ -2089,7 +2089,7 @@ const selectResponse = (payload: {
           requestIndex: parseInt(requestIndex),
           exampleID: responseID,
         },
-        inheritedProperties: cascadeParentCollectionForHeaderAuth(
+        inheritedProperties: cascadeParentCollectionForProperties(
           folderPath,
           "rest"
         ),
@@ -2119,7 +2119,7 @@ const selectResponse = (payload: {
           exampleID: responseID,
         },
         inheritedProperties:
-          teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+          teamCollectionAdapter.cascadeParentCollectionForProperties(
             folderPath
           ),
       })
@@ -2171,7 +2171,7 @@ const dropRequest = (payload: {
       }
 
       possibleTab.value.document.inheritedProperties =
-        cascadeParentCollectionForHeaderAuth(destinationCollectionIndex, "rest")
+        cascadeParentCollectionForProperties(destinationCollectionIndex, "rest")
     }
 
     // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
@@ -2221,7 +2221,7 @@ const dropRequest = (payload: {
               requestID: requestIndex,
             }
             possibleTab.value.document.inheritedProperties =
-              teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+              teamCollectionAdapter.cascadeParentCollectionForProperties(
                 destinationCollectionIndex
               )
           }
@@ -2344,7 +2344,7 @@ const dropCollection = (payload: {
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
     )
 
-    const inheritedProperty = cascadeParentCollectionForHeaderAuth(
+    const inheritedProperty = cascadeParentCollectionForProperties(
       `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
       "rest"
     )
@@ -2382,7 +2382,7 @@ const dropCollection = (payload: {
           )
 
           const inheritedProperty =
-            teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+            teamCollectionAdapter.cascadeParentCollectionForProperties(
               destinationCollectionIndex
             )
 
@@ -2777,7 +2777,7 @@ const editProperties = (payload: {
     }
 
     if (parentIndex) {
-      const { auth, headers, variables } = cascadeParentCollectionForHeaderAuth(
+      const { auth, headers, variables } = cascadeParentCollectionForProperties(
         parentIndex,
         "rest"
       )
@@ -2836,7 +2836,7 @@ const editProperties = (payload: {
 
     if (parentIndex) {
       const { auth, headers, variables } =
-        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(parentIndex)
+        teamCollectionAdapter.cascadeParentCollectionForProperties(parentIndex)
 
       inheritedProperties = {
         auth,
@@ -2955,7 +2955,7 @@ const setCollectionProperties = (newCollection: {
       editRESTFolder(path, collection)
     }
 
-    const inheritedProperty = cascadeParentCollectionForHeaderAuth(path, "rest")
+    const inheritedProperty = cascadeParentCollectionForProperties(path, "rest")
 
     nextTick(() => {
       updateInheritedPropertiesForAffectedRequests(
@@ -2987,7 +2987,7 @@ const setCollectionProperties = (newCollection: {
     // since it takes a little bit of time to update the collection tree
     setTimeout(() => {
       const inheritedProperty =
-        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
+        teamCollectionAdapter.cascadeParentCollectionForProperties(path)
       updateInheritedPropertiesForAffectedRequests(
         path,
         inheritedProperty,
@@ -3006,7 +3006,7 @@ const runCollectionHandler = (
 ) => {
   if (payload.path && collectionsType.value.type === "team-collections") {
     const inheritedProperties =
-      teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(payload.path)
+      teamCollectionAdapter.cascadeParentCollectionForProperties(payload.path)
 
     if (inheritedProperties) {
       collectionRunnerData.value = {

@@ -120,17 +120,11 @@ function populateValues(
  * @param showSecret whether to show secret values in the collection variables
  * @returns the inherited auth and headers for the given folder path
  */
-export function cascadeParentCollectionForHeaderAuth(
+export function cascadeParentCollectionForProperties(
   folderPath: string | undefined,
   type: "rest" | "graphql",
   showSecret: boolean = false
 ) {
-  console.log(
-    "cascadeParentCollectionForHeaderAuth",
-    folderPath,
-    type,
-    showSecret
-  )
   const collectionStore =
     type === "rest" ? restCollectionStore : graphqlCollectionStore
 

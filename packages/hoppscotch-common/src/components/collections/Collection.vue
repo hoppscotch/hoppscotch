@@ -58,8 +58,9 @@
             </span>
           </span>
         </div>
-        <div v-if="!hasNoTeamAccess" class="flex">
+        <div class="flex">
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFilePlus"
             :title="t('request.add')"
@@ -67,6 +68,7 @@
             @click="emit('add-request')"
           />
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
             :title="t('folder.new')"
@@ -109,6 +111,7 @@
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="requestAction"
                     :icon="IconFilePlus"
                     :label="t('request.new')"
@@ -121,6 +124,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="folderAction"
                     :icon="IconFolderPlus"
                     :label="t('folder.new')"
@@ -145,6 +149,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="edit"
                     :icon="IconEdit"
                     :label="t('action.edit')"
@@ -157,6 +162,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="duplicateAction"
                     :icon="IconCopy"
                     :label="t('action.duplicate')"
@@ -170,6 +176,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
                     :label="t('export.title')"
@@ -183,18 +190,6 @@
                     "
                   />
                   <HoppSmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        emit('remove-collection')
-                        hide()
-                      }
-                    "
-                  />
-                  <HoppSmartItem
                     ref="propertiesAction"
                     :icon="IconSettings2"
                     :label="t('action.properties')"
@@ -202,6 +197,19 @@
                     @click="
                       () => {
                         emit('edit-properties')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
+                    ref="deleteAction"
+                    :icon="IconTrash2"
+                    :label="t('action.delete')"
+                    :shortcut="['⌫']"
+                    @click="
+                      () => {
+                        emit('remove-collection')
                         hide()
                       }
                     "

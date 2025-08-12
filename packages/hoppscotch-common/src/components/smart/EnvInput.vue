@@ -101,6 +101,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
+import { transformCollectionVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 const t = useI18n()
 
@@ -120,6 +121,7 @@ const props = withDefaults(
     contextMenuEnabled?: boolean
     secret?: boolean
     autoCompleteEnv?: boolean
+    autoCompleteEnvSource?: AggregateEnvironment[] | null
   }>(),
   {
     modelValue: "",
@@ -135,7 +137,8 @@ const props = withDefaults(
     inspectionResults: undefined,
     contextMenuEnabled: true,
     secret: false,
-    autoCompleteEnvSource: false,
+    autoCompleteEnv: false,
+    autoCompleteEnvSource: null,
   }
 )
 
@@ -405,33 +408,21 @@ const envVars = computed(() => {
     })
   }
 
-  const requestVariables =
+  const collectionVariables =
+    tabs.currentActiveTab.value.document.type === "request" ||
     tabs.currentActiveTab.value.document.type === "example-response"
-      ? tabs.currentActiveTab.value.document.response.originalRequest
-          .requestVariables
-      : tabs.currentActiveTab.value.document.type === "request"
-        ? tabs.currentActiveTab.value.document.request.requestVariables
-        : []
+      ? transformCollectionVariables(
+          tabs.currentActiveTab.value.document.inheritedProperties?.variables ??
+            [],
+          false
+        )
+      : []
 
-  // Transform request variables to match the env format
-  return [
-    ...requestVariables.map(({ active, key, value }) =>
-      active
-        ? {
-            key,
-            currentValue: value,
-            initialValue: value,
-            sourceEnv: "RequestVariable",
-            secret: false,
-          }
-        : ({} as AggregateEnvironment)
-    ),
-    ...aggregateEnvs.value,
-  ]
+  return [...collectionVariables, ...aggregateEnvs.value]
 })
 
 function envAutoCompletion(context: CompletionContext) {
-  const options = (envVars.value ?? [])
+  const options = (props.autoCompleteEnvSource ?? envVars.value ?? [])
     .map((env) => ({
       label: env?.key ? `<<${env.key}>>` : "",
       info: env?.currentValue ?? "",
@@ -559,6 +550,7 @@ const getExtensions = (readonly: boolean): Extension => {
       ? autocompletion({
           activateOnTyping: true,
           override: [envAutoCompletion],
+          tooltipClass: () => "tooltip-autocomplete",
         })
       : [],
 
@@ -693,6 +685,12 @@ watch(
   }
 )
 </script>
+
+<style lang="scss">
+.tooltip-autocomplete {
+  @apply z-[1001] #{!important};
+}
+</style>
 
 <style lang="scss" scoped>
 .autocomplete-wrapper {

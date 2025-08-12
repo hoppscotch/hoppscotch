@@ -24,6 +24,7 @@ import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { transformCollectionVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -76,16 +77,17 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
     const currentTab = this.restTabs.currentActiveTab.value
 
-    const currentTabRequest =
-      currentTab.document.type === "request"
-        ? currentTab.document.request
-        : currentTab.document.type === "example-response"
-          ? currentTab.document.response.originalRequest
-          : null
+    const collectionVariables =
+      currentTab.document.type === "request" ||
+      currentTab.document.type === "example-response"
+        ? transformCollectionVariables(
+            currentTab.document.inheritedProperties?.variables ?? []
+          )
+        : []
 
     const environmentVariables = [
-      ...(currentTabRequest?.requestVariables ?? []),
       ...this.aggregateEnvsWithValue.value,
+      ...collectionVariables,
     ]
 
     const envKeys = environmentVariables.map((e) => e.key)
@@ -192,32 +194,35 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             const currentSelectedEnvironment = getCurrentEnvironment()
 
             const currentTab = this.restTabs.currentActiveTab.value
-
-            const currentTabRequest =
-              currentTab.document.type === "request"
-                ? currentTab.document.request
-                : currentTab.document.type === "example-response"
-                  ? currentTab.document.response.originalRequest
-                  : null
+            const collectionVariables =
+              currentTab.document.type === "request" ||
+              currentTab.document.type === "example-response"
+                ? transformCollectionVariables(
+                    currentTab.document.inheritedProperties?.variables ?? [],
+                    false
+                  )
+                : []
 
             const environmentVariables =
               this.filterNonEmptyEnvironmentVariables([
-                // Transform the request variables to environment variables
-                ...(currentTabRequest?.requestVariables ?? []).map((env) => ({
-                  key: env.key,
-                  currentValue: env.value,
-                  initialValue: env.value,
-                  secret: false,
-                  sourceEnv: "RequestVariable",
-                })),
                 ...this.aggregateEnvsWithValue.value,
+                ...collectionVariables,
               ])
 
             environmentVariables.forEach((env) => {
+              let tooltipSourceEnvID = "Global"
+
+              if (env?.sourceEnv === "Global") {
+                tooltipSourceEnvID = "Global"
+              } else {
+                tooltipSourceEnvID =
+                  env?.sourceEnv === "CollectionVariable"
+                    ? env.sourceEnvID!
+                    : currentSelectedEnvironment.id
+              }
+
               const hasSecretEnv = this.secretEnvs.hasSecretValue(
-                env.sourceEnv !== "Global"
-                  ? currentSelectedEnvironment.id
-                  : "Global",
+                tooltipSourceEnvID,
                 env.key
               )
 

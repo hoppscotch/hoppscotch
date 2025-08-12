@@ -357,15 +357,11 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(
+        `${picked.value.collectionIndex}`,
+        "rest"
+      )
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -395,15 +391,8 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -434,15 +423,8 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -538,15 +520,8 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
@@ -573,15 +548,8 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
@@ -608,15 +576,11 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForHeaderAuth(
+        `${picked.value.collectionIndex}`,
+        "graphql"
+      )
 
     requestSaved("GQL")
   }

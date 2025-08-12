@@ -1079,7 +1079,7 @@ export default class NewTeamCollectionAdapter {
    * @param folderPath the path of the folder to cascade the auth from
    * @returns the inherited auth and headers for the given folder path
    */
-  public cascadeParentCollectionForHeaderAuth(folderPath: string) {
+  public cascadeParentCollectionForProperties(folderPath: string) {
     let auth: HoppInheritedProperty["auth"] = {
       parentID: folderPath ?? "",
       parentName: "",

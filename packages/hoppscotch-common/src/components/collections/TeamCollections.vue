@@ -71,41 +71,41 @@
             folder-type="collection"
             @add-request="
               node.data.type === 'collections' &&
-                emit('add-request', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @add-folder="
               node.data.type === 'collections' &&
-                emit('add-folder', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-folder', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @edit-collection="
               node.data.type === 'collections' &&
-                emit('edit-collection', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @duplicate-collection="
               node.data.type === 'collections' &&
-                emit('duplicate-collection', {
-                  pathOrID: node.data.data.data.id,
-                })
+              emit('duplicate-collection', {
+                pathOrID: node.data.data.data.id,
+              })
             "
             @edit-properties="
               node.data.type === 'collections' &&
-                emit('edit-properties', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-properties', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @export-data="
               node.data.type === 'collections' &&
-                emit('export-data', node.data.data.data)
+              emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
             @drop-event="dropEvent($event, node.id)"
@@ -128,12 +128,12 @@
             "
             @toggle-children="
               () => {
-                toggleChildren(),
+                ;(toggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'teams-collection',
                       collectionID: node.id,
-                    })
+                    }))
               }
             "
             @run-collection="
@@ -171,44 +171,44 @@
             folder-type="folder"
             @add-request="
               node.data.type === 'folders' &&
-                emit('add-request', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @add-folder="
               node.data.type === 'folders' &&
-                emit('add-folder', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-folder', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @edit-collection="
               node.data.type === 'folders' &&
-                emit('edit-folder', {
-                  folder: node.data.data.data,
-                })
+              emit('edit-folder', {
+                folder: node.data.data.data,
+              })
             "
             @duplicate-collection="
               node.data.type === 'folders' &&
-                emit('duplicate-collection', {
-                  pathOrID: node.data.data.data.id,
-                })
+              emit('duplicate-collection', {
+                pathOrID: node.data.data.data.id,
+              })
             "
             @edit-properties="
               node.data.type === 'folders' &&
-                emit('edit-properties', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-properties', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @export-data="
               node.data.type === 'folders' &&
-                emit('export-data', node.data.data.data)
+              emit('export-data', node.data.data.data)
             "
             @remove-collection="
               node.data.type === 'folders' &&
-                emit('remove-folder', node.data.data.data.id)
+              emit('remove-folder', node.data.data.data.id)
             "
             @drop-event="dropEvent($event, node.data.data.data.id)"
             @drag-event="dragEvent($event, node.data.data.data.id)"
@@ -230,12 +230,12 @@
             "
             @toggle-children="
               () => {
-                toggleChildren(),
+                ;(toggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'teams-folder',
                       folderID: node.data.data.data.id,
-                    })
+                    }))
               }
             "
             @run-collection="
@@ -272,10 +272,10 @@
             "
             @edit-request="
               node.data.type === 'requests' &&
-                emit('edit-request', {
-                  requestIndex: node.data.data.data.id,
-                  request: node.data.data.data.request,
-                })
+              emit('edit-request', {
+                requestIndex: node.data.data.data.id,
+                request: node.data.data.data.request,
+              })
             "
             @edit-response="
               emit('edit-response', {
@@ -288,10 +288,10 @@
             "
             @duplicate-request="
               node.data.type === 'requests' &&
-                emit('duplicate-request', {
-                  folderPath: node.data.data.parentIndex,
-                  request: node.data.data.data.request,
-                })
+              emit('duplicate-request', {
+                folderPath: node.data.data.parentIndex,
+                request: node.data.data.data.request,
+              })
             "
             @duplicate-response="
               emit('duplicate-response', {
@@ -304,10 +304,10 @@
             "
             @remove-request="
               node.data.type === 'requests' &&
-                emit('remove-request', {
-                  folderPath: null,
-                  requestIndex: node.data.data.data.id,
-                })
+              emit('remove-request', {
+                folderPath: null,
+                requestIndex: node.data.data.data.id,
+              })
             "
             @remove-response="
               emit('remove-response', {
@@ -320,11 +320,11 @@
             "
             @select-request="
               node.data.type === 'requests' &&
-                selectRequest({
-                  request: node.data.data.data.request,
-                  requestIndex: node.data.data.data.id,
-                  folderPath: getPath(node.id),
-                })
+              selectRequest({
+                request: node.data.data.data.request,
+                requestIndex: node.data.data.data.id,
+                folderPath: getPath(node.id),
+              })
             "
             @select-response="
               emit('select-response', {
@@ -337,9 +337,9 @@
             "
             @share-request="
               node.data.type === 'requests' &&
-                emit('share-request', {
-                  request: node.data.data.data.request,
-                })
+              emit('share-request', {
+                request: node.data.data.data.request,
+              })
             "
             @drag-request="
               dragRequest($event, {
@@ -423,10 +423,10 @@
                 outline
                 @click="
                   node.data.type === 'collections' &&
-                    emit('add-folder', {
-                      path: node.id,
-                      folder: node.data.data.data,
-                    })
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
                 "
               />
             </template>

@@ -120,10 +120,34 @@ const replaceOpenApiPathTemplating = flow(
   S.replace(/}/g, ">>")
 )
 
-// Helper function to generate a sample object from OpenAPI v2 schema
+// Helper function to generate a sample object from OpenAPI v2/v3 schema
 const generateSampleFromSchema = (schema: any): any => {
   if (!schema) return {}
+
+  // Handle $ref (though these should be dereferenced already)
+  if (schema.$ref) return {}
+
+  // Use example if available
   if (schema.example !== undefined) return schema.example
+
+  // Handle oneOf/anyOf - use the first option
+  if (schema.oneOf && schema.oneOf.length > 0)
+    return generateSampleFromSchema(schema.oneOf[0])
+
+  if (schema.anyOf && schema.anyOf.length > 0)
+    return generateSampleFromSchema(schema.anyOf[0])
+
+  // Handle allOf - merge all schemas (simple approach)
+  if (schema.allOf && schema.allOf.length > 0) {
+    const merged: any = {}
+    for (const subSchema of schema.allOf) {
+      const sample = generateSampleFromSchema(subSchema)
+      if (typeof sample === "object" && sample !== null) {
+        Object.assign(merged, sample)
+      }
+    }
+    return merged
+  }
 
   if (schema.type === "object") {
     const obj: any = {}
@@ -140,12 +164,28 @@ const generateSampleFromSchema = (schema: any): any => {
     return []
   }
 
-  if (schema.type === "string") return schema.default ?? ""
+  if (schema.type === "string") {
+    // Handle enum values
+    if (schema.enum && schema.enum.length > 0) return schema.enum[0]
+    // Handle format-specific examples
+    if (schema.format === "date") return "2023-01-01"
+    if (schema.format === "date-time") return "2023-01-01T00:00:00Z"
+    if (schema.format === "email") return "user@example.com"
+    if (schema.format === "uri") return "https://example.com"
+    if (schema.format === "uuid") return "123e4567-e89b-12d3-a456-426614174000"
+    return schema.default ?? "string"
+  }
 
-  if (schema.type === "number" || schema.type === "integer")
-    return schema.default ?? 0
+  if (schema.type === "number" || schema.type === "integer") {
+    // Handle enum values
+    if (schema.enum && schema.enum.length > 0) return schema.enum[0]
+
+    return schema.default ?? (schema.type === "integer" ? 0 : 0.0)
+  }
 
   if (schema.type === "boolean") return schema.default ?? false
+
+  if (schema.type === "null") return null
 
   // If no type specified, try to infer from properties
   if (schema.properties) {
@@ -155,6 +195,9 @@ const generateSampleFromSchema = (schema: any): any => {
     }
     return obj
   }
+
+  // If still no type, check for enum
+  if (schema.enum && schema.enum.length > 0) return schema.enum[0]
 
   return {}
 }
@@ -447,12 +490,53 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
   ] = objs[0]
 
-  return contentType in knownContentTypes
-    ? contentType === "multipart/form-data" ||
-      contentType === "application/x-www-form-urlencoded"
-      ? parseOpenAPIV3BodyFormData(contentType, media)
-      : { contentType: contentType as any, body: "" }
-    : { contentType: null, body: null }
+  if (!(contentType in knownContentTypes))
+    return { contentType: null, body: null }
+
+  // Handle form data types
+  if (
+    contentType === "multipart/form-data" ||
+    contentType === "application/x-www-form-urlencoded"
+  )
+    return parseOpenAPIV3BodyFormData(contentType, media)
+
+  // For other content types (JSON, XML, etc.), try to generate sample from schema
+  if (media.schema) {
+    try {
+      const sampleBody = generateSampleFromSchema(media.schema)
+      return {
+        contentType: contentType as any,
+        body: JSON.stringify(sampleBody, null, 2),
+      }
+    } catch (e) {
+      // If we can't generate a sample, check for examples
+      if (media.example !== undefined) {
+        return {
+          contentType: contentType as any,
+          body:
+            typeof media.example === "string"
+              ? media.example
+              : JSON.stringify(media.example, null, 2),
+        }
+      }
+      // Fallback to empty body
+      return { contentType: contentType as any, body: "" }
+    }
+  }
+
+  // Check for examples if no schema
+  if (media.example !== undefined) {
+    return {
+      contentType: contentType as any,
+      body:
+        typeof media.example === "string"
+          ? media.example
+          : JSON.stringify(media.example, null, 2),
+    }
+  }
+
+  // Fallback to empty body for textual content types
+  return { contentType: contentType as any, body: "" }
 }
 
 const isOpenAPIV3Operation = (

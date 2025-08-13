@@ -50,11 +50,6 @@ const defaultEnvironmentsState = {
   } as SelectedEnvironmentIndex,
 }
 
-const restTabs = getService(RESTTabService)
-
-const secretEnvironmentService = getService(SecretEnvironmentService)
-const currentEnvironmentValueService = getService(CurrentValueService)
-
 type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
@@ -443,6 +438,8 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
   map(([selectedEnv, globalEnv]) => {
+    const restTabs = getService(RESTTabService)
+
     const currentTab = restTabs.currentActiveTab.value
 
     const currentTabRequest =
@@ -523,6 +520,8 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 )
 
 export function getAggregateEnvs() {
+  const restTabs = getService(RESTTabService)
+
   const currentEnv = getCurrentEnvironment()
   const currentTab = restTabs.currentActiveTab.value
 
@@ -593,6 +592,11 @@ export function getAggregateEnvs() {
 }
 
 export function getAggregateEnvsWithCurrentValue() {
+  const restTabs = getService(RESTTabService)
+
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
   const currentEnv = getCurrentEnvironment()
   const currentTab = restTabs.currentActiveTab.value
 
@@ -681,6 +685,11 @@ export const aggregateEnvsWithCurrentValue$: Observable<
   AggregateEnvironment[]
 > = combineLatest([currentEnvironment$, globalEnv$]).pipe(
   map(([selectedEnv, globalEnv]) => {
+    const restTabs = getService(RESTTabService)
+
+    const secretEnvironmentService = getService(SecretEnvironmentService)
+    const currentEnvironmentValueService = getService(CurrentValueService)
+
     const currentTab = restTabs.currentActiveTab.value
 
     const currentTabRequest =

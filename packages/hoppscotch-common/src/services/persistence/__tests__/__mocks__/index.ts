@@ -51,8 +51,8 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
-    folders: [],
     variables: [],
+    folders: [],
   },
 ]
 
@@ -76,8 +76,8 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
-    folders: [],
     variables: [],
+    folders: [],
   },
 ]
 

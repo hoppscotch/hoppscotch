@@ -1,13 +1,18 @@
 <template>
   <template v-if="inline">
-    <span>
+    <span class="hopp-doc-explorer-argument" tabindex="0" @click="handleClick">
       <span class="hopp-doc-explorer-argument-name"> {{ arg.name }} </span>:
       <GraphqlTypeLink :type="arg.type" />
       <GraphqlDefaultValue v-if="showDefaultValue !== false" :field="arg" />
     </span>
   </template>
 
-  <div v-else class="hopp-doc-explorer-argument">
+  <div
+    v-else
+    class="hopp-doc-explorer-argument"
+    tabindex="0"
+    @click="handleClick"
+  >
     <div class="inline-flex items-center align-bottom">
       <span
         v-if="showAddButton"
@@ -52,6 +57,7 @@
 import type { GraphQLArgument } from "graphql"
 import { useQuery } from "~/helpers/graphql/query"
 import { debounce } from "lodash-es"
+import { useExplorer } from "~/helpers/graphql/explorer"
 
 const { handleAddArgument, isArgumentInOperation } = useQuery()
 
@@ -85,6 +91,12 @@ const props = withDefaults(defineProps<ArgumentProps>(), {
   showAddButton: false,
 })
 
+const { push } = useExplorer()
+
+const handleClick = () => {
+  push({ name: props.arg.name, def: props.arg })
+}
+
 const insertQuery = debounce(() => {
   handleAddArgument(props.arg)
 }, 50)
@@ -93,5 +105,6 @@ const insertQuery = debounce(() => {
 <style scoped lang="scss">
 .hopp-doc-explorer-argument {
   @apply transition hover:bg-primaryLight;
+  cursor: pointer;
 }
 </style>

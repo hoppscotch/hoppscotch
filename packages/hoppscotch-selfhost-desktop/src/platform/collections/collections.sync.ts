@@ -9,7 +9,11 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  generateUniqueRefId,
+  HoppCollection,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 import { getSyncInitFunction } from "../../lib/sync"
 
@@ -25,6 +29,7 @@ import {
   moveUserCollection,
   moveUserRequest,
   renameUserCollection,
+  updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"
 
@@ -47,27 +52,84 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createRESTRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      _ref_id: collection._ref_id,
+      variables: collection.variables ?? [],
+    }
+    const res = await createRESTRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
 
+      const returnedData = res.right.createRESTRootUserCollection.data
+        ? JSON.parse(res.right.createRESTRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            _ref_id: generateUniqueRefId("coll"),
+            variables: [],
+          }
+
       collection.id = parentCollectionID
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      _ref_id: collection._ref_id,
+      variables: collection.variables ?? [],
+    }
+
     const res = await createRESTChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
 
+      const returnedData = res.right.createRESTChildUserCollection.data
+        ? JSON.parse(res.right.createRESTChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            _ref_id: generateUniqueRefId("coll"),
+            variables: [],
+          }
+
       collection.id = childCollectionId
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -155,8 +217,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+      variables: collection.variables,
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -195,9 +263,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )?.id
 
     const folderName = folder.name
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+      variables: folder.variables,
+    }
 
-    if (folderID && folderName) {
-      renameUserCollection(folderID, folderName)
+    if (folderID) {
+      updateUserCollection(folderID, folderName, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

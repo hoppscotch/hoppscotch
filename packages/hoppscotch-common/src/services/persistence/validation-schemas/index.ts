@@ -9,6 +9,7 @@ import {
   HoppRESTRequestResponse,
   HoppCollection,
   GlobalEnvironment,
+  CollectionVariable,
 } from "@hoppscotch/data"
 import { entityReference } from "verzod"
 import { z } from "zod"
@@ -313,6 +314,15 @@ const HoppInheritedPropertySchema = z
         inheritedHeader: z.union([HoppRESTHeaders, GQLHeader]),
       })
     ),
+    variables: z
+      .array(
+        z.object({
+          parentID: z.string(),
+          parentName: z.string(),
+          inheritedVariables: z.array(CollectionVariable),
+        })
+      )
+      .catch([]),
   })
   .strict()
 
@@ -579,6 +589,7 @@ export const REST_TAB_STATE_SCHEMA = z
             response: entityReference(HoppRESTRequestResponse),
             saveContext: z.optional(HoppRESTSaveContextSchema),
             isDirty: z.boolean(),
+            inheritedProperties: z.optional(HoppInheritedPropertySchema),
           }),
         ]),
       })

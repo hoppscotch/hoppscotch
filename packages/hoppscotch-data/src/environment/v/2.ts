@@ -2,7 +2,6 @@ import { z } from "zod"
 import { defineVersion } from "verzod"
 import { V1_SCHEMA } from "./1"
 
-// add initialValue and currentValue to the schema and delete value and add it to initialValue and currentValue
 export const V2_SCHEMA = V1_SCHEMA.extend({
   v: z.literal(2),
   variables: z.array(

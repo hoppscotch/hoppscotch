@@ -165,7 +165,7 @@ import {
   graphqlCollections$,
   addGraphqlFolder,
   saveGraphqlRequestAs,
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlCollection,
   editGraphqlFolder,
   moveGraphqlRequest,
@@ -402,11 +402,6 @@ const onAddRequest = ({ name, path }: { name: string; path: string }) => {
 
   const insertionIndex = saveGraphqlRequestAs(path, newRequest)
 
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    path,
-    "graphql"
-  )
-
   tabs.createNewTab({
     saveContext: {
       originLocation: "user-collection",
@@ -415,10 +410,7 @@ const onAddRequest = ({ name, path }: { name: string; path: string }) => {
     },
     request: newRequest,
     isDirty: false,
-    inheritedProperties: {
-      auth,
-      headers,
-    },
+    inheritedProperties: cascadeParentCollectionForProperties(path, "graphql"),
   })
 
   platform.analytics?.logEvent({
@@ -524,10 +516,6 @@ const selectRequest = ({
     folderPath: folderPath,
     requestIndex: requestIndex,
   })
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    folderPath,
-    "graphql"
-  )
   // Switch to that request if that request is open
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
@@ -541,10 +529,10 @@ const selectRequest = ({
     },
     request: cloneDeep(request),
     isDirty: false,
-    inheritedProperties: {
-      auth,
-      headers,
-    },
+    inheritedProperties: cascadeParentCollectionForProperties(
+      folderPath,
+      "graphql"
+    ),
   })
 }
 
@@ -557,11 +545,6 @@ const dropRequest = ({
   requestIndex: number
   collectionIndex: number
 }) => {
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    `${collectionIndex}`,
-    "graphql"
-  )
-
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
     folderPath,
@@ -576,10 +559,8 @@ const dropRequest = ({
         .length,
     }
 
-    possibleTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    possibleTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(`${collectionIndex}`, "graphql")
   }
 
   moveGraphqlRequest(folderPath, requestIndex, `${collectionIndex}`)
@@ -610,15 +591,10 @@ const editProperties = ({
   let inheritedProperties = undefined
 
   if (parentIndex) {
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+    inheritedProperties = cascadeParentCollectionForProperties(
       parentIndex,
       "graphql"
     )
-
-    inheritedProperties = {
-      auth,
-      headers,
-    }
   }
 
   editingProperties.value = {
@@ -647,18 +623,10 @@ const setCollectionProperties = (newCollection: {
     editGraphqlFolder(path, collection)
   }
 
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    path,
-    "graphql"
-  )
-
   nextTick(() => {
     updateInheritedPropertiesForAffectedRequests(
       path,
-      {
-        auth,
-        headers,
-      },
+      cascadeParentCollectionForProperties(path, "graphql"),
       "graphql"
     )
   })

@@ -1,5 +1,6 @@
-import { Service } from "dioc"
-import { reactive, computed } from "vue"
+import { Container, Service } from "dioc"
+import { nextTick } from "vue"
+import { reactive, computed, watch } from "vue"
 
 /**
  * Defines a secret environment variable.
@@ -18,6 +19,12 @@ export type SecretVariable = {
  */
 export class SecretEnvironmentService extends Service {
   public static readonly ID = "SECRET_ENVIRONMENT_SERVICE"
+
+  constructor(c: Container) {
+    super(c)
+    // Initialize the secret environments map
+    this.watchSecretEnvironments()
+  }
 
   /**
    * Map of secret environments.
@@ -137,4 +144,26 @@ export class SecretEnvironmentService extends Service {
     })
     return secretEnvironments
   })
+
+  /**
+   * Watches the secret environments for changes.
+   * If a secret variable is removed or has an empty key, it will be deleted.
+   */
+  protected watchSecretEnvironments() {
+    watch(
+      () => this.secretEnvironments,
+      () => {
+        nextTick(() => {
+          this.secretEnvironments.forEach((secretVars, id) => {
+            const filteredVars = secretVars.filter((v) => v.key !== "")
+
+            if (filteredVars.length === 0) {
+              this.secretEnvironments.delete(id)
+            }
+          })
+        })
+      },
+      { deep: true }
+    )
+  }
 }

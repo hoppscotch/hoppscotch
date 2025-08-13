@@ -503,6 +503,11 @@ details[open] summary .indicator {
     @apply hover:bg-amber-600;
   }
 
+  &.collection-variable-highlight {
+    @apply bg-purple-500;
+    @apply hover:bg-purple-600;
+  }
+
   &.environment-variable-highlight {
     @apply bg-green-500;
     @apply hover:bg-green-600;

@@ -1,5 +1,6 @@
 import {
   Environment,
+  HoppCollectionVariable,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
@@ -58,6 +59,7 @@ import {
   OutgoingSandboxPostRequestWorkerMessage,
   OutgoingSandboxPreRequestWorkerMessage,
 } from "./workers/sandbox.worker"
+import { transformCollectionVariables } from "./utils/inheritedCollectionVarTransformer"
 
 const sandboxWorker = new Worker(
   new URL("./workers/sandbox.worker.ts", import.meta.url),
@@ -117,8 +119,10 @@ export const combineEnvVariables = (variables: {
     temp?: Environment["variables"]
   }
   requestVariables: Environment["variables"]
+  collectionVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
+  ...variables.collectionVariables,
   ...(variables.environments.temp ?? []),
   ...variables.environments.selected,
   ...variables.environments.global,
@@ -423,6 +427,15 @@ export function runRESTRequest$(
         }
       )
 
+    const collectionVariables = transformCollectionVariables(
+      tab.value.document.inheritedProperties?.variables || []
+    ).map(({ key, initialValue, currentValue, secret }) => ({
+      key,
+      initialValue,
+      currentValue,
+      secret,
+    }))
+
     const finalRequest = {
       ...tab.value.document.request,
       auth: requestAuth ?? { authType: "none", authActive: false },
@@ -430,6 +443,7 @@ export function runRESTRequest$(
     }
 
     const finalEnvs = {
+      collectionVariables,
       requestVariables: finalRequestVariables as Environment["variables"],
       environments: preRequestScriptResult.right.envs,
     }
@@ -569,7 +583,8 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
 
 export function runTestRunnerRequest(
   request: HoppRESTRequest,
-  persistEnv = true
+  persistEnv = true,
+  inheritedVariables: HoppCollectionVariable[] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -609,6 +624,7 @@ export function runTestRunnerRequest(
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
           requestVariables: finalRequestVariables,
+          collectionVariables: inheritedVariables,
         })
       ),
     })

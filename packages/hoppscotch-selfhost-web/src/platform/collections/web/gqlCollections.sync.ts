@@ -52,6 +52,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
     }
     const res = await createGQLRootUserCollection(
       collection.name,
@@ -69,11 +70,13 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
           }
 
       collection.id = parentCollectionID
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
 
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
@@ -91,6 +94,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
     }
 
     const res = await createGQLChildUserCollection(
@@ -110,12 +114,14 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
           }
 
       collection.id = childCollectionId
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,
@@ -209,6 +215,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
+      variables: collection.variables,
     }
 
     if (collectionID) {
@@ -253,6 +260,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
+      variables: folder.variables,
     }
 
     if (folderBackendId) {

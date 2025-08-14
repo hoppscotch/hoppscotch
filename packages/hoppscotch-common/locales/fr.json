@@ -391,15 +391,15 @@
     }
   },
   "count": {
-    "currentValue": "Current value {count}",
+    "currentValue": "Valeur actuelle {count}",
     "description": "Description {count}",
-    "header": "Header {count}",
-    "initialValue": "Initial value {count}",
-    "key": "Key {count}",
+    "header": "En-tête {count}",
+    "initialValue": "Valeur initiale {count}",
+    "key": "Clé {count}",
     "message": "Message {count}",
-    "parameter": "Parameter {count}",
-    "protocol": "Protocol {count}",
-    "value": "Value {count}",
+    "parameter": "Paramètre {count}",
+    "protocol": "Protocole {count}",
+    "value": "Valeur {count}",
     "variable": "Variable {count}"
   },
   "documentation": {

@@ -403,8 +403,8 @@
     "variable": "Variable {count}"
   },
   "documentation": {
-    "generate": "Generate documentation",
-    "generate_message": "Import any Hoppscotch collection to generate API documentation on-the-go."
+    "generate": "Générer la documentation",
+    "generate_message": "Importer une collection Hoppscotch pour générer directement la documentation d'API associée."
   },
   "empty": {
     "activity_logs": "No activity logs found",

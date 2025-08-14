@@ -487,91 +487,91 @@
   },
   "error": {
     "network": {
-      "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "heading": "Erreur réseau",
+      "description": "La connexion au réseau a échoué. {message}: {cause}"
     },
     "timeout": {
-      "heading": "Timeout Error",
-      "description": "Request timed out during {phase}. {message}"
+      "heading": "Erreur de dépassement de délai",
+      "description": "Le délai de la requête a été dépassé pendant l'opération {phase}. {message}"
     },
     "certificate": {
-      "heading": "Certificate Error",
-      "description": "Invalid certificate. {message}: {cause}"
+      "heading": "Erreur de certificat",
+      "description": "Certificat invalide. {message}: {cause}"
     },
     "auth": {
-      "heading": "Authentication Error",
-      "description": "Access denied. {message}: {cause}"
+      "heading": "Erreur d'authentification",
+      "description": "Accès refusé. {message}: {cause}"
     },
     "proxy": {
-      "heading": "Proxy Error",
-      "description": "Proxy connection failed. {message}: {cause}"
+      "heading": "Erreur de proxy",
+      "description": "La connexion au proxy a échoué. {message}: {cause}"
     },
     "parse": {
-      "heading": "Parse Error",
-      "description": "Failed to parse response. {message}: {cause}"
+      "heading": "Erreur d'interprétation",
+      "description": "Erreur lors de l'interprétation de la réponse. {message}: {cause}"
     },
     "version": {
-      "heading": "Version Error",
-      "description": "Incompatible versions. {message}: {cause}"
+      "heading": "Erreur de version",
+      "description": "Versions incompatibles. {message}: {cause}"
     },
     "abort": {
-      "heading": "Request Aborted",
-      "description": "Operation cancelled. {message}: {cause}"
+      "heading": "Requête annulée",
+      "description": "Opération annulée. {message}: {cause}"
     },
     "unknown": {
-      "heading": "Unknown Error",
-      "description": "An unknown error occurred.",
-      "cause": "Unknown cause"
+      "heading": "Erreur inconnue",
+      "description": "Une erreur inconnue s'est produite.",
+      "cause": "Cause inconnue"
     },
     "extension": {
-      "heading": "Extension error",
-      "description": "Failed running request on extension"
+      "heading": "Erreur d'extension",
+      "description": "Erreur lors de l'exécution de la requête via l'extension"
     },
-    "authproviders_load_error": "Unable to load auth providers",
-    "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
-    "check_console_details": "Check console log for details.",
-    "check_how_to_add_origin": "Check how you can add an origin",
-    "curl_invalid_format": "cURL is not formatted properly",
-    "danger_zone": "Danger zone",
-    "delete_account": "Your account is currently the sole owner in these workspaces:",
-    "delete_account_description": "You must either remove yourself, transfer ownership, or delete these workspaces before you can delete your account.",
-    "delete_activity_log": "Failed to delete activity log",
-    "delete_all_activity_logs": "Failed to delete all activity logs",
-    "email_already_exists": "This email already exists with a different account. Please set a different email address.",
-    "empty_email_address": "Email Address cannot be empty",
-    "empty_profile_name": "Profile name cannot be empty",
-    "empty_req_name": "Empty Request Name",
-    "fetch_activity_logs": "Failed to fetch activity logs",
-    "f12_details": "(F12 for details)",
-    "gql_prettify_invalid_query": "Couldn't prettify an invalid query, solve query syntax errors and try again",
-    "incomplete_config_urls": "Incomplete configuration URLs",
-    "incorrect_email": "Incorrect email",
-    "invalid_file_type": "Invalid file type for `{filename}`.",
-    "invalid_link": "Invalid link",
-    "invalid_link_description": "The link you clicked is invalid or expired.",
-    "invalid_embed_link": "The embed does not exist or is invalid.",
-    "json_parsing_failed": "Invalid JSON",
-    "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
-    "network_error": "There seems to be a network error. Please try again.",
-    "network_fail": "Could not send request",
-    "no_collections_to_export": "No collections to export. Please create a collection to get started.",
-    "no_duration": "No duration",
-    "no_environments_to_export": "No environments to export. Please create an environment to get started.",
-    "no_results_found": "No matches found",
-    "page_not_found": "This page could not be found",
-    "please_install_extension": "Please install the extension and add origin to the extension.",
-    "proxy_error": "Proxy error",
-    "same_email_address": "Updated email address is same as the current email address",
-    "same_profile_name": "Updated profile name is same as the current profile name",
-    "script_fail": "Could not execute pre-request script",
-    "something_went_wrong": "Something went wrong",
-    "subscription_error": "Failed to subscribe to the topic: {error}",
-    "post_request_script_fail": "Could not execute post-request script",
-    "reading_files": "Error while reading one or more files.",
-    "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
-    "generate_access_token": "Something went wrong while generating the access token",
-    "delete_access_token": "Something went wrong while deleting the access token",
-    "extension_not_found": "Extension not found"
+    "authproviders_load_error": "Impossible de charger les fournisseurs de services d'authentification",
+    "browser_support_sse": "Ce navigateur ne semble pas supporter la fonctionnalité SSE (Server Sent Events).",
+    "check_console_details": "Vérifiez la journalisation console pour plus de détails.",
+    "check_how_to_add_origin": "Vérifiez comment vous pouvez ajouter une origine",
+    "curl_invalid_format": "Le format du champ cURL est invalide",
+    "danger_zone": "Zone de danger",
+    "delete_account": "Votre compte utilisateur est actuellement le seul propriétaire des espaces de travail :",
+    "delete_account_description": "Vous devez soit vous supprimez vous-même, transférer votre droit de propriété, ou supprimer ces espaces de travail avant de pouvoir supprimer votre compte utilisateur.",
+    "delete_activity_log": "Erreur lors de la suppression des journaux d'activité",
+    "delete_all_activity_logs": "Erreur lors de la suppression de tous les journaux d'activité",
+    "email_already_exists": "Cette adresse e-mail existe déjà pour un compte utilisateur différent. Veuillez renseigner une autre adresse e-mail.",
+    "empty_email_address": "L'adresse e-mail ne peut pas être vide",
+    "empty_profile_name": "Le nom du profil ne peut pas être vide",
+    "empty_req_name": "Nom de requête vide",
+    "fetch_activity_logs": "Erreur lors de la récupération des journaux d'activité",
+    "f12_details": "(F12 pour les détails)",
+    "gql_prettify_invalid_query": "Impossible de mettre en forme une requête invalide, veuillez résoudre les erreurs de syntaxe de la requête et essayez à nouveau",
+    "incomplete_config_urls": "Configuration des URLs imcomplète",
+    "incorrect_email": "E-mail incorrect",
+    "invalid_file_type": "Format de fichier invalide pour `{filename}`.",
+    "invalid_link": "Lien invalide",
+    "invalid_link_description": "Le lien sur lequel vous avez cliqué est invalide ou expiré.",
+    "invalid_embed_link": "Le lien d'intégration n'existe pas ou est invalide.",
+    "json_parsing_failed": "JSON invalide",
+    "json_prettify_invalid_body": "Impossible de mettre en forme un corps de requête invalide, veuillez résoudre les erreurs de syntaxe du JSON et essayez à nouveau",
+    "network_error": "Il semble y avoir une erreur réseau. Veuillez réessayer.",
+    "network_fail": "Impossible d'envoyer la requête",
+    "no_collections_to_export": "Aucune collection à exporter. Veuillez créer une collection pour commencer.",
+    "no_duration": "Aucune durée",
+    "no_environments_to_export": "Aucun environnement à exporter. Veuillez créer un environnement pour commencer.",
+    "no_results_found": "Aucun résultat trouvé",
+    "page_not_found": "Cette page n'a pas été trouvée",
+    "please_install_extension": "Veuillez installer l'extension et ajouter l'origine à l'extension.",
+    "proxy_error": "Erreur de proxy",
+    "same_email_address": "L'adresse e-mail mise à jour est la même que l'adresse e-mail précédemment renseignée",
+    "same_profile_name": "Le nom de profil mise à jour est la même que le nom de profil précédemment renseignée",
+    "script_fail": "Impossible d'exécuter le script de pré-requête",
+    "something_went_wrong": "Une erreur est survenue",
+    "subscription_error": "Impossible de souscrire au canal: {error}",
+    "post_request_script_fail": "Impossible d'exécuter le script post-requête",
+    "reading_files": "Erreur lors de la lecture d'un ou plusieurs fichiers.",
+    "fetching_access_tokens_list": "Une erreur est survenue lors de la récupération de la liste des jetons",
+    "generate_access_token": "Une erreur est survenue lors de la génération du jeton d'authentification",
+    "delete_access_token": "Une erreur est survenue lors de la suppression du jeton d'authentification",
+    "extension_not_found": "Extension non trouvée"
   },
   "export": {
     "as_json": "Export as JSON",

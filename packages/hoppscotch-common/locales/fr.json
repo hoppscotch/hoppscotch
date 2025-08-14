@@ -368,9 +368,9 @@
     "delete_access_token": "Voulez-vous vraiment supprimer le jeton d'authentification {tokenLabel} ?"
   },
   "context_menu": {
-    "add_parameters": "Add to parameters",
-    "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "add_parameters": "Ajouter aux paramètres",
+    "open_request_in_new_tab": "Ouvrir la requête dans un nouvel onglet",
+    "set_environment_variable": "Ajouter en tant que variable d'environnement"
   },
   "cookies": {
     "modal": {

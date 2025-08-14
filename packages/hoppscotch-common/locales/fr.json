@@ -374,20 +374,20 @@
   },
   "cookies": {
     "modal": {
-      "cookie_expires": "Expires",
-      "cookie_name": "Name",
-      "cookie_path": "Path",
-      "cookie_string": "Cookie string",
-      "cookie_value": "Value",
-      "empty_domain": "Domain is empty",
-      "empty_domains": "Domain list is empty",
-      "enter_cookie_string": "Enter cookie string",
-      "interceptor_no_support": "Your currently selected interceptor does not support cookies. Select a different Interceptor and try again.",
-      "managed_tab": "Managed",
-      "new_domain_name": "New domain name",
-      "no_cookies_in_domain": "No cookies set for this domain",
-      "raw_tab": "Raw",
-      "set": "Set a cookie"
+      "cookie_expires": "Expire",
+      "cookie_name": "Nom",
+      "cookie_path": "Emplacement",
+      "cookie_string": "Cookie (chaîne de caractères)",
+      "cookie_value": "Valeur",
+      "empty_domain": "Le domaine est vide",
+      "empty_domains": "La liste de domaines est vide",
+      "enter_cookie_string": "Entrez le cookie en chaîne de caractères",
+      "interceptor_no_support": "L'intercepteur actuellement sélectionné ne gère pas les cookies. Veuillez sélectionner un autre intercepteur et essayez à nouveau.",
+      "managed_tab": "Géré",
+      "new_domain_name": "Nouveau nom de domaine",
+      "no_cookies_in_domain": "Aucun cookie pour ce domaine",
+      "raw_tab": "Brut",
+      "set": "Ajouter un cookie"
     }
   },
   "count": {

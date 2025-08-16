@@ -717,15 +717,15 @@
     }
   },
   "instances": {
-    "switch": "Switch Hoppscotch Instance",
-    "enter_server_url": "Connect to a self-hosted instance",
-    "already_connected": "You are already connected to this instance",
-    "recent_connections": "Recent Connections",
-    "add_instance": "Add an instance",
-    "add_new": "Add a new instance",
-    "confirm_remove": "Confirm Removal",
-    "remove_warning": "Are you sure you want to remove this instance?",
-    "clear_cached_bundles": "Clear cached bundles"
+    "switch": "Changer d'instance Hoppscotch",
+    "enter_server_url": "Se connecter à une instance auto-hébergée",
+    "already_connected": "Vous êtes actuellement connecté(e) à cette instance",
+    "recent_connections": "Connexions récentes",
+    "add_instance": "Ajouter une instance",
+    "add_new": "Ajouter une nouvelle instance",
+    "confirm_remove": "Confirmer la suppression",
+    "remove_warning": "Voulez-vous vraiment supprimer cette instance ?",
+    "clear_cached_bundles": "Vider les paquets dans le cache"
   },
   "inspections": {
     "description": "Inspect possible errors",

@@ -650,11 +650,11 @@
     "post_request_script": "Écrivez un script post-requête pour automatiser le débuggage."
   },
   "hide": {
-    "collection": "Collapse Collection Panel",
-    "more": "Hide more",
-    "preview": "Hide Preview",
-    "sidebar": "Collapse sidebar",
-    "password": "Hide Password"
+    "collection": "Masquer le panneau des collections",
+    "more": "Masquer davantage",
+    "preview": "Masquer l'aperçu",
+    "sidebar": "Masquer la barre latérale",
+    "password": "Masquer le mot de passe"
   },
   "import": {
     "collections": "Import collections",

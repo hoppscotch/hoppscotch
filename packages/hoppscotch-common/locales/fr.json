@@ -1579,11 +1579,11 @@
     "url": "URL"
   },
   "workspace": {
-    "change": "Change workspace",
-    "personal": "Personal Workspace",
-    "other_workspaces": "My Workspaces",
-    "team": "Workspace",
-    "title": "Workspaces"
+    "change": "Changer d'espace de travail",
+    "personal": "Espace de travail personnel",
+    "other_workspaces": "Mes espaces de travail",
+    "team": "Espace de travail",
+    "title": "Espaces de travail"
   },
   "site_protection": {
     "login_to_continue": "Login to continue",

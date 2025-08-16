@@ -1573,9 +1573,9 @@
   },
   "websocket": {
     "communication": "Communication",
-    "log": "Log",
+    "log": "Journalisation",
     "message": "Message",
-    "protocols": "Protocols",
+    "protocols": "Protocoles",
     "url": "URL"
   },
   "workspace": {

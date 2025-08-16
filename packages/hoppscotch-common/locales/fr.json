@@ -1284,8 +1284,8 @@
     }
   },
   "sse": {
-    "event_type": "Event type",
-    "log": "Log",
+    "event_type": "Type d'événement",
+    "log": "Journalisation",
     "url": "URL"
   },
   "state": {

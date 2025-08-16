@@ -16,7 +16,7 @@ module.exports = {
   },
   extends: [
     "@vue/typescript/recommended",
-    "plugin:vue/vue3-recommended",
+    "plugin:vue/recommended",
     "plugin:prettier/recommended",
   ],
   ignorePatterns: [
@@ -34,7 +34,6 @@ module.exports = {
     "no-debugger": process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
     "prettier/prettier": [
       process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
-      {},
       {
         semi: false,
         trailingComma: "es5",

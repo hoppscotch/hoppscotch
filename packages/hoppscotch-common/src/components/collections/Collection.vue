@@ -164,8 +164,8 @@
                     :shortcut="['D']"
                     @click="
                       () => {
-                        emit('duplicate-collection'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        ;(emit('duplicate-collection'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />
@@ -177,8 +177,8 @@
                     :loading="exportLoading"
                     @click="
                       () => {
-                        emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        ;(emit('export-data'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />

@@ -607,24 +607,24 @@
   },
   "graphql": {
     "arguments": "Arguments",
-    "connection_switch_confirm": "Do you want to connect with the latest GraphQL endpoint?",
-    "connection_error_http": "Failed to fetch GraphQL Schema due to network error.",
-    "connection_switch_new_url": "Switching to a tab will disconnected you from the active GraphQL connection. New connection URL is",
-    "connection_switch_url": "You're connected to a GraphQL endpoint the connection URL is",
-    "deprecated": "Deprecated",
-    "fields": "Fields",
+    "connection_switch_confirm": "Voulez-vous vous connecter au dernier point de terminaison GraphQL ?",
+    "connection_error_http": "Impossible de joindre le schéma GraphQL en raison d'une erreur de connexion réseau.",
+    "connection_switch_new_url": "Basculer vers un onglet va déconnecter la connexion active à GraphQL. La nouvelle URL de connexion est",
+    "connection_switch_url": "Vous êtes connecté à un point de terminaison GraphQL avec l'URL de connexion",
+    "deprecated": "Déprécié",
+    "fields": "Champs",
     "mutation": "Mutation",
     "mutations": "Mutations",
-    "schema": "Schema",
-    "show_depricated_values": "Show deprecated values",
-    "subscription": "Subscription",
-    "subscriptions": "Subscriptions",
-    "switch_connection": "Switch connection",
-    "url_placeholder": "Enter a GraphQL endpoint URL",
-    "query": "Query"
+    "schema": "Schéma",
+    "show_depricated_values": "Afficher les valeurs dépréciées",
+    "subscription": "Abonnement",
+    "subscriptions": "Abonnements",
+    "switch_connection": "Changer de connexion",
+    "url_placeholder": "Entrer l'URL d'un point de terminaison GraphQL",
+    "query": "Requête"
   },
   "graphql_collections": {
-    "title": "GraphQL Collections"
+    "title": "Collections GraphQL"
   },
   "group": {
     "time": "Time",

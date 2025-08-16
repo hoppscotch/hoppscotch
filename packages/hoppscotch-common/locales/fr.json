@@ -865,7 +865,7 @@
     "verified_email_sent": "Un e-mail de vérification a été envoyé à votre adresse e-mail. Veuillez rafraîchir la page après avoir vérifié votre adresse e-mail. Vous recevrez un e-mail si l'adresse e-mail utilisée n'est associée à aucun autre compte utilisateur."
   },
   "remove": {
-    "star": "Remove star"
+    "star": "Supprimer l'étoile"
   },
   "request": {
     "added": "Request added",

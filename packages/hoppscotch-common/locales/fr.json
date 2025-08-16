@@ -1194,93 +1194,93 @@
     "url": "URL"
   },
   "spotlight": {
-    "change_language": "Change Language",
+    "change_language": "Changer de langue",
     "environments": {
-      "delete": "Delete current environment",
-      "duplicate": "Duplicate current environment",
-      "duplicate_global": "Duplicate global environment",
-      "edit": "Edit current environment",
-      "edit_global": "Edit global environment",
-      "new": "Create new environment",
-      "new_variable": "Create a new environment variable",
-      "title": "Environments"
+      "delete": "Supprimer l'environnement actuel",
+      "duplicate": "Dupliquer l'environnement actuel",
+      "duplicate_global": "Dupliquer l'environnement global",
+      "edit": "Éditer l'environnement actuel",
+      "edit_global": "Éditer l'environnement global",
+      "new": "Créer un nouvel environnement",
+      "new_variable": "Créer une nouvelle variable d'environnement",
+      "title": "Environnements"
     },
     "general": {
-      "chat": "Chat with support",
-      "help_menu": "Help and support",
-      "open_docs": "Read Documentation",
-      "open_github": "Open GitHub repository",
-      "open_keybindings": "Keyboard shortcuts",
+      "chat": "Discuter avec le support",
+      "help_menu": "Centre d'aide et support",
+      "open_docs": "Lire la documentation",
+      "open_github": "Accéder au projet GitHub",
+      "open_keybindings": "Raccourcis clavier",
       "social": "Social",
-      "title": "General"
+      "title": "Général"
     },
     "graphql": {
-      "connect": "Connect to server",
-      "disconnect": "Disconnect from server"
+      "connect": "Se connecter à un serveur",
+      "disconnect": "Se déconnecter d'un serveur"
     },
     "miscellaneous": {
-      "invite": "Invite your friends to Hoppscotch",
-      "title": "Miscellaneous"
+      "invite": "Inviter des personnes sur Hoppscotch",
+      "title": "Divers"
     },
     "request": {
-      "save_as_new": "Save as new request",
-      "select_method": "Select method",
-      "switch_to": "Switch to",
-      "tab_authorization": "Authorization tab",
-      "tab_body": "Body tab",
-      "tab_headers": "Headers tab",
-      "tab_parameters": "Parameters tab",
-      "tab_pre_request_script": "Pre-request script tab",
-      "tab_query": "Query tab",
-      "tab_tests": "Tests tab",
-      "tab_variables": "Variables tab"
+      "save_as_new": "Enregistrer en tant que nouvelle requête",
+      "select_method": "Sélectionner la méthode",
+      "switch_to": "Basculer vers",
+      "tab_authorization": "Onglet d'authentification",
+      "tab_body": "Onglet du corps de requête",
+      "tab_headers": "Onglet des en-têtes",
+      "tab_parameters": "Onglet des paramètres",
+      "tab_pre_request_script": "Onglet des scripts de pré-requête",
+      "tab_query": "Onglet de requête",
+      "tab_tests": "Onglet des tests",
+      "tab_variables": "Onglet des variables"
     },
     "response": {
-      "copy": "Copy response",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "Copier la réponse",
+      "download": "Télécharger la réponse en tant que fichier",
+      "title": "Réponse"
     },
     "section": {
-      "interceptor": "Interceptor",
+      "interceptor": "Intercepteur",
       "interface": "Interface",
-      "theme": "Theme",
-      "user": "User"
+      "theme": "Thème",
+      "user": "Utilisateur"
     },
     "settings": {
-      "change_interceptor": "Change Interceptor",
-      "change_language": "Change Language",
+      "change_interceptor": "Changer l'intercepteur",
+      "change_language": "Changer la langue",
       "theme": {
-        "black": "Black",
-        "dark": "Dark",
-        "light": "Light",
-        "system": "System preference"
+        "black": "Noir",
+        "dark": "Sombre",
+        "light": "Clair",
+        "system": "Préférence système"
       }
     },
     "tab": {
-      "close_current": "Close current tab",
-      "close_others": "Close all other tabs",
-      "duplicate": "Duplicate current tab",
-      "new_tab": "Open a new tab",
-      "next": "Switch to next tab",
-      "previous": "Switch to previous tab",
-      "switch_to_first": "Switch to first tab",
-      "switch_to_last": "Switch to last tab",
-      "title": "Tabs"
+      "close_current": "Fermer l'onglet actuel",
+      "close_others": "Fermer tous les autres onglets",
+      "duplicate": "Dupliquer l'onglet actuel",
+      "new_tab": "Ouvrir un nouvel onglet",
+      "next": "Basculer vers l'onglet suivant",
+      "previous": "Basculer vers l'onglet précédent",
+      "switch_to_first": "Basculer vers le premier onglet",
+      "switch_to_last": "Basculer vers le dernier onglet",
+      "title": "Onglets"
     },
     "workspace": {
-      "delete": "Delete current workspace",
-      "edit": "Edit current workspace",
-      "invite": "Invite people to workspace",
-      "new": "Create new workspace",
-      "switch_to_personal": "Switch to your personal workspace",
-      "title": "Workspaces"
+      "delete": "Supprimer l'espace de travail actuel",
+      "edit": "Éditer l'espace de travail actuel",
+      "invite": "Inviter des personnes dans l'espace de travail actuel",
+      "new": "Créer un nouvel espace de travail",
+      "switch_to_personal": "Basculer vers votre espace de travail personnel",
+      "title": "Espaces de travail"
     },
     "phrases": {
-      "try": "Try",
-      "import_collections": "Import collections",
-      "create_environment": "Create environment",
-      "create_workspace": "Create workspace",
-      "share_request": "Share request"
+      "try": "Essayer",
+      "import_collections": "Importer des collections",
+      "create_environment": "Créer un environnement",
+      "create_workspace": "Créer un espace de travail",
+      "share_request": "Partager une requête"
     }
   },
   "sse": {

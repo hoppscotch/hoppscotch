@@ -1439,15 +1439,15 @@
     "loading_collections_in_workspace": "Chargement des collections de l'espace de travail"
   },
   "support": {
-    "changelog": "Read more about latest releases",
-    "chat": "Questions? Chat with us!",
-    "community": "Ask questions and help others",
-    "documentation": "Read more about Hoppscotch",
-    "forum": "Ask questions and get answers",
-    "github": "Follow us on Github",
-    "shortcuts": "Browse app faster",
+    "changelog": "En savoir plus sur les dernières mises à jour",
+    "chat": "Des questions ? Discutez avec nous !",
+    "community": "Posez vos questions et aidez les autres",
+    "documentation": "En savoir plus sur Hoppscotch",
+    "forum": "Posez vos questions et obtenez des réponses",
+    "github": "Suivez-nous sur GitHub",
+    "shortcuts": "Parcourir l'application plus rapidement",
     "title": "Support",
-    "twitter": "Follow us on Twitter"
+    "twitter": "Suivez-nous sur Twitter"
   },
   "tab": {
     "authorization": "Authorization",

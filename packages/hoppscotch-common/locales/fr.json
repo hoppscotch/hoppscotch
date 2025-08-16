@@ -791,15 +791,15 @@
     "row": "Disposition horizontale"
   },
   "modal": {
-    "close_unsaved_tab": "You have unsaved changes",
+    "close_unsaved_tab": "Vous avez des changements non sauvegardés",
     "collections": "Collections",
-    "confirm": "Confirm",
-    "customize_request": "Customize Request",
-    "edit_request": "Edit Request",
-    "edit_response": "Edit Response",
-    "import_export": "Import / Export",
-    "response_name": "Response Name",
-    "share_request": "Share Request"
+    "confirm": "Confirmer",
+    "customize_request": "Personnaliser la requête",
+    "edit_request": "Éditer la requête",
+    "edit_response": "Éditer la réponse",
+    "import_export": "Importer / Exporter",
+    "response_name": "Nom de la réponse",
+    "share_request": "Partager la requête"
   },
   "mqtt": {
     "already_subscribed": "You are already subscribed to this topic.",

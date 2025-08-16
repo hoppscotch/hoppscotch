@@ -763,8 +763,8 @@
   },
   "interceptor": {
     "native": {
-      "name": "Native",
-      "settings_title": "Native"
+      "name": "Natif",
+      "settings_title": "Natif"
     },
     "agent": {
       "name": "Agent",
@@ -775,8 +775,8 @@
       "settings_title": "Proxy"
     },
     "browser": {
-      "name": "Browser",
-      "settings_title": "Browser"
+      "name": "Navigateur web",
+      "settings_title": "Navigateur web"
     },
     "extension": {
       "name": "Extension",

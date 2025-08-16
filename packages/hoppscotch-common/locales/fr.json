@@ -1187,10 +1187,10 @@
   },
   "socketio": {
     "communication": "Communication",
-    "connection_not_authorized": "This SocketIO connection does not use any authentication.",
-    "event_name": "Event/Topic Name",
-    "events": "Events",
-    "log": "Log",
+    "connection_not_authorized": "Cette connexion SocketIO n'utilise aucune forme d'authentification.",
+    "event_name": "Nom de l'événement / topic",
+    "events": "Événements",
+    "log": "Journalisation",
     "url": "URL"
   },
   "spotlight": {

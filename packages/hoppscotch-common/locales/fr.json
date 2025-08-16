@@ -784,11 +784,11 @@
     }
   },
   "layout": {
-    "collapse_collection": "Collapse or Expand Collections",
-    "collapse_sidebar": "Collapse or Expand the sidebar",
-    "column": "Vertical layout",
-    "name": "Layout",
-    "row": "Horizontal layout"
+    "collapse_collection": "Afficher ou masquer les collections",
+    "collapse_sidebar": "Afficher ou masquer la barre latérale",
+    "column": "Disposition verticale",
+    "name": "Disposition",
+    "row": "Disposition horizontale"
   },
   "modal": {
     "close_unsaved_tab": "You have unsaved changes",

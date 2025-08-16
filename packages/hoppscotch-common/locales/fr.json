@@ -592,9 +592,9 @@
     "response_interface": "Réponse - Interface"
   },
   "filter": {
-    "all": "All",
-    "none": "None",
-    "starred": "Starred"
+    "all": "Tout",
+    "none": "Aucun",
+    "starred": "Favoris"
   },
   "folder": {
     "created": "Folder created",

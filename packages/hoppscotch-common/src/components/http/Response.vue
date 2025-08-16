@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-1 flex-col border border-accent rounded-lg shadow-lg bg-primaryContrast ring-1 ring-accent/20">
+  <div :class="responseContainerClass">
     <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
@@ -50,6 +50,11 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+
+const responseContainerClass = computed(
+  () =>
+    "relative flex flex-1 flex-col border border-accent rounded-lg shadow-lg bg-primaryContrast ring-1 ring-accent/20"
+)
 
 const hasResponse = computed(
   () =>

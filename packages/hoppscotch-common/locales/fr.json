@@ -574,14 +574,14 @@
     "extension_not_found": "Extension non trouvée"
   },
   "export": {
-    "as_json": "Export as JSON",
-    "create_secret_gist": "Create secret Gist",
-    "create_secret_gist_tooltip_text": "Export as secret Gist",
-    "failed": "Something went wrong while exporting",
-    "secret_gist_success": "Successfully exported as secret Gist",
-    "require_github": "Login with GitHub to create secret gist",
-    "title": "Export",
-    "success": "Successfully exported"
+    "as_json": "Exporter en JSON",
+    "create_secret_gist": "Créer un Gist secret",
+    "create_secret_gist_tooltip_text": "Exporter en Gist secret",
+    "failed": "Une erreur est survenue pendant l'export",
+    "secret_gist_success": "Export en Gist secret réussi",
+    "require_github": "Connectez-vous avec GitHub pour créer un Gist secret",
+    "title": "Exporter",
+    "success": "Export réussi"
   },
   "filename": {
     "cookie_key_value_pairs": "Cookie",

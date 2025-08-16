@@ -1179,11 +1179,11 @@
     }
   },
   "show": {
-    "code": "Show code",
-    "collection": "Expand Collection Panel",
-    "more": "Show more",
-    "sidebar": "Expand sidebar",
-    "password": "Show Password"
+    "code": "Afficher le code",
+    "collection": "Étendre le panneau des collections",
+    "more": "Afficher plus",
+    "sidebar": "Étendre la barre latérale",
+    "password": "Afficher le mot de passe"
   },
   "socketio": {
     "communication": "Communication",

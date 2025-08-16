@@ -1586,9 +1586,9 @@
     "title": "Espaces de travail"
   },
   "site_protection": {
-    "login_to_continue": "Login to continue",
-    "login_to_continue_description": "You need to be logged in to access this Hoppscotch Enterprise Instance.",
-    "error_fetching_site_protection_status": "Something Went Wrong While Fetching Site Protection Status"
+    "login_to_continue": "Connectez-vous pour continuer",
+    "login_to_continue_description": "Vous devez être connecté pour accéder à cette instance d'Hoppscotch Entreprise.",
+    "error_fetching_site_protection_status": "Une erreur est survenue pendant la récupération du statut de protection du site"
   },
   "access_tokens": {
     "tab_title": "Tokens",

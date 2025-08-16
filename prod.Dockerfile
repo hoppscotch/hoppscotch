@@ -32,7 +32,7 @@ RUN go build
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.19.7 AS node_base
+FROM alpine:3.22.1 AS node_base
 RUN apk add --no-cache nodejs curl tini && \
   # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
   # TODO: Find a better method which is resistant to supply chain attacks
@@ -43,7 +43,7 @@ RUN apk add --no-cache nodejs curl tini && \
 
 FROM node_base AS base_builder
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
-RUN apk add python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev
+RUN apk add --no-cache python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev ada-dev simdjson-dev simdutf-dev sqlite-dev zstd-dev
 
 WORKDIR /usr/src/app
 ENV HOPP_ALLOW_RUNTIME_ENV=true

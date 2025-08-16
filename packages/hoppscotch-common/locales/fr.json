@@ -843,9 +843,9 @@
     "authentication": "Authentification"
   },
   "preRequest": {
-    "javascript_code": "JavaScript Code",
-    "learn": "Read documentation",
-    "script": "Pre-Request Script",
+    "javascript_code": "Code JavaScript",
+    "learn": "Lire la documentation",
+    "script": "Script de pré-requête",
     "snippets": "Snippets"
   },
   "profile": {

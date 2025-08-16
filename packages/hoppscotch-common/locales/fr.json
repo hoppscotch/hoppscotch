@@ -631,9 +631,9 @@
     "url": "URL"
   },
   "header": {
-    "install_pwa": "Install app",
-    "login": "Login",
-    "save_workspace": "Save My Workspace"
+    "install_pwa": "Installer l'application",
+    "login": "Connexion",
+    "save_workspace": "Enregistrer mon espace de travail"
   },
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",

@@ -1548,9 +1548,9 @@
     "invite_members": "Inviter des membres"
   },
   "team_environment": {
-    "deleted": "Environment Deleted",
-    "duplicate": "Environment Duplicated",
-    "not_found": "Environment not found."
+    "deleted": "Environnement supprimé",
+    "duplicate": "Environnement dupliqué",
+    "not_found": "Environnement non trouvé."
   },
   "test": {
     "requests": "Requests",

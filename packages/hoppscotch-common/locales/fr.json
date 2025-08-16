@@ -833,14 +833,14 @@
   },
   "navigation": {
     "admin_dashboard": "Dashboard",
-    "doc": "Docs",
+    "doc": "Documentation",
     "graphql": "GraphQL",
-    "profile": "Profile",
-    "realtime": "Realtime",
+    "profile": "Profil",
+    "realtime": "Temps-réel",
     "rest": "REST",
-    "settings": "Settings",
-    "goto_app": "Goto App",
-    "authentication": "Authentication"
+    "settings": "Paramètres",
+    "goto_app": "Aller à l'application",
+    "authentication": "Authentification"
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",

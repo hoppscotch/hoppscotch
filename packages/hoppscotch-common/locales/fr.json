@@ -728,37 +728,37 @@
     "clear_cached_bundles": "Vider les paquets dans le cache"
   },
   "inspections": {
-    "description": "Inspect possible errors",
+    "description": "Inspecter les erreurs possibles",
     "environment": {
-      "add_environment": "Add to Environment",
-      "add_environment_value": "Add value",
-      "empty_value": "Environment value is empty for the variable '{variable}' ",
-      "not_found": "Environment variable '{environment}' not found."
+      "add_environment": "Ajouter à l'environnement",
+      "add_environment_value": "Ajouter une valeur",
+      "empty_value": "La valeur d'environnement est vide pour la variable '{variable}' ",
+      "not_found": "La variable d'environnement '{environment}' n'a pas été trouvée."
     },
     "header": {
-      "cookie": "The browser doesn't allow Hoppscotch to set Cookie Headers. Please use Authorization Headers instead. However, our Hoppscotch Desktop App is live now and supports Cookies."
+      "cookie": "Le navigateur web n'autorise pas Hoppscotch à définir les en-têtes de Cookie. Veuillez utiliser les en-têtes Authorization à la place. Cependant, notre application de bureau Hoppscotch est disponible et sait gérer les cookies."
     },
     "response": {
-      "401_error": "Please check your authentication credentials.",
-      "404_error": "Please check your request URL and method type.",
-      "cors_error": "Please check your Cross-Origin Resource Sharing configuration.",
-      "default_error": "Please check your request.",
-      "network_error": "Please check your network connection."
+      "401_error": "Veuillez vérifier vos identifiants d'authentification.",
+      "404_error": "Veuillez vérifier l'URL de requête et la méthode associée.",
+      "cors_error": "Veuillez vérifier la configuration CORS (Cross-Origin Resource Sharing).",
+      "default_error": "Veuillez vérifier la requête.",
+      "network_error": "Veuillez vérifier votre connexion au réseau."
     },
-    "title": "Inspector",
+    "title": "Inspecteur",
     "url": {
-      "extension_not_installed": "Extension not installed.",
-      "extension_unknown_origin": "Make sure you've added the API endpoint's origin to the Hoppscotch Browser Extension list.",
-      "extention_enable_action": "Enable Browser Extension",
-      "extention_not_enabled": "Extension not enabled.",
-      "localaccess_unsupported": "Current interceptor does not support local access, please consider using Agent, Extension interceptors or the Desktop App"
+      "extension_not_installed": "Extension non installée.",
+      "extension_unknown_origin": "Assurez-vous d'avoir ajouté l'origine du point de terminaison API dans la liste de l'extension web Hoppscotch.",
+      "extention_enable_action": "Activer l'extension web",
+      "extention_not_enabled": "Extension désactivée.",
+      "localaccess_unsupported": "L'intercepteur actuel ne gère pas l'accès local, veuillez considérer l'utilisation d'Agent, des extensions des intercepteurs ou l'application de bureau Hoppscotch"
     },
     "auth": {
-      "digest": "Agent interceptor on the web app or Native interceptor on the Desktop app are recommended when using Digest Authorization.",
-      "hawk": "Agent interceptor on the web app or Native interceptor on the Desktop app are recommended when using Hawk Authorization."
+      "digest": "L'Agent intercepteur de l'application web ou l'intercepteur natif de l'application de bureau sont recommandés pour l'utilisation de l'authentification de type Digest.",
+      "hawk": "L'Agent intercepteur de l'application web ou l'intercepteur natif de l'application de bureau sont recommandés pour l'utilisation de l'authentification de type Hawk."
     },
     "body": {
-      "binary": "Sending binary data via the current interceptor is not supported yet."
+      "binary": "L'envoi de données binaires via l'intercepteur actuel n'eset pas encore géré."
     }
   },
   "interceptor": {

@@ -849,20 +849,20 @@
     "snippets": "Snippets"
   },
   "profile": {
-    "app_settings": "App Settings",
-    "default_hopp_displayname": "Unnamed User",
-    "editor": "Editor",
-    "editor_description": "Editors can add, edit, and delete requests.",
-    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
-    "no_permission": "You do not have permission to perform this action.",
-    "owner": "Owner",
-    "owner_description": "Owners can add, edit, and delete requests, collections and workspace members.",
-    "roles": "Roles",
-    "roles_description": "Roles are used to control access to the shared collections.",
-    "updated": "Profile updated",
-    "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests.",
-    "verified_email_sent": "A verification email has been sent to your email address. Please refresh the page after verifying your email address. You will receive an email if this email is not associated with any other account."
+    "app_settings": "Paramètres d'application",
+    "default_hopp_displayname": "Utilisateur sans nom",
+    "editor": "Éditeur",
+    "editor_description": "Les éditeurs peuvent ajouter, éditer et supprimer des requêtes.",
+    "email_verification_mail": "Un e-mail de vérification a été envoyé à votre adresse e-mail. Veuillez cliquer sur le lien qu'il contient pour vérifier votre adresse e-mail.",
+    "no_permission": "Vous n'avez pas la permission pour exécuter cette action.",
+    "owner": "Propriétaire",
+    "owner_description": "Les propriétaires peuvent ajouter, éditer et supprimer les requêtes, collections et membres de l'espace de travail.",
+    "roles": "Rôles",
+    "roles_description": "Les rôles sont utilisés pour contrôler l'accès aux collections partagées.",
+    "updated": "Profil mis à jour",
+    "viewer": "Consultant",
+    "viewer_description": "Les consultants peuvent uniquement voir et utiliser les requêtes.",
+    "verified_email_sent": "Un e-mail de vérification a été envoyé à votre adresse e-mail. Veuillez rafraîchir la page après avoir vérifié votre adresse e-mail. Vous recevrez un e-mail si l'adresse e-mail utilisée n'est associée à aucun autre compte utilisateur."
   },
   "remove": {
     "star": "Remove star"

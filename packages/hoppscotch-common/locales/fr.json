@@ -636,18 +636,18 @@
     "save_workspace": "Enregistrer mon espace de travail"
   },
   "helpers": {
-    "authorization": "The authorization header will be automatically generated when you send the request.",
-    "collection_properties_authorization": " This authorization will be set for every request in this collection.",
-    "collection_properties_header": "This header will be set for every request in this collection.",
-    "generate_documentation_first": "Generate documentation first",
-    "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
-    "offline": "You're using Hoppscotch offline. Updates will sync when you're online, based on workspace settings.",
-    "offline_short": "You're using Hoppscotch offline.",
-    "post_request_tests": "Post-request scripts are written in JavaScript, and are run after the response is received.",
-    "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
-    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
-    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
-    "post_request_script": "Write a post-request script to automate debugging."
+    "authorization": "L'en-tête Authorization sera généré automatiquement lorsque vous exécuterez la requête.",
+    "collection_properties_authorization": "Cette en-tête Authorization sera définie par défaut pour chaque requête de cette collection.",
+    "collection_properties_header": "Cette en-tête sera définie par défaut pour chaque requête de cette collection.",
+    "generate_documentation_first": "Générez la documentation d'abord",
+    "network_fail": "Impossible de joindre le point de terminaison API. Veuillez vérifier votre connexion réseau ou sélectionnez un Intercepteur différent puis réessayez.",
+    "offline": "Vous utilisez Hoppscotch hors-ligne. Les modifications seront synchronisés quand vous serez à nouveau en ligne suivant les paramètres de votre espace de travail.",
+    "offline_short": "Vous utilisez Hoppscotch hors-ligne.",
+    "post_request_tests": "Les scripts post-requête sont écrits en JavaScript et sont exécutés après que la réponse ait été reçue.",
+    "pre_request_script": "Les scripts post-requête sont écrits en JavaScript et sont exécutés avant que la requête ne soit envoyée.",
+    "script_fail": "Il semblerait qu'il y ait un bug dans le script de pré-requête. Veuillez vérifier l'erreur ci-dessous et corrigez le script en conséquence.",
+    "post_request_script_fail": "Il semblerait qu'il y ait une erreur avec le script de post-requête. Veuillez corriger les erreurs et relancez les tests à nouveau",
+    "post_request_script": "Écrivez un script post-requête pour automatiser le débuggage."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

@@ -597,13 +597,13 @@
     "starred": "Favoris"
   },
   "folder": {
-    "created": "Folder created",
-    "edit": "Edit Folder",
-    "invalid_name": "Please provide a name for the folder",
-    "name_length_insufficient": "Folder name should be at least 3 characters long",
-    "new": "New Folder",
-    "run": "Run Folder",
-    "renamed": "Folder renamed"
+    "created": "Dossier créé",
+    "edit": "Éditer le dossier",
+    "invalid_name": "Veuillez renseigner un nom pour le dossier",
+    "name_length_insufficient": "Le nom du dossier doit avoir au moins 3 caractères",
+    "new": "Nouveau dossier",
+    "run": "Exécuter le dossier",
+    "renamed": "Dossier renommé"
   },
   "graphql": {
     "arguments": "Arguments",

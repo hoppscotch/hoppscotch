@@ -1111,71 +1111,71 @@
   },
   "shortcut": {
     "general": {
-      "close_current_menu": "Close current menu",
-      "command_menu": "Search & command menu",
-      "help_menu": "Help menu",
-      "show_all": "Keyboard shortcuts",
-      "title": "General"
+      "close_current_menu": "Fermer le menu actuel",
+      "command_menu": "Menu de recherche et des commandes",
+      "help_menu": "Menu d'aide",
+      "show_all": "Raccourcis clavier",
+      "title": "Général"
     },
     "miscellaneous": {
-      "invite": "Invite people to Hoppscotch",
-      "title": "Miscellaneous"
+      "invite": "Inviter des personnes sur Hoppscotch",
+      "title": "Divers"
     },
     "navigation": {
-      "back": "Go back to previous page",
-      "documentation": "Go to Documentation page",
-      "forward": "Go forward to next page",
-      "graphql": "Go to GraphQL page",
-      "profile": "Go to Profile page",
-      "realtime": "Go to Realtime page",
-      "rest": "Go to REST page",
-      "settings": "Go to Settings page",
+      "back": "Aller à la page précédente",
+      "documentation": "Aller à la page documentation",
+      "forward": "Aller à la page suivante",
+      "graphql": "Aller à la page GraphQL",
+      "profile": "Aller à la page du profil",
+      "realtime": "Aller à la page temps-réel",
+      "rest": "Aller à la page API REST",
+      "settings": "Aller à la page des paramètres",
       "title": "Navigation"
     },
     "others": {
-      "prettify": "Prettify Editor's Content",
-      "title": "Others"
+      "prettify": "Remettre en forme le contenu de l'éditeur",
+      "title": "Autres"
     },
     "request": {
-      "delete_method": "Select DELETE method",
-      "get_method": "Select GET method",
-      "head_method": "Select HEAD method",
-      "import_curl": "Import cURL",
-      "method": "Method",
-      "next_method": "Select Next method",
-      "post_method": "Select POST method",
-      "previous_method": "Select Previous method",
-      "put_method": "Select PUT method",
-      "rename": "Rename Request",
-      "reset_request": "Reset Request",
-      "save_request": "Save Request",
-      "save_to_collections": "Save to Collections",
-      "send_request": "Send Request",
-      "share_request": "Share Request",
-      "show_code": "Generate code snippet",
-      "title": "Request"
+      "delete_method": "Sélectionner la méthode DELETE",
+      "get_method": "Sélectionner la méthode GET",
+      "head_method": "Sélectionner la méthode HEAD",
+      "import_curl": "Importer cURL",
+      "method": "Méthode",
+      "next_method": "Sélectionner la méthode suivante",
+      "post_method": "Sélectionner la méthode POST",
+      "previous_method": "Sélectionner la méthode précédente",
+      "put_method": "Sélectionner la méthode PUT",
+      "rename": "Renommer la requête",
+      "reset_request": "Réinitialiser la requête",
+      "save_request": "Enregistrer la requête",
+      "save_to_collections": "Enregistrer dans les collections",
+      "send_request": "Envoyer la requête",
+      "share_request": "Partager la requête",
+      "show_code": "Générer l'extrait de code",
+      "title": "Requête"
     },
     "response": {
-      "copy": "Copy response to clipboard",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "Copier la réponse dans le presse-papiers",
+      "download": "Télécharger la réponse en tant que fichier",
+      "title": "Réponse"
     },
     "tabs": {
-      "title": "Tabs",
-      "new_tab": "New Tab",
-      "close_tab": "Close Tab",
-      "reopen_tab": "Reopen Closed Tab",
-      "next_tab": "Next Tab",
-      "previous_tab": "Previous Tab",
-      "first_tab": "Switch to First Tab",
-      "last_tab": "Switch to Last Tab"
+      "title": "Onglets",
+      "new_tab": "Nouvel onglet",
+      "close_tab": "Fermer l'onglet",
+      "reopen_tab": "Réouvrir l'onglet fermé",
+      "next_tab": "Onglet suivant",
+      "previous_tab": "Onglet précédent",
+      "first_tab": "Basculer vers le premier onglet",
+      "last_tab": "Basculer vers le dernier onglet"
     },
     "theme": {
-      "black": "Switch theme to Black Mode",
-      "dark": "Switch theme to Dark Mode",
-      "light": "Switch theme to Light Mode",
-      "system": "Switch theme to System Mode",
-      "title": "Theme"
+      "black": "Basculer le thème en mode noir",
+      "dark": "Basculer le thème en mode sombre",
+      "light": "Basculer le thème en mode clair",
+      "system": "Basculer le thème pour le thème système",
+      "title": "Thème"
     }
   },
   "show": {

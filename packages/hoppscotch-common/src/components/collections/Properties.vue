@@ -133,24 +133,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from "vue"
+import { refAutoReset, useVModel } from "@vueuse/core"
+import { clone } from "lodash-es"
 import { useI18n } from "@composables/i18n"
+import { useToast } from "~/composables/toast"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { useService } from "dioc/vue"
+
 import {
-  GQLHeader,
   HoppCollection,
   HoppCollectionVariable,
-  HoppGQLAuth,
   HoppRESTAuth,
+  HoppGQLAuth,
   HoppRESTHeaders,
+  GQLHeader,
 } from "@hoppscotch/data"
-import { refAutoReset, useVModel } from "@vueuse/core"
-import { useService } from "dioc/vue"
-import { clone } from "lodash-es"
-import { computed, ref, watch } from "vue"
-import { useToast } from "~/composables/toast"
-
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { PersistenceService } from "~/services/persistence"
+
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
 import IconHelpCircle from "~icons/lucide/help-circle"
@@ -158,6 +159,7 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
+const toast = useToast()
 
 export type EditingProperties = {
   collection: Partial<HoppCollection> | null
@@ -165,11 +167,8 @@ export type EditingProperties = {
   path: string
   inheritedProperties?: HoppInheritedProperty
 }
-
 type HoppCollectionAuth = HoppRESTAuth | HoppGQLAuth
 type HoppCollectionHeaders = HoppRESTHeaders | GQLHeader[]
-
-const toast = useToast()
 
 const props = withDefaults(
   defineProps<{
@@ -178,8 +177,8 @@ const props = withDefaults(
     editingProperties: EditingProperties
     source: "REST" | "GraphQL"
     modelValue: string
-    showDetails: boolean
-    hasTeamWriteAccess: boolean
+    showDetails?: boolean
+    hasTeamWriteAccess?: boolean
   }>(),
   {
     show: false,
@@ -204,129 +203,104 @@ const editableCollection = ref<{
   variables: HoppCollectionVariable[]
 }>({
   headers: [],
-  auth: {
-    authType: "inherit",
-    authActive: false,
-  },
-  variables: [
-    {
-      currentValue: "",
-      initialValue: "",
-      key: "",
-      secret: false,
-    },
-    {
-      currentValue: "",
-      initialValue: "",
-      key: "",
-      secret: true,
-    },
-  ],
+  auth: { authType: "inherit", authActive: false },
+  variables: [],
 })
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
+const activeTab = useVModel(props, "modelValue", emit)
 
 const activeTabIsDetails = computed(() => activeTab.value === "details")
 
-watch(
-  editableCollection,
-  async (updatedEditableCollection) => {
-    if (props.show && props.editingProperties) {
-      const unsavedCollectionProperties: EditingProperties = {
-        collection: updatedEditableCollection,
-        isRootCollection: props.editingProperties.isRootCollection ?? false,
-        path: props.editingProperties.path,
-        inheritedProperties: props.editingProperties.inheritedProperties,
-      }
-      await persistenceService.setLocalConfig(
-        "unsaved_collection_properties",
-        JSON.stringify(unsavedCollectionProperties)
-      )
-    }
-  },
-  {
-    deep: true,
+const persistUnsavedChanges = async (
+  updated: typeof editableCollection.value
+) => {
+  if (!props.show) return
+  await persistenceService.setLocalConfig(
+    "unsaved_collection_properties",
+    JSON.stringify({
+      collection: updated,
+      isRootCollection: props.editingProperties.isRootCollection ?? false,
+      path: props.editingProperties.path,
+      inheritedProperties: props.editingProperties.inheritedProperties,
+    })
+  )
+}
+
+const handleModalVisibility = async (show: boolean) => {
+  enforceTabAccessRules()
+
+  if (show && props.editingProperties.collection) {
+    loadEditableCollection()
+  } else {
+    resetEditableCollection()
+    await persistenceService.removeLocalConfig("unsaved_collection_properties")
   }
-)
+}
 
-const activeTab = useVModel(props, "modelValue", emit)
+const enforceTabAccessRules = () => {
+  // `Details` tab doesn't exist for personal workspace, hence switching to the `Headers` tab
+  // The modal can appear empty while switching from a team workspace with `Details` as the active tab
+  if (activeTab.value === "details" && !props.showDetails)
+    activeTab.value = "headers"
+  // If the user doesn't have write access to the team, switch to `Variables` tab
+  // when the `Headers` or `Authorization` tab is active
+  if (
+    !props.hasTeamWriteAccess &&
+    ["headers", "authorization"].includes(activeTab.value)
+  )
+    activeTab.value = "variables"
+}
 
-watch(
-  () => props.show,
-  async (show) => {
-    // `Details` tab doesn't exist for personal workspace, hence switching to the `Headers` tab
-    // The modal can appear empty while switching from a team workspace with `Details` as the active tab
-    if (activeTab.value === "details" && !props.showDetails) {
-      activeTab.value = "headers"
-    }
-
-    // If the user doesn't have write access to the team, switch to `Variables` tab
-    // when the `Headers` or `Authorization` tab is active
-    if (
-      !props.hasTeamWriteAccess &&
-      (activeTab.value === "headers" || activeTab.value === "authorization")
-    ) {
-      activeTab.value = "variables"
-    }
-
-    if (show && props.editingProperties.collection) {
-      editableCollection.value.auth = clone(
-        props.editingProperties.collection.auth as HoppCollectionAuth
-      )
-      editableCollection.value.headers = clone(
-        props.editingProperties.collection.headers as HoppCollectionHeaders
-      )
-      editableCollection.value.variables = clone(
-        props.editingProperties.collection.variables || []
-      )
-    } else {
-      editableCollection.value = {
-        headers: [],
-        auth: {
-          authType: "inherit",
-          authActive: false,
-        },
-        variables: [],
-      }
-
-      await persistenceService.removeLocalConfig(
-        "unsaved_collection_properties"
-      )
-    }
+const loadEditableCollection = () => {
+  editableCollection.value = {
+    auth: clone(props.editingProperties.collection!.auth as HoppCollectionAuth),
+    headers: clone(
+      props.editingProperties.collection!.headers as HoppCollectionHeaders
+    ),
+    variables: clone(props.editingProperties.collection!.variables || []),
   }
-)
+}
+
+const resetEditableCollection = () => {
+  editableCollection.value = {
+    headers: [],
+    auth: { authType: "inherit", authActive: false },
+    variables: [],
+  }
+}
 
 const saveEditedCollection = async () => {
   if (!props.editingProperties) return
-  const finalCollection = clone(editableCollection.value)
-  const collection = {
+  emit("set-collection-properties", {
     path: props.editingProperties.path,
     collection: {
       ...props.editingProperties.collection,
-      ...finalCollection,
+      ...clone(editableCollection.value),
     },
     isRootCollection: props.editingProperties.isRootCollection,
-  }
-  emit("set-collection-properties", collection as EditingProperties)
+  } as EditingProperties)
   await persistenceService.removeLocalConfig("unsaved_collection_properties")
 }
+
+watch(editableCollection, persistUnsavedChanges, { deep: true })
+watch(() => props.show, handleModalVisibility)
 
 const hideModal = async () => {
   await persistenceService.removeLocalConfig("unsaved_collection_properties")
   emit("hide-modal")
 }
 
-const changeOptionTab = (e: RESTOptionTabs) => {
-  activeTab.value = e
+const changeOptionTab = (tab: RESTOptionTabs) => {
+  activeTab.value = tab
 }
 
 const copyCollectionID = () => {
   copyToClipboard(props.editingProperties.path)
   copyIcon.value = IconCheck
-
-  toast.success(`${t("state.copied_to_clipboard")}`)
+  toast.success(t("state.copied_to_clipboard"))
 }
 </script>

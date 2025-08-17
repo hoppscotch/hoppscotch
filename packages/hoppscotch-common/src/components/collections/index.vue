@@ -2777,16 +2777,10 @@ const editProperties = (payload: {
     }
 
     if (parentIndex) {
-      const { auth, headers, variables } = cascadeParentCollectionForProperties(
+      inheritedProperties = cascadeParentCollectionForProperties(
         parentIndex,
         "rest"
       )
-
-      inheritedProperties = {
-        auth,
-        headers,
-        variables,
-      }
     }
 
     const collectionVariables = pipe(

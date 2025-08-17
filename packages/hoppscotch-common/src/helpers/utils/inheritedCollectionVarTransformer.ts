@@ -37,21 +37,16 @@ export const transformCollectionVariables = (
   variables: HoppInheritedProperty["variables"],
   showSecret: boolean = true
 ): AggregateEnvironment[] => {
-  return variables.flatMap(({ inheritedVariables }, varIndex) =>
+  return variables.flatMap(({ parentID, inheritedVariables }) =>
     inheritedVariables.map(
       ({ currentValue, initialValue, key, secret }, index) => ({
         key,
         currentValue:
-          getCurrentValue(
-            secret,
-            index,
-            variables[varIndex].parentID,
-            showSecret
-          ) ?? currentValue,
+          getCurrentValue(secret, index, parentID, showSecret) ?? currentValue,
         initialValue,
         sourceEnv: "CollectionVariable",
         secret,
-        sourceEnvID: variables[varIndex].parentID,
+        sourceEnvID: parentID,
       })
     )
   )
@@ -65,16 +60,13 @@ export const transformCollectionVariables = (
  */
 export const populateValuesInInheritedCollectionVars = (
   variables: HoppCollectionVariable[],
-  parentID: string | undefined
-) => {
-  if (!variables || variables.length === 0 || !parentID) {
-    return []
-  }
-
-  return variables.map((variable, index) => ({
-    ...variable,
-    currentValue:
-      getCurrentValue(variable.secret, index, parentID) ||
-      variable.currentValue,
-  }))
-}
+  parentID?: string
+): HoppCollectionVariable[] =>
+  parentID
+    ? variables.map((variable, index) => ({
+        ...variable,
+        currentValue:
+          getCurrentValue(variable.secret, index, parentID) ??
+          variable.currentValue,
+      }))
+    : []

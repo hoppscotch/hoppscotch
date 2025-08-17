@@ -57,8 +57,8 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      _ref_id: collection._ref_id,
       variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
     }
     const res = await createRESTRootUserCollection(
       collection.name,
@@ -75,8 +75,8 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
-            _ref_id: generateUniqueRefId("coll"),
             variables: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
       collection.id = parentCollectionID
@@ -99,8 +99,8 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
-      _ref_id: collection._ref_id,
       variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
     }
 
     const res = await createRESTChildUserCollection(
@@ -120,8 +120,8 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
-            _ref_id: generateUniqueRefId("coll"),
             variables: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
       collection.id = childCollectionId
@@ -221,6 +221,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       auth: collection.auth,
       headers: collection.headers,
       variables: collection.variables,
+      _ref_id: collection._ref_id,
     }
 
     if (collectionID) {
@@ -267,6 +268,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       auth: folder.auth,
       headers: folder.headers,
       variables: folder.variables,
+      _ref_id: folder._ref_id,
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))

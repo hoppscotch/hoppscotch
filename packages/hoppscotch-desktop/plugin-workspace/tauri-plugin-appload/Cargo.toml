@@ -14,7 +14,7 @@ serde = "1.0"
 serde_json = { version = "1", features = [] }
 thiserror = { version = "2.0.3", features = [] }
 url = { version = "2.5.3", features = ["serde"] }
-reqwest = { version = "0.12.9", features = [] }
+reqwest = { version = "0.12.9", features = ["json"] }
 zip = { version = "2.2.0", features = [] }
 tokio = { version = "1.41.1", features = [] }
 mime-infer = { version = "3.0.0", features = [] }
@@ -35,6 +35,7 @@ mime_guess = "2.0.5"
 rayon = "1.10.0"
 hex_color = "3.0.0"
 dunce = "1.0.5"
+bon = "3.6.3"
 
 [build-dependencies]
 tauri-plugin = { version = "2.0.1", features = ["build"] }

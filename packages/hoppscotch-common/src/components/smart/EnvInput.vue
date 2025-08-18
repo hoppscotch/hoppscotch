@@ -177,6 +177,19 @@ watch(
   }
 )
 
+//update secretText when modelValue changes
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (secretText.value !== newVal) {
+      secretText.value = newVal
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
 onClickOutside(autoCompleteWrapper, () => {
   showSuggestionPopover.value = false
 })

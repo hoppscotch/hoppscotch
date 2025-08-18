@@ -10,6 +10,7 @@ import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 function setupSwagger(app, isProduction: boolean) {
   const swaggerDocPath = '/api-docs';
@@ -38,7 +39,7 @@ function setupSwagger(app, isProduction: boolean) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
   const isProduction = configService.get('PRODUCTION') === 'true';
@@ -84,7 +85,14 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.use(morgan(':method :url :status - :response-time ms'));
+
+  if (configService.get('TRUST_PROXY') === 'true') {
+    console.log('Enabling trust proxy');
+
+    app.set('trust proxy', true);
+  }
+
+  app.use(morgan(':remote-addr :method :url :status - :response-time ms'));
 
   await setupSwagger(app, isProduction);
 

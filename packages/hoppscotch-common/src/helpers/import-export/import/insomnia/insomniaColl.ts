@@ -1,5 +1,6 @@
 import {
   HoppCollection,
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
@@ -14,39 +15,33 @@ import {
 import * as A from "fp-ts/Array"
 import * as TE from "fp-ts/TaskEither"
 import * as TO from "fp-ts/TaskOption"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { ImportRequest, convert } from "insomnia-importers"
-import { Header, Parameter } from "insomnia-importers/dist/src/entities"
+import { convert } from "insomnia-importers"
 
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from ".."
 import { replaceInsomniaTemplating } from "./insomniaEnv"
+import { safeParseJSONOrYAML } from "~/helpers/functional/yaml"
+import {
+  InsomniaDoc,
+  InsomniaDocV5,
+  InsomniaFolderResource,
+  InsomniaFolderV5,
+  InsomniaRequestResource,
+  InsomniaResource,
+  InsoReqAuth,
+} from "./types"
 
-// TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
-
-type UnwrapPromise<T extends Promise<any>> =
-  T extends Promise<infer Y> ? Y : never
-
-type InsomniaDoc = UnwrapPromise<ReturnType<typeof convert>>
-type InsomniaResource = ImportRequest
-
-// insomnia-importers v3.6.0 doesn't provide a type for path parameters and they have deprecated the library
-type InsomniaPathParameter = {
-  name: string
-  value: string
-}
-
-type InsomniaFolderResource = ImportRequest & { _type: "request_group" }
-type InsomniaRequestResource = Omit<ImportRequest, "headers" | "parameters"> & {
-  _type: "request"
-} & {
-  pathParameters?: InsomniaPathParameter[]
-} & {
-  headers: (Header & { description: string })[]
-  parameters: (Parameter & { description: string })[]
-}
-
-const parseInsomniaDoc = (content: string) =>
-  TO.tryCatch(() => convert(content))
+/**
+ * Used to check if the document is an Insomnia v5 document
+ * Insomnia v5 documents have a type field that starts with "collection.insomnia.rest/
+ * @param data InsomniaDoc
+ * @returns true if the document is an Insomnia v5 document
+ */
+const isV5InsomniaDoc = (data: InsomniaDoc) =>
+  data.type &&
+  typeof data.type === "string" &&
+  (data.type as string).startsWith("collection.insomnia.rest/5")
 
 const replacePathVarTemplating = (expression: string) =>
   expression.replaceAll(/:([^/]+)/g, "<<$1>>")
@@ -84,24 +79,23 @@ const getRequestsIn = (
     )
   )
 
-/**
- * The provided type by insomnia-importers, this type corrects it
- */
-type InsoReqAuth =
-  | { type: "basic"; disabled?: boolean; username?: string; password?: string }
-  | {
-      type: "oauth2"
-      disabled?: boolean
-      accessTokenUrl?: string
-      authorizationUrl?: string
-      clientId?: string
-      scope?: string
-    }
-  | {
-      type: "bearer"
-      disabled?: boolean
-      token?: string
-    }
+const getCollectionVariables = (
+  environment: Record<string, string> | undefined,
+  folderRes?: InsomniaFolderResource
+): HoppCollectionVariable[] => {
+  if (folderRes && folderRes.environment) environment = folderRes.environment
+
+  if (!environment) return []
+
+  const x = Object.entries(environment).map(([key, value]) => ({
+    key: replaceVarTemplating(key),
+    currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
+    initialValue: replaceVarTemplating(value),
+    secret: false,
+  }))
+
+  return x.flatMap((x) => x)
+}
 
 const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {
   if (!req.authentication) return { authType: "none", authActive: true }
@@ -128,6 +122,9 @@ const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {
         token: "",
         isPKCE: false,
         tokenEndpoint: replaceVarTemplating(auth.accessTokenUrl ?? ""),
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -246,6 +243,7 @@ const getHoppFolder = (
     requests: getRequestsIn(folderRes, resources).map(getHoppRequest),
     auth: { authType: "inherit", authActive: true },
     headers: [],
+    variables: getCollectionVariables(undefined, folderRes), // undefined is used to indicate no environment variables for v4 and below
   })
 
 const getHoppCollections = (docs: InsomniaDoc[]) => {
@@ -256,10 +254,112 @@ const getHoppCollections = (docs: InsomniaDoc[]) => {
   })
 }
 
-export const hoppInsomniaImporter = (fileContents: string[]) =>
+const getFolders = (collections: InsomniaDocV5["collection"]) => {
+  if (!collections) return []
+  return collections.filter(
+    (x): x is InsomniaFolderV5 => "children" in x && !("url" in x)
+  )
+}
+
+const getRequests = (
+  collections: InsomniaDocV5["collection"]
+): InsomniaRequestResource[] => {
+  if (!collections) return []
+  return collections.filter((x): x is InsomniaRequestResource => "url" in x)
+}
+
+const getParsedHoppFolder = (
+  name: string,
+  collection: InsomniaFolderV5
+): HoppCollection => {
+  return makeCollection({
+    name: name ?? collection.name ?? "Untitled Collection",
+    folders: getFolders(collection.children ?? []).map((f) =>
+      getParsedHoppFolder(f.name, f)
+    ),
+    requests: getRequests(collection.children ?? []).map(getParsedHoppRequest),
+    auth: { authType: "inherit", authActive: true },
+    headers: [],
+    variables: getCollectionVariables(collection.environment),
+  })
+}
+
+const getParsedHoppRequest = (req: InsomniaRequestResource) => {
+  return makeRESTRequest({
+    name: req.name ?? "Untitled Request",
+    method: req.method?.toUpperCase() ?? "GET",
+    endpoint: replaceVarTemplating(req.url ?? "", true),
+    auth: getHoppReqAuth(req),
+    body: getHoppReqBody(req),
+    headers: getHoppReqHeaders(req),
+    params: getHoppReqParams(req),
+
+    preRequestScript: "",
+    testScript: "",
+
+    requestVariables: getHoppReqVariables(req),
+
+    //insomnia doesn't have saved response
+    responses: {},
+  })
+}
+
+const getParsedHoppCollections = (docs: InsomniaDocV5[]): HoppCollection[] =>
+  docs.flatMap((doc) => {
+    if (doc && Array.isArray(doc.collection)) {
+      return makeCollection({
+        name: doc.name ?? "Untitled Collection",
+        folders: getFolders(doc.collection).map((f) =>
+          getParsedHoppFolder(f.name, f)
+        ),
+        requests: getRequests(doc.collection).map((x) =>
+          getParsedHoppRequest(x)
+        ),
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: getCollectionVariables(doc.environments?.data),
+      })
+    }
+
+    return []
+  })
+
+const parseInsomniaDoc = (content: string) =>
   pipe(
-    fileContents,
-    A.traverse(TO.ApplicativeSeq)(parseInsomniaDoc),
-    TO.map(getHoppCollections),
+    TO.tryCatch(() => convert(content)),
+    TO.map((doc) => getHoppCollections([doc])),
     TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )
+
+const parseV5InsomniaDoc = (content: string) =>
+  pipe(
+    safeParseJSONOrYAML(content),
+    TO.fromOption,
+    TO.map((parsed) => parsed as InsomniaDocV5),
+    TO.map((doc) => getParsedHoppCollections([doc])),
+    TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
+  )
+
+/**
+ * insomina-importers v3.6.0 does supoort insomina v5
+ * (NOTE: Currently, insomnia-importers only supports v4 and below)
+ * https://github.com/Kong/insomnia/issues/8504
+ */
+export const hoppInsomniaImporter = (fileContents: string[]) => {
+  return pipe(
+    fileContents,
+    A.traverse(TE.ApplicativeSeq)((content) =>
+      pipe(
+        safeParseJSONOrYAML(content),
+        O.fold(
+          () => TE.left(IMPORTER_INVALID_FILE_FORMAT),
+          (parsed) =>
+            isV5InsomniaDoc(parsed as InsomniaDoc)
+              ? parseV5InsomniaDoc(content)
+              : parseInsomniaDoc(content)
+        )
+      )
+    ),
+    TE.map(A.flatten)
+  )
+}

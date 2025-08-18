@@ -1642,22 +1642,22 @@
     "no_failed_tests": "Aucun test échoué"
   },
   "ai_experiments": {
-    "generate_request_name": "Generate Request Name Using AI",
-    "generate_or_modify_request_body": "Generate or Modify Request Body",
-    "modify_with_ai": "Modify with AI",
-    "generate": "Generate",
-    "generate_or_modify_request_body_input_placeholder": "Enter your prompt to modify request body",
-    "accept_change": "Accept Change",
-    "feedback_success": "Feedback submitted successfully",
-    "feedback_failure": "Failed to submit feedback",
-    "feedback_thank_you": "Thank you for your feedback!",
-    "feedback_cta_text_long": "Rate the generation, helps us to improve",
-    "feedback_cta_request_name": "Did you like the generated name?",
-    "modify_request_body_error": "Failed to modify request body",
-    "generate_or_modify_prerequest_input_placeholder": "Enter a prompt to generate or modify the pre-request script",
-    "generate_or_modify_post_request_script_input_placeholder": "Enter a prompt to generate or modify the post-request script",
-    "modify_post_request_script_error": "Failed to modify post-request script",
-    "modify_prerequest_error": "Failed to modify pre-request script"
+    "generate_request_name": "Générer un nom de requête avec l'IA",
+    "generate_or_modify_request_body": "Générer ou modifier un corps de requête",
+    "modify_with_ai": "Modifier avec l'IA",
+    "generate": "Générer",
+    "generate_or_modify_request_body_input_placeholder": "Entrer le prompt pour modifier le corps de requête",
+    "accept_change": "Accepter les changements",
+    "feedback_success": "Les retours d'expérience ont été soumis",
+    "feedback_failure": "Erreur lors de l'envoi des retours d'expérience",
+    "feedback_thank_you": "Merci pour votre retour d'expérience !",
+    "feedback_cta_text_long": "Notez la génération, cela nous aide à améliorer votre expérience",
+    "feedback_cta_request_name": "Avez-vous aimé le nom généré ?",
+    "modify_request_body_error": "Erreur lors de la modification du corps de requête",
+    "generate_or_modify_prerequest_input_placeholder": "Entrer un prompt pour générer ou modifier le script de pré-requête",
+    "generate_or_modify_post_request_script_input_placeholder": "Entrer un prompt pour générer ou modifier le script post-requête",
+    "modify_post_request_script_error": "Erreur lors de la modification du script post-requête",
+    "modify_prerequest_error": "Erreur lors de la modification du script de pré-requête"
   },
   "configs": {
     "auth_providers": {

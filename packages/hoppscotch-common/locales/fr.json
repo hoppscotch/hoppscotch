@@ -1762,12 +1762,12 @@
     }
   },
   "data_sharing": {
-    "description": "Share anonymous data usage to improve Hoppscotch",
-    "enable": "Enable Data Sharing",
-    "see_shared": "See what is shared",
-    "toggle_description": "Share data and make Hoppscotch better",
-    "title": "Make Hoppscotch Better",
-    "welcome": "Welcome to"
+    "description": "Partager des données d'utilisation anonymisées nous permet d'améliorer Hoppscotch",
+    "enable": "Activer le partage des données",
+    "see_shared": "Voir ce qui est collecté",
+    "toggle_description": "Partager les données pour améliorer Hoppscotch",
+    "title": "Améliorer Hoppscotch",
+    "welcome": "Bienvenue dans"
   },
   "infra_tokens": {
     "copy_token_warning": "Make sure to copy your infra token now. You won't be able to see it again!",

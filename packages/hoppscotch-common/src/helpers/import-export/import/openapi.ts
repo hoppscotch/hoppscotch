@@ -33,6 +33,9 @@ import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
+import { generateRequestBodyExampleFromOpenAPIV2Body } from "./openapi/example-v2"
+import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./openapi/example-v3"
+import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./openapi/example-v31"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -119,88 +122,6 @@ const replaceOpenApiPathTemplating = flow(
   S.replace(/{/g, "<<"),
   S.replace(/}/g, ">>")
 )
-
-// Helper function to generate a sample object from OpenAPI v2/v3 schema
-const generateSampleFromSchema = (schema: any): any => {
-  if (!schema) return {}
-
-  // Handle $ref (though these should be dereferenced already)
-  if (schema.$ref) return {}
-
-  // Use example if available
-  if (schema.example !== undefined) return schema.example
-
-  // Handle oneOf/anyOf - use the first option
-  if (schema.oneOf && schema.oneOf.length > 0)
-    return generateSampleFromSchema(schema.oneOf[0])
-
-  if (schema.anyOf && schema.anyOf.length > 0)
-    return generateSampleFromSchema(schema.anyOf[0])
-
-  // Handle allOf - merge all schemas (simple approach)
-  if (schema.allOf && schema.allOf.length > 0) {
-    const merged: any = {}
-    for (const subSchema of schema.allOf) {
-      const sample = generateSampleFromSchema(subSchema)
-      if (typeof sample === "object" && sample !== null) {
-        Object.assign(merged, sample)
-      }
-    }
-    return merged
-  }
-
-  if (schema.type === "object") {
-    const obj: any = {}
-    if (schema.properties) {
-      for (const [key, prop] of Object.entries(schema.properties)) {
-        obj[key] = generateSampleFromSchema(prop)
-      }
-    }
-    return obj
-  }
-
-  if (schema.type === "array") {
-    if (schema.items) return [generateSampleFromSchema(schema.items)]
-    return []
-  }
-
-  if (schema.type === "string") {
-    // Handle enum values
-    if (schema.enum && schema.enum.length > 0) return schema.enum[0]
-    // Handle format-specific examples
-    if (schema.format === "date") return "2023-01-01"
-    if (schema.format === "date-time") return "2023-01-01T00:00:00Z"
-    if (schema.format === "email") return "user@example.com"
-    if (schema.format === "uri") return "https://example.com"
-    if (schema.format === "uuid") return "123e4567-e89b-12d3-a456-426614174000"
-    return schema.default ?? "string"
-  }
-
-  if (schema.type === "number" || schema.type === "integer") {
-    // Handle enum values
-    if (schema.enum && schema.enum.length > 0) return schema.enum[0]
-
-    return schema.default ?? (schema.type === "integer" ? 0 : 0.0)
-  }
-
-  if (schema.type === "boolean") return schema.default ?? false
-
-  if (schema.type === "null") return null
-
-  // If no type specified, try to infer from properties
-  if (schema.properties) {
-    const obj: any = {}
-    for (const [key, prop] of Object.entries(schema.properties)) {
-      obj[key] = generateSampleFromSchema(prop)
-    }
-    return obj
-  }
-
-  // If still no type, check for enum
-  if (schema.enum && schema.enum.length > 0) return schema.enum[0]
-
-  return {}
-}
 
 const parseOpenAPIParams = (params: OpenAPIParamsType[]): HoppRESTParam[] =>
   pipe(
@@ -418,20 +339,13 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
     (param) => (param as OpenAPIV2.Parameter).in === "body"
   ) as OpenAPIV2.InBodyParameterObject | undefined
 
-  if (bodyParam && bodyParam.schema) {
-    try {
-      const sampleBody = generateSampleFromSchema(bodyParam.schema)
+  if (bodyParam) {
+    const result = generateRequestBodyExampleFromOpenAPIV2Body(op)
+    if (result) {
       return {
         contentType: obj as any,
-        body: JSON.stringify(sampleBody, null, 2),
+        body: result,
       }
-    } catch (e) {
-      console.error(
-        "Error generating sample from schema in parseOpenAPIV2Body:",
-        e
-      )
-      // else: return empty body
-      return { contentType: obj as any, body: "" }
     }
   }
 
@@ -471,6 +385,7 @@ const parseOpenAPIV3BodyFormData = (
 }
 
 const parseOpenAPIV3Body = (
+  doc: OpenAPI.Document,
   op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject
 ): HoppRESTReqBody => {
   const objs = Object.entries(
@@ -503,10 +418,22 @@ const parseOpenAPIV3Body = (
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
     try {
-      const sampleBody = generateSampleFromSchema(media.schema)
+      const docAny = doc as any
+      const isV31 = docAny.openapi && docAny.openapi.startsWith("3.1")
+
+      let sampleBody: any
+      if (isV31) {
+        sampleBody = generateV31Example(media as any)
+      } else {
+        sampleBody = generateV3Example(media as any)
+      }
+
       return {
         contentType: contentType as any,
-        body: JSON.stringify(sampleBody, null, 2),
+        body:
+          typeof sampleBody === "string"
+            ? sampleBody
+            : JSON.stringify(sampleBody, null, 2),
       }
     } catch (e) {
       // If we can't generate a sample, check for examples
@@ -535,6 +462,24 @@ const parseOpenAPIV3Body = (
     }
   }
 
+  // Check for examples array (OpenAPI v3 supports multiple examples)
+  if (media.examples && Object.keys(media.examples).length > 0) {
+    const firstExampleKey = Object.keys(media.examples)[0]
+    const firstExample = media.examples[firstExampleKey]
+
+    // Handle both Example Object and Reference Object
+    const exampleValue =
+      "value" in firstExample ? firstExample.value : firstExample
+
+    return {
+      contentType: contentType as any,
+      body:
+        typeof exampleValue === "string"
+          ? exampleValue
+          : JSON.stringify(exampleValue, null, 2),
+    }
+  }
+
   // Fallback to empty body for textual content types
   return { contentType: contentType as any, body: "" }
 }
@@ -552,7 +497,7 @@ const parseOpenAPIBody = (
   op: OpenAPIOperationType
 ): HoppRESTReqBody =>
   isOpenAPIV3Operation(doc, op)
-    ? parseOpenAPIV3Body(op)
+    ? parseOpenAPIV3Body(doc, op)
     : parseOpenAPIV2Body(op)
 
 const resolveOpenAPIV3SecurityObj = (

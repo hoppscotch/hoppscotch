@@ -121,8 +121,24 @@ const generateRequestBodyExampleFromSchemaObject = (
 export const generateRequestBodyExampleFromMediaObject = (
   mediaObject: OpenAPIV31.MediaTypeObject
 ): RequestBodyExample => {
+  // First check for direct example
   if (mediaObject.example) return mediaObject.example as RequestBodyExample
-  if (mediaObject.examples) return mediaObject.examples[0] as RequestBodyExample
+
+  // Then check for examples object (OpenAPI v3.1 format)
+  if (mediaObject.examples) {
+    const firstExample = Object.values(mediaObject.examples)[0]
+    if (
+      firstExample &&
+      typeof firstExample === "object" &&
+      "value" in firstExample
+    ) {
+      return firstExample.value as RequestBodyExample
+    }
+    // Fallback if examples doesn't have the expected structure
+    return Object.values(mediaObject.examples)[0] as RequestBodyExample
+  }
+
+  // Fallback to generating from schema
   return mediaObject.schema
     ? generateRequestBodyExampleFromSchemaObject(mediaObject.schema)
     : ""

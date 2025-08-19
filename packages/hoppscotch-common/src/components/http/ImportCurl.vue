@@ -151,11 +151,9 @@ const handleImport = () => {
 
     // Preserve the existing request name when importing cURL
     const currentRequest = tabs.currentActiveTab.value.document.request
-    if (currentRequest && currentRequest.name) {
-      req.name = currentRequest.name
-    }
+    const reqName = currentRequest?.name ?? req.name
 
-    tabs.currentActiveTab.value.document.request = req
+    tabs.currentActiveTab.value.document.request = { ...req, name: reqName }
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

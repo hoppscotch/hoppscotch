@@ -1,4 +1,3 @@
-// TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
 import { ImportRequest, convert } from "insomnia-importers"
 import { Header, Parameter } from "insomnia-importers/dist/src/entities"
 
@@ -50,7 +49,7 @@ export type InsoReqAuth =
  * Insomnia v5 document types
  * These types are used to represent the structure of Insomnia v5 documents.
  */
-export interface InsomniaDocV5 {
+export type InsomniaDocV5 = {
   type: `collection.insomnia.rest/${string}`
   name: string
   meta: {
@@ -68,7 +67,7 @@ export interface InsomniaDocV5 {
   environments?: InsomniaEnvironmentV5
 }
 
-export interface InsomniaMetaV5 {
+export type InsomniaMetaV5 = {
   id: string
   created: number
   modified: number
@@ -76,7 +75,7 @@ export interface InsomniaMetaV5 {
   sortKey?: number
 }
 
-export interface InsomniaScriptOnlyV5 {
+export type InsomniaScriptOnlyV5 = {
   name: string
   meta: InsomniaMetaV5
   scripts: {
@@ -85,7 +84,7 @@ export interface InsomniaScriptOnlyV5 {
   }
 }
 
-export interface InsomniaFolderV5 {
+export type InsomniaFolderV5 = {
   name: string
   meta: InsomniaMetaV5
   children?: (InsomniaFolderV5 | InsomniaRequestResource)[]
@@ -96,7 +95,7 @@ export interface InsomniaFolderV5 {
   }
 }
 
-export interface InsomniaKeyValueV5 {
+export type InsomniaKeyValueV5 = {
   id?: string
   name: string
   value: string
@@ -106,7 +105,7 @@ export interface InsomniaKeyValueV5 {
   multiline?: boolean
 }
 
-export interface InsomniaCookieJarV5 {
+export type InsomniaCookieJarV5 = {
   name: string
   meta: {
     id: string
@@ -128,7 +127,7 @@ export interface InsomniaCookieJarV5 {
   }[]
 }
 
-export interface InsomniaEnvironmentV5 {
+export type InsomniaEnvironmentV5 = {
   name: string
   meta: {
     id: string

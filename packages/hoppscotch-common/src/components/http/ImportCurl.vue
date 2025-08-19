@@ -149,6 +149,12 @@ const handleImport = () => {
 
     if (tabs.currentActiveTab.value.document.type === "example-response") return
 
+    // Preserve the existing request name when importing cURL
+    const currentRequest = tabs.currentActiveTab.value.document.request
+    if (currentRequest && currentRequest.name) {
+      req.name = currentRequest.name
+    }
+
     tabs.currentActiveTab.value.document.request = req
   } catch (e) {
     console.error(e)

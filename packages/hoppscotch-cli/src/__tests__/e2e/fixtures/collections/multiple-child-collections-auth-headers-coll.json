@@ -1,7 +1,7 @@
 {
   "v": 6,
   "id": "cm9wmuzj46s3imbs891pdamv4",
-  "name": "Multiple child collections with authorization & headers set at each level",
+  "name": "Multiple child collections with authorization, headers and variables set at each level",
   "folders": [
     {
       "v": 6,
@@ -686,6 +686,14 @@
       "value": "Inherited header at all levels",
       "active": true,
       "description": ""
+    }
+  ],
+  "variables": [
+    {
+      "key": "collection-variable",
+      "currentValue": "collection-variable-value",
+      "initialValue": "collection-variable-value",
+      "secret": false
     }
   ],
   "_ref_id": "coll_m9wn4jl9_aa8a3bc2-a96f-4cac-86f3-2df4bb355cc8"

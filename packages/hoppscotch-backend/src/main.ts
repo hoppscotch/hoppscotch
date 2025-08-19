@@ -88,7 +88,6 @@ async function bootstrap() {
 
   if (configService.get('TRUST_PROXY') === 'true') {
     console.log('Enabling trust proxy');
-
     app.set('trust proxy', true);
   }
 

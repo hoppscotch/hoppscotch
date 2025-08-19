@@ -89,12 +89,7 @@ const generateExampleArrayFromOpenAPIV2ItemsObject = (
     O.fromPredicate(
       flow((items) => items.type as SchemaType, isSchemaTypePrimitive)
     ),
-    O.map(
-      flow(getSampleEnumValueOrPlaceholder, (arrayItem) => [
-        arrayItem,
-        arrayItem,
-      ])
-    ),
+    O.map(flow(getSampleEnumValueOrPlaceholder, (arrayItem) => [arrayItem])),
     O.getOrElse(() =>
       // If the type is not primitive, it is "array"
       // items property is required if type is array

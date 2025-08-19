@@ -27,7 +27,7 @@
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "@hoppscotch/ui": "0.2.5",
-    "@types/node": "24.2.1",
+    "@types/node": "24.3.0",
     "cross-env": "10.0.0",
     "http-server": "14.1.1",
     "husky": "9.1.7",

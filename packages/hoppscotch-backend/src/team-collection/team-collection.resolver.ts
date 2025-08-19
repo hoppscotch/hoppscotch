@@ -235,24 +235,6 @@ export class TeamCollectionResolver {
     return importedCollection.right;
   }
 
-  @Mutation(() => Boolean, {
-    description:
-      'Replace existing collections of a specific team with collections in JSON string',
-  })
-  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
-  async replaceCollectionsWithJSON(@Args() args: ReplaceTeamCollectionArgs) {
-    const teamCollection =
-      await this.teamCollectionService.replaceCollectionsWithJSON(
-        args.jsonString,
-        args.teamID,
-        args.parentCollectionID ?? null,
-      );
-
-    if (E.isLeft(teamCollection)) throwErr(teamCollection.left);
-    return teamCollection.right;
-  }
-
   @Mutation(() => TeamCollection, {
     description: 'Create a collection that has a parent collection',
   })

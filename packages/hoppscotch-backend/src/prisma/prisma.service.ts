@@ -7,7 +7,12 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    super();
+    super({
+      transactionOptions: {
+        maxWait: 5000, // 5 seconds
+        timeout: 10000, // 10 seconds
+      },
+    });
   }
   async onModuleInit() {
     await this.$connect();

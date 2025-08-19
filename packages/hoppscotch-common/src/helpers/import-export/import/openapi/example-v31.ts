@@ -76,7 +76,7 @@ const generateObjectRequestBodyExample = (
   )
 
 // Use carefully, the schema type should necessarily be mixed array
-const generateMixedArrayRequestBodyEcample = (
+const generateMixedArrayRequestBodyExample = (
   schemaObject: OpenAPIV31.SchemaObject
 ): RequestBodyExample =>
   pipe(
@@ -115,7 +115,7 @@ const generateRequestBodyExampleFromSchemaObject = (
     return generateObjectRequestBodyExample(schemaObject)
   if (schemaObject.type === "array")
     return generateArrayRequestBodyExample(schemaObject)
-  return generateMixedArrayRequestBodyEcample(schemaObject)
+  return generateMixedArrayRequestBodyExample(schemaObject)
 }
 
 export const generateRequestBodyExampleFromMediaObject = (

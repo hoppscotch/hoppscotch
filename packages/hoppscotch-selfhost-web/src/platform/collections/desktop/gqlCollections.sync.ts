@@ -76,7 +76,7 @@ const recursivelySyncCollections = async (
             },
             headers: [],
             variables: [],
-            _ref_id: collection._ref_id,
+            _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
           }
 
       collection.id = parentCollectionID

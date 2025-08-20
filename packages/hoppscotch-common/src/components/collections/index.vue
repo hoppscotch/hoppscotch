@@ -2955,7 +2955,8 @@ const setCollectionProperties = (newCollection: {
       updateInheritedPropertiesForAffectedRequests(
         path,
         inheritedProperty,
-        "rest"
+        "rest",
+        collection._ref_id ?? collectionId!
       )
     })
     toast.success(t("collection.properties_updated"))
@@ -2985,7 +2986,8 @@ const setCollectionProperties = (newCollection: {
       updateInheritedPropertiesForAffectedRequests(
         path,
         inheritedProperty,
-        "rest"
+        "rest",
+        collectionId
       )
     }, 200)
   }

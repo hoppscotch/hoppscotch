@@ -111,12 +111,19 @@ export class TeamRequestService {
     });
     if (!dbTeamReq) return E.left(TEAM_REQ_NOT_FOUND);
 
-    await this.prisma.teamRequest.updateMany({
-      where: { orderIndex: { gte: dbTeamReq.orderIndex } },
-      data: { orderIndex: { decrement: 1 } },
-    });
-    await this.prisma.teamRequest.delete({
-      where: { id: requestID },
+    await this.prisma.$transaction(async (tx) => {
+      // lock the rows
+      const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = $1 FOR UPDATE`;
+      await tx.$executeRawUnsafe(lockQuery, dbTeamReq.collectionID);
+
+      await tx.teamRequest.updateMany({
+        where: { orderIndex: { gte: dbTeamReq.orderIndex } },
+        data: { orderIndex: { decrement: 1 } },
+      });
+
+      await tx.teamRequest.delete({
+        where: { id: requestID },
+      });
     });
 
     this.pubsub.publish(`team_req/${dbTeamReq.teamID}/req_deleted`, requestID);
@@ -142,26 +149,37 @@ export class TeamRequestService {
     if (E.isLeft(team)) return E.left(team.left);
     if (team.right.id !== teamID) return E.left(TEAM_INVALID_ID);
 
-    const reqCountInColl =
-      await this.getRequestsCountInCollection(collectionID);
-
-    const createInput: Prisma.TeamRequestCreateInput = {
-      request: request,
-      title: title,
-      orderIndex: reqCountInColl + 1,
-      team: { connect: { id: team.right.id } },
-      collection: { connect: { id: collectionID } },
-    };
-
+    let jsonReq = null;
     if (request) {
-      const jsonReq = stringToJson(request);
-      if (E.isLeft(jsonReq)) return E.left(jsonReq.left);
-      createInput.request = jsonReq.right;
+      const parsedReq = stringToJson(request);
+      if (E.isLeft(parsedReq)) return E.left(parsedReq.left);
+      jsonReq = parsedReq.right;
     }
 
-    const dbTeamRequest = await this.prisma.teamRequest.create({
-      data: createInput,
+    let dbTeamRequest: DbTeamRequest = null;
+    await this.prisma.$transaction(async (tx) => {
+      // lock the rows
+      const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = $1 FOR UPDATE`;
+      await tx.$executeRawUnsafe(lockQuery, collectionID);
+
+      // fetch last team request
+      const lastTeamRequest = await tx.teamRequest.findFirst({
+        where: { collectionID },
+        orderBy: { orderIndex: 'desc' },
+      });
+
+      // create the team request
+      dbTeamRequest = await tx.teamRequest.create({
+        data: {
+          request: jsonReq,
+          title,
+          orderIndex: lastTeamRequest ? lastTeamRequest.orderIndex + 1 : 1,
+          team: { connect: { id: team.right.id } },
+          collection: { connect: { id: collectionID } },
+        },
+      });
     });
+
     const teamRequest = this.cast(dbTeamRequest);
     this.pubsub.publish(
       `team_req/${teamRequest.teamID}/req_created`,
@@ -306,7 +324,7 @@ export class TeamRequestService {
    * @param destCollID Collection ID, where the request is to be moved to
    * @param nextRequestID ID of the request, which is after the request to be moved. If the request is to be moved to the end of the collection, nextRequestID should be null
    */
-  async findRequestAndNextRequest(
+  private async findRequestAndNextRequest(
     srcCollID: string,
     requestID: string,
     destCollID: string,
@@ -339,7 +357,7 @@ export class TeamRequestService {
    * A helper function to get the number of requests in a collection
    * @param collectionID Collection ID to fetch
    */
-  async getRequestsCountInCollection(collectionID: string) {
+  private async getRequestsCountInCollection(collectionID: string) {
     return this.prisma.teamRequest.count({
       where: { collectionID },
     });
@@ -352,7 +370,7 @@ export class TeamRequestService {
    * @param nextRequest The request, which is after the request to be moved. If the request is to be moved to the end of the collection, nextRequest should be null
    * @param destCollID Collection ID, where the request is to be moved to
    */
-  async reorderRequests(
+  private async reorderRequests(
     request: DbTeamRequest,
     srcCollID: string,
     nextRequest: DbTeamRequest,
@@ -362,6 +380,19 @@ export class TeamRequestService {
       return await this.prisma.$transaction<
         E.Left<string> | E.Right<DbTeamRequest>
       >(async (tx) => {
+        // lock the rows
+        const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" IN ($1, $2) FOR UPDATE`;
+        await tx.$executeRawUnsafe(lockQuery, srcCollID, destCollID);
+
+        request = await tx.teamRequest.findUnique({
+          where: { id: request.id },
+        });
+        nextRequest = nextRequest
+          ? await tx.teamRequest.findUnique({
+              where: { id: nextRequest.id },
+            })
+          : null;
+
         const isSameCollection = srcCollID === destCollID;
         const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
 

@@ -1798,11 +1798,11 @@
     "total_users": "Nombre total d'utilisateurs"
   },
   "newsletter": {
-    "description": "Get updates about our latest news",
-    "subscribe": "Subscribe",
-    "title": "Stay in Touch",
-    "toggle_description": "Get updates about the latest at Hoppscotch",
-    "unsubscribe": "Unsubscribe"
+    "description": "Restez informés sur nos dernières actualités",
+    "subscribe": "S'abonner",
+    "title": "Rester en contact",
+    "toggle_description": "Soyez informés des dernières mises à jour sur Hoppscotch",
+    "unsubscribe": "Se désabonner"
   },
   "teams": {
     "add_member": "Add Member",

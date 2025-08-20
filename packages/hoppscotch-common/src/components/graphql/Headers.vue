@@ -659,8 +659,9 @@ watch(
       props.inheritedProperties.auth &&
       request.value.auth.authType === "inherit" &&
       request.value.auth.authActive &&
-      request.value.headers.some(
-        (requestHeader) => requestHeader.key !== "Authorization"
+      !request.value.headers.some(
+        (requestHeader) =>
+          requestHeader.key === "Authorization" && requestHeader.active
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(

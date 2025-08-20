@@ -87,14 +87,12 @@ const getCollectionVariables = (
 
   if (!environment) return []
 
-  const x = Object.entries(environment).map(([key, value]) => ({
+  return Object.entries(environment).map(([key, value]) => ({
     key: replaceVarTemplating(key),
     currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
     initialValue: replaceVarTemplating(value),
     secret: false,
   }))
-
-  return x.flatMap((x) => x)
 }
 
 const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {

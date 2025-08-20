@@ -1917,14 +1917,14 @@
     "deactivate_user": "Désactiver l'utilisateur"
   },
   "organization": {
-    "login_to_continue_description": "You need to be logged in to join an organization instance.",
-    "create_an_organization": "Create an organization",
-    "deactivate_user_failure": "User deactivation failed!!",
-    "deactivate_user_success": "User deactivated successfully!!",
-    "delete_account_description": "This will delete all data associated with your Hoppscotch account, including this and any other organizations you are part of.",
-    "delete_account": "Delete Hoppscotch Account",
-    "user_deletion_failed_sole_admin": "The user is the sole admin of one or more organization instances. Please demote the user before attempting deletion.",
-    "user_deletion_failed_sole_team_owner": "The user is the sole team owner on one or more organization instances. Please transfer the ownership or delete the relevant workspaces before attempting deletion."
+    "login_to_continue_description": "Vous devez être connecté pour rejoindre une organisation.",
+    "create_an_organization": "Créer une organisation",
+    "deactivate_user_failure": "Erreur lors de la désactivation de l'utilisateur.",
+    "deactivate_user_success": "Utilisateur désactivé avec succès.",
+    "delete_account_description": "Cette action va supprimer toutes les données associées à votre compte Hoppscotch, incluant vos données dans cette organisation et dans celles dont vous faites partie.",
+    "delete_account": "Supprimer le compte Hoppscotch",
+    "user_deletion_failed_sole_admin": "L'utilisateur est l'unique administrateur d'une ou plusieurs organisations. Veuillez rétrograder l'utilisateur avant de retenter sa suppression.",
+    "user_deletion_failed_sole_team_owner": "L'utilisateur est l'unique administrateur d'une ou plusieurs organisations. Veuillez transférer le droit de propriété ou supprimez les organisations associées à l'utilisateur avant de retenter sa suppression."
   },
   "billing": {
     "confirm": {

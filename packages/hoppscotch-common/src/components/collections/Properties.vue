@@ -51,7 +51,12 @@
           </div>
         </HoppSmartTab>
 
-        <HoppSmartTab id="variables" :label="`${t('tab.variables')}`">
+        <!-- Collection variables is only available for REST collections for now -->
+        <HoppSmartTab
+          v-if="source === 'REST'"
+          id="variables"
+          :label="`${t('tab.variables')}`"
+        >
           <CollectionsVariables
             v-model="editableCollection.variables"
             :inherited-properties="editingProperties.inheritedProperties"

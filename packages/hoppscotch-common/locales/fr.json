@@ -1928,10 +1928,10 @@
   },
   "billing": {
     "confirm": {
-      "update_seat_count": "Are you sure you want to update the seat count to {newSeatCount}?",
-      "update_billing_cycle": "Are you sure you want to update the billing cycle to {newBillingCycle}?"
+      "update_seat_count": "Voulez-vous vraiment mettre à jour le nombre de licences à {newSeatCount}?",
+      "update_billing_cycle": "Voulez-vous vraiment mettre à jour la périodicité de facturation à {newBillingCycle}?"
     },
-    "cancel_subscription": "Cancel subscription"
+    "cancel_subscription": "Annuler l'abonnement"
   },
   "app_console": {
     "entries": "Console entries",

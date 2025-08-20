@@ -1339,7 +1339,7 @@
     "configure_auth": "Veuillez paramétrer un fournisseur de services d'authentification depuis lese paramètres administrateur ou vérifiez la documentation pour configurer les fournisseurs de services d'authentification.",
     "confirm_admin_to_user": "Voulez-vous supprimer le statut administrateur de cet utilisateur ?",
     "confirm_admins_to_users": "Voulez-vous supprimer le statut administrateur des utilisateurs sélectionnés ?",
-    "confirm_delete_infra_token": "Vouklez-vous vraiment supprimer le jeton interne {tokenLabel} ?",
+    "confirm_delete_infra_token": "Voulez-vous vraiment supprimer le jeton interne {tokenLabel} ?",
     "confirm_delete_invite": "Voulez-vous révoquer l'invitation sélectionnée ?",
     "confirm_delete_invites": "Voulez-vous révoquer les invitations sélectionnées ?",
     "confirm_user_deletion": "Confirmer la suppression de l'utilisateur ?",

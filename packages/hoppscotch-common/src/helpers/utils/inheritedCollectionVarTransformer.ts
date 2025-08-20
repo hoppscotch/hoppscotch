@@ -5,16 +5,16 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { getService } from "~/modules/dioc"
 import { HoppCollectionVariable } from "@hoppscotch/data"
 
-//collection variables current value and secret value
-const secretEnvironmentService = getService(SecretEnvironmentService)
-const currentEnvironmentValueService = getService(CurrentValueService)
-
 const getCurrentValue = (
   isSecret: boolean,
   varIndex: number,
   collectionID: string,
   showSecret: boolean = false
 ) => {
+  //collection variables current value and secret value
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
   if (isSecret && showSecret) {
     return secretEnvironmentService.getSecretEnvironmentVariable(
       collectionID,
@@ -33,7 +33,7 @@ const getCurrentValue = (
  * @param showSecret - Whether to show secret values in the transformed variables.
  * @returns An array of `AggregateEnvironment` objects representing the transformed collection variables.
  */
-export const transformCollectionVariables = (
+export const transformInheritedCollectionVariablesToAggregateEnv = (
   variables: HoppInheritedProperty["variables"],
   showSecret: boolean = true
 ): AggregateEnvironment[] => {

@@ -101,7 +101,7 @@ import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
-import { transformCollectionVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 const t = useI18n()
 
@@ -411,7 +411,7 @@ const envVars = computed(() => {
   const collectionVariables =
     tabs.currentActiveTab.value.document.type === "request" ||
     tabs.currentActiveTab.value.document.type === "example-response"
-      ? transformCollectionVariables(
+      ? transformInheritedCollectionVariablesToAggregateEnv(
           tabs.currentActiveTab.value.document.inheritedProperties?.variables ??
             [],
           false

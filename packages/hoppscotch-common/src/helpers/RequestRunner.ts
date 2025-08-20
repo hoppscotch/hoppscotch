@@ -59,7 +59,7 @@ import {
   OutgoingSandboxPostRequestWorkerMessage,
   OutgoingSandboxPreRequestWorkerMessage,
 } from "./workers/sandbox.worker"
-import { transformCollectionVariables } from "./utils/inheritedCollectionVarTransformer"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 
 const sandboxWorker = new Worker(
   new URL("./workers/sandbox.worker.ts", import.meta.url),
@@ -427,14 +427,15 @@ export function runRESTRequest$(
         }
       )
 
-    const collectionVariables = transformCollectionVariables(
-      tab.value.document.inheritedProperties?.variables || []
-    ).map(({ key, initialValue, currentValue, secret }) => ({
-      key,
-      initialValue,
-      currentValue,
-      secret,
-    }))
+    const collectionVariables =
+      transformInheritedCollectionVariablesToAggregateEnv(
+        tab.value.document.inheritedProperties?.variables || []
+      ).map(({ key, initialValue, currentValue, secret }) => ({
+        key,
+        initialValue,
+        currentValue,
+        secret,
+      }))
 
     const finalRequest = {
       ...tab.value.document.request,
@@ -443,9 +444,9 @@ export function runRESTRequest$(
     }
 
     const finalEnvs = {
-      collectionVariables,
-      requestVariables: finalRequestVariables as Environment["variables"],
       environments: preRequestScriptResult.right.envs,
+      requestVariables: finalRequestVariables as Environment["variables"],
+      collectionVariables,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(

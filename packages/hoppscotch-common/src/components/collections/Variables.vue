@@ -213,7 +213,7 @@ import {
   aggregateEnvsWithCurrentValue$,
 } from "~/newstore/environments"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { transformCollectionVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 const t = useI18n()
 const toast = useToast()
@@ -285,9 +285,10 @@ const aggregateEnvs = useReadonlyStream(
 ) as Ref<AggregateEnvironment[]>
 
 const liveEnvs = computed(() => {
-  const parentInheritedVariables = transformCollectionVariables(
-    props.inheritedProperties?.variables ?? []
-  )
+  const parentInheritedVariables =
+    transformInheritedCollectionVariablesToAggregateEnv(
+      props.inheritedProperties?.variables ?? []
+    )
   return [...parentInheritedVariables, ...aggregateEnvs.value]
 })
 

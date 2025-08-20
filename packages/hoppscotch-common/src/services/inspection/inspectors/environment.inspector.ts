@@ -24,7 +24,7 @@ import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import { transformCollectionVariables } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -80,7 +80,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     const collectionVariables =
       currentTab.document.type === "request" ||
       currentTab.document.type === "example-response"
-        ? transformCollectionVariables(
+        ? transformInheritedCollectionVariablesToAggregateEnv(
             currentTab.document.inheritedProperties?.variables ?? []
           )
         : []
@@ -197,7 +197,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             const collectionVariables =
               currentTab.document.type === "request" ||
               currentTab.document.type === "example-response"
-                ? transformCollectionVariables(
+                ? transformInheritedCollectionVariablesToAggregateEnv(
                     currentTab.document.inheritedProperties?.variables ?? [],
                     false
                   )

@@ -29,18 +29,18 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from ".."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
-import { generateRequestBodyExampleFromOpenAPIV2Body } from "./openapi/example-v2"
-import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./openapi/example-v3"
-import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./openapi/example-v31"
+import { generateRequestBodyExampleFromOpenAPIV2Body } from "./example-generators/v2"
+import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./example-generators/v3"
+import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./example-generators/v31"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
 const worker = new Worker(
-  new URL("./workers/openapi-import-worker.ts", import.meta.url),
+  new URL("../workers/openapi-import-worker.ts", import.meta.url),
   {
     type: "module",
   }

@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -24,19 +24,19 @@
     "./packages/*"
   ],
   "devDependencies": {
-    "@commitlint/cli": "19.5.0",
-    "@commitlint/config-conventional": "19.5.0",
-    "@hoppscotch/ui": "0.2.2",
-    "@types/node": "22.7.6",
-    "cross-env": "7.0.3",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@hoppscotch/ui": "0.2.5",
+    "@types/node": "24.3.0",
+    "cross-env": "10.0.0",
     "http-server": "14.1.1",
-    "husky": "9.1.6",
-    "lint-staged": "15.2.10"
+    "husky": "9.1.7",
+    "lint-staged": "16.1.5"
   },
   "pnpm": {
     "overrides": {
       "cross-spawn": "7.0.6",
-      "vue": "3.5.12",
+      "vue": "3.5.18",
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
       "subscriptions-transport-ws>ws": "7.5.10",
       "braces": "3.0.3",

@@ -13,6 +13,8 @@ import { getMailerAddressFrom, getTransportOption } from './helper';
 })
 export class MailerModule {
   static async register() {
+    if (process.env.GENERATE_GQL_SCHEMA) return { module: MailerModule };
+
     const env = await loadInfraConfiguration();
 
     // If mailer SMTP is DISABLED, return the module without any configuration (service, listener, etc.)

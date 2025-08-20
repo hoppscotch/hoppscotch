@@ -62,7 +62,7 @@
           class="flex items-center gap-4 flex-1 cursor-pointer"
           @click="
             !isConnectedTo(instance.serverUrl) &&
-              connectToServer(instance.serverUrl)
+            connectToServer(instance.serverUrl)
           "
         >
           <IconLucideServer />

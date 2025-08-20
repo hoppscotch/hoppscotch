@@ -1,7 +1,7 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
 FROM alpine:3.22.1 AS caddy_builder
-RUN apk add --no-cache curl go git && \
+RUN apk add --no-cache curl git && \
   mkdir -p /tmp/caddy-build && \
   curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.10.0/caddy_2.10.0_src.tar.gz
 
@@ -12,10 +12,21 @@ RUN expected="62ba008d9e9fd354e8b28be11de59c6a213f9153f2e9de451417c0b4eb13d9f3" 
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 
+# Install Go 1.25.0 from GitHub releases to fix CVE-2025-47907
+ARG TARGETARCH
+ENV GOLANG_VERSION=1.25.0
+# Download and install Go from the official tarball
+RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
+  curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
+  tar -C /usr/local -xzf go.tar.gz && \
+  rm go.tar.gz
+# Set up Go environment variables
+ENV PATH="/usr/local/go/bin:${PATH}" \
+  GOPATH="/go" \
+  GOBIN="/go/bin"
+
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
-  # Patch to resolve CVE-2025-22872 on net
-  go get golang.org/x/net@v0.38.0 && \
   # Patch to resolve GHSA-vrw8-fxc6-2r93 on chi
   go get github.com/go-chi/chi/v5@v5.2.2 && \
   # Patch to resolve GHSA-2x5j-vhc8-9cwm on circl
@@ -32,18 +43,18 @@ RUN go build
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.19.7 AS node_base
+FROM alpine:3.22.1 AS node_base
 RUN apk add --no-cache nodejs curl tini && \
   # Install NPM from source, as Alpine version is old and has dependency vulnerabilities
   # TODO: Find a better method which is resistant to supply chain attacks
-  sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.4.2 sh" && \
-  npm install -g pnpm@10.13.1 @import-meta-env/cli
+  sh -c "curl -qL https://www.npmjs.com/install.sh | env npm_install=11.5.2 sh" && \
+  npm install -g pnpm@10.15.0 @import-meta-env/cli
 
 
 
 FROM node_base AS base_builder
 # Required by @hoppscotch/js-sandbox to build `isolated-vm`
-RUN apk add python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev
+RUN apk add --no-cache python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-dev openssl-dev icu-dev ada-dev simdjson-dev simdutf-dev sqlite-dev zstd-dev
 
 WORKDIR /usr/src/app
 ENV HOPP_ALLOW_RUNTIME_ENV=true

@@ -1791,11 +1791,11 @@
   },
   "metrics": {
     "dashboard": "Dashboard",
-    "no_metrics": "No metrics found",
-    "total_collections": "Total Collections",
-    "total_requests": "Total Requests",
-    "total_teams": "Total Workspaces",
-    "total_users": "Total Users"
+    "no_metrics": "Aucune métrique trouvée",
+    "total_collections": "Nombre total de collections",
+    "total_requests": "Nombre total de requêtes",
+    "total_teams": "Nombre total d'espaces de travail",
+    "total_users": "Nombre total d'utilisateurs"
   },
   "newsletter": {
     "description": "Get updates about our latest news",

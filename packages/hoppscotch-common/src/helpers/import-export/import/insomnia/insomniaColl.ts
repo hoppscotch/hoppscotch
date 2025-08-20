@@ -83,11 +83,12 @@ const getCollectionVariables = (
   environment: Record<string, string> | undefined,
   folderRes?: InsomniaFolderResource
 ): HoppCollectionVariable[] => {
-  if (folderRes && folderRes.environment) environment = folderRes.environment
+  const env =
+    folderRes && folderRes.environment ? folderRes.environment : environment
 
-  if (!environment) return []
+  if (!env) return []
 
-  return Object.entries(environment).map(([key, value]) => ({
+  return Object.entries(env).map(([key, value]) => ({
     key: replaceVarTemplating(key),
     currentValue: "", // set it as empty value since it is handled by currentValue service and we don't want it to sync with BE
     initialValue: replaceVarTemplating(value),

@@ -196,7 +196,7 @@ export class TeamCollectionService {
     if (!Array.isArray(collectionsList.right))
       return E.left(TEAM_COLL_INVALID_JSON);
 
-    let teamCollections: DBTeamCollection[] = [];
+    const teamCollections: DBTeamCollection[] = [];
     let queryList: Prisma.TeamCollectionCreateInput[] = [];
 
     await this.prisma.$transaction(async (tx) => {

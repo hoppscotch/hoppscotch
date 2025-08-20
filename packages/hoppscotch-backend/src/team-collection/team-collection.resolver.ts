@@ -24,7 +24,6 @@ import {
   GetRootTeamCollectionsArgs,
   MoveTeamCollectionArgs,
   RenameTeamCollectionArgs,
-  ReplaceTeamCollectionArgs,
   UpdateTeamCollectionArgs,
   UpdateTeamCollectionOrderArgs,
 } from './input-type.args';

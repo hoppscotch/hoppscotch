@@ -131,21 +131,31 @@ export class UserRequestService {
       return E.left(USER_REQUEST_INVALID_TYPE);
 
     try {
-      const requestCount =
-        await this.getRequestsCountInCollection(collectionID);
+      let newRequest: DbUserRequest = null;
+      await this.prisma.$transaction(async (tx) => {
+        // lock the rows
+        const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = $1 AND "collectionID" = $2 FOR UPDATE`;
+        await tx.$executeRawUnsafe(lockQuery, user.uid, collectionID);
 
-      const request = await this.prisma.userRequest.create({
-        data: {
-          collectionID,
-          title,
-          request: jsonRequest.right,
-          type: ReqType[type],
-          orderIndex: requestCount + 1,
-          userUid: user.uid,
-        },
+        // fetch last user request
+        const lastUserRequest = await tx.userRequest.findFirst({
+          where: { userUid: user.uid, collectionID },
+          orderBy: { orderIndex: 'desc' },
+        });
+
+        newRequest = await tx.userRequest.create({
+          data: {
+            collectionID,
+            title,
+            request: jsonRequest.right,
+            type: ReqType[type],
+            orderIndex: lastUserRequest ? lastUserRequest.orderIndex + 1 : 1,
+            userUid: user.uid,
+          },
+        });
       });
 
-      const userRequest = this.cast(request);
+      const userRequest = this.cast(newRequest);
 
       await this.pubsub.publish(
         `user_request/${user.uid}/created`,
@@ -218,14 +228,21 @@ export class UserRequestService {
     });
     if (!request) return E.left(USER_REQUEST_NOT_FOUND);
 
-    await this.prisma.userRequest.updateMany({
-      where: {
-        collectionID: request.collectionID,
-        orderIndex: { gt: request.orderIndex },
-      },
-      data: { orderIndex: { decrement: 1 } },
+    await this.prisma.$transaction(async (tx) => {
+      // lock the rows
+      const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = $1 AND "collectionID" = $2 FOR UPDATE`;
+      await tx.$executeRawUnsafe(lockQuery, user.uid, request.collectionID);
+
+      await tx.userRequest.updateMany({
+        where: {
+          collectionID: request.collectionID,
+          orderIndex: { gt: request.orderIndex },
+        },
+        data: { orderIndex: { decrement: 1 } },
+      });
+
+      await tx.userRequest.delete({ where: { id } });
     });
-    await this.prisma.userRequest.delete({ where: { id } });
 
     await this.pubsub.publish(
       `user_request/${user.uid}/deleted`,
@@ -337,13 +354,13 @@ export class UserRequestService {
     srcCollID: string,
     destCollID: string,
     requestID: string,
-    nextRequestID: string,
+    nextRequestID: string | null,
     user: AuthUser,
   ): Promise<
     | E.Left<string>
     | E.Right<{
         request: DbUserRequest;
-        nextRequest: DbUserRequest;
+        nextRequest: DbUserRequest | null;
       }>
   > {
     const request = await this.prisma.userRequest.findFirst({
@@ -374,7 +391,7 @@ export class UserRequestService {
    * @param nextRequest - request that comes after the updated request in its new position
    * @returns Promise of an Either of `DbUserRequest` object or error message
    */
-  async reorderRequests(
+  private async reorderRequests(
     srcCollID: string,
     request: DbUserRequest,
     destCollID: string,
@@ -384,6 +401,19 @@ export class UserRequestService {
       return await this.prisma.$transaction<
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
+        // lock the rows
+        const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "collectionID" IN ($1, $2) FOR UPDATE`;
+        await tx.$executeRawUnsafe(lockQuery, srcCollID, destCollID);
+
+        request = await tx.userRequest.findUnique({
+          where: { id: request.id },
+        });
+        nextRequest = nextRequest
+          ? await tx.userRequest.findUnique({
+              where: { id: nextRequest.id },
+            })
+          : null;
+
         const isSameCollection = srcCollID === destCollID;
         const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
 

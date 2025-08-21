@@ -5341,7 +5341,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-appload"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=1b52e49d881926135838cf6cfebdc1643a9bec31#1b52e49d881926135838cf6cfebdc1643a9bec31"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=e8dbe06eabf947e5efaf07d2e573238ceb11a7b1#e8dbe06eabf947e5efaf07d2e573238ceb11a7b1"
 dependencies = [
  "base64 0.22.1",
  "blake3",
@@ -5495,7 +5495,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-relay"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=4ed4fcafeb93856591e8a36522f6ec6e340e4dc5#4ed4fcafeb93856591e8a36522f6ec6e340e4dc5"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=ff18f776ddeb53dbbdeaf97e1fabc30bdc57c158#ff18f776ddeb53dbbdeaf97e1fabc30bdc57c158"
 dependencies = [
  "relay",
  "serde",

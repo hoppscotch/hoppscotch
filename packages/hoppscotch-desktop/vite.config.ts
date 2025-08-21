@@ -47,18 +47,18 @@ export default defineConfig(async () => ({
   },
 
   optimizeDeps: {
-    include: ['@hoppscotch/kernel']
+    include: ["@hoppscotch/kernel"],
   },
 
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          kernel: ['@hoppscotch/kernel'],
-          ui: ['@hoppscotch/ui'],
-        }
-      }
-    }
+          kernel: ["@hoppscotch/kernel"],
+          ui: ["@hoppscotch/ui"],
+        },
+      },
+    },
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

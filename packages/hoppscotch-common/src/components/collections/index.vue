@@ -228,7 +228,15 @@ import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
-import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
+import {
+  PropType,
+  computed,
+  nextTick,
+  onMounted,
+  ref,
+  watch,
+  onUnmounted,
+} from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -301,6 +309,7 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
 import { CollectionRunnerData } from "../http/test/RunnerModal.vue"
+import { Subscription } from "rxjs"
 
 const t = useI18n()
 const toast = useToast()
@@ -391,6 +400,7 @@ const teamLoadingCollections = useReadonlyStream(
   []
 )
 const teamEnvironmentAdapter = new TeamEnvironmentAdapter(undefined)
+const teamCollectionsSubscription = ref<Subscription | null>(null)
 
 const {
   cascadeParentCollectionForHeaderAuthForSearchResults,
@@ -439,7 +449,31 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
+const teamCollections = ref<TeamCollection[]>([])
+const pendingTeamCollectionPropertyPath = ref<string | null>(null)
+
 onMounted(async () => {
+  teamCollectionsSubscription.value =
+    teamCollectionAdapter.collections$.subscribe((vals) => {
+      teamCollections.value = vals
+
+      // This subscription callback has closure over pendingTeamCollectionPropertyPath ref to ensure that we
+      // update properties of affected requests any time the properties of the collection changes.
+      if (pendingTeamCollectionPropertyPath.value) {
+        const { auth, headers } =
+          teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
+            pendingTeamCollectionPropertyPath.value
+          )
+
+        updateInheritedPropertiesForAffectedRequests(
+          pendingTeamCollectionPropertyPath.value,
+          { auth, headers },
+          "rest"
+        )
+        pendingTeamCollectionPropertyPath.value = null
+      }
+    })
+
   const localOAuthTempConfig =
     await persistenceService.getLocalConfig("oauth_temp_config")
 
@@ -482,6 +516,13 @@ onMounted(async () => {
     await persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
+  }
+})
+
+onUnmounted(() => {
+  if (teamCollectionsSubscription.value) {
+    teamCollectionsSubscription.value.unsubscribe()
+    teamCollectionsSubscription.value = null
   }
 })
 
@@ -2836,24 +2877,10 @@ const setCollectionProperties = (newCollection: {
         },
         () => {
           toast.success(t("collection.properties_updated"))
+          pendingTeamCollectionPropertyPath.value = path
         }
       )
     )()
-
-    //This is a hack to update the inherited properties of the requests if there an tab opened
-    // since it takes a little bit of time to update the collection tree
-    setTimeout(() => {
-      const { auth, headers } =
-        teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(path)
-      updateInheritedPropertiesForAffectedRequests(
-        path,
-        {
-          auth,
-          headers,
-        },
-        "rest"
-      )
-    }, 200)
   }
 
   displayModalEditProperties(false)

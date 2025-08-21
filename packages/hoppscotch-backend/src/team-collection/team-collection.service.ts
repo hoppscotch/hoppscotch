@@ -201,9 +201,10 @@ export class TeamCollectionService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const whereClause = parentID ? ` AND "parentID" = '${parentID}' ` : ``;
-      const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = '${teamID}' ${whereClause} FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery);
+      const lockQuery = parentID
+        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${parentID} FOR UPDATE`
+        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       // Get the last order index
       const lastEntry = await tx.teamCollection.findFirst({
@@ -441,8 +442,10 @@ export class TeamCollectionService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = $1 OR "parentID" IS NULL FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery, parentID);
+      const lockQuery = parentID
+        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${parentID} FOR UPDATE`
+        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       // fetch last collection
       const lastCollection = await tx.teamCollection.findFirst({
@@ -517,8 +520,10 @@ export class TeamCollectionService {
   ) {
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = $1 OR "parentID" IS NULL FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery, parentID);
+      const lockQuery = parentID
+        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${parentID} FOR UPDATE`
+        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       // update orderIndexes
       await tx.teamCollection.updateMany({
@@ -634,8 +639,10 @@ export class TeamCollectionService {
 
       await this.prisma.$transaction(async (tx) => {
         // lock the rows
-        const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = $1 OR "parentID" IS NULL FOR UPDATE`;
-        await tx.$executeRawUnsafe(lockQuery, parentCollectionID);
+        const lockQuery = parentCollectionID
+          ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${parentCollectionID} FOR UPDATE`
+          : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+        await tx.$executeRaw(lockQuery);
 
         // fetch last collection
         const lastCollection = await tx.teamCollection.findFirst({
@@ -828,15 +835,21 @@ export class TeamCollectionService {
       try {
         await this.prisma.$transaction(async (tx) => {
           // Step 0: lock the rows
-          const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = $1 OR "parentID" IS NULL FOR UPDATE`;
-          await tx.$executeRawUnsafe(lockQuery, collection.right.parentID);
+          const lockQuery = collection.right.parentID
+            ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${collection.right.parentID} FOR UPDATE`
+            : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+          await tx.$executeRaw(lockQuery);
 
           // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
+          const collectionInTx = await tx.teamCollection.findFirst({
+            where: { id: collection.right.id },
+            select: { orderIndex: true },
+          });
           await tx.teamCollection.updateMany({
             where: {
               parentID: collection.right.parentID,
               orderIndex: {
-                gte: collection.right.orderIndex + 1,
+                gte: collectionInTx.orderIndex + 1,
               },
             },
             data: {
@@ -881,21 +894,31 @@ export class TeamCollectionService {
     try {
       await this.prisma.$transaction(async (tx) => {
         // Step 0: lock the rows
-        const lockQuery = `SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = $1 OR "parentID" IS NULL FOR UPDATE`;
-        await tx.$executeRawUnsafe(lockQuery, collection.right.parentID);
+        const lockQuery = collection.right.parentID
+          ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${collection.right.parentID} FOR UPDATE`
+          : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+        await tx.$executeRaw(lockQuery);
 
         // Step 1: Determine if we are moving collection up or down the list
+        const collectionInTx = await tx.teamCollection.findFirst({
+          where: { id: collectionID },
+          select: { orderIndex: true },
+        });
+        const subsequentCollectionInTx = await tx.teamCollection.findFirst({
+          where: { id: nextCollectionID },
+          select: { orderIndex: true },
+        });
         const isMovingUp =
-          subsequentCollection.right.orderIndex < collection.right.orderIndex;
+          subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
 
         // Step 2: Update OrderIndex of items in list depending on moving up or down
         const updateFrom = isMovingUp
-          ? subsequentCollection.right.orderIndex
-          : collection.right.orderIndex + 1;
+          ? subsequentCollectionInTx.orderIndex
+          : collectionInTx.orderIndex + 1;
 
         const updateTo = isMovingUp
-          ? collection.right.orderIndex - 1
-          : subsequentCollection.right.orderIndex - 1;
+          ? collectionInTx.orderIndex - 1
+          : subsequentCollectionInTx.orderIndex - 1;
 
         await tx.teamCollection.updateMany({
           where: {
@@ -908,17 +931,12 @@ export class TeamCollectionService {
         });
 
         // Step 3: Update OrderIndex of collection
-        const nextCollection = await tx.teamCollection.findFirst({
-          where: { id: nextCollectionID },
-          select: { orderIndex: true },
-        });
-
         await tx.teamCollection.update({
           where: { id: collection.right.id },
           data: {
             orderIndex: isMovingUp
-              ? nextCollection.orderIndex
-              : nextCollection.orderIndex - 1,
+              ? subsequentCollectionInTx.orderIndex
+              : subsequentCollectionInTx.orderIndex - 1,
           },
         });
       });

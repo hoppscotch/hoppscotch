@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { UserRequest } from './user-request.model';
-import { UserRequest as DbUserRequest } from '@prisma/client';
+import { UserRequest as DbUserRequest, Prisma } from '@prisma/client';
 import {
   USER_COLLECTION_NOT_FOUND,
   USER_REQUEST_CREATION_FAILED,
@@ -134,8 +134,8 @@ export class UserRequestService {
       let newRequest: DbUserRequest = null;
       await this.prisma.$transaction(async (tx) => {
         // lock the rows
-        const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = $1 AND "collectionID" = $2 FOR UPDATE`;
-        await tx.$executeRawUnsafe(lockQuery, user.uid, collectionID);
+        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = ${user.uid} AND "collectionID" = ${collectionID} FOR UPDATE`;
+        await tx.$executeRaw(lockQuery);
 
         // fetch last user request
         const lastUserRequest = await tx.userRequest.findFirst({
@@ -230,8 +230,8 @@ export class UserRequestService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = $1 AND "collectionID" = $2 FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery, user.uid, request.collectionID);
+      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = ${user.uid} AND "collectionID" = ${request.collectionID} FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       await tx.userRequest.updateMany({
         where: {
@@ -402,8 +402,8 @@ export class UserRequestService {
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
         // lock the rows
-        const lockQuery = `SELECT "orderIndex" FROM "UserRequest" WHERE "collectionID" IN ($1, $2) FOR UPDATE`;
-        await tx.$executeRawUnsafe(lockQuery, srcCollID, destCollID);
+        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "collectionID" IN (${srcCollID}, ${destCollID}) FOR UPDATE`;
+        await tx.$executeRaw(lockQuery);
 
         request = await tx.userRequest.findUnique({
           where: { id: request.id },

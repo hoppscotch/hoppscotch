@@ -23,7 +23,6 @@
     "fs:allow-read-dir",
     "fs:allow-write-file",
     "fs:allow-write-text-file",
-    "fs:allow-read-file",
     {
       "identifier": "fs:scope",
       "allow": [

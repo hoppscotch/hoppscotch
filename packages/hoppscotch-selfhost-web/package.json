@@ -45,7 +45,7 @@
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
     "verzod": "0.4.0",
-    "vue": "3.5.18",
+    "vue": "3.5.19",
     "workbox-window": "7.3.0",
     "zod": "3.25.32"
   },
@@ -86,8 +86,8 @@
     "vite-plugin-inspect": "11.3.2",
     "vite-plugin-pages": "0.33.1",
     "vite-plugin-pages-sitemap": "1.7.1",
-    "vite-plugin-pwa": "1.0.2",
-    "vite-plugin-static-copy": "3.1.1",
+    "vite-plugin-pwa": "1.0.3",
+    "vite-plugin-static-copy": "3.1.2",
     "vite-plugin-vue-layouts": "0.11.0",
     "vue-tsc": "2.1.6"
   }

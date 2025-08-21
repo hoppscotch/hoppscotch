@@ -36,7 +36,7 @@
   "pnpm": {
     "overrides": {
       "cross-spawn": "7.0.6",
-      "vue": "3.5.18",
+      "vue": "3.5.19",
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
       "subscriptions-transport-ws>ws": "7.5.10",
       "braces": "3.0.3",

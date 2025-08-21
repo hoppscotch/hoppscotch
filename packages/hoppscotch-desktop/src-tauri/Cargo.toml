@@ -29,8 +29,8 @@ tauri-plugin-store = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
 tauri-plugin-fs = "2.2.0"
 tauri-plugin-deep-link = "2.2.0"
-tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "1b52e49d881926135838cf6cfebdc1643a9bec31" }
-tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "4ed4fcafeb93856591e8a36522f6ec6e340e4dc5" }
+tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "e8dbe06eabf947e5efaf07d2e573238ceb11a7b1" }
+tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "ff18f776ddeb53dbbdeaf97e1fabc30bdc57c158" }
 axum = "0.8.1"
 tower-http = { version = "0.6.2", features = ["cors"] }
 random-port = "0.1.1"

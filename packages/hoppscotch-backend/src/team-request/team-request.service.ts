@@ -113,8 +113,8 @@ export class TeamRequestService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = $1 FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery, dbTeamReq.collectionID);
+      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = ${dbTeamReq.collectionID} FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       await tx.teamRequest.updateMany({
         where: { orderIndex: { gte: dbTeamReq.orderIndex } },
@@ -159,8 +159,8 @@ export class TeamRequestService {
     let dbTeamRequest: DbTeamRequest = null;
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = $1 FOR UPDATE`;
-      await tx.$executeRawUnsafe(lockQuery, collectionID);
+      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" = ${collectionID} FOR UPDATE`;
+      await tx.$executeRaw(lockQuery);
 
       // fetch last team request
       const lastTeamRequest = await tx.teamRequest.findFirst({
@@ -381,8 +381,8 @@ export class TeamRequestService {
         E.Left<string> | E.Right<DbTeamRequest>
       >(async (tx) => {
         // lock the rows
-        const lockQuery = `SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" IN ($1, $2) FOR UPDATE`;
-        await tx.$executeRawUnsafe(lockQuery, srcCollID, destCollID);
+        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" IN (${srcCollID}, ${destCollID}) FOR UPDATE`;
+        await tx.$executeRaw(lockQuery);
 
         request = await tx.teamRequest.findUnique({
           where: { id: request.id },

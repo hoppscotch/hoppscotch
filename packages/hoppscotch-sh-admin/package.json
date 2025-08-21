@@ -34,7 +34,7 @@
     "postcss": "8.5.6",
     "prettier-plugin-tailwindcss": "0.6.14",
     "rxjs": "7.8.2",
-    "tailwindcss": "3.4.14",
+    "tailwindcss": "3.4.16",
     "tippy.js": "6.3.7",
     "ts-node-dev": "2.0.0",
     "unplugin-icons": "22.2.0",

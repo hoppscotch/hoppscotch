@@ -87,7 +87,7 @@ export async function loadInfraConfiguration() {
 
     // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
     // Reason for not throwing error is, we want successful build during 'postinstall' and generate dist files
-    console.log('Error from loadInfraConfiguration', error);
+    console.error('Error from loadInfraConfiguration', error);
     return { INFRA: {} };
   }
 }

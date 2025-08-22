@@ -132,7 +132,7 @@ export class InfraConfigService implements OnModuleInit {
         // Prisma error code for 'Table does not exist'
         throwErr(DATABASE_TABLE_NOT_EXIST);
       } else {
-        console.log(error);
+        console.error(error);
         throwErr(error);
       }
     }

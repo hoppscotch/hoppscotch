@@ -130,11 +130,11 @@ export class UserRequestService {
     if (collection.right.type !== ReqType[type])
       return E.left(USER_REQUEST_INVALID_TYPE);
 
+    let newRequest: DbUserRequest = null;
     try {
-      let newRequest: DbUserRequest = null;
-      await this.prisma.$transaction(async (tx) => {
+      newRequest = await this.prisma.$transaction(async (tx) => {
         // lock the rows
-        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = ${user.uid} AND "collectionID" = ${collectionID} FOR UPDATE`;
+        const lockQuery = Prisma.sql`LOCK TABLE "UserRequest" IN EXCLUSIVE MODE`;
         await tx.$executeRaw(lockQuery);
 
         // fetch last user request
@@ -143,7 +143,7 @@ export class UserRequestService {
           orderBy: { orderIndex: 'desc' },
         });
 
-        newRequest = await tx.userRequest.create({
+        return tx.userRequest.create({
           data: {
             collectionID,
             title,
@@ -154,18 +154,14 @@ export class UserRequestService {
           },
         });
       });
-
-      const userRequest = this.cast(newRequest);
-
-      await this.pubsub.publish(
-        `user_request/${user.uid}/created`,
-        userRequest,
-      );
-
-      return E.right(userRequest);
-    } catch (err) {
+    } catch (error) {
+      console.error('Error from UserRequestService.createRequest', error);
       return E.left(USER_REQUEST_CREATION_FAILED);
     }
+
+    const userRequest = this.cast(newRequest);
+    await this.pubsub.publish(`user_request/${user.uid}/created`, userRequest);
+    return E.right(userRequest);
   }
 
   /**
@@ -473,7 +469,8 @@ export class UserRequestService {
 
         return E.right(updatedRequest);
       });
-    } catch (err) {
+    } catch (error) {
+      console.error('Error from UserRequestService.reorderRequests', error);
       return E.left(USER_REQUEST_REORDERING_FAILED);
     }
   }

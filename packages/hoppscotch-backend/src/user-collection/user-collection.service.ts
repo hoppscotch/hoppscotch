@@ -13,6 +13,7 @@ import {
   USER_NOT_OWNER,
   USER_COLL_INVALID_JSON,
   USER_COLL_DATA_INVALID,
+  USER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -218,33 +219,40 @@ export class UserCollectionService {
     }
 
     let userCollection: UserCollection = null;
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = parentID
-        ? Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${user.uid} AND "parentID" = ${parentID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${user.uid} AND "parentID" IS NULL FOR UPDATE`;
-      await tx.$executeRaw(lockQuery);
+    try {
+      userCollection = await this.prisma.$transaction(async (tx) => {
+        // lock the rows
+        const lockQuery = Prisma.sql`LOCK TABLE "UserCollection" IN EXCLUSIVE MODE`;
+        await tx.$executeRaw(lockQuery);
 
-      // fetch last user collection
-      const lastUserCollection = await tx.userCollection.findFirst({
-        where: { userUid: user.uid, parentID },
-        orderBy: { orderIndex: 'desc' },
-      });
+        // fetch last user collection
+        const lastUserCollection = await tx.userCollection.findFirst({
+          where: { userUid: user.uid, parentID },
+          orderBy: { orderIndex: 'desc' },
+          select: { orderIndex: true },
+        });
 
-      // create new user collection
-      userCollection = await tx.userCollection.create({
-        data: {
-          title: title,
-          type: type,
-          user: { connect: { uid: user.uid } },
-          parent: parentID ? { connect: { id: parentID } } : undefined,
-          data: data ?? undefined,
-          orderIndex: lastUserCollection
-            ? lastUserCollection.orderIndex + 1
-            : 1,
-        },
+        // create new user collection
+        return tx.userCollection.create({
+          data: {
+            title: title,
+            type: type,
+            user: { connect: { uid: user.uid } },
+            parent: parentID ? { connect: { id: parentID } } : undefined,
+            data: data ?? undefined,
+            orderIndex: lastUserCollection
+              ? lastUserCollection.orderIndex + 1
+              : 1,
+          },
+        });
       });
-    });
+    } catch (error) {
+      console.error(
+        'Error from UserCollectionService.createUserCollection',
+        error,
+      );
+      return E.left(USER_COLLECTION_CREATION_FAILED);
+    }
 
     await this.pubsub.publish(
       `user_coll/${user.uid}/created`,
@@ -346,12 +354,8 @@ export class UserCollectionService {
 
     try {
       const updatedUserCollection = await this.prisma.userCollection.update({
-        where: {
-          id: userCollectionID,
-        },
-        data: {
-          title: newTitle,
-        },
+        where: { id: userCollectionID },
+        data: { title: newTitle },
       });
 
       this.pubsub.publish(
@@ -413,6 +417,13 @@ export class UserCollectionService {
       },
     });
 
+    // Delete collection from UserCollection table
+    const deletedUserCollection = await this.removeUserCollection(
+      collection.id,
+    );
+    if (E.isLeft(deletedUserCollection))
+      return E.left(deletedUserCollection.left);
+
     // Update orderIndexes in userCollection table for user
     await this.updateOrderIndex(
       collection.userUid,
@@ -420,13 +431,6 @@ export class UserCollectionService {
       { gt: collection.orderIndex },
       { decrement: 1 },
     );
-
-    // Delete collection from UserCollection table
-    const deletedUserCollection = await this.removeUserCollection(
-      collection.id,
-    );
-    if (E.isLeft(deletedUserCollection))
-      return E.left(deletedUserCollection.left);
 
     this.pubsub.publish(
       `user_coll/${deletedUserCollection.right.userUid}/deleted`,
@@ -488,15 +492,11 @@ export class UserCollectionService {
             userUid: collection.userUid,
             parentID: parentCollectionID,
           },
-          orderBy: {
-            orderIndex: 'desc',
-          },
+          orderBy: { orderIndex: 'desc' },
         });
 
         updatedCollection = await tx.userCollection.update({
-          where: {
-            id: collection.id,
-          },
+          where: { id: collection.id },
           data: {
             // if parentCollectionID == null, collection becomes root collection
             // if parentCollectionID != null, collection becomes child collection
@@ -508,6 +508,7 @@ export class UserCollectionService {
 
       return E.right(updatedCollection);
     } catch (error) {
+      console.error('Error from user-collection-service.changeParent:', error);
       return E.left(USER_COLL_NOT_FOUND);
     }
   }
@@ -607,6 +608,11 @@ export class UserCollectionService {
         // Throw error if collection is already a root collection
         return E.left(USER_COLL_ALREADY_ROOT);
       }
+
+      // Change parent from child to root i.e child collection becomes a root collection
+      const updatedCollection = await this.changeParent(collection.right, null);
+      if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
+
       // Move child collection into root and update orderIndexes for child userCollections
       await this.updateOrderIndex(
         userID,
@@ -614,10 +620,6 @@ export class UserCollectionService {
         { gt: collection.right.orderIndex },
         { decrement: 1 },
       );
-
-      // Change parent from child to root i.e child collection becomes a root collection
-      const updatedCollection = await this.changeParent(collection.right, null);
-      if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
 
       this.pubsub.publish(
         `user_coll/${collection.right.userUid}/moved`,
@@ -656,6 +658,13 @@ export class UserCollectionService {
       return E.left(USER_COLL_IS_PARENT_COLL);
     }
 
+    // Change parent from null to teamCollection i.e collection becomes a child collection
+    const updatedCollection = await this.changeParent(
+      collection.right,
+      destCollection.right.id,
+    );
+    if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
+
     // Move root/child collection into another child collection and update orderIndexes of the previous parent
     await this.updateOrderIndex(
       userID,
@@ -663,13 +672,6 @@ export class UserCollectionService {
       { gt: collection.right.orderIndex },
       { decrement: 1 },
     );
-
-    // Change parent from null to teamCollection i.e collection becomes a child collection
-    const updatedCollection = await this.changeParent(
-      collection.right,
-      destCollection.right.id,
-    );
-    if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
 
     this.pubsub.publish(
       `user_coll/${collection.right.userUid}/moved`,
@@ -733,13 +735,9 @@ export class UserCollectionService {
           await tx.userCollection.updateMany({
             where: {
               parentID: collection.right.parentID,
-              orderIndex: {
-                gte: collectionInTx.orderIndex + 1,
-              },
+              orderIndex: { gte: collectionInTx.orderIndex + 1 },
             },
-            data: {
-              orderIndex: { decrement: 1 },
-            },
+            data: { orderIndex: { decrement: 1 } },
           });
 
           // Step 2: Update orderIndex of collection to length of list

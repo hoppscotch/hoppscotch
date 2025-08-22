@@ -156,8 +156,7 @@ export class TeamRequestService {
       jsonReq = parsedReq.right;
     }
 
-    let dbTeamRequest: DbTeamRequest = null;
-    await this.prisma.$transaction(async (tx) => {
+    const dbTeamRequest = await this.prisma.$transaction(async (tx) => {
       // lock the rows
       const lockQuery = Prisma.sql`LOCK TABLE "TeamRequest" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
@@ -170,7 +169,7 @@ export class TeamRequestService {
       });
 
       // create the team request
-      dbTeamRequest = await tx.teamRequest.create({
+      return tx.teamRequest.create({
         data: {
           request: jsonReq,
           title,

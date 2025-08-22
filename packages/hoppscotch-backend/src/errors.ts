@@ -651,6 +651,13 @@ export const USER_COLL_IS_PARENT_COLL =
   'user_coll/user_collection_is_parent_coll' as const;
 
 /**
+ * User Collection Creation Failed
+ * (UserCollectionService)
+ */
+export const USER_COLLECTION_CREATION_FAILED =
+  'user_collection/creation_failed' as const;
+
+/**
  * User Collection Re-Ordering Failed
  * (UserCollectionService)
  */

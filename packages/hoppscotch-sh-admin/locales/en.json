@@ -9,6 +9,7 @@
     "save": "Save"
   },
   "app": {
+    "back": "Back",
     "collapse_sidebar": "Collapse Sidebar",
     "continue_to_dashboard": "Continue to Dashboard",
     "expand_sidebar": "Expand Sidebar",
@@ -42,9 +43,21 @@
       "sso": "SSO",
       "tenant": "TENANT",
       "title": "OAuth Providers",
+      "token": {
+        "description": "Configure token for your server",
+        "title": "Token",
+        "jwt_secret": " JWT Secret",
+        "token_salt_complexity": "Token Salt Complexity",
+        "magic_link_token_validity": "Magic Link Token Validity (in hour)",
+        "refresh_token_validity": "Refresh Token Validity (in milliseconds)",
+        "access_token_validity": "Access Token Validity (in milliseconds)",
+        "session_secret": "Session Secret",
+        "update_failure": "Failed to update token configurations!!"
+      },
       "update_failure": "Failed to update authentication provider configurations!!"
     },
     "confirm_changes": "Hoppscotch server must restart to reflect the new changes. Confirm changes made to the server configurations?",
+    "invalid_number": "Please enter a valid number for the field",
     "input_empty": "Please fill all the fields before updating the configurations",
     "input_validation_error": "Some fields have invalid values. Please correct them before updating the configurations",
     "data_sharing": {
@@ -85,6 +98,14 @@
       "toggle_failure": "Failed to toggle history!!",
       "clear_confirm": "Are you sure you want to clear all history?"
     },
+    "rate_limit": {
+      "description": "Configure rate limiting for your Hoppscotch instance",
+      "rate_limit_max": "Maximum Requests",
+      "rate_limit_ttl": "Time to Leave (in seconds)",
+      "title": "Rate Limit Configurations",
+      "update_failure": "Failed to update rate limit configurations!!",
+      "input_validation_error": "Please enter valid values for rate limit configurations"
+    },
     "reset": {
       "confirm_reset": "Hoppscotch server must restart to reflect the new changes. Confirm the reset of server configurations?",
       "description": "Default configurations will be loaded as specified in the environment file",
@@ -102,6 +123,7 @@
       "auth": "Authentication",
       "activity": "Activity",
       "infra_tokens": "Infra Tokens",
+      "rate_limit": "Rate Limit",
       "smtp": "SMTP",
       "miscellaneous": "Miscellaneous",
       "reset": "Reset Configurations"
@@ -151,6 +173,55 @@
     "title": "Stay in Touch",
     "toggle_description": "Get updates about the latest at Hoppscotch",
     "unsubscribe": "Unsubscribe"
+  },
+  "onboarding": {
+    "add_atleast_one_auth_provider": "Please add at least one authentication provider to continue.",
+    "add_configurations": "Add Configurations",
+    "add_configurations_description": "Please add the configurations for the selected authentication methods.",
+    "add_oauth_config": "Add Auth Configurations",
+    "auth_setup": "Authentication Setup",
+    "auth_successfully_configured": "authentication has been successfully configured.",
+    "complete": "Complete",
+    "complete_description": "You have completed the onboarding process. You can now start using Hoppscotch.",
+    "complete_title": "Onboarding Complete",
+    "configurations": "Configurations",
+    "configurations_added_successfully": "Onboarding Configurations added successfully.",
+    "configurations_adding_failed": "Failed to add onboarding configs, please try again.",
+    "configurations_description": "Configure your Hoppscotch instance settings.",
+    "configuration_error": "Failed to add configurations",
+    "configurations_title": "Server Configurations",
+    "configuration_summary": "Configuration Summary",
+    "oauth": {
+      "description": "Set up OAuth providers like Google, GitHub, Microsoft, etc.",
+      "description_accordian": "Select the OAuth providers you want to enable and provide the necessary configurations.",
+      "title": "OAuth"
+    },
+    "onboarding_incomplete": {
+      "description": "You have not completed the onboarding process. Please set up at least one authentication provider to continue.",
+      "title": "Onboarding Incomplete"
+    },
+    "onboarding_fail_help": "If you are facing issues with the onboarding process, please contact support or check",
+    "please_fill_configurations": "Please fill the required field {fieldName}",
+    "save_auth_config": "Save Auth Config",
+    "setup_complete": {
+      "title": "Setup Complete",
+      "description": "You have successfully completed the onboarding process for your Hoppscotch instance.",
+      "description_sub": "The page will automatically redirect to the dashboard in a few seconds or you can reload once the server is restarted."
+    },
+    "server_restarting": "Server is restarting in {time} seconds...",
+    "smtp": {
+      "description": "Set up SMTP for email authentication.",
+      "description_accordian": "Configure the SMTP settings for sending emails.",
+      "title": "SMTP"
+    },
+    "smtp_advanced_config_enable": "Enable to configure your own SMTP credentials",
+    "select_auth_methods": "Please select authentications",
+    "select_auth_provider": "You can select one or more authentication providers to continue.",
+    "select_atleast_one": "Please select at least one authentication provider to continue.",
+    "start_onboarding": "Start Onboarding",
+    "welcome": "Welcome",
+    "welcome_screen_description": "Welcome to Hoppscotch! Let's get started with the setup.",
+    "welcome_screen_sub_description": "Please set up either SMTP or OAuth for authentication."
   },
   "settings": {
     "settings": "Settings"

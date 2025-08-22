@@ -4,7 +4,6 @@ import {
   HoppRESTRequest,
   Environment,
   HoppRESTHeader,
-  HoppRESTParam,
 } from "@hoppscotch/data"
 import {
   DigestAuthParams,

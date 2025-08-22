@@ -754,6 +754,8 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
+    // TODO: dynamically add doc.host, doc.basePath value as variables in the environment if available. or notify user to add it.
+    // add base url variable to each request
     const host = doc.host?.trim() || "<<baseUrl>>"
     const basePath = doc.basePath?.trim() || ""
     return `${host}${basePath}`
@@ -765,7 +767,9 @@ const parseOpenAPIUrl = (
    * Relevant v3 reference: https://swagger.io/specification/#server-object
    **/
   if (objectHasProperty(doc, "servers")) {
-    return doc.servers?.[0]?.url ?? "<<baseUrl>>"
+    // TODO: dynamically add server URL value as variable in the environment if available, or notify user to add it.
+    const serverUrl = doc.servers?.[0]?.url
+    return !serverUrl || serverUrl === "./" ? "<<baseUrl>>" : serverUrl
   }
 
   // If the document is neither v2 nor v3 or missing required fields

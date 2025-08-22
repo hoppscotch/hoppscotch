@@ -21,16 +21,21 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "~/*": ["./src/*"],
+      "@hoppscotch/common": ["../hoppscotch-common/src/index.ts"],
+      "@hoppscotch/common/*": ["../hoppscotch-common/src/*"],
       "@composables/*": ["./src/composables/*"],
       "@components/*": ["./src/components/*"],
       "@helpers/*": ["./src/helpers/*"],
+      "@kernel/*": ["./src/kernel/*"],
       "@modules/*": ["./src/modules/*"],
+      "@services/*": ["./src/services/*"],
       "@workers/*": ["./src/workers/*"],
       "@functional/*": ["./src/helpers/functional/*"]
     },
     "types": [
       "vite/client",
-      "unplugin-icons/types/vue"
+      "unplugin-icons/types/vue",
+      "./src/types/kernel.d.ts"
     ]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

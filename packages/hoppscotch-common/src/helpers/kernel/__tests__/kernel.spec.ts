@@ -136,7 +136,7 @@ describe("GraphQL Response Transformation", () => {
 
 describe("GraphQL Request Transformation", () => {
   const baseRequest: HoppGQLRequest = {
-    v: 8,
+    v: 9,
     name: "Test Query",
     url: "https://api.example.com/graphql",
     headers: [],
@@ -235,7 +235,7 @@ describe("REST Response Transformation", () => {
     }
 
     const originalRequest: HoppRESTRequest = {
-      v: "11",
+      v: "15",
       endpoint: "https://api.example.com",
       name: "Test Request",
       method: "GET",
@@ -244,7 +244,7 @@ describe("REST Response Transformation", () => {
       preRequestScript: "",
       testScript: "",
       auth: { authType: "none", authActive: true },
-      body: { contentmediaType: null, body: null },
+      body: { contentType: null, body: null },
       requestVariables: [],
       responses: {},
     }
@@ -271,7 +271,7 @@ describe("REST Response Transformation", () => {
     }
 
     const originalRequest: HoppRESTRequest = {
-      v: "11",
+      v: "15",
       endpoint: "https://api.example.com",
       name: "Test Request",
       method: "GET",
@@ -280,7 +280,7 @@ describe("REST Response Transformation", () => {
       preRequestScript: "",
       testScript: "",
       auth: { authType: "none", authActive: true },
-      body: { contentmediaType: null, body: null },
+      body: { contentType: null, body: null },
       requestVariables: [],
       responses: {},
     }
@@ -300,7 +300,7 @@ describe("REST Response Transformation", () => {
 
 describe("REST Request Transformation", () => {
   const baseEffectiveRequest: EffectiveHoppRESTRequest = {
-    v: "11",
+    v: "15",
     name: "Test Request",
     method: "GET",
     endpoint: "https://api.example.com",
@@ -310,7 +310,7 @@ describe("REST Request Transformation", () => {
     preRequestScript: "",
     testScript: "",
     auth: { authType: "none", authActive: true },
-    body: { contentmediaType: null, body: null },
+    body: { contentType: null, body: null },
     requestVariables: [],
     responses: {},
     effectiveFinalHeaders: [],

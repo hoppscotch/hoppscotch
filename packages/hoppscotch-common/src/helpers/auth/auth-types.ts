@@ -46,12 +46,7 @@ export async function generateAuthHeaders(
     case "digest":
       return generateDigestAuthHeaders(auth, request, envVars, showKeyIfSecret)
     case "aws-signature":
-      return generateAwsSignatureAuthHeaders(
-        auth,
-        request,
-        envVars,
-        showKeyIfSecret
-      )
+      return generateAwsSignatureAuthHeaders(auth, request, envVars)
     case "hawk":
       return generateHawkAuthHeaders(auth, request, envVars, showKeyIfSecret)
     case "jwt":
@@ -78,14 +73,9 @@ export async function generateAuthParams(
     case "oauth-2":
       return generateOAuth2AuthParams(auth, request, envVars, showKeyIfSecret)
     case "aws-signature":
-      return generateAwsSignatureAuthParams(
-        auth,
-        request,
-        envVars,
-        showKeyIfSecret
-      )
+      return generateAwsSignatureAuthParams(auth, request, envVars)
     case "jwt":
-      return generateJwtAuthParams(auth, request, envVars, showKeyIfSecret)
+      return generateJwtAuthParams(auth, request, envVars)
     default:
       return []
   }

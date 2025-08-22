@@ -1,11 +1,11 @@
 import {
-  parseTemplateString,
+  Environment,
   generateJWTToken,
   HoppRESTAuth,
-  HoppRESTRequest,
-  Environment,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTRequest,
+  parseTemplateString,
 } from "@hoppscotch/data"
 
 export async function generateJwtAuthHeaders(
@@ -48,8 +48,7 @@ export async function generateJwtAuthHeaders(
 export async function generateJwtAuthParams(
   auth: HoppRESTAuth & { authType: "jwt" },
   request: HoppRESTRequest,
-  envVars: Environment["variables"],
-  showKeyIfSecret = false
+  envVars: Environment["variables"]
 ): Promise<HoppRESTParam[]> {
   if (auth.addTo !== "QUERY_PARAMS") return []
 

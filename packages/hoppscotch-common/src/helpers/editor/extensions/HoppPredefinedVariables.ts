@@ -130,7 +130,7 @@ const cursorTooltipField = () =>
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
 
-          tooltipContainer.className = "tippy-content"
+          tooltipContainer.className = "tippy-content env-tooltip-content"
 
           dom.appendChild(tooltipContainer)
           return { dom }

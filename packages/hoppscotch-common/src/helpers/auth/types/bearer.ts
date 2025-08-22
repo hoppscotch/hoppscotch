@@ -4,7 +4,6 @@ import {
   HoppRESTRequest,
   Environment,
   HoppRESTHeader,
-  HoppRESTParam,
 } from "@hoppscotch/data"
 
 export async function generateBearerAuthHeaders(

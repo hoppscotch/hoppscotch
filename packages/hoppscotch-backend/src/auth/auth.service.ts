@@ -3,7 +3,6 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { VerifyMagicDto } from './dto/verify-magic.dto';
-import { DateTime } from 'luxon';
 import * as argon2 from 'argon2';
 import * as bcrypt from 'bcrypt';
 import * as O from 'fp-ts/Option';
@@ -50,14 +49,17 @@ export class AuthService {
    */
   private async generateMagicLinkTokens(user: AuthUser) {
     const salt = await bcrypt.genSalt(
-      parseInt(this.configService.get('TOKEN_SALT_COMPLEXITY')),
+      parseInt(this.configService.get('INFRA.TOKEN_SALT_COMPLEXITY')),
     );
-    const expiresOn = DateTime.now()
-      .plus({
-        hours: parseInt(this.configService.get('MAGIC_LINK_TOKEN_VALIDITY')),
-      })
-      .toISO()
-      .toString();
+
+    // Calculate expiration time by adding hours to current time
+    let validityInHours = parseInt(
+      this.configService.get('INFRA.MAGIC_LINK_TOKEN_VALIDITY'),
+    );
+    if (isNaN(validityInHours)) validityInHours = 24; // Default: 24 hours
+
+    const expiresOn = new Date();
+    expiresOn.setHours(expiresOn.getHours() + validityInHours);
 
     const idToken = await this.prisma.verificationToken.create({
       data: {
@@ -106,7 +108,7 @@ export class AuthService {
     };
 
     const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
-      expiresIn: this.configService.get('REFRESH_TOKEN_VALIDITY'), //7 Days
+      expiresIn: this.configService.get('INFRA.REFRESH_TOKEN_VALIDITY'), //7 Days
     });
 
     const refreshTokenHash = await argon2.hash(refreshToken);
@@ -142,7 +144,7 @@ export class AuthService {
 
     return E.right(<AuthTokens>{
       access_token: await this.jwtService.sign(accessTokenPayload, {
-        expiresIn: this.configService.get('ACCESS_TOKEN_VALIDITY'), //1 Day
+        expiresIn: this.configService.get('INFRA.ACCESS_TOKEN_VALIDITY'), //1 Day
       }),
       refresh_token: refreshToken.right,
     });
@@ -294,8 +296,8 @@ export class AuthService {
       );
     }
 
-    const currentTime = DateTime.now().toISO();
-    if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
+    const currentTime = new Date();
+    if (currentTime > passwordlessTokens.value.expiresOn)
       return E.left({
         message: MAGIC_LINK_EXPIRED,
         statusCode: HttpStatus.UNAUTHORIZED,

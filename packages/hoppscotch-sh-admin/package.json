@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-sh-admin",
   "private": true,
-  "version": "2025.6.0",
+  "version": "2025.7.1",
   "type": "module",
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
@@ -59,6 +59,7 @@
     "@types/lodash-es": "4.17.12",
     "@vitejs/plugin-vue": "5.1.4",
     "@vue/compiler-sfc": "3.5.12",
+    "autoprefixer": "10.4.21",
     "dotenv": "16.4.5",
     "graphql-tag": "2.12.6",
     "hoppscotch-backend": "workspace:^",

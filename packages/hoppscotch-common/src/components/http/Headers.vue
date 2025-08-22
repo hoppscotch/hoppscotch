@@ -576,7 +576,7 @@ watch([props.modelValue, aggregateEnvs], async () => {
     }
   })
   computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, resolvedEnvs, true)
+    await getComputedHeaders(props.modelValue, resolvedEnvs)
   ).map((header, index) => ({
     id: `header-${index}`,
     ...header,

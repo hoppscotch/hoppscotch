@@ -1,4 +1,4 @@
-// Copyright 2024 CuriousCorrelation
+// Copyright 2025 CuriousCorrelation
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 

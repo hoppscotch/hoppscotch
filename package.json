@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@10.2.1",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -35,7 +35,6 @@
   },
   "pnpm": {
     "overrides": {
-      "cookie": "0.7.2",
       "cross-spawn": "7.0.6",
       "vue": "3.5.12",
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
@@ -53,16 +52,9 @@
       "@babel/runtime@<7.26.10": "7.26.10",
       "apiconnect-wsdl": "2.0.36",
       "@xmldom/xmldom": "0.8.10",
-      "multer@1.4.5-lts.2": "2.0.1",
       "brace-expansion@2.0.1": "2.0.2",
-      "brace-expansion@1.1.11": "1.1.12"
-    },
-    "packageExtensions": {
-      "@hoppscotch/httpsnippet": {
-        "dependencies": {
-          "ajv": "6.12.3"
-        }
-      }
+      "brace-expansion@1.1.11": "1.1.12",
+      "form-data@4.0.2": "4.0.4"
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",

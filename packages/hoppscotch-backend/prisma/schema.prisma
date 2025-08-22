@@ -51,8 +51,8 @@ model TeamCollection {
   team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
   title      String
   orderIndex Int
-  createdOn  DateTime         @default(now()) @db.Timestamp(3)
-  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+  createdOn  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
 }
 
 model TeamRequest {
@@ -64,8 +64,8 @@ model TeamRequest {
   title        String
   request      Json
   orderIndex   Int
-  createdOn    DateTime       @default(now()) @db.Timestamp(3)
-  updatedOn    DateTime       @updatedAt @db.Timestamp(3)
+  createdOn    DateTime       @default(now()) @db.Timestamptz(3)
+  updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
 }
 
 model Shortcode {
@@ -74,8 +74,8 @@ model Shortcode {
   embedProperties Json?
   creatorUid      String?
   User            User?    @relation(fields: [creatorUid], references: [uid])
-  createdOn       DateTime @default(now())
-  updatedOn       DateTime @default(now()) @updatedAt
+  createdOn       DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn       DateTime @default(now()) @updatedAt @db.Timestamptz(3)
 
   @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
 }
@@ -104,9 +104,9 @@ model User {
   userRequests         UserRequest[]
   currentRESTSession   Json?
   currentGQLSession    Json?
-  lastLoggedOn         DateTime?             @db.Timestamp(3)
-  lastActiveOn         DateTime?             @db.Timestamp(3)
-  createdOn            DateTime              @default(now()) @db.Timestamp(3)
+  lastLoggedOn         DateTime?             @db.Timestamptz(3)
+  lastActiveOn         DateTime?             @db.Timestamptz(3)
+  createdOn            DateTime              @default(now()) @db.Timestamptz(3)
   invitedUsers         InvitedUsers[]
   shortcodes           Shortcode[]
   personalAccessTokens PersonalAccessToken[]
@@ -121,7 +121,7 @@ model Account {
   providerRefreshToken String?
   providerAccessToken  String?
   providerScope        String?
-  loggedIn             DateTime @default(now()) @db.Timestamp(3)
+  loggedIn             DateTime @default(now()) @db.Timestamptz(3)
 
   @@unique(fields: [provider, providerAccountId], name: "verifyProviderAccount")
 }
@@ -131,7 +131,7 @@ model VerificationToken {
   token            String   @unique @default(cuid())
   userUid          String
   user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  expiresOn        DateTime @db.Timestamp(3)
+  expiresOn        DateTime @db.Timestamptz(3)
 
   @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
 }
@@ -141,7 +141,7 @@ model UserSettings {
   userUid    String   @unique
   user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   properties Json
-  updatedOn  DateTime @updatedAt @db.Timestamp(3)
+  updatedOn  DateTime @updatedAt @db.Timestamptz(3)
 }
 
 model UserHistory {
@@ -152,7 +152,7 @@ model UserHistory {
   request          Json
   responseMetadata Json
   isStarred        Boolean
-  executedOn       DateTime @default(now()) @db.Timestamp(3)
+  executedOn       DateTime @default(now()) @db.Timestamptz(3)
 }
 
 enum ReqType {
@@ -174,7 +174,7 @@ model InvitedUsers {
   user         User     @relation(fields: [adminUid], references: [uid], onDelete: Cascade)
   adminEmail   String
   inviteeEmail String   @unique
-  invitedOn    DateTime @default(now()) @db.Timestamp(3)
+  invitedOn    DateTime @default(now()) @db.Timestamptz(3)
 }
 
 model UserRequest {
@@ -187,8 +187,8 @@ model UserRequest {
   request        Json
   type           ReqType
   orderIndex     Int
-  createdOn      DateTime       @default(now()) @db.Timestamp(3)
-  updatedOn      DateTime       @updatedAt @db.Timestamp(3)
+  createdOn      DateTime       @default(now()) @db.Timestamptz(3)
+  updatedOn      DateTime       @updatedAt @db.Timestamptz(3)
 }
 
 model UserCollection {
@@ -203,8 +203,8 @@ model UserCollection {
   data       Json?
   orderIndex Int
   type       ReqType
-  createdOn  DateTime         @default(now()) @db.Timestamp(3)
-  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+  createdOn  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
 }
 
 enum TeamAccessRole {
@@ -217,10 +217,10 @@ model InfraConfig {
   id                     String   @id @default(cuid())
   name                   String   @unique
   value                  String?
-  lastSyncedEnvFileValue String?
+  lastSyncedEnvFileValue String? // deprecated, use `value` instead
   isEncrypted            Boolean  @default(false) // Use case: Let's say, Admin wants to store a Secret Key, but doesn't want to store it in plain text in `value` column
-  createdOn              DateTime @default(now()) @db.Timestamp(3)
-  updatedOn              DateTime @updatedAt @db.Timestamp(3)
+  createdOn              DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn              DateTime @updatedAt @db.Timestamptz(3)
 }
 
 model PersonalAccessToken {
@@ -229,9 +229,9 @@ model PersonalAccessToken {
   user      User      @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   label     String
   token     String    @unique @default(uuid())
-  expiresOn DateTime? @db.Timestamp(3)
-  createdOn DateTime  @default(now()) @db.Timestamp(3)
-  updatedOn DateTime  @updatedAt @db.Timestamp(3)
+  expiresOn DateTime? @db.Timestamptz(3)
+  createdOn DateTime  @default(now()) @db.Timestamptz(3)
+  updatedOn DateTime  @updatedAt @db.Timestamptz(3)
 }
 
 model InfraToken {
@@ -239,7 +239,7 @@ model InfraToken {
   creatorUid String
   label      String
   token      String    @unique @default(uuid())
-  expiresOn  DateTime? @db.Timestamp(3)
-  createdOn  DateTime  @default(now()) @db.Timestamp(3)
-  updatedOn  DateTime  @default(now()) @db.Timestamp(3)
+  expiresOn  DateTime? @db.Timestamptz(3)
+  createdOn  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime  @default(now()) @db.Timestamptz(3)
 }

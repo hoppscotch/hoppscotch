@@ -1,13 +1,13 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2025.6.0",
+  "version": "2025.7.1",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
     "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\" --watch",
     "dev": "pnpm exec npm-run-all -p -l dev:*",
-    "build": "node --max_old_space_size=4096 ./node_modules/vite/bin/vite.js build",
+    "build": "node --max_old_space_size=8192 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
     "lint:ts": "vue-tsc --noEmit",
@@ -69,6 +69,7 @@
     "@vue/eslint-config-typescript": "13.0.0",
     "autoprefixer": "10.4.20",
     "cross-env": "7.0.3",
+    "dotenv": "17.2.1",
     "eslint": "8.57.0",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-vue": "9.29.0",

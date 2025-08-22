@@ -130,11 +130,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: true },
             headers: [],
+            variables: [],
           }
 
     return {
       id: restCollection.id,
-      v: 9,
+      v: 10,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -182,6 +183,7 @@ function exportedCollectionToHoppCollection(
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
+      variables: data.variables ?? [],
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -192,11 +194,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: true },
             headers: [],
+            variables: [],
           }
 
     return {
       id: gqlCollection.id,
-      v: 9,
+      v: 10,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -224,6 +227,7 @@ function exportedCollectionToHoppCollection(
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
+      variables: data.variables ?? [],
     }
   }
 }
@@ -366,6 +370,7 @@ function setupUserCollectionCreatedSubscription() {
             : {
                 auth: { authType: "inherit", authActive: true },
                 headers: [],
+                variables: [],
               }
 
         runDispatchWithOutSyncing(() => {
@@ -374,17 +379,19 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 9,
+                v: 10,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
+                variables: data.variables ?? [],
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 9,
+                v: 10,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
+                variables: data.variables ?? [],
               })
 
           const localIndex = collectionStore.value.state.length - 1
@@ -587,12 +594,13 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers } =
+      const { auth, headers, variables } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
+              variables: [],
             }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
@@ -607,9 +615,10 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 9,
+        v: 10,
         auth,
         headers: addDescriptionField(headers),
+        variables: variables ?? [],
       }
 
       // only folders will have parent collection id
@@ -1023,10 +1032,14 @@ function transformDuplicatedCollections(
       requests: userRequests,
       title: name,
     }) => {
-      const { auth, headers } =
+      const { auth, headers, variables } =
         data && data !== "null"
           ? JSON.parse(data)
-          : { auth: { authType: "inherit", authActive: true }, headers: [] }
+          : {
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              variables: [],
+            }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
@@ -1037,9 +1050,10 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 9,
+        v: 10,
         auth,
         headers: addDescriptionField(headers),
+        variables: variables ?? [],
       }
     }
   )

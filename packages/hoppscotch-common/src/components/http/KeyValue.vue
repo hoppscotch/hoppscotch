@@ -62,7 +62,7 @@
       v-if="showDescription"
       :value="description"
       :placeholder="t('count.description')"
-      class="flex flex-1 px-4 bg-transparent"
+      class="flex flex-1 px-4 bg-transparent text-secondaryDark"
       type="text"
       :class="{ 'opacity-50': !entityActive }"
       @update:value="emit('update:description', $event.target.value)"

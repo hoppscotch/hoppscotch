@@ -11,29 +11,29 @@ import {
   WorkspaceEnvironment,
 } from "../../../utils/workspace-access";
 
-export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1ldkzs005t10f8rp5u60q7",
-      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true,"description":""}]}',
+      data: '{"auth":{"token":"BearerToken","authType":"bearer","authActive":true},"headers":[{"key":"X-Test-Header","value":"Set at root collection","active":true,"description":""}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
       title: "CollectionA",
       parentID: null,
       folders: [
         {
           id: "clx1ldkzs005v10f86b9wx4yc",
-          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[]}',
+          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[],"variables":[]}',
           title: "FolderA",
           parentID: "clx1ldkzs005t10f8rp5u60q7",
           folders: [
             {
               id: "clx1ldkzt005x10f8i0u5lzgj",
-              data: '{"auth":{"key":"key","addTo":"HEADERS","value":"test-key","authType":"api-key","authActive":true},"headers":[{"key":"X-Test-Header","value":"Overriden at FolderB","active":true}]}',
+              data: '{"auth":{"key":"key","addTo":"HEADERS","value":"test-key","authType":"api-key","authActive":true},"headers":[{"key":"X-Test-Header","value":"Overriden at FolderB","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "FolderB",
               parentID: "clx1ldkzs005v10f86b9wx4yc",
               folders: [
                 {
                   id: "clx1ldkzu005z10f880zx17bg",
-                  data: '{"auth":{"authType":"inherit","authActive":true},"headers":[]}',
+                  data: '{"auth":{"authType":"inherit","authActive":true},"headers":[],"variables":[]}',
                   title: "FolderC",
                   parentID: "clx1ldkzt005x10f8i0u5lzgj",
                   folders: [],
@@ -85,7 +85,7 @@ export const WORKSPACE_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Workspa
     },
   ];
 
-export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppCollection[] =
+export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: HoppCollection[] =
   [
     {
       v: CollectionSchemaVersion,
@@ -142,6 +142,7 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
                     authActive: true,
                   },
                   headers: [],
+                  variables: [],
                 },
               ],
               requests: [
@@ -181,6 +182,14 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
           ],
           requests: [
@@ -211,6 +220,7 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
             authActive: true,
           },
           headers: [],
+          variables: [],
         },
       ],
       requests: [
@@ -250,27 +260,35 @@ export const TRANSFORMED_DEEPLY_NESTED_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppC
           description: "",
         },
       ],
+      variables: [
+        {
+          key: "collection-variable",
+          currentValue: "collection-variable-value",
+          initialValue: "collection-variable-value",
+          secret: false,
+        },
+      ],
     },
   ];
 
-export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_VARIABLES_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1f86hv000010f8szcfya0t",
-      data: '{"auth":{"authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value set at the root collection","active":true},{"key":"Inherited-Header","value":"Inherited header at all levels","active":true}]}',
+      data: '{"auth":{"authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value set at the root collection","active":true},{"key":"Inherited-Header","value":"Inherited header at all levels","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
       title:
-        "Multiple child collections with authorization & headers set at each level",
+        "Multiple child collections with authorization, headers and variables set at each level",
       parentID: null,
       folders: [
         {
           id: "clx1fjgah000110f8a5bs68gd",
-          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-1","active":true}]}',
+          data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-1","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-1",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1fjwmm000410f8l1gkkr1a",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-11","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-11","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-11",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -287,7 +305,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fjyxm000510f8pv90dt43",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-12","active":true},{"key":"key","value":"Set at folder-12","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-12","active":true},{"key":"key","value":"Set at folder-12","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-12",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -304,7 +322,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk1cv000610f88kc3aupy",
-              data: '{"auth":{"token":"test-token","authType":"bearer","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-13","active":true},{"key":"key","value":"Set at folder-13","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-13","active":true},{"key":"key","value":"Set at folder-13","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-13",
               parentID: "clx1fjgah000110f8a5bs68gd",
               folders: [],
@@ -333,13 +351,13 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
         },
         {
           id: "clx1fjk9o000210f8j0573pls",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-2","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-2","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-2",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1fk516000710f87sfpw6bo",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-21","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-21","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-21",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -356,7 +374,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk72t000810f8gfwkpi5y",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-22","active":true},{"key":"key","value":"Set at folder-22","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-22","active":true},{"key":"key","value":"Set at folder-22","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-22",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -373,7 +391,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1fk95g000910f8bunhaoo8",
-              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-23","active":true},{"key":"key","value":"Set at folder-23","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-23","active":true},{"key":"key","value":"Set at folder-23","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-23",
               parentID: "clx1fjk9o000210f8j0573pls",
               folders: [],
@@ -402,13 +420,13 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
         },
         {
           id: "clx1fjmlq000310f86o4d3w2o",
-          data: '{"auth":{"key":"testuser","addTo":"HEADERS","value":"testpass","authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-3","active":true}]}',
+          data: '{"auth":{"key":"testuser","addTo":"HEADERS","value":"testpass","authType":"basic","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-3","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-3",
           parentID: "clx1f86hv000010f8szcfya0t",
           folders: [
             {
               id: "clx1iwq0p003e10f8u8zg0p85",
-              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-31","active":true}]}',
+              data: '{"auth":{"authType":"inherit","authActive":true},"headers":[{"key":"key","value":"Set at folder-31","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-31",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -425,7 +443,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1izut7003m10f894ip59zg",
-              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-32","active":true},{"key":"key","value":"Set at folder-32","active":true}]}',
+              data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-32","active":true},{"key":"key","value":"Set at folder-32","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-32",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -442,7 +460,7 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
             },
             {
               id: "clx1j2ka9003q10f8cdbzpgpg",
-              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-33","active":true},{"key":"key","value":"Set at folder-33","active":true}]}',
+              data: '{"auth":{"token":"test-token","authType":"bearer","password":"testpass","username":"testuser","authActive":true},"headers":[{"key":"Custom-Header","value":"Custom header value overriden at folder-33","active":true},{"key":"key","value":"Set at folder-33","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
               title: "folder-33",
               parentID: "clx1fjmlq000310f86o4d3w2o",
               folders: [],
@@ -485,17 +503,17 @@ export const WORKSPACE_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Worksp
 export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: HoppCollection[] =
   [
     {
-      v: 9,
+      v: 10,
       id: "clx1f86hv000010f8szcfya0t",
-      name: "Multiple child collections with authorization & headers set at each level",
+      name: "Multiple child collections with authorization, headers and variables set at each level",
       folders: [
         {
-          v: 9,
+          v: 10,
           id: "clx1fjgah000110f8a5bs68gd",
           name: "folder-1",
           folders: [
             {
-              v: 9,
+              v: 10,
               id: "clx1fjwmm000410f8l1gkkr1a",
               name: "folder-11",
               folders: [],
@@ -535,9 +553,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1fjyxm000510f8pv90dt43",
               name: "folder-12",
               folders: [],
@@ -593,9 +619,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1fk1cv000610f88kc3aupy",
               name: "folder-13",
               folders: [],
@@ -669,6 +703,14 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
           ],
           requests: [
@@ -705,14 +747,22 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
         },
         {
-          v: 9,
+          v: 10,
           id: "clx1fjk9o000210f8j0573pls",
           name: "folder-2",
           folders: [
             {
-              v: 9,
+              v: 10,
               id: "clx1fk516000710f87sfpw6bo",
               name: "folder-21",
               folders: [],
@@ -750,9 +800,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1fk72t000810f8gfwkpi5y",
               name: "folder-22",
               folders: [],
@@ -808,9 +866,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1fk95g000910f8bunhaoo8",
               name: "folder-23",
               folders: [],
@@ -871,6 +937,14 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
           ],
           requests: [
@@ -913,14 +987,23 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
         },
+
         {
-          v: 9,
+          v: 10,
           id: "clx1fjmlq000310f86o4d3w2o",
           name: "folder-3",
           folders: [
             {
-              v: 9,
+              v: 10,
               id: "clx1iwq0p003e10f8u8zg0p85",
               name: "folder-31",
               folders: [],
@@ -958,9 +1041,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1izut7003m10f894ip59zg",
               name: "folder-32",
               folders: [],
@@ -1016,9 +1107,17 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
             {
-              v: 9,
+              v: 10,
               id: "clx1j2ka9003q10f8cdbzpgpg",
               name: "folder-33",
               folders: [],
@@ -1079,6 +1178,14 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
                   description: "",
                 },
               ],
+              variables: [
+                {
+                  key: "collection-variable",
+                  currentValue: "collection-variable-value",
+                  initialValue: "collection-variable-value",
+                  secret: false,
+                },
+              ],
             },
           ],
           requests: [
@@ -1134,6 +1241,14 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
         },
       ],
       requests: [
@@ -1179,16 +1294,24 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
           description: "",
         },
       ],
+      variables: [
+        {
+          key: "collection-variable",
+          currentValue: "collection-variable-value",
+          initialValue: "collection-variable-value",
+          secret: false,
+        },
+      ],
     },
   ];
 
 // Collections with `data` field set to `null` at certain levels
-export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: WorkspaceCollection[] =
+export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_LEVELS_MOCK: WorkspaceCollection[] =
   [
     {
       id: "clx1kxvao005m10f8luqivrf1",
       data: null,
-      title: "Collection with no authorization/headers set",
+      title: "Collection with no authorization/headers/variables set",
       parentID: null,
       folders: [
         {
@@ -1210,7 +1333,7 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
         },
         {
           id: "clx1kym98005o10f8qg17t9o2",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-2","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-2","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-2",
           parentID: "clx1kxvao005m10f8luqivrf1",
           folders: [],
@@ -1235,7 +1358,7 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
         },
         {
           id: "clx1l2eaz005s10f8loetbbeb",
-          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-4","active":true}]}',
+          data: '{"auth":{"authType":"none","authActive":true},"headers":[{"key":"Custom-Header","value":"Set at folder-4","active":true}],"variables":[{"key":"collection-variable","currentValue":"collection-variable-value","initialValue":"collection-variable-value","secret":false}]}',
           title: "folder-4",
           parentID: "clx1kxvao005m10f8luqivrf1",
           folders: [],
@@ -1246,12 +1369,12 @@ export const WORKSPACE_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: 
     },
   ];
 
-export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK: HoppCollection[] =
+export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_VARIABLES_AT_CERTAIN_LEVELS_MOCK: HoppCollection[] =
   [
     {
       v: CollectionSchemaVersion,
       id: "clx1kxvao005m10f8luqivrf1",
-      name: "Collection with no authorization/headers set",
+      name: "Collection with no authorization/headers/variables set",
       folders: [
         {
           v: CollectionSchemaVersion,
@@ -1284,6 +1407,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
             authActive: true,
           },
           headers: [],
+          variables: [],
         },
         {
           v: CollectionSchemaVersion,
@@ -1323,6 +1447,14 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
               description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
         },
         {
           v: CollectionSchemaVersion,
@@ -1335,6 +1467,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
             authActive: true,
           },
           headers: [],
+          variables: [],
         },
         {
           v: CollectionSchemaVersion,
@@ -1354,6 +1487,14 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
               description: "",
             },
           ],
+          variables: [
+            {
+              key: "collection-variable",
+              currentValue: "collection-variable-value",
+              initialValue: "collection-variable-value",
+              secret: false,
+            },
+          ],
         },
       ],
       requests: [],
@@ -1362,6 +1503,7 @@ export const TRANSFORMED_COLLECTIONS_WITHOUT_AUTH_HEADERS_AT_CERTAIN_LEVELS_MOCK
         authActive: true,
       },
       headers: [],
+      variables: [],
     },
   ];
 

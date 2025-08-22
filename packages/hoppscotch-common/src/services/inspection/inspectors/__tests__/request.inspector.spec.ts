@@ -46,7 +46,14 @@ describe("RequestInspectorService", () => {
       const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "Cookie", value: "some-cookie", active: true }],
+        headers: [
+          {
+            key: "Cookie",
+            value: "some-cookie",
+            active: true,
+            description: "",
+          },
+        ],
       })
 
       const result = requestInspector.getInspections(req)
@@ -83,7 +90,14 @@ describe("RequestInspectorService", () => {
       const req = ref({
         ...getDefaultRESTRequest(),
         endpoint: "http://example.com/api/data",
-        headers: [{ key: "Cookie", value: "some-cookie", active: true }],
+        headers: [
+          {
+            key: "Cookie",
+            value: "some-cookie",
+            active: true,
+            description: "",
+          },
+        ],
       })
 
       const result = requestInspector.getInspections(req)

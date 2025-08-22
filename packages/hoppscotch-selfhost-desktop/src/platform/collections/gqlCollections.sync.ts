@@ -8,7 +8,11 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  generateUniqueRefId,
+  HoppCollection,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 import { getSyncInitFunction } from "../../lib/sync"
 
@@ -22,6 +26,7 @@ import {
   deleteUserRequest,
   editGQLUserRequest,
   renameUserCollection,
+  updateUserCollection,
 } from "./collections.api"
 
 import * as E from "fp-ts/Either"
@@ -44,12 +49,41 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createGQLRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+    const res = await createGQLRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createGQLRootUserCollection.id
 
+      const returnedData = res.right.createGQLRootUserCollection.data
+        ? JSON.parse(res.right.createGQLRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
         collectionPath
@@ -59,15 +93,44 @@ const recursivelySyncCollections = async (
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+
     const res = await createGQLChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createGQLChildUserCollection.id
 
+      const returnedData = res.right.createGQLChildUserCollection.data
+        ? JSON.parse(res.right.createGQLChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,
@@ -158,8 +221,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+      variables: collection.variables,
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -197,8 +267,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )?.id
 
-    if (folderBackendId && folder.name) {
-      renameUserCollection(folderBackendId, folder.name)
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+      variables: folder.variables,
+      _ref_id: folder._ref_id ?? generateUniqueRefId("coll"),
+    }
+
+    if (folderBackendId) {
+      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

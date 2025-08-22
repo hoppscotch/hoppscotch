@@ -169,7 +169,8 @@ function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
-  type: "rest" | "graphql"
+  type: "rest" | "graphql",
+  collectionId?: string
 ) {
   const tabService =
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
@@ -225,6 +226,22 @@ export function updateInheritedPropertiesForAffectedRequests(
       ])
 
       tab.value.document.inheritedProperties.headers = mergedHeaders
+    }
+
+    if (tab.value.document.inheritedProperties?.variables && collectionId) {
+      const tabInheritedVariables =
+        tab.value.document.inheritedProperties.variables.filter(
+          (variable) => variable.parentID !== collectionId
+        )
+
+      // filter out the variables with the parentID as the path in the inheritedProperties
+      const inheritedVariables = inheritedProperties.variables.filter(
+        (variable) => variable.parentID === collectionId
+      )
+
+      const finalVariables = [...inheritedVariables, ...tabInheritedVariables]
+
+      tab.value.document.inheritedProperties.variables = finalVariables
     }
   })
 }

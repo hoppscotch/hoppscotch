@@ -143,6 +143,7 @@ import {
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import {
   getRESTCollectionByRefId,
   getRESTCollectionInheritedProps,
@@ -269,21 +270,28 @@ const runTests = async () => {
       }
     )
 
+    const parentVariables = transformInheritedCollectionVariablesToAggregateEnv(
+      tab.value.document.inheritedProperties?.variables ?? []
+    )
+
     resolvedCollection = {
       ...collection.value,
       auth: requestAuth,
       headers: requestHeaders as HoppRESTHeader[],
+      variables: parentVariables,
     }
   } else {
-    const { auth, headers } = collectionInheritedProps ?? {
+    const { auth, headers, variables } = collectionInheritedProps ?? {
       auth: { authActive: true, authType: "none" },
       headers: [],
+      variables: [],
     }
 
     resolvedCollection = {
       ...collection.value,
       auth,
       headers,
+      variables,
     }
   }
 

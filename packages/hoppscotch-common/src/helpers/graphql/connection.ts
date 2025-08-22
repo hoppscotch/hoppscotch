@@ -404,10 +404,10 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
-    headers: request.headers,
+    headers: runHeaders,
     query,
     variables,
-    auth: request.auth as HoppGQLAuth,
+    auth,
   }
 
   if (operationType === "subscription") {

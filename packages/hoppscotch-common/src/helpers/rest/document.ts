@@ -259,6 +259,12 @@ export type HoppSavedExampleDocument = {
    * (atleast as far as we can say)
    */
   isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
 }
 
 /**

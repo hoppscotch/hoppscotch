@@ -8,7 +8,11 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  generateUniqueRefId,
+  HoppCollection,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 import { getSyncInitFunction } from "@lib/sync"
 
@@ -52,6 +56,8 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
     }
     const res = await createGQLRootUserCollection(
       collection.name,
@@ -69,11 +75,15 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
       collection.id = parentCollectionID
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
 
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
@@ -91,6 +101,8 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
     }
 
     const res = await createGQLChildUserCollection(
@@ -110,12 +122,16 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
           }
 
       collection.id = childCollectionId
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,
@@ -209,6 +225,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
+      variables: collection.variables,
+      _ref_id: collection._ref_id,
     }
 
     if (collectionID) {
@@ -253,6 +271,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
+      variables: folder.variables,
+      _ref_id: folder._ref_id,
     }
 
     if (folderBackendId) {

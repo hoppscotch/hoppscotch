@@ -1,6 +1,6 @@
 export { hoppRESTImporter } from "./hopp"
 export { hoppOpenAPIImporter } from "./openapi"
 export { hoppPostmanImporter } from "./postman"
-export { hoppInsomniaImporter } from "./insomnia"
+export { hoppInsomniaImporter } from "./insomnia/insomniaColl"
 export { toTeamsImporter } from "./myCollections"
 export { harImporter } from "./har"

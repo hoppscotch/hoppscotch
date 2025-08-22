@@ -1,0 +1,102 @@
+{
+  "id": "cmeicx49r00xylb1jxektmknk",
+  "_ref_id": "coll_meicx3z7_a1cb5e72-cd1b-414b-adc2-7d601ca0936d",
+  "v": 10,
+  "name": "coll-with-variables",
+  "folders": [
+    {
+      "id": "cmeicy6fu00xzlb1jqmmqbjdm",
+      "_ref_id": "coll_meie14lh_818ea8a2-9839-4a1c-8cce-cc7565b5f594",
+      "v": 10,
+      "name": "folder-1",
+      "folders": [],
+      "requests": [
+        {
+          "v": "15",
+          "id": "cmeicyhnn00y1lb1j8d80g7ys",
+          "name": "request-1",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [
+            {
+              "key": "collection-var-1",
+              "value": "<<collection-variable-1>>",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "collection-var-2",
+              "value": "<<collection-variable-2>>",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "folder-var-1",
+              "value": "<<folder-variable-1>>",
+              "active": true,
+              "description": ""
+            },
+            {
+              "key": "folder-var-2",
+              "value": "<<folder-variable-2>>",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "export {};\npw.test('Correctly inherits collection variables from the parent collection and folder', () =>\n{\n\n    pw.expect([\n        \"collection-var-1-initial-value\",\n        \"collection-var-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-1\"])\n\n    pw.expect([\n        \"collection-var-2-initial-value\",\n        \"collection-var-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"collection-var-2\"])\n\n    pw.expect([\n        \"folder-variable-1-initial-value\",\n        \"folder-variable-1-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-1\"])\n\n    pw.expect([\n        \"folder-variable-2-initial-value\",\n        \"folder-variable-2-current-value\"\n    ]).toInclude(pw.response.body.args[\"folder-var-2\"])\n\n});",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "variables": [
+        {
+          "key": "folder-variable-1",
+          "secret": false,
+          "currentValue": "",
+          "initialValue": "folder-variable-1-initial-value"
+        },
+        {
+          "key": "folder-variable-2",
+          "secret": false,
+          "currentValue": "",
+          "initialValue": "folder-variable-2-initial-value"
+        }
+      ]
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [
+    {
+      "key": "collection-variable-1",
+      "secret": false,
+      "currentValue": "",
+      "initialValue": "collection-var-1-initial-value"
+    },
+    {
+      "key": "collection-variable-2",
+      "secret": false,
+      "currentValue": "",
+      "initialValue": "collection-var-2-initial-value"
+    }
+  ]
+}

@@ -29,7 +29,7 @@ import {
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
-import { insomniaEnvImporter } from "~/helpers/import-export/import/insomniaEnv"
+import { insomniaEnvImporter } from "~/helpers/import-export/import/insomnia/insomniaEnv"
 import { postmanEnvImporter } from "~/helpers/import-export/import/postmanEnv"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 

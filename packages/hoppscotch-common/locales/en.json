@@ -416,6 +416,7 @@
     "empty_schema": "No schema found",
     "endpoint": "Endpoint cannot be empty",
     "environments": "Environments are empty",
+    "collection_variables": "Collection variables are empty",
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",
     "history": "History is empty",

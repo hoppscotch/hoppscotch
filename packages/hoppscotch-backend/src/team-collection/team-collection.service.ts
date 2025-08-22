@@ -438,9 +438,7 @@ export class TeamCollectionService {
       data = jsonReq.right;
     }
 
-    let teamCollection: DBTeamCollection = null;
-
-    await this.prisma.$transaction(async (tx) => {
+    const teamCollection = await this.prisma.$transaction(async (tx) => {
       // lock the rows
       const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
@@ -453,7 +451,7 @@ export class TeamCollectionService {
       });
 
       // create new collection
-      teamCollection = await tx.teamCollection.create({
+      return tx.teamCollection.create({
         data: {
           title,
           teamID,

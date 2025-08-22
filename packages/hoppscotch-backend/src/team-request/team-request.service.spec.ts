@@ -19,19 +19,18 @@ import {
   Team as DbTeam,
   TeamCollection as DbTeamCollection,
 } from '@prisma/client';
+import { PubSubService } from 'src/pubsub/pubsub.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockTeamService = mockDeep<TeamService>();
 const mockTeamCollectionService = mockDeep<TeamCollectionService>();
-const mockPubSub = { publish: jest.fn().mockResolvedValue(null) };
+const mockPubSub = mockDeep<PubSubService>();
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const teamRequestService = new TeamRequestService(
   mockPrisma,
-  mockTeamService as any,
-  mockTeamCollectionService as any,
-  mockPubSub as any,
+  mockTeamService,
+  mockTeamCollectionService,
+  mockPubSub,
 );
 
 const team: DbTeam = {
@@ -241,9 +240,9 @@ describe('deleteTeamRequest', () => {
 
 describe('createTeamRequest', () => {
   test('rejects for invalid collection id', async () => {
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
-      E.left(TEAM_INVALID_COLL_ID),
-    );
+    jest
+      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
+      .mockResolvedValue(E.left(TEAM_INVALID_COLL_ID));
 
     const response = await teamRequestService.createTeamRequest(
       'invalidcollid',
@@ -260,13 +259,17 @@ describe('createTeamRequest', () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
 
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
-      E.right(team),
-    );
+    jest
+      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
+      .mockResolvedValue(E.right(team));
+    mockPrisma.$transaction.mockImplementation(async (fn) => {
+      return fn(mockPrisma);
+    });
+    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     const response = teamRequestService.createTeamRequest(
-      'testcoll',
+      teamRequest.title,
       team.id,
       teamRequest.title,
       teamRequest.request,
@@ -279,18 +282,21 @@ describe('createTeamRequest', () => {
     const dbRequest = dbTeamRequests[0];
     const teamRequest = teamRequests[0];
 
-    mockTeamCollectionService.getTeamOfCollection.mockResolvedValue(
-      E.right(team),
-    );
+    jest
+      .spyOn(mockTeamCollectionService, 'getTeamOfCollection')
+      .mockResolvedValue(E.right(team));
+    mockPrisma.$transaction.mockImplementation(async (fn) => {
+      return fn(mockPrisma);
+    });
+    mockPrisma.teamRequest.findFirst.mockResolvedValue(null);
     mockPrisma.teamRequest.create.mockResolvedValue(dbRequest);
 
     await teamRequestService.createTeamRequest(
-      'testcoll',
+      teamRequest.title,
       team.id,
-      'Test Request',
-      '{}',
+      teamRequest.title,
+      teamRequest.request,
     );
-
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_req/${dbRequest.teamID}/req_created`,
       teamRequest,
@@ -416,7 +422,7 @@ describe('reorderRequests', () => {
     const nextRequest = dbTeamRequests[4];
 
     mockPrisma.$transaction.mockRejectedValueOnce(new Error());
-    const result = await teamRequestService.reorderRequests(
+    const result = await (teamRequestService as any).reorderRequests(
       request,
       srcCollID,
       nextRequest,
@@ -437,7 +443,7 @@ describe('reorderRequests', () => {
     };
 
     mockPrisma.$transaction.mockResolvedValueOnce(E.right(updatedReq));
-    const result = await teamRequestService.reorderRequests(
+    const result = await (teamRequestService as any).reorderRequests(
       request,
       srcCollID,
       nextRequest,
@@ -461,7 +467,7 @@ describe('findRequestAndNextRequest', () => {
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(dbTeamRequests[4]);
 
-    const result = await teamRequestService.findRequestAndNextRequest(
+    const result = await (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
       args.requestID,
       args.destCollID,
@@ -485,7 +491,7 @@ describe('findRequestAndNextRequest', () => {
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(null);
 
-    const result = teamRequestService.findRequestAndNextRequest(
+    const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
       args.requestID,
       args.destCollID,
@@ -507,7 +513,7 @@ describe('findRequestAndNextRequest', () => {
 
     mockPrisma.teamRequest.findFirst.mockResolvedValueOnce(null);
 
-    const result = teamRequestService.findRequestAndNextRequest(
+    const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
       args.requestID,
       args.destCollID,
@@ -528,7 +534,7 @@ describe('findRequestAndNextRequest', () => {
       .mockResolvedValueOnce(dbTeamRequests[0])
       .mockResolvedValueOnce(null);
 
-    const result = teamRequestService.findRequestAndNextRequest(
+    const result = (teamRequestService as any).findRequestAndNextRequest(
       args.srcCollID,
       args.requestID,
       args.destCollID,
@@ -549,12 +555,12 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(
         E.right({ request: dbTeamRequests[0], nextRequest: null }),
       );
     jest
-      .spyOn(teamRequestService, 'reorderRequests')
+      .spyOn(teamRequestService as any, 'reorderRequests')
       .mockResolvedValue(E.right(dbTeamRequests[0]));
 
     const result = teamRequestService.moveRequest(
@@ -577,12 +583,12 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(
         E.right({ request: dbTeamRequests[0], nextRequest: null }),
       );
     jest
-      .spyOn(teamRequestService, 'reorderRequests')
+      .spyOn(teamRequestService as any, 'reorderRequests')
       .mockResolvedValue(E.right(dbTeamRequests[0]));
 
     await teamRequestService.moveRequest(
@@ -608,12 +614,12 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(
         E.right({ request: dbTeamRequests[0], nextRequest: null }),
       );
     jest
-      .spyOn(teamRequestService, 'reorderRequests')
+      .spyOn(teamRequestService as any, 'reorderRequests')
       .mockResolvedValue(E.right(dbTeamRequests[0]));
 
     await teamRequestService.moveRequest(
@@ -639,7 +645,7 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(E.left(TEAM_REQ_NOT_FOUND));
 
     expect(
@@ -662,7 +668,7 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(E.left(TEAM_REQ_INVALID_TARGET_COLL_ID));
 
     expect(
@@ -685,13 +691,13 @@ describe('moveRequest', () => {
     };
 
     jest
-      .spyOn(teamRequestService, 'findRequestAndNextRequest')
+      .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(
         E.right({ request: dbTeamRequests[0], nextRequest: null }),
       );
 
     jest
-      .spyOn(teamRequestService, 'reorderRequests')
+      .spyOn(teamRequestService as any, 'reorderRequests')
       .mockResolvedValue(E.left(TEAM_REQ_REORDERING_FAILED));
 
     expect(

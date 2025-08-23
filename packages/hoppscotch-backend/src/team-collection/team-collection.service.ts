@@ -201,9 +201,7 @@ export class TeamCollectionService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = parentID
-        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${teamID} AND "parentID" = ${parentID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${teamID} AND "parentID" IS NULL FOR UPDATE`;
+      const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
 
       // Get the last order index

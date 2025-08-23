@@ -1080,9 +1080,7 @@ export class UserCollectionService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = destCollectionID
-        ? Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" = ${destCollectionID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" IS NULL FOR UPDATE`;
+      const lockQuery = Prisma.sql`LOCK TABLE "UserCollection" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
 
       // Get the last order index

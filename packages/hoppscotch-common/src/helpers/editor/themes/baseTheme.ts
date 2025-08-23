@@ -15,6 +15,7 @@ import {
   defaultHighlightStyle,
   foldKeymap,
   foldGutter,
+  codeFolding,
   indentOnInput,
   bracketMatching,
   syntaxHighlighting,
@@ -22,6 +23,7 @@ import {
 import { tags as t } from "@lezer/highlight"
 import { Extension, EditorState } from "@codemirror/state"
 import { history, historyKeymap, defaultKeymap } from "@codemirror/commands"
+
 import {
   closeBrackets,
   closeBracketsKeymap,
@@ -397,6 +399,134 @@ export const baseHighlightStyle = HighlightStyle.define([
   { tag: t.invalid, color: editorInvalidColor },
 ])
 
+/**
+ * Count the number of top-level items in an array body string.
+ * 
+ * @param body - The string content inside `[...]` (without the brackets).
+ */
+function countArrayItemsInBody(body: string): number {
+  let inString = false, escape = false
+  let bracketDepth = 0, braceDepth = 0
+  let items = 0
+  let sawContent = false
+
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i]
+
+    if (escape) { escape = false; continue }
+    if (ch === "\\") { escape = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+
+    if (ch === "[") bracketDepth++
+    else if (ch === "]") bracketDepth--
+    else if (ch === "{") braceDepth++
+    else if (ch === "}") braceDepth--
+
+    if (!sawContent && !/\s/.test(ch)) sawContent = true
+
+    // top-level comma = element separator
+    if (ch === "," && bracketDepth === 0 && braceDepth === 0) {
+      items++
+    }
+  }
+
+  if (!sawContent) return 0 // empty []
+  return items + 1
+}
+
+/**
+ * Count the number of top-level fields in an object body string.
+ * 
+ * @param body - The string content inside `{...}` (without the braces).
+ */
+function countObjectFieldsInBody(body: string): number {
+  let inString = false, escape = false
+  let bracketDepth = 0, braceDepth = 0
+  let fields = 0
+
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i]
+
+    if (escape) { escape = false; continue }
+    if (ch === "\\") { escape = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+
+    if (ch === "[") bracketDepth++
+    else if (ch === "]") bracketDepth--
+    else if (ch === "{") braceDepth++
+    else if (ch === "}") braceDepth--
+
+    // a colon at top level indicates a key-value pair
+    if (ch === ":" && bracketDepth === 0 && braceDepth === 0) {
+      fields++
+    }
+  }
+
+  return fields
+}
+
+/**
+ * Compute a fold summary string for a JSON range.
+ * 
+ * @param state - Current editor state
+ * @param from - Start position of the fold
+ * @param to - End position of the fold
+ */
+function computeJsonSummary(state: EditorState, from: number, to: number): string {
+  const text = state.sliceDoc(from, to).trim()
+  const prevChar = from > 0 ? state.sliceDoc(from - 1, from) : ""
+  const nextChar = state.sliceDoc(to, to + 1)
+
+  // Try full JSON parse first (works if selection is a valid value)
+  try {
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      return `[ … ] (${parsed.length} items)`
+    }
+    if (parsed && typeof parsed === "object") {
+      return `{ … } (${Object.keys(parsed).length} fields)`
+    }
+  } catch {
+    // Not standalone JSON → fallback to counting
+  }
+
+  // Infer container type by surrounding characters
+  if (prevChar === "[" || nextChar === "]") {
+    return `[ … ] (${countArrayItemsInBody(text)} items)`
+  }
+  if (prevChar === "{" || nextChar === "}" || text.includes(":")) {
+    return `{ … } (${countObjectFieldsInBody(text)} fields)`
+  }
+
+  return "…"
+}
+
+/**
+ * Extension: JSON folding with informative summaries.
+ */
+export const jsonFoldSummary: Extension = codeFolding({
+  preparePlaceholder: (state, range) => computeJsonSummary(state, range.from, range.to),
+  placeholderDOM: (view, onclick, prepared) => {
+    const span = document.createElement("span")
+    span.className = "cm-foldPlaceholder cm-jsonFoldSummary"
+    span.textContent = typeof prepared === "string" ? prepared : "…"
+    span.addEventListener("click", onclick)
+    return span
+  },
+})
+
+/**
+ * Theme for JSON fold summary.
+ */
+export const jsonFoldSummaryTheme = EditorView.theme({
+  ".cm-jsonFoldSummary": {
+    opacity: "0.7",
+    fontStyle: "italic",
+  },
+})
+
 export const basicSetup: Extension = [
   lineNumbers(),
   highlightActiveLineGutter(),
@@ -406,6 +536,8 @@ export const basicSetup: Extension = [
     openText: "▾",
     closedText: "▸",
   }),
+  jsonFoldSummary,
+  jsonFoldSummaryTheme,
   drawSelection(),
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),

@@ -405,8 +405,10 @@ export const baseHighlightStyle = HighlightStyle.define([
  * @param body - The string content inside `[...]` (without the brackets).
  */
 function countArrayItemsInBody(body: string): number {
-  let inString = false, escape = false
-  let bracketDepth = 0, braceDepth = 0
+  let inString = false
+  let escape = false
+  let bracketDepth = 0
+  let braceDepth = 0
   let items = 0
   let sawContent = false
 
@@ -441,8 +443,10 @@ function countArrayItemsInBody(body: string): number {
  * @param body - The string content inside `{...}` (without the braces).
  */
 function countObjectFieldsInBody(body: string): number {
-  let inString = false, escape = false
-  let bracketDepth = 0, braceDepth = 0
+  let inString = false
+  let escape = false
+  let bracketDepth = 0
+  let braceDepth = 0
   let fields = 0
 
   for (let i = 0; i < body.length; i++) {
@@ -475,9 +479,18 @@ function countObjectFieldsInBody(body: string): number {
  * @param to - End position of the fold
  */
 function computeJsonSummary(state: EditorState, from: number, to: number): string {
-  const text = state.sliceDoc(from, to).trim()
-  const prevChar = from > 0 ? state.sliceDoc(from - 1, from) : ""
-  const nextChar = state.sliceDoc(to, to + 1)
+  const docLength = state.doc.length
+  const sliceFrom = Math.max(0, from - 1)
+  const sliceTo = Math.min(docLength, to + 1)
+  const slice = state.sliceDoc(sliceFrom, sliceTo)
+
+  // Indices relative to slice
+  const textStart = from - sliceFrom
+  const textEnd = textStart + (to - from)
+
+  const text = slice.substring(textStart, textEnd).trim()
+  const prevChar = from > 0 ? slice.charAt(textStart - 1) : ""
+  const nextChar = (textEnd < slice.length) ? slice.charAt(textEnd) : ""
 
   // Try full JSON parse first (works if selection is a valid value)
   try {

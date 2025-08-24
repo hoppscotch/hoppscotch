@@ -400,16 +400,22 @@ export const baseHighlightStyle = HighlightStyle.define([
 ])
 
 /**
- * Count the number of top-level items in an array body string.
+ * Generic body counter (array or object).
  * 
- * @param body - The string content inside `[...]` (without the brackets).
+ * @param body - String content inside `[...]` or `{...}`.
+ * @param trigger - The character that indicates a top-level separator (`,` or `:`).
+ * @param finalize - Function to adjust the final count (e.g., add +1 for arrays).
  */
-function countArrayItemsInBody(body: string): number {
+function countBodyUnits(
+  body: string,
+  trigger: string,
+  finalize: (count: number, sawContent: boolean) => number
+): number {
   let inString = false
   let escape = false
   let bracketDepth = 0
   let braceDepth = 0
-  let items = 0
+  let count = 0
   let sawContent = false
 
   for (let i = 0; i < body.length; i++) {
@@ -427,48 +433,28 @@ function countArrayItemsInBody(body: string): number {
 
     if (!sawContent && !/\s/.test(ch)) sawContent = true
 
-    // top-level comma = element separator
-    if (ch === "," && bracketDepth === 0 && braceDepth === 0) {
-      items++
+    if (ch === trigger && bracketDepth === 0 && braceDepth === 0) {
+      count++
     }
   }
 
-  if (!sawContent) return 0 // empty []
-  return items + 1
+  return finalize(count, sawContent)
+}
+
+/**
+ * Count the number of top-level items in an array body string.
+ */
+function countArrayItemsInBody(body: string): number {
+  return countBodyUnits(body, ",", (count, sawContent) =>
+    !sawContent ? 0 : count + 1
+  )
 }
 
 /**
  * Count the number of top-level fields in an object body string.
- * 
- * @param body - The string content inside `{...}` (without the braces).
  */
 function countObjectFieldsInBody(body: string): number {
-  let inString = false
-  let escape = false
-  let bracketDepth = 0
-  let braceDepth = 0
-  let fields = 0
-
-  for (let i = 0; i < body.length; i++) {
-    const ch = body[i]
-
-    if (escape) { escape = false; continue }
-    if (ch === "\\") { escape = true; continue }
-    if (ch === '"') { inString = !inString; continue }
-    if (inString) continue
-
-    if (ch === "[") bracketDepth++
-    else if (ch === "]") bracketDepth--
-    else if (ch === "{") braceDepth++
-    else if (ch === "}") braceDepth--
-
-    // a colon at top level indicates a key-value pair
-    if (ch === ":" && bracketDepth === 0 && braceDepth === 0) {
-      fields++
-    }
-  }
-
-  return fields
+  return countBodyUnits(body, ":", (count) => count)
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   deleteUserRequest,
   duplicateUserCollection,
   editGQLUserRequest,
+  importUserCollectionsFromJSON,
   updateUserCollection,
 } from "./api"
 
@@ -39,8 +40,8 @@ export const gqlCollectionsMapper = createMapper<string, string>()
 // gqlRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const gqlRequestsMapper = createMapper<string, string>()
 
-// temp implementation until the backend implements an endpoint that accepts an entire collection
-// TODO: use importCollectionsJSON to do this
+// Optimized implementation using importUserCollectionsFromJSON for bulk operations
+// This replaces individual createGQLRootUserCollection/createGQLChildUserCollection/createGQLUserRequest calls
 const recursivelySyncCollections = async (
   collection: HoppCollection,
   collectionPath: string,
@@ -194,22 +195,58 @@ export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = graphqlCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    if (entries.length === 0) return
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Use the bulk import API instead of individual calls
+    const jsonString = JSON.stringify(entries)
+
+    const result = await importUserCollectionsFromJSON(
+      jsonString,
+      ReqType.Gql,
+      undefined // undefined for root collections
+    )
+
+    if (E.isRight(result)) {
+      // The backend handles creating all collections and requests in a single transaction
+      // The frontend collections will be updated through subscriptions
+      console.log("GraphQL Collections imported successfully")
+    } else {
+      console.error("Failed to import GraphQL collections:", result.left)
+      // Fallback to individual calls if bulk import fails
+      let indexStart =
+        graphqlCollectionStore.value.state.length - entries.length
+
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
-    const lastCreatedCollectionIndex =
-      graphqlCollectionStore.value.state.length - 1
+    // Use the bulk import API for single collection as well
+    const jsonString = JSON.stringify([collection])
 
-    await recursivelySyncCollections(
-      collection,
-      `${lastCreatedCollectionIndex}`
+    const result = await importUserCollectionsFromJSON(
+      jsonString,
+      ReqType.Gql,
+      undefined // undefined for root collections
     )
+
+    if (E.isRight(result)) {
+      // The backend handles creating the collection and its requests in a single transaction
+      console.log("GraphQL Collection imported successfully")
+    } else {
+      console.error("Failed to import GraphQL collection:", result.left)
+      // Fallback to individual calls if bulk import fails
+      const lastCreatedCollectionIndex =
+        graphqlCollectionStore.value.state.length - 1
+
+      await recursivelySyncCollections(
+        collection,
+        `${lastCreatedCollectionIndex}`
+      )
+    }
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

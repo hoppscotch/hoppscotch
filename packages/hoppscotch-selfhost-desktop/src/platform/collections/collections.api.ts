@@ -37,6 +37,9 @@ import {
   GetUserRootCollectionsDocument,
   GetUserRootCollectionsQuery,
   GetUserRootCollectionsQueryVariables,
+  ImportUserCollectionsFromJsonDocument,
+  ImportUserCollectionsFromJsonMutation,
+  ImportUserCollectionsFromJsonMutationVariables,
   MoveUserCollectionDocument,
   MoveUserCollectionMutation,
   MoveUserCollectionMutationVariables,
@@ -294,6 +297,21 @@ export const exportUserCollectionsToJSON = (
     query: ExportUserCollectionsToJsonDocument,
     variables: { collectionID, collectionType },
   })
+
+export const importUserCollectionsFromJSON = (
+  jsonString: string,
+  reqType: ReqType,
+  parentCollectionID?: string
+) =>
+  runMutation<
+    ImportUserCollectionsFromJsonMutation,
+    ImportUserCollectionsFromJsonMutationVariables,
+    ""
+  >(ImportUserCollectionsFromJsonDocument, {
+    jsonString,
+    reqType,
+    parentCollectionID,
+  })()
 
 export const runUserCollectionCreatedSubscription = () =>
   runGQLSubscription({ query: UserCollectionCreatedDocument, variables: {} })

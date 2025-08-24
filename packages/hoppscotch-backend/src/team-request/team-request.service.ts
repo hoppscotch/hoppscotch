@@ -113,7 +113,7 @@ export class TeamRequestService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "teamID" = ${dbTeamReq.teamID} AND "collectionID" = ${dbTeamReq.collectionID} FOR UPDATE`;
+      const lockQuery = Prisma.sql`LOCK TABLE "TeamRequest" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
 
       await tx.teamRequest.updateMany({

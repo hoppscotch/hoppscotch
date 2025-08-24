@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamCollection } from './team-collection.model';
 import {
@@ -505,16 +505,13 @@ export class TeamCollectionService {
    * @param dataCondition Increment/Decrement OrderIndex condition
    */
   private async updateOrderIndex(
-    teamID: string,
     parentID: string,
     orderIndexCondition: Prisma.IntFilter,
     dataCondition: Prisma.IntFieldUpdateOperationsInput,
   ) {
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = parentID
-        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${teamID} AND "parentID" = ${parentID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${teamID} AND "parentID" IS NULL FOR UPDATE`;
+      const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
 
       // update orderIndexes
@@ -607,7 +604,6 @@ export class TeamCollectionService {
 
     // Update orderIndexes in TeamCollection table for user
     await this.updateOrderIndex(
-      collection.right.teamID,
       collectionData.right.parentID,
       { gt: collectionData.right.orderIndex },
       { decrement: 1 },
@@ -619,42 +615,60 @@ export class TeamCollectionService {
   /**
    * Change parentID of TeamCollection's
    *
-   * @param collectionID The collection ID
-   * @param parentCollectionID The new parent's collection ID or change to root collection
-   * @returns  If successful return an Either of true
+   * @param collection The collection that is being moved
+   * @param newParentID The new parent's collection ID or change to root collection
+   * @returns  If successful return an Either of collection or error message
    */
-  private async changeParent(
+  private async changeParentAndUpdateOrderIndex(
     collection: DBTeamCollection,
-    parentCollectionID: string | null,
+    newParentID: string | null,
   ) {
-    try {
-      let updatedCollection: DBTeamCollection = null;
-      updatedCollection = await this.prisma.$transaction(async (tx) => {
-        // lock the rows
-        const lockQuery = parentCollectionID
-          ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${collection.teamID} AND "parentID" = ${parentCollectionID} FOR UPDATE`
-          : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "teamID" = ${collection.teamID} AND "parentID" IS NULL FOR UPDATE`;
-        await tx.$executeRaw(lockQuery);
+    const updatedCollection: DBTeamCollection = null;
 
+    try {
+      await this.prisma.$transaction(async (tx) => {
         // fetch last collection
-        const lastCollection = await tx.teamCollection.findFirst({
-          where: { teamID: collection.teamID, parentID: parentCollectionID },
+        const lastCollectionUnderNewParent = await tx.teamCollection.findFirst({
+          where: { teamID: collection.teamID, parentID: newParentID },
           orderBy: { orderIndex: 'desc' },
         });
 
-        return tx.teamCollection.update({
-          where: { id: collection.id },
-          data: {
-            // if parentCollectionID == null, collection becomes root collection
-            // if parentCollectionID != null, collection becomes child collection
-            parentID: parentCollectionID,
-            orderIndex: lastCollection ? lastCollection.orderIndex + 1 : 1,
-          },
-        });
+        try {
+          // update collection's parentID and orderIndex
+          await tx.teamCollection.update({
+            where: { id: collection.id },
+            data: {
+              // if parentCollectionID == null, collection becomes root collection
+              // if parentCollectionID != null, collection becomes child collection
+              parentID: newParentID,
+              orderIndex: lastCollectionUnderNewParent
+                ? lastCollectionUnderNewParent.orderIndex + 1
+                : 1,
+            },
+          });
+
+          // decrement orderIndex of all next sibling collections from original collection
+          await tx.teamCollection.updateMany({
+            where: {
+              teamID: collection.teamID,
+              parentID: collection.parentID,
+              orderIndex: { gt: collection.orderIndex },
+            },
+            data: {
+              orderIndex: { decrement: 1 },
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
 
       return E.right(this.cast(updatedCollection));
     } catch (error) {
+      console.error(
+        'Error from TeamCollectionService.changeParentAndUpdateOrderIndex',
+        error,
+      );
       return E.left(TEAM_COLL_NOT_FOUND);
     }
   }
@@ -728,16 +742,12 @@ export class TeamCollectionService {
       }
 
       // Change parent from child to root i.e child collection becomes a root collection
-      const updatedCollection = await this.changeParent(collection.right, null);
-      if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
-
       // Move child collection into root and update orderIndexes for root teamCollections
-      await this.updateOrderIndex(
-        collection.right.teamID,
-        collection.right.parentID,
-        { gt: collection.right.orderIndex },
-        { decrement: 1 },
+      const updatedCollection = await this.changeParentAndUpdateOrderIndex(
+        collection.right,
+        null,
       );
+      if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
 
       this.pubsub.publish(
         `team_coll/${collection.right.teamID}/coll_moved`,
@@ -772,19 +782,12 @@ export class TeamCollectionService {
     }
 
     // Change parent from null to teamCollection i.e collection becomes a child collection
-    const updatedCollection = await this.changeParent(
+    // Move root/child collection into another child collection and update orderIndexes of the previous parent
+    const updatedCollection = await this.changeParentAndUpdateOrderIndex(
       collection.right,
       destCollection.right.id,
     );
     if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
-
-    // Move root/child collection into another child collection and update orderIndexes of the previous parent
-    await this.updateOrderIndex(
-      collection.right.teamID,
-      collection.right.parentID,
-      { gt: collection.right.orderIndex },
-      { decrement: 1 },
-    );
 
     this.pubsub.publish(
       `team_coll/${collection.right.teamID}/coll_moved`,

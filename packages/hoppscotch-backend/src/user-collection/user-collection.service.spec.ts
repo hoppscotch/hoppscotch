@@ -1233,13 +1233,10 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({ ...childRESTUserCollection, parentID: null }),
       );
-    jest
-      .spyOn(userCollectionService as any, 'updateOrderIndex')
-      .mockReturnValueOnce(null);
 
     const result = await userCollectionService.moveUserCollection(
       childRESTUserCollection.id,
@@ -1257,7 +1254,7 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(E.left(USER_COLL_NOT_FOUND));
 
     const result = await userCollectionService.moveUserCollection(
@@ -1273,13 +1270,10 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({ ...childRESTUserCollection, parentID: null }),
       );
-    jest
-      .spyOn(userCollectionService as any, 'updateOrderIndex')
-      .mockReturnValueOnce(null);
 
     await userCollectionService.moveUserCollection(
       childRESTUserCollection.id,
@@ -1306,16 +1300,13 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...rootRESTUserCollection,
           parentID: childRESTUserCollection_2.id,
         }),
       );
-    jest
-      .spyOn(userCollectionService as any, 'updateOrderIndex')
-      .mockReturnValueOnce(null);
 
     const result = await userCollectionService.moveUserCollection(
       rootRESTUserCollection.id,
@@ -1339,16 +1330,13 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...rootRESTUserCollection,
           parentID: childRESTUserCollection.id,
         }),
       );
-    jest
-      .spyOn(userCollectionService as any, 'updateOrderIndex')
-      .mockReturnValueOnce(null);
 
     const result = await userCollectionService.moveUserCollection(
       rootRESTUserCollection.id,
@@ -1372,16 +1360,13 @@ describe('moveUserCollection', () => {
       .spyOn(userCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(userCollectionService as any, 'changeParent')
+      .spyOn(userCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...rootRESTUserCollection,
           parentID: childRESTUserCollection.id,
         }),
       );
-    jest
-      .spyOn(userCollectionService as any, 'updateOrderIndex')
-      .mockReturnValueOnce(null);
 
     await userCollectionService.moveUserCollection(
       rootRESTUserCollection.id,

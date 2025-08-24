@@ -13,10 +13,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { GetUserRequestArgs } from './input-type.args';
 import { MoveUserRequestArgs } from './input-type.args';
-import {
-  CreateUserRequestArgs,
-  UpdateUserRequestArgs,
-} from './input-type.args';
+import { UpdateUserRequestArgs } from './input-type.args';
 import { UserRequest } from './user-request.model';
 import { UserRequestService } from './user-request.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -579,7 +576,7 @@ describe('UserRequestService', () => {
       const nextRequest = dbUserRequests[4];
 
       mockPrisma.$transaction.mockRejectedValueOnce(new Error());
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       const result = await (userRequestService as any).reorderRequests(
         srcCollID,

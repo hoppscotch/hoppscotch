@@ -226,7 +226,7 @@ export class UserRequestService {
 
     await this.prisma.$transaction(async (tx) => {
       // lock the rows
-      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "userUid" = ${user.uid} AND "collectionID" = ${request.collectionID} FOR UPDATE`;
+      const lockQuery = Prisma.sql`LOCK TABLE "UserRequest" IN EXCLUSIVE MODE`;
       await tx.$executeRaw(lockQuery);
 
       await tx.userRequest.updateMany({

@@ -746,7 +746,7 @@ describe('createCollection', () => {
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
 
-    const result = await teamCollectionService.createCollection(
+    await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
       JSON.stringify(childTeamCollection.data),
@@ -766,7 +766,7 @@ describe('createCollection', () => {
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
-    const result = await teamCollectionService.createCollection(
+    await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
       rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
@@ -1018,13 +1018,10 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({ ...childTeamCollectionCasted, parentID: null }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     const result = await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1041,7 +1038,7 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
 
     const result = await teamCollectionService.moveCollection(
@@ -1056,13 +1053,10 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({ ...childTeamCollectionCasted, parentID: null }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     await teamCollectionService.moveCollection(childTeamCollection.id, null);
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -1085,16 +1079,13 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...rootTeamCollectionsCasted,
           parentID: childTeamCollection.id,
         }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -1117,16 +1108,13 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...rootTeamCollectionsCasted,
           parentID: childTeamCollection.id,
         }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -1153,16 +1141,13 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...childTeamCollectionCasted,
           parentID: childTeamCollection_2.id,
         }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     const result = await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1185,16 +1170,13 @@ describe('moveCollection', () => {
       .spyOn(teamCollectionService as any, 'isParent')
       .mockResolvedValueOnce(O.some(true));
     jest
-      .spyOn(teamCollectionService as any, 'changeParent')
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
       .mockResolvedValueOnce(
         E.right({
           ...childTeamCollectionCasted,
           parentID: childTeamCollection_2.id,
         }),
       );
-    jest
-      .spyOn(teamCollectionService as any, 'updateOrderIndex')
-      .mockResolvedValueOnce(undefined);
 
     await teamCollectionService.moveCollection(
       childTeamCollection.id,

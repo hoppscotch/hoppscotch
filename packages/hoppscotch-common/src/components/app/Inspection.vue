@@ -52,11 +52,11 @@
                 </HoppSmartLink>
               </span>
               <span
-                v-if="inspector.action && inspector.action.showAction"
+                v-if="inspector.action ? inspector.action.showAction : true"
                 class="flex space-x-2 p-2"
               >
                 <HoppButtonSecondary
-                  :label="inspector.action.text"
+                  :label="inspector.action?.text"
                   outline
                   filled
                   @click="

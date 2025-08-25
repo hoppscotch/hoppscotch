@@ -167,7 +167,6 @@ export function cascadeParentCollectionForProperties(
     const parentFolderHeaders = parentFolder.headers as
       | HoppRESTHeaders
       | GQLHeader[]
-
     const parentFolderVariables =
       parentFolder.variables as HoppCollectionVariable[]
 
@@ -182,7 +181,6 @@ export function cascadeParentCollectionForProperties(
         inheritedAuth: auth.inheritedAuth,
       }
     }
-
     if (parentFolderAuth?.authType !== "inherit") {
       auth = {
         parentID: [...path.slice(0, i + 1)].join("/"),
@@ -195,24 +193,17 @@ export function cascadeParentCollectionForProperties(
     if (parentFolderHeaders) {
       const activeHeaders = parentFolderHeaders.filter((h) => h.active)
       activeHeaders.forEach((header) => {
-        const index = headers.findIndex(
+        const idx = headers.findIndex(
           (h) => h.inheritedHeader?.key === header.key
         )
         const currentPath = [...path.slice(0, i + 1)].join("/")
-        if (index !== -1) {
-          // Replace the existing header with the same key
-          headers[index] = {
-            parentID: currentPath,
-            parentName: parentFolder.name,
-            inheritedHeader: header,
-          }
-        } else {
-          headers.push({
-            parentID: currentPath,
-            parentName: parentFolder.name,
-            inheritedHeader: header,
-          })
+        const headerObj = {
+          parentID: currentPath,
+          parentName: parentFolder.name,
+          inheritedHeader: header,
         }
+        if (idx !== -1) headers[idx] = headerObj
+        else headers.push(headerObj)
       })
     }
 

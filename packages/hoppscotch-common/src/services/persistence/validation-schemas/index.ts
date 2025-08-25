@@ -317,6 +317,7 @@ const HoppInheritedPropertySchema = z
     variables: z
       .array(
         z.object({
+          parentPath: z.optional(z.string()),
           parentID: z.string(),
           parentName: z.string(),
           inheritedVariables: z.array(CollectionVariable),

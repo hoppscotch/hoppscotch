@@ -217,7 +217,8 @@ export function updateInheritedPropertiesForAffectedRequests(
 
       // filter out the headers with the parentID as the path in the inheritedProperties
       const inheritedHeaders = inheritedProperties.headers.filter(
-        (header) => header.parentID === path
+        (header) =>
+          path.startsWith(header.parentID ?? "") || header.parentID === path
       )
 
       // merge the headers with the parentID as the path
@@ -228,7 +229,19 @@ export function updateInheritedPropertiesForAffectedRequests(
       tab.value.document.inheritedProperties.headers = mergedHeaders
     }
 
-    if (tab.value.document.inheritedProperties?.variables && collectionId) {
+    if (tab.value.document.inheritedProperties?.variables && !collectionId) {
+      // filter out the variables with the parentPath as the path in the inheritedProperties
+      const inheritedVariables = inheritedProperties.variables.filter(
+        (variable) =>
+          path.startsWith(variable.parentPath ?? "") ||
+          variable.parentPath === path
+      )
+
+      tab.value.document.inheritedProperties.variables = inheritedVariables
+    } else if (
+      tab.value.document.inheritedProperties?.variables &&
+      collectionId
+    ) {
       const tabInheritedVariables =
         tab.value.document.inheritedProperties.variables.filter(
           (variable) => variable.parentID !== collectionId

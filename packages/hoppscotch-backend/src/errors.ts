@@ -189,6 +189,12 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
+ * Could not find the team in the database
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_CREATION_FAILED = 'team_coll/creation_failed';
+
+/**
  * Cannot make parent collection a child of a collection that a child of itself
  * (TeamCollectionService)
  */
@@ -649,6 +655,13 @@ export const USER_COLL_NOT_SAME_TYPE = 'user_coll/type_mismatch' as const;
  */
 export const USER_COLL_IS_PARENT_COLL =
   'user_coll/user_collection_is_parent_coll' as const;
+
+/**
+ * User Collection Creation Failed
+ * (UserCollectionService)
+ */
+export const USER_COLLECTION_CREATION_FAILED =
+  'user_collection/creation_failed' as const;
 
 /**
  * User Collection Re-Ordering Failed

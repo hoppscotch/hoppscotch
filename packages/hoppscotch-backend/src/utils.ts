@@ -14,6 +14,15 @@ import { RESTError } from './types/RESTError';
 import * as crypto from 'crypto';
 
 /**
+ * Delays the execution for a given number of milliseconds.
+ * @param ms The number of milliseconds to delay
+ * @returns A promise that resolves after the delay
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * A workaround to throw an exception in an expression.
  * JS throw keyword creates a statement not an expression.
  * This function allows throw to be used as an expression

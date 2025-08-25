@@ -1,0 +1,11 @@
+mutation ImportUserCollectionsFromJSON(
+  $jsonString: String!
+  $reqType: ReqType!
+  $parentCollectionID: ID
+) {
+  importUserCollectionsFromJSON(
+    jsonString: $jsonString
+    reqType: $reqType
+    parentCollectionID: $parentCollectionID
+  )
+}

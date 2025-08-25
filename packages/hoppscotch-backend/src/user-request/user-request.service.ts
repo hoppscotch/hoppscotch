@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
@@ -130,32 +130,41 @@ export class UserRequestService {
     if (collection.right.type !== ReqType[type])
       return E.left(USER_REQUEST_INVALID_TYPE);
 
+    let newRequest: DbUserRequest = null;
     try {
-      const requestCount =
-        await this.getRequestsCountInCollection(collectionID);
+      newRequest = await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserRequest');
 
-      const request = await this.prisma.userRequest.create({
-        data: {
-          collectionID,
-          title,
-          request: jsonRequest.right,
-          type: ReqType[type],
-          orderIndex: requestCount + 1,
-          userUid: user.uid,
-        },
+          // fetch last user request
+          const lastUserRequest = await tx.userRequest.findFirst({
+            where: { userUid: user.uid, collectionID },
+            orderBy: { orderIndex: 'desc' },
+          });
+
+          return tx.userRequest.create({
+            data: {
+              collectionID,
+              title,
+              request: jsonRequest.right,
+              type: ReqType[type],
+              orderIndex: lastUserRequest ? lastUserRequest.orderIndex + 1 : 1,
+              userUid: user.uid,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-
-      const userRequest = this.cast(request);
-
-      await this.pubsub.publish(
-        `user_request/${user.uid}/created`,
-        userRequest,
-      );
-
-      return E.right(userRequest);
-    } catch (err) {
+    } catch (error) {
+      console.error('Error from UserRequestService.createRequest', error);
       return E.left(USER_REQUEST_CREATION_FAILED);
     }
+
+    const userRequest = this.cast(newRequest);
+    await this.pubsub.publish(`user_request/${user.uid}/created`, userRequest);
+    return E.right(userRequest);
   }
 
   /**
@@ -218,14 +227,28 @@ export class UserRequestService {
     });
     if (!request) return E.left(USER_REQUEST_NOT_FOUND);
 
-    await this.prisma.userRequest.updateMany({
-      where: {
-        collectionID: request.collectionID,
-        orderIndex: { gt: request.orderIndex },
-      },
-      data: { orderIndex: { decrement: 1 } },
-    });
-    await this.prisma.userRequest.delete({ where: { id } });
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserRequest');
+
+          await tx.userRequest.updateMany({
+            where: {
+              collectionID: request.collectionID,
+              orderIndex: { gt: request.orderIndex },
+            },
+            data: { orderIndex: { decrement: 1 } },
+          });
+
+          await tx.userRequest.delete({ where: { id } });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
+      });
+    } catch (error) {
+      return E.left(USER_REQUEST_NOT_FOUND);
+    }
 
     await this.pubsub.publish(
       `user_request/${user.uid}/deleted`,
@@ -337,13 +360,13 @@ export class UserRequestService {
     srcCollID: string,
     destCollID: string,
     requestID: string,
-    nextRequestID: string,
+    nextRequestID: string | null,
     user: AuthUser,
   ): Promise<
     | E.Left<string>
     | E.Right<{
         request: DbUserRequest;
-        nextRequest: DbUserRequest;
+        nextRequest: DbUserRequest | null;
       }>
   > {
     const request = await this.prisma.userRequest.findFirst({
@@ -374,7 +397,7 @@ export class UserRequestService {
    * @param nextRequest - request that comes after the updated request in its new position
    * @returns Promise of an Either of `DbUserRequest` object or error message
    */
-  async reorderRequests(
+  private async reorderRequests(
     srcCollID: string,
     request: DbUserRequest,
     destCollID: string,
@@ -384,6 +407,21 @@ export class UserRequestService {
       return await this.prisma.$transaction<
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
+        // lock the rows
+        await this.prisma.acquireLocks(tx, 'UserRequest', null, null, [
+          request.id,
+          nextRequest?.id,
+        ]);
+
+        request = await tx.userRequest.findUnique({
+          where: { id: request.id },
+        });
+        nextRequest = nextRequest
+          ? await tx.userRequest.findUnique({
+              where: { id: nextRequest.id },
+            })
+          : null;
+
         const isSameCollection = srcCollID === destCollID;
         const isMovingUp = nextRequest?.orderIndex < request.orderIndex; // false, if nextRequest is null
 
@@ -443,7 +481,8 @@ export class UserRequestService {
 
         return E.right(updatedRequest);
       });
-    } catch (err) {
+    } catch (error) {
+      console.error('Error from UserRequestService.reorderRequests', error);
       return E.left(USER_REQUEST_REORDERING_FAILED);
     }
   }

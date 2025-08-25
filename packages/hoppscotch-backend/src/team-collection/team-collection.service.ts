@@ -19,9 +19,11 @@ import {
   TEAM_REQ_PARENT_TREE_GEN_FAILED,
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
   TEAM_MEMBER_NOT_FOUND,
+  TEAM_COLL_CREATION_FAILED,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import {
+  delay,
   escapeSqlLikeString,
   isValidLength,
   transformCollectionData,
@@ -53,6 +55,7 @@ export class TeamCollectionService {
   ) {}
 
   TITLE_LENGTH = 3;
+  MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
    * Generate a Prisma query object representation of a collection and its child collections and requests
@@ -198,35 +201,49 @@ export class TeamCollectionService {
 
     const teamCollections: DBTeamCollection[] = [];
     let queryList: Prisma.TeamCollectionCreateInput[] = [];
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'TeamCollection');
 
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+          // Get the last order index
+          const lastEntry = await tx.teamCollection.findFirst({
+            where: { teamID, parentID },
+            orderBy: { orderIndex: 'desc' },
+            select: { orderIndex: true },
+          });
+          let lastOrderIndex = lastEntry ? lastEntry.orderIndex : 0;
 
-      // Get the last order index
-      const lastEntry = await tx.teamCollection.findFirst({
-        where: { teamID, parentID },
-        orderBy: { orderIndex: 'desc' },
-        select: { orderIndex: true },
+          // Generate Prisma Query Object for all child collections in collectionsList
+          queryList = collectionsList.right.map((x) =>
+            this.generatePrismaQueryObjForFBCollFolder(
+              x,
+              teamID,
+              ++lastOrderIndex,
+            ),
+          );
+
+          for (const query of queryList) {
+            const createdTeamColl = await tx.teamCollection.create({
+              data: {
+                ...query,
+                parent: parentID ? { connect: { id: parentID } } : undefined,
+              },
+            });
+            teamCollections.push(createdTeamColl);
+          }
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-      let lastOrderIndex = lastEntry ? lastEntry.orderIndex : 0;
-
-      // Generate Prisma Query Object for all child collections in collectionsList
-      queryList = collectionsList.right.map((x) =>
-        this.generatePrismaQueryObjForFBCollFolder(x, teamID, ++lastOrderIndex),
+    } catch (error) {
+      console.error(
+        'Error from TeamCollectionService.importCollectionsFromJSON',
+        error,
       );
-
-      for (const query of queryList) {
-        const createdTeamColl = await tx.teamCollection.create({
-          data: {
-            ...query,
-            parent: parentID ? { connect: { id: parentID } } : undefined,
-          },
-        });
-        teamCollections.push(createdTeamColl);
-      }
-    });
+      return E.left(TEAM_COLL_CREATION_FAILED);
+    }
 
     teamCollections.forEach((collection) =>
       this.pubsub.publish(
@@ -436,29 +453,38 @@ export class TeamCollectionService {
       data = jsonReq.right;
     }
 
-    const teamCollection = await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    let teamCollection: DBTeamCollection | null = null;
+    try {
+      teamCollection = await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'TeamCollection');
 
-      // fetch last collection
-      const lastCollection = await tx.teamCollection.findFirst({
-        where: { teamID, parentID },
-        orderBy: { orderIndex: 'desc' },
-        select: { orderIndex: true },
-      });
+          // fetch last collection
+          const lastCollection = await tx.teamCollection.findFirst({
+            where: { teamID, parentID },
+            orderBy: { orderIndex: 'desc' },
+            select: { orderIndex: true },
+          });
 
-      // create new collection
-      return tx.teamCollection.create({
-        data: {
-          title,
-          teamID,
-          parentID: parentID ? parentID : undefined,
-          data: data ?? undefined,
-          orderIndex: lastCollection ? lastCollection.orderIndex + 1 : 1,
-        },
+          // create new collection
+          return tx.teamCollection.create({
+            data: {
+              title,
+              teamID,
+              parentID: parentID ? parentID : undefined,
+              data: data ?? undefined,
+              orderIndex: lastCollection ? lastCollection.orderIndex + 1 : 1,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-    });
+    } catch (error) {
+      console.error('Error from TeamCollectionService.createCollection', error);
+      return E.left(TEAM_COLL_CREATION_FAILED);
+    }
 
     this.pubsub.publish(
       `team_coll/${teamID}/coll_added`,
@@ -500,51 +526,56 @@ export class TeamCollectionService {
   /**
    * Update the OrderIndex of all collections in given parentID
    *
-   * @param parentID The Parent collectionID
+   * @param collection The collection to delete
    * @param orderIndexCondition Condition to decide what collections will be updated
    * @param dataCondition Increment/Decrement OrderIndex condition
    */
-  private async updateOrderIndex(
-    parentID: string,
+  private async deleteCollectionAndUpdateSiblingsOrderIndex(
+    collection: DBTeamCollection,
     orderIndexCondition: Prisma.IntFilter,
     dataCondition: Prisma.IntFieldUpdateOperationsInput,
   ) {
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "TeamCollection" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    let retryCount = 0;
+    while (retryCount < this.MAX_RETRIES) {
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          try {
+            // lock the rows
+            await this.prisma.lockTableExclusive(tx, 'TeamCollection');
 
-      // update orderIndexes
-      await tx.teamCollection.updateMany({
-        where: {
-          parentID: parentID,
-          orderIndex: orderIndexCondition,
-        },
-        data: { orderIndex: dataCondition },
-      });
-    });
+            await this.prisma.teamCollection.delete({
+              where: { id: collection.id },
+            });
 
-    return;
-  }
+            // update siblings orderIndexes
+            await tx.teamCollection.updateMany({
+              where: {
+                parentID: collection.parentID,
+                orderIndex: orderIndexCondition,
+              },
+              data: { orderIndex: dataCondition },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
+        });
 
-  /**
-   * Delete a TeamCollection from the DB
-   *
-   * @param collectionID The Collection Id
-   * @returns The deleted TeamCollection
-   */
-  private async removeTeamCollection(collectionID: string) {
-    try {
-      const deletedTeamCollection = await this.prisma.teamCollection.delete({
-        where: {
-          id: collectionID,
-        },
-      });
+        break;
+      } catch (error) {
+        console.error(
+          'Error from TeamCollectionService.updateOrderIndex',
+          error,
+        );
+        retryCount++;
+        if (retryCount >= this.MAX_RETRIES)
+          return E.left(TEAM_COL_REORDERING_FAILED);
 
-      return E.right(deletedTeamCollection);
-    } catch (error) {
-      return E.left(TEAM_COLL_NOT_FOUND);
+        await delay(retryCount * 100);
+        console.log(`Retrying updateOrderIndex... (${retryCount})`);
+      }
     }
+
+    return E.right(true);
   }
 
   /**
@@ -573,19 +604,20 @@ export class TeamCollectionService {
       },
     });
 
-    // Delete collection from TeamCollection table
-    const deletedTeamCollection = await this.removeTeamCollection(
-      collection.id,
+    // Update orderIndexes in TeamCollection table for user
+    const isDeleted = await this.deleteCollectionAndUpdateSiblingsOrderIndex(
+      collection,
+      { gt: collection.orderIndex },
+      { decrement: 1 },
     );
-    if (E.isLeft(deletedTeamCollection))
-      return E.left(deletedTeamCollection.left);
+    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
 
     this.pubsub.publish(
-      `team_coll/${deletedTeamCollection.right.teamID}/coll_removed`,
-      deletedTeamCollection.right.id,
+      `team_coll/${collection.teamID}/coll_removed`,
+      collection.id,
     );
 
-    return E.right(deletedTeamCollection.right);
+    return E.right(collection);
   }
 
   /**
@@ -601,13 +633,6 @@ export class TeamCollectionService {
     // Delete all child collections and requests in the collection
     const collectionData = await this.deleteCollectionData(collection.right);
     if (E.isLeft(collectionData)) return E.left(collectionData.left);
-
-    // Update orderIndexes in TeamCollection table for user
-    await this.updateOrderIndex(
-      collectionData.right.parentID,
-      { gt: collectionData.right.orderIndex },
-      { decrement: 1 },
-    );
 
     return E.right(true);
   }
@@ -627,13 +652,14 @@ export class TeamCollectionService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // fetch last collection
-        const lastCollectionUnderNewParent = await tx.teamCollection.findFirst({
-          where: { teamID: collection.teamID, parentID: newParentID },
-          orderBy: { orderIndex: 'desc' },
-        });
-
         try {
+          // fetch last collection
+          const lastCollectionUnderNewParent =
+            await tx.teamCollection.findFirst({
+              where: { teamID: collection.teamID, parentID: newParentID },
+              orderBy: { orderIndex: 'desc' },
+            });
+
           // update collection's parentID and orderIndex
           await tx.teamCollection.update({
             where: { id: collection.id },
@@ -832,38 +858,44 @@ export class TeamCollectionService {
       // nextCollectionID == null i.e move collection to the end of the list
       try {
         await this.prisma.$transaction(async (tx) => {
-          // Step 0: lock the rows
-          const lockQuery = collection.right.parentID
-            ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${collection.right.parentID} FOR UPDATE`
-            : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
-          await tx.$executeRaw(lockQuery);
+          try {
+            // Step 0: lock the rows
+            await this.prisma.acquireLocks(
+              tx,
+              'TeamCollection',
+              null,
+              collectionID,
+            );
 
-          // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
-          const collectionInTx = await tx.teamCollection.findFirst({
-            where: { id: collection.right.id },
-            select: { orderIndex: true },
-          });
-          await tx.teamCollection.updateMany({
-            where: {
-              parentID: collection.right.parentID,
-              orderIndex: {
-                gte: collectionInTx.orderIndex + 1,
+            // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
+            const collectionInTx = await tx.teamCollection.findFirst({
+              where: { id: collection.right.id },
+              select: { orderIndex: true },
+            });
+            await tx.teamCollection.updateMany({
+              where: {
+                parentID: collection.right.parentID,
+                orderIndex: {
+                  gte: collectionInTx.orderIndex + 1,
+                },
               },
-            },
-            data: {
-              orderIndex: { decrement: 1 },
-            },
-          });
+              data: {
+                orderIndex: { decrement: 1 },
+              },
+            });
 
-          // Step 2: Update orderIndex of collection to length of list
-          await tx.teamCollection.update({
-            where: { id: collection.right.id },
-            data: {
-              orderIndex: await this.getCollectionCount(
-                collection.right.parentID,
-              ),
-            },
-          });
+            // Step 2: Update orderIndex of collection to length of list
+            await tx.teamCollection.update({
+              where: { id: collection.right.id },
+              data: {
+                orderIndex: await this.getCollectionCount(
+                  collection.right.parentID,
+                ),
+              },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
         });
 
         this.pubsub.publish(
@@ -891,52 +923,58 @@ export class TeamCollectionService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // Step 0: lock the rows
-        const lockQuery = collection.right.parentID
-          ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${collection.right.parentID} FOR UPDATE`
-          : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
-        await tx.$executeRaw(lockQuery);
+        try {
+          // Step 0: lock the rows
+          await this.prisma.acquireLocks(
+            tx,
+            'TeamCollection',
+            null,
+            collection.right.parentID,
+          );
 
-        // Step 1: Determine if we are moving collection up or down the list
-        const collectionInTx = await tx.teamCollection.findFirst({
-          where: { id: collectionID },
-          select: { orderIndex: true },
-        });
-        const subsequentCollectionInTx = await tx.teamCollection.findFirst({
-          where: { id: nextCollectionID },
-          select: { orderIndex: true },
-        });
-        const isMovingUp =
-          subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
+          // Step 1: Determine if we are moving collection up or down the list
+          const collectionInTx = await tx.teamCollection.findFirst({
+            where: { id: collectionID },
+            select: { orderIndex: true },
+          });
+          const subsequentCollectionInTx = await tx.teamCollection.findFirst({
+            where: { id: nextCollectionID },
+            select: { orderIndex: true },
+          });
+          const isMovingUp =
+            subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
 
-        // Step 2: Update OrderIndex of items in list depending on moving up or down
-        const updateFrom = isMovingUp
-          ? subsequentCollectionInTx.orderIndex
-          : collectionInTx.orderIndex + 1;
+          // Step 2: Update OrderIndex of items in list depending on moving up or down
+          const updateFrom = isMovingUp
+            ? subsequentCollectionInTx.orderIndex
+            : collectionInTx.orderIndex + 1;
 
-        const updateTo = isMovingUp
-          ? collectionInTx.orderIndex - 1
-          : subsequentCollectionInTx.orderIndex - 1;
+          const updateTo = isMovingUp
+            ? collectionInTx.orderIndex - 1
+            : subsequentCollectionInTx.orderIndex - 1;
 
-        await tx.teamCollection.updateMany({
-          where: {
-            parentID: collection.right.parentID,
-            orderIndex: { gte: updateFrom, lte: updateTo },
-          },
-          data: {
-            orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
-          },
-        });
+          await tx.teamCollection.updateMany({
+            where: {
+              parentID: collection.right.parentID,
+              orderIndex: { gte: updateFrom, lte: updateTo },
+            },
+            data: {
+              orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
+            },
+          });
 
-        // Step 3: Update OrderIndex of collection
-        await tx.teamCollection.update({
-          where: { id: collection.right.id },
-          data: {
-            orderIndex: isMovingUp
-              ? subsequentCollectionInTx.orderIndex
-              : subsequentCollectionInTx.orderIndex - 1,
-          },
-        });
+          // Step 3: Update OrderIndex of collection
+          await tx.teamCollection.update({
+            where: { id: collection.right.id },
+            data: {
+              orderIndex: isMovingUp
+                ? subsequentCollectionInTx.orderIndex
+                : subsequentCollectionInTx.orderIndex - 1,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
 
       this.pubsub.publish(

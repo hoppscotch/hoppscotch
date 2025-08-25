@@ -885,26 +885,17 @@ describe('deleteCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND when collectionID is invalid when deleting TeamCollection from UserCollectionTable ', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.teamCollection.delete.mockRejectedValueOnce('RecordNotFound');
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'deleteCollectionData')
+      .mockResolvedValueOnce(E.left(TEAM_COL_REORDERING_FAILED));
 
     const result = await teamCollectionService.deleteCollection(
       rootTeamCollection.id,
     );
-    expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
+    expect(result).toEqualLeft(TEAM_COL_REORDERING_FAILED);
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_removed" if TeamCollection is deleted successfully', async () => {

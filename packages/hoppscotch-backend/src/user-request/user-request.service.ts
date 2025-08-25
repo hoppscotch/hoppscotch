@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { UserRequest } from './user-request.model';
-import { UserRequest as DbUserRequest, Prisma } from '@prisma/client';
+import { UserRequest as DbUserRequest } from '@prisma/client';
 import {
   USER_COLLECTION_NOT_FOUND,
   USER_REQUEST_CREATION_FAILED,
@@ -133,26 +133,29 @@ export class UserRequestService {
     let newRequest: DbUserRequest = null;
     try {
       newRequest = await this.prisma.$transaction(async (tx) => {
-        // lock the rows
-        const lockQuery = Prisma.sql`LOCK TABLE "UserRequest" IN EXCLUSIVE MODE`;
-        await tx.$executeRaw(lockQuery);
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserRequest');
 
-        // fetch last user request
-        const lastUserRequest = await tx.userRequest.findFirst({
-          where: { userUid: user.uid, collectionID },
-          orderBy: { orderIndex: 'desc' },
-        });
+          // fetch last user request
+          const lastUserRequest = await tx.userRequest.findFirst({
+            where: { userUid: user.uid, collectionID },
+            orderBy: { orderIndex: 'desc' },
+          });
 
-        return tx.userRequest.create({
-          data: {
-            collectionID,
-            title,
-            request: jsonRequest.right,
-            type: ReqType[type],
-            orderIndex: lastUserRequest ? lastUserRequest.orderIndex + 1 : 1,
-            userUid: user.uid,
-          },
-        });
+          return tx.userRequest.create({
+            data: {
+              collectionID,
+              title,
+              request: jsonRequest.right,
+              type: ReqType[type],
+              orderIndex: lastUserRequest ? lastUserRequest.orderIndex + 1 : 1,
+              userUid: user.uid,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
     } catch (error) {
       console.error('Error from UserRequestService.createRequest', error);
@@ -224,21 +227,28 @@ export class UserRequestService {
     });
     if (!request) return E.left(USER_REQUEST_NOT_FOUND);
 
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "UserRequest" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserRequest');
 
-      await tx.userRequest.updateMany({
-        where: {
-          collectionID: request.collectionID,
-          orderIndex: { gt: request.orderIndex },
-        },
-        data: { orderIndex: { decrement: 1 } },
+          await tx.userRequest.updateMany({
+            where: {
+              collectionID: request.collectionID,
+              orderIndex: { gt: request.orderIndex },
+            },
+            data: { orderIndex: { decrement: 1 } },
+          });
+
+          await tx.userRequest.delete({ where: { id } });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-
-      await tx.userRequest.delete({ where: { id } });
-    });
+    } catch (error) {
+      return E.left(USER_REQUEST_NOT_FOUND);
+    }
 
     await this.pubsub.publish(
       `user_request/${user.uid}/deleted`,
@@ -398,8 +408,10 @@ export class UserRequestService {
         E.Left<string> | E.Right<DbUserRequest>
       >(async (tx) => {
         // lock the rows
-        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "collectionID" IN (${srcCollID}, ${destCollID}) FOR UPDATE`;
-        await tx.$executeRaw(lockQuery);
+        await this.prisma.acquireLocks(tx, 'UserRequest', null, null, [
+          request.id,
+          nextRequest?.id,
+        ]);
 
         request = await tx.userRequest.findUnique({
           where: { id: request.id },

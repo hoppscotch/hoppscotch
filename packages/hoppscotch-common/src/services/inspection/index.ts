@@ -62,6 +62,7 @@ export interface InspectorResult {
   action?: {
     text: string
     apply: () => void
+    showAction?: boolean
   }
   doc?: {
     text: string

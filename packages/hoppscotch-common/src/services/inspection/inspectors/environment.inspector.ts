@@ -300,6 +300,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
                           })
                         }
                       },
+                      showAction: env.sourceEnv !== "CollectionVariable",
                     },
                     severity: 2,
                     isApplicable: true,

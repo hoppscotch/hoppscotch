@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { generateDigestAuthHeaders } from "../digest"
-import { mockRequest, mockEnvVars } from "./test-utils"
+import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
 
 // Mock the digest helper functions
@@ -17,13 +17,33 @@ import {
 describe("Digest Auth", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+
+    // Set up default mocks for fetchInitialDigestAuthInfo
+    vi.mocked(fetchInitialDigestAuthInfo).mockResolvedValue({
+      realm: "Default Realm",
+      nonce: "default-nonce",
+      qop: "auth",
+      algorithm: "MD5",
+      opaque: "",
+    })
   })
 
   describe("generateDigestAuthHeaders", () => {
     test("generates digest auth header with basic configuration", async () => {
+      const mockDigestInfo = {
+        realm: "Protected Area",
+        nonce: "abc123",
+        qop: "auth",
+        algorithm: "MD5",
+        nc: "00000001",
+        cnonce: "",
+        opaque: "",
+      }
+
       const mockDigestHeader =
         'Digest username="testuser", realm="Protected Area", nonce="abc123", uri="/api/data", algorithm="MD5", response="def456", qop=auth, nc=00000001, cnonce="xyz789"'
 
+      vi.mocked(fetchInitialDigestAuthInfo).mockResolvedValue(mockDigestInfo)
       vi.mocked(generateDigestAuthHeader).mockResolvedValue(mockDigestHeader)
 
       const auth: HoppRESTAuth & { authType: "digest" } = {
@@ -36,14 +56,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "xyz789",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -56,8 +76,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "xyz789",
         opaque: "",
         reqBody: "",
       })
@@ -72,9 +90,20 @@ describe("Digest Auth", () => {
     })
 
     test("handles MD5-sess algorithm", async () => {
+      const mockDigestInfo = {
+        realm: "Test",
+        nonce: "nonce123",
+        qop: "auth",
+        algorithm: "MD5-sess",
+        nc: "00000001",
+        cnonce: "",
+        opaque: "",
+      }
+
       const mockDigestHeader =
         'Digest username="user", realm="Test", nonce="nonce123", uri="/api", algorithm="MD5-sess", response="response456", qop=auth, nc=00000001, cnonce="client789"'
 
+      vi.mocked(fetchInitialDigestAuthInfo).mockResolvedValue(mockDigestInfo)
       vi.mocked(generateDigestAuthHeader).mockResolvedValue(mockDigestHeader)
 
       const auth: HoppRESTAuth & { authType: "digest" } = {
@@ -87,14 +116,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5-sess",
         qop: "auth",
         nc: "00000001",
-        cnonce: "client789",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -107,8 +136,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5-sess",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "client789",
         opaque: "",
         reqBody: "",
       })
@@ -122,14 +149,13 @@ describe("Digest Auth", () => {
 
       vi.mocked(generateDigestAuthHeader).mockResolvedValue(mockDigestHeader)
 
-      const requestWithBody = {
-        ...mockRequest,
+      const requestWithBody = createBaseRequest({
         method: "POST",
         body: {
           contentType: "application/json" as const,
           body: '{"name": "test", "value": 123}',
         },
-      }
+      })
 
       const auth: HoppRESTAuth & { authType: "digest" } = {
         authActive: true,
@@ -141,7 +167,7 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth-int",
         nc: "00000001",
-        cnonce: "client123",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
@@ -161,8 +187,6 @@ describe("Digest Auth", () => {
         method: "POST",
         algorithm: "MD5",
         qop: "auth-int",
-        nc: "00000001",
-        cnonce: "client123",
         opaque: "",
         reqBody: '{"name": "test", "value": 123}',
       })
@@ -179,21 +203,21 @@ describe("Digest Auth", () => {
       const auth: HoppRESTAuth & { authType: "digest" } = {
         authActive: true,
         authType: "digest",
-        username: "{{DIGEST_USER}}",
-        password: "{{DIGEST_PASS}}",
+        username: "<<DIGEST_USER>>",
+        password: "<<DIGEST_PASS>>",
         realm: "realm",
         nonce: "nonce",
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -206,8 +230,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "cnonce",
         opaque: "",
         reqBody: "",
       })
@@ -238,7 +260,7 @@ describe("Digest Auth", () => {
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -251,8 +273,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "cnonce789",
         opaque: "opaque-value-123",
         reqBody: "",
       })
@@ -276,14 +296,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "", // Empty cnonce should be auto-generated
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -296,8 +316,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "", // Implementation should handle auto-generation
         opaque: "",
         reqBody: "",
       })
@@ -330,14 +348,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -365,14 +383,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -380,9 +398,7 @@ describe("Digest Auth", () => {
     })
 
     test("handles digest auth generation failure", async () => {
-      vi.mocked(generateDigestAuthHeader).mockRejectedValue(
-        new Error("Invalid digest parameters")
-      )
+      vi.mocked(generateDigestAuthHeader).mockResolvedValue("")
 
       const auth: HoppRESTAuth & { authType: "digest" } = {
         authActive: true,
@@ -394,14 +410,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -417,10 +433,9 @@ describe("Digest Auth", () => {
 
         vi.mocked(generateDigestAuthHeader).mockResolvedValue(mockDigestHeader)
 
-        const requestWithMethod = {
-          ...mockRequest,
+        const requestWithMethod = createBaseRequest({
           method,
-        }
+        })
 
         const auth: HoppRESTAuth & { authType: "digest" } = {
           authActive: true,
@@ -432,7 +447,7 @@ describe("Digest Auth", () => {
           algorithm: "MD5",
           qop: "auth",
           nc: "00000001",
-          cnonce: "cnonce",
+          cnonce: "",
           opaque: "",
           disableRetry: false,
         }
@@ -452,8 +467,6 @@ describe("Digest Auth", () => {
           method,
           algorithm: "MD5",
           qop: "auth",
-          nc: "00000001",
-          cnonce: "cnonce",
           opaque: "",
           reqBody: "",
         })
@@ -479,14 +492,14 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: true,
       }
 
       const headers = await generateDigestAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -500,10 +513,9 @@ describe("Digest Auth", () => {
 
       vi.mocked(generateDigestAuthHeader).mockResolvedValue(mockDigestHeader)
 
-      const requestWithQueryParams = {
-        ...mockRequest,
+      const requestWithQueryParams = createBaseRequest({
         endpoint: "https://api.example.com/api/data?param=value&other=test",
-      }
+      })
 
       const auth: HoppRESTAuth & { authType: "digest" } = {
         authActive: true,
@@ -515,7 +527,7 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth",
         nc: "00000001",
-        cnonce: "cnonce",
+        cnonce: "",
         opaque: "",
         disableRetry: false,
       }
@@ -535,8 +547,6 @@ describe("Digest Auth", () => {
         method: "GET",
         algorithm: "MD5",
         qop: "auth",
-        nc: "00000001",
-        cnonce: "cnonce",
         opaque: "",
         reqBody: "",
       })

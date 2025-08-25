@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { generateHawkAuthHeaders } from "../hawk"
-import { mockRequest, mockEnvVars } from "./test-utils"
+import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
 
 // Mock the calculateHawkHeader function
@@ -21,14 +21,6 @@ const { calculateHawkHeader } = await import("@hoppscotch/data")
 const { getFinalBodyFromRequest } = await import("~/helpers/utils/EffectiveURL")
 
 describe("Hawk Auth", () => {
-  const jsonBodyRequest = {
-    method: "POST" as const,
-    endpoint: "https://api.example.com/data",
-    headers: [],
-    params: [],
-    body: { contentType: "application/json", body: '{"test": "data"}' },
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -43,15 +35,15 @@ describe("Hawk Auth", () => {
       const auth: HoppRESTAuth & { authType: "hawk" } = {
         authActive: true,
         authType: "hawk",
-        authId: "{{HAWK_ID}}",
-        authKey: "{{HAWK_KEY}}",
+        authId: "<<HAWK_ID>>",
+        authKey: "<<HAWK_KEY>>",
         algorithm: "sha256",
         includePayloadHash: true,
       }
 
       const headers = await generateHawkAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -75,7 +67,7 @@ describe("Hawk Auth", () => {
 
       const headers = await generateHawkAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -91,13 +83,13 @@ describe("Hawk Auth", () => {
       const auth: HoppRESTAuth & { authType: "hawk" } = {
         authActive: true,
         authType: "hawk",
-        authId: "{{HAWK_ID}}",
-        authKey: "{{HAWK_KEY}}",
+        authId: "<<HAWK_ID>>",
+        authKey: "<<HAWK_KEY>>",
         algorithm: "sha1",
         includePayloadHash: false,
       }
 
-      await generateHawkAuthHeaders(auth, mockRequest, mockEnvVars)
+      await generateHawkAuthHeaders(auth, createBaseRequest(), mockEnvVars)
 
       expect(calculateHawkHeader).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -117,8 +109,8 @@ describe("Hawk Auth", () => {
       const auth: HoppRESTAuth & { authType: "hawk" } = {
         authActive: true,
         authType: "hawk",
-        authId: "{{HAWK_ID}}",
-        authKey: "{{HAWK_KEY}}",
+        authId: "<<HAWK_ID>>",
+        authKey: "<<HAWK_KEY>>",
         algorithm: "sha256",
         nonce: "custom-nonce",
         ext: "custom-ext",
@@ -128,7 +120,7 @@ describe("Hawk Auth", () => {
         includePayloadHash: false,
       }
 
-      await generateHawkAuthHeaders(auth, mockRequest, mockEnvVars)
+      await generateHawkAuthHeaders(auth, createBaseRequest(), mockEnvVars)
 
       expect(calculateHawkHeader).toHaveBeenCalledWith(
         expect.objectContaining({

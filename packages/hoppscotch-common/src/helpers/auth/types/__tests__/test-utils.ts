@@ -1,21 +1,30 @@
-import { HoppRESTRequest, Environment } from "@hoppscotch/data"
+import { Environment, makeRESTRequest } from "@hoppscotch/data"
 
-export const mockRequest: HoppRESTRequest = {
-  v: "14",
-  method: "GET",
-  endpoint: "https://api.example.com/data",
-  headers: [],
-  params: [],
-  body: { contentType: "application/json", body: "" },
-  auth: {
-    authActive: false,
-    authType: "none",
-  },
-  name: "Mock Request",
-  preRequestScript: "",
-  testScript: "",
-  requestVariables: [],
-  responses: {},
+// Helper function to create base request
+export const createBaseRequest = (
+  overrides: Partial<Parameters<typeof makeRESTRequest>[0]> = {}
+) => {
+  const baseRequest: Parameters<typeof makeRESTRequest>[0] = {
+    method: "GET",
+    endpoint: "https://api.example.com/data",
+    name: "Test Request",
+    params: [],
+    headers: [],
+    preRequestScript: "",
+    testScript: "",
+    auth: {
+      authType: "inherit",
+      authActive: true,
+    },
+    body: {
+      contentType: null,
+      body: null,
+    },
+    requestVariables: [],
+    responses: {},
+  }
+
+  return makeRESTRequest({ ...baseRequest, ...overrides })
 }
 
 export const mockEnvVars: Environment["variables"] = [

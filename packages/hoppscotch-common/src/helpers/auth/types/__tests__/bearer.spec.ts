@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest"
 import { generateBearerAuthHeaders } from "../bearer"
-import { mockRequest, mockEnvVars } from "./test-utils"
+import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
 
 describe("Bearer Auth", () => {
@@ -14,7 +14,7 @@ describe("Bearer Auth", () => {
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -31,12 +31,12 @@ describe("Bearer Auth", () => {
       const auth: HoppRESTAuth & { authType: "bearer" } = {
         authActive: true,
         authType: "bearer",
-        token: "{{ACCESS_TOKEN}}",
+        token: "<<ACCESS_TOKEN>>",
       }
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -54,7 +54,7 @@ describe("Bearer Auth", () => {
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 

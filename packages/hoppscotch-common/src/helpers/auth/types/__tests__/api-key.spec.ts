@@ -1,7 +1,7 @@
 import { HoppRESTAuth } from "@hoppscotch/data"
 import { describe, expect, test } from "vitest"
 import { generateApiKeyAuthHeaders, generateApiKeyAuthParams } from "../api-key"
-import { mockEnvVars, mockRequest } from "./test-utils"
+import { mockEnvVars, createBaseRequest } from "./test-utils"
 
 describe("API Key Auth", () => {
   describe("generateApiKeyAuthHeaders", () => {
@@ -11,12 +11,12 @@ describe("API Key Auth", () => {
         authType: "api-key",
         addTo: "HEADERS",
         key: "X-API-Key",
-        value: "{{API_VALUE}}",
+        value: "<<API_VALUE>>",
       }
 
       const headers = await generateApiKeyAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -40,7 +40,7 @@ describe("API Key Auth", () => {
 
       const headers = await generateApiKeyAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -52,13 +52,13 @@ describe("API Key Auth", () => {
         authActive: true,
         authType: "api-key",
         addTo: "HEADERS",
-        key: "{{API_KEY}}",
-        value: "{{API_VALUE}}",
+        key: "<<API_KEY>>",
+        value: "<<API_VALUE>>",
       }
 
       const headers = await generateApiKeyAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -74,12 +74,12 @@ describe("API Key Auth", () => {
         authType: "api-key",
         addTo: "QUERY_PARAMS",
         key: "api_key",
-        value: "{{API_VALUE}}",
+        value: "<<API_VALUE>>",
       }
 
       const params = await generateApiKeyAuthParams(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -103,7 +103,7 @@ describe("API Key Auth", () => {
 
       const params = await generateApiKeyAuthParams(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 

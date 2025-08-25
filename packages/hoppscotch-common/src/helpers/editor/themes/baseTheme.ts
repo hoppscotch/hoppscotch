@@ -325,6 +325,11 @@ export const inputTheme = EditorView.theme({
     color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-dark-color)",
   },
+  ".cm-jsonFoldSummary": {
+    opacity: "0.7",
+    fontStyle: "italic",
+    background: "var(--divider-dark-color)",
+  },
 })
 
 const editorTypeColor = "var(--editor-type-color)"
@@ -401,7 +406,7 @@ export const baseHighlightStyle = HighlightStyle.define([
 
 /**
  * Generic body counter (array or object).
- * 
+ *
  * @param body - String content inside `[...]` or `{...}`.
  * @param trigger - The character that indicates a top-level separator (`,` or `:`).
  * @param finalize - Function to adjust the final count (e.g., add +1 for arrays).
@@ -421,9 +426,18 @@ function countBodyUnits(
   for (let i = 0; i < body.length; i++) {
     const ch = body[i]
 
-    if (escape) { escape = false; continue }
-    if (ch === "\\") { escape = true; continue }
-    if (ch === '"') { inString = !inString; continue }
+    if (escape) {
+      escape = false
+      continue
+    }
+    if (ch === "\\") {
+      escape = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      continue
+    }
     if (inString) continue
 
     if (ch === "[") bracketDepth++
@@ -459,12 +473,16 @@ function countObjectFieldsInBody(body: string): number {
 
 /**
  * Compute a fold summary string for a JSON range.
- * 
+ *
  * @param state - Current editor state
  * @param from - Start position of the fold
  * @param to - End position of the fold
  */
-function computeJsonSummary(state: EditorState, from: number, to: number): string {
+function computeJsonSummary(
+  state: EditorState,
+  from: number,
+  to: number
+): string {
   const docLength = state.doc.length
   const sliceFrom = Math.max(0, from - 1)
   const sliceTo = Math.min(docLength, to + 1)
@@ -476,7 +494,7 @@ function computeJsonSummary(state: EditorState, from: number, to: number): strin
 
   const text = slice.substring(textStart, textEnd).trim()
   const prevChar = from > 0 ? slice.charAt(textStart - 1) : ""
-  const nextChar = (textEnd < slice.length) ? slice.charAt(textEnd) : ""
+  const nextChar = textEnd < slice.length ? slice.charAt(textEnd) : ""
 
   // Try full JSON parse first (works if selection is a valid value)
   try {
@@ -506,23 +524,14 @@ function computeJsonSummary(state: EditorState, from: number, to: number): strin
  * Extension: JSON folding with informative summaries.
  */
 export const jsonFoldSummary: Extension = codeFolding({
-  preparePlaceholder: (state, range) => computeJsonSummary(state, range.from, range.to),
+  preparePlaceholder: (state, range) =>
+    computeJsonSummary(state, range.from, range.to),
   placeholderDOM: (view, onclick, prepared) => {
     const span = document.createElement("span")
     span.className = "cm-foldPlaceholder cm-jsonFoldSummary"
     span.textContent = typeof prepared === "string" ? prepared : "…"
     span.addEventListener("click", onclick)
     return span
-  },
-})
-
-/**
- * Theme for JSON fold summary.
- */
-export const jsonFoldSummaryTheme = EditorView.theme({
-  ".cm-jsonFoldSummary": {
-    opacity: "0.7",
-    fontStyle: "italic",
   },
 })
 
@@ -536,7 +545,6 @@ export const basicSetup: Extension = [
     closedText: "▸",
   }),
   jsonFoldSummary,
-  jsonFoldSummaryTheme,
   drawSelection(),
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),

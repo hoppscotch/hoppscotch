@@ -36,10 +36,7 @@
   "pnpm": {
     "overrides": {
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
-      "subscriptions-transport-ws>ws": "7.5.10",
       "execa@0.10.0": "2.0.0",
-      "apiconnect-wsdl": "2.0.36",
-      "@xmldom/xmldom": "0.8.10",
       "sha.js@2.4.11": "2.4.12"
     },
     "onlyBuiltDependencies": [

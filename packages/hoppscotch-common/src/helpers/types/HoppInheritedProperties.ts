@@ -18,6 +18,7 @@ export type HoppInheritedProperty = {
     inheritedHeader: HoppRESTHeader | GQLHeader
   }[]
   variables: {
+    parentPath?: string
     parentID: string
     parentName: string
     inheritedVariables: HoppCollectionVariable[]

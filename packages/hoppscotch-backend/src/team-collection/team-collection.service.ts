@@ -199,7 +199,7 @@ export class TeamCollectionService {
     if (!Array.isArray(collectionsList.right))
       return E.left(TEAM_COLL_INVALID_JSON);
 
-    const teamCollections: DBTeamCollection[] = [];
+    let teamCollections: DBTeamCollection[] = [];
     let queryList: Prisma.TeamCollectionCreateInput[] = [];
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -224,15 +224,15 @@ export class TeamCollectionService {
             ),
           );
 
-          for (const query of queryList) {
-            const createdTeamColl = await tx.teamCollection.create({
+          const promises = queryList.map((query) =>
+            tx.teamCollection.create({
               data: {
                 ...query,
                 parent: parentID ? { connect: { id: parentID } } : undefined,
               },
-            });
-            teamCollections.push(createdTeamColl);
-          }
+            }),
+          );
+          teamCollections = await Promise.all(promises);
         } catch (error) {
           throw new ConflictException(error);
         }
@@ -543,7 +543,7 @@ export class TeamCollectionService {
             // lock the rows
             await this.prisma.lockTableExclusive(tx, 'TeamCollection');
 
-            await this.prisma.teamCollection.delete({
+            await tx.teamCollection.delete({
               where: { id: collection.id },
             });
 
@@ -567,7 +567,12 @@ export class TeamCollectionService {
           error,
         );
         retryCount++;
-        if (retryCount >= this.MAX_RETRIES)
+        if (
+          retryCount >= this.MAX_RETRIES ||
+          (error.code !== 'P2002' &&
+            error.code !== 'P2034' &&
+            error.code !== 'P2028') // return for all DB error except deadlocks, unique constraint violations, transaction timeouts
+        )
           return E.left(TEAM_COL_REORDERING_FAILED);
 
         await delay(retryCount * 100);
@@ -648,7 +653,7 @@ export class TeamCollectionService {
     collection: DBTeamCollection,
     newParentID: string | null,
   ) {
-    const updatedCollection: DBTeamCollection = null;
+    let updatedCollection: DBTeamCollection = null;
 
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -660,19 +665,6 @@ export class TeamCollectionService {
               orderBy: { orderIndex: 'desc' },
             });
 
-          // update collection's parentID and orderIndex
-          await tx.teamCollection.update({
-            where: { id: collection.id },
-            data: {
-              // if parentCollectionID == null, collection becomes root collection
-              // if parentCollectionID != null, collection becomes child collection
-              parentID: newParentID,
-              orderIndex: lastCollectionUnderNewParent
-                ? lastCollectionUnderNewParent.orderIndex + 1
-                : 1,
-            },
-          });
-
           // decrement orderIndex of all next sibling collections from original collection
           await tx.teamCollection.updateMany({
             where: {
@@ -682,6 +674,19 @@ export class TeamCollectionService {
             },
             data: {
               orderIndex: { decrement: 1 },
+            },
+          });
+
+          // update collection's parentID and orderIndex
+          updatedCollection = await tx.teamCollection.update({
+            where: { id: collection.id },
+            data: {
+              // if parentCollectionID == null, collection becomes root collection
+              // if parentCollectionID != null, collection becomes child collection
+              parentID: newParentID,
+              orderIndex: lastCollectionUnderNewParent
+                ? lastCollectionUnderNewParent.orderIndex + 1
+                : 1,
             },
           });
         } catch (error) {

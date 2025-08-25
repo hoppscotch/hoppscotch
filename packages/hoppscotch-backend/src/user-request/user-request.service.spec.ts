@@ -11,7 +11,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
-import { GetUserRequestArgs } from './input-type.args';
+import { CreateUserRequestArgs, GetUserRequestArgs } from './input-type.args';
 import { MoveUserRequestArgs } from './input-type.args';
 import { UpdateUserRequestArgs } from './input-type.args';
 import { UserRequest } from './user-request.model';
@@ -264,114 +264,107 @@ describe('UserRequestService', () => {
     });
   });
 
-  // describe('createRequest', () => {
-  //   test('Should resolve right and create user request', () => {
-  //     const args: CreateUserRequestArgs = {
-  //       collectionID: userRequests[0].collectionID,
-  //       title: userRequests[0].title,
-  //       request: userRequests[0].request,
-  //       type: userRequests[0].type,
-  //     };
+  describe('createRequest', () => {
+    test('Should resolve right and create user request', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
 
-  //     mockPrisma.userRequest.count.mockResolvedValue(
-  //       dbUserRequests[0].orderIndex - 1,
-  //     );
-  //     mockUserCollectionService.getUserCollection.mockResolvedValue(
-  //       E.right({ type: userRequests[0].type, userUid: user.uid } as any),
-  //     );
-  //     mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
+      mockUserCollectionService.getUserCollection.mockResolvedValue(
+        E.right({ type: userRequests[0].type, userUid: user.uid } as any),
+      );
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
 
-  //     const result = userRequestService.createRequest(
-  //       args.collectionID,
-  //       args.title,
-  //       args.request,
-  //       args.type,
-  //       user,
-  //     );
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
 
-  //     expect(result).resolves.toEqualRight(userRequests[0]);
-  //   });
-  //   test('Should execute prisma.create() with correct params', async () => {
-  //     const args: CreateUserRequestArgs = {
-  //       collectionID: userRequests[0].collectionID,
-  //       title: userRequests[0].title,
-  //       request: userRequests[0].request,
-  //       type: userRequests[0].type,
-  //     };
+      expect(result).resolves.toEqualRight(userRequests[0]);
+    });
+    test('Should execute prisma.create() with correct params', async () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
 
-  //     mockPrisma.userRequest.count.mockResolvedValue(
-  //       dbUserRequests[0].orderIndex - 1,
-  //     );
-  //     mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
+      mockUserCollectionService.getUserCollection.mockResolvedValue(
+        E.right({ type: userRequests[0].type, userUid: user.uid } as any),
+      );
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
 
-  //     await userRequestService.createRequest(
-  //       args.collectionID,
-  //       args.title,
-  //       args.request,
-  //       args.type,
-  //       user,
-  //     );
+      await userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
 
-  //     expect(mockPrisma.userRequest.create).toHaveBeenCalledWith({
-  //       data: {
-  //         ...args,
-  //         request: JSON.parse(args.request),
-  //         type: DbRequestType[args.type],
-  //         orderIndex: dbUserRequests[0].orderIndex,
-  //         userUid: user.uid,
-  //       },
-  //     });
-  //   });
-  //   test('Should publish user request created message in pubnub', async () => {
-  //     const args: CreateUserRequestArgs = {
-  //       collectionID: userRequests[0].collectionID,
-  //       title: userRequests[0].title,
-  //       request: userRequests[0].request,
-  //       type: userRequests[0].type,
-  //     };
+      expect(mockPrisma.userRequest.create).toHaveBeenCalledWith({
+        data: {
+          ...args,
+          request: JSON.parse(args.request),
+          type: DbRequestType[args.type],
+          orderIndex: dbUserRequests[0].orderIndex,
+          userUid: user.uid,
+        },
+      });
+    });
+    test('Should publish user request created message in pubnub', async () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: userRequests[0].request,
+        type: userRequests[0].type,
+      };
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
 
-  //     mockPrisma.userRequest.count.mockResolvedValue(
-  //       dbUserRequests[0].orderIndex - 1,
-  //     );
-  //     mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
+      await userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
 
-  //     await userRequestService.createRequest(
-  //       args.collectionID,
-  //       args.title,
-  //       args.request,
-  //       args.type,
-  //       user,
-  //     );
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_request/${dbUserRequests[0].userUid}/created`,
+        userRequests[0],
+      );
+    });
+    test('Should resolve left for json-invalid request', () => {
+      const args: CreateUserRequestArgs = {
+        collectionID: userRequests[0].collectionID,
+        title: userRequests[0].title,
+        request: 'invalid json',
+        type: userRequests[0].type,
+      };
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
 
-  //     expect(mockPubSub.publish).toHaveBeenCalledWith(
-  //       `user_request/${dbUserRequests[0].userUid}/created`,
-  //       userRequests[0],
-  //     );
-  //   });
-  //   test('Should resolve left for json-invalid request', () => {
-  //     const args: CreateUserRequestArgs = {
-  //       collectionID: userRequests[0].collectionID,
-  //       title: userRequests[0].title,
-  //       request: 'invalid json',
-  //       type: userRequests[0].type,
-  //     };
+      const result = userRequestService.createRequest(
+        args.collectionID,
+        args.title,
+        args.request,
+        args.type,
+        user,
+      );
 
-  //     mockPrisma.userRequest.count.mockResolvedValue(
-  //       dbUserRequests[0].orderIndex - 1,
-  //     );
-  //     mockPrisma.userRequest.create.mockResolvedValue(dbUserRequests[0]);
-
-  //     const result = userRequestService.createRequest(
-  //       args.collectionID,
-  //       args.title,
-  //       args.request,
-  //       args.type,
-  //       user,
-  //     );
-
-  //     expect(result).resolves.toEqualLeft(JSON_INVALID);
-  //   });
-  // });
+      expect(result).resolves.toEqualLeft(JSON_INVALID);
+    });
+  });
 
   describe('updateRequest', () => {
     test('Should resolve right and update user request', () => {

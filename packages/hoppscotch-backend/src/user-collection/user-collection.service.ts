@@ -553,7 +553,7 @@ export class UserCollectionService {
             // lock the rows
             await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-            await this.prisma.userCollection.delete({
+            await tx.userCollection.delete({
               where: { id: collection.id },
             });
 
@@ -577,7 +577,12 @@ export class UserCollectionService {
           error,
         );
         retryCount++;
-        if (retryCount >= this.MAX_RETRIES)
+        if (
+          retryCount >= this.MAX_RETRIES ||
+          (error.code !== 'P2002' &&
+            error.code !== 'P2034' &&
+            error.code !== 'P2028') // return for all DB error except deadlocks, unique constraint violations, transaction timeouts
+        )
           return E.left(USER_COLL_REORDERING_FAILED);
 
         await delay(retryCount * 100);
@@ -1084,7 +1089,7 @@ export class UserCollectionService {
         return E.left(USER_COLL_NOT_SAME_TYPE);
     }
 
-    const userCollections: UserCollection[] = [];
+    let userCollections: UserCollection[] = [];
 
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -1108,12 +1113,13 @@ export class UserCollectionService {
             ? { connect: { id: destCollectionID } }
             : undefined;
 
-          for (const query of queryList) {
-            const createdCollection = await tx.userCollection.create({
+          const promises = queryList.map((query) =>
+            tx.userCollection.create({
               data: { ...query, parent },
-            });
-            userCollections.push(createdCollection);
-          }
+            }),
+          );
+
+          userCollections = await Promise.all(promises);
         } catch (error) {
           throw new ConflictException(error);
         }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { TeamService } from '../team/team.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamRequest } from './team-request.model';
@@ -9,6 +9,7 @@ import {
   TEAM_INVALID_ID,
   TEAM_REQ_NOT_FOUND,
   TEAM_REQ_REORDERING_FAILED,
+  TEAM_COLL_CREATION_FAILED,
 } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { stringToJson } from 'src/utils';
@@ -111,20 +112,28 @@ export class TeamRequestService {
     });
     if (!dbTeamReq) return E.left(TEAM_REQ_NOT_FOUND);
 
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "TeamRequest" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'TeamRequest');
 
-      await tx.teamRequest.updateMany({
-        where: { orderIndex: { gte: dbTeamReq.orderIndex } },
-        data: { orderIndex: { decrement: 1 } },
-      });
+          await tx.teamRequest.updateMany({
+            where: { orderIndex: { gte: dbTeamReq.orderIndex } },
+            data: { orderIndex: { decrement: 1 } },
+          });
 
-      await tx.teamRequest.delete({
-        where: { id: requestID },
+          await tx.teamRequest.delete({
+            where: { id: requestID },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-    });
+    } catch (error) {
+      console.error('Error from TeamRequestService.deleteTeamRequest', error);
+      return E.left(TEAM_REQ_NOT_FOUND);
+    }
 
     this.pubsub.publish(`team_req/${dbTeamReq.teamID}/req_deleted`, requestID);
 
@@ -156,29 +165,37 @@ export class TeamRequestService {
       jsonReq = parsedReq.right;
     }
 
-    const dbTeamRequest = await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "TeamRequest" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    let dbTeamRequest: DbTeamRequest = null;
+    try {
+      dbTeamRequest = await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'TeamRequest');
 
-      // fetch last team request
-      const lastTeamRequest = await tx.teamRequest.findFirst({
-        where: { collectionID },
-        orderBy: { orderIndex: 'desc' },
-        select: { orderIndex: true },
-      });
+          // fetch last team request
+          const lastTeamRequest = await tx.teamRequest.findFirst({
+            where: { collectionID },
+            orderBy: { orderIndex: 'desc' },
+            select: { orderIndex: true },
+          });
 
-      // create the team request
-      return tx.teamRequest.create({
-        data: {
-          request: jsonReq,
-          title,
-          orderIndex: lastTeamRequest ? lastTeamRequest.orderIndex + 1 : 1,
-          team: { connect: { id: team.right.id } },
-          collection: { connect: { id: collectionID } },
-        },
+          // create the team request
+          return tx.teamRequest.create({
+            data: {
+              request: jsonReq,
+              title,
+              orderIndex: lastTeamRequest ? lastTeamRequest.orderIndex + 1 : 1,
+              team: { connect: { id: team.right.id } },
+              collection: { connect: { id: collectionID } },
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-    });
+    } catch (error) {
+      return E.left(TEAM_COLL_CREATION_FAILED);
+    }
 
     const teamRequest = this.cast(dbTeamRequest);
     this.pubsub.publish(
@@ -381,8 +398,10 @@ export class TeamRequestService {
         E.Left<string> | E.Right<DbTeamRequest>
       >(async (tx) => {
         // lock the rows
-        const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "teamID" = ${request.teamID} AND "collectionID" IN (${srcCollID}, ${destCollID}) FOR UPDATE`;
-        await tx.$executeRaw(lockQuery);
+        await this.prisma.acquireLocks(tx, 'TeamRequest', null, null, [
+          srcCollID,
+          destCollID,
+        ]);
 
         request = await tx.teamRequest.findUnique({
           where: { id: request.id },

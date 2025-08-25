@@ -1043,27 +1043,18 @@ describe('deleteUserCollection', () => {
     expect(result).toEqualLeft(USER_NOT_OWNER);
   });
   test('should throw USER_COLL_NOT_FOUND when collectionID is invalid when deleting user-collection from UserCollectionTable ', async () => {
-    // getUserCollection
-    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootRESTUserCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.userCollection.delete.mockRejectedValueOnce('RecordNotFound');
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
+    jest
+      .spyOn(userCollectionService as any, 'deleteCollectionData')
+      .mockResolvedValueOnce(E.left(USER_COLL_REORDERING_FAILED));
 
     const result = await userCollectionService.deleteUserCollection(
       rootRESTUserCollection.id,
       user.uid,
     );
-    expect(result).toEqualLeft(USER_COLL_NOT_FOUND);
+    expect(result).toEqualLeft(USER_COLL_REORDERING_FAILED);
   });
   test('should send pubsub message to "user_coll/<userID>/deleted" if user-collection is deleted successfully', async () => {
     // getUserCollection

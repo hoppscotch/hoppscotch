@@ -189,6 +189,12 @@ export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
 export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
 
 /**
+ * Could not find the team in the database
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_CREATION_FAILED = 'team_coll/creation_failed';
+
+/**
  * Cannot make parent collection a child of a collection that a child of itself
  * (TeamCollectionService)
  */

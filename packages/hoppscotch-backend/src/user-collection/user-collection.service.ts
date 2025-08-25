@@ -28,6 +28,7 @@ import {
 } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
 import {
+  delay,
   isValidLength,
   stringToJson,
   transformCollectionData,
@@ -42,6 +43,7 @@ export class UserCollectionService {
   ) {}
 
   TITLE_LENGTH = 1;
+  MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
    * Typecast a database UserCollection to a UserCollection model
@@ -221,17 +223,17 @@ export class UserCollectionService {
     let userCollection: UserCollection = null;
     try {
       userCollection = await this.prisma.$transaction(async (tx) => {
-        // lock the rows
-        const lockQuery = Prisma.sql`LOCK TABLE "UserCollection" IN EXCLUSIVE MODE`;
-        await tx.$executeRaw(lockQuery);
-
-        // fetch last user collection
-        const lastUserCollection = await tx.userCollection.findFirst({
-          where: { userUid: user.uid, parentID },
-          orderBy: { orderIndex: 'desc' },
-          select: { orderIndex: true },
-        });
         try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserCollection');
+
+          // fetch last user collection
+          const lastUserCollection = await tx.userCollection.findFirst({
+            where: { userUid: user.uid, parentID },
+            orderBy: { orderIndex: 'desc' },
+            select: { orderIndex: true },
+          });
+
           // create new user collection
           return tx.userCollection.create({
             data: {
@@ -373,26 +375,6 @@ export class UserCollectionService {
   }
 
   /**
-   * Delete a UserCollection from the DB
-   *
-   * @param collectionID The Collection Id
-   * @returns The deleted UserCollection
-   */
-  private async removeUserCollection(collectionID: string) {
-    try {
-      const deletedUserCollection = await this.prisma.userCollection.delete({
-        where: {
-          id: collectionID,
-        },
-      });
-
-      return E.right(deletedUserCollection);
-    } catch (error) {
-      return E.left(USER_COLL_NOT_FOUND);
-    }
-  }
-
-  /**
    * Delete child collection and requests of a UserCollection
    *
    * @param collectionID The Collection Id
@@ -420,27 +402,18 @@ export class UserCollectionService {
       },
     });
 
-    // Delete collection from UserCollection table
-    const deletedUserCollection = await this.removeUserCollection(
-      collection.id,
-    );
-    if (E.isLeft(deletedUserCollection))
-      return E.left(deletedUserCollection.left);
-
     // Update orderIndexes in userCollection table for user
-    await this.updateOrderIndex(
-      collection.parentID,
+    const isDeleted = await this.removeCollectionAndUpdateSiblingsOrderIndex(
+      collection,
       { gt: collection.orderIndex },
       { decrement: 1 },
     );
+    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
 
-    this.pubsub.publish(
-      `user_coll/${deletedUserCollection.right.userUid}/deleted`,
-      {
-        id: deletedUserCollection.right.id,
-        type: ReqType[deletedUserCollection.right.type],
-      },
-    );
+    this.pubsub.publish(`user_coll/${collection.userUid}/deleted`, {
+      id: collection.id,
+      type: ReqType[collection.type],
+    });
 
     return E.right(true);
   }
@@ -482,13 +455,14 @@ export class UserCollectionService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // fetch last collection
-        const lastCollectionUnderNewParent = await tx.userCollection.findFirst({
-          where: { userUid: collection.userUid, parentID: newParentID },
-          orderBy: { orderIndex: 'desc' },
-        });
-
         try {
+          // fetch last collection
+          const lastCollectionUnderNewParent =
+            await tx.userCollection.findFirst({
+              where: { userUid: collection.userUid, parentID: newParentID },
+              orderBy: { orderIndex: 'desc' },
+            });
+
           // update collection's parentID and orderIndex
           updatedCollection = await tx.userCollection.update({
             where: { id: collection.id },
@@ -514,6 +488,7 @@ export class UserCollectionService {
           throw new ConflictException(error);
         }
       });
+
       return E.right(updatedCollection);
     } catch (error) {
       console.error(
@@ -559,34 +534,58 @@ export class UserCollectionService {
   }
 
   /**
-   * Update the OrderIndex of all collections in given parentID
-   * @param userID The User ID
-   * @param parentID The Parent collectionID
+   * Delete collection and Update the OrderIndex of all collections in given parentID
+   * @param collection The collection to delete
    * @param orderIndexCondition Condition to decide what collections will be updated
    * @param dataCondition Increment/Decrement OrderIndex condition
    * @returns A Collection with updated OrderIndexes
    */
-  private async updateOrderIndex(
-    parentID: string,
+  private async removeCollectionAndUpdateSiblingsOrderIndex(
+    collection: UserCollection,
     orderIndexCondition: Prisma.IntFilter,
     dataCondition: Prisma.IntFieldUpdateOperationsInput,
   ) {
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "UserCollection" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    let retryCount = 0;
+    while (retryCount < this.MAX_RETRIES) {
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          try {
+            // lock the rows
+            await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-      // update orderIndexes
-      await tx.userCollection.updateMany({
-        where: {
-          parentID,
-          orderIndex: orderIndexCondition,
-        },
-        data: { orderIndex: dataCondition },
-      });
-    });
+            await this.prisma.userCollection.delete({
+              where: { id: collection.id },
+            });
 
-    return;
+            // update orderIndexes
+            await tx.userCollection.updateMany({
+              where: {
+                parentID: collection.parentID,
+                orderIndex: orderIndexCondition,
+              },
+              data: { orderIndex: dataCondition },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
+        });
+
+        break;
+      } catch (error) {
+        console.error(
+          'Error from UserCollectionService.updateOrderIndex:',
+          error,
+        );
+        retryCount++;
+        if (retryCount >= this.MAX_RETRIES)
+          return E.left(USER_COLL_REORDERING_FAILED);
+
+        await delay(retryCount * 100);
+        console.log(`Retrying... (${retryCount})`);
+      }
+    }
+
+    return E.right(true);
   }
 
   /**
@@ -718,34 +717,40 @@ export class UserCollectionService {
       // nextCollectionID == null i.e move collection to the end of the list
       try {
         await this.prisma.$transaction(async (tx) => {
-          // Step 0: lock the rows
-          const lockQuery = collection.right.parentID
-            ? Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" = ${collection.right.parentID} FOR UPDATE`
-            : Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" IS NULL FOR UPDATE`;
-          await tx.$executeRaw(lockQuery);
+          try {
+            // Step 0: lock the rows
+            await this.prisma.acquireLocks(
+              tx,
+              'UserCollection',
+              userID,
+              collection.right.parentID,
+            );
 
-          // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
-          const collectionInTx = await tx.userCollection.findFirst({
-            where: { id: collectionID },
-            select: { orderIndex: true },
-          });
-          await tx.userCollection.updateMany({
-            where: {
-              parentID: collection.right.parentID,
-              orderIndex: { gte: collectionInTx.orderIndex + 1 },
-            },
-            data: { orderIndex: { decrement: 1 } },
-          });
+            // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
+            const collectionInTx = await tx.userCollection.findFirst({
+              where: { id: collectionID },
+              select: { orderIndex: true },
+            });
+            await tx.userCollection.updateMany({
+              where: {
+                parentID: collection.right.parentID,
+                orderIndex: { gte: collectionInTx.orderIndex + 1 },
+              },
+              data: { orderIndex: { decrement: 1 } },
+            });
 
-          // Step 2: Update orderIndex of collection to length of list
-          await tx.userCollection.update({
-            where: { id: collection.right.id },
-            data: {
-              orderIndex: await this.getCollectionCount(
-                collection.right.parentID,
-              ),
-            },
-          });
+            // Step 2: Update orderIndex of collection to length of list
+            await tx.userCollection.update({
+              where: { id: collection.right.id },
+              data: {
+                orderIndex: await this.getCollectionCount(
+                  collection.right.parentID,
+                ),
+              },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
         });
 
         this.pubsub.publish(
@@ -777,54 +782,60 @@ export class UserCollectionService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // Step 0: lock the rows
-        const lockQuery = subsequentCollection.right.parentID
-          ? Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" = ${subsequentCollection.right.parentID} FOR UPDATE`
-          : Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userID} AND "parentID" IS NULL FOR UPDATE`;
-        await tx.$executeRaw(lockQuery);
+        try {
+          // Step 0: lock the rows
+          await this.prisma.acquireLocks(
+            tx,
+            'UserCollection',
+            userID,
+            subsequentCollection.right.parentID,
+          );
 
-        // subsequentCollectionInTx and subsequentCollection are same, just to make sure, orderIndex value is concrete
-        const collectionInTx = await tx.userCollection.findFirst({
-          where: { id: collectionID },
-          select: { orderIndex: true },
-        });
-        const subsequentCollectionInTx = await tx.userCollection.findFirst({
-          where: { id: nextCollectionID },
-          select: { orderIndex: true },
-        });
+          // subsequentCollectionInTx and subsequentCollection are same, just to make sure, orderIndex value is concrete
+          const collectionInTx = await tx.userCollection.findFirst({
+            where: { id: collectionID },
+            select: { orderIndex: true },
+          });
+          const subsequentCollectionInTx = await tx.userCollection.findFirst({
+            where: { id: nextCollectionID },
+            select: { orderIndex: true },
+          });
 
-        // Step 1: Determine if we are moving collection up or down the list
-        const isMovingUp =
-          subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
+          // Step 1: Determine if we are moving collection up or down the list
+          const isMovingUp =
+            subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
 
-        // Step 2: Update OrderIndex of items in list depending on moving up or down
-        const updateFrom = isMovingUp
-          ? subsequentCollectionInTx.orderIndex
-          : collectionInTx.orderIndex + 1;
+          // Step 2: Update OrderIndex of items in list depending on moving up or down
+          const updateFrom = isMovingUp
+            ? subsequentCollectionInTx.orderIndex
+            : collectionInTx.orderIndex + 1;
 
-        const updateTo = isMovingUp
-          ? collectionInTx.orderIndex - 1
-          : subsequentCollectionInTx.orderIndex - 1;
+          const updateTo = isMovingUp
+            ? collectionInTx.orderIndex - 1
+            : subsequentCollectionInTx.orderIndex - 1;
 
-        await tx.userCollection.updateMany({
-          where: {
-            parentID: collection.right.parentID,
-            orderIndex: { gte: updateFrom, lte: updateTo },
-          },
-          data: {
-            orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
-          },
-        });
+          await tx.userCollection.updateMany({
+            where: {
+              parentID: collection.right.parentID,
+              orderIndex: { gte: updateFrom, lte: updateTo },
+            },
+            data: {
+              orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
+            },
+          });
 
-        // Step 3: Update OrderIndex of collection
-        await tx.userCollection.update({
-          where: { id: collection.right.id },
-          data: {
-            orderIndex: isMovingUp
-              ? subsequentCollectionInTx.orderIndex
-              : subsequentCollectionInTx.orderIndex - 1,
-          },
-        });
+          // Step 3: Update OrderIndex of collection
+          await tx.userCollection.update({
+            where: { id: collection.right.id },
+            data: {
+              orderIndex: isMovingUp
+                ? subsequentCollectionInTx.orderIndex
+                : subsequentCollectionInTx.orderIndex - 1,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
 
       this.pubsub.publish(
@@ -1075,34 +1086,41 @@ export class UserCollectionService {
 
     const userCollections: UserCollection[] = [];
 
-    await this.prisma.$transaction(async (tx) => {
-      // lock the rows
-      const lockQuery = Prisma.sql`LOCK TABLE "UserCollection" IN EXCLUSIVE MODE`;
-      await tx.$executeRaw(lockQuery);
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-      // Get the last order index
-      const lastCollection = await tx.userCollection.findFirst({
-        where: { userUid: userID, parentID: destCollectionID },
-        orderBy: { orderIndex: 'desc' },
+          // Get the last order index
+          const lastCollection = await tx.userCollection.findFirst({
+            where: { userUid: userID, parentID: destCollectionID },
+            orderBy: { orderIndex: 'desc' },
+          });
+          let lastOrderIndex = lastCollection ? lastCollection.orderIndex : 0;
+
+          // Generate Prisma Query Object for all child collections in collectionsList
+          const queryList = collectionsList.right.map((x) =>
+            this.generatePrismaQueryObj(x, userID, ++lastOrderIndex, reqType),
+          );
+
+          const parent = destCollectionID
+            ? { connect: { id: destCollectionID } }
+            : undefined;
+
+          for (const query of queryList) {
+            const createdCollection = await tx.userCollection.create({
+              data: { ...query, parent },
+            });
+            userCollections.push(createdCollection);
+          }
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
-      let lastOrderIndex = lastCollection ? lastCollection.orderIndex : 0;
-
-      // Generate Prisma Query Object for all child collections in collectionsList
-      const queryList = collectionsList.right.map((x) =>
-        this.generatePrismaQueryObj(x, userID, ++lastOrderIndex, reqType),
-      );
-
-      const parent = destCollectionID
-        ? { connect: { id: destCollectionID } }
-        : undefined;
-
-      for (const query of queryList) {
-        const createdCollection = await tx.userCollection.create({
-          data: { ...query, parent },
-        });
-        userCollections.push(createdCollection);
-      }
-    });
+    } catch (error) {
+      return E.left(USER_COLLECTION_CREATION_FAILED);
+    }
 
     if (isCollectionDuplication) {
       const collectionData = await this.fetchCollectionData(

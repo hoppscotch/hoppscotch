@@ -12,6 +12,7 @@ import { useToast } from "~/composables/toast"
 import { PasswordGrantTypeParams } from "@hoppscotch/data"
 import { content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
+import { refreshToken } from "../utils"
 
 const interceptorService = getService(KernelInterceptorService)
 
@@ -22,6 +23,8 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
   scopes: true,
   username: true,
   password: true,
+  tokenRequestParams: true,
+  refreshRequestParams: true,
 }).refine(
   (params) => {
     return (
@@ -46,6 +49,8 @@ export const getDefaultPasswordFlowParams = (): PasswordFlowParams => ({
   scopes: undefined,
   username: "",
   password: "",
+  tokenRequestParams: [],
+  refreshRequestParams: [],
 })
 
 const initPasswordOauthFlow = async ({
@@ -55,30 +60,58 @@ const initPasswordOauthFlow = async ({
   clientSecret,
   scopes,
   authEndpoint,
+  tokenRequestParams,
 }: PasswordFlowParams) => {
   const toast = useToast()
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  }
+
+  const bodyParams: Record<string, string> = {
+    grant_type: "password",
+    client_id: clientID,
+    username,
+    password,
+    ...(clientSecret && {
+      client_secret: clientSecret,
+    }),
+    ...(scopes && {
+      scope: scopes,
+    }),
+  }
+
+  const urlParams: Record<string, string> = {}
+
+  // Process additional token request parameters
+  if (tokenRequestParams) {
+    tokenRequestParams
+      .filter((param) => param.active && param.key && param.value)
+      .forEach((param) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          // Default to body
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
+
+  const url = new URL(authEndpoint)
+  Object.entries(urlParams).forEach(([key, value]) => {
+    url.searchParams.set(key, value)
+  })
+
   const { response } = interceptorService.execute({
     id: Date.now(),
-    url: authEndpoint,
+    url: url.toString(),
     method: "POST",
     version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
-      grant_type: "password",
-      client_id: clientID,
-      username,
-      password,
-      ...(clientSecret && {
-        client_secret: clientSecret,
-      }),
-      ...(scopes && {
-        scope: scopes,
-      }),
-    }),
+    headers,
+    content: content.urlencoded(bodyParams),
   })
 
   const res = await response
@@ -191,5 +224,6 @@ export default createFlowConfig(
   "PASSWORD" as const,
   PasswordFlowParamsSchema,
   initPasswordOauthFlow,
-  handleRedirectForAuthCodeOauthFlow
+  handleRedirectForAuthCodeOauthFlow,
+  refreshToken
 )

@@ -2383,11 +2383,11 @@ const dropCollection = (payload: {
 
           const inheritedProperty =
             teamCollectionAdapter.cascadeParentCollectionForProperties(
-              destinationCollectionIndex
+              `${destinationCollectionIndex}/${collectionIndexDragged}`
             )
 
           updateInheritedPropertiesForAffectedRequests(
-            `${destinationCollectionIndex}`,
+            `${destinationCollectionIndex}/${collectionIndexDragged}`,
             inheritedProperty,
             "rest"
           )
@@ -2429,6 +2429,17 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
         updateSaveContextForAffectedRequests(
           collectionIndexDragged,
           `${rootLength - 1}`
+        )
+
+        const inheritedProperty = cascadeParentCollectionForProperties(
+          `${rootLength - 1}`,
+          "rest"
+        )
+
+        updateInheritedPropertiesForAffectedRequests(
+          `${rootLength - 1}`,
+          inheritedProperty,
+          "rest"
         )
       }
 
@@ -2989,7 +3000,7 @@ const setCollectionProperties = (newCollection: {
         "rest",
         collectionId
       )
-    }, 200)
+    }, 300)
   }
 
   displayModalEditProperties(false)

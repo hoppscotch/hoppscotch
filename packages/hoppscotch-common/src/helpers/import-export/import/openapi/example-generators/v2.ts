@@ -133,7 +133,7 @@ const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
       )
     ),
     O.map((schema) => schema.items as OpenAPIV2.ItemsObject),
-    O.filter((items) => items != null), // Filter out null/undefined items
+    O.filter((items) => items !== null), // Filter out null/undefined items
     O.map(generateExampleArrayFromOpenAPIV2ItemsObject)
   )
 

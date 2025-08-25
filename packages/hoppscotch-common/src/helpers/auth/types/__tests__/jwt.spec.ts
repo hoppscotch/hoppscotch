@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { generateJWTAuthHeaders } from "../jwt"
-import { mockRequest, mockEnvVars } from "./test-utils"
+import { generateJwtAuthHeaders } from "../jwt"
+import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
 
 // Mock the jwt helper
@@ -19,7 +19,7 @@ describe("JWT Auth", () => {
     vi.clearAllMocks()
   })
 
-  describe("generateJWTAuthHeaders", () => {
+  describe("generateJwtAuthHeaders", () => {
     test("generates JWT auth header with basic configuration", async () => {
       const mockToken =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
@@ -40,9 +40,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -83,9 +83,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -100,10 +100,10 @@ describe("JWT Auth", () => {
       const auth: HoppRESTAuth & { authType: "jwt" } = {
         authActive: true,
         authType: "jwt",
-        secret: "{{JWT_SECRET}}",
+        secret: "<<JWT_SECRET>>",
         privateKey: "",
         algorithm: "HS256",
-        payload: "{{JWT_PAYLOAD}}",
+        payload: "<<JWT_PAYLOAD>>",
         addTo: "HEADERS",
         isSecretBase64Encoded: false,
         headerPrefix: "Bearer ",
@@ -111,9 +111,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -148,9 +148,9 @@ describe("JWT Auth", () => {
         jwtHeaders: '{"typ": "JWT"}',
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -185,9 +185,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -221,9 +221,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -248,9 +248,9 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
@@ -258,7 +258,7 @@ describe("JWT Auth", () => {
     })
 
     test("handles JWT generation failure", async () => {
-      vi.mocked(generateJWTToken).mockRejectedValue(new Error("Invalid secret"))
+      vi.mocked(generateJWTToken).mockResolvedValue(null)
 
       const auth: HoppRESTAuth & { authType: "jwt" } = {
         authActive: true,
@@ -274,14 +274,13 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 
-      expect(headers).toHaveLength(1)
-      expect(headers[0].value).toBe("Bearer ")
+      expect(headers).toHaveLength(0)
     })
 
     test("handles different JWT algorithms", async () => {
@@ -305,9 +304,9 @@ describe("JWT Auth", () => {
           jwtHeaders: "{}",
         }
 
-        const headers = await generateJWTAuthHeaders(
+        const headers = await generateJwtAuthHeaders(
           auth,
-          mockRequest,
+          createBaseRequest(),
           mockEnvVars
         )
 
@@ -354,9 +353,9 @@ describe("JWT Auth", () => {
         jwtHeaders: '{"alg": "HS256", "typ": "JWT", "kid": "key-id"}',
       }
 
-      const headers = await generateJWTAuthHeaders(
+      const headers = await generateJwtAuthHeaders(
         auth,
-        mockRequest,
+        createBaseRequest(),
         mockEnvVars
       )
 

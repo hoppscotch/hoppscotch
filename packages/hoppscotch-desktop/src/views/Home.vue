@@ -131,7 +131,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
-import { load } from "@hoppscotch/plugin-appload"
+import { load, close } from "@hoppscotch/plugin-appload"
 import { getVersion } from "@tauri-apps/api/app"
 
 import { UpdateStatus, CheckResult, UpdateState } from "~/types"
@@ -341,6 +341,11 @@ const loadVendored = async () => {
     }
 
     console.log("Vendored app loaded successfully")
+
+    console.log("Closing main window")
+
+    // NOTE: No need to await the promise here.
+    close({ windowLabel: 'main' })
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     console.error("Error loading vendored app:", errorMessage)

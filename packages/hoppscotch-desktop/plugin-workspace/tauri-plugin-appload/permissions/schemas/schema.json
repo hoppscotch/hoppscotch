@@ -49,7 +49,7 @@
           "minimum": 1.0
         },
         "description": {
-          "description": "Human-readable description of what the permission does. Tauri convention is to use <h4> headings in markdown content for Tauri documentation generation purposes.",
+          "description": "Human-readable description of what the permission does. Tauri convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
           "type": [
             "string",
             "null"
@@ -111,7 +111,7 @@
           "type": "string"
         },
         "description": {
-          "description": "Human-readable description of what the permission does. Tauri internal convention is to use <h4> headings in markdown content for Tauri documentation generation purposes.",
+          "description": "Human-readable description of what the permission does. Tauri internal convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
           "type": [
             "string",
             "null"
@@ -297,57 +297,78 @@
         {
           "description": "Enables the clear command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-clear"
+          "const": "allow-clear",
+          "markdownDescription": "Enables the clear command without any pre-configured scope."
         },
         {
           "description": "Denies the clear command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-clear"
+          "const": "deny-clear",
+          "markdownDescription": "Denies the clear command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close"
+        },
+        {
+          "description": "Denies the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close"
         },
         {
           "description": "Enables the download command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-download"
+          "const": "allow-download",
+          "markdownDescription": "Enables the download command without any pre-configured scope."
         },
         {
           "description": "Denies the download command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-download"
+          "const": "deny-download",
+          "markdownDescription": "Denies the download command without any pre-configured scope."
         },
         {
           "description": "Enables the load command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-load"
+          "const": "allow-load",
+          "markdownDescription": "Enables the load command without any pre-configured scope."
         },
         {
           "description": "Denies the load command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-load"
+          "const": "deny-load",
+          "markdownDescription": "Denies the load command without any pre-configured scope."
         },
         {
           "description": "Enables the ping command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-ping"
+          "const": "allow-ping",
+          "markdownDescription": "Enables the ping command without any pre-configured scope."
         },
         {
           "description": "Denies the ping command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-ping"
+          "const": "deny-ping",
+          "markdownDescription": "Denies the ping command without any pre-configured scope."
         },
         {
           "description": "Enables the remove command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-remove"
+          "const": "allow-remove",
+          "markdownDescription": "Enables the remove command without any pre-configured scope."
         },
         {
           "description": "Denies the remove command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-remove"
+          "const": "deny-remove",
+          "markdownDescription": "Denies the remove command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for AppLoad plugin",
+          "description": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-remove`",
           "type": "string",
-          "const": "default"
+          "const": "default",
+          "markdownDescription": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-remove`"
         }
       ]
     }

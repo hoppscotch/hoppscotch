@@ -5448,7 +5448,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-appload"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?branch=feat-desktop-appload-top-level-config#3d03f6c7b1726ecf179af2124e77a9742d600637"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=e05861959938b57479a1a81fa796735ebbd08c7c#e05861959938b57479a1a81fa796735ebbd08c7c"
 dependencies = [
  "base64 0.22.1",
  "blake3",

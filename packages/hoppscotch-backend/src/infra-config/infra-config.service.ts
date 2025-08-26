@@ -42,6 +42,7 @@ import {
   SaveOnboardingConfigResponse,
 } from './dto/onboarding.dto';
 import * as crypto from 'crypto';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
 
 @Injectable()
 export class InfraConfigService implements OnModuleInit {
@@ -125,10 +126,10 @@ export class InfraConfigService implements OnModuleInit {
         stopApp();
       }
     } catch (error) {
-      if (error.code === 'P1001') {
+      if (error.code === PrismaError.DATABASE_UNREACHABLE) {
         // Prisma error code for 'Can't reach at database server'
         // We're not throwing error here because we want to allow the app to run 'pnpm install'
-      } else if (error.code === 'P2021') {
+      } else if (error.code === PrismaError.TABLE_DOES_NOT_EXIST) {
         // Prisma error code for 'Table does not exist'
         throwErr(DATABASE_TABLE_NOT_EXIST);
       } else {

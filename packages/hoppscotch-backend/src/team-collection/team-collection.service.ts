@@ -45,6 +45,7 @@ import {
 } from './helper';
 import { RESTError } from 'src/types/RESTError';
 import { TeamService } from 'src/team/team.service';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
 
 @Injectable()
 export class TeamCollectionService {
@@ -569,14 +570,14 @@ export class TeamCollectionService {
         retryCount++;
         if (
           retryCount >= this.MAX_RETRIES ||
-          (error.code !== 'P2002' &&
-            error.code !== 'P2034' &&
-            error.code !== 'P2028') // return for all DB error except deadlocks, unique constraint violations, transaction timeouts
+          (error.code !== PrismaError.UNIQUE_CONSTRAINT_VIOLATION &&
+            error.code !== PrismaError.TRANSACTION_DEADLOCK &&
+            error.code !== PrismaError.TRANSACTION_TIMEOUT) // return for all DB error except deadlocks, unique constraint violations, transaction timeouts
         )
           return E.left(TEAM_COL_REORDERING_FAILED);
 
         await delay(retryCount * 100);
-        console.log(`Retrying updateOrderIndex... (${retryCount})`);
+        console.debug(`Retrying updateOrderIndex... (${retryCount})`);
       }
     }
 

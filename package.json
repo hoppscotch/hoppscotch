@@ -36,8 +36,11 @@
   "pnpm": {
     "overrides": {
       "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
+      "apiconnect-wsdl": "2.0.36",
+      "cross-spawn": "7.0.6",
       "execa@0.10.0": "2.0.0",
-      "sha.js@2.4.11": "2.4.12"
+      "sha.js@2.4.11": "2.4.12",
+      "vue": "3.5.19"
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",

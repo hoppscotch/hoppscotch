@@ -168,7 +168,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   /**
    * Keeps only unique environment variables and prefers ones with values.
-   *  * @param envs The environment list to be transformed
+   * @param envs The environment list to be transformed
    * @returns The transformed environment list with keys with value
    */
   private filterNonEmptyEnvironmentVariables = (

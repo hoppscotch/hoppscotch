@@ -78,7 +78,12 @@ export function resolveSaveContextOnCollectionReorder(
   }
 }
 
-const getParentFolderPath = (path?: string) => {
+/**
+ * Returns the last folder path from the given path.
+ * @param path Path can be folder path or collection path
+ * @returns Get the last folder path from the given path
+ */
+const getLastParentFolderPath = (path?: string) => {
   if (!path) return ""
   const pathArray = path.split("/")
   return pathArray.slice(pathArray.length - 1, pathArray.length).join("/")
@@ -229,7 +234,8 @@ export function updateInheritedPropertiesForAffectedRequests(
 
     return (
       (saveContextPath?.startsWith(path) ||
-        getParentFolderPath(saveContextPath) === getParentFolderPath(path)) ??
+        getLastParentFolderPath(saveContextPath) ===
+          getLastParentFolderPath(path)) ??
       false
     )
   })

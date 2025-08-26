@@ -25,7 +25,7 @@
     "@lezer/generator": "1.8.0",
     "@rollup/plugin-typescript": "12.1.4",
     "mocha": "11.7.1",
-    "rollup": "4.46.3",
+    "rollup": "4.48.1",
     "typescript": "5.9.2"
   }
 }

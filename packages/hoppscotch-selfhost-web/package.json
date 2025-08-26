@@ -45,7 +45,7 @@
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
     "verzod": "0.4.0",
-    "vue": "3.5.19",
+    "vue": "3.5.20",
     "workbox-window": "7.3.0",
     "zod": "3.25.32"
   },
@@ -58,7 +58,7 @@
     "@graphql-codegen/typescript-urql-graphcache": "3.1.1",
     "@graphql-codegen/urql-introspection": "3.0.1",
     "@graphql-typed-document-node/core": "3.2.0",
-    "@iconify-json/lucide": "1.2.63",
+    "@iconify-json/lucide": "1.2.64",
     "@intlify/unplugin-vue-i18n": "6.0.8",
     "@rushstack/eslint-patch": "1.12.0",
     "@typescript-eslint/eslint-plugin": "8.40.0",

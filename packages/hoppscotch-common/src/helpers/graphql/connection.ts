@@ -400,11 +400,20 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     .filter((item) => item.active && item.key !== "")
     .forEach(({ key, value }) => (finalHeaders[key] = value))
 
+  const finalHoppHeaders: HoppRESTHeaders = Object.entries(finalHeaders).map(
+    ([key, value]) => ({
+      active: true,
+      key,
+      value,
+      description: "",
+    })
+  )
+
   const gqlRequest: HoppGQLRequest = {
     v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
-    headers: runHeaders ?? request.headers,
+    headers: finalHoppHeaders,
     query,
     variables,
     auth: auth ?? request.auth,

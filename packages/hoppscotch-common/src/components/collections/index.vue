@@ -878,7 +878,6 @@ const onAddRequest = async (requestName: string) => {
   if (collectionsType.value.type === "my-collections") {
     const response: { valid: boolean; error: string } = await isValidUser()
     if (!response.valid) {
-
       toast.error(response.error)
       return
     }
@@ -1057,7 +1056,6 @@ const updateEditingCollection = async (newName: string) => {
   if (collectionsType.value.type === "my-collections") {
     const response: { valid: boolean; error: string } = await isValidUser()
     if (!response.valid) {
-
       toast.error(response.error)
       return
     }
@@ -2837,7 +2835,6 @@ const editProperties = async (payload: {
   if (collectionsType.value.type === "my-collections") {
     const response: { valid: boolean; error: string } = await isValidUser()
     if (!response.valid) {
-
       toast.error(response.error)
       return
     }

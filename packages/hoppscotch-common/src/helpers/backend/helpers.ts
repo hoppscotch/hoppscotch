@@ -265,8 +265,7 @@ export const getTeamCollectionJSON = async (teamID: string) => {
  */
 export const verifyAuthTokens = async (): Promise<boolean> => {
   try {
-    const BACKEND_API_URL =
-      import.meta.env.VITE_BACKEND_API_URL ?? "https://api.hoppscotch.io"
+    const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL
 
     const response = await axios.get(`${BACKEND_API_URL}/auth/verify-token`, {
       headers: {

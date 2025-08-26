@@ -14,7 +14,6 @@ import DispatchingStore, {
 } from "~/newstore/DispatchingStore"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { RESTTabService } from "~/services/tab/rest"
 
 export type SelectedEnvironmentIndex =
   | { type: "NO_ENV_SELECTED" }
@@ -438,19 +437,6 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
 ).pipe(
   map(([selectedEnv, globalEnv]) => {
-    const restTabs = getService(RESTTabService)
-
-    const currentTab = restTabs.currentActiveTab.value
-
-    const currentTabRequest =
-      currentTab.document.type === "example-response"
-        ? currentTab.document.response.originalRequest
-        : currentTab.document.request
-
-    const requestVariables = currentTabRequest?.requestVariables
-      ? currentTabRequest.requestVariables
-      : []
-
     const effectiveAggregateEnvs: AggregateEnvironment[] = []
 
     // Ensure pre-defined variables are prioritised over other environment variables with the same name
@@ -465,18 +451,6 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
     })
 
     const aggregateEnvKeys = effectiveAggregateEnvs.map(({ key }) => key)
-
-    requestVariables.forEach(({ key, value, active }) => {
-      if (!aggregateEnvKeys.includes(key) && active) {
-        effectiveAggregateEnvs.push({
-          key,
-          currentValue: value,
-          initialValue: value,
-          secret: false,
-          sourceEnv: "RequestVariable",
-        })
-      }
-    })
 
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
@@ -520,19 +494,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 )
 
 export function getAggregateEnvs() {
-  const restTabs = getService(RESTTabService)
-
   const currentEnv = getCurrentEnvironment()
-  const currentTab = restTabs.currentActiveTab.value
-
-  const currentTabRequest =
-    currentTab.document.type === "example-response"
-      ? currentTab.document.response.originalRequest
-      : currentTab.document.request
-
-  const requestVariables = currentTabRequest?.requestVariables
-    ? currentTabRequest.requestVariables
-    : []
 
   return [
     ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
@@ -544,22 +506,6 @@ export function getAggregateEnvs() {
         sourceEnv: currentEnv.name,
       }
     }),
-
-    ...requestVariables
-      .map(({ key, value, active }) => {
-        if (active) {
-          return <AggregateEnvironment>{
-            key,
-            currentValue: value,
-            initialValue: value,
-            sourceEnv: "RequestVariable",
-            secret: false,
-          }
-        }
-
-        return
-      })
-      .filter((v): v is AggregateEnvironment => v !== undefined),
 
     ...currentEnv.variables.map((x) => {
       let currentValue = ""
@@ -592,22 +538,10 @@ export function getAggregateEnvs() {
 }
 
 export function getAggregateEnvsWithCurrentValue() {
-  const restTabs = getService(RESTTabService)
-
   const secretEnvironmentService = getService(SecretEnvironmentService)
   const currentEnvironmentValueService = getService(CurrentValueService)
 
   const currentEnv = getCurrentEnvironment()
-  const currentTab = restTabs.currentActiveTab.value
-
-  const currentTabRequest =
-    currentTab.document.type === "example-response"
-      ? currentTab.document.response.originalRequest
-      : currentTab.document.request
-
-  const requestVariables = currentTabRequest?.requestVariables
-    ? currentTabRequest.requestVariables
-    : []
 
   return [
     ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
@@ -619,21 +553,6 @@ export function getAggregateEnvsWithCurrentValue() {
         sourceEnv: currentEnv.name,
       }
     }),
-
-    ...requestVariables
-      .map(({ key, value, active }) => {
-        if (active) {
-          return <AggregateEnvironment>{
-            key,
-            currentValue: value,
-            initialValue: value,
-            sourceEnv: "RequestVariable",
-            secret: false,
-          }
-        }
-        return
-      })
-      .filter((v): v is AggregateEnvironment => v !== undefined),
 
     ...currentEnv.variables.map((x, index) => {
       let currentValue = x.currentValue
@@ -683,97 +602,74 @@ export function getAggregateEnvsWithCurrentValue() {
 
 export const aggregateEnvsWithCurrentValue$: Observable<
   AggregateEnvironment[]
-> = combineLatest([currentEnvironment$, globalEnv$]).pipe(
-  map(([selectedEnv, globalEnv]) => {
-    const restTabs = getService(RESTTabService)
+> = (() => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
 
-    const secretEnvironmentService = getService(SecretEnvironmentService)
-    const currentEnvironmentValueService = getService(CurrentValueService)
+  return combineLatest([currentEnvironment$, globalEnv$]).pipe(
+    map(([selectedEnv, globalEnv]) => {
+      const results: AggregateEnvironment[] = []
 
-    const currentTab = restTabs.currentActiveTab.value
-
-    const currentTabRequest =
-      currentTab.document.type === "example-response"
-        ? currentTab.document.response.originalRequest
-        : currentTab.document.request
-
-    const requestVariables = currentTabRequest?.requestVariables
-      ? currentTabRequest.requestVariables
-      : []
-
-    const results: AggregateEnvironment[] = []
-
-    // Ensure pre-defined variables are prioritised over other environment variables with the same name
-    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
-      results.push({
-        key,
-        currentValue: getValue(),
-        initialValue: getValue(),
-        secret: false,
-        sourceEnv: selectedEnv?.name ?? "Global",
-      })
-    })
-
-    requestVariables.map(({ key, value, active }) => {
-      if (active) {
+      // Pre-defined variables
+      HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
         results.push({
           key,
-          currentValue: value,
-          initialValue: value,
+          currentValue: getValue(),
+          initialValue: getValue(),
           secret: false,
-          sourceEnv: "RequestVariable",
+          sourceEnv: selectedEnv?.name ?? "Global",
         })
-      }
-    })
-
-    selectedEnv?.variables.map((x, index) => {
-      let currentValue = x.currentValue
-      if (x.secret) {
-        currentValue =
-          secretEnvironmentService.getSecretEnvironmentVariableValue(
-            selectedEnv.id,
-            index
-          ) ?? ""
-      }
-      results.push({
-        key: x.key,
-        currentValue:
-          currentEnvironmentValueService.getEnvironmentVariableValue(
-            selectedEnv.id,
-            index
-          ) ?? currentValue,
-        initialValue: x.initialValue,
-        secret: x.secret,
-        sourceEnv: selectedEnv.name,
       })
-    })
 
-    globalEnv.variables.map((x, index) => {
-      let currentValue = x.currentValue
-      if (x.secret) {
-        currentValue =
-          secretEnvironmentService.getSecretEnvironmentVariableValue(
-            "Global",
-            index
-          ) ?? ""
-      }
-      results.push({
-        key: x.key,
-        currentValue:
-          currentEnvironmentValueService.getEnvironmentVariableValue(
-            "Global",
-            index
-          ) ?? currentValue,
-        initialValue: x.initialValue,
-        secret: x.secret,
-        sourceEnv: "Global",
+      selectedEnv?.variables.map((x, index) => {
+        let currentValue = x.currentValue
+        if (x.secret) {
+          currentValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              selectedEnv.id,
+              index
+            ) ?? ""
+        }
+        results.push({
+          key: x.key,
+          currentValue:
+            currentEnvironmentValueService.getEnvironmentVariableValue(
+              selectedEnv.id,
+              index
+            ) ?? currentValue,
+          initialValue: x.initialValue,
+          secret: x.secret,
+          sourceEnv: selectedEnv.name,
+        })
       })
-    })
 
-    return results
-  }),
-  distinctUntilChanged(isEqual)
-)
+      globalEnv.variables.map((x, index) => {
+        let currentValue = x.currentValue
+        if (x.secret) {
+          currentValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              "Global",
+              index
+            ) ?? ""
+        }
+        results.push({
+          key: x.key,
+          currentValue:
+            currentEnvironmentValueService.getEnvironmentVariableValue(
+              "Global",
+              index
+            ) ?? currentValue,
+          initialValue: x.initialValue,
+          secret: x.secret,
+          sourceEnv: "Global",
+        })
+      })
+
+      return results
+    }),
+    distinctUntilChanged(isEqual)
+  )
+})()
 
 export function getCurrentEnvironment(): Environment {
   if (

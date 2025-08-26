@@ -392,33 +392,52 @@ const aggregateEnvs = useReadonlyStream(
 const tabs = useService(RESTTabService)
 
 const envVars = computed(() => {
+  // If envs are passed directly as props, mask secrets and return them
   if (props.envs?.length) {
-    return props.envs.map((x) => {
-      const { key, secret } = x
-      const currentValue = secret ? "********" : x.currentValue
-      const initialValue = secret ? "********" : x.initialValue
-      const sourceEnv = "sourceEnv" in x ? x.sourceEnv : ""
-      return {
+    return props.envs.map(
+      ({ key, currentValue, initialValue, secret, sourceEnv }) => ({
         key,
-        currentValue,
-        initialValue,
-        sourceEnv,
+        currentValue: secret ? "********" : currentValue,
+        initialValue: secret ? "********" : initialValue,
+        sourceEnv: sourceEnv ?? "",
         secret,
-      }
-    })
+      })
+    )
   }
 
+  const currentTab = tabs.currentActiveTab.value
+  const { document } = currentTab
+  const isRequest = document.type === "request"
+  const isExample = document.type === "example-response"
+
+  // variables inherited from the collection if we're in a request or example
   const collectionVariables =
-    tabs.currentActiveTab.value.document.type === "request" ||
-    tabs.currentActiveTab.value.document.type === "example-response"
+    isRequest || isExample
       ? transformInheritedCollectionVariablesToAggregateEnv(
-          tabs.currentActiveTab.value.document.inheritedProperties?.variables ??
-            [],
+          document.inheritedProperties?.variables ?? [],
           false
         )
       : []
 
-  return [...collectionVariables, ...aggregateEnvs.value]
+  // request-level variables
+  const rawRequestVars = isRequest
+    ? document.request.requestVariables
+    : isExample
+      ? document.response.originalRequest.requestVariables
+      : []
+
+  // formated request variables
+  const requestVariables = rawRequestVars
+    .filter((v) => v.active)
+    .map(({ key, value }) => ({
+      key,
+      currentValue: value,
+      initialValue: value,
+      sourceEnv: "RequestVariable",
+      secret: false,
+    }))
+
+  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
 })
 
 function envAutoCompletion(context: CompletionContext) {

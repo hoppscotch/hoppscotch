@@ -7,7 +7,10 @@ import {
   hoverTooltip,
 } from "@codemirror/view"
 import { StreamSubscriberFunc } from "@composables/stream"
-import { parseTemplateStringE } from "@hoppscotch/data"
+import {
+  HoppRESTRequestVariables,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, watch } from "vue"
 
@@ -22,20 +25,22 @@ import {
 } from "~/newstore/environments"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+
 import IconEdit from "~icons/lucide/edit?raw"
 import IconUser from "~icons/lucide/user?raw"
 import IconUsers from "~icons/lucide/users?raw"
 import IconGlobe from "~icons/lucide/globe?raw"
 import IconVariable from "~icons/lucide/variable?raw"
 import IconLibrary from "~icons/lucide/library?raw"
+
 import { isComment } from "./helpers"
-import { CurrentValueService } from "~/services/current-environment-value.service"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
-
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
-
 const HOPP_REQUEST_VARIABLE_HIGHLIGHT = "request-variable-highlight"
 const HOPP_COLLECTION_ENVIRONMENT_HIGHLIGHT = "collection-variable-highlight"
 const HOPP_ENVIRONMENT_HIGHLIGHT = "environment-variable-highlight"
@@ -44,7 +49,6 @@ const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "environment-not-found-highlight"
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
-
 const restTabs = getService(RESTTabService)
 
 /**
@@ -56,11 +60,9 @@ const filterNonEmptyEnvironmentVariables = (
   envs: AggregateEnvironment[]
 ): AggregateEnvironment[] => {
   const envsMap = new Map<string, AggregateEnvironment>()
-
   envs.forEach((env) => {
     if (envsMap.has(env.key)) {
       const existingEnv = envsMap.get(env.key)
-
       if (
         existingEnv?.currentValue === "" &&
         existingEnv?.initialValue === "" &&
@@ -72,7 +74,6 @@ const filterNonEmptyEnvironmentVariables = (
       envsMap.set(env.key, env)
     }
   })
-
   return Array.from(envsMap.values())
 }
 
@@ -80,9 +81,8 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
     (view, pos, side) => {
       // Check if the current position is inside a comment then disable the tooltip
-      if (isComment(view.state, pos)) {
-        return null
-      }
+      if (isComment(view.state, pos)) return null
+
       const { from, to, text } = view.state.doc.lineAt(pos)
 
       // TODO: When Codemirror 6 allows this to work (not make the
@@ -98,7 +98,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       // Tracking the start and the end of the words
       let start = pos
       let end = pos
-
       while (start > from && /[a-zA-Z0-9-_]+/.test(text[start - from - 1]))
         start--
       while (end < to && /[a-zA-Z0-9-_]+/.test(text[end - from])) end++
@@ -113,20 +112,15 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         return null
 
       const parsedEnvKey = text.slice(start - from, end - from)
-
       const envsWithNoEmptyValues =
         filterNonEmptyEnvironmentVariables(aggregateEnvs)
-
       const tooltipEnv = envsWithNoEmptyValues.find(
         (env) => env.key === parsedEnvKey
       )
-
       const currentSelectedEnvironment = getCurrentEnvironment()
-
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
       let envInitialValue = tooltipEnv?.initialValue
-
       // If the environment is not a request variable, get the current value from the current environment service
       let envCurrentValue =
         tooltipEnv?.sourceEnv !== "RequestVariable"
@@ -141,16 +135,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
 
-      let tooltipSourceEnvID = "Global"
-
-      if (tooltipEnv?.sourceEnv === "Global") {
-        tooltipSourceEnvID = "Global"
-      } else {
-        tooltipSourceEnvID =
-          tooltipEnv?.sourceEnv === "CollectionVariable"
+      const tooltipSourceEnvID =
+        tooltipEnv?.sourceEnv === "Global"
+          ? "Global"
+          : tooltipEnv?.sourceEnv === "CollectionVariable"
             ? tooltipEnv.sourceEnvID!
             : currentSelectedEnvironment.id
-      }
 
       const hasSecretStored = secretEnvironmentService.hasSecretValue(
         tooltipSourceEnvID,
@@ -225,13 +215,13 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             | "modals.team.environment.edit"
             | "modals.global.environment.update" = "modals.my.environment.edit"
 
-          if (tooltipEnv?.sourceEnv === "Global") {
+          if (tooltipEnv?.sourceEnv === "Global")
             invokeActionType = "modals.global.environment.update"
-          } else if (selectedEnvType === "MY_ENV") {
+          else if (selectedEnvType === "MY_ENV")
             invokeActionType = "modals.my.environment.edit"
-          } else if (selectedEnvType === "TEAM_ENV") {
+          else if (selectedEnvType === "TEAM_ENV")
             invokeActionType = "modals.team.environment.edit"
-          } else {
+          else {
             invokeActionType = "modals.my.environment.edit"
           }
 
@@ -250,9 +240,8 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           }
         })
         editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
-        if (tooltipEnv?.sourceEnv !== "CollectionVariable") {
+        if (tooltipEnv?.sourceEnv !== "CollectionVariable")
           tooltip.appendChild(editIcon)
-        }
       }
 
       return {
@@ -264,7 +253,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         arrow: true,
         create() {
           const dom = document.createElement("div")
-
           const tooltipContainer = document.createElement("div")
 
           const tooltipHeaderBlock = document.createElement("div")
@@ -279,7 +267,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
-
           const envNameBlock = document.createElement("span")
           envNameBlock.innerText = envName
 
@@ -296,20 +283,20 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const initialValueBlock = document.createElement("div")
           initialValueBlock.className = "flex items-center space-x-2"
           const initialValueTitle = document.createElement("div")
-          const initialValue = document.createElement("span")
-          initialValue.textContent = envInitialValue || ""
           initialValueTitle.textContent = "Initial"
           initialValueTitle.className = "font-bold mr-4 "
+          const initialValue = document.createElement("span")
+          initialValue.textContent = envInitialValue || ""
           initialValueBlock.appendChild(initialValueTitle)
           initialValueBlock.appendChild(initialValue)
 
           const currentValueBlock = document.createElement("div")
           currentValueBlock.className = "flex items-center space-x-2"
           const currentValueTitle = document.createElement("div")
+          currentValueTitle.textContent = "Current"
+          currentValueTitle.className = "font-bold mr-1.5"
           const currentValue = document.createElement("span")
           currentValue.textContent = envCurrentValue || ""
-          currentValueTitle.textContent = "Current "
-          currentValueTitle.className = "font-bold mr-1.5"
           currentValueBlock.appendChild(currentValueTitle)
           currentValueBlock.appendChild(currentValue)
 
@@ -332,7 +319,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
   let className = HOPP_ENV_HIGHLIGHT_NOT_FOUND
-
   const envSource = aggregateEnvs.find(
     (k: { key: string }) => k.key === env.slice(2, -2)
   )?.sourceEnv
@@ -344,9 +330,7 @@ function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
   else if (envSource === "Global") className = HOPP_GLOBAL_ENVIRONMENT_HIGHLIGHT
   else if (envSource !== undefined) className = HOPP_ENVIRONMENT_HIGHLIGHT
 
-  return Decoration.mark({
-    class: `${HOPP_ENV_HIGHLIGHT} ${className}`,
-  })
+  return Decoration.mark({ class: `${HOPP_ENV_HIGHLIGHT} ${className}` })
 }
 
 const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
@@ -354,9 +338,7 @@ const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
     regexp: HOPP_ENVIRONMENT_REGEX,
     decoration: (m, view, pos) => {
       // Check if the current position is inside a comment then disable the highlight
-      if (isComment(view.state, pos)) {
-        return null
-      }
+      if (isComment(view.state, pos)) return null
       return checkEnv(m[0], aggregateEnvs)
     },
   })
@@ -366,9 +348,7 @@ export const environmentHighlightStyle = (
 ) => {
   const envsWithNoEmptyValues =
     filterNonEmptyEnvironmentVariables(aggregateEnvs)
-
   const decorator = getMatchDecorator(envsWithNoEmptyValues)
-
   return ViewPlugin.define(
     (view) => ({
       decorations: decorator.createDeco(view),
@@ -376,15 +356,40 @@ export const environmentHighlightStyle = (
         this.decorations = decorator.updateDeco(u, this.decorations)
       },
     }),
-    {
-      decorations: (v) => v.decorations,
-    }
+    { decorations: (v) => v.decorations }
   )
+}
+
+/**
+ * Function to get the request variables and collection variables in AggregateEnvironment type
+ * @param requestVariables Request Variables defined in the request
+ * @param collectionVariables Inherited Collection Variables
+ * @returns Transforms the request and collection variables to AggregateEnvironment type
+ */
+const getRequestAndCollectionVariables = (
+  requestVariables: HoppRESTRequestVariables,
+  collectionVariables: HoppInheritedProperty["variables"]
+) => {
+  const reqVars = requestVariables
+    .filter((v) => v.active)
+    .map(({ key, value }) => ({
+      key,
+      currentValue: value,
+      initialValue: value,
+      sourceEnv: "RequestVariable",
+      secret: false,
+    }))
+
+  const collVars = transformInheritedCollectionVariablesToAggregateEnv(
+    collectionVariables,
+    false
+  )
+
+  return [...reqVars, ...collVars]
 }
 
 export class HoppEnvironmentPlugin {
   private compartment = new Compartment()
-
   private envs: AggregateEnvironment[] = []
 
   constructor(
@@ -392,18 +397,42 @@ export class HoppEnvironmentPlugin {
     private editorView: Ref<EditorView | undefined>
   ) {
     const aggregateEnvs = getAggregateEnvsWithCurrentValue()
+    const currentTab = restTabs.currentActiveTab.value
+    const currentTabRequest =
+      currentTab.document.type === "example-response"
+        ? currentTab.document.response.originalRequest
+        : currentTab.document.request
+    const currentTabInheritedProperty = currentTab.document.inheritedProperties
 
-    this.envs = [...aggregateEnvs]
+    if (!currentTabRequest || !currentTabInheritedProperty) return
 
-    this.editorView.value?.dispatch({
-      effects: this.compartment.reconfigure([
-        cursorTooltipField(this.envs),
-        environmentHighlightStyle(this.envs),
-      ]),
-    })
+    watch(
+      [currentTabRequest, currentTabInheritedProperty],
+      ([request, document]) => {
+        const requestAndCollVars = getRequestAndCollectionVariables(
+          request.requestVariables,
+          document.variables
+        )
+
+        this.envs = [...requestAndCollVars, ...aggregateEnvs]
+
+        this.editorView.value?.dispatch({
+          effects: this.compartment.reconfigure([
+            cursorTooltipField(this.envs),
+            environmentHighlightStyle(this.envs),
+          ]),
+        })
+      },
+      { immediate: true, deep: true }
+    )
+
+    const requestAndCollVars = getRequestAndCollectionVariables(
+      currentTabRequest.requestVariables,
+      currentTabInheritedProperty.variables
+    )
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
-      this.envs = [...envs]
+      this.envs = [...requestAndCollVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([
@@ -424,7 +453,6 @@ export class HoppEnvironmentPlugin {
 
 export class HoppReactiveEnvPlugin {
   private compartment = new Compartment()
-
   private envs: AggregateEnvironment[] = []
 
   constructor(
@@ -435,7 +463,6 @@ export class HoppReactiveEnvPlugin {
       envsRef,
       (envs) => {
         this.envs = envs
-
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
             cursorTooltipField(this.envs),

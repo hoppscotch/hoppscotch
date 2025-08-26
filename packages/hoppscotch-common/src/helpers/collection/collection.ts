@@ -79,6 +79,17 @@ export function resolveSaveContextOnCollectionReorder(
 }
 
 /**
+ * Returns the last folder path from the given path.
+ * @param path Path can be folder path or collection path
+ * @returns Get the last folder path from the given path
+ */
+const getLastParentFolderPath = (path?: string) => {
+  if (!path) return ""
+  const pathArray = path.split("/")
+  return pathArray.slice(pathArray.length - 1, pathArray.length).join("/")
+}
+
+/**
  * Resolve save context for affected requests on drop folder from one to another
  * @param oldFolderPath
  * @param newFolderPath
@@ -91,17 +102,32 @@ export function updateSaveContextForAffectedRequests(
 ) {
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(oldFolderPath)
-    )
+    if (tab.document.type === "test-runner") return false
+
+    return tab.document.saveContext?.originLocation === "user-collection"
+      ? tab.document.saveContext.folderPath.startsWith(oldFolderPath)
+      : tab.document.saveContext?.originLocation === "team-collection"
+        ? tab.document.saveContext.collectionID!.startsWith(oldFolderPath) ||
+          tab.document.saveContext.collectionID === oldFolderPath
+        : false
   })
 
   for (const tab of tabs) {
+    if (tab.value.document.type === "test-runner") return
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
       tab.value.document.saveContext = {
         ...tab.value.document.saveContext,
         folderPath: tab.value.document.saveContext.folderPath.replace(
+          oldFolderPath,
+          newFolderPath
+        ),
+      }
+    } else if (
+      tab.value.document.saveContext?.originLocation === "team-collection"
+    ) {
+      tab.value.document.saveContext = {
+        ...tab.value.document.saveContext,
+        collectionID: tab.value.document.saveContext!.collectionID?.replace(
           oldFolderPath,
           newFolderPath
         ),
@@ -166,6 +192,32 @@ function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
   return result
 }
 
+/**
+ * Order collection variables based on their parentPath and parentID
+ * eg: path like 4/0/0 should come before 4/0/1 nad 4 should come before 4/0
+ * @param vars Collection of variables to be ordered
+ * @returns Ordered collection of variables
+ */
+const orderCollectionVariables = (
+  vars: HoppInheritedProperty["variables"]
+): HoppInheritedProperty["variables"] => {
+  return vars.sort((a, b) => {
+    if (a.parentPath && b.parentPath) {
+      return a.parentPath.localeCompare(b.parentPath)
+    }
+
+    if (a.parentPath) {
+      return -1
+    }
+
+    if (b.parentPath) {
+      return 1
+    }
+
+    return a.parentID.localeCompare(b.parentID)
+  })
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -176,6 +228,8 @@ export function updateInheritedPropertiesForAffectedRequests(
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
   const effectedTabs = tabService.getTabsRefTo((tab) => {
+    if ("type" in tab.document && tab.document.type === "test-runner")
+      return false
     const saveContext = tab.document.saveContext
 
     const saveContextPath =
@@ -183,7 +237,12 @@ export function updateInheritedPropertiesForAffectedRequests(
         ? saveContext.collectionID
         : saveContext?.folderPath
 
-    return saveContextPath?.startsWith(path) ?? false
+    return (
+      (saveContextPath?.startsWith(path) ||
+        getLastParentFolderPath(saveContextPath) ===
+          getLastParentFolderPath(path)) ??
+      false
+    )
   })
 
   effectedTabs.map((tab) => {
@@ -217,7 +276,8 @@ export function updateInheritedPropertiesForAffectedRequests(
 
       // filter out the headers with the parentID as the path in the inheritedProperties
       const inheritedHeaders = inheritedProperties.headers.filter(
-        (header) => header.parentID === path
+        (header) =>
+          path.startsWith(header.parentID ?? "") || header.parentID === path
       )
 
       // merge the headers with the parentID as the path
@@ -228,7 +288,13 @@ export function updateInheritedPropertiesForAffectedRequests(
       tab.value.document.inheritedProperties.headers = mergedHeaders
     }
 
-    if (tab.value.document.inheritedProperties?.variables && collectionId) {
+    if (tab.value.document.inheritedProperties?.variables && !collectionId) {
+      tab.value.document.inheritedProperties.variables =
+        inheritedProperties.variables
+    } else if (
+      tab.value.document.inheritedProperties?.variables &&
+      collectionId
+    ) {
       const tabInheritedVariables =
         tab.value.document.inheritedProperties.variables.filter(
           (variable) => variable.parentID !== collectionId
@@ -239,7 +305,9 @@ export function updateInheritedPropertiesForAffectedRequests(
         (variable) => variable.parentID === collectionId
       )
 
-      const finalVariables = [...inheritedVariables, ...tabInheritedVariables]
+      const finalVariables = orderCollectionVariables([
+        ...new Set([...inheritedVariables, ...tabInheritedVariables]),
+      ])
 
       tab.value.document.inheritedProperties.variables = finalVariables
     }

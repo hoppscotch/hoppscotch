@@ -2296,8 +2296,15 @@ const isMoveToSameLocation = (
 const dropCollection = (payload: {
   collectionIndexDragged: string
   destinationCollectionIndex: string
+  destinationParentPath?: string
+  currentParentIndex?: string
 }) => {
-  const { collectionIndexDragged, destinationCollectionIndex } = payload
+  const {
+    collectionIndexDragged,
+    destinationCollectionIndex,
+    destinationParentPath,
+    currentParentIndex,
+  } = payload
   if (!collectionIndexDragged || !destinationCollectionIndex) return
   if (collectionIndexDragged === destinationCollectionIndex) return
 
@@ -2339,18 +2346,20 @@ const dropCollection = (payload: {
       "drop"
     )
 
+    const newCollectionPath = `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+
     updateSaveContextForAffectedRequests(
       collectionIndexDragged,
-      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+      newCollectionPath
     )
 
     const inheritedProperty = cascadeParentCollectionForProperties(
-      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+      newCollectionPath,
       "rest"
     )
 
     updateInheritedPropertiesForAffectedRequests(
-      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`,
+      newCollectionPath,
       inheritedProperty,
       "rest"
     )
@@ -2381,16 +2390,25 @@ const dropCollection = (payload: {
             1
           )
 
+          if (destinationParentPath && currentParentIndex) {
+            updateSaveContextForAffectedRequests(
+              currentParentIndex,
+              `${destinationParentPath}`
+            )
+          }
+
           const inheritedProperty =
             teamCollectionAdapter.cascadeParentCollectionForProperties(
-              destinationCollectionIndex
+              `${destinationParentPath}/${collectionIndexDragged}`
             )
 
-          updateInheritedPropertiesForAffectedRequests(
-            `${destinationCollectionIndex}`,
-            inheritedProperty,
-            "rest"
-          )
+          setTimeout(() => {
+            updateInheritedPropertiesForAffectedRequests(
+              `${destinationParentPath}/${collectionIndexDragged}`,
+              inheritedProperty,
+              "rest"
+            )
+          }, 300)
         }
       )
     )()
@@ -2429,6 +2447,17 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
         updateSaveContextForAffectedRequests(
           collectionIndexDragged,
           `${rootLength - 1}`
+        )
+
+        const inheritedProperty = cascadeParentCollectionForProperties(
+          `${rootLength - 1}`,
+          "rest"
+        )
+
+        updateInheritedPropertiesForAffectedRequests(
+          `${rootLength - 1}`,
+          inheritedProperty,
+          "rest"
         )
       }
 
@@ -2989,7 +3018,7 @@ const setCollectionProperties = (newCollection: {
         "rest",
         collectionId
       )
-    }, 200)
+    }, 300)
   }
 
   displayModalEditProperties(false)

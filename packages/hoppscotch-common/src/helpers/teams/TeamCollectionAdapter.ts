@@ -230,6 +230,10 @@ export default class NewTeamCollectionAdapter {
   private teamRequestOrderUpdatedSub: WSubscription | null
   private teamCollectionOrderUpdatedSub: WSubscription | null
 
+  //collection variables current value and secret value
+  private secretEnvironmentService = getService(SecretEnvironmentService)
+  private currentEnvironmentValueService = getService(CurrentValueService)
+
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
     this.loadingCollections$ = new BehaviorSubject<string[]>([])
@@ -1044,17 +1048,13 @@ export default class NewTeamCollectionAdapter {
     varIndex: number,
     collectionID: string
   ) => {
-    //collection variables current value and secret value
-    const secretEnvironmentService = getService(SecretEnvironmentService)
-    const currentEnvironmentValueService = getService(CurrentValueService)
-
     if (env && env.secret) {
-      return secretEnvironmentService.getSecretEnvironmentVariable(
+      return this.secretEnvironmentService.getSecretEnvironmentVariable(
         collectionID,
         varIndex
       )?.value
     }
-    return currentEnvironmentValueService.getEnvironmentVariable(
+    return this.currentEnvironmentValueService.getEnvironmentVariable(
       collectionID,
       varIndex
     )?.currentValue

@@ -108,7 +108,7 @@
               emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
-            @drop-event="dropEvent($event, node.id)"
+            @drop-event="dropEvent($event, node.id, getPath(node.id, false))"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
               updateCollectionOrder($event, {
@@ -210,8 +210,12 @@
               node.data.type === 'folders' &&
               emit('remove-folder', node.data.data.data.id)
             "
-            @drop-event="dropEvent($event, node.data.data.data.id)"
-            @drag-event="dragEvent($event, node.data.data.data.id)"
+            @drop-event="
+              dropEvent($event, node.data.data.data.id, getPath(node.id, false))
+            "
+            @drag-event="
+              dragEvent($event, node.data.data.data.id, getPath(node.id, true))
+            "
             @update-collection-order="
               updateCollectionOrder($event, {
                 destinationCollectionIndex: node.data.data.data.id,
@@ -640,6 +644,8 @@ const emit = defineEmits<{
     payload: {
       collectionIndexDragged: string
       destinationCollectionIndex: string
+      destinationParentPath?: string
+      currentParentIndex?: string
     }
   ): void
   (
@@ -678,9 +684,9 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const getPath = (path: string) => {
+const getPath = (path: string, pop: boolean = true) => {
   const pathArray = path.split("/")
-  pathArray.pop()
+  if (pop) pathArray.pop()
   return pathArray.join("/")
 }
 
@@ -783,17 +789,25 @@ const dragRequest = (
   dataTransfer.setData("requestIndex", requestIndex)
 }
 
-const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+const dragEvent = (
+  dataTransfer: DataTransfer,
+  collectionIndex: string,
+  parentIndex?: string
+) => {
   dataTransfer.setData("collectionIndex", collectionIndex)
+  if (parentIndex) dataTransfer.setData("parentIndex", parentIndex)
 }
 
 const dropEvent = (
   dataTransfer: DataTransfer,
-  destinationCollectionIndex: string
+  destinationCollectionIndex: string,
+  destinationParentPath?: string
 ) => {
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
   const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+  const currentParentIndex = dataTransfer.getData("parentIndex")
+
   if (folderPath && requestIndex) {
     emit("drop-request", {
       folderPath,
@@ -804,6 +818,8 @@ const dropEvent = (
     emit("drop-collection", {
       collectionIndexDragged,
       destinationCollectionIndex,
+      destinationParentPath,
+      currentParentIndex,
     })
   }
 }

@@ -21,6 +21,10 @@ import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 
+//collection variables current value and secret value
+const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
+
 const defaultRESTCollectionState = {
   state: [
     makeCollection({
@@ -80,10 +84,6 @@ const getCurrentValue = (
   collectionID: string,
   showSecret: boolean
 ) => {
-  //collection variables current value and secret value
-  const secretEnvironmentService = getService(SecretEnvironmentService)
-  const currentEnvironmentValueService = getService(CurrentValueService)
-
   if (env && env.secret && showSecret) {
     return secretEnvironmentService.getSecretEnvironmentVariable(
       collectionID,

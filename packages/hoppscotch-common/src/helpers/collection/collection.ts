@@ -78,6 +78,12 @@ export function resolveSaveContextOnCollectionReorder(
   }
 }
 
+const getParentFolderPath = (path?: string) => {
+  if (!path) return ""
+  const pathArray = path.split("/")
+  return pathArray.slice(pathArray.length - 1, pathArray.length).join("/")
+}
+
 /**
  * Resolve save context for affected requests on drop folder from one to another
  * @param oldFolderPath
@@ -91,17 +97,32 @@ export function updateSaveContextForAffectedRequests(
 ) {
   const tabService = getService(RESTTabService)
   const tabs = tabService.getTabsRefTo((tab) => {
-    return (
-      tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath.startsWith(oldFolderPath)
-    )
+    if (tab.document.type === "test-runner") return false
+
+    return tab.document.saveContext?.originLocation === "user-collection"
+      ? tab.document.saveContext.folderPath.startsWith(oldFolderPath)
+      : tab.document.saveContext?.originLocation === "team-collection"
+        ? tab.document.saveContext.collectionID!.startsWith(oldFolderPath) ||
+          tab.document.saveContext.collectionID === oldFolderPath
+        : false
   })
 
   for (const tab of tabs) {
+    if (tab.value.document.type === "test-runner") return
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
       tab.value.document.saveContext = {
         ...tab.value.document.saveContext,
         folderPath: tab.value.document.saveContext.folderPath.replace(
+          oldFolderPath,
+          newFolderPath
+        ),
+      }
+    } else if (
+      tab.value.document.saveContext?.originLocation === "team-collection"
+    ) {
+      tab.value.document.saveContext = {
+        ...tab.value.document.saveContext,
+        collectionID: tab.value.document.saveContext!.collectionID?.replace(
           oldFolderPath,
           newFolderPath
         ),
@@ -197,6 +218,8 @@ export function updateInheritedPropertiesForAffectedRequests(
     type === "rest" ? getService(RESTTabService) : getService(GQLTabService)
 
   const effectedTabs = tabService.getTabsRefTo((tab) => {
+    if ("type" in tab.document && tab.document.type === "test-runner")
+      return false
     const saveContext = tab.document.saveContext
 
     const saveContextPath =
@@ -204,7 +227,11 @@ export function updateInheritedPropertiesForAffectedRequests(
         ? saveContext.collectionID
         : saveContext?.folderPath
 
-    return saveContextPath?.startsWith(path) ?? false
+    return (
+      (saveContextPath?.startsWith(path) ||
+        getParentFolderPath(saveContextPath) === getParentFolderPath(path)) ??
+      false
+    )
   })
 
   effectedTabs.map((tab) => {
@@ -251,14 +278,8 @@ export function updateInheritedPropertiesForAffectedRequests(
     }
 
     if (tab.value.document.inheritedProperties?.variables && !collectionId) {
-      // filter out the variables with the parentPath as the path in the inheritedProperties
-      const inheritedVariables = inheritedProperties.variables.filter(
-        (variable) =>
-          path.startsWith(variable.parentPath ?? "") ||
-          variable.parentPath === path
-      )
-
-      tab.value.document.inheritedProperties.variables = inheritedVariables
+      tab.value.document.inheritedProperties.variables =
+        inheritedProperties.variables
     } else if (
       tab.value.document.inheritedProperties?.variables &&
       collectionId

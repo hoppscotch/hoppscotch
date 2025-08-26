@@ -54,7 +54,7 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
     )
   )
 
-  // later values override earlier ones
+  // Later values override earlier ones
   const mapByKey = new Map<string, AggregateEnvironment>()
   flattened.forEach((variable) => {
     mapByKey.set(variable.key, variable)

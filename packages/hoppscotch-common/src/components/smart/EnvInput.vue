@@ -405,13 +405,12 @@ const envVars = computed(() => {
     )
   }
 
-  // Grab the current active tab to avoid repeating this long chain everywhere
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
   const isExample = document.type === "example-response"
 
-  // Pull variables inherited from the collection if we're in a request or example
+  // variables inherited from the collection if we're in a request or example
   const collectionVariables =
     isRequest || isExample
       ? transformInheritedCollectionVariablesToAggregateEnv(
@@ -420,14 +419,14 @@ const envVars = computed(() => {
         )
       : []
 
-  // Gather request-level variables (different shape for request vs example)
+  // request-level variables
   const rawRequestVars = isRequest
     ? document.request.requestVariables
     : isExample
       ? document.response.originalRequest.requestVariables
       : []
 
-  // Filter out inactive ones and normalize the shape
+  // formated request variables
   const requestVariables = rawRequestVars
     .filter((v) => v.active)
     .map(({ key, value }) => ({
@@ -438,7 +437,6 @@ const envVars = computed(() => {
       secret: false,
     }))
 
-  // Merge everything: request vars, collection vars, and aggregated envs
   return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
 })
 

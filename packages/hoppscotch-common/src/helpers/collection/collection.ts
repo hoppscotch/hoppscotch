@@ -166,6 +166,27 @@ function removeDuplicatesAndKeepLast(arr: HoppInheritedProperty["headers"]) {
   return result
 }
 
+/**
+ * Order collection variables based on their parentPath and parentID
+ * eg: path like 4/0/0 should come before 4/0/1 nad 4 should come before 4/0
+ * @param vars Collection of variables to be ordered
+ * @returns Ordered collection of variables
+ */
+const orderCollectionVariables = (
+  vars: HoppInheritedProperty["variables"]
+): HoppInheritedProperty["variables"] => {
+  return vars.sort((a, b) => {
+    if (a.parentPath && b.parentPath) {
+      return a.parentPath.localeCompare(b.parentPath)
+    } else if (a.parentPath) {
+      return -1
+    } else if (b.parentPath) {
+      return 1
+    }
+    return a.parentID.localeCompare(b.parentID)
+  })
+}
+
 export function updateInheritedPropertiesForAffectedRequests(
   path: string,
   inheritedProperties: HoppInheritedProperty,
@@ -252,7 +273,9 @@ export function updateInheritedPropertiesForAffectedRequests(
         (variable) => variable.parentID === collectionId
       )
 
-      const finalVariables = [...inheritedVariables, ...tabInheritedVariables]
+      const finalVariables = orderCollectionVariables([
+        ...new Set([...inheritedVariables, ...tabInheritedVariables]),
+      ])
 
       tab.value.document.inheritedProperties.variables = finalVariables
     }

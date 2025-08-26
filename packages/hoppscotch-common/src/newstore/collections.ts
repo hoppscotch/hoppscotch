@@ -211,6 +211,7 @@ export function cascadeParentCollectionForProperties(
       const currentPath = [...path.slice(0, i + 1)].join("/")
 
       variables.push({
+        parentPath: currentPath,
         parentID: parentFolder._ref_id ?? parentFolder.id ?? currentPath,
         parentName: parentFolder.name,
         inheritedVariables: populateValues(

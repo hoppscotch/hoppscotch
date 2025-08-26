@@ -28,16 +28,19 @@ const getCurrentValue = (
 }
 
 /**
- * Function to transform inherited collection variables into an array of `AggregateEnvironment` objects.
+ * Transforms inherited collection variables into a normalized array of `AggregateEnvironment` objects.
+ * Ensures no duplicate keys exist — the last encountered value overrides earlier ones.
+ *
  * @param variables - The inherited collection variables to transform.
- * @param showSecret - Whether to show secret values in the transformed variables.
- * @returns An array of `AggregateEnvironment` objects representing the transformed collection variables.
+ * @param showSecret - Whether to reveal secret values or mask them.
+ * @returns A de-duplicated array of `AggregateEnvironment` objects.
  */
 export const transformInheritedCollectionVariablesToAggregateEnv = (
   variables: HoppInheritedProperty["variables"],
   showSecret: boolean = true
 ): AggregateEnvironment[] => {
-  return variables.flatMap(({ parentID, inheritedVariables }) =>
+  // Flatten the inherited variables into a single array
+  const flattened = variables.flatMap(({ parentID, inheritedVariables }) =>
     inheritedVariables.map(
       ({ currentValue, initialValue, key, secret }, index) => ({
         key,
@@ -50,6 +53,14 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
       })
     )
   )
+
+  // later values override earlier ones
+  const mapByKey = new Map<string, AggregateEnvironment>()
+  flattened.forEach((variable) => {
+    mapByKey.set(variable.key, variable)
+  })
+
+  return Array.from(mapByKey.values())
 }
 
 /**

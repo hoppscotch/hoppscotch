@@ -556,7 +556,7 @@ export default class NewTeamCollectionAdapter {
         children: null,
         requests: null,
         title: title,
-        data: data,
+        data,
       },
       parentID ?? null
     )

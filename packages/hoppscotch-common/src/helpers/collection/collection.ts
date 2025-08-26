@@ -204,11 +204,16 @@ const orderCollectionVariables = (
   return vars.sort((a, b) => {
     if (a.parentPath && b.parentPath) {
       return a.parentPath.localeCompare(b.parentPath)
-    } else if (a.parentPath) {
+    }
+
+    if (a.parentPath) {
       return -1
-    } else if (b.parentPath) {
+    }
+
+    if (b.parentPath) {
       return 1
     }
+
     return a.parentID.localeCompare(b.parentID)
   })
 }

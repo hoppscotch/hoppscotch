@@ -64,7 +64,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   /**
    * Looks for environment variables in an array of strings.
    * Reports variables that are referenced but not defined.
-   * * @param target The target array to validate
+   * @param target The target array to validate
    * @param locations The location where results are to be displayed
    * @returns The results array containing the results of the validation
    */

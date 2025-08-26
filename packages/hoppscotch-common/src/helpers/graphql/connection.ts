@@ -404,10 +404,10 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
-    headers: runHeaders,
+    headers: runHeaders ?? request.headers,
     query,
     variables,
-    auth,
+    auth: auth ?? request.auth,
   }
 
   if (operationType === "subscription") {

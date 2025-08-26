@@ -7,7 +7,10 @@ import {
   hoverTooltip,
 } from "@codemirror/view"
 import { StreamSubscriberFunc } from "@composables/stream"
-import { parseTemplateStringE } from "@hoppscotch/data"
+import {
+  HoppRESTRequestVariables,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, watch } from "vue"
 
@@ -33,6 +36,7 @@ import IconLibrary from "~icons/lucide/library?raw"
 
 import { isComment } from "./helpers"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 const HOPP_ENV_HIGHLIGHT =
@@ -356,6 +360,34 @@ export const environmentHighlightStyle = (
   )
 }
 
+/**
+ * Function to get the request variables and collection variables in AggregateEnvironment type
+ * @param requestVariables Request Variables defined in the request
+ * @param collectionVariables Inherited Collection Variables
+ * @returns Transforms the request and collection variables to AggregateEnvironment type
+ */
+const getRequestAndCollectionVariables = (
+  requestVariables: HoppRESTRequestVariables,
+  collectionVariables: HoppInheritedProperty["variables"]
+) => {
+  const reqVars = requestVariables
+    .filter((v) => v.active)
+    .map(({ key, value }) => ({
+      key,
+      currentValue: value,
+      initialValue: value,
+      sourceEnv: "RequestVariable",
+      secret: false,
+    }))
+
+  const collVars = transformInheritedCollectionVariablesToAggregateEnv(
+    collectionVariables,
+    false
+  )
+
+  return [...reqVars, ...collVars]
+}
+
 export class HoppEnvironmentPlugin {
   private compartment = new Compartment()
   private envs: AggregateEnvironment[] = []
@@ -377,29 +409,12 @@ export class HoppEnvironmentPlugin {
     watch(
       [currentTabRequest, currentTabInheritedProperty],
       ([request, document]) => {
-        const requestVariables =
-          request?.requestVariables
-            .filter((v) => v.active)
-            .map(({ key, value }) => ({
-              key,
-              currentValue: value,
-              initialValue: value,
-              sourceEnv: "RequestVariable",
-              secret: false,
-            })) || []
+        const requestAndCollVars = getRequestAndCollectionVariables(
+          request.requestVariables,
+          document.variables
+        )
 
-        const collectionVariables = document.variables
-          ? transformInheritedCollectionVariablesToAggregateEnv(
-              document.variables,
-              false
-            )
-          : []
-
-        this.envs = [
-          ...requestVariables,
-          ...collectionVariables,
-          ...aggregateEnvs,
-        ]
+        this.envs = [...requestAndCollVars, ...aggregateEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -411,25 +426,13 @@ export class HoppEnvironmentPlugin {
       { immediate: true, deep: true }
     )
 
-    const requestVariables = currentTabRequest?.requestVariables
-      .filter((v) => v.active)
-      .map(({ key, value }) => ({
-        key,
-        currentValue: value,
-        initialValue: value,
-        sourceEnv: "RequestVariable",
-        secret: false,
-      }))
-
-    const collectionVariables = currentTabInheritedProperty.variables
-      ? transformInheritedCollectionVariablesToAggregateEnv(
-          currentTabInheritedProperty.variables,
-          false
-        )
-      : []
+    const requestAndCollVars = getRequestAndCollectionVariables(
+      currentTabRequest.requestVariables,
+      currentTabInheritedProperty.variables
+    )
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
-      this.envs = [...requestVariables, ...collectionVariables, ...envs]
+      this.envs = [...requestAndCollVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

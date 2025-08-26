@@ -38,7 +38,7 @@ type ConnectionRequestOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth: HoppGQLAuth | undefined
 }
 
 type RunQueryOptions = {
@@ -46,7 +46,7 @@ type RunQueryOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth: HoppGQLAuth | undefined
   query: string
   variables: string
   operationName: string | undefined

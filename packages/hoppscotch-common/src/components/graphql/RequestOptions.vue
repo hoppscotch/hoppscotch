@@ -150,7 +150,7 @@ const runQuery = async (
       request: request.value,
       inheritedHeaders: inheritedHeaders ?? [],
       inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
-        ?.auth.inheritedAuth as HoppGQLAuth,
+        ?.auth.inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,
       variables: runVariables,
       operationName: definition?.name?.value,

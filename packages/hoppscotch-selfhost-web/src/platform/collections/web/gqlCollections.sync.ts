@@ -224,29 +224,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async addCollection({ collection }) {
-    // Use the bulk import API for single collection as well
-    const jsonString = JSON.stringify([collection])
+    // Use individual API for single collection creation (not import)
+    const lastCreatedCollectionIndex =
+      graphqlCollectionStore.value.state.length - 1
 
-    const result = await importUserCollectionsFromJSON(
-      jsonString,
-      ReqType.Gql,
-      undefined // undefined for root collections
+    await recursivelySyncCollections(
+      collection,
+      `${lastCreatedCollectionIndex}`
     )
-
-    if (E.isRight(result)) {
-      // The backend handles creating the collection and its requests in a single transaction
-      console.log("GraphQL Collection imported successfully")
-    } else {
-      console.error("Failed to import GraphQL collection:", result.left)
-      // Fallback to individual calls if bulk import fails
-      const lastCreatedCollectionIndex =
-        graphqlCollectionStore.value.state.length - 1
-
-      await recursivelySyncCollections(
-        collection,
-        `${lastCreatedCollectionIndex}`
-      )
-    }
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

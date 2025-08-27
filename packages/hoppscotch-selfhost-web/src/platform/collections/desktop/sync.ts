@@ -218,26 +218,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async addCollection({ collection }) {
-    // Use the bulk import API for single collection as well
-    const jsonString = JSON.stringify([collection])
+    // Use individual API for single collection creation (not import)
+    const lastCreatedCollectionIndex =
+      restCollectionStore.value.state.length - 1
 
-    const result = await importUserCollectionsFromJSON(
-      jsonString,
-      ReqType.Rest,
-      undefined // undefined for root collections
-    )
-
-    if (E.isRight(result)) {
-      // The backend handles creating the collection and its requests in a single transaction
-      console.log("Collection imported successfully")
-    } else {
-      console.error("Failed to import collection:", result.left)
-      // Fallback to individual calls if bulk import fails
-      const lastCreatedCollectionIndex =
-        restCollectionStore.value.state.length - 1
-
-      recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
-    }
+    recursivelySyncCollections(collection, `${lastCreatedCollectionIndex}`)
   },
   async removeCollection({ collectionID }) {
     if (collectionID) {

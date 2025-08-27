@@ -38,7 +38,7 @@ type ConnectionRequestOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth?: HoppGQLAuth
 }
 
 type RunQueryOptions = {
@@ -46,7 +46,7 @@ type RunQueryOptions = {
   url: string
   request: HoppGQLRequest
   inheritedHeaders: HoppGQLRequest["headers"]
-  inheritedAuth: HoppGQLAuth
+  inheritedAuth?: HoppGQLAuth
   query: string
   variables: string
   operationName: string | undefined
@@ -400,14 +400,23 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
     .filter((item) => item.active && item.key !== "")
     .forEach(({ key, value }) => (finalHeaders[key] = value))
 
+  const finalHoppHeaders: HoppRESTHeaders = Object.entries(finalHeaders).map(
+    ([key, value]) => ({
+      active: true,
+      key,
+      value,
+      description: "",
+    })
+  )
+
   const gqlRequest: HoppGQLRequest = {
     v: 9,
     name: options.name || "Untitled Request",
     url: finalUrl,
-    headers: runHeaders,
+    headers: finalHoppHeaders,
     query,
     variables,
-    auth,
+    auth: auth ?? request.auth,
   }
 
   if (operationType === "subscription") {

@@ -34,15 +34,15 @@ export async function generateAuthHeaders(
 ): Promise<HoppRESTHeader[]> {
   switch (auth.authType) {
     case "basic":
-      return generateBasicAuthHeaders(auth, request, envVars, showKeyIfSecret)
+      return generateBasicAuthHeaders(auth, envVars, showKeyIfSecret)
     case "bearer":
-      return generateBearerAuthHeaders(auth, request, envVars, showKeyIfSecret)
+      return generateBearerAuthHeaders(auth, envVars, showKeyIfSecret)
     case "api-key":
       return auth.addTo === "HEADERS"
-        ? generateApiKeyAuthHeaders(auth, request, envVars, showKeyIfSecret)
+        ? generateApiKeyAuthHeaders(auth, envVars, showKeyIfSecret)
         : []
     case "oauth-2":
-      return generateOAuth2AuthHeaders(auth, request, envVars, showKeyIfSecret)
+      return generateOAuth2AuthHeaders(auth, envVars, showKeyIfSecret)
     case "digest":
       return generateDigestAuthHeaders(auth, request, envVars, showKeyIfSecret)
     case "aws-signature":
@@ -50,7 +50,7 @@ export async function generateAuthHeaders(
     case "hawk":
       return generateHawkAuthHeaders(auth, request, envVars, showKeyIfSecret)
     case "jwt":
-      return generateJwtAuthHeaders(auth, request, envVars, showKeyIfSecret)
+      return generateJwtAuthHeaders(auth, envVars, showKeyIfSecret)
     default:
       return []
   }
@@ -68,14 +68,14 @@ export async function generateAuthParams(
   switch (auth.authType) {
     case "api-key":
       return auth.addTo === "QUERY_PARAMS"
-        ? generateApiKeyAuthParams(auth, request, envVars, showKeyIfSecret)
+        ? generateApiKeyAuthParams(auth, envVars, showKeyIfSecret)
         : []
     case "oauth-2":
-      return generateOAuth2AuthParams(auth, request, envVars, showKeyIfSecret)
+      return generateOAuth2AuthParams(auth, envVars, showKeyIfSecret)
     case "aws-signature":
       return generateAwsSignatureAuthParams(auth, request, envVars)
     case "jwt":
-      return generateJwtAuthParams(auth, request, envVars)
+      return generateJwtAuthParams(auth, envVars)
     default:
       return []
   }

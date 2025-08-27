@@ -142,13 +142,13 @@ const runQuery = async (
     const inheritedHeaders =
       tabs.currentActiveTab.value.document.inheritedProperties?.headers.map(
         (header) => header.inheritedHeader
-      )
+      ) ?? []
 
     await runGQLOperation({
       name: request.value.name,
       url: runURL,
       request: request.value,
-      inheritedHeaders: inheritedHeaders ?? [],
+      inheritedHeaders,
       inheritedAuth: tabs.currentActiveTab.value.document.inheritedProperties
         ?.auth.inheritedAuth as HoppGQLAuth | undefined,
       query: runQuery,

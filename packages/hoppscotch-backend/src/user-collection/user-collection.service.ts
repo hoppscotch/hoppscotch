@@ -1020,8 +1020,20 @@ export class UserCollectionService {
     orderIndex: number,
     reqType: DBReqType,
   ): Prisma.UserCollectionCreateInput {
+    // Parse collection data if it exists
+    let data = null;
+    if (folder.data) {
+      try {
+        data = JSON.parse(folder.data);
+      } catch (error) {
+        // If data parsing fails, log error and continue without data
+        console.error('Failed to parse collection data:', error);
+      }
+    }
+
     return {
       title: folder.name,
+      data: data,
       user: {
         connect: {
           uid: userID,
@@ -1047,7 +1059,6 @@ export class UserCollectionService {
           this.generatePrismaQueryObj(f, userID, index + 1, reqType),
         ),
       },
-      data: folder.data ?? undefined,
     };
   }
 

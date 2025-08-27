@@ -1,7 +1,7 @@
 import { HoppRESTAuth } from "@hoppscotch/data"
 import { describe, expect, test } from "vitest"
 import { generateBasicAuthHeaders } from "../basic"
-import { mockEnvVars, createBaseRequest } from "./test-utils"
+import { mockEnvVars } from "./test-utils"
 
 describe("Basic Auth", () => {
   describe("generateBasicAuthHeaders", () => {
@@ -15,7 +15,6 @@ describe("Basic Auth", () => {
 
       const headers = await generateBasicAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -38,7 +37,6 @@ describe("Basic Auth", () => {
 
       const headers = await generateBasicAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -55,7 +53,6 @@ describe("Basic Auth", () => {
 
       const headers = await generateBasicAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 

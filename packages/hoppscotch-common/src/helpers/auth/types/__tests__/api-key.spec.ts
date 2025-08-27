@@ -1,7 +1,7 @@
 import { HoppRESTAuth } from "@hoppscotch/data"
 import { describe, expect, test } from "vitest"
 import { generateApiKeyAuthHeaders, generateApiKeyAuthParams } from "../api-key"
-import { mockEnvVars, createBaseRequest } from "./test-utils"
+import { mockEnvVars } from "./test-utils"
 
 describe("API Key Auth", () => {
   describe("generateApiKeyAuthHeaders", () => {
@@ -14,11 +14,7 @@ describe("API Key Auth", () => {
         value: "<<API_VALUE>>",
       }
 
-      const headers = await generateApiKeyAuthHeaders(
-        auth,
-        createBaseRequest(),
-        mockEnvVars
-      )
+      const headers = await generateApiKeyAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -38,11 +34,7 @@ describe("API Key Auth", () => {
         value: "test-value",
       }
 
-      const headers = await generateApiKeyAuthHeaders(
-        auth,
-        createBaseRequest(),
-        mockEnvVars
-      )
+      const headers = await generateApiKeyAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(0)
     })
@@ -56,11 +48,7 @@ describe("API Key Auth", () => {
         value: "<<API_VALUE>>",
       }
 
-      const headers = await generateApiKeyAuthHeaders(
-        auth,
-        createBaseRequest(),
-        mockEnvVars
-      )
+      const headers = await generateApiKeyAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].key).toBe("test-key-123")
       expect(headers[0].value).toBe("secret-value")
@@ -77,11 +65,7 @@ describe("API Key Auth", () => {
         value: "<<API_VALUE>>",
       }
 
-      const params = await generateApiKeyAuthParams(
-        auth,
-        createBaseRequest(),
-        mockEnvVars
-      )
+      const params = await generateApiKeyAuthParams(auth, mockEnvVars)
 
       expect(params).toHaveLength(1)
       expect(params[0]).toEqual({
@@ -101,11 +85,7 @@ describe("API Key Auth", () => {
         value: "test-value",
       }
 
-      const params = await generateApiKeyAuthParams(
-        auth,
-        createBaseRequest(),
-        mockEnvVars
-      )
+      const params = await generateApiKeyAuthParams(auth, mockEnvVars)
 
       expect(params).toHaveLength(0)
     })

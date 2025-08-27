@@ -42,7 +42,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -85,7 +84,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -113,7 +111,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -150,7 +147,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -187,7 +183,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -223,7 +218,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -250,7 +244,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -276,7 +269,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -306,7 +298,6 @@ describe("JWT Auth", () => {
 
         const headers = await generateJwtAuthHeaders(
           auth,
-          createBaseRequest(),
           mockEnvVars
         )
 
@@ -355,7 +346,6 @@ describe("JWT Auth", () => {
 
       const headers = await generateJwtAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 

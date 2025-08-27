@@ -14,7 +14,6 @@ describe("Bearer Auth", () => {
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -36,7 +35,6 @@ describe("Bearer Auth", () => {
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -54,7 +52,6 @@ describe("Bearer Auth", () => {
 
       const headers = await generateBearerAuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 

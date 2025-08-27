@@ -28,7 +28,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -63,7 +62,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -91,7 +89,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -125,7 +122,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -156,7 +152,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -191,7 +186,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 
@@ -220,7 +214,6 @@ describe("OAuth2 Auth", () => {
 
       const headers = await generateOAuth2AuthHeaders(
         auth,
-        createBaseRequest(),
         mockEnvVars
       )
 

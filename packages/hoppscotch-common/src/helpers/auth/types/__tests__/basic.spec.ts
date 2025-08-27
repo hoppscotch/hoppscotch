@@ -13,10 +13,7 @@ describe("Basic Auth", () => {
         password: "secret123",
       }
 
-      const headers = await generateBasicAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBasicAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -35,10 +32,7 @@ describe("Basic Auth", () => {
         password: "<<PASSWORD>>",
       }
 
-      const headers = await generateBasicAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBasicAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe(`Basic ${btoa("testuser:testpass")}`)
     })
@@ -51,10 +45,7 @@ describe("Basic Auth", () => {
         password: "",
       }
 
-      const headers = await generateBasicAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBasicAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe(`Basic ${btoa(":")}`)
     })

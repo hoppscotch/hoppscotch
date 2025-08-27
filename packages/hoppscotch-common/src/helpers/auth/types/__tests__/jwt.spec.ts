@@ -40,10 +40,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(generateJWTToken).toHaveBeenCalledWith({
         secret: "my-secret-key",
@@ -82,10 +79,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(0)
       // Note: Query params would be handled differently in the actual implementation
@@ -109,10 +103,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(generateJWTToken).toHaveBeenCalledWith({
         secret: "my-secret-key",
@@ -145,10 +136,7 @@ describe("JWT Auth", () => {
         jwtHeaders: '{"typ": "JWT"}',
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(generateJWTToken).toHaveBeenCalledWith({
         secret: "",
@@ -181,10 +169,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(generateJWTToken).toHaveBeenCalledWith({
         secret: "bXktc2VjcmV0LWtleQ==",
@@ -216,10 +201,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe("Custom-Auth custom.prefix.token")
     })
@@ -242,10 +224,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe("no.prefix.token")
     })
@@ -267,10 +246,7 @@ describe("JWT Auth", () => {
         jwtHeaders: "{}",
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(0)
     })
@@ -296,10 +272,7 @@ describe("JWT Auth", () => {
           jwtHeaders: "{}",
         }
 
-        const headers = await generateJwtAuthHeaders(
-          auth,
-          mockEnvVars
-        )
+        const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
         expect(generateJWTToken).toHaveBeenCalledWith({
           secret: "secret",
@@ -344,10 +317,7 @@ describe("JWT Auth", () => {
         jwtHeaders: '{"alg": "HS256", "typ": "JWT", "kid": "key-id"}',
       }
 
-      const headers = await generateJwtAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateJwtAuthHeaders(auth, mockEnvVars)
 
       expect(generateJWTToken).toHaveBeenCalledWith({
         secret: "secret",

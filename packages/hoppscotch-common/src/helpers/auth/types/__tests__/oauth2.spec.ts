@@ -26,10 +26,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -60,10 +57,7 @@ describe("OAuth2 Auth", () => {
         addTo: "QUERY_PARAMS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(0)
       // Note: Query params would be handled differently in the actual implementation
@@ -87,10 +81,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -120,10 +111,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -150,10 +138,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -184,10 +169,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe("Bearer oauth2_access_token_123")
     })
@@ -212,10 +194,7 @@ describe("OAuth2 Auth", () => {
         addTo: "HEADERS",
       }
 
-      const headers = await generateOAuth2AuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateOAuth2AuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe("Bearer ")
     })

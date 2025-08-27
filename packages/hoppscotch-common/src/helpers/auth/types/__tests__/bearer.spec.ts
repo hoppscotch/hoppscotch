@@ -12,10 +12,7 @@ describe("Bearer Auth", () => {
         token: "abc123token",
       }
 
-      const headers = await generateBearerAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBearerAuthHeaders(auth, mockEnvVars)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]).toEqual({
@@ -33,10 +30,7 @@ describe("Bearer Auth", () => {
         token: "<<ACCESS_TOKEN>>",
       }
 
-      const headers = await generateBearerAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBearerAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe(
         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
@@ -50,10 +44,7 @@ describe("Bearer Auth", () => {
         token: "",
       }
 
-      const headers = await generateBearerAuthHeaders(
-        auth,
-        mockEnvVars
-      )
+      const headers = await generateBearerAuthHeaders(auth, mockEnvVars)
 
       expect(headers[0].value).toBe("Bearer ")
     })

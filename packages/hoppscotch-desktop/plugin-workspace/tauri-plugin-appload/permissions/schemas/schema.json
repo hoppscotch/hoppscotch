@@ -309,12 +309,14 @@
         {
           "description": "Enables the close command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-close"
+          "const": "allow-close",
+          "markdownDescription": "Enables the close command without any pre-configured scope."
         },
         {
           "description": "Denies the close command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-close"
+          "const": "deny-close",
+          "markdownDescription": "Denies the close command without any pre-configured scope."
         },
         {
           "description": "Enables the download command without any pre-configured scope.",
@@ -365,10 +367,10 @@
           "markdownDescription": "Denies the remove command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-remove`",
+          "description": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-close`\n- `allow-remove`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-remove`"
+          "markdownDescription": "Default permissions for AppLoad plugin\n#### This default permission set includes:\n\n- `allow-load`\n- `allow-download`\n- `allow-clear`\n- `allow-close`\n- `allow-remove`"
         }
       ]
     }

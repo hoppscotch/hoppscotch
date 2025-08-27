@@ -7,6 +7,7 @@ Default permissions for AppLoad plugin
 - `allow-load`
 - `allow-download`
 - `allow-clear`
+- `allow-close`
 - `allow-remove`
 
 ## Permission Table

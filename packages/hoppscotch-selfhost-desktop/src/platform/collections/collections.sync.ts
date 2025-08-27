@@ -26,12 +26,15 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editUserRequest,
+  importUserCollectionsFromJSON,
   moveUserCollection,
   moveUserRequest,
   renameUserCollection,
   updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"
+
+import { ReqType } from "../../api/generated/graphql"
 
 import * as E from "fp-ts/Either"
 
@@ -168,6 +171,26 @@ const recursivelySyncCollections = async (
     })
 }
 
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 // TODO: generalize this
 // TODO: ask backend to send enough info on the subscription to not need this
 export const collectionReorderOrMovingOperations: {
@@ -192,13 +215,26 @@ export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = restCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Use bulk import API for better performance
+    const result = await importUserCollectionsFromJSON(
+      JSON.stringify(transformedCollections),
+      ReqType.Rest,
+      undefined // parentCollectionID is undefined for root collections
+    )
+
+    if (E.isLeft(result)) {
+      console.error("Failed to append collections:", result.left)
+      // Fallback to individual creation if bulk import fails
+      let indexStart = restCollectionStore.value.state.length - entries.length
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
     const lastCreatedCollectionIndex =

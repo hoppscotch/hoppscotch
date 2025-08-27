@@ -230,12 +230,10 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       undefined // undefined for root collections
     )
 
-    if (E.isRight(result)) {
-      // The backend handles creating all collections and requests in a single transaction
-      // The frontend collections will be updated through subscriptions
-      console.log("GraphQL Collections imported successfully")
-    } else {
-      console.error("Failed to import GraphQL collections:", result.left)
+    // The backend handles creating all collections and requests in a single transaction
+    // The frontend collections will be updated through subscriptions
+
+    if (E.isLeft(result)) {
       // Fallback to individual calls if bulk import fails
       let indexStart =
         graphqlCollectionStore.value.state.length - entries.length

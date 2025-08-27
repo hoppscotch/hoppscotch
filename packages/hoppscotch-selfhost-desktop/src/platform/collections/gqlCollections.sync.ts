@@ -228,7 +228,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (E.isLeft(result)) {
-      console.error("Failed to append GraphQL collections:", result.left)
       // Fallback to individual creation if bulk import fails
       let indexStart =
         graphqlCollectionStore.value.state.length - entries.length

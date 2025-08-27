@@ -1033,7 +1033,7 @@ export class UserCollectionService {
 
     return {
       title: folder.name,
-      data: data,
+      data,
       user: {
         connect: {
           uid: userID,

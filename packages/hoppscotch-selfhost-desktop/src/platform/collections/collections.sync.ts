@@ -227,7 +227,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (E.isLeft(result)) {
-      console.error("Failed to append collections:", result.left)
       // Fallback to individual creation if bulk import fails
       let indexStart = restCollectionStore.value.state.length - entries.length
       entries.forEach((collection) => {

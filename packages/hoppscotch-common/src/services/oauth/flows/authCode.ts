@@ -10,21 +10,29 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
 import { content } from "@hoppscotch/kernel"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
 
-const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
-  authEndpoint: true,
-  tokenEndpoint: true,
-  clientID: true,
-  clientSecret: true,
-  scopes: true,
-  isPKCE: true,
-  codeVerifierMethod: true,
-})
+const AuthCodeOauthFlowParamsSchema = z
+  .object({
+    authEndpoint: z.string(),
+    tokenEndpoint: z.string(),
+    clientID: z.string(),
+    clientSecret: z.string().optional(),
+    scopes: z.string().optional(),
+    isPKCE: z.boolean(),
+    codeVerifierMethod: z.enum(["plain", "S256"]).optional(),
+    authRequestParams: z.array(
+      OAuth2ParamSchema.omit({
+        sendIn: true,
+      })
+    ),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+  })
   .refine(
     (params) => {
       return (
@@ -63,6 +71,9 @@ export const getDefaultAuthCodeOauthFlowParams =
     scopes: undefined,
     isPKCE: false,
     codeVerifierMethod: "S256",
+    authRequestParams: [],
+    refreshRequestParams: [],
+    tokenRequestParams: [],
   })
 
 const initAuthCodeOauthFlow = async ({
@@ -73,6 +84,9 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  authRequestParams,
+  refreshRequestParams,
+  tokenRequestParams,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -99,6 +113,24 @@ const initAuthCodeOauthFlow = async ({
     codeVerifierMethod?: string
     codeChallenge?: string
     scopes?: string
+    authRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    refreshRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    tokenRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -109,6 +141,9 @@ const initAuthCodeOauthFlow = async ({
     isPKCE,
     codeVerifierMethod,
     scopes,
+    authRequestParams,
+    refreshRequestParams,
+    tokenRequestParams,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -158,6 +193,14 @@ const initAuthCodeOauthFlow = async ({
   if (codeVerifierMethod && codeChallenge) {
     url.searchParams.set("code_challenge", codeChallenge)
     url.searchParams.set("code_challenge_method", codeVerifierMethod)
+  }
+
+  if (authRequestParams.length > 0) {
+    authRequestParams.forEach((param) => {
+      if (param.active && param.key && param.value) {
+        url.searchParams.set(param.key, param.value)
+      }
+    })
   }
 
   // Redirect to the authorization server
@@ -291,57 +334,6 @@ const encodeArrayBufferAsUrlEncodedBase64 = (buffer: ArrayBuffer) => {
     .replace(/\//g, "_")
 
   return hashBase64URL
-}
-
-const refreshToken = async ({
-  tokenEndpoint,
-  clientID,
-  refreshToken,
-  clientSecret,
-}: AuthCodeOauthRefreshParams) => {
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: tokenEndpoint,
-    method: "POST",
-    version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: clientID,
-      ...(clientSecret && {
-        client_secret: clientSecret,
-      }),
-    }),
-  })
-
-  const res = await response
-
-  if (E.isLeft(res)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const responsePayload = decodeResponseAsJSON(res.right)
-
-  if (E.isLeft(responsePayload)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const withAccessTokenAndRefreshTokenSchema = z.object({
-    access_token: z.string(),
-    refresh_token: z.string().optional(),
-  })
-
-  const parsedTokenResponse = withAccessTokenAndRefreshTokenSchema.safeParse(
-    responsePayload.right
-  )
-
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
 export default createFlowConfig(

@@ -46,6 +46,7 @@ import { HOPP_MODULES } from './modules';
         })),
         fetchExchange,
       ],
+      preferGetMethod: false,
     });
 
     // Initialize auth

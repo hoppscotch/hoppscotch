@@ -214,7 +214,7 @@ export default defineConfig({
       registerType: "prompt",
       workbox: {
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 10485760,
+        maximumFileSizeToCacheInBytes: 15728640, // 15 MB,
         navigateFallbackDenylist: [
           /robots.txt/,
           /sitemap.xml/,
@@ -260,11 +260,4 @@ export default defineConfig({
         })
       : [],
   ],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern",
-      },
-    },
-  },
 })

@@ -56,3 +56,7 @@ export const replaceTemplateStringsInObjectValues = <
 
   return newObj as T
 }
+
+export const replaceTemplateString = (str: string): string => {
+  return replaceTemplateStringsInObjectValues({ value: str }).value
+}

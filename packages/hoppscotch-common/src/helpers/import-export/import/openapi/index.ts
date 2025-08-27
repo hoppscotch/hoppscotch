@@ -29,15 +29,18 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
-import { IMPORTER_INVALID_FILE_FORMAT } from "."
+import { IMPORTER_INVALID_FILE_FORMAT } from ".."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
+import { generateRequestBodyExampleFromOpenAPIV2Body } from "./example-generators/v2"
+import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./example-generators/v3"
+import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./example-generators/v31"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
 const worker = new Worker(
-  new URL("./workers/openapi-import-worker.ts", import.meta.url),
+  new URL("../workers/openapi-import-worker.ts", import.meta.url),
   {
     type: "module",
   }
@@ -299,38 +302,55 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   if (!obj || !(obj in knownContentTypes))
     return { contentType: null, body: null }
 
-  // Textual Content Types, so we just parse it and keep
+  // For form data types, extract form fields
   if (
-    obj !== "multipart/form-data" &&
-    obj !== "application/x-www-form-urlencoded"
-  )
-    return { contentType: obj as any, body: "" }
+    obj === "multipart/form-data" ||
+    obj === "application/x-www-form-urlencoded"
+  ) {
+    const formDataValues = pipe(
+      (op.parameters ?? []) as OpenAPIV2.Parameter[],
 
-  const formDataValues = pipe(
-    (op.parameters ?? []) as OpenAPIV2.Parameter[],
-
-    A.filterMap(
-      flow(
-        O.fromPredicate((param) => param.in === "body"),
-        O.map(
-          (param) =>
-            <FormDataKeyValue>{
-              key: param.name,
-              isFile: false,
-              value: "",
-              active: true,
-            }
+      A.filterMap(
+        flow(
+          O.fromPredicate((param) => param.in === "formData"),
+          O.map(
+            (param) =>
+              <FormDataKeyValue>{
+                key: param.name,
+                isFile: param.type === "file",
+                value: "",
+                active: true,
+              }
+          )
         )
       )
     )
-  )
 
-  return obj === "application/x-www-form-urlencoded"
-    ? {
-        contentType: obj,
-        body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
+    return obj === "application/x-www-form-urlencoded"
+      ? {
+          contentType: obj,
+          body: formDataValues.map(({ key }) => `${key}: `).join("\n"),
+        }
+      : { contentType: obj, body: formDataValues }
+  }
+
+  // For other content types (JSON, XML, etc.)
+  const bodyParam = (op.parameters ?? []).find(
+    (param) => (param as OpenAPIV2.Parameter).in === "body"
+  ) as OpenAPIV2.InBodyParameterObject | undefined
+
+  if (bodyParam) {
+    const result = generateRequestBodyExampleFromOpenAPIV2Body(op)
+    if (result) {
+      return {
+        contentType: obj as any,
+        body: result,
       }
-    : { contentType: obj, body: formDataValues }
+    }
+  }
+
+  // Fallback to empty body for textual content types
+  return { contentType: obj as any, body: "" }
 }
 
 const parseOpenAPIV3BodyFormData = (
@@ -365,6 +385,7 @@ const parseOpenAPIV3BodyFormData = (
 }
 
 const parseOpenAPIV3Body = (
+  doc: OpenAPI.Document,
   op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject
 ): HoppRESTReqBody => {
   const objs = Object.entries(
@@ -384,12 +405,83 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject,
   ] = objs[0]
 
-  return contentType in knownContentTypes
-    ? contentType === "multipart/form-data" ||
-      contentType === "application/x-www-form-urlencoded"
-      ? parseOpenAPIV3BodyFormData(contentType, media)
-      : { contentType: contentType as any, body: "" }
-    : { contentType: null, body: null }
+  if (!(contentType in knownContentTypes))
+    return { contentType: null, body: null }
+
+  // Handle form data types
+  if (
+    contentType === "multipart/form-data" ||
+    contentType === "application/x-www-form-urlencoded"
+  )
+    return parseOpenAPIV3BodyFormData(contentType, media)
+
+  // For other content types (JSON, XML, etc.), try to generate sample from schema
+  if (media.schema) {
+    try {
+      const docAny = doc as any
+      const isV31 = docAny.openapi && docAny.openapi.startsWith("3.1")
+
+      let sampleBody: any
+      if (isV31) {
+        sampleBody = generateV31Example(media as any)
+      } else {
+        sampleBody = generateV3Example(media as any)
+      }
+
+      return {
+        contentType: contentType as any,
+        body:
+          typeof sampleBody === "string"
+            ? sampleBody
+            : JSON.stringify(sampleBody, null, 2),
+      }
+    } catch (e) {
+      // If we can't generate a sample, check for examples
+      if (media.example !== undefined) {
+        return {
+          contentType: contentType as any,
+          body:
+            typeof media.example === "string"
+              ? media.example
+              : JSON.stringify(media.example, null, 2),
+        }
+      }
+      // Fallback to empty body
+      return { contentType: contentType as any, body: "" }
+    }
+  }
+
+  // Check for examples if no schema
+  if (media.example !== undefined) {
+    return {
+      contentType: contentType as any,
+      body:
+        typeof media.example === "string"
+          ? media.example
+          : JSON.stringify(media.example, null, 2),
+    }
+  }
+
+  // Check for examples array (OpenAPI v3 supports multiple examples)
+  if (media.examples && Object.keys(media.examples).length > 0) {
+    const firstExampleKey = Object.keys(media.examples)[0]
+    const firstExample = media.examples[firstExampleKey]
+
+    // Handle both Example Object and Reference Object
+    const exampleValue =
+      "value" in firstExample ? firstExample.value : firstExample
+
+    return {
+      contentType: contentType as any,
+      body:
+        typeof exampleValue === "string"
+          ? exampleValue
+          : JSON.stringify(exampleValue, null, 2),
+    }
+  }
+
+  // Fallback to empty body for textual content types
+  return { contentType: contentType as any, body: "" }
 }
 
 const isOpenAPIV3Operation = (
@@ -405,7 +497,7 @@ const parseOpenAPIBody = (
   op: OpenAPIOperationType
 ): HoppRESTReqBody =>
   isOpenAPIV3Operation(doc, op)
-    ? parseOpenAPIV3Body(op)
+    ? parseOpenAPIV3Body(doc, op)
     : parseOpenAPIV2Body(op)
 
 const resolveOpenAPIV3SecurityObj = (
@@ -455,6 +547,9 @@ const resolveOpenAPIV3SecurityObj = (
           isPKCE: false,
           tokenEndpoint: scheme.flows.authorizationCode.tokenUrl ?? "",
           clientSecret: "",
+          authRequestParams: [],
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -468,6 +563,8 @@ const resolveOpenAPIV3SecurityObj = (
           clientID: "",
           token: "",
           scopes: _schemeData.join(" "),
+          authRequestParams: [],
+          refreshRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -484,6 +581,8 @@ const resolveOpenAPIV3SecurityObj = (
           username: "",
           token: "",
           scopes: _schemeData.join(" "),
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -499,6 +598,8 @@ const resolveOpenAPIV3SecurityObj = (
           scopes: _schemeData.join(" "),
           token: "",
           clientAuthentication: "IN_BODY",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -515,6 +616,9 @@ const resolveOpenAPIV3SecurityObj = (
         isPKCE: false,
         tokenEndpoint: "",
         clientSecret: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -531,6 +635,9 @@ const resolveOpenAPIV3SecurityObj = (
         isPKCE: false,
         tokenEndpoint: "",
         clientSecret: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -618,6 +725,9 @@ const resolveOpenAPIV2SecurityScheme = (
           token: "",
           isPKCE: false,
           tokenEndpoint: scheme.tokenUrl ?? "",
+          authRequestParams: [],
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -631,6 +741,8 @@ const resolveOpenAPIV2SecurityScheme = (
           grantType: "IMPLICIT",
           scopes: _schemeData.join(" "),
           token: "",
+          authRequestParams: [],
+          refreshRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -646,6 +758,8 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
           clientAuthentication: "IN_BODY",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -662,6 +776,8 @@ const resolveOpenAPIV2SecurityScheme = (
           scopes: _schemeData.join(" "),
           token: "",
           username: "",
+          refreshRequestParams: [],
+          tokenRequestParams: [],
         },
         addTo: "HEADERS",
       }
@@ -678,6 +794,9 @@ const resolveOpenAPIV2SecurityScheme = (
         token: "",
         isPKCE: false,
         tokenEndpoint: "",
+        authRequestParams: [],
+        refreshRequestParams: [],
+        tokenRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -754,6 +873,8 @@ const parseOpenAPIUrl = (
    **/
 
   if (objectHasProperty(doc, "swagger")) {
+    // TODO: dynamically add doc.host, doc.basePath value as variables in the environment if available. or notify user to add it.
+    // add base url variable to each request
     const host = doc.host?.trim() || "<<baseUrl>>"
     const basePath = doc.basePath?.trim() || ""
     return `${host}${basePath}`
@@ -765,7 +886,9 @@ const parseOpenAPIUrl = (
    * Relevant v3 reference: https://swagger.io/specification/#server-object
    **/
   if (objectHasProperty(doc, "servers")) {
-    return doc.servers?.[0]?.url ?? "<<baseUrl>>"
+    // TODO: dynamically add server URL value as variable in the environment if available, or notify user to add it.
+    const serverUrl = doc.servers?.[0]?.url
+    return !serverUrl || serverUrl === "./" ? "<<baseUrl>>" : serverUrl
   }
 
   // If the document is neither v2 nor v3 or missing required fields

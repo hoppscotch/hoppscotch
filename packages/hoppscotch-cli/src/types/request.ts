@@ -1,4 +1,9 @@
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import {
+  Environment,
+  HoppCollection,
+  HoppCollectionVariable,
+  HoppRESTRequest,
+} from "@hoppscotch/data";
 import { z } from "zod";
 
 import { TestReport } from "../interfaces/response";
@@ -37,5 +42,6 @@ export type ProcessRequestParams = {
   envs: HoppEnvs;
   path: string;
   delay: number;
-  legacySandbox: boolean;
+  legacySandbox?: boolean;
+  collectionVariables?: HoppCollectionVariable[];
 };

@@ -115,12 +115,18 @@ const processCollection = async (
   for (const request of collection.requests) {
     const _request = preProcessRequest(request as HoppRESTRequest, collection);
     const requestPath = `${path}/${_request.name}`;
+
+    const collectionVariables = collection.variables.filter(
+      (variable) => variable.key && variable.key.trim() !== ""
+    );
+
     const processRequestParams: ProcessRequestParams = {
       path: requestPath,
       request: _request,
       envs,
       delay,
       legacySandbox,
+      collectionVariables,
     };
 
     // Request processing initiated message.
@@ -159,6 +165,20 @@ const processCollection = async (
         }
       );
       updatedFolder.headers.push(...filteredHeaders);
+    }
+
+    if (updatedFolder.variables?.length) {
+      // Filter out variable entries present in the parent collection under the same name
+      // This ensures the folder variables take precedence over the collection variables
+      const filteredVariables = collection.variables.filter(
+        (collectionVariableEntries) => {
+          return !updatedFolder.variables.some(
+            (folderVariableEntries) =>
+              folderVariableEntries.key === collectionVariableEntries.key
+          );
+        }
+      );
+      updatedFolder.variables.push(...filteredVariables);
     }
 
     await processCollection(

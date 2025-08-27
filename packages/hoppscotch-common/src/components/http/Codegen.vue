@@ -202,6 +202,35 @@ const getCurrentValue = (env: AggregateEnvironment) => {
   )?.currentValue
 }
 
+const getFinalURL = (input: string): string => {
+  // If the URL is empty, return "https://"
+  // This is to ensure that the URL is always valid and can be used in code generation
+  if (!input) {
+    return "https://"
+  }
+
+  let url = input.trim()
+
+  // Fix malformed protocols
+  url = url.replace(/^https?:\s*\/+\s*/i, (match) =>
+    match.toLowerCase().startsWith("https") ? "https://" : "http://"
+  )
+
+  // If the URL does not start with http(s):// or is not a variable, prepend http(s)://
+  // If the URL starts with <<, it is a variable and should not be modified
+  if (!/^https?:\/\//i.test(url) && !url.startsWith("<<")) {
+    const endpoint = url
+    const domain = endpoint.split(/[/:#?]+/)[0]
+
+    // Check if the domain is a local address or an IP address
+    // If it is, use http, otherwise use https
+    const isLocalOrIP = /^(localhost|(\d{1,3}\.){3}\d{1,3})$/.test(domain)
+    url = (isLocalOrIP ? "http://" : "https://") + endpoint
+  }
+
+  return url
+}
+
 const requestCode = asyncComputed(async () => {
   // Generate code snippet action only applies to request documents
   if (currentActiveTabDocument.value.type !== "request") {
@@ -230,7 +259,7 @@ const requestCode = asyncComputed(async () => {
       ...(requestVariables as Environment["variables"]),
       ...aggregateEnvs.map((env) => ({
         ...env,
-        currentValue: getCurrentValue(env) ?? env.currentValue,
+        currentValue: getCurrentValue(env) || env.initialValue,
       })),
     ],
   }
@@ -282,7 +311,7 @@ const requestCode = asyncComputed(async () => {
         ...param,
         active: true,
       })),
-      endpoint: effectiveRequest.effectiveFinalURL,
+      endpoint: getFinalURL(effectiveRequest.effectiveFinalURL),
       requestVariables: effectiveRequest.effectiveFinalRequestVariables.map(
         (requestVariable) => ({
           ...requestVariable,

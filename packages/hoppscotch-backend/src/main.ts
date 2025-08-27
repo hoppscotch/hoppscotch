@@ -5,12 +5,14 @@ import * as cookieParser from 'cookie-parser';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import { checkEnvironmentAuthProvider } from './utils';
+import * as crypto from 'crypto';
+import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupSwagger(app) {
+function setupSwagger(app, isProduction: boolean) {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
@@ -29,7 +31,7 @@ function setupSwagger(app) {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    include: [InfraTokenModule],
+    include: isProduction ? [InfraTokenModule] : [],
   });
   SwaggerModule.setup(swaggerDocPath, app, document, {
     swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
@@ -37,32 +39,30 @@ function setupSwagger(app) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
+  const isProduction = configService.get('PRODUCTION') === 'true';
 
-  console.log(`Running in production: ${configService.get('PRODUCTION')}`);
+  console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
-
-  checkEnvironmentAuthProvider(
-    configService.get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS') ??
-      configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
-  );
 
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET'),
+      secret:
+        configService.get('INFRA.SESSION_SECRET') ||
+        crypto.randomBytes(16).toString('hex'),
     }),
   );
 
-  // Increase fil upload limit to 50MB
+  // Increase file upload limit to 100MB
   app.use(
     json({
       limit: '100mb',
     }),
   );
 
-  if (configService.get('PRODUCTION') === 'true') {
+  if (isProduction) {
     console.log('Enabling CORS with production settings');
     app.enableCors({
       origin: configService.get('WHITELISTED_ORIGINS').split(','),
@@ -86,7 +86,14 @@ async function bootstrap() {
     }),
   );
 
-  await setupSwagger(app);
+  if (configService.get('TRUST_PROXY') === 'true') {
+    console.log('Enabling trust proxy');
+    app.set('trust proxy', true);
+  }
+
+  app.use(morgan(':remote-addr :method :url :status - :response-time ms'));
+
+  await setupSwagger(app, isProduction);
 
   await app.listen(configService.get('PORT') || 3170);
 

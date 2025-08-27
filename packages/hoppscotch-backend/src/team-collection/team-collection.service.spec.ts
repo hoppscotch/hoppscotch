@@ -15,6 +15,8 @@ import {
   TEAM_MEMBER_NOT_FOUND,
   TEAM_NOT_OWNER,
 } from 'src/errors';
+import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -26,8 +28,6 @@ const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
 const mockTeamService = mockDeep<TeamService>();
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const teamCollectionService = new TeamCollectionService(
   mockPrisma,
   mockPubSub as any,
@@ -671,10 +671,9 @@ describe('createCollection', () => {
   });
 
   test('should throw TEAM_NOT_OWNER when parent TeamCollection does not belong to the team', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockRejectedValueOnce(
-      'NotFoundError',
-    );
+    jest
+      .spyOn(teamCollectionService as any, 'isOwnerCheck')
+      .mockResolvedValueOnce(O.none);
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
@@ -686,10 +685,9 @@ describe('createCollection', () => {
   });
 
   test('should throw TEAM_COLL_DATA_INVALID when parent TeamCollection does not belong to the team', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
+    jest
+      .spyOn(teamCollectionService as any, 'isOwnerCheck')
+      .mockResolvedValueOnce(O.some(true));
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
@@ -701,59 +699,58 @@ describe('createCollection', () => {
   });
 
   test('should successfully create a new root TeamCollection with valid inputs', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
+    mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
+      fn(mockPrisma),
     );
-
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.$executeRaw.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
-      'abcdefg',
+      rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
-      rootTeamCollection.id,
+      null,
     );
     expect(result).toEqualRight(rootTeamCollectionsCasted);
   });
 
   test('should successfully create a new child TeamCollection with valid inputs', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
+    jest
+      .spyOn(teamCollectionService as any, 'isOwnerCheck')
+      .mockResolvedValueOnce(O.some(true));
+    mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
+      fn(mockPrisma),
     );
-
-    //getChildCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.$executeRaw.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
 
     const result = await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
-      JSON.stringify(rootTeamCollection.data),
-      rootTeamCollection.id,
+      JSON.stringify(childTeamCollection.data),
+      childTeamCollection.parentID,
     );
     expect(result).toEqualRight(childTeamCollectionCasted);
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" if child TeamCollection is created successfully', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
+    jest
+      .spyOn(teamCollectionService as any, 'isOwnerCheck')
+      .mockResolvedValueOnce(O.some(true));
+    mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
+      fn(mockPrisma),
     );
-
-    //getChildCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.$executeRaw.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(childTeamCollection);
 
     await teamCollectionService.createCollection(
       childTeamCollection.teamID,
       childTeamCollection.title,
-      JSON.stringify(rootTeamCollection.data),
-
-      rootTeamCollection.id,
+      JSON.stringify(childTeamCollection.data),
+      childTeamCollection.parentID,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_coll/${childTeamCollection.teamID}/coll_added`,
@@ -762,21 +759,18 @@ describe('createCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" if root TeamCollection is created successfully', async () => {
-    // isOwnerCheck
-    mockPrisma.teamCollection.findFirstOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
+    mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
+      fn(mockPrisma),
     );
-
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.$executeRaw.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
     await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
-      'abcdefg',
+      rootTeamCollection.title,
       JSON.stringify(rootTeamCollection.data),
-
-      rootTeamCollection.id,
+      null,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `team_coll/${rootTeamCollection.teamID}/coll_added`,
@@ -891,26 +885,17 @@ describe('deleteCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND when collectionID is invalid when deleting TeamCollection from UserCollectionTable ', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.teamCollection.delete.mockRejectedValueOnce('RecordNotFound');
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'deleteCollectionData')
+      .mockResolvedValueOnce(E.left(TEAM_COL_REORDERING_FAILED));
 
     const result = await teamCollectionService.deleteCollection(
       rootTeamCollection.id,
     );
-    expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
+    expect(result).toEqualLeft(TEAM_COL_REORDERING_FAILED);
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_removed" if TeamCollection is deleted successfully', async () => {
@@ -940,20 +925,18 @@ describe('deleteCollection', () => {
 
 describe('moveCollection', () => {
   test('should throw TEAM_COLL_NOT_FOUND if collectionID is invalid', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockRejectedValueOnce(
-      'NotFoundError',
-    );
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
 
     const result = await teamCollectionService.moveCollection('234', '009');
     expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
   });
 
   test('should throw TEAM_COLL_DEST_SAME if collectionID and destCollectionID is the same', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -963,14 +946,12 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND if destCollectionID is invalid', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockRejectedValueOnce(
-      'NotFoundError',
-    );
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
 
     const result = await teamCollectionService.moveCollection(
       'invalidID',
@@ -980,15 +961,14 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_SAME_TEAM if collectionID and destCollectionID are not from the same team', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
-      ...childTeamCollection_2,
-      teamID: 'differentTeamID',
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(
+        E.right({ ...childTeamCollection_2, teamID: 'anotherTeamID' }),
+      );
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -998,14 +978,12 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_IS_PARENT_COLL if collectionID is parent of destCollectionID ', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -1015,10 +993,9 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COL_ALREADY_ROOT when moving root TeamCollection to root', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
@@ -1028,25 +1005,14 @@ describe('moveCollection', () => {
   });
 
   test('should successfully move a child TeamCollection into root', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...childTeamCollection,
-      parentID: null,
-      orderIndex: 2,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({ ...childTeamCollectionCasted, parentID: null }),
+      );
 
     const result = await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1059,21 +1025,12 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND when trying to change parent of collection with invalid collectionID', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.update.mockRejectedValueOnce('RecordNotFound');
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
 
     const result = await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1083,25 +1040,14 @@ describe('moveCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when a child TeamCollection is moved to root successfully', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...childTeamCollection,
-      parentID: null,
-      orderIndex: 2,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({ ...childTeamCollectionCasted, parentID: null }),
+      );
 
     await teamCollectionService.moveCollection(childTeamCollection.id, null);
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -1114,114 +1060,85 @@ describe('moveCollection', () => {
   });
 
   test('should successfully move a root TeamCollection into a child TeamCollection', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow
-      .mockResolvedValueOnce(rootTeamCollection_2)
-      .mockResolvedValueOnce(null);
-    // isParent --> getCollection
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(
-      childTeamCollection_2,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...rootTeamCollection,
-      parentID: childTeamCollection_2.id,
-      orderIndex: 1,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'isParent')
+      .mockResolvedValueOnce(O.some(true));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({
+          ...rootTeamCollectionsCasted,
+          parentID: childTeamCollection.id,
+        }),
+      );
 
     const result = await teamCollectionService.moveCollection(
       rootTeamCollection.id,
-      childTeamCollection_2.id,
+      childTeamCollection.id,
     );
     expect(result).toEqualRight({
       ...rootTeamCollectionsCasted,
-      parentID: childTeamCollection_2Casted.id,
+      parentID: childTeamCollection.id,
     });
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when root TeamCollection is moved into another child TeamCollection successfully', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow
-      .mockResolvedValueOnce(rootTeamCollection_2)
-      .mockResolvedValueOnce(null);
-    // isParent --> getCollection
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(
-      childTeamCollection_2,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...rootTeamCollection,
-      parentID: childTeamCollection_2.id,
-      orderIndex: 1,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService as any, 'isParent')
+      .mockResolvedValueOnce(O.some(true));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({
+          ...rootTeamCollectionsCasted,
+          parentID: childTeamCollection.id,
+        }),
+      );
 
     await teamCollectionService.moveCollection(
       rootTeamCollection.id,
-      childTeamCollection_2.id,
+      childTeamCollection.id,
     );
+
     expect(mockPubSub.publish).toHaveBeenCalledWith(
-      `team_coll/${childTeamCollection_2.teamID}/coll_moved`,
+      `team_coll/${childTeamCollection.teamID}/coll_moved`,
       {
         ...rootTeamCollectionsCasted,
-        parentID: childTeamCollection_2Casted.id,
+        parentID: childTeamCollectionCasted.id,
       },
     );
   });
 
   test('should successfully move a child TeamCollection into another child TeamCollection', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow
-      .mockResolvedValueOnce(rootTeamCollection_2)
-      .mockResolvedValueOnce(null);
-    // isParent --> getCollection
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(
-      childTeamCollection_2,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      childTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      childTeamCollection_2,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...childTeamCollection,
-      parentID: childTeamCollection_2.id,
-      orderIndex: 1,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection_2));
+    jest
+      .spyOn(teamCollectionService as any, 'isParent')
+      .mockResolvedValueOnce(O.some(true));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({
+          ...childTeamCollectionCasted,
+          parentID: childTeamCollection_2.id,
+        }),
+      );
 
     const result = await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1234,33 +1151,23 @@ describe('moveCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when child TeamCollection is moved into another child TeamCollection successfully', async () => {
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // getCollection for destCollection
-    mockPrisma.teamCollection.findUniqueOrThrow
-      .mockResolvedValueOnce(rootTeamCollection_2)
-      .mockResolvedValueOnce(null);
-    // isParent --> getCollection
-    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce(
-      childTeamCollection_2,
-    );
-    // updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // changeParent
-    // changeParent --> getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      childTeamCollection,
-    ]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      childTeamCollection_2,
-    ]);
-    mockPrisma.teamCollection.update.mockResolvedValue({
-      ...childTeamCollection,
-      parentID: childTeamCollection_2.id,
-      orderIndex: 1,
-    });
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection));
+    jest
+      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection_2));
+    jest
+      .spyOn(teamCollectionService as any, 'isParent')
+      .mockResolvedValueOnce(O.some(true));
+    jest
+      .spyOn(teamCollectionService as any, 'changeParentAndUpdateOrderIndex')
+      .mockResolvedValueOnce(
+        E.right({
+          ...childTeamCollectionCasted,
+          parentID: childTeamCollection_2.id,
+        }),
+      );
 
     await teamCollectionService.moveCollection(
       childTeamCollection.id,
@@ -1477,9 +1384,9 @@ describe('importCollectionsFromJSON', () => {
   });
 
   test('should successfully create new TeamCollections in root and TeamRequests with valid inputs', async () => {
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
     const result = await teamCollectionService.importCollectionsFromJSON(
       jsonString,
@@ -1490,9 +1397,9 @@ describe('importCollectionsFromJSON', () => {
   });
 
   test('should successfully create new TeamCollections in a child collection and TeamRequests with valid inputs', async () => {
-    //getChildCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
     const result = await teamCollectionService.importCollectionsFromJSON(
       jsonString,
@@ -1503,130 +1410,11 @@ describe('importCollectionsFromJSON', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" on successful creation from jsonString', async () => {
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);
 
     await teamCollectionService.importCollectionsFromJSON(
-      jsonString,
-      rootTeamCollection.teamID,
-      null,
-    );
-    expect(mockPubSub.publish).toHaveBeenCalledWith(
-      `team_coll/${rootTeamCollection.teamID}/coll_added`,
-      rootTeamCollectionsCasted,
-    );
-  });
-});
-
-describe('replaceCollectionsWithJSON', () => {
-  test('should throw TEAM_COLL_INVALID_JSON when the jsonString is invalid', async () => {
-    const result = await teamCollectionService.replaceCollectionsWithJSON(
-      'invalidString',
-      rootTeamCollection.teamID,
-      null,
-    );
-    expect(result).toEqualLeft(TEAM_COLL_INVALID_JSON);
-  });
-
-  test('should throw TEAM_COLL_INVALID_JSON when the parsed jsonString is not an array', async () => {
-    const result = await teamCollectionService.replaceCollectionsWithJSON(
-      '{}',
-      rootTeamCollection.teamID,
-      null,
-    );
-    expect(result).toEqualLeft(TEAM_COLL_INVALID_JSON);
-  });
-
-  test('should successfully replace TeamCollections in root with new TeamCollections and TeamRequests with valid inputs', async () => {
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    // deleteCollection
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.teamCollection.delete.mockResolvedValueOnce(rootTeamCollection);
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
-
-    const result = await teamCollectionService.replaceCollectionsWithJSON(
-      jsonString,
-      rootTeamCollection.teamID,
-      null,
-    );
-    expect(result).toEqualRight(true);
-  });
-
-  test('should successfully create new TeamCollections in a child collection and TeamRequests with valid inputs', async () => {
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      childTeamCollection,
-    ]);
-    // deleteCollection
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      childTeamCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.teamCollection.delete.mockResolvedValueOnce(childTeamCollection);
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
-
-    const result = await teamCollectionService.replaceCollectionsWithJSON(
-      jsonString,
-      rootTeamCollection.teamID,
-      rootTeamCollection.id,
-    );
-    expect(result).toEqualRight(true);
-  });
-
-  test('should send pubsub message to "team_coll/<teamID>/coll_added" on successful creation from jsonString', async () => {
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
-      rootTeamCollection,
-    ]);
-    // deleteCollection
-    // getCollection
-    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
-      rootTeamCollection,
-    );
-    // deleteCollectionData
-    // deleteCollectionData --> FindMany query 1st time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> FindMany query 2nd time
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    // deleteCollectionData --> DeleteMany query
-    mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> updateOrderIndex
-    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 0 });
-    // deleteCollectionData --> removeUserCollection
-    mockPrisma.teamCollection.delete.mockResolvedValueOnce(rootTeamCollection);
-    //getRootCollectionsCount
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.$transaction.mockResolvedValueOnce([rootTeamCollection]);
-
-    await teamCollectionService.replaceCollectionsWithJSON(
       jsonString,
       rootTeamCollection.teamID,
       null,

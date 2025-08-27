@@ -8,6 +8,10 @@ import V5_VERSION from "./v/5"
 import V6_VERSION from "./v/6"
 import V7_VERSION from "./v/7"
 import V8_VERSION from "./v/8"
+import V9_VERSION from "./v/9"
+import V10_VERSION from "./v/10"
+
+export { CollectionVariable } from "./v/10"
 
 import { z } from "zod"
 import { translateToNewRequest } from "../rest"
@@ -19,7 +23,7 @@ const versionedObject = z.object({
 })
 
 export const HoppCollection = createVersionedEntity({
-  latestVersion: 8,
+  latestVersion: 10,
   versionMap: {
     1: V1_VERSION,
     2: V2_VERSION,
@@ -29,6 +33,8 @@ export const HoppCollection = createVersionedEntity({
     6: V6_VERSION,
     7: V7_VERSION,
     8: V8_VERSION,
+    9: V9_VERSION,
+    10: V10_VERSION,
   },
   getVersion(data) {
     const versionCheck = versionedObject.safeParse(data)
@@ -44,7 +50,11 @@ export const HoppCollection = createVersionedEntity({
 
 export type HoppCollection = InferredEntity<typeof HoppCollection>
 
-export const CollectionSchemaVersion = 8
+export type HoppCollectionVariable = InferredEntity<
+  typeof HoppCollection
+>["variables"][number]
+
+export const CollectionSchemaVersion = 10
 
 /**
  * Generates a Collection object. This ignores the version number object
@@ -72,6 +82,7 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
 
   const auth = x.auth ?? { authType: "inherit", authActive: true }
   const headers = x.headers ?? []
+  const variables = x.variables ?? []
 
   const obj = makeCollection({
     name,
@@ -79,6 +90,7 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
     requests,
     auth,
     headers,
+    variables,
   })
 
   if (x.id) obj.id = x.id
@@ -100,6 +112,7 @@ export function translateToNewGQLCollection(x: any): HoppCollection {
 
   const auth = x.auth ?? { authType: "inherit", authActive: true }
   const headers = x.headers ?? []
+  const variables = x.variables ?? []
 
   const obj = makeCollection({
     name,
@@ -107,6 +120,7 @@ export function translateToNewGQLCollection(x: any): HoppCollection {
     requests,
     auth,
     headers,
+    variables,
   })
 
   if (x.id) obj.id = x.id

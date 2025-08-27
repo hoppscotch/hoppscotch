@@ -14,15 +14,18 @@ import { InfraConfig } from './infra-config.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { ServiceStatus } from './helper';
 import * as E from 'fp-ts/Either';
+import { UserService } from 'src/user/user.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockConfigService = mockDeep<ConfigService>();
 const mockPubsub = mockDeep<PubSubService>();
+const mockUserService = mockDeep<UserService>();
 
 const infraConfigService = new InfraConfigService(
   mockPrisma,
   mockConfigService,
   mockPubsub,
+  mockUserService,
 );
 
 const INITIALIZED_DATE_CONST = new Date();

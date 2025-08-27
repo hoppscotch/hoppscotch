@@ -1,5 +1,6 @@
 import {
   Environment,
+  HoppCollectionVariable,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
@@ -58,6 +59,7 @@ import {
   OutgoingSandboxPostRequestWorkerMessage,
   OutgoingSandboxPreRequestWorkerMessage,
 } from "./workers/sandbox.worker"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 
 const sandboxWorker = new Worker(
   new URL("./workers/sandbox.worker.ts", import.meta.url),
@@ -117,8 +119,10 @@ export const combineEnvVariables = (variables: {
     temp?: Environment["variables"]
   }
   requestVariables: Environment["variables"]
+  collectionVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
+  ...variables.collectionVariables,
   ...(variables.environments.temp ?? []),
   ...variables.environments.selected,
   ...variables.environments.global,
@@ -423,6 +427,16 @@ export function runRESTRequest$(
         }
       )
 
+    const collectionVariables =
+      transformInheritedCollectionVariablesToAggregateEnv(
+        tab.value.document.inheritedProperties?.variables || []
+      ).map(({ key, initialValue, currentValue, secret }) => ({
+        key,
+        initialValue,
+        currentValue,
+        secret,
+      }))
+
     const finalRequest = {
       ...tab.value.document.request,
       auth: requestAuth ?? { authType: "none", authActive: false },
@@ -430,8 +444,9 @@ export function runRESTRequest$(
     }
 
     const finalEnvs = {
-      requestVariables: finalRequestVariables as Environment["variables"],
       environments: preRequestScriptResult.right.envs,
+      requestVariables: finalRequestVariables as Environment["variables"],
+      collectionVariables,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
@@ -569,7 +584,8 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
 
 export function runTestRunnerRequest(
   request: HoppRESTRequest,
-  persistEnv = true
+  persistEnv = true,
+  inheritedVariables: HoppCollectionVariable[] = []
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -587,6 +603,17 @@ export function runTestRunnerRequest(
       return E.left("script_fail" as const)
     }
 
+    const finalRequestVariables = pipe(
+      request.requestVariables,
+      A.filter(({ active }) => active),
+      A.map(({ key, value }) => ({
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      }))
+    )
+
     const effectiveRequest = await getEffectiveRESTRequest(request, {
       id: "env-id",
       v: 2,
@@ -597,7 +624,8 @@ export function runTestRunnerRequest(
             ...preRequestScriptResult.right.envs,
             temp: !persistEnv ? getTemporaryVariables() : [],
           },
-          requestVariables: [],
+          requestVariables: finalRequestVariables,
+          collectionVariables: inheritedVariables,
         })
       ),
     })

@@ -163,6 +163,7 @@ const tryExampleResponse = () => {
       params,
       requestVariables,
     },
+    inheritedProperties: tab.value.document.inheritedProperties,
   })
 }
 

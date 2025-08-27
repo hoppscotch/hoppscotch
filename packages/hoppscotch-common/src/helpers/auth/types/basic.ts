@@ -1,15 +1,12 @@
 import {
   parseTemplateString,
   HoppRESTAuth,
-  HoppRESTRequest,
   Environment,
   HoppRESTHeader,
-  HoppRESTParam,
 } from "@hoppscotch/data"
 
 export async function generateBasicAuthHeaders(
   auth: HoppRESTAuth & { authType: "basic" },
-  request: HoppRESTRequest,
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTHeader[]> {

@@ -1,17 +1,23 @@
 <template>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.hawk.id") }}
+    </label>
     <SmartEnvInput
       v-model="auth.authId"
       :auto-complete-env="true"
-      placeholder="HAWK Auth ID"
+      placeholder="my-app-id"
       :envs="envs"
     />
   </div>
   <div class="flex flex-1 border-b border-dividerLight">
+    <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+      {{ t("authorization.hawk.key") }}
+    </label>
     <SmartEnvInput
       v-model="auth.authKey"
       :auto-complete-env="true"
-      placeholder="HAWK Auth Key"
+      placeholder="werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn"
       :envs="envs"
     />
   </div>
@@ -72,50 +78,68 @@
       </p>
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.username") }}
+      </label>
       <SmartEnvInput
         v-model="auth.user"
         :auto-complete-env="true"
-        :placeholder="t('authorization.username')"
+        placeholder="john_doe"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.digest.nonce") }}
+      </label>
       <SmartEnvInput
         v-model="auth.nonce"
         :auto-complete-env="true"
-        placeholder="Nonce"
+        placeholder="j4h3g2"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.hawk.ext") }}
+      </label>
       <SmartEnvInput
         v-model="auth.ext"
         :auto-complete-env="true"
-        placeholder="ext"
+        placeholder="some-app-ext-data"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.hawk.app") }}
+      </label>
       <SmartEnvInput
         v-model="auth.app"
         :auto-complete-env="true"
-        placeholder="app"
+        placeholder="my-app-id"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.hawk.dlg") }}
+      </label>
       <SmartEnvInput
         v-model="auth.dlg"
         :auto-complete-env="true"
-        placeholder="dlg"
+        placeholder="user-delegation"
         :envs="envs"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
+      <label class="flex items-center ml-4 text-secondaryLight min-w-[6rem]">
+        {{ t("authorization.timestamp") }}
+      </label>
       <SmartEnvInput
         v-model="auth.timestamp"
         :auto-complete-env="true"
-        placeholder="Timestamp"
+        placeholder="1353832234"
         :envs="envs"
       />
     </div>
@@ -126,7 +150,7 @@
       :on="auth.includePayloadHash"
       @change="auth.includePayloadHash = !auth.includePayloadHash"
     >
-      Include Payload Hash
+      {{ t("authorization.hawk.include") }}
     </HoppSmartCheckbox>
   </div>
 </template>

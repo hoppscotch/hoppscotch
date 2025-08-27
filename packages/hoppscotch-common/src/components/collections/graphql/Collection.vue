@@ -125,11 +125,11 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-collection', {
+                      ;(emit('duplicate-collection', {
                         path: `${collectionIndex}`,
                         collectionSyncID: collection.id,
                       }),
-                        hide()
+                        hide())
                     }
                   "
                 />
@@ -339,7 +339,7 @@ const isSelected = computed(
 const collectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle
   else if (!showChildren.value && !props.isFiltered) return IconFolder
-  else if (!showChildren.value || props.isFiltered) return IconFolderOpen
+  else if (showChildren.value || props.isFiltered) return IconFolderOpen
   return IconFolder
 })
 

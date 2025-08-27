@@ -13,6 +13,7 @@ import {
   ValidContentTypes,
   HoppRESTRequestResponses,
   makeHoppRESTResponseOriginalRequest,
+  HoppCollectionVariable,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
@@ -28,6 +29,7 @@ import {
   RequestAuthDefinition,
   Variable,
   VariableDefinition,
+  VariableList,
 } from "postman-collection"
 import { stringArrayJoin } from "~/helpers/functional/array"
 import { PMRawLanguage } from "~/types/pm-coll-exts"
@@ -77,6 +79,32 @@ const parseDescription = (descField?: string | DescriptionDefinition) => {
   }
 
   return descField.content
+}
+
+const getHoppCollVariables = (
+  ig: ItemGroup<Item>
+): HoppCollectionVariable[] => {
+  if (!("variables" in ig && ig.variables)) {
+    return []
+  }
+
+  return pipe(
+    (ig.variables as VariableList).all(),
+    A.filter(
+      (variable) =>
+        variable.key !== undefined &&
+        variable.key !== null &&
+        variable.key.length > 0
+    ),
+    A.map((variable) => {
+      return <HoppCollectionVariable>{
+        key: replacePMVarTemplating(variable.key ?? ""),
+        initialValue: replacePMVarTemplating(variable.value ?? ""),
+        currentValue: "",
+        secret: variable.type === "secret",
+      }
+    })
+  )
 }
 
 const getHoppReqHeaders = (
@@ -147,6 +175,25 @@ const getHoppReqVariables = (
   }
 }
 
+// This regex is used to remove unsupported unicode characters from the response body which fails in Prisma
+// https://dba.stackexchange.com/questions/115029/unicode-error-with-u0000-on-copy-of-large-json-file-into-postgres
+const UNSUPPORTED_UNICODES_REGEX = /[\u0000]/g
+
+const getHoppResponseBody = (
+  body: string | ArrayBuffer | undefined
+): string => {
+  if (!body) return ""
+  if (typeof body === "string")
+    return body.replace(UNSUPPORTED_UNICODES_REGEX, "")
+  if (body instanceof ArrayBuffer) {
+    return new TextDecoder()
+      .decode(body)
+      .replace(UNSUPPORTED_UNICODES_REGEX, "")
+  }
+
+  return ""
+}
+
 const getHoppResponses = (
   responses: Item["responses"]
 ): HoppRESTRequestResponses => {
@@ -157,7 +204,7 @@ const getHoppResponses = (
         const res = {
           name: response.name,
           status: response.status,
-          body: response.body ?? "",
+          body: getHoppResponseBody(response.body),
           headers: getHoppReqHeaders(response.headers),
           code: response.code,
           originalRequest: makeHoppRESTResponseOriginalRequest({
@@ -269,6 +316,9 @@ const getHoppReqAuth = (
         tokenEndpoint: accessTokenURL,
         clientSecret: "",
         isPKCE: false,
+        authRequestParams: [],
+        tokenRequestParams: [],
+        refreshRequestParams: [],
       },
       addTo: "HEADERS",
     }
@@ -438,6 +488,7 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
     requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
     auth: getHoppReqAuth(ig.auth),
     headers: [],
+    variables: getHoppCollVariables(ig),
   })
 
 export const getHoppCollections = (collections: PMCollection[]) => {

@@ -49,9 +49,6 @@ const defaultEnvironmentsState = {
   } as SelectedEnvironmentIndex,
 }
 
-const secretEnvironmentService = getService(SecretEnvironmentService)
-const currentEnvironmentValueService = getService(CurrentValueService)
-
 type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
@@ -423,6 +420,7 @@ export type AggregateEnvironment = {
   currentValue: string
   secret: boolean
   sourceEnv: string
+  sourceEnvID?: string
 }
 
 /**
@@ -431,8 +429,9 @@ export type AggregateEnvironment = {
  * NOTE: The source environment attribute will be "Global" for Global Env as source.
  * The priority of the variables is as follows:
  * 1. Pre-defined variables
- * 2. Selected Environment Variables
- * 3. Global Environment Variables
+ * 2. Request Variables (from the current request)
+ * 3. Selected Environment Variables
+ * 4. Global Environment Variables
  */
 export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   [currentEnvironment$, globalEnv$]
@@ -496,7 +495,18 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
 export function getAggregateEnvs() {
   const currentEnv = getCurrentEnvironment()
+
   return [
+    ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
+      return <AggregateEnvironment>{
+        key,
+        currentValue: getValue(),
+        initialValue: getValue(),
+        secret: false,
+        sourceEnv: currentEnv.name,
+      }
+    }),
+
     ...currentEnv.variables.map((x) => {
       let currentValue = ""
       if (!x.secret) {
@@ -528,9 +538,22 @@ export function getAggregateEnvs() {
 }
 
 export function getAggregateEnvsWithCurrentValue() {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
   const currentEnv = getCurrentEnvironment()
 
   return [
+    ...HOPP_SUPPORTED_PREDEFINED_VARIABLES.map(({ key, getValue }) => {
+      return <AggregateEnvironment>{
+        key,
+        currentValue: getValue(),
+        initialValue: getValue(),
+        secret: false,
+        sourceEnv: currentEnv.name,
+      }
+    }),
+
     ...currentEnv.variables.map((x, index) => {
       let currentValue = x.currentValue
       if (x.secret) {
@@ -579,69 +602,74 @@ export function getAggregateEnvsWithCurrentValue() {
 
 export const aggregateEnvsWithCurrentValue$: Observable<
   AggregateEnvironment[]
-> = combineLatest([currentEnvironment$, globalEnv$]).pipe(
-  map(([selectedEnv, globalEnv]) => {
-    const results: AggregateEnvironment[] = []
+> = (() => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
 
-    // Ensure pre-defined variables are prioritised over other environment variables with the same name
-    HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
-      results.push({
-        key,
-        currentValue: getValue(),
-        initialValue: getValue(),
-        secret: false,
-        sourceEnv: selectedEnv?.name ?? "Global",
+  return combineLatest([currentEnvironment$, globalEnv$]).pipe(
+    map(([selectedEnv, globalEnv]) => {
+      const results: AggregateEnvironment[] = []
+
+      // Pre-defined variables
+      HOPP_SUPPORTED_PREDEFINED_VARIABLES.forEach(({ key, getValue }) => {
+        results.push({
+          key,
+          currentValue: getValue(),
+          initialValue: getValue(),
+          secret: false,
+          sourceEnv: selectedEnv?.name ?? "Global",
+        })
       })
-    })
 
-    selectedEnv?.variables.map((x, index) => {
-      let currentValue = x.currentValue
-      if (x.secret) {
-        currentValue =
-          secretEnvironmentService.getSecretEnvironmentVariableValue(
-            selectedEnv.id,
-            index
-          ) ?? ""
-      }
-      results.push({
-        key: x.key,
-        currentValue:
-          currentEnvironmentValueService.getEnvironmentVariableValue(
-            selectedEnv.id,
-            index
-          ) ?? currentValue,
-        initialValue: x.initialValue,
-        secret: x.secret,
-        sourceEnv: selectedEnv.name,
+      selectedEnv?.variables.map((x, index) => {
+        let currentValue = x.currentValue
+        if (x.secret) {
+          currentValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              selectedEnv.id,
+              index
+            ) ?? ""
+        }
+        results.push({
+          key: x.key,
+          currentValue:
+            currentEnvironmentValueService.getEnvironmentVariableValue(
+              selectedEnv.id,
+              index
+            ) ?? currentValue,
+          initialValue: x.initialValue,
+          secret: x.secret,
+          sourceEnv: selectedEnv.name,
+        })
       })
-    })
 
-    globalEnv.variables.map((x, index) => {
-      let currentValue = x.currentValue
-      if (x.secret) {
-        currentValue =
-          secretEnvironmentService.getSecretEnvironmentVariableValue(
-            "Global",
-            index
-          ) ?? ""
-      }
-      results.push({
-        key: x.key,
-        currentValue:
-          currentEnvironmentValueService.getEnvironmentVariableValue(
-            "Global",
-            index
-          ) ?? currentValue,
-        initialValue: x.initialValue,
-        secret: x.secret,
-        sourceEnv: "Global",
+      globalEnv.variables.map((x, index) => {
+        let currentValue = x.currentValue
+        if (x.secret) {
+          currentValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              "Global",
+              index
+            ) ?? ""
+        }
+        results.push({
+          key: x.key,
+          currentValue:
+            currentEnvironmentValueService.getEnvironmentVariableValue(
+              "Global",
+              index
+            ) ?? currentValue,
+          initialValue: x.initialValue,
+          secret: x.secret,
+          sourceEnv: "Global",
+        })
       })
-    })
 
-    return results
-  }),
-  distinctUntilChanged(isEqual)
-)
+      return results
+    }),
+    distinctUntilChanged(isEqual)
+  )
+})()
 
 export function getCurrentEnvironment(): Environment {
   if (

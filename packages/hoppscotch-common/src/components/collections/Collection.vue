@@ -58,8 +58,9 @@
             </span>
           </span>
         </div>
-        <div v-if="!hasNoTeamAccess" class="flex">
+        <div class="flex">
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFilePlus"
             :title="t('request.add')"
@@ -67,6 +68,7 @@
             @click="emit('add-request')"
           />
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
             :title="t('folder.new')"
@@ -109,6 +111,7 @@
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="requestAction"
                     :icon="IconFilePlus"
                     :label="t('request.new')"
@@ -121,6 +124,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="folderAction"
                     :icon="IconFolderPlus"
                     :label="t('folder.new')"
@@ -145,6 +149,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="edit"
                     :icon="IconEdit"
                     :label="t('action.edit')"
@@ -157,6 +162,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="duplicateAction"
                     :icon="IconCopy"
                     :label="t('action.duplicate')"
@@ -164,12 +170,13 @@
                     :shortcut="['D']"
                     @click="
                       () => {
-                        emit('duplicate-collection'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        ;(emit('duplicate-collection'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
                     :label="t('export.title')"
@@ -177,20 +184,8 @@
                     :loading="exportLoading"
                     @click="
                       () => {
-                        emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null
-                      }
-                    "
-                  />
-                  <HoppSmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        emit('remove-collection')
-                        hide()
+                        ;(emit('export-data'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />
@@ -202,6 +197,19 @@
                     @click="
                       () => {
                         emit('edit-properties')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
+                    ref="deleteAction"
+                    :icon="IconTrash2"
+                    :label="t('action.delete')"
+                    :shortcut="['⌫']"
+                    @click="
+                      () => {
+                        emit('remove-collection')
                         hide()
                       }
                     "

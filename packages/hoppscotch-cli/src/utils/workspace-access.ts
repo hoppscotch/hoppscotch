@@ -3,6 +3,7 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   HoppCollection,
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
@@ -77,6 +78,71 @@ const normalizeEnvironmentVariable = (variable: HoppEnvPair): HoppEnvPair => {
 };
 
 /**
+ * Transforms the given `HoppRESTAuth` object to ensure it conforms to the latest
+ * OAuth 2.0 authentication structure. Depending on the `grantType` within the
+ * `grantTypeInfo` property, this function adds or initializes specific fields
+ * such as `clientAuthentication`, `authRequestParams`, `tokenRequestParams`,
+ * and `refreshRequestParams` to maintain compatibility with updated schema
+ * requirements.
+ *
+ * - For "CLIENT_CREDENTIALS" grant type, sets `clientAuthentication` to "IN_BODY"
+ *   and initializes `tokenRequestParams` and `refreshRequestParams` as empty arrays.
+ * - For "AUTHORIZATION_CODE" grant type, initializes `authRequestParams`,
+ *   `tokenRequestParams`, and `refreshRequestParams` as empty arrays.
+ * - For "PASSWORD" grant type, initializes `tokenRequestParams` and
+ *   `refreshRequestParams` as empty arrays.
+ * - For "IMPLICIT" grant type, initializes `authRequestParams` and
+ *   `refreshRequestParams` as empty arrays.
+ *
+ * If the `authType` is not "oauth-2", the original `auth` object is returned unchanged.
+ *
+ * @param {HoppRESTAuth} auth - The authentication object to transform.
+ * @returns {HoppRESTAuth} The transformed authentication object with updated grant type information.
+ */
+const transformAuth = (auth: HoppRESTAuth): HoppRESTAuth => {
+  if (auth.authType === "oauth-2") {
+    const oldGrantTypeInfo = auth.grantTypeInfo;
+    let newGrantTypeInfo = oldGrantTypeInfo;
+
+    // Add clientAuthentication for CLIENT_CREDENTIALS
+    if (oldGrantTypeInfo.grantType === "CLIENT_CREDENTIALS") {
+      newGrantTypeInfo = {
+        ...oldGrantTypeInfo,
+        clientAuthentication: "IN_BODY",
+        tokenRequestParams: [],
+        refreshRequestParams: [],
+      };
+    } else if (oldGrantTypeInfo.grantType === "AUTHORIZATION_CODE") {
+      newGrantTypeInfo = {
+        ...oldGrantTypeInfo,
+        authRequestParams: [],
+        tokenRequestParams: [],
+        refreshRequestParams: [],
+      };
+    } else if (oldGrantTypeInfo.grantType === "PASSWORD") {
+      newGrantTypeInfo = {
+        ...oldGrantTypeInfo,
+        tokenRequestParams: [],
+        refreshRequestParams: [],
+      };
+    } else if (oldGrantTypeInfo.grantType === "IMPLICIT") {
+      newGrantTypeInfo = {
+        ...oldGrantTypeInfo,
+        authRequestParams: [],
+        refreshRequestParams: [],
+      };
+    }
+
+    return {
+      ...auth,
+      grantTypeInfo: newGrantTypeInfo,
+    };
+  }
+
+  return auth;
+};
+
+/**
  * Transforms workspace environment data to the `HoppEnvironment` format.
  *
  * @param {WorkspaceEnvironment} workspaceEnvironment - The workspace environment object to transform.
@@ -108,29 +174,26 @@ export const transformWorkspaceCollections = (
   return collections.map((collection) => {
     const { id, title, data, requests, folders } = collection;
 
-    const parsedData: { auth?: HoppRESTAuth; headers?: HoppRESTHeaders } = data
-      ? JSON.parse(data)
-      : {};
+    const parsedData: {
+      auth?: HoppRESTAuth;
+      headers?: HoppRESTHeaders;
+      variables: HoppCollectionVariable[];
+    } = data ? JSON.parse(data) : {};
 
-    const { auth = { authType: "inherit", authActive: true }, headers = [] } =
-      parsedData;
+    const {
+      auth = { authType: "inherit", authActive: true },
+      headers = [],
+      variables = [],
+    } = parsedData;
 
-    const migratedAuth: HoppRESTAuth =
-      auth.authType === "oauth-2"
-        ? {
-            ...auth,
-            grantTypeInfo:
-              auth.grantTypeInfo.grantType === "CLIENT_CREDENTIALS"
-                ? {
-                    ...auth.grantTypeInfo,
-                    clientAuthentication: "IN_BODY",
-                  }
-                : auth.grantTypeInfo,
-          }
-        : auth;
+    const transformedAuth = transformAuth(auth);
 
-    const migratedHeaders = headers.map((header) =>
+    const transformedHeaders = headers.map((header) =>
       header.description ? header : { ...header, description: "" }
+    );
+
+    const filteredCollectionVariables = variables.filter(
+      (variable) => variable.key.trim() !== ""
     );
 
     // The response doesn't include a way to infer the schema version, so it's set to the latest version
@@ -142,8 +205,9 @@ export const transformWorkspaceCollections = (
       name: title,
       folders: transformWorkspaceCollections(folders),
       requests: transformWorkspaceRequests(requests),
-      auth: migratedAuth,
-      headers: migratedHeaders,
+      auth: transformedAuth,
+      headers: transformedHeaders,
+      variables: filteredCollectionVariables,
     };
   });
 };

@@ -1,0 +1,7 @@
+export enum PrismaError {
+  DATABASE_UNREACHABLE = 'P1001',
+  TABLE_DOES_NOT_EXIST = 'P2021',
+  UNIQUE_CONSTRAINT_VIOLATION = 'P2002',
+  TRANSACTION_TIMEOUT = 'P2028',
+  TRANSACTION_DEADLOCK = 'P2034', // write conflict or a deadlock
+}

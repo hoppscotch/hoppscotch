@@ -1,10 +1,12 @@
+use bon::Builder;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::Duration;
 
 use crate::cache::DEFAULT_CACHE_SIZE;
+use crate::vendor::VendorConfig;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub api: ApiConfig,
@@ -12,6 +14,8 @@ pub struct Config {
     pub cache: CacheConfig,
     #[serde(default)]
     pub storage: StorageConfig,
+    #[serde(skip)]
+    pub vendor: VendorConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,16 +37,6 @@ pub struct CacheConfig {
 pub struct StorageConfig {
     pub root_dir: PathBuf,
     pub max_bundle_size: usize,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            api: ApiConfig::default(),
-            cache: CacheConfig::default(),
-            storage: StorageConfig::default(),
-        }
-    }
 }
 
 impl Default for ApiConfig {

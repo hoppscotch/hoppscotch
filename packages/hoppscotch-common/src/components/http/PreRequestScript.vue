@@ -38,7 +38,18 @@
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight h-full relative">
-        <div ref="preRequestEditor" class="h-full absolute inset-0"></div>
+        <MonacoScriptEditor
+          v-if="EXPERIMENTAL_SCRIPTING_SANDBOX && props.isActive"
+          v-model="preRequestScript"
+          :is-active="props.isActive"
+          type="pre-request"
+        />
+
+        <div
+          v-else
+          ref="preRequestEditor"
+          class="h-full absolute inset-0"
+        ></div>
       </div>
       <div
         class="z-[9] sticky top-upperTertiaryStickyFold h-full min-w-[12rem] max-w-1/3 flex-shrink-0 overflow-auto overflow-x-auto bg-primary p-4"
@@ -76,31 +87,33 @@
 </template>
 
 <script setup lang="ts">
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconWrapText from "~icons/lucide/wrap-text"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconSparkles from "~icons/lucide/sparkles"
-import { reactive, ref, computed } from "vue"
-import snippets from "@helpers/preRequestScriptSnippets"
-import { useCodemirror } from "@composables/codemirror"
-import linter from "~/helpers/editor/linting/preRequest"
-import completer from "~/helpers/editor/completion/preRequest"
-import { useI18n } from "@composables/i18n"
-import { useVModel } from "@vueuse/core"
-import { useNestedSetting } from "~/composables/settings"
-import { toggleNestedSetting } from "~/newstore/settings"
-import { useAIExperiments } from "~/composables/ai-experiments"
-import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
-import { platform } from "~/platform"
-import { useReadonlyStream } from "~/composables/stream"
 import AiexperimentsModifyPreRequestModal from "@components/aiexperiments/ModifyPreRequestModal.vue"
+import { useCodemirror } from "@composables/codemirror"
+import { useI18n } from "@composables/i18n"
+import snippets from "@helpers/preRequestScriptSnippets"
+import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { computed, reactive, ref } from "vue"
+
+import { useAIExperiments } from "~/composables/ai-experiments"
+import { useNestedSetting, useSetting } from "~/composables/settings"
+import { useReadonlyStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
+import completer from "~/helpers/editor/completion/preRequest"
+import linter from "~/helpers/editor/linting/preRequest"
+import { toggleNestedSetting } from "~/newstore/settings"
+import { platform } from "~/platform"
+import { RESTTabService } from "~/services/tab/rest"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconSparkles from "~icons/lucide/sparkles"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconWrapText from "~icons/lucide/wrap-text"
 
 const t = useI18n()
 
 const props = defineProps<{
   modelValue: string
+  isActive?: boolean
 }>()
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void
@@ -125,6 +138,10 @@ useCodemirror(
     environmentHighlights: false,
     contextMenuEnabled: false,
   })
+)
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
 const useSnippet = (script: string) => {

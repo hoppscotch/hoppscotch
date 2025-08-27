@@ -35,6 +35,26 @@ import { ReqType } from "@api/generated/graphql"
 import { moveOrReorderRequests } from "./sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 export const gqlCollectionsMapper = createMapper<string, string>()
 
 // gqlRequestsMapper uses the collectionPath/requestIndex as the local identifier
@@ -198,8 +218,11 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   async appendCollections({ entries }) {
     if (entries.length === 0) return
 
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
+
     // Use the bulk import API instead of individual calls
-    const jsonString = JSON.stringify(entries)
+    const jsonString = JSON.stringify(transformedCollections)
 
     const result = await importUserCollectionsFromJSON(
       jsonString,

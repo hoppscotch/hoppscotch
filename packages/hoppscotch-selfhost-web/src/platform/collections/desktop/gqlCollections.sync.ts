@@ -26,6 +26,7 @@ import {
   deleteUserRequest,
   duplicateUserCollection,
   editGQLUserRequest,
+  importUserCollectionsFromJSON,
   updateUserCollection,
 } from "./api"
 
@@ -34,13 +35,33 @@ import { ReqType } from "@api/generated/graphql"
 import { moveOrReorderRequests } from "./sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 export const gqlCollectionsMapper = createMapper<string, string>()
 
 // gqlRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const gqlRequestsMapper = createMapper<string, string>()
 
-// temp implementation until the backend implements an endpoint that accepts an entire collection
-// TODO: use importCollectionsJSON to do this
+// Optimized implementation using importUserCollectionsFromJSON for bulk operations
+// This replaces individual createGQLRootUserCollection/createGQLChildUserCollection/createGQLUserRequest calls
 const recursivelySyncCollections = async (
   collection: HoppCollection,
   collectionPath: string,
@@ -194,15 +215,37 @@ export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = graphqlCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    if (entries.length === 0) return
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
+
+    // Use the bulk import API instead of individual calls
+    const jsonString = JSON.stringify(transformedCollections)
+
+    const result = await importUserCollectionsFromJSON(
+      jsonString,
+      ReqType.Gql,
+      undefined // undefined for root collections
+    )
+
+    // The backend handles creating all collections and requests in a single transaction
+    // The frontend collections will be updated through subscriptions
+
+    if (E.isLeft(result)) {
+      // Fallback to individual calls if bulk import fails
+      let indexStart =
+        graphqlCollectionStore.value.state.length - entries.length
+
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
+    // Use individual API for single collection creation (not import)
     const lastCreatedCollectionIndex =
       graphqlCollectionStore.value.state.length - 1
 

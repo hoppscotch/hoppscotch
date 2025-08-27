@@ -1,7 +1,7 @@
-import { describe, test, expect } from "vitest"
-import { generateBearerAuthHeaders } from "../bearer"
-import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
+import { describe, expect, test } from "vitest"
+import { generateBearerAuthHeaders } from "../bearer"
+import { mockEnvVars } from "./test-utils"
 
 describe("Bearer Auth", () => {
   describe("generateBearerAuthHeaders", () => {

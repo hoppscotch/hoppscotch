@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from "vitest"
-import { generateJwtAuthHeaders } from "../jwt"
-import { createBaseRequest, mockEnvVars } from "./test-utils"
 import { HoppRESTAuth } from "@hoppscotch/data"
+import { beforeEach, describe, expect, test, vi } from "vitest"
+import { generateJwtAuthHeaders } from "../jwt"
+import { mockEnvVars } from "./test-utils"
 
 // Mock the jwt helper
 vi.mock("@hoppscotch/data", async () => {

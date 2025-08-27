@@ -8,23 +8,29 @@ import {
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
-import { ImplicitOauthFlowParams } from "@hoppscotch/data"
+import { OAuth2ParamSchema } from "../utils"
 
 const persistenceService = getService(PersistenceService)
 
-const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParams.pick({
-  authEndpoint: true,
-  clientID: true,
-  scopes: true,
-  authRequestParams: true,
-  refreshRequestParams: true,
-}).refine((params) => {
-  return (
-    params.authEndpoint.length >= 1 &&
-    params.clientID.length >= 1 &&
-    (params.scopes === undefined || params.scopes.length >= 1)
-  )
-})
+const ImplicitOauthFlowParamsSchema = z
+  .object({
+    authEndpoint: z.string(),
+    clientID: z.string(),
+    scopes: z.string().optional(),
+    authRequestParams: z.array(
+      OAuth2ParamSchema.omit({
+        sendIn: true,
+      })
+    ),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine((params) => {
+    return (
+      params.authEndpoint.length >= 1 &&
+      params.clientID.length >= 1 &&
+      (params.scopes === undefined || params.scopes.length >= 1)
+    )
+  })
 
 export type ImplicitOauthFlowParams = z.infer<
   typeof ImplicitOauthFlowParamsSchema

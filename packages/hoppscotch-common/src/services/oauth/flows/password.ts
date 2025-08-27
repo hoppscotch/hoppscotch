@@ -9,36 +9,37 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useToast } from "~/composables/toast"
-import { PasswordGrantTypeParams } from "@hoppscotch/data"
 import { content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
-import { refreshToken } from "../utils"
+import { OAuth2ParamSchema, refreshToken } from "../utils"
 
 const interceptorService = getService(KernelInterceptorService)
 
-const PasswordFlowParamsSchema = PasswordGrantTypeParams.pick({
-  authEndpoint: true,
-  clientID: true,
-  clientSecret: true,
-  scopes: true,
-  username: true,
-  password: true,
-  tokenRequestParams: true,
-  refreshRequestParams: true,
-}).refine(
-  (params) => {
-    return (
-      params.authEndpoint.length >= 1 &&
-      params.clientID.length >= 1 &&
-      params.username.length >= 1 &&
-      params.password.length >= 1 &&
-      (!params.scopes || params.scopes.length >= 1)
-    )
-  },
-  {
-    message: "Minimum length requirement not met for one or more parameters",
-  }
-)
+const PasswordFlowParamsSchema = z
+  .object({
+    authEndpoint: z.string(),
+    clientID: z.string(),
+    clientSecret: z.string().optional(),
+    scopes: z.string().optional(),
+    username: z.string(),
+    password: z.string(),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine(
+    (params) => {
+      return (
+        params.authEndpoint.length >= 1 &&
+        params.clientID.length >= 1 &&
+        params.username.length >= 1 &&
+        params.password.length >= 1 &&
+        (!params.scopes || params.scopes.length >= 1)
+      )
+    },
+    {
+      message: "Minimum length requirement not met for one or more parameters",
+    }
+  )
 
 export type PasswordFlowParams = z.infer<typeof PasswordFlowParamsSchema>
 

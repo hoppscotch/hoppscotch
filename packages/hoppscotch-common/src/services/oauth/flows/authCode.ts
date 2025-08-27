@@ -11,7 +11,7 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
-import { refreshToken } from "../utils"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
@@ -26,31 +26,12 @@ const AuthCodeOauthFlowParamsSchema = z
     isPKCE: z.boolean(),
     codeVerifierMethod: z.enum(["plain", "S256"]).optional(),
     authRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
+      OAuth2ParamSchema.omit({
+        sendIn: true,
       })
     ),
-    refreshRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
-    tokenRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
   })
   .refine(
     (params) => {

@@ -8,36 +8,35 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { useToast } from "~/composables/toast"
-import { ClientCredentialsGrantTypeParams } from "@hoppscotch/data"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { RelayRequest, content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
-import { refreshToken } from "../utils"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
 
 const interceptorService = getService(KernelInterceptorService)
 
-const ClientCredentialsFlowParamsSchema = ClientCredentialsGrantTypeParams.pick(
-  {
-    authEndpoint: true,
-    clientID: true,
-    clientSecret: true,
-    scopes: true,
-    clientAuthentication: true,
-    tokenRequestParams: true,
-    refreshRequestParams: true,
-  }
-).refine(
-  (params) => {
-    return (
-      params.authEndpoint.length >= 1 &&
-      params.clientID.length >= 1 &&
-      (!params.scopes || params.scopes.length >= 1)
-    )
-  },
-  {
-    message: "Minimum length requirement not met for one or more parameters",
-  }
-)
+const ClientCredentialsFlowParamsSchema = z
+  .object({
+    authEndpoint: z.string(),
+    clientID: z.string(),
+    clientSecret: z.string().optional(),
+    scopes: z.string().optional(),
+    clientAuthentication: z.enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"]),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
+  .refine(
+    (params) => {
+      return (
+        params.authEndpoint.length >= 1 &&
+        params.clientID.length >= 1 &&
+        (!params.scopes || params.scopes.length >= 1)
+      )
+    },
+    {
+      message: "Minimum length requirement not met for one or more parameters",
+    }
+  )
 
 export type ClientCredentialsFlowParams = z.infer<
   typeof ClientCredentialsFlowParamsSchema

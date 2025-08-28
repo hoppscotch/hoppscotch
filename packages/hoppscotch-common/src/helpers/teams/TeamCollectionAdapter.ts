@@ -1,6 +1,7 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
 import {
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeader,
   translateToNewRequest,
@@ -26,6 +27,9 @@ import {
   TeamCollectionOrderUpdatedDocument,
 } from "~/helpers/backend/graphql"
 import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { SecretEnvironmentService } from "~/services/secret-environment.service"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { getService } from "~/modules/dioc"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -225,6 +229,10 @@ export default class NewTeamCollectionAdapter {
   private teamCollectionMovedSub: WSubscription | null
   private teamRequestOrderUpdatedSub: WSubscription | null
   private teamCollectionOrderUpdatedSub: WSubscription | null
+
+  //collection variables current value and secret value
+  private secretEnvironmentService = getService(SecretEnvironmentService)
+  private currentEnvironmentValueService = getService(CurrentValueService)
 
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
@@ -530,7 +538,8 @@ export default class NewTeamCollectionAdapter {
   private async moveCollection(
     collectionID: string,
     parentID: string | null,
-    title: string
+    title: string,
+    data?: string | null
   ) {
     // Remove the collection from the current position
     this.removeCollection(collectionID)
@@ -547,7 +556,7 @@ export default class NewTeamCollectionAdapter {
         children: null,
         requests: null,
         title: title,
-        data: null,
+        data,
       },
       parentID ?? null
     )
@@ -847,11 +856,11 @@ export default class NewTeamCollectionAdapter {
         )
 
       const { teamCollectionMoved } = result.right
-      const { id, parent, title } = teamCollectionMoved
+      const { id, parent, title, data } = teamCollectionMoved
 
       const parentID = parent?.id ?? null
 
-      this.moveCollection(id, parentID, title)
+      this.moveCollection(id, parentID, title, data)
     })
 
     const [teamRequestOrderUpdated$, teamRequestOrderUpdated] =
@@ -1034,12 +1043,44 @@ export default class NewTeamCollectionAdapter {
     }
   }
 
+  private getCurrentValue = (
+    env: HoppCollectionVariable,
+    varIndex: number,
+    collectionID: string
+  ) => {
+    if (env && env.secret) {
+      return this.secretEnvironmentService.getSecretEnvironmentVariable(
+        collectionID,
+        varIndex
+      )?.value
+    }
+    return this.currentEnvironmentValueService.getEnvironmentVariable(
+      collectionID,
+      varIndex
+    )?.currentValue
+  }
+
+  /**
+   * This function populates the values of the variables with the current values or secrets.
+   * @param variables Variables to populate
+   * @returns Populated variables with current values or secrets
+   */
+  private populateValues(
+    variables: HoppCollectionVariable[],
+    parentID: string
+  ) {
+    return variables.map((v, index) => ({
+      ...v,
+      currentValue: this.getCurrentValue(v, index, parentID) ?? v.currentValue,
+    }))
+  }
+
   /**
    * Used to obtain the inherited auth and headers for a given folder path, used for both REST and GraphQL team collections
    * @param folderPath the path of the folder to cascade the auth from
    * @returns the inherited auth and headers for the given folder path
    */
-  public cascadeParentCollectionForHeaderAuth(folderPath: string) {
+  public cascadeParentCollectionForProperties(folderPath: string) {
     let auth: HoppInheritedProperty["auth"] = {
       parentID: folderPath ?? "",
       parentName: "",
@@ -1050,14 +1091,16 @@ export default class NewTeamCollectionAdapter {
     }
     const headers: HoppInheritedProperty["headers"] = []
 
-    if (!folderPath) return { auth, headers }
+    const variables: HoppInheritedProperty["variables"] = []
+
+    if (!folderPath) return { auth, headers, variables }
 
     const path = folderPath.split("/")
 
     // Check if the path is empty or invalid
     if (!path || path.length === 0) {
       console.error("Invalid path:", folderPath)
-      return { auth, headers }
+      return { auth, headers, variables }
     }
 
     // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -1067,17 +1110,19 @@ export default class NewTeamCollectionAdapter {
       // Check if parentFolder is undefined or null
       if (!parentFolder) {
         console.error("Parent folder not found for path:", path)
-        return { auth, headers }
+        return { auth, headers, variables }
       }
 
       const data: {
         auth: HoppRESTAuth
         headers: HoppRESTHeader[]
+        variables: HoppCollectionVariable[]
       } = parentFolder.data
         ? JSON.parse(parentFolder.data)
         : {
             auth: null,
             headers: null,
+            variables: null,
           }
 
       if (!data.auth) {
@@ -1091,8 +1136,11 @@ export default class NewTeamCollectionAdapter {
 
       if (!data.headers) data.headers = []
 
+      if (!data.variables) data.variables = []
+
       const parentFolderAuth = data.auth
       const parentFolderHeaders = data.headers
+      const parentFolderVariables = data.variables
 
       if (
         parentFolderAuth?.authType === "inherit" &&
@@ -1137,8 +1185,23 @@ export default class NewTeamCollectionAdapter {
           }
         })
       }
+
+      // Update variables, overwriting duplicates by key
+      if (parentFolderVariables) {
+        const currentPath = [...path.slice(0, i + 1)].join("/")
+
+        variables.push({
+          parentPath: path.slice(0, i + 1).join("/"),
+          parentID: parentFolder.id ?? currentPath,
+          parentName: parentFolder.title,
+          inheritedVariables: this.populateValues(
+            parentFolderVariables,
+            parentFolder.id ?? currentPath
+          ),
+        })
+      }
     }
 
-    return { auth, headers }
+    return { auth, headers, variables }
   }
 }

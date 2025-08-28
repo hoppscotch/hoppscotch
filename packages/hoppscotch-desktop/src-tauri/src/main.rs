@@ -3,37 +3,31 @@
 
 use hoppscotch_desktop_lib::{
     logger::{self, LogGuard},
-    HOPPSCOTCH_DESKTOP_IDENTIFIER,
+    path,
 };
 
 fn main() {
-    // Follows how `tauri` does this
-    // see: https://github.com/tauri-apps/tauri/blob/dev/crates/tauri/src/path/desktop.rs
-    let path = {
-        #[cfg(target_os = "macos")]
-        let path = dirs::home_dir()
-            .map(|dir| dir.join("Library/Logs").join(HOPPSCOTCH_DESKTOP_IDENTIFIER));
+    #[cfg(feature = "portable")]
+    println!("Starting Hoppscotch Desktop in PORTABLE mode");
 
-        #[cfg(not(target_os = "macos"))]
-        let path =
-            dirs::data_local_dir().map(|dir| dir.join(HOPPSCOTCH_DESKTOP_IDENTIFIER).join("logs"));
+    #[cfg(not(feature = "portable"))]
+    println!("Starting Hoppscotch Desktop in STANDARD mode");
 
-        path
+    let log_dir = match path::logs_dir() {
+        Ok(dir) => {
+            println!("Log directory: {}", dir.display());
+            dir
+        }
+        Err(e) => {
+            eprintln!("Failed to setup logging directory: {}", e);
+            println!("Starting Hoppscotch Desktop without logging...");
+            return hoppscotch_desktop_lib::run();
+        }
     };
 
-    let Some(log_file_path) = path else {
-        eprint!("Failed to setup logging!");
-
-        println!("Starting Hoppscotch Desktop...");
-
-        return hoppscotch_desktop_lib::run();
-    };
-
-    let Ok(LogGuard(guard)) = logger::setup(&log_file_path) else {
-        eprint!("Failed to setup logging!");
-
-        println!("Starting Hoppscotch Desktop...");
-
+    let Ok(LogGuard(guard)) = logger::setup(&log_dir) else {
+        eprintln!("Failed to setup logging!");
+        println!("Starting Hoppscotch Desktop without logging...");
         return hoppscotch_desktop_lib::run();
     };
 
@@ -42,7 +36,30 @@ fn main() {
     // so safe to have it like this.
     let _guard = guard;
 
-    tracing::info!("Starting Hoppscotch Desktop...");
+    #[cfg(feature = "portable")]
+    {
+        tracing::info!(
+            "Hoppscotch Desktop v{} starting in PORTABLE mode",
+            env!("CARGO_PKG_VERSION")
+        );
+        if let Ok(config_dir) = path::config_dir() {
+            tracing::info!("Config directory (portable): {}", config_dir.display());
+        }
+        if let Ok(current_dir) = std::env::current_dir() {
+            tracing::info!("Current working directory: {}", current_dir.display());
+        }
+    }
+
+    #[cfg(not(feature = "portable"))]
+    {
+        tracing::info!(
+            "Hoppscotch Desktop v{} starting in STANDARD mode",
+            env!("CARGO_PKG_VERSION")
+        );
+        if let Ok(config_dir) = path::config_dir() {
+            tracing::info!("Config directory (standard): {}", config_dir.display());
+        }
+    }
 
     hoppscotch_desktop_lib::run()
 }

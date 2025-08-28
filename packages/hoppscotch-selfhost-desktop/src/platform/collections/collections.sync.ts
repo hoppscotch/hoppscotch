@@ -9,7 +9,11 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  generateUniqueRefId,
+  HoppCollection,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
 import { getSyncInitFunction } from "../../lib/sync"
 
@@ -22,11 +26,15 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editUserRequest,
+  importUserCollectionsFromJSON,
   moveUserCollection,
   moveUserRequest,
   renameUserCollection,
+  updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"
+
+import { ReqType } from "../../api/generated/graphql"
 
 import * as E from "fp-ts/Either"
 
@@ -47,27 +55,84 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createRESTRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
+    }
+    const res = await createRESTRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createRESTRootUserCollection.id
 
+      const returnedData = res.right.createRESTRootUserCollection.data
+        ? JSON.parse(res.right.createRESTRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
+          }
+
       collection.id = parentCollectionID
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id,
+    }
+
     const res = await createRESTChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createRESTChildUserCollection.id
 
+      const returnedData = res.right.createRESTChildUserCollection.data
+        ? JSON.parse(res.right.createRESTChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            _ref_id: generateUniqueRefId("coll"),
+            variables: [],
+          }
+
       collection.id = childCollectionId
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -106,6 +171,26 @@ const recursivelySyncCollections = async (
     })
 }
 
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 // TODO: generalize this
 // TODO: ask backend to send enough info on the subscription to not need this
 export const collectionReorderOrMovingOperations: {
@@ -130,13 +215,25 @@ export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = restCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Use bulk import API for better performance
+    const result = await importUserCollectionsFromJSON(
+      JSON.stringify(transformedCollections),
+      ReqType.Rest,
+      undefined // parentCollectionID is undefined for root collections
+    )
+
+    if (E.isLeft(result)) {
+      // Fallback to individual creation if bulk import fails
+      let indexStart = restCollectionStore.value.state.length - entries.length
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
     const lastCreatedCollectionIndex =
@@ -155,8 +252,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+      variables: collection.variables,
+      _ref_id: collection._ref_id,
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -168,8 +272,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = parentCollection?.id
 
     if (parentCollectionBackendID) {
-      const foldersLength = parentCollection.folders.length
-
       const res = await createRESTChildUserCollection(
         name,
         parentCollectionBackendID
@@ -178,12 +280,20 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (E.isRight(res)) {
         const { id } = res.right.createRESTChildUserCollection
 
-        if (foldersLength) {
-          parentCollection.folders[foldersLength - 1].id = id
-          removeDuplicateRESTCollectionOrFolder(
-            id,
-            `${path}/${foldersLength - 1}`
-          )
+        // Always try to assign the ID to the last created folder
+        const foldersLength = parentCollection.folders.length
+        if (foldersLength > 0) {
+          const lastFolderIndex = foldersLength - 1
+          const lastFolder = parentCollection.folders[lastFolderIndex]
+
+          // Only assign ID if the folder doesn't already have one (avoid overwriting)
+          if (!lastFolder.id) {
+            lastFolder.id = id
+            removeDuplicateRESTCollectionOrFolder(
+              id,
+              `${path}/${lastFolderIndex}`
+            )
+          }
         }
       }
     }
@@ -195,9 +305,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )?.id
 
     const folderName = folder.name
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+      variables: folder.variables,
+      _ref_id: folder._ref_id,
+    }
 
-    if (folderID && folderName) {
-      renameUserCollection(folderID, folderName)
+    if (folderID) {
+      updateUserCollection(folderID, folderName, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {
@@ -255,8 +371,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
-      const newRequest = folder.requests[folder.requests.length - 1]
-
       const res = await createRESTUserRequest(
         (request as HoppRESTRequest).name,
         JSON.stringify(request),
@@ -266,12 +380,22 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (E.isRight(res)) {
         const { id } = res.right.createRESTUserRequest
 
-        newRequest.id = id
-        removeDuplicateRESTCollectionOrFolder(
-          id,
-          `${path}/${folder.requests.length - 1}`,
-          "request"
-        )
+        // Find the last request that doesn't have an ID (the newly added one)
+        const requestsLength = folder.requests.length
+        if (requestsLength > 0) {
+          const lastRequestIndex = requestsLength - 1
+          const lastRequest = folder.requests[lastRequestIndex]
+
+          // Only assign ID if the request doesn't already have one
+          if (!lastRequest.id) {
+            lastRequest.id = id
+            removeDuplicateRESTCollectionOrFolder(
+              id,
+              `${path}/${lastRequestIndex}`,
+              "request"
+            )
+          }
+        }
       }
     }
   },

@@ -127,6 +127,7 @@ function translateToTeamCollectionFormat(x: HoppCollection) {
   const data = {
     auth: x.auth,
     headers: x.headers,
+    variables: x.variables,
   }
 
   const obj = {
@@ -419,7 +420,7 @@ const HoppInsomniaImporter: ImporterOrExporter = {
   importSummary: currentImportSummary,
   component: FileSource({
     caption: "import.from_file",
-    acceptedFileTypes: ".json",
+    acceptedFileTypes: ".json, .yaml, .yml, .har",
     description: "import.from_insomnia_import_summary",
     onImportFromFile: async (content) => {
       isInsomniaImporterInProgress.value = true

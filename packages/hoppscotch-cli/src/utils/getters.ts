@@ -1,5 +1,6 @@
 import {
   EnvironmentVariable,
+  HoppCollectionVariable,
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTRequestVariables,
@@ -269,11 +270,13 @@ export const getResourceContents = async (
  *
  * @param {HoppRESTRequestVariables} requestVariables - Incoming request variables.
  * @param {EnvironmentVariable[]} environmentVariables - Incoming environment variables.
+ * @param {HoppCollectionVariable[]} collectionVariables - Optional collection variables to be included.
  * @returns {EnvironmentVariable[]} The resolved list of variables that conforms to the shape of environment variables.
  */
 export const getResolvedVariables = (
   requestVariables: HoppRESTRequestVariables,
-  environmentVariables: EnvironmentVariable[]
+  environmentVariables: EnvironmentVariable[],
+  collectionVariables: HoppCollectionVariable[] = []
 ): EnvironmentVariable[] => {
   // Transforming request variables to the shape of environment variables
   const activeRequestVariables = requestVariables
@@ -287,9 +290,19 @@ export const getResolvedVariables = (
 
   const requestVariableKeys = activeRequestVariables.map(({ key }) => key);
 
-  // Request variables have higher priority, hence filtering out environment variables with the same keys
-  const filteredEnvironmentVariables = environmentVariables.filter(
+  // Request variables have higher priority, hence filtering out collection variables with the same keys
+  const filteredCollectionVariables = collectionVariables.filter(
     ({ key }) => !requestVariableKeys.includes(key)
+  );
+
+  const collectionVariableKeys = filteredCollectionVariables.map(
+    ({ key }) => key
+  );
+
+  // Filtering out environment variables that have keys present in request or collection variables
+  const filteredEnvironmentVariables = environmentVariables.filter(
+    ({ key }) =>
+      ![...requestVariableKeys, ...collectionVariableKeys].includes(key)
   );
 
   // Setting currentValue to initialValue for environment variables
@@ -304,5 +317,19 @@ export const getResolvedVariables = (
     })
   );
 
-  return [...activeRequestVariables, ...processedEnvironmentVariables];
+  const processedCollectionVariables = filteredCollectionVariables.map(
+    ({ key, initialValue, currentValue, secret }) => ({
+      key,
+      initialValue,
+      currentValue:
+        currentValue && currentValue !== "" ? currentValue : initialValue,
+      secret,
+    })
+  );
+
+  return [
+    ...activeRequestVariables,
+    ...processedCollectionVariables,
+    ...processedEnvironmentVariables,
+  ];
 };

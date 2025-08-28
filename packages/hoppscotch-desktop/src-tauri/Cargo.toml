@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "25.7.1"
+version = "25.8.0"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"
@@ -29,8 +29,8 @@ tauri-plugin-store = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
 tauri-plugin-fs = "2.2.0"
 tauri-plugin-deep-link = "2.2.0"
-tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "1b52e49d881926135838cf6cfebdc1643a9bec31" }
-tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "4ed4fcafeb93856591e8a36522f6ec6e340e4dc5" }
+tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "e05861959938b57479a1a81fa796735ebbd08c7c" }
+tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "ff18f776ddeb53dbbdeaf97e1fabc30bdc57c158" }
 axum = "0.8.1"
 tower-http = { version = "0.6.2", features = ["cors"] }
 random-port = "0.1.1"
@@ -43,6 +43,9 @@ native-dialog = { version = "0.7.0" }
 tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
 tauri-plugin-opener = "2"
 semver = "1.0"
+
+[dev-dependencies]
+tempfile = "3.20.0"
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.13.0" }

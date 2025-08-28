@@ -27,6 +27,14 @@ export const safeParseJSON: SafeParseJSON = (str, convertToArray = false) =>
   })
 
 /**
+ * Generates a prettified JSON representation of an object
+ * @param obj The object to get the representation of
+ * @returns The prettified JSON string of the object
+ */
+export const prettyPrintJSON = (obj: unknown): O.Option<string> =>
+  O.tryCatch(() => JSON.stringify(obj, null, "\t"))
+
+/**
  * Checks if given string is a JSON string
  * @param str Raw string to be checked
  * @returns If string is a JSON string

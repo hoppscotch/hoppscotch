@@ -1,5 +1,7 @@
 import {
+  CollectionVariable,
   HoppCollection,
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
@@ -32,7 +34,11 @@ type TeamCollectionJSON = {
   data: string
 }
 
-type CollectionDataProps = { auth: HoppRESTAuth; headers: HoppRESTHeaders }
+type CollectionDataProps = {
+  auth: HoppRESTAuth
+  headers: HoppRESTHeaders
+  variables: HoppCollectionVariable[]
+}
 
 export const BACKEND_PAGE_SIZE = 10
 
@@ -111,6 +117,7 @@ const parseCollectionData = (
   const defaultDataProps: CollectionDataProps = {
     auth: { authType: "inherit", authActive: true },
     headers: [],
+    variables: [],
   }
 
   if (!data) {
@@ -139,9 +146,15 @@ const parseCollectionData = (
     defaultDataProps.headers
   )
 
+  const variables = parseWithDefaultValue<CollectionDataProps["variables"]>(
+    z.array(CollectionVariable).safeParse(parsedData?.variables),
+    defaultDataProps.variables
+  )
+
   return {
     auth,
     headers,
+    variables,
   }
 }
 
@@ -149,7 +162,7 @@ const parseCollectionData = (
 const teamCollectionJSONToHoppRESTColl = (
   coll: TeamCollectionJSON
 ): HoppCollection => {
-  const { auth, headers } = parseCollectionData(coll.data)
+  const { auth, headers, variables } = parseCollectionData(coll.data)
 
   return makeCollection({
     name: coll.name,
@@ -157,6 +170,7 @@ const teamCollectionJSONToHoppRESTColl = (
     requests: coll.requests,
     auth,
     headers,
+    variables,
   })
 }
 
@@ -216,9 +230,10 @@ export const teamCollToHoppRESTColl = (
       : {
           auth: { authType: "inherit", authActive: true },
           headers: [],
+          variables: [],
         }
 
-  const { auth, headers } = parseCollectionData(data)
+  const { auth, headers, variables } = parseCollectionData(data)
 
   return makeCollection({
     id: coll.id,
@@ -227,6 +242,7 @@ export const teamCollToHoppRESTColl = (
     requests: coll.requests?.map((x) => x.request) ?? [],
     auth: auth ?? { authType: "inherit", authActive: true },
     headers: headers ?? [],
+    variables: variables ?? [],
   })
 }
 

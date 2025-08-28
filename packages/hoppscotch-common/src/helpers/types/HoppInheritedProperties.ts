@@ -3,6 +3,7 @@ import {
   HoppGQLAuth,
   HoppRESTHeader,
   HoppRESTAuth,
+  HoppCollectionVariable,
 } from "@hoppscotch/data"
 
 export type HoppInheritedProperty = {
@@ -15,5 +16,11 @@ export type HoppInheritedProperty = {
     parentID: string
     parentName: string
     inheritedHeader: HoppRESTHeader | GQLHeader
+  }[]
+  variables: {
+    parentPath?: string
+    parentID: string
+    parentName: string
+    inheritedVariables: HoppCollectionVariable[]
   }[]
 }

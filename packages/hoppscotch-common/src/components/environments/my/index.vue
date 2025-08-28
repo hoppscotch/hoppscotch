@@ -120,9 +120,20 @@ import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { HandleEnvChangeProp } from "../index.vue"
 import { Environment } from "@hoppscotch/data"
+import { isValidUser } from "~/helpers/auth/isValidUser"
+import { useToast } from "~/composables/toast"
 
 const t = useI18n()
 const colorMode = useColorMode()
+const toast = useToast()
+
+const handleTokenValidation = async () => {
+  const { valid, error } = await isValidUser()
+  if (!valid) {
+    toast.error(error)
+  }
+  return valid
+}
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
@@ -159,17 +170,23 @@ const editingEnvironmentIndex = ref<number | null>(null)
 const editingVariableName = ref("")
 const secretOptionSelected = ref(false)
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }
-const displayModalEdit = (shouldDisplay: boolean) => {
+const displayModalEdit = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "edit"
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()
 }
-const displayModalImportExport = (shouldDisplay: boolean) => {
+const displayModalImportExport = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalImportExport.value = shouldDisplay
 }
 const selectEnvironment = (index: number, environment: Environment) => {

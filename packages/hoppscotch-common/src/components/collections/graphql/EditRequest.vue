@@ -108,10 +108,17 @@ import { GQLTabService } from "~/services/tab/graphql"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
+import { isValidUser } from "~/helpers/auth/isValidUser"
 
 const t = useI18n()
 const toast = useToast()
 const tabs = useService(GQLTabService)
+
+const handleTokenValidation = async () => {
+  const { valid, error } = await isValidUser()
+  if (!valid) toast.error(error)
+  return valid
+}
 
 const props = defineProps<{
   show: boolean
@@ -155,11 +162,14 @@ watch(
 const submittedFeedback = ref(false)
 const { submitFeedback, isSubmitFeedbackPending } = useSubmitFeedback()
 
-const saveRequest = () => {
+const saveRequest = async () => {
   if (!editingName.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
+
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
 
   const requestUpdated = {
     ...(props.request as any),
@@ -173,7 +183,7 @@ const saveRequest = () => {
     folderPath: props.folderPath!,
   })
 
-  editGraphqlRequest(props.folderPath, props.requestIndex, requestUpdated)
+  editGraphqlRequest(props.folderPath!, props.requestIndex!, requestUpdated)
 
   if (possibleActiveTab) {
     possibleActiveTab.value.document.request.name = requestUpdated.name

@@ -172,10 +172,21 @@ import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { HandleEnvChangeProp } from "../index.vue"
 import { selectedEnvironmentIndex$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/composables/stream"
+import { isValidUser } from "~/helpers/auth/isValidUser"
+import { useToast } from "~/composables/toast"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
+const toast = useToast()
+
+const handleTokenValidation = async () => {
+  const { valid, error } = await isValidUser()
+  if (!valid) {
+    toast.error(error)
+  }
+  return valid
+}
 
 const props = defineProps<{
   team: TeamWorkspace | undefined
@@ -223,20 +234,28 @@ const selectedEnvironmentID = ref<string | null>(null)
 
 const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }
-const displayModalEdit = (shouldDisplay: boolean) => {
+const displayModalEdit = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "edit"
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()
 }
-const displayModalImportExport = (shouldDisplay: boolean) => {
+const displayModalImportExport = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalImportExport.value = shouldDisplay
 }
-const editEnvironment = (environment: TeamEnvironment | null) => {
+const editEnvironment = async (environment: TeamEnvironment | null) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   editingEnvironment.value = environment
   action.value = "edit"
   displayModalEdit(true)

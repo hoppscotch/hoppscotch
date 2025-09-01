@@ -362,7 +362,7 @@ describe('renameTeam', () => {
   });
 
   test('rejects for new team name empty with TEAM_NAME_INVALID', () => {
-    const newTeamName = 'smol';
+    const newTeamName = '';
 
     // Prisma doesn't care about the team name length, so it will resolve
     mockPrisma.team.update.mockResolvedValue({
@@ -669,7 +669,7 @@ describe('createTeam', () => {
   });
 
   test('rejects for team name empty with TEAM_NAME_INVALID', () => {
-    const newName = 'smol';
+    const newName = '';
 
     // Prisma doesn't care
     mockPrisma.team.create.mockResolvedValue({

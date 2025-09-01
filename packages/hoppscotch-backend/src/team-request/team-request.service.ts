@@ -119,7 +119,10 @@ export class TeamRequestService {
           await this.prisma.lockTableExclusive(tx, 'TeamRequest');
 
           await tx.teamRequest.updateMany({
-            where: { orderIndex: { gte: dbTeamReq.orderIndex } },
+            where: {
+              collectionID: dbTeamReq.collectionID,
+              orderIndex: { gte: dbTeamReq.orderIndex },
+            },
             data: { orderIndex: { decrement: 1 } },
           });
 

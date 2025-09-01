@@ -361,7 +361,7 @@ describe('renameTeam', () => {
     ).resolves.toEqualLeft(TEAM_INVALID_ID);
   });
 
-  test('rejects for new team name length < 6 with TEAM_NAME_INVALID', () => {
+  test('rejects for new team name empty with TEAM_NAME_INVALID', () => {
     const newTeamName = 'smol';
 
     // Prisma doesn't care about the team name length, so it will resolve
@@ -668,7 +668,7 @@ describe('createTeam', () => {
     ).resolves.toEqualRight(expect.objectContaining(team));
   });
 
-  test('rejects for team name length < 6 with TEAM_NAME_INVALID', () => {
+  test('rejects for team name empty with TEAM_NAME_INVALID', () => {
     const newName = 'smol';
 
     // Prisma doesn't care

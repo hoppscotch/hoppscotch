@@ -299,7 +299,7 @@ const loadVendored = async () => {
     const vendoredInstance: VendoredInstance = {
       type: "vendored",
       displayName: "Hoppscotch",
-      version: "25.8.0",
+      version: "25.8.1",
     }
 
     const connectionState: ConnectionState = {
@@ -345,7 +345,7 @@ const loadVendored = async () => {
     console.log("Closing main window")
 
     // NOTE: No need to await the promise here.
-    close({ windowLabel: 'main' })
+    close({ windowLabel: "main" })
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     console.error("Error loading vendored app:", errorMessage)

@@ -3,8 +3,12 @@ import {
   InputData,
   jsonInputForTargetLanguage,
 } from "quicktype-core"
+import { InterfaceLanguage } from "./interfaceLanguages"
 
-async function jsonToLanguage(targetLanguage: string, jsonString: string) {
+async function jsonToLanguage(
+  targetLanguage: InterfaceLanguage,
+  jsonString: string
+) {
   const jsonInput = jsonInputForTargetLanguage(targetLanguage)
 
   await jsonInput.addSource({

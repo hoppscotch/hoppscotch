@@ -172,14 +172,12 @@ import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { HandleEnvChangeProp } from "../index.vue"
 import { selectedEnvironmentIndex$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/composables/stream"
- 
- 
- const t = useI18n()
- 
- const colorMode = useColorMode()
- 
- 
- const props = defineProps<{
+
+const t = useI18n()
+
+const colorMode = useColorMode()
+
+const props = defineProps<{
   team: TeamWorkspace | undefined
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
@@ -225,20 +223,20 @@ const selectedEnvironmentID = ref<string | null>(null)
 
 const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
-const displayModalAdd = async (shouldDisplay: boolean) => {
+const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }
-const displayModalEdit = async (shouldDisplay: boolean) => {
-  if (shouldDisplay) action.value = "edit"
+const displayModalEdit = (shouldDisplay: boolean) => {
+  action.value = "edit"
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()
 }
-const displayModalImportExport = async (shouldDisplay: boolean) => {
+const displayModalImportExport = (shouldDisplay: boolean) => {
   showModalImportExport.value = shouldDisplay
 }
-const editEnvironment = async (environment: TeamEnvironment | null) => {
+const editEnvironment = (environment: TeamEnvironment | null) => {
   editingEnvironment.value = environment
   action.value = "edit"
   displayModalEdit(true)

@@ -205,7 +205,7 @@ const propertiesAction = ref<typeof HoppSmartItem>()
 
 const duplicateEnvironmentLoading = ref(false)
 
-const removeEnvironment = async () => {
+const removeEnvironment = () => {
   pipe(
     deleteTeamEnvironment(props.environment.id),
     TE.match(

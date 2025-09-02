@@ -124,7 +124,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
   }
 
   validateTeamName(title: string): E.Left<string> | E.Right<boolean> {
-    if (!title || title.length < 6) return E.left(TEAM_NAME_INVALID);
+    if (!title || title.trim() === '') return E.left(TEAM_NAME_INVALID);
     return E.right(true);
   }
 

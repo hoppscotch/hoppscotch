@@ -241,9 +241,11 @@ const displayModalAdd = async (shouldDisplay: boolean) => {
   showModalDetails.value = shouldDisplay
 }
 const displayModalEdit = async (shouldDisplay: boolean) => {
-  const isValidToken = await handleTokenValidation()
-  if (!isValidToken) return
-  action.value = "edit"
+  if (shouldDisplay) {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+    action.value = "edit"
+  }
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()

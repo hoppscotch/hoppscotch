@@ -150,6 +150,7 @@ import {
   deleteEnvironment,
   duplicateEnvironment,
 } from "~/newstore/environments"
+import { isValidUser } from "~/helpers/auth/isValidUser"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
@@ -159,6 +160,12 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 
 const t = useI18n()
 const toast = useToast()
+
+const handleTokenValidation = async () => {
+  const { valid, error } = await isValidUser()
+  if (!valid) toast.error(error)
+  return valid
+}
 
 const props = withDefaults(
   defineProps<{
@@ -213,7 +220,9 @@ const duplicate = ref<typeof HoppSmartItem>()
 const exportAsJsonEl = ref<typeof HoppSmartItem>()
 const deleteAction = ref<typeof HoppSmartItem>()
 
-const removeEnvironment = () => {
+const removeEnvironment = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   if (props.environmentIndex === null) return
   if (!isGlobalEnvironment.value) {
     deleteEnvironment(props.environmentIndex as number, props.environment.id)
@@ -223,7 +232,9 @@ const removeEnvironment = () => {
   toast.success(`${t("state.deleted")}`)
 }
 
-const duplicateEnvironments = () => {
+const duplicateEnvironments = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   if (props.environmentIndex === null) {
     return
   }

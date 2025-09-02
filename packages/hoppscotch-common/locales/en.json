@@ -1521,7 +1521,7 @@
     "member_role_updated": "User roles updated",
     "members": "Members",
     "more_members": "+{count} more",
-    "name_length_insufficient": "Workspace name should be at least 6 characters long",
+    "name_length_insufficient": "Workspace name should not be empty",
     "name_updated": "Workspace name updated",
     "new": "New Workspace",
     "new_created": "New workspace created",

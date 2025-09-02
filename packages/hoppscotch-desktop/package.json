@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch-desktop",
   "private": true,
-  "version": "25.8.0",
+  "version": "25.8.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

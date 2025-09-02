@@ -22,7 +22,7 @@
       @dragend="resetDragState"
       @contextmenu.prevent="options?.tippy?.show()"
     >
-      <div class="w-5 p-1 flex items-center justify-center">
+      <div class="w-2 flex items-center justify-center">
         <component
           :is="isResponseVisible ? IconArrowDown : IconArrowRight"
           v-if="request.responses && Object.keys(request.responses).length > 0"
@@ -35,7 +35,7 @@
         @click="selectRequest()"
       >
         <span
-          class="pointer-events-none flex w-12 items-center justify-start truncate px-2"
+          class="pointer-events-none flex w-10 items-center justify-start truncate px-2"
           :style="{ color: getMethodLabelColorClassOf(request.method) }"
         >
           <component

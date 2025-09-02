@@ -161,7 +161,6 @@ import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
-import { isValidUser } from "~/helpers/auth/isValidUser"
 import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
 import IconMoreVertical from "~icons/lucide/more-vertical"
@@ -171,12 +170,6 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 
 const t = useI18n()
 const toast = useToast()
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
-}
 
 const props = defineProps<{
   environment: TeamEnvironment
@@ -213,8 +206,6 @@ const propertiesAction = ref<typeof HoppSmartItem>()
 const duplicateEnvironmentLoading = ref(false)
 
 const removeEnvironment = async () => {
-  const isValidToken = await handleTokenValidation()
-  if (!isValidToken) return
   pipe(
     deleteTeamEnvironment(props.environment.id),
     TE.match(
@@ -232,8 +223,6 @@ const removeEnvironment = async () => {
 }
 
 const duplicateEnvironment = async () => {
-  const isValidToken = await handleTokenValidation()
-  if (!isValidToken) return
   duplicateEnvironmentLoading.value = true
 
   await pipe(

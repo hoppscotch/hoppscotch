@@ -17,7 +17,7 @@
           >
             <HoppSmartSelectWrapper>
               <HoppButtonSecondary
-                :label="selectedInterface"
+                :label="selectedLanguage"
                 outline
                 class="flex-1 pr-8"
               />
@@ -40,9 +40,9 @@
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
-                    v-for="lang in filteredResponseInterfaces"
+                    v-for="(lang, key) in filteredResponseInterfaces"
                     :key="lang"
-                    :label="lang"
+                    :label="key"
                     :info-icon="
                       lang === selectedInterface ? IconCheck : undefined
                     "
@@ -55,7 +55,7 @@
                     "
                   />
                   <HoppSmartPlaceholder
-                    v-if="filteredResponseInterfaces.length === 0"
+                    v-if="Object.keys(filteredResponseInterfaces).length === 0"
                     :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
                   >
                     <template #icon>
@@ -134,7 +134,11 @@ import {
 
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
-import interfaceLanguages from "~/helpers/utils/interfaceLanguages"
+import {
+  interfaceLanguages,
+  InterfaceLanguage,
+  Language,
+} from "~/helpers/utils/interfaceLanguages"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCheck from "~icons/lucide/check"
@@ -173,7 +177,7 @@ function getCurrentPageCategory(): "graphql" | "rest" | "other" {
   }
 }
 
-const selectedInterface = ref<(typeof interfaceLanguages)[number]>("TypeScript")
+const selectedInterface = ref<InterfaceLanguage>("typescript")
 const response = computed(() => {
   let response = ""
   const pageCategory = getCurrentPageCategory()
@@ -246,9 +250,23 @@ useCodemirror(
 
 const searchQuery = ref("")
 
-const filteredResponseInterfaces = computed(() => {
-  return interfaceLanguages.filter((lang) =>
-    lang.toLowerCase().includes(searchQuery.value.toLowerCase())
+const filteredResponseInterfaces = computed<
+  Record<Language, InterfaceLanguage>
+>(() => {
+  const searchQueryValue = searchQuery.value.trim()
+
+  return Object.fromEntries(
+    Object.entries(interfaceLanguages).filter(([key]) =>
+      key.toLowerCase().includes(searchQueryValue)
+    )
+  ) as Record<Language, InterfaceLanguage>
+})
+
+const selectedLanguage = computed<Language>(() => {
+  return (
+    (Object.keys(interfaceLanguages) as Language[]).find(
+      (key) => interfaceLanguages[key] === selectedInterface.value
+    ) || "TypeScript"
   )
 })
 

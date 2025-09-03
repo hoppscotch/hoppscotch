@@ -237,6 +237,7 @@ import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -322,7 +323,9 @@ const toggleShowChildren = () => {
   showChildren.value = !showChildren.value
 }
 
-const removeFolder = () => {
+const removeFolder = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   // Cancel pick if the picked folder is deleted
   if (
     props.picked?.pickedType === "gql-my-folder" &&

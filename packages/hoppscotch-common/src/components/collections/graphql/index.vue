@@ -196,6 +196,7 @@ import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { EditingProperties } from "../Properties.vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -343,7 +344,9 @@ const displayModalEdit = (shouldDisplay: boolean) => {
   if (!shouldDisplay) resetSelectedData()
 }
 
-const displayModalImportExport = (shouldDisplay: boolean) => {
+const displayModalImportExport = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalImportExport.value = shouldDisplay
 }
 
@@ -386,15 +389,21 @@ const editCollection = (
   displayModalEdit(true)
 }
 
-const duplicateCollection = ({
+const duplicateCollection = async ({
   path,
   collectionSyncID,
 }: {
   path: string
   collectionSyncID?: string
-}) => duplicateGraphQLCollection(path, collectionSyncID)
+}) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+  duplicateGraphQLCollection(path, collectionSyncID)
+}
 
-const onAddRequest = ({ name, path }: { name: string; path: string }) => {
+const onAddRequest = async ({ name, path }: { name: string; path: string }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   const newRequest = {
     ...getDefaultGQLRequest(),
     name,
@@ -429,13 +438,15 @@ const addRequest = (payload: { path: string }) => {
   displayModalAddRequest(true)
 }
 
-const onAddFolder = ({
+const onAddFolder = async ({
   name,
   path,
 }: {
   name: string
   path: string | undefined
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   addGraphqlFolder(name, path ?? "0")
 
   platform.analytics?.logEvent({
@@ -489,13 +500,15 @@ const editRequest = (payload: {
   displayModalEditRequest(true)
 }
 
-const duplicateRequest = ({
+const duplicateRequest = async ({
   folderPath,
   request,
 }: {
   folderPath: string
   request: HoppGQLRequest
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   saveGraphqlRequestAs(folderPath, {
     ...cloneDeep(request),
     name: `${request.name} - ${t("action.duplicate")}`,
@@ -536,7 +549,7 @@ const selectRequest = ({
   })
 }
 
-const dropRequest = ({
+const dropRequest = async ({
   folderPath,
   requestIndex,
   collectionIndex,
@@ -545,6 +558,9 @@ const dropRequest = ({
   requestIndex: number
   collectionIndex: number
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
     folderPath,
@@ -607,11 +623,13 @@ const editProperties = ({
   displayModalEditProperties(true)
 }
 
-const setCollectionProperties = (newCollection: {
+const setCollectionProperties = async (newCollection: {
   collection: Partial<HoppCollection> | null
   path: string
   isRootCollection: boolean
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   const { collection, path, isRootCollection } = newCollection
   if (!collection) {
     return

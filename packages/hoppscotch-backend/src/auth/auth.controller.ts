@@ -216,4 +216,14 @@ export class AuthController {
 
     return tokens.right;
   }
+
+  @Get('verify-token')
+  @UseGuards(JwtAuthGuard)
+  async verifyToken(@GqlUser() user: AuthUser) {
+    return {
+      isValid: true,
+      uid: user.uid,
+      message: 'Token is valid',
+    };
+  }
 }

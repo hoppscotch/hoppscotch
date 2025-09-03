@@ -255,6 +255,7 @@ import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlCollection } from "~/newstore/collections"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
@@ -358,7 +359,9 @@ const toggleShowChildren = () => {
   showChildren.value = !showChildren.value
 }
 
-const removeCollection = () => {
+const removeCollection = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   // Cancel pick if picked collection is deleted
   if (
     props.picked?.pickedType === "gql-my-collection" &&

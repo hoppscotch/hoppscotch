@@ -196,7 +196,7 @@ import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { EditingProperties } from "../Properties.vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -210,12 +210,6 @@ defineProps<{
 const collections = useReadonlyStream(graphqlCollections$, [], "deep")
 const colorMode = useColorMode()
 const tabs = useService(GQLTabService)
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
-}
 
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)

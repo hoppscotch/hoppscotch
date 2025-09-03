@@ -248,7 +248,7 @@ import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import {
   createChildCollection,
   createNewRootCollection,
@@ -384,12 +384,6 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
-}
 
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 

@@ -139,7 +139,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { removeGraphqlRequest } from "~/newstore/collections"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -152,12 +152,6 @@ const deleteAction = ref<any | null>(null)
 
 const t = useI18n()
 const toast = useToast()
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
-}
 
 const tabs = useService(GQLTabService)
 

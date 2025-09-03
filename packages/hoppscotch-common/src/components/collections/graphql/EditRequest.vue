@@ -108,17 +108,11 @@ import { GQLTabService } from "~/services/tab/graphql"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
 const tabs = useService(GQLTabService)
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
-}
 
 const props = defineProps<{
   show: boolean

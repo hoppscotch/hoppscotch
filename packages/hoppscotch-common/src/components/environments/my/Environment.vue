@@ -30,7 +30,7 @@
         :icon="IconEdit"
         :title="`${t('action.edit')}`"
         class="hidden group-hover:inline-flex"
-        @click="emit('edit-environment')"
+        @click="emitEditEnvironment"
       />
       <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -76,9 +76,9 @@
               :shortcut="['E']"
               :disabled="duplicateGlobalEnvironmentLoading"
               @click="
-                () => {
-                  emit('edit-environment')
-                  hide()
+                async () => {
+                  const ok = await emitEditEnvironment()
+                  if (ok) hide()
                 }
               "
             />
@@ -150,7 +150,7 @@ import {
   deleteEnvironment,
   duplicateEnvironment,
 } from "~/newstore/environments"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconCopy from "~icons/lucide/copy"
 import IconEdit from "~icons/lucide/edit"
@@ -161,10 +161,11 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 const t = useI18n()
 const toast = useToast()
 
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
+const emitEditEnvironment = async (): Promise<boolean> => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return false
+  emit("edit-environment")
+  return true
 }
 
 const props = withDefaults(

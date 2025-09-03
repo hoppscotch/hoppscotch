@@ -237,7 +237,7 @@ import { useToast } from "@composables/toast"
 import { HoppCollection } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
-import { isValidUser } from "~/helpers/auth/isValidUser"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlFolder } from "~/newstore/collections"
 import { GQLTabService } from "~/services/tab/graphql"
@@ -321,12 +321,6 @@ const toggleShowChildren = () => {
   }
 
   showChildren.value = !showChildren.value
-}
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) toast.error(error)
-  return valid
 }
 
 const removeFolder = async () => {

@@ -120,20 +120,12 @@ import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { HandleEnvChangeProp } from "../index.vue"
 import { Environment } from "@hoppscotch/data"
-import { isValidUser } from "~/helpers/auth/isValidUser"
 import { useToast } from "~/composables/toast"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const colorMode = useColorMode()
 const toast = useToast()
-
-const handleTokenValidation = async () => {
-  const { valid, error } = await isValidUser()
-  if (!valid) {
-    toast.error(error)
-  }
-  return valid
-}
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void

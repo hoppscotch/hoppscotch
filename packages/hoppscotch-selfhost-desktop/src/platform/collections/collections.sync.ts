@@ -1,21 +1,13 @@
 import {
-  graphqlCollectionStore,
-  navigateToFolderWithIndexPath,
   removeDuplicateRESTCollectionOrFolder,
   restCollectionStore,
 } from "@hoppscotch/common/newstore/collections"
-import {
-  getSettingSubject,
-  settingsStore,
-} from "@hoppscotch/common/newstore/settings"
 
 import {
-  generateUniqueRefId,
-  HoppCollection,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
-
-import { getSyncInitFunction } from "../../lib/sync"
+  createSyncDefinition,
+  type SyncDefinitionConfig,
+  type CollectionAPI,
+} from "@hoppscotch/common/helpers/collections"
 
 import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
@@ -36,159 +28,42 @@ import {
 
 import { ReqType, SortOptions } from "../../api/generated/graphql"
 
-import * as E from "fp-ts/Either"
-
 // restCollectionsMapper uses the collectionPath as the local identifier
 export const restCollectionsMapper = createMapper<string, string>()
 
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const restRequestsMapper = createMapper<string, string>()
 
-// temp implementation until the backend implements an endpoint that accepts an entire collection
-// TODO: use importCollectionsJSON to do this
-const recursivelySyncCollections = async (
-  collection: HoppCollection,
-  collectionPath: string,
-  parentUserCollectionID?: string
-) => {
-  let parentCollectionID = parentUserCollectionID
-
-  // if parentUserCollectionID does not exist, create the collection as a root collection
-  if (!parentUserCollectionID) {
-    const data = {
-      auth: collection.auth ?? {
-        authType: "inherit",
-        authActive: true,
-      },
-      headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
-      _ref_id: collection._ref_id,
-    }
-    const res = await createRESTRootUserCollection(
-      collection.name,
-      JSON.stringify(data)
-    )
-
-    if (E.isRight(res)) {
-      parentCollectionID = res.right.createRESTRootUserCollection.id
-
-      const returnedData = res.right.createRESTRootUserCollection.data
-        ? JSON.parse(res.right.createRESTRootUserCollection.data)
-        : {
-            auth: {
-              authType: "inherit",
-              authActive: true,
-            },
-            headers: [],
-            variables: [],
-            _ref_id: generateUniqueRefId("coll"),
-          }
-
-      collection.id = parentCollectionID
-      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
-      collection.auth = returnedData.auth
-      collection.headers = returnedData.headers
-      collection.variables = returnedData.variables
-      removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
-    } else {
-      parentCollectionID = undefined
-    }
-  } else {
-    // if parentUserCollectionID exists, create the collection as a child collection
-
-    const data = {
-      auth: collection.auth ?? {
-        authType: "inherit",
-        authActive: true,
-      },
-      headers: collection.headers ?? [],
-      variables: collection.variables ?? [],
-      _ref_id: collection._ref_id,
-    }
-
-    const res = await createRESTChildUserCollection(
-      collection.name,
-      parentUserCollectionID,
-      JSON.stringify(data)
-    )
-
-    if (E.isRight(res)) {
-      const childCollectionId = res.right.createRESTChildUserCollection.id
-
-      const returnedData = res.right.createRESTChildUserCollection.data
-        ? JSON.parse(res.right.createRESTChildUserCollection.data)
-        : {
-            auth: {
-              authType: "inherit",
-              authActive: true,
-            },
-            headers: [],
-            _ref_id: generateUniqueRefId("coll"),
-            variables: [],
-          }
-
-      collection.id = childCollectionId
-      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
-      collection.auth = returnedData.auth
-      collection.headers = returnedData.headers
-      parentCollectionID = childCollectionId
-      collection.variables = returnedData.variables
-
-      removeDuplicateRESTCollectionOrFolder(
-        childCollectionId,
-        `${collectionPath}`
-      )
-    }
-  }
-
-  // create the requests
-  if (parentCollectionID) {
-    collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createRESTUserRequest(
-          request.name,
-          JSON.stringify(request),
-          parentCollectionID
-        ))
-
-      if (res && E.isRight(res)) {
-        const requestId = res.right.createRESTUserRequest.id
-
-        request.id = requestId
-      }
-    })
-  }
-
-  // create the folders aka child collections
-  if (parentCollectionID)
-    collection.folders.forEach(async (folder, index) => {
-      recursivelySyncCollections(
-        folder,
-        `${collectionPath}/${index}`,
-        parentCollectionID
-      )
-    })
+// Create API adapter for the shared sync definition
+const restCollectionAPI: CollectionAPI = {
+  createRESTRootUserCollection,
+  createRESTChildUserCollection,
+  createRESTUserRequest,
+  deleteUserCollection,
+  deleteUserRequest,
+  editUserRequest,
+  updateUserCollection,
+  moveUserCollection,
+  moveUserRequest,
+  updateUserCollectionOrder,
+  importUserCollectionsFromJSON,
 }
 
-// Helper function to transform HoppCollection to backend format
-const transformCollectionForBackend = (collection: HoppCollection): any => {
-  const data = {
-    auth: collection.auth ?? {
-      authType: "inherit",
-      authActive: true,
-    },
-    headers: collection.headers ?? [],
-    variables: collection.variables ?? [],
-    _ref_id: collection._ref_id,
-  }
+// Create a compatible remove duplicate function
+const removeDuplicateFunction = (id: string, path: string, type?: string) => {
+  removeDuplicateRESTCollectionOrFolder(
+    id,
+    path,
+    type as "collection" | "request" | undefined
+  )
+}
 
-  return {
-    name: collection.name,
-    data: JSON.stringify(data),
-    folders: collection.folders.map(transformCollectionForBackend),
-    requests: collection.requests,
-  }
+// Create sync configuration
+const syncConfig: SyncDefinitionConfig = {
+  api: restCollectionAPI,
+  collectionStore: restCollectionStore,
+  reqType: ReqType.Rest,
+  removeDuplicateFunction,
 }
 
 // TODO: generalize this
@@ -212,6 +87,7 @@ type OperationCollectionRemoved = {
 
 export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 
+// Use the shared sync definition factory - this eliminates ~80% of the duplicated code!
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {

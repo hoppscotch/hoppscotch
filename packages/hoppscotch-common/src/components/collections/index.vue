@@ -2841,7 +2841,7 @@ const getCurrentValue = (
   )?.currentValue
 }
 
-const editProperties = (payload: {
+const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {

@@ -172,6 +172,7 @@ import { getEnvActionErrorMessage } from "~/helpers/error-messages"
 import { HandleEnvChangeProp } from "../index.vue"
 import { selectedEnvironmentIndex$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/composables/stream"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 
@@ -223,7 +224,9 @@ const selectedEnvironmentID = ref<string | null>(null)
 
 const isTeamViewer = computed(() => props.team?.role === "VIEWER")
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }

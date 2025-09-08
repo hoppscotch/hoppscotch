@@ -69,6 +69,7 @@ const addNewCollection = () => {
         authActive: true,
       },
       headers: [],
+      variables: [],
     })
   )
 

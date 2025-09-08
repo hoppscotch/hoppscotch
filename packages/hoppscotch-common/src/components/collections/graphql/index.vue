@@ -334,7 +334,9 @@ const filteredCollections = computed(() => {
   return filteredCollections
 })
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalAdd.value = shouldDisplay
 }
 

@@ -120,12 +120,10 @@ import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { HandleEnvChangeProp } from "../index.vue"
 import { Environment } from "@hoppscotch/data"
-import { useToast } from "~/composables/toast"
 import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const colorMode = useColorMode()
-const toast = useToast()
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void

@@ -20,7 +20,7 @@ export const isValidUser = async (): Promise<ValidUserResponse> => {
       const hasValidTokens = await verifyAuthTokens()
       return {
         valid: hasValidTokens,
-        error: SESSION_EXPIRED,
+        error: hasValidTokens ? "" : SESSION_EXPIRED,
       }
     } catch (error) {
       console.debug("Token validation failed:", error)

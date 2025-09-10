@@ -57,6 +57,7 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="checkMove"
       >
         <template #item="{ element: param, index }">
           <HttpKeyValue
@@ -387,6 +388,14 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
       return
     return result.locations.index === index
   })
+}
+
+function checkMove(event) {
+  const futureIndex = event?.draggedContext?.futureIndex
+  const workingParamsLength = workingParams?.value?.length
+  if (isNaN(futureIndex) || isNaN(workingParamsLength)) return false
+  if (futureIndex >= workingParamsLength - 1) return false
+  return true
 }
 </script>
 

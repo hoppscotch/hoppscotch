@@ -59,6 +59,7 @@
       ghost-class="cursor-move"
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
+      :move="checkMove"
     >
       <template #item="{ element: header, index }">
         <HttpKeyValue
@@ -694,4 +695,12 @@ const mask = (header: any) => {
 }
 
 const changeTab = () => emit("change-tab", "authorization")
+
+function checkMove(event) {
+  const futureIndex = event?.draggedContext?.futureIndex
+  const workingHeadersLength = workingHeaders?.value?.length
+  if (isNaN(futureIndex) || isNaN(workingHeadersLength)) return false
+  if (futureIndex >= workingHeadersLength - 1) return false
+  return true
+}
 </script>

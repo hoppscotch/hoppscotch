@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { TeamCollection } from 'src/team-collection/team-collection.model';
 import { SortService } from './sort.service';
@@ -9,12 +9,19 @@ import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorat
 import { TeamAccessRole } from 'src/team/team.model';
 import { SortOptions } from 'src/types/SortOptions';
 import * as E from 'fp-ts/Either';
+import { SkipThrottle } from '@nestjs/throttler';
+import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
+import { PubSubService } from 'src/pubsub/pubsub.service';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamCollection)
 export class SortTeamCollectionResolver {
-  constructor(private readonly sortService: SortService) {}
+  constructor(
+    private readonly sortService: SortService,
+    private readonly pubSub: PubSubService,
+  ) {}
 
+  // Mutations
   @Mutation(() => Boolean, {
     description: 'Sort team collections',
   })
@@ -49,5 +56,50 @@ export class SortTeamCollectionResolver {
 
     if (E.isLeft(result)) return false;
     return true;
+  }
+
+  // Subscriptions
+  @Subscription(() => Boolean, {
+    description: 'Listen for Team Root Collection Sort Events',
+    resolve: (value) => value,
+  })
+  @RequiresTeamRole(
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
+  )
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  teamRootCollectionsSorted(
+    @Args({
+      name: 'teamID',
+      description: 'ID of the team to listen to',
+      type: () => ID,
+    })
+    teamID: string,
+  ) {
+    return this.pubSub.asyncIterator(`team_coll_root/${teamID}/sorted`);
+  }
+
+  @Subscription(() => ID, {
+    description: 'Listen for Team Child Collection Sort Events',
+    resolve: (value) => value,
+  })
+  @RequiresTeamRole(
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
+  )
+  @SkipThrottle()
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  teamChildCollectionsSorted(
+    @Args({
+      name: 'teamID',
+      description: 'ID of the team to listen to',
+      type: () => ID,
+    })
+    teamID: string,
+  ) {
+    return this.pubSub.asyncIterator(`team_coll_child/${teamID}/sorted`);
   }
 }

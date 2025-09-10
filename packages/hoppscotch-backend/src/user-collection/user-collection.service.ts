@@ -35,6 +35,7 @@ import {
 } from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()
 export class UserCollectionService {
@@ -1311,5 +1312,55 @@ export class UserCollectionService {
       childCollections: childCollectionsJSONStr,
       requests: transformedRequests,
     });
+  }
+
+  /**
+   * Sort collections in a parent collection
+   * @param userID The User UID
+   * @param parentID The ID of the parent collection or null for root collections
+   * @param sortBy The sorting option
+   * @returns An Either of a Boolean if the sorting operation was successful
+   */
+  async sortUserCollections(
+    userID: string,
+    parentID: string | null,
+    sortBy: SortOptions,
+  ) {
+    // Handle all sort options, including a default
+    let orderBy: Prisma.Enumerable<Prisma.UserCollectionOrderByWithRelationInput>;
+    if (sortBy === SortOptions.TITLE_ASC) {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === SortOptions.TITLE_DESC) {
+      orderBy = { title: 'desc' };
+    } else {
+      orderBy = { orderIndex: 'asc' };
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await this.prisma.acquireLocks(tx, 'UserCollection', userID, parentID);
+
+        const collections = await tx.userCollection.findMany({
+          where: { userUid: userID, parentID },
+          orderBy,
+          select: { id: true },
+        });
+
+        const promises = collections.map((coll, index) =>
+          tx.userCollection.update({
+            where: { id: coll.id },
+            data: { orderIndex: index + 1 },
+          }),
+        );
+        await Promise.all(promises);
+      });
+    } catch (error) {
+      console.error('Error from UserCollectionService.sortUserCollections:', {
+        error,
+      });
+      return E.left(USER_COLL_REORDERING_FAILED);
+    }
+
+    return E.right(true);
   }
 }

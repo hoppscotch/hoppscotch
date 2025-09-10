@@ -534,5 +534,7 @@ export class UserRequestService {
       console.error('Error from UserRequestService.sortUserRequests', error);
       return E.left(USER_REQUEST_REORDERING_FAILED);
     }
+
+    return E.right(true);
   }
 }

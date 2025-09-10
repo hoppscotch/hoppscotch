@@ -64,6 +64,7 @@ export type TopicDef = {
   [topic: `team_coll/${string}/${'coll_removed'}`]: string;
   [topic: `team_coll/${string}/${'coll_moved'}`]: TeamCollection;
   [topic: `team_coll/${string}/${'coll_order_updated'}`]: CollectionReorderData;
+  [topic: `team_coll/${string | 'root'}/${'sorted'}`]: string | boolean;
   [
     topic: `team_req/${string}/${'req_created' | 'req_updated' | 'req_moved'}`
   ]: TeamRequest;

@@ -58,6 +58,7 @@
     "send": "Send",
     "share": "Share",
     "show_secret": "Show secret",
+    "sort": "Sort",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -344,6 +345,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Select a Collection",
     "select_location": "Select location",
+    "sorted": "Collection sorted",
     "details": "Details",
     "duplicated": "Collection duplicated"
   },
@@ -604,7 +606,8 @@
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
     "run": "Run Folder",
-    "renamed": "Folder renamed"
+    "renamed": "Folder renamed",
+    "sorted": "Folder sorted"
   },
   "graphql": {
     "arguments": "Arguments",

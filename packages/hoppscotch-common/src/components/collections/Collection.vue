@@ -108,6 +108,7 @@
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
+                  @keyup.s="sortAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -202,6 +203,18 @@
                     "
                   />
                   <HoppSmartItem
+                    ref="sortAction"
+                    :icon="IconArrowUpDown"
+                    :label="t('action.sort')"
+                    :shortcut="['S']"
+                    @click="
+                      () => {
+                        sortCollection()
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
                     v-if="!hasNoTeamAccess"
                     ref="deleteAction"
                     :icon="IconTrash2"
@@ -261,6 +274,7 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconPlaySquare from "~icons/lucide/play-square"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -316,6 +330,10 @@ const emit = defineEmits<{
   (event: "update-collection-order", payload: DataTransfer): void
   (event: "update-last-collection-order", payload: DataTransfer): void
   (event: "run-collection", collectionID: string): void
+  (
+    event: "sort-collections",
+    payload: { collectionID: string; sortOrder: "asc" | "desc" }
+  ): void
 }>()
 
 const tippyActions = ref<HTMLDivElement | null>(null)
@@ -328,6 +346,7 @@ const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
+const sortAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
@@ -339,6 +358,8 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   id: "",
   parentID: "",
 })
+
+const currentSortOrder = ref<"asc" | "desc">("asc")
 
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work
@@ -494,6 +515,14 @@ const isCollLoading = computed(() => {
   }
   return false
 })
+
+const sortCollection = () => {
+  emit("sort-collections", {
+    collectionID: props.id,
+    sortOrder: currentSortOrder.value,
+  })
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+}
 
 const resetDragState = () => {
   dragging.value = false

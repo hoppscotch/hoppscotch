@@ -511,8 +511,9 @@ const HoppRESTSaveContextSchema = z.nullable(
       .object({
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
-        requestIndex: z.number(),
+        requestIndex: z.optional(z.number()),
         exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
     z
@@ -522,6 +523,7 @@ const HoppRESTSaveContextSchema = z.nullable(
         teamID: z.optional(z.string()),
         collectionID: z.optional(z.string()),
         exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
   ])

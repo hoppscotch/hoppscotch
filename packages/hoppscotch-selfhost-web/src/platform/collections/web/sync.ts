@@ -270,6 +270,27 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
+
+  sortRESTCollection({ collectionPath, sortOrder }) {
+    console.log(
+      "Sync: Sorting root collections at path: ",
+      collectionPath,
+      " with order: ",
+      sortOrder
+    )
+    // TODO: implement backend sorting for root collections
+  },
+
+  sortRESTFolder({ path, sortOrder }) {
+    console.log(
+      "Sync: Sorting folder at path: ",
+      path,
+      " with order: ",
+      sortOrder
+    )
+    // TODO: implement backend sorting for folders
+  },
+
   async addFolder({ name, path }) {
     const parentCollection = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,

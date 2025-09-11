@@ -235,6 +235,25 @@ function reorderItems(array: unknown[], from: number, to: number) {
   }
 }
 
+function createComparator<T>(
+  key: keyof T,
+  sortOrder: "asc" | "desc" = "asc"
+): (a: T, b: T) => number {
+  return (a, b) => {
+    const aVal = a[key]
+    const bVal = b[key]
+
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortOrder === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal)
+    }
+
+    if (aVal < bVal) return sortOrder === "asc" ? -1 : 1
+    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1
+    return 0
+  }
+}
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -295,6 +314,37 @@ const restCollectionDispatchers = defineDispatchers({
           ? { ...col, ...cloneDeep(partialCollection) }
           : col
       ),
+    }
+  },
+
+  sortRESTCollection(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionPath,
+      sortOrder,
+    }: { collectionPath: number; sortOrder: "asc" | "desc" }
+  ) {
+    const newState = state
+
+    // If collectionPath is null, we are sorting the root collections
+    if (collectionPath === null || isNaN(collectionPath)) {
+      return {
+        state: newState.sort(createComparator("name", sortOrder)),
+      }
+    }
+
+    const collection = newState.find((_, index) => index === collectionPath)
+
+    if (!collection) {
+      console.error(`Collection not found.`)
+      return {}
+    }
+
+    collection.requests.sort(createComparator("name", sortOrder))
+    collection.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
     }
   },
 
@@ -475,6 +525,40 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     return { state: newState }
+  },
+
+  sortRESTFolder(
+    { state }: RESTCollectionStoreType,
+    {
+      path,
+      sortOrder,
+    }: {
+      path: string
+      sortOrder: "asc" | "desc"
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(newState, indexPaths)
+    if (target === null) {
+      console.log(
+        `Could not resolve path '${path}'. Ignoring sortRESTFolder dispatch.`
+      )
+      return {}
+    }
+
+    target.requests.sort(createComparator("name", sortOrder))
+    target.folders.sort(createComparator("name", sortOrder))
+
+    return {
+      state: newState,
+    }
   },
 
   updateCollectionOrder(
@@ -1396,6 +1480,19 @@ export function editRESTCollection(
   })
 }
 
+export function sortRESTCollection(
+  collectionPath: number,
+  sortOrder: "asc" | "desc"
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "sortRESTCollection",
+    payload: {
+      collectionPath,
+      sortOrder,
+    },
+  })
+}
+
 export function addRESTFolder(name: string, path: string) {
   restCollectionStore.dispatch({
     dispatcher: "addFolder",
@@ -1432,6 +1529,16 @@ export function moveRESTFolder(path: string, destinationPath: string | null) {
     payload: {
       path,
       destinationPath,
+    },
+  })
+}
+
+export function sortRESTFolder(path: string, sortOrder: "asc" | "desc") {
+  restCollectionStore.dispatch({
+    dispatcher: "sortRESTFolder",
+    payload: {
+      path,
+      sortOrder,
     },
   })
 }

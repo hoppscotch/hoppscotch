@@ -128,7 +128,6 @@ import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
 import { computed, nextTick, onMounted, ref } from "vue"
-import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -142,7 +141,6 @@ import {
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
-import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import {
   getRESTCollectionByRefId,
@@ -151,6 +149,7 @@ import {
 } from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
   TestRunnerRequest,
   TestRunnerService,
@@ -161,11 +160,8 @@ const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 
-const teamCollectionAdapter = new TeamCollectionAdapter(null)
-const teamCollectionList = useReadonlyStream(
-  teamCollectionAdapter.collections$,
-  []
-)
+const teamCollectionService = useService(TeamCollectionsService)
+const teamCollectionList = teamCollectionService.collections
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 

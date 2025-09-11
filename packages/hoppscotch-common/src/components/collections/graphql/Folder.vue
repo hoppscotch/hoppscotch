@@ -146,8 +146,8 @@
                   @click="
                     () => {
                       emit('edit-properties', {
-                        collectionIndex: collectionIndex,
-                        collection: collection,
+                        collectionIndex: folderPath,
+                        collection: folder,
                       })
                       hide()
                     }
@@ -182,12 +182,7 @@
           @duplicate-collection="emit('duplicate-collection', $event)"
           @edit-request="emit('edit-request', $event)"
           @duplicate-request="emit('duplicate-request', $event)"
-          @edit-properties="
-            emit('edit-properties', {
-              collectionIndex: `${folderPath}/${String(subFolderIndex)}`,
-              collection: subFolder,
-            })
-          "
+          @edit-properties="emit('edit-properties', $event)"
           @select="emit('select', $event)"
           @select-request="$emit('select-request', $event)"
         />

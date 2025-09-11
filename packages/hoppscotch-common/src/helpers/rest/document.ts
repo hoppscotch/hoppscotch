@@ -22,11 +22,15 @@ export type HoppRESTSaveContext =
       /**
        * Index to the request
        */
-      requestIndex: number
+      requestIndex?: number
       /**
        * ID of the example response
        */
       exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }
   | {
       /**
@@ -49,6 +53,10 @@ export type HoppRESTSaveContext =
        * ID of the example response
        */
       exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
     }
   | null
 

@@ -166,6 +166,7 @@ function exportedCollectionToHoppCollection(
           testScript,
           requestVariables,
           responses,
+          _ref_id,
         } = request
 
         const resolvedParams = addDescriptionField(params)
@@ -185,6 +186,7 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           responses,
+          _ref_id: _ref_id ?? generateUniqueRefId("req"),
         }
       }),
       auth: data.auth,

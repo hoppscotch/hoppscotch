@@ -22,6 +22,8 @@ import {
   TeamCollectionMovedDocument,
   TeamRequestOrderUpdatedDocument,
   TeamCollectionOrderUpdatedDocument,
+  TeamRootCollectionsSortedDocument,
+  TeamChildCollectionSortedDocument,
 } from "~/helpers/backend/graphql"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
@@ -155,6 +157,8 @@ export class TeamCollectionsService extends Service<void> {
   private teamCollectionMoved$: Subscription | null = null
   private teamRequestOrderUpdated$: Subscription | null = null
   private teamCollectionOrderUpdated$: Subscription | null = null
+  private teamRootCollectionSorted$: Subscription | null = null
+  private teamChildCollectionSorted$: Subscription | null = null
 
   private teamCollectionAddedSub: WSubscription | null = null
   private teamCollectionUpdatedSub: WSubscription | null = null
@@ -166,6 +170,8 @@ export class TeamCollectionsService extends Service<void> {
   private teamCollectionMovedSub: WSubscription | null = null
   private teamRequestOrderUpdatedSub: WSubscription | null = null
   private teamCollectionOrderUpdatedSub: WSubscription | null = null
+  private teamRootCollectionSortedSub: WSubscription | null = null
+  private teamChildCollectionSortedSub: WSubscription | null = null
 
   override onServiceInit() {
     // Watch for team change and update the collections accordingly
@@ -209,6 +215,8 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionMoved$?.unsubscribe()
     this.teamRequestOrderUpdated$?.unsubscribe()
     this.teamCollectionOrderUpdated$?.unsubscribe()
+    this.teamRootCollectionSorted$?.unsubscribe()
+    this.teamChildCollectionSorted$?.unsubscribe()
 
     this.teamCollectionAddedSub?.unsubscribe()
     this.teamCollectionUpdatedSub?.unsubscribe()
@@ -220,6 +228,8 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionMovedSub?.unsubscribe()
     this.teamRequestOrderUpdatedSub?.unsubscribe()
     this.teamCollectionOrderUpdatedSub?.unsubscribe()
+    this.teamRootCollectionSortedSub?.unsubscribe()
+    this.teamChildCollectionSortedSub?.unsubscribe()
   }
 
   private async initialize() {
@@ -270,7 +280,12 @@ export class TeamCollectionsService extends Service<void> {
     this.teamID = null
   }
 
-  private async loadRootCollections() {
+  /**
+   * Loads the root collections of the current team
+   * @param replace Whether to replace the existing collections or append to them
+   * We might want to replace when we are reloading the collections like when sorting the whole root collections
+   */
+  private async loadRootCollections(replace = false) {
     if (this.teamID === null) throw new Error("Team ID is null")
 
     this.loadingCollections.value.push("root")
@@ -299,16 +314,32 @@ export class TeamCollectionsService extends Service<void> {
         )
       }
 
-      totalCollections.push(
-        ...result.right.rootCollectionsOfTeam.map(
-          (x: any) =>
-            <TeamCollection>{
-              ...x,
-              children: null,
-              requests: null,
-            }
+      if (replace) {
+        this.collections.value = []
+        this.entityIDs.clear()
+
+        totalCollections.push(
+          ...result.right.rootCollectionsOfTeam.map(
+            (x: any) =>
+              <TeamCollection>{
+                ...x,
+                children: null,
+                requests: null,
+              }
+          )
         )
-      )
+      } else {
+        totalCollections.push(
+          ...result.right.rootCollectionsOfTeam.map(
+            (x: any) =>
+              <TeamCollection>{
+                ...x,
+                children: null,
+                requests: null,
+              }
+          )
+        )
+      }
 
       if (result.right.rootCollectionsOfTeam.length !== TEAMS_BACKEND_PAGE_SIZE)
         break
@@ -843,6 +874,50 @@ export class TeamCollectionsService extends Service<void> {
         )
       }
     )
+
+    const [teamRootCollectionSorted$, teamRootCollectionSortedSub] =
+      runGQLSubscription({
+        query: TeamRootCollectionsSortedDocument,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+
+    this.teamRootCollectionSortedSub = teamRootCollectionSortedSub
+    this.teamRootCollectionSorted$ = teamRootCollectionSorted$.subscribe(
+      (result: any) => {
+        if (E.isLeft(result))
+          throw new Error(
+            `Team Root Collection Sorted Error ${JSON.stringify(result.left)}`
+          )
+
+        this.loadRootCollections(true)
+      }
+    )
+
+    const [teamChildCollectionSorted$, teamChildCollectionSortedSub] =
+      runGQLSubscription({
+        query: TeamChildCollectionSortedDocument,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+
+    this.teamChildCollectionSortedSub = teamChildCollectionSortedSub
+    this.teamChildCollectionSorted$ = teamChildCollectionSorted$.subscribe(
+      (result: any) => {
+        if (E.isLeft(result))
+          throw new Error(
+            `Team Child Collection Sorted Error ${JSON.stringify(result.left)}`
+          )
+
+        const { teamChildCollectionsSorted } = result.right
+
+        if (teamChildCollectionsSorted) {
+          this.expandCollection(teamChildCollectionsSorted, true)
+        }
+      }
+    )
   }
 
   private async getCollectionChildren(
@@ -932,9 +1007,9 @@ export class TeamCollectionsService extends Service<void> {
    * Upon expansion those two fields will be populated
    *
    * @param {string} collectionID - The ID of the collection to expand
+   * @param {boolean} reFetch - Whether to re-fetch the children and requests even if they are already loaded (used in sorting scenarios where order might have changed)
    */
-  async expandCollection(collectionID: string): Promise<void> {
-    //console.log("Expanding collection", collectionID)
+  async expandCollection(collectionID: string, reFetch = false): Promise<void> {
     if (this.loadingCollections.value.includes(collectionID)) return
 
     const tree = this.collections.value
@@ -943,7 +1018,7 @@ export class TeamCollectionsService extends Service<void> {
 
     if (!collection) return
 
-    if (collection.children !== null) return
+    if (collection.children !== null && !reFetch) return
 
     this.loadingCollections.value.push(collectionID)
 
@@ -961,9 +1036,7 @@ export class TeamCollectionsService extends Service<void> {
       requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
 
       this.collections.value = [...tree]
-      console.log("Expanded collection", collectionID, collection)
     } finally {
-      console.log("Finished loading collection", collectionID)
       this.loadingCollections.value = this.loadingCollections.value.filter(
         (x) => x !== collectionID
       )

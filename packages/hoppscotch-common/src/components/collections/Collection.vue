@@ -58,7 +58,13 @@
             </span>
           </span>
         </div>
-        <div class="flex">
+        <div
+          v-if="isCollectionLoading && !isOpen"
+          class="flex items-center px-2"
+        >
+          <HoppSmartSpinner />
+        </div>
+        <div v-else class="flex">
           <HoppButtonSecondary
             v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
@@ -299,6 +305,7 @@ const props = withDefaults(
     collectionMoveLoading?: string[]
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
+    teamLoadingCollections?: string[]
   }>(),
   {
     id: "",
@@ -310,7 +317,9 @@ const props = withDefaults(
     exportLoading: false,
     hasNoTeamAccess: false,
     isLastItem: false,
-    duplicateLoading: false,
+    duplicateCollectionLoading: false,
+    collectionMoveLoading: () => [],
+    teamLoadingCollections: () => [],
   }
 )
 
@@ -360,6 +369,10 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 })
 
 const currentSortOrder = ref<"asc" | "desc">("asc")
+
+const isCollectionLoading = computed(() => {
+  return props.teamLoadingCollections!.includes(props.id)
+})
 
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work

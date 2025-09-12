@@ -258,6 +258,7 @@ import {
   deleteCollection,
   duplicateTeamCollection,
   moveRESTTeamCollection,
+  sortTeamCollections,
   updateOrderRESTTeamCollection,
   updateTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
@@ -322,6 +323,7 @@ import { HoppCollectionVariable } from "@hoppscotch/data"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
+import { SortOptions } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const toast = useToast()
@@ -2467,10 +2469,10 @@ const dropCollection = async (payload: {
 
 /**
  * Checks if the collection is already in the root
- * @param id - path of the collection
+ * @param id - path of the collection, null if it's in the root
  * @returns boolean - true if the collection is already in the root
  */
-const isAlreadyInRoot = (id: string) => {
+const isAlreadyInRoot = (id: string | null) => {
   // If there is no id, it means the collection is in the root
   if (!id) return true
 
@@ -3102,33 +3104,39 @@ const runCollectionHandler = (
 }
 
 const sortCollections = (payload: {
-  collectionID: string
+  collectionID: string | null
   sortOrder: "asc" | "desc"
 }) => {
   const { collectionID, sortOrder } = payload
 
   if (collectionsType.value.type === "my-collections") {
-    const collectionIndex = parseInt(collectionID)
+    const collectionIndex = collectionID ? parseInt(collectionID) : null
 
     if (isAlreadyInRoot(collectionID)) {
       sortRESTCollection(collectionIndex, sortOrder)
       toast.success(t("collection.sorted"))
     } else {
+      if (!collectionID) return
+
       sortRESTFolder(collectionID, sortOrder)
       toast.success(t("folder.sorted"))
     }
   } else if (hasTeamWriteAccess.value) {
-    // pipe(
-    //   sortTeamCollection(folderPath, sortBy, sortOrder),
-    //   TE.match(
-    //     (err: GQLError<string>) => {
-    //       toast.error(`${getErrorMessage(err)}`)
-    //     },
-    //     () => {
-    //       toast.success(t("collection.sorted"))
-    //     }
-    //   )
-    // )()
+    pipe(
+      sortTeamCollections(
+        collectionsType.value.selectedTeam.teamID,
+        collectionID,
+        sortOrder === "asc" ? SortOptions.TitleAsc : SortOptions.TitleDesc
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+        },
+        () => {
+          toast.success(t("collection.sorted"))
+        }
+      )
+    )()
   }
 }
 

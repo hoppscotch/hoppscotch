@@ -71,6 +71,7 @@
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
+            :team-loading-collections="teamLoadingCollections"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
@@ -173,6 +174,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
+            :team-loading-collections="teamLoadingCollections"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :duplicate-collection-loading="duplicateCollectionLoading"
@@ -778,6 +780,7 @@ const active = computed(
 )
 
 const isActiveRequest = (requestID: string) => {
+  if (!active.value) return false
   return pipe(
     active.value,
     O.fromNullable,

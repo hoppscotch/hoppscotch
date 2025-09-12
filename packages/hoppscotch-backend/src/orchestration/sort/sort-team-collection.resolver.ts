@@ -4,7 +4,6 @@ import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { TeamCollection } from 'src/team-collection/team-collection.model';
 import { SortService } from './sort.service';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
-import { GqlCollectionTeamMemberGuard } from 'src/team-collection/guards/gql-collection-team-member.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamAccessRole } from 'src/team/team.model';
 import { SortOptions } from 'src/types/SortOptions';
@@ -25,7 +24,7 @@ export class SortTeamCollectionResolver {
   @Mutation(() => Boolean, {
     description: 'Sort team collections',
   })
-  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(TeamAccessRole.OWNER, TeamAccessRole.EDITOR)
   async sortTeamCollections(
     @Args({

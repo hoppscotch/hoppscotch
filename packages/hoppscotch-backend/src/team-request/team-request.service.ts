@@ -517,6 +517,8 @@ export class TeamRequestService {
     collectionID: string,
     sortBy: SortOptions,
   ) {
+    if (!collectionID) return E.right(true); // No sorting for requests in root collection
+
     let orderBy: Prisma.Enumerable<Prisma.TeamRequestOrderByWithRelationInput>;
     if (sortBy === SortOptions.TITLE_ASC) {
       orderBy = { title: 'asc' };

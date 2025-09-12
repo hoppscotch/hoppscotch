@@ -500,6 +500,8 @@ export class UserRequestService {
     collectionID: string,
     sortBy: SortOptions,
   ): Promise<E.Left<string> | E.Right<boolean>> {
+    if (!collectionID) return E.right(true);
+
     let orderBy: Prisma.Enumerable<Prisma.UserRequestOrderByWithRelationInput>;
     if (sortBy === SortOptions.TITLE_ASC) {
       orderBy = { title: 'asc' };

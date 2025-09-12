@@ -10,6 +10,7 @@ import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { UserCollectionSortData } from './sort.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => UserCollection)
@@ -51,7 +52,7 @@ export class SortUserCollectionResolver {
   }
 
   // Subscriptions
-  @Subscription(() => Boolean, {
+  @Subscription(() => UserCollectionSortData, {
     description: 'Listen for User Root Collection Sort Events',
     resolve: (value) => value,
   })
@@ -61,7 +62,7 @@ export class SortUserCollectionResolver {
     return this.pubSub.asyncIterator(`user_coll_root/${user.uid}/sorted`);
   }
 
-  @Subscription(() => ID, {
+  @Subscription(() => UserCollectionSortData, {
     description: 'Listen for User Child Collection Sort Events',
     resolve: (value) => value,
   })

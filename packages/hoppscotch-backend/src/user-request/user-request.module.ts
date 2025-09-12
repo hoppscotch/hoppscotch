@@ -11,5 +11,6 @@ import { UserRequestService } from './user-request.service';
     UserRequestUserCollectionResolver,
     UserRequestService,
   ],
+  exports: [UserRequestService],
 })
 export class UserRequestModule {}

@@ -76,12 +76,15 @@ export class SortService {
 
     // Publish the sort event
     if (!parentCollectionID) {
-      this.pubsub.publish(`user_coll_root/${userID}/sorted`, true);
-    } else {
-      this.pubsub.publish(
-        `user_coll_child/${userID}/sorted`,
+      this.pubsub.publish(`user_coll_root/${userID}/sorted`, {
         parentCollectionID,
-      );
+        sortOption,
+      });
+    } else {
+      this.pubsub.publish(`user_coll_child/${userID}/sorted`, {
+        parentCollectionID,
+        sortOption,
+      });
     }
 
     return E.right(true);

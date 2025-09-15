@@ -57,7 +57,7 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
-        :move="checkMove"
+        :move="(event) => checkMove(event, workingParams.length)"
       >
         <template #item="{ element: param, index }">
           <HttpKeyValue
@@ -121,6 +121,7 @@ import {
 import { isEqual, cloneDeep } from "lodash-es"
 import draggable from "vuedraggable-es"
 import linter from "~/helpers/editor/linting/rawKeyValue"
+import { checkMove } from "~/helpers/checkMove"
 import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
@@ -388,14 +389,6 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
       return
     return result.locations.index === index
   })
-}
-
-function checkMove(event) {
-  const futureIndex = event?.draggedContext?.futureIndex
-  const workingParamsLength = workingParams?.value?.length
-  if (isNaN(futureIndex) || isNaN(workingParamsLength)) return false
-  if (futureIndex >= workingParamsLength - 1) return false
-  return true
 }
 </script>
 

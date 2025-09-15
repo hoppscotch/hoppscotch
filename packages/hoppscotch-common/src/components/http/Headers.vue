@@ -68,7 +68,7 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
-        :move="checkMove"
+        :move="(event) => checkMove(event, workingHeaders.length)"
       >
         <template #item="{ element: header, index }">
           <HttpKeyValue
@@ -275,6 +275,7 @@ import {
   getComputedAuthHeaders,
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
+import { checkMove } from "~/helpers/checkMove"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
@@ -692,14 +693,6 @@ const getInspectorResult = (results: InspectorResult[], index: number) => {
       return
     return result.locations.index === index
   })
-}
-
-function checkMove(event) {
-  const futureIndex = event?.draggedContext?.futureIndex
-  const workingHeadersLength = workingHeaders?.value?.length
-  if (isNaN(futureIndex) || isNaN(workingHeadersLength)) return false
-  if (futureIndex >= workingHeadersLength - 1) return false
-  return true
 }
 </script>
 

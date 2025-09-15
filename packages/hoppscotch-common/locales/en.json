@@ -842,6 +842,7 @@
     "profile": "Profile",
     "realtime": "Realtime",
     "rest": "REST",
+    "mock_servers": "Mock Servers",
     "settings": "Settings",
     "goto_app": "Goto App",
     "authentication": "Authentication"
@@ -1940,5 +1941,63 @@
   "app_console": {
     "entries": "Console entries",
     "no_entries": "No entries"
+  },
+  "mockServer": {
+    "create_modal": {
+      "title": "Create Mock Server",
+      "name_label": "Mock Server Name",
+      "name_placeholder": "Enter mock server name",
+      "name_required": "Mock server name is required",
+      "collection_source_label": "Collection Source",
+      "existing_collection": "Existing Collection",
+      "new_collection": "New Collection",
+      "select_collection_label": "Select Collection",
+      "select_collection_placeholder": "Choose a collection",
+      "collection_required": "Please select a collection",
+      "collection_name_label": "Collection Name",
+      "collection_name_placeholder": "Enter collection name",
+      "collection_name_required": "Collection name is required",
+      "request_config_label": "Request Configuration",
+      "add_request": "Add Request",
+      "create_button": "Create Mock Server",
+      "success": "Mock server created successfully",
+      "error": "Failed to create mock server",
+      "no_collections": "No collections available"
+    },
+    "edit_modal": {
+      "title": "Edit Mock Server",
+      "name_label": "Mock Server Name",
+      "name_placeholder": "Enter mock server name",
+      "name_required": "Mock server name is required",
+      "active_label": "Active",
+      "url_label": "Mock Server URL",
+      "collection_label": "Collection",
+      "update_button": "Update Mock Server",
+      "success": "Mock server updated successfully",
+      "error": "Failed to update mock server",
+      "url_copied": "URL copied to clipboard"
+    },
+    "dashboard": {
+      "title": "Mock Servers",
+      "subtitle": "Create and manage your API mock servers",
+      "create_button": "Create Mock Server",
+      "create_first": "Create your first mock server",
+      "empty_title": "No mock servers found",
+      "empty_description": "Create mock servers based on your API collections to enable frontend and mobile development without backend dependencies.",
+      "collection": "Collection",
+      "active": "Active",
+      "inactive": "Inactive",
+      "mock_url": "Mock URL",
+      "endpoints": "Endpoints",
+      "created": "Created",
+      "view_collection": "View Collection",
+      "documentation": "Documentation",
+      "doc_description": "Use this URL as your API base URL in your applications:",
+      "url_copied": "Mock server URL copied to clipboard",
+      "delete_title": "Delete Mock Server",
+      "delete_description": "Are you sure you want to delete this mock server?",
+      "delete_success": "Mock server deleted successfully",
+      "delete_error": "Failed to delete mock server"
+    }
   }
 }

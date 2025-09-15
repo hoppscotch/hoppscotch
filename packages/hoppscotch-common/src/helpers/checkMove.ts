@@ -4,6 +4,12 @@ export type DraggableMoveEvent = {
   }
 }
 
+/**
+ * Check if the move action is valid
+ * @param event DraggableMoveEvent which contains future index of the dragged item
+ * @param itemsLength The current length of the items array
+ * @returns boolean indicating if the move is valid
+ */
 export function checkMove(
   event: DraggableMoveEvent,
   itemsLength: number

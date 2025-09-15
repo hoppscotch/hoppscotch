@@ -106,6 +106,7 @@ model User {
   UserEnvironments     UserEnvironment[]
   userCollections      UserCollection[]
   userRequests         UserRequest[]
+  mockServers          MockServer[]
   currentRESTSession   Json?
   currentGQLSession    Json?
   lastLoggedOn         DateTime?             @db.Timestamptz(3)
@@ -203,6 +204,7 @@ model UserCollection {
   parent     UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
   children   UserCollection[] @relation("ParentUserCollection")
   requests   UserRequest[]
+  mockServers MockServer[]
   userUid    String
   user       User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   title      String
@@ -250,4 +252,19 @@ model InfraToken {
   expiresOn  DateTime? @db.Timestamptz(3)
   createdOn  DateTime  @default(now()) @db.Timestamptz(3)
   updatedOn  DateTime  @default(now()) @db.Timestamptz(3)
+}
+
+model MockServer {
+  id           String         @id @default(cuid())
+  name         String
+  subdomain    String         @unique // e.g., "mock-1234" for mock-1234.domain.com
+  userUid      String
+  user         User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  collectionID String
+  collection   UserCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
+  isActive     Boolean        @default(true)
+  createdOn    DateTime       @default(now()) @db.Timestamptz(3)
+  updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
+
+  @@unique([userUid, collectionID]) // One mock server per collection per user
 }

@@ -77,6 +77,23 @@ export function resolveSaveContextOnCollectionReorder(
 }
 
 /**
+ * Helper to transform team collection IDs when folders move and trim leading slashes.
+ * @param currentID Current collection ID
+ * @param oldPath Old collection path
+ * @param newPath New collection path
+ * @returns Updated collection ID
+ */
+const updateCollectionIDPath = (
+  currentID: string | undefined,
+  oldPath: string,
+  newPath: string | null
+): string | undefined => {
+  if (!currentID) return currentID
+  const replaced = currentID.replace(oldPath, newPath ?? "")
+  return replaced.replace(/^\/+/, "")
+}
+
+/**
  * Returns the last folder path from the given path.
  *  * @param path Path can be folder path or collection path
  * @returns Get the last folder path from the given path
@@ -127,9 +144,11 @@ export function updateSaveContextForAffectedRequests(
     ) {
       tab.value.document.saveContext = {
         ...tab.value.document.saveContext,
-        collectionID: tab.value.document.saveContext.collectionID
-          ?.replace(oldFolderPath, newFolderPath || "")
-          .replace(/^\/+/, ""),
+        collectionID: updateCollectionIDPath(
+          tab.value.document.saveContext.collectionID,
+          oldFolderPath,
+          newFolderPath
+        ),
       }
     }
   }

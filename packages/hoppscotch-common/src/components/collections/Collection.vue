@@ -209,6 +209,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="sortAction"
                     :icon="IconArrowUpDown"
                     :label="t('action.sort')"

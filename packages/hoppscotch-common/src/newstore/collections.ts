@@ -322,7 +322,7 @@ const restCollectionDispatchers = defineDispatchers({
     {
       collectionPath,
       sortOrder,
-    }: { collectionPath: number; sortOrder: "asc" | "desc" }
+    }: { collectionPath: number | null; sortOrder: "asc" | "desc" }
   ) {
     const newState = state
 
@@ -1481,7 +1481,7 @@ export function editRESTCollection(
 }
 
 export function sortRESTCollection(
-  collectionPath: number,
+  collectionPath: number | null,
   sortOrder: "asc" | "desc"
 ) {
   restCollectionStore.dispatch({

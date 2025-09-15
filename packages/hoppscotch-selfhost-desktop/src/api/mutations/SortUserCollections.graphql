@@ -1,0 +1,9 @@
+mutation SortUserCollections(
+  $parentCollectionID: ID
+  $sortOption: SortOptions!
+) {
+  sortUserCollections(
+    parentCollectionID: $parentCollectionID
+    sortOption: $sortOption
+  )
+}

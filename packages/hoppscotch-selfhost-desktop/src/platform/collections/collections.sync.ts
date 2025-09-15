@@ -29,7 +29,6 @@ import {
   importUserCollectionsFromJSON,
   moveUserCollection,
   moveUserRequest,
-  renameUserCollection,
   updateUserCollection,
   updateUserCollectionOrder,
 } from "./collections.api"

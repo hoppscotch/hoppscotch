@@ -695,7 +695,6 @@ const active = computed(
 const isActiveRequest = (folderPath: string, requestRefID: string) => {
   if (active.value === null || !active.value) return false
 
-  console.log({ folderPath, requestRefID, active: active.value })
   return pipe(
     active.value,
     O.fromNullable,

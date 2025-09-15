@@ -68,6 +68,9 @@
       ghost-class="cursor-move"
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
+      :move="
+        (event: DraggableMoveEvent) => checkMove(event, workingParams.length)
+      "
     >
       <template #item="{ element: { entry }, index }">
         <div
@@ -267,6 +270,7 @@ import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import * as E from "fp-ts/Either"
 import linter from "~/helpers/editor/linting/rawKeyValue"
+import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
 
 type Body = HoppRESTReqBody & { contentType: "multipart/form-data" }
 

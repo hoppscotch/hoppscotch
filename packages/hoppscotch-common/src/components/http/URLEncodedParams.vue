@@ -60,6 +60,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DraggableMoveEvent) =>
+            checkMove(event, workingUrlEncodedParams.length)
+        "
       >
         <template #item="{ element: param, index }">
           <div
@@ -209,6 +213,7 @@ import { useVModel } from "@vueuse/core"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"

@@ -81,6 +81,9 @@
             ghost-class="cursor-move"
             chosen-class="bg-primaryLight"
             drag-class="cursor-grabbing"
+            :move="
+              (event: DraggableMoveEvent) => checkMove(event, protocols?.length)
+            "
           >
             <template #item="{ element: { protocol }, index }">
               <div
@@ -212,6 +215,7 @@ import { useColorMode } from "@composables/theming"
 import { WSConnection, WSErrorMessage } from "@helpers/realtime/WSConnection"
 import RegexWorker from "@workers/regex?worker"
 import { LogEntryData } from "~/components/realtime/Log.vue"
+import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
 
 const t = useI18n()
 const toast = useToast()

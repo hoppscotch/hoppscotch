@@ -59,7 +59,9 @@
       ghost-class="cursor-move"
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
-      :move="(event) => checkMove(event, workingHeaders.length)"
+      :move="
+        (event: DraggableMoveEvent) => checkMove(event, workingHeaders.length)
+      "
     >
       <template #item="{ element: header, index }">
         <HttpKeyValue
@@ -254,7 +256,7 @@ import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { checkMove } from "~/helpers/checkMove"
+import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
 import { toggleNestedSetting } from "~/newstore/settings"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"

@@ -68,7 +68,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
-        :move="(event) => checkMove(event, workingHeaders.length)"
+        :move="
+          (event: DraggableMoveEvent): boolean =>
+            checkMove(event, workingHeaders.length)
+        "
       >
         <template #item="{ element: header, index }">
           <HttpKeyValue
@@ -275,7 +278,7 @@ import {
   getComputedAuthHeaders,
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
-import { checkMove } from "~/helpers/checkMove"
+import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
 import {
   AggregateEnvironment,
   aggregateEnvs$,

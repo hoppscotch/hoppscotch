@@ -281,6 +281,8 @@ import IconPlaySquare from "~icons/lucide/play-square"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { useService } from "dioc/vue"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -341,7 +343,11 @@ const emit = defineEmits<{
   (event: "run-collection", collectionID: string): void
   (
     event: "sort-collections",
-    payload: { collectionID: string; sortOrder: "asc" | "desc" }
+    payload: {
+      collectionID: string
+      sortOrder: "asc" | "desc"
+      collectionRefID: string
+    }
   ): void
 }>()
 
@@ -368,8 +374,18 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   parentID: "",
 })
 
-const currentSortOrder = ref<"asc" | "desc">("asc")
+const currentSortValuesService = useService(CurrentSortValuesService)
 
+const collectionRefID = computed(() => {
+  return props.collectionsType === "my-collections"
+    ? (props.data as HoppCollection)._ref_id
+    : props.id
+})
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption(collectionRefID.value ?? "personal")
+    ?.sortOrder ?? "asc"
+)
 const isCollectionLoading = computed(() => {
   return props.teamLoadingCollections!.includes(props.id)
 })
@@ -530,11 +546,13 @@ const isCollLoading = computed(() => {
 })
 
 const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
   emit("sort-collections", {
     collectionID: props.id,
     sortOrder: currentSortOrder.value,
+    collectionRefID: collectionRefID.value ?? "personal",
   })
-  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
 }
 
 const resetDragState = () => {

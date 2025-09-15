@@ -324,6 +324,7 @@ import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -402,6 +403,9 @@ const requestMoveLoading = ref<string[]>([])
 //collection variables current value and secret value
 const secretEnvironmentService = useService(SecretEnvironmentService)
 const currentEnvironmentValueService = useService(CurrentValueService)
+
+// Sorting service to get and set sort options for collections and folders
+const currentSortValuesService = useService(CurrentSortValuesService)
 
 // TeamList-Adapter
 const workspaceService = useService(WorkspaceService)
@@ -3106,8 +3110,9 @@ const runCollectionHandler = (
 const sortCollections = (payload: {
   collectionID: string | null
   sortOrder: "asc" | "desc"
+  collectionRefID: string
 }) => {
-  const { collectionID, sortOrder } = payload
+  const { collectionID, sortOrder, collectionRefID } = payload
 
   if (collectionsType.value.type === "my-collections") {
     const collectionIndex = collectionID ? parseInt(collectionID) : null
@@ -3138,6 +3143,13 @@ const sortCollections = (payload: {
       )
     )()
   }
+
+  // Set the sort option in the service to persist the sort option
+  // when the user navigates away and comes back
+  currentSortValuesService.setSortOption(collectionRefID, {
+    sortBy: "name",
+    sortOrder,
+  })
 }
 
 const resolveConfirmModal = (title: string | null) => {

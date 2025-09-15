@@ -489,6 +489,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { useDebounceFn } from "@vueuse/core"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -659,6 +660,7 @@ const emit = defineEmits<{
     payload: {
       collectionID: string | null
       sortOrder: "asc" | "desc"
+      collectionRefID: string
     }
   ): void
   (
@@ -715,7 +717,16 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const currentSortOrder = ref<"asc" | "desc">("asc")
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const teamID = computed(() => {
+  return props.collectionsType.selectedTeam?.teamID
+})
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption(teamID.value ?? "personal")
+    ?.sortOrder ?? "asc"
+)
 
 const getPath = (path: string, pop: boolean = true) => {
   const pathArray = path.split("/")
@@ -901,11 +912,13 @@ const debouncedSorting = useDebounceFn(() => {
 }, 250)
 
 const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
   emit("sort-collections", {
     collectionID: null,
     sortOrder: currentSortOrder.value,
+    collectionRefID: teamID.value ?? "personal",
   })
-  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
 }
 
 type TeamCollections = {

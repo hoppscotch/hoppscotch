@@ -404,6 +404,18 @@ export const CURRENT_ENVIRONMENT_VALUE_SCHEMA = z.union([
   ),
 ])
 
+export const CURRENT_SORT_VALUES_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.object({
+      sortBy: z.enum(["name"]),
+      sortOrder: z.enum(["asc", "desc"]),
+    })
+  ),
+])
+
 const HoppTestResultSchema = z
   .object({
     tests: z.array(HoppTestDataSchema),

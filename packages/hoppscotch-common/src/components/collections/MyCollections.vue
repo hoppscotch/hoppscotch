@@ -430,6 +430,7 @@ import { Picked } from "~/helpers/types/HoppPicked.js"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { useDebounceFn } from "@vueuse/core"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 export type Collection = {
   type: "collections"
@@ -599,6 +600,7 @@ const emit = defineEmits<{
     payload: {
       collectionID: string | null
       sortOrder: "asc" | "desc"
+      collectionRefID: string
     }
   ): void
   (
@@ -648,7 +650,11 @@ const emit = defineEmits<{
 
 const refFilterCollection = toRef(props, "filteredCollections")
 
-const currentSortOrder = ref<"asc" | "desc">("asc")
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption("personal")?.sortOrder ?? "asc"
+)
 
 const pathToIndex = (path: string) => {
   const pathArr = path.split("/")
@@ -816,11 +822,13 @@ const debouncedSorting = useDebounceFn(() => {
 }, 250)
 
 const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
   emit("sort-collections", {
     collectionID: null,
     sortOrder: currentSortOrder.value,
+    collectionRefID: "personal",
   })
-  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
 }
 
 type MyCollectionNode = Collection | Folder | Requests

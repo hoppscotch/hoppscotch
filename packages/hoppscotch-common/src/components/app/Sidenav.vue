@@ -62,12 +62,6 @@ const primaryNavigation = [
     exact: false,
   },
   {
-    target: "/mock-servers",
-    svg: IconServer,
-    title: "navigation.mock_servers",
-    exact: false,
-  },
-  {
     target: "/settings",
     svg: IconSettings,
     title: "navigation.settings",

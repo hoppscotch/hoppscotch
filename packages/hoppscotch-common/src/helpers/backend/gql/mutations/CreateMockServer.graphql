@@ -1,0 +1,14 @@
+mutation CreateMockServer($input: CreateMockServerInput!) {
+  createMockServer(input: $input) {
+    id
+    name
+    subdomain
+    user {
+      uid
+    }
+    collectionID
+    isActive
+    createdOn
+    updatedOn
+  }
+}

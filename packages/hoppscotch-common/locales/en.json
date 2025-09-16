@@ -847,6 +847,19 @@
     "goto_app": "Goto App",
     "authentication": "Authentication"
   },
+  "mock_server": {
+    "create_mock_server": "Config Mock Server",
+    "mock_server_configuration": "Mock Server Configuration",
+    "mock_server_name": "Mock Server Name",
+    "mock_server_name_placeholder": "Enter mock server name",
+    "base_url": "Base URL",
+    "start_server": "Start Server",
+    "stop_server": "Stop Server",
+    "mock_server_created": "Mock server created successfully",
+    "mock_server_started": "Mock server started successfully",
+    "mock_server_stopped": "Mock server stopped successfully",
+    "description": "Mock servers allow you to simulate API responses based on your collection's example responses."
+  },
   "preRequest": {
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",

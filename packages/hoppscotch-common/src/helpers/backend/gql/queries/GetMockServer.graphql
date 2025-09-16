@@ -1,0 +1,18 @@
+query GetMockServer($id: ID!) {
+  mockServer(id: $id) {
+    id
+    name
+    subdomain
+    user {
+      uid
+    }
+    collectionID
+    isActive
+    createdOn
+    updatedOn
+    collection {
+      id
+      title
+    }
+  }
+}

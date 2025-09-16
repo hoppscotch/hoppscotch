@@ -517,14 +517,14 @@ export class UserRequestService {
           collectionID,
         ]);
 
-        const teamRequests = await tx.userRequest.findMany({
+        const userRequests = await tx.userRequest.findMany({
           where: { userUid, collectionID },
           orderBy,
           select: { id: true },
         });
 
         // Update the orderIndex of each request based on the new order (parallel)
-        const promises = teamRequests.map((request, i) =>
+        const promises = userRequests.map((request, i) =>
           tx.userRequest.update({
             where: { id: request.id },
             data: { orderIndex: i + 1 },

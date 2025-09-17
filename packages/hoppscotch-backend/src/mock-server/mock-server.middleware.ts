@@ -18,7 +18,8 @@ export class MockServerMiddleware implements NestMiddleware {
     }
 
     const method = req.method;
-    const path = req.path || '/';
+    const fullPath = req.originalUrl.split('?')[0]; // Remove query parameters and use original URL
+    const path = fullPath || '/';
 
     try {
       const result = await this.mockServerService.handleMockRequest(
@@ -31,6 +32,12 @@ export class MockServerMiddleware implements NestMiddleware {
         return res.status(404).json({
           error: 'Endpoint not found',
           message: result.left,
+          debug: {
+            subdomain,
+            path,
+            method,
+            timestamp: new Date().toISOString(),
+          },
         });
       }
 
@@ -60,6 +67,8 @@ export class MockServerMiddleware implements NestMiddleware {
       return res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to process mock request',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       });
     }
   }

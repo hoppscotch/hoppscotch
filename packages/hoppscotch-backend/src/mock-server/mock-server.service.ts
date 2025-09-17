@@ -280,13 +280,38 @@ export class MockServerService {
 
       const mockServer = mockServerResult.right;
 
-      // Find matching request in the collection
       const matchingRequest = mockServer.collection.requests.find(
         (request: any) => {
           const requestData = request.request;
-          // Parse the endpoint from the request URL
-          const requestUrl = new URL(requestData.endpoint || '');
-          const requestPath = requestUrl.pathname;
+
+          // Extract path from endpoint, handling placeholders like <<url>>
+          let requestPath = '/';
+          try {
+            if (requestData.endpoint) {
+              // Handle placeholder URLs like "<<url>>/ping"
+              if (requestData.endpoint.includes('<<url>>')) {
+                // Extract the path after the placeholder
+                const pathPart =
+                  requestData.endpoint.split('<<url>>')[1] || '/';
+                requestPath = pathPart.startsWith('/')
+                  ? pathPart
+                  : '/' + pathPart;
+              } else {
+                // Try to parse as a regular URL
+                const requestUrl = new URL(requestData.endpoint);
+                requestPath = requestUrl.pathname;
+              }
+            }
+          } catch (error) {
+            // If URL parsing fails, try to extract path manually
+            if (requestData.endpoint) {
+              const lastSlashIndex = requestData.endpoint.lastIndexOf('/');
+              if (lastSlashIndex !== -1) {
+                requestPath = requestData.endpoint.substring(lastSlashIndex);
+              }
+            }
+          }
+
           const requestMethod = requestData.method || 'GET';
 
           return (
@@ -308,13 +333,37 @@ export class MockServerService {
       let headers = '{}';
 
       // Try to get response from examples or default mock response
-      if (requestData.responses && requestData.responses.length > 0) {
-        const firstResponse = requestData.responses[0];
-        statusCode = firstResponse.statusCode || 200;
-        body = firstResponse.body || '';
-        headers = JSON.stringify(firstResponse.headers || {});
-      } else {
-        // Default mock response
+      if (requestData.responses) {
+        // Handle responses as an object (like {"default-200": {...}})
+        const responseKeys = Object.keys(requestData.responses);
+        if (responseKeys.length > 0) {
+          const firstResponseKey = responseKeys[0];
+          const firstResponse = requestData.responses[firstResponseKey];
+          statusCode = firstResponse.code || firstResponse.statusCode || 200;
+          body = firstResponse.body || '';
+
+          // Handle headers
+          if (firstResponse.headers) {
+            if (Array.isArray(firstResponse.headers)) {
+              // Convert array of {key, value} to object
+              const headersObj = {};
+              firstResponse.headers.forEach((header: any) => {
+                if (header.key && header.value) {
+                  headersObj[header.key] = header.value;
+                }
+              });
+              headers = JSON.stringify(headersObj);
+            } else {
+              headers = JSON.stringify(firstResponse.headers);
+            }
+          } else {
+            headers = '{}';
+          }
+        }
+      }
+
+      // If no response found, create a default one
+      if (!body) {
         body = JSON.stringify({
           message: `Mock response for ${method.toUpperCase()} ${path}`,
           timestamp: new Date().toISOString(),

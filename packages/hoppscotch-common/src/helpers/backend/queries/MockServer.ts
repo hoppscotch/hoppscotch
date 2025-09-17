@@ -1,58 +1,22 @@
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/Either"
 import { runGQLQuery } from "../GQLClient"
+import {
+  GetMyMockServersDocument,
+  GetMockServerDocument,
+  type GetMyMockServersQuery,
+  type GetMockServerQuery,
+} from "../graphql"
 
-// Placeholder types until GraphQL codegen is updated
 type GetMyMockServersError = "user/not_authenticated"
 
 type GetMockServerError = "mock_server/not_found" | "mock_server/access_denied"
-
-// Since GraphQL types aren't generated yet, we'll create placeholders
-const GetMyMockServersDocument = `
-  query GetMyMockServers {
-    myMockServers {
-      id
-      name
-      subdomain
-      isActive
-      createdOn
-      updatedOn
-      user {
-        uid
-      }
-      collection {
-        id
-        title
-      }
-    }
-  }
-`
-
-const GetMockServerDocument = `
-  query GetMockServer($id: ID!) {
-    mockServer(id: $id) {
-      id
-      name
-      subdomain
-      isActive
-      createdOn
-      updatedOn
-      user {
-        uid
-      }
-      collection {
-        id
-        title
-      }
-    }
-  }
-`
 
 export const getMyMockServers = () =>
   TE.tryCatch(
     async () => {
       const result = await runGQLQuery({
-        query: GetMyMockServersDocument as any,
+        query: GetMyMockServersDocument,
         variables: {},
       })
 
@@ -60,12 +24,12 @@ export const getMyMockServers = () =>
         throw result.left
       }
 
-      const mockServers = (result.right as any).myMockServers
+      const data = result.right as GetMyMockServersQuery
       // Map the GraphQL response to frontend format
-      return mockServers.map((mockServer: any) => ({
+      return data.myMockServers.map((mockServer) => ({
         ...mockServer,
-        userUid: mockServer.user?.uid || "",
-        collectionID: mockServer.collection?.id || "",
+        userUid: mockServer.user.uid,
+        collectionID: mockServer.collection.id,
       }))
     },
     (error) => error as GetMyMockServersError
@@ -75,7 +39,7 @@ export const getMockServer = (id: string) =>
   TE.tryCatch(
     async () => {
       const result = await runGQLQuery({
-        query: GetMockServerDocument as any,
+        query: GetMockServerDocument,
         variables: { id },
       })
 
@@ -83,12 +47,12 @@ export const getMockServer = (id: string) =>
         throw result.left
       }
 
-      const data = (result.right as any).mockServer
+      const data = result.right as GetMockServerQuery
       // Map the GraphQL response to frontend format
       return {
-        ...data,
-        userUid: data.user?.uid || "",
-        collectionID: data.collection?.id || "",
+        ...data.mockServer,
+        userUid: data.mockServer.user.uid,
+        collectionID: data.mockServer.collection.id,
       }
     },
     (error) => error as GetMockServerError

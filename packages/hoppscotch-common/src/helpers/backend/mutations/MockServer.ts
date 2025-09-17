@@ -1,4 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
+import { client } from "../GQLClient"
 
 // Types for mock server
 export type MockServer = {
@@ -10,12 +11,21 @@ export type MockServer = {
   isActive: boolean
   createdOn: Date
   updatedOn: Date
+  user?: {
+    uid: string
+  }
+  collection?: {
+    id: string
+    title: string
+    requests?: any[]
+  }
 }
 
 type CreateMockServerError =
   | "mock_server/invalid_collection_id"
   | "mock_server/name_too_short"
   | "mock_server/limit_exceeded"
+  | "mock_server/already_exists"
 
 type UpdateMockServerError =
   | "mock_server/not_found"
@@ -25,57 +35,120 @@ type DeleteMockServerError =
   | "mock_server/not_found"
   | "mock_server/access_denied"
 
-// Mock implementation - replace with actual GraphQL calls when backend is ready
-const generateMockId = () => Math.random().toString(36).substr(2, 9)
-const generateSubdomain = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-")
-    .replace(/-+/g, "-")
-    .substr(0, 20)
+// GraphQL documents
+const CreateMockServerDocument = `
+  mutation CreateMockServer($input: CreateMockServerInput!) {
+    createMockServer(input: $input) {
+      id
+      name
+      subdomain
+      isActive
+      createdOn
+      updatedOn
+      user {
+        uid
+      }
+      collection {
+        id
+        title
+      }
+    }
+  }
+`
+
+const UpdateMockServerDocument = `
+  mutation UpdateMockServer($id: ID!, $input: UpdateMockServerInput!) {
+    updateMockServer(id: $id, input: $input) {
+      id
+      name
+      subdomain
+      isActive
+      createdOn
+      updatedOn
+      user {
+        uid
+      }
+      collection {
+        id
+        title
+      }
+    }
+  }
+`
+
+const DeleteMockServerDocument = `
+  mutation DeleteMockServer($id: ID!) {
+    deleteMockServer(id: $id)
+  }
+`
 
 export const createMockServer = (name: string, collectionID: string) =>
-  TE.of<CreateMockServerError, MockServer>({
-    id: generateMockId(),
-    name,
-    subdomain: generateSubdomain(name),
-    userUid: "current-user-uid",
-    collectionID,
-    isActive: false,
-    createdOn: new Date(),
-    updatedOn: new Date(),
-  })
+  TE.tryCatch(
+    async () => {
+      const result = await client
+        .value!.mutation(CreateMockServerDocument as any, {
+          input: {
+            name,
+            collectionID,
+          },
+        })
+        .toPromise()
+
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to create mock server")
+      }
+
+      const data = result.data.createMockServer
+      // Map the GraphQL response to frontend format
+      return {
+        ...data,
+        userUid: data.user?.uid || "",
+        collectionID: data.collection?.id || collectionID,
+      } as MockServer
+    },
+    (error) => (error as Error).message as CreateMockServerError
+  )
 
 export const updateMockServer = (
   id: string,
   input: { name?: string; isActive?: boolean }
 ) =>
-  TE.of<UpdateMockServerError, MockServer>({
-    id,
-    name: input.name || "Mock Server",
-    subdomain: input.name ? generateSubdomain(input.name) : "mock-server",
-    userUid: "current-user-uid",
-    collectionID: "collection-id",
-    isActive: input.isActive || false,
-    createdOn: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    updatedOn: new Date(),
-  })
+  TE.tryCatch(
+    async () => {
+      const result = await client
+        .value!.mutation(UpdateMockServerDocument as any, {
+          id,
+          input,
+        })
+        .toPromise()
+
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to update mock server")
+      }
+
+      const data = result.data.updateMockServer
+      // Map the GraphQL response to frontend format
+      return {
+        ...data,
+        userUid: data.user?.uid || "",
+        collectionID: data.collection?.id || "",
+      } as MockServer
+    },
+    (error) => (error as Error).message as UpdateMockServerError
+  )
 
 export const deleteMockServer = (id: string) =>
-  TE.of<DeleteMockServerError, boolean>(true)
+  TE.tryCatch(
+    async () => {
+      const result = await client
+        .value!.mutation(DeleteMockServerDocument as any, { id })
+        .toPromise()
 
-// Query functions for fetching mock servers
-export const getMockServersByCollection = (collectionID: string) =>
-  TE.of<string, MockServer[]>([])
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to delete mock server")
+      }
 
-export const getMockServer = (id: string) =>
-  TE.of<string, MockServer>({
-    id,
-    name: "Mock Server",
-    subdomain: "mock-server",
-    userUid: "current-user-uid",
-    collectionID: "collection-id",
-    isActive: false,
-    createdOn: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    updatedOn: new Date(),
-  })
+      return result.data.deleteMockServer as boolean
+    },
+    (error) => (error as Error).message as DeleteMockServerError
+  )

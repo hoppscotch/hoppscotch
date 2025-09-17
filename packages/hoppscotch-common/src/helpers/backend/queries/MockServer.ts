@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 import { runGQLQuery } from "../GQLClient"
 
 // Placeholder types until GraphQL codegen is updated
@@ -12,11 +14,12 @@ const GetMyMockServersDocument = `
       id
       name
       subdomain
-      userUid
-      collectionID
       isActive
       createdOn
       updatedOn
+      user {
+        uid
+      }
       collection {
         id
         title
@@ -31,11 +34,12 @@ const GetMockServerDocument = `
       id
       name
       subdomain
-      userUid
-      collectionID
       isActive
       createdOn
       updatedOn
+      user {
+        uid
+      }
       collection {
         id
         title
@@ -45,13 +49,47 @@ const GetMockServerDocument = `
 `
 
 export const getMyMockServers = () =>
-  runGQLQuery<any, any, GetMyMockServersError>({
-    query: GetMyMockServersDocument as any,
-    variables: {},
-  })
+  TE.tryCatch(
+    async () => {
+      const result = await runGQLQuery({
+        query: GetMyMockServersDocument as any,
+        variables: {},
+      })
+
+      if (E.isLeft(result)) {
+        throw result.left
+      }
+
+      const mockServers = (result.right as any).myMockServers
+      // Map the GraphQL response to frontend format
+      return mockServers.map((mockServer: any) => ({
+        ...mockServer,
+        userUid: mockServer.user?.uid || "",
+        collectionID: mockServer.collection?.id || "",
+      }))
+    },
+    (error) => error as GetMyMockServersError
+  )
 
 export const getMockServer = (id: string) =>
-  runGQLQuery<any, any, GetMockServerError>({
-    query: GetMockServerDocument as any,
-    variables: { id },
-  })
+  TE.tryCatch(
+    async () => {
+      const result = await runGQLQuery({
+        query: GetMockServerDocument as any,
+        variables: { id },
+      })
+
+      if (E.isLeft(result)) {
+        throw result.left
+      }
+
+      const data = (result.right as any).mockServer
+      // Map the GraphQL response to frontend format
+      return {
+        ...data,
+        userUid: data.user?.uid || "",
+        collectionID: data.collection?.id || "",
+      }
+    },
+    (error) => error as GetMockServerError
+  )

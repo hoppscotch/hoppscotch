@@ -143,16 +143,22 @@ import { computed, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useReadonlyStream } from "@composables/stream"
-import { showCreateMockServerModal$ } from "~/newstore/mockServers"
-import { mockServers$ } from "~/newstore/mockServers"
+import {
+  showCreateMockServerModal$,
+  mockServers$,
+  addMockServer,
+  updateMockServer as updateMockServerInStore,
+} from "~/newstore/mockServers"
 import {
   createMockServer as createMockServerMutation,
   updateMockServer,
 } from "~/helpers/backend/mutations/MockServer"
+import { getMyMockServers } from "~/helpers/backend/queries/MockServer"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import * as E from "fp-ts/Either"
 
 // Icons
 import IconServer from "~icons/lucide/server"
@@ -197,9 +203,16 @@ const isExistingMockServer = computed(() => !!existingMockServer.value)
 // Mock server base URL construction
 const mockServerBaseUrl = computed(() => {
   if (!existingMockServer.value) return ""
-  const backendUrl =
+
+  // Extract host and port from backend API URL
+  const backendApiUrl =
     import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3170"
-  return `${existingMockServer.value.subdomain}.${backendUrl}/`
+  const url = new URL(backendApiUrl)
+  const protocol = url.protocol
+  const port = url.port ? `:${url.port}` : ""
+
+  // Create subdomain URL: mock-1234.localhost:3170
+  return `${protocol}//${existingMockServer.value.subdomain}.${url.hostname}${port}`
 })
 
 // Copy functionality
@@ -239,10 +252,11 @@ const createMockServer = async () => {
       (result) => {
         console.log("Mock server created:", result)
         toast.success(t("mock_server.mock_server_created"))
-        loading.value = false
 
-        // TODO: Update mock servers store with new data
-        // For now, just close the modal
+        // Add the new mock server to the store
+        addMockServer(result)
+
+        loading.value = false
         closeModal()
       }
     )
@@ -271,9 +285,13 @@ const toggleMockServer = async () => {
             ? t("mock_server.mock_server_started")
             : t("mock_server.mock_server_stopped")
         )
-        loading.value = false
 
-        // TODO: Update mock servers store with new state
+        // Update the mock server in the store
+        updateMockServerInStore(existingMockServer.value!.id, {
+          isActive: newActiveState,
+        })
+
+        loading.value = false
       }
     )
   )()

@@ -1,6 +1,9 @@
 import { pluck } from "rxjs/operators"
 import { BehaviorSubject } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { getMyMockServers } from "~/helpers/backend/queries/MockServer"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
 
 export type MockServer = {
   id: string
@@ -14,7 +17,7 @@ export type MockServer = {
   collection?: {
     id: string
     title: string
-    requests: any[]
+    requests?: any[]
   }
 }
 
@@ -125,3 +128,18 @@ const defaultCreateMockServerModalState: CreateMockServerModalData = {
 export const showCreateMockServerModal$ = new BehaviorSubject(
   defaultCreateMockServerModalState
 )
+
+// Load mock servers from backend
+export function loadMockServers() {
+  return pipe(
+    getMyMockServers(),
+    TE.match(
+      (error) => {
+        console.error("Failed to load mock servers:", error)
+      },
+      (mockServers) => {
+        setMockServers(mockServers)
+      }
+    )
+  )()
+}

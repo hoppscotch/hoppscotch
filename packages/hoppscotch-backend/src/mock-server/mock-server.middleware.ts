@@ -1,37 +1,20 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Patch,
-  All,
-  Req,
-  Res,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
 import { MockServerService } from './mock-server.service';
 import * as E from 'fp-ts/Either';
 
-// Mock server controller for subdomain-based routing
-// This controller handles requests to mock-*.localhost:3170 or mock-*.domain.com
-@Controller()
-export class MockServerController {
+@Injectable()
+export class MockServerMiddleware implements NestMiddleware {
   constructor(private readonly mockServerService: MockServerService) {}
 
-  @All('*')
-  async handleAllRequests(@Req() req: Request, @Res() res: Response) {
+  async use(req: Request, res: Response, next: NextFunction) {
     // Extract subdomain from host header
     const host = req.get('host') || '';
     const subdomain = this.extractSubdomain(host);
 
-    // If this is not a mock subdomain request, let other controllers handle it
+    // If this is not a mock subdomain request, pass to next middleware
     if (!subdomain) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        error: 'Not found',
-        message: 'This endpoint handles mock server requests only',
-      });
+      return next();
     }
 
     const method = req.method;
@@ -45,7 +28,7 @@ export class MockServerController {
       );
 
       if (E.isLeft(result)) {
-        return res.status(HttpStatus.NOT_FOUND).json({
+        return res.status(404).json({
           error: 'Endpoint not found',
           message: result.left,
         });
@@ -74,7 +57,7 @@ export class MockServerController {
       return res.status(mockResponse.statusCode).send(mockResponse.body);
     } catch (error) {
       console.error('Error handling mock request:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to process mock request',
       });

@@ -20,6 +20,7 @@ import {
   TeamCollection as DbTeamCollection,
 } from '@prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { SortOptions } from 'src/types/SortOptions';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockTeamService = mockDeep<TeamService>();
@@ -711,6 +712,7 @@ describe('moveRequest', () => {
     ).resolves.toEqualLeft(TEAM_REQ_REORDERING_FAILED);
   });
 });
+
 describe('totalRequestsInATeam', () => {
   test('should resolve right and return a total team reqs count ', async () => {
     mockPrisma.teamRequest.count.mockResolvedValueOnce(2);
@@ -732,13 +734,90 @@ describe('totalRequestsInATeam', () => {
     });
     expect(result).toEqual(0);
   });
+});
 
-  describe('getTeamRequestsCount', () => {
-    test('should return count of all Team Collections in the organization', async () => {
-      mockPrisma.teamRequest.count.mockResolvedValueOnce(10);
+describe('getTeamRequestsCount', () => {
+  test('should return count of all Team Collections in the organization', async () => {
+    mockPrisma.teamRequest.count.mockResolvedValueOnce(10);
 
-      const result = await teamRequestService.getTeamRequestsCount();
-      expect(result).toEqual(10);
+    const result = await teamRequestService.getTeamRequestsCount();
+    expect(result).toEqual(10);
+  });
+});
+
+describe('sortTeamRequests', () => {
+  test('should resolve right if collectionID is null', async () => {
+    const teamID = team.id;
+    const result = await teamRequestService.sortTeamRequests(
+      teamID,
+      null,
+      SortOptions.TITLE_ASC,
+    );
+    expect(result).toEqual(E.right(true));
+  });
+
+  test('should resolve right and sorts team requests by TITLE_ASC', async () => {
+    const teamID = team.id;
+    const collectionID = teamCollection.id;
+
+    mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
+    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+
+    const result = await teamRequestService.sortTeamRequests(
+      teamID,
+      collectionID,
+      SortOptions.TITLE_ASC,
+    );
+
+    expect(result).toEqual(E.right(true));
+    expect(mockPrisma.$transaction).toHaveBeenCalled();
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      where: { teamID, collectionID },
+      orderBy: { title: 'asc' },
+      select: { id: true },
     });
+    expect(mockPrisma.teamRequest.update).toHaveBeenCalledTimes(
+      dbTeamRequests.length,
+    );
+  });
+
+  test('should resolve right and sorts team requests by TITLE_DESC', async () => {
+    const teamID = team.id;
+    const collectionID = teamCollection.id;
+
+    mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
+    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
+
+    const result = await teamRequestService.sortTeamRequests(
+      teamID,
+      collectionID,
+      SortOptions.TITLE_DESC,
+    );
+
+    expect(result).toEqual(E.right(true));
+    expect(mockPrisma.$transaction).toHaveBeenCalled();
+    expect(mockPrisma.teamRequest.findMany).toHaveBeenCalledWith({
+      where: { teamID, collectionID },
+      orderBy: { title: 'desc' },
+      select: { id: true },
+    });
+    expect(mockPrisma.teamRequest.update).toHaveBeenCalledTimes(
+      dbTeamRequests.length,
+    );
+  });
+
+  test('should returns left(TEAM_REQ_REORDERING_FAILED) on error', async () => {
+    const teamID = team.id;
+    const collectionID = teamCollection.id;
+
+    mockPrisma.$transaction.mockRejectedValue(new Error('fail'));
+    const result = await teamRequestService.sortTeamRequests(
+      teamID,
+      collectionID,
+      SortOptions.TITLE_ASC,
+    );
+    expect(result).toEqual(E.left(TEAM_REQ_REORDERING_FAILED));
   });
 });

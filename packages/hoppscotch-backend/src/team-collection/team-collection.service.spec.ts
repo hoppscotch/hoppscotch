@@ -23,6 +23,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { TeamCollectionService } from './team-collection.service';
 import { TeamCollection } from './team-collection.model';
 import { TeamService } from 'src/team/team.service';
+import { SortOptions } from 'src/types/SortOptions';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -1515,6 +1516,75 @@ describe('updateTeamCollection', () => {
       `team_coll/${rootTeamCollection.teamID}/coll_updated`,
       rootTeamCollectionsCasted,
     );
+  });
+});
+
+describe('sortTeamCollections', () => {
+  it('should sort collections by TITLE_ASC', async () => {
+    const parentID = null;
+    const teamID = team.id;
+
+    mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
+    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      rootTeamCollectionList,
+    );
+
+    const result = await teamCollectionService.sortTeamCollections(
+      teamID,
+      parentID,
+      SortOptions.TITLE_ASC,
+    );
+
+    expect(result).toEqual(E.right(true));
+    expect(mockPrisma.teamCollection.findMany).toHaveBeenCalledWith({
+      where: { teamID, parentID },
+      orderBy: { title: 'asc' },
+      select: { id: true },
+    });
+    expect(mockPrisma.teamCollection.update).toHaveBeenCalledTimes(
+      rootTeamCollectionList.length,
+    );
+  });
+
+  it('should sort collections by TITLE_DESC', async () => {
+    const parentID = null;
+    const teamID = team.id;
+
+    mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
+    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      rootTeamCollectionList,
+    );
+
+    const result = await teamCollectionService.sortTeamCollections(
+      teamID,
+      parentID,
+      SortOptions.TITLE_DESC,
+    );
+
+    expect(result).toEqual(E.right(true));
+    expect(mockPrisma.teamCollection.findMany).toHaveBeenCalledWith({
+      where: { teamID, parentID },
+      orderBy: { title: 'desc' },
+      select: { id: true },
+    });
+    expect(mockPrisma.teamCollection.update).toHaveBeenCalledTimes(
+      rootTeamCollectionList.length,
+    );
+  });
+
+  it('should return left(TEAM_COL_REORDERING_FAILED) on error', async () => {
+    const parentID = null;
+    const teamID = team.id;
+
+    mockPrisma.$transaction.mockRejectedValueOnce(new Error('fail'));
+    const result = await teamCollectionService.sortTeamCollections(
+      teamID,
+      parentID,
+      SortOptions.TITLE_ASC,
+    );
+    expect(result).toEqual(E.left(TEAM_COL_REORDERING_FAILED));
   });
 });
 

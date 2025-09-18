@@ -82,7 +82,8 @@
             chosen-class="bg-primaryLight"
             drag-class="cursor-grabbing"
             :move="
-              (event: DraggableMoveEvent) => checkMove(event, protocols?.length)
+              (event: DragDropEvent) =>
+                isDragDropAllowed(event, protocols?.length)
             "
           >
             <template #item="{ element: { protocol }, index }">
@@ -215,7 +216,7 @@ import { useColorMode } from "@composables/theming"
 import { WSConnection, WSErrorMessage } from "@helpers/realtime/WSConnection"
 import RegexWorker from "@workers/regex?worker"
 import { LogEntryData } from "~/components/realtime/Log.vue"
-import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 
 const t = useI18n()
 const toast = useToast()

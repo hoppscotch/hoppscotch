@@ -60,8 +60,8 @@
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
         :move="
-          (event: DraggableMoveEvent) =>
-            checkMove(event, workingRequestVariables.length)
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingRequestVariables.length)
         "
       >
         <template #item="{ element: variable, index }">
@@ -191,7 +191,7 @@ import { useI18n } from "~/composables/i18n"
 import { useNestedSetting } from "~/composables/settings"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
-import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { toggleNestedSetting } from "~/newstore/settings"

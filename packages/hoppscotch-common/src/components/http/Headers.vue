@@ -69,8 +69,8 @@
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
         :move="
-          (event: DraggableMoveEvent): boolean =>
-            checkMove(event, workingHeaders.length)
+          (event: DragDropEvent): boolean =>
+            isDragDropAllowed(event, workingHeaders.length)
         "
       >
         <template #item="{ element: header, index }">
@@ -278,7 +278,7 @@ import {
   getComputedAuthHeaders,
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
-import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
   aggregateEnvs$,

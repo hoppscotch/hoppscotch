@@ -60,7 +60,8 @@
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
       :move="
-        (event: DraggableMoveEvent) => checkMove(event, workingHeaders.length)
+        (event: DragDropEvent) =>
+          isDragDropAllowed(event, workingHeaders.length)
       "
     >
       <template #item="{ element: header, index }">
@@ -256,7 +257,7 @@ import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import { toggleNestedSetting } from "~/newstore/settings"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"

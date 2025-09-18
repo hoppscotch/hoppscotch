@@ -61,8 +61,8 @@
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
         :move="
-          (event: DraggableMoveEvent) =>
-            checkMove(event, workingUrlEncodedParams.length)
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingUrlEncodedParams.length)
         "
       >
         <template #item="{ element: param, index }">
@@ -213,7 +213,7 @@ import { useVModel } from "@vueuse/core"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
-import { checkMove, DraggableMoveEvent } from "~/helpers/checkMove"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"

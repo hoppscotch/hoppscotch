@@ -68,6 +68,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent): boolean =>
+            isDragDropAllowed(event, workingHeaders.length)
+        "
       >
         <template #item="{ element: header, index }">
           <HttpKeyValue
@@ -274,6 +278,7 @@ import {
   getComputedAuthHeaders,
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
   aggregateEnvs$,

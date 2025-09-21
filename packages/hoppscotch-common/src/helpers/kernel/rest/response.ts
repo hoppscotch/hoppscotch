@@ -24,7 +24,7 @@ const extractSize = (response: RelayResponse): number =>
 // TODO: This is a special case handler, a temporary workaround.
 // Temporary workaround often get calcified as permanent but a complete
 // solution, but the other more better option is rather involved,
-// like swapping `Record`/`HashMap` with a flat array and propogating
+// like swapping `Record`/`HashMap` with a flat array and propagating
 // the refactor throughout the codebase, from the underlying networking
 // to the FE.
 //
@@ -33,7 +33,7 @@ const extractSize = (response: RelayResponse): number =>
 // you'd just be putting this same workaround somewhere else.
 // A simpler approach is `HashMap<String, Vec<String>>` but even that
 // doesn't substantially reduces the refactor surface area.
-// Given all of those issues, a temporary workaround is perhpas the best
+// Given all of those issues, a temporary workaround is perhaps the best
 // solution at the moment.
 const processHeaders = (headers: Record<string, string>): HoppRESTResponseHeader[] => {
   const processedHeaders: HoppRESTResponseHeader[] = []

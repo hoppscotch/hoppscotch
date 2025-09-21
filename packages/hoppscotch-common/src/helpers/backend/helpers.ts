@@ -13,7 +13,6 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
 import { z } from "zod"
-import axios from "axios"
 
 import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
@@ -25,7 +24,6 @@ import {
   GetCollectionRequestsDocument,
   GetCollectionTitleAndDataDocument,
 } from "./graphql"
-import { platform } from "~/platform"
 
 type TeamCollectionJSON = {
   name: string
@@ -273,28 +271,4 @@ export const getTeamCollectionJSON = async (teamID: string) => {
 
   const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
   return E.right(JSON.stringify(hoppCollections, null, 2))
-}
-
-/**
- * Verifies if the current user's authentication tokens are valid
- * @returns Promise<boolean> - true if tokens are valid, false otherwise
- */
-export const verifyAuthTokens = async (): Promise<boolean> => {
-  try {
-    const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL
-
-    const response = await axios.get(`${BACKEND_API_URL}/auth/verify-token`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...platform.auth.getBackendHeaders(),
-      },
-      withCredentials: true,
-    })
-
-    // axios automatically throws on error status codes, so if we reach here, it was successful
-    return !!response.data.isValid
-  } catch (error) {
-    console.debug("Token verification failed:", error)
-    return false
-  }
 }

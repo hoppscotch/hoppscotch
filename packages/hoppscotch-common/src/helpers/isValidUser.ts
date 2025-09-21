@@ -1,5 +1,4 @@
 import { platform } from "~/platform"
-import { verifyAuthTokens } from "~/helpers/backend/helpers"
 
 export type ValidUserResponse = {
   valid: boolean
@@ -17,7 +16,7 @@ export const isValidUser = async (): Promise<ValidUserResponse> => {
 
   if (user) {
     try {
-      const hasValidTokens = await verifyAuthTokens()
+      const hasValidTokens = await platform.auth.verifyAuthTokens()
       return {
         valid: hasValidTokens,
         error: hasValidTokens ? "" : SESSION_EXPIRED,

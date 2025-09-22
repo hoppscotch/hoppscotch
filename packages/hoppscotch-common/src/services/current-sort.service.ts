@@ -42,7 +42,6 @@ export class CurrentSortValuesService extends Service {
    * @param sortOption Sort option to set.
    */
   public setSortOption(id: string, sortOption: CurrentSortOption) {
-    console.log("Setting sort option for ID:", id, sortOption)
     this.currentSortOptions.set(id, cloneDeep(sortOption))
   }
 

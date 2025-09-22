@@ -209,7 +209,7 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
+                    v-if="!hasNoTeamAccess && !isEmpty"
                     ref="sortAction"
                     :icon="IconArrowUpDown"
                     :label="t('action.sort')"
@@ -368,6 +368,28 @@ const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
+
+/**
+ * Determines if the collection/folder is empty.
+ * A collection/folder is considered empty if it has no requests and no child folders.
+ */
+const isEmpty = computed(() => {
+  if (!props.data) return true
+
+  if (props.collectionsType === "my-collections") {
+    const collection = props.data as HoppCollection
+    const req = collection.requests.length
+    const fol = collection.folders.length
+
+    return req <= 1 && fol <= 1 && !(req === 1 && fol === 1)
+  }
+
+  const teamCollection = props.data as TeamCollection
+  const req = teamCollection.requests?.length ?? 0
+  const child = teamCollection.children?.length ?? 0
+
+  return req <= 1 && child <= 1 && !(req === 1 && child === 1)
+})
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",

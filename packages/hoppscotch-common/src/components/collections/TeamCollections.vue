@@ -33,6 +33,7 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="teamCollectionList && teamCollectionList.length > 1"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
             (collectionsType.type === 'team-collections' &&

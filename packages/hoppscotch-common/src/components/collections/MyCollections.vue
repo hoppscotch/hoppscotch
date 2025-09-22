@@ -23,6 +23,7 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="filteredCollections && filteredCollections.length > 1"
           v-tippy="{ theme: 'tooltip' }"
           blank
           :title="t('action.sort')"

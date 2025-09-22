@@ -2,8 +2,17 @@ import { Service } from "dioc"
 import { BehaviorSubject, Observable } from "rxjs"
 import { computed } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
-import { getCurrentWebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
-import { download, load, clear, remove, close } from "@hoppscotch/plugin-appload"
+import {
+  getCurrentWebviewWindow,
+  getAllWebviewWindows,
+} from "@tauri-apps/api/webviewWindow"
+import {
+  download,
+  load,
+  clear,
+  remove,
+  close,
+} from "@hoppscotch/plugin-appload"
 import { useToast } from "~/composables/toast"
 import { platform } from "~/platform"
 
@@ -270,7 +279,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const currentLabel = currentWindow.label
 
       // Don't close if we're the main window or if there are no other windows
-      if (currentLabel === 'main') {
+      if (currentLabel === "main") {
         const allWindows = await getAllWebviewWindows()
         if (allWindows.length <= 1) {
           // Don't close the last window
@@ -283,7 +292,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         console.warn(`Failed to close window ${currentLabel}`)
       }
     } catch (error) {
-      console.warn('Failed to close current window:', error)
+      console.warn("Failed to close current window:", error)
       // Don't throw - window closing shouldn't block the operation
     }
   }

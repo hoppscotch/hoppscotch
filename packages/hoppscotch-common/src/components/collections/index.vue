@@ -49,7 +49,9 @@
       @drop-request="dropRequest"
       @drop-collection="dropCollection"
       @display-modal-add="displayModalAdd(true)"
-      @display-modal-import-export="displayModalImportExport(true)"
+      @display-modal-import-export="
+        displayModalImportExport(true, 'my-collections')
+      "
       @duplicate-collection="duplicateCollection"
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
@@ -246,6 +248,7 @@ import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import {
   createChildCollection,
   createNewRootCollection,
@@ -381,6 +384,7 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),
   platform.auth.getCurrentUser()
 )
+
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
 // Dragging
@@ -755,7 +759,14 @@ const displayModalEditResponse = (show: boolean) => {
   if (!show) resetSelectedData()
 }
 
-const displayModalImportExport = (show: boolean) => {
+const displayModalImportExport = async (
+  show: boolean,
+  collectionType?: string
+) => {
+  if (collectionType === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+  }
   showModalImportExport.value = show
 
   if (!show) resetSelectedData()
@@ -779,8 +790,14 @@ const displayTeamModalAdd = (show: boolean) => {
   teamListAdapter.fetchList()
 }
 
-const addNewRootCollection = (name: string) => {
+const addNewRootCollection = async (name: string) => {
   if (collectionsType.value.type === "my-collections") {
+    modalLoadingState.value = true
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) {
+      modalLoadingState.value = false
+      return
+    }
     addRESTCollection(
       makeCollection({
         name,
@@ -802,6 +819,7 @@ const addNewRootCollection = (name: string) => {
       isRootCollection: true,
     })
 
+    modalLoadingState.value = false
     displayModalAdd(false)
   } else if (hasTeamWriteAccess.value) {
     if (!collectionsType.value.selectedTeam) return
@@ -841,7 +859,7 @@ const addRequest = (payload: {
   displayModalAddRequest(true)
 }
 
-const onAddRequest = (requestName: string) => {
+const onAddRequest = async (requestName: string) => {
   const newRequest = {
     ...getDefaultRESTRequest(),
     name: requestName,
@@ -850,6 +868,9 @@ const onAddRequest = (requestName: string) => {
   const path = editingFolderPath.value
   if (!path) return
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
     tabs.createNewTab({
@@ -935,11 +956,13 @@ const addFolder = (payload: {
   displayModalAddFolder(true)
 }
 
-const onAddFolder = (folderName: string) => {
+const onAddFolder = async (folderName: string) => {
   const path = editingFolderPath.value
 
   if (collectionsType.value.type === "my-collections") {
     if (!path) return
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     addRESTFolder(folderName, path)
 
     platform.analytics?.logEvent({
@@ -1000,7 +1023,7 @@ const editCollection = (payload: {
   displayModalEditCollection(true)
 }
 
-const updateEditingCollection = (newName: string) => {
+const updateEditingCollection = async (newName: string) => {
   if (!editingCollection.value) return
 
   if (!newName) {
@@ -1009,6 +1032,8 @@ const updateEditingCollection = (newName: string) => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const collectionIndex = editingCollectionIndex.value
     if (collectionIndex === null) return
 
@@ -1058,10 +1083,12 @@ const editFolder = (payload: {
   displayModalEditFolder(true)
 }
 
-const updateEditingFolder = (newName: string) => {
+const updateEditingFolder = async (newName: string) => {
   if (!editingFolder.value) return
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     if (!editingFolderPath.value) return
 
     editRESTFolder(editingFolderPath.value, {
@@ -1104,6 +1131,8 @@ const duplicateCollection = async ({
   collectionSyncID?: string
 }) => {
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     duplicateRESTCollection(pathOrID, collectionSyncID)
   } else if (hasTeamWriteAccess.value) {
     duplicateCollectionLoading.value = true
@@ -1141,7 +1170,7 @@ const editRequest = (payload: {
   displayModalEditRequest(true)
 }
 
-const updateEditingRequest = (newName: string) => {
+const updateEditingRequest = async (newName: string) => {
   const request = editingRequest.value
   if (!request) return
 
@@ -1150,6 +1179,9 @@ const updateEditingRequest = (newName: string) => {
     name: newName || request.name,
   }
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -1295,12 +1327,15 @@ const updateEditingResponse = (newName: string) => {
       possibleExampleActiveTab.value.document.response.name = newName
 
       nextTick(() => {
-        possibleExampleActiveTab.value.document.isDirty = false
-        possibleExampleActiveTab.value.document.saveContext = {
-          originLocation: "user-collection",
-          folderPath: folderPath,
-          requestIndex: requestIndex,
-          exampleID: editingResponseID.value!,
+        const doc = possibleExampleActiveTab.value.document
+        if (doc.type === "example-response") {
+          doc.isDirty = false
+          doc.saveContext = {
+            originLocation: "user-collection",
+            folderPath: folderPath,
+            requestIndex: requestIndex,
+            exampleID: editingResponseID.value!,
+          }
         }
       })
     }
@@ -1361,11 +1396,14 @@ const updateEditingResponse = (newName: string) => {
     ) {
       possibleActiveResponseTab.value.document.response.name = newName
       nextTick(() => {
-        possibleActiveResponseTab.value.document.isDirty = false
-        possibleActiveResponseTab.value.document.saveContext = {
-          originLocation: "team-collection",
-          requestID,
-          exampleID: editingResponseID.value!,
+        const doc = possibleActiveResponseTab.value.document
+        if (doc.type === "example-response") {
+          doc.isDirty = false
+          doc.saveContext = {
+            originLocation: "team-collection",
+            requestID,
+            exampleID: editingResponseID.value!,
+          }
         }
       })
     }
@@ -1381,7 +1419,7 @@ const updateEditingResponse = (newName: string) => {
   }
 }
 
-const duplicateRequest = (payload: {
+const duplicateRequest = async (payload: {
   folderPath: string
   request: HoppRESTRequest
 }) => {
@@ -1394,6 +1432,8 @@ const duplicateRequest = (payload: {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     saveRESTRequestAs(folderPath, newRequest)
     toast.success(t("request.duplicated"))
   } else if (hasTeamWriteAccess.value) {
@@ -1424,7 +1464,7 @@ const duplicateRequest = (payload: {
   }
 }
 
-const duplicateResponse = (payload: ResponseConfigPayload) => {
+const duplicateResponse = async (payload: ResponseConfigPayload) => {
   const { folderPath, requestIndex, request, responseName } = payload
 
   const response = request.responses[responseName]
@@ -1453,6 +1493,8 @@ const duplicateResponse = (payload: ResponseConfigPayload) => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     editRESTRequest(folderPath, parseInt(requestIndex), updatedRequest)
     toast.success(t("response.duplicated"))
 
@@ -1544,8 +1586,10 @@ const removeTeamCollectionOrFolder = async (collectionID: string) => {
   )()
 }
 
-const onRemoveCollection = () => {
+const onRemoveCollection = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const collectionIndex = editingCollectionIndex.value
 
     const collectionToRemove =
@@ -1625,8 +1669,10 @@ const removeFolder = (id: string) => {
   displayConfirmModal(true)
 }
 
-const onRemoveFolder = () => {
+const onRemoveFolder = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const folderPath = editingFolderPath.value
 
     if (!folderPath) return
@@ -1712,8 +1758,10 @@ const removeRequest = (payload: {
   displayConfirmModal(true)
 }
 
-const onRemoveRequest = () => {
+const onRemoveRequest = async () => {
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -1825,7 +1873,7 @@ const removeResponse = (payload: ResponseConfigPayload) => {
   displayConfirmModal(true)
 }
 
-const onRemoveResponse = () => {
+const onRemoveResponse = async () => {
   const request = cloneDeep(editingRequest.value)
 
   if (!request) return
@@ -1840,6 +1888,8 @@ const onRemoveResponse = () => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
@@ -2141,7 +2191,7 @@ const pathToLastIndex = (path: string) => {
  * This function is called when the user drops the request inside a collection
  * @param payload Object that contains the folder path, request index and the destination collection index
  */
-const dropRequest = (payload: {
+const dropRequest = async (payload: {
   folderPath?: string | undefined
   requestIndex: string
   destinationCollectionIndex: string
@@ -2153,6 +2203,8 @@ const dropRequest = (payload: {
   let possibleTab = null
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     possibleTab = tabs.getTabRefWithSaveContext({
       originLocation: "user-collection",
       folderPath,
@@ -2293,7 +2345,7 @@ const isMoveToSameLocation = (
  * to a different collection or folder
  * @param payload - object containing the collection index dragged and the destination collection index
  */
-const dropCollection = (payload: {
+const dropCollection = async (payload: {
   collectionIndexDragged: string
   destinationCollectionIndex: string
   destinationParentPath?: string
@@ -2309,6 +2361,8 @@ const dropCollection = (payload: {
   if (collectionIndexDragged === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     if (
       checkIfCollectionIsAParentOfTheChildren(
         collectionIndexDragged,
@@ -2430,11 +2484,13 @@ const isAlreadyInRoot = (id: string) => {
  * to the root
  * @param payload - object containing the collection index dragged
  */
-const dropToRoot = ({ dataTransfer }: DragEvent) => {
+const dropToRoot = async ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     const collectionIndexDragged = dataTransfer.getData("collectionIndex")
     if (!collectionIndexDragged) return
     if (collectionsType.value.type === "my-collections") {
+      const isValidToken = await handleTokenValidation()
+      if (!isValidToken) return
       // check if the collection is already in the root
       if (isAlreadyInRoot(collectionIndexDragged)) {
         toast.error(`${t("collection.invalid_root_move")}`)
@@ -2545,7 +2601,7 @@ const isSameSameParent = (
  * @param payload - object containing the request index dragged and the destination request index
  *  with the destination collection index
  */
-const updateRequestOrder = (payload: {
+const updateRequestOrder = async (payload: {
   dragedRequestIndex: string
   destinationRequestIndex: string | null
   destinationCollectionIndex: string
@@ -2561,6 +2617,8 @@ const updateRequestOrder = (payload: {
   if (dragedRequestIndex === destinationRequestIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     if (
       !isSameSameParent(
         dragedRequestIndex,
@@ -2616,7 +2674,7 @@ const updateRequestOrder = (payload: {
  * This function is called when the user updates the collection or folder order
  * @param payload - object containing the collection index dragged and the destination collection index
  */
-const updateCollectionOrder = (payload: {
+const updateCollectionOrder = async (payload: {
   dragedCollectionIndex: string
   destinationCollection: {
     destinationCollectionIndex: string | null
@@ -2630,6 +2688,8 @@ const updateCollectionOrder = (payload: {
   if (dragedCollectionIndex === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     if (
       !isSameSameParent(
         dragedCollectionIndex,
@@ -2781,7 +2841,7 @@ const getCurrentValue = (
   )?.currentValue
 }
 
-const editProperties = (payload: {
+const editProperties = async (payload: {
   collectionIndex: string
   collection: HoppCollection | TeamCollection
 }) => {
@@ -2790,6 +2850,8 @@ const editProperties = (payload: {
   const collectionId = collection.id ?? collectionIndex.split("/").pop()
 
   if (collectionsType.value.type === "my-collections") {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
     const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
 
     let inheritedProperties: HoppInheritedProperty = {

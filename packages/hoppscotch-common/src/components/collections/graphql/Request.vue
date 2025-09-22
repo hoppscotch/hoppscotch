@@ -139,6 +139,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { HoppGQLRequest } from "@hoppscotch/data"
 import { removeGraphqlRequest } from "~/newstore/collections"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 
@@ -221,7 +222,9 @@ const dragStart = ({ dataTransfer }: any) => {
   dataTransfer.setData("requestIndex", props.requestIndex)
 }
 
-const removeRequest = () => {
+const removeRequest = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   // Cancel pick if the picked request is deleted
   if (
     props.picked &&

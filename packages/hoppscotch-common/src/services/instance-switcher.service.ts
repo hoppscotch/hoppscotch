@@ -2,7 +2,17 @@ import { Service } from "dioc"
 import { BehaviorSubject, Observable } from "rxjs"
 import { computed } from "vue"
 import { LazyStore } from "@tauri-apps/plugin-store"
-import { download, load, clear, remove } from "@hoppscotch/plugin-appload"
+import {
+  getCurrentWebviewWindow,
+  getAllWebviewWindows,
+} from "@tauri-apps/api/webviewWindow"
+import {
+  download,
+  load,
+  clear,
+  remove,
+  close,
+} from "@hoppscotch/plugin-appload"
 import { useToast } from "~/composables/toast"
 import { platform } from "~/platform"
 
@@ -156,6 +166,11 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
           this.getVendoredInstance().displayName
         )
       )
+
+      // Close current window AFTER successful load
+      // NOTE: No need to await it.
+      this.closeCurrentWindow()
+
       return true
     } catch (error) {
       const errorMessage =
@@ -234,6 +249,10 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
         throw new Error("Failed to load bundle")
       }
 
+      // Close current window AFTER successful load
+      // NOTE: No need to await it.
+      this.closeCurrentWindow()
+
       this.toast.success(`Connected to ${displayName}`)
       return true
     } catch (error) {
@@ -248,6 +267,33 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
       this.toast.error(`Connection failed: ${errorMessage}`)
       return false
+    }
+  }
+
+  /**
+   * Closes the current window using Tauri's window management
+   */
+  private async closeCurrentWindow(): Promise<void> {
+    try {
+      const currentWindow = getCurrentWebviewWindow()
+      const currentLabel = currentWindow.label
+
+      // Don't close if we're the main window or if there are no other windows
+      if (currentLabel === "main") {
+        const allWindows = await getAllWebviewWindows()
+        if (allWindows.length <= 1) {
+          // Don't close the last window
+          return
+        }
+      }
+
+      const closeResponse = await close({ windowLabel: currentLabel })
+      if (!closeResponse.success) {
+        console.warn(`Failed to close window ${currentLabel}`)
+      }
+    } catch (error) {
+      console.warn("Failed to close current window:", error)
+      // Don't throw - window closing shouldn't block the operation
     }
   }
 
@@ -285,8 +331,9 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
       const displayName = this.getDisplayNameFromUrl(serverUrl)
       this.toast.success(`Removed ${displayName}`)
 
-      // If we're currently connected to this instance, go back to idle state
+      // If we're currently connected to this instance, close the window and go to idle state
       if (this.isCurrentlyConnectedTo(serverUrl)) {
+        await this.closeCurrentWindow()
         this.state$.next({ status: "idle" })
         this.emit(this.state$.value)
         await this.saveCurrentState()
@@ -301,6 +348,7 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
   public async clearCache(): Promise<boolean> {
     try {
+      await this.closeCurrentWindow()
       await clear()
       this.toast.success("Cache cleared successfully")
       return true
@@ -367,19 +415,16 @@ export class InstanceSwitcherService extends Service<ConnectionState> {
 
         // If it fails, fall back to the original URL with default port
         try {
-          const re = withSubpath.toString().replace(/\/$/, "")
-          return re
+          return withSubpath.toString().replace(/\/$/, "")
         } catch {
           if (!urlObj.port) {
             urlObj.port = "3200"
           }
-          const re = urlObj.toString().replace(/\/$/, "")
-          return re
+          return urlObj.toString().replace(/\/$/, "")
         }
       }
 
-      const re = urlObj.toString().replace(/\/$/, "")
-      return re
+      return urlObj.toString().replace(/\/$/, "")
     } catch (error) {
       return url
     }

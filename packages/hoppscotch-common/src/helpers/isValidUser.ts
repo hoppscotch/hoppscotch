@@ -16,13 +16,16 @@ export const isValidUser = async (): Promise<ValidUserResponse> => {
 
   if (user) {
     try {
-      const hasValidTokens = await platform.auth.verifyAuthTokens()
+      // If the platform provides a method to verify auth tokens, use it else assume tokens are valid (for central instance where firebase handles it)
+      const hasValidTokens = platform.auth.verifyAuthTokens
+        ? await platform.auth.verifyAuthTokens()
+        : true
+
       return {
         valid: hasValidTokens,
         error: hasValidTokens ? "" : SESSION_EXPIRED,
       }
     } catch (error) {
-      console.debug("Token validation failed:", error)
       return { valid: false, error: SESSION_EXPIRED }
     }
   }

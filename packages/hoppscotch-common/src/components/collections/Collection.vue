@@ -82,6 +82,7 @@
             @click="emit('add-folder')"
           />
           <HoppButtonSecondary
+            v-if="!isEmpty"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlaySquare"
             :title="t('collection_runner.run_collection')"
@@ -144,6 +145,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!isEmpty"
                     ref="runCollectionAction"
                     :icon="IconPlaySquare"
                     :label="t('collection_runner.run_collection')"
@@ -164,6 +166,19 @@
                     @click="
                       () => {
                         emit('edit-collection')
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess && isChildrenSortable"
+                    ref="sortAction"
+                    :icon="IconArrowUpDown"
+                    :label="t('action.sort')"
+                    :shortcut="['S']"
+                    @click="
+                      () => {
+                        sortCollection()
                         hide()
                       }
                     "
@@ -208,19 +223,7 @@
                       }
                     "
                   />
-                  <HoppSmartItem
-                    v-if="!hasNoTeamAccess && !isEmpty"
-                    ref="sortAction"
-                    :icon="IconArrowUpDown"
-                    :label="t('action.sort')"
-                    :shortcut="['S']"
-                    @click="
-                      () => {
-                        sortCollection()
-                        hide()
-                      }
-                    "
-                  />
+
                   <HoppSmartItem
                     v-if="!hasNoTeamAccess"
                     ref="deleteAction"
@@ -381,14 +384,37 @@ const isEmpty = computed(() => {
     const req = collection.requests.length
     const fol = collection.folders.length
 
-    return req <= 1 && fol <= 1 && !(req === 1 && fol === 1)
+    return req === 0 && fol === 0
   }
 
   const teamCollection = props.data as TeamCollection
   const req = teamCollection.requests?.length ?? 0
   const child = teamCollection.children?.length ?? 0
 
-  return req <= 1 && child <= 1 && !(req === 1 && child === 1)
+  return req === 0 && child === 0
+})
+
+/**
+ * Determines if the collection/folder is sortable.
+ * A collection/folder is sortable if it has more than one request or more than one child folder.
+ * or one request and one child folder.
+ */
+const isChildrenSortable = computed(() => {
+  if (!props.data) return false
+
+  if (props.collectionsType === "my-collections") {
+    const collection = props.data as HoppCollection
+    const req = collection.requests.length
+    const fol = collection.folders.length
+
+    return req > 1 || fol > 1 || (req === 1 && fol === 1)
+  }
+
+  const teamCollection = props.data as TeamCollection
+  const req = teamCollection.requests?.length ?? 0
+  const child = teamCollection.children?.length ?? 0
+
+  return req > 1 || child > 1 || (req === 1 && child === 1)
 })
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {

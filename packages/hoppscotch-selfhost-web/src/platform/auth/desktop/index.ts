@@ -547,7 +547,6 @@ export const def: AuthPlatformDef = {
 
     const res = await response
     if (E.isLeft(res)) {
-      console.debug("Token verification failed:", res.left)
       return false
     }
 

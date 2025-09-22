@@ -418,7 +418,6 @@ export const def: AuthPlatformDef = {
       // axios automatically throws on error status codes, so if we reach here, it was successful
       return !!response.data.isValid
     } catch (error) {
-      console.debug("Token verification failed:", error)
       return false
     }
   },

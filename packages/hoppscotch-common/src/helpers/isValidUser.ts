@@ -8,7 +8,16 @@ export type ValidUserResponse = {
 export const SESSION_EXPIRED = "Session expired. Please log in again."
 
 /**
- * Validates user authentication and token validity by making an API call
+ * Validates user authentication and token validity by making an API call.
+ *
+ * This function is kept separate from `handleTokenValidation()` to enable different use cases:
+ * - Silent validation for conditional UI states (e.g., disabling components on token expiration)
+ * - Background checks without triggering user notifications
+ * - Custom error handling based on validation results
+ *
+ * Use `handleTokenValidation()` when you need automatic toast error notifications.
+ * Use `isValidUser()` for silent validation or custom error handling scenarios.
+ *
  * @returns {Promise<ValidUserResponse>} Authentication status with user existence and token validity
  */
 export const isValidUser = async (): Promise<ValidUserResponse> => {

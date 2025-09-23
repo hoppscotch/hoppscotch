@@ -240,6 +240,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRequestDocument> = {
           body: { contentType: null, body: null },
           requestVariables: [],
           responses: {},
+          _ref_id: "req_ref_id",
         },
         isDirty: false,
         type: "request",

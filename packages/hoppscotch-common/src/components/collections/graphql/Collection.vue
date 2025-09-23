@@ -153,7 +153,7 @@
                   @click="
                     () => {
                       emit('edit-properties', {
-                        collectionIndex: String(collectionIndex),
+                        collectionIndex: String(folderPath) ?? '0',
                         collection: collection,
                       })
                       hide()
@@ -188,12 +188,7 @@
           @duplicate-collection="$emit('duplicate-collection', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
-          @edit-properties="
-            $emit('edit-properties', {
-              collectionIndex: `${collectionIndex}/${String(index)}`,
-              collection: folder,
-            })
-          "
+          @edit-properties="$emit('edit-properties', $event)"
           @select="$emit('select', $event)"
           @select-request="$emit('select-request', $event)"
           @drop-request="$emit('drop-request', $event)"
@@ -275,6 +270,7 @@ const props = defineProps<{
   collectionIndex: number | null
   collection: HoppCollection
   isFiltered: boolean
+  folderPath: string
 }>()
 
 const colorMode = useColorMode()

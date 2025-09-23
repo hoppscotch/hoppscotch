@@ -64,6 +64,7 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "before update",
+        role: null,
       })
 
       service.updateWorkspaceTeamName("test")
@@ -72,6 +73,7 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
     })
 
@@ -100,12 +102,14 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
 
       expect(service.currentWorkspace.value).toEqual({
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
     })
   })

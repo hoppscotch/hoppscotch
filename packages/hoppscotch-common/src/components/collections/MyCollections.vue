@@ -23,6 +23,14 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="filteredCollections && filteredCollections.length > 1"
+          v-tippy="{ theme: 'tooltip' }"
+          blank
+          :title="t('action.sort')"
+          :icon="IconArrowUpDown"
+          @click="debouncedSorting"
+        />
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconImport"
@@ -96,6 +104,7 @@
               emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
+            @sort-collections="emit('sort-collections', $event)"
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
@@ -184,7 +193,12 @@
               node.data.type === 'folders' &&
               emit('export-data', node.data.data.data)
             "
-            @remove-collection="emit('remove-folder', node.id)"
+            @remove-collection="
+              node.data.type === 'folders' && emit('remove-folder', node.id)
+            "
+            @sort-collections="
+              node.data.type === 'folders' && emit('sort-collections', $event)
+            "
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
@@ -225,7 +239,7 @@
             :is-active="
               isActiveRequest(
                 node.data.data.parentIndex,
-                parseInt(pathToIndex(node.id))
+                node.data.data.data._ref_id ?? node.data.data.data.id
               )
             "
             :is-selected="
@@ -310,6 +324,8 @@
               dragRequest($event, {
                 folderPath: node.data.data.parentIndex,
                 requestIndex: node.id,
+                requestRefID:
+                  node.data.data.data._ref_id ?? node.data.data.data.id,
               })
             "
             @update-request-order="
@@ -402,8 +418,9 @@
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
+import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { computed, PropType, Ref, toRef } from "vue"
+import { computed, PropType, ref, Ref, toRef } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "@hoppscotch/ui/helpers"
 import { useI18n } from "@composables/i18n"
@@ -413,6 +430,8 @@ import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
+import { useDebounceFn } from "@vueuse/core"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 export type Collection = {
   type: "collections"
@@ -578,6 +597,14 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "sort-collections",
+    payload: {
+      collectionID: string | null
+      sortOrder: "asc" | "desc"
+      collectionRefID: string
+    }
+  ): void
+  (
     event: "share-request",
     payload: {
       request: HoppRESTRequest
@@ -589,6 +616,7 @@ const emit = defineEmits<{
       folderPath: string
       requestIndex: string
       destinationCollectionIndex: string
+      requestRefID?: string
     }
   ): void
   (
@@ -622,6 +650,12 @@ const emit = defineEmits<{
 }>()
 
 const refFilterCollection = toRef(props, "filteredCollections")
+
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption("personal")?.sortOrder ?? "asc"
+)
 
 const pathToIndex = (path: string) => {
   const pathArr = path.split("/")
@@ -659,9 +693,15 @@ const isSelected = ({
 }
 
 const tabs = useService(RESTTabService)
-const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
+const active = computed(
+  () =>
+    tabs.currentActiveTab.value.document.type !== "test-runner" &&
+    tabs.currentActiveTab.value.document.saveContext
+)
 
-const isActiveRequest = (folderPath: string, requestIndex: number) => {
+const isActiveRequest = (folderPath: string, requestRefID: string) => {
+  if (active.value === null || !active.value) return false
+
   return pipe(
     active.value,
     O.fromNullable,
@@ -669,7 +709,7 @@ const isActiveRequest = (folderPath: string, requestIndex: number) => {
       (active) =>
         active.originLocation === "user-collection" &&
         active.folderPath === folderPath &&
-        active.requestIndex === requestIndex &&
+        active.requestRefID === requestRefID &&
         active.exampleID === undefined
     ),
     O.isSome
@@ -694,7 +734,10 @@ const selectRequest = (data: {
       request,
       folderPath,
       requestIndex,
-      isActive: isActiveRequest(folderPath, parseInt(requestIndex)),
+      isActive: isActiveRequest(
+        folderPath,
+        request._ref_id ?? request.id ?? ""
+      ),
     })
   }
 }
@@ -708,11 +751,13 @@ const dragRequest = (
   {
     folderPath,
     requestIndex,
-  }: { folderPath: string | null; requestIndex: string }
+    requestRefID,
+  }: { folderPath: string | null; requestIndex: string; requestRefID?: string }
 ) => {
   if (!folderPath) return
   dataTransfer.setData("folderPath", folderPath)
   dataTransfer.setData("requestIndex", requestIndex)
+  if (requestRefID) dataTransfer.setData("requestRefID", requestRefID)
 }
 
 const dropEvent = (
@@ -722,12 +767,14 @@ const dropEvent = (
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
   const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+  const requestRefID = dataTransfer.getData("requestRefID")
 
   if (folderPath && requestIndex) {
     emit("drop-request", {
       folderPath,
       requestIndex,
       destinationCollectionIndex,
+      requestRefID,
     })
   } else {
     emit("drop-collection", {
@@ -768,6 +815,20 @@ const updateCollectionOrder = (
   emit("update-collection-order", {
     dragedCollectionIndex,
     destinationCollection,
+  })
+}
+
+const debouncedSorting = useDebounceFn(() => {
+  sortCollection()
+}, 250)
+
+const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
+  emit("sort-collections", {
+    collectionID: null,
+    sortOrder: currentSortOrder.value,
+    collectionRefID: "personal",
   })
 }
 

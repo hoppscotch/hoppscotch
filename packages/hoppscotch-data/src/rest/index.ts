@@ -24,7 +24,9 @@ import V13_VERSION from "./v/13"
 import { HoppRESTAuth } from "./v/15/auth"
 import V14_VERSION from "./v/14"
 import V15_VERSION from "./v/15/index"
+import V16_VERSION from "./v/16"
 import { HoppRESTRequestResponses } from "../rest-request-response"
+import { generateUniqueRefId } from "../utils/collection"
 
 export * from "./content-types"
 
@@ -73,7 +75,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 15,
+  latestVersion: 16,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -91,6 +93,7 @@ export const HoppRESTRequest = createVersionedEntity({
     13: V13_VERSION,
     14: V14_VERSION,
     15: V15_VERSION,
+    16: V16_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -131,9 +134,10 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
     lodashIsEqualEq
   ),
   responses: lodashIsEqualEq,
+  _ref_id: undefinedEq(S.Eq),
 })
 
-export const RESTReqSchemaVersion = "15"
+export const RESTReqSchemaVersion = "16"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
@@ -160,6 +164,8 @@ export function safelyExtractRESTRequest(
   if (!!x && typeof x === "object") {
     if ("id" in x && typeof x.id === "string") req.id = x.id
 
+    if ("_ref_id" in x && typeof x._ref_id === "string") req._ref_id = x._ref_id
+
     if ("name" in x && typeof x.name === "string") req.name = x.name
 
     if ("method" in x && typeof x.method === "string") req.method = x.method
@@ -185,7 +191,6 @@ export function safelyExtractRESTRequest(
       const result = HoppRESTAuth.safeParse(x.auth)
 
       if (result.success) {
-        //  @ts-ignore
         req.auth = result.data
       }
     }
@@ -230,6 +235,7 @@ export function makeRESTRequest(
 ): HoppRESTRequest {
   return {
     v: RESTReqSchemaVersion,
+    _ref_id: x._ref_id ?? generateUniqueRefId("req"),
     ...x,
   }
 }
@@ -254,6 +260,7 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
     },
     requestVariables: [],
     responses: {},
+    _ref_id: generateUniqueRefId("req"),
   }
 }
 

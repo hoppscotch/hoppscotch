@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { UserRequest } from './user-request.model';
-import { UserRequest as DbUserRequest } from '@prisma/client';
+import { Prisma, UserRequest as DbUserRequest } from '@prisma/client';
 import {
   USER_COLLECTION_NOT_FOUND,
   USER_REQUEST_CREATION_FAILED,
@@ -15,6 +15,7 @@ import { stringToJson } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
 import { ReqType } from 'src/types/RequestTypes';
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
+import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()
 export class UserRequestService {
@@ -485,5 +486,57 @@ export class UserRequestService {
       console.error('Error from UserRequestService.reorderRequests', error);
       return E.left(USER_REQUEST_REORDERING_FAILED);
     }
+  }
+
+  /**
+   * Sort user requests inside a collection
+   * @param userUid UID of the user who owns the collection
+   * @param collectionID ID of the collection to which the requests belong
+   * @param sortBy Sorting option
+   * @returns Either of a boolean
+   */
+  async sortUserRequests(
+    userUid: string,
+    collectionID: string,
+    sortBy: SortOptions,
+  ): Promise<E.Left<string> | E.Right<boolean>> {
+    if (!collectionID) return E.right(true);
+
+    let orderBy: Prisma.Enumerable<Prisma.UserRequestOrderByWithRelationInput>;
+    if (sortBy === SortOptions.TITLE_ASC) {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === SortOptions.TITLE_DESC) {
+      orderBy = { title: 'desc' };
+    } else {
+      orderBy = { orderIndex: 'asc' };
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await this.prisma.acquireLocks(tx, 'UserRequest', userUid, null, [
+          collectionID,
+        ]);
+
+        const userRequests = await tx.userRequest.findMany({
+          where: { userUid, collectionID },
+          orderBy,
+          select: { id: true },
+        });
+
+        // Update the orderIndex of each request based on the new order (parallel)
+        const promises = userRequests.map((request, i) =>
+          tx.userRequest.update({
+            where: { id: request.id },
+            data: { orderIndex: i + 1 },
+          }),
+        );
+        await Promise.all(promises);
+      });
+    } catch (error) {
+      console.error('Error from UserRequestService.sortUserRequests', error);
+      return E.left(USER_REQUEST_REORDERING_FAILED);
+    }
+
+    return E.right(true);
   }
 }

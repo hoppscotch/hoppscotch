@@ -28,6 +28,9 @@ import {
   DeleteUserRequestDocument,
   DeleteUserRequestMutation,
   DeleteUserRequestMutationVariables,
+  DuplicateUserCollectionDocument,
+  DuplicateUserCollectionMutation,
+  DuplicateUserCollectionMutationVariables,
   ExportUserCollectionsToJsonDocument,
   ExportUserCollectionsToJsonQuery,
   ExportUserCollectionsToJsonQueryVariables,
@@ -50,6 +53,10 @@ import {
   RenameUserCollectionMutation,
   RenameUserCollectionMutationVariables,
   ReqType,
+  SortOptions,
+  SortUserCollectionsDocument,
+  SortUserCollectionsMutation,
+  SortUserCollectionsMutationVariables,
   UpdateGqlUserRequestDocument,
   UpdateGqlUserRequestMutation,
   UpdateGqlUserRequestMutationVariables,
@@ -62,6 +69,7 @@ import {
   UpdateUserCollectionOrderDocument,
   UpdateUserCollectionOrderMutation,
   UpdateUserCollectionOrderMutationVariables,
+  UserChildCollectionSortedDocument,
   UserCollectionCreatedDocument,
   UserCollectionDuplicatedDocument,
   UserCollectionMovedDocument,
@@ -72,6 +80,7 @@ import {
   UserRequestDeletedDocument,
   UserRequestMovedDocument,
   UserRequestUpdatedDocument,
+  UserRootCollectionsSortedDocument,
 } from "../../api/generated/graphql"
 
 export const createRESTRootUserCollection = (title: string, data?: string) =>
@@ -195,6 +204,32 @@ export const moveUserCollection = (
   >(MoveUserCollectionDocument, {
     userCollectionID: sourceCollectionID,
     destCollectionID: destinationCollectionID,
+  })()
+
+export const duplicateUserCollection = (
+  collectionID: string,
+  reqType: ReqType
+) =>
+  runMutation<
+    DuplicateUserCollectionMutation,
+    DuplicateUserCollectionMutationVariables,
+    ""
+  >(DuplicateUserCollectionDocument, {
+    collectionID,
+    reqType,
+  })()
+
+export const sortUserCollections = (
+  parentCollectionID: string | null,
+  sortOption: SortOptions
+) =>
+  runMutation<
+    SortUserCollectionsMutation,
+    SortUserCollectionsMutationVariables,
+    ""
+  >(SortUserCollectionsDocument, {
+    parentCollectionID,
+    sortOption,
   })()
 
 export const editUserRequest = (
@@ -334,6 +369,18 @@ export const runUserCollectionOrderUpdatedSubscription = () =>
 export const runUserCollectionDuplicatedSubscription = () =>
   runGQLSubscription({
     query: UserCollectionDuplicatedDocument,
+    variables: {},
+  })
+
+export const runUserRootCollectionsSortedSubscription = () =>
+  runGQLSubscription({
+    query: UserRootCollectionsSortedDocument,
+    variables: {},
+  })
+
+export const runUserChildCollectionSortedSubscription = () =>
+  runGQLSubscription({
+    query: UserChildCollectionSortedDocument,
     variables: {},
   })
 

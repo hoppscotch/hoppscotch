@@ -46,6 +46,7 @@
         :key="`collection-${index}`"
         :picked="picked"
         :name="collection.name"
+        :folder-path="String(index)"
         :collection-index="index"
         :collection="collection"
         :is-filtered="filterText.length > 0"
@@ -607,8 +608,7 @@ const editProperties = ({
 
   const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
   let inheritedProperties = undefined
-
-  if (parentIndex) {
+  if (parentIndex && parentIndex !== "") {
     inheritedProperties = cascadeParentCollectionForProperties(
       parentIndex,
       "graphql"
@@ -633,6 +633,7 @@ const setCollectionProperties = async (newCollection: {
   const isValidToken = await handleTokenValidation()
   if (!isValidToken) return
   const { collection, path, isRootCollection } = newCollection
+
   if (!collection) {
     return
   }
@@ -644,11 +645,7 @@ const setCollectionProperties = async (newCollection: {
   }
 
   nextTick(() => {
-    updateInheritedPropertiesForAffectedRequests(
-      path,
-      cascadeParentCollectionForProperties(path, "graphql"),
-      "graphql"
-    )
+    updateInheritedPropertiesForAffectedRequests(path, "graphql")
   })
 
   displayModalEditProperties(false)

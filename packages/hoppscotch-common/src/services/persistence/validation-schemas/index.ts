@@ -404,6 +404,18 @@ export const CURRENT_ENVIRONMENT_VALUE_SCHEMA = z.union([
   ),
 ])
 
+export const CURRENT_SORT_VALUES_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.object({
+      sortBy: z.enum(["name"]),
+      sortOrder: z.enum(["asc", "desc"]),
+    })
+  ),
+])
+
 const HoppTestResultSchema = z
   .object({
     tests: z.array(HoppTestDataSchema),
@@ -511,8 +523,9 @@ const HoppRESTSaveContextSchema = z.nullable(
       .object({
         originLocation: z.literal("user-collection"),
         folderPath: z.string(),
-        requestIndex: z.number(),
+        requestIndex: z.optional(z.number()),
         exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
     z
@@ -522,6 +535,7 @@ const HoppRESTSaveContextSchema = z.nullable(
         teamID: z.optional(z.string()),
         collectionID: z.optional(z.string()),
         exampleID: z.optional(z.string()),
+        requestRefID: z.optional(z.string()),
       })
       .strict(),
   ])

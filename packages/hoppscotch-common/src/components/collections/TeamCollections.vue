@@ -33,6 +33,20 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="teamCollectionList && teamCollectionList.length > 1"
+          v-tippy="{ theme: 'tooltip' }"
+          :disabled="
+            (collectionsType.type === 'team-collections' &&
+              collectionsType.selectedTeam === undefined) ||
+            isShowingSearchResults ||
+            hasNoTeamAccess
+          "
+          blank
+          :title="t('action.sort')"
+          :icon="IconArrowUpDown"
+          @click="debouncedSorting"
+        />
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
@@ -40,8 +54,8 @@
               collectionsType.selectedTeam === undefined) ||
             isShowingSearchResults
           "
-          :icon="IconImport"
           :title="t('modal.import_export')"
+          :icon="IconImport"
           @click="emit('display-modal-import-export')"
         />
       </span>
@@ -58,6 +72,7 @@
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
+            :team-loading-collections="teamLoadingCollections"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
@@ -108,6 +123,7 @@
               emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
+            @sort-collections="emit('sort-collections', $event)"
             @drop-event="dropEvent($event, node.id, getPath(node.id, false))"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
@@ -128,12 +144,12 @@
             "
             @toggle-children="
               () => {
-                ;(toggleChildren(),
-                  saveRequest &&
-                    emit('select', {
-                      pickedType: 'teams-collection',
-                      collectionID: node.id,
-                    }))
+                ;(saveRequest &&
+                  emit('select', {
+                    pickedType: 'teams-collection',
+                    collectionID: node.id,
+                  }),
+                  toggleChildren())
               }
             "
             @run-collection="
@@ -159,6 +175,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
+            :team-loading-collections="teamLoadingCollections"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :duplicate-collection-loading="duplicateCollectionLoading"
@@ -210,6 +227,9 @@
               node.data.type === 'folders' &&
               emit('remove-folder', node.data.data.data.id)
             "
+            @sort-collections="
+              node.data.type === 'folders' && emit('sort-collections', $event)
+            "
             @drop-event="
               dropEvent($event, node.data.data.data.id, getPath(node.id, false))
             "
@@ -250,11 +270,12 @@
             "
             @click="
               () => {
-                handleCollectionClick({
-                  // for the folders, we get a path, so we need to get the last part of the path which is the folder id
-                  collectionID: node.id.split('/').pop() as string,
-                  isOpen,
-                })
+                node.data.type === 'folders' &&
+                  handleCollectionClick({
+                    // for the folders, we get a path, so we need to get the last part of the path which is the folder id
+                    collectionID: node.id.split('/').pop() as string,
+                    isOpen,
+                  })
               }
             "
           />
@@ -452,7 +473,9 @@
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
-import { computed, PropType, Ref, toRef } from "vue"
+import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+
+import { computed, PropType, ref, Ref, toRef } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -466,6 +489,8 @@ import { Picked } from "~/helpers/types/HoppPicked.js"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { TeamWorkspace } from "~/services/workspace.service"
+import { useDebounceFn } from "@vueuse/core"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -632,11 +657,20 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "sort-collections",
+    payload: {
+      collectionID: string | null
+      sortOrder: "asc" | "desc"
+      collectionRefID: string
+    }
+  ): void
+  (
     event: "drop-request",
     payload: {
       folderPath: string
       requestIndex: string
       destinationCollectionIndex: string
+      destinationParentPath?: string
     }
   ): void
   (
@@ -683,6 +717,17 @@ const emit = defineEmits<{
     payload: { collectionID: string; path: string }
   ): void
 }>()
+
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const teamID = computed(() => {
+  return props.collectionsType.selectedTeam?.teamID
+})
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption(teamID.value ?? "personal")
+    ?.sortOrder ?? "asc"
+)
 
 const getPath = (path: string, pop: boolean = true) => {
   const pathArray = path.split("/")
@@ -740,9 +785,14 @@ const isSelected = ({
   )
 }
 
-const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
+const active = computed(
+  () =>
+    tabs.currentActiveTab.value.document.type !== "test-runner" &&
+    tabs.currentActiveTab.value.document.saveContext
+)
 
 const isActiveRequest = (requestID: string) => {
+  if (!active.value) return false
   return pipe(
     active.value,
     O.fromNullable,
@@ -807,12 +857,12 @@ const dropEvent = (
   const requestIndex = dataTransfer.getData("requestIndex")
   const collectionIndexDragged = dataTransfer.getData("collectionIndex")
   const currentParentIndex = dataTransfer.getData("parentIndex")
-
   if (folderPath && requestIndex) {
     emit("drop-request", {
       folderPath,
       requestIndex,
       destinationCollectionIndex,
+      destinationParentPath,
     })
   } else {
     emit("drop-collection", {
@@ -855,6 +905,20 @@ const updateCollectionOrder = (
   emit("update-collection-order", {
     dragedCollectionIndex,
     destinationCollection,
+  })
+}
+
+const debouncedSorting = useDebounceFn(() => {
+  sortCollection()
+}, 250)
+
+const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
+  emit("sort-collections", {
+    collectionID: null,
+    sortOrder: currentSortOrder.value,
+    collectionRefID: teamID.value ?? "personal",
   })
 }
 
@@ -935,7 +999,7 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
       }
       const parsedID = id.split("/")[id.split("/").length - 1]
 
-      !props.teamLoadingCollections.includes(parsedID) &&
+      if (!props.teamLoadingCollections.includes(parsedID))
         emit("expand-team-collection", parsedID)
 
       if (props.teamLoadingCollections.includes(parsedID)) {

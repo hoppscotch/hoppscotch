@@ -16,6 +16,7 @@ import { stringToJson } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { Prisma, TeamRequest as DbTeamRequest } from '@prisma/client';
+import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()
 export class TeamRequestService {
@@ -501,5 +502,58 @@ export class TeamRequestService {
   async getTeamRequestsCount() {
     const teamRequestsCount = this.prisma.teamRequest.count();
     return teamRequestsCount;
+  }
+
+  /**
+   * Sort Team Requests in a Collection based on the Sort Option
+   *
+   * @param teamID The Team ID
+   * @param collectionID The Collection ID
+   * @param sortOption The Sort Option
+   * @returns An Either of a Boolean if the sorting operation was successful
+   */
+  async sortTeamRequests(
+    teamID: string,
+    collectionID: string,
+    sortBy: SortOptions,
+  ) {
+    if (!collectionID) return E.right(true); // No sorting for requests in root collection
+
+    let orderBy: Prisma.Enumerable<Prisma.TeamRequestOrderByWithRelationInput>;
+    if (sortBy === SortOptions.TITLE_ASC) {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === SortOptions.TITLE_DESC) {
+      orderBy = { title: 'desc' };
+    } else {
+      orderBy = { orderIndex: 'asc' };
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // lock the rows
+        await this.prisma.acquireLocks(tx, 'TeamRequest', null, null, [
+          collectionID,
+        ]);
+        const teamRequests = await tx.teamRequest.findMany({
+          where: { teamID, collectionID },
+          orderBy,
+          select: { id: true },
+        });
+
+        // Update the orderIndex of each request based on the new order (parallel)
+        const promises = teamRequests.map((request, i) =>
+          tx.teamRequest.update({
+            where: { id: request.id },
+            data: { orderIndex: i + 1 },
+          }),
+        );
+        await Promise.all(promises);
+      });
+    } catch (error) {
+      console.error('Error from TeamRequestService.sortTeamRequests', error);
+      return E.left(TEAM_REQ_REORDERING_FAILED);
+    }
+
+    return E.right(true);
   }
 }

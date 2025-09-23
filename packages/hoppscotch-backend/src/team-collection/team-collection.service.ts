@@ -46,6 +46,7 @@ import {
 import { RESTError } from 'src/types/RESTError';
 import { TeamService } from 'src/team/team.service';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()
 export class TeamCollectionService {
@@ -1464,6 +1465,59 @@ export class TeamCollectionService {
       collection.right.parentID,
     );
     if (E.isLeft(result)) return E.left(result.left as string);
+
+    return E.right(true);
+  }
+
+  /**
+   * Sort Team Collections in a parent collection
+   *
+   * @param teamID The Team ID
+   * @param parentID The Parent Collection ID
+   * @param sortBy The sort option
+   * @returns Boolean of sorting status
+   */
+  async sortTeamCollections(
+    teamID: string,
+    parentID: string,
+    sortBy: SortOptions,
+  ) {
+    // Handle all sort options, including a default
+    let orderBy: Prisma.Enumerable<Prisma.TeamCollectionOrderByWithRelationInput>;
+    if (sortBy === SortOptions.TITLE_ASC) {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === SortOptions.TITLE_DESC) {
+      orderBy = { title: 'desc' };
+    } else {
+      orderBy = { orderIndex: 'asc' };
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await this.prisma.acquireLocks(tx, 'TeamCollection', null, parentID);
+
+        const collections = await tx.teamCollection.findMany({
+          where: { teamID, parentID },
+          orderBy,
+          select: { id: true },
+        });
+
+        // Update the orderIndex of each collection based on the new order
+        const promises = collections.map((collection, i) =>
+          tx.teamCollection.update({
+            where: { id: collection.id },
+            data: { orderIndex: i + 1 },
+          }),
+        );
+        await Promise.all(promises);
+      });
+    } catch (error) {
+      console.error(
+        'Error from TeamCollectionService.sortTeamCollections',
+        error,
+      );
+      return E.left(TEAM_COL_REORDERING_FAILED);
+    }
 
     return E.right(true);
   }

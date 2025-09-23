@@ -45,7 +45,7 @@ const extractSize = (response: RelayResponse): number =>
  * against potential serde/boundary issues between typed conversions.
  */
 const processHeaders = (
-  headers: Record<string, string> | undefined | null
+  headers?: Record<string, string> | null
 ): HoppRESTResponseHeader[] => {
   const processedHeaders: HoppRESTResponseHeader[] = []
 

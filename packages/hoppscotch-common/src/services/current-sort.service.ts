@@ -29,10 +29,9 @@ export class CurrentSortValuesService extends Service {
   /**
    * Gets the current sort option for a given collection or folder ID.
    * @param id ID of the collection or folder.
-   * @returns Current sort option for the given ID. If not found, returns default sort option (sort by name, ascending).
+   * @returns Current sort option for the given ID, or `undefined` if not found.
    */
-  public getSortOption(id: string) {
-    if (!this.currentSortOptions.has(id)) return
+  public getSortOption(id: string): CurrentSortOption | undefined {
     return this.currentSortOptions.get(id)
   }
 
@@ -62,7 +61,7 @@ export class CurrentSortValuesService extends Service {
   }
 
   /**
-   *
+   * Loads current sort values from persisted state.
    * @param currentSortOptions Object containing current sort options to load.
    */
   public loadCurrentSortValuesFromPersistedState(
@@ -71,14 +70,14 @@ export class CurrentSortValuesService extends Service {
     if (currentSortOptions) {
       this.clearAllSortOptions()
 
-      Object.entries(currentSortOptions).forEach(([id, vars]) => {
-        this.setSortOption(id, vars)
+      Object.entries(currentSortOptions).forEach(([id, sortOption]) => {
+        this.setSortOption(id, sortOption)
       })
     }
   }
 
   /**
-   * Used to update the value of a secret environment variable.
+   * Returns current sort options in a format suitable for persistence.
    */
   public persistableCurrentSortValues = computed(() => {
     const currentSortOptions: Record<string, CurrentSortOption> = {}

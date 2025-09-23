@@ -129,16 +129,14 @@ export const getSharedMethods = (envs: TestResult["envs"]) => {
     return result
   }
 
-  const envSetFn = (key: any, value: any) => {
+  const envSetFn = (key: any, value: any = "") => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
 
-    if (typeof value !== "string") {
-      throw new Error("Expected value to be a string")
-    }
-
-    updatedEnvs = setEnv(key, value, updatedEnvs)
+    // Ensure that value is not null; convert it to a string if not null, otherwise default to an empty string.
+    const envValue = value === null ? "" : String(value)
+    updatedEnvs = setEnv(key, envValue, updatedEnvs)
 
     return undefined
   }

@@ -21,7 +21,7 @@
       "body": "?"
     },
     "env": {
-      "set": "fn(key: string, value: string)",
+      "set": "fn(key: string, value: any)",
       "unset": "fn(key: string)",
       "get": "fn(key: string) -> string",
       "getResolve": "fn(key: string) -> string",

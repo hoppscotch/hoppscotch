@@ -81,8 +81,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       '@tauri-apps/plugin-shell':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.2.1
+        version: 2.2.1
       '@vueuse/core':
         specifier: 13.7.0
         version: 13.7.0(vue@3.5.20(typescript@5.9.2))
@@ -998,8 +998,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@tauri-apps/plugin-shell':
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 2.2.1
+        version: 2.2.1
       '@tauri-apps/plugin-store':
         specifier: 2.2.0
         version: 2.2.0
@@ -1231,8 +1231,8 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       '@tauri-apps/plugin-shell':
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 2.2.1
+        version: 2.2.1
       '@tauri-apps/plugin-store':
         specifier: 2.2.0
         version: 2.2.0
@@ -1503,8 +1503,8 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       '@tauri-apps/plugin-shell':
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 2.2.1
+        version: 2.2.1
       '@vueuse/core':
         specifier: 13.7.0
         version: 13.7.0(vue@3.5.20(typescript@5.9.2))
@@ -6979,11 +6979,8 @@ packages:
   '@tauri-apps/plugin-process@2.2.0':
     resolution: {integrity: sha512-uypN2Crmyop9z+KRJr3zl71OyVFgTuvHFjsJ0UxxQ/J5212jVa5w4nPEYjIewcn8bUEXacRebwE6F7owgrbhSw==}
 
-  '@tauri-apps/plugin-shell@2.0.0':
-    resolution: {integrity: sha512-OpW2+ycgJLrEoZityWeWYk+6ZWP9VyiAfbO+N/O8VfLkqyOym8kXh7odKDfINx9RAotkSGBtQM4abyKfJDkcUg==}
-
-  '@tauri-apps/plugin-shell@2.0.1':
-    resolution: {integrity: sha512-akU1b77sw3qHiynrK0s930y8zKmcdrSD60htjH+mFZqv5WaakZA/XxHR3/sF1nNv9Mgmt/Shls37HwnOr00aSw==}
+  '@tauri-apps/plugin-shell@2.2.1':
+    resolution: {integrity: sha512-G1GFYyWe/KlCsymuLiNImUgC8zGY0tI0Y3p8JgBCWduR5IEXlIJS+JuG1qtveitwYXlfJrsExt3enhv5l2/yhA==}
 
   '@tauri-apps/plugin-store@2.2.0':
     resolution: {integrity: sha512-hJTRtuJis4w5fW1dkcgftsYxKXK0+DbAqurZ3CURHG5WkAyyZgbxpeYctw12bbzF9ZbZREXZklPq8mocCC3Sgg==}
@@ -22493,11 +22490,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.1.1
 
-  '@tauri-apps/plugin-shell@2.0.0':
-    dependencies:
-      '@tauri-apps/api': 2.1.1
-
-  '@tauri-apps/plugin-shell@2.0.1':
+  '@tauri-apps/plugin-shell@2.2.1':
     dependencies:
       '@tauri-apps/api': 2.1.1
 

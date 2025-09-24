@@ -53,7 +53,7 @@
     "aws4fetch": "1.0.20",
     "zod": "3.25.32",
     "superjson": "2.2.2",
-    "@tauri-apps/plugin-shell": "2.0.1",
+    "@tauri-apps/plugin-shell": "2.2.1",
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
     "@tauri-apps/plugin-store": "2.2.0",

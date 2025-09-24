@@ -12,7 +12,7 @@
   "dependencies": {
     "@hoppscotch/ui": "0.2.5",
     "@tauri-apps/api": "2.1.1",
-    "@tauri-apps/plugin-shell": "^2.0.0",
+    "@tauri-apps/plugin-shell": "^2.2.1",
     "@vueuse/core": "13.7.0",
     "axios": "1.12.2",
     "fp-ts": "2.16.11",

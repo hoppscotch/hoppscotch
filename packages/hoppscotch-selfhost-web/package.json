@@ -34,7 +34,7 @@
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
-    "@tauri-apps/plugin-shell": "2.0.1",
+    "@tauri-apps/plugin-shell": "2.2.1",
     "@vueuse/core": "13.7.0",
     "axios": "1.12.2",
     "buffer": "6.0.3",

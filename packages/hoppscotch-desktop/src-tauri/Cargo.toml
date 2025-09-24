@@ -19,7 +19,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["devtools"] }
-tauri-plugin-shell = { version = "2", features = [] }
+tauri-plugin-shell = { version = "2.2.1", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = [] }
 tracing = "0.1.41"

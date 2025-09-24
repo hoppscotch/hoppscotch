@@ -8,21 +8,34 @@ import {
 import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
-import { OAuth2ParamSchema } from "../utils"
+import { ImplicitOauthFlowParams as ImplicitOauthFlowParamsData } from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
 
-const ImplicitOauthFlowParamsSchema = z
-  .object({
-    authEndpoint: z.string(),
-    clientID: z.string(),
-    scopes: z.string().optional(),
+// Use the existing schema from hoppscotch-data
+const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParamsData.omit({
+  grantType: true,
+  token: true,
+})
+  .extend({
+    // Override optional arrays to be required for the service layer
     authRequestParams: z.array(
-      OAuth2ParamSchema.omit({
-        sendIn: true,
+      z.object({
+        id: z.number(),
+        key: z.string(),
+        value: z.string(),
+        active: z.boolean(),
       })
     ),
-    refreshRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(
+      z.object({
+        id: z.number(),
+        key: z.string(),
+        value: z.string(),
+        active: z.boolean(),
+        sendIn: z.enum(["headers", "url", "body"]).optional(),
+      })
+    ),
   })
   .refine((params) => {
     return (

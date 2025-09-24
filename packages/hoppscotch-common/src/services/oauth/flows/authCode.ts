@@ -11,27 +11,45 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
-import { refreshToken, OAuth2ParamSchema } from "../utils"
+import { refreshToken } from "../utils"
+import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
 
-const AuthCodeOauthFlowParamsSchema = z
-  .object({
-    authEndpoint: z.string(),
-    tokenEndpoint: z.string(),
-    clientID: z.string(),
-    clientSecret: z.string().optional(),
-    scopes: z.string().optional(),
-    isPKCE: z.boolean(),
-    codeVerifierMethod: z.enum(["plain", "S256"]).optional(),
+// Use the existing schema from hoppscotch-data but ensure required arrays
+const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
+  grantType: true,
+  token: true,
+})
+  .extend({
+    // Override optional arrays to be required for the service layer
     authRequestParams: z.array(
-      OAuth2ParamSchema.omit({
-        sendIn: true,
+      z.object({
+        id: z.number(),
+        key: z.string(),
+        value: z.string(),
+        active: z.boolean(),
       })
     ),
-    refreshRequestParams: z.array(OAuth2ParamSchema),
-    tokenRequestParams: z.array(OAuth2ParamSchema),
+    tokenRequestParams: z.array(
+      z.object({
+        id: z.number(),
+        key: z.string(),
+        value: z.string(),
+        active: z.boolean(),
+        sendIn: z.enum(["headers", "url", "body"]).optional(),
+      })
+    ),
+    refreshRequestParams: z.array(
+      z.object({
+        id: z.number(),
+        key: z.string(),
+        value: z.string(),
+        active: z.boolean(),
+        sendIn: z.enum(["headers", "url", "body"]).optional(),
+      })
+    ),
   })
   .refine(
     (params) => {

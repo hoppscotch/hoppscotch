@@ -27,11 +27,11 @@
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "@hoppscotch/ui": "0.2.5",
-    "@types/node": "24.3.0",
+    "@types/node": "24.5.2",
     "cross-env": "10.0.0",
     "http-server": "14.1.1",
     "husky": "9.1.7",
-    "lint-staged": "16.1.5"
+    "lint-staged": "16.2.0"
   },
   "pnpm": {
     "overrides": {
@@ -41,7 +41,9 @@
       "execa@0.10.0": "2.0.0",
       "sha.js@2.4.11": "2.4.12",
       "subscriptions-transport-ws>ws": "7.5.10",
-      "vue": "3.5.20"
+      "vue": "3.5.20",
+      "form-data": "4.0.4",
+      "ws": "8.17.1"
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",

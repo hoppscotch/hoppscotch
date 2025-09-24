@@ -24,7 +24,7 @@
     "@urql/exchange-auth": "3.0.0",
     "@urql/vue": "2.0.0",
     "@vueuse/core": "13.7.0",
-    "axios": "1.11.0",
+    "axios": "1.12.2",
     "cors": "2.8.5",
     "date-fns": "4.1.0",
     "fp-ts": "2.16.11",

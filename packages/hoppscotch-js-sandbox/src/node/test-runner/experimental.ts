@@ -1,14 +1,16 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { FaradayCage } from "faraday-cage"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep } from "lodash"
 
-import { defaultModules, pwPostRequestModule } from "~/cage-modules"
+import { defaultModules, postRequestModule } from "~/cage-modules"
 import { TestDescriptor, TestResponse, TestResult } from "~/types"
 
-export const runTestScriptWithFaradayCage = (
+export const runPostRequestScriptWithFaradayCage = (
   testScript: string,
   envs: TestResult["envs"],
+  request: HoppRESTRequest,
   response: TestResponse
 ): TE.TaskEither<string, TestResult> => {
   return pipe(
@@ -26,10 +28,13 @@ export const runTestScriptWithFaradayCage = (
         const result = await cage.runCode(testScript, [
           ...defaultModules(),
 
-          pwPostRequestModule({
+          postRequestModule({
             envs: cloneDeep(envs),
             testRunStack: cloneDeep(testRunStack),
-            response,
+            request: cloneDeep(request),
+            response: cloneDeep(response),
+            // TODO: Post type update, accommodate for cookies although platform support is limited
+            cookies: null,
             handleSandboxResults: ({ envs, testRunStack }) => {
               finalEnvs = envs
               finalTestResults = testRunStack

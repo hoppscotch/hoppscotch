@@ -13,9 +13,13 @@ import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import { watchDebounced } from "@vueuse/core"
 import * as monaco from "monaco-editor"
 import { v4 as uuidv4 } from "uuid"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, onUnmounted, ref } from "vue"
 
 import { useColorMode } from "~/composables/theming"
+
+// Import type definitions as raw strings
+import preRequestTypes from "~/types/pre-request.d.ts?raw"
+import postRequestTypes from "~/types/post-request.d.ts?raw"
 
 const props = withDefaults(
   defineProps<{
@@ -52,6 +56,9 @@ const dynamicImportRegex = /import\(\s*["']([^"']+)["']\s*\)/g
 const typeDefCache = new Map<string, string>()
 
 const extraLibRefs = new Map<string, monaco.IDisposable>()
+
+// Track context-specific type definition for this editor instance
+const contextTypeDefRef = ref<monaco.IDisposable | null>(null)
 
 const MODULE_PREFIX = "export {};\n" as const
 
@@ -108,6 +115,28 @@ onMounted(() => {
     "typescript",
     scriptFileURI
   )
+
+  // Load context-specific type definitions for this editor instance
+  const typeDefContent =
+    props.type === "pre-request" ? preRequestTypes : postRequestTypes
+  const typeDefUri = `inmemory://types/${props.type}-${uuid}.d.ts`
+
+  contextTypeDefRef.value =
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      typeDefContent,
+      typeDefUri
+    )
+})
+
+onUnmounted(() => {
+  // Clean up context-specific type definitions for this editor instance
+  contextTypeDefRef.value?.dispose()
+
+  // Clean up all extra libs for this editor
+  for (const disposable of extraLibRefs.values()) {
+    disposable.dispose()
+  }
+  extraLibRefs.clear()
 })
 
 const value = computed({

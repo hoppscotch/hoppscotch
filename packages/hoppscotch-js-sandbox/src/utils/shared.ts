@@ -1,4 +1,9 @@
-import { parseTemplateStringE } from "@hoppscotch/data"
+import {
+  Cookie,
+  CookieSchema,
+  HoppRESTRequest,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/lib/function"
@@ -10,9 +15,31 @@ import {
   SelectedEnvItem,
   TestDescriptor,
   TestResult,
-} from "./types"
+} from "../types"
 
-const getEnv = (envName: string, envs: TestResult["envs"]) => {
+export type EnvSource = "active" | "global" | "all"
+export type EnvAPIOptions = {
+  fallbackToNull?: boolean
+  source: EnvSource
+}
+
+const getEnv = (
+  envName: string,
+  envs: TestResult["envs"],
+  options = { source: "all" }
+) => {
+  if (options.source === "active") {
+    return O.fromNullable(
+      envs.selected.find((x: SelectedEnvItem) => x.key === envName)
+    )
+  }
+
+  if (options.source === "global") {
+    return O.fromNullable(
+      envs.global.find((x: GlobalEnvItem) => x.key === envName)
+    )
+  }
+
   return O.fromNullable(
     envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
       envs.global.find((x: GlobalEnvItem) => x.key === envName)
@@ -31,24 +58,40 @@ const findEnvIndex = (
 const setEnv = (
   envName: string,
   envValue: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
+  options: { setInitialValue?: boolean; source: EnvSource } = {
+    setInitialValue: false,
+    source: "all",
+  }
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
   const indexInSelected = findEnvIndex(envName, selected)
   const indexInGlobal = findEnvIndex(envName, global)
 
-  if (indexInSelected >= 0) {
+  if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
     const selectedEnv = selected[indexInSelected]
-    if ("currentValue" in selectedEnv) {
-      selectedEnv.currentValue = envValue
-    }
-  } else if (indexInGlobal >= 0) {
-    if ("currentValue" in global[indexInGlobal])
-      (global[indexInGlobal] as { currentValue: string }).currentValue =
-        envValue
-  } else {
+    const targetProperty = options.setInitialValue
+      ? "initialValue"
+      : "currentValue"
+
+    selectedEnv[targetProperty] = envValue
+  } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
+    const globalEnv = global[indexInGlobal]
+    const targetProperty = options.setInitialValue
+      ? "initialValue"
+      : "currentValue"
+
+    globalEnv[targetProperty] = envValue
+  } else if (["all", "active"].includes(options.source)) {
     selected.push({
+      key: envName,
+      currentValue: envValue,
+      initialValue: envValue,
+      secret: false,
+    })
+  } else if (["all", "global"].includes(options.source)) {
+    global.push({
       key: envName,
       currentValue: envValue,
       initialValue: envValue,
@@ -64,16 +107,17 @@ const setEnv = (
 
 const unsetEnv = (
   envName: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"],
+  options = { source: "all" }
 ): TestResult["envs"] => {
   const { global, selected } = envs
 
   const indexInSelected = findEnvIndex(envName, selected)
   const indexInGlobal = findEnvIndex(envName, global)
 
-  if (indexInSelected >= 0) {
+  if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
     selected.splice(indexInSelected, 1)
-  } else if (indexInGlobal >= 0) {
+  } else if (["all", "global"].includes(options.source) && indexInGlobal >= 0) {
     global.splice(indexInGlobal, 1)
   }
 
@@ -83,19 +127,74 @@ const unsetEnv = (
   }
 }
 
-// Compiles shared scripting API methods for use in both pre and post request scripts
-export const getSharedMethods = (envs: TestResult["envs"]) => {
+/**
+ * Compiles shared scripting API methods (scoped to environments) for use in both pre and post request scripts
+ * Experimental sandbox version - Returns methods organized by namespace (`pw` and `hopp`)
+ */
+export function getSharedEnvMethods(
+  envs: TestResult["envs"],
+  isHoppNamespace: true
+): {
+  methods: {
+    pw: {
+      get: (key: string, options?: EnvAPIOptions) => string | null | undefined
+      getResolve: (
+        key: string,
+        options?: EnvAPIOptions
+      ) => string | null | undefined
+      set: (key: string, value: string, options?: EnvAPIOptions) => void
+      unset: (key: string, options?: EnvAPIOptions) => void
+      resolve: (key: string) => string
+    }
+    hopp: {
+      set: (key: string, value: string, options?: EnvAPIOptions) => void
+      delete: (key: string, options?: EnvAPIOptions) => void
+      reset: (key: string, options?: EnvAPIOptions) => void
+      getInitialRaw: (key: string, options?: EnvAPIOptions) => string | null
+      setInitial: (key: string, value: string, options?: EnvAPIOptions) => void
+    }
+  }
+  updatedEnvs: TestResult["envs"]
+}
+
+/**
+ * Legacy sandbox version - Returns flat methods for `pw` namespace only
+ */
+export function getSharedEnvMethods(
+  envs: TestResult["envs"],
+  isHoppNamespace?: false
+): {
+  methods: {
+    get: (key: string, options?: EnvAPIOptions) => string | null | undefined
+    getResolve: (
+      key: string,
+      options?: EnvAPIOptions
+    ) => string | null | undefined
+    set: (key: string, value: string, options?: EnvAPIOptions) => void
+    unset: (key: string, options?: EnvAPIOptions) => void
+    resolve: (key: string) => string
+  }
+  updatedEnvs: TestResult["envs"]
+}
+
+export function getSharedEnvMethods(
+  envs: TestResult["envs"],
+  isHoppNamespace = false
+): unknown {
   let updatedEnvs = envs
 
-  const envGetFn = (key: any) => {
+  const envGetFn = (
+    key: any,
+    options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
+  ) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
 
     const result = pipe(
-      getEnv(key, updatedEnvs),
+      getEnv(key, updatedEnvs, options),
       O.fold(
-        () => undefined,
+        () => (options.fallbackToNull ? null : undefined),
         (env) => String(env.currentValue)
       )
     )
@@ -103,33 +202,45 @@ export const getSharedMethods = (envs: TestResult["envs"]) => {
     return result
   }
 
-  const envGetResolveFn = (key: any) => {
+  const envGetResolveFn = (
+    key: any,
+    options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
+  ) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
 
+    const shouldIncludeSelected = ["all", "active"].includes(options.source)
+    const shouldIncludeGlobal = ["all", "global"].includes(options.source)
+
+    const envVars = [
+      ...(shouldIncludeSelected ? updatedEnvs.selected : []),
+      ...(shouldIncludeGlobal ? updatedEnvs.global : []),
+    ]
+
     const result = pipe(
-      getEnv(key, updatedEnvs),
+      getEnv(key, updatedEnvs, options),
       E.fromOption(() => "INVALID_KEY" as const),
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE(e.currentValue, [
-            ...updatedEnvs.selected,
-            ...updatedEnvs.global,
-          ]), // If the recursive resolution failed, return the unresolved value
+          parseTemplateStringE(e.currentValue, envVars), // If the recursive resolution failed, return the unresolved value
           E.getOrElse(() => e.currentValue)
         )
       ),
       E.map((x) => String(x)),
 
-      E.getOrElseW(() => undefined)
+      E.getOrElseW(() => (options.fallbackToNull ? null : undefined))
     )
 
     return result
   }
 
-  const envSetFn = (key: any, value: any) => {
+  const envSetFn = (
+    key: any,
+    value: any,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
@@ -138,17 +249,17 @@ export const getSharedMethods = (envs: TestResult["envs"]) => {
       throw new Error("Expected value to be a string")
     }
 
-    updatedEnvs = setEnv(key, value, updatedEnvs)
+    updatedEnvs = setEnv(key, value, updatedEnvs, options)
 
     return undefined
   }
 
-  const envUnsetFn = (key: any) => {
+  const envUnsetFn = (key: any, options: EnvAPIOptions = { source: "all" }) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
 
-    updatedEnvs = unsetEnv(key, updatedEnvs)
+    updatedEnvs = unsetEnv(key, updatedEnvs, options)
 
     return undefined
   }
@@ -169,17 +280,210 @@ export const getSharedMethods = (envs: TestResult["envs"]) => {
     return String(result)
   }
 
+  // Methods exclusive to the `hopp` namespace
+  const envResetFn = (
+    key: string,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    // Always read from the live, mutated state. `updatedEnvs` is reassigned by setters,
+    // while `envs` may point to an older object (stale snapshot) even if arrays were mutated.
+    // Using `updatedEnvs` here avoids subtle drift if future changes replace arrays immutably.
+    const { global, selected } = updatedEnvs
+
+    const indexInSelected = findEnvIndex(key, selected)
+    const indexInGlobal = findEnvIndex(key, global)
+
+    if (["all", "active"].includes(options.source) && indexInSelected >= 0) {
+      const selectedEnv = selected[indexInSelected]
+
+      if ("currentValue" in selectedEnv) {
+        selectedEnv.currentValue = selectedEnv.initialValue
+      }
+    } else if (
+      ["all", "global"].includes(options.source) &&
+      indexInGlobal >= 0
+    ) {
+      if ("currentValue" in global[indexInGlobal]) {
+        global[indexInGlobal].currentValue = global[indexInGlobal].initialValue
+      }
+    }
+  }
+
+  const envGetInitialRawFn = (
+    key: any,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    const result = pipe(
+      getEnv(key, updatedEnvs, options),
+      O.fold(
+        () => undefined,
+        (env) => String(env.initialValue)
+      )
+    )
+
+    return result ?? null
+  }
+
+  const envSetInitialFn = (
+    key: string,
+    value: string,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    if (typeof value !== "string") {
+      throw new Error("Expected value to be a string")
+    }
+
+    updatedEnvs = setEnv(key, value, updatedEnvs, {
+      setInitialValue: true,
+      source: options.source,
+    })
+
+    return undefined
+  }
+
+  // Experimental scripting sandbox (Both `pw` and `hopp` namespaces)
+  if (isHoppNamespace) {
+    return {
+      methods: {
+        pw: {
+          get: envGetFn,
+          getResolve: envGetResolveFn,
+          set: envSetFn,
+          unset: envUnsetFn,
+          resolve: envResolveFn,
+        },
+        hopp: {
+          set: envSetFn,
+          delete: envUnsetFn,
+          reset: envResetFn,
+          getInitialRaw: envGetInitialRawFn,
+          setInitial: envSetInitialFn,
+        },
+      },
+
+      updatedEnvs,
+    }
+  }
+
+  // Legacy scripting sandbox (Only `pw` namespace)
   return {
     methods: {
-      env: {
-        get: envGetFn,
-        getResolve: envGetResolveFn,
-        set: envSetFn,
-        unset: envUnsetFn,
-        resolve: envResolveFn,
-      },
+      get: envGetFn,
+      getResolve: envGetResolveFn,
+      set: envSetFn,
+      unset: envUnsetFn,
+      resolve: envResolveFn,
     },
     updatedEnvs,
+  }
+}
+
+export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
+  // Incoming `cookies` specified as `null` indicates unsupported platform
+  const cookiesSupported = cookies !== null
+  let updatedCookies: Cookie[] = cookies ?? []
+
+  const throwIfCookiesUnsupported = () => {
+    if (cookies === null) {
+      throw new Error(
+        "Cookies are not supported in the current platform and are exclusive to the Desktop App."
+      )
+    }
+  }
+
+  const cookieGetFn = (domain: any, name: any): Cookie | null => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string" || typeof name !== "string") {
+      throw new Error("Expected domain and cookieName to be strings")
+    }
+
+    return (
+      updatedCookies.find((c) => c.domain === domain && c.name === name) ?? null
+    )
+  }
+
+  const cookieSetFn = (domain: string, cookie: Cookie): void => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string") {
+      throw new Error("Expected domain to be a string")
+    }
+
+    const result = CookieSchema.safeParse(cookie)
+
+    if (!result.success) {
+      throw new Error("Invalid cookie")
+    }
+
+    updatedCookies = updatedCookies.filter(
+      (c) => !(c.domain === domain && c.name === cookie.name)
+    )
+    updatedCookies.push(cookie)
+  }
+
+  const cookieHasFn = (domain: string, name: string): boolean => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string" || typeof name !== "string") {
+      throw new Error("Expected domain and cookieName to be strings")
+    }
+    return updatedCookies.some((c) => c.domain === domain && c.name === name)
+  }
+
+  const cookieGetAllFn = (domain: string): Cookie[] => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string") {
+      throw new Error("Expected domain to be a string")
+    }
+    return updatedCookies.filter((c) => c.domain === domain)
+  }
+
+  const cookieDeleteFn = (domain: string, name: string): void => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string" || typeof name !== "string") {
+      throw new Error("Expected domain and cookieName to be strings")
+    }
+    updatedCookies = updatedCookies.filter(
+      (c) => !(c.domain === domain && c.name === name)
+    )
+  }
+
+  const cookieClearFn = (domain: string): void => {
+    throwIfCookiesUnsupported()
+
+    if (typeof domain !== "string") {
+      throw new Error("Expected domain to be a string")
+    }
+    updatedCookies = updatedCookies.filter((c) => c.domain !== domain)
+  }
+
+  return {
+    methods: {
+      get: cookieGetFn,
+      set: cookieSetFn,
+      has: cookieHasFn,
+      getAll: cookieGetAllFn,
+      delete: cookieDeleteFn,
+      clear: cookieClearFn,
+    },
+    // Use a function so we always read the latest `updatedCookies` (not a stale snapshot)
+    getUpdatedCookies: () =>
+      cookiesSupported ? cloneDeep(updatedCookies) : null,
   }
 }
 
@@ -470,7 +774,7 @@ export const createExpectation = (
  * @returns Object with methods in the `pw` namespace
  */
 export const getPreRequestScriptMethods = (envs: TestResult["envs"]) => {
-  const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
+  const { methods, updatedEnvs } = getSharedEnvMethods(cloneDeep(envs))
   return { pw: methods, updatedEnvs }
 }
 
@@ -500,7 +804,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
   const expectFn = (expectVal: any) =>
     createExpectation(expectVal, false, testRunStack)
 
-  const { methods, updatedEnvs } = getSharedMethods(cloneDeep(envs))
+  const { methods, updatedEnvs } = getSharedEnvMethods(cloneDeep(envs))
 
   const pw = {
     ...methods,
@@ -509,4 +813,36 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
   }
 
   return { pw, testRunStack, updatedEnvs }
+}
+
+/**
+ * Compiles shared scripting API properties (scoped to requests) for use in both pre and post request scripts
+ * Extracts shared properties from a request object
+ * @param request The request object to extract shared properties from
+ * @returns An object containing the shared properties of the request
+ */
+export const getSharedRequestProps = (request: HoppRESTRequest) => {
+  return {
+    get url() {
+      return request.endpoint
+    },
+    get method() {
+      return request.method
+    },
+    get params() {
+      return request.params
+    },
+    get headers() {
+      return request.headers
+    },
+    get body() {
+      return request.body
+    },
+    get auth() {
+      return request.auth
+    },
+    get requestVariables() {
+      return request.requestVariables
+    },
+  }
 }

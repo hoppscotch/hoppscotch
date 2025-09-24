@@ -1,30 +1,33 @@
-import { Environment } from "@hoppscotch/data"
+import { Cookie, Environment, HoppRESTRequest } from "@hoppscotch/data"
 import {
+  RunPostRequestScriptOptions,
+  RunPreRequestScriptOptions,
   SandboxPreRequestResult,
   SandboxTestResult,
   TestResult,
 } from "@hoppscotch/js-sandbox"
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import * as E from "fp-ts/Either"
 
-import { getFinalEnvsFromPreRequest } from "../preRequest"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 
 interface PreRequestMessage {
   type: "pre"
-  script: string
   envs: {
     global: Environment["variables"]
     selected: Environment["variables"]
     temp: Environment["variables"]
   }
+  request: string // JSON stringified request
+  cookies: string | null // JSON stringified cookies subject to the feature flag
 }
 
 interface PostRequestMessage {
   type: "post"
-  script: string
   envs: TestResult["envs"]
+  request: string // JSON stringified request
   response: HoppRESTResponse
+  cookies: string | null // JSON stringified cookies subject to the feature flag
 }
 
 type IncomingSandboxWorkerMessage = PreRequestMessage | PostRequestMessage
@@ -60,13 +63,33 @@ export type OutgoingSandboxPostRequestWorkerMessage =
 self.addEventListener(
   "message",
   async (event: MessageEvent<IncomingSandboxWorkerMessage>) => {
-    const { type, script, envs } = event.data
+    const { type, envs, request, cookies } = event.data
+
+    const parsedRequest = JSON.parse(request) as HoppRESTRequest
+
+    const parsedRequestResult = HoppRESTRequest.safeParse(parsedRequest)
+
+    const parsedCookies = cookies ? (JSON.parse(cookies) as Cookie[]) : null
 
     if (type === "pre") {
+      if (parsedRequestResult.type === "err") {
+        const err: PreRequestScriptErrorMessage = {
+          type: "PRE_REQUEST_SCRIPT_ERROR",
+          data: parsedRequestResult.error,
+        }
+        self.postMessage(err)
+        return
+      }
+
       try {
-        const preRequestScriptResult = await getFinalEnvsFromPreRequest(
-          script,
-          envs
+        const preRequestScriptResult = await runPreRequestScript(
+          parsedRequestResult.value.preRequestScript,
+          {
+            envs,
+            request: parsedRequestResult.value,
+            experimentalScriptingSandbox: true,
+            cookies: parsedCookies as unknown as Cookie[],
+          } satisfies RunPreRequestScriptOptions
         )
         const result: PreRequestScriptResultMessage = {
           type: "PRE_REQUEST_SCRIPT_RESULT",
@@ -83,13 +106,27 @@ self.addEventListener(
     }
 
     if (type === "post") {
+      if (parsedRequestResult.type === "err") {
+        const err: PostRequestScriptErrorMessage = {
+          type: "POST_REQUEST_SCRIPT_ERROR",
+          data: parsedRequestResult.error,
+        }
+        self.postMessage(err)
+        return
+      }
+
       const { response } = event.data
 
       try {
         const postRequestScriptResult = await runTestScript(
-          script,
-          envs,
-          response
+          parsedRequestResult.value.testScript,
+          {
+            envs,
+            request: parsedRequestResult.value,
+            response,
+            experimentalScriptingSandbox: true,
+            cookies: parsedCookies as unknown as Cookie[],
+          } satisfies RunPostRequestScriptOptions
         )
         const result: PostRequestScriptResultMessage = {
           type: "POST_REQUEST_SCRIPT_RESULT",

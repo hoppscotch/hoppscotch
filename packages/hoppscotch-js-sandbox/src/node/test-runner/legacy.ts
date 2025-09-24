@@ -4,11 +4,11 @@ import { pipe } from "fp-ts/function"
 import type ivmT from "isolated-vm"
 import { createRequire } from "module"
 
+import { TestResponse, TestResult } from "~/types"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
-} from "~/shared-utils"
-import { TestResponse, TestResult } from "~/types"
+} from "~/utils/shared"
 import { getSerializedAPIMethods } from "../utils"
 
 const nodeRequire = createRequire(import.meta.url)
@@ -176,7 +176,7 @@ const executeScriptInContext = (
   })
 }
 
-export const runTestScriptWithIsolatedVm = (
+export const runPostRequestScriptWithIsolatedVm = (
   testScript: string,
   envs: TestResult["envs"],
   response: TestResponse

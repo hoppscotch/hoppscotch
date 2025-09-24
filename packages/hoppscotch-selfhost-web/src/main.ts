@@ -84,7 +84,7 @@ async function initApp() {
       displayConfig: {
         displayName: "Hoppscotch",
         description: "On-Prem",
-        version: "25.8.1",
+        version: "25.9.0",
         connectingMessage: "Connecting to On-prem",
         connectedMessage: "Connected to On-prem",
       },

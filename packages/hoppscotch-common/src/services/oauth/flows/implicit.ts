@@ -9,10 +9,7 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { ImplicitOauthFlowParams as ImplicitOauthFlowParamsData } from "@hoppscotch/data"
-import {
-  OAuth2AdvancedParamSchema,
-  OAuth2AuthRequestParamSchema,
-} from "../utils"
+import { OAuth2ParamSchema } from "../utils"
 
 const persistenceService = getService(PersistenceService)
 
@@ -23,8 +20,8 @@ const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParamsData.omit({
 })
   .extend({
     // Override optional arrays to be required for the service layer
-    authRequestParams: z.array(OAuth2AuthRequestParamSchema),
-    refreshRequestParams: z.array(OAuth2AdvancedParamSchema),
+    authRequestParams: z.array(OAuth2ParamSchema.omit({ sendIn: true })),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
   })
   .refine((params) => {
     return (

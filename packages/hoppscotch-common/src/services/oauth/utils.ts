@@ -110,24 +110,13 @@ export const refreshToken = async ({
 }
 
 /**
- * Common OAuth2 parameter schema for advanced parameters (with sendIn field)
- * Used for token and refresh request parameters
+ * Common OAuth2 parameter schema
+ * Used for all OAuth parameter types - omit sendIn field where not needed
  */
-export const OAuth2AdvancedParamSchema = z.object({
+export const OAuth2ParamSchema = z.object({
   id: z.number(),
   key: z.string(),
   value: z.string(),
   active: z.boolean(),
   sendIn: z.enum(["headers", "url", "body"]).optional(),
-})
-
-/**
- * Common OAuth2 parameter schema for auth request parameters (without sendIn field)
- * Used for authorization request parameters
- */
-export const OAuth2AuthRequestParamSchema = z.object({
-  id: z.number(),
-  key: z.string(),
-  value: z.string(),
-  active: z.boolean(),
 })

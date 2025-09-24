@@ -2,6 +2,19 @@ import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 
 import { TestDescriptor, ExpectationMethods } from "~/types"
 import { createExpectation } from "~/utils/shared"
+import { createSerializableChaiExpectation } from "~/utils/serializable-chai"
+
+/**
+ * Creates a Chai-style expectation method for the experimental sandbox
+ */
+export const createChaiExpectationMethod = (
+  ctx: CageModuleCtx,
+  testRunStack: TestDescriptor[]
+) => {
+  return defineSandboxFn(ctx, "expectChai", (expectVal: any) => {
+    return createSerializableChaiExpectation(expectVal, testRunStack)
+  })
+}
 
 /**
  * Creates expectation methods for test assertions in post-request scripts

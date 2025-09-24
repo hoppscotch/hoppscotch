@@ -487,7 +487,7 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
   }
 }
 
-const getResolvedExpectValue = (expectVal: any) => {
+export const getResolvedExpectValue = (expectVal: any) => {
   if (typeof expectVal !== "string") {
     return expectVal
   }
@@ -508,6 +508,19 @@ const getResolvedExpectValue = (expectVal: any) => {
       }
 
       delete parsedExpectVal.isStringifiedWithinIsolate
+
+      // Reconstruct sealed/frozen state if preserved
+      if (parsedExpectVal.__objectState) {
+        const obj = { ...parsedExpectVal }
+        delete obj.__objectState
+
+        if (parsedExpectVal.__objectState === "sealed") {
+          return Object.seal(obj)
+        } else if (parsedExpectVal.__objectState === "frozen") {
+          return Object.freeze(obj)
+        }
+      }
+
       return parsedExpectVal
     }
 

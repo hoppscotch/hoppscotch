@@ -11,6 +11,7 @@ import postRequestBootstrapCode from "../bootstrap-code/post-request?raw"
 import preRequestBootstrapCode from "../bootstrap-code/pre-request?raw"
 import { createBaseInputs } from "./utils/base-inputs"
 import { createExpectationMethods } from "./utils/expectation-helpers"
+import { createEnhancedExpectationMethods } from "./utils/enhanced-expectation-helpers"
 import { createRequestSetterMethods } from "./utils/request-setters"
 
 type PostRequestModuleConfig = {
@@ -159,12 +160,19 @@ const createScriptingInputsObj = (
       postConfig.testRunStack
     )
 
+    // Create enhanced expectation methods for Chai-style testing
+    const enhancedExpectationMethods = createEnhancedExpectationMethods(
+      ctx,
+      postConfig.testRunStack
+    )
+
     // Register hook with helper function
     registerAfterScriptExecutionHook(ctx, "post", postConfig, baseInputs)
 
     return {
       ...baseInputs,
       ...expectationMethods,
+      ...enhancedExpectationMethods,
 
       // Test management methods
       preTest: defineSandboxFn(

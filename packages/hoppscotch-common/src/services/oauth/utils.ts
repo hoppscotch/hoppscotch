@@ -109,5 +109,25 @@ export const refreshToken = async ({
     : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
-// OAuth2ParamSchema is now imported from @hoppscotch/data package
-// The schema is available as OAuth2AdvancedParam in the data package
+/**
+ * Common OAuth2 parameter schema for advanced parameters (with sendIn field)
+ * Used for token and refresh request parameters
+ */
+export const OAuth2AdvancedParamSchema = z.object({
+  id: z.number(),
+  key: z.string(),
+  value: z.string(),
+  active: z.boolean(),
+  sendIn: z.enum(["headers", "url", "body"]).optional(),
+})
+
+/**
+ * Common OAuth2 parameter schema for auth request parameters (without sendIn field)
+ * Used for authorization request parameters
+ */
+export const OAuth2AuthRequestParamSchema = z.object({
+  id: z.number(),
+  key: z.string(),
+  value: z.string(),
+  active: z.boolean(),
+})

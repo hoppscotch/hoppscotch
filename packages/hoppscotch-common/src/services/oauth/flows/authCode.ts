@@ -11,7 +11,11 @@ import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
-import { refreshToken } from "../utils"
+import {
+  refreshToken,
+  OAuth2AdvancedParamSchema,
+  OAuth2AuthRequestParamSchema,
+} from "../utils"
 import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
@@ -24,32 +28,9 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
 })
   .extend({
     // Override optional arrays to be required for the service layer
-    authRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-      })
-    ),
-    tokenRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
-    refreshRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
+    authRequestParams: z.array(OAuth2AuthRequestParamSchema),
+    tokenRequestParams: z.array(OAuth2AdvancedParamSchema),
+    refreshRequestParams: z.array(OAuth2AdvancedParamSchema),
   })
   .refine(
     (params) => {

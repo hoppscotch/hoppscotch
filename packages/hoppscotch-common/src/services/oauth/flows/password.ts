@@ -11,7 +11,7 @@ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useToast } from "~/composables/toast"
 import { content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
-import { refreshToken } from "../utils"
+import { refreshToken, OAuth2AdvancedParamSchema } from "../utils"
 import { PasswordGrantTypeParams } from "@hoppscotch/data"
 
 const interceptorService = getService(KernelInterceptorService)
@@ -23,24 +23,8 @@ const PasswordFlowParamsSchema = PasswordGrantTypeParams.omit({
 })
   .extend({
     // Override optional arrays to be required for the service layer
-    tokenRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
-    refreshRequestParams: z.array(
-      z.object({
-        id: z.number(),
-        key: z.string(),
-        value: z.string(),
-        active: z.boolean(),
-        sendIn: z.enum(["headers", "url", "body"]).optional(),
-      })
-    ),
+    tokenRequestParams: z.array(OAuth2AdvancedParamSchema),
+    refreshRequestParams: z.array(OAuth2AdvancedParamSchema),
   })
   .refine(
     (params) => {

@@ -108,15 +108,3 @@ export const refreshToken = async ({
     ? E.right(parsedTokenResponse.data)
     : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
-
-/**
- * Common OAuth2 parameter schema
- * Used for all OAuth parameter types - omit sendIn field where not needed
- */
-export const OAuth2ParamSchema = z.object({
-  id: z.number(),
-  key: z.string(),
-  value: z.string(),
-  active: z.boolean(),
-  sendIn: z.enum(["headers", "url", "body"]).optional(),
-})

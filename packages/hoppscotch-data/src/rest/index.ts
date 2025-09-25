@@ -62,6 +62,8 @@ export { ImplicitOauthFlowParams } from "./v/15/auth"
 export {
   HoppRESTAuthOAuth2,
   ClientCredentialsGrantTypeParams,
+  OAuth2AdvancedParam,
+  OAuth2AuthRequestParam,
 } from "./v/15/auth"
 
 export {

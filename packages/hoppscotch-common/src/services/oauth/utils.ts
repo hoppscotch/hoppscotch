@@ -115,5 +115,5 @@ export const refreshToken = async ({
  * Used for all OAuth parameter types - omit sendIn field where not needed
  */
 export const OAuth2ParamSchema = OAuth2AdvancedParam.extend({
-  sendIn: z.enum(["headers", "url", "body"]),
+  sendIn: z.enum(["headers", "url", "body"]).optional(),
 })

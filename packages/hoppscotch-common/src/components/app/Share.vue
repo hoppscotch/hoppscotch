@@ -1,7 +1,6 @@
 <template>
   <HoppSmartModal
     v-if="show"
-    dialog
     :title="t('app.invite_your_friends')"
     @close="hideModal"
   >

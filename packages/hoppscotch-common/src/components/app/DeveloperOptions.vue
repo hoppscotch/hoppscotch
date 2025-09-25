@@ -1,7 +1,6 @@
 <template>
   <HoppSmartModal
     v-if="show"
-    dialog
     :title="t('app.developer_option')"
     @close="hideModal"
   >

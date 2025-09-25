@@ -4,6 +4,7 @@ import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
 import { decodeResponseAsJSON } from "./oauth.service"
+import { OAuth2AdvancedParam } from "@hoppscotch/data"
 
 const interceptorService = getService(KernelInterceptorService)
 
@@ -110,13 +111,9 @@ export const refreshToken = async ({
 }
 
 /**
- * Common OAuth2 parameter schema with all possible fields
- * Used as base for both auth requests and advanced token/refresh requests
+ * Common OAuth2 parameter schema
+ * Used for all OAuth parameter types - omit sendIn field where not needed
  */
-export const OAuth2ParamSchema = z.object({
-  id: z.number(),
-  key: z.string(),
-  value: z.string(),
-  active: z.boolean(),
+export const OAuth2ParamSchema = OAuth2AdvancedParam.extend({
   sendIn: z.enum(["headers", "url", "body"]).optional(),
 })

@@ -11,18 +11,18 @@ import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { useToast } from "~/composables/toast"
 import { content } from "@hoppscotch/kernel"
 import { parseBytesToJSON } from "~/helpers/functional/json"
-import { OAuth2ParamSchema, refreshToken } from "../utils"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
+import { PasswordGrantTypeParams } from "@hoppscotch/data"
 
 const interceptorService = getService(KernelInterceptorService)
 
-const PasswordFlowParamsSchema = z
-  .object({
-    authEndpoint: z.string(),
-    clientID: z.string(),
-    clientSecret: z.string().optional(),
-    scopes: z.string().optional(),
-    username: z.string(),
-    password: z.string(),
+// Use the existing schema from hoppscotch-data
+const PasswordFlowParamsSchema = PasswordGrantTypeParams.omit({
+  grantType: true,
+  token: true,
+})
+  .extend({
+    // Override optional arrays to be required for the service layer
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
   })

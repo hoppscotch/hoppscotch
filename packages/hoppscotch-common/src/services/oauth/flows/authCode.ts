@@ -12,7 +12,10 @@ import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { content } from "@hoppscotch/kernel"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
-import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
+import {
+  AuthCodeGrantTypeParams,
+  OAuth2AuthRequestParam,
+} from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
@@ -24,7 +27,7 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
 })
   .extend({
     // Override optional arrays to be required for the service layer
-    authRequestParams: z.array(OAuth2ParamSchema.omit({ sendIn: true })),
+    authRequestParams: z.array(OAuth2AuthRequestParam),
     tokenRequestParams: z.array(OAuth2ParamSchema),
     refreshRequestParams: z.array(OAuth2ParamSchema),
   })

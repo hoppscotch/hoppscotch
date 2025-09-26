@@ -475,31 +475,7 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
-const teamCollections = ref<TeamCollection[]>([])
-const pendingTeamCollectionPropertyPath = ref<string | null>(null)
-
 onMounted(async () => {
-  teamCollectionsSubscription.value =
-    teamCollectionAdapter.collections$.subscribe((vals) => {
-      teamCollections.value = vals
-
-      // This subscription callback has closure over pendingTeamCollectionPropertyPath ref to ensure that we
-      // update properties of affected requests any time the properties of the collection changes.
-      if (pendingTeamCollectionPropertyPath.value) {
-        const { auth, headers } =
-          teamCollectionAdapter.cascadeParentCollectionForHeaderAuth(
-            pendingTeamCollectionPropertyPath.value
-          )
-
-        updateInheritedPropertiesForAffectedRequests(
-          pendingTeamCollectionPropertyPath.value,
-          { auth, headers },
-          "rest"
-        )
-        pendingTeamCollectionPropertyPath.value = null
-      }
-    })
-
   const localOAuthTempConfig =
     await persistenceService.getLocalConfig("oauth_temp_config")
 
@@ -3109,7 +3085,9 @@ const setCollectionProperties = (newCollection: {
         },
         () => {
           toast.success(t("collection.properties_updated"))
-          pendingTeamCollectionPropertyPath.value = path
+
+          // The team collection service needs to know the path of the collection that was updated
+          teamCollectionService.pendingTeamCollectionPath.value = path
         }
       )
     )()

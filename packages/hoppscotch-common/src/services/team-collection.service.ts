@@ -34,6 +34,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { WorkspaceService } from "./workspace.service"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -144,6 +145,7 @@ export class TeamCollectionsService extends Service<void> {
 
   public collections = ref<TeamCollection[]>([])
   public loadingCollections = ref<string[]>([])
+  public pendingTeamCollectionPath = ref<string | null>(null)
 
   private entityIDs: Set<string> = new Set()
 
@@ -185,6 +187,22 @@ export class TeamCollectionsService extends Service<void> {
         }
       },
       { immediate: true, deep: true }
+    )
+
+    // Watch for changes in collections to update the inherited properties of request tabs
+    // if pendingTeamCollectionPath is set from outside and update the tabs accordingly
+    watch(
+      () => this.collections,
+      () => {
+        if (this.pendingTeamCollectionPath.value) {
+          updateInheritedPropertiesForAffectedRequests(
+            this.pendingTeamCollectionPath.value,
+            "rest"
+          )
+          this.pendingTeamCollectionPath.value = null
+        }
+      },
+      { deep: true }
     )
   }
 

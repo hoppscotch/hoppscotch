@@ -2076,7 +2076,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-agent"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "aes-gcm",
  "axum",

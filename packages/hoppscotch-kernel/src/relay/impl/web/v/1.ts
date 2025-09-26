@@ -55,7 +55,7 @@ export const implementation: VersionedAPI<RelayV1> = {
       auth: new Set(["basic", "bearer", "apikey", "aws"]),
       security: new Set([]),
       proxy: new Set([]),
-      advanced: new Set([]),
+      advanced: new Set(["redirects"]),
     },
 
     canHandle(request: RelayRequest) {
@@ -128,7 +128,7 @@ export const implementation: VersionedAPI<RelayV1> = {
               headers: request.headers,
               params: request.params,
               data: request.content?.content,
-              maxRedirects: request.meta?.options?.maxRedirects,
+              maxRedirects: request.options?.followRedirects ? 10 : 0,
               timeout: request.meta?.options?.timeout,
               decompress: request.meta?.options?.decompress ?? true,
               validateStatus: null,

@@ -57,6 +57,14 @@
               </div>
               <div class="flex items-center">
                 <HoppSmartToggle
+                  :on="FOLLOW_REDIRECTS"
+                  @change="toggleSetting('FOLLOW_REDIRECTS')"
+                >
+                  {{ t("settings.follow_redirects") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
                   :on="EXPAND_NAVIGATION"
                   @change="toggleSetting('EXPAND_NAVIGATION')"
                 >
@@ -345,6 +353,7 @@ const kernelInterceptorsWithSettings = computed(() =>
 
 const ACCENT_COLOR = useSetting("THEME_COLOR")
 const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
+const FOLLOW_REDIRECTS = useSetting("FOLLOW_REDIRECTS")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ENABLE_AI_EXPERIMENTS = useSetting("ENABLE_AI_EXPERIMENTS")

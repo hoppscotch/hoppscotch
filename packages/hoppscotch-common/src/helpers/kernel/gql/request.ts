@@ -8,6 +8,7 @@ import { HoppGQLRequest } from "@hoppscotch/data"
 import { transformAuth } from "~/helpers/kernel/common"
 import { defaultAuth } from "~/helpers/kernel/common/auth"
 import { filterActiveToRecord } from "~/helpers/functional/filter-active"
+import { settingsStore } from "~/newstore/settings"
 
 const parseVariables = async (variables: string | null): Promise<unknown> => {
   if (!variables) return undefined
@@ -43,6 +44,9 @@ export const GQLRequest = {
         { query: request.query, variables },
         MediaType.APPLICATION_JSON
       ),
+      options: {
+        followRedirects: settingsStore.value.FOLLOW_REDIRECTS,
+      },
     }
   },
 }

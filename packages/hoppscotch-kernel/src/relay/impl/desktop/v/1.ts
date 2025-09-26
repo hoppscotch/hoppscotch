@@ -137,24 +137,27 @@ export const implementation: VersionedAPI<RelayV1> = {
             }
 
             const responsePromise = relayRequestToNativeAdapter(request)
-                .then(request => {
-                    // SAFETY: Type assertion is safe because:
-                    // 1. The capabilities system prevents requests with unsupported methods from reaching this point
-                    // 2. Content types not supported by the plugin are filtered by capabilities
-                    // 3. Authentication methods are validated through capabilities
-                    // 4. The plugin's Request type is a subset of our Request type
-                    const pluginRequest = {
-                        id: request.id,
-                        url: request.url,
-                        method: request.method,
-                        version: request.version,
-                        headers: request.headers,
-                        params: request.params,
-                        content: request.content,
-                        auth: request.auth,
-                        security: request.security,
-                        proxy: request.proxy,
-                    }
+              .then(adaptedRequest => {
+                // CRITICAL FIX: Create request structure that matches the plugin's Request interface
+                // The plugin will handle the conversion to Rust RequestWithMetadata format
+                const pluginRequest: Request = {
+                  id: adaptedRequest.id,
+                  url: adaptedRequest.url,
+                  method: adaptedRequest.method,
+                  version: adaptedRequest.version,
+                  headers: adaptedRequest.headers,
+                  params: adaptedRequest.params,
+                  content: adaptedRequest.content,
+                  auth: adaptedRequest.auth,
+                  security: adaptedRequest.security,
+                  proxy: adaptedRequest.proxy,
+                  // CRITICAL: Add the options property that contains followRedirects
+                  ...(adaptedRequest as any).options && { options: (adaptedRequest as any).options },
+                  // CRITICAL: Also add follow_redirects at top level for Rust compatibility
+                  ...(adaptedRequest as any).options?.followRedirects !== undefined && {
+                    follow_redirects: (adaptedRequest as any).options.followRedirects
+                  },
+                }
 
                     return execute(pluginRequest)
                 })

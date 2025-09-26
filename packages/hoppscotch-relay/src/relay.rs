@@ -18,12 +18,13 @@ pub fn run_request_task(
     cancel_token: CancellationToken,
 ) -> Result<ResponseWithMetadata, RelayError> {
     log::info!(
-        "Starting request task: [Method: {}] [URL: {}] [Validate Certs: {}] [Has Body: {}] [Proxy Enabled: {}]",
+        "Starting request task: [Method: {}] [URL: {}] [Validate Certs: {}] [Has Body: {}] [Proxy Enabled: {}] [Follow Redirects: {}]",
         req.method,
         req.endpoint,
         req.validate_certs,
         req.body.is_some(),
-        req.proxy.is_some()
+        req.proxy.is_some(),
+        req.follow_redirects
     );
 
     let mut curl_handle = Easy::new();
@@ -142,6 +143,52 @@ pub fn run_request_task(
         return Err(err);
     }
     log::debug!("Proxy configuration applied successfully");
+
+     log::info!("Configuring redirect behavior: follow_redirects={}", req.follow_redirects);
+
+        match curl_handle.follow_location(req.follow_redirects) {
+            Ok(_) => log::info!(
+                "✓ Redirect handling successfully configured: follow_redirects={}",
+                req.follow_redirects
+            ),
+            Err(err) => {
+                log::error!(
+                    "✗ CRITICAL: Failed to configure redirect handling: {}\nRequested setting: {}",
+                    err,
+                    req.follow_redirects
+                );
+                return Err(RelayError::RequestRunError(format!(
+                    "Failed to configure redirect handling: {}",
+                    err.description()
+                )));
+            }
+        }
+
+        // Configure additional redirect settings when following redirects
+        if req.follow_redirects {
+            // Set maximum number of redirects to prevent infinite loops
+            match curl_handle.max_redirections(10) {
+                Ok(_) => log::info!("✓ Maximum redirections set to 10"),
+                Err(err) => {
+                    log::error!("✗ Failed to set maximum redirections: {}", err);
+                    return Err(RelayError::RequestRunError(format!(
+                        "Failed to set maximum redirections: {}",
+                        err.description()
+                    )));
+                }
+            }
+
+            // Ensure we follow redirects even for POST requests
+            match curl_handle.post_redirections(true) {
+                Ok(_) => log::info!("✓ POST redirect following enabled"),
+                Err(err) => {
+                    log::warn!("⚠ Could not enable POST redirects: {}", err);
+                    // Don't fail the request for this, as it's not critical
+                }
+            }
+        } else {
+            log::info!("✓ Redirects disabled - will return redirect responses as-is");
+        }
 
     let mut response_body = Vec::new();
     let mut response_headers = Vec::new();

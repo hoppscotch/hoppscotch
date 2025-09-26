@@ -33,6 +33,7 @@ type ProxyRequest = {
   data: string
   wantsBinary: boolean
   accessToken: string
+  followRedirects?: boolean
   auth?: {
     username: string
     password: string
@@ -74,7 +75,7 @@ export class ProxyKernelInterceptorService
     auth: new Set(["basic"]),
     security: new Set([]),
     proxy: new Set([]),
-    advanced: new Set([]),
+    advanced: new Set(["redirects"]),
   } as const
   public readonly settingsEntry = markRaw({
     title: (t: ReturnType<typeof getI18n>) =>
@@ -85,7 +86,7 @@ export class ProxyKernelInterceptorService
   private constructProxyRequest(
     request: RelayRequest,
     accessToken: string
-  ): ProxyRequest {
+  ): ProxyRequest & { followRedirects?: boolean } {
     // NOTE: This should be conditional but for now setting it to true for backwards compat,
     // see std/interceptor/proxy.ts for more info.
     const wantsBinary = true
@@ -139,7 +140,7 @@ export class ProxyKernelInterceptorService
       }
     }
 
-    return {
+    const proxyRequest = {
       accessToken,
       wantsBinary,
       url: request.url,
@@ -147,6 +148,7 @@ export class ProxyKernelInterceptorService
       headers: request.headers,
       params: request.params,
       data: requestData,
+      followRedirects: request.options?.followRedirects,
       auth:
         request.auth?.kind === "basic"
           ? {
@@ -155,6 +157,7 @@ export class ProxyKernelInterceptorService
             }
           : undefined,
     }
+    return proxyRequest
   }
 
   public execute(

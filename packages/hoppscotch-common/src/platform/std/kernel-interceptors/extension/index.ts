@@ -105,7 +105,7 @@ export class ExtensionKernelInterceptorService
       "peerverification",
     ]),
     proxy: new Set(["http", "https", "authentication", "certificates"]),
-    advanced: new Set(["localaccess"]),
+    advanced: new Set(["redirects", "localaccess"]),
   } as const
 
   public readonly extensionStatus = computed(() => this._extensionStatus.value)
@@ -273,14 +273,17 @@ export class ExtensionKernelInterceptorService
         }
       }
 
+      const extensionRequestOptions = {
+        url: request.url,
+        method: request.method,
+        headers: request.headers ?? {},
+        data: requestData,
+        wantsBinary: true,
+        followRedirects: request.options?.followRedirects
+      }
+
       const extensionResponse =
-        await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
-          url: request.url,
-          method: request.method,
-          headers: request.headers ?? {},
-          data: requestData,
-          wantsBinary: true,
-        })
+        await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest(extensionRequestOptions)
 
       const endTime = Date.now()
 

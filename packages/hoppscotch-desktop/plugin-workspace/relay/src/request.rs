@@ -49,59 +49,38 @@ impl<'a> CurlRequest<'a> {
             }
         })?;
 
-        /* NOTE: Once auth handling is correctly migrated over, this is how query param should be handled
-        if let Some(AuthType::ApiKey { key, value, location }) = &self.request.auth {
-            if let ApiKeyLocation::Query = location {
-                tracing::debug!(key = %key, "Adding API key to query parameters");
-
-                let mut url = url::Url::parse(&self.request.url).map_err(|e| {
-                    tracing::error!(error = %e, "Failed to parse URL for API key addition");
-                    RelayError::Parse {
-                        message: "Failed to parse URL for API key addition".into(),
-                        cause: Some(e.to_string()),
-                    }
-                })?;
-
-                url.query_pairs_mut().append_pair(key, value);
-                let updated_url = url.to_string();
-                tracing::debug!(url = %updated_url, "Updated URL with API key in query parameters");
-
-                self.handle.url(&updated_url).map_err(|e| {
-                    tracing::error!(error = %e, "Failed to set URL with API key");
-                    RelayError::Network {
-                        message: "Failed to set URL with API key".into(),
-                        cause: Some(e.to_string()),
-                    }
-                })?;
-            } else {
-                self.handle.url(&self.request.url).map_err(|e| {
-                    tracing::error!(error = %e, "Failed to set URL");
-                    RelayError::Network {
-                        message: "Failed to set URL".into(),
-                        cause: Some(e.to_string()),
-                    }
-                })?;
-            }
-        } else {
-            self.handle.url(&self.request.url).map_err(|e| {
-                tracing::error!(error = %e, "Failed to set URL");
-                RelayError::Network {
-                    message: "Failed to set URL".into(),
-                    cause: Some(e.to_string()),
-                }
-            })?;
-        }
-        */
+        // Configure redirect handling
+        let follow_redirects = self.request.follow_redirects.unwrap_or(false);
 
         self.handle
-            .http_version(self.request.version.to_curl_version())
+            .follow_location(follow_redirects)
             .map_err(|e| {
-                tracing::error!(error = %e, "Failed to set HTTP version");
+                tracing::error!(
+                    error = %e,
+                    follow_redirects = follow_redirects,
+                    "Failed to configure redirect handling"
+                );
                 RelayError::Network {
-                    message: "Failed to set HTTP version".into(),
+                    message: format!(
+                        "Failed to configure redirect handling: follow_redirects={}",
+                        follow_redirects
+                    ),
                     cause: Some(e.to_string()),
                 }
             })?;
+
+        if follow_redirects {
+            // Set maximum redirects to prevent infinite loops
+            self.handle
+                .max_redirections(10)
+                .map_err(|e| {
+                    tracing::error!(error = %e, "Failed to set max redirections");
+                    RelayError::Network {
+                        message: "Failed to set max redirections".into(),
+                        cause: Some(e.to_string()),
+                    }
+                })?;
+        }
 
         // NOTE: `""` corresponds to accept all,
         // see: https://curl.se/libcurl/c/CURLOPT_ACCEPT_ENCODING.html

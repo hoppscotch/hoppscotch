@@ -146,7 +146,13 @@ export class KernelInterceptorNativeStore extends Service {
       throw effective.left
     }
 
-    return { ...request, ...effective.right }
+    // CRITICAL FIX: Preserve the original request options (including followRedirects)
+    return {
+      ...request,
+      ...effective.right,
+      // Ensure options are preserved from the original request
+      options: (request as any).options,
+    }
   }
 
   public getDomainSettings(domain: string): InputDomainSetting {

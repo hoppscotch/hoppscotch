@@ -84,7 +84,14 @@ export const preProcessRelayRequest = (req: RelayRequest): RelayRequest =>
     req.params
       ? pipe(
           updateUrl(req.url, req.params),
-          E.map((url) => ({ ...req, url, params: {} })),
+          E.map((url) => ({
+            ...req,
+            url,
+            params: {},
+            // CRITICAL: Preserve options including followRedirects
+            options: req.options,
+            meta: req.meta,
+          })),
           E.getOrElse(() => req)
         )
       : req

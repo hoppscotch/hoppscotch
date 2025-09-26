@@ -1,5 +1,5 @@
 import { CookieJarService } from "@hoppscotch/common/services/cookie-jar.service"
-import { Interceptor, InterceptorError, RequestRunResult } from "@hoppscotch/common/services/interceptor.service"
+import { Interceptor, InterceptorError, RequestRunResult, NetworkResponse } from "@hoppscotch/common/services/interceptor.service"
 import { Service } from "dioc"
 import { cloneDeep } from "lodash-es"
 import { invoke } from "@tauri-apps/api/tauri"
@@ -9,7 +9,7 @@ import { ref, watch } from "vue"
 import { z } from "zod"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import { CACertStore, ClientCertsStore, ClientCertStore, StoredClientCert } from "./persisted-data"
-
+import { settingsStore } from "@hoppscotch/common/newstore/settings"
 
 type KeyValuePair = {
   key: string,
@@ -63,9 +63,9 @@ export type RequestDef = {
   body: BodyDef | null,
 
   validate_certs: boolean,
-  root_cert_bundle_files: number[],
+  root_cert_bundle_files: number[][],
   client_cert: ClientCertDef | null
-
+  follow_redirects: boolean,
   proxy?: {
     url: string
   }
@@ -90,6 +90,13 @@ export const preProcessRequest = (
 ): AxiosRequestConfig => {
   const reqClone = cloneDeep(req)
 
+  reqClone.maxRedirects = 0
+
+  // Accept all status codes so redirects reach our Rust backend
+  reqClone.validateStatus = (status: number) => {
+    return status >= 200 && status < 600
+  }
+
   // If the parameters are URLSearchParams, inject them to URL instead
   // This prevents issues of marshalling the URLSearchParams to the proxy
   if (reqClone.params instanceof URLSearchParams) {
@@ -110,44 +117,6 @@ export const preProcessRequest = (
   }
 
   return reqClone
-}
-
-async function processBody(axiosReq: AxiosRequestConfig): Promise<BodyDef | null> {
-  if (!axiosReq.data) return null
-
-  if (typeof axiosReq.data === "string") {
-    return { Text: axiosReq.data }
-  }
-
-  if (axiosReq.data instanceof FormData) {
-    const entries: FormDataEntry[] = []
-
-    for (const [key, value] of axiosReq.data.entries()) {
-      if (typeof value === "string") {
-        entries.push({
-          key,
-          value: { Text: value }
-        })
-      } else {
-        const mime = value.type !== "" ? value.type : "application/octet-stream"
-
-        entries.push({
-          key,
-          value: {
-            File: {
-              filename: value.name,
-              data: Array.from(new Uint8Array(await value.arrayBuffer())),
-              mime,
-            }
-          }
-        })
-      }
-    }
-
-    return { FormData: entries }
-  }
-
-  throw new Error("Native Process Body: Unhandled Axios Request Configuration")
 }
 
 function getURLDomain(url: string): string | null {
@@ -177,37 +146,88 @@ function convertClientCertToDefCert(cert: ClientCertificateEntry): ClientCertDef
 }
 
 async function convertToRequestDef(
-  axiosReq: AxiosRequestConfig,
+  relayReq: any,
   reqID: number,
   caCertificates: CACertificateEntry[],
   clientCertificates: Map<string, ClientCertificateEntry>,
   validateCerts: boolean,
   proxyInfo: RequestDef["proxy"]
 ): Promise<RequestDef> {
-  const clientCertDomain = getURLDomain(axiosReq.url!)
-
+  const clientCertDomain = getURLDomain(relayReq.url!);
   const clientCert = clientCertDomain ? clientCertificates.get(clientCertDomain) : null
+
+  // Extract followRedirects from RelayRequest options
+  const followRedirects = relayReq.options?.followRedirects ?? settingsStore.value.FOLLOW_REDIRECTS
+
+  // Convert headers from RelayRequest format
+  const headers: KeyValuePair[] = Object.entries(relayReq.headers ?? {})
+    .filter(([key, value]) =>
+      !(key.toLowerCase() === "content-type" &&
+        typeof value === "string" &&
+        value.toLowerCase().includes("multipart/form-data"))
+    )
+    .map(([key, value]): KeyValuePair => ({ key, value: String(value) }))
+
+  // Convert params from RelayRequest format
+  const parameters: KeyValuePair[] = Object.entries(relayReq.params ?? {})
+    .map(([key, value]): KeyValuePair => ({ key, value: String(value) }))
+
+  // Process body from RelayRequest content
+  let body: BodyDef | null = null
+  if (relayReq.content) {
+    switch (relayReq.content.kind) {
+      case "text":
+        body = { Text: relayReq.content.content }
+        break
+      case "json":
+        body = {
+          Text: typeof relayReq.content.content === "string"
+            ? relayReq.content.content
+            : JSON.stringify(relayReq.content.content)
+        }
+        break
+      case "urlencoded":
+        body = { Text: relayReq.content.content }
+        break
+      case "multipart":
+        if (relayReq.content.content instanceof FormData) {
+          const entries: FormDataEntry[] = []
+          // @ts-expect-error FormData entries iteration
+          for (const [key, value] of relayReq.content.content.entries()) {
+            if (typeof value === "string") {
+              entries.push({ key, value: { Text: value } })
+            } else if (value instanceof File || value instanceof Blob) {
+              const buffer = await value.arrayBuffer()
+              entries.push({
+                key,
+                value: {
+                  File: {
+                    filename: value instanceof File ? value.name : "unknown",
+                    data: Array.from(new Uint8Array(buffer)),
+                    mime: value.type || "application/octet-stream",
+                  }
+                }
+              })
+            }
+          }
+          body = { FormData: entries }
+        }
+        break
+    }
+  }
 
   return {
     req_id: reqID,
-    method: axiosReq.method ?? "GET",
-    endpoint: axiosReq.url ?? "",
-    headers: Object.entries(axiosReq.headers ?? {})
-      .filter(
-        ([key, value]) =>
-          !(
-            key.toLowerCase() === "content-type" &&
-            value.toLowerCase() === "multipart/form-data"
-          )
-      ) // Removing header, because this header will be set by relay.
-      .map(([key, value]): KeyValuePair => ({ key, value })),
-    parameters: Object.entries(axiosReq.params as Record<string, string> ?? {})
-      .map(([key, value]): KeyValuePair => ({ key, value })),
-    body: await processBody(axiosReq),
+    method: relayReq.method ?? "GET",
+    endpoint: relayReq.url ?? "",
+    headers,
+    parameters,
+    body,
     root_cert_bundle_files: caCertificates.map((cert) => Array.from(cert.certificate)),
     validate_certs: validateCerts,
     client_cert: clientCert ? convertClientCertToDefCert(clientCert) : null,
-    proxy: proxyInfo
+    proxy: proxyInfo,
+    follow_redirects: followRedirects,
   }
 }
 
@@ -279,24 +299,22 @@ export class NativeInterceptorService extends Service implements Interceptor {
   public validateCerts = ref(true)
   public proxyInfo = ref<RequestDef["proxy"]>(undefined)
 
-  override onServiceInit() {
+  override async onServiceInit() {
     // Load SSL Validation
-    const persistedValidateSSL: unknown = JSON.parse(
-      this.persistenceService.getLocalConfig(VALIDATE_SSL_KEY) ?? "null"
-    )
+    const persistedValidateSSLRaw = await this.persistenceService.getLocalConfig(VALIDATE_SSL_KEY)
+    const persistedValidateSSL: unknown = JSON.parse(persistedValidateSSLRaw ?? "null")
 
     if (typeof persistedValidateSSL === "boolean") {
       this.validateCerts.value = persistedValidateSSL
     }
 
-    const persistedProxyInfo = this.persistenceService.getLocalConfig(
+    const persistedProxyInfoRaw = await this.persistenceService.getLocalConfig(
       PROXY_INFO_PERSIST_KEY
     )
 
-    if (persistedProxyInfo && persistedProxyInfo !== "null") {
+    if (persistedProxyInfoRaw && persistedProxyInfoRaw !== "null") {
       try {
-        const proxyInfo = JSON.parse(persistedProxyInfo)
-        this.proxyInfo.value = proxyInfo
+        this.proxyInfo.value = JSON.parse(persistedProxyInfoRaw)
       } catch (e) {}
     }
 
@@ -305,9 +323,8 @@ export class NativeInterceptorService extends Service implements Interceptor {
     })
 
     // Load and setup writes for CA Store
-    const persistedCAStoreData = JSON.parse(
-      this.persistenceService.getLocalConfig(CA_STORE_PERSIST_KEY) ?? "null"
-    )
+    const persistedCAStoreDataRaw = await this.persistenceService.getLocalConfig(CA_STORE_PERSIST_KEY)
+    const persistedCAStoreData = JSON.parse(persistedCAStoreDataRaw ?? "null")
 
     const caStoreDataParseResult = CACertStore.safeParse(persistedCAStoreData)
 
@@ -328,9 +345,8 @@ export class NativeInterceptorService extends Service implements Interceptor {
 
 
     // Load and setup writes for Client Certs Store
-    const persistedClientCertStoreData = JSON.parse(
-      this.persistenceService.getLocalConfig(CLIENT_CERTS_PERSIST_KEY) ?? "null"
-    )
+    const persistedClientCertStoreDataRaw = await this.persistenceService.getLocalConfig(CLIENT_CERTS_PERSIST_KEY)
+    const persistedClientCertStoreData = JSON.parse(persistedClientCertStoreDataRaw ?? "null")
 
     const clientCertStoreDataParseResult = ClientCertsStore.safeParse(persistedClientCertStoreData)
 
@@ -339,38 +355,34 @@ export class NativeInterceptorService extends Service implements Interceptor {
         Object.entries(
           clientCertStoreDataParseResult.value.clientCerts
         )
-        .map(([domain, cert]) => {
-          if ("PFXCert" in cert.cert) {
-            const newCert = <ClientCertificateEntry>{
-              ...cert,
-              cert: {
-                PFXCert: {
-                  certificate_pfx: new Uint8Array(cert.cert.PFXCert.certificate_pfx),
-                  certificate_filename: cert.cert.PFXCert.certificate_filename,
-
-                  password: cert.cert.PFXCert.password
+          .map(([domain, cert]) => {
+            if ("PFXCert" in cert.cert) {
+              const newCert = <ClientCertificateEntry>{
+                ...cert,
+                cert: {
+                  PFXCert: {
+                    certificate_pfx: new Uint8Array(cert.cert.PFXCert.certificate_pfx),
+                    certificate_filename: cert.cert.PFXCert.certificate_filename,
+                    password: cert.cert.PFXCert.password
+                  }
                 }
               }
-            }
-
-            return [domain, newCert]
-          } else {
-            const newCert = <ClientCertificateEntry>{
-              ...cert,
-              cert: {
-                PEMCert: {
-                  certificate_pem: new Uint8Array(cert.cert.PEMCert.certificate_pem),
-                  certificate_filename: cert.cert.PEMCert.certificate_filename,
-
-                  key_pem: new Uint8Array(cert.cert.PEMCert.key_pem),
-                  key_filename: cert.cert.PEMCert.key_filename
+              return [domain, newCert]
+            } else {
+              const newCert = <ClientCertificateEntry>{
+                ...cert,
+                cert: {
+                  PEMCert: {
+                    certificate_pem: new Uint8Array(cert.cert.PEMCert.certificate_pem),
+                    certificate_filename: cert.cert.PEMCert.certificate_filename,
+                    key_pem: new Uint8Array(cert.cert.PEMCert.key_pem),
+                    key_filename: cert.cert.PEMCert.key_filename
+                  }
                 }
               }
+              return [domain, newCert]
             }
-
-            return [domain, newCert]
-          }
-        })
+          })
       )
     }
 
@@ -387,12 +399,10 @@ export class NativeInterceptorService extends Service implements Interceptor {
                     PFXCert: {
                       certificate_pfx: Array.from(cert.cert.PFXCert.certificate_pfx),
                       certificate_filename: cert.cert.PFXCert.certificate_filename,
-
                       password: cert.cert.PFXCert.password
                     }
                   }
                 }
-
                 return [domain, newCert]
               } else {
                 const newCert = <StoredClientCert>{
@@ -401,20 +411,16 @@ export class NativeInterceptorService extends Service implements Interceptor {
                     PEMCert: {
                       certificate_pem: Array.from(cert.cert.PEMCert.certificate_pem),
                       certificate_filename: cert.cert.PEMCert.certificate_filename,
-
                       key_pem: Array.from(cert.cert.PEMCert.key_pem),
                       key_filename: cert.cert.PEMCert.key_filename
                     }
                   }
                 }
-
                 return [domain, newCert]
               }
             })
         )
       }
-
-
       this.persistenceService.setLocalConfig(CLIENT_CERTS_PERSIST_KEY, JSON.stringify(storableValue))
     })
 
@@ -427,7 +433,9 @@ export class NativeInterceptorService extends Service implements Interceptor {
   }
 
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
+    const isRelayRequest = req && typeof req === 'object' && 'method' in req && 'version' in req;
     const processedReq = preProcessRequest(req)
+    if (!processedReq.headers) processedReq.headers = {}
 
     const relevantCookies = this.cookieJarService.getCookiesForURL(
       new URL(processedReq.url!)
@@ -446,8 +454,9 @@ export class NativeInterceptorService extends Service implements Interceptor {
         invoke("plugin:hopp_native_interceptor|cancel_request", { reqId: reqID });
       },
       response: (async () => {
+        const requestForConversion = isRelayRequest ? req : processedReq;
         const requestDef = await convertToRequestDef(
-          processedReq,
+          requestForConversion,
           reqID,
           this.caCertificates.value,
           this.clientCertificates.value,
@@ -456,13 +465,12 @@ export class NativeInterceptorService extends Service implements Interceptor {
         )
 
         try {
-
           const response: RunRequestResponse = await invoke(
             "plugin:hopp_native_interceptor|run_request",
             { req: requestDef }
           )
 
-          return E.right({
+          return E.right<InterceptorError, NetworkResponse>({
             headers: Object.fromEntries(
               response.headers.map(({ key, value }) => [key, value])
             ),
@@ -480,17 +488,15 @@ export class NativeInterceptorService extends Service implements Interceptor {
             }
           })
         } catch (e) {
-
           if (typeof e === "object" && (e as any)["RequestCancelled"]) {
-            return E.left("cancellation" as const)
+            return E.left<InterceptorError, NetworkResponse>("cancellation" as const)
           }
-
-          // TODO: More in-depth error messages
-          return E.left(<InterceptorError>{
+          return E.left<InterceptorError, NetworkResponse>({
             humanMessage: {
               heading: (t) => t("error.network_fail"),
               description: (t) => t("helpers.network_fail"),
-            }
+            },
+            error: e
           })
         }
       })()

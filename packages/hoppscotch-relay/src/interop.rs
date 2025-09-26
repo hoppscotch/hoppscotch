@@ -40,6 +40,7 @@ pub struct RequestWithMetadata {
     pub root_cert_bundle_files: Vec<Vec<u8>>,
     pub client_cert: Option<ClientCertDef>,
     pub proxy: Option<ProxyConfig>,
+    pub follow_redirects: bool,
 }
 
 impl RequestWithMetadata {
@@ -53,6 +54,7 @@ impl RequestWithMetadata {
         root_cert_bundle_files: Vec<Vec<u8>>,
         client_cert: Option<ClientCertDef>,
         proxy: Option<ProxyConfig>,
+        follow_redirects: bool,
     ) -> Self {
         Self {
             req_id,
@@ -64,6 +66,7 @@ impl RequestWithMetadata {
             root_cert_bundle_files,
             client_cert,
             proxy,
+            follow_redirects,
         }
     }
 }

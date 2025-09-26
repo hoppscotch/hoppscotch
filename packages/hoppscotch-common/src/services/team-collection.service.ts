@@ -189,12 +189,12 @@ export class TeamCollectionsService extends Service<void> {
       { immediate: true, deep: true }
     )
 
-    // Watch for changes in collections to update the inherited properties of request tabs
+    // Watch for changes in collections to update the inherited properties of active request tabs
     // if pendingTeamCollectionPath is set from outside and update the tabs accordingly
     watch(
       () => this.collections,
-      () => {
-        if (this.pendingTeamCollectionPath.value) {
+      (collections) => {
+        if (this.pendingTeamCollectionPath.value && collections) {
           updateInheritedPropertiesForAffectedRequests(
             this.pendingTeamCollectionPath.value,
             "rest"

@@ -1,14 +1,13 @@
 <template>
   <HoppSmartModal
     v-if="show"
-    dialog
     :title="t('app.options')"
     styles="sm:max-w-md"
     @close="emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col space-y-2">
-        <h2 class="p-4 font-bold font-semibold text-secondaryDark">
+        <h2 class="p-4 font-semibold text-secondaryDark">
           {{ t("layout.name") }}
         </h2>
         <HoppSmartItem
@@ -27,7 +26,7 @@
           active
           @click="expandCollection"
         />
-        <h2 class="p-4 font-bold font-semibold text-secondaryDark">
+        <h2 class="p-4 font-semibold text-secondaryDark">
           {{ t("support.title") }}
         </h2>
         <template

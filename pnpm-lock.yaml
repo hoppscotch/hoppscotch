@@ -1645,8 +1645,8 @@ importers:
         specifier: 2.0.2
         version: 2.0.2(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1))
       vite-plugin-inspect:
-        specifier: 11.3.2
-        version: 11.3.2(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1))
+        specifier: 11.3.3
+        version: 11.3.3(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1))
       vite-plugin-pages:
         specifier: 0.33.1
         version: 0.33.1(@vue/compiler-sfc@3.5.22)(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.22(typescript@5.9.2)))
@@ -12556,6 +12556,9 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
+  perfect-debounce@2.0.0:
+    resolution: {integrity: sha512-fkEH/OBiKrqqI/yIgjR92lMfs2K8105zt/VT6+7eTjNwisrsh47CeIED9z58zI7DfKdH3uHAn25ziRZn3kgAow==}
+
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
@@ -14566,6 +14569,10 @@ packages:
     resolution: {integrity: sha512-gwXJnPRewT4rT7sBi/IvxKTjsms7jX7QIDLOClApuZwR49SXbrB1z2NLUZ+vDHyqCj/n58OzRRqaW+B8OZi8vg==}
     engines: {node: '>=18.12.0'}
 
+  unplugin-utils@0.3.0:
+    resolution: {integrity: sha512-JLoggz+PvLVMJo+jZt97hdIIIZ2yTzGgft9e9q8iMrC4ewufl62ekeW7mixBghonn2gVb/ICjyvlmOCUBnJLQg==}
+    engines: {node: '>=20.19.0'}
+
   unplugin-vue-components@0.21.0:
     resolution: {integrity: sha512-U7uOMNmRJ2eAv9CNjP8QRvxs6nAe3FVQUEIUphC1FGguBp3BWSLgGAcSHaX2nQy0gFoDY2mLF2M52W/t/eDaKg==}
     engines: {node: '>=14'}
@@ -14827,8 +14834,8 @@ packages:
       '@nuxt/kit':
         optional: true
 
-  vite-plugin-inspect@11.3.2:
-    resolution: {integrity: sha512-nzwvyFQg58XSMAmKVLr2uekAxNYvAbz1lyPmCAFVIBncCgN9S/HPM+2UM9Q9cvc4JEbC5ZBgwLAdaE2onmQuKg==}
+  vite-plugin-inspect@11.3.3:
+    resolution: {integrity: sha512-u2eV5La99oHoYPHE6UvbwgEqKKOQGz86wMg40CCosP6q8BkB6e5xPneZfYagK4ojPJSj5anHCrnvC20DpwVdRA==}
     engines: {node: '>=14'}
     peerDependencies:
       '@nuxt/kit': '*'
@@ -22851,7 +22858,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.39.1(typescript@5.9.2)
       '@typescript-eslint/types': 8.40.0
-      debug: 4.4.1
+      debug: 4.4.3(supports-color@8.1.1)
       typescript: 5.9.2
     transitivePeerDependencies:
       - supports-color
@@ -29812,6 +29819,8 @@ snapshots:
 
   perfect-debounce@1.0.0: {}
 
+  perfect-debounce@2.0.0: {}
+
   picocolors@1.1.0: {}
 
   picocolors@1.1.1: {}
@@ -32209,6 +32218,11 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
+  unplugin-utils@0.3.0:
+    dependencies:
+      pathe: 2.0.3
+      picomatch: 4.0.3
+
   unplugin-vue-components@0.21.0(@babel/parser@7.28.4)(esbuild@0.25.10)(rollup@2.79.2)(vite@4.5.0(@types/node@18.18.8)(sass@1.93.2)(terser@5.39.2))(vue@3.5.22(typescript@5.8.3))(webpack@5.100.2(@swc/core@1.4.2)(esbuild@0.25.10)):
     dependencies:
       '@antfu/utils': 0.5.2
@@ -32571,16 +32585,16 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-inspect@11.3.2(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1)):
+  vite-plugin-inspect@11.3.3(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1)):
     dependencies:
       ansis: 4.1.0
-      debug: 4.4.1
+      debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser-es: 1.0.5
       ohash: 2.0.11
       open: 10.2.0
-      perfect-debounce: 1.0.0
+      perfect-debounce: 2.0.0
       sirv: 3.0.1
-      unplugin-utils: 0.2.5
+      unplugin-utils: 0.3.0
       vite: 6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1)
       vite-dev-rpc: 1.1.0(vite@6.3.5(@types/node@24.5.2)(jiti@2.6.0)(sass@1.93.2)(terser@5.39.2)(yaml@2.8.1))
     transitivePeerDependencies:

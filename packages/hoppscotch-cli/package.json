@@ -43,8 +43,8 @@
   "dependencies": {
     "aws4fetch": "1.0.20",
     "axios": "1.12.2",
-    "chalk": "5.6.0",
-    "commander": "14.0.0",
+    "chalk": "5.6.2",
+    "commander": "14.0.1",
     "isolated-vm": "5.0.4",
     "js-md5": "0.8.3",
     "lodash-es": "4.17.21",

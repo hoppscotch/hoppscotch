@@ -17,10 +17,10 @@
     "axios": "1.12.2",
     "fp-ts": "2.16.11",
     "lodash-es": "4.17.21",
-    "vue": "3.5.20"
+    "vue": "3.5.22"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "1.2.64",
+    "@iconify-json/lucide": "1.2.68",
     "@tauri-apps/cli": "^2.0.3",
     "@types/lodash-es": "4.17.12",
     "@types/node": "24.3.0",

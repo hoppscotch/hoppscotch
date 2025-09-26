@@ -3060,6 +3060,14 @@ const setCollectionProperties = (newCollection: {
       headers: collection.headers,
       variables: collection.variables,
     }
+
+    // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array
+    if (
+      !teamCollectionService.loadingCollections.value.includes(collectionId)
+    ) {
+      teamCollectionService.loadingCollections.value.push(collectionId)
+    }
+
     pipe(
       updateTeamCollection(collectionId, JSON.stringify(data), undefined),
       TE.match(
@@ -3068,15 +3076,12 @@ const setCollectionProperties = (newCollection: {
         },
         () => {
           toast.success(t("collection.properties_updated"))
+
+          // The team collection service needs to know the path of the collection that was updated
+          teamCollectionService.pendingTeamCollectionPath.value = path
         }
       )
     )()
-
-    //This is a hack to update the inherited properties of the requests if there an tab opened
-    // since it takes a little bit of time to update the collection tree
-    setTimeout(() => {
-      updateInheritedPropertiesForAffectedRequests(path, "rest")
-    }, 300)
   }
 
   displayModalEditProperties(false)

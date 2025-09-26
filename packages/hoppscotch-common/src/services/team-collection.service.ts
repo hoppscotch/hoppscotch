@@ -34,6 +34,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { WorkspaceService } from "./workspace.service"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
+import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
 
@@ -144,6 +145,7 @@ export class TeamCollectionsService extends Service<void> {
 
   public collections = ref<TeamCollection[]>([])
   public loadingCollections = ref<string[]>([])
+  public pendingTeamCollectionPath = ref<string | null>(null)
 
   private entityIDs: Set<string> = new Set()
 
@@ -185,6 +187,24 @@ export class TeamCollectionsService extends Service<void> {
         }
       },
       { immediate: true, deep: true }
+    )
+
+    // Watch for completion of loading (when all loading flags are cleared) to update inherited properties once
+    watch(
+      () => this.loadingCollections.value.length,
+      (loadingCount) => {
+        if (
+          loadingCount === 0 &&
+          this.pendingTeamCollectionPath.value &&
+          this.collections.value.length > 0
+        ) {
+          updateInheritedPropertiesForAffectedRequests(
+            this.pendingTeamCollectionPath.value,
+            "rest"
+          )
+          this.pendingTeamCollectionPath.value = null
+        }
+      }
     )
   }
 
@@ -688,6 +708,10 @@ export class TeamCollectionsService extends Service<void> {
         title: result.right.teamCollectionUpdated.title,
         data: result.right.teamCollectionUpdated.data,
       })
+
+      this.loadingCollections.value = this.loadingCollections.value.filter(
+        (x) => x !== result.right.teamCollectionUpdated.id
+      )
     })
 
     const [teamCollRemoved$, teamCollRemovedSub] = runGQLSubscription({

@@ -18,6 +18,24 @@ import {
     type RequestResult
 } from '@hoppscotch/plugin-relay'
 
+// Extended type to represent the adapted request before narrowing to the plugin Request
+// This mirrors RelayRequest.options so we can access it in a type-safe way.
+interface AdaptedRequest extends Request {
+  options?: {
+    timeout?: number
+    followRedirects?: boolean
+    maxRedirects?: number
+    decompress?: boolean
+    cookies?: boolean
+    keepAlive?: boolean
+    tcpNoDelay?: boolean
+    ipVersion?: 'v4' | 'v6' | 'any'
+  }
+}
+
+// Local extension allowing follow_redirects which may not yet be in upstream Request typings
+interface PluginRequestWithRedirect extends Request { follow_redirects?: boolean }
+
 export const implementation: VersionedAPI<RelayV1> = {
     version: { major: 1, minor: 0, patch: 0 },
     api: {
@@ -137,30 +155,25 @@ export const implementation: VersionedAPI<RelayV1> = {
             }
 
             const responsePromise = relayRequestToNativeAdapter(request)
-              .then(adaptedRequest => {
-                // CRITICAL FIX: Create request structure that matches the plugin's Request interface
-                // The plugin will handle the conversion to Rust RequestWithMetadata format
-                const pluginRequest: Request = {
-                  id: adaptedRequest.id,
-                  url: adaptedRequest.url,
-                  method: adaptedRequest.method,
-                  version: adaptedRequest.version,
-                  headers: adaptedRequest.headers,
-                  params: adaptedRequest.params,
-                  content: adaptedRequest.content,
-                  auth: adaptedRequest.auth,
-                  security: adaptedRequest.security,
-                  proxy: adaptedRequest.proxy,
-                  // CRITICAL: Add the options property that contains followRedirects
-                  ...(adaptedRequest as any).options && { options: (adaptedRequest as any).options },
-                  // CRITICAL: Also add follow_redirects at top level for Rust compatibility
-                  ...(adaptedRequest as any).options?.followRedirects !== undefined && {
-                    follow_redirects: (adaptedRequest as any).options.followRedirects
-                  },
+              .then((adaptedRequest) => {
+                const req = adaptedRequest as AdaptedRequest
+                // Map the RelayRequest.options.followRedirects (if present) to the plugin's follow_redirects
+                const pluginRequest: PluginRequestWithRedirect = {
+                  id: req.id,
+                  url: req.url,
+                  method: req.method,
+                  version: req.version,
+                  headers: req.headers,
+                  params: req.params,
+                  content: req.content,
+                  auth: req.auth,
+                  security: req.security,
+                  proxy: req.proxy,
+                  follow_redirects: req.options?.followRedirects,
                 }
 
-                    return execute(pluginRequest)
-                })
+                return execute(pluginRequest as Request)
+              })
                 .then((result: RequestResult): E.Either<RelayError, RelayResponse> => {
                     if (result.kind === 'success') {
                         const response: RelayResponse = {

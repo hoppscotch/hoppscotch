@@ -63,7 +63,7 @@ export type RequestDef = {
   body: BodyDef | null,
 
   validate_certs: boolean,
-  root_cert_bundle_files: number[][],
+  root_cert_bundle_files: number[],
   client_cert: ClientCertDef | null
   follow_redirects: boolean,
   proxy?: {

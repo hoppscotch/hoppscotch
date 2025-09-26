@@ -3061,8 +3061,12 @@ const setCollectionProperties = (newCollection: {
       variables: collection.variables,
     }
 
-    // push the collectionId to the loading array
-    teamCollectionService.loadingCollections.value.push(collectionId)
+    // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array
+    if (
+      !teamCollectionService.loadingCollections.value.includes(collectionId)
+    ) {
+      teamCollectionService.loadingCollections.value.push(collectionId)
+    }
 
     pipe(
       updateTeamCollection(collectionId, JSON.stringify(data), undefined),

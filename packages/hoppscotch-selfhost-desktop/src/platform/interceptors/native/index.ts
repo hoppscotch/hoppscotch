@@ -432,8 +432,15 @@ export class NativeInterceptorService extends Service implements Interceptor {
     })
   }
 
+  // Define a Zod schema for RelayRequest
+  private static readonly RelayRequestSchema = z.object({
+    method: z.string(),
+    version: z.string(),
+    // Add other required fields for RelayRequest here if needed
+  });
+
   public runRequest(req: AxiosRequestConfig): RequestRunResult<InterceptorError> {
-    const isRelayRequest = req && typeof req === 'object' && 'method' in req && 'version' in req;
+    const isRelayRequest = NativeInterceptorService.RelayRequestSchema.safeParse(req).success;
     const processedReq = preProcessRequest(req)
     if (!processedReq.headers) processedReq.headers = {}
 

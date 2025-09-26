@@ -213,6 +213,7 @@ export interface Request {
       password: string
     }
   }
+  follow_redirects?: boolean
 }
 
 export interface Response {

@@ -991,6 +991,7 @@
     "extensions": "Browser extension",
     "extensions_use_toggle": "Use the browser extension to send requests (if present)",
     "follow": "Follow us",
+    "follow_redirects": "Automatically follow redirects",
     "general": "General",
     "general_description": " General settings used in the application",
     "interceptor": "Interceptor",

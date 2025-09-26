@@ -33,6 +33,7 @@ export type SettingsDef = {
   syncEnvironments: boolean
 
   PROXY_URL: string
+  FOLLOW_REDIRECTS: boolean
 
   WRAP_LINES: {
     httpRequestBody: boolean
@@ -124,6 +125,7 @@ export const getDefaultSettings = (): SettingsDef => {
 
     // TODO: Interceptor related settings should move under the interceptor systems
     PROXY_URL: defaultProxyURL,
+    FOLLOW_REDIRECTS: true,
     URL_EXCLUDES: {
       auth: true,
       httpUser: true,

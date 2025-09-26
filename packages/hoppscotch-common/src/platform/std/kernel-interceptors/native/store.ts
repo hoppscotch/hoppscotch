@@ -146,7 +146,10 @@ export class KernelInterceptorNativeStore extends Service {
       throw effective.left
     }
 
-    return { ...request, ...effective.right }
+    return {
+      ...request,
+      ...effective.right,
+    }
   }
 
   public getDomainSettings(domain: string): InputDomainSetting {

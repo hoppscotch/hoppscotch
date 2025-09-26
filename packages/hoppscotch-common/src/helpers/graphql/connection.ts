@@ -31,6 +31,7 @@ import { GQLTabService } from "~/services/tab/graphql"
 import { MediaType, content, Method, RelayRequest } from "@hoppscotch/kernel"
 import { GQLRequest } from "~/helpers/kernel/gql/request"
 import { GQLResponse } from "~/helpers/kernel/gql/response"
+import { settingsStore } from "~/newstore/settings"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -286,6 +287,9 @@ const getSchema = async (options: ConnectionRequestOptions) => {
         { query: getIntrospectionQuery() },
         MediaType.APPLICATION_JSON
       ),
+      options: {
+        followRedirects: settingsStore.value.FOLLOW_REDIRECTS,
+      },
     }
 
     const kernelInterceptorService = getService(KernelInterceptorService)

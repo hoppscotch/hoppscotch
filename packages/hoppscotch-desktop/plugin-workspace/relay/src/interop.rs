@@ -327,6 +327,7 @@ pub struct Request {
     pub auth: Option<AuthType>,
     pub security: Option<SecurityConfig>,
     pub proxy: Option<ProxyConfig>,
+    pub follow_redirects: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

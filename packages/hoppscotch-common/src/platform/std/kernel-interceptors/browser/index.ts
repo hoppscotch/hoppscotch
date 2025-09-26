@@ -48,7 +48,7 @@ export class BrowserKernelInterceptorService
     auth: new Set(["basic", "bearer", "apikey"]),
     security: new Set([]),
     proxy: new Set([]),
-    advanced: new Set([]),
+    advanced: new Set(["redirects"]),
   } as const
 
   public execute(

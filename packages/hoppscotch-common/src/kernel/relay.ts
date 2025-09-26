@@ -21,6 +21,13 @@ export const Relay = (() => {
       cancel: () => Promise<void>
       emitter: RelayEventEmitter<RelayRequestEvents>
       response: Promise<E.Either<RelayError, RelayResponse>>
-    } => module().execute(request),
+    } => {
+      // DEBUG: Log the actual relay module being used
+      const relayModule = module();
+
+      const result = relayModule.execute(request);
+
+      return result;
+    },
   } as const
 })()

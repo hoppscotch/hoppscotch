@@ -18,6 +18,24 @@ import {
     type RequestResult
 } from '@hoppscotch/plugin-relay'
 
+// Extended type to represent the adapted request before narrowing to the plugin Request
+// This mirrors RelayRequest.options so we can access it in a type-safe way.
+interface AdaptedRequest extends Request {
+  options?: {
+    timeout?: number
+    followRedirects?: boolean
+    maxRedirects?: number
+    decompress?: boolean
+    cookies?: boolean
+    keepAlive?: boolean
+    tcpNoDelay?: boolean
+    ipVersion?: 'v4' | 'v6' | 'any'
+  }
+}
+
+// Local extension allowing follow_redirects which may not yet be in upstream Request typings
+interface PluginRequestWithRedirect extends Request { follow_redirects?: boolean }
+
 export const implementation: VersionedAPI<RelayV1> = {
     version: { major: 1, minor: 0, patch: 0 },
     api: {
@@ -137,27 +155,25 @@ export const implementation: VersionedAPI<RelayV1> = {
             }
 
             const responsePromise = relayRequestToNativeAdapter(request)
-                .then(request => {
-                    // SAFETY: Type assertion is safe because:
-                    // 1. The capabilities system prevents requests with unsupported methods from reaching this point
-                    // 2. Content types not supported by the plugin are filtered by capabilities
-                    // 3. Authentication methods are validated through capabilities
-                    // 4. The plugin's Request type is a subset of our Request type
-                    const pluginRequest = {
-                        id: request.id,
-                        url: request.url,
-                        method: request.method,
-                        version: request.version,
-                        headers: request.headers,
-                        params: request.params,
-                        content: request.content,
-                        auth: request.auth,
-                        security: request.security,
-                        proxy: request.proxy,
-                    }
+              .then((adaptedRequest) => {
+                const req = adaptedRequest as AdaptedRequest
+                // Map the RelayRequest.options.followRedirects (if present) to the plugin's follow_redirects
+                const pluginRequest: PluginRequestWithRedirect = {
+                  id: req.id,
+                  url: req.url,
+                  method: req.method,
+                  version: req.version,
+                  headers: req.headers,
+                  params: req.params,
+                  content: req.content,
+                  auth: req.auth,
+                  security: req.security,
+                  proxy: req.proxy,
+                  follow_redirects: req.options?.followRedirects,
+                }
 
-                    return execute(pluginRequest)
-                })
+                return execute(pluginRequest as Request)
+              })
                 .then((result: RequestResult): E.Either<RelayError, RelayResponse> => {
                     if (result.kind === 'success') {
                         const response: RelayResponse = {

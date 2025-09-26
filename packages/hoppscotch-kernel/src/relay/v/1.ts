@@ -338,6 +338,17 @@ export interface RelayRequest {
     content?: ContentType
     auth?: AuthType
 
+  options?: {
+    timeout?: number
+    followRedirects?: boolean
+    maxRedirects?: number
+    decompress?: boolean
+    cookies?: boolean
+    keepAlive?: boolean
+    tcpNoDelay?: boolean
+    ipVersion?: "v4" | "v6" | "any"
+  }
+
     security?: {
         certificates?: {
             client?: CertificateType

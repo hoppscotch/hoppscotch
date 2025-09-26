@@ -243,15 +243,7 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 import { cloneDeep, debounce, isEqual } from "lodash-es"
-import {
-  PropType,
-  computed,
-  nextTick,
-  onMounted,
-  ref,
-  watch,
-  onUnmounted,
-} from "vue"
+import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -333,7 +325,6 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { SortOptions } from "~/helpers/backend/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
-import { Subscription } from "rxjs"
 
 const t = useI18n()
 const toast = useToast()
@@ -426,7 +417,6 @@ const teamCollectionService = useService(TeamCollectionsService)
 const teamCollections = teamCollectionService.collections
 
 const teamEnvironmentAdapter = new TeamEnvironmentAdapter(undefined)
-const teamCollectionsSubscription = ref<Subscription | null>(null)
 
 const {
   cascadeParentCollectionForPropertiesForSearchResults,
@@ -518,13 +508,6 @@ onMounted(async () => {
     await persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
-  }
-})
-
-onUnmounted(() => {
-  if (teamCollectionsSubscription.value) {
-    teamCollectionsSubscription.value.unsubscribe()
-    teamCollectionsSubscription.value = null
   }
 })
 

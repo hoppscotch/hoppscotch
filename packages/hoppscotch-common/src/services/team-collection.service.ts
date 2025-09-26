@@ -189,20 +189,22 @@ export class TeamCollectionsService extends Service<void> {
       { immediate: true, deep: true }
     )
 
-    // Watch for changes in collections to update the inherited properties of active request tabs
-    // if pendingTeamCollectionPath is set from outside and update the tabs accordingly
+    // Watch for completion of loading (when all loading flags are cleared) to update inherited properties once
     watch(
-      () => this.collections,
-      (collections) => {
-        if (this.pendingTeamCollectionPath.value && collections) {
+      () => this.loadingCollections.value.length,
+      (loadingCount) => {
+        if (
+          loadingCount === 0 &&
+          this.pendingTeamCollectionPath.value &&
+          this.collections.value.length > 0
+        ) {
           updateInheritedPropertiesForAffectedRequests(
             this.pendingTeamCollectionPath.value,
             "rest"
           )
           this.pendingTeamCollectionPath.value = null
         }
-      },
-      { deep: true }
+      }
     )
   }
 
@@ -706,6 +708,10 @@ export class TeamCollectionsService extends Service<void> {
         title: result.right.teamCollectionUpdated.title,
         data: result.right.teamCollectionUpdated.data,
       })
+
+      this.loadingCollections.value = this.loadingCollections.value.filter(
+        (x) => x !== result.right.teamCollectionUpdated.id
+      )
     })
 
     const [teamCollRemoved$, teamCollRemovedSub] = runGQLSubscription({

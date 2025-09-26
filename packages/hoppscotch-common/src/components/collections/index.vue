@@ -3060,6 +3060,10 @@ const setCollectionProperties = (newCollection: {
       headers: collection.headers,
       variables: collection.variables,
     }
+
+    // push the collectionId to the loading array
+    teamCollectionService.loadingCollections.value.push(collectionId)
+
     pipe(
       updateTeamCollection(collectionId, JSON.stringify(data), undefined),
       TE.match(

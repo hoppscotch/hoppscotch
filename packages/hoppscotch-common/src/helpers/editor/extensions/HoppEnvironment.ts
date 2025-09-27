@@ -38,7 +38,9 @@ import { isComment } from "./helpers"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
+const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9-_.]+"
+const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
+const ENV_VAR_NAME_REGEX = new RegExp(ENV_VAR_NAME_PATTERN)
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 const HOPP_REQUEST_VARIABLE_HIGHLIGHT = "request-variable-highlight"
@@ -98,9 +100,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       // Tracking the start and the end of the words
       let start = pos
       let end = pos
-      while (start > from && /[a-zA-Z0-9-_]+/.test(text[start - from - 1]))
+      while (start > from && ENV_VAR_NAME_REGEX.test(text[start - from - 1]))
         start--
-      while (end < to && /[a-zA-Z0-9-_]+/.test(text[end - from])) end++
+      while (end < to && ENV_VAR_NAME_REGEX.test(text[end - from])) end++
 
       if (
         (start === pos && side < 0) ||

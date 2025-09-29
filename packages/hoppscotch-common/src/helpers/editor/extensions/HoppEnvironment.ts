@@ -41,6 +41,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9_.-]+"
 const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
 const ENV_VAR_NAME_REGEX = new RegExp(ENV_VAR_NAME_PATTERN)
+
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 const HOPP_REQUEST_VARIABLE_HIGHLIGHT = "request-variable-highlight"

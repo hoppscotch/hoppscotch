@@ -26,7 +26,8 @@ import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
+const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9_.-]+"
+const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 

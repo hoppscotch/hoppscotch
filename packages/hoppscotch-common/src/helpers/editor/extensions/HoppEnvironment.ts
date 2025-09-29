@@ -37,10 +37,10 @@ import IconLibrary from "~icons/lucide/library?raw"
 import { isComment } from "./helpers"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-
-const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9_.-]+"
-const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
-const ENV_VAR_NAME_REGEX = new RegExp(ENV_VAR_NAME_PATTERN)
+import {
+  ENV_VAR_NAME_REGEX,
+  HOPP_ENVIRONMENT_REGEX,
+} from "~/helpers/environment-regex"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"

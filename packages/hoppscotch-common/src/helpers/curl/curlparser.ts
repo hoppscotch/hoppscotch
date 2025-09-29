@@ -25,15 +25,9 @@ import { getMethod } from "./sub_helpers/method"
 import { preProcessCurlCommand } from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
 import { concatParams, getURLObject } from "./sub_helpers/url"
+import { HOPP_ENVIRONMENT_REGEX } from "../environment-regex"
 
 const defaultRESTReq = getDefaultRESTRequest()
-
-/**
- * Regex to match environment variables in the format `<<variable_name>>`/`<<variable.name>> etc`.
- * This is used to identify if the request contains environment variables that need to be handled specially.
- */
-const ENV_VAR_NAME_PATTERN = "[a-zA-Z0-9_.-]+"
-const HOPP_ENVIRONMENT_REGEX = new RegExp(`(<<${ENV_VAR_NAME_PATTERN}>>)`, "g")
 
 /**
  *

@@ -229,7 +229,7 @@ export function stringToJson<T>(
  * @returns boolean if title is of valid length or not
  */
 export function isValidLength(title: string, length: number) {
-  if (title.length < length) {
+  if (!title || title.trim() === '' || title.length < length) {
     return false;
   }
 

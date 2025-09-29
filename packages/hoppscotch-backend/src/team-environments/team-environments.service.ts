@@ -19,7 +19,7 @@ export class TeamEnvironmentsService {
     private readonly teamService: TeamService,
   ) {}
 
-  TITLE_LENGTH = 3;
+  TITLE_LENGTH = 1;
 
   /**
    * TeamEnvironments are saved in the DB in the following way

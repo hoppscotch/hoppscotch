@@ -661,10 +661,10 @@ describe('getCollection', () => {
 });
 
 describe('createCollection', () => {
-  test('should throw TEAM_COLL_SHORT_TITLE when title is less than 3 characters', async () => {
+  test('should throw TEAM_COLL_SHORT_TITLE when title is less than 1 character', async () => {
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
-      'ab',
+      '',
       JSON.stringify(rootTeamCollection.data),
       rootTeamCollection.id,
     );
@@ -781,10 +781,10 @@ describe('createCollection', () => {
 });
 
 describe('renameCollection', () => {
-  test('should throw TEAM_COLL_SHORT_TITLE when title is less than 3 characters', async () => {
+  test('should throw TEAM_COLL_SHORT_TITLE when title is less than 1 character', async () => {
     const result = await teamCollectionService.renameCollection(
       rootTeamCollection.id,
-      'ab',
+      '',
     );
     expect(result).toEqualLeft(TEAM_COLL_SHORT_TITLE);
   });
@@ -1464,7 +1464,7 @@ describe('updateTeamCollection', () => {
     const result = await teamCollectionService.updateTeamCollection(
       rootTeamCollection.id,
       JSON.stringify(rootTeamCollection.data),
-      'de',
+      '',
     );
     expect(result).toEqualLeft(TEAM_COLL_SHORT_TITLE);
   });

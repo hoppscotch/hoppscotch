@@ -496,6 +496,12 @@ const saveEnvironment = async () => {
     return
   }
 
+  if (editingName.value.trim().length === 0) {
+    isLoading.value = false
+    toast.error(`${t("environment.short_name")}`)
+    return
+  }
+
   const filteredVariables = pipe(
     vars.value,
     A.filterMap(

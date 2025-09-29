@@ -80,7 +80,7 @@ describe('TeamEnvironmentsService', () => {
 
     test('should throw TEAM_ENVIRONMENT_SHORT_NAME if input TeamEnvironment name is invalid', async () => {
       const result = await teamEnvironmentsService.createTeamEnvironment(
-        '12',
+        '',
         teamEnvironment.teamID,
         JSON.stringify(teamEnvironment.variables),
       );
@@ -218,7 +218,7 @@ describe('TeamEnvironmentsService', () => {
     test('should throw TEAM_ENVIRONMENT_SHORT_NAME if input TeamEnvironment name is invalid', async () => {
       const result = await teamEnvironmentsService.updateTeamEnvironment(
         teamEnvironment.id,
-        '12',
+        '',
         JSON.stringify([{ key: 'value' }]),
       );
 

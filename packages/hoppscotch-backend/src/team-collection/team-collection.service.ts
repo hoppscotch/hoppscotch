@@ -56,7 +56,7 @@ export class TeamCollectionService {
     private readonly teamService: TeamService,
   ) {}
 
-  TITLE_LENGTH = 3;
+  TITLE_LENGTH = 1;
   MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**

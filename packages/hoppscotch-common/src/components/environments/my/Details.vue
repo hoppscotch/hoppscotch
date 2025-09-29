@@ -512,7 +512,7 @@ const saveEnvironment = () => {
     return
   }
 
-  if (editingName.value.length < 3) {
+  if (editingName.value.trim().length === 0) {
     toast.error(`${t("environment.short_name")}`)
     return
   }

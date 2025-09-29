@@ -48,8 +48,8 @@ const t = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    show: boolean
-    loadingState: boolean
+    show?: boolean
+    loadingState?: boolean
   }>(),
   {
     show: false,

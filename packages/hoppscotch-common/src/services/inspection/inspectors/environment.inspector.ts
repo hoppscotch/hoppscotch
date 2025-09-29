@@ -25,8 +25,7 @@ import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
-
-const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
+import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 

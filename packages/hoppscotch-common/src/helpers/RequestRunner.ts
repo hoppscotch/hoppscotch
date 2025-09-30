@@ -397,8 +397,30 @@ export function runRESTRequest$(
 
   const cookieJarEntries = getCookieJarEntries()
 
+  const requestAuth =
+    tab.value.document.request.auth.authType === "inherit" &&
+    tab.value.document.request.auth.authActive
+      ? tab.value.document.inheritedProperties?.auth.inheritedAuth
+      : tab.value.document.request.auth
+
+  const inheritedHeaders =
+    tab.value.document.inheritedProperties?.headers.flatMap((header) =>
+      header.inheritedHeader ? [header.inheritedHeader] : []
+    )
+
+  const requestHeaders: HoppRESTHeaders = [
+    ...(inheritedHeaders ?? []),
+    ...tab.value.document.request.headers,
+  ]
+
+  const request = {
+    ...tab.value.document.request,
+    auth: requestAuth ?? { authType: "none", authActive: false },
+    headers: requestHeaders,
+  }
+
   const res = delegatePreRequestScriptRunner(
-    tab.value.document.request,
+    request,
     getCombinedEnvVariables(),
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
@@ -407,31 +429,6 @@ export function runRESTRequest$(
     if (E.isLeft(preRequestScriptResult)) {
       console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
-    }
-
-    const requestAuth =
-      tab.value.document.request.auth.authType === "inherit" &&
-      tab.value.document.request.auth.authActive
-        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
-        : tab.value.document.request.auth
-
-    let requestHeaders
-
-    const inheritedHeaders =
-      tab.value.document.inheritedProperties?.headers.map((header) => {
-        if (header.inheritedHeader) {
-          return header.inheritedHeader
-        }
-        return []
-      })
-
-    if (inheritedHeaders) {
-      requestHeaders = [
-        ...inheritedHeaders,
-        ...tab.value.document.request.headers,
-      ]
-    } else {
-      requestHeaders = [...tab.value.document.request.headers]
     }
 
     const finalRequestVariables =
@@ -459,12 +456,9 @@ export function runRESTRequest$(
         secret,
       }))
 
-    // setting the inherited values the higher priority than the current request
     const finalRequest = {
-      ...tab.value.document.request,
+      ...request,
       ...(preRequestScriptResult.right.updatedRequest ?? {}),
-      auth: requestAuth ?? { authType: "none", authActive: false },
-      headers: requestHeaders as HoppRESTHeaders,
     }
 
     // Propagate changes to request variables from the scripting context to the UI

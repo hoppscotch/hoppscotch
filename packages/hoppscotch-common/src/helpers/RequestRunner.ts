@@ -459,11 +459,12 @@ export function runRESTRequest$(
         secret,
       }))
 
+    // settting the inherited values the higer priority than the current request
     const finalRequest = {
       ...tab.value.document.request,
+      ...(preRequestScriptResult.right.updatedRequest ?? {}),
       auth: requestAuth ?? { authType: "none", authActive: false },
       headers: requestHeaders as HoppRESTHeaders,
-      ...(preRequestScriptResult.right.updatedRequest ?? {}),
     }
 
     // Propagate changes to request variables from the scripting context to the UI

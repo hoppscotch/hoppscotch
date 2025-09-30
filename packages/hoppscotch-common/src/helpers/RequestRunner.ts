@@ -459,7 +459,7 @@ export function runRESTRequest$(
         secret,
       }))
 
-    // settting the inherited values the higer priority than the current request
+    // setting the inherited values the higher priority than the current request
     const finalRequest = {
       ...tab.value.document.request,
       ...(preRequestScriptResult.right.updatedRequest ?? {}),

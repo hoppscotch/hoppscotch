@@ -397,8 +397,30 @@ export function runRESTRequest$(
 
   const cookieJarEntries = getCookieJarEntries()
 
+  const { request, inheritedProperties } = tab.value.document
+
+  const requestAuth =
+    request.auth.authType === "inherit" && request.auth.authActive
+      ? inheritedProperties?.auth.inheritedAuth
+      : request.auth
+
+  const inheritedHeaders = inheritedProperties?.headers
+    ?.filter((header) => header.inheritedHeader)
+    .map((header) => header.inheritedHeader!)
+
+  const requestHeaders: HoppRESTHeaders = [
+    ...(inheritedHeaders ?? []),
+    ...request.headers,
+  ]
+
+  const resolvedRequest = {
+    ...tab.value.document.request,
+    auth: requestAuth ?? { authType: "none", authActive: false },
+    headers: requestHeaders,
+  }
+
   const res = delegatePreRequestScriptRunner(
-    tab.value.document.request,
+    resolvedRequest,
     getCombinedEnvVariables(),
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
@@ -407,31 +429,6 @@ export function runRESTRequest$(
     if (E.isLeft(preRequestScriptResult)) {
       console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
-    }
-
-    const requestAuth =
-      tab.value.document.request.auth.authType === "inherit" &&
-      tab.value.document.request.auth.authActive
-        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
-        : tab.value.document.request.auth
-
-    let requestHeaders
-
-    const inheritedHeaders =
-      tab.value.document.inheritedProperties?.headers.map((header) => {
-        if (header.inheritedHeader) {
-          return header.inheritedHeader
-        }
-        return []
-      })
-
-    if (inheritedHeaders) {
-      requestHeaders = [
-        ...inheritedHeaders,
-        ...tab.value.document.request.headers,
-      ]
-    } else {
-      requestHeaders = [...tab.value.document.request.headers]
     }
 
     const finalRequestVariables =
@@ -460,9 +457,7 @@ export function runRESTRequest$(
       }))
 
     const finalRequest = {
-      ...tab.value.document.request,
-      auth: requestAuth ?? { authType: "none", authActive: false },
-      headers: requestHeaders as HoppRESTHeaders,
+      ...resolvedRequest,
       ...(preRequestScriptResult.right.updatedRequest ?? {}),
     }
 

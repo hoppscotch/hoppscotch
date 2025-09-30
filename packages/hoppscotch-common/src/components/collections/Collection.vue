@@ -82,7 +82,6 @@
             @click="emit('add-folder')"
           />
           <HoppButtonSecondary
-            v-if="!isEmpty"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlaySquare"
             :title="t('collection_runner.run_collection')"
@@ -145,7 +144,6 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!isEmpty"
                     ref="runCollectionAction"
                     :icon="IconPlaySquare"
                     :label="t('collection_runner.run_collection')"
@@ -371,28 +369,6 @@ const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
-
-/**
- * Determines if the collection/folder is empty.
- * A collection/folder is considered empty if it has no requests and no child folders.
- */
-const isEmpty = computed(() => {
-  if (!props.data) return true
-
-  if (props.collectionsType === "my-collections") {
-    const collection = props.data as HoppCollection
-    const req = collection.requests.length
-    const fol = collection.folders.length
-
-    return req === 0 && fol === 0
-  }
-
-  const teamCollection = props.data as TeamCollection
-  const req = teamCollection.requests?.length ?? 0
-  const child = teamCollection.children?.length ?? 0
-
-  return req === 0 && child === 0
-})
 
 /**
  * Determines if the collection/folder is sortable.

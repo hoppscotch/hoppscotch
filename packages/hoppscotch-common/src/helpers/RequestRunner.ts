@@ -397,30 +397,30 @@ export function runRESTRequest$(
 
   const cookieJarEntries = getCookieJarEntries()
 
-  const requestAuth =
-    tab.value.document.request.auth.authType === "inherit" &&
-    tab.value.document.request.auth.authActive
-      ? tab.value.document.inheritedProperties?.auth.inheritedAuth
-      : tab.value.document.request.auth
+  const { request, inheritedProperties } = tab.value.document
 
-  const inheritedHeaders =
-    tab.value.document.inheritedProperties?.headers.flatMap((header) =>
-      header.inheritedHeader ? [header.inheritedHeader] : []
-    )
+  const requestAuth =
+    request.auth.authType === "inherit" && request.auth.authActive
+      ? inheritedProperties?.auth.inheritedAuth
+      : request.auth
+
+  const inheritedHeaders = inheritedProperties?.headers
+    ?.filter((header) => header.inheritedHeader)
+    .map((header) => header.inheritedHeader!)
 
   const requestHeaders: HoppRESTHeaders = [
     ...(inheritedHeaders ?? []),
-    ...tab.value.document.request.headers,
+    ...request.headers,
   ]
 
-  const request = {
+  const resolvedRequest = {
     ...tab.value.document.request,
     auth: requestAuth ?? { authType: "none", authActive: false },
     headers: requestHeaders,
   }
 
   const res = delegatePreRequestScriptRunner(
-    request,
+    resolvedRequest,
     getCombinedEnvVariables(),
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
@@ -457,7 +457,7 @@ export function runRESTRequest$(
       }))
 
     const finalRequest = {
-      ...request,
+      ...resolvedRequest,
       ...(preRequestScriptResult.right.updatedRequest ?? {}),
     }
 

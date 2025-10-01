@@ -28,7 +28,10 @@ import {
 } from "@app/platform/history/web/api"
 
 import * as E from "fp-ts/Either"
-import { restHistorySyncer, gqlHistorySyncer } from "@app/platform/history/web/sync"
+import {
+  restHistorySyncer,
+  gqlHistorySyncer,
+} from "@app/platform/history/web/sync"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { runDispatchWithOutSyncing } from "@app/lib/sync"
 import { ReqType, ServiceStatus } from "@app/api/generated/graphql"

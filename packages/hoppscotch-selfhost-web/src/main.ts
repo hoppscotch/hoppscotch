@@ -3,7 +3,6 @@ import { emit, listen } from "@tauri-apps/api/event"
 import { createHoppApp } from "@hoppscotch/common"
 import { useSettingStatic } from "@hoppscotch/common/composables/settings"
 import { getKernelMode } from "@hoppscotch/kernel"
-import { getService } from "@hoppscotch/common/modules/dioc"
 
 import { def as stdBackendDef } from "@hoppscotch/common/platform/std/backend"
 // Platform imports
@@ -35,7 +34,6 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 
-
 const PLATFORM_CONFIG = {
   web: {
     auth: webAuth,
@@ -51,6 +49,8 @@ const PLATFORM_CONFIG = {
       ExtensionKernelInterceptorService,
     ],
     defaultInterceptor: "browser",
+    menuItems: stdFooterItems,
+    supportItems: stdSupportOptionItems,
     cookiesEnabled: false,
   },
 
@@ -66,7 +66,8 @@ const PLATFORM_CONFIG = {
       ProxyKernelInterceptorService,
     ],
     defaultInterceptor: "native",
-
+    menuItems: stdFooterItems,
+    supportItems: stdSupportOptionItems,
     cookiesEnabled: true,
   },
 }
@@ -175,12 +176,8 @@ async function initApp() {
       collectionImportSizeLimit: 50,
     },
 
-
     infra: InfraPlatform,
     backend: stdBackendDef,
-    additionalInspectors: [
-      { type: "service", service: ExtensionKernelInterceptorService },
-    ],
     additionalLinks: [HeaderDownloadableLinksService],
     addedServices: [],
   })

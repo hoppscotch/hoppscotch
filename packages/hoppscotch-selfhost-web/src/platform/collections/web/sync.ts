@@ -34,7 +34,7 @@ import {
 } from "./api"
 
 import * as E from "fp-ts/Either"
-import { ReqType, SortOptions }  from "@app/api/generated/graphql"
+import { ReqType, SortOptions } from "@app/api/generated/graphql"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format

@@ -50,10 +50,10 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": [
       process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
       {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_",
-        "caughtErrorsIgnorePattern": "^_"
-      }
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",

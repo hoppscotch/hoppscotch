@@ -59,7 +59,6 @@ import { GistSource } from "~/helpers/import-export/import/import-sources/GistSo
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 
-const isPostmanImporterInProgress = ref(false)
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
 const isRESTImporterInProgress = ref(false)
@@ -171,6 +170,7 @@ const emit = defineEmits<{
 const isHoppMyCollectionExporterInProgress = ref(false)
 const isHoppTeamCollectionExporterInProgress = ref(false)
 const isHoppGistCollectionExporterInProgress = ref(false)
+const isPostmanImporterInProgress = ref(false)
 
 const isTeamWorkspace = computed(() => {
   return props.collectionsType.type === "team-collections"
@@ -179,19 +179,26 @@ const isTeamWorkspace = computed(() => {
 const currentImportSummary: Ref<{
   showImportSummary: boolean
   importedCollections: HoppCollection[] | null
+  scriptsImported?: boolean
 }> = ref({
   showImportSummary: false,
   importedCollections: null,
+  scriptsImported: false,
 })
 
-const setCurrentImportSummary = (collections: HoppCollection[]) => {
+const setCurrentImportSummary = (
+  collections: HoppCollection[],
+  scriptsImported = false
+) => {
   currentImportSummary.value.importedCollections = collections
   currentImportSummary.value.showImportSummary = true
+  currentImportSummary.value.scriptsImported = scriptsImported
 }
 
 const unsetCurrentImportSummary = () => {
   currentImportSummary.value.importedCollections = null
   currentImportSummary.value.showImportSummary = false
+  currentImportSummary.value.scriptsImported = false
 }
 
 const HoppRESTImporter: ImporterOrExporter = {
@@ -379,15 +386,16 @@ const HoppPostmanImporter: ImporterOrExporter = {
     caption: "import.from_file",
     acceptedFileTypes: ".json",
     description: "import.from_postman_import_summary",
-    onImportFromFile: async (content) => {
+    showPostmanScriptOption: true,
+    onImportFromFile: async (content: string[], importScripts = false) => {
       isPostmanImporterInProgress.value = true
 
-      const res = await hoppPostmanImporter(content)()
+      const res = await hoppPostmanImporter(content, importScripts)()
 
       if (E.isRight(res)) {
         await handleImportToStore(res.right)
 
-        setCurrentImportSummary(res.right)
+        setCurrentImportSummary(res.right, importScripts)
 
         platform.analytics?.logEvent({
           platform: "rest",

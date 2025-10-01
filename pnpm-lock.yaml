@@ -1158,6 +1158,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      chai:
+        specifier: 6.2.0
+        version: 6.2.0
       faraday-cage:
         specifier: 0.1.0
         version: 0.1.0
@@ -1180,6 +1183,9 @@ importers:
       '@relmify/jest-fp-ts':
         specifier: 2.1.1
         version: 2.1.1(fp-ts@2.16.11)(io-ts@2.2.22(fp-ts@2.16.11))
+      '@types/chai':
+        specifier: 5.2.2
+        version: 5.2.2
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -8868,6 +8874,10 @@ packages:
 
   chai@5.2.1:
     resolution: {integrity: sha512-5nFxhUrX0PqtyogoYOA8IPswy5sZFTOsBFl/9bNsmDLgsxYTzSZQJDPppDnZPTQbzSEm0hqGjWPzRemQCYbD6A==}
+    engines: {node: '>=18'}
+
+  chai@6.2.0:
+    resolution: {integrity: sha512-aUTnJc/JipRzJrNADXVvpVqi6CO0dn3nx4EVPxijri+fj3LUUDyZQOgVeW54Ob3Y1Xh9Iz8f+CgaCl8v0mn9bA==}
     engines: {node: '>=18'}
 
   chalk@2.4.2:
@@ -24956,6 +24966,8 @@ snapshots:
       deep-eql: 5.0.2
       loupe: 3.2.0
       pathval: 2.0.1
+
+  chai@6.2.0: {}
 
   chalk@2.4.2:
     dependencies:

@@ -68,23 +68,36 @@ export const preRequestScriptRunner = (
       const { selected, global } = updatedEnvs;
 
       return {
-        updatedEnvs: <Environment>{
+        // Keep the original updatedEnvs with separate global and selected arrays
+        preRequestUpdatedEnvs: updatedEnvs,
+        // Create Environment format for getEffectiveRESTRequest
+        envForEffectiveRequest: <Environment>{
           name: "Env",
           variables: [...(selected ?? []), ...(global ?? [])],
         },
         updatedRequest: updatedRequest ?? {},
       };
     }),
-    TE.chainW(({ updatedEnvs, updatedRequest }) => {
+    TE.chainW(({ preRequestUpdatedEnvs, envForEffectiveRequest, updatedRequest }) => {
       const finalRequest = { ...request, ...updatedRequest };
 
       return TE.tryCatch(
-        () =>
-          getEffectiveRESTRequest(
+        async () => {
+          const result = await getEffectiveRESTRequest(
             finalRequest,
-            updatedEnvs,
+            envForEffectiveRequest,
             collectionVariables
-          ),
+          );
+          // Replace the updatedEnvs from getEffectiveRESTRequest with the one from pre-request script
+          // This preserves the global/selected separation
+          if (E.isRight(result)) {
+            return E.right({
+              ...result.right,
+              updatedEnvs: preRequestUpdatedEnvs,
+            });
+          }
+          return result;
+        },
         (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
       );
     }),

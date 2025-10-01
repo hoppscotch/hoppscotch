@@ -18,6 +18,7 @@ type FeatureStatus =
   | "SUPPORTED"
   | "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT"
   | "NOT_SUPPORTED_BY_SOURCE"
+  | "SKIPPED"
 
 type FeatureWithCount = {
   count: number
@@ -28,6 +29,7 @@ type FeatureWithCount = {
 const props = defineProps<{
   importFormat: SupportedImportFormat
   collections: HoppCollection[]
+  scriptsImported?: boolean
   onClose: () => void
 }>()
 
@@ -158,7 +160,30 @@ watch(
 )
 
 const featureSupportForImportFormat = computed(() => {
-  return importSourceAndSupportedFeatures[props.importFormat]
+  const baseSupport = importSourceAndSupportedFeatures[props.importFormat]
+
+  // Handle Postman script import status
+  if (props.importFormat === "postman") {
+    if (props.scriptsImported === true) {
+      // User checked the box and imported scripts
+      return {
+        ...baseSupport,
+        preRequestScripts: "SUPPORTED" as FeatureStatus,
+        testScripts: "SUPPORTED" as FeatureStatus,
+      }
+    } else if (props.scriptsImported === false) {
+      // User explicitly didn't import scripts (checkbox unchecked)
+      return {
+        ...baseSupport,
+        preRequestScripts: "SKIPPED" as FeatureStatus,
+        testScripts: "SKIPPED" as FeatureStatus,
+      }
+    }
+    // props.scriptsImported === undefined means legacy sandbox or old import
+    // Keep default NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT
+  }
+
+  return baseSupport
 })
 
 const visibleFeatures = computed(() => {
@@ -179,14 +204,18 @@ const visibleFeatures = computed(() => {
           class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary"
           :class="{
             'text-green-500':
-              featureSupportForImportFormat[feature.id] === 'SUPPORTED',
+              featureSupportForImportFormat[feature.id] === 'SUPPORTED' ||
+              featureSupportForImportFormat[feature.id] === 'SKIPPED',
             'text-amber-500':
               featureSupportForImportFormat[feature.id] ===
               'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT',
           }"
         >
           <icon-lucide-check-circle
-            v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
+            v-if="
+              featureSupportForImportFormat[feature.id] === 'SUPPORTED' ||
+              featureSupportForImportFormat[feature.id] === 'SKIPPED'
+            "
             class="svg-icons"
           />
 
@@ -215,16 +244,40 @@ const visibleFeatures = computed(() => {
         </template>
 
         <template
+          v-else-if="featureSupportForImportFormat[feature.id] === 'SKIPPED'"
+        >
+          0 {{ t(feature.label) }} Imported
+        </template>
+
+        <template
           v-else-if="
             featureSupportForImportFormat[feature.id] ===
             'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
           "
         >
-          {{
-            t("import.import_summary_not_supported_by_hoppscotch_import", {
-              featureLabel: t(feature.label),
-            })
-          }}
+          <!-- Special message for Postman scripts when using legacy sandbox -->
+          <template
+            v-if="
+              importFormat === 'postman' &&
+              (feature.id === 'preRequestScripts' ||
+                feature.id === 'testScripts') &&
+              scriptsImported === undefined
+            "
+          >
+            {{
+              t("import.import_summary_scripts_require_experimental_sandbox", {
+                featureLabel: t(feature.label),
+              })
+            }}
+          </template>
+          <!-- Generic message for other unsupported features -->
+          <template v-else>
+            {{
+              t("import.import_summary_not_supported_by_hoppscotch_import", {
+                featureLabel: t(feature.label),
+              })
+            }}
+          </template>
         </template>
       </p>
     </div>

@@ -49,12 +49,11 @@ async function bootstrap() {
 
   app.use(
     session({
-      // Allow overriding the default cookie name 'connect.sid' (which contains a dot)
-      // Some proxies/load balancers (like older Kong versions) cannot hash cookie names with dots
-      // so we allow setting an alternative name via INFRA config or env fallback.
+  // Allow overriding the default cookie name 'connect.sid' (which contains a dot)
+  // Some proxies/load balancers (like older Kong versions) cannot hash cookie names with dots
+  // so we allow setting an alternative name via Admin-configured INFRA setting.
       name:
         (configService.get('INFRA.SESSION_COOKIE_NAME') as string) ||
-        process.env.SESSION_COOKIE_NAME ||
         'connect.sid',
       secret:
         configService.get('INFRA.SESSION_SECRET') ||

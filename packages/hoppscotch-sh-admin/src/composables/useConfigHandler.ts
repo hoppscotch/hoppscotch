@@ -153,6 +153,9 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             InfraConfigEnum.AccessTokenValidity
           ),
           session_secret: getFieldValue(InfraConfigEnum.SessionSecret),
+          session_cookie_name: getFieldValue(
+            InfraConfigEnum.SessionCookieName
+          ),
         },
       },
       dataSharingConfigs: {
@@ -276,7 +279,9 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       // This section has no enabled property, so we check fields directly
       // for a valid number (>0) or non-empty string
       if (section.name === 'token')
-        return Object.values(section.fields).some(isFieldNotValid);
+        return Object.entries(section.fields)
+          .filter(([key]) => key !== 'session_cookie_name')
+          .some(([, value]) => isFieldNotValid(value));
 
       // For rate limit section, we want to check if the values are not valid numbers
       // and not empty strings
@@ -557,6 +562,16 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const sessionSecret = String(
       updatedConfigs?.tokenConfigs.fields.session_secret
     );
+    const sessionCookieName = String(
+      updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
+    );
+    // Validate cookie name: allow empty (falls back to default), else enforce pattern
+    if (
+      sessionCookieName && !/^[A-Za-z0-9_-]+$/.test(sessionCookieName)
+    ) {
+      toast.error(t('configs.auth_providers.token.update_failure'));
+      return false;
+    }
     if (
       isFieldEmpty(jwtSecret) ||
       isFieldEmpty(tokenSaltComplexity) ||
@@ -593,6 +608,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         name: InfraConfigEnum.SessionSecret,
         value: sessionSecret,
+      },
+      {
+        name: InfraConfigEnum.SessionCookieName,
+        value: sessionCookieName,
       },
     ];
 

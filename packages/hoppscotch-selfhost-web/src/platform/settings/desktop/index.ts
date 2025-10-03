@@ -1,6 +1,6 @@
 import { SettingsPlatformDef } from "@hoppscotch/common/platform/settings"
 import { settingsSyncer } from "./sync"
-import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/desktop"
 import {
   createUserSettings,
   getUserSettings,
@@ -12,7 +12,7 @@ import {
   bulkApplySettings,
   getDefaultSettings,
 } from "@hoppscotch/common/newstore/settings"
-import { runDispatchWithOutSyncing } from "@lib/sync"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 function initSettingsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()

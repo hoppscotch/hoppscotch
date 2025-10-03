@@ -221,6 +221,7 @@ declare module 'vue' {
     IconLucideInfo: typeof import('~icons/lucide/info')['default']
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']
     IconLucideListEnd: typeof import('~icons/lucide/list-end')['default']
+    IconLucideLock: typeof import('~icons/lucide/lock')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
     IconLucidePlusCircle: typeof import('~icons/lucide/plus-circle')['default']
     IconLucideRss: typeof import('~icons/lucide/rss')['default']

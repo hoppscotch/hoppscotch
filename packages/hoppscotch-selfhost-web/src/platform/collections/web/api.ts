@@ -2,7 +2,7 @@ import {
   runGQLQuery,
   runGQLSubscription,
   runMutation,
-} from "@hoppscotch/common/helpers/backend/GQLClient"
+} from "@helpers/backend/GQLClient"
 import {
   CreateGqlChildUserCollectionDocument,
   CreateGqlChildUserCollectionMutation,
@@ -81,7 +81,7 @@ import {
   UserRequestMovedDocument,
   UserRequestUpdatedDocument,
   UserRootCollectionsSortedDocument,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 
 export const createRESTRootUserCollection = (title: string, data?: string) =>
   runMutation<

@@ -15,8 +15,8 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
-import { getSyncInitFunction, StoreSyncDefinitionOf } from "@lib/sync"
-import { createMapper } from "@lib/sync/mapper"
+import { getSyncInitFunction, StoreSyncDefinitionOf } from "@app/lib/sync"
+import { createMapper } from "@app/lib/sync/mapper"
 import {
   createRESTChildUserCollection,
   createRESTRootUserCollection,
@@ -34,7 +34,7 @@ import {
 } from "./api"
 
 import * as E from "fp-ts/Either"
-import { ReqType, SortOptions } from "@api/generated/graphql"
+import { ReqType, SortOptions } from "@app/api/generated/graphql"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format

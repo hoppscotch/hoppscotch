@@ -2,7 +2,7 @@ import {
   runGQLQuery,
   runGQLSubscription,
   runMutation,
-} from "@hoppscotch/common/helpers/backend/GQLClient"
+} from "@helpers/backend/GQLClient"
 import {
   CreateUserSettingsDocument,
   CreateUserSettingsMutation,
@@ -14,7 +14,7 @@ import {
   UpdateUserSettingsMutation,
   UpdateUserSettingsMutationVariables,
   UserSettingsUpdatedDocument,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 
 export const getUserSettings = () =>
   runGQLQuery<

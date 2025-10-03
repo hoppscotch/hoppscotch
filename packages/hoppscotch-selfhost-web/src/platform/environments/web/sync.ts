@@ -8,12 +8,12 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { getSyncInitFunction } from "@lib/sync"
+import { getSyncInitFunction } from "@app/lib/sync"
 
 import * as E from "fp-ts/Either"
 
-import { StoreSyncDefinitionOf } from "@lib/sync"
-import { createMapper } from "@lib/sync/mapper"
+import { StoreSyncDefinitionOf } from "@app/lib/sync"
+import { createMapper } from "@app/lib/sync/mapper"
 import {
   clearGlobalEnvironmentVariables,
   createUserEnvironment,
@@ -45,7 +45,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
         environmentsStore.value.environments[lastCreatedEnvIndex].id,
         id
       )
-
       currentEnvironmentValueService.updateEnvironmentID(
         environmentsStore.value.environments[lastCreatedEnvIndex].id,
         id

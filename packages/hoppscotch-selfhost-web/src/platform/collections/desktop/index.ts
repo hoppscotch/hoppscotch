@@ -1,6 +1,6 @@
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
-import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
-import { runDispatchWithOutSyncing } from "@lib/sync"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/desktop"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 import {
   exportUserCollectionsToJSON,
@@ -65,7 +65,7 @@ import {
   ReqType,
   UserCollectionDuplicatedData,
   UserRequest,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 
 function initCollectionsSync() {

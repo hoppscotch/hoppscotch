@@ -17,7 +17,6 @@ module.exports = {
   },
   extends: [
     "@vue/typescript/recommended",
-    "plugin:vue/vue3-recommended",
     "plugin:prettier/recommended",
   ],
   ignorePatterns: [

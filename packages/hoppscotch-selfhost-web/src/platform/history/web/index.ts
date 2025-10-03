@@ -1,4 +1,4 @@
-import { authEvents$, def as platformAuth } from "@platform/auth/web"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/web"
 import {
   restHistoryStore,
   RESTHistoryEntry,
@@ -25,13 +25,16 @@ import {
   runUserHistoryDeletedSubscription,
   runUserHistoryStoreStatusChangedSubscription,
   runUserHistoryUpdatedSubscription,
-} from "@platform/history/web/api"
+} from "@app/platform/history/web/api"
 
 import * as E from "fp-ts/Either"
-import { restHistorySyncer, gqlHistorySyncer } from "@platform/history/web/sync"
+import {
+  restHistorySyncer,
+  gqlHistorySyncer,
+} from "@app/platform/history/web/sync"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
-import { runDispatchWithOutSyncing } from "@lib/sync"
-import { ReqType, ServiceStatus } from "@api/generated/graphql"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
+import { ReqType, ServiceStatus } from "@app/api/generated/graphql"
 import { ref } from "vue"
 
 function initHistorySync() {

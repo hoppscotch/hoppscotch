@@ -15,9 +15,8 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
-import { getSyncInitFunction } from "../../lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "../../lib/sync"
 
-import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   createRESTChildUserCollection,

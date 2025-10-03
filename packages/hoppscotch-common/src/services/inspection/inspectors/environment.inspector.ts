@@ -6,7 +6,7 @@ import {
   InspectorResult,
 } from ".."
 import { Service } from "dioc"
-import { Ref, markRaw } from "vue"
+import { Ref, markRaw, computed } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import {
   HoppRESTRequest,
@@ -19,7 +19,6 @@ import {
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
-import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"

@@ -4,11 +4,15 @@ import { reactive, computed, watch } from "vue"
 
 /**
  * Defines a secret environment variable.
+ * Value is the current value of the variable.
+ * InitialValue is the value of the variable when it was created.
+ * VarIndex is the index of the variable in the environment.
  */
 export type SecretVariable = {
   key: string
   value: string
   varIndex: number
+  initialValue?: string
 }
 
 /**
@@ -61,13 +65,16 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Used to get the value of a secret environment variable.
+   * Used to get the initial and current value of a secret environment variable.
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
    */
   public getSecretEnvironmentVariableValue(id: string, varIndex: number) {
     const secretVar = this.getSecretEnvironmentVariable(id, varIndex)
-    return secretVar?.value
+    return {
+      value: secretVar?.value || "",
+      initialValue: secretVar?.initialValue || "",
+    }
   }
 
   /**
@@ -131,6 +138,23 @@ export class SecretEnvironmentService extends Service {
       this.secretEnvironments
         .get(id)!
         .some((secretVar) => secretVar.key === key && secretVar.value !== "")
+    )
+  }
+
+  /**
+   * Checks if a secret variable has an initial value set.
+   * @param id ID of the environment
+   * @param key Key of the variable to check the initial value exists
+   * @returns true if the key has an initial value
+   */
+  public hasSecretInitialValue(id: string, key: string) {
+    return (
+      this.secretEnvironments.has(id) &&
+      this.secretEnvironments
+        .get(id)!
+        .some(
+          (secretVar) => secretVar.key === key && secretVar.initialValue !== ""
+        )
     )
   }
 

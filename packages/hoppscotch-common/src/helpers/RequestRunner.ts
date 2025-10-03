@@ -167,15 +167,15 @@ const updateEnvironments = (
           key: e.key,
           value: e.currentValue ?? "",
           varIndex: index,
+          initialValue: e.initialValue ?? "",
         })
 
         // delete the value from the environment
         // so that it doesn't get saved in the environment
-
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.initialValue ?? "",
+          initialValue: e.secret ? "" : (e.initialValue ?? ""),
           currentValue: "",
         }
       }
@@ -211,23 +211,37 @@ const updateEnvironments = (
 }
 
 /**
+ * Get the environment variable value from the secret environment service
+ * @param envID The environment ID
+ * @param index The index of the environment variable
+ * @returns Current value and initial value of the environment variable
+ */
+const getSecretEnvironmentVariableValue = (
+  envID: string,
+  index: number
+):
+  | {
+      value: string
+      initialValue?: string
+    }
+  | undefined => {
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    envID,
+    index
+  )
+}
+
+/**
  * Get the environment variable value from the current environment
  * @param envID The environment ID
  * @param index The index of the environment variable
  * @param isSecret Whether the environment variable is a secret
- * @returns The environment variable value
+ * @returns Current value of the environment variable
  */
 const getEnvironmentVariableValue = (
   envID: string,
-  index: number,
-  isSecret: boolean
+  index: number
 ): string | undefined => {
-  if (isSecret) {
-    return secretEnvironmentService.getSecretEnvironmentVariableValue(
-      envID,
-      index
-    )
-  }
   return currentEnvironmentValueService.getEnvironmentVariableValue(
     envID,
     index
@@ -836,17 +850,28 @@ function translateToSandboxTestResults(
 
   const globals = cloneDeep(getGlobalVariables()).map((g, index) => ({
     ...g,
-    currentValue: getEnvironmentVariableValue("Global", index, g.secret) ?? "",
+    currentValue:
+      (g.secret
+        ? getSecretEnvironmentVariableValue("Global", index)?.value
+        : getEnvironmentVariableValue("Global", index)) ?? "",
+    initialValue:
+      (g.secret
+        ? getSecretEnvironmentVariableValue("Global", index)?.initialValue
+        : "") ?? g.initialValue,
   }))
 
   const envVars = getCurrentEnvironment().variables.map((e, index) => ({
     ...e,
     currentValue:
-      getEnvironmentVariableValue(
-        getCurrentEnvironment().id,
-        index,
-        e.secret
-      ) ?? "",
+      (e.secret
+        ? getSecretEnvironmentVariableValue(getCurrentEnvironment().id, index)
+            ?.value
+        : getEnvironmentVariableValue(getCurrentEnvironment().id, index)) ?? "",
+    initialValue:
+      (e.secret
+        ? getSecretEnvironmentVariableValue(getCurrentEnvironment().id, index)
+            ?.initialValue
+        : "") ?? e.initialValue,
   }))
 
   return {

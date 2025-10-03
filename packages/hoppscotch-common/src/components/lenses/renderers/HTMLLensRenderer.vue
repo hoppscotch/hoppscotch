@@ -59,6 +59,15 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <HoppButtonSecondary
+          v-if="response.body"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.clear'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>Delete</kbd>`"
+          :icon="Eraser"
+          @click="eraseResponse"
+        />
       </div>
     </div>
     <div
@@ -101,6 +110,7 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import Eraser from "~icons/lucide/Eraser"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { computedAsync } from "@vueuse/core"
 import { useScrollerRef } from "~/composables/useScrollerRef"
@@ -126,6 +136,10 @@ const { containerRef } = useScrollerRef(
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
+  (
+    e: "update:response",
+    val: HoppRESTRequestResponse | HoppRESTResponse | null
+  ): void
 }>()
 
 const htmlResponse = ref<any | null>(null)
@@ -174,6 +188,10 @@ const doTogglePreview = async () => {
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
+const eraseResponse = () => {
+  emit("update:response", null)
+}
+
 const saveAsExample = () => {
   emit("save-as-example")
 }
@@ -196,6 +214,7 @@ useCodemirror(
 defineActionHandler("response.preview.toggle", () => doTogglePreview())
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 defineActionHandler("response.save-as-example", () => {
   props.isSavable ? saveAsExample() : null
 })

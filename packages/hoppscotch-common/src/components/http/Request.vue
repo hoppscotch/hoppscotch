@@ -270,7 +270,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { handleTokenValidation } from "@helpers/handleTokenValidation";
+import { handleTokenValidation } from "~/helpers/handleTokenValidation";
 
 const t = useI18n()
 const interceptorService = useService(KernelInterceptorService)

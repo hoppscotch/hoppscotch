@@ -133,10 +133,15 @@ The Hoppscotch CLI follows **pre-1.0 semantic versioning** conventions while in 
 
 1. Clone the repository, make sure you've installed latest [pnpm](https://pnpm.io).
 2. `pnpm install`
-3. `cd packages/hoppscotch-cli`
-4. `pnpm run build`
-5. `sudo pnpm link --global`
-6. Test the installation by executing `hopp`
+3. Build required workspace dependencies:
+   ```bash
+   pnpm --filter @hoppscotch/data run build
+   pnpm --filter @hoppscotch/js-sandbox run build
+   ```
+4. `cd packages/hoppscotch-cli`
+5. `pnpm run build`
+6. `sudo pnpm link --global`
+7. Test the installation by executing `hopp`
 
 ## **Contributing:**
 
@@ -162,6 +167,10 @@ Please note we have a code of conduct, please follow it in all your interactions
 
    ```bash
    pnpm install
+   # Build required workspace dependencies first
+   pnpm --filter @hoppscotch/data run build
+   pnpm --filter @hoppscotch/js-sandbox run build
+   # Then build the CLI
    pnpm run build
    ```
 

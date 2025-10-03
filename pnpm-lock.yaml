@@ -1523,6 +1523,9 @@ importers:
       '@hoppscotch/kernel':
         specifier: workspace:^
         version: link:../hoppscotch-kernel
+      '@hoppscotch/plugin-appload':
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#e05861959938b57479a1a81fa796735ebbd08c7c
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@8.57.0)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))

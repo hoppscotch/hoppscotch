@@ -6,8 +6,40 @@ import type {
 } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { getModule } from "."
+import { invoke } from "@tauri-apps/api/core"
+import { join } from "@tauri-apps/api/path"
 
 const STORE_PATH = `${window.location.host}.hoppscotch.store`
+
+export const getConfigDir = async (): Promise<string> => {
+  return await invoke<string>("get_config_dir")
+}
+
+export const getBackupDir = async (): Promise<string> => {
+  return await invoke<string>("get_backup_dir")
+}
+
+export const getLatestDir = async (): Promise<string> => {
+  return await invoke<string>("get_latest_dir")
+}
+
+export const getStoreDir = async (): Promise<string> => {
+  return await invoke<string>("get_store_dir")
+}
+
+export const getInstanceDir = async (): Promise<string> => {
+  return await invoke<string>("get_instance_dir")
+}
+
+const getStorePath = async (): Promise<string> => {
+  try {
+    const storeDir = await getStoreDir()
+    return join(storeDir, STORE_PATH)
+  } catch (error) {
+    console.error("Failed to get store directory:", error)
+    return "hoppscotch-unified.store"
+  }
+}
 
 export const Store = (() => {
   const module = () => getModule("store")
@@ -16,7 +48,8 @@ export const Store = (() => {
     capabilities: () => module().capabilities,
 
     init: async () => {
-      return module().init(STORE_PATH)
+      const storePath = await getStorePath()
+      return module().init(storePath)
     },
 
     set: async (
@@ -25,49 +58,57 @@ export const Store = (() => {
       value: unknown,
       options?: StorageOptions
     ): Promise<E.Either<StoreError, void>> => {
-      return module().set(STORE_PATH, namespace, key, value, options)
+      const storePath = await getStorePath()
+      return module().set(storePath, namespace, key, value, options)
     },
 
     get: async <T>(
       namespace: string,
       key: string
     ): Promise<E.Either<StoreError, T | undefined>> => {
-      return module().get<T>(STORE_PATH, namespace, key)
+      const storePath = await getStorePath()
+      return module().get<T>(storePath, namespace, key)
     },
 
     remove: async (
       namespace: string,
       key: string
     ): Promise<E.Either<StoreError, boolean>> => {
-      return module().remove(STORE_PATH, namespace, key)
+      const storePath = await getStorePath()
+      return module().remove(storePath, namespace, key)
     },
 
     clear: async (namespace?: string): Promise<E.Either<StoreError, void>> => {
-      return module().clear(STORE_PATH, namespace)
+      const storePath = await getStorePath()
+      return module().clear(storePath, namespace)
     },
 
     has: async (
       namespace: string,
       key: string
     ): Promise<E.Either<StoreError, boolean>> => {
-      return module().has(STORE_PATH, namespace, key)
+      const storePath = await getStorePath()
+      return module().has(storePath, namespace, key)
     },
 
     listNamespaces: async (): Promise<E.Either<StoreError, string[]>> => {
-      return module().listNamespaces(STORE_PATH)
+      const storePath = await getStorePath()
+      return module().listNamespaces(storePath)
     },
 
     listKeys: async (
       namespace: string
     ): Promise<E.Either<StoreError, string[]>> => {
-      return module().listKeys(STORE_PATH, namespace)
+      const storePath = await getStorePath()
+      return module().listKeys(storePath, namespace)
     },
 
     watch: async (
       namespace: string,
       key: string
     ): Promise<StoreEventEmitter<StoreEvents>> => {
-      return module().watch(STORE_PATH, namespace, key)
+      const storePath = await getStorePath()
+      return module().watch(storePath, namespace, key)
     },
   } as const
 })()

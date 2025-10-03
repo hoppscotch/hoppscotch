@@ -88,7 +88,7 @@ describe("SecretEnvironmentService", () => {
       })
     })
 
-    it("should return default empty strings if the variable has no value/initialValue", () => {
+    it("should return null if the variable has no value/initialValue", () => {
       const id = "testEnvironment"
       const secretVars = [{ key: "key1", varIndex: 1 }]
 
@@ -102,7 +102,7 @@ describe("SecretEnvironmentService", () => {
       })
     })
 
-    it("should return { value: '', initialValue: '' } if the specified variable does not exist", () => {
+    it("should return null if the specified variable does not exist", () => {
       const id = "testEnvironment"
       const secretVars = [{ key: "key1", value: "value1", varIndex: 1 }]
 
@@ -110,21 +110,15 @@ describe("SecretEnvironmentService", () => {
 
       const result = service.getSecretEnvironmentVariableValue(id, 2)
 
-      expect(result).toEqual({
-        value: "",
-        initialValue: "",
-      })
+      expect(result).toBeNull()
     })
 
-    it("should return { value: '', initialValue: '' } if the specified environment does not exist", () => {
+    it("should return null if the specified environment does not exist", () => {
       const id = "nonExistentEnvironment"
 
       const result = service.getSecretEnvironmentVariableValue(id, 1)
 
-      expect(result).toEqual({
-        value: "",
-        initialValue: "",
-      })
+      expect(result).toBeNull()
     })
   })
 

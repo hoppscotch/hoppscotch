@@ -562,13 +562,13 @@ export function getAggregateEnvsWithCurrentValue() {
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             currentEnv.id,
             index
-          ).value ?? ""
+          )?.value ?? ""
 
         initialValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             currentEnv.id,
             index
-          ).initialValue ?? ""
+          )?.initialValue ?? ""
       }
 
       return <AggregateEnvironment>{
@@ -591,13 +591,13 @@ export function getAggregateEnvsWithCurrentValue() {
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             "Global",
             index
-          ).value ?? ""
+          )?.value ?? ""
 
         initialValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             "Global",
             index
-          ).initialValue ?? ""
+          )?.initialValue ?? ""
       }
       return <AggregateEnvironment>{
         key: x.key,
@@ -643,13 +643,13 @@ export const aggregateEnvsWithCurrentValue$: Observable<
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               selectedEnv.id,
               index
-            ).value ?? ""
+            )?.value ?? ""
 
           initialValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               selectedEnv.id,
               index
-            ).initialValue ?? ""
+            )?.initialValue ?? ""
         }
         results.push({
           key: x.key,
@@ -672,13 +672,13 @@ export const aggregateEnvsWithCurrentValue$: Observable<
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               "Global",
               index
-            ).value ?? ""
+            )?.value ?? ""
 
           initialValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               "Global",
               index
-            ).initialValue ?? ""
+            )?.initialValue ?? ""
         }
         results.push({
           key: x.key,

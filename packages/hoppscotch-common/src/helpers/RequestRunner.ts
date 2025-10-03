@@ -219,12 +219,10 @@ const updateEnvironments = (
 const getSecretEnvironmentVariableValue = (
   envID: string,
   index: number
-):
-  | {
-      value: string
-      initialValue?: string
-    }
-  | undefined => {
+): {
+  value: string
+  initialValue?: string
+} | null => {
   return secretEnvironmentService.getSecretEnvironmentVariableValue(
     envID,
     index
@@ -837,6 +835,27 @@ const getUpdatedEnvVariables = (
     )
   )
 
+// Helper to resolve currentValue & initialValue for (secret/non-secret) env vars
+const resolveEnvVars = (
+  envID: string,
+  vars: Environment["variables"]
+): Environment["variables"] =>
+  vars.map((v, index) => {
+    const secretMeta = v.secret
+      ? getSecretEnvironmentVariableValue(envID, index)
+      : null
+    return {
+      ...v,
+      currentValue:
+        (v.secret
+          ? secretMeta?.value
+          : getEnvironmentVariableValue(envID, index)) ?? "",
+      // fallback to var initialValue if secretMeta is not found
+      initialValue:
+        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+    }
+  })
+
 function translateToSandboxTestResults(
   testDesc: SandboxTestResult
 ): HoppTestResult {
@@ -848,31 +867,10 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = cloneDeep(getGlobalVariables()).map((g, index) => ({
-    ...g,
-    currentValue:
-      (g.secret
-        ? getSecretEnvironmentVariableValue("Global", index)?.value
-        : getEnvironmentVariableValue("Global", index)) ?? "",
-    initialValue:
-      (g.secret
-        ? getSecretEnvironmentVariableValue("Global", index)?.initialValue
-        : "") ?? g.initialValue,
-  }))
-
-  const envVars = getCurrentEnvironment().variables.map((e, index) => ({
-    ...e,
-    currentValue:
-      (e.secret
-        ? getSecretEnvironmentVariableValue(getCurrentEnvironment().id, index)
-            ?.value
-        : getEnvironmentVariableValue(getCurrentEnvironment().id, index)) ?? "",
-    initialValue:
-      (e.secret
-        ? getSecretEnvironmentVariableValue(getCurrentEnvironment().id, index)
-            ?.initialValue
-        : "") ?? e.initialValue,
-  }))
+  const globals = resolveEnvVars("Global", cloneDeep(getGlobalVariables()))
+  const { id: currentEnvID, variables: currentEnvVariables } =
+    getCurrentEnvironment()
+  const envVars = resolveEnvVars(currentEnvID, currentEnvVariables)
 
   return {
     description: "",

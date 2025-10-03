@@ -71,9 +71,10 @@ export class SecretEnvironmentService extends Service {
    */
   public getSecretEnvironmentVariableValue(id: string, varIndex: number) {
     const secretVar = this.getSecretEnvironmentVariable(id, varIndex)
+    if (!secretVar) return null
     return {
-      value: secretVar?.value || "",
-      initialValue: secretVar?.initialValue || "",
+      value: secretVar.value || "",
+      initialValue: secretVar.initialValue || "",
     }
   }
 

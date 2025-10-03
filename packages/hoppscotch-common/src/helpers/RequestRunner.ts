@@ -170,8 +170,8 @@ const updateEnvironments = (
           initialValue: e.initialValue ?? "",
         })
 
-        // delete the value from the environment
-        // so that it doesn't get saved in the environment
+        // create a new object with cleared values for secret variables
+        // so that these values don't get saved in the environment
         return {
           key: e.key,
           secret: e.secret,

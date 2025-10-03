@@ -224,9 +224,13 @@ export function getSharedEnvMethods(
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE(e.currentValue || e.initialValue, envVars), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.currentValue || e.initialValue)
-        )
+          parseTemplateStringE(
+            (e.currentValue !== undefined && e.currentValue !== "") ? e.currentValue : e.initialValue,
+            envVars
+          ), // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() =>
+            (e.currentValue !== undefined && e.currentValue !== "") ? e.currentValue : e.initialValue
+          )
       ),
       E.map((x) => String(x)),
 

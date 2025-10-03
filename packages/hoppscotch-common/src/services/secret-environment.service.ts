@@ -154,7 +154,10 @@ export class SecretEnvironmentService extends Service {
       this.secretEnvironments
         .get(id)!
         .some(
-          (secretVar) => secretVar.key === key && secretVar.initialValue !== ""
+          (secretVar) =>
+            secretVar.key === key &&
+            secretVar.initialValue &&
+            secretVar.initialValue !== ""
         )
     )
   }

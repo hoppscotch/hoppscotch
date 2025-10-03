@@ -195,7 +195,7 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => (options.fallbackToNull ? null : undefined),
-        (env) => String(env.currentValue || env.initialValue)
+        (env) => env.currentValue !== '' ? String(env.currentValue) : String(env.initialValue)
       )
     )
 

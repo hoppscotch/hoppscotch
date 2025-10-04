@@ -217,12 +217,12 @@ export class TeamsSpotlightSearcherService
 
     if (!selectedRequest) return
 
-    const collectionID = result.id
+    const collectionID = selectedRequest.collectionID
 
     if (!collectionID) return
 
     inheritedProperties =
-      this.teamsSearch.cascadeParentCollectionForHeaderAuthForSearchResults(
+      this.teamsSearch.cascadeParentCollectionForPropertiesForSearchResults(
         collectionID
       )
 

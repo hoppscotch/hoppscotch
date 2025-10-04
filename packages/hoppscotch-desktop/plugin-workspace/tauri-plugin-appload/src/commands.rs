@@ -9,7 +9,9 @@ use tauri::{
 use crate::{
     bundle::BundleLoader,
     cache::CacheManager,
-    models::{DownloadOptions, DownloadResponse, LoadOptions, LoadResponse},
+    models::{
+        CloseOptions, CloseResponse, DownloadOptions, DownloadResponse, LoadOptions, LoadResponse,
+    },
     storage::{StorageError, StorageManager},
     ui, RemoveOptions, RemoveResponse, Result,
 };
@@ -111,27 +113,32 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         })?;
     }
 
-    for old_label in [
-        &format!("{}-curr", base_label),
-        &format!("{}-next", base_label),
-        "main",
-    ] {
-        if old_label == &label {
-            continue;
-        }
-
-        if let Some(old_window) = app.get_webview_window(old_label) {
-            old_window.close()?;
-            tracing::info!("Closing {} window", old_label);
-        }
-    }
-
     let response = LoadResponse {
         success: window.is_visible().unwrap_or(false),
         window_label: label,
     };
 
     tracing::info!(?response, "Bundle loaded successfully");
+    Ok(response)
+}
+
+#[command]
+pub async fn close<R: Runtime>(app: AppHandle<R>, options: CloseOptions) -> Result<CloseResponse> {
+    tracing::info!(?options, "Starting window close process");
+
+    let Some(window) = app.get_webview_window(&options.window_label) else {
+        tracing::info!(window_label = %options.window_label, "Window not found or already closed");
+        return Ok(CloseResponse { success: true });
+    };
+
+    window.close().map_err(|e| {
+        tracing::error!(?e, window_label = %options.window_label, "Failed to close window");
+        e
+    })?;
+
+    let response = CloseResponse { success: true };
+
+    tracing::info!(?response, "Window close process completed");
     Ok(response)
 }
 

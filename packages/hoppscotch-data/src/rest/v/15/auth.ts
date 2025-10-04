@@ -20,7 +20,7 @@ import { ImplicitOauthFlowParams as ImplicitOauthFlowParamsOld } from "../3"
 export { HoppRESTAuthJWT } from "../13/auth"
 
 // Define the OAuth2 advanced parameter structure
-const OAuth2AdvancedParam = z.object({
+export const OAuth2AdvancedParam = z.object({
   id: z.number(),
   key: z.string(),
   value: z.string(),
@@ -29,7 +29,7 @@ const OAuth2AdvancedParam = z.object({
 })
 
 // omit sendIn from OAuth2AuthRequestParam
-const OAuth2AuthRequestParam = OAuth2AdvancedParam.omit({ sendIn: true })
+export const OAuth2AuthRequestParam = OAuth2AdvancedParam.omit({ sendIn: true })
 
 export const AuthCodeGrantTypeParams = AuthCodeGrantTypeParamsOld.extend({
   authRequestParams: z.array(OAuth2AuthRequestParam).optional().default([]),

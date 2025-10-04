@@ -8,7 +8,14 @@ export const implementation: VersionedAPI<IoV1> = {
     version: { major: 1, minor: 0, patch: 0 },
     api: {
         async saveFileWithDialog(opts: SaveFileWithDialogOptions) {
-            const file = new Blob([opts.data], { type: opts.contentType })
+            // TODO: Revisit this because perhaps a better approach is
+            // ```ts
+            // const data: BlobPart = typeof opts.data === 'string'
+            //     ? opts.data
+            //     : new Uint8Array(opts.data);
+            // const file = new Blob([data], { type: opts.contentType })
+            // ```
+            const file = new Blob([opts.data as BlobPart], { type: opts.contentType })
             const a = document.createElement("a")
             const url = URL.createObjectURL(file)
 

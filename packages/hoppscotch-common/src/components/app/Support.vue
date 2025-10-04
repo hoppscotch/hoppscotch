@@ -1,7 +1,6 @@
 <template>
   <HoppSmartModal
     v-if="show"
-    dialog
     :title="t('support.title')"
     styles="sm:max-w-md"
     @close="emit('hide-modal')"

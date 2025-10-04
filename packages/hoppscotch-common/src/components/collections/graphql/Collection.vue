@@ -125,11 +125,11 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-collection', {
+                      ;(emit('duplicate-collection', {
                         path: `${collectionIndex}`,
                         collectionSyncID: collection.id,
                       }),
-                        hide()
+                        hide())
                     }
                   "
                 />
@@ -153,7 +153,7 @@
                   @click="
                     () => {
                       emit('edit-properties', {
-                        collectionIndex: String(collectionIndex),
+                        collectionIndex: String(folderPath) ?? '0',
                         collection: collection,
                       })
                       hide()
@@ -188,12 +188,7 @@
           @duplicate-collection="$emit('duplicate-collection', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
-          @edit-properties="
-            $emit('edit-properties', {
-              collectionIndex: `${collectionIndex}/${String(index)}`,
-              collection: folder,
-            })
-          "
+          @edit-properties="$emit('edit-properties', $event)"
           @select="$emit('select', $event)"
           @select-request="$emit('select-request', $event)"
           @drop-request="$emit('drop-request', $event)"
@@ -255,6 +250,7 @@ import { useService } from "dioc/vue"
 import { computed, ref } from "vue"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { removeGraphqlCollection } from "~/newstore/collections"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 import { GQLTabService } from "~/services/tab/graphql"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCopy from "~icons/lucide/copy"
@@ -274,6 +270,7 @@ const props = defineProps<{
   collectionIndex: number | null
   collection: HoppCollection
   isFiltered: boolean
+  folderPath: string
 }>()
 
 const colorMode = useColorMode()
@@ -339,7 +336,7 @@ const isSelected = computed(
 const collectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle
   else if (!showChildren.value && !props.isFiltered) return IconFolder
-  else if (!showChildren.value || props.isFiltered) return IconFolderOpen
+  else if (showChildren.value || props.isFiltered) return IconFolderOpen
   return IconFolder
 })
 
@@ -358,7 +355,9 @@ const toggleShowChildren = () => {
   showChildren.value = !showChildren.value
 }
 
-const removeCollection = () => {
+const removeCollection = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   // Cancel pick if picked collection is deleted
   if (
     props.picked?.pickedType === "gql-my-collection" &&

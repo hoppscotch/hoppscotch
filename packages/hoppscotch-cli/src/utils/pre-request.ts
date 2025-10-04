@@ -7,6 +7,7 @@ import {
   parseTemplateString,
   parseTemplateStringE,
   generateJWTToken,
+  HoppCollectionVariable,
 } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
@@ -46,7 +47,8 @@ import { calculateHawkHeader } from "@hoppscotch/data";
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: HoppEnvs,
-  legacySandbox: boolean
+  legacySandbox: boolean,
+  collectionVariables?: HoppCollectionVariable[]
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
@@ -56,21 +58,37 @@ export const preRequestScriptRunner = (
   return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs, experimentalScriptingSandbox)
+      runPreRequestScript(preRequestScript, {
+        envs,
+        experimentalScriptingSandbox,
+        request,
+        cookies: null,
+      })
     ),
-    TE.map(
-      ({ selected, global }) =>
-        <Environment>{
+    TE.map(({ updatedEnvs, updatedRequest }) => {
+      const { selected, global } = updatedEnvs;
+
+      return {
+        updatedEnvs: <Environment>{
           name: "Env",
           variables: [...(selected ?? []), ...(global ?? [])],
-        }
-    ),
-    TE.chainW((env) =>
-      TE.tryCatch(
-        () => getEffectiveRESTRequest(request, env),
+        },
+        updatedRequest: updatedRequest ?? {},
+      };
+    }),
+    TE.chainW(({ updatedEnvs, updatedRequest }) => {
+      const finalRequest = { ...request, ...updatedRequest };
+
+      return TE.tryCatch(
+        () =>
+          getEffectiveRESTRequest(
+            finalRequest,
+            updatedEnvs,
+            collectionVariables
+          ),
         (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
-      )
-    ),
+      );
+    }),
     TE.chainEitherKW((effectiveRequest) => effectiveRequest),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)
@@ -93,7 +111,8 @@ export const preRequestScriptRunner = (
  */
 export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
-  environment: Environment
+  environment: Environment,
+  collectionVariables?: HoppCollectionVariable[]
 ): Promise<
   E.Either<
     HoppCLIError,
@@ -104,7 +123,8 @@ export async function getEffectiveRESTRequest(
 
   const resolvedVariables = getResolvedVariables(
     request.requestVariables,
-    envVariables
+    envVariables,
+    collectionVariables
   );
 
   // Parsing final headers with applied ENVs.
@@ -511,7 +531,7 @@ function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? x.value.map((v) => ({
+          ? (x.value as (Blob | null)[]).map((v: Blob | null) => ({
               key: parseTemplateString(x.key, resolvedVariables),
               value: v as string | Blob,
               contentType: x.contentType,

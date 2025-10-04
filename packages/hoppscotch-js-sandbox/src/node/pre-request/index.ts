@@ -1,14 +1,28 @@
 import * as TE from "fp-ts/lib/TaskEither"
-import { TestResult } from "~/types"
+import { RunPreRequestScriptOptions, SandboxPreRequestResult } from "~/types"
 
 import { runPreRequestScriptWithFaradayCage } from "./experimental"
 import { runPreRequestScriptWithIsolatedVm } from "./legacy"
 
 export const runPreRequestScript = (
   preRequestScript: string,
-  envs: TestResult["envs"],
-  experimentalScriptingSandbox = true
-): TE.TaskEither<string, TestResult["envs"]> =>
-  experimentalScriptingSandbox
-    ? runPreRequestScriptWithFaradayCage(preRequestScript, envs)
-    : runPreRequestScriptWithIsolatedVm(preRequestScript, envs)
+  options: RunPreRequestScriptOptions
+): TE.TaskEither<string, SandboxPreRequestResult> => {
+  const { envs, experimentalScriptingSandbox = true } = options
+
+  if (experimentalScriptingSandbox) {
+    const { request, cookies } = options as Extract<
+      RunPreRequestScriptOptions,
+      { experimentalScriptingSandbox: true }
+    >
+
+    return runPreRequestScriptWithFaradayCage(
+      preRequestScript,
+      envs,
+      request,
+      cookies
+    )
+  }
+
+  return runPreRequestScriptWithIsolatedVm(preRequestScript, envs)
+}

@@ -1,7 +1,6 @@
 import {
   parseTemplateString,
   HoppRESTAuth,
-  HoppRESTRequest,
   Environment,
   HoppRESTHeader,
   HoppRESTParam,
@@ -9,7 +8,6 @@ import {
 
 export async function generateApiKeyAuthHeaders(
   auth: HoppRESTAuth & { authType: "api-key" },
-  request: HoppRESTRequest,
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTHeader[]> {
@@ -32,7 +30,6 @@ export async function generateApiKeyAuthHeaders(
 
 export async function generateApiKeyAuthParams(
   auth: HoppRESTAuth & { authType: "api-key" },
-  request: HoppRESTRequest,
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTParam[]> {

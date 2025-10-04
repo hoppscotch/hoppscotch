@@ -53,7 +53,22 @@ impl TransferHandler {
                         let key = key.trim().to_string();
                         let value = value[1..].trim().to_string();
 
-                        headers.entry(key).or_insert(value);
+                        if key.to_lowercase() == "set-cookie" {
+                            // NOTE: Special handling workaround.
+                            // Concatenate multiple `Set-Cookie` headers.
+                            match headers.entry(key) {
+                                std::collections::hash_map::Entry::Occupied(mut e) => {
+                                    let existing = e.get_mut();
+                                    existing.push_str("\n");
+                                    existing.push_str(&value);
+                                }
+                                std::collections::hash_map::Entry::Vacant(e) => {
+                                    e.insert(value);
+                                }
+                            }
+                        } else {
+                            headers.entry(key).or_insert(value);
+                        }
                     }
                 }
                 true

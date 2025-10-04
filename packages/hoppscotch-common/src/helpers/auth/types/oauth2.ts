@@ -1,7 +1,6 @@
 import {
   parseTemplateString,
   HoppRESTAuth,
-  HoppRESTRequest,
   Environment,
   HoppRESTHeader,
   HoppRESTParam,
@@ -9,7 +8,6 @@ import {
 
 export async function generateOAuth2AuthHeaders(
   auth: HoppRESTAuth & { authType: "oauth-2" },
-  request: HoppRESTRequest,
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTHeader[]> {
@@ -34,7 +32,6 @@ export async function generateOAuth2AuthHeaders(
 
 export async function generateOAuth2AuthParams(
   auth: HoppRESTAuth & { authType: "oauth-2" },
-  request: HoppRESTRequest,
   envVars: Environment["variables"],
   showKeyIfSecret = false
 ): Promise<HoppRESTParam[]> {

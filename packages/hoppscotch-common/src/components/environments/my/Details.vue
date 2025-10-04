@@ -134,7 +134,7 @@
                     <input
                       v-model="env.key"
                       v-focus
-                      class="flex flex-1 bg-transparent px-4 py-2"
+                      class="flex flex-1 bg-transparent px-4 py-2 text-secondaryDark"
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
@@ -150,6 +150,7 @@
                         :select-text-on-mount="
                           env.key ? env.key === editingVariableName : false
                         "
+                        :auto-complete-env="true"
                       />
                       <HoppButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
@@ -173,6 +174,7 @@
                         :select-text-on-mount="
                           env.key ? env.key === editingVariableName : false
                         "
+                        :auto-complete-env="true"
                       />
                       <HoppButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
@@ -510,7 +512,7 @@ const saveEnvironment = () => {
     return
   }
 
-  if (editingName.value.length < 3) {
+  if (editingName.value.trim().length === 0) {
     toast.error(`${t("environment.short_name")}`)
     return
   }

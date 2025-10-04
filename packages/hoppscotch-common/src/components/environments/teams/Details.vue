@@ -138,7 +138,7 @@
                     <input
                       v-model="env.key"
                       v-focus
-                      class="flex flex-1 bg-transparent px-4 py-2"
+                      class="flex flex-1 bg-transparent px-4 py-2 text-secondaryDark"
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
@@ -493,6 +493,12 @@ const saveEnvironment = async () => {
     isLoading.value = false
     toast.error(`${t("environment.invalid_name")}`)
 
+    return
+  }
+
+  if (editingName.value.trim().length === 0) {
+    isLoading.value = false
+    toast.error(`${t("environment.short_name")}`)
     return
   }
 

@@ -361,8 +361,8 @@ describe('renameTeam', () => {
     ).resolves.toEqualLeft(TEAM_INVALID_ID);
   });
 
-  test('rejects for new team name length < 6 with TEAM_NAME_INVALID', () => {
-    const newTeamName = 'smol';
+  test('rejects for new team name empty with TEAM_NAME_INVALID', () => {
+    const newTeamName = '';
 
     // Prisma doesn't care about the team name length, so it will resolve
     mockPrisma.team.update.mockResolvedValue({
@@ -668,8 +668,8 @@ describe('createTeam', () => {
     ).resolves.toEqualRight(expect.objectContaining(team));
   });
 
-  test('rejects for team name length < 6 with TEAM_NAME_INVALID', () => {
-    const newName = 'smol';
+  test('rejects for team name empty with TEAM_NAME_INVALID', () => {
+    const newName = '';
 
     // Prisma doesn't care
     mockPrisma.team.create.mockResolvedValue({

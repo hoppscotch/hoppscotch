@@ -53,6 +53,8 @@ model TeamCollection {
   orderIndex Int
   createdOn  DateTime         @default(now()) @db.Timestamptz(3)
   updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@unique([teamID, parentID, orderIndex])
 }
 
 model TeamRequest {
@@ -66,6 +68,8 @@ model TeamRequest {
   orderIndex   Int
   createdOn    DateTime       @default(now()) @db.Timestamptz(3)
   updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
+
+  @@unique([teamID, collectionID, orderIndex])
 }
 
 model Shortcode {
@@ -189,6 +193,8 @@ model UserRequest {
   orderIndex     Int
   createdOn      DateTime       @default(now()) @db.Timestamptz(3)
   updatedOn      DateTime       @updatedAt @db.Timestamptz(3)
+
+  @@unique([userUid, collectionID, orderIndex])
 }
 
 model UserCollection {
@@ -205,6 +211,8 @@ model UserCollection {
   type       ReqType
   createdOn  DateTime         @default(now()) @db.Timestamptz(3)
   updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@unique([userUid, parentID, orderIndex])
 }
 
 enum TeamAccessRole {

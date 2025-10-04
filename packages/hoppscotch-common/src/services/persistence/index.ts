@@ -70,6 +70,7 @@ import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
 
 import {
   CURRENT_ENVIRONMENT_VALUE_SCHEMA,
+  CURRENT_SORT_VALUES_SCHEMA,
   ENVIRONMENTS_SCHEMA,
   GLOBAL_ENVIRONMENT_SCHEMA,
   GQL_COLLECTION_SCHEMA,
@@ -100,6 +101,10 @@ import {
 import { cloneDeep } from "lodash-es"
 import { fixBrokenRequestVersion } from "~/helpers/fixBrokenRequestVersion"
 import { fixBrokenEnvironmentVersion } from "~/helpers/fixBrokenEnvironmentVersion"
+import {
+  CurrentSortOption,
+  CurrentSortValuesService,
+} from "../current-sort.service"
 
 export const STORE_NAMESPACE = "persistence.v1"
 
@@ -122,6 +127,7 @@ export const STORE_KEYS = {
   GQL_TABS: "gqlTabs",
   SECRET_ENVIRONMENTS: "secretEnvironments",
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
+  CURRENT_SORT_VALUES: "currentSortValues",
   SCHEMA_VERSION: "schema_version",
 } as const
 
@@ -186,6 +192,10 @@ export class PersistenceService extends Service {
   )
   private readonly currentEnvironmentValueService =
     this.bind(CurrentValueService)
+
+  private readonly currentSortValuesService = this.bind(
+    CurrentSortValuesService
+  )
 
   private showErrorToast(key: string) {
     const toast = useToast()
@@ -698,6 +708,50 @@ export class PersistenceService extends Service {
     })
   }
 
+  private async setupCurrentSortValuesPersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.CURRENT_SORT_VALUES
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = CURRENT_SORT_VALUES_SCHEMA.safeParse(loadResult.right)
+
+        if (result.success) {
+          this.currentSortValuesService.loadCurrentSortValuesFromPersistedState(
+            result.data
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.CURRENT_SORT_VALUES)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.CURRENT_SORT_VALUES}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted CURRENT_SORT_VALUES:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (e) {
+      console.error(`Failed parsing persisted CURRENT_SORT_VALUES:`, loadResult)
+    }
+
+    watchDebounced(
+      this.currentSortValuesService.persistableCurrentSortValues,
+      async (newData: Record<string, CurrentSortOption>) => {
+        await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.CURRENT_SORT_VALUES,
+          newData
+        )
+      },
+      { debounce: 500 }
+    )
+  }
+
   private async setupWebsocketPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
@@ -986,6 +1040,8 @@ export class PersistenceService extends Service {
 
       this.setupSecretEnvironmentsPersistence(),
       this.setupCurrentEnvironmentValuePersistence(),
+
+      this.setupCurrentSortValuesPersistence(),
     ])
   }
 

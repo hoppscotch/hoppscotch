@@ -128,7 +128,6 @@ import { useService } from "dioc/vue"
 import { pipe } from "fp-ts/lib/function"
 import * as TE from "fp-ts/TaskEither"
 import { computed, nextTick, onMounted, ref } from "vue"
-import { useReadonlyStream } from "~/composables/stream"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -142,7 +141,7 @@ import {
   TestRunnerCollectionsAdapter,
 } from "~/helpers/runner/adapter"
 import { getErrorMessage } from "~/helpers/runner/collection-tree"
-import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import {
   getRESTCollectionByRefId,
   getRESTCollectionInheritedProps,
@@ -150,6 +149,7 @@ import {
 } from "~/newstore/collections"
 import { HoppTab } from "~/services/tab"
 import { RESTTabService } from "~/services/tab/rest"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
   TestRunnerRequest,
   TestRunnerService,
@@ -160,11 +160,8 @@ const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 
-const teamCollectionAdapter = new TeamCollectionAdapter(null)
-const teamCollectionList = useReadonlyStream(
-  teamCollectionAdapter.collections$,
-  []
-)
+const teamCollectionService = useService(TeamCollectionsService)
+const teamCollectionList = teamCollectionService.collections
 
 const props = defineProps<{ modelValue: HoppTab<HoppTestRunnerDocument> }>()
 
@@ -269,21 +266,28 @@ const runTests = async () => {
       }
     )
 
+    const parentVariables = transformInheritedCollectionVariablesToAggregateEnv(
+      tab.value.document.inheritedProperties?.variables ?? []
+    )
+
     resolvedCollection = {
       ...collection.value,
       auth: requestAuth,
       headers: requestHeaders as HoppRESTHeader[],
+      variables: parentVariables,
     }
   } else {
-    const { auth, headers } = collectionInheritedProps ?? {
+    const { auth, headers, variables } = collectionInheritedProps ?? {
       auth: { authActive: true, authType: "none" },
       headers: [],
+      variables: [],
     }
 
     resolvedCollection = {
       ...collection.value,
       auth,
       headers,
+      variables,
     }
   }
 

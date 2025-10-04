@@ -38,6 +38,7 @@ import { editGraphqlCollection } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { HoppCollection } from "@hoppscotch/data"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const props = defineProps<{
   show: boolean
@@ -62,11 +63,14 @@ watch(
   }
 )
 
-const saveCollection = () => {
+const saveCollection = async () => {
   if (!editingName.value) {
     toast.error(`${t("collection.invalid_name")}`)
     return
   }
+
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
 
   // TODO: Better typechecking here ?
   const collectionUpdated = {

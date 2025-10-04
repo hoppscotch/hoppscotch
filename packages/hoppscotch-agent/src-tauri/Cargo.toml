@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-agent"
-version = "0.1.12"
+version = "0.1.14"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
 authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"
@@ -16,7 +16,7 @@ tauri-build = { version = "2.0.1", features = [] }
 
 [dependencies]
 tauri = { version = "2.0.4", features = ["tray-icon", "image-png"] }
-tauri-plugin-shell = "2.0.1"
+tauri-plugin-shell = "2.2.1"
 tauri-plugin-autostart = { version = "2.0.1", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

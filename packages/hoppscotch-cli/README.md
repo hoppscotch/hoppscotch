@@ -88,6 +88,16 @@ hopp [options or commands] arguments
 
     - Opt out from the experimental scripting sandbox.
 
+## Versioning
+
+The Hoppscotch CLI follows **pre-1.0 semantic versioning** conventions while in alpha (version `< 1.0.0`):
+
+- **Feature releases** (e.g., `0.20.0` → `0.21.0`): New features, enhancements, or improvements
+- **Patch releases** (e.g., `0.20.0` → `0.20.1`): Bug fixes, security patches, and minor improvements
+- **Breaking changes** (e.g., `0.21.0` → `0.30.0`): Major version-like bumps for backwards-incompatible changes
+
+> Once the CLI reaches stability and a mature feature set, we will transition to standard semantic versioning starting with `1.0.0`.
+
 ## Install
 
 - Before you install Hoppscotch CLI you need to make sure you have the dependencies it requires to run.

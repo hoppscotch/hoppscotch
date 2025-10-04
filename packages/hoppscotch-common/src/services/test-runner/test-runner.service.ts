@@ -1,5 +1,6 @@
 import {
   HoppCollection,
+  HoppCollectionVariable,
   HoppRESTHeaders,
   HoppRESTRequest,
 } from "@hoppscotch/data"
@@ -15,6 +16,7 @@ import {
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
+import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
 
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
@@ -59,6 +61,7 @@ export class TestRunnerService extends Service {
       headers: collection.headers,
       folders: [],
       requests: [],
+      variables: [],
     }
 
     this.runTestCollection(tab, collection, options)
@@ -87,7 +90,9 @@ export class TestRunnerService extends Service {
     options: TestRunnerOptions,
     parentPath: number[] = [],
     parentHeaders?: HoppRESTHeaders,
-    parentAuth?: HoppRESTRequest["auth"]
+    parentAuth?: HoppRESTRequest["auth"],
+    parentVariables: HoppCollection["variables"] = [],
+    parentID?: string
   ) {
     try {
       // Compute inherited auth and headers for this collection
@@ -99,6 +104,17 @@ export class TestRunnerService extends Service {
       const inheritedHeaders: HoppRESTHeaders = [
         ...(parentHeaders || []),
         ...collection.headers,
+      ]
+
+      const inheritedVariables = [
+        ...(populateValuesInInheritedCollectionVars(
+          parentVariables,
+          parentID || collection._ref_id || collection.id
+        ) || []),
+        ...(populateValuesInInheritedCollectionVars(
+          collection.variables,
+          collection._ref_id || collection.id
+        ) || []),
       ]
 
       // Process folders progressively
@@ -129,7 +145,9 @@ export class TestRunnerService extends Service {
           options,
           currentPath,
           inheritedHeaders,
-          inheritedAuth
+          inheritedAuth,
+          inheritedVariables,
+          collection._ref_id || collection.id
         )
       }
 
@@ -165,7 +183,8 @@ export class TestRunnerService extends Service {
           finalRequest,
           collection,
           options,
-          currentPath
+          currentPath,
+          inheritedVariables
         )
 
         if (options.delay && options.delay > 0) {
@@ -255,7 +274,8 @@ export class TestRunnerService extends Service {
     request: TestRunnerRequest,
     collection: HoppCollection,
     options: TestRunnerOptions,
-    path: number[]
+    path: number[],
+    inheritedVariables: HoppCollectionVariable[] = []
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -270,7 +290,8 @@ export class TestRunnerService extends Service {
 
       const results = await runTestRunnerRequest(
         request,
-        options.keepVariableValues
+        options.keepVariableValues,
+        inheritedVariables
       )
 
       if (options.stopRef?.value) {
@@ -278,15 +299,16 @@ export class TestRunnerService extends Service {
       }
 
       if (results && E.isRight(results)) {
-        const { response, testResult } = results.right
+        const { response, testResult, updatedRequest } = results.right
         const { passed, failed } = this.getTestResultInfo(testResult)
 
         tab.value.document.testRunnerMeta.totalTests += passed + failed
         tab.value.document.testRunnerMeta.passedTests += passed
         tab.value.document.testRunnerMeta.failedTests += failed
 
-        // Update request with results in the result collection
+        // Update request with results and propagate pre-request script changes in the result collection
         this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
+          ...updatedRequest,
           testResults: testResult,
           response: options.persistResponses ? response : null,
           isLoading: false,

@@ -120,6 +120,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import { sortPersonalEnvironmentsAlphabetically } from "~/helpers/utils/sortEnvironmentsAlphabetically"
 import { HandleEnvChangeProp } from "../index.vue"
 import { Environment } from "@hoppscotch/data"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -159,17 +160,25 @@ const editingEnvironmentIndex = ref<number | null>(null)
 const editingVariableName = ref("")
 const secretOptionSelected = ref(false)
 
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   action.value = "new"
   showModalDetails.value = shouldDisplay
 }
-const displayModalEdit = (shouldDisplay: boolean) => {
-  action.value = "edit"
+const displayModalEdit = async (shouldDisplay: boolean) => {
+  if (shouldDisplay) {
+    const isValidToken = await handleTokenValidation()
+    if (!isValidToken) return
+    action.value = "edit"
+  }
   showModalDetails.value = shouldDisplay
 
   if (!shouldDisplay) resetSelectedData()
 }
-const displayModalImportExport = (shouldDisplay: boolean) => {
+const displayModalImportExport = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalImportExport.value = shouldDisplay
 }
 const selectEnvironment = (index: number, environment: Environment) => {

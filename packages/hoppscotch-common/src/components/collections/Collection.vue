@@ -58,8 +58,15 @@
             </span>
           </span>
         </div>
-        <div v-if="!hasNoTeamAccess" class="flex">
+        <div
+          v-if="isCollectionLoading && !isOpen"
+          class="flex items-center px-2"
+        >
+          <HoppSmartSpinner />
+        </div>
+        <div v-else class="flex">
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFilePlus"
             :title="t('request.add')"
@@ -67,6 +74,7 @@
             @click="emit('add-request')"
           />
           <HoppButtonSecondary
+            v-if="!hasNoTeamAccess"
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconFolderPlus"
             :title="t('folder.new')"
@@ -106,9 +114,11 @@
                   @keyup.x="exportAction?.$el.click()"
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
+                  @keyup.s="sortAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="requestAction"
                     :icon="IconFilePlus"
                     :label="t('request.new')"
@@ -121,6 +131,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="folderAction"
                     :icon="IconFolderPlus"
                     :label="t('folder.new')"
@@ -145,6 +156,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="edit"
                     :icon="IconEdit"
                     :label="t('action.edit')"
@@ -157,6 +169,20 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess && isChildrenSortable"
+                    ref="sortAction"
+                    :icon="IconArrowUpDown"
+                    :label="t('action.sort')"
+                    :shortcut="['S']"
+                    @click="
+                      () => {
+                        sortCollection()
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="duplicateAction"
                     :icon="IconCopy"
                     :label="t('action.duplicate')"
@@ -164,12 +190,13 @@
                     :shortcut="['D']"
                     @click="
                       () => {
-                        emit('duplicate-collection'),
-                          collectionsType === 'my-collections' ? hide() : null
+                        ;(emit('duplicate-collection'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
                     :label="t('export.title')"
@@ -177,20 +204,8 @@
                     :loading="exportLoading"
                     @click="
                       () => {
-                        emit('export-data'),
-                          collectionsType === 'my-collections' ? hide() : null
-                      }
-                    "
-                  />
-                  <HoppSmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        emit('remove-collection')
-                        hide()
+                        ;(emit('export-data'),
+                          collectionsType === 'my-collections' ? hide() : null)
                       }
                     "
                   />
@@ -202,6 +217,20 @@
                     @click="
                       () => {
                         emit('edit-properties')
+                        hide()
+                      }
+                    "
+                  />
+
+                  <HoppSmartItem
+                    v-if="!hasNoTeamAccess"
+                    ref="deleteAction"
+                    :icon="IconTrash2"
+                    :label="t('action.delete')"
+                    :shortcut="['⌫']"
+                    @click="
+                      () => {
+                        emit('remove-collection')
                         hide()
                       }
                     "
@@ -253,6 +282,9 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconPlaySquare from "~icons/lucide/play-square"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { useService } from "dioc/vue"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -277,6 +309,7 @@ const props = withDefaults(
     collectionMoveLoading?: string[]
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
+    teamLoadingCollections?: string[]
   }>(),
   {
     id: "",
@@ -288,7 +321,9 @@ const props = withDefaults(
     exportLoading: false,
     hasNoTeamAccess: false,
     isLastItem: false,
-    duplicateLoading: false,
+    duplicateCollectionLoading: false,
+    collectionMoveLoading: () => [],
+    teamLoadingCollections: () => [],
   }
 )
 
@@ -308,6 +343,14 @@ const emit = defineEmits<{
   (event: "update-collection-order", payload: DataTransfer): void
   (event: "update-last-collection-order", payload: DataTransfer): void
   (event: "run-collection", collectionID: string): void
+  (
+    event: "sort-collections",
+    payload: {
+      collectionID: string
+      sortOrder: "asc" | "desc"
+      collectionRefID: string
+    }
+  ): void
 }>()
 
 const tippyActions = ref<HTMLDivElement | null>(null)
@@ -320,16 +363,56 @@ const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const propertiesAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
+const sortAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
 const orderingLastItem = ref(false)
 const dropItemID = ref("")
 
+/**
+ * Determines if the collection/folder is sortable.
+ * A collection/folder is sortable if it has more than one request or more than one child folder.
+ * or one request and one child folder.
+ */
+const isChildrenSortable = computed(() => {
+  if (!props.data) return false
+
+  if (props.collectionsType === "my-collections") {
+    const collection = props.data as HoppCollection
+    const req = collection.requests.length
+    const fol = collection.folders.length
+
+    return req > 1 || fol > 1 || (req === 1 && fol === 1)
+  }
+
+  const teamCollection = props.data as TeamCollection
+  const req = teamCollection.requests?.length ?? 0
+  const child = teamCollection.children?.length ?? 0
+
+  return req > 1 || child > 1 || (req === 1 && child === 1)
+})
+
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
   id: "",
   parentID: "",
+})
+
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const collectionRefID = computed(() => {
+  return props.collectionsType === "my-collections"
+    ? (props.data as HoppCollection)._ref_id
+    : props.id
+})
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption(collectionRefID.value ?? "personal")
+    ?.sortOrder ?? "asc"
+)
+const isCollectionLoading = computed(() => {
+  return props.teamLoadingCollections!.includes(props.id)
 })
 
 // Used to determine if the collection is being dragged to a different destination
@@ -486,6 +569,16 @@ const isCollLoading = computed(() => {
   }
   return false
 })
+
+const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
+  emit("sort-collections", {
+    collectionID: props.id,
+    sortOrder: currentSortOrder.value,
+    collectionRefID: collectionRefID.value ?? "personal",
+  })
+}
 
 const resetDragState = () => {
   dragging.value = false

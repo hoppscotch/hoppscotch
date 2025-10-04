@@ -236,45 +236,55 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(stdout).not.toContain("https://example.com/path?foo=bar&baz=qux");
       expect(stdout).not.toContain("Encoded");
     });
-  });
 
-  test("Ensures tests run in sequence order based on request path", async () => {
-    // Expected order of collection runs
-    const expectedOrder = [
-      "root-collection-request",
-      "folder-1/folder-1-request",
-      "folder-1/folder-11/folder-11-request",
-      "folder-1/folder-12/folder-12-request",
-      "folder-1/folder-13/folder-13-request",
-      "folder-2/folder-2-request",
-      "folder-2/folder-21/folder-21-request",
-      "folder-2/folder-22/folder-22-request",
-      "folder-2/folder-23/folder-23-request",
-      "folder-3/folder-3-request",
-      "folder-3/folder-31/folder-31-request",
-      "folder-3/folder-32/folder-32-request",
-      "folder-3/folder-33/folder-33-request",
-    ];
+    test("Ensures tests run in sequence order based on request path", async () => {
+      // Expected order of collection runs
+      const expectedOrder = [
+        "root-collection-request",
+        "folder-1/folder-1-request",
+        "folder-1/folder-11/folder-11-request",
+        "folder-1/folder-12/folder-12-request",
+        "folder-1/folder-13/folder-13-request",
+        "folder-2/folder-2-request",
+        "folder-2/folder-21/folder-21-request",
+        "folder-2/folder-22/folder-22-request",
+        "folder-2/folder-23/folder-23-request",
+        "folder-3/folder-3-request",
+        "folder-3/folder-31/folder-31-request",
+        "folder-3/folder-32/folder-32-request",
+        "folder-3/folder-33/folder-33-request",
+      ];
 
-    const normalizePath = (path: string) => path.replace(/\\/g, "/");
+      const normalizePath = (path: string) => path.replace(/\\/g, "/");
 
-    const extractRunningOrder = (stdout: string): string[] =>
-      [...stdout.matchAll(/Running:.*?\/(.*?)\r?\n/g)].map(
-        ([, path]) => normalizePath(path.replace(/\x1b\[\d+m/g, "")) // Remove ANSI codes and normalize paths
-      );
+      const extractRunningOrder = (stdout: string): string[] =>
+        [...stdout.matchAll(/Running:.*?\/(.*?)\r?\n/g)].map(
+          ([, path]) => normalizePath(path.replace(/\x1b\[\d+m/g, "")) // Remove ANSI codes and normalize paths
+        );
 
-    const args = `test ${getTestJsonFilePath(
-      "multiple-child-collections-auth-headers-coll.json",
-      "collection"
-    )}`;
+      const args = `test ${getTestJsonFilePath(
+        "multiple-child-collections-auth-headers-coll.json",
+        "collection"
+      )}`;
 
-    const { stdout, error } = await runCLI(args);
+      const { stdout, error } = await runCLI(args);
 
-    // Verify the actual order matches the expected order
-    expect(extractRunningOrder(stdout)).toStrictEqual(expectedOrder);
+      // Verify the actual order matches the expected order
+      expect(extractRunningOrder(stdout)).toStrictEqual(expectedOrder);
 
-    // Ensure no errors occurred
-    expect(error).toBeNull();
+      // Ensure no errors occurred
+      expect(error).toBeNull();
+    });
+
+    test("Supports the new scripting API method additions under the `hopp` and `pm` namespaces", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "scripting-revamp-coll.json",
+        "collection"
+      )}`;
+      const { error } = await runCLI(args);
+
+      expect(error).toBeNull();
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {

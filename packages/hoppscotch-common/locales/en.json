@@ -58,6 +58,7 @@
     "send": "Send",
     "share": "Share",
     "show_secret": "Show secret",
+    "sort": "Sort",
     "start": "Start",
     "starting": "Starting",
     "stop": "Stop",
@@ -344,6 +345,7 @@
     "save_to_collection": "Save to Collection",
     "select": "Select a Collection",
     "select_location": "Select location",
+    "sorted": "Collection sorted",
     "details": "Details",
     "duplicated": "Collection duplicated"
   },
@@ -416,6 +418,7 @@
     "empty_schema": "No schema found",
     "endpoint": "Endpoint cannot be empty",
     "environments": "Environments are empty",
+    "collection_variables": "Collection variables are empty",
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",
     "history": "History is empty",
@@ -474,7 +477,7 @@
     "select": "Select environment",
     "set": "Set environment",
     "set_as_environment": "Set as environment",
-    "short_name": "Environment needs to have minimum 3 characters",
+    "short_name": "Environment needs to have minimum 1 character in its name",
     "team_environments": "Workspace Environments",
     "title": "Environments",
     "updated": "Environment updated",
@@ -603,7 +606,8 @@
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
     "run": "Run Folder",
-    "renamed": "Folder renamed"
+    "renamed": "Folder renamed",
+    "sorted": "Folder sorted"
   },
   "graphql": {
     "arguments": "Arguments",
@@ -1520,7 +1524,7 @@
     "member_role_updated": "User roles updated",
     "members": "Members",
     "more_members": "+{count} more",
-    "name_length_insufficient": "Workspace name should be at least 6 characters long",
+    "name_length_insufficient": "Workspace name should not be empty",
     "name_updated": "Workspace name updated",
     "new": "New Workspace",
     "new_created": "New workspace created",

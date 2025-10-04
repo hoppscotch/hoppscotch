@@ -25,23 +25,45 @@ import {
   deleteUserRequest,
   duplicateUserCollection,
   editUserRequest,
+  importUserCollectionsFromJSON,
   moveUserCollection,
   moveUserRequest,
+  sortUserCollections,
   updateUserCollection,
   updateUserCollectionOrder,
 } from "./api"
 
 import * as E from "fp-ts/Either"
-import { ReqType } from "@api/generated/graphql"
+import { ReqType, SortOptions } from "@api/generated/graphql"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 export const restCollectionsMapper = createMapper<string, string>()
 
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
 export const restRequestsMapper = createMapper<string, string>()
 
-// temp implementation until the backend implements an endpoint that accepts an entire collection
-// TODO: use importCollectionsJSON to do this
+// Optimized implementation using importUserCollectionsFromJSON for bulk operations
+// This replaces individual createRESTRootUserCollection/createRESTChildUserCollection/createRESTUserRequest calls
 const recursivelySyncCollections = async (
   collection: HoppCollection,
   collectionPath: string,
@@ -57,6 +79,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
     }
     const res = await createRESTRootUserCollection(
@@ -74,6 +97,7 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
             _ref_id: generateUniqueRefId("coll"),
           }
 
@@ -81,7 +105,11 @@ const recursivelySyncCollections = async (
       collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
-      removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
+      collection.variables = returnedData.variables
+      removeDuplicateRESTCollectionOrFolder(
+        parentCollectionID,
+        `${collectionPath}`
+      )
     } else {
       parentCollectionID = undefined
     }
@@ -93,6 +121,7 @@ const recursivelySyncCollections = async (
         authActive: true,
       },
       headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
     }
 
@@ -113,6 +142,7 @@ const recursivelySyncCollections = async (
               authActive: true,
             },
             headers: [],
+            variables: [],
             _ref_id: generateUniqueRefId("coll"),
           }
 
@@ -121,6 +151,7 @@ const recursivelySyncCollections = async (
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -183,15 +214,36 @@ export const restCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof restCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = restCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    if (entries.length === 0) return
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
+
+    // Use the bulk import API instead of individual calls
+    const jsonString = JSON.stringify(transformedCollections)
+
+    const result = await importUserCollectionsFromJSON(
+      jsonString,
+      ReqType.Rest,
+      undefined // undefined for root collections
+    )
+
+    // The backend handles creating all collections and requests in a single transaction
+    // The frontend collections will be updated through subscriptions
+
+    if (E.isLeft(result)) {
+      // Fallback to individual calls if bulk import fails
+      let indexStart = restCollectionStore.value.state.length - entries.length
+
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
+    // Use individual API for single collection creation (not import)
     const lastCreatedCollectionIndex =
       restCollectionStore.value.state.length - 1
 
@@ -211,12 +263,44 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: collection.auth,
       headers: collection.headers,
+      variables: collection.variables,
+      _ref_id: collection._ref_id,
     }
 
     if (collectionID) {
       updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
+
+  sortRESTCollection({ collectionPath, sortOrder }) {
+    // If collectionPath is empty, it means we're sorting the whole root collections else we're sorting a specific collection
+    const collectionID =
+      collectionPath !== null && collectionPath !== undefined
+        ? navigateToFolderWithIndexPath(restCollectionStore.value.state, [
+            collectionPath,
+          ])?.id
+        : null
+
+    const order =
+      sortOrder === "asc" ? SortOptions.TitleAsc : SortOptions.TitleDesc
+
+    sortUserCollections(collectionID ?? null, order)
+  },
+
+  sortRESTFolder({ path, sortOrder }) {
+    const collectionID = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map((index) => parseInt(index))
+    )?.id
+
+    if (collectionID) {
+      const order =
+        sortOrder === "asc" ? SortOptions.TitleAsc : SortOptions.TitleDesc
+
+      sortUserCollections(collectionID, order)
+    }
+  },
+
   async addFolder({ name, path }) {
     const parentCollection = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
@@ -226,8 +310,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = parentCollection?.id
 
     if (parentCollectionBackendID) {
-      const foldersLength = parentCollection.folders.length
-
       const res = await createRESTChildUserCollection(
         name,
         parentCollectionBackendID
@@ -236,12 +318,20 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (E.isRight(res)) {
         const { id } = res.right.createRESTChildUserCollection
 
-        if (foldersLength) {
-          parentCollection.folders[foldersLength - 1].id = id
-          removeDuplicateRESTCollectionOrFolder(
-            id,
-            `${path}/${foldersLength - 1}`
-          )
+        // Always try to assign the ID to the last created folder
+        const foldersLength = parentCollection.folders.length
+        if (foldersLength > 0) {
+          const lastFolderIndex = foldersLength - 1
+          const lastFolder = parentCollection.folders[lastFolderIndex]
+
+          // Only assign ID if the folder doesn't already have one (avoid overwriting)
+          if (!lastFolder.id) {
+            lastFolder.id = id
+            removeDuplicateRESTCollectionOrFolder(
+              id,
+              `${path}/${lastFolderIndex}`
+            )
+          }
         }
       }
     }
@@ -256,6 +346,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const data = {
       auth: folder.auth,
       headers: folder.headers,
+      variables: folder.variables,
+      _ref_id: folder._ref_id,
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))
@@ -321,8 +413,6 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const parentCollectionBackendID = folder?.id
 
     if (parentCollectionBackendID) {
-      const newRequest = folder.requests[folder.requests.length - 1]
-
       const res = await createRESTUserRequest(
         (request as HoppRESTRequest).name,
         JSON.stringify(request),
@@ -332,12 +422,22 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       if (E.isRight(res)) {
         const { id } = res.right.createRESTUserRequest
 
-        newRequest.id = id
-        removeDuplicateRESTCollectionOrFolder(
-          id,
-          `${path}/${folder.requests.length - 1}`,
-          "request"
-        )
+        // Find the last request that doesn't have an ID (the newly added one)
+        const requestsLength = folder.requests.length
+        if (requestsLength > 0) {
+          const lastRequestIndex = requestsLength - 1
+          const lastRequest = folder.requests[lastRequestIndex]
+
+          // Only assign ID if the request doesn't already have one
+          if (!lastRequest.id) {
+            lastRequest.id = id
+            removeDuplicateRESTCollectionOrFolder(
+              id,
+              `${path}/${lastRequestIndex}`,
+              "request"
+            )
+          }
+        }
       }
     }
   },

@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.23.3",
+  "version": "0.25.0",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "type": "module",
@@ -42,15 +42,15 @@
   "private": false,
   "dependencies": {
     "aws4fetch": "1.0.20",
-    "axios": "1.8.2",
-    "chalk": "5.3.0",
-    "commander": "12.1.0",
-    "isolated-vm": "5.0.1",
+    "axios": "1.12.2",
+    "chalk": "5.6.2",
+    "commander": "14.0.1",
+    "isolated-vm": "5.0.4",
     "js-md5": "0.8.3",
     "lodash-es": "4.17.21",
-    "papaparse": "5.4.1",
-    "qs": "6.13.0",
-    "verzod": "0.3.0",
+    "papaparse": "5.5.3",
+    "qs": "6.14.0",
+    "verzod": "0.4.0",
     "xmlbuilder2": "3.1.1",
     "zod": "3.25.32"
   },
@@ -59,14 +59,14 @@
     "@hoppscotch/js-sandbox": "workspace:^",
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/lodash-es": "4.17.12",
-    "@types/papaparse": "5.3.14",
-    "@types/qs": "6.9.16",
-    "fp-ts": "2.16.9",
-    "prettier": "3.3.3",
+    "@types/papaparse": "5.3.16",
+    "@types/qs": "6.14.0",
+    "fp-ts": "2.16.11",
+    "prettier": "3.6.2",
     "qs": "6.11.2",
-    "semver": "7.6.3",
-    "tsup": "8.3.0",
-    "typescript": "5.8.3",
-    "vitest": "2.1.2"
+    "semver": "7.7.2",
+    "tsup": "8.5.0",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
   }
 }

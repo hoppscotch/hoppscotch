@@ -3,6 +3,7 @@ import {
   Environment,
   EnvironmentSchemaVersion,
   HoppCollection,
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
@@ -173,17 +174,26 @@ export const transformWorkspaceCollections = (
   return collections.map((collection) => {
     const { id, title, data, requests, folders } = collection;
 
-    const parsedData: { auth?: HoppRESTAuth; headers?: HoppRESTHeaders } = data
-      ? JSON.parse(data)
-      : {};
+    const parsedData: {
+      auth?: HoppRESTAuth;
+      headers?: HoppRESTHeaders;
+      variables: HoppCollectionVariable[];
+    } = data ? JSON.parse(data) : {};
 
-    const { auth = { authType: "inherit", authActive: true }, headers = [] } =
-      parsedData;
+    const {
+      auth = { authType: "inherit", authActive: true },
+      headers = [],
+      variables = [],
+    } = parsedData;
 
     const transformedAuth = transformAuth(auth);
 
     const transformedHeaders = headers.map((header) =>
       header.description ? header : { ...header, description: "" }
+    );
+
+    const filteredCollectionVariables = variables.filter(
+      (variable) => variable.key.trim() !== ""
     );
 
     // The response doesn't include a way to infer the schema version, so it's set to the latest version
@@ -197,6 +207,7 @@ export const transformWorkspaceCollections = (
       requests: transformWorkspaceRequests(requests),
       auth: transformedAuth,
       headers: transformedHeaders,
+      variables: filteredCollectionVariables,
     };
   });
 };

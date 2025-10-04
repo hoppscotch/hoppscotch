@@ -1,10 +1,10 @@
-import { describe, expect, test, vi, beforeEach, afterEach } from "vitest"
-import { makeRESTRequest } from "@hoppscotch/data"
+import type { Environment, HoppRESTAuth } from "@hoppscotch/data"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import {
   generateAwsSignatureAuthHeaders,
   generateAwsSignatureAuthParams,
 } from "../aws-signature"
-import type { HoppRESTAuth, Environment } from "@hoppscotch/data"
+import { createBaseRequest } from "./test-utils"
 
 vi.mock("aws4fetch", () => ({
   AwsV4Signer: vi.fn().mockImplementation((config) => ({
@@ -68,33 +68,6 @@ describe("AWS Signature Auth", () => {
     serviceToken: "",
     ...overrides,
   })
-
-  // Helper function to create base request
-  const createBaseRequest = (
-    overrides: Partial<Parameters<typeof makeRESTRequest>[0]> = {}
-  ) => {
-    const baseRequest: Parameters<typeof makeRESTRequest>[0] = {
-      method: "GET",
-      endpoint: "https://s3.amazonaws.com/bucket/key",
-      name: "Test Request",
-      params: [],
-      headers: [],
-      preRequestScript: "",
-      testScript: "",
-      auth: {
-        authType: "inherit",
-        authActive: true,
-      },
-      body: {
-        contentType: null,
-        body: null,
-      },
-      requestVariables: [],
-      responses: {},
-    }
-
-    return makeRESTRequest({ ...baseRequest, ...overrides })
-  }
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -29,6 +29,14 @@ export interface LoadResponse {
   windowLabel: string
 }
 
+export interface CloseOptions {
+  windowLabel: string
+}
+
+export interface CloseResponse {
+  success: boolean
+}
+
 export interface RemoveOptions {
   bundleName: string
   serverUrl: string
@@ -45,6 +53,10 @@ export async function download(options: DownloadOptions): Promise<DownloadRespon
 
 export async function load(options: LoadOptions): Promise<LoadResponse> {
   return await invoke<LoadResponse>('plugin:appload|load', { options })
+}
+
+export async function close(options: CloseOptions): Promise<CloseResponse> {
+  return await invoke<CloseResponse>('plugin:appload|close', { options })
 }
 
 export async function remove(options: RemoveOptions): Promise<RemoveResponse> {

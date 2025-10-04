@@ -275,4 +275,10 @@ export type AuthPlatformDef = {
    * If a value is not given, then the value is assumed to be false.
    */
   isEmailEditable?: boolean
+
+  /** Verifies if the current user's authentication tokens are valid
+   * For self-hosted, this should verify the tokens with the backend
+   * @returns True if tokens are valid, false otherwise
+   */
+  verifyAuthTokens?: () => Promise<boolean>
 }

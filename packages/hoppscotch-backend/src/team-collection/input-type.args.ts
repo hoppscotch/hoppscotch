@@ -91,29 +91,6 @@ export class UpdateTeamCollectionOrderArgs {
 }
 
 @ArgsType()
-export class ReplaceTeamCollectionArgs {
-  @Field(() => ID, {
-    name: 'teamID',
-    description: 'Id of the team to add to',
-  })
-  teamID: string;
-
-  @Field({
-    name: 'jsonString',
-    description: 'JSON string to replace with',
-  })
-  jsonString: string;
-
-  @Field(() => ID, {
-    name: 'parentCollectionID',
-    description:
-      'ID to the collection to which to import to (null if to import to the root of team)',
-    nullable: true,
-  })
-  parentCollectionID?: string;
-}
-
-@ArgsType()
 export class UpdateTeamCollectionArgs {
   @Field(() => ID, {
     name: 'collectionID',

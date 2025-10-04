@@ -394,4 +394,31 @@ export const def: AuthPlatformDef = {
       event: "logout",
     })
   },
+
+  /**
+   * Verifies if the current user's authentication tokens are valid
+   * @returns True if tokens are valid, false otherwise
+   */
+  async verifyAuthTokens() {
+    try {
+      const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL
+
+      const client = await getClient()
+
+      const response = await client.get(
+        `${BACKEND_API_URL}/auth/verify-token`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...this.getBackendHeaders(),
+          },
+        }
+      )
+
+      // axios automatically throws on error status codes, so if we reach here, it was successful
+      return !!response.data.isValid
+    } catch (error) {
+      return false
+    }
+  },
 }

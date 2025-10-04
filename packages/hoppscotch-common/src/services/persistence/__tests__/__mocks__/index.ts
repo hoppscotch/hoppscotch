@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 9,
+    v: 10,
     name: "Echo",
     requests: [
       {
@@ -51,13 +51,14 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    variables: [],
     folders: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 9,
+    v: 10,
     name: "Echo",
     requests: [
       {
@@ -75,6 +76,7 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    variables: [],
     folders: [],
   },
 ]
@@ -238,6 +240,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRequestDocument> = {
           body: { contentType: null, body: null },
           requestVariables: [],
           responses: {},
+          _ref_id: "req_ref_id",
         },
         isDirty: false,
         type: "request",

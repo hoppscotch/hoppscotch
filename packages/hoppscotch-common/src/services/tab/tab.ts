@@ -1,6 +1,5 @@
 import { refWithControl } from "@vueuse/core"
 import { Service } from "dioc"
-import { v4 as uuidV4 } from "uuid"
 import {
   ComputedRef,
   computed,
@@ -276,7 +275,7 @@ export abstract class TabService<Doc>
 
   private generateNewTabID() {
     while (true) {
-      const id = uuidV4()
+      const id = crypto.randomUUID()
 
       if (!this.tabMap.has(id)) return id
     }

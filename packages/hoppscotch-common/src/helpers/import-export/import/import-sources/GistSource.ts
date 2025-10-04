@@ -5,7 +5,6 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { z } from "zod"
 
-import { v4 as uuidv4 } from "uuid"
 import { Ref } from "vue"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
@@ -21,7 +20,7 @@ export function GistSource(metadata: {
   isLoading?: Ref<boolean>
   description?: string
 }) {
-  const stepID = uuidv4()
+  const stepID = crypto.randomUUID()
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,

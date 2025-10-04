@@ -11,6 +11,11 @@ export type MQTTConnectionConfig = {
   lwMessage: string
   lwQos: 2 | 1 | 0
   lwRetain: boolean
+  // SSL/TLS Certificate options
+  verifyServerCert?: boolean
+  caCertificate?: string
+  clientCertificate?: string
+  clientKey?: string
 }
 
 export type MQTTMessage = { topic: string; message: string }
@@ -79,6 +84,27 @@ export class MQTTConnection {
         keepAliveInterval: Number(config.keepAlive) ?? 60,
         cleanSession: config.cleanSession ?? true,
         useSSL: parseUrl.protocol !== "ws:",
+      }
+
+      // Handle SSL/TLS certificate configuration
+      if (parseUrl.protocol !== "ws:") {
+        connectOptions.useSSL = true
+        
+        // Note: Browser WebSocket connections have limited SSL configuration options
+        // Certificate verification is primarily handled by the browser's built-in security
+        // Custom CA certificates and client certificates cannot be configured in browser environments
+        // These options are preserved for future desktop/native implementations
+        
+        if (config.verifyServerCert === false) {
+          // In browser environments, we cannot disable certificate verification
+          // This is a security feature of web browsers
+          console.warn("Certificate verification cannot be disabled in browser environments for security reasons")
+        }
+        
+        // Future enhancement: Custom certificates could be handled in desktop environments
+        if (config.caCertificate || config.clientCertificate || config.clientKey) {
+          console.warn("Custom certificates are not supported in browser environments. These will be supported in desktop applications.")
+        }
       }
 
       const { username, password, lwTopic, lwMessage, lwQos, lwRetain } = config
@@ -276,7 +302,7 @@ export class MQTTConnection {
 
   removeSubscription(topic: string) {
     const subscriptions = this.subscribedTopics$.getValue()
-    this.subscribedTopics$.next(subscriptions.filter((t) => t.name !== topic))
+    this.subscribedTopics$.next(subscriptions.filter((t: MQTTTopic) => t.name !== topic))
   }
 
   disconnect() {

@@ -95,6 +95,47 @@
           </HoppSmartCheckbox>
         </div>
       </div>
+      <div class="border-t border-dividerLight">
+        <div
+          class="flex flex-shrink-0 items-center justify-between overflow-x-auto bg-primary py-2 pl-4 pr-2"
+        >
+          <span class="flex items-center">
+            <label class="truncate font-semibold text-secondaryLight">
+              {{ t("mqtt.ssl") }} / {{ t("mqtt.verify_ssl_cert") }}
+            </label>
+          </span>
+          <div class="flex">
+            <HoppSmartCheckbox
+              :on="config.verifyServerCert"
+              class="px-2"
+              @change="config.verifyServerCert = !config.verifyServerCert"
+              >{{ t("mqtt.verify_ssl_cert") }}
+            </HoppSmartCheckbox>
+          </div>
+        </div>
+        <div v-if="config.verifyServerCert" class="flex h-full flex-1 border-dividerLight">
+          <div class="w-full">
+            <div class="flex flex-1 border-b border-dividerLight">
+              <SmartEnvInput
+                v-model="config.caCertificate"
+                :placeholder="t('mqtt.ca_certificate')"
+              />
+            </div>
+            <div class="flex flex-1 border-b border-dividerLight">
+              <SmartEnvInput
+                v-model="config.clientCertificate"
+                :placeholder="t('mqtt.client_certificate')"
+              />
+            </div>
+            <div class="flex flex-1 border-b border-dividerLight">
+              <SmartEnvInput
+                v-model="config.clientKey"
+                :placeholder="t('mqtt.client_key')"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -123,6 +164,11 @@ const config = ref<MQTTConnectionConfig>({
   lwMessage: "",
   lwQos: 0,
   lwRetain: false,
+  // SSL/TLS Certificate options
+  verifyServerCert: true,
+  caCertificate: "",
+  clientCertificate: "",
+  clientKey: "",
 })
 
 watch(

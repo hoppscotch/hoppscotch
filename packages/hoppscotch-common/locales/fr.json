@@ -827,6 +827,10 @@
     "subscribe": "Souscrire",
     "topic": "Topic",
     "topic_name": "Nom du topic",
+    "verify_ssl_cert": "Vérifier le certificat SSL",
+    "ca_certificate": "Certificat CA",
+    "client_certificate": "Certificat client",
+    "client_key": "Clé client",
     "topic_title": "Topic de publication / souscription",
     "unsubscribe": "Désinscrire",
     "url": "URL"

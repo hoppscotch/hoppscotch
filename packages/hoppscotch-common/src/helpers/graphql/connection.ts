@@ -60,6 +60,7 @@ export type GQLResponseEvent =
       operationName: string | undefined
       operationType: OperationType
       data: string
+      headers?: Record<string, string>
       rawQuery?: RunQueryOptions
       document?: {
         type: string
@@ -479,6 +480,7 @@ export const runGQLOperation = async (options: RunQueryOptions) => {
 
     gqlMessageEvent.value = {
       ...parsedResponse,
+      headers: relayResponse.headers,
       document: {
         type: "success",
         statusCode: relayResponse.status,
@@ -623,6 +625,7 @@ export const runSubscription = (
           operationName,
           data: JSON.stringify(data.payload),
           operationType: "subscription",
+          headers: headers,
         }
         break
       }

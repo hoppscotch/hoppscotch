@@ -1,12 +1,107 @@
 <template>
   <div class="flex flex-1 flex-col overflow-auto whitespace-nowrap">
     <GraphqlResponseMeta :response="response" />
-    <div
+    <HoppSmartTabs
       v-if="
+        response && response.length === 1 && response[0].type === 'response'
+      "
+      v-model="selectedResponseTab"
+      styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-lowerPrimaryStickyFold"
+    >
+      <HoppSmartTab
+        id="response"
+        :label="t('response.title')"
+        class="flex h-full w-full flex-1 flex-col"
+      >
+        <div
+          class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+        >
+          <label class="truncate font-semibold text-secondaryLight">
+            {{ t("response.title") }}
+          </label>
+          <div class="flex items-center">
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('state.linewrap')"
+              :class="{ '!text-accent': WRAP_LINES }"
+              :icon="IconWrapText"
+              @click.prevent="
+                toggleNestedSetting('WRAP_LINES', 'graphqlResponseBody')
+              "
+            />
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip', allowHTML: true }"
+              :title="`${t(
+                'action.download_file'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
+              :icon="downloadIcon"
+              @click="downloadResponse"
+            />
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip', allowHTML: true }"
+              :title="`${t(
+                'action.copy'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
+              :icon="copyIcon"
+              @click="copyResponse"
+            />
+            <tippy
+              interactive
+              trigger="click"
+              theme="popover"
+              :on-shown="() => copyInterfaceTippyActions.focus()"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.more')"
+                :icon="IconMore"
+              />
+              <template #content="{ hide }">
+                <div
+                  ref="copyInterfaceTippyActions"
+                  class="flex flex-col focus:outline-none"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                >
+                  <HoppSmartItem
+                    :label="t('response.generate_data_schema')"
+                    :icon="IconNetwork"
+                    @click="
+                      () => {
+                        invokeAction('response.schema.toggle')
+                        hide()
+                      }
+                    "
+                  />
+                </div>
+              </template>
+            </tippy>
+          </div>
+        </div>
+        <div class="h-full relative overflow-auto flex flex-col flex-1">
+          <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
+        </div>
+      </HoppSmartTab>
+      <HoppSmartTab
+        v-if="responseHeaders.length > 0"
+        id="headers"
+        :label="t('response.headers')"
+        :info="`${responseHeaders.length}`"
+        class="flex flex-1 flex-col"
+      >
+        <LensesHeadersRenderer
+          v-model="responseHeaders"
+          :is-editable="false"
+        />
+      </HoppSmartTab>
+    </HoppSmartTabs>
+    <div
+      v-else-if="
         response && response.length === 1 && response[0].type === 'response'
       "
       class="flex flex-1 flex-col"
     >
+      <!-- Fallback for when tabs are not needed -->
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
       >
@@ -108,6 +203,7 @@ import {
   useCopyResponse,
   useDownloadResponse,
 } from "~/composables/lens-actions"
+import type { HoppRESTResponseHeader } from "~/helpers/types/HoppRESTResponse"
 
 const t = useI18n()
 
@@ -134,6 +230,25 @@ const responseString = computed(() => {
   }
   return ""
 })
+
+const responseHeaders = computed((): HoppRESTResponseHeader[] => {
+  const response = props.response
+  if (
+    response &&
+    response.length === 1 &&
+    response[0].type === "response" &&
+    response[0].headers
+  ) {
+    // Convert Record<string, string> to HoppRESTResponseHeader[]
+    return Object.entries(response[0].headers).map(([key, value]) => ({
+      key,
+      value: String(value),
+    }))
+  }
+  return []
+})
+
+const selectedResponseTab = ref("response")
 
 const schemaEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "graphqlResponseBody")

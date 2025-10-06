@@ -60,12 +60,12 @@
           @click="copyResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="response.body && isSavable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.clear'
           )} <kbd>${getSpecialKey()}</kbd><kbd>Delete</kbd>`"
-          :icon="Eraser"
+          :icon="IconEraser"
           @click="eraseResponse"
         />
       </div>
@@ -110,7 +110,7 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
-import Eraser from "~icons/lucide/Eraser"
+import IconEraser from "~icons/lucide/Eraser"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { computedAsync } from "@vueuse/core"
 import { useScrollerRef } from "~/composables/useScrollerRef"

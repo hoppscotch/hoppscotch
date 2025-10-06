@@ -59,12 +59,12 @@
           @click="copyResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body"
+          v-if="response.body && isSavable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.clear'
           )} <kbd>${getSpecialKey()}</kbd><kbd>Delete</kbd>`"
-          :icon="Eraser"
+          :icon="IconEraser"
           @click="eraseResponse"
         />
         <tippy
@@ -261,7 +261,7 @@ import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconNetwork from "~icons/lucide/network"
 import IconSave from "~icons/lucide/save"
-import Eraser from "~icons/lucide/Eraser"
+import IconEraser from "~icons/lucide/Eraser"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"

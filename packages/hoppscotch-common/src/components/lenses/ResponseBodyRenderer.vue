@@ -17,7 +17,9 @@
         :is-savable="isSavable"
         :is-editable="isEditable"
         :tab-id="props.tabId"
+        :selected-lens-tab="selectedLensTab"
         @save-as-example="$emit('save-as-example')"
+        @switch-lens="(lensId: string) => (selectedLensTab = lensId)"
       />
     </HoppSmartTab>
     <HoppSmartTab

@@ -47,6 +47,7 @@
     "@noble/curves": "1.9.7",
     "@scure/base": "1.2.6",
     "@shopify/lang-jsonc": "1.0.1",
+    "@tanstack/vue-table": "8.20.5",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/plugin-store": "2.2.0",
     "@types/hawk": "9.0.6",

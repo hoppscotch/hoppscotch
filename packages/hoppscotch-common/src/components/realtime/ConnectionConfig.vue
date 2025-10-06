@@ -101,7 +101,7 @@
         >
           <span class="flex items-center">
             <label class="truncate font-semibold text-secondaryLight">
-              {{ t("mqtt.ssl") }} / {{ t("mqtt.verify_ssl_cert") }}
+              SSL / {{ t("mqtt.verify_ssl_cert") }}
             </label>
           </span>
           <div class="flex">

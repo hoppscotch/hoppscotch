@@ -58,15 +58,6 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
-        <HoppButtonSecondary
-          v-if="response.body && isSavable"
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t(
-            'action.clear'
-          )} <kbd>${getSpecialKey()}</kbd><kbd>Delete</kbd>`"
-          :icon="IconEraser"
-          @click="eraseResponse"
-        />
         <tippy
           v-if="showResponse"
           interactive
@@ -95,6 +86,13 @@
                     hide()
                   }
                 "
+              />
+              <HoppSmartItem
+                v-if="response.body && isSavable"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
               />
             </div>
           </template>

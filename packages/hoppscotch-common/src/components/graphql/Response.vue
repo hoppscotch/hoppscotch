@@ -83,16 +83,28 @@
         </div>
       </HoppSmartTab>
       <HoppSmartTab
-        v-if="responseHeaders.length > 0"
         id="headers"
         :label="t('response.headers')"
         :info="`${responseHeaders.length}`"
         class="flex flex-1 flex-col"
       >
         <LensesHeadersRenderer
+          v-if="responseHeaders.length > 0"
           v-model="responseHeaders"
           :is-editable="false"
         />
+        <HoppSmartPlaceholder
+          v-else
+          :src="`/images/states/${colorMode.value}/add_category.svg`"
+          :alt="`${t('empty.headers')}`"
+          :text="t('empty.headers')"
+        >
+          <template #body>
+            <span class="text-secondaryLight">
+              {{ t("empty.headers") }}
+            </span>
+          </template>
+        </HoppSmartPlaceholder>
       </HoppSmartTab>
     </HoppSmartTabs>
     <div
@@ -193,6 +205,7 @@ import IconNetwork from "~icons/lucide/network"
 import IconMore from "~icons/lucide/more-horizontal"
 import { computed, reactive, ref } from "vue"
 import { useCodemirror } from "@composables/codemirror"
+import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -206,6 +219,7 @@ import {
 import type { HoppRESTResponseHeader } from "~/helpers/types/HoppRESTResponse"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 const props = withDefaults(
   defineProps<{

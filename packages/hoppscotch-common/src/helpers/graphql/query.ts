@@ -5,6 +5,7 @@ import {
   FieldNode,
   getNamedType,
   GraphQLArgument,
+  GraphQLField,
   GraphQLType,
   Kind,
   OperationDefinitionNode,
@@ -95,7 +96,7 @@ export function useQuery() {
    */
   const createFieldNode = (
     name: string,
-    args: GraphQLArgument[] | undefined,
+    args: readonly GraphQLArgument[] | undefined,
     hasNestedFields = false
   ): Mutable<FieldNode> => ({
     kind: Kind.FIELD,
@@ -147,7 +148,7 @@ export function useQuery() {
         lastItem.name,
         isArgument && argumentItem
           ? [argumentItem.def as GraphQLArgument]
-          : (lastItem.def as any)?.args,
+          : (lastItem.def as GraphQLField<unknown, unknown>)?.args,
         lastItem.def && (lastItem.def as any)?.fields?.length > 0
       )
 
@@ -264,7 +265,7 @@ export function useQuery() {
           item.name,
           isLastItem && isArgument && argumentItem
             ? [argumentItem.def as GraphQLArgument]
-            : (item.def as any)?.args,
+            : (item.def as GraphQLField<unknown, unknown>)?.args,
           !isLastItem || (isLastItem && (item.def as any)?.fields?.length > 0)
         )
 

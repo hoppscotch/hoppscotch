@@ -46,8 +46,8 @@ const importSourceAndSupportedFeatures: Record<
     collections: "SUPPORTED",
     requests: "SUPPORTED",
     responses: "SUPPORTED",
-    preRequestScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
-    testScripts: "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT",
+    preRequestScripts: "SUPPORTED",
+    testScripts: "SUPPORTED",
   },
   insomnia: {
     collections: "SUPPORTED",

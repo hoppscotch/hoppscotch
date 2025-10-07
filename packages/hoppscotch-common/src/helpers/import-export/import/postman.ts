@@ -456,7 +456,38 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   )
 }
 
+const getHoppReqScripts = (
+  events: Item["events"]
+): { preRequestScript: string; testScript: string } => {
+  let preRequestScript = ""
+  let testScript = ""
+
+  if (!events?.all) {
+    return { preRequestScript, testScript }
+  }
+
+  const allEvents = events.all()
+
+  allEvents.forEach((event) => {
+    if (event.listen === "prerequest" && event.script) {
+      const scriptLines = event.script.exec ?? []
+      preRequestScript = Array.isArray(scriptLines)
+        ? scriptLines.join("\n")
+        : String(scriptLines)
+    } else if (event.listen === "test" && event.script) {
+      const scriptLines = event.script.exec ?? []
+      testScript = Array.isArray(scriptLines)
+        ? scriptLines.join("\n")
+        : String(scriptLines)
+    }
+  })
+
+  return { preRequestScript, testScript }
+}
+
 const getHoppRequest = (item: Item): HoppRESTRequest => {
+  const { preRequestScript, testScript } = getHoppReqScripts(item.events)
+
   return makeRESTRequest({
     name: item.name,
     endpoint: getHoppReqURL(item.request.url),
@@ -471,9 +502,8 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
     requestVariables: getHoppReqVariables(item.request.url.variables),
     responses: getHoppResponses(item.responses),
 
-    // TODO: Decide about this
-    preRequestScript: "",
-    testScript: "",
+    preRequestScript,
+    testScript,
   })
 }
 

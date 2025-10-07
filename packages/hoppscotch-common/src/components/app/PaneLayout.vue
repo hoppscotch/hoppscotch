@@ -106,7 +106,6 @@ const dragCollapseThreshold = 28 // Show visual feedback when approaching minimu
 const collapseThreshold = 25.5 // Trigger collapse just at minimum constraint
 let dragFeedbackTimeout: ReturnType<typeof setTimeout> | null = null
 let collapseTimeout: ReturnType<typeof setTimeout> | null = null
-let lastSidebarSize = 0 // Track size changes to detect stalling at minimum
 
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50

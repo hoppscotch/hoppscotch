@@ -436,7 +436,7 @@ const workingEnvID = computed(() => {
 
 const getCurrentValue = (id: string | "Global", varIndex: number) => {
   const env = workingEnv.value?.variables[varIndex]
-  if (env && env.secret) {
+  if (env?.secret) {
     return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
       ?.value
   }
@@ -446,7 +446,7 @@ const getCurrentValue = (id: string | "Global", varIndex: number) => {
 
 const getInitialValue = (id: string | "Global", varIndex: number) => {
   const env = workingEnv.value?.variables[varIndex]
-  if (env && env.secret) {
+  if (env?.secret) {
     return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
       ?.initialValue
   }

@@ -135,10 +135,41 @@
       has: (key) => globalThis.hopp.env.get(key) !== null,
       replaceIn: (template) => {
         if (typeof template !== "string") return template
-        return template.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
-          const value = globalThis.hopp.env.get(key.trim())
-          return value !== null ? value : match
-        })
+        
+        // Enhanced replaceIn with nested variable support
+        let result = template
+        let depth = 0
+        const maxDepth = 15
+        
+        // Support both {{var}} and nested {{{{key1}}{{key2}}}} syntax
+        while (result.match(/\{\{([^}]*)\}\}/g) && depth < maxDepth) {
+          const previousResult = result
+          
+          result = result.replace(/\{\{([^}]*)\}\}/g, (match, varKey) => {
+            // First resolve any nested variables within the key itself
+            let resolvedKey = varKey.trim()
+            let keyDepth = 0
+            
+            // Resolve nested keys like {{country}}{{env}} -> USPROD
+            while (resolvedKey.match(/\{\{([^}]*)\}\}/g) && keyDepth < 5) {
+              resolvedKey = resolvedKey.replace(/\{\{([^}]*)\}\}/g, (keyMatch, nestedKey) => {
+                const nestedValue = globalThis.hopp.env.get(nestedKey.trim())
+                return nestedValue !== null ? nestedValue : ""
+              })
+              keyDepth++
+            }
+            
+            // Now get the final value using the resolved key
+            const value = globalThis.hopp.env.get(resolvedKey)
+            return value !== null ? value : ""
+          })
+          
+          // Break if no changes to prevent infinite loops
+          if (result === previousResult) break
+          depth++
+        }
+        
+        return result
       },
     },
 

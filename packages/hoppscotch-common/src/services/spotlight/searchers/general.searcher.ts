@@ -73,7 +73,7 @@ export class GeneralSpotlightSearcherService extends StaticSpotlightSearcherServ
       text: [this.t("spotlight.general.social"), "Twitter"],
       alternates: ["social", "twitter", "link"],
       icon: markRaw(IconTwitter),
-      action: () => this.openURL("https://twitter.com/hoppscotch_io"),
+      action: () => this.openURL("https://x.com/hoppscotch_io"),
     },
     link_discord: {
       text: [this.t("spotlight.general.social"), "Discord"],

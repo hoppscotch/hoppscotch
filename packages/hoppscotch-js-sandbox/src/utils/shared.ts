@@ -198,7 +198,10 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => (options.fallbackToNull ? null : undefined),
-        (env) => String(env.currentValue)
+        (env) =>
+          env.currentValue !== ""
+            ? String(env.currentValue)
+            : String(env.initialValue)
       )
     )
 
@@ -227,8 +230,17 @@ export function getSharedEnvMethods(
 
       E.map((e) =>
         pipe(
-          parseTemplateStringE(e.currentValue, envVars), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.currentValue)
+          parseTemplateStringE(
+            e.currentValue !== undefined && e.currentValue !== ""
+              ? e.currentValue
+              : e.initialValue,
+            envVars
+          ), // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() =>
+            e.currentValue !== undefined && e.currentValue !== ""
+              ? e.currentValue
+              : e.initialValue
+          )
         )
       ),
       E.map((x) => String(x)),

@@ -214,6 +214,12 @@ export class AuthService {
     const queriedUser = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(queriedUser)) {
+      // Check if user registration is allowed
+      const canRegister = await this.canUserRegister(email);
+      if (E.isLeft(canRegister)) {
+        return E.left(canRegister.left);
+      }
+      
       user = await this.usersService.createUserViaMagicLink(email);
     } else {
       user = queriedUser.value;
@@ -388,5 +394,59 @@ export class AuthService {
 
   getAuthProviders() {
     return this.infraConfigService.getAllowedAuthProviders();
+  }
+
+  /**
+   * Check if user registration is allowed based on configuration
+   *
+   * @param email User's email
+   * @returns Either containing boolean or error
+   */
+  async canUserRegister(email: string) {
+    const configMap = await this.infraConfigService.getInfraConfigsMap();
+    
+    // Check if user registration is globally allowed
+    const allowRegistration = configMap['ALLOW_USER_REGISTRATION'] !== 'false';
+    if (!allowRegistration) {
+      return E.left({
+        message: 'User registration is disabled',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    }
+
+    // Check registration mode
+    const registrationMode = configMap['REGISTRATION_MODE'] || 'OPEN';
+    
+    if (registrationMode === 'DISABLED') {
+      return E.left({
+        message: 'User registration is disabled',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    }
+
+    if (registrationMode === 'INVITATION_ONLY') {
+      // Check if user has been invited (implementation would depend on invitation system)
+      const hasInvitation = await this.checkUserInvitation(email);
+      if (E.isLeft(hasInvitation)) {
+        return E.left({
+          message: 'Registration requires an invitation',
+          statusCode: HttpStatus.FORBIDDEN,
+        });
+      }
+    }
+
+    return E.right(true);
+  }
+
+  /**
+   * Check if user has a valid invitation (placeholder implementation)
+   *
+   * @param email User's email
+   * @returns Either containing boolean or error
+   */
+  async checkUserInvitation(email: string) {
+    // TODO: Implement invitation checking logic
+    // This would check against an invitations table or similar
+    return E.left('No invitation found');
   }
 }

@@ -10,7 +10,7 @@ import {
 
 import { defaultModules, preRequestModule } from "~/cage-modules"
 
-import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
+import { Cookie, HoppRESTRequest, HoppReusableFunction } from "@hoppscotch/data"
 import Worker from "./worker?worker&inline"
 
 const runPreRequestScriptWithWebWorker = (
@@ -38,7 +38,8 @@ const runPreRequestScriptWithFaradayCage = async (
   preRequestScript: string,
   envs: TestResult["envs"],
   request: HoppRESTRequest,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  reusableFunctions?: HoppReusableFunction[]
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const consoleEntries: ConsoleEntry[] = []
   let finalEnvs = envs
@@ -56,6 +57,7 @@ const runPreRequestScriptWithFaradayCage = async (
       envs: cloneDeep(envs),
       request: cloneDeep(request),
       cookies: cookies ? cloneDeep(cookies) : null,
+      reusableFunctions: reusableFunctions ? cloneDeep(reusableFunctions) : undefined,
       handleSandboxResults: ({ envs, request, cookies }) => {
         finalEnvs = envs
         finalRequest = request
@@ -91,7 +93,7 @@ export const runPreRequestScript = (
   const { envs, experimentalScriptingSandbox = true } = options
 
   if (experimentalScriptingSandbox) {
-    const { request, cookies } = options as Extract<
+    const { request, cookies, reusableFunctions } = options as Extract<
       RunPreRequestScriptOptions,
       { experimentalScriptingSandbox: true }
     >
@@ -100,7 +102,8 @@ export const runPreRequestScript = (
       preRequestScript,
       envs,
       request,
-      cookies
+      cookies,
+      reusableFunctions
     )
   }
 

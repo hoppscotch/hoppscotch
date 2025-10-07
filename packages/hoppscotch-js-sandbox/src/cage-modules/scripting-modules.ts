@@ -1,4 +1,4 @@
-import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
+import { Cookie, HoppRESTRequest, HoppReusableFunction } from "@hoppscotch/data"
 import {
   CageModuleCtx,
   defineCageModule,
@@ -12,6 +12,7 @@ import preRequestBootstrapCode from "../bootstrap-code/pre-request?raw"
 import { createBaseInputs } from "./utils/base-inputs"
 import { createExpectationMethods } from "./utils/expectation-helpers"
 import { createRequestSetterMethods } from "./utils/request-setters"
+import { createReusableFunctionsMethods } from "./utils/reusable-functions"
 
 type PostRequestModuleConfig = {
   envs: TestResult["envs"]
@@ -34,6 +35,7 @@ type PreRequestModuleConfig = {
   envs: TestResult["envs"]
   request: HoppRESTRequest
   cookies: Cookie[] | null
+  reusableFunctions?: HoppReusableFunction[]
   handleSandboxResults: ({
     envs,
     request,
@@ -144,9 +146,15 @@ const createScriptingInputsObj = (
       getUpdatedRequest,
     })
 
+    // Create reusable functions methods if functions are provided
+    const reusableFunctionsMethods = preConfig.reusableFunctions
+      ? createReusableFunctionsMethods(ctx, preConfig.reusableFunctions)
+      : {}
+
     return {
       ...baseInputs,
       ...requestSetterMethods,
+      ...reusableFunctionsMethods,
     }
   }
 

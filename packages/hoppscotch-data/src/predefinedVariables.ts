@@ -361,5 +361,5 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     },
   },
 
-  // TODO: Support various other predefined variables
+  // Note: Additional predefined variables can be added here as needed
 ]

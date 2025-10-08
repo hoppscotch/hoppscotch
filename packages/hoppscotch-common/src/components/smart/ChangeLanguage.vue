@@ -80,7 +80,7 @@ import { useFullI18n } from "@composables/i18n"
 import IconLanguages from "~icons/lucide/languages"
 import IconDone from "~icons/lucide/check"
 
-// TODO: This component might be completely whack right now
+// Language selection component with search functionality
 
 const i18n = useFullI18n()
 const t = i18n.t
@@ -94,7 +94,6 @@ const currentLocale = computed(() =>
 )
 
 const changeLocale = (locale: string) => {
-  // TODO: Implement
   changeAppLanguage(locale)
 }
 

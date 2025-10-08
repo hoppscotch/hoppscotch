@@ -39,8 +39,9 @@ const cursorTooltipField = () =>
       }
       const { from, to, text } = view.state.doc.lineAt(pos)
 
-      // TODO: When Codemirror 6 allows this to work (not make the
-      // popups appear half of the time) use this implementation
+      // Note: Alternative implementation using wordAt() is commented out
+      // due to Codemirror 6 popup display issues. Current implementation
+      // manually tracks word boundaries for better reliability.
       // const wordSelection = view.state.wordAt(pos)
       // if (!wordSelection) return null
       // const word = view.state.doc.sliceString(

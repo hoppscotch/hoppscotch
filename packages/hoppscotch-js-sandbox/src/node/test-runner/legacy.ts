@@ -80,10 +80,19 @@ const executeScriptInContext = (
                     })
                   }
 
-                  return JSON.stringify({
+                  const serializedObj = {
                     ...expectVal,
                     isStringifiedWithinIsolate: true,
-                  })
+                  }
+
+                  // Preserve object state information for sealed/frozen objects
+                  if (Object.isFrozen(expectVal) && Object.keys(expectVal).length === 0) {
+                    serializedObj.__objectState = 'frozen'
+                  } else if (Object.isSealed(expectVal) && Object.keys(expectVal).length === 0) {
+                    serializedObj.__objectState = 'sealed'
+                  }
+
+                  return JSON.stringify(serializedObj)
                 }
 
                 return expectVal

@@ -36,6 +36,7 @@ const unWrapEnvironments = (
       return {
         ...globalVar,
         currentValue: secretVar.value,
+        initialValue: secretVar.initialValue ?? "",
       }
     }
     return {
@@ -58,6 +59,7 @@ const unWrapEnvironments = (
         return {
           ...selectedVar,
           currentValue: secretVar.value,
+          initialValue: secretVar.initialValue ?? "",
         }
       }
       return {

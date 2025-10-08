@@ -878,3 +878,27 @@ export const INFRA_TOKEN_EXPIRED = 'infra_token/expired';
  * (InfraTokenService)
  */
 export const INFRA_TOKEN_CREATOR_NOT_FOUND = 'infra_token/creator_not_found';
+
+/**
+ * Mock server not found
+ * (MockServerService)
+ */
+export const MOCK_SERVER_NOT_FOUND = 'mock_server/not_found';
+
+/**
+ * Mock server subdomain conflict
+ * (MockServerService)
+ */
+export const MOCK_SERVER_SUBDOMAIN_CONFLICT = 'mock_server/subdomain_conflict';
+
+/**
+ * Mock server invalid collection
+ * (MockServerService)
+ */
+export const MOCK_SERVER_INVALID_COLLECTION = 'mock_server/invalid_collection';
+
+/**
+ * Mock server already exists for this collection
+ * (MockServerService)
+ */
+export const MOCK_SERVER_ALREADY_EXISTS = 'mock_server/already_exists';

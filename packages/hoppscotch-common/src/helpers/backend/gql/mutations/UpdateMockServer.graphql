@@ -1,0 +1,14 @@
+mutation UpdateMockServer($id: ID!, $input: UpdateMockServerInput!) {
+  updateMockServer(id: $id, input: $input) {
+    id
+    name
+    subdomain
+    user {
+      uid
+    }
+    collectionID
+    isActive
+    createdOn
+    updatedOn
+  }
+}

@@ -56,6 +56,7 @@
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
+      @create-mock-server="createMockServer"
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -220,6 +221,8 @@
       :collection-runner-data="collectionRunnerData"
       @hide-modal="showCollectionsRunnerModal = false"
     />
+
+    <MockServerCreateMockServer />
   </div>
 </template>
 
@@ -309,6 +312,7 @@ import {
 } from "~/newstore/collections"
 
 import { useLocalState } from "~/newstore/localstate"
+import { mockServers$ } from "~/newstore/mockServers"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { platform } from "~/platform"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
@@ -1071,6 +1075,20 @@ const updateEditingCollection = async (newName: string) => {
       )
     )()
   }
+}
+
+const createMockServer = (payload: {
+  collectionIndex: string
+  collection: HoppCollection
+}) => {
+  // Import the mock server store dynamically to avoid circular dependencies
+  import("~/newstore/mockServers").then(({ showCreateMockServerModal$ }) => {
+    showCreateMockServerModal$.next({
+      show: true,
+      collectionID: payload.collection.id || payload.collectionIndex,
+      collectionName: payload.collection.name,
+    })
+  })
 }
 
 const editFolder = (payload: {

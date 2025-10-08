@@ -51,6 +51,7 @@ import {
   updateRESTCollectionOrder,
   updateRESTRequestOrder,
 } from "@hoppscotch/common/newstore/collections"
+import { loadMockServers } from "@hoppscotch/common/newstore/mockServers"
 import {
   GQLHeader,
   HoppCollection,
@@ -77,11 +78,19 @@ function initCollectionsSync() {
   loadUserCollections("REST")
   loadUserCollections("GQL")
 
+  // TODO: fix collection schema transformation on backend maybe?
+  loadUserCollections("REST")
+  loadUserCollections("GQL")
+
+  // Load mock servers
+  loadMockServers()
+
   // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
     if (user) {
       loadUserCollections("REST")
       loadUserCollections("GQL")
+      loadMockServers()
     }
   })
 

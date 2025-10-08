@@ -5,7 +5,7 @@ import { z } from "zod"
 
 import { Service } from "dioc"
 import { StorageLike, watchDebounced } from "@vueuse/core"
-import { assign, clone, isEmpty } from "lodash-es"
+import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
@@ -98,7 +98,6 @@ import {
   CurrentValueService,
   Variable,
 } from "../current-environment-value.service"
-import { cloneDeep } from "lodash-es"
 import { fixBrokenRequestVersion } from "~/helpers/fixBrokenRequestVersion"
 import { fixBrokenEnvironmentVersion } from "~/helpers/fixBrokenEnvironmentVersion"
 import {

@@ -8,6 +8,7 @@ import {
   parseTemplateStringE,
   generateJWTToken,
   HoppCollectionVariable,
+  calculateHawkHeader
 } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
@@ -33,8 +34,6 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "./auth/digest";
-
-import { calculateHawkHeader } from "@hoppscotch/data";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and

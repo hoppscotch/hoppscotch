@@ -67,7 +67,7 @@ export const handleUserDeletion = (deletedUsersList: UserDeletionResult[]) => {
     // Indicates the actual count of users deleted (filtered via the `isDeleted` field)
     const deletedUsersCount = deletedUserIDs.length;
 
-    if (isBulkAction && deletedUsersCount > 0) {
+    if (deletedUsersCount > 0) {
       toastMessages.push({
         message: t('state.delete_some_users_success', {
           count: deletedUsersCount,

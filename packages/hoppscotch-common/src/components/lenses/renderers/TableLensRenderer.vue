@@ -172,6 +172,10 @@ import {
   type Updater,
 } from "@tanstack/vue-table"
 
+interface TableRow {
+  [key: string]: any
+}
+
 const t = useI18n()
 const props = defineProps<{
   response: HoppRESTResponse | HoppRESTRequestResponse
@@ -195,6 +199,17 @@ const showResponse = computed(() => {
   return "body" in props.response
 })
 const { responseBodyText } = useResponseBody(props.response)
+
+const responseName = computed(() => {
+  if ("type" in props.response) {
+    if (props.response.type === "success") {
+      return props.response.req.name
+    }
+    return "Untitled"
+  }
+  return (props.response as HoppRESTRequestResponse).name
+})
+
 // Check if the response is tabular data (array of objects)
 const isTabularData = computed(() => {
   if (!responseBodyText.value) return false
@@ -210,11 +225,11 @@ const parsedData = computed(() => {
   }
 })
 // Generate columns from the first object's keys
-const columns = computed<ColumnDef<any>[]>(() => {
+const columns = computed<ColumnDef<TableRow>[]>(() => {
   if (parsedData.value.length === 0) return []
   const firstItem = parsedData.value[0]
   const keys = Object.keys(firstItem)
-  const columnHelper = createColumnHelper<any>()
+  const columnHelper = createColumnHelper<TableRow>()
   return keys.map((key) =>
     columnHelper.accessor(key, {
       header: key,
@@ -227,7 +242,7 @@ const columns = computed<ColumnDef<any>[]>(() => {
 const tableData = computed(() => {
   if (!searchText.value) return parsedData.value
   const search = searchText.value.toLowerCase()
-  return parsedData.value.filter((row: any) => {
+  return parsedData.value.filter((row: TableRow) => {
     return Object.values(row).some((value) => {
       if (value === null || value === undefined) return false
       return String(value).toLowerCase().includes(search)
@@ -269,7 +284,7 @@ const convertToCSV = (): string => {
   if (tableData.value.length === 0) return ""
   const headers = Object.keys(tableData.value[0])
   const csvHeaders = headers.join(",")
-  const csvRows = tableData.value.map((row: any) => {
+  const csvRows = tableData.value.map((row: TableRow) => {
     return headers
       .map((header) => {
         const value = row[header]
@@ -291,15 +306,6 @@ const downloadAsCSV = () => {
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.href = url
-  const responseName = computed(() => {
-    if ("type" in props.response) {
-      if (props.response.type === "success") {
-        return props.response.req.name
-      }
-      return "Untitled"
-    }
-    return (props.response as HoppRESTRequestResponse).name
-  })
   link.download = `${responseName.value}-table.csv`
   link.click()
   URL.revokeObjectURL(url)

@@ -1,5 +1,6 @@
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
 import jsonLens, { isValidJSONResponse } from "./jsonLens"
+import tableLens from "./tableLens"
 import rawLens from "./rawLens"
 import imageLens from "./imageLens"
 import htmlLens from "./htmlLens"
@@ -18,6 +19,7 @@ export type Lens = {
 
 export const lenses: Lens[] = [
   jsonLens,
+  tableLens,
   imageLens,
   htmlLens,
   xmlLens,

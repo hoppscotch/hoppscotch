@@ -1,4 +1,4 @@
-import { Cookie, Environment, HoppRESTRequest } from "@hoppscotch/data"
+import { Cookie, Environment, HoppRESTRequest, HoppReusableFunction } from "@hoppscotch/data"
 import {
   RunPostRequestScriptOptions,
   RunPreRequestScriptOptions,
@@ -20,6 +20,7 @@ interface PreRequestMessage {
   }
   request: string // JSON stringified request
   cookies: string | null // JSON stringified cookies subject to the feature flag
+  reusableFunctions: string // JSON stringified reusable functions
 }
 
 interface PostRequestMessage {
@@ -71,6 +72,10 @@ self.addEventListener(
 
     const parsedCookies = cookies ? (JSON.parse(cookies) as Cookie[]) : null
 
+    const parsedReusableFunctions = 'reusableFunctions' in event.data && event.data.reusableFunctions
+      ? (JSON.parse(event.data.reusableFunctions) as HoppReusableFunction[])
+      : undefined
+
     if (type === "pre") {
       if (parsedRequestResult.type === "err") {
         const err: PreRequestScriptErrorMessage = {
@@ -89,6 +94,7 @@ self.addEventListener(
             request: parsedRequestResult.value,
             experimentalScriptingSandbox: true,
             cookies: parsedCookies as unknown as Cookie[],
+            reusableFunctions: parsedReusableFunctions,
           } satisfies RunPreRequestScriptOptions
         )
         const result: PreRequestScriptResultMessage = {

@@ -18,7 +18,7 @@
         v-if="showAddButton"
         class="hover:text-accent cursor-pointer flex items-center justify-center px-4 py-2"
         :class="{ 'text-accent': isArgumentInOperation(arg) }"
-        @click="insertQuery"
+        @click.stop="insertQuery"
       >
         <icon-lucide-plus-circle
           v-if="!isArgumentInOperation(arg)"

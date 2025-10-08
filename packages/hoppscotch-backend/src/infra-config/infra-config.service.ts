@@ -718,6 +718,11 @@ export class InfraConfigService implements OnModuleInit {
             return fail();
           break;
 
+        case InfraConfigEnum.SESSION_COOKIE_NAME:
+          // Allow empty to fall back to default; otherwise enforce allowed characters
+          if (value && !/^[A-Za-z0-9_-]+$/.test(value)) return fail();
+          break;
+
         default:
           break;
       }

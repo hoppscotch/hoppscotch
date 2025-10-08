@@ -128,6 +128,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       isEncrypted: true,
     },
     {
+      name: InfraConfigEnum.SESSION_COOKIE_NAME,
+      value: null,
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.TOKEN_SALT_COMPLEXITY,
       value: '10',
       isEncrypted: false,

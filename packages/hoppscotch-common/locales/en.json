@@ -831,6 +831,10 @@
     "subscribe": "Subscribe",
     "topic": "Topic",
     "topic_name": "Topic Name",
+    "verify_ssl_cert": "Verify SSL Certificate",
+    "ca_certificate": "CA Certificate",
+    "client_certificate": "Client Certificate",
+    "client_key": "Client Key",
     "topic_title": "Publish / Subscribe topic",
     "unsubscribe": "Unsubscribe",
     "url": "URL"

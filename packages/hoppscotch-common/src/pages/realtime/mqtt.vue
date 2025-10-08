@@ -253,6 +253,11 @@ const config = ref<MQTTConnectionConfig>({
   lwMessage: "",
   lwQos: 0,
   lwRetain: false,
+  // SSL/TLS Certificate options
+  verifyServerCert: true,
+  caCertificate: "",
+  clientCertificate: "",
+  clientKey: "",
 })
 const logs = useStream(MQTTLog$, [], setMQTTLog)
 const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)

@@ -256,9 +256,11 @@ declare namespace pw {
     headers: HoppRESTResponseHeader[]
   }>
   namespace env {
+    function set(key: string, value: string): void
+    function unset(key: string): void
     function get(key: string): string
     function getResolve(key: string): string
-    function resolve(key: string): string
+    function resolve(value: string): string
   }
 }
 

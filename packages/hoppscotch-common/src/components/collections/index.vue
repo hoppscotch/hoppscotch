@@ -2085,7 +2085,9 @@ const selectRequest = (selectedRequest: {
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
       folderPath: folderPath!,
+      requestRefID: request._ref_id ?? request.id,
     })
+
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
     } else {

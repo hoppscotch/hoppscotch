@@ -432,7 +432,6 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
  */
 export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
   'user_environment/global_env_already_exists' as const;
-/*
 
 /**
  * User environment doesn't exist for the user
@@ -440,7 +439,6 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  */
 export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
   'user_environment/user_env_does_not_exists' as const;
-/*
 
 /**
  * Cannot delete the global user environment
@@ -448,7 +446,6 @@ export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
  */
 export const USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED =
   'user_environment/user_env_global_env_deletion_failed' as const;
-/*
 
 /**
  * User environment is not a global environment
@@ -456,7 +453,6 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED =
  */
 export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
   'user_environment/user_env_is_not_global' as const;
-/*
 
 /**
  * User environment update failed
@@ -464,7 +460,6 @@ export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
  */
 export const USER_ENVIRONMENT_UPDATE_FAILED =
   'user_environment/user_env_update_failed' as const;
-/*
 
 /**
  * User environment invalid environment name
@@ -472,7 +467,6 @@ export const USER_ENVIRONMENT_UPDATE_FAILED =
  */
 export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
   'user_environment/user_env_invalid_env_name' as const;
-/*
 
 /**
  * User history not found

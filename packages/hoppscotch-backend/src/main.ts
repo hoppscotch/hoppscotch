@@ -44,8 +44,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const isProduction = configService.get('PRODUCTION') === 'true';
 
-  console.log(`Running in production: ${isProduction}`);
-  console.log(`Port: ${configService.get('PORT')}`);
+  console.info(`Running in production: ${isProduction}`);
+  console.info(`Port: ${configService.get('PORT')}`);
 
   app.use(
     session({
@@ -63,13 +63,13 @@ async function bootstrap() {
   );
 
   if (isProduction) {
-    console.log('Enabling CORS with production settings');
+    console.info('Enabling CORS with production settings');
     app.enableCors({
       origin: configService.get('WHITELISTED_ORIGINS').split(','),
       credentials: true,
     });
   } else {
-    console.log('Enabling CORS with development settings');
+    console.info('Enabling CORS with development settings');
     app.enableCors({
       origin: true,
       credentials: true,
@@ -87,7 +87,7 @@ async function bootstrap() {
   );
 
   if (configService.get('TRUST_PROXY') === 'true') {
-    console.log('Enabling trust proxy');
+    console.info('Enabling trust proxy');
     app.set('trust proxy', true);
   }
 

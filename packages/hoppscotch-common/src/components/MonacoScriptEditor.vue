@@ -12,7 +12,6 @@
 import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import { watchDebounced } from "@vueuse/core"
 import * as monaco from "monaco-editor"
-import { v4 as uuidv4 } from "uuid"
 import { computed, onMounted, onUnmounted, ref } from "vue"
 
 import { useColorMode } from "~/composables/theming"
@@ -100,7 +99,7 @@ const ensureCompilerOptions = (() => {
 onMounted(() => {
   ensureCompilerOptions()
 
-  const uuid = uuidv4()
+  const uuid = crypto.randomUUID()
   const scriptFileURI = monaco.Uri.parse(
     `inmemory://model/${uuid}.${props.type}.ts`
   )

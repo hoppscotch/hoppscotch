@@ -19,7 +19,6 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { getI18n } from "~/modules/i18n"
-import { v4 } from "uuid"
 
 import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 import { parseBytesToJSON } from "~/helpers/functional/json"
@@ -167,7 +166,7 @@ export class ProxyKernelInterceptorService
     const processedRequest = preProcessRelayRequest(request)
 
     let content: ContentType
-    const multipartKey = `proxyRequestData-${v4()}`
+    const multipartKey = `proxyRequestData-${crypto.randomUUID()}`
 
     if (
       processedRequest.content &&

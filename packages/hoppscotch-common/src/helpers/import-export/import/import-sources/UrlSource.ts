@@ -1,7 +1,6 @@
 import UrlImport from "~/components/importExport/ImportExportSteps/UrlImport.vue"
 import { defineStep } from "~/composables/step-components"
 
-import { v4 as uuidv4 } from "uuid"
 import { Ref } from "vue"
 
 export function UrlSource(metadata: {
@@ -11,7 +10,7 @@ export function UrlSource(metadata: {
   isLoading?: Ref<boolean>
   description: string
 }) {
-  const stepID = uuidv4()
+  const stepID = crypto.randomUUID()
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,

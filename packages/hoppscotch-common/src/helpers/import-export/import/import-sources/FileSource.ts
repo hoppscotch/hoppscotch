@@ -1,7 +1,6 @@
 import FileImportVue from "~/components/importExport/ImportExportSteps/FileImport.vue"
 import { defineStep } from "~/composables/step-components"
 
-import { v4 as uuidv4 } from "uuid"
 import { Ref } from "vue"
 
 export function FileSource(metadata: {
@@ -11,7 +10,7 @@ export function FileSource(metadata: {
   isLoading?: Ref<boolean>
   description?: string
 }) {
-  const stepID = uuidv4()
+  const stepID = crypto.randomUUID()
 
   return defineStep(stepID, FileImportVue, () => ({
     acceptedFileTypes: metadata.acceptedFileTypes,

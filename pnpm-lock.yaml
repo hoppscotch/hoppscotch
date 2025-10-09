@@ -701,9 +701,6 @@ importers:
       util:
         specifier: 0.12.5
         version: 0.12.5
-      uuid:
-        specifier: 11.1.0
-        version: 11.1.0
       verzod:
         specifier: 0.4.0
         version: 0.4.0(zod@3.25.32)
@@ -810,9 +807,6 @@ importers:
       '@types/splitpanes':
         specifier: 2.2.6
         version: 2.2.6(typescript@5.9.2)
-      '@types/uuid':
-        specifier: 10.0.0
-        version: 10.0.0
       '@types/yargs-parser':
         specifier: 21.0.3
         version: 21.0.3
@@ -942,9 +936,6 @@ importers:
       parser-ts:
         specifier: 0.7.0
         version: 0.7.0(fp-ts@2.16.11)
-      uuid:
-        specifier: 11.1.0
-        version: 11.1.0
       verzod:
         specifier: 0.4.0
         version: 0.4.0(zod@3.25.32)
@@ -955,9 +946,6 @@ importers:
       '@types/lodash':
         specifier: 4.17.20
         version: 4.17.20
-      '@types/uuid':
-        specifier: 10.0.0
-        version: 10.0.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -7189,9 +7177,6 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
-
-  '@types/uuid@10.0.0':
-    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
 
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
@@ -14700,10 +14685,6 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
-
-  uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
-    hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
@@ -22674,8 +22655,6 @@ snapshots:
   '@types/tough-cookie@4.0.5': {}
 
   '@types/trusted-types@2.0.7': {}
-
-  '@types/uuid@10.0.0': {}
 
   '@types/uuid@9.0.8': {}
 
@@ -32400,8 +32379,6 @@ snapshots:
       which-typed-array: 1.1.15
 
   utils-merge@1.0.1: {}
-
-  uuid@11.1.0: {}
 
   uuid@8.3.2: {}
 

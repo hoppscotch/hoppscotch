@@ -158,21 +158,24 @@ export function getSharedEnvMethods(
 }
 
 /**
- * Legacy sandbox version - Returns flat methods for `pw` namespace only
+ * Legacy sandbox version - Methods pre-wrapped in `env` for direct `pw` namespace assignment
+ * (Experimental sandbox powered by `faraday-cage` handles this wrapping via bootstrap code)
  */
 export function getSharedEnvMethods(
   envs: TestResult["envs"],
   isHoppNamespace?: false
 ): {
   methods: {
-    get: (key: string, options?: EnvAPIOptions) => string | null | undefined
-    getResolve: (
-      key: string,
-      options?: EnvAPIOptions
-    ) => string | null | undefined
-    set: (key: string, value: string, options?: EnvAPIOptions) => void
-    unset: (key: string, options?: EnvAPIOptions) => void
-    resolve: (key: string) => string
+    env: {
+      get: (key: string, options?: EnvAPIOptions) => string | null | undefined
+      getResolve: (
+        key: string,
+        options?: EnvAPIOptions
+      ) => string | null | undefined
+      set: (key: string, value: string, options?: EnvAPIOptions) => void
+      unset: (key: string, options?: EnvAPIOptions) => void
+      resolve: (key: string) => string
+    }
   }
   updatedEnvs: TestResult["envs"]
 }
@@ -380,11 +383,13 @@ export function getSharedEnvMethods(
   // Legacy scripting sandbox (Only `pw` namespace)
   return {
     methods: {
-      get: envGetFn,
-      getResolve: envGetResolveFn,
-      set: envSetFn,
-      unset: envUnsetFn,
-      resolve: envResolveFn,
+      env: {
+        get: envGetFn,
+        getResolve: envGetResolveFn,
+        set: envSetFn,
+        unset: envUnsetFn,
+        resolve: envResolveFn,
+      },
     },
     updatedEnvs,
   }

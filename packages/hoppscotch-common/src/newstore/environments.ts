@@ -556,12 +556,19 @@ export function getAggregateEnvsWithCurrentValue() {
 
     ...currentEnv.variables.map((x, index) => {
       let currentValue = x.currentValue
+      let initialValue = x.initialValue
       if (x.secret) {
         currentValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             currentEnv.id,
             index
-          ) ?? ""
+          )?.value ?? ""
+
+        initialValue =
+          secretEnvironmentService.getSecretEnvironmentVariableValue(
+            currentEnv.id,
+            index
+          )?.initialValue ?? ""
       }
 
       return <AggregateEnvironment>{
@@ -571,19 +578,26 @@ export function getAggregateEnvsWithCurrentValue() {
             currentEnv.id,
             index
           ) ?? currentValue,
-        initialValue: x.initialValue,
+        initialValue: x.initialValue ?? initialValue,
         secret: x.secret,
         sourceEnv: currentEnv.name,
       }
     }),
     ...getGlobalVariables().map((x, index) => {
       let currentValue = x.currentValue
+      let initialValue = x.initialValue
       if (x.secret) {
         currentValue =
           secretEnvironmentService.getSecretEnvironmentVariableValue(
             "Global",
             index
-          ) ?? ""
+          )?.value ?? ""
+
+        initialValue =
+          secretEnvironmentService.getSecretEnvironmentVariableValue(
+            "Global",
+            index
+          )?.initialValue ?? ""
       }
       return <AggregateEnvironment>{
         key: x.key,
@@ -592,7 +606,7 @@ export function getAggregateEnvsWithCurrentValue() {
             "Global",
             index
           ) ?? currentValue,
-        initialValue: x.initialValue,
+        initialValue: x.initialValue ?? initialValue,
         secret: x.secret,
         sourceEnv: "Global",
       }
@@ -623,12 +637,19 @@ export const aggregateEnvsWithCurrentValue$: Observable<
 
       selectedEnv?.variables.map((x, index) => {
         let currentValue = x.currentValue
+        let initialValue = x.initialValue
         if (x.secret) {
           currentValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               selectedEnv.id,
               index
-            ) ?? ""
+            )?.value ?? ""
+
+          initialValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              selectedEnv.id,
+              index
+            )?.initialValue ?? ""
         }
         results.push({
           key: x.key,
@@ -637,7 +658,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               selectedEnv.id,
               index
             ) ?? currentValue,
-          initialValue: x.initialValue,
+          initialValue: x.initialValue ?? initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,
         })
@@ -645,12 +666,19 @@ export const aggregateEnvsWithCurrentValue$: Observable<
 
       globalEnv.variables.map((x, index) => {
         let currentValue = x.currentValue
+        let initialValue = x.initialValue
         if (x.secret) {
           currentValue =
             secretEnvironmentService.getSecretEnvironmentVariableValue(
               "Global",
               index
-            ) ?? ""
+            )?.value ?? ""
+
+          initialValue =
+            secretEnvironmentService.getSecretEnvironmentVariableValue(
+              "Global",
+              index
+            )?.initialValue ?? ""
         }
         results.push({
           key: x.key,
@@ -659,7 +687,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
               "Global",
               index
             ) ?? currentValue,
-          initialValue: x.initialValue,
+          initialValue: x.initialValue ?? initialValue,
           secret: x.secret,
           sourceEnv: "Global",
         })

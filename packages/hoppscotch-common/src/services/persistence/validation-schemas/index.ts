@@ -379,6 +379,7 @@ export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
         .object({
           key: z.string(),
           value: z.string(),
+          initialValue: z.string().optional().catch(""),
           varIndex: z.number(),
         })
         .strict()

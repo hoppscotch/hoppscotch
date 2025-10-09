@@ -22,19 +22,19 @@ export const ADMIN_CAN_NOT_BE_DELETED =
  * Token Authorization failed (Check 'Authorization' Header)
  * (GqlAuthGuard)
  */
-export const AUTH_FAIL = 'auth/fail';
+export const AUTH_FAIL = 'auth/fail' as const;
 
 /**
  * Invalid JSON
  * (Utils)
  */
-export const JSON_INVALID = 'json_invalid';
+export const JSON_INVALID = 'json_invalid' as const;
 
 /**
  * Auth Provider not specified
  * (Auth)
  */
-export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified';
+export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified' as const;
 
 /**
  * Email not provided by OAuth provider
@@ -168,7 +168,7 @@ export const TEAM_NOT_REQUIRED_ROLE = 'team/not_required_role' as const;
  * Team name validation failure
  * (TeamService)
  */
-export const TEAM_NAME_INVALID = 'team/name_invalid';
+export const TEAM_NAME_INVALID = 'team/name_invalid' as const;
 
 /**
  * Couldn't find the sync data from the user

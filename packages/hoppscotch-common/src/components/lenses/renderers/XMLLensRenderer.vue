@@ -49,6 +49,35 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <tippy
+          v-if="response.body"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => copyInterfaceTippyActions.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="copyInterfaceTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="response.body && isSavable"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
 
@@ -61,6 +90,8 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/Eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { computed, ref, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -103,7 +134,18 @@ const { containerRef } = useScrollerRef(
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
+  (
+    e: "update:response",
+    val:
+      | (HoppRESTResponse & { type: "success" | "fail" })
+      | HoppRESTRequestResponse
+      | null
+  ): void
 }>()
+
+const eraseResponse = () => {
+  emit("update:response", null)
+}
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -158,6 +200,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const xmlResponse = ref<any | null>(null)
+const copyInterfaceTippyActions = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 
 const saveAsExample = () => {
@@ -184,4 +227,5 @@ defineActionHandler("response.copy", () => copyResponse())
 defineActionHandler("response.save-as-example", () => {
   props.isSavable ? saveAsExample() : null
 })
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

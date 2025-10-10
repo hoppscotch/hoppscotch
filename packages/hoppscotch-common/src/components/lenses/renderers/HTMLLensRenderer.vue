@@ -59,15 +59,35 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
-        <HoppButtonSecondary
-          v-if="response.body && isSavable"
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t(
-            'action.clear'
-          )} <kbd>${getSpecialKey()}</kbd><kbd>Delete</kbd>`"
-          :icon="IconEraser"
-          @click="eraseResponse"
-        />
+        <tippy
+          v-if="response.body"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => copyInterfaceTippyActions.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="copyInterfaceTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="response.body && isSavable"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
     <div
@@ -111,6 +131,7 @@ import IconEyeOff from "~icons/lucide/eye-off"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
 import IconEraser from "~icons/lucide/Eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { computedAsync } from "@vueuse/core"
 import { useScrollerRef } from "~/composables/useScrollerRef"
@@ -143,6 +164,7 @@ const emit = defineEmits<{
 }>()
 
 const htmlResponse = ref<any | null>(null)
+const copyInterfaceTippyActions = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 
 const responseName = computed(() => {

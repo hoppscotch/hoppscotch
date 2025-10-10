@@ -436,12 +436,21 @@ const workingEnvID = computed(() => {
 
 const getCurrentValue = (id: string | "Global", varIndex: number) => {
   const env = workingEnv.value?.variables[varIndex]
-  if (env && env.secret) {
+  if (env?.secret) {
     return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
       ?.value
   }
   return currentEnvironmentValueService.getEnvironmentVariable(id, varIndex)
     ?.currentValue
+}
+
+const getInitialValue = (id: string | "Global", varIndex: number) => {
+  const env = workingEnv.value?.variables[varIndex]
+  if (env?.secret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
+      ?.initialValue
+  }
+  return env?.initialValue
 }
 
 watch(
@@ -469,7 +478,13 @@ watch(
                   : workingEnvID.value,
                 index
               ) ?? e.currentValue,
-            initialValue: e.initialValue,
+            initialValue:
+              getInitialValue(
+                props.editingEnvironmentIndex === "Global"
+                  ? "Global"
+                  : workingEnvID.value,
+                index
+              ) ?? e.initialValue,
             secret: e.secret,
           },
         }))
@@ -535,6 +550,7 @@ const saveEnvironment = () => {
             key: e.key,
             value: e.currentValue,
             varIndex: i,
+            initialValue: e.initialValue,
           })
         : O.none
     )
@@ -583,7 +599,7 @@ const saveEnvironment = () => {
     A.map((e) => ({
       key: e.key,
       secret: e.secret,
-      initialValue: e.initialValue || "",
+      initialValue: e.secret ? "" : e.initialValue,
       currentValue: "",
     }))
   )

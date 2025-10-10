@@ -419,6 +419,13 @@ const getCurrentValue = (
   )?.currentValue
 }
 
+const getInitialValue = (editingID: string, varIndex: number) => {
+  return secretEnvironmentService.getSecretEnvironmentVariable(
+    editingID,
+    varIndex
+  )?.initialValue
+}
+
 watch(
   () => props.show,
   (show) => {
@@ -449,7 +456,11 @@ watch(
                   index,
                   e.secret
                 ) ?? e.currentValue,
-              initialValue: e.initialValue,
+              initialValue: e.secret
+                ? (getInitialValue(props.editingEnvironment?.id ?? "", index) ??
+                  e.initialValue ??
+                  "")
+                : e.initialValue,
               secret: e.secret,
             },
           }))
@@ -516,7 +527,12 @@ const saveEnvironment = async () => {
     filteredVariables,
     A.filterMapWithIndex((i, e) =>
       e.secret
-        ? O.some({ key: e.key, value: e.currentValue, varIndex: i })
+        ? O.some({
+            key: e.key,
+            value: e.currentValue,
+            varIndex: i,
+            initialValue: e.initialValue,
+          })
         : O.none
     )
   )
@@ -540,7 +556,7 @@ const saveEnvironment = async () => {
     A.map((e) => ({
       key: e.key,
       secret: e.secret,
-      initialValue: e.initialValue || "",
+      initialValue: e.secret ? "" : e.initialValue,
       currentValue: "",
     }))
   )

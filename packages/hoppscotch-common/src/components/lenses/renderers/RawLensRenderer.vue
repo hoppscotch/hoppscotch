@@ -50,6 +50,35 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <tippy
+          v-if="showResponse"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => copyInterfaceTippyActions.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="copyInterfaceTippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="response.body && isSavable"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
     <div
@@ -64,6 +93,8 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/Eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { ref, computed, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -139,6 +170,10 @@ const saveAsExample = () => {
   emit("save-as-example")
 }
 
+const eraseResponse = () => {
+  emit("update:response", null)
+}
+
 const responseType = computed(() =>
   pipe(
     props.response,
@@ -178,6 +213,7 @@ const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
+const copyInterfaceTippyActions = ref<any | null>(null)
 
 useCodemirror(
   rawResponse,
@@ -202,4 +238,5 @@ useCodemirror(
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

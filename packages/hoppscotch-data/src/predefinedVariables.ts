@@ -289,6 +289,38 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     },
   },
 
+  // company Name
+  {
+    key: "$randomCompanyName",
+    description: "A random company name",
+    getValue: () : string => {
+      const companyNames = [
+        'Nexora',
+        'CodeLoom',
+        'BitHaven',
+        'SynapseWorks',
+        'VoltEdge',
+        'Elevoria',
+        'Bridgent',
+        'Verniq',
+        'Corevia',
+        'Stratigen',
+        'Lunova Studio',
+        'Pixelora',
+        'MuseMind',
+        'BrightNest',
+        'Auralis',
+        'VerdaFlow',
+        'BloomShift',
+        'PureTrek',
+        'EcoVerse',
+        'ReLeaf Labs',
+      ];
+
+      return  companyNames[Math.floor(Math.random() * companyNames.length)]
+    },
+  },
+
   // Addresses
   {
     key: "$randomCity",

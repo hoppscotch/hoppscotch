@@ -303,6 +303,36 @@ const getHoppReqAuth = (
     const token = replacePMVarTemplating(
       getVariableValue(auth.oauth2, "accessToken") ?? ""
     )
+    const clientSecret = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "clientSecret") ?? ""
+    )
+
+    // Check for PKCE settings
+    const usePkce = getVariableValue(auth.oauth2, "usePkce")
+    const isPKCE = usePkce === "true"
+
+    // Get challenge algorithm, default to S256 if PKCE is enabled but no algorithm specified
+    const challengeAlgorithm = getVariableValue(
+      auth.oauth2,
+      "challengeAlgorithm"
+    )
+    let codeVerifierMethod: "plain" | "S256" | undefined
+
+    if (isPKCE) {
+      // Postman uses "SHA-256" or "plain" - normalize to our format
+      if (
+        challengeAlgorithm === "S256" ||
+        challengeAlgorithm === "SHA-256" ||
+        !challengeAlgorithm
+      ) {
+        codeVerifierMethod = "S256"
+      } else if (challengeAlgorithm === "plain") {
+        codeVerifierMethod = "plain"
+      } else {
+        // Default to S256 if PKCE is enabled but unknown algorithm
+        codeVerifierMethod = "S256"
+      }
+    }
 
     return {
       authType: "oauth-2",
@@ -314,8 +344,9 @@ const getHoppReqAuth = (
         scopes: scope,
         token: token,
         tokenEndpoint: accessTokenURL,
-        clientSecret: "",
-        isPKCE: false,
+        clientSecret: clientSecret,
+        isPKCE: isPKCE,
+        ...(codeVerifierMethod ? { codeVerifierMethod } : {}),
         authRequestParams: [],
         tokenRequestParams: [],
         refreshRequestParams: [],

@@ -6,7 +6,9 @@ mutation UpdateMockServer($id: ID!, $input: UpdateMockServerInput!) {
     user {
       uid
     }
-    collectionID
+    collection {
+      id
+    }
     isActive
     createdOn
     updatedOn

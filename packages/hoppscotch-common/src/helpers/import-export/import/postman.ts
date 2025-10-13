@@ -320,16 +320,11 @@ const getHoppReqAuth = (
 
     if (isPKCE) {
       // Postman uses "SHA-256" or "plain" - normalize to our format
-      if (
-        challengeAlgorithm === "S256" ||
-        challengeAlgorithm === "SHA-256" ||
-        !challengeAlgorithm
-      ) {
-        codeVerifierMethod = "S256"
-      } else if (challengeAlgorithm === "plain") {
+      // Default to S256 for any value other than "plain"
+      if (challengeAlgorithm === "plain") {
         codeVerifierMethod = "plain"
       } else {
-        // Default to S256 if PKCE is enabled but unknown algorithm
+        // Covers "S256", "SHA-256", undefined, and any other value
         codeVerifierMethod = "S256"
       }
     }

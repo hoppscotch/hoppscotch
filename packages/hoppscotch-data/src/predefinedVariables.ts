@@ -317,7 +317,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
         'ReLeaf Labs',
       ];
 
-      return  companyNames[Math.floor(Math.random() * companyNames.length)]
+      return companyNames[Math.floor(Math.random() * companyNames.length)]
     },
   },
 

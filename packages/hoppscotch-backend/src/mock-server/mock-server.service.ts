@@ -124,6 +124,7 @@ export class MockServerService {
 
   /**
    * Get a mock server by subdomain (for incoming mock requests)
+   * Returns database model with collectionID for internal use
    */
   async getMockServerBySubdomain(subdomain: string) {
     const mockServer = await this.prisma.mockServer.findUnique({
@@ -131,7 +132,8 @@ export class MockServerService {
     });
     if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
-    return E.right(this.cast(mockServer));
+    // Return database model directly (includes collectionID)
+    return E.right(mockServer);
   }
 
   /**
@@ -367,7 +369,7 @@ export class MockServerService {
       // Soft delete the mock server
       await this.prisma.mockServer.update({
         where: { id },
-        data: { deletedAt: new Date() },
+        data: { isActive: false, deletedAt: new Date() },
       });
 
       return E.right(true);
@@ -379,11 +381,18 @@ export class MockServerService {
 
   /**
    * Handle mock request - find matching request in collection and return response
+   * Optimized implementation with database-level filtering:
+   * 1. Check custom headers first (fastest path)
+   * 2. Fetch only relevant requests from DB (filtered by collection)
+   * 3. Filter and score examples in-memory
+   * 4. Return highest scoring example
    */
   async handleMockRequest(
     subdomain: string,
     path: string,
     method: string,
+    queryParams?: Record<string, string>,
+    requestHeaders?: Record<string, string>,
   ): Promise<E.Either<string, MockServerResponse>> {
     try {
       const mockServerResult = await this.getMockServerBySubdomain(subdomain);
@@ -394,106 +403,464 @@ export class MockServerService {
 
       const mockServer = mockServerResult.right;
 
-      const matchingRequest = null;
-      // const matchingRequest = mockServer.collection.requests.find(
-      //   (request: any) => {
-      //     const requestData = request.request;
+      // OPTIMIZATION: Check for custom headers first (fastest path)
+      // If user specified exact example, return it immediately without scoring
+      if (requestHeaders) {
+        const mockResponseId = requestHeaders['x-mock-response-id'];
+        const mockResponseName = requestHeaders['x-mock-response-name'];
 
-      //     // Extract path from endpoint, handling placeholders like <<url>>
-      //     let requestPath = '/';
-      //     try {
-      //       if (requestData.endpoint) {
-      //         // Handle placeholder URLs like "<<url>>/ping"
-      //         if (requestData.endpoint.includes('<<url>>')) {
-      //           // Extract the path after the placeholder
-      //           const pathPart =
-      //             requestData.endpoint.split('<<url>>')[1] || '/';
-      //           requestPath = pathPart.startsWith('/')
-      //             ? pathPart
-      //             : '/' + pathPart;
-      //         } else {
-      //           // Try to parse as a regular URL
-      //           const requestUrl = new URL(requestData.endpoint);
-      //           requestPath = requestUrl.pathname;
-      //         }
-      //       }
-      //     } catch (error) {
-      //       // If URL parsing fails, try to extract path manually
-      //       if (requestData.endpoint) {
-      //         const lastSlashIndex = requestData.endpoint.lastIndexOf('/');
-      //         if (lastSlashIndex !== -1) {
-      //           requestPath = requestData.endpoint.substring(lastSlashIndex);
-      //         }
-      //       }
-      //     }
-
-      //     const requestMethod = requestData.method || 'GET';
-
-      //     return (
-      //       requestPath === path &&
-      //       requestMethod.toUpperCase() === method.toUpperCase()
-      //     );
-      //   },
-      // );
-
-      if (!matchingRequest) {
-        return E.left('Endpoint not found');
-      }
-
-      const requestData = matchingRequest.request;
-
-      // Extract response from the request's response examples or default response
-      let statusCode = 200;
-      let body = '';
-      let headers = '{}';
-
-      // Try to get response from examples or default mock response
-      if (requestData.responses) {
-        // Handle responses as an object (like {"default-200": {...}})
-        const responseKeys = Object.keys(requestData.responses);
-        if (responseKeys.length > 0) {
-          const firstResponseKey = responseKeys[0];
-          const firstResponse = requestData.responses[firstResponseKey];
-          statusCode = firstResponse.code || firstResponse.statusCode || 200;
-          body = firstResponse.body || '';
-
-          // Handle headers
-          if (firstResponse.headers) {
-            if (Array.isArray(firstResponse.headers)) {
-              // Convert array of {key, value} to object
-              const headersObj = {};
-              firstResponse.headers.forEach((header: any) => {
-                if (header.key && header.value) {
-                  headersObj[header.key] = header.value;
-                }
-              });
-              headers = JSON.stringify(headersObj);
-            } else {
-              headers = JSON.stringify(firstResponse.headers);
-            }
-          } else {
-            headers = '{}';
+        if (mockResponseId || mockResponseName) {
+          const exactMatch = await this.findExampleByIdOrName(
+            mockServer,
+            mockResponseId,
+            mockResponseName,
+            method,
+          );
+          if (exactMatch) {
+            return this.formatExampleResponse(exactMatch, mockServer.delayInMs);
           }
         }
       }
 
-      // If no response found, create a default one
-      if (!body) {
-        body = JSON.stringify({
-          message: `Mock response for ${method.toUpperCase()} ${path}`,
-          timestamp: new Date().toISOString(),
-        });
+      // OPTIMIZATION: Fetch only requests with mockExamples (database-level filter)
+      // This is much faster than loading all requests and filtering in memory
+      const candidateExamples = await this.fetchCandidateExamples(
+        mockServer,
+        method,
+        path,
+      );
+
+      if (candidateExamples.length === 0) {
+        return E.left(
+          `No examples found for ${method.toUpperCase()} ${path}`,
+        );
       }
 
-      return E.right({
-        statusCode,
-        body,
-        headers,
-        delay: 0, // Can be configured later if needed
-      });
+      // OPTIMIZATION: Filter by status code if header provided
+      let filteredExamples = candidateExamples;
+      if (requestHeaders?.['x-mock-response-code']) {
+        const statusCode = parseInt(requestHeaders['x-mock-response-code'], 10);
+        const codeFiltered = candidateExamples.filter(
+          (ex) => ex.statusCode === statusCode,
+        );
+        if (codeFiltered.length > 0) {
+          filteredExamples = codeFiltered;
+        }
+      }
+
+      // OPTIMIZATION: Score examples based on URL and query parameter matching
+      const scoredExamples = filteredExamples
+        .map((example) => ({
+          example,
+          score: this.calculateMatchScore(
+            example,
+            path,
+            queryParams || {},
+          ),
+        }))
+        .filter((scored) => scored.score > 0) // Remove non-matching examples
+        .sort((a, b) => b.score - a.score); // Sort by score descending
+
+      if (scoredExamples.length === 0) {
+        return E.left(
+          `No matching examples found for ${method.toUpperCase()} ${path}`,
+        );
+      }
+
+      // Step 6: Return highest scoring example
+      // If multiple examples have same high score, prefer 200 status code
+      const highestScore = scoredExamples[0].score;
+      const topExamples = scoredExamples.filter(
+        (scored) => scored.score === highestScore,
+      );
+
+      const selectedExample =
+        topExamples.find((scored) => scored.example.statusCode === 200) ||
+        topExamples[0];
+
+      return this.formatExampleResponse(
+        selectedExample.example,
+        mockServer.delayInMs,
+      );
     } catch (error) {
       console.error('Error handling mock request:', error);
       return E.left('Failed to handle mock request');
     }
+  }
+
+  /**
+   * OPTIMIZED: Find example by ID or name directly from database
+   * This avoids loading all examples when user specifies exact match
+   */
+  private async findExampleByIdOrName(
+    mockServer: dbMockServer,
+    exampleId?: string,
+    exampleName?: string,
+    method?: string,
+  ) {
+    const collectionIds = await this.getCollectionIds(mockServer);
+
+    // Build database query
+    const requests =
+      mockServer.workspaceType === WorkspaceType.USER
+        ? await this.prisma.userRequest.findMany({
+            where: {
+              collectionID: { in: collectionIds },
+              mockExamples: { not: null },
+            },
+            select: {
+              id: true,
+              mockExamples: true,
+            },
+          })
+        : await this.prisma.teamRequest.findMany({
+            where: {
+              collectionID: { in: collectionIds },
+              mockExamples: { not: null },
+            },
+            select: {
+              id: true,
+              mockExamples: true,
+            },
+          });
+
+    // Search through examples
+    for (const request of requests) {
+      const mockExamples = request.mockExamples as any;
+      if (mockExamples?.examples && Array.isArray(mockExamples.examples)) {
+        for (const exampleData of mockExamples.examples) {
+          // Check if method matches (if specified)
+          if (method && exampleData.method?.toUpperCase() !== method.toUpperCase()) {
+            continue;
+          }
+
+          const parsedExample = this.parseExample(exampleData, request.id);
+          if (!parsedExample) continue;
+
+          // Check for ID match
+          if (exampleId && parsedExample.id === exampleId) {
+            return parsedExample;
+          }
+
+          // Check for name match
+          if (exampleName && parsedExample.name === exampleName) {
+            return parsedExample;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * OPTIMIZED: Fetch only candidate examples that could match the request
+   * Uses database filtering to reduce memory usage
+   */
+  private async fetchCandidateExamples(
+    mockServer: dbMockServer,
+    method: string,
+    path: string,
+  ) {
+    interface Example {
+      id: string;
+      name: string;
+      method: string;
+      endpoint: string;
+      path: string;
+      queryParams: Record<string, string>;
+      statusCode: number;
+      statusText: string;
+      responseBody: string;
+      responseHeaders: Array<{ key: string; value: string }>;
+      requestHeaders?: Array<{ key: string; value: string }>;
+    }
+
+    const examples: Example[] = [];
+    const collectionIds = await this.getCollectionIds(mockServer);
+
+    // OPTIMIZATION: Only fetch requests that have mockExamples
+    // This uses database filtering instead of loading everything
+    const requests =
+      mockServer.workspaceType === WorkspaceType.USER
+        ? await this.prisma.userRequest.findMany({
+            where: {
+              collectionID: { in: collectionIds },
+              mockExamples: { not: null }, // Only fetch requests with examples
+            },
+            select: {
+              id: true,
+              mockExamples: true,
+            },
+          })
+        : await this.prisma.teamRequest.findMany({
+            where: {
+              collectionID: { in: collectionIds },
+              mockExamples: { not: null }, // Only fetch requests with examples
+            },
+            select: {
+              id: true,
+              mockExamples: true,
+            },
+          });
+
+    // Parse and filter examples
+    for (const request of requests) {
+      const mockExamples = request.mockExamples as any;
+      if (mockExamples?.examples && Array.isArray(mockExamples.examples)) {
+        for (const exampleData of mockExamples.examples) {
+          // OPTIMIZATION: Filter by method immediately
+          if (exampleData.method?.toUpperCase() !== method.toUpperCase()) {
+            continue;
+          }
+
+          const parsedExample = this.parseExample(exampleData, request.id);
+          if (!parsedExample) continue;
+
+          // OPTIMIZATION: Quick path match check before adding to candidates
+          // This reduces the number of examples we need to score
+          if (this.couldPathMatch(parsedExample.path, path)) {
+            examples.push(parsedExample);
+          }
+        }
+      }
+    }
+
+    return examples;
+  }
+
+  /**
+   * OPTIMIZED: Quick check if paths could potentially match
+   * Returns true if we should include this example for scoring
+   */
+  private couldPathMatch(examplePath: string, requestPath: string): boolean {
+    // Exact match
+    if (examplePath === requestPath) return true;
+
+    // Check if path structure could match (same number of segments)
+    const exampleParts = examplePath.split('/').filter(Boolean);
+    const requestParts = requestPath.split('/').filter(Boolean);
+
+    if (exampleParts.length !== requestParts.length) {
+      return false; // Different structure, can't match
+    }
+
+    // Quick check: if example has variables, it could match
+    if (
+      examplePath.includes(':') ||
+      examplePath.includes('{') ||
+      examplePath.includes('{{')
+    ) {
+      return true; // Has variables, needs full scoring
+    }
+
+    // No variables and not exact match = no match
+    return false;
+  }
+
+  /**
+   * Get collection IDs for the mock server (no caching)
+   */
+  private async getCollectionIds(
+    mockServer: dbMockServer,
+  ): Promise<string[]> {
+    return mockServer.workspaceType === WorkspaceType.USER
+      ? await this.getAllUserCollectionIds(mockServer.collectionID)
+      : await this.getAllTeamCollectionIds(mockServer.collectionID);
+  }
+
+  /**
+   * Get all collection IDs including children (recursive)
+   */
+  private async getAllUserCollectionIds(rootCollectionId: string): Promise<string[]> {
+    const ids = [rootCollectionId];
+    const children = await this.prisma.userCollection.findMany({
+      where: { parentID: rootCollectionId },
+      select: { id: true },
+    });
+
+    for (const child of children) {
+      const childIds = await this.getAllUserCollectionIds(child.id);
+      ids.push(...childIds);
+    }
+
+    return ids;
+  }
+
+  /**
+   * Get all team collection IDs including children (recursive)
+   */
+  private async getAllTeamCollectionIds(rootCollectionId: string): Promise<string[]> {
+    const ids = [rootCollectionId];
+    const children = await this.prisma.teamCollection.findMany({
+      where: { parentID: rootCollectionId },
+      select: { id: true },
+    });
+
+    for (const child of children) {
+      const childIds = await this.getAllTeamCollectionIds(child.id);
+      ids.push(...childIds);
+    }
+
+    return ids;
+  }
+
+  /**
+   * Parse example from database format to internal format
+   */
+  private parseExample(exampleData: any, requestId: string) {
+    try {
+      // Parse endpoint to extract path and query parameters
+      let path = '/';
+      let queryParams: Record<string, string> = {};
+
+      if (exampleData.endpoint) {
+        const url = new URL(
+          exampleData.endpoint,
+          'http://dummy.com', // Base URL for parsing
+        );
+        path = url.pathname;
+
+        // Extract query parameters
+        url.searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+      }
+
+      return {
+        id: exampleData.key || `${requestId}-${exampleData.name}`,
+        name: exampleData.name,
+        method: exampleData.method || 'GET',
+        endpoint: exampleData.endpoint,
+        path,
+        queryParams,
+        statusCode: exampleData.statusCode || 200,
+        statusText: exampleData.statusText || 'OK',
+        responseBody: exampleData.responseBody || '',
+        responseHeaders: exampleData.responseHeaders || [],
+        requestHeaders: exampleData.headers || [],
+      };
+    } catch (error) {
+      console.error('Error parsing example:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Calculate match score for an example based on Postman's algorithm
+   * Starting score: 100
+   * URL path match: exact match keeps 100, no match = 0
+   * Query parameters: percentage based on matches
+   */
+  private calculateMatchScore(
+    example: any,
+    requestPath: string,
+    requestQueryParams: Record<string, string>,
+  ): number {
+    let score = 100;
+
+    // URL Path matching
+    if (example.path !== requestPath) {
+      // Try wildcard matching (basic implementation)
+      const examplePathParts = example.path.split('/').filter(Boolean);
+      const requestPathParts = requestPath.split('/').filter(Boolean);
+
+      if (examplePathParts.length !== requestPathParts.length) {
+        return 0; // Path structure doesn't match
+      }
+
+      // Check each segment
+      let pathMatches = true;
+      for (let i = 0; i < examplePathParts.length; i++) {
+        const examplePart = examplePathParts[i];
+        const requestPart = requestPathParts[i];
+
+        // Check if it's a variable (contains special chars or is a placeholder)
+        if (
+          examplePart === requestPart ||
+          examplePart.startsWith(':') ||
+          examplePart.startsWith('{') ||
+          examplePart.includes('{{')
+        ) {
+          continue; // Match
+        } else {
+          pathMatches = false;
+          break;
+        }
+      }
+
+      if (!pathMatches) {
+        return 0; // No path match
+      }
+
+      // Path has variables, reduce score slightly
+      score -= 5;
+    }
+
+    // Query parameter matching
+    const exampleParams = example.queryParams || {};
+    const exampleParamKeys = Object.keys(exampleParams);
+    const requestParamKeys = Object.keys(requestQueryParams);
+
+    if (exampleParamKeys.length > 0 || requestParamKeys.length > 0) {
+      let paramMatches = 0;
+      let partialMatches = 0;
+      let missingParams = 0;
+
+      // Check for matches
+      exampleParamKeys.forEach((key) => {
+        if (requestQueryParams[key] !== undefined) {
+          if (requestQueryParams[key] === exampleParams[key]) {
+            paramMatches++;
+          } else {
+            partialMatches++;
+          }
+        } else {
+          missingParams++;
+        }
+      });
+
+      // Check for extra params in request
+      requestParamKeys.forEach((key) => {
+        if (exampleParams[key] === undefined) {
+          missingParams++;
+        }
+      });
+
+      // Calculate parameter matching percentage
+      const totalParams = paramMatches + partialMatches + missingParams;
+      if (totalParams > 0) {
+        const matchPercentage = (paramMatches / totalParams) * 100;
+        // Adjust score based on parameter matching
+        score = score * (matchPercentage / 100);
+      }
+    }
+
+    return score;
+  }
+
+  /**
+   * Format example response for return
+   */
+  private formatExampleResponse(
+    example: any,
+    delayInMs: number,
+  ): E.Either<string, MockServerResponse> {
+    // Convert response headers array to object
+    const headersObj: Record<string, string> = {};
+    if (example.responseHeaders && Array.isArray(example.responseHeaders)) {
+      example.responseHeaders.forEach((header: any) => {
+        if (header.key && header.value) {
+          headersObj[header.key] = header.value;
+        }
+      });
+    }
+
+    return E.right({
+      statusCode: example.statusCode || 200,
+      body: example.responseBody || '',
+      headers: JSON.stringify(headersObj),
+      delay: delayInMs || 0,
+    });
   }
 }

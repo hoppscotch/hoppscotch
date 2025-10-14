@@ -1,45 +1,49 @@
 import {
   Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Patch,
   All,
   Req,
   Res,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { MockServerService } from './mock-server.service';
 import * as E from 'fp-ts/Either';
+import { MockRequestGuard } from './mock-request.guard';
+import { MockServer } from '@prisma/client';
 
-// Mock server controller for subdomain-based routing
-// This controller handles requests to mock-*.localhost:3170 or mock-*.domain.com
-@Controller()
+/**
+ * Mock server controller with dual routing support:
+ * 1. Subdomain pattern: mock-server-id.mock.hopp.io/product
+ * 2. Route pattern: backend.hopp.io/mock/mock-server-id/product
+ *
+ * The MockRequestGuard handles extraction of mock server ID from both patterns
+ */
+@Controller({ path: 'mock' })
 export class MockServerController {
   constructor(private readonly mockServerService: MockServerService) {}
 
-  @All('*')
-  async handleAllRequests(@Req() req: Request, @Res() res: Response) {
-    // Extract subdomain from host header
-    const host = req.get('host') || '';
-    const subdomain = this.extractSubdomain(host);
+  @All('*path')
+  @UseGuards(MockRequestGuard)
+  async handleMockRequest(@Req() req: Request, @Res() res: Response) {
+    // Mock server ID and info are attached by the guard
+    const mockServerId = (req as any).mockServerId as string;
+    const mockServer = (req as any).mockServer as MockServer;
 
-    // If this is not a mock subdomain request, let other controllers handle it
-    if (!subdomain) {
+    if (!mockServerId) {
       return res.status(HttpStatus.NOT_FOUND).json({
         error: 'Not found',
-        message: 'This endpoint handles mock server requests only',
+        message: 'Mock server ID not found',
       });
     }
 
     const method = req.method;
-    const path = req.path || '/';
+    // Get clean path (removes /mock/mock-server-id prefix for route-based pattern)
+    const path = MockRequestGuard.getCleanPath(req.path || '/', mockServerId);
 
     try {
       const result = await this.mockServerService.handleMockRequest(
-        subdomain,
+        mockServerId,
         path,
         method,
       );
@@ -66,8 +70,8 @@ export class MockServerController {
       }
 
       // Add delay if specified
-      if (mockResponse.delay && mockResponse.delay > 0) {
-        await new Promise((resolve) => setTimeout(resolve, mockResponse.delay));
+      if (mockServer.delayInMs && mockServer.delayInMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, mockServer.delayInMs));
       }
 
       // Send response
@@ -79,32 +83,5 @@ export class MockServerController {
         message: 'Failed to process mock request',
       });
     }
-  }
-
-  private extractSubdomain(host: string): string | null {
-    // Remove port if present
-    const hostname = host.split(':')[0];
-
-    // Split by dots and check if we have a subdomain
-    const parts = hostname.split('.');
-
-    // For localhost development: mock-1234.localhost
-    if (parts.length >= 2 && parts[parts.length - 1] === 'localhost') {
-      const subdomain = parts[0];
-      // Check if it's a mock subdomain
-      if (subdomain.startsWith('mock-')) {
-        return subdomain;
-      }
-    }
-
-    // For production domains: mock-1234.example.com
-    if (parts.length >= 3) {
-      const subdomain = parts[0];
-      if (subdomain.startsWith('mock-')) {
-        return subdomain;
-      }
-    }
-
-    return null;
   }
 }

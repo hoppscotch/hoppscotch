@@ -63,7 +63,7 @@ model TeamRequest {
   teamID       String
   title        String
   request      Json
-  mockExample  Json?
+  mockExamples Json?
   orderIndex   Int
   createdOn    DateTime       @default(now()) @db.Timestamptz(3)
   updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
@@ -184,7 +184,7 @@ model UserRequest {
   userUid        String
   title          String
   request        Json
-  mockExample    Json?
+  mockExamples   Json?
   type           ReqType
   orderIndex     Int
   createdOn      DateTime       @default(now()) @db.Timestamptz(3)

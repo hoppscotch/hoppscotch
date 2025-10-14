@@ -1,0 +1,178 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { MockServerService } from './mock-server.service';
+import * as E from 'fp-ts/Either';
+import { ConfigService } from '@nestjs/config';
+
+/**
+ * Guard to extract and validate mock server ID from either:
+ * 1. Subdomain pattern: mock-server-id.mock.hopp.io/product
+ * 2. Route pattern: backend.hopp.io/mock/mock-server-id/product
+ */
+@Injectable()
+export class MockRequestGuard implements CanActivate {
+  constructor(
+    private readonly mockServerService: MockServerService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
+    
+    // Extract mock server ID from either subdomain or route
+    const mockServerId = this.extractMockServerId(request);
+    
+    if (!mockServerId) {
+      throw new BadRequestException(
+        'Invalid mock server request. Mock server ID not found in subdomain or path.',
+      );
+    }
+
+    // Validate mock server exists and is active
+    const mockServerResult = await this.mockServerService.getMockServerBySubdomain(
+      mockServerId,
+    );
+
+    if (E.isLeft(mockServerResult)) {
+      throw new NotFoundException(
+        `Mock server '${mockServerId}' not found or inactive`,
+      );
+    }
+
+    const mockServer = mockServerResult.right;
+
+    if (!mockServer.isActive) {
+      throw new BadRequestException(
+        `Mock server '${mockServerId}' is currently inactive`,
+      );
+    }
+
+    // Attach mock server info to request for downstream use
+    (request as any).mockServer = mockServer;
+    (request as any).mockServerId = mockServerId;
+
+    return true;
+  }
+
+  /**
+   * Extract mock server ID from request using either subdomain or route-based pattern
+   * 
+   * Supports two patterns:
+   * 1. Subdomain: mock-server-id.mock.hopp.io/product → mock-server-id
+   * 2. Route: backend.hopp.io/mock/mock-server-id/product → mock-server-id
+   * 
+   * @param request Express request object
+   * @returns Mock server ID or null if not found
+   */
+  private extractMockServerId(request: Request): string | null {
+    const host = request.get('host') || '';
+    const path = request.path || '/';
+
+    // Try subdomain pattern first (Option 1)
+    const subdomainId = this.extractFromSubdomain(host);
+    if (subdomainId) {
+      return subdomainId;
+    }
+
+    // Try route-based pattern (Option 2)
+    const routeId = this.extractFromRoute(path);
+    if (routeId) {
+      return routeId;
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract mock server ID from subdomain pattern
+   * Supports: mock-server-id.mock.hopp.io or mock-server-id.mock.localhost
+   * 
+   * @param host Host header value
+   * @returns Mock server ID or null
+   */
+  private extractFromSubdomain(host: string): string | null {
+    // Remove port if present
+    const hostname = host.split(':')[0];
+    
+    // Split by dots
+    const parts = hostname.split('.');
+    
+    // Check if this is a mock subdomain pattern
+    // For: mock-server-id.mock.hopp.io → ['mock-server-id', 'mock', 'hopp', 'io']
+    // For: mock-server-id.mock.localhost → ['mock-server-id', 'mock', 'localhost']
+    
+    if (parts.length >= 3) {
+      // Check if second part is 'mock'
+      if (parts[1] === 'mock') {
+        const mockServerId = parts[0];
+        
+        // Validate it's not empty and follows a reasonable pattern
+        if (mockServerId && mockServerId.length > 0) {
+          return mockServerId;
+        }
+      }
+    }
+    
+    // Also support: mock-server-id.localhost (for simpler local dev)
+    if (parts.length === 2 && parts[1] === 'localhost') {
+      const mockServerId = parts[0];
+      if (mockServerId && mockServerId.length > 0) {
+        return mockServerId;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract mock server ID from route pattern
+   * Supports: /mock/mock-server-id/product → mock-server-id
+   * 
+   * @param path Request path
+   * @returns Mock server ID or null
+   */
+  private extractFromRoute(path: string): string | null {
+    // Pattern: /mock/mock-server-id/...
+    // We need to match: /mock/{id} or /mock/{id}/...
+    
+    const mockPathRegex = /^\/mock\/([^\/]+)/;
+    const match = path.match(mockPathRegex);
+    
+    if (match && match[1]) {
+      const mockServerId = match[1];
+      
+      // Validate it's not empty and not the word 'mock' itself
+      if (mockServerId && mockServerId !== 'mock' && mockServerId.length > 0) {
+        return mockServerId;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get the actual path without the /mock/mock-server-id prefix
+   * This is useful for route-based pattern to get the actual endpoint path
+   * 
+   * @param fullPath Full request path
+   * @param mockServerId Mock server ID
+   * @returns Clean path for the mock endpoint
+   */
+  static getCleanPath(fullPath: string, mockServerId: string): string {
+    // If route-based: /mock/mock-server-id/product → /product
+    const routePrefix = `/mock/${mockServerId}`;
+    if (fullPath.startsWith(routePrefix)) {
+      const cleanPath = fullPath.substring(routePrefix.length);
+      return cleanPath || '/';
+    }
+    
+    // If subdomain-based, return as-is
+    return fullPath;
+  }
+}

@@ -1,12 +1,6 @@
 -- CreateEnum
 CREATE TYPE "WorkspaceType" AS ENUM ('USER', 'TEAM');
 
--- AlterTable
-ALTER TABLE "TeamRequest" ADD COLUMN     "mockExample" JSONB;
-
--- AlterTable
-ALTER TABLE "UserRequest" ADD COLUMN     "mockExample" JSONB;
-
 -- CreateTable
 CREATE TABLE "MockServer" (
     "id" TEXT NOT NULL,
@@ -31,3 +25,65 @@ CREATE UNIQUE INDEX "MockServer_subdomain_key" ON "MockServer"("subdomain");
 
 -- AddForeignKey
 ALTER TABLE "MockServer" ADD CONSTRAINT "MockServer_creatorUid_fkey" FOREIGN KEY ("creatorUid") REFERENCES "User"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Add mockExamples column to UserRequest
+ALTER TABLE "UserRequest" 
+ADD COLUMN "mockExamples" JSONB;
+
+-- Add mockExamples column to TeamRequest
+ALTER TABLE "TeamRequest" 
+ADD COLUMN "mockExamples" JSONB;
+
+-- Create function to sync mock examples
+CREATE OR REPLACE FUNCTION sync_mock_examples()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW."mockExamples" := jsonb_build_object(
+    'examples',
+    COALESCE(
+      (
+        SELECT jsonb_agg(
+          jsonb_build_object(
+            'key', key,
+            'name', value->>'name',
+            'endpoint', value->'originalRequest'->>'endpoint',
+            'method', value->'originalRequest'->>'method',
+            'headers', COALESCE(value->'originalRequest'->'headers', '[]'::jsonb),
+            'statusCode', (value->>'code')::int,
+            'statusText', value->>'status',
+            'responseBody', value->>'body',
+            'responseHeaders', COALESCE(value->'headers', '[]'::jsonb)
+          )
+        )
+        FROM jsonb_each(NEW.request->'responses') AS responses(key, value)
+        WHERE jsonb_typeof(NEW.request->'responses') = 'object'
+      ),
+      '[]'::jsonb
+    )
+  );
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger for UserRequest
+CREATE TRIGGER trigger_sync_mock_examples_user_request
+BEFORE INSERT OR UPDATE OF request ON "UserRequest"
+FOR EACH ROW
+EXECUTE FUNCTION sync_mock_examples();
+
+-- Create trigger for TeamRequest
+CREATE TRIGGER trigger_sync_mock_examples_team_request
+BEFORE INSERT OR UPDATE OF request ON "TeamRequest"
+FOR EACH ROW
+EXECUTE FUNCTION sync_mock_examples();
+
+-- Backfill existing data for UserRequest
+UPDATE "UserRequest" SET request = request WHERE request IS NOT NULL;
+
+-- Backfill existing data for TeamRequest
+UPDATE "TeamRequest" SET request = request WHERE request IS NOT NULL;
+
+-- Add GIN indexes
+CREATE INDEX "idx_mock_examples_user_requests_gin" ON "UserRequest" USING GIN ("mockExamples");
+CREATE INDEX "idx_mock_examples_team_requests_gin" ON "TeamRequest" USING GIN ("mockExamples");

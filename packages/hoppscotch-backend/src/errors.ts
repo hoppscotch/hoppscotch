@@ -902,3 +902,21 @@ export const MOCK_SERVER_INVALID_COLLECTION = 'mock_server/invalid_collection';
  * (MockServerService)
  */
 export const MOCK_SERVER_ALREADY_EXISTS = 'mock_server/already_exists';
+
+/**
+ * Mock server creation failed
+ * (MockServerService)
+ */
+export const MOCK_SERVER_CREATION_FAILED = 'mock_server/creation_failed';
+
+/**
+ * Mock server update failed
+ * (MockServerService)
+ */
+export const MOCK_SERVER_UPDATE_FAILED = 'mock_server/update_failed';
+
+/**
+ * Mock server deletion failed
+ * (MockServerService)
+ */
+export const MOCK_SERVER_DELETION_FAILED = 'mock_server/deletion_failed';

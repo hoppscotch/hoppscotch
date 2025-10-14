@@ -29,7 +29,6 @@ import {
 } from 'src/user-collection/user-collections.model';
 import { Shortcode } from 'src/shortcode/shortcode.model';
 import { UserCollectionSortData } from 'src/orchestration/sort/sort.model';
-import { MockServer } from 'src/mock-server/mock-server.model';
 
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
@@ -80,7 +79,5 @@ export type TopicDef = {
   [
     topic: `shortcode/${string}/${'created' | 'revoked' | 'updated'}`
   ]: Shortcode;
-  [topic: `mock_server/${string}/${'created' | 'updated'}`]: MockServer;
-  [topic: `mock_server/${string}/deleted`]: { id: string };
   [topic: `infra_config/${string}/${'updated'}`]: string;
 };

@@ -63,6 +63,7 @@ model TeamRequest {
   teamID       String
   title        String
   request      Json
+  mockExample  Json?
   orderIndex   Int
   createdOn    DateTime       @default(now()) @db.Timestamptz(3)
   updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
@@ -183,6 +184,7 @@ model UserRequest {
   userUid        String
   title          String
   request        Json
+  mockExample    Json?
   type           ReqType
   orderIndex     Int
   createdOn      DateTime       @default(now()) @db.Timestamptz(3)
@@ -194,20 +196,19 @@ model UserRequest {
 }
 
 model UserCollection {
-  id          String           @id @default(cuid())
-  parentID    String?
-  userUid     String
-  title       String
-  orderIndex  Int
-  type        ReqType
-  createdOn   DateTime         @default(now()) @db.Timestamptz(3)
-  updatedOn   DateTime         @updatedAt @db.Timestamptz(3)
-  data        Json?
-  mockServers MockServer[]
-  parent      UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
-  children    UserCollection[] @relation("ParentUserCollection")
-  user        User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  requests    UserRequest[]
+  id         String           @id @default(cuid())
+  parentID   String?
+  userUid    String
+  title      String
+  orderIndex Int
+  type       ReqType
+  createdOn  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
+  data       Json?
+  parent     UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
+  children   UserCollection[] @relation("ParentUserCollection")
+  user       User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  requests   UserRequest[]
 
   @@unique([userUid, parentID, orderIndex])
 }
@@ -244,18 +245,25 @@ model InfraToken {
 }
 
 model MockServer {
-  id           String         @id @default(cuid())
-  name         String
-  subdomain    String         @unique
-  userUid      String
-  collectionID String
-  isActive     Boolean        @default(true)
-  createdOn    DateTime       @default(now()) @db.Timestamptz(3)
-  updatedOn    DateTime       @updatedAt @db.Timestamptz(3)
-  collection   UserCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
-  user         User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  name          String
+  subdomain     String        @unique
+  creatorUid    String
+  collectionID  String
+  workspaceType WorkspaceType
+  workspaceID   String // userUid for USER, teamID for TEAM
+  delayInMs     Int           @default(0)
+  isPublic      Boolean       @default(true)
+  isActive      Boolean       @default(true)
+  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+  deletedAt     DateTime?     @db.Timestamptz(3)
+  user          User          @relation(fields: [creatorUid], references: [uid], onDelete: Restrict)
+}
 
-  @@unique([userUid, collectionID])
+enum WorkspaceType {
+  USER
+  TEAM
 }
 
 enum ReqType {

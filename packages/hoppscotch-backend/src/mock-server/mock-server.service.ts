@@ -6,6 +6,7 @@ import {
   UpdateMockServerInput,
   MockServerResponse,
   MockServer,
+  MockServerCollection,
 } from './mock-server.model';
 import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
@@ -13,183 +14,276 @@ import {
   MOCK_SERVER_NOT_FOUND,
   MOCK_SERVER_SUBDOMAIN_CONFLICT,
   MOCK_SERVER_INVALID_COLLECTION,
-  MOCK_SERVER_ALREADY_EXISTS,
+  TEAM_INVALID_ID,
+  MOCK_SERVER_CREATION_FAILED,
+  MOCK_SERVER_UPDATE_FAILED,
+  MOCK_SERVER_DELETION_FAILED,
 } from 'src/errors';
-import { UserCollectionService } from 'src/user-collection/user-collection.service';
+import { randomBytes } from 'crypto';
+import { WorkspaceType } from 'src/types/WorkspaceTypes';
+import { TeamAccessRole, MockServer as dbMockServer } from '@prisma/client';
+import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class MockServerService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly pubsub: PubSubService,
-    private readonly userCollectionService: UserCollectionService,
   ) {}
 
   /**
-   * Generate a unique subdomain for the mock server
+   * Cast database model to GraphQL model
    */
-  private generateMockServerSubdomain(): string {
-    const id = Math.random().toString(36).substring(2, 15);
-    return `mock-${id}`;
+  private cast(dbMockServer: dbMockServer): MockServer {
+    return {
+      id: dbMockServer.id,
+      name: dbMockServer.name,
+      subdomain: dbMockServer.subdomain,
+      workspaceType: dbMockServer.workspaceType,
+      workspaceID: dbMockServer.workspaceID,
+      delayInMs: dbMockServer.delayInMs,
+      isActive: dbMockServer.isActive,
+      isPublic: dbMockServer.isPublic,
+      createdOn: dbMockServer.createdOn,
+      updatedOn: dbMockServer.updatedOn,
+    } as MockServer;
   }
 
   /**
-   * Create a new mock server
+   * Get mock servers for a user
    */
-  async createMockServer(
-    user: User,
-    input: CreateMockServerInput,
-  ): Promise<E.Either<string, any>> {
-    try {
-      // Validate collection exists and belongs to user
-      const collection = await this.userCollectionService.getUserCollection(
-        input.collectionID,
-      );
-
-      if (E.isLeft(collection)) {
-        return E.left(MOCK_SERVER_INVALID_COLLECTION);
-      }
-
-      // Check if the collection belongs to the user
-      if (collection.right.userUid !== user.uid) {
-        return E.left(MOCK_SERVER_INVALID_COLLECTION);
-      }
-
-      // Check if mock server already exists for this collection
-      const existingMockServer = await this.prisma.mockServer.findUnique({
-        where: {
-          userUid_collectionID: {
-            userUid: user.uid,
-            collectionID: input.collectionID,
-          },
-        },
-      });
-
-      if (existingMockServer) {
-        return E.left(MOCK_SERVER_ALREADY_EXISTS);
-      }
-
-      // Generate unique subdomain
-      let subdomain = this.generateMockServerSubdomain();
-      let attempts = 0;
-
-      while (attempts < 10) {
-        const existing = await this.prisma.mockServer.findUnique({
-          where: { subdomain },
-        });
-
-        if (!existing) break;
-
-        subdomain = this.generateMockServerSubdomain();
-        attempts++;
-      }
-
-      if (attempts >= 10) {
-        return E.left(MOCK_SERVER_SUBDOMAIN_CONFLICT);
-      }
-
-      const mockServer = await this.prisma.mockServer.create({
-        data: {
-          name: input.name,
-          subdomain,
-          userUid: user.uid,
-          collectionID: input.collectionID,
-        },
-        include: {
-          user: true,
-          collection: {
-            include: {
-              requests: true,
-            },
-          },
-        },
-      });
-
-      // Publish creation event
-      // this.pubsub.publish(`mock_server/${user.uid}/created`, mockServer);
-
-      return E.right(mockServer);
-    } catch (error) {
-      console.error('Error creating mock server:', error);
-      return E.left('Failed to create mock server');
-    }
-  }
-
-  /**
-   * Get all mock servers for a user
-   */
-  async getUserMockServers(userUid: string): Promise<any[]> {
-    return this.prisma.mockServer.findMany({
-      where: { userUid },
-      include: {
-        user: true,
-        collection: {
-          include: {
-            requests: true,
-          },
-        },
+  async getUserMockServers(userUid: string, args: OffsetPaginationArgs) {
+    const mockServers = await this.prisma.mockServer.findMany({
+      where: {
+        workspaceType: WorkspaceType.USER,
+        creatorUid: userUid,
+        deletedAt: null,
       },
       orderBy: { createdOn: 'desc' },
+      take: args?.take,
+      skip: args?.skip,
     });
+
+    return mockServers.map((ms) => this.cast(ms));
+  }
+
+  /**
+   * Get mock servers for a team
+   */
+  async getTeamMockServers(teamID: string, args: OffsetPaginationArgs) {
+    const mockServers = await this.prisma.mockServer.findMany({
+      where: {
+        workspaceType: WorkspaceType.TEAM,
+        workspaceID: teamID,
+        deletedAt: null,
+      },
+      orderBy: { createdOn: 'desc' },
+      take: args?.take,
+      skip: args?.skip,
+    });
+
+    return mockServers.map((ms) => this.cast(ms));
   }
 
   /**
    * Get a specific mock server by ID
    */
-  async getMockServer(
-    id: string,
-    userUid: string,
-  ): Promise<E.Either<string, any>> {
-    try {
-      const mockServer = await this.prisma.mockServer.findFirst({
-        where: { id, userUid },
-        include: {
-          user: true,
-          collection: {
-            include: {
-              requests: true,
+  async getMockServer(id: string, userUid: string) {
+    const mockServer = await this.prisma.mockServer.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
+
+    // Check access permissions
+    if (mockServer.workspaceType === WorkspaceType.USER) {
+      if (mockServer.creatorUid !== userUid) {
+        return E.left(MOCK_SERVER_NOT_FOUND);
+      }
+    } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+      const isMember = await this.prisma.team.findFirst({
+        where: {
+          id: mockServer.workspaceID,
+          members: {
+            some: {
+              userUid,
+              role: {
+                in: [
+                  TeamAccessRole.OWNER,
+                  TeamAccessRole.EDITOR,
+                  TeamAccessRole.VIEWER,
+                ],
+              },
             },
           },
         },
       });
-
-      if (!mockServer) {
-        return E.left(MOCK_SERVER_NOT_FOUND);
-      }
-
-      return E.right(mockServer);
-    } catch (error) {
-      console.error('Error fetching mock server:', error);
-      return E.left('Failed to fetch mock server');
+      if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
     }
+
+    return E.right(this.cast(mockServer));
   }
 
   /**
-   * Get a mock server by subdomain (for public access)
+   * Get a mock server by subdomain (for incoming mock requests)
    */
-  async getMockServerBySubdomain(
-    subdomain: string,
-  ): Promise<E.Either<string, any>> {
-    try {
-      const mockServer = await this.prisma.mockServer.findUnique({
-        where: { subdomain },
-        include: {
-          collection: {
-            include: {
-              requests: true,
+  async getMockServerBySubdomain(subdomain: string) {
+    const mockServer = await this.prisma.mockServer.findUnique({
+      where: { subdomain, deletedAt: null, isActive: true },
+    });
+    if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
+
+    return E.right(this.cast(mockServer));
+  }
+
+  /**
+   * (Field resolver)
+   * Get the creator of a mock server
+   */
+  async getMockServerCreator(mockServerId: string) {
+    const mockServer = await this.prisma.mockServer.findUnique({
+      where: { id: mockServerId, deletedAt: null },
+      include: { user: true },
+    });
+    if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
+    return E.right(mockServer.user);
+  }
+
+  async getMockServerCollection(mockServerId: string) {
+    const mockServer = await this.prisma.mockServer.findUnique({
+      where: { id: mockServerId, deletedAt: null },
+    });
+    if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
+
+    if (mockServer.workspaceType === WorkspaceType.USER) {
+      const collection = await this.prisma.userCollection.findUnique({
+        where: { id: mockServer.collectionID },
+      });
+      if (!collection) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+      return E.right({
+        id: collection.id,
+        title: collection.title,
+      } as MockServerCollection);
+    } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+      const collection = await this.prisma.teamCollection.findUnique({
+        where: { id: mockServer.collectionID },
+      });
+      if (!collection) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+      return E.right({
+        id: collection.id,
+        title: collection.title,
+      } as MockServerCollection);
+    }
+
+    return E.left(MOCK_SERVER_INVALID_COLLECTION);
+  }
+
+  /**
+   * Generate a unique subdomain for the mock server
+   */
+  private generateMockServerSubdomain(): string {
+    const id = randomBytes(10).toString('base64url').substring(0, 13);
+    return `mock-${id}`;
+  }
+
+  /**
+   * Validate workspace access permission and existence
+   */
+  private async validateWorkspace(user: User, input: CreateMockServerInput) {
+    if (input.workspaceType === WorkspaceType.TEAM) {
+      if (!input.workspaceID) return E.left(TEAM_INVALID_ID);
+
+      const team = await this.prisma.team.findUnique({
+        where: {
+          id: input.workspaceID,
+          members: {
+            some: {
+              userUid: user.uid,
+              role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
             },
           },
         },
       });
 
-      if (!mockServer || !mockServer.isActive) {
-        return E.left(MOCK_SERVER_NOT_FOUND);
+      if (!team) return E.left(TEAM_INVALID_ID);
+    }
+
+    return E.right(true);
+  }
+
+  /**
+   * Validate collection exists and user has access
+   */
+  private async validateCollection(user: User, input: CreateMockServerInput) {
+    if (input.workspaceType === WorkspaceType.TEAM) {
+      const collection = await this.prisma.teamCollection.findUnique({
+        where: { id: input.collectionID, teamID: input.workspaceID },
+      });
+      return collection
+        ? E.right(collection)
+        : E.left(MOCK_SERVER_INVALID_COLLECTION);
+    } else if (input.workspaceType === WorkspaceType.USER) {
+      const collection = await this.prisma.userCollection.findUnique({
+        where: { id: input.collectionID, userUid: user.uid },
+      });
+      return collection
+        ? E.right(collection)
+        : E.left(MOCK_SERVER_INVALID_COLLECTION);
+    }
+
+    return E.left(MOCK_SERVER_INVALID_COLLECTION);
+  }
+
+  /**
+   * Create a new mock server
+   */
+  async createMockServer(user: User, input: CreateMockServerInput) {
+    try {
+      // Validate workspace type and ID
+      const workspaceValidation = await this.validateWorkspace(user, input);
+      if (E.isLeft(workspaceValidation)) {
+        return E.left(workspaceValidation.left);
       }
 
-      return E.right(mockServer);
+      // Validate collection exists and user has access
+      const collectionValidation = await this.validateCollection(user, input);
+      if (E.isLeft(collectionValidation)) {
+        return E.left(collectionValidation.left);
+      }
+
+      // Generate unique subdomain
+      let subdomain: string;
+      let attempts = 0;
+      while (attempts < 10) {
+        subdomain = this.generateMockServerSubdomain();
+
+        const existing = await this.prisma.mockServer.findUnique({
+          where: { subdomain },
+        });
+
+        if (!existing) break;
+        attempts++;
+      }
+      if (attempts >= 10) return E.left(MOCK_SERVER_SUBDOMAIN_CONFLICT);
+
+      // Create mock server
+      const mockServer = await this.prisma.mockServer.create({
+        data: {
+          name: input.name,
+          subdomain,
+          creatorUid: user.uid,
+          collectionID: input.collectionID,
+          workspaceType: input.workspaceType,
+          workspaceID:
+            input.workspaceType === WorkspaceType.TEAM
+              ? input.workspaceID
+              : user.uid,
+          delayInMs: input.delayInMs,
+        },
+      });
+
+      return E.right(this.cast(mockServer));
     } catch (error) {
-      console.error('Error fetching mock server by subdomain:', error);
-      return E.left('Failed to fetch mock server');
+      console.error('Error creating mock server:', error);
+      return E.left(MOCK_SERVER_CREATION_FAILED);
     }
   }
 
@@ -200,66 +294,86 @@ export class MockServerService {
     id: string,
     userUid: string,
     input: UpdateMockServerInput,
-  ): Promise<E.Either<string, any>> {
+  ) {
     try {
       const mockServer = await this.prisma.mockServer.findFirst({
-        where: { id, userUid },
+        where: { id, deletedAt: null },
       });
+      if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
-      if (!mockServer) {
-        return E.left(MOCK_SERVER_NOT_FOUND);
+      // Check access permissions
+      if (mockServer.workspaceType === WorkspaceType.USER) {
+        if (mockServer.creatorUid !== userUid) {
+          return E.left(MOCK_SERVER_NOT_FOUND);
+        }
+      } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+        const isMember = await this.prisma.team.findFirst({
+          where: {
+            id: mockServer.workspaceID,
+            members: {
+              some: {
+                userUid,
+                role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
+              },
+            },
+          },
+        });
+        if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
       }
 
+      // Update the mock server
       const updated = await this.prisma.mockServer.update({
         where: { id },
         data: input,
-        include: {
-          user: true,
-          collection: {
-            include: {
-              requests: true,
-            },
-          },
-        },
       });
 
-      // Publish update event
-      // this.pubsub.publish(`mock_server/${userUid}/updated`, updated);
-
-      return E.right(updated);
+      return E.right(this.cast(updated));
     } catch (error) {
       console.error('Error updating mock server:', error);
-      return E.left('Failed to update mock server');
+      return E.left(MOCK_SERVER_UPDATE_FAILED);
     }
   }
 
   /**
    * Delete a mock server
    */
-  async deleteMockServer(
-    id: string,
-    userUid: string,
-  ): Promise<E.Either<string, boolean>> {
+  async deleteMockServer(id: string, userUid: string) {
     try {
       const mockServer = await this.prisma.mockServer.findFirst({
-        where: { id, userUid },
+        where: { id, deletedAt: null },
       });
+      if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
-      if (!mockServer) {
-        return E.left(MOCK_SERVER_NOT_FOUND);
+      // Check access permissions
+      if (mockServer.workspaceType === WorkspaceType.USER) {
+        if (mockServer.creatorUid !== userUid) {
+          return E.left(MOCK_SERVER_NOT_FOUND);
+        }
+      } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+        const isMember = await this.prisma.team.findFirst({
+          where: {
+            id: mockServer.workspaceID,
+            members: {
+              some: {
+                userUid,
+                role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
+              },
+            },
+          },
+        });
+        if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
       }
 
-      await this.prisma.mockServer.delete({
+      // Soft delete the mock server
+      await this.prisma.mockServer.update({
         where: { id },
+        data: { deletedAt: new Date() },
       });
-
-      // Publish deletion event
-      this.pubsub.publish(`mock_server/${userUid}/deleted`, { id });
 
       return E.right(true);
     } catch (error) {
       console.error('Error deleting mock server:', error);
-      return E.left('Failed to delete mock server');
+      return E.left(MOCK_SERVER_DELETION_FAILED);
     }
   }
 
@@ -280,46 +394,47 @@ export class MockServerService {
 
       const mockServer = mockServerResult.right;
 
-      const matchingRequest = mockServer.collection.requests.find(
-        (request: any) => {
-          const requestData = request.request;
+      const matchingRequest = null;
+      // const matchingRequest = mockServer.collection.requests.find(
+      //   (request: any) => {
+      //     const requestData = request.request;
 
-          // Extract path from endpoint, handling placeholders like <<url>>
-          let requestPath = '/';
-          try {
-            if (requestData.endpoint) {
-              // Handle placeholder URLs like "<<url>>/ping"
-              if (requestData.endpoint.includes('<<url>>')) {
-                // Extract the path after the placeholder
-                const pathPart =
-                  requestData.endpoint.split('<<url>>')[1] || '/';
-                requestPath = pathPart.startsWith('/')
-                  ? pathPart
-                  : '/' + pathPart;
-              } else {
-                // Try to parse as a regular URL
-                const requestUrl = new URL(requestData.endpoint);
-                requestPath = requestUrl.pathname;
-              }
-            }
-          } catch (error) {
-            // If URL parsing fails, try to extract path manually
-            if (requestData.endpoint) {
-              const lastSlashIndex = requestData.endpoint.lastIndexOf('/');
-              if (lastSlashIndex !== -1) {
-                requestPath = requestData.endpoint.substring(lastSlashIndex);
-              }
-            }
-          }
+      //     // Extract path from endpoint, handling placeholders like <<url>>
+      //     let requestPath = '/';
+      //     try {
+      //       if (requestData.endpoint) {
+      //         // Handle placeholder URLs like "<<url>>/ping"
+      //         if (requestData.endpoint.includes('<<url>>')) {
+      //           // Extract the path after the placeholder
+      //           const pathPart =
+      //             requestData.endpoint.split('<<url>>')[1] || '/';
+      //           requestPath = pathPart.startsWith('/')
+      //             ? pathPart
+      //             : '/' + pathPart;
+      //         } else {
+      //           // Try to parse as a regular URL
+      //           const requestUrl = new URL(requestData.endpoint);
+      //           requestPath = requestUrl.pathname;
+      //         }
+      //       }
+      //     } catch (error) {
+      //       // If URL parsing fails, try to extract path manually
+      //       if (requestData.endpoint) {
+      //         const lastSlashIndex = requestData.endpoint.lastIndexOf('/');
+      //         if (lastSlashIndex !== -1) {
+      //           requestPath = requestData.endpoint.substring(lastSlashIndex);
+      //         }
+      //       }
+      //     }
 
-          const requestMethod = requestData.method || 'GET';
+      //     const requestMethod = requestData.method || 'GET';
 
-          return (
-            requestPath === path &&
-            requestMethod.toUpperCase() === method.toUpperCase()
-          );
-        },
-      );
+      //     return (
+      //       requestPath === path &&
+      //       requestMethod.toUpperCase() === method.toUpperCase()
+      //     );
+      //   },
+      // );
 
       if (!matchingRequest) {
         return E.left('Endpoint not found');

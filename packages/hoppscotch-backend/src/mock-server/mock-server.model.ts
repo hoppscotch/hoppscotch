@@ -1,6 +1,12 @@
-import { Field, ID, ObjectType, ArgsType, InputType } from '@nestjs/graphql';
-import { User } from 'src/user/user.model';
-import { UserCollection } from 'src/user-collection/user-collections.model';
+import {
+  Field,
+  ID,
+  ObjectType,
+  ArgsType,
+  InputType,
+  registerEnumType,
+} from '@nestjs/graphql';
+import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 @ObjectType()
 export class MockServer {
@@ -19,20 +25,32 @@ export class MockServer {
   })
   subdomain: string;
 
-  @Field(() => User, {
-    description: 'User who created the mock server',
+  @Field(() => WorkspaceType, {
+    description: 'Type of workspace: USER or TEAM',
   })
-  user: User;
+  workspaceType: WorkspaceType;
 
-  @Field(() => UserCollection, {
-    description: 'Collection associated with the mock server',
+  @Field({
+    nullable: true,
+    description:
+      'ID of the workspace (user or team) to associate with the mock server',
   })
-  collection: UserCollection;
+  workspaceID?: string;
+
+  @Field({
+    description: 'Delay in milliseconds before responding',
+  })
+  delayInMs: number;
 
   @Field({
     description: 'Whether the mock server is active',
   })
   isActive: boolean;
+
+  @Field({
+    description: 'Whether the mock server is publicly accessible',
+  })
+  isPublic: boolean;
 
   @Field({
     description: 'Date and time when the mock server was created',
@@ -45,6 +63,19 @@ export class MockServer {
   updatedOn: Date;
 }
 
+@ObjectType()
+export class MockServerCollection {
+  @Field(() => ID, {
+    description: 'ID of the collection',
+  })
+  id: string;
+
+  @Field({
+    description: 'Title of the collection',
+  })
+  title: string;
+}
+
 @InputType()
 export class CreateMockServerInput {
   @Field({
@@ -53,9 +84,36 @@ export class CreateMockServerInput {
   name: string;
 
   @Field({
-    description: 'ID of the collection to associate with the mock server',
+    description:
+      'ID of the (team or user) collection to associate with the mock server',
   })
   collectionID: string;
+
+  @Field(() => WorkspaceType, {
+    description: 'Type of workspace: USER or TEAM',
+  })
+  workspaceType: WorkspaceType;
+
+  @Field({
+    nullable: true,
+    description:
+      'ID of the workspace (user or team) to associate with the mock server',
+  })
+  workspaceID?: string;
+
+  @Field({
+    nullable: true,
+    defaultValue: 0,
+    description: 'Delay in milliseconds before responding',
+  })
+  delayInMs?: number;
+
+  @Field({
+    nullable: true,
+    defaultValue: true,
+    description: 'Whether the mock server is publicly accessible',
+  })
+  isPublic?: boolean;
 }
 
 @InputType()
@@ -68,9 +126,21 @@ export class UpdateMockServerInput {
 
   @Field({
     nullable: true,
+    description: 'Delay in milliseconds before responding',
+  })
+  delayInMs?: number;
+
+  @Field({
+    nullable: true,
     description: 'Whether the mock server is active',
   })
   isActive?: boolean;
+
+  @Field({
+    nullable: true,
+    description: 'Whether the mock server is publicly accessible',
+  })
+  isPublic?: boolean;
 }
 
 @ObjectType()
@@ -106,3 +176,7 @@ export class MockServerMutationArgs {
   })
   id: string;
 }
+
+registerEnumType(WorkspaceType, {
+  name: 'WorkspaceType',
+});

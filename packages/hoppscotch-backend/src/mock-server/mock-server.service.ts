@@ -37,12 +37,12 @@ export class MockServerService {
    */
   private cast(dbMockServer: dbMockServer): MockServer {
     // Generate path based mock server URL
-    const backendUrl = this.configService.get('VITE_BACKEND_API_URL');
+    const backendUrl = this.configService.get<string>('VITE_BACKEND_API_URL');
     const base = backendUrl.substring(0, backendUrl.lastIndexOf('/')); // "http://localhost:3170"
     const serverUrlPathBased = base + '/mock/' + dbMockServer.subdomain;
 
     // Generate domain based mock server URL
-    const wildcardDomain = this.configService.get(
+    const wildcardDomain = this.configService.get<string>(
       'INFRA.MOCK_SERVER_WILDCARD_DOMAIN',
     );
     const serverUrlDomainBased = wildcardDomain

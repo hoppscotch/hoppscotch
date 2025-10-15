@@ -302,6 +302,11 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
       value: 'true',
       isEncrypted: false,
     },
+    {
+      name: InfraConfigEnum.MOCK_SERVER_WILDCARD_DOMAIN,
+      value: null,
+      isEncrypted: false,
+    },
   ];
 
   return infraConfigDefaultObjs;

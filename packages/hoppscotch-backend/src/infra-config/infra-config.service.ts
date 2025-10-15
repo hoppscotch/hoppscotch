@@ -678,6 +678,14 @@ export class InfraConfigService implements OnModuleInit {
           if (!validateSMTPEmail(value)) return fail();
           break;
 
+        case InfraConfigEnum.MOCK_SERVER_WILDCARD_DOMAIN:
+          if (!value.startsWith('*.mock.')) return fail();
+          // Validate domain format after *.mock.
+          const domainPart = value.substring(7); // Remove '*.mock.'
+          const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+          if (!domainPart || !domainRegex.test(domainPart)) return fail();
+          break;
+
         case InfraConfigEnum.MAILER_SMTP_HOST:
         case InfraConfigEnum.MAILER_SMTP_PORT:
         case InfraConfigEnum.MAILER_SMTP_USER:

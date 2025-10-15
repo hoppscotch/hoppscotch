@@ -59,8 +59,9 @@ export class MockRequestGuard implements CanActivate {
    * Extract mock server ID from request using either subdomain or route-based pattern
    *
    * Supports two patterns:
-   * 1. Subdomain: mock-server-id.mock.hopp.io/product → mock-server-id
-   * 2. Route: backend.hopp.io/mock/mock-server-id/product → mock-server-id
+   * 1. Subdomain: mock-server-id.mock.hopp.io/product → mock-server-id (from host)
+   *    After Caddy rewrite: path becomes /mock/product
+   * 2. Route: backend.hopp.io/mock/mock-server-id/product → mock-server-id (from path)
    *
    * @param request Express request object
    * @returns Mock server ID or null if not found
@@ -70,12 +71,16 @@ export class MockRequestGuard implements CanActivate {
     const path = request.path || '/';
 
     // Try subdomain pattern first (Option 1)
+    // For subdomain-based requests, Caddy rewrites path to /mock/...
+    // but the mock server ID comes from the subdomain, not the path
     const subdomainId = this.extractFromSubdomain(host);
     if (subdomainId) {
       return subdomainId;
     }
 
     // Try route-based pattern (Option 2)
+    // Only use route extraction if there's no subdomain match
+    // Route pattern: /mock/mock-server-id/...
     const routeId = this.extractFromRoute(path);
     if (routeId) {
       return routeId;
@@ -128,6 +133,8 @@ export class MockRequestGuard implements CanActivate {
   /**
    * Extract mock server ID from route pattern
    * Supports: /mock/mock-server-id/product → mock-server-id
+   * Note: Caddy prepends /mock to subdomain requests, so subdomain pattern
+   * mock-server-id.mock.hopp.io/product becomes /mock/product
    *
    * @param path Request path
    * @returns Mock server ID or null
@@ -167,7 +174,14 @@ export class MockRequestGuard implements CanActivate {
       return cleanPath || '/';
     }
 
-    // If subdomain-based, return as-is
+    // If subdomain-based: Caddy rewrites to /mock/product → /product
+    // Strip the /mock prefix added by Caddy
+    if (fullPath.startsWith('/mock/')) {
+      const cleanPath = fullPath.substring(5); // Remove '/mock'
+      return cleanPath || '/';
+    }
+
+    // Fallback: return as-is
     return fullPath;
   }
 }

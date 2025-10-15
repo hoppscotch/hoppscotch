@@ -242,7 +242,14 @@ const createMockServer = async () => {
   loading.value = true
 
   await pipe(
-    createMockServerMutation(mockServerName.value.trim(), collectionID.value),
+    createMockServerMutation(
+      mockServerName.value.trim(),
+      collectionID.value,
+      "USER", // workspaceType
+      undefined, // workspaceID (will use current user)
+      0, // delayInMs
+      true // isPublic
+    ),
     TE.match(
       (error) => {
         console.error("Failed to create mock server:", error)

@@ -4,10 +4,15 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { MockServerService } from './mock-server.service';
 import * as E from 'fp-ts/Either';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { AccessTokenService } from 'src/access-token/access-token.service';
+import { TeamService } from 'src/team/team.service';
+import { WorkspaceType } from '@prisma/client';
 
 /**
  * Guard to extract and validate mock server ID from either:
@@ -16,7 +21,12 @@ import * as E from 'fp-ts/Either';
  */
 @Injectable()
 export class MockRequestGuard implements CanActivate {
-  constructor(private readonly mockServerService: MockServerService) {}
+  constructor(
+    private readonly mockServerService: MockServerService,
+    private readonly prisma: PrismaService,
+    private readonly accessTokenService: AccessTokenService,
+    private readonly teamService: TeamService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -46,6 +56,19 @@ export class MockRequestGuard implements CanActivate {
       throw new BadRequestException(
         `Mock server '${mockServerId}' is currently inactive`,
       );
+    }
+
+    if (!mockServer.isPublic) {
+      const apiKey = request.get('x-api-key');
+
+      if (!apiKey) {
+        throw new BadRequestException(
+          'API key is required. Please provide x-api-key header.',
+        );
+      }
+
+      // Validate the Personal Access Token (PAT)
+      await this.validatePAT(apiKey, mockServer);
     }
 
     // Attach mock server info to request for downstream use
@@ -156,6 +179,65 @@ export class MockRequestGuard implements CanActivate {
     }
 
     return null;
+  }
+
+  /**
+   * Validate Personal Access Token (PAT) for private mock server access
+   *
+   * Rules:
+   * - If mock server is in USER workspace: PAT must belong to that user
+   * - If mock server is in TEAM workspace: PAT creator must be a member of that team
+   *
+   * @param apiKey The x-api-key header value (PAT)
+   * @param mockServer The mock server being accessed
+   * @throws UnauthorizedException if PAT is invalid or user lacks access
+   */
+  private async validatePAT(apiKey: string, mockServer: any): Promise<void> {
+    // Get the PAT and associated user
+    const patResult = await this.accessTokenService.getUserPAT(apiKey);
+
+    if (E.isLeft(patResult)) {
+      throw new UnauthorizedException(
+        'Invalid or expired API key. Please provide a valid Personal Access Token.',
+      );
+    }
+
+    const pat = patResult.right;
+    const userUid = pat.user.uid;
+
+    // Check if PAT has expired
+    if (pat.expiresOn !== null && new Date() > pat.expiresOn) {
+      throw new UnauthorizedException(
+        'API key has expired. Please generate a new Personal Access Token.',
+      );
+    }
+
+    // Validate based on workspace type
+    if (mockServer.workspaceType === WorkspaceType.USER) {
+      // For USER workspace: PAT must belong to the workspace owner
+      if (userUid !== mockServer.workspaceID) {
+        throw new UnauthorizedException(
+          'Access denied. This Personal Access Token does not have permission to access this mock server.',
+        );
+      }
+    } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+      // For TEAM workspace: PAT creator must be a member of the team
+      const teamMember = await this.teamService.getTeamMember(
+        mockServer.workspaceID,
+        userUid,
+      );
+
+      if (!teamMember) {
+        throw new UnauthorizedException(
+          'Access denied. You must be a member of the team to access this mock server.',
+        );
+      }
+    } else {
+      throw new BadRequestException('Invalid workspace type for mock server.');
+    }
+
+    // Update last used timestamp for the PAT
+    await this.accessTokenService.updateLastUsedForPAT(apiKey);
   }
 
   /**

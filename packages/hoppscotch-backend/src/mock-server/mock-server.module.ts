@@ -5,9 +5,10 @@ import { MockServerResolver } from './mock-server.resolver';
 import { TeamModule } from 'src/team/team.module';
 import { TeamRequestModule } from 'src/team-request/team-request.module';
 import { MockServerController } from './mock-server.controller';
+import { AccessTokenModule } from 'src/access-token/access-token.module';
 
 @Module({
-  imports: [PrismaModule, TeamModule, TeamRequestModule],
+  imports: [PrismaModule, TeamModule, TeamRequestModule, AccessTokenModule],
   controllers: [MockServerController],
   providers: [MockServerService, MockServerResolver],
 })

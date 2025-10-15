@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PubSubService } from 'src/pubsub/pubsub.service';
 import {
   CreateMockServerInput,
   UpdateMockServerInput,
@@ -740,7 +739,7 @@ export class MockServerService {
     try {
       // Parse endpoint to extract path and query parameters
       let path = '/';
-      let queryParams: Record<string, string> = {};
+      const queryParams: Record<string, string> = {};
 
       if (exampleData.endpoint) {
         const url = new URL(

@@ -312,7 +312,6 @@ import {
 } from "~/newstore/collections"
 
 import { useLocalState } from "~/newstore/localstate"
-import { mockServers$ } from "~/newstore/mockServers"
 import { currentReorderingStatus$ } from "~/newstore/reordering"
 import { platform } from "~/platform"
 import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"

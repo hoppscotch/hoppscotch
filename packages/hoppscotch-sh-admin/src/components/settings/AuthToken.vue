@@ -143,7 +143,7 @@
                   :autofocus="false"
                   class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
                 />
-                <p class="text-secondaryLight text-sm">
+                <p class="my-1 text-secondaryLight">
                   {{ t('configs.auth_providers.token.session_cookie_name_help') }}
                 </p>
               </div>

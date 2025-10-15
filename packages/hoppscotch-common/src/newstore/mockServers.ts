@@ -5,30 +5,46 @@ import { getMyMockServers } from "~/helpers/backend/queries/MockServer"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 
+export type WorkspaceType = "USER" | "TEAM"
+
 export type MockServer = {
   id: string
   name: string
   subdomain: string
-  userUid: string
-  collectionID: string
+  workspaceType: WorkspaceType
+  workspaceID: string
+  delayInMs: number
+  isPublic: boolean
   isActive: boolean
   createdOn: Date
   updatedOn: Date
+  creator?: {
+    uid: string
+  }
   collection?: {
     id: string
     title: string
     requests?: any[]
   }
+  // Legacy fields for backward compatibility
+  userUid?: string
+  collectionID?: string
 }
 
 export type CreateMockServerInput = {
   name: string
   collectionID: string
+  workspaceType?: WorkspaceType
+  workspaceID?: string
+  delayInMs?: number
+  isPublic?: boolean
 }
 
 export type UpdateMockServerInput = {
   name?: string
   isActive?: boolean
+  delayInMs?: number
+  isPublic?: boolean
 }
 
 export type CreateMockServerModalData = {
@@ -130,9 +146,9 @@ export const showCreateMockServerModal$ = new BehaviorSubject(
 )
 
 // Load mock servers from backend
-export function loadMockServers() {
+export function loadMockServers(skip?: number, take?: number) {
   return pipe(
-    getMyMockServers(),
+    getMyMockServers(skip, take),
     TE.match(
       (error) => {
         console.error("Failed to load mock servers:", error)

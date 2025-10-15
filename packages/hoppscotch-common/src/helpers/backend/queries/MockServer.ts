@@ -12,12 +12,12 @@ type GetMyMockServersError = "user/not_authenticated"
 
 type GetMockServerError = "mock_server/not_found" | "mock_server/access_denied"
 
-export const getMyMockServers = () =>
+export const getMyMockServers = (skip?: number, take?: number) =>
   TE.tryCatch(
     async () => {
       const result = await runGQLQuery({
         query: GetMyMockServersDocument,
-        variables: {},
+        variables: { skip, take },
       })
 
       if (E.isLeft(result)) {
@@ -28,8 +28,8 @@ export const getMyMockServers = () =>
       // Map the GraphQL response to frontend format
       return data.myMockServers.map((mockServer) => ({
         ...mockServer,
-        userUid: mockServer.user.uid,
-        collectionID: mockServer.collection.id,
+        userUid: mockServer.creator?.uid || "", // Legacy field
+        collectionID: mockServer.collection?.id || "", // Legacy field
       }))
     },
     (error) => error as GetMyMockServersError
@@ -51,8 +51,8 @@ export const getMockServer = (id: string) =>
       // Map the GraphQL response to frontend format
       return {
         ...data.mockServer,
-        userUid: data.mockServer.user.uid,
-        collectionID: data.mockServer.collection.id,
+        userUid: data.mockServer.creator?.uid || "", // Legacy field
+        collectionID: data.mockServer.collection?.id || "", // Legacy field
       }
     },
     (error) => error as GetMockServerError

@@ -153,12 +153,11 @@ import {
   createMockServer as createMockServerMutation,
   updateMockServer,
 } from "~/helpers/backend/mutations/MockServer"
-import { getMyMockServers } from "~/helpers/backend/queries/MockServer"
+import { WorkspaceType } from "~/helpers/backend/graphql"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import * as E from "fp-ts/Either"
 
 // Icons
 import IconServer from "~icons/lucide/server"
@@ -245,7 +244,7 @@ const createMockServer = async () => {
     createMockServerMutation(
       mockServerName.value.trim(),
       collectionID.value,
-      "USER", // workspaceType
+      WorkspaceType.User, // workspaceType
       undefined, // workspaceID (will use current user)
       0, // delayInMs
       true // isPublic

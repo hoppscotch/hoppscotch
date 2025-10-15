@@ -1,9 +1,14 @@
 import * as TE from "fp-ts/TaskEither"
 import { client } from "../GQLClient"
+import {
+  CreateMockServerDocument,
+  UpdateMockServerDocument,
+  DeleteMockServerDocument,
+  GetTeamMockServersDocument,
+  WorkspaceType,
+} from "../graphql"
 
 // Types for mock server
-export type WorkspaceType = "USER" | "TEAM"
-
 export type MockServer = {
   id: string
   name: string
@@ -42,81 +47,10 @@ type DeleteMockServerError =
   | "mock_server/not_found"
   | "mock_server/access_denied"
 
-// GraphQL documents
-const CreateMockServerDocument = `
-  mutation CreateMockServer($input: CreateMockServerInput!) {
-    createMockServer(input: $input) {
-      id
-      name
-      subdomain
-      isActive
-      createdOn
-      updatedOn
-      user {
-        uid
-      }
-      collection {
-        id
-        title
-      }
-    }
-  }
-`
-
-const UpdateMockServerDocument = `
-  mutation UpdateMockServer($id: ID!, $input: UpdateMockServerInput!) {
-    updateMockServer(id: $id, input: $input) {
-      id
-      name
-      subdomain
-      isActive
-      createdOn
-      updatedOn
-      user {
-        uid
-      }
-      collection {
-        id
-        title
-      }
-    }
-  }
-`
-
-const DeleteMockServerDocument = `
-  mutation DeleteMockServer($id: ID!) {
-    deleteMockServer(id: $id)
-  }
-`
-
-const GetTeamMockServersDocument = `
-  query GetTeamMockServers($teamID: ID!, $skip: Int, $take: Int) {
-    teamMockServers(teamID: $teamID, skip: $skip, take: $take) {
-      id
-      name
-      subdomain
-      workspaceType
-      workspaceID
-      delayInMs
-      isPublic
-      isActive
-      createdOn
-      updatedOn
-      creator {
-        uid
-      }
-      collection {
-        id
-        title
-      }
-    }
-  }
-`
-
 export const createMockServer = (
   name: string,
   collectionID: string,
-  workspaceType: WorkspaceType = "USER",
+  workspaceType: WorkspaceType = WorkspaceType.User,
   workspaceID?: string,
   delayInMs: number = 0,
   isPublic: boolean = true
@@ -124,7 +58,7 @@ export const createMockServer = (
   TE.tryCatch(
     async () => {
       const result = await client
-        .value!.mutation(CreateMockServerDocument as any, {
+        .value!.mutation(CreateMockServerDocument, {
           input: {
             name,
             collectionID,
@@ -138,6 +72,10 @@ export const createMockServer = (
 
       if (result.error) {
         throw new Error(result.error.message || "Failed to create mock server")
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from create mock server mutation")
       }
 
       const data = result.data.createMockServer
@@ -163,7 +101,7 @@ export const updateMockServer = (
   TE.tryCatch(
     async () => {
       const result = await client
-        .value!.mutation(UpdateMockServerDocument as any, {
+        .value!.mutation(UpdateMockServerDocument, {
           id,
           input,
         })
@@ -171,6 +109,10 @@ export const updateMockServer = (
 
       if (result.error) {
         throw new Error(result.error.message || "Failed to update mock server")
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from update mock server mutation")
       }
 
       const data = result.data.updateMockServer
@@ -188,11 +130,15 @@ export const deleteMockServer = (id: string) =>
   TE.tryCatch(
     async () => {
       const result = await client
-        .value!.mutation(DeleteMockServerDocument as any, { id })
+        .value!.mutation(DeleteMockServerDocument, { id })
         .toPromise()
 
       if (result.error) {
         throw new Error(result.error.message || "Failed to delete mock server")
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from delete mock server mutation")
       }
 
       return result.data.deleteMockServer as boolean
@@ -208,7 +154,7 @@ export const getTeamMockServers = (
   TE.tryCatch(
     async () => {
       const result = await client
-        .value!.query(GetTeamMockServersDocument as any, {
+        .value!.query(GetTeamMockServersDocument, {
           teamID,
           skip,
           take,
@@ -219,6 +165,10 @@ export const getTeamMockServers = (
         throw new Error(
           result.error.message || "Failed to get team mock servers"
         )
+      }
+
+      if (!result.data) {
+        throw new Error("No data returned from get team mock servers query")
       }
 
       const data = result.data.teamMockServers

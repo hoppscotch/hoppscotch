@@ -38,15 +38,19 @@ export class MockServerService {
   private cast(dbMockServer: dbMockServer): MockServer {
     // Generate path based mock server URL
     const backendUrl = this.configService.get<string>('VITE_BACKEND_API_URL');
-    const base = backendUrl.substring(0, backendUrl.lastIndexOf('/')); // "http://localhost:3170"
+    const base = backendUrl.substring(0, backendUrl.lastIndexOf('/')); // "http(s)://localhost:3170"
     const serverUrlPathBased = base + '/mock/' + dbMockServer.subdomain;
 
     // Generate domain based mock server URL
+    // MOCK_SERVER_WILDCARD_DOMAIN = '*.mock.hopp.io'
     const wildcardDomain = this.configService.get<string>(
       'INFRA.MOCK_SERVER_WILDCARD_DOMAIN',
     );
+    const isSecure =
+      this.configService.get<string>('INFRA.ALLOW_SECURE_COOKIES') === 'true';
+    const protocol = isSecure ? 'https://' : 'http://';
     const serverUrlDomainBased = wildcardDomain
-      ? 'http://' + dbMockServer.subdomain + '.' + wildcardDomain
+      ? protocol + dbMockServer.subdomain + wildcardDomain.substring(1)
       : null;
 
     return {

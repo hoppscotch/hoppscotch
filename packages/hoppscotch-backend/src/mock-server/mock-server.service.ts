@@ -23,19 +23,38 @@ import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 import { TeamAccessRole, MockServer as dbMockServer } from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MockServerService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   /**
    * Cast database model to GraphQL model
    */
   private cast(dbMockServer: dbMockServer): MockServer {
+    // Generate path based mock server URL
+    const backendUrl = this.configService.get('VITE_BACKEND_API_URL');
+    const base = backendUrl.substring(0, backendUrl.lastIndexOf('/')); // "http://localhost:3170"
+    const serverUrlPathBased = base + '/mock/' + dbMockServer.subdomain;
+
+    // Generate domain based mock server URL
+    const wildcardDomain = this.configService.get(
+      'INFRA.MOCK_SERVER_WILDCARD_DOMAIN',
+    );
+    const serverUrlDomainBased = wildcardDomain
+      ? 'http://' + dbMockServer.subdomain + '.' + wildcardDomain
+      : null;
+
     return {
       id: dbMockServer.id,
       name: dbMockServer.name,
       subdomain: dbMockServer.subdomain,
+      serverUrlPathBased,
+      serverUrlDomainBased,
       workspaceType: dbMockServer.workspaceType,
       workspaceID: dbMockServer.workspaceID,
       delayInMs: dbMockServer.delayInMs,
@@ -185,7 +204,7 @@ export class MockServerService {
    */
   private generateMockServerSubdomain(): string {
     const id = randomBytes(10).toString('base64url').substring(0, 13);
-    return `mock-${id}`;
+    return `${id}`;
   }
 
   /**

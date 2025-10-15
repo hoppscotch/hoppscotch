@@ -25,6 +25,19 @@ export class MockServer {
   })
   subdomain: string;
 
+  @Field({
+    nullable: true,
+    description:
+      'Server URL for the mock server using subdomain pattern (e.g., https://1234.mock.backend-hoppscotch.io)',
+  })
+  serverUrlDomainBased: string;
+
+  @Field({
+    description:
+      'Server URL for the mock server using path pattern (e.g., https://backend.hoppscotch.io/mock/1234)',
+  })
+  serverUrlPathBased: string;
+
   @Field(() => WorkspaceType, {
     description: 'Type of workspace: USER or TEAM',
   })

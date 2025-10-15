@@ -3,15 +3,16 @@ query GetMockServer($id: String!) {
     id
     name
     subdomain
-    user {
-      uid
-    }
-    collection {
-      id
-    }
+    workspaceType
+    workspaceID
+    delayInMs
+    isPublic
     isActive
     createdOn
     updatedOn
+    creator {
+      uid
+    }
     collection {
       id
       title

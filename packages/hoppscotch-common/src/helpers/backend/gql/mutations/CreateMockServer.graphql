@@ -3,14 +3,19 @@ mutation CreateMockServer($input: CreateMockServerInput!) {
     id
     name
     subdomain
-    user {
+    workspaceType
+    workspaceID
+    delayInMs
+    isPublic
+    isActive
+    createdOn
+    updatedOn
+    creator {
       uid
     }
     collection {
       id
+      title
     }
-    isActive
-    createdOn
-    updatedOn
   }
 }

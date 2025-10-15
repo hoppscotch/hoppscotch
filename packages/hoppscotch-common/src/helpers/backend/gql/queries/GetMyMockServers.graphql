@@ -1,17 +1,18 @@
-query GetMyMockServers {
-  myMockServers {
+query GetMyMockServers($skip: Int, $take: Int) {
+  myMockServers(skip: $skip, take: $take) {
     id
     name
     subdomain
-    user {
-      uid
-    }
-    collection {
-      id
-    }
+    workspaceType
+    workspaceID
+    delayInMs
+    isPublic
     isActive
     createdOn
     updatedOn
+    creator {
+      uid
+    }
     collection {
       id
       title

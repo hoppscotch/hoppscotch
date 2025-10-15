@@ -68,7 +68,7 @@ export class TestRunnerService extends Service {
       description: collection.description ?? null,
     }
 
-    this.runTestCollection(tab, collection, options)
+    this.runTestsWithIterations(tab, collection, options)
       .then(() => {
         tab.value.document.status = "stopped"
       })
@@ -88,6 +88,50 @@ export class TestRunnerService extends Service {
       })
   }
 
+  private async runTestsWithIterations(
+    tab: Ref<HoppTab<HoppTestRunnerDocument>>,
+    collection: HoppCollection,
+    options: TestRunnerOptions
+  ) {
+    const iterations = options.iterations || 1
+
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      if (options.stopRef?.value) {
+        tab.value.document.status = "stopped"
+        throw new Error("Test execution stopped")
+      }
+
+      // For iterations after the first, we don't reset the result collection
+      // This allows us to accumulate results across iterations
+      const shouldResetCollection = iteration === 0
+
+      // Run the collection for this iteration
+      await this.runTestCollection(
+        tab,
+        collection,
+        options,
+        [],
+        undefined,
+        undefined,
+        [],
+        undefined,
+        shouldResetCollection
+      )
+
+      // Add delay between iterations (except after the last one)
+      if (iteration < iterations - 1 && options.delay && options.delay > 0) {
+        try {
+          await delay(options.delay)
+        } catch (error) {
+          if (options.stopRef?.value) {
+            tab.value.document.status = "stopped"
+            throw new Error("Test execution stopped")
+          }
+        }
+      }
+    }
+  }
+
   private async runTestCollection(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
@@ -96,7 +140,8 @@ export class TestRunnerService extends Service {
     parentHeaders?: HoppRESTHeaders,
     parentAuth?: HoppRESTRequest["auth"],
     parentVariables: HoppCollection["variables"] = [],
-    parentID?: string
+    parentID?: string,
+    shouldResetFoldersAndRequests: boolean = false
   ) {
     try {
       // Compute inherited auth and headers for this collection
@@ -131,16 +176,18 @@ export class TestRunnerService extends Service {
         const folder = collection.folders[i]
         const currentPath = [...parentPath, i]
 
-        // Add folder to the result collection
-        this.addFolderToPath(
-          tab.value.document.resultCollection!,
-          currentPath,
-          {
-            ...cloneDeep(folder),
-            folders: [],
-            requests: [],
-          }
-        )
+        // Add folder to the result collection only on first iteration
+        if (shouldResetFoldersAndRequests) {
+          this.addFolderToPath(
+            tab.value.document.resultCollection!,
+            currentPath,
+            {
+              ...cloneDeep(folder),
+              folders: [],
+              requests: [],
+            }
+          )
+        }
 
         // Pass inherited headers and auth to the folder
         await this.runTestCollection(
@@ -151,7 +198,8 @@ export class TestRunnerService extends Service {
           inheritedHeaders,
           inheritedAuth,
           inheritedVariables,
-          collection._ref_id || collection.id
+          collection._ref_id || collection.id,
+          shouldResetFoldersAndRequests
         )
       }
 
@@ -165,11 +213,12 @@ export class TestRunnerService extends Service {
         const request = collection.requests[i] as TestRunnerRequest
         const currentPath = [...parentPath, i]
 
-        // Add request to the result collection before execution
-        this.addRequestToPath(
+        // Add request to the result collection - appending for iterations
+        this.appendRequestToPath(
           tab.value.document.resultCollection!,
           currentPath,
-          cloneDeep(request)
+          cloneDeep(request),
+          shouldResetFoldersAndRequests
         )
 
         // Update the request with inherited headers and auth before execution
@@ -188,7 +237,8 @@ export class TestRunnerService extends Service {
           collection,
           options,
           currentPath,
-          inheritedVariables
+          inheritedVariables,
+          shouldResetFoldersAndRequests
         )
 
         if (options.delay && options.delay > 0) {
@@ -233,10 +283,11 @@ export class TestRunnerService extends Service {
     }
   }
 
-  private addRequestToPath(
+  private appendRequestToPath(
     collection: HoppCollection,
     path: number[],
-    request: TestRunnerRequest
+    request: TestRunnerRequest,
+    shouldReplaceAtIndex: boolean = false
   ) {
     let current = collection
 
@@ -245,16 +296,24 @@ export class TestRunnerService extends Service {
       current = current.folders[path[i]]
     }
 
-    // Add the request at the specified index
+    // Add or append the request
     if (path.length > 0) {
-      current.requests[path[path.length - 1]] = request
+      const index = path[path.length - 1]
+      if (shouldReplaceAtIndex) {
+        // First iteration: set at index
+        current.requests[index] = request
+      } else {
+        // Subsequent iterations: append
+        current.requests.push(request)
+      }
     }
   }
 
   private updateRequestAtPath(
     collection: HoppCollection,
     path: number[],
-    updates: Partial<TestRunnerRequest>
+    updates: Partial<TestRunnerRequest>,
+    isAppendMode: boolean = false
   ) {
     let current = collection
 
@@ -263,13 +322,23 @@ export class TestRunnerService extends Service {
       current = current.folders[path[i]]
     }
 
-    // Update the request at the specified index
+    // Update the request
     if (path.length > 0) {
       const index = path[path.length - 1]
-      current.requests[index] = {
-        ...current.requests[index],
-        ...updates,
-      } as TestRunnerRequest
+      if (isAppendMode) {
+        // In append mode, update the last request in the array
+        const lastIndex = current.requests.length - 1
+        current.requests[lastIndex] = {
+          ...current.requests[lastIndex],
+          ...updates,
+        } as TestRunnerRequest
+      } else {
+        // Normal mode: update at the specified index
+        current.requests[index] = {
+          ...current.requests[index],
+          ...updates,
+        } as TestRunnerRequest
+      }
     }
   }
 
@@ -279,18 +348,26 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
-    inheritedVariables: HoppCollectionVariable[] = []
+    inheritedVariables: HoppCollectionVariable[] = [],
+    isFirstIteration: boolean = true
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
     }
 
+    const isAppendMode = !isFirstIteration
+
     try {
       // Update request status in the result collection
-      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
-        isLoading: true,
-        error: undefined,
-      })
+      this.updateRequestAtPath(
+        tab.value.document.resultCollection!,
+        path,
+        {
+          isLoading: true,
+          error: undefined,
+        },
+        isAppendMode
+      )
 
       // Force Vue to flush DOM updates before starting async work.
       // This ensures components consuming the isLoading state (such as those rendering the Send/Cancel button) update immediately.
@@ -321,12 +398,17 @@ export class TestRunnerService extends Service {
         tab.value.document.testRunnerMeta.failedTests += failed
 
         // Update request with results and propagate pre-request script changes in the result collection
-        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
-          ...updatedRequest,
-          testResults: testResult,
-          response: options.persistResponses ? response : null,
-          isLoading: false,
-        })
+        this.updateRequestAtPath(
+          tab.value.document.resultCollection!,
+          path,
+          {
+            ...updatedRequest,
+            testResults: testResult,
+            response: options.persistResponses ? response : null,
+            isLoading: false,
+          },
+          isAppendMode
+        )
 
         if (response.type === "success" || response.type === "fail") {
           tab.value.document.testRunnerMeta.totalTime +=
@@ -337,15 +419,20 @@ export class TestRunnerService extends Service {
         const errorMsg = "Request execution failed"
 
         // Update request with error in the result collection
-        this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
-          error: errorMsg,
-          isLoading: false,
-          response: {
-            type: "network_fail",
-            error: "Unknown",
-            req: request,
+        this.updateRequestAtPath(
+          tab.value.document.resultCollection!,
+          path,
+          {
+            error: errorMsg,
+            isLoading: false,
+            response: {
+              type: "network_fail",
+              error: "Unknown",
+              req: request,
+            },
           },
-        })
+          isAppendMode
+        )
 
         if (options.stopOnError) {
           tab.value.document.status = "stopped"
@@ -364,10 +451,15 @@ export class TestRunnerService extends Service {
         error instanceof Error ? error.message : "Unknown error occurred"
 
       // Update request with error in the result collection
-      this.updateRequestAtPath(tab.value.document.resultCollection!, path, {
-        error: errorMsg,
-        isLoading: false,
-      })
+      this.updateRequestAtPath(
+        tab.value.document.resultCollection!,
+        path,
+        {
+          error: errorMsg,
+          isLoading: false,
+        },
+        isAppendMode
+      )
 
       if (options.stopOnError) {
         tab.value.document.status = "stopped"

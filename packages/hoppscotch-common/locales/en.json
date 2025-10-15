@@ -405,6 +405,8 @@
     "message": "Message {count}",
     "parameter": "Parameter {count}",
     "protocol": "Protocol {count}",
+    "time": "time",
+    "times": "times",
     "value": "Value {count}",
     "variable": "Variable {count}"
   },
@@ -1877,6 +1879,7 @@
     "cli": "CLI",
     "cli_comming_soon_for_personal_collection": "Collection Runner for personal collections in CLI is coming soon.",
     "delay": "Delay",
+    "invalid_iterations": "Iterations must be at least 1",
     "negative_delay": "Delay cannot be negative",
     "ui": "Runner",
     "running_collection": "Running collection",

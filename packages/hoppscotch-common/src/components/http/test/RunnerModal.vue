@@ -15,7 +15,36 @@
               <h4 class="font-semibold text-secondaryDark">
                 {{ t("collection_runner.run_config") }}
               </h4>
-              <div class="mt-4">
+              <div class="mt-4 space-y-4">
+                <!-- Iterations Input -->
+                <HoppSmartInput
+                  v-model="config.iterations as any"
+                  type="number"
+                  :label="t('test.iterations')"
+                  class="!rounded-r-none !border-r-0"
+                  :class="{ 'border-red-500': config.iterations < 1 }"
+                  input-styles="floating-input !rounded-r-none !border-r-0"
+                >
+                  <template #button>
+                    <span
+                      class="px-4 py-2 font-semibold border rounded-r bg-primaryLight border-divider text-secondaryLight"
+                    >
+                      {{
+                        config.iterations === 1
+                          ? t("count.time")
+                          : t("count.times")
+                      }}
+                    </span>
+                  </template>
+                </HoppSmartInput>
+                <p
+                  v-if="config.iterations < 1"
+                  class="text-xs text-red-500 mt-1"
+                >
+                  {{ t("collection_runner.invalid_iterations") }}
+                </p>
+
+                <!-- Delay Input -->
                 <!-- TODO: fix input component types. so that it accepts number -->
                 <HoppSmartInput
                   v-model="config.delay as any"
@@ -145,7 +174,7 @@
         <HoppButtonPrimary
           v-if="activeTab === 'gui'"
           :label="`${t('test.run')}`"
-          :disabled="config.delay < 0"
+          :disabled="config.delay < 0 || config.iterations < 1"
           :loading="loadingCollection"
           :icon="IconPlay"
           outline

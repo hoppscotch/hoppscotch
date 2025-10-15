@@ -1,5 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
-import { Injectable } from '@nestjs/common';
+import { OnModuleInit, Injectable } from '@nestjs/common';
 import { PubSub as LocalPubSub } from 'graphql-subscriptions';
 import { TopicDef } from './topicsDefs';
 

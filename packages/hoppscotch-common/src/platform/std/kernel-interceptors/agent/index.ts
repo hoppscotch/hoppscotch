@@ -1,6 +1,12 @@
 import { Service } from "dioc"
 import { markRaw } from "vue"
-import { body, relayRequestToNativeAdapter } from "@hoppscotch/kernel"
+import { 
+  body, 
+  relayRequestToNativeAdapter,  
+  RelayRequest,
+  RelayResponse,
+  RelayCapabilities 
+} from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import axios, { CancelTokenSource } from "axios"
@@ -8,11 +14,6 @@ import {
   postProcessRelayRequest,
   preProcessRelayRequest,
 } from "~/helpers/functional/process-request"
-import {
-  RelayRequest,
-  RelayResponse,
-  RelayCapabilities,
-} from "@hoppscotch/kernel"
 import type { getI18n } from "~/modules/i18n"
 import {
   KernelInterceptor,

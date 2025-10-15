@@ -40,10 +40,10 @@ export class MockServerController {
     const method = req.method;
     // Get clean path (removes /mock/mock-server-id prefix for route-based pattern)
     const path = MockRequestGuard.getCleanPath(req.path || '/', mockServerId);
-    
+
     // Extract query parameters
     const queryParams = req.query as Record<string, string>;
-    
+
     // Extract request headers (convert to lowercase for case-insensitive matching)
     const requestHeaders: Record<string, string> = {};
     Object.keys(req.headers).forEach((key) => {
@@ -87,7 +87,9 @@ export class MockServerController {
 
       // Add delay if specified
       if (mockServer.delayInMs && mockServer.delayInMs > 0) {
-        await new Promise((resolve) => setTimeout(resolve, mockServer.delayInMs));
+        await new Promise((resolve) =>
+          setTimeout(resolve, mockServer.delayInMs),
+        );
       }
 
       // Send response

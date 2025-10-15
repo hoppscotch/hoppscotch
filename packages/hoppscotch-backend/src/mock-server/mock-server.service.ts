@@ -26,9 +26,7 @@ import { OffsetPaginationArgs } from 'src/types/input-types.args';
 
 @Injectable()
 export class MockServerService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Cast database model to GraphQL model
@@ -127,8 +125,12 @@ export class MockServerService {
    * Returns database model with collectionID for internal use
    */
   async getMockServerBySubdomain(subdomain: string) {
-    const mockServer = await this.prisma.mockServer.findUnique({
-      where: { subdomain, deletedAt: null, isActive: true },
+    const mockServer = await this.prisma.mockServer.findFirst({
+      where: {
+        subdomain: { equals: subdomain, mode: 'insensitive' },
+        isActive: true,
+        deletedAt: null,
+      },
     });
     if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
@@ -431,9 +433,8 @@ export class MockServerService {
       );
 
       if (candidateExamples.length === 0) {
-        return E.left(
-          `No examples found for ${method.toUpperCase()} ${path}`,
-        );
+        console.log('No candidate examples found');
+        return E.left(`No examples found for ${method.toUpperCase()} ${path}`);
       }
 
       // OPTIMIZATION: Filter by status code if header provided
@@ -449,14 +450,11 @@ export class MockServerService {
       }
 
       // OPTIMIZATION: Score examples based on URL and query parameter matching
+      console.log('Scoring examples:', filteredExamples.length);
       const scoredExamples = filteredExamples
         .map((example) => ({
           example,
-          score: this.calculateMatchScore(
-            example,
-            path,
-            queryParams || {},
-          ),
+          score: this.calculateMatchScore(example, path, queryParams || {}),
         }))
         .filter((scored) => scored.score > 0) // Remove non-matching examples
         .sort((a, b) => b.score - a.score); // Sort by score descending
@@ -530,7 +528,10 @@ export class MockServerService {
       if (mockExamples?.examples && Array.isArray(mockExamples.examples)) {
         for (const exampleData of mockExamples.examples) {
           // Check if method matches (if specified)
-          if (method && exampleData.method?.toUpperCase() !== method.toUpperCase()) {
+          if (
+            method &&
+            exampleData.method?.toUpperCase() !== method.toUpperCase()
+          ) {
             continue;
           }
 
@@ -619,7 +620,9 @@ export class MockServerService {
 
           // OPTIMIZATION: Quick path match check before adding to candidates
           // This reduces the number of examples we need to score
+          console.log('Checking path match:', parsedExample.path, path);
           if (this.couldPathMatch(parsedExample.path, path)) {
+            console.log('Path match found:', parsedExample.path, path);
             examples.push(parsedExample);
           }
         }
@@ -661,9 +664,7 @@ export class MockServerService {
   /**
    * Get collection IDs for the mock server (no caching)
    */
-  private async getCollectionIds(
-    mockServer: dbMockServer,
-  ): Promise<string[]> {
+  private async getCollectionIds(mockServer: dbMockServer): Promise<string[]> {
     return mockServer.workspaceType === WorkspaceType.USER
       ? await this.getAllUserCollectionIds(mockServer.collectionID)
       : await this.getAllTeamCollectionIds(mockServer.collectionID);
@@ -672,7 +673,9 @@ export class MockServerService {
   /**
    * Get all collection IDs including children (recursive)
    */
-  private async getAllUserCollectionIds(rootCollectionId: string): Promise<string[]> {
+  private async getAllUserCollectionIds(
+    rootCollectionId: string,
+  ): Promise<string[]> {
     const ids = [rootCollectionId];
     const children = await this.prisma.userCollection.findMany({
       where: { parentID: rootCollectionId },
@@ -690,7 +693,9 @@ export class MockServerService {
   /**
    * Get all team collection IDs including children (recursive)
    */
-  private async getAllTeamCollectionIds(rootCollectionId: string): Promise<string[]> {
+  private async getAllTeamCollectionIds(
+    rootCollectionId: string,
+  ): Promise<string[]> {
     const ids = [rootCollectionId];
     const children = await this.prisma.teamCollection.findMany({
       where: { parentID: rootCollectionId },

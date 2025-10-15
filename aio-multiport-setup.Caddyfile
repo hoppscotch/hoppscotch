@@ -16,5 +16,14 @@
 }
 
 :3170 {
-	reverse_proxy localhost:8080
+	@mock host *.mock.*
+	
+	handle @mock {
+		rewrite * /mock{path}
+		reverse_proxy localhost:8080
+	}
+	
+	handle {
+		reverse_proxy localhost:8080
+	}
 }

@@ -20,6 +20,7 @@ import {
 import {
   ALL_CONFIGS,
   CUSTOM_MAIL_CONFIGS,
+  Config,
   ConfigSection,
   ConfigTransform,
   GITHUB_CONFIGS,
@@ -28,8 +29,10 @@ import {
   MICROSOFT_CONFIGS,
   ServerConfigs,
   UpdatedConfigs,
+  TOKEN_VALIDATION_CONFIGS,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
+import { COOKIE_NAME_REGEX } from '@hoppscotch/common/helpers/validation';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
 
@@ -280,7 +283,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       // for a valid number (>0) or non-empty string
       if (section.name === 'token')
         return Object.entries(section.fields)
-          .filter(([key]) => key !== 'session_cookie_name')
+          .filter(([key]) =>
+            !TOKEN_VALIDATION_CONFIGS.find(
+              (cfg: Config) => cfg.key === key && cfg.optional === true
+            )
+          )
           .some(([, value]) => isFieldNotValid(value));
 
       // For rate limit section, we want to check if the values are not valid numbers
@@ -566,9 +573,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
     );
     // Validate cookie name: allow empty (falls back to default), else enforce pattern
-    if (
-      sessionCookieName && !/^[A-Za-z0-9_-]+$/.test(sessionCookieName)
-    ) {
+    if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
       toast.error(t('configs.auth_providers.token.update_failure'));
       return false;
     }

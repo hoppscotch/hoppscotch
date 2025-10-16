@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootEl">
+  <div>
     <div class="flex flex-col">
       <div class="flex flex-col">
         <HoppSmartItem
@@ -81,6 +81,7 @@
     />
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -96,10 +97,15 @@ import { useLocalState } from "~/newstore/localstate"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useService } from "dioc/vue"
-import { useElementVisibility, useIntervalFn } from "@vueuse/core"
+import { useIntervalFn, watchDebounced } from "@vueuse/core"
+import { TippyState } from "~/modules/tippy"
 
 const t = useI18n()
 const colorMode = useColorMode()
+
+const props = defineProps<{
+  state: TippyState | null
+}>()
 
 const showModalAdd = ref(false)
 
@@ -116,27 +122,35 @@ const teamListAdapterError = useReadonlyStream(teamListadapter.error$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
 
-const rootEl = ref<HTMLElement>()
-const elVisible = useElementVisibility(rootEl)
-
-const { pause: pauseListPoll, resume: resumeListPoll } = useIntervalFn(() => {
-  if (teamListadapter.isInitialized) {
-    teamListadapter.fetchList()
-  }
-}, 10000)
-
-watch(
-  elVisible,
+const {
+  pause: pauseListPoll,
+  resume: resumeListPoll,
+  isActive: isListPolling,
+} = useIntervalFn(
   () => {
-    if (elVisible.value) {
+    if (teamListadapter.isInitialized) {
       teamListadapter.fetchList()
+    }
+  },
+  10000,
+  { immediate: false }
+)
 
-      resumeListPoll()
+// A debounced watcher to avoid rapid polling when component is mounted.
+// only poll when the component is visible and pause when not visible.
+watchDebounced(
+  () => props.state?.isVisible,
+  (isVisible) => {
+    if (isVisible) {
+      if (!isListPolling.value) {
+        teamListadapter.fetchList()
+        resumeListPoll()
+      }
     } else {
       pauseListPoll()
     }
   },
-  { immediate: true }
+  { debounce: 200 }
 )
 
 watch(myTeams, (teams) => {

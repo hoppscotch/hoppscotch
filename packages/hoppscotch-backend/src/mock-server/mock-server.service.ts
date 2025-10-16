@@ -20,13 +20,19 @@ import {
 } from 'src/errors';
 import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
-import { TeamAccessRole, MockServer as dbMockServer } from '@prisma/client';
+import {
+  MockServerAction,
+  TeamAccessRole,
+  MockServer as dbMockServer,
+} from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { ConfigService } from '@nestjs/config';
+import { MockServerAnalyticsService } from './mock-server-analytics.service';
 
 @Injectable()
 export class MockServerService {
   constructor(
+    private readonly mockServerAnalyticsService: MockServerAnalyticsService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {}
@@ -173,6 +179,10 @@ export class MockServerService {
     return E.right(mockServer.user);
   }
 
+  /**
+   * (Field resolver)
+   * Get the collection of a mock server
+   */
   async getMockServerCollection(mockServerId: string) {
     const mockServer = await this.prisma.mockServer.findUnique({
       where: { id: mockServerId, deletedAt: null },
@@ -305,6 +315,11 @@ export class MockServerService {
           delayInMs: input.delayInMs,
         },
       });
+      this.mockServerAnalyticsService.recordActivity(
+        mockServer,
+        MockServerAction.CREATED,
+        user.uid,
+      );
 
       return E.right(this.cast(mockServer));
     } catch (error) {
@@ -352,6 +367,15 @@ export class MockServerService {
         where: { id },
         data: input,
       });
+      if (input.isActive !== undefined) {
+        this.mockServerAnalyticsService.recordActivity(
+          mockServer, // use pre-update state to determine action
+          input.isActive
+            ? MockServerAction.ACTIVATED
+            : MockServerAction.DEACTIVATED,
+          userUid,
+        );
+      }
 
       return E.right(this.cast(updated));
     } catch (error) {
@@ -395,6 +419,11 @@ export class MockServerService {
         where: { id },
         data: { isActive: false, deletedAt: new Date() },
       });
+      this.mockServerAnalyticsService.recordActivity(
+        mockServer, // use pre-update state to determine action
+        MockServerAction.DELETED,
+        userUid,
+      );
 
       return E.right(true);
     } catch (error) {

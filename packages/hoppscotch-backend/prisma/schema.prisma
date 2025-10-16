@@ -314,6 +314,8 @@ enum TeamAccessRole {
 }
 
 enum MockServerAction {
+  CREATED
+  DELETED
   ACTIVATED
   DEACTIVATED
 }

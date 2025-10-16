@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col">
     <div class="flex flex-col">
       <div class="flex flex-col">
         <HoppSmartItem

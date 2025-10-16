@@ -18,6 +18,7 @@ import {
   UpdateMockServerInput,
   MockServerMutationArgs,
   MockServerCollection,
+  MockServerLog,
 } from './mock-server.model';
 import * as E from 'fp-ts/Either';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
@@ -107,6 +108,30 @@ export class MockServerResolver {
     @Args('id') id: string,
   ): Promise<MockServer> {
     const result = await this.mockServerService.getMockServer(id, user.uid);
+
+    if (E.isLeft(result)) throwErr(result.left);
+    return result.right;
+  }
+
+  @Query(() => [MockServerLog], {
+    description: 'Get logs for a specific mock server with pagination, sorted by execution time (most recent first)',
+  })
+  @UseGuards(GqlAuthGuard)
+  async mockServerLogs(
+    @GqlUser() user: User,
+    @Args({
+      name: 'mockServerID',
+      type: () => ID,
+      description: 'ID of the mock server',
+    })
+    mockServerID: string,
+    @Args() args: OffsetPaginationArgs,
+  ): Promise<MockServerLog[]> {
+    const result = await this.mockServerService.getMockServerLogs(
+      mockServerID,
+      user.uid,
+      args,
+    );
 
     if (E.isLeft(result)) throwErr(result.left);
     return result.right;

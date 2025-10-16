@@ -6,6 +6,7 @@ import {
   MockServerResponse,
   MockServer,
   MockServerCollection,
+  MockServerLog,
 } from './mock-server.model';
 import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
@@ -462,6 +463,73 @@ export class MockServerService {
     } catch (error) {
       console.error('Error logging request:', error);
       // Don't throw error - analytics shouldn't break the main flow
+    }
+  }
+
+  /**
+   * Get logs for a mock server with pagination
+   * Logs are sorted by execution time in descending order (most recent first)
+   */
+  async getMockServerLogs(
+    mockServerId: string,
+    userUid: string,
+    args: OffsetPaginationArgs,
+  ) {
+    try {
+      // First, get the mock server and verify it exists
+      const mockServer = await this.prisma.mockServer.findFirst({
+        where: { id: mockServerId, deletedAt: null },
+      });
+
+      if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
+
+      // Check access permissions - user must have access to the mock server
+      const hasAccess = await this.checkMockServerAccess(mockServer, userUid, [
+        TeamAccessRole.OWNER,
+        TeamAccessRole.EDITOR,
+        TeamAccessRole.VIEWER,
+      ]);
+      if (!hasAccess) return E.left(MOCK_SERVER_NOT_FOUND);
+
+      // Fetch logs with pagination, sorted by executedAt descending
+      const logs = await this.prisma.mockServerLog.findMany({
+        where: { mockServerID: mockServerId },
+        orderBy: { executedAt: 'desc' },
+        take: args?.take,
+        skip: args?.skip,
+      });
+
+      // Convert JSON fields to strings for GraphQL
+      const formattedLogs = logs.map(
+        (log) =>
+          ({
+            id: log.id,
+            mockServerID: log.mockServerID,
+            requestMethod: log.requestMethod,
+            requestPath: log.requestPath,
+            requestHeaders: JSON.stringify(log.requestHeaders),
+            requestBody: log.requestBody
+              ? JSON.stringify(log.requestBody)
+              : null,
+            requestQuery: log.requestQuery
+              ? JSON.stringify(log.requestQuery)
+              : null,
+            responseStatus: log.responseStatus,
+            responseHeaders: JSON.stringify(log.responseHeaders),
+            responseBody: log.responseBody
+              ? JSON.stringify(log.responseBody)
+              : null,
+            responseTime: log.responseTime,
+            ipAddress: log.ipAddress,
+            userAgent: log.userAgent,
+            executedAt: log.executedAt,
+          }) as MockServerLog,
+      );
+
+      return E.right(formattedLogs);
+    } catch (error) {
+      console.error('Error fetching mock server logs:', error);
+      return E.left(MOCK_SERVER_NOT_FOUND);
     }
   }
 

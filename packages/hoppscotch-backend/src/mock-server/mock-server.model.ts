@@ -190,6 +190,84 @@ export class MockServerMutationArgs {
   id: string;
 }
 
+@ObjectType()
+export class MockServerLog {
+  @Field(() => ID, {
+    description: 'ID of the log entry',
+  })
+  id: string;
+
+  @Field(() => ID, {
+    description: 'ID of the mock server',
+  })
+  mockServerID: string;
+
+  @Field({
+    description: 'HTTP method of the request',
+  })
+  requestMethod: string;
+
+  @Field({
+    description: 'Path of the request',
+  })
+  requestPath: string;
+
+  @Field({
+    description: 'Request headers as JSON string',
+  })
+  requestHeaders: string;
+
+  @Field({
+    nullable: true,
+    description: 'Request body as JSON string',
+  })
+  requestBody?: string;
+
+  @Field({
+    nullable: true,
+    description: 'Request query parameters as JSON string',
+  })
+  requestQuery?: string;
+
+  @Field({
+    description: 'HTTP status code of the response',
+  })
+  responseStatus: number;
+
+  @Field({
+    description: 'Response headers as JSON string',
+  })
+  responseHeaders: string;
+
+  @Field({
+    nullable: true,
+    description: 'Response body as JSON string',
+  })
+  responseBody?: string;
+
+  @Field({
+    description: 'Response time in milliseconds',
+  })
+  responseTime: number;
+
+  @Field({
+    nullable: true,
+    description: 'IP address of the requester',
+  })
+  ipAddress?: string;
+
+  @Field({
+    nullable: true,
+    description: 'User agent of the requester',
+  })
+  userAgent?: string;
+
+  @Field({
+    description: 'Date and time when the request was executed',
+  })
+  executedAt: Date;
+}
+
 registerEnumType(WorkspaceType, {
   name: 'WorkspaceType',
 });

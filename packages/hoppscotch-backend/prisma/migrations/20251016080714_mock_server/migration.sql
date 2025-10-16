@@ -2,7 +2,7 @@
 CREATE TYPE "WorkspaceType" AS ENUM ('USER', 'TEAM');
 
 -- CreateEnum
-CREATE TYPE "MockServerAction" AS ENUM ('ACTIVATED', 'DEACTIVATED');
+CREATE TYPE "MockServerAction" AS ENUM ('CREATED', 'DELETED', 'ACTIVATED', 'DEACTIVATED');
 
 -- CreateTable
 CREATE TABLE "MockServer" (
@@ -76,6 +76,7 @@ ALTER TABLE "MockServerLog" ADD CONSTRAINT "MockServerLog_mockServerID_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "MockServerActivity" ADD CONSTRAINT "MockServerActivity_mockServerID_fkey" FOREIGN KEY ("mockServerID") REFERENCES "MockServer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 
 
 -- Add mockExamples column to UserRequest

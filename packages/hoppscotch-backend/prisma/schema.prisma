@@ -245,20 +245,56 @@ model InfraToken {
 }
 
 model MockServer {
-  id            String        @id @default(cuid())
-  name          String
-  subdomain     String        @unique
-  creatorUid    String
-  collectionID  String
-  workspaceType WorkspaceType
-  workspaceID   String // userUid for USER, teamID for TEAM
-  delayInMs     Int           @default(0)
-  isPublic      Boolean       @default(true)
-  isActive      Boolean       @default(true)
-  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
-  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
-  deletedAt     DateTime?     @db.Timestamptz(3)
-  user          User          @relation(fields: [creatorUid], references: [uid], onDelete: Restrict)
+  id              String               @id @default(cuid())
+  name            String
+  subdomain       String               @unique
+  creatorUid      String?
+  collectionID    String
+  workspaceType   WorkspaceType
+  workspaceID     String
+  delayInMs       Int                  @default(0)
+  isPublic        Boolean              @default(true)
+  isActive        Boolean              @default(true)
+  hitCount        Int                  @default(0)
+  lastHitAt       DateTime?            @db.Timestamptz(3)
+  createdOn       DateTime             @default(now()) @db.Timestamptz(3)
+  updatedOn       DateTime             @updatedAt @db.Timestamptz(3)
+  deletedAt       DateTime?            @db.Timestamptz(3)
+  user            User?                @relation(fields: [creatorUid], references: [uid], onDelete: SetNull)
+  requestLogs     MockServerLog[]
+  activityHistory MockServerActivity[]
+}
+
+model MockServerLog {
+  id              String     @id @default(cuid())
+  mockServerID    String
+  requestMethod   String
+  requestPath     String
+  requestHeaders  Json
+  requestBody     Json?
+  requestQuery    Json?
+  responseStatus  Int
+  responseHeaders Json
+  responseBody    Json?
+  responseTime    Int
+  ipAddress       String?
+  userAgent       String?
+  executedAt      DateTime   @default(now()) @db.Timestamptz(3)
+  mockServer      MockServer @relation(fields: [mockServerID], references: [id], onDelete: Cascade)
+
+  @@index([mockServerID])
+  @@index([mockServerID, executedAt])
+}
+
+model MockServerActivity {
+  id           String           @id @default(cuid())
+  mockServerID String
+  action       MockServerAction
+  performedBy  String?
+  performedAt  DateTime         @default(now()) @db.Timestamptz(3)
+  mockServer   MockServer       @relation(fields: [mockServerID], references: [id], onDelete: Cascade)
+
+  @@index([mockServerID])
 }
 
 enum WorkspaceType {
@@ -275,4 +311,9 @@ enum TeamAccessRole {
   OWNER
   VIEWER
   EDITOR
+}
+
+enum MockServerAction {
+  ACTIVATED
+  DEACTIVATED
 }

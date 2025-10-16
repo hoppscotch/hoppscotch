@@ -33,6 +33,7 @@ export class MockServerResolver {
   // Resolve Fields
 
   @ResolveField(() => User, {
+    nullable: true,
     description: 'Returns the creator of the mock server',
   })
   async creator(@Parent() mockServer: MockServer): Promise<User> {

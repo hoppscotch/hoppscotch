@@ -1,11 +1,11 @@
 import { Service } from "dioc"
 import { markRaw } from "vue"
-import { 
-  body, 
-  relayRequestToNativeAdapter,  
+import {
+  body,
+  relayRequestToNativeAdapter,
   RelayRequest,
   RelayResponse,
-  RelayCapabilities 
+  RelayCapabilities,
 } from "@hoppscotch/kernel"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"

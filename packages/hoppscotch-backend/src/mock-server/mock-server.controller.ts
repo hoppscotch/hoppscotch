@@ -5,9 +5,11 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { MockServerService } from './mock-server.service';
+import { MockServerLoggingInterceptor } from './mock-server-logging.interceptor';
 import * as E from 'fp-ts/Either';
 import { MockRequestGuard } from './mock-request.guard';
 import { MockServer } from '@prisma/client';
@@ -18,6 +20,7 @@ import { MockServer } from '@prisma/client';
  * 2. Route pattern: backend.hopp.io/mock/mock-server-id/product
  *
  * The MockRequestGuard handles extraction of mock server ID from both patterns
+ * The MockServerLoggingInterceptor handles logging of all requests
  */
 @Controller({ path: 'mock' })
 export class MockServerController {
@@ -25,6 +28,7 @@ export class MockServerController {
 
   @All('*path')
   @UseGuards(MockRequestGuard)
+  @UseInterceptors(MockServerLoggingInterceptor)
   async handleMockRequest(@Req() req: Request, @Res() res: Response) {
     // Mock server ID and info are attached by the guard
     const mockServerId = (req as any).mockServerId as string;

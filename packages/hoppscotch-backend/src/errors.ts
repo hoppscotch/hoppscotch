@@ -920,3 +920,15 @@ export const MOCK_SERVER_UPDATE_FAILED = 'mock_server/update_failed';
  * (MockServerService)
  */
 export const MOCK_SERVER_DELETION_FAILED = 'mock_server/deletion_failed';
+
+/**
+ * Mock server log not found
+ * (MockServerService)
+ */
+export const MOCK_SERVER_LOG_NOT_FOUND = 'mock_server/log_not_found';
+
+/**
+ * Mock server log deletion failed
+ * (MockServerService)
+ */
+export const MOCK_SERVER_LOG_DELETION_FAILED = 'mock_server/log_deletion_failed';

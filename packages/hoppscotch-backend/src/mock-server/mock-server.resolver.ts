@@ -25,10 +25,11 @@ import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
+import { MockServerAnalyticsService } from './mock-server-analytics.service';
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
-  constructor(private readonly mockServerService: MockServerService) {}
+  constructor(private readonly mockServerService: MockServerService, private readonly mockServerAnalyticsService: MockServerAnalyticsService) {}
 
   // Resolve Fields
 
@@ -156,6 +157,28 @@ export class MockServerResolver {
   ): Promise<boolean> {
     const result = await this.mockServerService.deleteMockServer(
       args.id,
+      user.uid,
+    );
+
+    if (E.isLeft(result)) throwErr(result.left);
+    return result.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Delete a mock server log by log ID',
+  })
+  @UseGuards(GqlAuthGuard)
+  async deleteMockServerLog(
+    @GqlUser() user: User,
+     @Args({
+      name: 'logID',
+      type: () => ID,
+      description: 'Id of the log to delete',
+    })
+    logID: string,
+  ): Promise<boolean> {
+    const result = await this.mockServerService.deleteMockServerLog(
+      logID,
       user.uid,
     );
 

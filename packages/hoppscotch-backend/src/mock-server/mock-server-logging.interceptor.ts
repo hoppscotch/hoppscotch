@@ -7,14 +7,12 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { MockServerAnalyticsService } from './mock-server-analytics.service';
 import { MockServer } from '@prisma/client';
+import { MockServerService } from './mock-server.service';
 
 @Injectable()
 export class MockServerLoggingInterceptor implements NestInterceptor {
-  constructor(
-    private readonly analyticsService: MockServerAnalyticsService,
-  ) {}
+  constructor(private readonly mockServerService: MockServerService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const httpContext = context.switchToHttp();
@@ -39,7 +37,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
     const requestHeaders = this.extractHeaders(request);
     const requestBody = request.body;
     const requestQuery = this.extractQueryParams(request);
-    
+
     // Extract client info
     const ipAddress =
       (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
@@ -57,7 +55,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
           const responseHeaders = this.extractResponseHeaders(response);
 
           // Log the request asynchronously (fire and forget)
-          this.analyticsService
+          this.mockServerService
             .logRequest({
               mockServerID: mockServerId,
               requestMethod,
@@ -74,7 +72,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
             .catch((err) => console.error('Failed to log mock request:', err));
 
           // Increment hit count asynchronously (fire and forget)
-          this.analyticsService
+          this.mockServerService
             .incrementHitCount(mockServerId)
             .catch((err) =>
               console.error('Failed to increment hit count:', err),
@@ -86,7 +84,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
           const responseStatus = error.status || 500;
 
           // Log error response asynchronously
-          this.analyticsService
+          this.mockServerService
             .logRequest({
               mockServerID: mockServerId,
               requestMethod,
@@ -105,7 +103,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
             );
 
           // Still increment hit count even for errors
-          this.analyticsService
+          this.mockServerService
             .incrementHitCount(mockServerId)
             .catch((err) =>
               console.error('Failed to increment hit count:', err),
@@ -150,7 +148,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
   private extractResponseHeaders(response: Response): Record<string, string> {
     const headers: Record<string, string> = {};
     const headerNames = response.getHeaderNames();
-    
+
     headerNames.forEach((name) => {
       const value = response.getHeader(name);
       if (typeof value === 'string') {
@@ -161,7 +159,7 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
         headers[name.toLowerCase()] = value.join(', ');
       }
     });
-    
+
     return headers;
   }
 }

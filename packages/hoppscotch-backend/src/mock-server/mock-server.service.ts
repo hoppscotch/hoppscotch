@@ -17,6 +17,8 @@ import {
   MOCK_SERVER_CREATION_FAILED,
   MOCK_SERVER_UPDATE_FAILED,
   MOCK_SERVER_DELETION_FAILED,
+  MOCK_SERVER_LOG_NOT_FOUND,
+  MOCK_SERVER_LOG_DELETION_FAILED,
 } from 'src/errors';
 import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
@@ -111,6 +113,52 @@ export class MockServerService {
   }
 
   /**
+   * Check if user has access to a team with specific roles
+   */
+  private async checkTeamAccess(
+    teamId: string,
+    userUid: string,
+    requiredRoles: TeamAccessRole[],
+  ): Promise<boolean> {
+    const team = await this.prisma.team.findFirst({
+      where: {
+        id: teamId,
+        members: {
+          some: {
+            userUid,
+            role: { in: requiredRoles },
+          },
+        },
+      },
+    });
+    return !!team;
+  }
+
+  /**
+   * Check if user has access to a mock server with specific roles
+   */
+  async checkMockServerAccess(
+    mockServer: dbMockServer,
+    userUid: string,
+    requiredRoles: TeamAccessRole[] = [
+      TeamAccessRole.OWNER,
+      TeamAccessRole.EDITOR,
+      TeamAccessRole.VIEWER,
+    ],
+  ): Promise<boolean> {
+    if (mockServer.workspaceType === WorkspaceType.USER) {
+      return mockServer.creatorUid === userUid;
+    } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
+      return this.checkTeamAccess(
+        mockServer.workspaceID,
+        userUid,
+        requiredRoles,
+      );
+    }
+    return false;
+  }
+
+  /**
    * Get a specific mock server by ID
    */
   async getMockServer(id: string, userUid: string) {
@@ -120,30 +168,8 @@ export class MockServerService {
     if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
     // Check access permissions
-    if (mockServer.workspaceType === WorkspaceType.USER) {
-      if (mockServer.creatorUid !== userUid) {
-        return E.left(MOCK_SERVER_NOT_FOUND);
-      }
-    } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
-      const isMember = await this.prisma.team.findFirst({
-        where: {
-          id: mockServer.workspaceID,
-          members: {
-            some: {
-              userUid,
-              role: {
-                in: [
-                  TeamAccessRole.OWNER,
-                  TeamAccessRole.EDITOR,
-                  TeamAccessRole.VIEWER,
-                ],
-              },
-            },
-          },
-        },
-      });
-      if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
-    }
+    const hasAccess = await this.checkMockServerAccess(mockServer, userUid);
+    if (!hasAccess) return E.left(MOCK_SERVER_NOT_FOUND);
 
     return E.right(this.cast(mockServer));
   }
@@ -227,19 +253,13 @@ export class MockServerService {
     if (input.workspaceType === WorkspaceType.TEAM) {
       if (!input.workspaceID) return E.left(TEAM_INVALID_ID);
 
-      const team = await this.prisma.team.findUnique({
-        where: {
-          id: input.workspaceID,
-          members: {
-            some: {
-              userUid: user.uid,
-              role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
-            },
-          },
-        },
-      });
+      const hasAccess = await this.checkTeamAccess(
+        input.workspaceID,
+        user.uid,
+        [TeamAccessRole.OWNER, TeamAccessRole.EDITOR],
+      );
 
-      if (!team) return E.left(TEAM_INVALID_ID);
+      if (!hasAccess) return E.left(TEAM_INVALID_ID);
     }
 
     return E.right(true);
@@ -342,25 +362,12 @@ export class MockServerService {
       });
       if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
-      // Check access permissions
-      if (mockServer.workspaceType === WorkspaceType.USER) {
-        if (mockServer.creatorUid !== userUid) {
-          return E.left(MOCK_SERVER_NOT_FOUND);
-        }
-      } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
-        const isMember = await this.prisma.team.findFirst({
-          where: {
-            id: mockServer.workspaceID,
-            members: {
-              some: {
-                userUid,
-                role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
-              },
-            },
-          },
-        });
-        if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
-      }
+      // Check access permissions (only OWNER and EDITOR can update)
+      const hasAccess = await this.checkMockServerAccess(mockServer, userUid, [
+        TeamAccessRole.OWNER,
+        TeamAccessRole.EDITOR,
+      ]);
+      if (!hasAccess) return E.left(MOCK_SERVER_NOT_FOUND);
 
       // Update the mock server
       const updated = await this.prisma.mockServer.update({
@@ -394,25 +401,12 @@ export class MockServerService {
       });
       if (!mockServer) return E.left(MOCK_SERVER_NOT_FOUND);
 
-      // Check access permissions
-      if (mockServer.workspaceType === WorkspaceType.USER) {
-        if (mockServer.creatorUid !== userUid) {
-          return E.left(MOCK_SERVER_NOT_FOUND);
-        }
-      } else if (mockServer.workspaceType === WorkspaceType.TEAM) {
-        const isMember = await this.prisma.team.findFirst({
-          where: {
-            id: mockServer.workspaceID,
-            members: {
-              some: {
-                userUid,
-                role: { in: [TeamAccessRole.OWNER, TeamAccessRole.EDITOR] },
-              },
-            },
-          },
-        });
-        if (!isMember) return E.left(MOCK_SERVER_NOT_FOUND);
-      }
+      // Check access permissions (only OWNER and EDITOR can delete)
+      const hasAccess = await this.checkMockServerAccess(mockServer, userUid, [
+        TeamAccessRole.OWNER,
+        TeamAccessRole.EDITOR,
+      ]);
+      if (!hasAccess) return E.left(MOCK_SERVER_NOT_FOUND);
 
       // Soft delete the mock server
       await this.prisma.mockServer.update({
@@ -429,6 +423,96 @@ export class MockServerService {
     } catch (error) {
       console.error('Error deleting mock server:', error);
       return E.left(MOCK_SERVER_DELETION_FAILED);
+    }
+  }
+
+  /**
+   * Log a mock server request and response
+   */
+  async logRequest(params: {
+    mockServerID: string;
+    requestMethod: string;
+    requestPath: string;
+    requestHeaders: Record<string, string>;
+    requestBody?: any;
+    requestQuery?: Record<string, string>;
+    responseStatus: number;
+    responseHeaders: Record<string, string>;
+    responseTime: number;
+    ipAddress?: string;
+    userAgent?: string;
+  }): Promise<void> {
+    try {
+      await this.prisma.mockServerLog.create({
+        data: {
+          mockServerID: params.mockServerID,
+          requestMethod: params.requestMethod,
+          requestPath: params.requestPath,
+          requestHeaders: params.requestHeaders,
+          requestBody: params.requestBody || null,
+          requestQuery: params.requestQuery || null,
+          responseStatus: params.responseStatus,
+          responseHeaders: params.responseHeaders,
+          responseBody: null, // We'll capture response body separately if needed
+          responseTime: params.responseTime,
+          ipAddress: params.ipAddress || null,
+          userAgent: params.userAgent || null,
+        },
+      });
+    } catch (error) {
+      console.error('Error logging request:', error);
+      // Don't throw error - analytics shouldn't break the main flow
+    }
+  }
+
+  /**
+   * Delete a mock server log by logId
+   */
+  async deleteMockServerLog(logId: string, userUid: string) {
+    try {
+      // First, find the log and verify it exists
+      const log = await this.prisma.mockServerLog.findUnique({
+        where: { id: logId },
+        include: { mockServer: true },
+      });
+
+      if (!log) return E.left(MOCK_SERVER_LOG_NOT_FOUND);
+
+      // Check access permissions - user must have access to the mock server
+      const hasAccess = await this.checkMockServerAccess(
+        log.mockServer,
+        userUid,
+        [TeamAccessRole.OWNER, TeamAccessRole.EDITOR],
+      );
+      if (!hasAccess) return E.left(MOCK_SERVER_LOG_NOT_FOUND);
+
+      // Delete the log
+      await this.prisma.mockServerLog.delete({
+        where: { id: logId },
+      });
+
+      return E.right(true);
+    } catch (error) {
+      console.error('Error deleting mock server log:', error);
+      return E.left(MOCK_SERVER_LOG_DELETION_FAILED);
+    }
+  }
+
+  /**
+   * Increment hit count and update last hit timestamp for a mock server
+   */
+  async incrementHitCount(mockServerID: string): Promise<void> {
+    try {
+      await this.prisma.mockServer.update({
+        where: { id: mockServerID },
+        data: {
+          hitCount: { increment: 1 },
+          lastHitAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error('Error incrementing hit count:', error);
+      // Don't throw error - analytics shouldn't break the main flow
     }
   }
 

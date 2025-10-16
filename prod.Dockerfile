@@ -42,12 +42,25 @@ RUN go build
 
 # Shared Node.js base with optimized NPM installation
 FROM alpine:3.22.2 AS node_base
-RUN apk add --no-cache nodejs curl tini bash && \
-  # Install npm directly from npm registry to avoid Alpine's outdated version with vulnerabilities
-  curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.2.tgz | tar -xz && \
+# Install dependencies
+RUN apk add --no-cache nodejs curl bash tini ca-certificates \
+  && mkdir -p /tmp/npm-install
+# Set working directory for NPM installation
+WORKDIR /tmp/npm-install
+# Download NPM tarball
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.2.tgz -o npm.tgz
+# Verify checksum
+RUN expected="585f95094ee5cb2788ee11d90f2a518a7c9ef6e083fa141d0b63ca3383675a20" \
+  && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
+  && [ "$actual" = "$expected" ] \
+  && echo "✅ NPM Tarball Checksum OK" \
+  || (echo "❌ NPM Tarball Checksum failed!" && exit 1)
+# Install NPM from verified tarball and global packages
+RUN tar -xzf npm.tgz && \
   cd package && \
   node bin/npm-cli.js install -g npm@11.6.2 && \
-  cd .. && rm -rf package && \
+  cd / && \
+  rm -rf /tmp/npm-install && \
   npm install -g pnpm@10.18.3 @import-meta-env/cli
 
 

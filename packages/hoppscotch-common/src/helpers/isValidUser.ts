@@ -8,6 +8,25 @@ export type ValidUserResponse = {
 export const SESSION_EXPIRED = "Session expired. Please log in again."
 
 /**
+ * Attempts to refresh the authentication token
+ * @returns Promise resolving to a ValidUserResponse with the result
+ */
+async function attemptTokenRefresh(): Promise<ValidUserResponse> {
+  if (!platform.auth.refreshAuthToken)
+    return { valid: false, error: SESSION_EXPIRED }
+
+  try {
+    const refreshSuccessful = await platform.auth.refreshAuthToken()
+    return {
+      valid: refreshSuccessful,
+      error: refreshSuccessful ? "" : SESSION_EXPIRED,
+    }
+  } catch {
+    return { valid: false, error: SESSION_EXPIRED }
+  }
+}
+
+/**
  * Validates user authentication and token validity by making an API call.
  * Refreshes tokens if they are expired.
  *
@@ -37,37 +56,13 @@ export const isValidUser = async (): Promise<ValidUserResponse> => {
       }
 
       // Try token refresh if verification failed
-      if (platform.auth.refreshAuthToken) {
-        try {
-          const refreshSuccessful = await platform.auth.refreshAuthToken()
-          return {
-            valid: refreshSuccessful,
-            error: refreshSuccessful ? "" : SESSION_EXPIRED,
-          }
-        } catch {
-          return { valid: false, error: SESSION_EXPIRED }
-        }
-      }
-
-      return { valid: false, error: SESSION_EXPIRED }
+      return attemptTokenRefresh()
     }
 
     // For platforms without token verification capability
     return { valid: true, error: "" }
   } catch (error) {
     // Handle errors from token verification
-    if (platform.auth.refreshAuthToken) {
-      try {
-        const refreshSuccessful = await platform.auth.refreshAuthToken()
-        return {
-          valid: refreshSuccessful,
-          error: refreshSuccessful ? "" : SESSION_EXPIRED,
-        }
-      } catch {
-        return { valid: false, error: SESSION_EXPIRED }
-      }
-    }
-
-    return { valid: false, error: SESSION_EXPIRED }
+    return attemptTokenRefresh()
   }
 }

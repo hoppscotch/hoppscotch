@@ -587,10 +587,11 @@ export class MockServerService {
   /**
    * Handle mock request - find matching request in collection and return response
    * Optimized implementation with database-level filtering:
-   * 1. Check custom headers first (fastest path)
-   * 2. Fetch only relevant requests from DB (filtered by collection)
-   * 3. Filter and score examples in-memory
-   * 4. Return highest scoring example
+   * 1. Fetch collection IDs once (used for all subsequent queries)
+   * 2. Check custom headers first (fastest path)
+   * 3. Fetch only relevant requests from DB (filtered by collection)
+   * 4. Filter and score examples in-memory
+   * 5. Return highest scoring example
    */
   async handleMockRequest(
     subdomain: string,
@@ -608,6 +609,17 @@ export class MockServerService {
 
       const mockServer = mockServerResult.right;
 
+      // OPTIMIZATION: Fetch collection IDs once (recursive DB query)
+      // This is used by both custom header lookup and candidate fetching
+      const collectionIds = await this.getCollectionIds(mockServer);
+
+      // OPTIMIZATION: Fetch all requests with examples once (single DB query)
+      // This is shared between custom header lookup and candidate matching
+      const requests = await this.fetchRequestsWithExamples(
+        mockServer,
+        collectionIds,
+      );
+
       // OPTIMIZATION: Check for custom headers first (fastest path)
       // If user specified exact example, return it immediately without scoring
       if (requestHeaders) {
@@ -615,8 +627,8 @@ export class MockServerService {
         const mockResponseName = requestHeaders['x-mock-response-name'];
 
         if (mockResponseId || mockResponseName) {
-          const exactMatch = await this.findExampleByIdOrName(
-            mockServer,
+          const exactMatch = this.findExampleByIdOrName(
+            requests,
             mockResponseId,
             mockResponseName,
             method,
@@ -629,8 +641,8 @@ export class MockServerService {
 
       // OPTIMIZATION: Fetch only requests with mockExamples (database-level filter)
       // This is much faster than loading all requests and filtering in memory
-      const candidateExamples = await this.fetchCandidateExamples(
-        mockServer,
+      const candidateExamples = this.fetchCandidateExamples(
+        requests,
         method,
         path,
       );
@@ -690,41 +702,46 @@ export class MockServerService {
   }
 
   /**
-   * OPTIMIZED: Find example by ID or name directly from database
+   * Fetch all requests with mock examples from the database
+   * Shared helper to avoid code duplication
+   */
+  private async fetchRequestsWithExamples(
+    mockServer: dbMockServer,
+    collectionIds: string[],
+  ) {
+    return mockServer.workspaceType === WorkspaceType.USER
+      ? await this.prisma.userRequest.findMany({
+          where: {
+            collectionID: { in: collectionIds },
+            mockExamples: { not: null },
+          },
+          select: {
+            id: true,
+            mockExamples: true,
+          },
+        })
+      : await this.prisma.teamRequest.findMany({
+          where: {
+            collectionID: { in: collectionIds },
+            mockExamples: { not: null },
+          },
+          select: {
+            id: true,
+            mockExamples: true,
+          },
+        });
+  }
+
+  /**
+   * OPTIMIZED: Find example by ID or name from already-fetched requests
    * This avoids loading all examples when user specifies exact match
    */
-  private async findExampleByIdOrName(
-    mockServer: dbMockServer,
+  private findExampleByIdOrName(
+    requests: Array<{ id: string; mockExamples: any }>,
     exampleId?: string,
     exampleName?: string,
     method?: string,
   ) {
-    const collectionIds = await this.getCollectionIds(mockServer);
-
-    // Build database query
-    const requests =
-      mockServer.workspaceType === WorkspaceType.USER
-        ? await this.prisma.userRequest.findMany({
-            where: {
-              collectionID: { in: collectionIds },
-              mockExamples: { not: null },
-            },
-            select: {
-              id: true,
-              mockExamples: true,
-            },
-          })
-        : await this.prisma.teamRequest.findMany({
-            where: {
-              collectionID: { in: collectionIds },
-              mockExamples: { not: null },
-            },
-            select: {
-              id: true,
-              mockExamples: true,
-            },
-          });
-
     // Search through examples
     for (const request of requests) {
       const mockExamples = request.mockExamples as any;
@@ -759,10 +776,10 @@ export class MockServerService {
 
   /**
    * OPTIMIZED: Fetch only candidate examples that could match the request
-   * Uses database filtering to reduce memory usage
+   * Uses in-memory filtering from already-fetched requests
    */
-  private async fetchCandidateExamples(
-    mockServer: dbMockServer,
+  private fetchCandidateExamples(
+    requests: Array<{ id: string; mockExamples: any }>,
     method: string,
     path: string,
   ) {
@@ -781,32 +798,6 @@ export class MockServerService {
     }
 
     const examples: Example[] = [];
-    const collectionIds = await this.getCollectionIds(mockServer);
-
-    // OPTIMIZATION: Only fetch requests that have mockExamples
-    // This uses database filtering instead of loading everything
-    const requests =
-      mockServer.workspaceType === WorkspaceType.USER
-        ? await this.prisma.userRequest.findMany({
-            where: {
-              collectionID: { in: collectionIds },
-              mockExamples: { not: null }, // Only fetch requests with examples
-            },
-            select: {
-              id: true,
-              mockExamples: true,
-            },
-          })
-        : await this.prisma.teamRequest.findMany({
-            where: {
-              collectionID: { in: collectionIds },
-              mockExamples: { not: null }, // Only fetch requests with examples
-            },
-            select: {
-              id: true,
-              mockExamples: true,
-            },
-          });
 
     // Parse and filter examples
     for (const request of requests) {

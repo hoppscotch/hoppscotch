@@ -962,7 +962,7 @@ describe('MockServerService', () => {
     test('should match path with variables', async () => {
       const variableExample = {
         ...mockExample,
-        endpoint: 'http://api.example.com/users/:id',
+        endpoint: 'http://api.example.com/users/<<id>>',
       };
       const variableRequest = {
         ...userRequest,

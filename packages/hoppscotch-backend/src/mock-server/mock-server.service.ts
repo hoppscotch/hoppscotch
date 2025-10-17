@@ -842,12 +842,8 @@ export class MockServerService {
       return false; // Different structure, can't match
     }
 
-    // Quick check: if example has variables, it could match
-    if (
-      examplePath.includes(':') ||
-      examplePath.includes('{') ||
-      examplePath.includes('{{')
-    ) {
+    // Quick check: if example has variables (Hoppscotch uses <<variable>> syntax), it could match
+    if (examplePath.includes('<<')) {
       return true; // Has variables, needs full scoring
     }
 
@@ -918,7 +914,8 @@ export class MockServerService {
           exampleData.endpoint,
           'http://dummy.com', // Base URL for parsing
         );
-        path = url.pathname;
+        // Decode the pathname to preserve Hoppscotch variable syntax (<<variable>>)
+        path = decodeURIComponent(url.pathname);
 
         // Extract query parameters
         url.searchParams.forEach((value, key) => {
@@ -974,12 +971,11 @@ export class MockServerService {
         const examplePart = examplePathParts[i];
         const requestPart = requestPathParts[i];
 
-        // Check if it's a variable (contains special chars or is a placeholder)
+        // Check if it's a variable (Hoppscotch uses <<variable>> syntax)
         if (
           examplePart === requestPart ||
-          examplePart.startsWith(':') ||
-          examplePart.startsWith('{') ||
-          examplePart.includes('{{')
+          examplePart.startsWith('<<') ||
+          examplePart.includes('<<')
         ) {
           continue; // Match
         } else {

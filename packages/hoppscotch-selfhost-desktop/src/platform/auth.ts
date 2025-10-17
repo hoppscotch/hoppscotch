@@ -396,7 +396,7 @@ export const def: AuthPlatformDef = {
   },
 
   async refreshAuthToken() {
-    return await refreshToken()
+    return refreshToken()
   },
 
   /**

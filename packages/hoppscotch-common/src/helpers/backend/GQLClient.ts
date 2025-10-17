@@ -107,6 +107,7 @@ const createHoppClient = () => {
         },
         async refreshAuth() {
           const refresh = platform.auth.refreshAuthToken
+          // should we logout if refreshAuthToken is not defined?
           if (!refresh) return
           await refresh()
         },

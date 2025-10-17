@@ -11,7 +11,7 @@ export const SESSION_EXPIRED = "Session expired. Please log in again."
  * Attempts to refresh the authentication token
  * @returns Promise resolving to a ValidUserResponse with the result
  */
-async function attemptTokenRefresh(): Promise<ValidUserResponse> {
+const attemptTokenRefresh = async (): Promise<ValidUserResponse> => {
   if (!platform.auth.refreshAuthToken)
     return { valid: false, error: SESSION_EXPIRED }
 

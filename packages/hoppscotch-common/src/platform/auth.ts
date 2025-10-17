@@ -281,4 +281,10 @@ export type AuthPlatformDef = {
    * @returns True if tokens are valid, false otherwise
    */
   verifyAuthTokens?: () => Promise<boolean>
+
+  /** Refreshes the authentication tokens for the current user
+   * For self-hosted, this should refresh the tokens with the backend
+   * @returns True if tokens were refreshed successfully, false otherwise
+   */
+  refreshAuthToken?: () => Promise<boolean>
 }

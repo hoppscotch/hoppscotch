@@ -178,12 +178,14 @@ export class MockServerService {
   /**
    * Get a mock server by subdomain (for incoming mock requests)
    * Returns database model with collectionID for internal use
+   * @param subdomain - The subdomain of the mock server
+   * @param includeInactive - If true, returns mock server regardless of active status (default: false)
    */
-  async getMockServerBySubdomain(subdomain: string) {
+  async getMockServerBySubdomain(subdomain: string, includeInactive = false) {
     const mockServer = await this.prisma.mockServer.findFirst({
       where: {
         subdomain: { equals: subdomain, mode: 'insensitive' },
-        isActive: true,
+        ...(includeInactive ? {} : { isActive: true }),
         deletedAt: null,
       },
     });

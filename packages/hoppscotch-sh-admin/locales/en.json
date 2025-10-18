@@ -101,7 +101,7 @@
     "rate_limit": {
       "description": "Configure rate limiting for your Hoppscotch instance",
       "rate_limit_max": "Maximum Requests",
-      "rate_limit_ttl": "Time to Leave (in seconds)",
+      "rate_limit_ttl": "Time to Leave (in milliseconds)",
       "title": "Rate Limit Configurations",
       "update_failure": "Failed to update rate limit configurations!!",
       "input_validation_error": "Please enter valid values for rate limit configurations"

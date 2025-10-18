@@ -679,6 +679,8 @@ export class InfraConfigService implements OnModuleInit {
           break;
 
         case InfraConfigEnum.MOCK_SERVER_WILDCARD_DOMAIN:
+          if (!value) break; // Allow empty value
+
           if (!value.startsWith('*.mock.')) return fail();
           // Validate domain format after *.mock.
           const domainPart = value.substring(7); // Remove '*.mock.'

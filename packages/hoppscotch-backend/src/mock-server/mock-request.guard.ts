@@ -40,18 +40,20 @@ export class MockRequestGuard implements CanActivate {
       );
     }
 
-    // Validate mock server exists and is active
+    // Validate mock server exists (including inactive ones)
     const mockServerResult =
-      await this.mockServerService.getMockServerBySubdomain(mockServerId);
+      await this.mockServerService.getMockServerBySubdomain(
+        mockServerId,
+        true, // includeInactive = true
+      );
 
     if (E.isLeft(mockServerResult)) {
-      throw new NotFoundException(
-        `Mock server '${mockServerId}' not found or inactive`,
-      );
+      throw new NotFoundException(`Mock server '${mockServerId}' not found`);
     }
 
     const mockServer = mockServerResult.right;
 
+    // Check if mock server is active and throw proper error if not
     if (!mockServer.isActive) {
       throw new BadRequestException(
         `Mock server '${mockServerId}' is currently inactive`,

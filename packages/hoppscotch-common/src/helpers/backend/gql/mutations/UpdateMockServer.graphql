@@ -3,6 +3,8 @@ mutation UpdateMockServer($id: ID!, $input: UpdateMockServerInput!) {
     id
     name
     subdomain
+    serverUrlPathBased
+    serverUrlDomainBased
     workspaceType
     workspaceID
     delayInMs

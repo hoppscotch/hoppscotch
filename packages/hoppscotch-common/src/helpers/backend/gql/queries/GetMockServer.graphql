@@ -3,6 +3,8 @@ query GetMockServer($id: String!) {
     id
     name
     subdomain
+    serverUrlPathBased
+    serverUrlDomainBased
     workspaceType
     workspaceID
     delayInMs

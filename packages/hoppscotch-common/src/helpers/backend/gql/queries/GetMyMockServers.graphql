@@ -3,6 +3,8 @@ query GetMyMockServers($skip: Int, $take: Int) {
     id
     name
     subdomain
+    serverUrlPathBased
+    serverUrlDomainBased
     workspaceType
     workspaceID
     delayInMs

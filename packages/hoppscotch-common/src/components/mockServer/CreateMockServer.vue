@@ -91,6 +91,57 @@
             input-styles="floating-input"
             :disabled="loading"
           />
+
+          <!-- Display created server info -->
+          <div v-if="createdServer" class="flex flex-col space-y-4">
+            <div class="flex flex-col space-y-2">
+              <label class="text-sm font-semibold text-secondaryDark">
+                {{ t("mock_server.path_based_url") }}
+              </label>
+              <div class="flex items-center space-x-2">
+                <div
+                  class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+                >
+                  {{ createdServer.serverUrlPathBased }}
+                </div>
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.copy')"
+                  :icon="copyIcon"
+                  @click="
+                    copyToClipboard(createdServer.serverUrlPathBased || '')
+                  "
+                />
+              </div>
+            </div>
+
+            <!-- Subdomain-based URL (May be null) -->
+            <div
+              v-if="createdServer.serverUrlDomainBased"
+              class="flex flex-col space-y-2"
+            >
+              <label class="text-sm font-semibold text-secondaryDark">
+                {{ t("mock_server.subdomain_based_url") }}
+              </label>
+              <div class="flex items-center space-x-2">
+                <div
+                  class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+                >
+                  {{ createdServer.serverUrlDomainBased }}
+                </div>
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.copy')"
+                  :icon="copyIcon"
+                  @click="copyToClipboard(createdServer.serverUrlDomainBased)"
+                />
+              </div>
+              <div class="text-xs text-secondaryLight">
+                <span class="font-medium">{{ t("mock_server.note") }}:</span>
+                {{ t("mock_server.subdomain_note") }}
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Help Text -->
@@ -132,6 +183,13 @@
           :disabled="!mockServerName.trim()"
           :icon="IconServer"
           @click="createMockServer"
+        />
+
+        <!-- Close button shown after server creation -->
+        <HoppButtonSecondary
+          v-if="showCloseButton"
+          :label="t('action.close')"
+          @click="closeModal"
         />
       </div>
     </template>
@@ -181,6 +239,8 @@ const mockServers = useReadonlyStream(mockServers$, [])
 // Component state
 const mockServerName = ref("")
 const loading = ref(false)
+const showCloseButton = ref(false)
+const createdServer = ref<any>(null)
 
 // Props computed from modal data
 const show = computed(() => modalData.value.show)
@@ -262,8 +322,12 @@ const createMockServer = async () => {
         // Add the new mock server to the store
         addMockServer(result)
 
+        // Store the created server data and show close button
+        createdServer.value = result
+        showCloseButton.value = true
+
         loading.value = false
-        closeModal()
+        // Don't close the modal automatically
       }
     )
   )()

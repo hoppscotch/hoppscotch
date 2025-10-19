@@ -145,10 +145,15 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             ? tooltipEnv.sourceEnvID!
             : currentSelectedEnvironment.id
 
-      const hasSecretStored = secretEnvironmentService.hasSecretValue(
+      const hasSecretValueStored = secretEnvironmentService.hasSecretValue(
         tooltipSourceEnvID,
         tooltipEnv?.key ?? ""
       )
+      const hasSecretInitialValueStored =
+        secretEnvironmentService.hasSecretInitialValue(
+          tooltipSourceEnvID,
+          tooltipEnv?.key ?? ""
+        )
 
       // We need to check if the environment is a secret and if it has a secret value stored in the secret environment service
       // If it is a secret and has a secret value, we need to show "******" in the tooltip
@@ -158,12 +163,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       // If the source environment is not found, we need to show "Not Found" in the tooltip, ie the the environment
       // is not defined in the selected environment or the global environment
       if (isSecret) {
-        if (!hasSecretStored && envInitialValue) {
+        if (hasSecretValueStored && hasSecretInitialValueStored) {
           envInitialValue = "******"
-        } else if (hasSecretStored && !envInitialValue) {
           envCurrentValue = "******"
-        } else if (hasSecretStored && envInitialValue) {
+        } else if (!hasSecretValueStored && hasSecretInitialValueStored) {
           envInitialValue = "******"
+        } else if (hasSecretValueStored && !hasSecretInitialValueStored) {
           envCurrentValue = "******"
         } else {
           envInitialValue = "Empty"

@@ -1,22 +1,13 @@
 import * as TE from "fp-ts/TaskEither"
 import { client } from "../GQLClient"
-
-type MockServerLog = {
-  id: string
-  mockServerID: string
-  requestMethod: string
-  requestPath: string
-  requestHeaders: string
-  requestBody?: string | null
-  requestQuery?: string | null
-  responseStatus: number
-  responseHeaders: string
-  responseBody?: string | null
-  responseTime: number
-  ipAddress?: string | null
-  userAgent?: string | null
-  executedAt: string
-}
+import {
+  GetMockServerLogsDocument,
+  GetMockServerLogsQuery,
+  GetMockServerLogsQueryVariables,
+  DeleteMockServerLogDocument,
+  DeleteMockServerLogMutation,
+  DeleteMockServerLogMutationVariables,
+} from "../graphql"
 
 export const getMockServerLogs = (
   mockServerID: string,
@@ -25,10 +16,11 @@ export const getMockServerLogs = (
 ) =>
   TE.tryCatch(
     async () => {
-      const q = `query GetMockServerLogs($mockServerID: ID!, $skip: Int, $take: Int) {\n  mockServerLogs(mockServerID: $mockServerID, skip: $skip, take: $take) {\n    id\n    mockServerID\n    requestMethod\n    requestPath\n    requestHeaders\n    requestBody\n    requestQuery\n    responseStatus\n    responseHeaders\n    responseBody\n    responseTime\n    ipAddress\n    userAgent\n    executedAt\n  }\n}`
-
       const result = await client
-        .value!.query(q as any, { mockServerID, skip, take })
+        .value!.query<
+          GetMockServerLogsQuery,
+          GetMockServerLogsQueryVariables
+        >(GetMockServerLogsDocument, { mockServerID, skip, take })
         .toPromise()
 
       if (result.error)
@@ -37,7 +29,7 @@ export const getMockServerLogs = (
         )
       if (!result.data) throw new Error("No data returned from mockServerLogs")
 
-      return result.data.mockServerLogs as MockServerLog[]
+      return result.data.mockServerLogs
     },
     (e) => (e as Error).message
   )
@@ -45,9 +37,11 @@ export const getMockServerLogs = (
 export const deleteMockServerLog = (logID: string) =>
   TE.tryCatch(
     async () => {
-      const m = `mutation DeleteMockServerLog($id: ID!) {\n  deleteMockServerLog(id: $id)\n}`
       const result = await client
-        .value!.mutation(m as any, { id: logID })
+        .value!.mutation<
+          DeleteMockServerLogMutation,
+          DeleteMockServerLogMutationVariables
+        >(DeleteMockServerLogDocument, { logID })
         .toPromise()
       if (result.error)
         throw new Error(

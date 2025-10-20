@@ -26,6 +26,7 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  MOCK_SERVER_CONFIGS,
   ServerConfigs,
   UpdatedConfigs,
 } from '~/helpers/configs';
@@ -174,6 +175,16 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         fields: {
           rate_limit_ttl: getFieldValue(InfraConfigEnum.RateLimitTtl),
           rate_limit_max: getFieldValue(InfraConfigEnum.RateLimitMax),
+        },
+      },
+      mockServerConfigs: {
+        name: 'mock_server',
+        fields: {
+          mock_server_wildcard_domain: getFieldValue(
+            InfraConfigEnum.MockServerWildcardDomain
+          ),
+          allow_secure_cookies:
+            getFieldValue(InfraConfigEnum.AllowSecureCookies) === 'true',
         },
       },
     };
@@ -342,6 +353,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         config: CUSTOM_MAIL_CONFIGS,
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
+      },
+      {
+        config: MOCK_SERVER_CONFIGS,
+        enabled: true,
+        fields: updatedConfigs?.mockServerConfigs?.fields ?? {},
       },
     ];
 

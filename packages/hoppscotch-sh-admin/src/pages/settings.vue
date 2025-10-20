@@ -37,6 +37,7 @@
       <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
         <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
           <SettingsDataSharing v-model:config="workingConfigs" />
+          <SettingsMockServer v-model:config="workingConfigs" />
           <SettingsReset />
         </div>
       </HoppSmartTab>

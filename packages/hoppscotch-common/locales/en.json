@@ -1045,6 +1045,7 @@
     "validate_certificates": "Validate SSL/TLS Certificates",
     "verify_host": "Verify Host",
     "verify_peer": "Verify Peer",
+    "follow_redirects": "Follow Redirects",
     "client_certificates": "Client Certificates",
     "certificate_settings": "Certificate Settings",
     "certificate": "Certificate",

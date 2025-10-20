@@ -615,21 +615,26 @@ export class InfraConfigService implements OnModuleInit {
       InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
     ];
     try {
-      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
-      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
+      const defaultConfigs = await getDefaultInfraConfigs();
+
+      const configsToReset = defaultConfigs.filter(
         (p) => RESET_EXCLUSION_LIST.includes(p.name) === false,
       );
 
+      // Update ONBOARDING_COMPLETED value to false
+      const onboardingCompletedIndex = configsToReset.findIndex(
+        (p) => p.name === InfraConfigEnum.ONBOARDING_COMPLETED,
+      );
+      if (onboardingCompletedIndex !== -1) {
+        configsToReset[onboardingCompletedIndex].value = 'false';
+      }
+
       await this.prisma.infraConfig.deleteMany({
-        where: {
-          name: {
-            in: updatedInfraConfigDefaultObjs.map((p) => p.name),
-          },
-        },
+        where: { name: { in: configsToReset.map((p) => p.name) } },
       });
 
       await this.prisma.infraConfig.createMany({
-        data: updatedInfraConfigDefaultObjs,
+        data: configsToReset,
       });
 
       stopApp();

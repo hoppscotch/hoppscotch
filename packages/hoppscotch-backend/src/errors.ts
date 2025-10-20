@@ -931,4 +931,5 @@ export const MOCK_SERVER_LOG_NOT_FOUND = 'mock_server/log_not_found';
  * Mock server log deletion failed
  * (MockServerService)
  */
-export const MOCK_SERVER_LOG_DELETION_FAILED = 'mock_server/log_deletion_failed';
+export const MOCK_SERVER_LOG_DELETION_FAILED =
+  'mock_server/log_deletion_failed';

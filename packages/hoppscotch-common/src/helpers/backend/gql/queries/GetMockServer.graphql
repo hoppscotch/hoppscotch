@@ -1,4 +1,4 @@
-query GetMockServer($id: String!) {
+query GetMockServer($id: ID!) {
   mockServer(id: $id) {
     id
     name

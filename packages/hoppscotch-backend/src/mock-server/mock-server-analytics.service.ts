@@ -1,12 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MockServer as dbMockServer, MockServerAction } from '@prisma/client';
-import {
-  MOCK_SERVER_LOG_DELETION_FAILED,
-  MOCK_SERVER_LOG_NOT_FOUND,
-} from 'src/errors';
-import { TeamAccessRole } from 'src/team/team.model';
-import * as E from 'fp-ts/Either';
 
 @Injectable()
 export class MockServerAnalyticsService {

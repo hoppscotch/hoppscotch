@@ -507,11 +507,9 @@ describe('MockServerService', () => {
         isActive: false,
       });
 
-      const result = await mockServerService.updateMockServer(
-        dbMockServer.id,
-        user.uid,
-        { isActive: false },
-      );
+      await mockServerService.updateMockServer(dbMockServer.id, user.uid, {
+        isActive: false,
+      });
 
       expect(mockAnalyticsService.recordActivity).toHaveBeenCalledWith(
         dbMockServer,
@@ -528,11 +526,9 @@ describe('MockServerService', () => {
         isActive: true,
       });
 
-      const result = await mockServerService.updateMockServer(
-        dbMockServer.id,
-        user.uid,
-        { isActive: true },
-      );
+      await mockServerService.updateMockServer(dbMockServer.id, user.uid, {
+        isActive: true,
+      });
 
       expect(mockAnalyticsService.recordActivity).toHaveBeenCalledWith(
         inactiveMockServer,

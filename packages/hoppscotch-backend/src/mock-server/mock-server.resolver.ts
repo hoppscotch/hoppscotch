@@ -30,7 +30,10 @@ import { MockServerAnalyticsService } from './mock-server-analytics.service';
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
-  constructor(private readonly mockServerService: MockServerService, private readonly mockServerAnalyticsService: MockServerAnalyticsService) {}
+  constructor(
+    private readonly mockServerService: MockServerService,
+    private readonly mockServerAnalyticsService: MockServerAnalyticsService,
+  ) {}
 
   // Resolve Fields
 
@@ -105,7 +108,12 @@ export class MockServerResolver {
   @UseGuards(GqlAuthGuard)
   async mockServer(
     @GqlUser() user: User,
-    @Args('id') id: string,
+    @Args({
+      name: 'id',
+      type: () => ID,
+      description: 'Id of the mock server to retrieve',
+    })
+    id: string,
   ): Promise<MockServer> {
     const result = await this.mockServerService.getMockServer(id, user.uid);
 
@@ -114,7 +122,8 @@ export class MockServerResolver {
   }
 
   @Query(() => [MockServerLog], {
-    description: 'Get logs for a specific mock server with pagination, sorted by execution time (most recent first)',
+    description:
+      'Get logs for a specific mock server with pagination, sorted by execution time (most recent first)',
   })
   @UseGuards(GqlAuthGuard)
   async mockServerLogs(
@@ -195,7 +204,7 @@ export class MockServerResolver {
   @UseGuards(GqlAuthGuard)
   async deleteMockServerLog(
     @GqlUser() user: User,
-     @Args({
+    @Args({
       name: 'logID',
       type: () => ID,
       description: 'Id of the log to delete',

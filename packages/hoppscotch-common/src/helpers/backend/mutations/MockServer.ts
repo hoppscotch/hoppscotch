@@ -13,9 +13,11 @@ export type MockServer = {
   id: string
   name: string
   subdomain: string
+  serverUrlPathBased?: string
+  serverUrlDomainBased?: string | null
   workspaceType: WorkspaceType
-  workspaceID: string
-  delayInMs: number
+  workspaceID?: string | null
+  delayInMs?: number
   isPublic: boolean
   isActive: boolean
   createdOn: Date

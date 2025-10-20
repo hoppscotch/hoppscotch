@@ -91,6 +91,23 @@
             input-styles="floating-input"
             :disabled="loading"
           />
+          <div class="flex items-center space-x-4">
+            <div class="w-48">
+              <HoppSmartInput
+                v-model="delayInMsVal"
+                :label="t('mock_server.delay_ms')"
+                type="number"
+                input-styles="floating-input"
+                :disabled="loading"
+              />
+            </div>
+
+            <div class="flex items-center">
+              <HoppSmartToggle :on="isPublic" @change="isPublic = !isPublic">
+                {{ t("mock_server.make_public") }}
+              </HoppSmartToggle>
+            </div>
+          </div>
 
           <!-- Display created server info -->
           <div v-if="createdServer" class="flex flex-col space-y-4">
@@ -175,6 +192,12 @@
           @click="toggleMockServer"
         />
 
+        <HoppButtonSecondary
+          v-if="isExistingMockServer"
+          :label="t('mock_server.view_logs')"
+          @click="showLogs = true"
+        />
+
         <!-- Create Mock Server Button for new mock server -->
         <HoppButtonPrimary
           v-else
@@ -194,6 +217,12 @@
       </div>
     </template>
   </HoppSmartModal>
+  <MockServerLogs
+    v-if="showLogs && existingMockServer"
+    :show="showLogs"
+    :mockServerID="existingMockServer.id"
+    @close="showLogs = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -223,6 +252,7 @@ import IconPlay from "~icons/lucide/play"
 import IconSquare from "~icons/lucide/square"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -241,6 +271,9 @@ const mockServerName = ref("")
 const loading = ref(false)
 const showCloseButton = ref(false)
 const createdServer = ref<any>(null)
+const delayInMsVal = ref<string>("0")
+const isPublic = ref<boolean>(true)
+const showLogs = ref(false)
 
 // Props computed from modal data
 const show = computed(() => modalData.value.show)
@@ -291,6 +324,8 @@ watch(show, (newShow) => {
   if (newShow) {
     mockServerName.value = ""
     loading.value = false
+    delayInMsVal.value = "0"
+    isPublic.value = true
   }
 })
 
@@ -306,8 +341,8 @@ const createMockServer = async () => {
       collectionID.value,
       WorkspaceType.User, // workspaceType
       undefined, // workspaceID (will use current user)
-      0, // delayInMs
-      true // isPublic
+      Number(delayInMsVal) || 0, // delayInMs
+      Boolean(isPublic) // isPublic
     ),
     TE.match(
       (error) => {

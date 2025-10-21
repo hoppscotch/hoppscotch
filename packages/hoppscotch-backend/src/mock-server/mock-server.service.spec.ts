@@ -862,12 +862,11 @@ describe('MockServerService', () => {
     } as any;
 
     test('should return example by ID header', async () => {
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
         {},
@@ -882,12 +881,11 @@ describe('MockServerService', () => {
     });
 
     test('should return example by name header', async () => {
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
         {},
@@ -916,14 +914,13 @@ describe('MockServerService', () => {
         },
       };
 
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([
         requestWith404,
       ] as any);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
         {},
@@ -938,12 +935,11 @@ describe('MockServerService', () => {
     });
 
     test('should match exact path', async () => {
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
         { page: '1' },
@@ -967,14 +963,13 @@ describe('MockServerService', () => {
         },
       };
 
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userRequest.findMany.mockResolvedValue([
         variableRequest,
       ] as any);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users/123',
         'GET',
       );
@@ -982,25 +977,12 @@ describe('MockServerService', () => {
       expect(E.isRight(result)).toBe(true);
     });
 
-    test('should return error when mock server not found', async () => {
-      mockPrisma.mockServer.findFirst.mockResolvedValue(null);
-
-      const result = await mockServerService.handleMockRequest(
-        'invalid-subdomain',
-        '/users',
-        'GET',
-      );
-
-      expect(E.isLeft(result)).toBe(true);
-    });
-
     test('should return error when no examples found', async () => {
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userRequest.findMany.mockResolvedValue([]);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
       );
@@ -1021,14 +1003,13 @@ describe('MockServerService', () => {
         },
       };
 
-      mockPrisma.mockServer.findFirst.mockResolvedValue(dbMockServer);
       mockPrisma.userRequest.findMany.mockResolvedValue([
         multipleExamples,
       ] as any);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
       const result = await mockServerService.handleMockRequest(
-        dbMockServer.subdomain,
+        dbMockServer,
         '/users',
         'GET',
         { page: '1' },
@@ -1054,12 +1035,11 @@ describe('MockServerService', () => {
         },
       };
 
-      mockPrisma.mockServer.findFirst.mockResolvedValue(delayedMockServer);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([simpleRequest] as any);
 
       const result = await mockServerService.handleMockRequest(
-        delayedMockServer.subdomain,
+        delayedMockServer,
         '/users',
         'GET',
       );
@@ -1089,12 +1069,11 @@ describe('MockServerService', () => {
         },
       };
 
-      mockPrisma.mockServer.findFirst.mockResolvedValue(teamMockServer);
       mockPrisma.teamCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.teamRequest.findMany.mockResolvedValue([teamRequest] as any);
 
       const result = await mockServerService.handleMockRequest(
-        teamMockServer.subdomain,
+        teamMockServer,
         '/users',
         'GET',
       );

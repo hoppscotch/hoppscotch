@@ -183,7 +183,7 @@ COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
-HEALTHCHECK --interval=2s CMD /bin/sh /healthcheck.sh
+HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]

@@ -370,14 +370,16 @@ export async function isInfraConfigTablePopulated(): Promise<boolean> {
 }
 
 /**
- * Stop the app after 5 seconds
- * (Docker will re-start the app)
+ * Stop the app after 5 seconds with graceful shutdown
+ * (Sends SIGTERM to trigger NestJS graceful shutdown, then Docker container stops)
  */
 export function stopApp() {
   console.log('Stopping app in 5 seconds...');
 
   setTimeout(() => {
-    console.log('Stopping app now...');
+    console.log('Stopping app now with graceful shutdown...');
+    // Send SIGTERM to the current process to trigger graceful shutdown
+    // This will call app.close() which triggers onModuleDestroy lifecycle hooks
     process.kill(process.pid, 'SIGTERM');
   }, 5000);
 }

@@ -99,8 +99,10 @@ async function bootstrap() {
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
-    console.info('SIGTERM signal received');
+    console.info('SIGTERM signal received, initiating graceful shutdown...');
     await app.close();
+    console.info('Application closed successfully');
+    process.exit(0);
   });
 }
 

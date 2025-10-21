@@ -596,21 +596,13 @@ export class MockServerService {
    * 5. Return highest scoring example
    */
   async handleMockRequest(
-    subdomain: string,
+    mockServer: dbMockServer,
     path: string,
     method: string,
     queryParams?: Record<string, string>,
     requestHeaders?: Record<string, string>,
   ): Promise<E.Either<string, MockServerResponse>> {
     try {
-      const mockServerResult = await this.getMockServerBySubdomain(subdomain);
-
-      if (E.isLeft(mockServerResult)) {
-        return mockServerResult;
-      }
-
-      const mockServer = mockServerResult.right;
-
       // OPTIMIZATION: Fetch collection IDs once (recursive DB query)
       // This is used by both custom header lookup and candidate fetching
       const collectionIds = await this.getCollectionIds(mockServer);

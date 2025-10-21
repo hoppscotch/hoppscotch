@@ -61,7 +61,7 @@ export class MockServerController {
 
     try {
       const result = await this.mockServerService.handleMockRequest(
-        mockServerId,
+        mockServer,
         path,
         method,
         queryParams,

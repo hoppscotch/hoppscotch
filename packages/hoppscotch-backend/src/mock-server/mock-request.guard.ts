@@ -9,7 +9,6 @@ import {
 import { Request } from 'express';
 import { MockServerService } from './mock-server.service';
 import * as E from 'fp-ts/Either';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import { TeamService } from 'src/team/team.service';
 import { WorkspaceType } from '@prisma/client';
@@ -23,7 +22,6 @@ import { WorkspaceType } from '@prisma/client';
 export class MockRequestGuard implements CanActivate {
   constructor(
     private readonly mockServerService: MockServerService,
-    private readonly prisma: PrismaService,
     private readonly accessTokenService: AccessTokenService,
     private readonly teamService: TeamService,
   ) {}
@@ -32,9 +30,9 @@ export class MockRequestGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
 
     // Extract mock server ID from either subdomain or route
-    const mockServerId = this.extractMockServerId(request);
+    const mockServerSubdomain = this.extractMockServerSubdomain(request);
 
-    if (!mockServerId) {
+    if (!mockServerSubdomain) {
       throw new BadRequestException(
         'Invalid mock server request. Mock server ID not found in subdomain or path.',
       );
@@ -43,12 +41,14 @@ export class MockRequestGuard implements CanActivate {
     // Validate mock server exists (including inactive ones)
     const mockServerResult =
       await this.mockServerService.getMockServerBySubdomain(
-        mockServerId,
+        mockServerSubdomain,
         true, // includeInactive = true
       );
 
     if (E.isLeft(mockServerResult)) {
-      throw new NotFoundException(`Mock server '${mockServerId}' not found`);
+      throw new NotFoundException(
+        `Mock server '${mockServerSubdomain}' not found`,
+      );
     }
 
     const mockServer = mockServerResult.right;
@@ -56,7 +56,7 @@ export class MockRequestGuard implements CanActivate {
     // Check if mock server is active and throw proper error if not
     if (!mockServer.isActive) {
       throw new BadRequestException(
-        `Mock server '${mockServerId}' is currently inactive`,
+        `Mock server '${mockServerSubdomain}' is currently inactive`,
       );
     }
 
@@ -75,7 +75,7 @@ export class MockRequestGuard implements CanActivate {
 
     // Attach mock server info to request for downstream use
     (request as any).mockServer = mockServer;
-    (request as any).mockServerId = mockServerId;
+    (request as any).mockServerId = mockServer.id;
 
     return true;
   }
@@ -91,7 +91,7 @@ export class MockRequestGuard implements CanActivate {
    * @param request Express request object
    * @returns Mock server ID or null if not found
    */
-  private extractMockServerId(request: Request): string | null {
+  private extractMockServerSubdomain(request: Request): string | null {
     const host = request.get('host') || '';
     const path = request.path || '/';
 

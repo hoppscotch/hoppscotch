@@ -56,6 +56,22 @@
             <span class="truncate" :class="{ 'text-accent': isSelected }">
               {{ collectionName }}
             </span>
+            <!-- Mock Server Status Indicator -->
+            <span
+              v-if="mockServerStatus.exists"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="mockServerStatus.isActive ? t('mock_server.active') : t('mock_server.inactive')"
+              class="ml-2 flex items-center"
+            >
+              <component
+                :is="IconServer"
+                class="svg-icons"
+                :class="{
+                  'text-green-500': mockServerStatus.isActive,
+                  'text-secondaryLight': !mockServerStatus.isActive
+                }"
+              />
+            </span>
           </span>
         </div>
         <div
@@ -164,7 +180,7 @@
                     :shortcut="['M']"
                     @click="
                       () => {
-                        emit('create-mock-server')
+                        handleMockServerAction()
                         hide()
                       }
                     "
@@ -300,6 +316,9 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import { useService } from "dioc/vue"
+import { useMockServerStatus } from "~/composables/mockServer"
+import { platform } from "~/platform"
+import { invokeAction } from "~/helpers/actions"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -430,6 +449,17 @@ const currentSortOrder = ref<"asc" | "desc">(
 )
 const isCollectionLoading = computed(() => {
   return props.teamLoadingCollections!.includes(props.id)
+})
+
+// Mock Server Status
+const { getMockServerStatus } = useMockServerStatus()
+
+const mockServerStatus = computed(() => {
+  const collectionId = props.collectionsType === "my-collections" 
+    ? (props.data as HoppCollection).id 
+    : (props.data as TeamCollection).id
+  
+  return getMockServerStatus(collectionId || "")
 })
 
 // Used to determine if the collection is being dragged to a different destination
@@ -595,6 +625,19 @@ const sortCollection = () => {
     sortOrder: currentSortOrder.value,
     collectionRefID: collectionRefID.value ?? "personal",
   })
+}
+
+const handleMockServerAction = () => {
+  const currentUser = platform.auth.getCurrentUser()
+  
+  if (!currentUser) {
+    // Show login modal if user is not authenticated
+    invokeAction('modals.login.toggle')
+    return
+  }
+  
+  // User is authenticated, proceed with mock server creation
+  emit('create-mock-server')
 }
 
 const resetDragState = () => {

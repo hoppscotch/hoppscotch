@@ -62,6 +62,7 @@ declare module 'vue' {
     SettingsRateLimit: typeof import('./components/settings/RateLimit.vue')['default']
     SettingsReset: typeof import('./components/settings/Reset.vue')['default']
     SettingsServerRestart: typeof import('./components/settings/ServerRestart.vue')['default']
+    SettingsSettingsMockServer: typeof import('./components/settings/SettingsMockServer.vue')['default']
     SettingsSmtpConfiguration: typeof import('./components/settings/SmtpConfiguration.vue')['default']
     SetupDataSharingAndNewsletter: typeof import('./components/setup/DataSharingAndNewsletter.vue')['default']
     TeamsAdd: typeof import('./components/teams/Add.vue')['default']

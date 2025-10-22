@@ -21,7 +21,7 @@
             v-model="mockFields.mock_server_wildcard_domain"
             type="text"
             class="w-full rounded border p-2"
-            placeholder="_ .example.com"
+            :placeholder="t('configs.mock_server.wildcard_domain_placeholder')"
           />
         </div>
 

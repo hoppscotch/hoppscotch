@@ -58,6 +58,7 @@ declare module 'vue' {
     SettingsConfigurations: typeof import('./components/settings/Configurations.vue')['default']
     SettingsDataSharing: typeof import('./components/settings/DataSharing.vue')['default']
     SettingsHistoryConfiguration: typeof import('./components/settings/HistoryConfiguration.vue')['default']
+    SettingsMockServerConfig: typeof import('./components/settings/MockServerConfig.vue')['default']
     SettingsOAuthProviderConfigurations: typeof import('./components/settings/OAuthProviderConfigurations.vue')['default']
     SettingsRateLimit: typeof import('./components/settings/RateLimit.vue')['default']
     SettingsReset: typeof import('./components/settings/Reset.vue')['default']

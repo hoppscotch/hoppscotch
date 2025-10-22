@@ -41,6 +41,9 @@
           <SettingsReset />
         </div>
       </HoppSmartTab>
+      <HoppSmartTab id="mock" :label="t('configs.mock_server.title')">
+        <SettingsMockServerConfig v-model:config="workingConfigs" />
+      </HoppSmartTab>
     </HoppSmartTabs>
   </div>
 

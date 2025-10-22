@@ -470,8 +470,14 @@ export class PersistenceService extends Service {
         const data = restLoadResult.right ?? []
         const result = z.array(REST_COLLECTION_SCHEMA).safeParse(data)
 
+        console.log("rest collections load data", data)
+        console.log("rest collections result", result)
+
         if (result.success) {
           const translatedData = result.data.map(translateToNewRESTCollection)
+
+          console.log("rest collections translated data", translatedData)
+
           setRESTCollections(translatedData)
         } else {
           console.error(`Failed with `, result.error, data)

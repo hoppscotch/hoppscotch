@@ -1,6 +1,6 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
-FROM alpine:3.22.1 AS caddy_builder
+FROM alpine:3.22.2 AS caddy_builder
 RUN apk add --no-cache curl git && \
   mkdir -p /tmp/caddy-build && \
   curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.10.2/caddy_2.10.2_src.tar.gz
@@ -12,9 +12,9 @@ RUN expected="a9efa00c161922dd24650fd0bee2f4f8bb2fb69ff3e63dcc44f0694da64bb0cf" 
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 
-# Install Go 1.25.1 from GitHub releases to fix CVE-2025-47907
+# Install Go 1.25.3 from GitHub releases to fix CVE-2025-47907
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.25.1
+ENV GOLANG_VERSION=1.25.3
 # Download and install Go from the official tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
@@ -27,6 +27,8 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
+  # Patch to resolve CVE on quic-go
+  go get github.com/quic-go/quic-go@v0.55.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -39,12 +41,27 @@ RUN go build
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.22.1 AS node_base
-RUN apk add --no-cache nodejs npm curl tini bash && \
-  # apk provides an outdated npm; immediately upgrade to a pinned version to avoid vulnerabilities
-  # TODO: Find a better method which is resistant to supply chain attacks
-  npm install -g npm@11.6.0 && \
-  npm install -g pnpm@10.17.1 @import-meta-env/cli
+FROM alpine:3.22.2 AS node_base
+# Install dependencies
+RUN apk add --no-cache nodejs curl bash tini ca-certificates \
+  && mkdir -p /tmp/npm-install
+# Set working directory for NPM installation
+WORKDIR /tmp/npm-install
+# Download NPM tarball
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.2.tgz -o npm.tgz
+# Verify checksum
+RUN expected="585f95094ee5cb2788ee11d90f2a518a7c9ef6e083fa141d0b63ca3383675a20" \
+  && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
+  && [ "$actual" = "$expected" ] \
+  && echo "✅ NPM Tarball Checksum OK" \
+  || (echo "❌ NPM Tarball Checksum failed!" && exit 1)
+# Install NPM from verified tarball and global packages
+RUN tar -xzf npm.tgz && \
+  cd package && \
+  node bin/npm-cli.js install -g npm@11.6.2 && \
+  cd / && \
+  rm -rf /tmp/npm-install && \
+  npm install -g pnpm@10.18.3 @import-meta-env/cli
 
 
 

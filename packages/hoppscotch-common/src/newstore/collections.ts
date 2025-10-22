@@ -8,7 +8,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
-  GQLHeader
+  GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { pluck } from "rxjs/operators"

@@ -5,7 +5,7 @@ import {
   getDefaultRESTRequest,
   translateToNewRESTCollection,
   HoppGQLRequest,
-  translateToNewGQLCollection
+  translateToNewGQLCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"

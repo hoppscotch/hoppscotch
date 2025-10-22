@@ -43,7 +43,10 @@ export class MockServerController {
 
     const method = req.method;
     // Get clean path (removes /mock/mock-server-id prefix for route-based pattern)
-    const path = MockRequestGuard.getCleanPath(req.path || '/', mockServerId);
+    const path = MockRequestGuard.getCleanPath(
+      req.path || '/',
+      mockServer.subdomain,
+    );
 
     // Extract query parameters
     const queryParams = req.query as Record<string, string>;

@@ -53,6 +53,8 @@
         displayModalImportExport(true, 'my-collections')
       "
       @duplicate-collection="duplicateCollection"
+      @open-documentation="openDocumentation"
+      @open-request-documentation="openRequestDocumentation"
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
@@ -215,6 +217,16 @@
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
     />
+    <CollectionsDocumentation
+      v-if="showModalDocumentation"
+      :show="showModalDocumentation"
+      :collection-path="editingCollectionPath"
+      :collection="editingCollection"
+      :folder-path="editingFolderPath"
+      :request-index="editingRequestIndex"
+      :request="editingRequest"
+      @hide-modal="displayModalDocumentation(false)"
+    />
 
     <!-- `selectedCollectionID` is guaranteed to be a string when `showCollectionsRunnerModal` is `true` -->
     <HttpTestRunnerModal
@@ -237,6 +249,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
+  getDefaultCollectionDocumentation,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 
@@ -370,15 +383,20 @@ const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
 const editingCollectionName = ref<string | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
 const editingCollectionID = ref<string | null>(null)
+const editingCollectionPath = ref<string | null>(null)
+
 const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
+
 const editingRequest = ref<HoppRESTRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
 const editingResponseOldName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
+// const editingRequestPath = ref<string | null>(null)
+
 const editingResponseID = ref<string | null>(null)
 
 const editingProperties = ref<EditingProperties>({
@@ -718,6 +736,7 @@ const showModalEditRequest = ref(false)
 const showModalEditResponse = ref(false)
 const showModalImportExport = ref(false)
 const showModalEditProperties = ref(false)
+const showModalDocumentation = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
@@ -797,6 +816,12 @@ const displayTeamModalAdd = (show: boolean) => {
   teamListAdapter.fetchList()
 }
 
+const displayModalDocumentation = (show: boolean) => {
+  showModalDocumentation.value = show
+
+  if (!show) resetSelectedData()
+}
+
 const addNewRootCollection = async (name: string) => {
   if (collectionsType.value.type === "my-collections") {
     modalLoadingState.value = true
@@ -816,6 +841,7 @@ const addNewRootCollection = async (name: string) => {
           authActive: true,
         },
         variables: [],
+        documentation: getDefaultCollectionDocumentation(),
       })
     )
 
@@ -3210,6 +3236,49 @@ const sortCollections = (payload: {
     sortBy: "name",
     sortOrder,
   })
+}
+
+const openDocumentation = ({
+  pathOrID,
+  collectionRefID,
+  collection,
+}: {
+  pathOrID: string
+  collectionRefID: string
+  collection: HoppCollection | TeamCollection
+}) => {
+  console.log("Open documentation for", pathOrID, collectionRefID)
+  editingCollectionPath.value = pathOrID
+  editingCollection.value = collection
+  displayModalDocumentation(true)
+}
+
+const openRequestDocumentation = ({
+  folderPath,
+  requestIndex,
+  requestRefID,
+  request,
+}: {
+  folderPath: string
+  requestIndex: string
+  requestRefID?: string
+  request: HoppRESTRequest
+}) => {
+  console.log(
+    "Open documentation for request",
+    folderPath,
+    requestIndex,
+    requestRefID,
+    request
+  )
+  // editingCollectionPath.value = pathOrID
+  // editingCollection.value = collection
+
+  editingRequest.value = request
+  editingFolderPath.value = folderPath
+  editingRequestIndex.value = parseInt(requestIndex)
+
+  displayModalDocumentation(true)
 }
 
 const resolveConfirmModal = (title: string | null) => {

@@ -129,6 +129,18 @@
                   "
                 />
                 <HoppSmartItem
+                  ref="documentationAction"
+                  :icon="IconBook"
+                  :label="t('documentation.title')"
+                  :shortcut="['D']"
+                  @click="
+                    () => {
+                      emit('open-request-documentation')
+                      hide()
+                    }
+                  "
+                />
+                <HoppSmartItem
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"
@@ -211,6 +223,7 @@ import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconShare2 from "~icons/lucide/share-2"
 import IconArrowRight from "~icons/lucide/chevron-right"
 import IconArrowDown from "~icons/lucide/chevron-down"
+import IconBook from "~icons/lucide/book"
 import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
@@ -293,6 +306,7 @@ const emit = defineEmits<{
   (event: "edit-request"): void
   (event: "edit-response", payload: ResponsePayload): void
   (event: "duplicate-request"): void
+  (event: "open-request-documentation"): void
   (event: "remove-request"): void
   (event: "select-request"): void
   (event: "share-request"): void

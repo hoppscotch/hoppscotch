@@ -92,6 +92,14 @@
                 collectionSyncID: node.data.data.data.id,
               })
             "
+            @open-documentation="
+              node.data.type === 'collections' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data._ref_id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-properties="
               node.data.type === 'collections' &&
               emit('edit-properties', {
@@ -189,6 +197,14 @@
                 collectionSyncID: node.data.data.data.id,
               })
             "
+            @open-documentation="
+              node.data.type === 'folders' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data._ref_id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-properties="
               node.data.type === 'folders' &&
               emit('edit-properties', {
@@ -276,6 +292,15 @@
               node.data.type === 'requests' &&
               emit('duplicate-request', {
                 folderPath: node.data.data.parentIndex,
+                request: node.data.data.data,
+              })
+            "
+            @open-request-documentation="
+              node.data.type === 'requests' &&
+              emit('open-request-documentation', {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: pathToIndex(node.id),
+                requestRefID: node.data.data.data._ref_id,
                 request: node.data.data.data,
               })
             "
@@ -557,6 +582,23 @@ const emit = defineEmits<{
     payload: {
       pathOrID: string
       collectionSyncID?: string
+    }
+  ): void
+  (
+    event: "open-documentation",
+    payload: {
+      pathOrID: string
+      collectionRefID: string
+      collection: HoppCollection
+    }
+  ): void
+  (
+    event: "open-request-documentation",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      requestRefID: string
+      request: HoppRESTRequest
     }
   ): void
   (

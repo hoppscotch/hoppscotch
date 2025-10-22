@@ -4,10 +4,12 @@
 }
 
 :80 :3170 {
-	@mock host *.mock.*
+	@mock {
+		header_regexp host Host ^[^.]+\.mock\..*$
+	}
 	
 	handle @mock {
-		rewrite * /mock{path}
+		rewrite * /mock{uri}
 		reverse_proxy localhost:8080
 	}
 	

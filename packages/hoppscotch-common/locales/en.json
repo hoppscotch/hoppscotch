@@ -863,6 +863,8 @@
     "mock_server_created": "Mock server created successfully",
     "mock_server_started": "Mock server started successfully",
     "mock_server_stopped": "Mock server stopped successfully",
+    "active": "Mock server is active",
+    "inactive": "Mock server is inactive",
     "description": "Mock servers allow you to simulate API responses based on your collection's example responses."
   },
   "preRequest": {

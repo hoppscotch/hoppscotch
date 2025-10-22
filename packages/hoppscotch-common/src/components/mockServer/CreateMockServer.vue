@@ -53,7 +53,7 @@
 
           <div class="flex flex-col space-y-2">
             <label class="text-sm font-semibold text-secondaryDark">
-              {{ t("state.status") }}
+              {{ t("app.status") }}
             </label>
             <div class="flex items-center space-x-2">
               <span
@@ -74,8 +74,8 @@
                 ></span>
                 {{
                   existingMockServer?.isActive
-                    ? t("state.active")
-                    : t("state.inactive")
+                    ? t("mockServer.dashboard.active")
+                    : t("mockServer.dashboard.inactive")
                 }}
               </span>
             </div>

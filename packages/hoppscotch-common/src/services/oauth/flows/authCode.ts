@@ -91,11 +91,19 @@ const initAuthCodeOauthFlow = async ({
   let codeVerifier: string | undefined
   let codeChallenge: string | undefined
 
+  // Ensure backward compatibility for collections that were imported before
+  // `codeVerifierMethod` was added. If PKCE is enabled but the method is
+  // missing, default to 'plain' as requested by the user.
+  const codeVerifierMethodNormalized =
+    isPKCE && !codeVerifierMethod ? ("plain" as const) : codeVerifierMethod
+
   if (isPKCE) {
     codeVerifier = generateCodeVerifier()
+    // codeVerifierMethodNormalized might be undefined only if isPKCE is false,
+    // but here we guard with isPKCE so it's safe to pass a value.
     codeChallenge = await generateCodeChallenge(
       codeVerifier,
-      codeVerifierMethod
+      codeVerifierMethodNormalized
     )
   }
 
@@ -137,7 +145,8 @@ const initAuthCodeOauthFlow = async ({
     clientSecret,
     clientID,
     isPKCE,
-    codeVerifierMethod,
+    // Persist the normalized method so subsequent redirect handling has a value
+    codeVerifierMethod: codeVerifierMethodNormalized,
     scopes,
     authRequestParams,
     refreshRequestParams,

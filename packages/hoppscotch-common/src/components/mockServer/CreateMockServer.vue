@@ -10,7 +10,7 @@
     @close="closeModal"
   >
     <template #body>
-      <div class="flex flex-col space-y-6 p-6">
+      <div class="flex flex-col space-y-6">
         <!-- Collection Info -->
         <div class="flex flex-col space-y-2">
           <label class="text-sm font-semibold text-secondaryDark">

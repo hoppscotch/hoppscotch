@@ -11,6 +11,7 @@ export type HoppGQLSuccessResponse = {
   operationName: string | undefined
   operationType: OperationType
   data: string
+  headers?: Record<string, string>
   rawQuery?: RunQueryOptions
 }
 
@@ -77,6 +78,7 @@ export const GQLResponse = {
                 operationName: options.operationName,
                 operationType: determineOperationType(options.query),
                 data: JSON.stringify(validBody, null, 2),
+                headers: response.headers,
                 rawQuery: options,
               }
             : createTransformError("Invalid GraphQL response structure")

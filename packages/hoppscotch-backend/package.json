@@ -86,7 +86,7 @@
     "@types/cookie-parser": "1.4.9",
     "@types/express": "5.0.3",
     "@types/jest": "30.0.0",
-    "@types/node": "24.7.2",
+    "@types/node": "24.9.1",
     "@types/nodemailer": "7.0.2",
     "@types/passport-github2": "1.2.9",
     "@types/passport-google-oauth20": "2.0.16",

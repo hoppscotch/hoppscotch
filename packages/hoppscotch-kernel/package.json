@@ -35,8 +35,8 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/node": "24.3.0",
-    "typescript": "5.9.2",
+    "@types/node": "24.9.1",
+    "typescript": "5.9.3",
     "vite": "6.3.5"
   },
   "peerDependencies": {
@@ -48,15 +48,15 @@
     }
   },
   "dependencies": {
-    "axios": "1.12.2",
-    "fp-ts": "2.16.11",
-    "aws4fetch": "1.0.20",
-    "zod": "3.25.32",
-    "superjson": "2.2.2",
-    "@tauri-apps/plugin-shell": "2.2.1",
+    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#5d59b97fe331ca62e8be0454ff3f4e5f6185ae70",
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
+    "@tauri-apps/plugin-shell": "2.2.1",
     "@tauri-apps/plugin-store": "2.2.0",
-    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#5d59b97fe331ca62e8be0454ff3f4e5f6185ae70"
+    "aws4fetch": "1.0.20",
+    "axios": "1.12.2",
+    "fp-ts": "2.16.11",
+    "superjson": "2.2.3",
+    "zod": "3.25.32"
   }
 }

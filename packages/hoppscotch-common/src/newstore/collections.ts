@@ -1,5 +1,6 @@
 import {
   generateUniqueRefId,
+  getDefaultCollectionDocumentation,
   HoppCollection,
   HoppCollectionVariable,
   HoppGQLAuth,
@@ -37,6 +38,7 @@ const defaultRESTCollectionState = {
       },
       headers: [],
       variables: [],
+      documentation: getDefaultCollectionDocumentation(),
     }),
   ],
 }
@@ -53,6 +55,7 @@ const defaultGraphqlCollectionState = {
       },
       headers: [],
       variables: [],
+      documentation: getDefaultCollectionDocumentation(),
     }),
   ],
 }
@@ -362,6 +365,7 @@ const restCollectionDispatchers = defineDispatchers({
       },
       headers: [],
       variables: [],
+      documentation: getDefaultCollectionDocumentation(),
     })
 
     const newState = state
@@ -1022,6 +1026,7 @@ const gqlCollectionDispatchers = defineDispatchers({
       },
       headers: [],
       variables: [],
+      documentation: getDefaultCollectionDocumentation(),
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))

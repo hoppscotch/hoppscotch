@@ -145,7 +145,7 @@ function exportedCollectionToHoppCollection(
     return {
       id: restCollection.id,
       _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      v: 10,
+      v: 11,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -193,6 +193,7 @@ function exportedCollectionToHoppCollection(
           _ref_id: _ref_id ?? generateUniqueRefId("req"),
         }
       }),
+      documentation: restCollection.documentation,
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],

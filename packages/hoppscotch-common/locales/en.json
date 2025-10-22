@@ -406,6 +406,7 @@
     "variable": "Variable {count}"
   },
   "documentation": {
+    "title": "Documentation",
     "generate": "Generate documentation",
     "generate_message": "Import any Hoppscotch collection to generate API documentation on-the-go."
   },

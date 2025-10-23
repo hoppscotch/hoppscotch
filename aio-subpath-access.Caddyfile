@@ -17,12 +17,10 @@
 	}
 
 	# Handle requests under `/backend*` path
-	handle /backend* {
+	handle_path /backend* {
 		@mock {
 			header_regexp host Host ^[^.]+\.mock\..*$
 		}
-		
-		uri strip_prefix /backend
 		
 		handle @mock {
 			rewrite * /mock{uri}

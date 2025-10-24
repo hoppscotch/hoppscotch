@@ -56,29 +56,28 @@
     <!-- Postman-specific: Script import checkbox (only use case so far) -->
     <div
       v-if="showPostmanScriptOption && experimentalScriptingEnabled"
-      class="ml-10 space-y-2"
+      class="flex items-start space-x-3 px-1"
     >
-      <div class="flex items-center space-x-3">
-        <input
-          id="importScriptsCheckbox"
-          v-model="importScripts"
-          type="checkbox"
-          class="h-4 w-4 cursor-pointer rounded border-divider bg-primary text-accent focus:ring-2 focus:ring-accent focus:ring-offset-0"
-        />
-        <label
-          for="importScriptsCheckbox"
-          class="cursor-pointer select-none text-secondary"
-        >
-          {{ t("import.import_scripts") }}
-          <span class="ml-1 text-xs text-secondaryLight">
+      <HoppSmartCheckbox
+        :on="importScripts"
+        @change="importScripts = !importScripts"
+      />
+      <label
+        for="importScriptsCheckbox"
+        class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+      >
+        <span class="font-semibold flex space-x-1">
+          <span>
+            {{ t("import.import_scripts") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
             ({{ t("state.experimental") }})
           </span>
-        </label>
-      </div>
-
-      <p class="text-xs text-secondaryLight leading-relaxed">
-        {{ t("import.import_scripts_description") }}
-      </p>
+        </span>
+        <span class="text-tiny text-secondaryLight">
+          {{ t("import.import_scripts_description") }}</span
+        >
+      </label>
     </div>
 
     <div>

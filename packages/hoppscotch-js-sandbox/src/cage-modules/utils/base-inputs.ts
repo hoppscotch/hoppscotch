@@ -1,12 +1,13 @@
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
 import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 
-import { TestResult, BaseInputs } from "~/types"
+import { TestResult, BaseInputs, SandboxValue } from "~/types"
 import {
   getSharedCookieMethods,
   getSharedEnvMethods,
   getSharedRequestProps,
 } from "~/utils/shared"
+import { UNDEFINED_MARKER, NULL_MARKER } from "~/constants/sandbox-markers"
 import { createHoppNamespaceMethods } from "../namespaces/hopp-namespace"
 import { createPmNamespaceMethods } from "../namespaces/pm-namespace"
 import { createPwNamespaceMethods } from "../namespaces/pw-namespace"
@@ -45,26 +46,42 @@ export const createBaseInputs = (
 
   // Cookie accessors
   const cookieProps = {
-    cookieGet: defineSandboxFn(ctx, "cookieGet", (domain: any, name: any) => {
-      return cookieMethods.get(domain, name) || null
-    }),
-    cookieSet: defineSandboxFn(ctx, "cookieSet", (domain: any, cookie: any) => {
-      return cookieMethods.set(domain, cookie)
-    }),
-    cookieHas: defineSandboxFn(ctx, "cookieHas", (domain: any, name: any) => {
-      return cookieMethods.has(domain, name)
-    }),
-    cookieGetAll: defineSandboxFn(ctx, "cookieGetAll", (domain: any) => {
-      return cookieMethods.getAll(domain)
-    }),
+    cookieGet: defineSandboxFn(
+      ctx,
+      "cookieGet",
+      (domain: SandboxValue, name: SandboxValue) => {
+        return cookieMethods.get(domain, name) || null
+      }
+    ),
+    cookieSet: defineSandboxFn(
+      ctx,
+      "cookieSet",
+      (domain: SandboxValue, cookie: SandboxValue) => {
+        return cookieMethods.set(domain, cookie)
+      }
+    ),
+    cookieHas: defineSandboxFn(
+      ctx,
+      "cookieHas",
+      (domain: SandboxValue, name: SandboxValue) => {
+        return cookieMethods.has(domain, name)
+      }
+    ),
+    cookieGetAll: defineSandboxFn(
+      ctx,
+      "cookieGetAll",
+      (domain: SandboxValue) => {
+        return cookieMethods.getAll(domain)
+      }
+    ),
     cookieDelete: defineSandboxFn(
       ctx,
       "cookieDelete",
-      (domain: any, name: any) => {
+      (domain: SandboxValue, name: SandboxValue) => {
         return cookieMethods.delete(domain, name)
       }
     ),
-    cookieClear: defineSandboxFn(ctx, "cookieClear", (domain: any) => {
+    cookieClear: defineSandboxFn(ctx, "cookieClear", (domain: SandboxValue) => {
       return cookieMethods.clear(domain)
     }),
   }
@@ -88,7 +105,7 @@ export const createBaseInputs = (
   const pmEnvSetAny = defineSandboxFn(
     ctx,
     "pmEnvSetAny",
-    function (key: any, value: any, options: any) {
+    function (key: SandboxValue, value: SandboxValue, options: SandboxValue) {
       return pmSetAny(key, value, options)
     }
   )
@@ -104,16 +121,15 @@ export const createBaseInputs = (
     // Expose the updated state accessors
     getUpdatedEnvs: () => {
       // Convert markers back to strings for UI display
-      const UNDEFINED_MARKER = "__HOPPSCOTCH_UNDEFINED__"
-      const NULL_MARKER = "__HOPPSCOTCH_NULL__"
+      // (using centralized markers from constants/sandbox-markers.ts)
 
       // Handle case where envs is not provided
       if (!updatedEnvs) {
         return { global: [], selected: [] }
       }
 
-      const convertMarkersToStrings = (env: any) => {
-        const convertValue = (value: any) => {
+      const convertMarkersToStrings = (env: SandboxValue) => {
+        const convertValue = (value: SandboxValue) => {
           // Convert markers to string representations
           if (value === UNDEFINED_MARKER) return "undefined"
           if (value === NULL_MARKER) return "null"

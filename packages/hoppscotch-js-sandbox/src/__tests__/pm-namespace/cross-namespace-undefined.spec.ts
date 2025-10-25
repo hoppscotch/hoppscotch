@@ -1,15 +1,11 @@
 import { describe, expect, test } from "vitest"
 import { runTest, runTestAndGetEnvs } from "~/utils/test-helpers"
+import { runPreRequestScript } from "~/node"
+import { getDefaultRESTRequest } from "@hoppscotch/data"
 
-/**
- * Cross-namespace undefined preservation tests
- *
- * These tests verify that undefined values set via PM namespace methods
- * can be correctly read by other namespaces (hopp, pw, pm).
- *
- * The undefined marker pattern ensures that undefined values survive
- * serialization across the sandbox boundary.
- */
+const DEFAULT_REQUEST = getDefaultRESTRequest()
+
+// Undefined marker pattern ensures values survive serialization
 
 describe("Cross-namespace undefined preservation", () => {
   test("hopp.env.get can read undefined set by pm.environment.set", () => {
@@ -37,32 +33,47 @@ describe("Cross-namespace undefined preservation", () => {
     ])
   })
 
-  // NOTE: pw namespace is only available in pre-request context, not post-request/test context
-  // This test would need to use runPreRequest helper instead of runTest
-  // Skipping for now as other tests already verify cross-namespace undefined reading
-  test.skip("pw.env.get can read undefined set by pm.environment.set", () => {
+  test("pw.env.get can read undefined set by pm.environment.set in pre-request", () => {
     return expect(
-      runTest(
+      runPreRequestScript(
         `
-          pm.environment.set("env_undef", undefined)
-          const value = pw.env.get("env_undef")
-          pm.expect(value).toBe(undefined)
+          pm.environment.set("env_undef_pre", undefined)
+          // Verify pw.env.get can read the undefined value
+          const value = pw.env.get("env_undef_pre")
+          // Store the result to verify it was read correctly
+          pw.env.set("read_result", value === undefined ? "success" : "failed")
         `,
         {
-          global: [],
-          selected: [],
+          envs: {
+            global: [],
+            selected: [],
+          },
+          request: DEFAULT_REQUEST,
+          cookies: null,
+          experimentalScriptingSandbox: true,
         }
       )()
-    ).resolves.toEqualRight([
-      expect.objectContaining({
-        expectResults: [
+    ).resolves.toEqualRight({
+      updatedEnvs: {
+        global: [],
+        selected: [
           {
-            status: "pass",
-            message: "Expected 'undefined' to be 'undefined'",
+            key: "env_undef_pre",
+            currentValue: "undefined", // Converted from UNDEFINED_MARKER
+            initialValue: "undefined",
+            secret: false,
+          },
+          {
+            key: "read_result",
+            currentValue: "success", // Confirms pw.env.get returned undefined
+            initialValue: "success",
+            secret: false,
           },
         ],
-      }),
-    ])
+      },
+      updatedRequest: DEFAULT_REQUEST,
+      updatedCookies: null,
+    })
   })
 
   test("pm.variables.get can read undefined from environment", () => {

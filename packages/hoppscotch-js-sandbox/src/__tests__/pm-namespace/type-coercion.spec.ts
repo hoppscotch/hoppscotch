@@ -1,16 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"
 
-/**
- * Type preservation tests for PM namespace
- *
- * Postman preserves ALL types during runtime (arrays, objects, primitives)
- * Only undefined requires special handling for serialization boundary.
- *
- * This differs from how environment variables are persisted to disk/UI
- * (which may convert to strings), but during script execution all types
- * are preserved as-is.
- */
+// Postman compatibility: all types preserved during runtime, only undefined needs special handling
 
 describe("PM namespace type preservation (Postman compatibility)", () => {
   describe("Array preservation", () => {

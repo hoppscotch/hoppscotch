@@ -1,17 +1,3 @@
-/**
- * Test suite for pm.expect.fail() and hopp.expect.fail()
- *
- * Verifies that both namespaces support the Chai/Postman expect.fail() method
- * which explicitly fails a test with an optional custom message.
- *
- * The fail() method supports multiple signatures:
- * - expect.fail()
- * - expect.fail(message)
- * - expect.fail(actual, expected)
- * - expect.fail(actual, expected, message)
- * - expect.fail(actual, expected, message, operator)
- */
-
 import { describe, expect, test } from "vitest"
 import { TestResponse } from "~/types"
 import { runTest } from "~/utils/test-helpers"

@@ -722,4 +722,295 @@ describe("hopp.request", () => {
       ).resolves.toEqualLeft(expect.stringContaining("read-only"))
     })
   })
+
+  describe("setter methods immediately reflect in console.log", () => {
+    test("setUrl should reflect immediately in hopp.request.url", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.url)
+          hopp.request.setUrl("https://updated.com/api")
+          console.log("After:", hopp.request.url)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", "https://example.com/api"],
+            }),
+            expect.objectContaining({
+              args: ["After:", "https://updated.com/api"],
+            }),
+          ],
+          updatedRequest: expect.objectContaining({
+            endpoint: "https://updated.com/api",
+          }),
+        })
+      )
+    })
+
+    test("setMethod should reflect immediately in hopp.request.method", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.method)
+          hopp.request.setMethod("POST")
+          console.log("After:", hopp.request.method)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", "GET"],
+            }),
+            expect.objectContaining({
+              args: ["After:", "POST"],
+            }),
+          ],
+          updatedRequest: expect.objectContaining({
+            method: "POST",
+          }),
+        })
+      )
+    })
+
+    test("setHeader should reflect immediately in hopp.request.headers", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          const before = hopp.request.headers.find(h => h.key === "X-Test")
+          console.log("Before value:", before.value)
+          hopp.request.setHeader("X-Test", "modified")
+          const after = hopp.request.headers.find(h => h.key === "X-Test")
+          console.log("After value:", after.value)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before value:", "val1"],
+            }),
+            expect.objectContaining({
+              args: ["After value:", "modified"],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("setHeaders should reflect immediately in hopp.request.headers", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before length:", hopp.request.headers.length)
+          hopp.request.setHeaders([
+            { key: "X-New-1", value: "val1", active: true, description: "" },
+            { key: "X-New-2", value: "val2", active: true, description: "" }
+          ])
+          console.log("After length:", hopp.request.headers.length)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before length:", 1],
+            }),
+            expect.objectContaining({
+              args: ["After length:", 2],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("removeHeader should reflect immediately in hopp.request.headers", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.headers.map(h => h.key))
+          hopp.request.removeHeader("X-Test")
+          console.log("After:", hopp.request.headers.map(h => h.key))
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", ["X-Test"]],
+            }),
+            expect.objectContaining({
+              args: ["After:", []],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("setParam should reflect immediately in hopp.request.params", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          const before = hopp.request.params.find(p => p.key === "q")
+          console.log("Before value:", before.value)
+          hopp.request.setParam("q", "updated")
+          const after = hopp.request.params.find(p => p.key === "q")
+          console.log("After value:", after.value)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before value:", "search"],
+            }),
+            expect.objectContaining({
+              args: ["After value:", "updated"],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("setParams should reflect immediately in hopp.request.params", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before length:", hopp.request.params.length)
+          hopp.request.setParams([
+            { key: "page", value: "1", active: true, description: "" },
+            { key: "limit", value: "10", active: true, description: "" }
+          ])
+          console.log("After length:", hopp.request.params.length)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before length:", 1],
+            }),
+            expect.objectContaining({
+              args: ["After length:", 2],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("removeParam should reflect immediately in hopp.request.params", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.params.map(p => p.key))
+          hopp.request.removeParam("q")
+          console.log("After:", hopp.request.params.map(p => p.key))
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", ["q"]],
+            }),
+            expect.objectContaining({
+              args: ["After:", []],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("setBody should reflect immediately in hopp.request.body", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.body.contentType)
+          hopp.request.setBody({
+            contentType: "application/json",
+            body: '{"test": true}'
+          })
+          console.log("After:", hopp.request.body.contentType)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", null],
+            }),
+            expect.objectContaining({
+              args: ["After:", "application/json"],
+            }),
+          ],
+        })
+      )
+    })
+
+    test("setAuth should reflect immediately in hopp.request.auth", () => {
+      return expect(
+        runPreRequestScript(
+          `
+          console.log("Before:", hopp.request.auth.authType)
+          hopp.request.setAuth({ authType: "bearer", token: "test-token" })
+          console.log("After:", hopp.request.auth.authType)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: baseRequest,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          consoleEntries: [
+            expect.objectContaining({
+              args: ["Before:", "none"],
+            }),
+            expect.objectContaining({
+              args: ["After:", "bearer"],
+            }),
+          ],
+        })
+      )
+    })
+  })
 })

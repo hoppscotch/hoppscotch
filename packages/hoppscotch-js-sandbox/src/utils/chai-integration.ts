@@ -1,5 +1,5 @@
 import * as chai from "chai"
-import { TestDescriptor } from "../types"
+import { TestDescriptor, SandboxValue } from "../types"
 
 /**
  * Creates a Chai expectation that records results to the test stack
@@ -7,7 +7,10 @@ import { TestDescriptor } from "../types"
  *
  * Returns a serializable proxy object that can cross the sandbox boundary
  */
-export function createChaiExpectation(value: any, testStack: TestDescriptor[]) {
+export function createChaiExpectation(
+  value: SandboxValue,
+  testStack: TestDescriptor[]
+) {
   // Create the actual Chai assertion
   const assertion = chai.expect(value)
 
@@ -20,16 +23,17 @@ export function createChaiExpectation(value: any, testStack: TestDescriptor[]) {
  * This can cross the sandbox boundary unlike the actual Chai assertion object
  */
 function createSerializableProxy(
-  assertion: any,
-  originalValue: any,
+  assertion: any, // Chai assertion object - dynamic API, must be any
+  originalValue: SandboxValue,
   testStack: TestDescriptor[],
-  flags: any
+  flags: SandboxValue
 ): any {
-  const proxy: any = {}
+  // Returns dynamic proxy with Chai-like API
+  const proxy: any = {} // Dynamic proxy object with Chai-like methods
 
   // Helper to create assertion methods
   const createMethod = (methodName: string) => {
-    return (...args: any[]) => {
+    return (...args: SandboxValue[]) => {
       try {
         // Call the actual Chai method
         const result = assertion[methodName](...args)
@@ -255,10 +259,10 @@ function recordResult(
  * Tries to match the format expected by tests
  */
 function buildMessage(
-  assertion: any,
+  assertion: any, // Chai assertion object - dynamic API, must be any
   method: string,
-  args: any[],
-  value: any,
+  args: SandboxValue[],
+  value: SandboxValue,
   _failed: boolean
 ): string {
   const flags = assertion.__flags || {}
@@ -317,7 +321,7 @@ function extractErrorMessage(error: any): string {
 /**
  * Formats a value for display in messages
  */
-function formatValue(val: any): string {
+function formatValue(val: SandboxValue): string {
   if (val === null) return "null"
   if (val === undefined) return "undefined"
   if (typeof val === "string") return `'${val}'`

@@ -1,18 +1,4 @@
 /**
- * Functions and Error Assertions Test Suite
- *
- * This test suite validates Chai.js assertions for functions, errors, and object states:
- * - `.throw()`, `.throws()`, `.Throw()` - error throwing assertions with type/message matchers
- * - `.instanceof()`, `.instanceOf()` - instance type checking
- * - `.respondTo()`, `.respondsTo()` - method existence checking
- * - `.satisfy()`, `.satisfies()` - custom predicate validation
- * - `.arguments`, `.Arguments` - arguments object detection
- * - `.extensible`, `.sealed`, `.frozen` - object state assertions
- *
- * These assertions are critical for testing error handling, type validation,
- * and object immutability.
- *
- * @see RFC: Enhanced Scripting - Chai.js Integration
  * @see https://github.com/hoppscotch/hoppscotch/discussions/5221
  */
 

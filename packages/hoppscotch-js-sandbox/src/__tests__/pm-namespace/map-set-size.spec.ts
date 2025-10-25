@@ -1,10 +1,4 @@
-/**
- * PM Namespace - Map and Set Size Property Tests
- *
- * Tests for .property('size') assertions on Map and Set objects.
- * Challenge: Map/Set serialize as {} across sandbox boundary, losing .size property.
- * Solution: Pre-check pattern - extract .size before serialization.
- */
+// Map/Set serialize as {} across sandbox boundary, so we extract .size before serialization
 
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"

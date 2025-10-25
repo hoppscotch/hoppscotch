@@ -51,6 +51,8 @@
   Object.freeze(requestProps)
 
   // Special markers for undefined and null values to preserve them across sandbox boundary
+  // NOTE: These values MUST match constants/sandbox-markers.ts
+  // (Cannot import directly as this runs in QuickJS sandbox)
   const UNDEFINED_MARKER = "__HOPPSCOTCH_UNDEFINED__"
   const NULL_MARKER = "__HOPPSCOTCH_NULL__"
 

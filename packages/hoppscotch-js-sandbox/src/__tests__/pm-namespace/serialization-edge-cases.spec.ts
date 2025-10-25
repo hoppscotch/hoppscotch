@@ -1,20 +1,11 @@
-/**
- * PM Namespace - Serialization Edge Cases
- *
- * Tests for edge cases that arise from QuickJS sandbox boundary serialization.
- * When objects cross the sandbox boundary, they are JSON serialized/deserialized,
- * which loses:
- * - Object reference identity
- * - Prototype chain information
- * - Type metadata (RegExp, Date become plain objects/strings)
- * - Function references
- *
- * Solution: Pre-check pattern - compute values BEFORE crossing boundary,
- * then pass the pre-computed results along with the serialized data.
- */
+// QuickJS sandbox boundary serialization: compute values BEFORE crossing to preserve type info
 
 import { describe, expect, test } from "vitest"
-import { runTestWithResponse, fakeResponse } from "~/utils/test-helpers"
+import {
+  runTestWithResponse,
+  fakeResponse,
+  runTest,
+} from "~/utils/test-helpers"
 
 describe("Serialization Edge Cases - Object Reference Equality", () => {
   describe("`pm.expect.equal()` - Reference Equality", () => {
@@ -541,7 +532,7 @@ describe("Serialization Edge Cases - Special Object Types", () => {
       )
     })
 
-    test("should fail for different Date references even with same value", async () => {
+    test("should pass when different Date references are not equal (reference inequality)", async () => {
       const testScript = `
         pm.test("different date references", () => {
           pm.expect(new Date('2024-01-01')).to.not.equal(new Date('2024-01-01'));
@@ -854,5 +845,380 @@ describe("Serialization Edge Cases - Assertion Chaining", () => {
         ])
       )
     })
+  })
+
+  describe("Circular Reference Handling", () => {
+    test("should handle circular object references in property assertions", () => {
+      return expect(
+        runTest(`
+          pm.test("Circular reference property", function() {
+            const obj = { a: 1, b: 2 }
+            obj.self = obj  // Circular reference
+
+            pm.expect(obj).to.have.property('self')
+            pm.expect(obj.self).to.equal(obj)
+            pm.expect(obj).to.have.property('a', 1)
+          })
+        `)()
+      ).resolves.toEqualRight(
+        expect.arrayContaining([
+          expect.objectContaining({
+            descriptor: "root",
+            children: expect.arrayContaining([
+              expect.objectContaining({
+                descriptor: "Circular reference property",
+                expectResults: expect.arrayContaining([
+                  expect.objectContaining({ status: "pass" }),
+                  expect.objectContaining({ status: "pass" }),
+                  expect.objectContaining({ status: "pass" }),
+                ]),
+              }),
+            ]),
+          }),
+        ])
+      )
+    })
+
+    test("should handle nested circular references", () => {
+      return expect(
+        runTest(`
+          pm.test("Nested circular references", function() {
+            const parent = { name: "parent", child: null }
+            const child = { name: "child", parent: parent }
+            parent.child = child  // Creates circular reference
+
+            pm.expect(parent.child.parent).to.equal(parent)
+            pm.expect(parent).to.have.property('name', 'parent')
+            pm.expect(child).to.have.property('name', 'child')
+          })
+        `)()
+      ).resolves.toEqualRight(
+        expect.arrayContaining([
+          expect.objectContaining({
+            descriptor: "root",
+            children: expect.arrayContaining([
+              expect.objectContaining({
+                descriptor: "Nested circular references",
+                expectResults: expect.arrayContaining([
+                  expect.objectContaining({ status: "pass" }),
+                  expect.objectContaining({ status: "pass" }),
+                  expect.objectContaining({ status: "pass" }),
+                ]),
+              }),
+            ]),
+          }),
+        ])
+      )
+    })
+
+    test("should not throw 'Converting circular structure to JSON' error", () => {
+      return expect(
+        runTest(`
+          pm.test("No JSON.stringify error", function() {
+            const obj = { data: 'test' }
+            obj.circular = obj
+
+            // This should not throw even though obj has circular reference
+            pm.expect(obj).to.have.property('data')
+            pm.expect(obj.circular).to.equal(obj)
+          })
+        `)()
+      ).resolves.toEqualRight(
+        expect.arrayContaining([
+          expect.objectContaining({
+            descriptor: "root",
+            children: expect.arrayContaining([
+              expect.objectContaining({
+                descriptor: "No JSON.stringify error",
+                expectResults: expect.arrayContaining([
+                  expect.objectContaining({ status: "pass" }),
+                  expect.objectContaining({ status: "pass" }),
+                ]),
+              }),
+            ]),
+          }),
+        ])
+      )
+    })
+
+    test("should fail with stack overflow for circular array references (known limitation)", () => {
+      return expect(
+        runTest(`
+          pm.test("Circular array limitation", function() {
+            const arr = [1, 2, 3]
+            arr.push(arr)  // Creates circular reference
+
+            pm.expect(arr).to.have.lengthOf(4)
+          })
+        `)()
+      ).resolves.toEqualLeft(
+        expect.stringContaining("Maximum call stack size exceeded")
+      )
+    })
+  })
+})
+
+describe("Serialization Edge Cases - Symbol Properties", () => {
+  test("should not enumerate Symbol properties in assertions", async () => {
+    const testScript = `
+      pm.test("Symbol properties are not enumerable", () => {
+        const sym = Symbol('test');
+        const obj = { regular: 'value' };
+        obj[sym] = 'symbol value';
+
+        // Should only see regular properties
+        pm.expect(obj).to.have.property('regular');
+        pm.expect(Object.keys(obj)).to.have.lengthOf(1);
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Symbol properties are not enumerable",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  test("should handle objects with Symbol.iterator", async () => {
+    const testScript = `
+      pm.test("Symbol.iterator support", () => {
+        const customIterable = {
+          data: [1, 2, 3],
+          [Symbol.iterator]: function*() {
+            yield* this.data;
+          }
+        };
+
+        // Should be able to assert on regular properties
+        pm.expect(customIterable).to.have.property('data');
+        pm.expect(customIterable.data).to.have.lengthOf(3);
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Symbol.iterator support",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  test("should serialize objects with Symbol properties correctly", async () => {
+    const testScript = `
+      pm.test("Symbol property serialization", () => {
+        const sym = Symbol('hidden');
+        const obj = {
+          visible: 'data',
+          nested: { value: 42 }
+        };
+        obj[sym] = 'should not appear in JSON';
+
+        const jsonStr = JSON.stringify(obj);
+        const parsed = JSON.parse(jsonStr);
+
+        // After serialization, Symbol properties are lost
+        pm.expect(parsed).to.have.property('visible', 'data');
+        pm.expect(parsed).to.have.property('nested');
+        pm.expect(parsed.nested).to.have.property('value', 42);
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Symbol property serialization",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+})
+
+describe("Serialization Edge Cases - Special Numbers", () => {
+  test("should handle NaN assertions correctly", async () => {
+    const testScript = `
+      pm.test("NaN handling", () => {
+        const result = 0 / 0;
+
+        // NaN is not equal to itself
+        pm.expect(result).to.be.NaN;
+        pm.expect(result).to.not.equal(result);
+        pm.expect(Number.isNaN(result)).to.be.true;
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "NaN handling",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  test("should handle Infinity and -Infinity", async () => {
+    const testScript = `
+      pm.test("Infinity values", () => {
+        const posInf = 1 / 0;
+        const negInf = -1 / 0;
+
+        pm.expect(posInf).to.equal(Infinity);
+        pm.expect(negInf).to.equal(-Infinity);
+        pm.expect(posInf).to.not.equal(negInf);
+        pm.expect(Number.isFinite(posInf)).to.be.false;
+        pm.expect(Number.isFinite(negInf)).to.be.false;
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Infinity values",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  test("should distinguish between +0 and -0", async () => {
+    const testScript = `
+      pm.test("Negative zero handling", () => {
+        const positiveZero = 0;
+        const negativeZero = -0;
+
+        // In most contexts, +0 and -0 are equal
+        pm.expect(positiveZero).to.equal(negativeZero);
+        pm.expect(positiveZero === negativeZero).to.be.true;
+
+        // But they can be distinguished with Object.is or 1/x
+        pm.expect(Object.is(positiveZero, negativeZero)).to.be.false;
+        pm.expect(1 / positiveZero).to.equal(Infinity);
+        pm.expect(1 / negativeZero).to.equal(-Infinity);
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Negative zero handling",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
+  })
+
+  test("should handle special numbers in JSON serialization", async () => {
+    const testScript = `
+      pm.test("Special numbers in JSON", () => {
+        const obj = {
+          nan: NaN,
+          inf: Infinity,
+          negInf: -Infinity,
+          zero: 0,
+          negZero: -0
+        };
+
+        const jsonStr = JSON.stringify(obj);
+        const parsed = JSON.parse(jsonStr);
+
+        // NaN, Infinity, -Infinity become null in JSON
+        pm.expect(parsed.nan).to.be.null;
+        pm.expect(parsed.inf).to.be.null;
+        pm.expect(parsed.negInf).to.be.null;
+
+        // Both zeros become 0
+        pm.expect(parsed.zero).to.equal(0);
+        pm.expect(parsed.negZero).to.equal(0);
+      });
+    `
+
+    const result = await runTestWithResponse(testScript, fakeResponse)()
+    expect(result).toEqualRight(
+      expect.arrayContaining([
+        expect.objectContaining({
+          descriptor: "root",
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Special numbers in JSON",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
+          ]),
+        }),
+      ])
+    )
   })
 })

@@ -15,6 +15,7 @@ import {
   SelectedEnvItem,
   TestDescriptor,
   TestResult,
+  SandboxValue,
 } from "../types"
 
 export type EnvSource = "active" | "global" | "all"
@@ -57,7 +58,7 @@ const findEnvIndex = (
 
 const setEnv = (
   envName: string,
-  envValue: any,
+  envValue: SandboxValue,
   envs: TestResult["envs"],
   options: { setInitialValue?: boolean; source: EnvSource } = {
     setInitialValue: false,
@@ -154,7 +155,7 @@ export function getSharedEnvMethods(
       setInitial: (key: string, value: string, options?: EnvAPIOptions) => void
     }
   }
-  pmSetAny: (key: string, value: any, options?: EnvAPIOptions) => void
+  pmSetAny: (key: string, value: SandboxValue, options?: EnvAPIOptions) => void
   updatedEnvs: TestResult["envs"]
 }
 
@@ -188,7 +189,7 @@ export function getSharedEnvMethods(
   let updatedEnvs = envs
 
   const envGetFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -207,7 +208,7 @@ export function getSharedEnvMethods(
   }
 
   const envGetResolveFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -245,8 +246,8 @@ export function getSharedEnvMethods(
   }
 
   const envSetFn = (
-    key: any,
-    value: any,
+    key: unknown,
+    value: unknown,
     options: EnvAPIOptions = { source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -264,8 +265,8 @@ export function getSharedEnvMethods(
 
   // PM namespace-specific setter that accepts any type (for Postman compatibility)
   const envSetAnyFn = (
-    key: any,
-    value: any,
+    key: unknown,
+    value: SandboxValue, // Intentionally SandboxValue for PM namespace type preservation
     options: EnvAPIOptions = { source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -278,7 +279,10 @@ export function getSharedEnvMethods(
     return undefined
   }
 
-  const envUnsetFn = (key: any, options: EnvAPIOptions = { source: "all" }) => {
+  const envUnsetFn = (
+    key: unknown,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
@@ -288,7 +292,7 @@ export function getSharedEnvMethods(
     return undefined
   }
 
-  const envResolveFn = (value: any) => {
+  const envResolveFn = (value: unknown) => {
     if (typeof value !== "string") {
       throw new Error("Expected value to be a string")
     }
@@ -338,7 +342,7 @@ export function getSharedEnvMethods(
   }
 
   const envGetInitialRawFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -430,7 +434,7 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
     }
   }
 
-  const cookieGetFn = (domain: any, name: any): Cookie | null => {
+  const cookieGetFn = (domain: unknown, name: unknown): Cookie | null => {
     throwIfCookiesUnsupported()
 
     if (typeof domain !== "string" || typeof name !== "string") {
@@ -514,7 +518,7 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
   }
 }
 
-const getResolvedExpectValue = (expectVal: any) => {
+const getResolvedExpectValue = (expectVal: SandboxValue) => {
   if (typeof expectVal !== "string") {
     return expectVal
   }
@@ -571,14 +575,14 @@ export function preventCyclicObjects<T extends object = Record<string, any>>(
  * @returns Object with the expectation methods
  */
 export const createExpectation = (
-  expectVal: any,
+  expectVal: SandboxValue,
   negated: boolean,
   currTestStack: TestDescriptor[]
 ): Expectation => {
   // Non-primitive values supplied are stringified in the isolate context
   const resolvedExpectVal = getResolvedExpectValue(expectVal)
 
-  const toBeFn = (expectedVal: any) => {
+  const toBeFn = (expectedVal: SandboxValue) => {
     let assertion = resolvedExpectVal === expectedVal
 
     if (negated) {
@@ -638,7 +642,7 @@ export const createExpectation = (
   const toBeLevel4xxFn = () => toBeLevelXxx("400", 400, 499)
   const toBeLevel5xxFn = () => toBeLevelXxx("500", 500, 599)
 
-  const toBeTypeFn = (expectedType: any) => {
+  const toBeTypeFn = (expectedType: SandboxValue) => {
     if (
       [
         "string",
@@ -678,7 +682,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toHaveLengthFn = (expectedLength: any) => {
+  const toHaveLengthFn = (expectedLength: SandboxValue) => {
     if (
       !(
         Array.isArray(resolvedExpectVal) ||
@@ -722,7 +726,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toIncludeFn = (needle: any) => {
+  const toIncludeFn = (needle: SandboxValue) => {
     if (
       !(
         Array.isArray(resolvedExpectVal) ||
@@ -828,7 +832,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
     testRunStack[testRunStack.length - 1].children.push(child)
   }
 
-  const expectFn = (expectVal: any) =>
+  const expectFn = (expectVal: unknown) =>
     createExpectation(expectVal, false, testRunStack)
 
   const { methods, updatedEnvs } = getSharedEnvMethods(cloneDeep(envs))

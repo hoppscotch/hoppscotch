@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"
 
-/**
- * String and Regex Matching Test Suite
- *
- * Tests for .string() and .match() Chai methods
- */
 describe("hopp.expect - String and Regex Methods", () => {
   describe("String Inclusion (.string())", () => {
     test("should support .string() for substring inclusion", () => {

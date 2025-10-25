@@ -1,10 +1,3 @@
-/**
- * @file Tests for advanced Postman BDD assertions
- *
- * These tests verify JSON schema validation, charset assertions, and JSONPath querying.
- * These are advanced features commonly used in comprehensive API testing.
- */
-
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"
 
@@ -41,6 +34,8 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Response matches schema",
+            // Note: jsonSchema assertion currently doesn't populate expectResults
+            // TODO: Enhance implementation to track individual schema validation results
             expectResults: [],
           }),
         ],
@@ -100,6 +95,7 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Nested schema validation",
+            // Note: jsonSchema assertion currently doesn't populate expectResults
             expectResults: [],
           }),
         ],
@@ -145,6 +141,7 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Array schema validation",
+            // Note: jsonSchema assertion currently doesn't populate expectResults
             expectResults: [],
           }),
         ],

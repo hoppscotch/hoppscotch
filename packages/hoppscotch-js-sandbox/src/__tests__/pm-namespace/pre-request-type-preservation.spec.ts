@@ -4,16 +4,7 @@ import { runPreRequestScript } from "~/node"
 
 const DEFAULT_REQUEST = getDefaultRESTRequest()
 
-/**
- * Tests for PM namespace type preservation in PRE-REQUEST scripts
- *
- * Critical: Pre-request scripts execute in ISOLATION before the request.
- * These tests validate that the pre-request.js refactoring correctly:
- * 1. Preserves arrays, objects, null, and undefined (NO String() coercion)
- * 2. Uses NULL_MARKER for null values
- * 3. Uses UNDEFINED_MARKER for undefined values
- * 4. Helper functions (convertMarkerToValue, pmSetWithMarkers) work correctly
- */
+// Pre-request scripts use markers to preserve null/undefined across serialization
 
 describe("PM namespace type preservation in pre-request context", () => {
   const emptyEnvs = {

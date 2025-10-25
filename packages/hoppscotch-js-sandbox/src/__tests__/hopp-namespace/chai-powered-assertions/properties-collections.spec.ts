@@ -1,16 +1,4 @@
 /**
- * Properties and Collections Assertions Test Suite
- *
- * This test suite validates Chai.js property and collection assertions including:
- * - Property assertions (`.property()`, `.ownProperty()`, `.ownPropertyDescriptor()`)
- * - Nested property assertions (`.nested.property()`)
- * - Deep property assertions (`.deep.property()`, `.deep.own.property()`, `.deep.nested.property()`)
- * - Keys assertions (`.keys()`, `.key()`, `.all.keys()`, `.any.keys()`, `.include.keys()`)
- * - Members assertions (`.members()`, `.include.members()`, `.deep.members()`, `.ordered.members()`, `.include.deep.ordered.members()`)
- * - Length assertions (`.lengthOf()`, `.length()`) for arrays, strings, Set, Map
- * - Include/contain assertions (`.include()`, `.contain()`, `.includes()`, `.contains()`, `.contain.oneOf()`)
- *
- * @see RFC: Enhanced Scripting - Chai.js Integration
  * @see https://github.com/hoppscotch/hoppscotch/discussions/5221
  */
 

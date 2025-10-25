@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest, fakeResponse } from "~/utils/test-helpers"
 
-describe.skip("toBeLevelxxx", { timeout: 100000 }, () => {
+describe("toBeLevelxxx", { timeout: 100000 }, () => {
   describe("toBeLevel2xx", () => {
     test("assertion passes for 200 series with no negation", async () => {
       for (let i = 200; i < 300; i++) {

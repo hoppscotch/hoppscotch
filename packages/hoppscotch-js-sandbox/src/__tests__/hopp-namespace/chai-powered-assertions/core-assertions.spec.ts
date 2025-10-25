@@ -1,18 +1,4 @@
 /**
- * Core Chai Assertions Test Suite
- *
- * This test suite validates core Chai.js BDD-style assertions including:
- * - Language chains (to, be, been, is, that, which, and, has, have, with, at, of, same, but, does, itself)
- * - Type assertions (.a(), .an(), primitive types, Symbol, BigInt)
- * - Equality assertions (.equal(), .equals(), .eq())
- * - Deep equality assertions (.eql())
- * - Truthiness assertions (.true, .false, .ok)
- * - Nullish assertions (.null, .undefined, .NaN, .exist)
- * - Numerical comparisons (.above(), .below(), .within(), .closeTo(), .approximately())
- * - Comparison aliases (.gt(), .gte(), .lt(), .lte(), .greaterThan(), .lessThan())
- * - Special values (.finite, .empty)
- *
- * @see RFC: Enhanced Scripting - Chai.js Integration
  * @see https://github.com/hoppscotch/hoppscotch/discussions/5221
  */
 

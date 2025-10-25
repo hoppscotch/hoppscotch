@@ -6,10 +6,7 @@ import { describe, expect, test } from "vitest"
 import { runTestScript } from "~/node"
 import { TestResponse, TestResult } from "~/types"
 
-/**
- * Tests verifying that hopp.env.set methods reject undefined values
- * and enforce strict string typing (namespace separation from PM namespace)
- */
+// Hopp namespace enforces strict string typing (unlike PM namespace)
 
 const defaultRequest = getDefaultRESTRequest()
 const fakeResponse: TestResponse = {

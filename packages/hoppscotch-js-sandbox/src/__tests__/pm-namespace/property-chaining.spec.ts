@@ -1,12 +1,4 @@
-/**
- * PM Namespace - Property Chaining Tests
- *
- * Tests for property assertions with value chaining using .that, .which
- * These patterns are used extensively in Postman collections.
- *
- * The key behavior: .property('key') should return a NEW expectation
- * wrapping the PROPERTY VALUE, not the original object.
- */
+// .property('key') returns a NEW expectation wrapping the property value
 
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"

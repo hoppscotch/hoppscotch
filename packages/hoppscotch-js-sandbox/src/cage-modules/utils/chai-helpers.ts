@@ -1,6 +1,6 @@
 import { CageModuleCtx, defineSandboxFn } from "faraday-cage/modules"
 import * as chai from "chai"
-import { TestDescriptor } from "~/types"
+import { TestDescriptor, SandboxValue } from "~/types"
 
 /**
  * Creates Chai-based assertion methods that can be used across the sandbox boundary
@@ -37,7 +37,7 @@ export const createChaiMethods: (
    * Helper to format values for display in messages
    */
   // Helper to apply modifiers (not, deep, include, etc.) to a Chai assertion
-  const applyModifiers = (value: any, modifiers: string) => {
+  const applyModifiers = (value: SandboxValue, modifiers: string) => {
     let assertion: any = chai.expect(value)
     const isNot = modifiers.includes("not")
     const isDeep = modifiers.includes("deep")
@@ -52,7 +52,7 @@ export const createChaiMethods: (
     return assertion
   }
 
-  const formatValue = (val: any): string => {
+  const formatValue = (val: unknown): string => {
     if (val === null) return "null"
     if (val === undefined) return "undefined"
     // Handle BigInt
@@ -154,9 +154,10 @@ export const createChaiMethods: (
         if (val instanceof Map) {
           const entries = Array.from(val.entries()).slice(0, 3)
           if (entries.length === 0) return "new Map()"
-          // Fix Map formatting for .map((entry: any) => ...)
-          const formatted = entries.map((entry: any) => {
-            return `[${entry[0]}, ${entry[1]}]`
+          // Fix Map formatting for .map((entry: unknown) => ...)
+          const formatted = entries.map((entry: unknown) => {
+            const [key, value] = entry as [unknown, unknown]
+            return `[${key}, ${value}]`
           })
           return `new Map([${formatted.join(", ")}])`
         }
@@ -169,40 +170,63 @@ export const createChaiMethods: (
         if (val instanceof RegExp) return val.toString()
 
         // Check constructor name for objects that lost their prototype
-        const constructorName = val.constructor?.name
+        const constructorName = (val as { constructor?: { name?: string } })
+          .constructor?.name
         if (constructorName && constructorName !== "Object") {
           // Special handling for Set/Map that lost prototype but have size property
-          if (constructorName === "Set" && typeof val.size === "number") {
+          const objWithSize = val as { size?: unknown }
+          if (
+            constructorName === "Set" &&
+            typeof objWithSize.size === "number"
+          ) {
             return `new Set()`
           }
-          if (constructorName === "Map" && typeof val.size === "number") {
+          if (
+            constructorName === "Map" &&
+            typeof objWithSize.size === "number"
+          ) {
             return `new Map()`
           }
           // Special handling for RegExp that lost prototype
-          if (constructorName === "RegExp" && typeof val.source === "string") {
-            const flags = val.flags || ""
-            return `/${val.source}/${flags}`
+          const objWithRegex = val as { source?: unknown; flags?: unknown }
+          if (
+            constructorName === "RegExp" &&
+            typeof objWithRegex.source === "string"
+          ) {
+            const flags = objWithRegex.flags || ""
+            return `/${objWithRegex.source}/${flags}`
           }
           return `new ${constructorName}()`
         }
 
         // Check if it's a RegExp that lost its prototype
-        if (typeof val.source === "string") {
-          const flags = val.flags || ""
-          return `/${val.source}/${flags}`
+        const objWithRegex = val as { source?: unknown; flags?: unknown }
+        if (typeof objWithRegex.source === "string") {
+          const flags = objWithRegex.flags || ""
+          return `/${objWithRegex.source}/${flags}`
         }
 
         // Check if it's a Set or Map that lost its prototype
-        if (typeof val.size === "number" && typeof val.has === "function") {
+        const objWithMethods = val as {
+          size?: unknown
+          has?: unknown
+          forEach?: unknown
+        }
+        if (
+          typeof objWithMethods.size === "number" &&
+          typeof objWithMethods.has === "function"
+        ) {
           // Likely a Set or Map
-          return val.forEach ? "new Set()" : "new Map()"
+          return objWithMethods.forEach ? "new Set()" : "new Map()"
         }
 
         const keys = Object.keys(val)
         if (keys.length === 0) return "{}"
         const pairs = keys
           .slice(0, 5)
-          .map((k) => `${k}: ${formatValue(val[k])}`)
+          .map(
+            (k) => `${k}: ${formatValue((val as Record<string, unknown>)[k])}`
+          )
         return `{${pairs.join(", ")}}`
       } catch {
         return "[object Object]"
@@ -219,10 +243,10 @@ export const createChaiMethods: (
    * Cleans up duplicate words and formats properly
    */
   const buildMessage = (
-    value: any,
+    value: SandboxValue,
     modifiers: string,
     assertion: string,
-    args: any[] = []
+    args: unknown[] = []
   ): string => {
     const valueStr = formatValue(value)
 
@@ -331,12 +355,12 @@ export const createChaiMethods: (
   return {
     // Equality assertions
     chaiEqual: defineSandboxFn(ctx, "chaiEqual", ((
-      value: any,
-      expected: any,
-      modifiers: any,
-      methodName: any,
+      value: SandboxValue,
+      expected: SandboxValue,
+      modifiers: SandboxValue,
+      methodName: SandboxValue,
       isSameReference?: boolean,
-      typeInfo?: any
+      typeInfo?: SandboxValue
     ) => {
       const mods = modifiers || " to"
       const isDeep = String(mods).includes("deep")
@@ -361,12 +385,23 @@ export const createChaiMethods: (
         let displayExpected = formatValue(expected)
 
         if (typeInfo) {
-          if (typeInfo.type === "Date") {
-            displayValue = new Date(typeInfo.valueTime).toISOString()
-            displayExpected = new Date(typeInfo.expectedTime).toISOString()
-          } else if (typeInfo.type === "RegExp") {
-            displayValue = `/${typeInfo.valueSource}/${typeInfo.valueFlags}`
-            displayExpected = `/${typeInfo.expectedSource}/${typeInfo.expectedFlags}`
+          const info = typeInfo as {
+            type?: string
+            valueTime?: unknown
+            expectedTime?: unknown
+            valueSource?: unknown
+            valueFlags?: unknown
+            expectedSource?: unknown
+            expectedFlags?: unknown
+          }
+          if (info.type === "Date") {
+            displayValue = new Date(info.valueTime as number).toISOString()
+            displayExpected = new Date(
+              info.expectedTime as number
+            ).toISOString()
+          } else if (info.type === "RegExp") {
+            displayValue = `/${info.valueSource}/${info.valueFlags}`
+            displayExpected = `/${info.expectedSource}/${info.expectedFlags}`
           }
         }
 
@@ -374,45 +409,60 @@ export const createChaiMethods: (
           () => {
             if (!shouldPass) {
               throw new Error(
-                `Expected ${displayValue}${String(mods)} ${methodName || "equal"} ${displayExpected}`
+                `Expected ${displayValue}${String(mods)} ${String(methodName || "equal")} ${displayExpected}`
               )
             }
           },
-          buildMessage(displayValue, mods, methodName || "equal", [
-            displayExpected,
-          ])
+          buildMessage(
+            displayValue,
+            String(mods),
+            String(methodName || "equal"),
+            [displayExpected]
+          )
         )
       } else {
         // For primitives, .deep.equal(), or when reference info not available, use default Chai behavior
         executeChaiAssertion(
           () => applyModifiers(value, mods).equal(expected),
-          buildMessage(value, mods, methodName || "equal", [expected])
+          buildMessage(value, String(mods), methodName || "equal", [expected])
         )
       }
     }) as any),
 
     chaiEql: defineSandboxFn(ctx, "chaiEql", ((
-      value: any,
-      expected: any,
-      modifiers?: any,
-      valueMetadata?: any,
-      expectedMetadata?: any
+      value: SandboxValue,
+      expected: SandboxValue,
+      modifiers?: SandboxValue,
+      valueMetadata?: SandboxValue,
+      expectedMetadata?: SandboxValue
     ) => {
       const mods = modifiers || " to"
 
       // PRE-CHECK PATTERN: Use metadata for special objects (RegExp, Date)
       if (valueMetadata && expectedMetadata) {
+        const valueMeta = valueMetadata as {
+          type?: string
+          source?: unknown
+          flags?: unknown
+          time?: unknown
+        }
+        const expectedMeta = expectedMetadata as {
+          type?: string
+          source?: unknown
+          flags?: unknown
+          time?: unknown
+        }
         const isNegated = String(mods).includes("not")
         let matches = false
 
-        if (valueMetadata.type === "RegExp") {
+        if (valueMeta.type === "RegExp") {
           // Compare RegExp by source and flags
           matches =
-            valueMetadata.source === expectedMetadata.source &&
-            valueMetadata.flags === expectedMetadata.flags
-        } else if (valueMetadata.type === "Date") {
+            valueMeta.source === expectedMeta.source &&
+            valueMeta.flags === expectedMeta.flags
+        } else if (valueMeta.type === "Date") {
           // Compare Date by timestamp
-          matches = valueMetadata.time === expectedMetadata.time
+          matches = valueMeta.time === expectedMeta.time
         }
 
         const shouldPass = isNegated ? !matches : matches
@@ -421,25 +471,25 @@ export const createChaiMethods: (
           () => {
             if (!shouldPass) {
               const displayValue =
-                valueMetadata.type === "RegExp"
-                  ? `/${valueMetadata.source}/${valueMetadata.flags}`
-                  : new Date(valueMetadata.time).toISOString()
+                valueMeta.type === "RegExp"
+                  ? `/${valueMeta.source}/${valueMeta.flags}`
+                  : new Date(valueMeta.time as number).toISOString()
               const displayExpected =
-                expectedMetadata.type === "RegExp"
-                  ? `/${expectedMetadata.source}/${expectedMetadata.flags}`
-                  : new Date(expectedMetadata.time).toISOString()
+                expectedMeta.type === "RegExp"
+                  ? `/${expectedMeta.source}/${expectedMeta.flags}`
+                  : new Date(expectedMeta.time as number).toISOString()
 
               throw new Error(
                 `Expected ${displayValue}${String(mods)} eql ${displayExpected}`
               )
             }
           },
-          valueMetadata.type === "RegExp"
+          valueMeta.type === "RegExp"
             ? buildMessage(
-                `/${valueMetadata.source}/${valueMetadata.flags}`,
+                `/${valueMeta.source}/${valueMeta.flags}`,
                 mods,
                 "eql",
-                [`/${expectedMetadata.source}/${expectedMetadata.flags}`]
+                [`/${expectedMeta.source}/${expectedMeta.flags}`]
               )
             : buildMessage(value, mods, "eql", [expected])
         )
@@ -447,7 +497,7 @@ export const createChaiMethods: (
         // Default behavior for non-special objects
         executeChaiAssertion(
           () => applyModifiers(value, mods).eql(expected),
-          buildMessage(value, mods, "eql", [expected])
+          buildMessage(value, String(mods), "eql", [expected])
         )
       }
     }) as any),
@@ -455,11 +505,15 @@ export const createChaiMethods: (
     chaiDeepEqual: defineSandboxFn(
       ctx,
       "chaiDeepEqual",
-      (value: any, expected: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        expected: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).deep.equal(expected),
-          buildMessage(value, mods, "deep equal", [expected])
+          buildMessage(value, String(mods), "deep equal", [expected])
         )
       }
     ),
@@ -468,7 +522,12 @@ export const createChaiMethods: (
     chaiTypeOf: defineSandboxFn(
       ctx,
       "chaiTypeOf",
-      (value: any, type: any, modifiers?: any, preCheckedType?: any) => {
+      (
+        value: SandboxValue,
+        type: SandboxValue,
+        modifiers?: SandboxValue,
+        preCheckedType?: unknown
+      ) => {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
 
@@ -497,7 +556,7 @@ export const createChaiMethods: (
           // Fallback to Chai's type checking if no pre-check available
           executeChaiAssertion(
             () => applyModifiers(value, mods).be.a(type),
-            buildMessage(value, mods, `${article} ${type}`)
+            buildMessage(value, String(mods), `${article} ${type}`)
           )
         }
       }
@@ -585,28 +644,32 @@ export const createChaiMethods: (
     ),
 
     // Truthiness assertions
-    chaiOk: defineSandboxFn(ctx, "chaiOk", (value: any, modifiers?: any) => {
-      const mods = modifiers || " to"
-      executeChaiAssertion(
-        () => {
-          const assertion = applyModifiers(value, mods)
-          void assertion.be.ok
-        },
-        buildMessage(value, mods, "ok")
-      )
-    }),
+    chaiOk: defineSandboxFn(
+      ctx,
+      "chaiOk",
+      (value: SandboxValue, modifiers?: SandboxValue) => {
+        const mods = modifiers || " to"
+        executeChaiAssertion(
+          () => {
+            const assertion = applyModifiers(value, mods)
+            void assertion.be.ok
+          },
+          buildMessage(value, String(mods), "ok")
+        )
+      }
+    ),
 
     chaiTrue: defineSandboxFn(
       ctx,
       "chaiTrue",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.be.true
           },
-          buildMessage(value, mods, "true")
+          buildMessage(value, String(mods), "true")
         )
       }
     ),
@@ -614,14 +677,14 @@ export const createChaiMethods: (
     chaiFalse: defineSandboxFn(
       ctx,
       "chaiFalse",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.be.false
           },
-          buildMessage(value, mods, "false")
+          buildMessage(value, String(mods), "false")
         )
       }
     ),
@@ -630,14 +693,14 @@ export const createChaiMethods: (
     chaiNull: defineSandboxFn(
       ctx,
       "chaiNull",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.be.null
           },
-          buildMessage(value, mods, "null")
+          buildMessage(value, String(mods), "null")
         )
       }
     ),
@@ -645,40 +708,44 @@ export const createChaiMethods: (
     chaiUndefined: defineSandboxFn(
       ctx,
       "chaiUndefined",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.be.undefined
           },
-          buildMessage(value, mods, "undefined")
+          buildMessage(value, String(mods), "undefined")
         )
       }
     ),
 
-    chaiNaN: defineSandboxFn(ctx, "chaiNaN", (value: any, modifiers?: any) => {
-      const mods = modifiers || " to"
-      executeChaiAssertion(
-        () => {
-          const assertion = applyModifiers(value, mods)
-          void assertion.be.NaN
-        },
-        buildMessage(value, mods, "NaN")
-      )
-    }),
+    chaiNaN: defineSandboxFn(
+      ctx,
+      "chaiNaN",
+      (value: SandboxValue, modifiers?: SandboxValue) => {
+        const mods = modifiers || " to"
+        executeChaiAssertion(
+          () => {
+            const assertion = applyModifiers(value, mods)
+            void assertion.be.NaN
+          },
+          buildMessage(value, String(mods), "NaN")
+        )
+      }
+    ),
 
     chaiExist: defineSandboxFn(
       ctx,
       "chaiExist",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.exist
           },
-          buildMessage(value, mods, "exist")
+          buildMessage(value, String(mods), "exist")
         )
       }
     ),
@@ -687,7 +754,12 @@ export const createChaiMethods: (
     chaiEmpty: defineSandboxFn(
       ctx,
       "chaiEmpty",
-      (value: any, modifiers?: any, typeName?: any, actualSize?: any) => {
+      (
+        value: SandboxValue,
+        modifiers?: SandboxValue,
+        typeName?: unknown,
+        actualSize?: unknown
+      ) => {
         const mods = modifiers || " to"
         // Special handling for Set/Map
         let isEmpty = false
@@ -714,7 +786,10 @@ export const createChaiMethods: (
             value.size === 0
               ? "new Map()"
               : `new Map([${Array.from(value.entries())
-                  .map((entry: any) => `[${entry[0]}, ${entry[1]}]`)
+                  .map((entry: unknown) => {
+                    const [key, value] = entry as [unknown, unknown]
+                    return `[${key}, ${value}]`
+                  })
                   .join(", ")}])`
         } else if (Array.isArray(value)) {
           isEmpty = value.length === 0
@@ -737,11 +812,11 @@ export const createChaiMethods: (
     chaiInclude: defineSandboxFn(
       ctx,
       "chaiInclude",
-      (value: any, item: any, modifiers?: any) => {
+      (value: SandboxValue, item: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).include(item),
-          buildMessage(value, mods, "include", [item])
+          buildMessage(value, String(mods), "include", [item])
         )
       }
     ),
@@ -749,11 +824,11 @@ export const createChaiMethods: (
     chaiDeepInclude: defineSandboxFn(
       ctx,
       "chaiDeepInclude",
-      (value: any, item: any, modifiers?: any) => {
+      (value: SandboxValue, item: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).deep.include(item),
-          buildMessage(value, mods, "deep include", [item])
+          buildMessage(value, String(mods), "deep include", [item])
         )
       }
     ),
@@ -761,14 +836,14 @@ export const createChaiMethods: (
     chaiIncludeKeys: defineSandboxFn(
       ctx,
       "chaiIncludeKeys",
-      (value: any, keys: any, modifiers?: any) => {
+      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.include.keys(...keys)
           },
-          buildMessage(value, mods, "include keys", keys)
+          buildMessage(value, String(mods), "include keys", keys)
         )
       }
     ),
@@ -778,12 +853,12 @@ export const createChaiMethods: (
       ctx,
       "chaiLengthOf",
       function (
-        value: any,
-        length: any,
-        modifiers: any,
-        methodName: any,
-        actualSize?: any,
-        typeName?: any
+        value: SandboxValue,
+        length: unknown,
+        modifiers: SandboxValue,
+        methodName: SandboxValue,
+        actualSize?: unknown,
+        typeName?: unknown
       ) {
         const mods = (modifiers || " to") as string
         const assertion = mods.trim().endsWith("has")
@@ -800,7 +875,10 @@ export const createChaiMethods: (
               displayValue = `new Set([${Array.from(value).join(", ")}])`
             } else if (typeName.includes("Map")) {
               displayValue = `new Map([${Array.from(value.entries())
-                .map((entry: any) => `[${entry[0]}, ${entry[1]}]`)
+                .map((entry: unknown) => {
+                  const [key, value] = entry as [unknown, unknown]
+                  return `[${key}, ${value}]`
+                })
                 .join(", ")}])`
             }
           }
@@ -824,7 +902,10 @@ export const createChaiMethods: (
           const negated = mods.includes("not")
           const pass = negated ? !matches : matches
           const displayValue = `new Map([${Array.from(value.entries())
-            .map((entry: any) => `[${entry[0]}, ${entry[1]}]`)
+            .map((entry: unknown) => {
+              const [key, value] = entry as [unknown, unknown]
+              return `[${key}, ${value}]`
+            })
             .join(", ")}])`
           testStack[testStack.length - 1].expectResults.push({
             status: pass ? "pass" : "fail",
@@ -842,7 +923,7 @@ export const createChaiMethods: (
                 expectChain.to.have.lengthOf(Number(length))
               }
             },
-            buildMessage(value, mods, assertion, [length])
+            buildMessage(value, String(mods), assertion, [length])
           )
         }
       }
@@ -850,10 +931,10 @@ export const createChaiMethods: (
 
     // Property assertions
     chaiProperty: defineSandboxFn(ctx, "chaiProperty", ((
-      value: any,
-      property: any,
-      propertyValue?: any,
-      modifiers?: any,
+      value: SandboxValue,
+      property: SandboxValue,
+      propertyValue?: SandboxValue,
+      modifiers?: SandboxValue,
       hasProperty?: boolean
     ) => {
       const mods = modifiers || " to"
@@ -878,7 +959,7 @@ export const createChaiMethods: (
               )
             }
           },
-          buildMessage(value, mods, `property '${property}'`)
+          buildMessage(value, String(mods), `property '${property}'`)
         )
       } else {
         // For primitives, value assertions, or when property existence info not available
@@ -901,9 +982,9 @@ export const createChaiMethods: (
     }) as any),
 
     chaiOwnProperty: defineSandboxFn(ctx, "chaiOwnProperty", ((
-      value: any,
-      property: any,
-      modifiers?: any,
+      value: SandboxValue,
+      property: SandboxValue,
+      modifiers?: SandboxValue,
       isOwnProperty?: boolean
     ) => {
       const mods = modifiers || " to"
@@ -926,7 +1007,7 @@ export const createChaiMethods: (
               )
             }
           },
-          buildMessage(value, mods, `own property '${property}'`)
+          buildMessage(value, String(mods), `own property '${property}'`)
         )
       } else {
         // For primitives or when hasOwnProperty info not available, use default Chai behavior
@@ -935,7 +1016,7 @@ export const createChaiMethods: (
             const assertion = applyModifiers(value, mods)
             assertion.have.own.property(property)
           },
-          buildMessage(value, mods, `own property '${property}'`)
+          buildMessage(value, String(mods), `own property '${property}'`)
         )
       }
     }) as any),
@@ -943,14 +1024,21 @@ export const createChaiMethods: (
     chaiDeepOwnProperty: defineSandboxFn(
       ctx,
       "chaiDeepOwnProperty",
-      (value: any, property: any, propertyValue: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        property: SandboxValue,
+        propertyValue: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () =>
             chai
               .expect(value)
               .to.have.deep.own.property(property, propertyValue),
-          buildMessage(value, mods, `property '${property}'`, [propertyValue])
+          buildMessage(value, String(mods), `property '${property}'`, [
+            propertyValue,
+          ])
         )
       }
     ),
@@ -958,7 +1046,12 @@ export const createChaiMethods: (
     chaiNestedProperty: defineSandboxFn(
       ctx,
       "chaiNestedProperty",
-      (value: any, property: any, propertyValue?: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        property: SandboxValue,
+        propertyValue?: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         const hasValue = propertyValue !== undefined
         executeChaiAssertion(
@@ -982,14 +1075,14 @@ export const createChaiMethods: (
     chaiNestedInclude: defineSandboxFn(
       ctx,
       "chaiNestedInclude",
-      (value: any, obj: any, modifiers?: any) => {
+      (value: SandboxValue, obj: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.nested.include(obj)
           },
-          buildMessage(value, mods, "nested include", [obj])
+          buildMessage(value, String(mods), "nested include", [obj])
         )
       }
     ),
@@ -998,11 +1091,11 @@ export const createChaiMethods: (
     chaiAbove: defineSandboxFn(
       ctx,
       "chaiAbove",
-      (value: any, n: any, modifiers?: any) => {
+      (value: SandboxValue, n: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.above(n),
-          buildMessage(value, mods, "above", [n])
+          buildMessage(value, String(mods), "above", [n])
         )
       }
     ),
@@ -1010,11 +1103,11 @@ export const createChaiMethods: (
     chaiBelow: defineSandboxFn(
       ctx,
       "chaiBelow",
-      (value: any, n: any, modifiers?: any) => {
+      (value: SandboxValue, n: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.below(n),
-          buildMessage(value, mods, "below", [n])
+          buildMessage(value, String(mods), "below", [n])
         )
       }
     ),
@@ -1022,11 +1115,11 @@ export const createChaiMethods: (
     chaiAtLeast: defineSandboxFn(
       ctx,
       "chaiAtLeast",
-      (value: any, n: any, modifiers?: any) => {
+      (value: SandboxValue, n: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.at.least(n),
-          buildMessage(value, mods, "at least", [n])
+          buildMessage(value, String(mods), "at least", [n])
         )
       }
     ),
@@ -1034,11 +1127,11 @@ export const createChaiMethods: (
     chaiAtMost: defineSandboxFn(
       ctx,
       "chaiAtMost",
-      (value: any, n: any, modifiers?: any) => {
+      (value: SandboxValue, n: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.at.most(n),
-          buildMessage(value, mods, "at most", [n])
+          buildMessage(value, String(mods), "at most", [n])
         )
       }
     ),
@@ -1046,11 +1139,16 @@ export const createChaiMethods: (
     chaiWithin: defineSandboxFn(
       ctx,
       "chaiWithin",
-      (value: any, start: any, end: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        start: unknown,
+        end: unknown,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.within(start, end),
-          buildMessage(value, mods, "within", [start, end])
+          buildMessage(value, String(mods), "within", [start, end])
         )
       }
     ),
@@ -1059,17 +1157,17 @@ export const createChaiMethods: (
       ctx,
       "chaiCloseTo",
       (
-        value: any,
-        expected: any,
-        delta: any,
-        modifiers?: any,
-        methodName?: any
+        value: SandboxValue,
+        expected: SandboxValue,
+        delta: unknown,
+        modifiers?: SandboxValue,
+        methodName?: unknown
       ) => {
         const mods = modifiers || " to"
         const method = methodName || "closeTo"
         executeChaiAssertion(
           () => applyModifiers(value, mods).be.closeTo(expected, delta),
-          buildMessage(value, mods, method, [expected, delta])
+          buildMessage(value, String(mods), String(method), [expected, delta])
         )
       }
     ),
@@ -1078,14 +1176,14 @@ export const createChaiMethods: (
     chaiKeys: defineSandboxFn(
       ctx,
       "chaiKeys",
-      (value: any, keys: any, modifiers?: any) => {
+      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.keys(...keys)
           },
-          buildMessage(value, mods, "keys", keys)
+          buildMessage(value, String(mods), "keys", keys)
         )
       }
     ),
@@ -1093,14 +1191,14 @@ export const createChaiMethods: (
     chaiAllKeys: defineSandboxFn(
       ctx,
       "chaiAllKeys",
-      (value: any, keys: any, modifiers?: any) => {
+      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.all.keys(...keys)
           },
-          buildMessage(value, mods, "keys", keys)
+          buildMessage(value, String(mods), "keys", keys)
         )
       }
     ),
@@ -1108,14 +1206,14 @@ export const createChaiMethods: (
     chaiAnyKeys: defineSandboxFn(
       ctx,
       "chaiAnyKeys",
-      (value: any, keys: any, modifiers?: any) => {
+      (value: SandboxValue, keys: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.any.keys(...keys)
           },
-          buildMessage(value, mods, "keys", keys)
+          buildMessage(value, String(mods), "keys", keys)
         )
       }
     ),
@@ -1125,11 +1223,11 @@ export const createChaiMethods: (
       ctx,
       "chaiMatch",
       function (
-        value: any,
-        pattern: any,
-        modifiers: any,
-        regexSource?: any,
-        regexFlags?: any
+        value: SandboxValue,
+        pattern: unknown,
+        modifiers: SandboxValue,
+        regexSource?: unknown,
+        regexFlags?: unknown
       ) {
         const mods = modifiers || " to"
         let actualPattern = pattern
@@ -1147,7 +1245,7 @@ export const createChaiMethods: (
           matched = Boolean(
             actualPattern instanceof RegExp
               ? actualPattern.test(value)
-              : String(value).match(actualPattern)
+              : String(value).match(String(actualPattern))
           )
         } catch {
           matched = false
@@ -1165,7 +1263,11 @@ export const createChaiMethods: (
     chaiString: defineSandboxFn(
       ctx,
       "chaiString",
-      function (value: any, substring: any, modifiers?: any) {
+      function (
+        value: SandboxValue,
+        substring: unknown,
+        modifiers?: SandboxValue
+      ) {
         const mods = String(modifiers || " to")
         const isNegated = mods.includes("not")
         const valueStr = String(value)
@@ -1185,14 +1287,18 @@ export const createChaiMethods: (
     chaiMembers: defineSandboxFn(
       ctx,
       "chaiMembers",
-      (value: any, members: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        members: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.members(members)
           },
-          buildMessage(value, mods, "members", [members])
+          buildMessage(value, String(mods), "members", [members])
         )
       }
     ),
@@ -1200,14 +1306,18 @@ export const createChaiMethods: (
     chaiIncludeMembers: defineSandboxFn(
       ctx,
       "chaiIncludeMembers",
-      (value: any, members: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        members: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.include.members(members)
           },
-          buildMessage(value, mods, "include members", [members])
+          buildMessage(value, String(mods), "include members", [members])
         )
       }
     ),
@@ -1215,14 +1325,18 @@ export const createChaiMethods: (
     chaiOrderedMembers: defineSandboxFn(
       ctx,
       "chaiOrderedMembers",
-      (value: any, members: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        members: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.ordered.members(members)
           },
-          buildMessage(value, mods, "members", [...members])
+          buildMessage(value, String(mods), "members", [...members])
         )
       }
     ),
@@ -1230,14 +1344,18 @@ export const createChaiMethods: (
     chaiDeepMembers: defineSandboxFn(
       ctx,
       "chaiDeepMembers",
-      (value: any, members: any, modifiers?: any) => {
+      (
+        value: SandboxValue,
+        members: SandboxValue,
+        modifiers?: SandboxValue
+      ) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             assertion.have.deep.members(members)
           },
-          buildMessage(value, mods, "members", [members])
+          buildMessage(value, String(mods), "members", [members])
         )
       }
     ),
@@ -1246,7 +1364,7 @@ export const createChaiMethods: (
     chaiOneOf: defineSandboxFn(
       ctx,
       "chaiOneOf",
-      (value: any, list: any, modifiers?: any) => {
+      (value: SandboxValue, list: unknown, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         const isInclude = String(mods).includes("include")
         const assertion = isInclude ? "include oneOf" : "oneOf"
@@ -1259,7 +1377,7 @@ export const createChaiMethods: (
               assertion.be.oneOf(list)
             }
           },
-          buildMessage(value, mods, assertion, [list])
+          buildMessage(value, String(mods), assertion, [list])
         )
       }
     ),
@@ -1361,14 +1479,14 @@ export const createChaiMethods: (
     chaiFinite: defineSandboxFn(
       ctx,
       "chaiFinite",
-      (value: any, modifiers?: any) => {
+      (value: SandboxValue, modifiers?: SandboxValue) => {
         const mods = modifiers || " to"
         executeChaiAssertion(
           () => {
             const assertion = applyModifiers(value, mods)
             void assertion.be.finite
           },
-          buildMessage(value, mods, "finite")
+          buildMessage(value, String(mods), "finite")
         )
       }
     ),
@@ -1377,7 +1495,11 @@ export const createChaiMethods: (
     chaiArguments: defineSandboxFn(
       ctx,
       "chaiArguments",
-      (value: any, modifiers?: any, preCheckedResult?: any) => {
+      (
+        value: SandboxValue,
+        modifiers?: SandboxValue,
+        preCheckedResult?: unknown
+      ) => {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
         const isArguments =
@@ -1443,7 +1565,11 @@ export const createChaiMethods: (
     chaiIncludeDeepOrderedMembers: defineSandboxFn(
       ctx,
       "chaiIncludeDeepOrderedMembers",
-      function (value: any, members: any, modifiers?: any) {
+      function (
+        value: SandboxValue,
+        members: SandboxValue,
+        modifiers?: SandboxValue
+      ) {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
         let pass = false
@@ -1494,16 +1620,16 @@ export const createChaiMethods: (
       ctx,
       "chaiThrow",
       function (
-        fn: any,
-        threwError: any,
-        errorTypeName: any,
-        errorMessage: any,
-        expectedTypeName: any,
-        errMsgMatcher: any,
-        regexSource: any,
-        regexFlags: any,
-        isRegexMatcher: any,
-        modifiers: any
+        fn: unknown,
+        threwError: unknown,
+        errorTypeName: unknown,
+        errorMessage: unknown,
+        expectedTypeName: unknown,
+        errMsgMatcher: unknown,
+        regexSource: unknown,
+        regexFlags: unknown,
+        isRegexMatcher: unknown,
+        modifiers: SandboxValue
       ) {
         const mods = String(modifiers || " to")
         const isNegated = mods.includes("not")
@@ -1609,10 +1735,10 @@ export const createChaiMethods: (
       ctx,
       "chaiSatisfy",
       function (
-        value: any,
-        satisfyResult: any,
-        matcherString: any,
-        modifiers: any
+        value: SandboxValue,
+        satisfyResult: unknown,
+        matcherString: unknown,
+        modifiers: SandboxValue
       ) {
         const mods = String(modifiers || " to")
         const isNegated = mods.includes("not")
@@ -1760,12 +1886,19 @@ export const createChaiMethods: (
     chaiJsonSchema: defineSandboxFn(
       ctx,
       "chaiJsonSchema",
-      function (value: any, schema: any, modifiers: any) {
+      function (
+        value: SandboxValue,
+        schema: SandboxValue,
+        modifiers: SandboxValue
+      ) {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
 
         // Validation helper
-        const validateSchema = (data: any, schema: any): boolean => {
+        const validateSchema = (
+          data: SandboxValue,
+          schema: SandboxValue
+        ): boolean => {
           // Type validation
           if (schema.type !== undefined) {
             const actualType = Array.isArray(data) ? "array" : typeof data
@@ -1807,7 +1940,11 @@ export const createChaiMethods: (
     chaiCharset: defineSandboxFn(
       ctx,
       "chaiCharset",
-      function (value: any, expectedCharset: any, modifiers: any) {
+      function (
+        value: SandboxValue,
+        expectedCharset: unknown,
+        modifiers: SandboxValue
+      ) {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
 
@@ -1828,7 +1965,12 @@ export const createChaiMethods: (
     chaiCookie: defineSandboxFn(
       ctx,
       "chaiCookie",
-      function (value: any, cookieName: any, cookieValue: any, modifiers: any) {
+      function (
+        value: SandboxValue,
+        cookieName: SandboxValue,
+        cookieValue: unknown,
+        modifiers: SandboxValue
+      ) {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
 
@@ -1855,12 +1997,17 @@ export const createChaiMethods: (
     chaiJsonPath: defineSandboxFn(
       ctx,
       "chaiJsonPath",
-      function (value: any, path: any, expectedValue: any, modifiers: any) {
+      function (
+        value: SandboxValue,
+        path: SandboxValue,
+        expectedValue: SandboxValue,
+        modifiers: SandboxValue
+      ) {
         const mods = modifiers || " to"
         const isNegated = String(mods).includes("not")
 
         // Enhanced JSONPath evaluation (supports $.path, array indices, wildcards)
-        const evaluatePath = (data: any, path: string): any => {
+        const evaluatePath = (data: SandboxValue, path: string): unknown => {
           let pathStr = String(path).trim()
 
           // Remove leading $. if present
@@ -1875,7 +2022,7 @@ export const createChaiMethods: (
             return data
           }
 
-          let current: any = data
+          let current: unknown = data
           const segments = pathStr.split(/\.|\[/).filter(Boolean)
 
           for (let segment of segments) {
@@ -1909,7 +2056,7 @@ export const createChaiMethods: (
                 typeof current === "object" &&
                 segment in current
               ) {
-                current = current[segment]
+                current = (current as Record<string, unknown>)[segment]
               } else {
                 return undefined
               }

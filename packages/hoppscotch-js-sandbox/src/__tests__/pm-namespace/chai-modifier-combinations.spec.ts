@@ -1,17 +1,3 @@
-/**
- * Comprehensive Edge Case Tests for Chai.js Assertions
- *
- * Tests patterns identified in CHAI-ASSERTIONS-REVIEW.md as needing verification:
- * 1. .include.members() / .contain.members() pattern
- * 2. .any.keys() / .all.keys() patterns
- * 3. .ordered.members() pattern
- * 4. .own.include() pattern
- * 5. .nested.include() pattern
- * 6. Modifier combinations (.deep.own.include())
- * 7. .ownPropertyDescriptor() with chaining
- * 8. .respondTo() with .itself
- */
-
 import { describe, expect, test } from "vitest"
 import { TestResponse } from "~/types"
 import { runTest } from "~/utils/test-helpers"
@@ -676,12 +662,24 @@ describe("Chai Edge Cases - Real-World Patterns", () => {
           children: expect.arrayContaining([
             expect.objectContaining({
               descriptor: "complex API response validation",
-              expectResults: expect.arrayContaining([
-                expect.objectContaining({ status: "pass" }),
-                expect.objectContaining({ status: "pass" }),
-                expect.objectContaining({ status: "pass" }),
-                expect.objectContaining({ status: "pass" }),
-              ]),
+              expectResults: [
+                expect.objectContaining({
+                  status: "pass",
+                  message: expect.stringContaining("nested include"),
+                }),
+                expect.objectContaining({
+                  status: "pass",
+                  message: expect.stringContaining("nested include"),
+                }),
+                expect.objectContaining({
+                  status: "pass",
+                  message: expect.stringContaining("include members"),
+                }),
+                expect.objectContaining({
+                  status: "pass",
+                  message: expect.stringContaining("deep include"),
+                }),
+              ],
             }),
           ]),
         }),

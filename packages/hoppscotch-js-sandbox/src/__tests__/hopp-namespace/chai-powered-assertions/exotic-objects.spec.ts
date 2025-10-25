@@ -1,13 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { runTest } from "~/utils/test-helpers"
 
-/**
- * Exotic Objects and Error Edge Cases Test Suite
- *
- * This test suite covers advanced JavaScript object types and error scenarios
- * that go beyond standard Chai assertions. Tests focus on behavior validation
- * rather than instanceof checks to work within sandbox serialization constraints.
- */
+// Behavior validation for exotic objects (Proxy, etc.) within sandbox serialization constraints
 describe("hopp.expect - Exotic Objects & Error Edge Cases", () => {
   describe("Proxy Objects", () => {
     test("should handle basic Proxy objects", () => {

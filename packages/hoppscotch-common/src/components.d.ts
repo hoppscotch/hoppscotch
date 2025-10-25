@@ -236,8 +236,6 @@ declare module 'vue' {
     ImportExportImportExportStepsFileImport: typeof import('./components/importExport/ImportExportSteps/FileImport.vue')['default']
     ImportExportImportExportStepsImportSummary: typeof import('./components/importExport/ImportExportSteps/ImportSummary.vue')['default']
     ImportExportImportExportStepsMyCollectionImport: typeof import('./components/importExport/ImportExportSteps/MyCollectionImport.vue')['default']
-    ImportExportImportExportStepsPostmanFileImport: typeof import('./components/importExport/ImportExportSteps/PostmanFileImport.vue')['default']
-    ImportExportImportExportStepsPostmanScriptOptions: typeof import('./components/importExport/ImportExportSteps/PostmanScriptOptions.vue')['default']
     ImportExportImportExportStepsUrlImport: typeof import('./components/importExport/ImportExportSteps/UrlImport.vue')['default']
     InstanceSwitcher: typeof import('./components/instance/Switcher.vue')['default']
     InterceptorsAgentModalNativeCACertificates: typeof import('./components/interceptors/agent/ModalNativeCACertificates.vue')['default']

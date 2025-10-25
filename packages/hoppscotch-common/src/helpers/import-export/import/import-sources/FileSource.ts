@@ -9,7 +9,7 @@ export function FileSource(metadata: {
   caption: string
   onImportFromFile: (
     content: string[],
-    importScripts: boolean
+    importScripts?: boolean
   ) => any | Promise<any>
   isLoading?: Ref<boolean>
   description?: string

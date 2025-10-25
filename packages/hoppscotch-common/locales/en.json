@@ -714,6 +714,9 @@
     "import_summary_pre_request_scripts_title": "Pre-request scripts",
     "import_summary_post_request_scripts_title": "Post request scripts",
     "import_summary_not_supported_by_hoppscotch_import": "We do not support importing {featureLabel} from this source right now.",
+    "import_summary_script_found": "script found but not imported",
+    "import_summary_scripts_found": "scripts found but not imported",
+    "import_summary_enable_experimental_sandbox": "To import Postman scripts, enable 'Experimental scripting sandbox' in settings. Note: This feature is experimental.",
     "cors_error_modal": {
       "title": "CORS Error Detected",
       "description": "The import failed due to CORS (Cross-Origin Resource Sharing) restrictions imposed by the server.",

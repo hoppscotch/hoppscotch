@@ -30,6 +30,7 @@ const props = defineProps<{
   importFormat: SupportedImportFormat
   collections: HoppCollection[]
   scriptsImported?: boolean
+  originalScriptCounts?: { preRequest: number; test: number }
   onClose: () => void
 }>()
 
@@ -194,6 +195,25 @@ const visibleFeatures = computed(() => {
     )
   })
 })
+
+const showScriptImportInfo = computed(() => {
+  return (
+    props.importFormat === "postman" &&
+    props.scriptsImported === undefined &&
+    totalScriptsCount.value > 0
+  )
+})
+
+const totalScriptsCount = computed(() => {
+  if (props.importFormat !== "postman" || props.scriptsImported !== undefined)
+    return 0
+
+  // Use original counts from raw Postman JSON
+  const preRequestScripts = props.originalScriptCounts?.preRequest || 0
+  const testScripts = props.originalScriptCounts?.test || 0
+
+  return preRequestScripts + testScripts
+})
 </script>
 
 <template>
@@ -264,11 +284,7 @@ const visibleFeatures = computed(() => {
               scriptsImported === undefined
             "
           >
-            {{
-              t("import.import_summary_scripts_require_experimental_sandbox", {
-                featureLabel: t(feature.label),
-              })
-            }}
+            0 {{ t(feature.label) }} Imported
           </template>
           <!-- Generic message for other unsupported features -->
           <template v-else>
@@ -279,6 +295,27 @@ const visibleFeatures = computed(() => {
             }}
           </template>
         </template>
+      </p>
+    </div>
+  </div>
+
+  <!-- Informational banner for script imports when experimental sandbox is disabled -->
+  <div
+    v-if="showScriptImportInfo"
+    class="mt-6 flex items-start space-x-3 rounded border border-dividerLight bg-primaryLight p-4"
+  >
+    <IconInfo class="flex-shrink-0 text-accent" />
+    <div class="flex-1 text-sm text-secondary">
+      <p class="font-semibold">
+        {{ totalScriptsCount }}
+        {{
+          totalScriptsCount === 1
+            ? t("import.import_summary_script_found")
+            : t("import.import_summary_scripts_found")
+        }}
+      </p>
+      <p class="mt-1 text-secondaryLight">
+        {{ t("import.import_summary_enable_experimental_sandbox") }}
       </p>
     </div>
   </div>

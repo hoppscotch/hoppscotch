@@ -506,6 +506,24 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   )
 }
 
+/**
+ * Extracts script content from a Postman event
+ * Handles both string format and exec array format
+ */
+const extractScriptFromEvent = (event: any): string => {
+  if (!event?.script) return ""
+
+  if (typeof event.script === "string") {
+    return event.script
+  }
+
+  if (event.script.exec && Array.isArray(event.script.exec)) {
+    return event.script.exec.join("\n")
+  }
+
+  return ""
+}
+
 const getHoppScripts = (
   item: Item,
   importScripts: boolean
@@ -521,19 +539,10 @@ const getHoppScripts = (
   if (item.events) {
     const events = item.events.all()
     events.forEach((event: any) => {
-      if (event.listen === "prerequest" && event.script) {
-        // event.script can be a string or an object with exec array
-        if (typeof event.script === "string") {
-          preRequestScript = event.script
-        } else if (event.script.exec && Array.isArray(event.script.exec)) {
-          preRequestScript = event.script.exec.join("\n")
-        }
-      } else if (event.listen === "test" && event.script) {
-        if (typeof event.script === "string") {
-          testScript = event.script
-        } else if (event.script.exec && Array.isArray(event.script.exec)) {
-          testScript = event.script.exec.join("\n")
-        }
+      if (event.listen === "prerequest") {
+        preRequestScript = extractScriptFromEvent(event)
+      } else if (event.listen === "test") {
+        testScript = extractScriptFromEvent(event)
       }
     })
   }

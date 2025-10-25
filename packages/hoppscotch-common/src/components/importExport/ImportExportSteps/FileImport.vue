@@ -144,8 +144,9 @@ const disableImportCTA = computed(
 )
 
 const handleImport = () => {
-  // If Postman script option is enabled, pass the importScripts value
-  if (props.showPostmanScriptOption) {
+  // If Postman script option is enabled AND experimental sandbox is enabled, pass the importScripts value
+  // Otherwise, don't pass it (undefined) to indicate the feature wasn't available
+  if (props.showPostmanScriptOption && experimentalScriptingEnabled.value) {
     emit("importFromFile", fileContent.value, importScripts.value)
   } else {
     emit("importFromFile", fileContent.value)

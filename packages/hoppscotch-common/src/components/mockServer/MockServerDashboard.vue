@@ -1,15 +1,14 @@
 <template>
-  <div class="flex flex-col flex-1">
-    <!-- Header -->
+  <div>
     <div
-      class="sticky z-10 flex flex-1 justify-between border-b border-dividerLight bg-primary top-0"
+      class="sticky z-10 flex flex-1 flex-shrink-0 justify-between overflow-x-auto border-b border-dividerLight bg-primary"
     >
       <HoppButtonSecondary
         v-if="!hasNoAccess"
         :icon="IconPlus"
-        :label="t('mock_server.create_mock_server')"
+        :label="t('action.new')"
         class="!rounded-none"
-        @click="showCreateModal = true"
+        @click="openCreateModal"
       />
       <HoppButtonSecondary
         v-else
@@ -18,7 +17,7 @@
         class="!rounded-none"
         :icon="IconPlus"
         :title="t('team.no_access')"
-        :label="t('mock_server.create_mock_server')"
+        :label="t('action.new')"
       />
       <span class="flex">
         <HoppButtonSecondary
@@ -31,19 +30,17 @@
       </span>
     </div>
 
-    <!-- Mock Servers List -->
-    <div class="flex flex-col flex-1">
+    <div class="flex flex-1 flex-col">
       <div
         v-if="loading"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
-
       <div
         v-else-if="mockServers.length === 0"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <img
           :src="`/images/states/${colorMode.value}/add_files.svg`"
@@ -58,37 +55,33 @@
           :label="t('mock_server.create_mock_server')"
           :icon="IconPlus"
           filled
-          @click="showCreateModal = true"
+          @click="openCreateModal"
         />
       </div>
-
       <div v-else class="divide-y divide-dividerLight">
         <div
           v-for="mockServer in mockServers"
           :key="mockServer.id"
-          class="flex items-center justify-between p-4 hover:bg-primaryLight group"
+          class="group flex cursor-pointer items-center justify-between px-4 py-2 hover:bg-primaryLight"
         >
-          <div class="flex items-center flex-1 min-w-0">
-            <!-- Status Indicator -->
-            <div class="flex items-center mr-3">
+          <div class="flex min-w-0 flex-1 items-center">
+            <div class="flex items-center justify-center px-2">
               <component
                 :is="IconServer"
-                class="w-4 h-4"
+                class="svg-icons"
                 :class="{
                   'text-green-500': mockServer.isActive,
                   'text-secondaryLight': !mockServer.isActive,
                 }"
               />
             </div>
-
-            <!-- Mock Server Info -->
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center space-x-2">
-                <h3 class="font-semibold text-secondaryDark truncate">
+            <div class="flex min-w-0 flex-1 flex-col py-2 pr-2">
+              <span class="flex items-center space-x-2">
+                <span class="truncate font-semibold text-secondaryDark">
                   {{ mockServer.name }}
-                </h3>
+                </span>
                 <span
-                  class="px-2 py-1 text-xs rounded-full"
+                  class="rounded-full px-2 py-1 text-xs"
                   :class="{
                     'bg-green-100 text-green-800': mockServer.isActive,
                     'bg-gray-100 text-gray-600': !mockServer.isActive,
@@ -100,25 +93,15 @@
                       : t("mock_server.inactive")
                   }}
                 </span>
-              </div>
-              <div class="text-sm text-secondaryLight truncate">
+              </span>
+              <span class="truncate text-secondaryLight">
                 {{
                   mockServer.collection?.title || t("mock_server.no_collection")
                 }}
-              </div>
-              <div class="text-xs text-secondaryLight font-mono truncate">
-                {{
-                  mockServer.serverUrlDomainBased ||
-                  mockServer.serverUrlPathBased
-                }}
-              </div>
+              </span>
             </div>
           </div>
-
-          <!-- Actions -->
-          <div
-            class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
+          <div class="flex">
             <HoppButtonSecondary
               v-if="
                 mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
@@ -126,8 +109,9 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyIcon"
+              class="hidden group-hover:inline-flex"
               @click="
-                copyToClipboard(
+                copyToClipboardHandler(
                   mockServer.serverUrlDomainBased ||
                     mockServer.serverUrlPathBased ||
                     ''
@@ -139,50 +123,73 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.edit')"
               :icon="IconEdit"
+              class="hidden group-hover:inline-flex"
               @click="editMockServer(mockServer)"
             />
-            <HoppButtonSecondary
-              v-if="!hasNoAccess"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="
-                mockServer.isActive
-                  ? t('mock_server.stop_server')
-                  : t('mock_server.start_server')
-              "
-              :icon="mockServer.isActive ? IconStop : IconPlay"
-              @click="toggleMockServer(mockServer)"
-            />
-            <HoppButtonSecondary
-              v-if="!hasNoAccess"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.delete')"
-              :icon="IconTrash2"
-              @click="deleteMockServer(mockServer)"
-            />
+            <span>
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => tippyActions!.focus()"
+              >
+                <HoppButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.more')"
+                  :icon="IconMoreVertical"
+                />
+                <template #content="{ hide }">
+                  <div
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
+                    tabindex="0"
+                    @keyup.escape="hide()"
+                  >
+                    <HoppSmartItem
+                      :icon="mockServer.isActive ? IconStop : IconPlay"
+                      :label="
+                        mockServer.isActive
+                          ? t('mock_server.stop_server')
+                          : t('mock_server.start_server')
+                      "
+                      @click="
+                        () => {
+                          toggleMockServer(mockServer)
+                          hide()
+                        }
+                      "
+                    />
+                    <HoppSmartItem
+                      :icon="IconTrash2"
+                      :label="t('action.delete')"
+                      @click="
+                        () => {
+                          deleteMockServer(mockServer)
+                          hide()
+                        }
+                      "
+                    />
+                  </div>
+                </template>
+              </tippy>
+            </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Create Mock Server Modal -->
+    <!-- Modals -->
     <MockServerCreateMockServer
       v-if="showCreateModal"
       :show="showCreateModal"
       @hide-modal="showCreateModal = false"
-    />
-
-    <!-- Edit Mock Server Modal -->
-    <MockServerEditMockServer
-      v-if="showEditModal && selectedMockServer"
-      :show="showEditModal"
-      :mock-server="selectedMockServer"
-      @hide-modal="showEditModal = false"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"
+import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { useMockServerStatus } from "~/composables/mockServer"
@@ -190,7 +197,8 @@ import { useToast } from "~/composables/toast"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { platform } from "~/platform"
 import type { MockServer } from "~/newstore/mockServers"
-import { loadMockServers } from "~/newstore/mockServers"
+import { loadMockServers, showCreateMockServerModal$ } from "~/newstore/mockServers"
+import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
 
 // Icons
 import IconPlus from "~icons/lucide/plus"
@@ -202,6 +210,7 @@ import IconPlay from "~icons/lucide/play"
 import IconStop from "~icons/lucide/stop-circle"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconMoreVertical from "~icons/lucide/more-vertical"
 
 const t = useI18n()
 const toast = useToast()
@@ -210,9 +219,8 @@ const { mockServers } = useMockServerStatus()
 
 const loading = ref(false)
 const showCreateModal = ref(false)
-const showEditModal = ref(false)
-const selectedMockServer = ref<MockServer | null>(null)
 const copyIcon = ref(IconCopy)
+const tippyActions = ref<TippyComponent | null>(null)
 
 // Check if user has access (not logged in or no permissions)
 const hasNoAccess = computed(() => {
@@ -220,14 +228,13 @@ const hasNoAccess = computed(() => {
 })
 
 const editMockServer = (mockServer: MockServer) => {
-  selectedMockServer.value = mockServer
-  showEditModal.value = true
+  // TODO: Implement edit functionality
+  toast.info("Edit functionality coming soon")
 }
 
 const toggleMockServer = async (mockServer: MockServer) => {
   try {
     // TODO: Implement mock server start/stop functionality
-    // This would typically call a backend API to start/stop the mock server
     toast.success(
       mockServer.isActive
         ? t("mock_server.mock_server_stopped")
@@ -260,6 +267,15 @@ const copyToClipboardHandler = async (text: string) => {
   } catch (error) {
     toast.error(t("error.copy_failed"))
   }
+}
+
+const openCreateModal = () => {
+  // Open the create modal without a pre-selected collection
+  showCreateMockServerModal$.next({
+    show: true,
+    collectionID: undefined,
+    collectionName: undefined,
+  })
 }
 
 // Load mock servers on component mount

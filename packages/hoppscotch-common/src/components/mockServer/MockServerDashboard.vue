@@ -62,61 +62,36 @@
         <div
           v-for="mockServer in mockServers"
           :key="mockServer.id"
-          class="group flex cursor-pointer items-center justify-between px-4 py-2 hover:bg-primaryLight"
+          class="group flex items-stretch"
         >
-          <div class="flex min-w-0 flex-1 items-center">
-            <div class="flex items-center justify-center px-2">
-              <component
-                :is="IconServer"
-                class="svg-icons"
-                :class="{
-                  'text-green-500': mockServer.isActive,
-                  'text-secondaryLight': !mockServer.isActive,
-                }"
-              />
-            </div>
-            <div class="flex min-w-0 flex-1 flex-col py-2 pr-2">
-              <span class="flex items-center space-x-2">
-                <span class="truncate font-semibold text-secondaryDark">
-                  {{ mockServer.name }}
-                </span>
-                <span
-                  class="rounded-full px-2 py-1 text-xs"
-                  :class="{
-                    'bg-green-100 text-green-800': mockServer.isActive,
-                    'bg-gray-100 text-gray-600': !mockServer.isActive,
-                  }"
-                >
-                  {{
-                    mockServer.isActive
-                      ? t("mock_server.active")
-                      : t("mock_server.inactive")
-                  }}
-                </span>
+          <span class="flex cursor-pointer items-center justify-center px-4">
+            <component
+              :is="IconServer"
+              class="svg-icons"
+              :class="{
+                'text-green-500': mockServer.isActive,
+                'text-secondaryLight': !mockServer.isActive,
+              }"
+            />
+          </span>
+          <span class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark">
+            <div class="flex min-w-0 flex-1 flex-col">
+              <span class="truncate font-semibold">
+                {{ mockServer.name }}
               </span>
               <span class="truncate text-secondaryLight">
-                {{
-                  mockServer.collection?.title || t("mock_server.no_collection")
-                }}
+                {{ mockServer.collection?.title || t("mock_server.no_collection") }}
               </span>
             </div>
-          </div>
+          </span>
           <div class="flex">
             <HoppButtonSecondary
-              v-if="
-                mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
-              "
+              v-if="mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased"
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyIcon"
               class="hidden group-hover:inline-flex"
-              @click="
-                copyToClipboardHandler(
-                  mockServer.serverUrlDomainBased ||
-                    mockServer.serverUrlPathBased ||
-                    ''
-                )
-              "
+              @click="copyToClipboardHandler(mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased || '')"
             />
             <HoppButtonSecondary
               v-if="!hasNoAccess"
@@ -126,54 +101,54 @@
               class="hidden group-hover:inline-flex"
               @click="editMockServer(mockServer)"
             />
-            <span>
-              <tippy
-                interactive
-                trigger="click"
-                theme="popover"
-                :on-shown="() => tippyActions!.focus()"
-              >
-                <HoppButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="t('action.more')"
-                  :icon="IconMoreVertical"
-                />
-                <template #content="{ hide }">
-                  <div
-                    ref="tippyActions"
-                    class="flex flex-col focus:outline-none"
-                    tabindex="0"
-                    @keyup.escape="hide()"
-                  >
-                    <HoppSmartItem
-                      :icon="mockServer.isActive ? IconStop : IconPlay"
-                      :label="
-                        mockServer.isActive
-                          ? t('mock_server.stop_server')
-                          : t('mock_server.start_server')
-                      "
-                      @click="
-                        () => {
-                          toggleMockServer(mockServer)
-                          hide()
-                        }
-                      "
-                    />
-                    <HoppSmartItem
-                      :icon="IconTrash2"
-                      :label="t('action.delete')"
-                      @click="
-                        () => {
-                          deleteMockServer(mockServer)
-                          hide()
-                        }
-                      "
-                    />
-                  </div>
-                </template>
-              </tippy>
-            </span>
           </div>
+          <span>
+            <tippy
+              interactive
+              trigger="click"
+              theme="popover"
+              :on-shown="() => tippyActions!.focus()"
+            >
+              <HoppButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.more')"
+                :icon="IconMoreVertical"
+              />
+              <template #content="{ hide }">
+                <div
+                  ref="tippyActions"
+                  class="flex flex-col focus:outline-none"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                >
+                  <HoppSmartItem
+                    :icon="mockServer.isActive ? IconStop : IconPlay"
+                    :label="
+                      mockServer.isActive
+                        ? t('mock_server.stop_server')
+                        : t('mock_server.start_server')
+                    "
+                    @click="
+                      () => {
+                        toggleMockServer(mockServer)
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    :icon="IconTrash2"
+                    :label="t('action.delete')"
+                    @click="
+                      () => {
+                        deleteMockServer(mockServer)
+                        hide()
+                      }
+                    "
+                  />
+                </div>
+              </template>
+            </tippy>
+          </span>
         </div>
       </div>
     </div>
@@ -183,6 +158,12 @@
       v-if="showCreateModal"
       :show="showCreateModal"
       @hide-modal="showCreateModal = false"
+    />
+    <MockServerEditMockServer
+      v-if="showEditModal && selectedMockServer"
+      :show="showEditModal"
+      :mock-server="selectedMockServer"
+      @hide-modal="showEditModal = false"
     />
   </div>
 </template>
@@ -199,6 +180,7 @@ import { platform } from "~/platform"
 import type { MockServer } from "~/newstore/mockServers"
 import { loadMockServers, showCreateMockServerModal$ } from "~/newstore/mockServers"
 import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
+import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 
 // Icons
 import IconPlus from "~icons/lucide/plus"
@@ -219,6 +201,8 @@ const { mockServers } = useMockServerStatus()
 
 const loading = ref(false)
 const showCreateModal = ref(false)
+const showEditModal = ref(false)
+const selectedMockServer = ref<MockServer | null>(null)
 const copyIcon = ref(IconCopy)
 const tippyActions = ref<TippyComponent | null>(null)
 
@@ -228,8 +212,8 @@ const hasNoAccess = computed(() => {
 })
 
 const editMockServer = (mockServer: MockServer) => {
-  // TODO: Implement edit functionality
-  toast.info("Edit functionality coming soon")
+  selectedMockServer.value = mockServer
+  showEditModal.value = true
 }
 
 const toggleMockServer = async (mockServer: MockServer) => {

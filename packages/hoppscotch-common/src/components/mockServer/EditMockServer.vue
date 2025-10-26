@@ -45,7 +45,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyIcon"
-              @click="copyToClipboard(mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased || '')"
+              @click="copyToClipboardHandler(mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased || '')"
             />
           </div>
         </div>

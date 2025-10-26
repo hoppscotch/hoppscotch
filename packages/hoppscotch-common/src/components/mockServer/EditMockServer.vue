@@ -6,7 +6,7 @@
     @close="emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col space-y-6 p-6">
+      <div class="flex flex-col space-y-6">
         <!-- Mock Server Name -->
         <div class="flex flex-col space-y-2">
           <label class="text-sm font-semibold text-secondaryDark">
@@ -26,7 +26,7 @@
             {{ t("collection.title") }}
           </label>
           <div class="text-body text-secondary">
-            {{ mockServer.collection?.title || t('mock_server.no_collection') }}
+            {{ mockServer.collection?.title || t("mock_server.no_collection") }}
           </div>
         </div>
 
@@ -39,13 +39,21 @@
             <div
               class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
             >
-              {{ mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased }}
+              {{
+                mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
+              }}
             </div>
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyIcon"
-              @click="copyToClipboardHandler(mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased || '')"
+              @click="
+                copyToClipboardHandler(
+                  mockServer.serverUrlDomainBased ||
+                    mockServer.serverUrlPathBased ||
+                    ''
+                )
+              "
             />
           </div>
         </div>
@@ -56,13 +64,13 @@
             {{ t("mock_server.status") }}
           </label>
           <div class="flex items-center space-x-3">
-            <HoppSmartToggle
-              v-model="isActive"
-              :on="t('mock_server.active')"
-              :off="t('mock_server.inactive')"
-            />
+            <HoppSmartToggle :on="isActive" @change="isActive = !isActive" />
             <span class="text-sm text-secondaryLight">
-              {{ isActive ? t('mock_server.server_running') : t('mock_server.server_stopped') }}
+              {{
+                isActive
+                  ? t("mock_server.server_running")
+                  : t("mock_server.server_stopped")
+              }}
             </span>
           </div>
         </div>
@@ -80,7 +88,7 @@
             :placeholder="t('mock_server.delay_placeholder')"
           />
           <span class="text-xs text-secondaryLight">
-            {{ t('mock_server.delay_description') }}
+            {{ t("mock_server.delay_description") }}
           </span>
         </div>
 
@@ -90,13 +98,13 @@
             {{ t("mock_server.public_access") }}
           </label>
           <div class="flex items-center space-x-3">
-            <HoppSmartToggle
-              v-model="isPublic"
-              :on="t('mock_server.public')"
-              :off="t('mock_server.private')"
-            />
+            <HoppSmartToggle :on="isPublic" @change="isPublic = !isPublic" />
             <span class="text-sm text-secondaryLight">
-              {{ isPublic ? t('mock_server.public_description') : t('mock_server.private_description') }}
+              {{
+                isPublic
+                  ? t("mock_server.public_description")
+                  : t("mock_server.private_description")
+              }}
             </span>
           </div>
         </div>
@@ -154,16 +162,20 @@ const delayInMs = ref(props.mockServer.delayInMs || 0)
 const isPublic = ref(props.mockServer.isPublic)
 
 // Watch for prop changes
-watch(() => props.mockServer, (newMockServer) => {
-  mockServerName.value = newMockServer.name
-  isActive.value = newMockServer.isActive
-  delayInMs.value = newMockServer.delayInMs || 0
-  isPublic.value = newMockServer.isPublic
-}, { immediate: true })
+watch(
+  () => props.mockServer,
+  (newMockServer) => {
+    mockServerName.value = newMockServer.name
+    isActive.value = newMockServer.isActive
+    delayInMs.value = newMockServer.delayInMs || 0
+    isPublic.value = newMockServer.isPublic
+  },
+  { immediate: true }
+)
 
 const updateMockServer = async () => {
   loading.value = true
-  
+
   try {
     // TODO: Implement mock server update API call
     // const updatedMockServer = await updateMockServerAPI(props.mockServer.id, {
@@ -172,11 +184,11 @@ const updateMockServer = async () => {
     //   delayInMs: delayInMs.value,
     //   isPublic: isPublic.value
     // })
-    
-    toast.success(t('mock_server.mock_server_updated'))
-    emit('hide-modal')
+
+    toast.success(t("mock_server.mock_server_updated"))
+    emit("hide-modal")
   } catch (error) {
-    toast.error(t('error.something_went_wrong'))
+    toast.error(t("error.something_went_wrong"))
   } finally {
     loading.value = false
   }
@@ -186,12 +198,12 @@ const copyToClipboardHandler = async (text: string) => {
   try {
     await copyToClipboard(text)
     copyIcon.value = IconCheck
-    toast.success(t('state.copied_to_clipboard'))
+    toast.success(t("state.copied_to_clipboard"))
     setTimeout(() => {
       copyIcon.value = IconCopy
     }, 1000)
   } catch (error) {
-    toast.error(t('error.copy_failed'))
+    toast.error(t("error.copy_failed"))
   }
 }
 </script>

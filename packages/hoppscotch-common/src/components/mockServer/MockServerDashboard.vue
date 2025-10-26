@@ -74,24 +74,36 @@
               }"
             />
           </span>
-          <span class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark">
+          <span
+            class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+          >
             <div class="flex min-w-0 flex-1 flex-col">
               <span class="truncate font-semibold">
                 {{ mockServer.name }}
               </span>
               <span class="truncate text-secondaryLight">
-                {{ mockServer.collection?.title || t("mock_server.no_collection") }}
+                {{
+                  mockServer.collection?.title || t("mock_server.no_collection")
+                }}
               </span>
             </div>
           </span>
           <div class="flex">
             <HoppButtonSecondary
-              v-if="mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased"
+              v-if="
+                mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
+              "
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyIcon"
               class="hidden group-hover:inline-flex"
-              @click="copyToClipboardHandler(mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased || '')"
+              @click="
+                copyToClipboardHandler(
+                  mockServer.serverUrlDomainBased ||
+                    mockServer.serverUrlPathBased ||
+                    ''
+                )
+              "
             />
             <HoppButtonSecondary
               v-if="!hasNoAccess"
@@ -102,12 +114,12 @@
               @click="editMockServer(mockServer)"
             />
           </div>
-          <span>
+          <div class="flex items-center">
             <tippy
               interactive
               trigger="click"
               theme="popover"
-              :on-shown="() => tippyActions!.focus()"
+              :on-shown="() => tippyActions?.focus?.()"
             >
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -148,7 +160,7 @@
                 </div>
               </template>
             </tippy>
-          </span>
+          </div>
         </div>
       </div>
     </div>
@@ -178,7 +190,10 @@ import { useToast } from "~/composables/toast"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { platform } from "~/platform"
 import type { MockServer } from "~/newstore/mockServers"
-import { loadMockServers, showCreateMockServerModal$ } from "~/newstore/mockServers"
+import {
+  loadMockServers,
+  showCreateMockServerModal$,
+} from "~/newstore/mockServers"
 import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 

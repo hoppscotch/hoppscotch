@@ -79,9 +79,6 @@ function initCollectionsSync() {
   loadUserCollections("REST")
   loadUserCollections("GQL")
 
-  // Load mock servers
-  loadMockServers()
-
   // TODO: test & make sure the auth thing is working properly
   currentUser$.subscribe(async (user) => {
     if (user) {

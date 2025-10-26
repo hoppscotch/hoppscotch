@@ -12,10 +12,16 @@ export function useMockServerStatus() {
   /**
    * Get mock server for a specific collection
    */
-  const getMockServerForCollection = (collectionId: string): MockServer | null => {
-    return mockServers.value.find(
-      (server) => server.collection?.id === collectionId || server.collectionID === collectionId
-    ) || null
+  const getMockServerForCollection = (
+    collectionId: string
+  ): MockServer | null => {
+    return (
+      mockServers.value.find(
+        (server) =>
+          server.collection?.id === collectionId ||
+          server.collectionID === collectionId
+      ) || null
+    )
   }
 
   /**
@@ -38,19 +44,19 @@ export function useMockServerStatus() {
    */
   const getMockServerStatus = (collectionId: string) => {
     const mockServer = getMockServerForCollection(collectionId)
-    
+
     if (!mockServer) {
       return {
         exists: false,
         isActive: false,
-        mockServer: null
+        mockServer: null,
       }
     }
 
     return {
       exists: true,
       isActive: mockServer.isActive,
-      mockServer
+      mockServer,
     }
   }
 
@@ -59,6 +65,6 @@ export function useMockServerStatus() {
     getMockServerForCollection,
     hasActiveMockServer,
     hasMockServer,
-    getMockServerStatus
+    getMockServerStatus,
   }
 }

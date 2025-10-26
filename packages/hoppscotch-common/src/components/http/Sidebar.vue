@@ -61,9 +61,7 @@
       >
         <span class="truncate"> {{ t("tab.mock_servers") }} </span>
       </div>
-      <MockServerDashboard
-        v-if="selectedNavigationTab === 'mock-servers'"
-      />
+      <MockServerDashboard v-if="selectedNavigationTab === 'mock-servers'" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

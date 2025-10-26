@@ -56,7 +56,7 @@
                     v-if="collectionOptions.length === 0"
                     class="flex items-center justify-center px-4 py-8 text-secondaryLight"
                   >
-                    {{ t('empty.collections') }}
+                    {{ t("empty.collections") }}
                   </div>
                 </div>
               </template>
@@ -349,24 +349,26 @@ const isExistingMockServer = computed(() => !!existingMockServer.value)
 const collectionOptions = computed(() => {
   const flattenCollections = (collections: any[], prefix = ""): any[] => {
     const result: any[] = []
-    
+
     collections.forEach((collection) => {
-      const displayName = prefix ? `${prefix} / ${collection.name}` : collection.name
+      const displayName = prefix
+        ? `${prefix} / ${collection.name}`
+        : collection.name
       result.push({
         label: displayName,
         value: collection.id || collection._ref_id,
-        collection: collection
+        collection: collection,
       })
-      
+
       // Add folders as nested options
       if (collection.folders && collection.folders.length > 0) {
         result.push(...flattenCollections(collection.folders, displayName))
       }
     })
-    
+
     return result
   }
-  
+
   return flattenCollections(collections.value)
 })
 
@@ -499,18 +501,6 @@ const toggleMockServer = async () => {
     )
   )()
 }
-
-// Watch for modal close and emit event
-watch(show, (newShow) => {
-  if (!newShow) {
-    // Close modal by updating the store
-    showCreateMockServerModal$.next({
-      show: false,
-      collectionID: undefined,
-      collectionName: undefined,
-    })
-  }
-})
 
 // Close modal function
 const closeModal = () => {

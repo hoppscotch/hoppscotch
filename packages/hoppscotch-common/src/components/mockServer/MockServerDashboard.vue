@@ -184,6 +184,13 @@
       :mock-server-i-d="selectedMockServer.id"
       @close="showLogsModal = false"
     />
+    <HoppSmartConfirmModal
+      :show="confirmDeleteMockServer"
+      :loading-state="loading"
+      :title="t('confirm.delete_mock_server')"
+      @hide-modal="confirmDeleteMockServer = false"
+      @resolve="confirmDelete"
+    />
   </div>
 </template>
 
@@ -197,10 +204,20 @@ import { useToast } from "~/composables/toast"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { platform } from "~/platform"
 import type { MockServer } from "~/newstore/mockServers"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+
 import {
   loadMockServers,
   showCreateMockServerModal$,
+  updateMockServer as updateMockServerInStore,
+  deleteMockServer as deleteMockServerInStore,
 } from "~/newstore/mockServers"
+
+import {
+  updateMockServer as updateMockServerMutation,
+  deleteMockServer as deleteMockServerMutation,
+} from "~/helpers/backend/mutations/MockServer"
 import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
@@ -246,27 +263,84 @@ const openMockServerLogs = (mockServer: MockServer) => {
 }
 
 const toggleMockServer = async (mockServer: MockServer) => {
-  try {
-    // TODO: Implement mock server start/stop functionality
-    toast.success(
-      mockServer.isActive
-        ? t("mock_server.mock_server_stopped")
-        : t("mock_server.mock_server_started")
+  loading.value = true
+
+  const newActiveState = !mockServer.isActive
+
+  await pipe(
+    updateMockServerMutation(mockServer.id, { isActive: newActiveState }),
+    TE.match(
+      (error) => {
+        console.error("Failed to update mock server:", error)
+        toast.error(t("error.something_went_wrong"))
+        loading.value = false
+      },
+      () => {
+        // Show success toast
+        toast.success(
+          newActiveState
+            ? t("mock_server.mock_server_started")
+            : t("mock_server.mock_server_stopped")
+        )
+
+        // Update local store state
+        updateMockServerInStore(mockServer.id, { isActive: newActiveState })
+
+        loading.value = false
+      }
     )
-  } catch (error) {
-    toast.error(t("error.something_went_wrong"))
-  }
+  )()
 }
 
+const confirmDeleteMockServer = ref(false)
+const pendingMockServerToDelete = ref<MockServer | null>(null)
+
+// Open confirm modal for deletion
 const deleteMockServer = async (mockServer: MockServer) => {
-  if (confirm(t("confirm.delete_mock_server"))) {
-    try {
-      // TODO: Implement mock server deletion
-      toast.success(t("state.deleted"))
-    } catch (error) {
-      toast.error(t("error.something_went_wrong"))
-    }
-  }
+  pendingMockServerToDelete.value = mockServer
+  confirmDeleteMockServer.value = true
+}
+
+// Called when the confirm modal is resolved
+const confirmDelete = async () => {
+  const mockServer = pendingMockServerToDelete.value
+  if (!mockServer) return
+
+  loading.value = true
+  // hide the modal
+  confirmDeleteMockServer.value = false
+
+  await pipe(
+    deleteMockServerMutation(mockServer.id),
+    TE.match(
+      (error) => {
+        console.error("Failed to delete mock server:", error)
+        toast.error(t("error.something_went_wrong"))
+        loading.value = false
+        pendingMockServerToDelete.value = null
+      },
+      (result) => {
+        if (result) {
+          // Remove from local store
+          deleteMockServerInStore(mockServer.id)
+
+          // If the deleted server was selected, clear selection and close logs modal
+          if (selectedMockServer.value?.id === mockServer.id) {
+            selectedMockServer.value = null
+            showLogsModal.value = false
+            showEditModal.value = false
+          }
+
+          toast.success(t("state.deleted"))
+        } else {
+          toast.error(t("error.something_went_wrong"))
+        }
+
+        loading.value = false
+        pendingMockServerToDelete.value = null
+      }
+    )
+  )()
 }
 
 const copyToClipboardHandler = async (text: string) => {

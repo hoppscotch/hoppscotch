@@ -60,7 +60,11 @@
             <span
               v-if="mockServerStatus.exists"
               v-tippy="{ theme: 'tooltip' }"
-              :title="mockServerStatus.isActive ? t('mock_server.active') : t('mock_server.inactive')"
+              :title="
+                mockServerStatus.isActive
+                  ? t('mock_server.active')
+                  : t('mock_server.inactive')
+              "
               class="ml-2 flex items-center"
             >
               <component
@@ -68,7 +72,7 @@
                 class="svg-icons"
                 :class="{
                   'text-green-500': mockServerStatus.isActive,
-                  'text-secondaryLight': !mockServerStatus.isActive
+                  'text-secondaryLight': !mockServerStatus.isActive,
                 }"
               />
             </span>
@@ -455,10 +459,11 @@ const isCollectionLoading = computed(() => {
 const { getMockServerStatus } = useMockServerStatus()
 
 const mockServerStatus = computed(() => {
-  const collectionId = props.collectionsType === "my-collections" 
-    ? (props.data as HoppCollection).id 
-    : (props.data as TeamCollection).id
-  
+  const collectionId =
+    props.collectionsType === "my-collections"
+      ? (props.data as HoppCollection).id
+      : (props.data as TeamCollection).id
+
   return getMockServerStatus(collectionId || "")
 })
 
@@ -629,15 +634,15 @@ const sortCollection = () => {
 
 const handleMockServerAction = () => {
   const currentUser = platform.auth.getCurrentUser()
-  
+
   if (!currentUser) {
     // Show login modal if user is not authenticated
-    invokeAction('modals.login.toggle')
+    invokeAction("modals.login.toggle")
     return
   }
-  
+
   // User is authenticated, proceed with mock server creation
-  emit('create-mock-server')
+  emit("create-mock-server")
 }
 
 const resetDragState = () => {

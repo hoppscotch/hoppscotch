@@ -56,7 +56,14 @@
       :icon="IconServer"
       :label="`${t('tab.mock_servers')}`"
     >
-      <MockServerDashboard />
+      <div
+        class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
+      >
+        <span class="truncate"> {{ t("tab.mock_servers") }} </span>
+      </div>
+      <MockServerDashboard
+        v-if="selectedNavigationTab === 'mock-servers'"
+      />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
@@ -70,6 +77,7 @@ import IconCode from "~icons/lucide/code"
 import IconServer from "~icons/lucide/server"
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
+import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
 
 const t = useI18n()
 

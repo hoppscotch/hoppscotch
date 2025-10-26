@@ -884,6 +884,7 @@
     "select_collection": "Select a collection",
     "select_collection_error": "Please select a collection",
     "make_public": "Make Public",
+    "view_logs": "View logs",
     "description": "Mock servers allow you to simulate API responses based on your collection's example responses."
   },
   "preRequest": {

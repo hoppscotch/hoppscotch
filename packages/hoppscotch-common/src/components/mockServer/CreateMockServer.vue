@@ -11,12 +11,59 @@
   >
     <template #body>
       <div class="flex flex-col space-y-6">
-        <!-- Collection Info -->
+        <!-- Collection Selector or Info -->
         <div class="flex flex-col space-y-2">
           <label class="text-sm font-semibold text-secondaryDark">
             {{ t("collection.title") }}
           </label>
-          <div class="text-body text-secondary">
+          <!-- Collection Selector (when no collection is pre-selected) -->
+          <div v-if="!collectionID && !isExistingMockServer" class="relative">
+            <tippy
+              interactive
+              trigger="click"
+              theme="popover"
+              :on-shown="() => tippyActions?.focus()"
+            >
+              <HoppSmartSelectWrapper>
+                <input
+                  class="flex flex-1 px-4 py-2 bg-transparent border rounded cursor-pointer border-divider"
+                  :placeholder="t('mock_server.select_collection')"
+                  :value="selectedCollectionName"
+                  readonly
+                />
+              </HoppSmartSelectWrapper>
+              <template #content="{ hide }">
+                <div
+                  ref="tippyActions"
+                  class="flex flex-col focus:outline-none max-h-60 overflow-y-auto"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                >
+                  <div
+                    v-for="option in collectionOptions"
+                    :key="option.value"
+                    class="flex items-center justify-between px-4 py-2 hover:bg-primaryLight cursor-pointer"
+                    @click="
+                      () => {
+                        selectCollection(option)
+                        hide()
+                      }
+                    "
+                  >
+                    <span class="truncate">{{ option.label }}</span>
+                  </div>
+                  <div
+                    v-if="collectionOptions.length === 0"
+                    class="flex items-center justify-center px-4 py-8 text-secondaryLight"
+                  >
+                    {{ t('empty.collections') }}
+                  </div>
+                </div>
+              </template>
+            </tippy>
+          </div>
+          <!-- Collection Info (when collection is pre-selected) -->
+          <div v-else class="text-body text-secondary">
             {{ collectionName }}
           </div>
         </div>
@@ -86,10 +133,10 @@
         <div v-else class="flex flex-col space-y-4">
           <HoppSmartInput
             v-model="mockServerName"
-            :placeholder="t('mock_server.mock_server_name_placeholder')"
             :label="t('mock_server.mock_server_name')"
             input-styles="floating-input"
             :disabled="loading"
+            v-focus
           />
           <div class="flex items-center space-x-4">
             <div class="w-48">
@@ -203,7 +250,7 @@
           v-else
           :label="t('mock_server.create_mock_server')"
           :loading="loading"
-          :disabled="!mockServerName.trim()"
+          :disabled="!mockServerName.trim() || !effectiveCollectionID"
           :icon="IconServer"
           @click="createMockServer"
         />
@@ -236,6 +283,8 @@ import {
   addMockServer,
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
+import { restCollections$ } from "~/newstore/collections"
+import { TippyComponent } from "vue-tippy"
 import {
   createMockServer as createMockServerMutation,
   updateMockServer,
@@ -265,6 +314,7 @@ const modalData = useReadonlyStream(showCreateMockServerModal$, {
 })
 
 const mockServers = useReadonlyStream(mockServers$, [])
+const collections = useReadonlyStream(restCollections$, [])
 
 // Component state
 const mockServerName = ref("")
@@ -274,6 +324,9 @@ const createdServer = ref<any>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
 const showLogs = ref(false)
+const selectedCollectionID = ref("")
+const selectedCollectionName = ref("")
+const tippyActions = ref<TippyComponent | null>(null)
 
 // Props computed from modal data
 const show = computed(() => modalData.value.show)
@@ -291,6 +344,42 @@ const existingMockServer = computed(() => {
 })
 
 const isExistingMockServer = computed(() => !!existingMockServer.value)
+
+// Collection options for the selector
+const collectionOptions = computed(() => {
+  const flattenCollections = (collections: any[], prefix = ""): any[] => {
+    const result: any[] = []
+    
+    collections.forEach((collection) => {
+      const displayName = prefix ? `${prefix} / ${collection.name}` : collection.name
+      result.push({
+        label: displayName,
+        value: collection.id || collection._ref_id,
+        collection: collection
+      })
+      
+      // Add folders as nested options
+      if (collection.folders && collection.folders.length > 0) {
+        result.push(...flattenCollections(collection.folders, displayName))
+      }
+    })
+    
+    return result
+  }
+  
+  return flattenCollections(collections.value)
+})
+
+// Get the effective collection ID (either pre-selected or user-selected)
+const effectiveCollectionID = computed(() => {
+  return collectionID.value || selectedCollectionID.value
+})
+
+// Collection selection handler
+const selectCollection = (option: any) => {
+  selectedCollectionID.value = option.value
+  selectedCollectionName.value = option.label
+}
 
 // Mock server base URL construction
 const mockServerBaseUrl = computed(() => {
@@ -326,23 +415,32 @@ watch(show, (newShow) => {
     loading.value = false
     delayInMsVal.value = "0"
     isPublic.value = true
+    selectedCollectionID.value = ""
+    selectedCollectionName.value = ""
+    showCloseButton.value = false
+    createdServer.value = null
   }
 })
 
 // Create new mock server
 const createMockServer = async () => {
-  if (!mockServerName.value.trim() || !collectionID.value) return
+  if (!mockServerName.value.trim() || !effectiveCollectionID.value) {
+    if (!effectiveCollectionID.value) {
+      toast.error(t("mock_server.select_collection_error"))
+    }
+    return
+  }
 
   loading.value = true
 
   await pipe(
     createMockServerMutation(
       mockServerName.value.trim(),
-      collectionID.value,
+      effectiveCollectionID.value,
       WorkspaceType.User, // workspaceType
       undefined, // workspaceID (will use current user)
-      Number(delayInMsVal) || 0, // delayInMs
-      Boolean(isPublic) // isPublic
+      Number(delayInMsVal.value) || 0, // delayInMs
+      Boolean(isPublic.value) // isPublic
     ),
     TE.match(
       (error) => {

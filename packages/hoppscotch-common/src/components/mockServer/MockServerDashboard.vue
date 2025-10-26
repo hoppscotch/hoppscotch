@@ -76,6 +76,7 @@
           </span>
           <span
             class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+            @click="openMockServerLogs(mockServer)"
           >
             <div class="flex min-w-0 flex-1 flex-col">
               <span class="truncate font-semibold">
@@ -177,6 +178,12 @@
       :mock-server="selectedMockServer"
       @hide-modal="showEditModal = false"
     />
+    <MockServerLogs
+      v-if="showLogsModal && selectedMockServer"
+      :show="showLogsModal"
+      :mock-server-i-d="selectedMockServer.id"
+      @close="showLogsModal = false"
+    />
   </div>
 </template>
 
@@ -196,6 +203,7 @@ import {
 } from "~/newstore/mockServers"
 import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
+import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 
 // Icons
 import IconPlus from "~icons/lucide/plus"
@@ -217,6 +225,7 @@ const { mockServers } = useMockServerStatus()
 const loading = ref(false)
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const showLogsModal = ref(false)
 const selectedMockServer = ref<MockServer | null>(null)
 const copyIcon = ref(IconCopy)
 const tippyActions = ref<TippyComponent | null>(null)
@@ -229,6 +238,11 @@ const hasNoAccess = computed(() => {
 const editMockServer = (mockServer: MockServer) => {
   selectedMockServer.value = mockServer
   showEditModal.value = true
+}
+
+const openMockServerLogs = (mockServer: MockServer) => {
+  selectedMockServer.value = mockServer
+  showLogsModal.value = true
 }
 
 const toggleMockServer = async (mockServer: MockServer) => {
@@ -259,7 +273,8 @@ const copyToClipboardHandler = async (text: string) => {
   try {
     await copyToClipboard(text)
     copyIcon.value = IconCheck
-    toast.success(t("state.copied_to_clipboard"))
+    // Show which URL was copied
+    toast.success(`${t("mock_server.url_copied")}: ${text}`)
     setTimeout(() => {
       copyIcon.value = IconCopy
     }, 1000)

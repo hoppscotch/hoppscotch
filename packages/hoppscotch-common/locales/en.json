@@ -883,8 +883,17 @@
     "private_description": "Only authenticated users can access this mock server",
     "select_collection": "Select a collection",
     "select_collection_error": "Please select a collection",
+    "url_copied": "URL copied to clipboard",
     "make_public": "Make Public",
     "view_logs": "View logs",
+    "logs_title": "Mock Server Logs",
+    "no_logs": "No logs available",
+    "request_headers": "Request Headers",
+    "request_body": "Request Body",
+    "response_status": "Response Status",
+    "response_headers": "Response Headers",
+    "response_body": "Response Body",
+    "log_deleted": "Log deleted successfully",
     "description": "Mock servers allow you to simulate API responses based on your collection's example responses."
   },
   "preRequest": {

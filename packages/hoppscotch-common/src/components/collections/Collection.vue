@@ -177,7 +177,7 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
+                    v-if="!hasNoTeamAccess && isRootCollection"
                     ref="mockServerAction"
                     :icon="IconServer"
                     :label="t('mock_server.create_mock_server')"
@@ -465,6 +465,11 @@ const mockServerStatus = computed(() => {
       : (props.data as TeamCollection).id
 
   return getMockServerStatus(collectionId || "")
+})
+
+// Determine if this is a root collection (not a child folder)
+const isRootCollection = computed(() => {
+  return props.folderType === "collection"
 })
 
 // Used to determine if the collection is being dragged to a different destination

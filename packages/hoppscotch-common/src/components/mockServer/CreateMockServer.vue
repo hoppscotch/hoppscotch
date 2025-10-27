@@ -284,6 +284,7 @@ import {
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
 import { restCollections$ } from "~/newstore/collections"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 import { TippyComponent } from "vue-tippy"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
@@ -308,6 +309,7 @@ import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 const t = useI18n()
 const toast = useToast()
 const workspaceService = useService(WorkspaceService)
+const teamCollectionsService = useService(TeamCollectionsService)
 
 // Modal state
 const modalData = useReadonlyStream(showCreateMockServerModal$, {
@@ -319,6 +321,15 @@ const modalData = useReadonlyStream(showCreateMockServerModal$, {
 const mockServers = useReadonlyStream(mockServers$, [])
 const collections = useReadonlyStream(restCollections$, [])
 const currentWorkspace = computed(() => workspaceService.currentWorkspace.value)
+
+// Get collections based on current workspace
+const availableCollections = computed(() => {
+  if (currentWorkspace.value.type === "team" && currentWorkspace.value.teamID) {
+    return teamCollectionsService.collections.value || []
+  } else {
+    return collections.value
+  }
+})
 
 // Component state
 const mockServerName = ref("")
@@ -349,31 +360,13 @@ const existingMockServer = computed(() => {
 
 const isExistingMockServer = computed(() => !!existingMockServer.value)
 
-// Collection options for the selector
+// Collection options for the selector (only root collections)
 const collectionOptions = computed(() => {
-  const flattenCollections = (collections: any[], prefix = ""): any[] => {
-    const result: any[] = []
-
-    collections.forEach((collection) => {
-      const displayName = prefix
-        ? `${prefix} / ${collection.name}`
-        : collection.name
-      result.push({
-        label: displayName,
-        value: collection.id || collection._ref_id,
-        collection: collection,
-      })
-
-      // Add folders as nested options
-      if (collection.folders && collection.folders.length > 0) {
-        result.push(...flattenCollections(collection.folders, displayName))
-      }
-    })
-
-    return result
-  }
-
-  return flattenCollections(collections.value)
+  return availableCollections.value.map((collection) => ({
+    label: collection.name || collection.title,
+    value: collection.id || collection._ref_id,
+    collection: collection,
+  }))
 })
 
 // Get the effective collection ID (either pre-selected or user-selected)

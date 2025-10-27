@@ -12,7 +12,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupSwagger(app, isProduction: boolean) {
+function setupSwagger(app: NestExpressApplication, isProduction: boolean): void {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()

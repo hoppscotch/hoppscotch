@@ -634,7 +634,6 @@ export class MockServerService {
       );
 
       if (candidateExamples.length === 0) {
-        console.log('No candidate examples found');
         return E.left(`No examples found for ${method.toUpperCase()} ${path}`);
       }
 
@@ -651,7 +650,6 @@ export class MockServerService {
       }
 
       // OPTIMIZATION: Score examples based on URL and query parameter matching
-      console.log('Scoring examples:', filteredExamples.length);
       const scoredExamples = filteredExamples
         .map((example) => ({
           example,
@@ -800,9 +798,7 @@ export class MockServerService {
 
           // OPTIMIZATION: Quick path match check before adding to candidates
           // This reduces the number of examples we need to score
-          console.log('Checking path match:', parsedExample.path, path);
           if (this.couldPathMatch(parsedExample.path, path)) {
-            console.log('Path match found:', parsedExample.path, path);
             examples.push(parsedExample);
           }
         }

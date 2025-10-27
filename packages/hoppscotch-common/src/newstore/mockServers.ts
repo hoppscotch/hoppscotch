@@ -1,7 +1,10 @@
 import { pluck } from "rxjs/operators"
 import { BehaviorSubject } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { getMyMockServers, getTeamMockServers } from "~/helpers/backend/queries/MockServer"
+import {
+  getMyMockServers,
+  getTeamMockServers,
+} from "~/helpers/backend/queries/MockServer"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { getService } from "~/modules/dioc"
@@ -154,7 +157,7 @@ export function loadMockServers(skip?: number, take?: number) {
   try {
     const workspaceService = getService(WorkspaceService)
     const currentWorkspace = workspaceService.currentWorkspace.value
-    
+
     if (currentWorkspace.type === "team" && currentWorkspace.teamID) {
       return loadTeamMockServers(currentWorkspace.teamID, skip, take)
     } else {
@@ -187,7 +190,11 @@ export function loadMockServers(skip?: number, take?: number) {
 }
 
 // Load team mock servers from backend
-export function loadTeamMockServers(teamID: string, skip?: number, take?: number) {
+export function loadTeamMockServers(
+  teamID: string,
+  skip?: number,
+  take?: number
+) {
   return pipe(
     getTeamMockServers(teamID, skip, take),
     TE.match(
@@ -202,7 +209,12 @@ export function loadTeamMockServers(teamID: string, skip?: number, take?: number
 }
 
 // Load mock servers based on workspace context
-export function loadMockServersForWorkspace(workspaceType: "personal" | "team", teamID?: string, skip?: number, take?: number) {
+export function loadMockServersForWorkspace(
+  workspaceType: "personal" | "team",
+  teamID?: string,
+  skip?: number,
+  take?: number
+) {
   if (workspaceType === "team" && teamID) {
     return loadTeamMockServers(teamID, skip, take)
   } else {

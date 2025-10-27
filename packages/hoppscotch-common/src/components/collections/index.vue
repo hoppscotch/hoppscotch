@@ -1085,8 +1085,11 @@ const createMockServer = (payload: {
   import("~/newstore/mockServers").then(({ showCreateMockServerModal$ }) => {
     // For personal collections, use the collection's _ref_id or id
     // For child collections, we need to get the root collection ID
-    let collectionID = payload.collection.id || payload.collection._ref_id || payload.collectionIndex
-    
+    let collectionID =
+      payload.collection.id ||
+      payload.collection._ref_id ||
+      payload.collectionIndex
+
     // If this is a child collection (folder), we need to get the root collection ID
     if (payload.collectionIndex.includes("/")) {
       // Extract the root collection index from the path (e.g., "0/1/2" -> "0")
@@ -1096,7 +1099,7 @@ const createMockServer = (payload: {
         collectionID = rootCollection.id || rootCollection._ref_id || rootIndex
       }
     }
-    
+
     showCreateMockServerModal$.next({
       show: true,
       collectionID: collectionID,

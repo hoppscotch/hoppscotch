@@ -132,15 +132,19 @@
                   ref="tippyActions"
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
+                  @keyup.s="toggleAction?.$el.click()"
+                  @keyup.delete="deleteAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
+                    ref="toggleAction"
                     :icon="mockServer.isActive ? IconStop : IconPlay"
                     :label="
                       mockServer.isActive
                         ? t('mock_server.stop_server')
                         : t('mock_server.start_server')
                     "
+                    :shortcut="['S']"
                     @click="
                       () => {
                         toggleMockServer(mockServer)
@@ -149,8 +153,10 @@
                     "
                   />
                   <HoppSmartItem
+                    ref="deleteAction"
                     :icon="IconTrash2"
                     :label="t('action.delete')"
+                    :shortcut="['⌫']"
                     @click="
                       () => {
                         deleteMockServer(mockServer)
@@ -249,6 +255,8 @@ const showLogsModal = ref(false)
 const selectedMockServer = ref<MockServer | null>(null)
 const copyIcon = ref(IconCopy)
 const tippyActions = ref<TippyComponent | null>(null)
+const toggleAction = ref<HTMLButtonElement | null>(null)
+const deleteAction = ref<HTMLButtonElement | null>(null)
 
 // Check if user has access (not logged in or no permissions)
 const hasNoAccess = computed(() => {
@@ -373,7 +381,7 @@ const openCreateModal = () => {
 // Load mock servers for current workspace
 const loadCurrentWorkspaceMockServers = async () => {
   if (!platform.auth.getCurrentUser()) return
-  
+
   loading.value = true
   try {
     await loadMockServers()

@@ -32,7 +32,9 @@ export const getMyMockServers = (skip?: number, take?: number) =>
       // Map the GraphQL response to frontend format
       return data.myMockServers.map((mockServer) => ({
         ...mockServer,
-        creator: mockServer.creator ? { uid: mockServer.creator.uid } : undefined,
+        creator: mockServer.creator
+          ? { uid: mockServer.creator.uid }
+          : undefined,
         userUid: mockServer.creator?.uid || "", // Legacy field
         collectionID: mockServer.collection?.id || "", // Legacy field
       }))
@@ -40,7 +42,11 @@ export const getMyMockServers = (skip?: number, take?: number) =>
     (error) => error as GetMyMockServersError
   )
 
-export const getTeamMockServers = (teamID: string, skip?: number, take?: number) =>
+export const getTeamMockServers = (
+  teamID: string,
+  skip?: number,
+  take?: number
+) =>
   TE.tryCatch(
     async () => {
       const result = await runGQLQuery({
@@ -56,7 +62,9 @@ export const getTeamMockServers = (teamID: string, skip?: number, take?: number)
       // Map the GraphQL response to frontend format
       return data.teamMockServers.map((mockServer) => ({
         ...mockServer,
-        creator: mockServer.creator ? { uid: mockServer.creator.uid } : undefined,
+        creator: mockServer.creator
+          ? { uid: mockServer.creator.uid }
+          : undefined,
         userUid: mockServer.creator?.uid || "", // Legacy field
         collectionID: mockServer.collection?.id || "", // Legacy field
       }))

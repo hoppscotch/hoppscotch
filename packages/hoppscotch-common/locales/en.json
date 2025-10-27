@@ -868,6 +868,8 @@
     "active": "Mock server is active",
     "inactive": "Mock server is inactive",
     "edit_mock_server": "Edit Mock Server",
+    "path_based_url": "Path based URL",
+    "subdomain_based_url": "Subdomain based URL",
     "mock_server_updated": "Mock server updated successfully",
     "no_collection": "No collection",
     "status": "Status",

@@ -17,7 +17,7 @@
             {{ t("collection.title") }}
           </label>
           <!-- Collection Selector (when no collection is pre-selected) -->
-          <div v-if="!collectionID && !isExistingMockServer" class="relative">
+          <div v-if="!collectionID && !isExistingMockServer" class="flex">
             <tippy
               interactive
               trigger="click"
@@ -25,33 +25,50 @@
               :on-shown="() => tippyActions?.focus()"
             >
               <HoppSmartSelectWrapper>
-                <input
-                  class="flex flex-1 px-4 py-2 bg-transparent border rounded cursor-pointer border-divider"
-                  :placeholder="t('mock_server.select_collection')"
-                  :value="selectedCollectionName"
-                  readonly
+                <HoppButtonSecondary
+                  class="flex flex-1 !justify-start rounded-none pr-8"
+                  :label="
+                    selectedCollectionName || t('mock_server.select_collection')
+                  "
+                  outline
                 />
               </HoppSmartSelectWrapper>
               <template #content="{ hide }">
                 <div
                   ref="tippyActions"
-                  class="flex flex-col focus:outline-none max-h-60 overflow-y-auto"
+                  class="flex flex-col focus:outline-none"
                   tabindex="0"
                   @keyup.escape="hide()"
                 >
-                  <div
+                  <HoppSmartLink
                     v-for="option in collectionOptions"
                     :key="option.value"
-                    class="flex items-center justify-between px-4 py-2 hover:bg-primaryLight cursor-pointer"
+                    class="flex flex-1"
+                    :class="{
+                      'opacity-50 cursor-not-allowed': option.disabled,
+                    }"
                     @click="
                       () => {
-                        selectCollection(option)
-                        hide()
+                        if (!option.disabled) {
+                          selectCollection(option)
+                          hide()
+                        }
                       }
                     "
                   >
-                    <span class="truncate">{{ option.label }}</span>
-                  </div>
+                    <HoppSmartItem
+                      :label="option.label"
+                      :active-info-icon="selectedCollectionID === option.value"
+                      :info-icon="
+                        selectedCollectionID === option.value
+                          ? IconCheck
+                          : option.hasMockServer
+                            ? IconServer
+                            : null
+                      "
+                      :disabled="option.disabled"
+                    />
+                  </HoppSmartLink>
                   <div
                     v-if="collectionOptions.length === 0"
                     class="flex items-center justify-center px-4 py-8 text-secondaryLight"
@@ -362,11 +379,20 @@ const isExistingMockServer = computed(() => !!existingMockServer.value)
 
 // Collection options for the selector (only root collections)
 const collectionOptions = computed(() => {
-  return availableCollections.value.map((collection) => ({
-    label: collection.name || collection.title,
-    value: collection.id || collection._ref_id,
-    collection: collection,
-  }))
+  return availableCollections.value.map((collection) => {
+    const collectionId = collection.id || collection._ref_id
+    const hasMockServer = mockServers.value.some(
+      (server) => server.collectionID === collectionId
+    )
+
+    return {
+      label: collection.name || collection.title,
+      value: collectionId,
+      collection: collection,
+      hasMockServer: hasMockServer,
+      disabled: hasMockServer,
+    }
+  })
 })
 
 // Get the effective collection ID (either pre-selected or user-selected)
@@ -376,6 +402,11 @@ const effectiveCollectionID = computed(() => {
 
 // Collection selection handler
 const selectCollection = (option: any) => {
+  // Prevent selection of collections that already have mock servers
+  if (option.disabled || option.hasMockServer) {
+    return
+  }
+
   selectedCollectionID.value = option.value
   selectedCollectionName.value = option.label
 }
@@ -433,12 +464,14 @@ const createMockServer = async () => {
   loading.value = true
 
   // Determine workspace type and ID based on current workspace
-  const workspaceType = currentWorkspace.value.type === "team" 
-    ? WorkspaceType.Team 
-    : WorkspaceType.User
-  const workspaceID = currentWorkspace.value.type === "team" 
-    ? currentWorkspace.value.teamID 
-    : undefined
+  const workspaceType =
+    currentWorkspace.value.type === "team"
+      ? WorkspaceType.Team
+      : WorkspaceType.User
+  const workspaceID =
+    currentWorkspace.value.type === "team"
+      ? currentWorkspace.value.teamID
+      : undefined
 
   await pipe(
     createMockServerMutation(

@@ -6,6 +6,7 @@ import {
   InputType,
   registerEnumType,
 } from '@nestjs/graphql';
+import { IsOptional, MinLength } from 'class-validator';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 @ObjectType()
@@ -94,6 +95,7 @@ export class CreateMockServerInput {
   @Field({
     description: 'Name of the mock server',
   })
+  @MinLength(1)
   name: string;
 
   @Field({
@@ -135,6 +137,8 @@ export class UpdateMockServerInput {
     nullable: true,
     description: 'Name of the mock server',
   })
+  @IsOptional()
+  @MinLength(1)
   name?: string;
 
   @Field({

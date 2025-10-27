@@ -35,8 +35,12 @@ export class MockServerLoggingInterceptor implements NestInterceptor {
     const requestMethod = request.method;
     const requestPath = request.path;
     const requestHeaders = this.extractHeaders(request);
-    const requestBody = request.body;
+    const requestBody = request.body || {};
     const requestQuery = this.extractQueryParams(request);
+
+    if (!requestBody || typeof requestBody !== 'object') {
+      console.warn('Request body is not properly parsed');
+    }
 
     // Extract client info
     const ipAddress =

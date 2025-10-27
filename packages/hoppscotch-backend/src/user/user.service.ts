@@ -12,7 +12,7 @@ import {
   USERS_NOT_FOUND,
   USER_NOT_FOUND,
   USER_SHORT_DISPLAY_NAME,
-  USER_UPDATE_FAILED
+  USER_UPDATE_FAILED,
 } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';

@@ -27,7 +27,7 @@ import {
   escapeSqlLikeString,
   isValidLength,
   transformCollectionData,
-  stringToJson
+  stringToJson,
 } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';

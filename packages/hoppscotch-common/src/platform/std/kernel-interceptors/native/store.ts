@@ -26,6 +26,9 @@ const defaultDomainConfig: InputDomainSetting = {
     verifyPeer: true,
   },
   proxy: undefined,
+  options: {
+    followRedirects: true,
+  },
 }
 
 export class KernelInterceptorNativeStore extends Service {
@@ -117,6 +120,15 @@ export class KernelInterceptorNativeStore extends Service {
     )
   }
 
+  private mergeOptions(
+    ...settings: (Required<InputDomainSetting>["options"] | undefined)[]
+  ): Required<InputDomainSetting>["options"] | undefined {
+    return settings.reduce(
+      (acc, setting) => (setting ? { ...acc, ...setting } : acc),
+      undefined as Required<InputDomainSetting>["options"] | undefined
+    )
+  }
+
   private getMergedSettings(domain: string): InputDomainSetting {
     const domainSettings = this.domainSettings.get(domain)
     const globalSettings =
@@ -130,13 +142,17 @@ export class KernelInterceptorNativeStore extends Service {
         domainSettings?.security
       ),
       proxy: this.mergeProxy(globalSettings?.proxy, domainSettings?.proxy),
+      options: this.mergeOptions(
+        globalSettings?.options,
+        domainSettings?.options
+      ),
     }
 
     return { version: "v1", ...result }
   }
 
   public completeRequest(
-    request: Omit<RelayRequest, "proxy" | "security">
+    request: Omit<RelayRequest, "proxy" | "security" | "meta">
   ): RelayRequest {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)

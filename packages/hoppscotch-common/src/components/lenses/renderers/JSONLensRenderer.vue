@@ -88,7 +88,7 @@
                 "
               />
               <HoppSmartItem
-                v-if="response.body && isSavable"
+                v-if="response.body && !isEditable"
                 :label="t('action.clear_response')"
                 :icon="IconEraser"
                 :shortcut="[getSpecialKey(), 'Delete']"

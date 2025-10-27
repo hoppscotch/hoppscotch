@@ -87,6 +87,13 @@ export type ServerConfigs = {
       rate_limit_max: string;
     };
   };
+  mockServerConfigs?: {
+    name: string;
+    fields: {
+      mock_server_wildcard_domain: string;
+      allow_secure_cookies: boolean;
+    };
+  };
 };
 
 export type UpdatedConfigs = {
@@ -269,6 +276,17 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
   },
 ];
 
+export const MOCK_SERVER_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.MockServerWildcardDomain,
+    key: 'mock_server_wildcard_domain',
+  },
+  {
+    name: InfraConfigEnum.AllowSecureCookies,
+    key: 'allow_secure_cookies',
+  },
+];
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -279,4 +297,5 @@ export const ALL_CONFIGS = [
   HISTORY_STORE_CONFIG,
   RATE_LIMIT_CONFIGS,
   TOKEN_VALIDATION_CONFIGS,
+  MOCK_SERVER_CONFIGS,
 ];

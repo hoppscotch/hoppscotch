@@ -101,7 +101,7 @@
     "rate_limit": {
       "description": "Configure rate limiting for your Hoppscotch instance",
       "rate_limit_max": "Maximum Requests",
-      "rate_limit_ttl": "Time to Leave (in seconds)",
+      "rate_limit_ttl": "Time to Leave (in milliseconds)",
       "title": "Rate Limit Configurations",
       "update_failure": "Failed to update rate limit configurations!!",
       "input_validation_error": "Please enter valid values for rate limit configurations"
@@ -129,6 +129,14 @@
       "reset": "Reset Configurations"
     },
     "title": "Configurations",
+    "mock_server": {
+      "title": "Mock Server",
+      "description": "Configure mock server settings used to host example responses.",
+      "wildcard_domain": "Wildcard Domain",
+      "wildcard_domain_placeholder": "e.g. *.example.com",
+      "secure_cookies": "Allow secure cookies",
+      "secure_cookies_desc": "Use secure cookies for responses from the mock server"
+    },
     "update_failure": "Failed to update server configurations"
   },
   "data_sharing": {

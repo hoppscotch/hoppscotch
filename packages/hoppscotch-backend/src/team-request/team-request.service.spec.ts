@@ -55,6 +55,7 @@ for (let i = 1; i <= 10; i++) {
     collectionID: teamCollection.id,
     teamID: team.id,
     request: {},
+    mockExamples: {},
     title: `Test Request ${i}`,
     orderIndex: i,
     createdOn: new Date(),

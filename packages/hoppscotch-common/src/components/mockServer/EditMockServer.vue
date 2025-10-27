@@ -1,0 +1,209 @@
+<template>
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="t('mock_server.edit_mock_server')"
+    @close="emit('hide-modal')"
+  >
+    <template #body>
+      <div class="flex flex-col space-y-6">
+        <!-- Mock Server Name -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("mock_server.mock_server_name") }}
+          </label>
+          <input
+            v-model="mockServerName"
+            type="text"
+            class="input"
+            :placeholder="t('mock_server.mock_server_name_placeholder')"
+          />
+        </div>
+
+        <!-- Collection Info (Read-only) -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("collection.title") }}
+          </label>
+          <div class="text-body text-secondary">
+            {{ mockServer.collection?.title || t("mock_server.no_collection") }}
+          </div>
+        </div>
+
+        <!-- Base URL (Read-only) -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("mock_server.base_url") }}
+          </label>
+          <div class="flex items-center space-x-2">
+            <div
+              class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+            >
+              {{
+                mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
+              }}
+            </div>
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.copy')"
+              :icon="copyIcon"
+              @click="
+                copyToClipboardHandler(
+                  mockServer.serverUrlDomainBased ||
+                    mockServer.serverUrlPathBased ||
+                    ''
+                )
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Status Toggle -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("mock_server.status") }}
+          </label>
+          <div class="flex items-center space-x-3">
+            <HoppSmartToggle :on="isActive" @change="isActive = !isActive" />
+            <span class="text-sm text-secondaryLight">
+              {{
+                isActive
+                  ? t("mock_server.server_running")
+                  : t("mock_server.server_stopped")
+              }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Delay Settings -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("mock_server.delay_ms") }}
+          </label>
+          <input
+            v-model.number="delayInMs"
+            type="number"
+            min="0"
+            class="input"
+            :placeholder="t('mock_server.delay_placeholder')"
+          />
+          <span class="text-xs text-secondaryLight">
+            {{ t("mock_server.delay_description") }}
+          </span>
+        </div>
+
+        <!-- Public Access -->
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-semibold text-secondaryDark">
+            {{ t("mock_server.public_access") }}
+          </label>
+          <div class="flex items-center space-x-3">
+            <HoppSmartToggle :on="isPublic" @change="isPublic = !isPublic" />
+            <span class="text-sm text-secondaryLight">
+              {{
+                isPublic
+                  ? t("mock_server.public_description")
+                  : t("mock_server.private_description")
+              }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #footer>
+      <span class="flex space-x-2">
+        <HoppButtonPrimary
+          :label="t('action.save')"
+          :loading="loading"
+          @click="updateMockServer"
+        />
+        <HoppButtonSecondary
+          :label="t('action.cancel')"
+          @click="emit('hide-modal')"
+        />
+      </span>
+    </template>
+  </HoppSmartModal>
+</template>
+
+<script setup lang="ts">
+import { ref, watch } from "vue"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "~/composables/toast"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+import type { MockServer } from "~/newstore/mockServers"
+
+// Icons
+import IconCopy from "~icons/lucide/copy"
+import IconCheck from "~icons/lucide/check"
+
+interface Props {
+  show: boolean
+  mockServer: MockServer
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  (event: "hide-modal"): void
+}>()
+
+const t = useI18n()
+const toast = useToast()
+
+const loading = ref(false)
+const copyIcon = ref(IconCopy)
+
+// Form data
+const mockServerName = ref(props.mockServer.name)
+const isActive = ref(props.mockServer.isActive)
+const delayInMs = ref(props.mockServer.delayInMs || 0)
+const isPublic = ref(props.mockServer.isPublic)
+
+// Watch for prop changes
+watch(
+  () => props.mockServer,
+  (newMockServer) => {
+    mockServerName.value = newMockServer.name
+    isActive.value = newMockServer.isActive
+    delayInMs.value = newMockServer.delayInMs || 0
+    isPublic.value = newMockServer.isPublic
+  },
+  { immediate: true }
+)
+
+const updateMockServer = async () => {
+  loading.value = true
+
+  try {
+    // TODO: Implement mock server update API call
+    // const updatedMockServer = await updateMockServerAPI(props.mockServer.id, {
+    //   name: mockServerName.value,
+    //   isActive: isActive.value,
+    //   delayInMs: delayInMs.value,
+    //   isPublic: isPublic.value
+    // })
+
+    toast.success(t("mock_server.mock_server_updated"))
+    emit("hide-modal")
+  } catch (error) {
+    toast.error(t("error.something_went_wrong"))
+  } finally {
+    loading.value = false
+  }
+}
+
+const copyToClipboardHandler = async (text: string) => {
+  try {
+    await copyToClipboard(text)
+    copyIcon.value = IconCheck
+    toast.success(t("state.copied_to_clipboard"))
+    setTimeout(() => {
+      copyIcon.value = IconCopy
+    }, 1000)
+  } catch (error) {
+    toast.error(t("error.copy_failed"))
+  }
+}
+</script>

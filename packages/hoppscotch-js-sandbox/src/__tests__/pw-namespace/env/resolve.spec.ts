@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("pw.env.resolve", () => {
   test("value should be a string", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.env.resolve(5)
         `,
@@ -40,7 +18,7 @@ describe("pw.env.resolve", () => {
 
   test("resolves global variables correctly", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.resolve("<<hello>>")
           pw.expect(data).toBe("there")
@@ -71,7 +49,7 @@ describe("pw.env.resolve", () => {
 
   test("resolves selected env variables correctly", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.resolve("<<hello>>")
           pw.expect(data).toBe("there")
@@ -102,7 +80,7 @@ describe("pw.env.resolve", () => {
 
   test("chooses selected env variable over global variables when both have same variable", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.resolve("<<hello>>")
           pw.expect(data).toBe("there")
@@ -140,7 +118,7 @@ describe("pw.env.resolve", () => {
 
   test("if infinite loop in resolution, abandons resolutions altogether", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.resolve("<<hello>>")
           pw.expect(data).toBe("<<hello>>")

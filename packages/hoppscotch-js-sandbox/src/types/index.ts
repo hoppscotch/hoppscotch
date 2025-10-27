@@ -7,6 +7,34 @@ import type { EnvAPIOptions } from "~/utils/shared"
 type SandboxFunction = ReturnType<typeof defineSandboxFn>
 
 /**
+ * Type alias for values that cross the QuickJS sandbox boundary.
+ *
+ * Values passed between the host environment and the QuickJS sandbox lose their
+ * TypeScript type information during serialization. This type alias serves as
+ * a documented alternative to raw `any`, making it explicit that these values:
+ *
+ * - Come from or go to the sandbox (pre-request/post-request scripts)
+ * - Have been serialized and may not preserve complex types
+ * - Require runtime validation when type safety is needed
+ *
+ * Use this type for:
+ * - Function parameters that accept user script values
+ * - Return values sent back to the sandbox
+ * - PM namespace compatibility (preserves non-string types like arrays, objects)
+ *
+ * @example
+ * ```typescript
+ * // Function accepting values from user scripts
+ * const envSetAny = (key: SandboxValue, value: SandboxValue) => {
+ *   // Runtime validation
+ *   if (typeof key !== "string") throw new Error("Expected string key")
+ *   // ... handle value
+ * }
+ * ```
+ */
+export type SandboxValue = any
+
+/**
  * The response object structure exposed to the test script
  */
 export type TestResponse = {
@@ -93,14 +121,14 @@ export type SandboxPreRequestResult = {
 }
 
 export interface Expectation {
-  toBe(expectedVal: any): void
+  toBe(expectedVal: SandboxValue): void
   toBeLevel2xx(): void
   toBeLevel3xx(): void
   toBeLevel4xx(): void
   toBeLevel5xx(): void
-  toBeType(expectedType: any): void
-  toHaveLength(expectedLength: any): void
-  toInclude(needle: any): void
+  toBeType(expectedType: SandboxValue): void
+  toHaveLength(expectedLength: SandboxValue): void
+  toInclude(needle: SandboxValue): void
   readonly not: Expectation
 }
 
@@ -252,7 +280,7 @@ export interface BaseInputs
   cookieGetAll: SandboxFunction
   cookieDelete: SandboxFunction
   cookieClear: SandboxFunction
-  getUpdatedEnvs: () => any
+  getUpdatedEnvs: () => SandboxValue
   getUpdatedCookies: () => Cookie[] | null
-  [key: string]: any
+  [key: string]: SandboxValue // Index signature for dynamic namespace properties
 }

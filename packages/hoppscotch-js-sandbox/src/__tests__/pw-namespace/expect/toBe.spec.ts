@@ -1,33 +1,11 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, res: TestResponse) =>
-  pipe(
-    runTestScript(script, {
-      envs: { global: [], selected: [] },
-      request: defaultRequest,
-      response: res,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest, fakeResponse } from "~/utils/test-helpers"
 
 describe("toBe", () => {
   describe("general assertion (no negation)", () => {
     test("expect equals expected passes assertion", () => {
       return expect(
-        func(
+        runTest(
           `
             pw.expect(2).toBe(2)
           `,
@@ -44,7 +22,7 @@ describe("toBe", () => {
 
     test("expect not equals expected fails assertion", () => {
       return expect(
-        func(
+        runTest(
           `
               pw.expect(2).toBe(4)
           `,
@@ -63,7 +41,7 @@ describe("toBe", () => {
   describe("general assertion (with negation)", () => {
     test("expect equals expected fails assertion", () => {
       return expect(
-        func(
+        runTest(
           `
             pw.expect(2).not.toBe(2)
           `,
@@ -83,7 +61,7 @@ describe("toBe", () => {
 
     test("expect not equals expected passes assertion", () => {
       return expect(
-        func(
+        runTest(
           `
               pw.expect(2).not.toBe(4)
           `,
@@ -105,7 +83,7 @@ describe("toBe", () => {
 
 test("strict checks types", () => {
   return expect(
-    func(
+    runTest(
       `
           pw.expect(2).toBe("2")
         `,

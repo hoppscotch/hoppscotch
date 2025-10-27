@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.setInitial", () => {
   test("sets initial value in selected env when key doesn't exist", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("newKey", "newValue")
           const val = hopp.env.getInitialRaw("newKey")
@@ -48,7 +26,7 @@ describe("hopp.env.setInitial", () => {
 
   test("updates initial value in selected env when key exists", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("existing", "updated")
           const val = hopp.env.getInitialRaw("existing")
@@ -77,7 +55,7 @@ describe("hopp.env.setInitial", () => {
 
   test("updates selected env when key exists in both selected and global", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("shared", "selectedUpdate")
           const val = hopp.env.getInitialRaw("shared")
@@ -116,7 +94,7 @@ describe("hopp.env.setInitial", () => {
 
   test("sets initial value in global env when only exists in global", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("globalOnly", "globalUpdate")
           const val = hopp.env.getInitialRaw("globalOnly")
@@ -148,7 +126,7 @@ describe("hopp.env.setInitial", () => {
 
   test("allows setting empty string as initial value", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("empty", "")
           const val = hopp.env.getInitialRaw("empty")
@@ -168,7 +146,7 @@ describe("hopp.env.setInitial", () => {
 
   test("allows setting template syntax as initial value", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("template", "<<FOO>>")
           const val = hopp.env.getInitialRaw("template")
@@ -190,7 +168,7 @@ describe("hopp.env.setInitial", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial(123, "value")
         `,
@@ -201,7 +179,7 @@ describe("hopp.env.setInitial", () => {
 
   test("errors for non-string value", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.setInitial("key", 456)
         `,
@@ -214,7 +192,7 @@ describe("hopp.env.setInitial", () => {
 describe("hopp.env.active.setInitial", () => {
   test("sets initial value in selected env only", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial("activeKey", "activeValue")
           const activeVal = hopp.env.active.getInitialRaw("activeKey")
@@ -242,7 +220,7 @@ describe("hopp.env.active.setInitial", () => {
 
   test("updates existing selected env variable", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial("existing", "updated")
           const val = hopp.env.active.getInitialRaw("existing")
@@ -271,7 +249,7 @@ describe("hopp.env.active.setInitial", () => {
 
   test("does not affect global env even if key exists there", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial("shared", "activeUpdate")
           const activeVal = hopp.env.active.getInitialRaw("shared")
@@ -316,7 +294,7 @@ describe("hopp.env.active.setInitial", () => {
 
   test("allows setting empty string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial("blank", "")
           const val = hopp.env.active.getInitialRaw("blank")
@@ -336,7 +314,7 @@ describe("hopp.env.active.setInitial", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial(null, "value")
         `,
@@ -347,7 +325,7 @@ describe("hopp.env.active.setInitial", () => {
 
   test("errors for non-string value", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.setInitial("key", {})
         `,
@@ -360,7 +338,7 @@ describe("hopp.env.active.setInitial", () => {
 describe("hopp.env.global.setInitial", () => {
   test("sets initial value in global env only", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("globalKey", "globalValue")
           const globalVal = hopp.env.global.getInitialRaw("globalKey")
@@ -388,7 +366,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("updates existing global env variable", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("existing", "updated")
           const val = hopp.env.global.getInitialRaw("existing")
@@ -417,7 +395,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("does not affect selected env even if key exists there", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("shared", "globalUpdate")
           const globalVal = hopp.env.global.getInitialRaw("shared")
@@ -462,7 +440,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("allows setting empty string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("empty", "")
           const val = hopp.env.global.getInitialRaw("empty")
@@ -482,7 +460,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("allows setting template syntax", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("template", "<<BAR>>")
           const val = hopp.env.global.getInitialRaw("template")
@@ -504,7 +482,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial([], "value")
         `,
@@ -515,7 +493,7 @@ describe("hopp.env.global.setInitial", () => {
 
   test("errors for non-string value", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.setInitial("key", true)
         `,

@@ -39,6 +39,30 @@ const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
 const isPMItem = (x: unknown): x is Item => Item.isItem(x)
 
+/**
+ * Checks if the Postman collection schema version supports scripts (v2.0+)
+ * @param schema - The schema URL from collection.info.schema
+ * @returns true if v2.0 or v2.1, false otherwise
+ */
+const isSchemaVersionSupported = (schema?: string): boolean => {
+  if (!schema) return false
+  // Support both schema.getpostman.com and schema.postman.com
+  return schema.includes("/v2.0.") || schema.includes("/v2.1.")
+}
+
+/**
+ * Extracts the collection schema from raw JSON data
+ * Note: PMCollection SDK doesn't expose .info.schema, so we parse raw JSON
+ */
+const getCollectionSchema = (jsonStr: string): string | null => {
+  try {
+    const data = JSON.parse(jsonStr)
+    return data?.info?.schema ?? null
+  } catch {
+    return null
+  }
+}
+
 const replacePMVarTemplating = flow(
   S.replace(/{{\s*/g, "<<"),
   S.replace(/\s*}}/g, ">>")
@@ -482,7 +506,56 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   )
 }
 
-const getHoppRequest = (item: Item): HoppRESTRequest => {
+/**
+ * Extracts script content from a Postman event
+ * Handles both string format and exec array format
+ */
+const extractScriptFromEvent = (event: any): string => {
+  if (!event?.script) return ""
+
+  if (typeof event.script === "string") {
+    return event.script
+  }
+
+  if (event.script.exec && Array.isArray(event.script.exec)) {
+    return event.script.exec.join("\n")
+  }
+
+  return ""
+}
+
+const getHoppScripts = (
+  item: Item,
+  importScripts: boolean
+): { preRequestScript: string; testScript: string } => {
+  if (!importScripts) {
+    return { preRequestScript: "", testScript: "" }
+  }
+
+  let preRequestScript = ""
+  let testScript = ""
+
+  // Postman stores scripts in the events array
+  if (item.events) {
+    const events = item.events.all()
+    events.forEach((event: any) => {
+      if (event.listen === "prerequest") {
+        preRequestScript = extractScriptFromEvent(event)
+      } else if (event.listen === "test") {
+        testScript = extractScriptFromEvent(event)
+      }
+    })
+  }
+
+  return { preRequestScript, testScript }
+}
+
+const getHoppRequest = (
+  item: Item,
+  importScripts: boolean
+): HoppRESTRequest => {
+  const { preRequestScript, testScript } = getHoppScripts(item, importScripts)
+
   return makeRESTRequest({
     name: item.name,
     endpoint: getHoppReqURL(item.request.url),
@@ -496,38 +569,68 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
     }),
     requestVariables: getHoppReqVariables(item.request.url.variables),
     responses: getHoppResponses(item.responses),
-
-    // TODO: Decide about this
-    preRequestScript: "",
-    testScript: "",
+    preRequestScript,
+    testScript,
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
+const getHoppFolder = (
+  ig: ItemGroup<Item>,
+  importScripts: boolean
+): HoppCollection =>
   makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
       A.filter(isPMItemGroup),
-      A.map(getHoppFolder)
+      A.map((folder) => getHoppFolder(folder, importScripts))
     ),
-    requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
+    requests: pipe(
+      ig.items.all(),
+      A.filter(isPMItem),
+      A.map((item) => getHoppRequest(item, importScripts))
+    ),
     auth: getHoppReqAuth(ig.auth),
     headers: [],
     variables: getHoppCollVariables(ig),
   })
 
-export const getHoppCollections = (collections: PMCollection[]) => {
-  return collections.map(getHoppFolder)
+export const getHoppCollections = (
+  collections: PMCollection[],
+  importScripts: boolean
+) => {
+  return collections.map((collection) =>
+    getHoppFolder(collection, importScripts)
+  )
 }
 
-export const hoppPostmanImporter = (fileContents: string[]) =>
+export const hoppPostmanImporter = (
+  fileContents: string[],
+  importScripts = false
+) =>
   pipe(
     // Try reading
     fileContents,
     A.traverse(O.Applicative)(readPMCollection),
 
-    O.map(flow(getHoppCollections)),
+    O.map((collections) => {
+      // Validate schema version if importing scripts
+      if (importScripts && fileContents.length > 0) {
+        const schema = getCollectionSchema(fileContents[0])
+        const isSupported = isSchemaVersionSupported(schema ?? undefined)
+
+        if (!isSupported) {
+          console.warn(
+            `[Postman Import] Script import requested but collection schema "${schema ?? "unknown"}" does not support scripts. ` +
+              `Only Postman Collection Format v2.0 and v2.1 are supported. Scripts will be skipped.`
+          )
+          // Skip script import for unsupported versions
+          return getHoppCollections(collections, false)
+        }
+      }
+
+      return getHoppCollections(collections, importScripts)
+    }),
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

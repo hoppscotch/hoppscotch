@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, res: TestResponse) =>
-  pipe(
-    runTestScript(script, {
-      envs: { global: [], selected: [] },
-      request: defaultRequest,
-      response: res,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest, fakeResponse } from "~/utils/test-helpers"
 
 describe("toInclude", () => {
   test("asserts true for collections with matching values", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([1, 2, 3]).toInclude(1)
           pw.expect("123").toInclude(1)
@@ -45,7 +23,7 @@ describe("toInclude", () => {
 
   test("asserts false for collections without matching values", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([1, 2, 3]).toInclude(4)
           pw.expect("123").toInclude(4)
@@ -64,7 +42,7 @@ describe("toInclude", () => {
 
   test("asserts false for empty collections", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([]).not.toInclude(0)
           pw.expect("").not.toInclude(0)
@@ -89,7 +67,7 @@ describe("toInclude", () => {
 
   test("asserts false for [number array].includes(string)", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([1]).not.toInclude("1")
         `,
@@ -112,7 +90,7 @@ describe("toInclude", () => {
     // (`"123".includes(123)` returns `True` in Node.js v14.19.1)
     // See https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.includes
     return expect(
-      func(`pw.expect("123").toInclude(123)`, fakeResponse)()
+      runTest(`pw.expect("123").toInclude(123)`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -127,7 +105,7 @@ describe("toInclude", () => {
 
   test("gives error if not called on an array or string", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(5).not.toInclude(0)
           pw.expect(true).not.toInclude(0)
@@ -152,7 +130,7 @@ describe("toInclude", () => {
 
   test("gives an error if toInclude parameter is null", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([1, 2, 3, 4]).not.toInclude(null)
         `,
@@ -172,7 +150,7 @@ describe("toInclude", () => {
 
   test("gives an error if toInclude parameter is undefined", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect([1, 2, 3, 4]).not.toInclude(undefined)
         `,

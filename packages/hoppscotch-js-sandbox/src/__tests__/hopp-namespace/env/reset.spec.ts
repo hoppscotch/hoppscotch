@@ -1,42 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.envs)
-  )
-
-const funcTest = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTestAndGetEnvs, runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.reset", () => {
   test("resets selected variable to its initial value", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.set("foo", "changed")
           hopp.env.reset("foo")
@@ -68,7 +36,7 @@ describe("hopp.env.reset", () => {
 
   test("resets global variable to its initial value if not in selected", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.set("bar", "override")
           hopp.env.reset("bar")
@@ -100,7 +68,7 @@ describe("hopp.env.reset", () => {
 
   test("if variable exists in both, only selected variable is reset", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.set("a", "S")
           hopp.env.global.set("a", "G")
@@ -148,7 +116,7 @@ describe("hopp.env.reset", () => {
 
   test("resets only the first occurrence if duplicates exist in selected", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.set("dup", "X")
           hopp.env.reset("dup")
@@ -172,7 +140,7 @@ describe("hopp.env.reset", () => {
 
   test("resets only the first occurrence if duplicates exist in global", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.global.set("gdup", "Y")
           hopp.env.reset("gdup")
@@ -216,19 +184,22 @@ describe("hopp.env.reset", () => {
 
   test("no change if attempting to reset a non-existent key", () =>
     expect(
-      func(`hopp.env.reset("none")`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.reset("none")`, {
+        selected: [],
+        global: [],
+      })()
     ).resolves.toEqualRight(
       expect.objectContaining({ selected: [], global: [] })
     ))
 
   test("keys should be a string", () =>
     expect(
-      func(`hopp.env.reset(123)`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.reset(123)`, { selected: [], global: [] })()
     ).resolves.toBeLeft())
 
   test("reset reflected in subsequent get in the same script (selected)", () =>
     expect(
-      funcTest(
+      runTest(
         `
           hopp.env.set("foo", "override")
           hopp.env.reset("foo")
@@ -256,7 +227,7 @@ describe("hopp.env.reset", () => {
 
   test("reset works for secret variables", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.set("secret", "newVal")
           hopp.env.reset("secret")
@@ -290,7 +261,7 @@ describe("hopp.env.reset", () => {
 describe("hopp.env.active.reset", () => {
   test("resets variable only in selected environment", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.active.set("xxx", "MUT")
           hopp.env.active.reset("xxx")
@@ -317,7 +288,7 @@ describe("hopp.env.active.reset", () => {
 
   test("no effect if key not in selected", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.active.reset("nonexistent")
         `,
@@ -349,14 +320,17 @@ describe("hopp.env.active.reset", () => {
 
   test("key must be a string", () =>
     expect(
-      func(`hopp.env.active.reset(123)`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.active.reset(123)`, {
+        selected: [],
+        global: [],
+      })()
     ).resolves.toBeLeft())
 })
 
 describe("hopp.env.global.reset", () => {
   test("resets variable only in global environment", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.global.set("yyy", "GGG")
           hopp.env.global.reset("yyy")
@@ -388,7 +362,7 @@ describe("hopp.env.global.reset", () => {
 
   test("no effect if key not in global", () =>
     expect(
-      func(
+      runTestAndGetEnvs(
         `
           hopp.env.global.reset("nonexistent")
         `,
@@ -422,7 +396,7 @@ describe("hopp.env.global.reset", () => {
   describe("hopp.env.reset - regression cases", () => {
     test("create via setInitial then set, and reset restores to initial (selected)", () =>
       expect(
-        func(
+        runTestAndGetEnvs(
           `
           // Variable does not exist initially
           hopp.env.setInitial("AUTH_TOKEN", "seeded-v1")
@@ -450,7 +424,7 @@ describe("hopp.env.global.reset", () => {
 
     test("scope flip: remove from global, create in active, reset only affects active and not deleted global", () =>
       expect(
-        func(
+        runTestAndGetEnvs(
           `
           // Start by ensuring global is cleared
           hopp.env.global.delete("API_KEY")
@@ -490,7 +464,7 @@ describe("hopp.env.global.reset", () => {
 
     test("delete then reset within same script should be a no-op (selected)", () =>
       expect(
-        func(
+        runTestAndGetEnvs(
           `
           hopp.env.active.delete("SESSION_ID")
           // Reset after unset should not reintroduce or change anything
@@ -517,6 +491,9 @@ describe("hopp.env.global.reset", () => {
   })
   test("key must be a string", () =>
     expect(
-      func(`hopp.env.global.reset([])`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.global.reset([])`, {
+        selected: [],
+        global: [],
+      })()
     ).resolves.toBeLeft())
 })

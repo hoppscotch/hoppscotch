@@ -462,4 +462,148 @@ describe("hopp.response", () => {
       ).resolves.toEqualLeft(expect.stringContaining("read-only"))
     })
   })
+
+  describe("hopp.response utility methods", () => {
+    test("hopp.response.text() should return response as text", async () => {
+      await expect(
+        runTestScript(
+          `hopp.expect(hopp.response.text()).toBe("Plaintext response")`,
+          {
+            envs: { global: [], selected: [] },
+            request: defaultRequest,
+            response: sampleTextResponse,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: [
+              {
+                status: "pass",
+                message:
+                  "Expected 'Plaintext response' to be 'Plaintext response'",
+              },
+            ],
+          }),
+        })
+      )
+    })
+
+    test("hopp.response.json() should parse JSON response", async () => {
+      await expect(
+        runTestScript(`hopp.expect(hopp.response.json().ok).toBe(true)`, {
+          envs: { global: [], selected: [] },
+          request: defaultRequest,
+          response: sampleJSONResponse,
+        })
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: [
+              { status: "pass", message: "Expected 'true' to be 'true'" },
+            ],
+          }),
+        })
+      )
+    })
+
+    test("hopp.response.reason() should return HTTP reason phrase", async () => {
+      await expect(
+        runTestScript(`hopp.expect(hopp.response.reason()).toBe("OK")`, {
+          envs: { global: [], selected: [] },
+          request: defaultRequest,
+          response: sampleTextResponse,
+        })
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: [
+              { status: "pass", message: "Expected 'OK' to be 'OK'" },
+            ],
+          }),
+        })
+      )
+    })
+
+    test("hopp.response.dataURI() should convert response to data URI", async () => {
+      await expect(
+        runTestScript(
+          `
+            const dataURI = hopp.response.dataURI()
+            hopp.expect(dataURI).toBeType("string")
+            hopp.expect(dataURI.startsWith("data:")).toBe(true)
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: defaultRequest,
+            response: sampleJSONResponse,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: expect.arrayContaining([
+              expect.objectContaining({ status: "pass" }),
+              expect.objectContaining({ status: "pass" }),
+            ]),
+          }),
+        })
+      )
+    })
+
+    test("hopp.response.jsonp() should parse JSONP response", async () => {
+      const jsonpResponse: TestResponse = {
+        status: 200,
+        body: 'callback({"data": "test"})',
+        headers: [{ key: "Content-Type", value: "application/javascript" }],
+        statusText: "OK",
+        responseTime: 100,
+      }
+
+      await expect(
+        runTestScript(
+          `hopp.expect(hopp.response.jsonp("callback").data).toBe("test")`,
+          {
+            envs: { global: [], selected: [] },
+            request: defaultRequest,
+            response: jsonpResponse,
+          }
+        )
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: [
+              { status: "pass", message: "Expected 'test' to be 'test'" },
+            ],
+          }),
+        })
+      )
+    })
+
+    test("hopp.response.jsonp() should handle plain JSON without callback", async () => {
+      const plainJSONResponse: TestResponse = {
+        status: 200,
+        body: '{"plain": "json"}',
+        headers: [{ key: "Content-Type", value: "application/json" }],
+        statusText: "OK",
+        responseTime: 100,
+      }
+
+      await expect(
+        runTestScript(`hopp.expect(hopp.response.jsonp().plain).toBe("json")`, {
+          envs: { global: [], selected: [] },
+          request: defaultRequest,
+          response: plainJSONResponse,
+        })
+      ).resolves.toEqualRight(
+        expect.objectContaining({
+          tests: expect.objectContaining({
+            expectResults: [
+              { status: "pass", message: "Expected 'json' to be 'json'" },
+            ],
+          }),
+        })
+      )
+    })
+  })
 })

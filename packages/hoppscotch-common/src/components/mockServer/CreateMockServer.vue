@@ -150,10 +150,10 @@
         <div v-else class="flex flex-col space-y-4">
           <HoppSmartInput
             v-model="mockServerName"
+            v-focus
             :label="t('mock_server.mock_server_name')"
             input-styles="floating-input"
             :disabled="loading"
-            v-focus
           />
           <div class="flex items-center space-x-4">
             <div class="w-48">
@@ -284,7 +284,7 @@
   <MockServerLogs
     v-if="showLogs && existingMockServer"
     :show="showLogs"
-    :mockServerID="existingMockServer.id"
+    :mock-server-i-d="existingMockServer.id"
     @close="showLogs = false"
   />
 </template>
@@ -309,7 +309,7 @@ import {
   createMockServer as createMockServerMutation,
   updateMockServer,
 } from "~/helpers/backend/mutations/MockServer"
-import { WorkspaceType } from "~/helpers/backend/graphql"
+import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
@@ -343,16 +343,15 @@ const currentWorkspace = computed(() => workspaceService.currentWorkspace.value)
 const availableCollections = computed(() => {
   if (currentWorkspace.value.type === "team" && currentWorkspace.value.teamID) {
     return teamCollectionsService.collections.value || []
-  } else {
-    return collections.value
   }
+  return collections.value
 })
 
 // Component state
 const mockServerName = ref("")
 const loading = ref(false)
 const showCloseButton = ref(false)
-const createdServer = ref<any>(null)
+const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
 const showLogs = ref(false)

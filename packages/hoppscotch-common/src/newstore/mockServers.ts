@@ -160,19 +160,18 @@ export function loadMockServers(skip?: number, take?: number) {
 
     if (currentWorkspace.type === "team" && currentWorkspace.teamID) {
       return loadTeamMockServers(currentWorkspace.teamID, skip, take)
-    } else {
-      return pipe(
-        getMyMockServers(skip, take),
-        TE.match(
-          (error) => {
-            console.error("Failed to load mock servers:", error)
-          },
-          (mockServers) => {
-            setMockServers(mockServers)
-          }
-        )
-      )()
     }
+    return pipe(
+      getMyMockServers(skip, take),
+      TE.match(
+        (error) => {
+          console.error("Failed to load mock servers:", error)
+        },
+        (mockServers) => {
+          setMockServers(mockServers)
+        }
+      )
+    )()
   } catch (error) {
     // Fallback to user mock servers if workspace service is not available
     return pipe(
@@ -217,7 +216,6 @@ export function loadMockServersForWorkspace(
 ) {
   if (workspaceType === "team" && teamID) {
     return loadTeamMockServers(teamID, skip, take)
-  } else {
-    return loadMockServers(skip, take)
   }
+  return loadMockServers(skip, take)
 }

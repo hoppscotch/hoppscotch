@@ -89,6 +89,10 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions
   ) {
+    const dataset = options.dataset
+    const hasDataset = dataset?.enabled && dataset.data && dataset.data.length > 0
+
+    // Always use the user's iteration value
     const iterations = options.iterations || 1
 
     for (let iteration = 0; iteration < iterations; iteration++) {
@@ -101,6 +105,14 @@ export class TestRunnerService extends Service {
       // This allows us to accumulate results across iterations
       const shouldResetCollection = iteration === 0
 
+      // Get current iteration data if dataset is enabled
+      // If iteration exceeds dataset length, reuse the last dataset row
+      let iterationData: any = undefined
+      if (hasDataset && dataset.data) {
+        const dataIndex = Math.min(iteration, dataset.data.length - 1)
+        iterationData = dataset.data[dataIndex]
+      }
+
       // Run the collection for this iteration
       await this.runTestCollection(
         tab,
@@ -111,7 +123,8 @@ export class TestRunnerService extends Service {
         undefined,
         [],
         undefined,
-        shouldResetCollection
+        shouldResetCollection,
+        iterationData
       )
 
       // Add delay between iterations (except after the last one)
@@ -137,7 +150,8 @@ export class TestRunnerService extends Service {
     parentAuth?: HoppRESTRequest["auth"],
     parentVariables: HoppCollection["variables"] = [],
     parentID?: string,
-    shouldResetFoldersAndRequests: boolean = false
+    shouldResetFoldersAndRequests: boolean = false,
+    iterationData?: any
   ) {
     try {
       // Compute inherited auth and headers for this collection
@@ -195,7 +209,8 @@ export class TestRunnerService extends Service {
           inheritedAuth,
           inheritedVariables,
           collection._ref_id || collection.id,
-          shouldResetFoldersAndRequests
+          shouldResetFoldersAndRequests,
+          iterationData
         )
       }
 
@@ -234,7 +249,8 @@ export class TestRunnerService extends Service {
           options,
           currentPath,
           inheritedVariables,
-          shouldResetFoldersAndRequests
+          shouldResetFoldersAndRequests,
+          iterationData
         )
 
         if (options.delay && options.delay > 0) {
@@ -345,7 +361,8 @@ export class TestRunnerService extends Service {
     options: TestRunnerOptions,
     path: number[],
     inheritedVariables: HoppCollectionVariable[] = [],
-    isFirstIteration: boolean = true
+    isFirstIteration: boolean = true,
+    iterationData?: any
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -368,7 +385,8 @@ export class TestRunnerService extends Service {
       const results = await runTestRunnerRequest(
         request,
         options.keepVariableValues,
-        inheritedVariables
+        inheritedVariables,
+        iterationData
       )
 
       if (options.stopRef?.value) {

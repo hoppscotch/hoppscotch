@@ -1,9 +1,11 @@
 import { pluck } from "rxjs/operators"
 import { BehaviorSubject } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { getMyMockServers } from "~/helpers/backend/queries/MockServer"
+import { getMyMockServers, getTeamMockServers } from "~/helpers/backend/queries/MockServer"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import { getService } from "~/modules/dioc"
+import { WorkspaceService } from "~/services/workspace.service"
 
 export type WorkspaceType = "USER" | "TEAM"
 
@@ -147,17 +149,63 @@ export const showCreateMockServerModal$ = new BehaviorSubject(
   defaultCreateMockServerModalState
 )
 
-// Load mock servers from backend
+// Load mock servers from backend (workspace-aware)
 export function loadMockServers(skip?: number, take?: number) {
+  try {
+    const workspaceService = getService(WorkspaceService)
+    const currentWorkspace = workspaceService.currentWorkspace.value
+    
+    if (currentWorkspace.type === "team" && currentWorkspace.teamID) {
+      return loadTeamMockServers(currentWorkspace.teamID, skip, take)
+    } else {
+      return pipe(
+        getMyMockServers(skip, take),
+        TE.match(
+          (error) => {
+            console.error("Failed to load mock servers:", error)
+          },
+          (mockServers) => {
+            setMockServers(mockServers)
+          }
+        )
+      )()
+    }
+  } catch (error) {
+    // Fallback to user mock servers if workspace service is not available
+    return pipe(
+      getMyMockServers(skip, take),
+      TE.match(
+        (error) => {
+          console.error("Failed to load mock servers:", error)
+        },
+        (mockServers) => {
+          setMockServers(mockServers)
+        }
+      )
+    )()
+  }
+}
+
+// Load team mock servers from backend
+export function loadTeamMockServers(teamID: string, skip?: number, take?: number) {
   return pipe(
-    getMyMockServers(skip, take),
+    getTeamMockServers(teamID, skip, take),
     TE.match(
       (error) => {
-        console.error("Failed to load mock servers:", error)
+        console.error("Failed to load team mock servers:", error)
       },
       (mockServers) => {
         setMockServers(mockServers)
       }
     )
   )()
+}
+
+// Load mock servers based on workspace context
+export function loadMockServersForWorkspace(workspaceType: "personal" | "team", teamID?: string, skip?: number, take?: number) {
+  if (workspaceType === "team" && teamID) {
+    return loadTeamMockServers(teamID, skip, take)
+  } else {
+    return loadMockServers(skip, take)
+  }
 }

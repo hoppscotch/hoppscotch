@@ -195,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
@@ -213,6 +213,8 @@ import {
   updateMockServer as updateMockServerInStore,
   deleteMockServer as deleteMockServerInStore,
 } from "~/newstore/mockServers"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
 
 import {
   updateMockServer as updateMockServerMutation,
@@ -238,6 +240,7 @@ const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 const { mockServers } = useMockServerStatus()
+const workspaceService = useService(WorkspaceService)
 
 const loading = ref(false)
 const showCreateModal = ref(false)
@@ -367,16 +370,26 @@ const openCreateModal = () => {
 }
 
 // Load mock servers on component mount
-onMounted(async () => {
-  if (platform.auth.getCurrentUser()) {
-    loading.value = true
-    try {
-      await loadMockServers()
-    } catch (error) {
-      console.error("Failed to load mock servers:", error)
-    } finally {
-      loading.value = false
-    }
+// Load mock servers for current workspace
+const loadCurrentWorkspaceMockServers = async () => {
+  if (!platform.auth.getCurrentUser()) return
+  
+  loading.value = true
+  try {
+    await loadMockServers()
+  } catch (error) {
+    console.error("Failed to load mock servers:", error)
+  } finally {
+    loading.value = false
   }
-})
+}
+
+onMounted(loadCurrentWorkspaceMockServers)
+
+// Watch for workspace changes and reload mock servers
+watch(
+  () => workspaceService.currentWorkspace.value,
+  loadCurrentWorkspaceMockServers,
+  { deep: true }
+)
 </script>

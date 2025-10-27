@@ -855,7 +855,7 @@
     "authentication": "Authentication"
   },
   "mock_server": {
-    "create_mock_server": "Config Mock Server",
+    "create_mock_server": "Configure Mock Server",
     "mock_server_configuration": "Mock Server Configuration",
     "mock_server_name": "Mock Server Name",
     "mock_server_name_placeholder": "Enter mock server name",

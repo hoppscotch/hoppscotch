@@ -285,6 +285,8 @@ import {
 } from "~/newstore/mockServers"
 import { restCollections$ } from "~/newstore/collections"
 import { TippyComponent } from "vue-tippy"
+import { useService } from "dioc/vue"
+import { WorkspaceService } from "~/services/workspace.service"
 import {
   createMockServer as createMockServerMutation,
   updateMockServer,
@@ -305,6 +307,7 @@ import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 
 const t = useI18n()
 const toast = useToast()
+const workspaceService = useService(WorkspaceService)
 
 // Modal state
 const modalData = useReadonlyStream(showCreateMockServerModal$, {
@@ -315,6 +318,7 @@ const modalData = useReadonlyStream(showCreateMockServerModal$, {
 
 const mockServers = useReadonlyStream(mockServers$, [])
 const collections = useReadonlyStream(restCollections$, [])
+const currentWorkspace = computed(() => workspaceService.currentWorkspace.value)
 
 // Component state
 const mockServerName = ref("")
@@ -435,12 +439,20 @@ const createMockServer = async () => {
 
   loading.value = true
 
+  // Determine workspace type and ID based on current workspace
+  const workspaceType = currentWorkspace.value.type === "team" 
+    ? WorkspaceType.Team 
+    : WorkspaceType.User
+  const workspaceID = currentWorkspace.value.type === "team" 
+    ? currentWorkspace.value.teamID 
+    : undefined
+
   await pipe(
     createMockServerMutation(
       mockServerName.value.trim(),
       effectiveCollectionID.value,
-      WorkspaceType.User, // workspaceType
-      undefined, // workspaceID (will use current user)
+      workspaceType,
+      workspaceID,
       Number(delayInMsVal.value) || 0, // delayInMs
       Boolean(isPublic.value) // isPublic
     ),

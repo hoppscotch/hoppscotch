@@ -12,7 +12,6 @@ import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
 import {
   MOCK_SERVER_NOT_FOUND,
-  MOCK_SERVER_SUBDOMAIN_CONFLICT,
   MOCK_SERVER_INVALID_COLLECTION,
   TEAM_INVALID_ID,
   MOCK_SERVER_CREATION_FAILED,
@@ -31,6 +30,7 @@ import {
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { ConfigService } from '@nestjs/config';
 import { MockServerAnalyticsService } from './mock-server-analytics.service';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
 
 @Injectable()
 export class MockServerService {
@@ -294,7 +294,10 @@ export class MockServerService {
   /**
    * Create a new mock server
    */
-  async createMockServer(user: User, input: CreateMockServerInput) {
+  async createMockServer(
+    user: User,
+    input: CreateMockServerInput,
+  ): Promise<E.Either<string, MockServer>> {
     try {
       // Validate workspace type and ID
       const workspaceValidation = await this.validateWorkspace(user, input);
@@ -308,22 +311,8 @@ export class MockServerService {
         return E.left(collectionValidation.left);
       }
 
-      // Generate unique subdomain
-      let subdomain: string;
-      let attempts = 0;
-      while (attempts < 10) {
-        subdomain = this.generateMockServerSubdomain();
-
-        const existing = await this.prisma.mockServer.findUnique({
-          where: { subdomain },
-        });
-
-        if (!existing) break;
-        attempts++;
-      }
-      if (attempts >= 10) return E.left(MOCK_SERVER_SUBDOMAIN_CONFLICT);
-
       // Create mock server
+      const subdomain: string = this.generateMockServerSubdomain();
       const mockServer = await this.prisma.mockServer.create({
         data: {
           name: input.name,
@@ -346,6 +335,9 @@ export class MockServerService {
 
       return E.right(this.cast(mockServer));
     } catch (error) {
+      if (error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION) {
+        return this.createMockServer(user, input); // Retry on subdomain conflict
+      }
       console.error('Error creating mock server:', error);
       return E.left(MOCK_SERVER_CREATION_FAILED);
     }

@@ -886,12 +886,6 @@ export const INFRA_TOKEN_CREATOR_NOT_FOUND = 'infra_token/creator_not_found';
 export const MOCK_SERVER_NOT_FOUND = 'mock_server/not_found';
 
 /**
- * Mock server subdomain conflict
- * (MockServerService)
- */
-export const MOCK_SERVER_SUBDOMAIN_CONFLICT = 'mock_server/subdomain_conflict';
-
-/**
  * Mock server invalid collection
  * (MockServerService)
  */

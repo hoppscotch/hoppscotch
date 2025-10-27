@@ -6,7 +6,14 @@ import {
   InputType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsOptional, MinLength } from 'class-validator';
+import {
+  IsAlphanumeric,
+  IsNumber,
+  IsOptional,
+  Max,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 @ObjectType()
@@ -96,6 +103,8 @@ export class CreateMockServerInput {
     description: 'Name of the mock server',
   })
   @MinLength(1)
+  @MaxLength(255)
+  @IsAlphanumeric()
   name: string;
 
   @Field({
@@ -121,6 +130,9 @@ export class CreateMockServerInput {
     defaultValue: 0,
     description: 'Delay in milliseconds before responding',
   })
+  @IsOptional()
+  @IsNumber()
+  @Max(60000)
   delayInMs?: number;
 
   @Field({
@@ -139,12 +151,17 @@ export class UpdateMockServerInput {
   })
   @IsOptional()
   @MinLength(1)
+  @MaxLength(255)
+  @IsAlphanumeric()
   name?: string;
 
   @Field({
     nullable: true,
     description: 'Delay in milliseconds before responding',
   })
+  @IsOptional()
+  @IsNumber()
+  @Max(60000)
   delayInMs?: number;
 
   @Field({

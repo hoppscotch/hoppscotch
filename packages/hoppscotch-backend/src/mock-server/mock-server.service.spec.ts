@@ -6,7 +6,6 @@ import { mockDeep, mockReset } from 'jest-mock-extended';
 import * as E from 'fp-ts/Either';
 import {
   MOCK_SERVER_NOT_FOUND,
-  MOCK_SERVER_SUBDOMAIN_CONFLICT,
   MOCK_SERVER_INVALID_COLLECTION,
   TEAM_INVALID_ID,
   MOCK_SERVER_LOG_NOT_FOUND,
@@ -183,8 +182,8 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.id).toBe(dbMockServer.id);
-        expect(result.right.name).toBe(dbMockServer.name);
+        expect((result.right as any).id).toBe(dbMockServer.id);
+        expect((result.right as any).name).toBe(dbMockServer.name);
       }
     });
 
@@ -247,7 +246,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.id).toBe(dbMockServer.id);
+        expect((result.right as any).id).toBe(dbMockServer.id);
       }
       expect(mockPrisma.mockServer.findFirst).toHaveBeenCalledWith({
         where: {
@@ -284,7 +283,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.uid).toBe(user.uid);
+        expect((result.right as any).uid).toBe(user.uid);
       }
     });
 
@@ -311,8 +310,8 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.id).toBe(userCollection.id);
-        expect(result.right.title).toBe(userCollection.title);
+        expect((result.right as any).id).toBe(userCollection.id);
+        expect((result.right as any).title).toBe(userCollection.title);
       }
     });
 
@@ -331,8 +330,8 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.id).toBe(teamCollection.id);
-        expect(result.right.title).toBe(teamCollection.title);
+        expect((result.right as any).id).toBe(teamCollection.id);
+        expect((result.right as any).title).toBe(teamCollection.title);
       }
     });
 
@@ -372,7 +371,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.name).toBe(dbMockServer.name);
+        expect((result.right as any).name).toBe(dbMockServer.name);
       }
       expect(mockAnalyticsService.recordActivity).toHaveBeenCalledWith(
         dbMockServer,
@@ -439,11 +438,13 @@ describe('MockServerService', () => {
     });
 
     test('should retry subdomain generation on conflict', async () => {
+      const PrismaError = { UNIQUE_CONSTRAINT_VIOLATION: 'P2002' };
       mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
-      mockPrisma.mockServer.findUnique
-        .mockResolvedValueOnce({ id: 'existing' } as any) // First attempt conflicts
-        .mockResolvedValueOnce(null); // Second attempt succeeds
-      mockPrisma.mockServer.create.mockResolvedValue(dbMockServer);
+      mockPrisma.mockServer.create
+        .mockRejectedValueOnce({
+          code: PrismaError.UNIQUE_CONSTRAINT_VIOLATION,
+        }) // First attempt conflicts
+        .mockResolvedValueOnce(dbMockServer); // Second attempt succeeds
 
       const result = await mockServerService.createMockServer(
         user,
@@ -451,14 +452,14 @@ describe('MockServerService', () => {
       );
 
       expect(E.isRight(result)).toBe(true);
-      expect(mockPrisma.mockServer.findUnique).toHaveBeenCalledTimes(2);
+      expect(mockPrisma.mockServer.create).toHaveBeenCalledTimes(2);
     });
 
-    test('should return error after max subdomain retries', async () => {
+    test('should return creation failed error on non-constraint errors', async () => {
       mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
-      mockPrisma.mockServer.findUnique.mockResolvedValue({
-        id: 'existing',
-      } as any);
+      mockPrisma.mockServer.create.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       const result = await mockServerService.createMockServer(
         user,
@@ -467,7 +468,7 @@ describe('MockServerService', () => {
 
       expect(E.isLeft(result)).toBe(true);
       if (E.isLeft(result)) {
-        expect(result.left).toBe(MOCK_SERVER_SUBDOMAIN_CONFLICT);
+        expect(result.left).toBe('mock_server/creation_failed');
       }
     });
   });
@@ -492,7 +493,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.name).toBe(updateInput.name);
+        expect((result.right as any).name).toBe(updateInput.name);
       }
       expect(mockPrisma.mockServer.update).toHaveBeenCalledWith({
         where: { id: dbMockServer.id },
@@ -709,9 +710,9 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right).toHaveLength(1);
-        expect(result.right[0].requestMethod).toBe('GET');
-        expect(result.right[0].requestHeaders).toBe(
+        expect(result.right as any).toHaveLength(1);
+        expect((result.right as any)[0].requestMethod).toBe('GET');
+        expect((result.right as any)[0].requestHeaders).toBe(
           JSON.stringify(mockLog.requestHeaders),
         );
       }
@@ -875,8 +876,8 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.statusCode).toBe(200);
-        expect(result.right.body).toBe('{"success": true}');
+        expect((result.right as any).statusCode).toBe(200);
+        expect((result.right as any).body).toBe('{"success": true}');
       }
     });
 
@@ -894,7 +895,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.statusCode).toBe(200);
+        expect((result.right as any).statusCode).toBe(200);
       }
     });
 
@@ -929,8 +930,8 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.statusCode).toBe(404);
-        expect(result.right.body).toBe('{"error": "not found"}');
+        expect((result.right as any).statusCode).toBe(404);
+        expect((result.right as any).body).toBe('{"error": "not found"}');
       }
     });
 
@@ -947,7 +948,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.statusCode).toBe(200);
+        expect((result.right as any).statusCode).toBe(200);
       }
     });
 
@@ -1017,7 +1018,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.statusCode).toBe(200);
+        expect((result.right as any).statusCode).toBe(200);
       }
     });
 
@@ -1046,7 +1047,7 @@ describe('MockServerService', () => {
 
       expect(E.isRight(result)).toBe(true);
       if (E.isRight(result)) {
-        expect(result.right.delay).toBe(500);
+        expect((result.right as any).delay).toBe(500);
       }
     });
 

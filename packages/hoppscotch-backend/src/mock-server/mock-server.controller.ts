@@ -13,6 +13,7 @@ import { MockServerLoggingInterceptor } from './mock-server-logging.interceptor'
 import * as E from 'fp-ts/Either';
 import { MockRequestGuard } from './mock-request.guard';
 import { MockServer } from '@prisma/client';
+import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
 /**
  * Mock server controller with dual routing support:
@@ -22,6 +23,7 @@ import { MockServer } from '@prisma/client';
  * The MockRequestGuard handles extraction of mock server ID from both patterns
  * The MockServerLoggingInterceptor handles logging of all requests
  */
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'mock' })
 export class MockServerController {
   constructor(private readonly mockServerService: MockServerService) {}
@@ -100,6 +102,16 @@ export class MockServerController {
       }
 
       // Send response
+      const defaultContentType =
+        typeof mockResponse.body === 'object'
+          ? 'application/json'
+          : 'text/plain';
+      const contentType =
+        mockResponse.headers?.['content-type'] || defaultContentType;
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+
       return res.status(mockResponse.statusCode).send(mockResponse.body);
     } catch (error) {
       console.error('Error handling mock request:', error);

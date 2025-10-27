@@ -39,12 +39,10 @@ const props = defineProps({
     // type: Array as PropType<ReturnType<typeof defineImporter>[]>,
     type: Array as PropType<ImporterOrExporter[]>,
     default: () => [],
-    required: true,
   },
   exporterModules: {
     type: Array as PropType<ImporterOrExporter[]>,
     default: () => [],
-    required: true,
   },
   modalTitle: {
     type: String,

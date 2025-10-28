@@ -1080,6 +1080,7 @@
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
+    "enable_experimental_mock_servers": "Enable Mock Servers",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",

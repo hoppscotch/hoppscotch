@@ -4,7 +4,7 @@
       <div class="flex items-center space-x-2">
         <button
           v-if="content && content.trim()"
-          class="flex items-center space-x-1 text-sm font-medium text-secondary hover:text-secondaryDark transition-colors"
+          class="flex items-center space-x-1 font-medium text-secondary hover:text-secondaryDark transition-colors"
           @click="toggleExpanded"
         >
           <icon-lucide-chevron-right
@@ -15,9 +15,7 @@
           />
           <span>{{ title }}</span>
         </button>
-        <span v-else class="text-sm font-medium text-secondary">{{
-          title
-        }}</span>
+        <span v-else class="font-medium text-secondary">{{ title }}</span>
       </div>
     </div>
 
@@ -35,7 +33,7 @@
       </div>
 
       <pre
-        class="relative whitespace-pre-wrap text-sm break-words bg-primaryLight border border-dividerLight rounded-lg p-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-divider scrollbar-track-transparent"
+        class="relative whitespace-pre-wrap break-words bg-primaryLight border border-dividerLight rounded-lg p-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-divider scrollbar-track-transparent"
         :class="[
           isValidJSON ? 'text-accent' : 'text-secondaryLight',
           'hover:bg-primaryContrast transition-colors',

@@ -111,8 +111,8 @@
     @close="cancelDelete"
   >
     <template #body>
-      <div class="p-4">
-        <p>{{ t("mock_server.confirm_delete_log") }}</p>
+      <div class="p-4 flex flex-col items-center justify-center">
+        <p class="text-center">{{ t("mock_server.confirm_delete_log") }}</p>
       </div>
     </template>
     <template #footer>

@@ -251,12 +251,6 @@
 
     <template #footer>
       <div class="flex justify-end space-x-2">
-        <HoppButtonSecondary
-          :label="t('action.cancel')"
-          outline
-          @click="closeModal"
-        />
-
         <!-- Start/Stop Server Button for existing mock server -->
         <HoppButtonPrimary
           v-if="isExistingMockServer"
@@ -270,12 +264,6 @@
           @click="toggleMockServer"
         />
 
-        <HoppButtonSecondary
-          v-if="isExistingMockServer"
-          :label="t('mock_server.view_logs')"
-          @click="showLogs = true"
-        />
-
         <!-- Create Mock Server Button for new mock server -->
         <HoppButtonPrimary
           v-else
@@ -286,56 +274,48 @@
           @click="createMockServer"
         />
 
-        <!-- Close button shown after server creation -->
         <HoppButtonSecondary
-          v-if="showCloseButton"
-          :label="t('action.close')"
+          :label="t('action.cancel')"
+          outline
           @click="closeModal"
         />
       </div>
     </template>
   </HoppSmartModal>
-  <MockServerLogs
-    v-if="showLogs && existingMockServer"
-    :show="showLogs"
-    :mock-server-i-d="existingMockServer.id"
-    @close="showLogs = false"
-  />
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { useReadonlyStream } from "@composables/stream"
-import {
-  showCreateMockServerModal$,
-  mockServers$,
-  addMockServer,
-  updateMockServer as updateMockServerInStore,
-} from "~/newstore/mockServers"
-import { restCollections$ } from "~/newstore/collections"
-import { TeamCollectionsService } from "~/services/team-collection.service"
-import { TippyComponent } from "vue-tippy"
+import { useToast } from "@composables/toast"
+import { refAutoReset } from "@vueuse/core"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { computed, ref, watch } from "vue"
+import { TippyComponent } from "vue-tippy"
+import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
 import {
   createMockServer as createMockServerMutation,
   updateMockServer,
 } from "~/helpers/backend/mutations/MockServer"
-import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
-import { refAutoReset } from "@vueuse/core"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
+import { restCollections$ } from "~/newstore/collections"
+import {
+  addMockServer,
+  mockServers$,
+  showCreateMockServerModal$,
+  updateMockServer as updateMockServerInStore,
+} from "~/newstore/mockServers"
+import { TeamCollectionsService } from "~/services/team-collection.service"
+import { WorkspaceService } from "~/services/workspace.service"
 
 // Icons
-import IconServer from "~icons/lucide/server"
-import IconPlay from "~icons/lucide/play"
-import IconSquare from "~icons/lucide/square"
-import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
-import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
+import IconCopy from "~icons/lucide/copy"
+import IconPlay from "~icons/lucide/play"
+import IconServer from "~icons/lucide/server"
+import IconSquare from "~icons/lucide/square"
 
 const t = useI18n()
 const toast = useToast()
@@ -368,7 +348,6 @@ const showCloseButton = ref(false)
 const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
-const showLogs = ref(false)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
@@ -393,7 +372,7 @@ const isExistingMockServer = computed(() => !!existingMockServer.value)
 // Collection options for the selector (only root collections)
 const collectionOptions = computed(() => {
   return availableCollections.value.map((collection) => {
-    const collectionId = collection.id || collection._ref_id
+    const collectionId = collection.id
     const hasMockServer = mockServers.value.some(
       (server) => server.collectionID === collectionId
     )

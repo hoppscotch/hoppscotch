@@ -67,6 +67,7 @@ export type ServerConfigs = {
       refresh_token_validity: string;
       access_token_validity: string;
       session_secret: string;
+      session_cookie_name: string;
     };
   };
 
@@ -116,6 +117,8 @@ export type ConfigSection = {
 export type Config = {
   name: InfraConfigEnum;
   key: string;
+  // Marks fields that are optional and should be excluded from mandatory validation
+  optional?: boolean;
 };
 
 export const GOOGLE_CONFIGS: Config[] = [
@@ -257,6 +260,11 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.SessionSecret,
     key: 'session_secret',
+  },
+  {
+    name: InfraConfigEnum.SessionCookieName,
+    key: 'session_cookie_name',
+    optional: true,
   },
   {
     name: InfraConfigEnum.TokenSaltComplexity,

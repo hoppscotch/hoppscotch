@@ -52,6 +52,9 @@
         "refresh_token_validity": "Refresh Token Validity (in milliseconds)",
         "access_token_validity": "Access Token Validity (in milliseconds)",
         "session_secret": "Session Secret",
+        "session_cookie_name": "Session Cookie Name (optional)",
+        "session_cookie_name_help": "Only letters, numbers, underscore, and hyphen. Leave empty to use default 'connect.sid'.",
+        "session_cookie_name_invalid": "Invalid cookie name. Only letters, numbers, underscore, and hyphen allowed.",
         "update_failure": "Failed to update token configurations!!"
       },
       "update_failure": "Failed to update authentication provider configurations!!"

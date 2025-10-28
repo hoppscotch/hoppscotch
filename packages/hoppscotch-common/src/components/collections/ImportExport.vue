@@ -33,7 +33,7 @@ import { defineStep } from "~/composables/step-components"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
+import { appendRESTCollections, restCollections$, setRESTCollections } from "~/newstore/collections"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -46,6 +46,8 @@ import { useReadonlyStream } from "~/composables/stream"
 import IconUser from "~icons/lucide/user"
 
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
+import { importUserCollectionsFromJSON, fetchAndConvertUserCollections } from "~/helpers/backend/mutations/UserCollection"
+import { ReqType } from "~/helpers/backend/graphql"
 
 import { platform } from "~/platform"
 
@@ -101,7 +103,7 @@ const showImportFailedError = () => {
 const handleImportToStore = async (collections: HoppCollection[]) => {
   const importResult =
     props.collectionsType.type === "my-collections"
-      ? importToPersonalWorkspace(collections)
+      ? await importToPersonalWorkspace(collections)
       : await importToTeamsWorkspace(collections)
 
   if (E.isRight(importResult)) {
@@ -111,16 +113,77 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
-const importToPersonalWorkspace = (collections: HoppCollection[]) => {
-  appendRESTCollections(collections)
-  return E.right({
-    success: true,
-  })
+const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
+  // If user is logged in, try to import to backend first
+  if (currentUser.value) {
+    try {
+      const transformedCollection = collections.map((collection) =>
+        translateToPersonalCollectionFormat(collection)
+      )
+
+      const res = await importUserCollectionsFromJSON(
+        JSON.stringify(transformedCollection),
+        ReqType.Rest
+      )()
+
+      if (E.isRight(res)) {
+        // Backend import succeeded, now fetch and persist collections in store
+        const fetchResult = await fetchAndConvertUserCollections(ReqType.Rest)
+        
+        if (E.isRight(fetchResult)) {
+          // Replace local collections with backend collections
+          setRESTCollections(fetchResult.right)
+        } else {
+          console.warn("Failed to fetch collections from backend after import:", fetchResult.left)
+          // Still append to local store as fallback
+          appendRESTCollections(collections)
+        }
+        
+        return E.right({ success: true })
+      } else {
+        // Backend import failed, fall back to local storage
+        console.warn("Backend import failed, falling back to local storage:", res.left)
+        appendRESTCollections(collections)
+        return E.right({ success: true })
+      }
+    } catch (error) {
+      // Backend import failed, fall back to local storage
+      console.warn("Backend import failed, falling back to local storage:", error)
+      appendRESTCollections(collections)
+      return E.right({ success: true })
+    }
+  } else {
+    // User not logged in, use local storage
+    appendRESTCollections(collections)
+    return E.right({ success: true })
+  }
 }
 
 function translateToTeamCollectionFormat(x: HoppCollection) {
   const folders: HoppCollection[] = (x.folders ?? []).map(
     translateToTeamCollectionFormat
+  )
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+    variables: x.variables,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
+function translateToPersonalCollectionFormat(x: HoppCollection) {
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToPersonalCollectionFormat
   )
 
   const data = {

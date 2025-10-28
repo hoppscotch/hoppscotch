@@ -1,0 +1,20 @@
+query GetGQLRootUserCollections($cursor: ID, $take: Int) {
+  rootGQLUserCollections(cursor: $cursor, take: $take) {
+    id
+    title
+    data
+    type
+    parent {
+      id
+    }
+    childrenGQL {
+      id
+      title
+      data
+      type
+      parent {
+        id
+      }
+    }
+  }
+}

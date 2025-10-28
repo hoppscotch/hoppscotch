@@ -855,6 +855,7 @@
     "authentication": "Authentication"
   },
   "mock_server": {
+    "confirm_delete_log": "Are you sure you want to delete this log?",
     "create_mock_server": "Configure Mock Server",
     "mock_server_configuration": "Mock Server Configuration",
     "mock_server_name": "Mock Server Name",
@@ -1375,6 +1376,7 @@
     "loading": "Loading...",
     "message_received": "Message: {message} arrived on topic: {topic}",
     "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
+    "no_content_found": "No content found",
     "none": "None",
     "nothing_found": "Nothing found for",
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",

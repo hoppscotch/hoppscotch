@@ -135,7 +135,10 @@
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.s="sortAction?.$el.click()"
-                  @keyup.m="ENABLE_EXPERIMENTAL_MOCK_SERVERS && mockServerAction?.$el.click()"
+                  @keyup.m="
+                    ENABLE_EXPERIMENTAL_MOCK_SERVERS &&
+                    mockServerAction?.$el.click()
+                  "
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -177,7 +180,11 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess && isRootCollection && ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+                    v-if="
+                      !hasNoTeamAccess &&
+                      isRootCollection &&
+                      ENABLE_EXPERIMENTAL_MOCK_SERVERS
+                    "
                     ref="mockServerAction"
                     :icon="IconServer"
                     :label="t('mock_server.create_mock_server')"
@@ -457,7 +464,9 @@ const isCollectionLoading = computed(() => {
 })
 
 // Mock Server Status
-const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting("ENABLE_EXPERIMENTAL_MOCK_SERVERS")
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
 const { getMockServerStatus } = useMockServerStatus()
 
 const mockServerStatus = computed(() => {

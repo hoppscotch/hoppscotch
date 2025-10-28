@@ -81,7 +81,9 @@ import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue
 
 const t = useI18n()
 
-const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting("ENABLE_EXPERIMENTAL_MOCK_SERVERS")
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
 
 type RequestOptionTabs =
   | "history"

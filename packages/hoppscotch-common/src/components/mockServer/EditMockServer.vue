@@ -37,7 +37,7 @@
           </label>
           <div class="flex items-center space-x-2">
             <div
-              class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+              class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight"
             >
               {{
                 mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
@@ -65,7 +65,7 @@
           </label>
           <div class="flex items-center space-x-3">
             <HoppSmartToggle :on="isActive" @change="isActive = !isActive" />
-            <span class="text-sm text-secondaryLight">
+            <span class="text-secondaryLight">
               {{
                 isActive
                   ? t("mock_server.server_running")
@@ -99,7 +99,7 @@
           </label>
           <div class="flex items-center space-x-3">
             <HoppSmartToggle :on="isPublic" @change="isPublic = !isPublic" />
-            <span class="text-sm text-secondaryLight">
+            <span class="text-secondaryLight">
               {{
                 isPublic
                   ? t("mock_server.public_description")

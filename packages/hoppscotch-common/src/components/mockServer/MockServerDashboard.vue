@@ -58,13 +58,16 @@
           @click="openCreateModal"
         />
       </div>
-      <div v-else class="divide-y divide-dividerLight">
+      <div v-else class="flex flex-1 flex-col space-y-2 py-2">
         <div
           v-for="mockServer in mockServers"
           :key="mockServer.id"
           class="group flex items-stretch"
         >
-          <span class="flex cursor-pointer items-center justify-center px-4">
+          <span
+            class="flex cursor-pointer items-center justify-center px-4"
+            @click="openMockServerLogs(mockServer)"
+          >
             <component
               :is="IconServer"
               class="svg-icons"
@@ -75,7 +78,7 @@
             />
           </span>
           <span
-            class="flex min-w-0 flex-1 cursor-pointer py-2 pr-2 transition group-hover:text-secondaryDark"
+            class="flex min-w-0 flex-1 cursor-pointer pr-2 transition group-hover:text-secondaryDark"
             @click="openMockServerLogs(mockServer)"
           >
             <div class="flex min-w-0 flex-1 flex-col">

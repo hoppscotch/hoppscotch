@@ -102,7 +102,7 @@
             </label>
             <div class="flex items-center space-x-2">
               <div
-                class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+                class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight"
               >
                 {{
                   existingMockServer?.serverUrlPathBased ||
@@ -131,11 +131,11 @@
             </label>
             <div class="flex items-center space-x-2">
               <span
-                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                 :class="
                   existingMockServer?.isActive
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-green-600/20 text-green-200 border border-green-900/50'
+                    : 'bg-gray-600/20 text-gray-200 border border-gray-900/50'
                 "
               >
                 <span
@@ -157,7 +157,7 @@
         </div>
 
         <!-- New Mock Server Form -->
-        <div v-else class="flex flex-col space-y-4">
+        <div v-else class="flex flex-col space-y-6">
           <HoppSmartInput
             v-model="mockServerName"
             v-focus
@@ -236,10 +236,14 @@
         </div>
 
         <!-- Help Text -->
-        <div class="p-4 bg-primaryLight rounded-md border border-dividerLight">
-          <p class="text-sm text-secondary">
-            <Icon-lucide-info class="inline w-4 h-4 mr-2 text-accent" />
-            {{ t("mock_server.description") }}
+        <div
+          class="py-4 px-3 bg-primaryLight rounded-md border border-dividerLight shadow-sm"
+        >
+          <p class="text-secondary flex space-x-2 items-start">
+            <Icon-lucide-info class="svg-icons text-accent" />
+            <span>
+              {{ t("mock_server.description") }}
+            </span>
           </p>
         </div>
       </div>

@@ -461,8 +461,10 @@ const createMockServer = async () => {
     ),
     TE.match(
       (error) => {
+        // `error` here is the message string produced by the mutation helper.
         console.error("Failed to create mock server:", error)
-        toast.error(t("error.something_went_wrong"))
+        // Show the backend-provided error message if available, otherwise fallback to generic
+        toast.error(String(error) || t("error.something_went_wrong"))
         loading.value = false
       },
       (result) => {

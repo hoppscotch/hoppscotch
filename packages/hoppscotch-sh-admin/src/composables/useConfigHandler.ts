@@ -26,12 +26,20 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  MOCK_SERVER_CONFIGS,
   ServerConfigs,
+  TOKEN_VALIDATION_CONFIGS,
   UpdatedConfigs,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
+
+const COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
+
+const OPTIONAL_TOKEN_FIELD_KEYS = new Set(
+  TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.optional).map((cfg) => cfg.key)
+);
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object containing the updated configs
@@ -153,6 +161,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             InfraConfigEnum.AccessTokenValidity
           ),
           session_secret: getFieldValue(InfraConfigEnum.SessionSecret),
+          session_cookie_name: getFieldValue(InfraConfigEnum.SessionCookieName),
         },
       },
       dataSharingConfigs: {
@@ -174,6 +183,16 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         fields: {
           rate_limit_ttl: getFieldValue(InfraConfigEnum.RateLimitTtl),
           rate_limit_max: getFieldValue(InfraConfigEnum.RateLimitMax),
+        },
+      },
+      mockServerConfigs: {
+        name: 'mock_server',
+        fields: {
+          mock_server_wildcard_domain: getFieldValue(
+            InfraConfigEnum.MockServerWildcardDomain
+          ),
+          allow_secure_cookies:
+            getFieldValue(InfraConfigEnum.AllowSecureCookies) === 'true',
         },
       },
     };
@@ -275,8 +294,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
       // This section has no enabled property, so we check fields directly
       // for a valid number (>0) or non-empty string
-      if (section.name === 'token')
-        return Object.values(section.fields).some(isFieldNotValid);
+      if (section.name === 'token') {
+        return Object.entries(section.fields).some(
+          ([key, value]) =>
+            !OPTIONAL_TOKEN_FIELD_KEYS.has(key) && isFieldNotValid(value)
+        );
+      }
 
       // For rate limit section, we want to check if the values are not valid numbers
       // and not empty strings
@@ -342,6 +365,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         config: CUSTOM_MAIL_CONFIGS,
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
+      },
+      {
+        config: MOCK_SERVER_CONFIGS,
+        enabled: true,
+        fields: updatedConfigs?.mockServerConfigs?.fields ?? {},
       },
     ];
 
@@ -557,6 +585,14 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     const sessionSecret = String(
       updatedConfigs?.tokenConfigs.fields.session_secret
     );
+    const sessionCookieName = String(
+      updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
+    );
+    // Validate cookie name: allow empty (falls back to default), else enforce pattern
+    if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
+      toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
+      return false;
+    }
     if (
       isFieldEmpty(jwtSecret) ||
       isFieldEmpty(tokenSaltComplexity) ||
@@ -593,6 +629,10 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       {
         name: InfraConfigEnum.SessionSecret,
         value: sessionSecret,
+      },
+      {
+        name: InfraConfigEnum.SessionCookieName,
+        value: sessionCookieName,
       },
     ];
 

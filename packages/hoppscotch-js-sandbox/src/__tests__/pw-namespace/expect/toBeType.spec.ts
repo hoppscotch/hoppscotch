@@ -1,32 +1,10 @@
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-
-import { runTestScript } from "~/node"
-import { TestResponse } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, res: TestResponse) =>
-  pipe(
-    runTestScript(script, {
-      envs: { global: [], selected: [] },
-      request: defaultRequest,
-      response: res,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest, fakeResponse } from "~/utils/test-helpers"
 
 describe("toBeType", () => {
   test("asserts true for valid type expectations with no negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).toBeType("number")
           pw.expect("2").toBeType("string")
@@ -77,7 +55,7 @@ describe("toBeType", () => {
 
   test("asserts false for invalid type expectations with no negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).toBeType("string")
           pw.expect("2").toBeType("number")
@@ -108,7 +86,7 @@ describe("toBeType", () => {
 
   test("asserts false for valid type expectations with negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).not.toBeType("number")
           pw.expect("2").not.toBeType("string")
@@ -142,7 +120,7 @@ describe("toBeType", () => {
 
   test("asserts true for invalid type expectations with negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).not.toBeType("string")
           pw.expect("2").not.toBeType("number")
@@ -197,7 +175,7 @@ describe("toBeType", () => {
 
   test("gives error for invalid type names without negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).toBeType("foo")
           pw.expect("2").toBeType("bar")
@@ -237,7 +215,7 @@ describe("toBeType", () => {
 
   test("gives error for invalid type names with negation", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(2).not.toBeType("foo")
           pw.expect("2").not.toBeType("bar")

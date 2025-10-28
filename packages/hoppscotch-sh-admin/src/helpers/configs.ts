@@ -67,6 +67,7 @@ export type ServerConfigs = {
       refresh_token_validity: string;
       access_token_validity: string;
       session_secret: string;
+      session_cookie_name: string;
     };
   };
 
@@ -85,6 +86,13 @@ export type ServerConfigs = {
     fields: {
       rate_limit_ttl: string;
       rate_limit_max: string;
+    };
+  };
+  mockServerConfigs?: {
+    name: string;
+    fields: {
+      mock_server_wildcard_domain: string;
+      allow_secure_cookies: boolean;
     };
   };
 };
@@ -109,6 +117,8 @@ export type ConfigSection = {
 export type Config = {
   name: InfraConfigEnum;
   key: string;
+  // Marks fields that are optional and should be excluded from mandatory validation
+  optional?: boolean;
 };
 
 export const GOOGLE_CONFIGS: Config[] = [
@@ -252,6 +262,11 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
     key: 'session_secret',
   },
   {
+    name: InfraConfigEnum.SessionCookieName,
+    key: 'session_cookie_name',
+    optional: true,
+  },
+  {
     name: InfraConfigEnum.TokenSaltComplexity,
     key: 'token_salt_complexity',
   },
@@ -269,6 +284,17 @@ export const TOKEN_VALIDATION_CONFIGS: Config[] = [
   },
 ];
 
+export const MOCK_SERVER_CONFIGS: Config[] = [
+  {
+    name: InfraConfigEnum.MockServerWildcardDomain,
+    key: 'mock_server_wildcard_domain',
+  },
+  {
+    name: InfraConfigEnum.AllowSecureCookies,
+    key: 'allow_secure_cookies',
+  },
+];
+
 export const ALL_CONFIGS = [
   GOOGLE_CONFIGS,
   MICROSOFT_CONFIGS,
@@ -279,4 +305,5 @@ export const ALL_CONFIGS = [
   HISTORY_STORE_CONFIG,
   RATE_LIMIT_CONFIGS,
   TOKEN_VALIDATION_CONFIGS,
+  MOCK_SERVER_CONFIGS,
 ];

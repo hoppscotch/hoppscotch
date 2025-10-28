@@ -27,6 +27,7 @@ import {
   escapeSqlLikeString,
   isValidLength,
   transformCollectionData,
+  stringToJson,
 } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
@@ -36,7 +37,6 @@ import {
   TeamRequest,
 } from '@prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
-import { stringToJson } from 'src/utils';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
 import {
   GetCollectionResponse,

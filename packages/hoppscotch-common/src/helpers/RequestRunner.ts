@@ -63,6 +63,7 @@ import {
 } from "./workers/sandbox.worker"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
+import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
 
 const sandboxWorker = new Worker(
   new URL("./workers/sandbox.worker.ts", import.meta.url),
@@ -167,15 +168,15 @@ const updateEnvironments = (
           key: e.key,
           value: e.currentValue ?? "",
           varIndex: index,
+          initialValue: e.initialValue ?? "",
         })
 
-        // delete the value from the environment
-        // so that it doesn't get saved in the environment
-
+        // create a new object with cleared values for secret variables
+        // so that these values don't get saved in the environment
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.initialValue ?? "",
+          initialValue: e.secret ? "" : (e.initialValue ?? ""),
           currentValue: "",
         }
       }
@@ -211,23 +212,35 @@ const updateEnvironments = (
 }
 
 /**
+ * Get the environment variable value from the secret environment service
+ * @param envID The environment ID
+ * @param index The index of the environment variable
+ * @returns Current value and initial value of the environment variable
+ */
+const getSecretEnvironmentVariableValue = (
+  envID: string,
+  index: number
+): {
+  value: string
+  initialValue?: string
+} | null => {
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    envID,
+    index
+  )
+}
+
+/**
  * Get the environment variable value from the current environment
  * @param envID The environment ID
  * @param index The index of the environment variable
  * @param isSecret Whether the environment variable is a secret
- * @returns The environment variable value
+ * @returns Current value of the environment variable
  */
 const getEnvironmentVariableValue = (
   envID: string,
-  index: number,
-  isSecret: boolean
+  index: number
 ): string | undefined => {
-  if (isSecret) {
-    return secretEnvironmentService.getSecretEnvironmentVariableValue(
-      envID,
-      index
-    )
-  }
   return currentEnvironmentValueService.getEnvironmentVariableValue(
     envID,
     index
@@ -456,10 +469,10 @@ export function runRESTRequest$(
         secret,
       }))
 
-    const finalRequest = {
-      ...resolvedRequest,
-      ...(preRequestScriptResult.right.updatedRequest ?? {}),
-    }
+    const finalRequest = applyScriptRequestUpdates(
+      resolvedRequest,
+      preRequestScriptResult.right.updatedRequest
+    )
 
     // Propagate changes to request variables from the scripting context to the UI
     tab.value.document.request.requestVariables = finalRequest.requestVariables
@@ -674,10 +687,10 @@ export function runTestRunnerRequest(
     )
 
     // Calculate the final updated request after pre-request script changes
-    const finalRequest = {
-      ...request,
-      ...(preRequestScriptResult.right.updatedRequest ?? {}),
-    }
+    const finalRequest = applyScriptRequestUpdates(
+      request,
+      preRequestScriptResult.right.updatedRequest
+    )
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
@@ -823,6 +836,27 @@ const getUpdatedEnvVariables = (
     )
   )
 
+// Helper to resolve currentValue & initialValue for (secret/non-secret) env vars
+const resolveEnvVars = (
+  envID: string,
+  vars: Environment["variables"]
+): Environment["variables"] =>
+  vars.map((v, index) => {
+    const secretMeta = v.secret
+      ? getSecretEnvironmentVariableValue(envID, index)
+      : null
+    return {
+      ...v,
+      currentValue:
+        (v.secret
+          ? secretMeta?.value
+          : getEnvironmentVariableValue(envID, index)) ?? "",
+      // fallback to var initialValue if secretMeta is not found
+      initialValue:
+        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+    }
+  })
+
 function translateToSandboxTestResults(
   testDesc: SandboxTestResult
 ): HoppTestResult {
@@ -834,20 +868,10 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = cloneDeep(getGlobalVariables()).map((g, index) => ({
-    ...g,
-    currentValue: getEnvironmentVariableValue("Global", index, g.secret) ?? "",
-  }))
-
-  const envVars = getCurrentEnvironment().variables.map((e, index) => ({
-    ...e,
-    currentValue:
-      getEnvironmentVariableValue(
-        getCurrentEnvironment().id,
-        index,
-        e.secret
-      ) ?? "",
-  }))
+  const globals = resolveEnvVars("Global", cloneDeep(getGlobalVariables()))
+  const { id: currentEnvID, variables: currentEnvVariables } =
+    getCurrentEnvironment()
+  const envVars = resolveEnvVars(currentEnvID, currentEnvVariables)
 
   return {
     description: "",

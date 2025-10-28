@@ -314,6 +314,22 @@ pub struct CertificateConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RequestMeta {
+    pub options: Option<RequestOptions>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RequestOptions {
+    pub timeout: Option<u64>,
+    pub follow_redirects: Option<bool>,
+    pub max_redirects: Option<u32>,
+    pub decompress: Option<bool>,
+    pub cookies: Option<bool>,
+    pub keep_alive: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Request {
     pub id: i64,
     pub url: String,
@@ -327,6 +343,7 @@ pub struct Request {
     pub auth: Option<AuthType>,
     pub security: Option<SecurityConfig>,
     pub proxy: Option<ProxyConfig>,
+    pub meta: Option<RequestMeta>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

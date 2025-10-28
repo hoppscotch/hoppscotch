@@ -32,6 +32,7 @@ import { InfraConfigResolver } from './infra-config/infra-config.resolver';
 import { InfraTokenResolver } from './infra-token/infra-token.resolver';
 import { SortTeamCollectionResolver } from './orchestration/sort/sort-team-collection.resolver';
 import { SortUserCollectionResolver } from './orchestration/sort/sort-user-collection.resolver';
+import { MockServerResolver } from './mock-server/mock-server.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -66,6 +67,7 @@ const RESOLVERS = [
   InfraTokenResolver,
   SortUserCollectionResolver,
   SortTeamCollectionResolver,
+  MockServerResolver,
 ];
 
 /**

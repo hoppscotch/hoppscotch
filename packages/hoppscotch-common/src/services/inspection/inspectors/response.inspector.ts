@@ -5,11 +5,9 @@ import {
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
-import { markRaw } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { Ref } from "vue"
-import { computed } from "vue"
+import { computed, Ref, markRaw } from "vue"
 
 /**
  * This inspector is responsible for inspecting the response of a request.

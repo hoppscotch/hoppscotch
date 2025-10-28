@@ -1,31 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.get", () => {
   test("returns the correct value for an existing selected environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get("a")
           hopp.expect(data).toBe("b")
@@ -51,7 +30,7 @@ describe("hopp.env.get", () => {
 
   test("returns the correct value for an existing global environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get("a")
           hopp.expect(data).toBe("b")
@@ -77,7 +56,7 @@ describe("hopp.env.get", () => {
 
   test("returns null for a key that is not present in both selected or global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get("a")
           hopp.expect(data).toBe(null)
@@ -98,7 +77,7 @@ describe("hopp.env.get", () => {
 
   test("returns the value defined in selected environment if also present in global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get("a")
           hopp.expect(data).toBe("selected val")
@@ -136,7 +115,7 @@ describe("hopp.env.get", () => {
 
   test("resolves environment values recursively by default", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get("a")
           hopp.expect(data).toBe("hello")
@@ -170,7 +149,7 @@ describe("hopp.env.get", () => {
 
   test("errors if the key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.get(5)
         `,
@@ -186,7 +165,7 @@ describe("hopp.env.get", () => {
 describe("hopp.env.active.get", () => {
   test("returns the value from selected environment if present", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.active.get("a")
           hopp.expect(data).toBe("selectedVal")
@@ -224,7 +203,7 @@ describe("hopp.env.active.get", () => {
 
   test("returns null if key does not exist in selected", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.active.get("absent")
           hopp.expect(data).toBe(null)
@@ -252,7 +231,7 @@ describe("hopp.env.active.get", () => {
 
   test("errors if the key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.get({})
         `,
@@ -265,7 +244,7 @@ describe("hopp.env.active.get", () => {
 describe("hopp.env.global.get", () => {
   test("returns the value from global environment if present", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.global.get("foo")
           hopp.expect(data).toBe("globalVal")
@@ -300,7 +279,7 @@ describe("hopp.env.global.get", () => {
 
   test("returns null if key does not exist in global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.global.get("not_here")
           hopp.expect(data).toBe(null)
@@ -328,7 +307,7 @@ describe("hopp.env.global.get", () => {
 
   test("errors if the key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.get([])
         `,

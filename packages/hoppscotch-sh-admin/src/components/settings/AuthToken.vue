@@ -133,6 +133,20 @@
                   </template>
                 </HoppSmartInput>
               </div>
+              <div class="flex flex-col space-y-2">
+                <label>{{
+                  t('configs.auth_providers.token.session_cookie_name')
+                }}</label>
+                <HoppSmartInput
+                  v-model="authTokenConfig.fields.session_cookie_name"
+                  placeholder="e.g., connect_sid"
+                  :autofocus="false"
+                  class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                />
+                <p class="my-1 text-secondaryLight">
+                  {{ t('configs.auth_providers.token.session_cookie_name_help') }}
+                </p>
+              </div>
             </div>
           </div>
         </div>

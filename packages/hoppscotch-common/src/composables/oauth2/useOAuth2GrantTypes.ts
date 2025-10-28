@@ -178,6 +178,9 @@ export const useOAuth2GrantTypes = (
           id: "plain" | "S256"
           label: string
         } | null> = refWithCallbackOnChange(
+          // If the collection was imported before `codeVerifierMethod` existed,
+          // default to 'plain' when PKCE is enabled so the UI and validation
+          // remain consistent.
           auth.value.grantTypeInfo.codeVerifierMethod
             ? {
                 id: auth.value.grantTypeInfo.codeVerifierMethod,
@@ -186,7 +189,12 @@ export const useOAuth2GrantTypes = (
                     ? "Plain"
                     : "SHA-256",
               }
-            : null,
+            : auth.value.grantTypeInfo.isPKCE
+              ? {
+                  id: "plain",
+                  label: "Plain",
+                }
+              : null,
           (value) => {
             if (!("codeVerifierMethod" in auth.value.grantTypeInfo) || !value) {
               return
@@ -249,7 +257,12 @@ export const useOAuth2GrantTypes = (
             clientSecret: clientSecret.value,
             scopes: scopes.value,
             isPKCE: isPKCE.value,
-            codeVerifierMethod: codeChallenge.value?.id,
+            // Ensure older collections without `codeVerifierMethod` get a default
+            // so schema validation does not fail. Default to 'plain' when PKCE
+            // is enabled.
+            codeVerifierMethod:
+              codeChallenge.value?.id ??
+              (isPKCE.value ? ("plain" as const) : undefined),
             authRequestParams: preparedAuthRequestParams.value,
             tokenRequestParams: preparedTokenRequestParams.value,
             refreshRequestParams: preparedRefreshRequestParams.value,

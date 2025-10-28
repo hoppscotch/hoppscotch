@@ -8,11 +8,11 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
+  GQLHeader,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
 import { pluck } from "rxjs/operators"
 import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
-import { GQLHeader } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { getService } from "~/modules/dioc"
 import { getI18n } from "~/modules/i18n"

@@ -2,14 +2,13 @@
  * For example, sending a request.
  */
 
-import { Ref, onBeforeUnmount, onMounted, reactive, watch } from "vue"
+import { Ref, onBeforeUnmount, onMounted, reactive, watch, computed } from "vue"
 import { BehaviorSubject } from "rxjs"
 import { HoppRequestDocument } from "./rest/document"
 import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
-import { computed } from "vue"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { invoke } from "@tauri-apps/api/core"
 

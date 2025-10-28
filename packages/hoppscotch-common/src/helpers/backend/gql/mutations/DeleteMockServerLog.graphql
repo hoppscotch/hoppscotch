@@ -1,0 +1,3 @@
+mutation DeleteMockServerLog($logID: ID!) {
+  deleteMockServerLog(logID: $logID)
+}

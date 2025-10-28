@@ -73,7 +73,26 @@ export const createMockServer = (
         .toPromise()
 
       if (result.error) {
-        throw new Error(result.error.message || "Failed to create mock server")
+        // Try to extract a useful error message from the GraphQL error
+        const err: any = result.error
+        let message = err.message
+
+        // urql exposes GraphQL errors in graphQLErrors array
+        const gqlErr = (err.graphQLErrors && err.graphQLErrors[0]) || null
+        if (gqlErr) {
+          // Prefer originalError.message from backend if present (it may be an array of messages)
+          const orig =
+            gqlErr.extensions &&
+            gqlErr.extensions.originalError &&
+            gqlErr.extensions.originalError.message
+          if (orig) {
+            message = Array.isArray(orig) ? orig.join(", ") : String(orig)
+          } else if (gqlErr.message) {
+            message = gqlErr.message
+          }
+        }
+
+        throw new Error(message)
       }
 
       if (!result.data) {

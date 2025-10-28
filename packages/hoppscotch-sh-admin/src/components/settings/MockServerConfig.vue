@@ -17,12 +17,19 @@
           <label class="block text-sm font-medium text-secondaryDark mb-1">
             {{ t('configs.mock_server.wildcard_domain') }}
           </label>
-          <input
+          <HoppSmartInput
             v-model="mockFields.mock_server_wildcard_domain"
             type="text"
-            class="w-full rounded border p-2"
-            :placeholder="t('configs.mock_server.wildcard_domain_placeholder')"
+            :placeholder="'e.g. *.mock.example.com'"
+            class="!bg-primaryLight border border-divider rounded"
+            input-styles="!border-0"
           />
+          <p class="text-secondaryLight text-sm mt-2">
+            {{ t('configs.mock_server.wildcard_domain_description') }}
+          </p>
+          <p class="text-secondaryLight text-sm mt-1 font-mono">
+            {{ t('configs.mock_server.wildcard_domain_example') }}
+          </p>
         </div>
 
         <div class="flex items-center justify-between">

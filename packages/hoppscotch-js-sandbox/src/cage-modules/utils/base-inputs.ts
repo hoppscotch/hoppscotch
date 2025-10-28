@@ -13,6 +13,12 @@ import { createPmNamespaceMethods } from "../namespaces/pm-namespace"
 import { createPwNamespaceMethods } from "../namespaces/pw-namespace"
 
 type BaseInputsConfig = {
+  /**
+   * Environment variables typed as TestResult["envs"] for external API compatibility.
+   * At runtime, this will be mutated to contain SandboxValue types (arrays, objects, etc.)
+   * during script execution to support PM namespace compatibility.
+   * See `getSharedEnvMethods()` for detailed explanation of the type flow.
+   */
   envs: TestResult["envs"]
   request: HoppRESTRequest
   cookies: Cookie[] | null

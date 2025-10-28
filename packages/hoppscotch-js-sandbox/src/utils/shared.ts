@@ -11,11 +11,11 @@ import { cloneDeep } from "lodash-es"
 
 import {
   Expectation,
-  GlobalEnvItem,
-  SelectedEnvItem,
   TestDescriptor,
   TestResult,
   SandboxValue,
+  SandboxEnvironmentVariable,
+  SandboxEnvs,
 } from "../types"
 
 export type EnvSource = "active" | "global" | "all"
@@ -26,45 +26,45 @@ export type EnvAPIOptions = {
 
 const getEnv = (
   envName: string,
-  envs: TestResult["envs"],
+  envs: SandboxEnvs,
   options = { source: "all" }
 ) => {
   if (options.source === "active") {
     return O.fromNullable(
-      envs.selected.find((x: SelectedEnvItem) => x.key === envName)
+      envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName)
     )
   }
 
   if (options.source === "global") {
     return O.fromNullable(
-      envs.global.find((x: GlobalEnvItem) => x.key === envName)
+      envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
     )
   }
 
   return O.fromNullable(
-    envs.selected.find((x: SelectedEnvItem) => x.key === envName) ??
-      envs.global.find((x: GlobalEnvItem) => x.key === envName)
+    envs.selected.find((x: SandboxEnvironmentVariable) => x.key === envName) ??
+      envs.global.find((x: SandboxEnvironmentVariable) => x.key === envName)
   )
 }
 
 const findEnvIndex = (
   envName: string,
-  envList: SelectedEnvItem[] | GlobalEnvItem[]
+  envList: SandboxEnvironmentVariable[]
 ): number => {
   return envList.findIndex(
-    (envItem: SelectedEnvItem) => envItem.key === envName
+    (envItem: SandboxEnvironmentVariable) => envItem.key === envName
   )
 }
 
 const setEnv = (
   envName: string,
   envValue: SandboxValue,
-  envs: TestResult["envs"],
+  envs: SandboxEnvs,
   options: { setInitialValue?: boolean; source: EnvSource } = {
     setInitialValue: false,
     source: "all",
   }
-): TestResult["envs"] => {
+): SandboxEnvs => {
   const { global, selected } = envs
 
   const indexInSelected = findEnvIndex(envName, selected)
@@ -108,9 +108,9 @@ const setEnv = (
 
 const unsetEnv = (
   envName: string,
-  envs: TestResult["envs"],
+  envs: SandboxEnvs,
   options = { source: "all" }
-): TestResult["envs"] => {
+): SandboxEnvs => {
   const { global, selected } = envs
 
   const indexInSelected = findEnvIndex(envName, selected)
@@ -156,7 +156,7 @@ export function getSharedEnvMethods(
     }
   }
   pmSetAny: (key: string, value: SandboxValue, options?: EnvAPIOptions) => void
-  updatedEnvs: TestResult["envs"]
+  updatedEnvs: SandboxEnvs
 }
 
 /**
@@ -179,14 +179,36 @@ export function getSharedEnvMethods(
       resolve: (key: string) => string
     }
   }
-  updatedEnvs: TestResult["envs"]
+  updatedEnvs: SandboxEnvs
 }
 
 export function getSharedEnvMethods(
   envs: TestResult["envs"],
   isHoppNamespace = false
 ): unknown {
-  let updatedEnvs = envs
+  /**
+   * Type assertion explanation:
+   *
+   * The `envs` parameter is typed as `TestResult["envs"]` (with string values) for external API
+   * compatibility, but at runtime it contains `SandboxValue` types during script execution.
+   *
+   * Data flow:
+   * 1. Entry: External caller passes envs with string values
+   *    { global: [{ key: "count", currentValue: "5", initialValue: "0" }], selected: [] }
+   *
+   * 2. Execution: Scripts mutate with complex types (PM namespace compatibility)
+   *    pm.environment.set("users", [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }])
+   *    pm.environment.set("config", { debug: true, maxRetries: 3 })
+   *    // Now: currentValue is an array/object, not a string!
+   *
+   * 3. Exit: getUpdatedEnvs() serializes back to strings via JSON.stringify()
+   *    { global: [{ key: "users", currentValue: "[{...}]", initialValue: "[]" }], ... }
+   *
+   * The cast acknowledges that during execution (steps 1-3), the runtime type is SandboxEnvs,
+   * even though the declared type is TestResult["envs"] for API boundary compatibility.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  let updatedEnvs = envs as unknown as SandboxEnvs
 
   const envGetFn = (
     key: unknown,
@@ -200,7 +222,19 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => (options.fallbackToNull ? null : undefined),
-        (env) => env.currentValue // Return value as-is (PM namespace preserves types)
+        (env) => {
+          // Get the value to use (currentValue or fallback to initialValue)
+          // Treat undefined, empty string, and null as "empty" and fallback to initialValue
+          const valueToUse =
+            env.currentValue !== undefined &&
+            env.currentValue !== "" &&
+            env.currentValue !== null
+              ? env.currentValue
+              : env.initialValue
+
+          // Preserve complex types (arrays, objects) for PM namespace compatibility
+          return valueToUse
+        }
       )
     )
 
@@ -228,15 +262,27 @@ export function getSharedEnvMethods(
       E.fromOption(() => "INVALID_KEY" as const),
 
       E.map((e) => {
-        // Only resolve templates if the value is a string (PM namespace may have non-strings)
-        if (typeof e.currentValue === "string") {
-          return pipe(
-            parseTemplateStringE(e.currentValue, envVars),
-            E.getOrElse(() => e.currentValue)
-          )
+        // Get the value to use (currentValue or fallback to initialValue)
+        // Treat undefined, empty string, and null as "empty" and fallback to initialValue
+        const valueToUse =
+          e.currentValue !== undefined &&
+          e.currentValue !== "" &&
+          e.currentValue !== null
+            ? e.currentValue
+            : e.initialValue
+
+        // Only resolve templates for string values
+        // Non-string values (arrays, objects, etc.) are returned as-is for PM namespace compatibility
+        if (typeof valueToUse !== "string") {
+          return valueToUse
         }
-        // Return non-string values as-is (arrays, objects, null, etc.)
-        return e.currentValue
+
+        // For string values, resolve templates
+        return pipe(
+          parseTemplateStringE(valueToUse, envVars),
+          // If the recursive resolution failed, return the unresolved value
+          E.getOrElse(() => valueToUse)
+        )
       }),
 
       E.getOrElseW(() => (options.fallbackToNull ? null : undefined))

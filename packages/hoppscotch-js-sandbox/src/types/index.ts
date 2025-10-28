@@ -22,11 +22,21 @@ type SandboxFunction = ReturnType<typeof defineSandboxFn>
  * - Return values sent back to the sandbox
  * - PM namespace compatibility (preserves non-string types like arrays, objects)
  *
+ * Supported types for environment variable values:
+ * - Primitives: string, number, boolean, null, undefined
+ * - Objects: plain objects, arrays (recursively containing these types)
+ * - Unsupported: Functions, Symbols, and other non-serializable types
+ *
+ * Note: Typed as `any` because this type is used in multiple contexts:
+ * 1. Environment variable storage (supports primitives, objects, arrays)
+ * 2. Function parameters from user scripts (requires runtime validation)
+ * 3. Internal object properties (may include QuickJS handles)
+ *
  * @example
  * ```typescript
  * // Function accepting values from user scripts
  * const envSetAny = (key: SandboxValue, value: SandboxValue) => {
- *   // Runtime validation
+ *   // Runtime validation required since type is `any`
  *   if (typeof key !== "string") throw new Error("Expected string key")
  *   // ... handle value
  * }
@@ -85,23 +95,67 @@ export type TestDescriptor = {
   children: TestDescriptor[]
 }
 
-// Representation of a transformed state for environment variables in the sandbox
-type TransformedEnvironmentVariable = {
+/**
+ * Internal representation of environment variables within the sandbox runtime.
+ *
+ * Values can be complex types (arrays, objects) while executing scripts.
+ * This type is exported for internal use within js-sandbox but should NOT
+ * be used by consuming packages - use `EnvironmentVariable` instead.
+ *
+ * @internal
+ */
+export type SandboxEnvironmentVariable = {
   key: string
-  currentValue: string
-  initialValue: string
+  currentValue: SandboxValue // Can be arrays, objects, primitives
+  initialValue: SandboxValue
   secret: boolean
 }
 
 /**
- * Defines the result of a test script execution
+ * Internal representation of the envs structure during sandbox execution.
+ * This is what's used internally, before serialization to TestResult["envs"].
+ *
+ * At runtime, environment variables are stored with SandboxValue types to support
+ * PM namespace compatibility (arrays, objects, etc.). The serialization to strings
+ * happens only when getUpdatedEnvs() is called at the end of script execution.
+ *
+ * Note: This type is structurally compatible with TestResult["envs"] at runtime,
+ * but TypeScript sees them as different types due to the SandboxValue vs string
+ * difference. Use type assertions when converting between them.
+ *
+ * @internal
  */
+export type SandboxEnvs = {
+  global: SandboxEnvironmentVariable[]
+  selected: SandboxEnvironmentVariable[]
+}
 
+/**
+ * External representation of environment variables at the API boundary.
+ *
+ * All values are serialized to strings when crossing the sandbox boundary
+ * via getUpdatedEnvs() which calls JSON.stringify() on complex types.
+ *
+ * This is what consuming packages (hoppscotch-common, cli, etc.) receive.
+ */
+export type EnvironmentVariable = {
+  key: string
+  currentValue: string // Always string after serialization
+  initialValue: string // Always string after serialization
+  secret: boolean
+}
+
+/**
+ * Defines the result of a test script execution.
+ *
+ * Note: envs contain EnvironmentVariable (strings) not SandboxValue,
+ * because values are serialized when leaving the sandbox.
+ */
 export type TestResult = {
   tests: TestDescriptor[]
   envs: {
-    global: TransformedEnvironmentVariable[]
-    selected: TransformedEnvironmentVariable[]
+    global: EnvironmentVariable[]
+    selected: EnvironmentVariable[]
   }
 }
 
@@ -280,7 +334,8 @@ export interface BaseInputs
   cookieGetAll: SandboxFunction
   cookieDelete: SandboxFunction
   cookieClear: SandboxFunction
-  getUpdatedEnvs: () => SandboxValue
+  // Returns serialized env vars (SandboxValue -> string conversion happens here)
+  getUpdatedEnvs: () => TestResult["envs"]
   getUpdatedCookies: () => Cookie[] | null
   [key: string]: SandboxValue // Index signature for dynamic namespace properties
 }

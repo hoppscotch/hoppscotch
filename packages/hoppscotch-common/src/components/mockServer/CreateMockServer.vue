@@ -104,13 +104,23 @@
               <div
                 class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
               >
-                {{ mockServerBaseUrl }}
+                {{
+                  existingMockServer?.serverUrlPathBased ||
+                  existingMockServer?.serverUrlDomainBased ||
+                  ""
+                }}
               </div>
               <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.copy')"
                 :icon="copyIcon"
-                @click="copyToClipboard(mockServerBaseUrl)"
+                @click="
+                  copyToClipboard(
+                    existingMockServer?.serverUrlPathBased ||
+                      existingMockServer?.serverUrlDomainBased ||
+                      ''
+                  )
+                "
               />
             </div>
           </div>
@@ -409,21 +419,6 @@ const selectCollection = (option: any) => {
   selectedCollectionID.value = option.value
   selectedCollectionName.value = option.label
 }
-
-// Mock server base URL construction
-const mockServerBaseUrl = computed(() => {
-  if (!existingMockServer.value) return ""
-
-  // Extract host and port from backend API URL
-  const backendApiUrl =
-    import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3170"
-  const url = new URL(backendApiUrl)
-  const protocol = url.protocol
-  const port = url.port ? `:${url.port}` : ""
-
-  // Create subdomain URL: mock-1234.localhost:3170
-  return `${protocol}//${existingMockServer.value.subdomain}.${url.hostname}${port}`
-})
 
 // Copy functionality
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

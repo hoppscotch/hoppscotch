@@ -20,7 +20,6 @@ import {
 import {
   ALL_CONFIGS,
   CUSTOM_MAIL_CONFIGS,
-  Config,
   ConfigSection,
   ConfigTransform,
   GITHUB_CONFIGS,
@@ -29,13 +28,18 @@ import {
   MICROSOFT_CONFIGS,
   MOCK_SERVER_CONFIGS,
   ServerConfigs,
-  UpdatedConfigs,
   TOKEN_VALIDATION_CONFIGS,
+  UpdatedConfigs,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
-import { COOKIE_NAME_REGEX } from '@hoppscotch/common/helpers/validation';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
+
+const COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
+
+const OPTIONAL_TOKEN_FIELD_KEYS = new Set(
+  TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.optional).map((cfg) => cfg.key)
+);
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object containing the updated configs
@@ -157,9 +161,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             InfraConfigEnum.AccessTokenValidity
           ),
           session_secret: getFieldValue(InfraConfigEnum.SessionSecret),
-          session_cookie_name: getFieldValue(
-            InfraConfigEnum.SessionCookieName
-          ),
+          session_cookie_name: getFieldValue(InfraConfigEnum.SessionCookieName),
         },
       },
       dataSharingConfigs: {
@@ -292,14 +294,12 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
 
       // This section has no enabled property, so we check fields directly
       // for a valid number (>0) or non-empty string
-      if (section.name === 'token')
-        return Object.entries(section.fields)
-          .filter(([key]) =>
-            !TOKEN_VALIDATION_CONFIGS.find(
-              (cfg: Config) => cfg.key === key && cfg.optional === true
-            )
-          )
-          .some(([, value]) => isFieldNotValid(value));
+      if (section.name === 'token') {
+        return Object.entries(section.fields).some(
+          ([key, value]) =>
+            !OPTIONAL_TOKEN_FIELD_KEYS.has(key) && isFieldNotValid(value)
+        );
+      }
 
       // For rate limit section, we want to check if the values are not valid numbers
       // and not empty strings
@@ -590,7 +590,7 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     );
     // Validate cookie name: allow empty (falls back to default), else enforce pattern
     if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
-      toast.error(t('configs.auth_providers.token.update_failure'));
+      toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
       return false;
     }
     if (

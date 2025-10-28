@@ -15,8 +15,6 @@
     "noUnusedLocals": true,
     "paths": {
       "~/*": ["./src/*"],
-      "@hoppscotch/common": ["../hoppscotch-common/src/index.ts"],
-      "@hoppscotch/common/*": ["../hoppscotch-common/src/*"],
       "@composables/*": ["./src/composables/*"],
       "@components/*": ["./src/components/*"],
       "@helpers/*": ["./src/helpers/*"],

@@ -1,0 +1,23 @@
+query GetMyMockServers($skip: Int, $take: Int) {
+  myMockServers(skip: $skip, take: $take) {
+    id
+    name
+    subdomain
+    serverUrlPathBased
+    serverUrlDomainBased
+    workspaceType
+    workspaceID
+    delayInMs
+    isPublic
+    isActive
+    createdOn
+    updatedOn
+    creator {
+      uid
+    }
+    collection {
+      id
+      title
+    }
+  }
+}

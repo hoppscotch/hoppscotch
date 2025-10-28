@@ -1,31 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("pm.request coverage", () => {
   test("pm.request object provides access to request data", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(pm.request.url.toString()).toBe("https://echo.hoppscotch.io")
           pw.expect(pm.request.method).toBe("GET")
@@ -59,7 +38,7 @@ describe("pm.request coverage", () => {
 
   test("pm.request.url provides correct URL value", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(pm.request.url.toString()).toBe("https://echo.hoppscotch.io")
           pw.expect(pm.request.url.toString().length).toBe(26)
@@ -93,7 +72,7 @@ describe("pm.request coverage", () => {
 
   test("pm.request.headers functionality", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.expect(pm.request.headers.get("Content-Type")).toBe(null)
           pw.expect(pm.request.headers.has("Content-Type")).toBe(false)

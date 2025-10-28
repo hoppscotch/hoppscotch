@@ -23,68 +23,68 @@ export const createRequestSetterMethods = (
 
   const setterMethods = {
     // Request setter methods
-    setRequestUrl: defineSandboxFn(ctx, "setRequestUrl", (url: any) => {
+    setRequestUrl: defineSandboxFn(ctx, "setRequestUrl", (url: unknown) => {
       requestMethods.setUrl(url as string)
     }),
     setRequestMethod: defineSandboxFn(
       ctx,
       "setRequestMethod",
-      (method: any) => {
+      (method: unknown) => {
         requestMethods.setMethod(method as string)
       }
     ),
     setRequestHeader: defineSandboxFn(
       ctx,
       "setRequestHeader",
-      (name: any, value: any) => {
+      (name: unknown, value: unknown) => {
         requestMethods.setHeader(name as string, value as string)
       }
     ),
     setRequestHeaders: defineSandboxFn(
       ctx,
       "setRequestHeaders",
-      (headers: any) => {
+      (headers: unknown) => {
         requestMethods.setHeaders(headers as HoppRESTHeaders)
       }
     ),
     removeRequestHeader: defineSandboxFn(
       ctx,
       "removeRequestHeader",
-      (key: any) => {
+      (key: unknown) => {
         requestMethods.removeHeader(key as string)
       }
     ),
     setRequestParam: defineSandboxFn(
       ctx,
       "setRequestParam",
-      (name: any, value: any) => {
+      (name: unknown, value: unknown) => {
         requestMethods.setParam(name as string, value as string)
       }
     ),
     setRequestParams: defineSandboxFn(
       ctx,
       "setRequestParams",
-      (params: any) => {
+      (params: unknown) => {
         requestMethods.setParams(params as HoppRESTParams)
       }
     ),
     removeRequestParam: defineSandboxFn(
       ctx,
       "removeRequestParam",
-      (key: any) => {
+      (key: unknown) => {
         requestMethods.removeParam(key as string)
       }
     ),
-    setRequestBody: defineSandboxFn(ctx, "setRequestBody", (body: any) => {
+    setRequestBody: defineSandboxFn(ctx, "setRequestBody", (body: unknown) => {
       requestMethods.setBody(body as HoppRESTReqBody)
     }),
-    setRequestAuth: defineSandboxFn(ctx, "setRequestAuth", (auth: any) => {
+    setRequestAuth: defineSandboxFn(ctx, "setRequestAuth", (auth: unknown) => {
       requestMethods.setAuth(auth as HoppRESTAuth)
     }),
     setRequestVariable: defineSandboxFn(
       ctx,
       "setRequestVariable",
-      (key: any, value: any) => {
+      (key: unknown, value: unknown) => {
         requestMethods.setRequestVariable(key as string, value as string)
       }
     ),

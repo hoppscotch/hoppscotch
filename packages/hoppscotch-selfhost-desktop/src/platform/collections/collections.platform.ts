@@ -51,6 +51,7 @@ import {
   updateRESTCollectionOrder,
   updateRESTRequestOrder,
 } from "@hoppscotch/common/newstore/collections"
+import { loadMockServers } from "@hoppscotch/common/newstore/mockServers"
 import {
   GQLHeader,
   HoppCollection,
@@ -74,6 +75,7 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
+  // TODO: fix collection schema transformation on backend maybe?
   loadUserCollections("REST")
   loadUserCollections("GQL")
 
@@ -82,6 +84,7 @@ function initCollectionsSync() {
     if (user) {
       loadUserCollections("REST")
       loadUserCollections("GQL")
+      loadMockServers()
     }
   })
 

@@ -51,6 +51,7 @@ import {
   updateRESTCollectionOrder,
   updateRESTRequestOrder,
 } from "@hoppscotch/common/newstore/collections"
+import { loadMockServers } from "@hoppscotch/common/newstore/mockServers"
 import {
   generateUniqueRefId,
   GQLHeader,
@@ -84,6 +85,7 @@ function initCollectionsSync() {
     if (user) {
       loadUserCollections("REST")
       loadUserCollections("GQL")
+      loadMockServers()
     }
   })
 

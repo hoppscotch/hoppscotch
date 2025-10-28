@@ -2,27 +2,9 @@ import { getDefaultRESTRequest } from "@hoppscotch/data"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
 import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
+import { runTest, defaultRequest, fakeResponse } from "~/utils/test-helpers"
 import { runPreRequestScript } from "~/web"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "test response",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: { ...defaultRequest, name: "default-request", id: "test-id" },
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
 
 describe("pm.info context", () => {
   test("pm.info.eventName returns 'pre-request' in pre-request context", () => {
@@ -50,12 +32,12 @@ describe("pm.info context", () => {
     )
   })
 
-  test("pm.info.eventName returns 'post-request' in post-request context", () => {
+  test("pm.info.eventName returns 'test' in test context", () => {
     return expect(
-      func(
+      runTest(
         `
           pm.test("Event name is correct", () => {
-            pm.expect(pm.info.eventName).toBe("post-request")
+            pm.expect(pm.info.eventName).toBe("test")
           })
         `,
         {
@@ -71,7 +53,7 @@ describe("pm.info context", () => {
             expectResults: [
               {
                 status: "pass",
-                message: "Expected 'post-request' to be 'post-request'",
+                message: "Expected 'test' to be 'test'",
               },
             ],
           }),
@@ -81,8 +63,14 @@ describe("pm.info context", () => {
   })
 
   test("pm.info provides requestName and requestId", () => {
+    const customRequest = {
+      ...defaultRequest,
+      name: "default-request",
+      id: "test-id",
+    }
+
     return expect(
-      func(
+      runTest(
         `
           pm.test("Request info is available", () => {
             pm.expect(pm.info.requestName).toBe("default-request")
@@ -92,7 +80,9 @@ describe("pm.info context", () => {
         {
           global: [],
           selected: [],
-        }
+        },
+        fakeResponse,
+        customRequest
       )()
     ).resolves.toEqualRight([
       expect.objectContaining({
@@ -106,6 +96,38 @@ describe("pm.info context", () => {
               },
               { status: "pass", message: "Expected 'test-id' to be 'test-id'" },
             ],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.info.requestId falls back to requestName when id is undefined", () => {
+    return expect(
+      pipe(
+        runTestScript(
+          `
+            pm.test("Request ID fallback works", () => {
+              pm.expect(pm.info.requestId).to.exist
+              pm.expect(pm.info.requestId).toBe("fallback-request-name")
+            })
+          `,
+          {
+            envs: { global: [], selected: [] },
+            request: { ...defaultRequest, name: "fallback-request-name" },
+            response: fakeResponse,
+          }
+        ),
+        TE.map((x) => x.tests)
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            descriptor: "Request ID fallback works",
+            expectResults: expect.arrayContaining([
+              expect.objectContaining({ status: "pass" }),
+            ]),
           }),
         ],
       }),

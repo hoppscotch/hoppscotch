@@ -2,14 +2,18 @@ import FileImportVue from "~/components/importExport/ImportExportSteps/FileImpor
 import { defineStep } from "~/composables/step-components"
 
 import { v4 as uuidv4 } from "uuid"
-import { Ref } from "vue"
+import type { Ref } from "vue"
 
 export function FileSource(metadata: {
   acceptedFileTypes: string
   caption: string
-  onImportFromFile: (content: string[]) => any | Promise<any>
+  onImportFromFile: (
+    content: string[],
+    importScripts?: boolean
+  ) => any | Promise<any>
   isLoading?: Ref<boolean>
   description?: string
+  showPostmanScriptOption?: boolean
 }) {
   const stepID = uuidv4()
 
@@ -19,5 +23,6 @@ export function FileSource(metadata: {
     onImportFromFile: metadata.onImportFromFile,
     loading: metadata.isLoading?.value,
     description: metadata.description,
+    showPostmanScriptOption: metadata.showPostmanScriptOption,
   }))
 }

@@ -15,6 +15,7 @@ import {
   SelectedEnvItem,
   TestDescriptor,
   TestResult,
+  SandboxValue,
 } from "../types"
 
 export type EnvSource = "active" | "global" | "all"
@@ -57,7 +58,7 @@ const findEnvIndex = (
 
 const setEnv = (
   envName: string,
-  envValue: string,
+  envValue: SandboxValue,
   envs: TestResult["envs"],
   options: { setInitialValue?: boolean; source: EnvSource } = {
     setInitialValue: false,
@@ -154,6 +155,7 @@ export function getSharedEnvMethods(
       setInitial: (key: string, value: string, options?: EnvAPIOptions) => void
     }
   }
+  pmSetAny: (key: string, value: SandboxValue, options?: EnvAPIOptions) => void
   updatedEnvs: TestResult["envs"]
 }
 
@@ -187,7 +189,7 @@ export function getSharedEnvMethods(
   let updatedEnvs = envs
 
   const envGetFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -198,7 +200,7 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => (options.fallbackToNull ? null : undefined),
-        (env) => String(env.currentValue)
+        (env) => env.currentValue // Return value as-is (PM namespace preserves types)
       )
     )
 
@@ -206,7 +208,7 @@ export function getSharedEnvMethods(
   }
 
   const envGetResolveFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { fallbackToNull: false, source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -225,13 +227,17 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       E.fromOption(() => "INVALID_KEY" as const),
 
-      E.map((e) =>
-        pipe(
-          parseTemplateStringE(e.currentValue, envVars), // If the recursive resolution failed, return the unresolved value
-          E.getOrElse(() => e.currentValue)
-        )
-      ),
-      E.map((x) => String(x)),
+      E.map((e) => {
+        // Only resolve templates if the value is a string (PM namespace may have non-strings)
+        if (typeof e.currentValue === "string") {
+          return pipe(
+            parseTemplateStringE(e.currentValue, envVars),
+            E.getOrElse(() => e.currentValue)
+          )
+        }
+        // Return non-string values as-is (arrays, objects, null, etc.)
+        return e.currentValue
+      }),
 
       E.getOrElseW(() => (options.fallbackToNull ? null : undefined))
     )
@@ -240,8 +246,8 @@ export function getSharedEnvMethods(
   }
 
   const envSetFn = (
-    key: any,
-    value: any,
+    key: unknown,
+    value: unknown,
     options: EnvAPIOptions = { source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -257,7 +263,26 @@ export function getSharedEnvMethods(
     return undefined
   }
 
-  const envUnsetFn = (key: any, options: EnvAPIOptions = { source: "all" }) => {
+  // PM namespace-specific setter that accepts any type (for Postman compatibility)
+  const envSetAnyFn = (
+    key: unknown,
+    value: SandboxValue, // Intentionally SandboxValue for PM namespace type preservation
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
+    if (typeof key !== "string") {
+      throw new Error("Expected key to be a string")
+    }
+
+    // PM namespace preserves ALL types (arrays, objects, primitives, null, undefined)
+    updatedEnvs = setEnv(key, value, updatedEnvs, options)
+
+    return undefined
+  }
+
+  const envUnsetFn = (
+    key: unknown,
+    options: EnvAPIOptions = { source: "all" }
+  ) => {
     if (typeof key !== "string") {
       throw new Error("Expected key to be a string")
     }
@@ -267,7 +292,7 @@ export function getSharedEnvMethods(
     return undefined
   }
 
-  const envResolveFn = (value: any) => {
+  const envResolveFn = (value: unknown) => {
     if (typeof value !== "string") {
       throw new Error("Expected value to be a string")
     }
@@ -317,7 +342,7 @@ export function getSharedEnvMethods(
   }
 
   const envGetInitialRawFn = (
-    key: any,
+    key: unknown,
     options: EnvAPIOptions = { source: "all" }
   ) => {
     if (typeof key !== "string") {
@@ -328,7 +353,7 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => undefined,
-        (env) => String(env.initialValue)
+        (env) => env.initialValue // Return as-is (PM namespace preserves types)
       )
     )
 
@@ -375,7 +400,8 @@ export function getSharedEnvMethods(
           setInitial: envSetInitialFn,
         },
       },
-
+      // Expose PM-specific setter that accepts any type
+      pmSetAny: envSetAnyFn,
       updatedEnvs,
     }
   }
@@ -408,7 +434,7 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
     }
   }
 
-  const cookieGetFn = (domain: any, name: any): Cookie | null => {
+  const cookieGetFn = (domain: unknown, name: unknown): Cookie | null => {
     throwIfCookiesUnsupported()
 
     if (typeof domain !== "string" || typeof name !== "string") {
@@ -492,7 +518,7 @@ export const getSharedCookieMethods = (cookies: Cookie[] | null) => {
   }
 }
 
-const getResolvedExpectValue = (expectVal: any) => {
+const getResolvedExpectValue = (expectVal: SandboxValue) => {
   if (typeof expectVal !== "string") {
     return expectVal
   }
@@ -549,14 +575,14 @@ export function preventCyclicObjects<T extends object = Record<string, any>>(
  * @returns Object with the expectation methods
  */
 export const createExpectation = (
-  expectVal: any,
+  expectVal: SandboxValue,
   negated: boolean,
   currTestStack: TestDescriptor[]
 ): Expectation => {
   // Non-primitive values supplied are stringified in the isolate context
   const resolvedExpectVal = getResolvedExpectValue(expectVal)
 
-  const toBeFn = (expectedVal: any) => {
+  const toBeFn = (expectedVal: SandboxValue) => {
     let assertion = resolvedExpectVal === expectedVal
 
     if (negated) {
@@ -616,7 +642,7 @@ export const createExpectation = (
   const toBeLevel4xxFn = () => toBeLevelXxx("400", 400, 499)
   const toBeLevel5xxFn = () => toBeLevelXxx("500", 500, 599)
 
-  const toBeTypeFn = (expectedType: any) => {
+  const toBeTypeFn = (expectedType: SandboxValue) => {
     if (
       [
         "string",
@@ -656,7 +682,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toHaveLengthFn = (expectedLength: any) => {
+  const toHaveLengthFn = (expectedLength: SandboxValue) => {
     if (
       !(
         Array.isArray(resolvedExpectVal) ||
@@ -700,7 +726,7 @@ export const createExpectation = (
     return undefined
   }
 
-  const toIncludeFn = (needle: any) => {
+  const toIncludeFn = (needle: SandboxValue) => {
     if (
       !(
         Array.isArray(resolvedExpectVal) ||
@@ -806,7 +832,7 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
     testRunStack[testRunStack.length - 1].children.push(child)
   }
 
-  const expectFn = (expectVal: any) =>
+  const expectFn = (expectVal: unknown) =>
     createExpectation(expectVal, false, testRunStack)
 
   const { methods, updatedEnvs } = getSharedEnvMethods(cloneDeep(envs))
@@ -824,30 +850,42 @@ export const getTestRunnerScriptMethods = (envs: TestResult["envs"]) => {
  * Compiles shared scripting API properties (scoped to requests) for use in both pre and post request scripts
  * Extracts shared properties from a request object
  * @param request The request object to extract shared properties from
+ * @param getUpdatedRequest Optional function to get the updated request (for pre-request mutations)
  * @returns An object containing the shared properties of the request
  */
-export const getSharedRequestProps = (request: HoppRESTRequest) => {
+export const getSharedRequestProps = (
+  request: HoppRESTRequest,
+  getUpdatedRequest?: () => HoppRESTRequest
+) => {
   return {
     get url() {
-      return request.endpoint
+      // For pre-request scripts, read from updated request to see mutations
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.endpoint
     },
     get method() {
-      return request.method
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.method
     },
     get params() {
-      return request.params
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.params
     },
     get headers() {
-      return request.headers
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.headers
     },
     get body() {
-      return request.body
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.body
     },
     get auth() {
-      return request.auth
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.auth
     },
     get requestVariables() {
-      return request.requestVariables
+      const currentRequest = getUpdatedRequest ? getUpdatedRequest() : request
+      return currentRequest.requestVariables
     },
   }
 }

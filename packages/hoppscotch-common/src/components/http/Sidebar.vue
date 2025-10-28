@@ -51,6 +51,18 @@
         class="px-4 mt-4"
       />
     </HoppSmartTab>
+    <HoppSmartTab
+      :id="'mock-servers'"
+      :icon="IconServer"
+      :label="`${t('tab.mock_servers')}`"
+    >
+      <div
+        class="flex items-center overflow-x-auto whitespace-nowrap border-b border-dividerLight px-4 py-2 text-tiny text-secondaryLight"
+      >
+        <span class="truncate"> {{ t("tab.mock_servers") }} </span>
+      </div>
+      <MockServerDashboard v-if="selectedNavigationTab === 'mock-servers'" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -60,8 +72,10 @@ import IconLayers from "~icons/lucide/layers"
 import IconFolder from "~icons/lucide/folder"
 import IconShare2 from "~icons/lucide/share-2"
 import IconCode from "~icons/lucide/code"
+import IconServer from "~icons/lucide/server"
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
+import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
 
 const t = useI18n()
 
@@ -71,6 +85,7 @@ type RequestOptionTabs =
   | "env"
   | "share-request"
   | "codegen"
+  | "mock-servers"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
 </script>

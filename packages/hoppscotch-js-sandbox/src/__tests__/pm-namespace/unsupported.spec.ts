@@ -1,31 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "test response",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("pm namespace - unsupported features", () => {
   test("pm.info.iteration throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             const iteration = pm.info.iteration
@@ -57,7 +36,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.info.iterationCount throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             const iterationCount = pm.info.iterationCount
@@ -89,7 +68,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.collectionVariables.get() throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             pm.collectionVariables.get("test")
@@ -121,7 +100,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.vault.get() throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             pm.vault.get("test")
@@ -153,7 +132,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.iterationData.get() throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             pm.iterationData.get("test")
@@ -185,7 +164,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.execution.setNextRequest() throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             pm.execution.setNextRequest("next-request")
@@ -217,7 +196,7 @@ describe("pm namespace - unsupported features", () => {
 
   test("pm.sendRequest() throws error", () => {
     return expect(
-      func(
+      runTest(
         `
           try {
             pm.sendRequest("https://example.com", () => {})
@@ -227,6 +206,70 @@ describe("pm namespace - unsupported features", () => {
           } catch (error) {
             pm.test("Throws correct error", () => {
               pm.expect(error.message).toInclude("pm.sendRequest() is not yet implemented")
+            })
+          }
+        `,
+        {
+          global: [],
+          selected: [],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            descriptor: "Throws correct error",
+            expectResults: [{ status: "pass", message: expect.any(String) }],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.visualizer.set() throws error", () => {
+    return expect(
+      runTest(
+        `
+          try {
+            pm.visualizer.set("<h1>Test</h1>")
+            pm.test("Should not reach here", () => {
+              pm.expect(true).toBe(false)
+            })
+          } catch (error) {
+            pm.test("Throws correct error", () => {
+              pm.expect(error.message).toInclude("pm.visualizer.set() is not supported")
+            })
+          }
+        `,
+        {
+          global: [],
+          selected: [],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        children: [
+          expect.objectContaining({
+            descriptor: "Throws correct error",
+            expectResults: [{ status: "pass", message: expect.any(String) }],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  test("pm.visualizer.clear() throws error", () => {
+    return expect(
+      runTest(
+        `
+          try {
+            pm.visualizer.clear()
+            pm.test("Should not reach here", () => {
+              pm.expect(true).toBe(false)
+            })
+          } catch (error) {
+            pm.test("Throws correct error", () => {
+              pm.expect(error.message).toInclude("pm.visualizer.clear() is not supported")
             })
           }
         `,

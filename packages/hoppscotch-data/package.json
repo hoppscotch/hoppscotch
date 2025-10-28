@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/lodash": "4.17.20",
     "@types/uuid": "10.0.0",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "vite": "6.3.6"
   },
   "dependencies": {

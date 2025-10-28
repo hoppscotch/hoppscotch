@@ -104,30 +104,12 @@
     </template>
   </HoppSmartModal>
 
-  <HoppSmartModal
-    v-if="showDeleteConfirm"
-    dialog
-    :title="t('confirm')"
-    @close="cancelDelete"
-  >
-    <template #body>
-      <div class="p-4 flex flex-col items-center justify-center">
-        <p class="text-center">{{ t("mock_server.confirm_delete_log") }}</p>
-      </div>
-    </template>
-    <template #footer>
-      <HoppButtonSecondary
-        :label="t('action.cancel')"
-        outline
-        @click="cancelDelete"
-      />
-      <HoppButtonPrimary
-        :label="t('action.delete')"
-        class="bg-red-600 hover:bg-red-700"
-        @click="confirmDelete"
-      />
-    </template>
-  </HoppSmartModal>
+  <HoppSmartConfirmModal
+    :show="showDeleteConfirm"
+    :title="t('mock_server.confirm_delete_log')"
+    @hide-modal="showDeleteConfirm = false"
+    @resolve="confirmDelete"
+  />
 </template>
 
 <script setup lang="ts">
@@ -185,11 +167,6 @@ const confirmRemoveLog = (id: string) => {
   showDeleteConfirm.value = true
 }
 
-const cancelDelete = () => {
-  logToDelete.value = null
-  showDeleteConfirm.value = false
-}
-
 const confirmDelete = async () => {
   if (logToDelete.value) {
     await pipe(
@@ -203,12 +180,12 @@ const confirmDelete = async () => {
           if (res) {
             logs.value = logs.value.filter((l) => l.id !== logToDelete.value)
             toast.success(t("mock_server.log_deleted"))
+            logToDelete.value = null
+            showDeleteConfirm.value = false
           }
         }
       )
     )()
-    logToDelete.value = null
-    showDeleteConfirm.value = false
   }
 }
 

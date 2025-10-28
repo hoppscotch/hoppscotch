@@ -204,53 +204,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue"
-import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { computed, ref } from "vue"
+import { TippyComponent } from "vue-tippy"
 import { useMockServerStatus } from "~/composables/mockServer"
 import { useToast } from "~/composables/toast"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { platform } from "~/platform"
 import type { MockServer } from "~/newstore/mockServers"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
+import { platform } from "~/platform"
 
 import {
-  loadMockServers,
+  deleteMockServer as deleteMockServerInStore,
   showCreateMockServerModal$,
   updateMockServer as updateMockServerInStore,
-  deleteMockServer as deleteMockServerInStore,
 } from "~/newstore/mockServers"
-import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
 
-import {
-  updateMockServer as updateMockServerMutation,
-  deleteMockServer as deleteMockServerMutation,
-} from "~/helpers/backend/mutations/MockServer"
 import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
+import {
+  deleteMockServer as deleteMockServerMutation,
+  updateMockServer as updateMockServerMutation,
+} from "~/helpers/backend/mutations/MockServer"
 
 // Icons
-import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconServer from "~icons/lucide/server"
-import IconEdit from "~icons/lucide/edit"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconPlay from "~icons/lucide/play"
-import IconStop from "~icons/lucide/stop-circle"
-import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconCopy from "~icons/lucide/copy"
+import IconEdit from "~icons/lucide/edit"
+import IconHelpCircle from "~icons/lucide/help-circle"
 import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconPlay from "~icons/lucide/play"
+import IconPlus from "~icons/lucide/plus"
+import IconServer from "~icons/lucide/server"
+import IconStop from "~icons/lucide/stop-circle"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 const { mockServers } = useMockServerStatus()
-const workspaceService = useService(WorkspaceService)
-
 const loading = ref(false)
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
@@ -379,28 +374,4 @@ const openCreateModal = () => {
     collectionName: undefined,
   })
 }
-
-// Load mock servers on component mount
-// Load mock servers for current workspace
-const loadCurrentWorkspaceMockServers = async () => {
-  if (!platform.auth.getCurrentUser()) return
-
-  loading.value = true
-  try {
-    await loadMockServers()
-  } catch (error) {
-    console.error("Failed to load mock servers:", error)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(loadCurrentWorkspaceMockServers)
-
-// Watch for workspace changes and reload mock servers
-watch(
-  () => workspaceService.currentWorkspace.value,
-  loadCurrentWorkspaceMockServers,
-  { deep: true }
-)
 </script>

@@ -78,6 +78,7 @@ import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
 import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
+import { useMockServerWorkspaceSync } from "~/composables/mockServerWorkspace"
 
 const t = useI18n()
 
@@ -94,4 +95,7 @@ type RequestOptionTabs =
   | "mock-servers"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
+
+// Ensure mock servers are kept in sync with workspace changes globally
+useMockServerWorkspaceSync()
 </script>

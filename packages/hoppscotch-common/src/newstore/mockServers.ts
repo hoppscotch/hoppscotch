@@ -1,14 +1,14 @@
-import { pluck } from "rxjs/operators"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
 import { BehaviorSubject } from "rxjs"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { pluck } from "rxjs/operators"
 import {
   getMyMockServers,
   getTeamMockServers,
 } from "~/helpers/backend/queries/MockServer"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
 import { getService } from "~/modules/dioc"
 import { WorkspaceService } from "~/services/workspace.service"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 export type WorkspaceType = "USER" | "TEAM"
 
@@ -166,6 +166,8 @@ export function loadMockServers(skip?: number, take?: number) {
       TE.match(
         (error) => {
           console.error("Failed to load mock servers:", error)
+          // Clear mock servers on error to prevent stale data
+          setMockServers([])
         },
         (mockServers) => {
           setMockServers(mockServers)
@@ -179,6 +181,8 @@ export function loadMockServers(skip?: number, take?: number) {
       TE.match(
         (error) => {
           console.error("Failed to load mock servers:", error)
+          // Clear mock servers on error to prevent stale data
+          setMockServers([])
         },
         (mockServers) => {
           setMockServers(mockServers)
@@ -199,6 +203,8 @@ export function loadTeamMockServers(
     TE.match(
       (error) => {
         console.error("Failed to load team mock servers:", error)
+        // Clear mock servers on error to prevent stale data
+        setMockServers([])
       },
       (mockServers) => {
         setMockServers(mockServers)
@@ -214,6 +220,9 @@ export function loadMockServersForWorkspace(
   skip?: number,
   take?: number
 ) {
+  // Clear existing mock servers first to prevent stale data
+  setMockServers([])
+
   if (workspaceType === "team" && teamID) {
     return loadTeamMockServers(teamID, skip, take)
   }

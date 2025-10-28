@@ -21,7 +21,7 @@
 
     <div v-if="content && content.trim() && isExpanded" class="relative group">
       <div
-        class="absolute top-2 right-6 z-10 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        class="absolute top-2 right-3 z-10 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <HoppSmartItem
           v-tippy="{ theme: 'tooltip' }"
@@ -33,11 +33,8 @@
       </div>
 
       <pre
-        class="relative whitespace-pre-wrap break-words bg-primaryLight border border-dividerLight rounded-lg p-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-divider scrollbar-track-transparent"
-        :class="[
-          isValidJSON ? 'text-accent' : 'text-secondaryLight',
-          'hover:bg-primaryContrast transition-colors',
-        ]"
+        class="relative whitespace-pre-wrap cursor-text select-text break-words bg-primaryLight border border-dividerLight rounded-sm p-4 max-h-96 overflow-y-auto"
+        :class="[isValidJSON ? 'text-accent' : 'text-secondaryLight']"
         >{{ formattedContent }}</pre
       >
     </div>

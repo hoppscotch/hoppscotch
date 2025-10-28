@@ -69,7 +69,7 @@
               v-if="isLogExpanded(log.id)"
               class="border-t border-dividerDark"
             >
-              <div class="p-4 text-xs flex flex-col space-y-4">
+              <div class="py-4 px-3 text-xs flex flex-col space-y-4">
                 <MockServerLogSection
                   :title="t('mock_server.request_headers')"
                   :content="log.requestHeaders"

@@ -258,8 +258,7 @@ const toggleMockServer = async () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
       },
-      (result) => {
-        console.log("Mock server updated:", result)
+      () => {
         toast.success(
           newActiveState
             ? t("mock_server.mock_server_started")

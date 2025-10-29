@@ -482,7 +482,6 @@ const createMockServer = async () => {
         loading.value = false
       },
       (result) => {
-        console.log("Mock server created:", result)
         toast.success(t("mock_server.mock_server_created"))
 
         // Add the new mock server to the store
@@ -515,7 +514,6 @@ const toggleMockServer = async () => {
         loading.value = false
       },
       (result) => {
-        console.log("Mock server updated:", result)
         toast.success(
           newActiveState
             ? t("mock_server.mock_server_started")

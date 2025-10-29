@@ -355,16 +355,26 @@ const tippyActions = ref<TippyComponent | null>(null)
 // Props computed from modal data
 const show = computed(() => modalData.value.show)
 const collectionID = computed(() => modalData.value.collectionID)
-const collectionName = computed(
-  () => modalData.value.collectionName || "Unknown Collection"
-)
+const collectionName = computed(() => {
+  // Prefer name provided by modalData (pre-selected from caller)
+  if (modalData.value.collectionName) return modalData.value.collectionName
 
-// Find existing mock server for this collection
+  // If user selected a collection inside the modal, use that
+  if (selectedCollectionName.value) return selectedCollectionName.value
+
+  // Try finding the collection from availableCollections using effectiveCollectionID
+  const id = effectiveCollectionID.value
+  if (!id) return "Unknown Collection"
+
+  const coll = availableCollections.value.find((c: any) => (c as any).id === id)
+  return (coll as any)?.name || (coll as any)?.title || "Unknown Collection"
+})
+
+// Find existing mock server for the effective collection (pre-selected or user-selected)
 const existingMockServer = computed(() => {
-  if (!collectionID.value) return null
-  return mockServers.value.find(
-    (server) => server.collectionID === collectionID.value
-  )
+  const collId = effectiveCollectionID.value
+  if (!collId) return null
+  return mockServers.value.find((server) => server.collectionID === collId)
 })
 
 const isExistingMockServer = computed(() => !!existingMockServer.value)

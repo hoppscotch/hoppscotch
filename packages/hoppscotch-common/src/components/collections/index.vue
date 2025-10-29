@@ -247,7 +247,15 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 import { cloneDeep, debounce, isEqual } from "lodash-es"
-import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
+import {
+  PropType,
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -470,6 +478,9 @@ const persistenceService = useService(PersistenceService)
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
 onMounted(async () => {
+  // Ensure the team collection service is properly initialized
+  teamCollectionService.ensureInitialized()
+
   const localOAuthTempConfig =
     await persistenceService.getLocalConfig("oauth_temp_config")
 
@@ -513,6 +524,11 @@ onMounted(async () => {
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
+})
+
+// Clean up team collection service on component unmount
+onUnmounted(() => {
+  teamCollectionService.dispose()
 })
 
 const switchToMyCollections = () => {

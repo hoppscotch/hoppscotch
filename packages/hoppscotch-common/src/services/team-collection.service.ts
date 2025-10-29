@@ -175,6 +175,9 @@ export class TeamCollectionsService extends Service<void> {
   private teamRootCollectionSortedSub: WSubscription | null = null
   private teamChildCollectionSortedSub: WSubscription | null = null
 
+  // Indicates whether the service has been initialized, used to reinitialize on component mount
+  private isInitialized = false
+
   override onServiceInit() {
     // Watch for team change and update the collections accordingly
     watch(
@@ -206,9 +209,14 @@ export class TeamCollectionsService extends Service<void> {
         }
       }
     )
+
+    this.isInitialized = true
   }
 
   changeTeamID(newTeamID: string | null) {
+    // // If the team ID hasn't changed, don't reinitialize
+    if (this.teamID === newTeamID) return
+
     this.teamID = newTeamID
     this.collections.value = []
     this.entityIDs.clear()
@@ -218,6 +226,33 @@ export class TeamCollectionsService extends Service<void> {
     this.unsubscribeSubscriptions()
 
     if (this.teamID) this.initialize()
+  }
+
+  /**
+   * Ensure the service is properly initialized for the current workspace
+   * This method can be called from components to ensure initialization
+   */
+  public ensureInitialized() {
+    if (!this.isInitialized) {
+      this.onServiceInit()
+      return
+    }
+
+    const currentWorkspace = this.workspaceService.currentWorkspace.value
+    if (currentWorkspace.type === "team") {
+      if (this.teamID !== currentWorkspace.teamID) {
+        this.changeTeamID(currentWorkspace.teamID)
+      }
+    } else if (currentWorkspace.type === "personal") {
+      if (this.teamID !== null) {
+        this.clearCollections()
+      }
+    }
+  }
+
+  public dispose() {
+    this.isInitialized = false
+    this.clearCollections()
   }
 
   /**

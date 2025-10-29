@@ -222,7 +222,7 @@ export class MockServerService {
       const collection = await this.prisma.userCollection.findUnique({
         where: { id: mockServer.collectionID },
       });
-      if (!collection) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+      if (!collection) return E.right(null);
       return E.right({
         id: collection.id,
         title: collection.title,
@@ -231,7 +231,7 @@ export class MockServerService {
       const collection = await this.prisma.teamCollection.findUnique({
         where: { id: mockServer.collectionID },
       });
-      if (!collection) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+      if (!collection) return E.right(null);
       return E.right({
         id: collection.id,
         title: collection.title,
@@ -599,6 +599,12 @@ export class MockServerService {
       // This is used by both custom header lookup and candidate fetching
       const collectionIds = await this.getCollectionIds(mockServer);
 
+      if (collectionIds.length === 0) {
+        return E.left(
+          `The collection associated with this mock has been deleted.`,
+        );
+      }
+
       // OPTIMIZATION: Fetch all requests with examples once (single DB query)
       // This is shared between custom header lookup and candidate matching
       const requests = await this.fetchRequestsWithExamples(
@@ -848,6 +854,13 @@ export class MockServerService {
   private async getAllUserCollectionIds(
     rootCollectionId: string,
   ): Promise<string[]> {
+    // First verify the root collection exists
+    const rootCollection = await this.prisma.userCollection.findUnique({
+      where: { id: rootCollectionId },
+    });
+
+    if (!rootCollection) return []; // Collection doesn't exist
+
     const ids = [rootCollectionId];
     const children = await this.prisma.userCollection.findMany({
       where: { parentID: rootCollectionId },
@@ -868,6 +881,13 @@ export class MockServerService {
   private async getAllTeamCollectionIds(
     rootCollectionId: string,
   ): Promise<string[]> {
+    // First verify the root collection exists
+    const rootCollection = await this.prisma.teamCollection.findUnique({
+      where: { id: rootCollectionId },
+    });
+
+    if (!rootCollection) return []; // Collection doesn't exist
+
     const ids = [rootCollectionId];
     const children = await this.prisma.teamCollection.findMany({
       where: { parentID: rootCollectionId },

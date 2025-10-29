@@ -31,23 +31,6 @@
             {{ t('configs.mock_server.wildcard_domain_example') }}
           </p>
         </div>
-
-        <div class="flex items-center justify-between">
-          <div>
-            <h5 class="font-medium">
-              {{ t('configs.mock_server.secure_cookies') }}
-            </h5>
-            <p class="text-secondaryLight text-sm">
-              {{ t('configs.mock_server.secure_cookies_desc') }}
-            </p>
-          </div>
-          <HoppSmartToggle
-            :on="mockFields.allow_secure_cookies"
-            @change="
-              mockFields.allow_secure_cookies = !mockFields.allow_secure_cookies
-            "
-          />
-        </div>
       </div>
     </div>
   </div>
@@ -76,7 +59,6 @@ const mockFields = computed({
     return (
       workingConfigs.value.mockServerConfigs?.fields ?? {
         mock_server_wildcard_domain: '',
-        allow_secure_cookies: false,
       }
     );
   },

@@ -874,6 +874,7 @@
     "mock_server_updated": "Mock server updated successfully",
     "no_collection": "No collection",
     "collection_deleted": "associated collection deleted.",
+    "private_access_hint": "For private mock servers, include the header 'x-api-key' with your Personal Access Token (create one in Hopp App).",
     "status": "Status",
     "server_running": "Server is running",
     "server_stopped": "Server is stopped",

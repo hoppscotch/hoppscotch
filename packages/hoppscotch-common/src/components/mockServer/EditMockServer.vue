@@ -117,6 +117,9 @@
               }}
             </span>
           </div>
+          <div v-if="!isPublic" class="text-xs text-secondaryLight">
+            {{ t("mock_server.private_access_hint") }}
+          </div>
         </div>
       </div>
     </template>

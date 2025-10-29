@@ -182,6 +182,10 @@
               </HoppSmartToggle>
             </div>
           </div>
+          <!-- Hint for private mock servers -->
+          <div v-if="!isPublic" class="w-full mt-2 text-xs text-secondaryLight">
+            {{ t("mock_server.private_access_hint") }}
+          </div>
 
           <!-- Display created server info -->
           <div v-if="createdServer" class="flex flex-col space-y-4">

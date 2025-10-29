@@ -17,6 +17,12 @@ import {
 } from 'class-validator';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
+// Regex pattern for mock server name validation
+// Allows letters, numbers, spaces, dots, underscores, and hyphens
+const MOCK_SERVER_NAME_PATTERN = /^[a-zA-Z0-9 ._-]+$/;
+const MOCK_SERVER_NAME_ERROR_MESSAGE =
+  'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens';
+
 @ObjectType()
 export class MockServer {
   @Field(() => ID, {
@@ -106,9 +112,8 @@ export class CreateMockServerInput {
   @IsString()
   @MinLength(1)
   @MaxLength(255)
-  @Matches(/^[a-zA-Z0-9 ._-]+$/, {
-    message:
-      'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens',
+  @Matches(MOCK_SERVER_NAME_PATTERN, {
+    message: MOCK_SERVER_NAME_ERROR_MESSAGE,
   })
   name: string;
 
@@ -158,9 +163,8 @@ export class UpdateMockServerInput {
   @IsOptional()
   @MinLength(1)
   @MaxLength(255)
-  @Matches(/^[a-zA-Z0-9 ._-]+$/, {
-    message:
-      'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens',
+  @Matches(MOCK_SERVER_NAME_PATTERN, {
+    message: MOCK_SERVER_NAME_ERROR_MESSAGE,
   })
   name?: string;
 

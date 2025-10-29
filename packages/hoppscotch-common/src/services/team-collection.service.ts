@@ -250,6 +250,9 @@ export class TeamCollectionsService extends Service<void> {
     }
   }
 
+  /**
+   * Cleans up the service state when the component using it is unmounted
+   */
   public dispose() {
     this.isInitialized = false
     this.clearCollections()

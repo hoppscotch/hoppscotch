@@ -282,8 +282,7 @@ const toggleMockServer = async (mockServer: MockServer) => {
   await pipe(
     updateMockServerMutation(mockServer.id, { isActive: newActiveState }),
     TE.match(
-      (error) => {
-        console.error("Failed to update mock server:", error)
+      () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
       },
@@ -325,8 +324,7 @@ const confirmDelete = async () => {
   await pipe(
     deleteMockServerMutation(mockServer.id),
     TE.match(
-      (error) => {
-        console.error("Failed to delete mock server:", error)
+      () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
         pendingMockServerToDelete.value = null

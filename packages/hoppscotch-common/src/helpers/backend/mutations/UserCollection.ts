@@ -77,9 +77,7 @@ function convertUserRequestToHoppRequest(
     }
 
     return request
-  } catch (error) {
-    console.warn("Failed to parse user request data:", error)
-
+  } catch {
     // Return a default request if parsing fails
     if (userRequest.type === ReqType.Rest) {
       const defaultRequest = getDefaultRESTRequest()
@@ -115,8 +113,7 @@ function parseUserCollectionData(data: string | null | undefined) {
       headers: parsedData?.headers || defaultDataProps.headers,
       variables: parsedData?.variables || defaultDataProps.variables,
     }
-  } catch (error) {
-    console.warn("Failed to parse user collection data:", error)
+  } catch {
     return defaultDataProps
   }
 }

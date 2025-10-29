@@ -104,11 +104,7 @@ const formattedContent = computed(() => {
 const copyContent = () => {
   if (!props.content) return
 
-  try {
-    copyToClipboard(formattedContent.value)
-    copySuccess.value = true
-  } catch (error) {
-    console.error("Failed to copy content:", error)
-  }
+  copyToClipboard(formattedContent.value)
+  copySuccess.value = true
 }
 </script>

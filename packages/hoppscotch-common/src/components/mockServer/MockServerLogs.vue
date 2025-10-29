@@ -143,8 +143,7 @@ const fetchLogs = async () => {
   await pipe(
     getMockServerLogs(props.mockServerID),
     TE.match(
-      (err) => {
-        console.error("Failed to load logs", err)
+      () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
       },
@@ -172,8 +171,7 @@ const confirmDelete = async () => {
     await pipe(
       deleteMockServerLog(logToDelete.value),
       TE.match(
-        (err) => {
-          console.error("Failed to delete log", err)
+        () => {
           toast.error(t("error.something_went_wrong"))
         },
         (res) => {

@@ -221,8 +221,7 @@ const updateMockServer = async () => {
   await pipe(
     updateMockServerMutation(props.mockServer.id, payload),
     TE.match(
-      (error) => {
-        console.error("Failed to update mock server:", error)
+      () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
       },
@@ -253,8 +252,7 @@ const toggleMockServer = async () => {
   await pipe(
     updateMockServerMutation(props.mockServer.id, { isActive: newActiveState }),
     TE.match(
-      (error) => {
-        console.error("Failed to update mock server:", error)
+      () => {
         toast.error(t("error.something_went_wrong"))
         loading.value = false
       },

@@ -258,11 +258,7 @@ const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
           // Replace local collections with backend collections
           setGraphqlCollections(fetchResult.right)
         } else {
-          console.warn(
-            "Failed to fetch collections from backend after import:",
-            fetchResult.left
-          )
-          // Still append to local store as fallback
+          // Failed to fetch, append to local store as fallback
           appendGraphqlCollections(gqlCollections)
         }
 
@@ -270,19 +266,11 @@ const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
         return
       }
       // Backend import failed, fall back to local storage
-      console.warn(
-        "Backend import failed, falling back to local storage:",
-        res.left
-      )
       appendGraphqlCollections(gqlCollections)
       toast.success(t("state.file_imported"))
       return
-    } catch (error) {
+    } catch {
       // Backend import failed, fall back to local storage
-      console.warn(
-        "Backend import failed, falling back to local storage:",
-        error
-      )
       appendGraphqlCollections(gqlCollections)
       toast.success(t("state.file_imported"))
       return

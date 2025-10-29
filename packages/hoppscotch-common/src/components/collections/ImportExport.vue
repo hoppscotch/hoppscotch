@@ -141,29 +141,17 @@ const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
           // Replace local collections with backend collections
           setRESTCollections(fetchResult.right)
         } else {
-          console.warn(
-            "Failed to fetch collections from backend after import:",
-            fetchResult.left
-          )
-          // Still append to local store as fallback
+          // Failed to fetch, append to local store as fallback
           appendRESTCollections(collections)
         }
 
         return E.right({ success: true })
       }
       // Backend import failed, fall back to local storage
-      console.warn(
-        "Backend import failed, falling back to local storage:",
-        res.left
-      )
       appendRESTCollections(collections)
       return E.right({ success: true })
-    } catch (error) {
+    } catch {
       // Backend import failed, fall back to local storage
-      console.warn(
-        "Backend import failed, falling back to local storage:",
-        error
-      )
       appendRESTCollections(collections)
       return E.right({ success: true })
     }

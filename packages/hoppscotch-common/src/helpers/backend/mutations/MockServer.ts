@@ -224,7 +224,6 @@ export const getErrorMessage = (err: GQLError<string> | string | Error) => {
   if (!gErr) return t("error.something_went_wrong")
 
   if (gErr.type === "network_error") {
-    console.error(gErr.error)
     return t("error.network_error")
   }
 

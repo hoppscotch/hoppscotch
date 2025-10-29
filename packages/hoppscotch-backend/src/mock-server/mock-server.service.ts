@@ -19,6 +19,7 @@ import {
   MOCK_SERVER_DELETION_FAILED,
   MOCK_SERVER_LOG_NOT_FOUND,
   MOCK_SERVER_LOG_DELETION_FAILED,
+  MOCK_SERVER_ALREADY_EXISTS,
 } from 'src/errors';
 import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
@@ -309,6 +310,17 @@ export class MockServerService {
       const collectionValidation = await this.validateCollection(user, input);
       if (E.isLeft(collectionValidation)) {
         return E.left(collectionValidation.left);
+      }
+
+      // Check if already exists a mock server with the same collection
+      const existingMockServer = await this.prisma.mockServer.findFirst({
+        where: {
+          collectionID: input.collectionID,
+          deletedAt: null,
+        },
+      });
+      if (existingMockServer) {
+        return E.left(MOCK_SERVER_ALREADY_EXISTS);
       }
 
       // Create mock server

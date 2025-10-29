@@ -7,9 +7,10 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import {
-  IsAlphanumeric,
   IsNumber,
   IsOptional,
+  IsString,
+  Matches,
   Max,
   MaxLength,
   MinLength,
@@ -102,9 +103,13 @@ export class CreateMockServerInput {
   @Field({
     description: 'Name of the mock server',
   })
+  @IsString()
   @MinLength(1)
   @MaxLength(255)
-  @IsAlphanumeric()
+  @Matches(/^[a-zA-Z0-9 ._-]+$/, {
+    message:
+      'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens',
+  })
   name: string;
 
   @Field({
@@ -149,10 +154,14 @@ export class UpdateMockServerInput {
     nullable: true,
     description: 'Name of the mock server',
   })
+  @IsString()
   @IsOptional()
   @MinLength(1)
   @MaxLength(255)
-  @IsAlphanumeric()
+  @Matches(/^[a-zA-Z0-9 ._-]+$/, {
+    message:
+      'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens',
+  })
   name?: string;
 
   @Field({

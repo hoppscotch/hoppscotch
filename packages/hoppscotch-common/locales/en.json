@@ -886,6 +886,7 @@
     "private_description": "Only authenticated users can access this mock server",
     "select_collection": "Select a collection",
     "select_collection_error": "Please select a collection",
+    "invalid_collection_error": "Failed to create a mock server for the collection.",
     "url_copied": "URL copied to clipboard",
     "make_public": "Make Public",
     "view_logs": "View logs",

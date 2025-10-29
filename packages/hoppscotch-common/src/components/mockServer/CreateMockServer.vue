@@ -298,6 +298,7 @@ import { MockServer, WorkspaceType } from "~/helpers/backend/graphql"
 import {
   createMockServer as createMockServerMutation,
   updateMockServer,
+  getErrorMessage,
 } from "~/helpers/backend/mutations/MockServer"
 import { copyToClipboard as copyToClipboardHelper } from "~/helpers/utils/clipboard"
 import { restCollections$ } from "~/newstore/collections"
@@ -471,10 +472,9 @@ const createMockServer = async () => {
     ),
     TE.match(
       (error) => {
-        // `error` here is the message string produced by the mutation helper.
-        console.error("Failed to create mock server:", error)
-        // Show the backend-provided error message if available, otherwise fallback to generic
-        toast.error(String(error) || t("error.something_went_wrong"))
+        // Use centralized mapper to get a translated, user-friendly message.
+        const message = getErrorMessage(error)
+        toast.error(message)
         loading.value = false
       },
       (result) => {

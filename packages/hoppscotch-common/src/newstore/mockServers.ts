@@ -32,7 +32,7 @@ export type MockServer = {
     id: string
     title: string
     requests?: any[]
-  }
+  } | null
   // Legacy fields for backward compatibility
   userUid?: string
   collectionID?: string

@@ -182,6 +182,10 @@
               </HoppSmartToggle>
             </div>
           </div>
+          <!-- Hint for private mock servers -->
+          <div v-if="!isPublic" class="w-full mt-2 text-xs text-secondaryLight">
+            {{ t("mock_server.private_access_hint") }}
+          </div>
 
           <!-- Display created server info -->
           <div v-if="createdServer" class="flex flex-col space-y-4">
@@ -478,7 +482,6 @@ const createMockServer = async () => {
         loading.value = false
       },
       (result) => {
-        console.log("Mock server created:", result)
         toast.success(t("mock_server.mock_server_created"))
 
         // Add the new mock server to the store
@@ -511,7 +514,6 @@ const toggleMockServer = async () => {
         loading.value = false
       },
       (result) => {
-        console.log("Mock server updated:", result)
         toast.success(
           newActiveState
             ? t("mock_server.mock_server_started")

@@ -154,7 +154,7 @@ import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
-import { handleTokenValidation } from "~/helpers/handleTokenValidation";
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()

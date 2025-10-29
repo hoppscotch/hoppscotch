@@ -156,12 +156,20 @@
                 </div>
               </div>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center py-4">
               <HoppSmartToggle
                 :on="EXPERIMENTAL_SCRIPTING_SANDBOX"
                 @change="toggleSetting('EXPERIMENTAL_SCRIPTING_SANDBOX')"
               >
                 {{ t("settings.experimental_scripting_sandbox") }}
+              </HoppSmartToggle>
+            </div>
+            <div class="flex items-center">
+              <HoppSmartToggle
+                :on="ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+                @change="toggleSetting('ENABLE_EXPERIMENTAL_MOCK_SERVERS')"
+              >
+                {{ t("settings.enable_experimental_mock_servers") }}
               </HoppSmartToggle>
             </div>
           </section>
@@ -353,6 +361,9 @@ const CUSTOM_NAMING_STYLE = useSetting("CUSTOM_NAMING_STYLE")
 
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
 )
 
 const supportedNamingStyles = [

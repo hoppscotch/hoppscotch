@@ -1,5 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import { client } from "../GQLClient"
+import { GQLError } from "../GQLClient"
+import { getI18n } from "~/modules/i18n"
 import {
   CreateMockServerDocument,
   UpdateMockServerDocument,
@@ -36,6 +38,7 @@ export type MockServer = {
 }
 
 type CreateMockServerError =
+  | "mock_server/invalid_collection"
   | "mock_server/invalid_collection_id"
   | "mock_server/name_too_short"
   | "mock_server/limit_exceeded"
@@ -73,7 +76,26 @@ export const createMockServer = (
         .toPromise()
 
       if (result.error) {
-        throw new Error(result.error.message || "Failed to create mock server")
+        // Try to extract a useful error message from the GraphQL error
+        const err: any = result.error
+        let message = err.message
+
+        // urql exposes GraphQL errors in graphQLErrors array
+        const gqlErr = (err.graphQLErrors && err.graphQLErrors[0]) || null
+        if (gqlErr) {
+          // Prefer originalError.message from backend if present (it may be an array of messages)
+          const orig =
+            gqlErr.extensions &&
+            gqlErr.extensions.originalError &&
+            gqlErr.extensions.originalError.message
+          if (orig) {
+            message = Array.isArray(orig) ? orig.join(", ") : String(orig)
+          } else if (gqlErr.message) {
+            message = gqlErr.message
+          }
+        }
+
+        throw new Error(message)
       }
 
       if (!result.data) {
@@ -183,3 +205,36 @@ export const getTeamMockServers = (
     },
     (error) => (error as Error).message as CreateMockServerError
   )
+
+// Centralized mapper for backend GraphQL error tokens to user-facing messages.
+export const getErrorMessage = (err: GQLError<string> | string | Error) => {
+  const t = getI18n()
+
+  // Normalize to GQLError-like shape
+  let gErr: GQLError<string> | null = null
+
+  if (typeof err === "string") {
+    gErr = { type: "gql_error", error: err }
+  } else if (err instanceof Error) {
+    gErr = { type: "network_error", error: err }
+  } else if ((err as any)?.type) {
+    gErr = err as GQLError<string>
+  }
+
+  if (!gErr) return t("error.something_went_wrong")
+
+  if (gErr.type === "network_error") {
+    console.error(gErr.error)
+    return t("error.network_error")
+  }
+
+  const code = String(gErr.error)
+
+  switch (code) {
+    case "mock_server/invalid_collection":
+    case "mock_server/invalid_collection_id":
+      return t("mock_server.invalid_collection_error")
+    default:
+      return t("error.something_went_wrong")
+  }
+}

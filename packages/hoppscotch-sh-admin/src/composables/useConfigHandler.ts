@@ -191,8 +191,6 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
           mock_server_wildcard_domain: getFieldValue(
             InfraConfigEnum.MockServerWildcardDomain
           ),
-          allow_secure_cookies:
-            getFieldValue(InfraConfigEnum.AllowSecureCookies) === 'true',
         },
       },
     };

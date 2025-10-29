@@ -18,6 +18,11 @@ import { useToast } from "~/composables/toast"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
+import {
+  importUserCollectionsFromJSON,
+  fetchAndConvertUserCollections,
+} from "~/helpers/backend/mutations/UserCollection"
+import { ReqType } from "~/helpers/backend/graphql"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"
@@ -28,6 +33,7 @@ import { platform } from "~/platform"
 import {
   appendGraphqlCollections,
   graphqlCollections$,
+  setGraphqlCollections,
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
@@ -71,7 +77,7 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       )()
 
       if (E.isRight(validatedCollection)) {
-        handleImportToStore(validatedCollection.right)
+        await handleImportToStore(validatedCollection.right)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
@@ -110,7 +116,7 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore(res.right)
+      await handleImportToStore(res.right)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_COLLECTION",
@@ -231,9 +237,83 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = (gqlCollections: HoppCollection[]) => {
-  appendGraphqlCollections(gqlCollections)
-  toast.success(t("state.file_imported"))
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  // If user is logged in, try to import to backend first
+  if (currentUser.value) {
+    try {
+      const transformedCollection = gqlCollections.map((collection) =>
+        translateToPersonalCollectionFormat(collection)
+      )
+
+      const res = await importUserCollectionsFromJSON(
+        JSON.stringify(transformedCollection),
+        ReqType.Gql
+      )()
+
+      if (E.isRight(res)) {
+        // Backend import succeeded, now fetch and persist collections in store
+        const fetchResult = await fetchAndConvertUserCollections(ReqType.Gql)
+
+        if (E.isRight(fetchResult)) {
+          // Replace local collections with backend collections
+          setGraphqlCollections(fetchResult.right)
+        } else {
+          console.warn(
+            "Failed to fetch collections from backend after import:",
+            fetchResult.left
+          )
+          // Still append to local store as fallback
+          appendGraphqlCollections(gqlCollections)
+        }
+
+        toast.success(t("state.file_imported"))
+        return
+      }
+      // Backend import failed, fall back to local storage
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        res.left
+      )
+      appendGraphqlCollections(gqlCollections)
+      toast.success(t("state.file_imported"))
+      return
+    } catch (error) {
+      // Backend import failed, fall back to local storage
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        error
+      )
+      appendGraphqlCollections(gqlCollections)
+      toast.success(t("state.file_imported"))
+      return
+    }
+  } else {
+    // User not logged in, use local storage
+    appendGraphqlCollections(gqlCollections)
+    toast.success(t("state.file_imported"))
+  }
+}
+
+function translateToPersonalCollectionFormat(x: HoppCollection) {
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToPersonalCollectionFormat
+  )
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+    variables: x.variables,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
 }
 
 const emit = defineEmits<{

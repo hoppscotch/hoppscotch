@@ -135,7 +135,10 @@
                   @keyup.p="propertiesAction?.$el.click()"
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.s="sortAction?.$el.click()"
-                  @keyup.m="mockServerAction?.$el.click()"
+                  @keyup.m="
+                    ENABLE_EXPERIMENTAL_MOCK_SERVERS &&
+                    mockServerAction?.$el.click()
+                  "
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -177,7 +180,11 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess && isRootCollection"
+                    v-if="
+                      !hasNoTeamAccess &&
+                      isRootCollection &&
+                      ENABLE_EXPERIMENTAL_MOCK_SERVERS
+                    "
                     ref="mockServerAction"
                     :icon="IconServer"
                     :label="t('mock_server.create_mock_server')"
@@ -321,6 +328,7 @@ import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import { useService } from "dioc/vue"
 import { useMockServerStatus } from "~/composables/mockServer"
+import { useSetting } from "@composables/settings"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
 
@@ -456,9 +464,16 @@ const isCollectionLoading = computed(() => {
 })
 
 // Mock Server Status
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
 const { getMockServerStatus } = useMockServerStatus()
 
 const mockServerStatus = computed(() => {
+  if (!ENABLE_EXPERIMENTAL_MOCK_SERVERS.value) {
+    return { exists: false, isActive: false }
+  }
+
   const collectionId =
     props.collectionsType === "my-collections"
       ? (props.data as HoppCollection).id

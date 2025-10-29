@@ -55,11 +55,12 @@ export class MockServerResolver {
   }
 
   @ResolveField(() => MockServerCollection, {
+    nullable: true,
     description: 'Returns the collection of the mock server',
   })
   async collection(
     @Parent() mockServer: MockServer,
-  ): Promise<MockServerCollection> {
+  ): Promise<MockServerCollection | null> {
     const collection = await this.mockServerService.getMockServerCollection(
       mockServer.id,
     );

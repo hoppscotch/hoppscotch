@@ -37,7 +37,7 @@
           </label>
           <div class="flex items-center space-x-2">
             <div
-              class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight text-body font-mono"
+              class="flex-1 px-3 py-2 border border-divider rounded bg-primaryLight"
             >
               {{
                 mockServer.serverUrlDomainBased || mockServer.serverUrlPathBased
@@ -58,18 +58,28 @@
           </div>
         </div>
 
-        <!-- Status Toggle -->
+        <!-- Status Display (Read-only) -->
         <div class="flex flex-col space-y-2">
           <label class="text-sm font-semibold text-secondaryDark">
-            {{ t("mock_server.status") }}
+            {{ t("app.status") }}
           </label>
-          <div class="flex items-center space-x-3">
-            <HoppSmartToggle :on="isActive" @change="isActive = !isActive" />
-            <span class="text-sm text-secondaryLight">
+          <div class="flex items-center space-x-2">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+              :class="
+                isActive
+                  ? 'bg-green-600/20 text-green-200 border border-green-900/50'
+                  : 'bg-gray-600/20 text-gray-200 border border-gray-900/50'
+              "
+            >
+              <span
+                class="w-2 h-2 rounded-full mr-2"
+                :class="isActive ? 'bg-green-400' : 'bg-gray-400'"
+              ></span>
               {{
                 isActive
-                  ? t("mock_server.server_running")
-                  : t("mock_server.server_stopped")
+                  ? t("mockServer.dashboard.active")
+                  : t("mockServer.dashboard.inactive")
               }}
             </span>
           </div>
@@ -99,7 +109,7 @@
           </label>
           <div class="flex items-center space-x-3">
             <HoppSmartToggle :on="isPublic" @change="isPublic = !isPublic" />
-            <span class="text-sm text-secondaryLight">
+            <span class="text-secondaryLight">
               {{
                 isPublic
                   ? t("mock_server.public_description")
@@ -112,31 +122,52 @@
     </template>
 
     <template #footer>
-      <span class="flex space-x-2">
+      <div class="flex justify-end space-x-2">
+        <!-- Start/Stop Server Button (consistent with CreateMockServer) -->
         <HoppButtonPrimary
+          :label="
+            isActive
+              ? t('mock_server.stop_server')
+              : t('mock_server.start_server')
+          "
+          :loading="loading"
+          :icon="isActive ? IconSquare : IconPlay"
+          @click="toggleMockServer"
+        />
+
+        <!-- Save button for other settings -->
+        <HoppButtonSecondary
+          outline
           :label="t('action.save')"
           :loading="loading"
           @click="updateMockServer"
         />
+
         <HoppButtonSecondary
           :label="t('action.cancel')"
           @click="emit('hide-modal')"
         />
-      </span>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { ref, watch } from "vue"
 import { useToast } from "~/composables/toast"
+import { updateMockServer as updateMockServerMutation } from "~/helpers/backend/mutations/MockServer"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import type { MockServer } from "~/newstore/mockServers"
+import { updateMockServer as updateMockServerInStore } from "~/newstore/mockServers"
 
 // Icons
-import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconCopy from "~icons/lucide/copy"
+import IconPlay from "~icons/lucide/play"
+import IconSquare from "~icons/lucide/square"
 
 interface Props {
   show: boolean
@@ -176,22 +207,74 @@ watch(
 const updateMockServer = async () => {
   loading.value = true
 
-  try {
-    // TODO: Implement mock server update API call
-    // const updatedMockServer = await updateMockServerAPI(props.mockServer.id, {
-    //   name: mockServerName.value,
-    //   isActive: isActive.value,
-    //   delayInMs: delayInMs.value,
-    //   isPublic: isPublic.value
-    // })
-
-    toast.success(t("mock_server.mock_server_updated"))
-    emit("hide-modal")
-  } catch (error) {
-    toast.error(t("error.something_went_wrong"))
-  } finally {
-    loading.value = false
+  // Prepare payload
+  const payload = {
+    name: mockServerName.value,
+    isActive: isActive.value,
+    delayInMs: delayInMs.value,
+    isPublic: isPublic.value,
   }
+
+  await pipe(
+    updateMockServerMutation(props.mockServer.id, payload),
+    TE.match(
+      (error) => {
+        console.error("Failed to update mock server:", error)
+        toast.error(t("error.something_went_wrong"))
+        loading.value = false
+      },
+      () => {
+        // Update the mock server in the store with the changed fields
+        updateMockServerInStore(props.mockServer.id, payload)
+
+        toast.success(t("mock_server.mock_server_updated"))
+        emit("hide-modal")
+
+        // Update local state in case parent doesn't refresh immediately
+        mockServerName.value = payload.name
+        isActive.value = payload.isActive
+        delayInMs.value = payload.delayInMs || 0
+        isPublic.value = payload.isPublic
+
+        loading.value = false
+      }
+    )
+  )()
+}
+
+// Toggle mock server active state (consistent with CreateMockServer)
+const toggleMockServer = async () => {
+  loading.value = true
+  const newActiveState = !isActive.value
+
+  await pipe(
+    updateMockServerMutation(props.mockServer.id, { isActive: newActiveState }),
+    TE.match(
+      (error) => {
+        console.error("Failed to update mock server:", error)
+        toast.error(t("error.something_went_wrong"))
+        loading.value = false
+      },
+      (result) => {
+        console.log("Mock server updated:", result)
+        toast.success(
+          newActiveState
+            ? t("mock_server.mock_server_started")
+            : t("mock_server.mock_server_stopped")
+        )
+
+        // Update the mock server in the store
+        updateMockServerInStore(props.mockServer.id, {
+          isActive: newActiveState,
+        })
+
+        // Update local state
+        isActive.value = newActiveState
+
+        loading.value = false
+      }
+    )
+  )()
 }
 
 const copyToClipboardHandler = async (text: string) => {

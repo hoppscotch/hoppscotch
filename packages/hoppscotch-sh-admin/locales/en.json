@@ -136,9 +136,8 @@
       "title": "Mock Server",
       "description": "Configure mock server settings used to host example responses.",
       "wildcard_domain": "Wildcard Domain",
-      "wildcard_domain_placeholder": "e.g. *.example.com",
-      "secure_cookies": "Allow secure cookies",
-      "secure_cookies_desc": "Use secure cookies for responses from the mock server"
+      "wildcard_domain_description": "This field requires a full wildcard domain format. The input must start with an asterisk (*) followed by a dot (.) and then the domain name.",
+      "wildcard_domain_example": "Example: *.mock.domain.com"
     },
     "update_failure": "Failed to update server configurations"
   },

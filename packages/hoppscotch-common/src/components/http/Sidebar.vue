@@ -52,6 +52,7 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="ENABLE_EXPERIMENTAL_MOCK_SERVERS"
       :id="'mock-servers'"
       :icon="IconServer"
       :label="`${t('tab.mock_servers')}`"
@@ -75,9 +76,15 @@ import IconCode from "~icons/lucide/code"
 import IconServer from "~icons/lucide/server"
 import { ref } from "vue"
 import { useI18n } from "@composables/i18n"
+import { useSetting } from "@composables/settings"
 import MockServerDashboard from "~/components/mockServer/MockServerDashboard.vue"
+import { useMockServerWorkspaceSync } from "~/composables/mockServerWorkspace"
 
 const t = useI18n()
+
+const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
+  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
 
 type RequestOptionTabs =
   | "history"
@@ -88,4 +95,7 @@ type RequestOptionTabs =
   | "mock-servers"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("collections")
+
+// Ensure mock servers are kept in sync with workspace changes globally
+useMockServerWorkspaceSync()
 </script>

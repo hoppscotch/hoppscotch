@@ -855,6 +855,7 @@
     "authentication": "Authentication"
   },
   "mock_server": {
+    "confirm_delete_log": "Are you sure you want to delete this log?",
     "create_mock_server": "Configure Mock Server",
     "mock_server_configuration": "Mock Server Configuration",
     "mock_server_name": "Mock Server Name",
@@ -885,6 +886,7 @@
     "private_description": "Only authenticated users can access this mock server",
     "select_collection": "Select a collection",
     "select_collection_error": "Please select a collection",
+    "invalid_collection_error": "Failed to create a mock server for the collection.",
     "url_copied": "URL copied to clipboard",
     "make_public": "Make Public",
     "view_logs": "View logs",
@@ -1079,6 +1081,7 @@
     "ai_request_naming_style_custom": "Custom",
     "ai_request_naming_style_custom_placeholder": "Enter your custom naming style template...",
     "experimental_scripting_sandbox": "Experimental scripting sandbox",
+    "enable_experimental_mock_servers": "Enable Mock Servers",
     "sync": "Synchronise",
     "sync_collections": "Collections",
     "sync_description": "These settings are synced to cloud.",
@@ -1375,6 +1378,7 @@
     "loading": "Loading...",
     "message_received": "Message: {message} arrived on topic: {topic}",
     "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
+    "no_content_found": "No content found",
     "none": "None",
     "nothing_found": "Nothing found for",
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",

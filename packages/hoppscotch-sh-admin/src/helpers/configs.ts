@@ -92,7 +92,6 @@ export type ServerConfigs = {
     name: string;
     fields: {
       mock_server_wildcard_domain: string;
-      allow_secure_cookies: boolean;
     };
   };
 };
@@ -288,10 +287,6 @@ export const MOCK_SERVER_CONFIGS: Config[] = [
   {
     name: InfraConfigEnum.MockServerWildcardDomain,
     key: 'mock_server_wildcard_domain',
-  },
-  {
-    name: InfraConfigEnum.AllowSecureCookies,
-    key: 'allow_secure_cookies',
   },
 ];
 

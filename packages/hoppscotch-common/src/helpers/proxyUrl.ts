@@ -6,6 +6,12 @@ export const DEFAULT_HOPP_PROXY_URL = "https://proxy.hoppscotch.io/"
 
 // Get default proxy URL from platform or return default
 export const getDefaultProxyUrl = async () => {
+  // Check environment variable first
+  const envProxyUrl = import.meta.env.VITE_DEFAULT_PROXYURI
+  if (envProxyUrl) {
+    return envProxyUrl
+  }
+
   const proxyAppUrl = platform?.infra?.getProxyAppUrl
 
   if (proxyAppUrl) {

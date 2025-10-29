@@ -16,6 +16,7 @@ import { stdFooterItems } from "@hoppscotch/common/platform/std/ui/footerItem"
 import { stdSupportOptionItems } from "@hoppscotch/common/platform/std/ui/supportOptionsItem"
 import { ioDef } from "./platform/io"
 import { interopModule } from "./interop"
+import { getDefaultInterceptor } from "@hoppscotch/common/helpers/interceptorConfig"
 
 const headerPaddingLeft = ref("0px")
 const headerPaddingTop = ref("0px")
@@ -49,7 +50,7 @@ const headerPaddingTop = ref("0px")
     },
     addedHoppModules: [interopModule],
     interceptors: {
-      default: "native",
+      default: getDefaultInterceptor("native"),
       interceptors: [
         { type: "service", service: NativeInterceptorService },
         {

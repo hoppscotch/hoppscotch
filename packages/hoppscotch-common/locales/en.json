@@ -873,6 +873,7 @@
     "subdomain_based_url": "Subdomain based URL",
     "mock_server_updated": "Mock server updated successfully",
     "no_collection": "No collection",
+    "collection_deleted": "associated collection deleted.",
     "status": "Status",
     "server_running": "Server is running",
     "server_stopped": "Server is stopped",

@@ -87,7 +87,10 @@
               </span>
               <span class="truncate text-secondaryLight">
                 {{
-                  mockServer.collection?.title || t("mock_server.no_collection")
+                  mockServer.collection === null
+                    ? t("mock_server.collection_deleted")
+                    : mockServer.collection?.title ||
+                      t("mock_server.no_collection")
                 }}
               </span>
             </div>

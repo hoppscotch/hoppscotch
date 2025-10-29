@@ -268,6 +268,19 @@ const getEditorLanguage = (
   completer: Completer | undefined
 ): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
 
+const MODULE_PREFIX = "export {};\n" as const
+
+/**
+ * Strips the `export {};\n` prefix from the value for display in the editor.
+ * The above is only used internally for Monaco editor's module scope,
+ * and should not be visible in the CodeMirror editor.
+ */
+const stripModulePrefix = (value?: string): string | undefined => {
+  return value?.startsWith(MODULE_PREFIX)
+    ? value.slice(MODULE_PREFIX.length)
+    : value
+}
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
@@ -474,7 +487,10 @@ export function useCodemirror(
     view.value = new EditorView({
       parent: el,
       state: EditorState.create({
-        doc: parseDoc(value.value, options.extendedEditorConfig.mode ?? ""),
+        doc: parseDoc(
+          stripModulePrefix(value.value),
+          options.extendedEditorConfig.mode ?? ""
+        ),
         extensions,
       }),
       // scroll to top when mounting
@@ -514,13 +530,17 @@ export function useCodemirror(
     if (!view.value && el.value) {
       initView(el.value)
     }
+
+    // Strip `export {};\n` before displaying in CodeMirror
+    const displayValue = stripModulePrefix(newVal) ?? ""
+
     if (cachedValue.value !== newVal) {
       view.value?.dispatch({
         filter: false,
         changes: {
           from: 0,
           to: view.value.state.doc.length,
-          insert: newVal,
+          insert: displayValue,
         },
       })
     }

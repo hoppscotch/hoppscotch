@@ -17,6 +17,7 @@ import {
   SandboxEnvironmentVariable,
   SandboxEnvs,
 } from "../types"
+import { UNDEFINED_MARKER, NULL_MARKER } from "~/constants/sandbox-markers"
 
 export type EnvSource = "active" | "global" | "all"
 export type EnvAPIOptions = {
@@ -204,11 +205,10 @@ export function getSharedEnvMethods(
    * 3. Exit: getUpdatedEnvs() serializes back to strings via JSON.stringify()
    *    { global: [{ key: "users", currentValue: "[{...}]", initialValue: "[]" }], ... }
    *
-   * The cast acknowledges that during execution (steps 1-3), the runtime type is SandboxEnvs,
-   * even though the declared type is TestResult["envs"] for API boundary compatibility.
+   * The `satisfies` check acknowledges that during execution (steps 1-3), the runtime type is
+   * SandboxEnvs, even though the declared type is TestResult["envs"] for API boundary compatibility.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  let updatedEnvs = envs as unknown as SandboxEnvs
+  let updatedEnvs = envs satisfies SandboxEnvs
 
   const envGetFn = (
     key: unknown,
@@ -231,6 +231,15 @@ export function getSharedEnvMethods(
             env.currentValue !== null
               ? env.currentValue
               : env.initialValue
+
+          // Convert markers back to their actual types for script execution
+          // This ensures null/undefined values are properly represented in scripts
+          if (valueToUse === UNDEFINED_MARKER) {
+            return undefined
+          }
+          if (valueToUse === NULL_MARKER) {
+            return null
+          }
 
           // Preserve complex types (arrays, objects) for PM namespace compatibility
           return valueToUse
@@ -270,6 +279,14 @@ export function getSharedEnvMethods(
           e.currentValue !== null
             ? e.currentValue
             : e.initialValue
+
+        // Convert markers back to their actual types
+        if (valueToUse === UNDEFINED_MARKER) {
+          return undefined
+        }
+        if (valueToUse === NULL_MARKER) {
+          return null
+        }
 
         // Only resolve templates for string values
         // Non-string values (arrays, objects, etc.) are returned as-is for PM namespace compatibility
@@ -399,7 +416,19 @@ export function getSharedEnvMethods(
       getEnv(key, updatedEnvs, options),
       O.fold(
         () => undefined,
-        (env) => env.initialValue // Return as-is (PM namespace preserves types)
+        (env) => {
+          const initialValue = env.initialValue
+
+          // Convert markers back to their actual types
+          if (initialValue === UNDEFINED_MARKER) {
+            return undefined
+          }
+          if (initialValue === NULL_MARKER) {
+            return null
+          }
+
+          return initialValue // Return as-is (PM namespace preserves types)
+        }
       )
     )
 

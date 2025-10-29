@@ -2831,9 +2831,12 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
     const collectionJSON = JSON.stringify(collection, null, 2)
 
+    // Strip `export {};\n` from `testScript` and `preRequestScript` fields
+    const cleanedCollectionJSON = collectionJSON.replace(/export \{\};\\n/g, "")
+
     const name = (collection as HoppCollection).name
 
-    initializeDownloadCollection(collectionJSON, name)
+    initializeDownloadCollection(cleanedCollectionJSON, name)
   } else {
     if (!collection.id) return
     exportLoading.value = true
@@ -2850,8 +2853,14 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
           const collectionJSONString = JSON.stringify(hoppColl, null, 2)
 
+          // Strip `export {};\n` from `testScript` and `preRequestScript` fields
+          const cleanedCollectionJSON = collectionJSONString.replace(
+            /export \{\};\\n/g,
+            ""
+          )
+
           await initializeDownloadCollection(
-            collectionJSONString,
+            cleanedCollectionJSON,
             hoppColl.name
           )
           exportLoading.value = false

@@ -1163,6 +1163,37 @@
           throw new Error("Auth must be an object or null")
         }
       },
+
+      // Custom serialization for console.log to ensure consistent behavior
+      // This method is called by faraday-cage's marshalling system
+      toJSON() {
+        // Return a plain object with all properties expanded
+        // This ensures console.log(pm.request) shows the full structure consistently
+        const urlParsed = this.url._parseUrl()
+        return {
+          id: this.id,
+          name: this.name,
+          url: {
+            protocol: urlParsed.protocol,
+            host: urlParsed.host,
+            hostname: urlParsed.host.join("."),
+            port: urlParsed.port,
+            path: urlParsed.path,
+            hash: urlParsed.hash || "",
+            query: this.url.query.all(),
+          },
+          method: this.method,
+          headers: this.headers.toObject(),
+          body: this.body,
+          auth: this.auth,
+        }
+      },
+
+      toString() {
+        return `Request { id: ${this.id}, name: ${this.name}, method: ${this.method}, url: ${this.url.toString()} }`
+      },
+
+      [Symbol.toStringTag]: "Request",
     },
 
     // Script context information

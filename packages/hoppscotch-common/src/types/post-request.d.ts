@@ -652,6 +652,8 @@ declare namespace pm {
   }>
 
   const request: Readonly<{
+    readonly id: string
+    readonly name: string
     readonly url: Readonly<{
       toString(): string
       readonly protocol: string

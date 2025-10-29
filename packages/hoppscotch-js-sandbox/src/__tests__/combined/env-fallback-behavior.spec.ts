@@ -106,9 +106,8 @@ describe("Environment Variable Fallback Behavior - All Namespaces", () => {
     "$name - currentValue undefined/null fallback",
     ({ get }) => {
       // Note: These tests check GET behavior with null/undefined in initial state.
-      // Setting null via pm.environment.set(key, null) is currently NOT supported.
-      // These tests validate fallback logic when null/undefined exists in the env state,
-      // which can occur through other means (e.g., test setup, external sources).
+      // Setting null via pm.environment.set(key, null) IS supported (via NULL_MARKER).
+      // These tests validate fallback logic when null/undefined exists in the env state.
 
       test("should fallback to initialValue when currentValue is undefined", async () => {
         const envs = {

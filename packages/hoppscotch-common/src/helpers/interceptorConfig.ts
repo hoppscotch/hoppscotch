@@ -3,8 +3,14 @@
  */
 
 // Valid interceptor IDs
-const VALID_INTERCEPTORS = ["browser", "proxy", "agent", "extension", "native"] as const
-export type ValidInterceptorId = typeof VALID_INTERCEPTORS[number]
+const VALID_INTERCEPTORS = [
+  "browser",
+  "proxy",
+  "agent",
+  "extension",
+  "native",
+] as const
+export type ValidInterceptorId = (typeof VALID_INTERCEPTORS)[number]
 
 /**
  * Get the default interceptor from environment variable or fallback
@@ -13,7 +19,7 @@ export type ValidInterceptorId = typeof VALID_INTERCEPTORS[number]
  */
 export function getDefaultInterceptor(fallback: string): string {
   const envInterceptor = import.meta.env.VITE_DEFAULT_INTERCEPTOR
-  
+
   if (!envInterceptor) {
     return fallback
   }
@@ -22,8 +28,8 @@ export function getDefaultInterceptor(fallback: string): string {
   if (!VALID_INTERCEPTORS.includes(envInterceptor as ValidInterceptorId)) {
     console.error(
       `[Config Error] Invalid DEFAULT_INTERCEPTOR value: "${envInterceptor}". ` +
-      `Valid values are: ${VALID_INTERCEPTORS.join(", ")}. ` +
-      `Using fallback: "${fallback}"`
+        `Valid values are: ${VALID_INTERCEPTORS.join(", ")}. ` +
+        `Using fallback: "${fallback}"`
     )
     return fallback
   }
@@ -36,6 +42,8 @@ export function getDefaultInterceptor(fallback: string): string {
  * @param interceptorId The interceptor ID to validate
  * @returns true if valid, false otherwise
  */
-export function isValidInterceptor(interceptorId: string): interceptorId is ValidInterceptorId {
+export function isValidInterceptor(
+  interceptorId: string
+): interceptorId is ValidInterceptorId {
   return VALID_INTERCEPTORS.includes(interceptorId as ValidInterceptorId)
 }

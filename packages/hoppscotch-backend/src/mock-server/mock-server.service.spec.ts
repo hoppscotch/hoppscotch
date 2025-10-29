@@ -335,7 +335,7 @@ describe('MockServerService', () => {
       }
     });
 
-    test('should return error when collection not found', async () => {
+    test('should return null when collection not found', async () => {
       mockPrisma.mockServer.findUnique.mockResolvedValue(dbMockServer);
       mockPrisma.userCollection.findUnique.mockResolvedValue(null);
 
@@ -343,9 +343,9 @@ describe('MockServerService', () => {
         dbMockServer.id,
       );
 
-      expect(E.isLeft(result)).toBe(true);
-      if (E.isLeft(result)) {
-        expect(result.left).toBe(MOCK_SERVER_INVALID_COLLECTION);
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right).toBe(null);
       }
     });
   });
@@ -863,6 +863,7 @@ describe('MockServerService', () => {
     } as any;
 
     test('should return example by ID header', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
 
@@ -882,6 +883,7 @@ describe('MockServerService', () => {
     });
 
     test('should return example by name header', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
 
@@ -915,6 +917,7 @@ describe('MockServerService', () => {
         },
       };
 
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([
         requestWith404,
@@ -936,6 +939,7 @@ describe('MockServerService', () => {
     });
 
     test('should match exact path', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userRequest.findMany.mockResolvedValue([userRequest] as any);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
@@ -964,6 +968,7 @@ describe('MockServerService', () => {
         },
       };
 
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userRequest.findMany.mockResolvedValue([
         variableRequest,
       ] as any);
@@ -979,6 +984,7 @@ describe('MockServerService', () => {
     });
 
     test('should return error when no examples found', async () => {
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userRequest.findMany.mockResolvedValue([]);
       mockPrisma.userCollection.findMany.mockResolvedValue([]);
 
@@ -1004,6 +1010,7 @@ describe('MockServerService', () => {
         },
       };
 
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userRequest.findMany.mockResolvedValue([
         multipleExamples,
       ] as any);
@@ -1036,6 +1043,7 @@ describe('MockServerService', () => {
         },
       };
 
+      mockPrisma.userCollection.findUnique.mockResolvedValue(userCollection);
       mockPrisma.userCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.userRequest.findMany.mockResolvedValue([simpleRequest] as any);
 
@@ -1070,6 +1078,7 @@ describe('MockServerService', () => {
         },
       };
 
+      mockPrisma.teamCollection.findUnique.mockResolvedValue(teamCollection);
       mockPrisma.teamCollection.findMany.mockResolvedValue([]); // No child collections
       mockPrisma.teamRequest.findMany.mockResolvedValue([teamRequest] as any);
 

@@ -18,10 +18,10 @@ import {
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 // Regex pattern for mock server name validation
-// Allows letters, numbers, spaces, dots, underscores, and hyphens
-const MOCK_SERVER_NAME_PATTERN = /^[a-zA-Z0-9 ._-]+$/;
+// Allows letters, numbers, spaces, dots, brackets, underscores, and hyphens
+const MOCK_SERVER_NAME_PATTERN = /^[a-zA-Z0-9 .()[\]{}<>_-]+$/;
 const MOCK_SERVER_NAME_ERROR_MESSAGE =
-  'Name can only contain letters, numbers, spaces, dots, underscores, and hyphens';
+  'Name can only contain letters, numbers, spaces, dots, brackets, underscores, and hyphens';
 
 @ObjectType()
 export class MockServer {

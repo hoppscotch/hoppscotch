@@ -207,22 +207,39 @@ watch(
 const updateMockServer = async () => {
   loading.value = true
 
-  try {
-    // TODO: Implement mock server update API call
-    // const updatedMockServer = await updateMockServerAPI(props.mockServer.id, {
-    //   name: mockServerName.value,
-    //   isActive: isActive.value,
-    //   delayInMs: delayInMs.value,
-    //   isPublic: isPublic.value
-    // })
-
-    toast.success(t("mock_server.mock_server_updated"))
-    emit("hide-modal")
-  } catch (error) {
-    toast.error(t("error.something_went_wrong"))
-  } finally {
-    loading.value = false
+  // Prepare payload
+  const payload = {
+    name: mockServerName.value,
+    isActive: isActive.value,
+    delayInMs: delayInMs.value,
+    isPublic: isPublic.value,
   }
+
+  await pipe(
+    updateMockServerMutation(props.mockServer.id, payload),
+    TE.match(
+      (error) => {
+        console.error("Failed to update mock server:", error)
+        toast.error(t("error.something_went_wrong"))
+        loading.value = false
+      },
+      () => {
+        // Update the mock server in the store with the changed fields
+        updateMockServerInStore(props.mockServer.id, payload)
+
+        toast.success(t("mock_server.mock_server_updated"))
+        emit("hide-modal")
+
+        // Update local state in case parent doesn't refresh immediately
+        mockServerName.value = payload.name
+        isActive.value = payload.isActive
+        delayInMs.value = payload.delayInMs || 0
+        isPublic.value = payload.isPublic
+
+        loading.value = false
+      }
+    )
+  )()
 }
 
 // Toggle mock server active state (consistent with CreateMockServer)

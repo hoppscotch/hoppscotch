@@ -97,7 +97,9 @@ async function initApp() {
       history: platformDefs.history.get(kernelMode),
     },
     kernelInterceptors: {
-      default: getDefaultInterceptor(kernelMode === "desktop" ? "native" : "browser"),
+      default: getDefaultInterceptor(
+        kernelMode === "desktop" ? "native" : "browser"
+      ),
       interceptors: getInterceptors(kernelMode),
     },
     platformFeatureFlags: {

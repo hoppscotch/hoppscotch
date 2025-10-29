@@ -18,7 +18,10 @@ import { useToast } from "~/composables/toast"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import { importUserCollectionsFromJSON, fetchAndConvertUserCollections } from "~/helpers/backend/mutations/UserCollection"
+import {
+  importUserCollectionsFromJSON,
+  fetchAndConvertUserCollections,
+} from "~/helpers/backend/mutations/UserCollection"
 import { ReqType } from "~/helpers/backend/graphql"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
@@ -250,28 +253,36 @@ const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
       if (E.isRight(res)) {
         // Backend import succeeded, now fetch and persist collections in store
         const fetchResult = await fetchAndConvertUserCollections(ReqType.Gql)
-        
+
         if (E.isRight(fetchResult)) {
           // Replace local collections with backend collections
           setGraphqlCollections(fetchResult.right)
         } else {
-          console.warn("Failed to fetch collections from backend after import:", fetchResult.left)
+          console.warn(
+            "Failed to fetch collections from backend after import:",
+            fetchResult.left
+          )
           // Still append to local store as fallback
           appendGraphqlCollections(gqlCollections)
         }
-        
-        toast.success(t("state.file_imported"))
-        return
-      } else {
-        // Backend import failed, fall back to local storage
-        console.warn("Backend import failed, falling back to local storage:", res.left)
-        appendGraphqlCollections(gqlCollections)
+
         toast.success(t("state.file_imported"))
         return
       }
+      // Backend import failed, fall back to local storage
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        res.left
+      )
+      appendGraphqlCollections(gqlCollections)
+      toast.success(t("state.file_imported"))
+      return
     } catch (error) {
       // Backend import failed, fall back to local storage
-      console.warn("Backend import failed, falling back to local storage:", error)
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        error
+      )
       appendGraphqlCollections(gqlCollections)
       toast.success(t("state.file_imported"))
       return

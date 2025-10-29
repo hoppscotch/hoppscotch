@@ -33,7 +33,11 @@ import { defineStep } from "~/composables/step-components"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { appendRESTCollections, restCollections$, setRESTCollections } from "~/newstore/collections"
+import {
+  appendRESTCollections,
+  restCollections$,
+  setRESTCollections,
+} from "~/newstore/collections"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -46,7 +50,10 @@ import { useReadonlyStream } from "~/composables/stream"
 import IconUser from "~icons/lucide/user"
 
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
-import { importUserCollectionsFromJSON, fetchAndConvertUserCollections } from "~/helpers/backend/mutations/UserCollection"
+import {
+  importUserCollectionsFromJSON,
+  fetchAndConvertUserCollections,
+} from "~/helpers/backend/mutations/UserCollection"
 import { ReqType } from "~/helpers/backend/graphql"
 
 import { platform } from "~/platform"
@@ -129,26 +136,34 @@ const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
       if (E.isRight(res)) {
         // Backend import succeeded, now fetch and persist collections in store
         const fetchResult = await fetchAndConvertUserCollections(ReqType.Rest)
-        
+
         if (E.isRight(fetchResult)) {
           // Replace local collections with backend collections
           setRESTCollections(fetchResult.right)
         } else {
-          console.warn("Failed to fetch collections from backend after import:", fetchResult.left)
+          console.warn(
+            "Failed to fetch collections from backend after import:",
+            fetchResult.left
+          )
           // Still append to local store as fallback
           appendRESTCollections(collections)
         }
-        
-        return E.right({ success: true })
-      } else {
-        // Backend import failed, fall back to local storage
-        console.warn("Backend import failed, falling back to local storage:", res.left)
-        appendRESTCollections(collections)
+
         return E.right({ success: true })
       }
+      // Backend import failed, fall back to local storage
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        res.left
+      )
+      appendRESTCollections(collections)
+      return E.right({ success: true })
     } catch (error) {
       // Backend import failed, fall back to local storage
-      console.warn("Backend import failed, falling back to local storage:", error)
+      console.warn(
+        "Backend import failed, falling back to local storage:",
+        error
+      )
       appendRESTCollections(collections)
       return E.right({ success: true })
     }

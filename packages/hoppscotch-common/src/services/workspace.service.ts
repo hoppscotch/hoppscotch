@@ -6,6 +6,7 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamCollectionsService } from "./team-collection.service"
 
 /**
  * Defines a workspace and its information
@@ -44,6 +45,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private teamListAdapterLocks = reactive(new Map<number, number | null>())
   private teamListAdapterLockTicker = 0 // Used to generate unique lock IDs
   private managedTeamListAdapter = new TeamListAdapter(true, false)
+
+  private teamCollectionService = this.bind(TeamCollectionsService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -100,6 +103,37 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         }
       },
       { immediate: true }
+    )
+
+    // Watch for workspace changes and update team collection service accordingly
+    this.setupTeamCollectionServiceSync()
+  }
+
+  /**
+   * Sets up synchronization with team collection service
+   * This ensures team collections are updated when workspace changes
+   */
+  private setupTeamCollectionServiceSync() {
+    watch(
+      this._currentWorkspace,
+      (newWorkspace, oldWorkspace) => {
+        // Only proceed if workspace actually changed
+        if (
+          newWorkspace?.type === oldWorkspace?.type &&
+          newWorkspace?.type === "team" &&
+          oldWorkspace?.type === "team" &&
+          newWorkspace.teamID === oldWorkspace.teamID
+        ) {
+          return
+        }
+
+        if (newWorkspace.type === "team" && newWorkspace.teamID) {
+          this.teamCollectionService.changeTeamID(newWorkspace.teamID)
+        } else {
+          this.teamCollectionService.clearCollections()
+        }
+      },
+      { immediate: true, deep: true }
     )
   }
 

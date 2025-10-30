@@ -136,8 +136,7 @@
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.s="sortAction?.$el.click()"
                   @keyup.m="
-                    isMockServerVisible &&
-                    mockServerAction?.$el.click()
+                    isMockServerVisible && mockServerAction?.$el.click()
                   "
                   @keyup.escape="hide()"
                 >

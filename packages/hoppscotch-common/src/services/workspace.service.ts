@@ -117,15 +117,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
     watch(
       this._currentWorkspace,
       (newWorkspace, oldWorkspace) => {
-        // Only proceed if workspace actually changed
-        if (
-          newWorkspace?.type === oldWorkspace?.type &&
-          newWorkspace?.type === "team" &&
-          oldWorkspace?.type === "team" &&
-          newWorkspace.teamID === oldWorkspace.teamID
-        ) {
-          return
-        }
+        // Skip update if workspaces are effectively the same or switching to personal workspaces
+        if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
 
         if (newWorkspace.type === "team" && newWorkspace.teamID) {
           this.teamCollectionService.changeTeamID(newWorkspace.teamID)
@@ -134,6 +127,27 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         }
       },
       { immediate: true, deep: true }
+    )
+  }
+
+  /**
+   * Checks if two workspaces are effectively equal to avoid unnecessary updates
+   */
+  private areWorkspacesEqual(
+    newWorkspace: Workspace | undefined,
+    oldWorkspace: Workspace | undefined
+  ): boolean {
+    if (!newWorkspace || !oldWorkspace) return false
+
+    // Both are personal workspaces
+    if (newWorkspace.type === "personal" && oldWorkspace.type === "personal")
+      return true
+
+    // Team workspaces are equal only if they share the same team ID
+    return (
+      newWorkspace.type === "team" &&
+      oldWorkspace.type === "team" &&
+      newWorkspace.teamID === oldWorkspace.teamID
     )
   }
 

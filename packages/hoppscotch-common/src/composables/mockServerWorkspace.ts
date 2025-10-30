@@ -3,7 +3,7 @@ import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 import { setMockServers, loadMockServers } from "~/newstore/mockServers"
 import { platform } from "~/platform"
-import { useSetting } from "./settings"
+import { useMockServerVisibility } from "./mockServerVisibility"
 
 /**
  * Composable to handle mock server state when workspace changes
@@ -12,14 +12,12 @@ import { useSetting } from "./settings"
  */
 export function useMockServerWorkspaceSync() {
   const workspaceService = useService(WorkspaceService)
-  const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
-    "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
-  )
+  const { isMockServerVisible } = useMockServerVisibility()
   const isAuthenticated = !!platform.auth.getCurrentUser()
 
   // Initial load of mock servers for the current workspace
   onMounted(() => {
-    if (!isAuthenticated || !ENABLE_EXPERIMENTAL_MOCK_SERVERS.value) return
+    if (!isAuthenticated || !isMockServerVisible.value) return
     loadMockServers().catch(() => setMockServers([]))
   })
 
@@ -27,7 +25,7 @@ export function useMockServerWorkspaceSync() {
   watch(
     () => workspaceService.currentWorkspace.value,
     (newWorkspace, oldWorkspace) => {
-      if (!isAuthenticated || !ENABLE_EXPERIMENTAL_MOCK_SERVERS.value) return
+      if (!isAuthenticated || !isMockServerVisible.value) return
 
       // Clear mock servers when workspace changes to prevent stale data
       if (

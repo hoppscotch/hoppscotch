@@ -133,7 +133,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
           console.error("Failed to sync team collections:", error)
         }
       },
-      { immediate: true, deep: true }
+      { immediate: true }
     )
   }
 

@@ -473,7 +473,8 @@ const mockServerStatus = computed(() => {
 
   const collectionId =
     props.collectionsType === "my-collections"
-      ? (props.data as HoppCollection).id
+      ? ((props.data as HoppCollection).id ??
+        (props.data as HoppCollection)._ref_id)
       : (props.data as TeamCollection).id
 
   return getMockServerStatus(collectionId || "")

@@ -1083,7 +1083,7 @@ const createMockServer = (payload: {
 }) => {
   // Import the mock server store dynamically to avoid circular dependencies
   import("~/newstore/mockServers").then(({ showCreateMockServerModal$ }) => {
-    let collectionID = payload.collection.id ?? undefined
+    let collectionID = payload.collection.id ?? payload.collection._ref_id
 
     // If this is a child collection (folder), we need to get the root collection ID
     if (payload.collectionIndex.includes("/")) {
@@ -1091,7 +1091,7 @@ const createMockServer = (payload: {
       const rootIndex = payload.collectionIndex.split("/")[0]
       const rootCollection = myCollections.value[parseInt(rootIndex)]
       if (rootCollection) {
-        collectionID = rootCollection.id ?? undefined
+        collectionID = rootCollection.id ?? rootCollection._ref_id
       }
     }
 

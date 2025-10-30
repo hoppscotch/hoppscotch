@@ -386,7 +386,10 @@ const isExistingMockServer = computed(() => !!existingMockServer.value)
 // Collection options for the selector (only root collections)
 const collectionOptions = computed(() => {
   return availableCollections.value.map((collection) => {
-    const collectionId = collection.id
+    const collectionId =
+      currentWorkspace.value.type === "team"
+        ? collection.id
+        : (collection.id ?? collection._ref_id) // TODO: fix this fallback logic for personal workspaces in the future
     const hasMockServer = mockServers.value.some(
       (server) => server.collectionID === collectionId
     )

@@ -25,7 +25,8 @@ export function useMockServerVisibility() {
 
     // Check if platform disables mock servers in personal workspaces
     const disableInPersonalWorkspace =
-      platform.platformFeatureFlags.mockServerInPersonalWorkspace ?? false
+      platform.platformFeatureFlags.disableMockServerInPersonalWorkspace ??
+      false
 
     // If platform disables mock servers in personal workspaces and current workspace is personal, hide mock servers
     if (

@@ -104,7 +104,6 @@ async function initApp() {
       hasTelemetry: false,
       cookiesEnabled: kernelMode === "desktop",
       promptAsUsingCookies: false,
-      mockServerInPersonalWorkspace: true,
     },
     limits: {
       collectionImportSizeLimit: 50,

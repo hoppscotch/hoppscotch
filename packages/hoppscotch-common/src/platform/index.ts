@@ -71,7 +71,7 @@ export type PlatformDef = {
      * Whether to disable mock servers in personal workspaces
      * If a value is not given, then the value is assumed to be false
      */
-    mockServerInPersonalWorkspace?: boolean
+    disableMockServerInPersonalWorkspace?: boolean
   }
   limits?: LimitsPlatformDef
   infra?: InfraPlatformDef

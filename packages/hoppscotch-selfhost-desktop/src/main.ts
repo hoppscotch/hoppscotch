@@ -63,6 +63,7 @@ const headerPaddingTop = ref("0px")
       hasTelemetry: false,
       cookiesEnabled: true,
       promptAsUsingCookies: false,
+      mockServerInPersonalWorkspace: true,
     },
     backend: backendDef,
   })

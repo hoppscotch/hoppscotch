@@ -87,6 +87,7 @@ export class MockServerController {
         try {
           const headers = JSON.parse(mockResponse.headers);
           Object.keys(headers).forEach((key) => {
+            console.log('Setting header:', key, headers[key]);
             res.setHeader(key, headers[key]);
           });
         } catch (error) {
@@ -101,17 +102,31 @@ export class MockServerController {
         );
       }
 
-      // Send response
-      const defaultContentType =
-        typeof mockResponse.body === 'object'
-          ? 'application/json'
-          : 'text/plain';
-      const contentType =
-        mockResponse.headers?.['content-type'] || defaultContentType;
+      // Only set Content-Type if not already set
+      if (!res.getHeader('Content-Type')) {
+        let defaultContentType = 'text/plain';
 
-      res.setHeader('Content-Type', contentType);
+        // Check if body is a string and try to parse it to determine content type
+        if (typeof mockResponse.body === 'string') {
+          try {
+            JSON.parse(mockResponse.body);
+            // If parsing succeeds, it's JSON
+            defaultContentType = 'application/json';
+          } catch {
+            // If parsing fails, it's plain text
+            defaultContentType = 'text/plain';
+          }
+        } else if (typeof mockResponse.body === 'object') {
+          // If it's already an object, it's JSON
+          defaultContentType = 'application/json';
+        }
+
+        res.setHeader('Content-Type', defaultContentType);
+      }
+      // Security headers
       res.setHeader('X-Content-Type-Options', 'nosniff');
 
+      // Send response
       return res.status(mockResponse.statusCode).send(mockResponse.body);
     } catch (error) {
       console.error('Error handling mock request:', error);

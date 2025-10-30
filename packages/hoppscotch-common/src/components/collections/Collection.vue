@@ -136,8 +136,7 @@
                   @keyup.t="runCollectionAction?.$el.click()"
                   @keyup.s="sortAction?.$el.click()"
                   @keyup.m="
-                    ENABLE_EXPERIMENTAL_MOCK_SERVERS &&
-                    mockServerAction?.$el.click()
+                    isMockServerVisible && mockServerAction?.$el.click()
                   "
                   @keyup.escape="hide()"
                 >
@@ -183,7 +182,7 @@
                     v-if="
                       !hasNoTeamAccess &&
                       isRootCollection &&
-                      ENABLE_EXPERIMENTAL_MOCK_SERVERS
+                      isMockServerVisible
                     "
                     ref="mockServerAction"
                     :icon="IconServer"
@@ -328,7 +327,7 @@ import IconArrowUpDown from "~icons/lucide/arrow-up-down"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
 import { useService } from "dioc/vue"
 import { useMockServerStatus } from "~/composables/mockServer"
-import { useSetting } from "@composables/settings"
+import { useMockServerVisibility } from "~/composables/mockServerVisibility"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
 
@@ -464,13 +463,11 @@ const isCollectionLoading = computed(() => {
 })
 
 // Mock Server Status
-const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
-  "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
-)
+const { isMockServerVisible } = useMockServerVisibility()
 const { getMockServerStatus } = useMockServerStatus()
 
 const mockServerStatus = computed(() => {
-  if (!ENABLE_EXPERIMENTAL_MOCK_SERVERS.value) {
+  if (!isMockServerVisible.value) {
     return { exists: false, isActive: false }
   }
 

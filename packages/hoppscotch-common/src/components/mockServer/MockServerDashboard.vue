@@ -150,7 +150,6 @@
                         ? t('mock_server.stop_server')
                         : t('mock_server.start_server')
                     "
-                    :shortcut="['S']"
                     @click="
                       () => {
                         toggleMockServer(mockServer)
@@ -162,7 +161,6 @@
                     ref="deleteAction"
                     :icon="IconTrash2"
                     :label="t('action.delete')"
-                    :shortcut="['⌫']"
                     @click="
                       () => {
                         deleteMockServer(mockServer)

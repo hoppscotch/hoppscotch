@@ -68,13 +68,13 @@
               class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
               :class="
                 isActive
-                  ? 'bg-green-600/20 text-green-200 border border-green-900/50'
-                  : 'bg-gray-600/20 text-gray-200 border border-gray-900/50'
+                  ? 'bg-green-600/20 text-green-500 border border-green-600/30'
+                  : 'text-secondary border border-secondaryLight'
               "
             >
               <span
                 class="w-2 h-2 rounded-full mr-2"
-                :class="isActive ? 'bg-green-400' : 'bg-gray-400'"
+                :class="isActive ? 'bg-green-400' : 'bg-secondaryLight'"
               ></span>
               {{
                 isActive

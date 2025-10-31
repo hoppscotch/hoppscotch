@@ -1,6 +1,6 @@
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
-import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
 import { runDispatchWithOutSyncing } from "@lib/sync"
+import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
 
 import {
   exportUserCollectionsToJSON,
@@ -19,6 +19,11 @@ import {
 } from "./api"
 import { collectionsSyncer, getStoreByCollectionType } from "./sync"
 
+import {
+  ReqType,
+  UserCollectionDuplicatedData,
+  UserRequest,
+} from "@api/generated/graphql"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
   addGraphqlCollection,
@@ -61,11 +66,6 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import {
-  ReqType,
-  UserCollectionDuplicatedData,
-  UserRequest,
-} from "@api/generated/graphql"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 
 function initCollectionsSync() {

@@ -56,6 +56,7 @@
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
+      @create-mock-server="createMockServer"
       @export-data="exportData"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
@@ -104,6 +105,7 @@
       @edit-request="editRequest"
       @edit-response="editResponse"
       @edit-properties="editProperties"
+      @create-mock-server="createTeamMockServer"
       @export-data="exportData"
       @expand-team-collection="expandTeamCollection"
       @remove-collection="removeCollection"
@@ -220,6 +222,8 @@
       :collection-runner-data="collectionRunnerData"
       @hide-modal="showCollectionsRunnerModal = false"
     />
+
+    <MockServerCreateMockServer />
   </div>
 </template>
 
@@ -1071,6 +1075,46 @@ const updateEditingCollection = async (newName: string) => {
       )
     )()
   }
+}
+
+const createMockServer = (payload: {
+  collectionIndex: string
+  collection: HoppCollection
+}) => {
+  // Import the mock server store dynamically to avoid circular dependencies
+  import("~/newstore/mockServers").then(({ showCreateMockServerModal$ }) => {
+    let collectionID = payload.collection.id ?? payload.collection._ref_id
+
+    // If this is a child collection (folder), we need to get the root collection ID
+    if (payload.collectionIndex.includes("/")) {
+      // Extract the root collection index from the path (e.g., "0/1/2" -> "0")
+      const rootIndex = payload.collectionIndex.split("/")[0]
+      const rootCollection = myCollections.value[parseInt(rootIndex)]
+      if (rootCollection) {
+        collectionID = rootCollection.id ?? rootCollection._ref_id
+      }
+    }
+
+    showCreateMockServerModal$.next({
+      show: true,
+      collectionID: collectionID,
+      collectionName: payload.collection.name,
+    })
+  })
+}
+
+const createTeamMockServer = (payload: {
+  collectionID: string
+  collection: TeamCollection
+}) => {
+  // Import the mock server store dynamically to avoid circular dependencies
+  import("~/newstore/mockServers").then(({ showCreateMockServerModal$ }) => {
+    showCreateMockServerModal$.next({
+      show: true,
+      collectionID: payload.collectionID,
+      collectionName: payload.collection.title,
+    })
+  })
 }
 
 const editFolder = (payload: {
@@ -2085,7 +2129,9 @@ const selectRequest = (selectedRequest: {
       originLocation: "user-collection",
       requestIndex: parseInt(requestIndex),
       folderPath: folderPath!,
+      requestRefID: request._ref_id ?? request.id,
     })
+
     if (possibleTab) {
       tabs.setActiveTab(possibleTab.value.id)
     } else {
@@ -2785,9 +2831,12 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
     const collectionJSON = JSON.stringify(collection, null, 2)
 
+    // Strip `export {};\n` from `testScript` and `preRequestScript` fields
+    const cleanedCollectionJSON = collectionJSON.replace(/export \{\};\\n/g, "")
+
     const name = (collection as HoppCollection).name
 
-    initializeDownloadCollection(collectionJSON, name)
+    initializeDownloadCollection(cleanedCollectionJSON, name)
   } else {
     if (!collection.id) return
     exportLoading.value = true
@@ -2804,8 +2853,14 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
           const collectionJSONString = JSON.stringify(hoppColl, null, 2)
 
+          // Strip `export {};\n` from `testScript` and `preRequestScript` fields
+          const cleanedCollectionJSON = collectionJSONString.replace(
+            /export \{\};\\n/g,
+            ""
+          )
+
           await initializeDownloadCollection(
-            collectionJSONString,
+            cleanedCollectionJSON,
             hoppColl.name
           )
           exportLoading.value = false

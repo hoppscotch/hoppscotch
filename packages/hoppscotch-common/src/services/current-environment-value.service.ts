@@ -1,8 +1,6 @@
 import { Container, Service } from "dioc"
 import { cloneDeep } from "lodash-es"
-import { nextTick } from "vue"
-import { watch } from "vue"
-import { reactive, computed } from "vue"
+import { reactive, computed, watch, nextTick } from "vue"
 
 /**
  * Defines a environment variable.

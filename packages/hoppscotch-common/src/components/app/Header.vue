@@ -203,7 +203,7 @@
                   class="!focus-visible:text-blue-600 !hover:text-blue-600 h-8 rounded border border-blue-600/25 bg-blue-500/10 pr-8 !text-blue-500 hover:border-blue-600/20 hover:bg-blue-600/20 focus-visible:border-blue-600/20 focus-visible:bg-blue-600/20"
                 />
               </HoppSmartSelectWrapper>
-              <template #content="{ hide }">
+              <template #content="{ hide, state }">
                 <div
                   ref="accountActions"
                   class="flex flex-col focus:outline-none"
@@ -211,7 +211,7 @@
                   @keyup.escape="hide()"
                   @click="hide()"
                 >
-                  <WorkspaceSelector />
+                  <WorkspaceSelector :state="state" />
                 </div>
               </template>
             </tippy>

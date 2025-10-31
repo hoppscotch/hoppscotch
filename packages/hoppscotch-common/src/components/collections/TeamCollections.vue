@@ -118,6 +118,13 @@
                 collection: node.data.data.data,
               })
             "
+            @create-mock-server="
+              node.data.type === 'collections' &&
+              emit('create-mock-server', {
+                collectionID: node.data.data.data.id,
+                collection: node.data.data.data,
+              })
+            "
             @export-data="
               node.data.type === 'collections' &&
               emit('export-data', node.data.data.data)
@@ -715,6 +722,13 @@ const emit = defineEmits<{
   (
     event: "run-collection",
     payload: { collectionID: string; path: string }
+  ): void
+  (
+    event: "create-mock-server",
+    payload: {
+      collectionID: string
+      collection: TeamCollection
+    }
   ): void
 }>()
 

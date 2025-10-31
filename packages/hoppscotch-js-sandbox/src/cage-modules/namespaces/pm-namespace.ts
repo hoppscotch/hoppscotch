@@ -17,7 +17,9 @@ export const createPmNamespaceMethods = (
       return config.request.name
     }),
     pmInfoRequestId: defineSandboxFn(ctx, "pmInfoRequestId", () => {
-      return config.request.id
+      // Use request.id if available, fallback to request.name
+      // Postman uses a unique ID, but for compatibility we use name if ID not set
+      return config.request.id || config.request.name
     }),
   }
 }

@@ -1,0 +1,3 @@
+mutation DeleteMockServer($id: ID!) {
+  deleteMockServer(id: $id)
+}

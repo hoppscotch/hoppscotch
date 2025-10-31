@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest"
 import { getRequestSetterMethods } from "~/utils/pre-request"
 
 const baseRequest: HoppRESTRequest = {
-  v: "15",
+  v: "16",
   name: "Test Request",
   endpoint: "https://example.com/api",
   method: "GET",
@@ -30,11 +30,11 @@ describe("getRequestSetterMethods", () => {
     expect(updatedRequest.endpoint).toBe("https://updated.com/api")
   })
 
-  test("`setMethod` should update and uppercase the method", () => {
+  test("`setMethod` should update the method (case preserved)", () => {
     const { methods, updatedRequest } = getRequestSetterMethods(baseRequest)
     methods.setMethod("post")
 
-    expect(updatedRequest.method).toBe("POST")
+    expect(updatedRequest.method).toBe("post")
   })
 
   test("`setHeader` setter should update existing header case-insensitively", () => {

@@ -1,42 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.envs)
-  )
-
-const funcTest = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTestAndGetEnvs, runTest } from "~/utils/test-helpers"
 
 describe("pw.env.unset", () => {
   test("removes the variable set in selected environment correctly", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -61,7 +29,7 @@ describe("pw.env.unset", () => {
 
   test("removes the variable set in global environment correctly", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -86,7 +54,7 @@ describe("pw.env.unset", () => {
 
   test("removes the variable from selected environment if the entry is present in both selected and global environments", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -126,7 +94,7 @@ describe("pw.env.unset", () => {
 
   test("removes the initial occurrence of an entry if duplicate entries exist in the selected environment", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -179,7 +147,7 @@ describe("pw.env.unset", () => {
 
   test("removes the initial occurrence of an entry if duplicate entries exist in the global environment", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -218,7 +186,7 @@ describe("pw.env.unset", () => {
 
   test("no change if attempting to delete non-existent keys", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset("baseUrl")
         `,
@@ -237,7 +205,7 @@ describe("pw.env.unset", () => {
 
   test("keys should be a string", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.unset(5)
         `,
@@ -251,7 +219,7 @@ describe("pw.env.unset", () => {
 
   test("set environment values are reflected in the script execution", () => {
     return expect(
-      funcTest(
+      runTest(
         `
           pw.env.unset("baseUrl")
           pw.expect(pw.env.get("baseUrl")).toBe(undefined)

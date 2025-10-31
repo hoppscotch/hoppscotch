@@ -1,42 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.envs)
-  )
-
-const funcTest = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTestAndGetEnvs, runTest } from "~/utils/test-helpers"
 
 describe("pw.env.set", () => {
   test("updates the selected environment variable correctly", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set("a", "c")
         `,
@@ -68,7 +36,7 @@ describe("pw.env.set", () => {
 
   test("updates the global environment variable correctly", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set("a", "c")
         `,
@@ -100,7 +68,7 @@ describe("pw.env.set", () => {
 
   test("updates the selected environment if env present in both", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set("a", "c")
         `,
@@ -147,7 +115,7 @@ describe("pw.env.set", () => {
 
   test("non existent keys are created in the selected environment", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set("a", "c")
         `,
@@ -173,7 +141,7 @@ describe("pw.env.set", () => {
 
   test("keys should be a string", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set(5, "c")
         `,
@@ -187,7 +155,7 @@ describe("pw.env.set", () => {
 
   test("values should be a string", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set("a", 5)
         `,
@@ -201,7 +169,7 @@ describe("pw.env.set", () => {
 
   test("both keys and values should be strings", () => {
     return expect(
-      func(
+      runTestAndGetEnvs(
         `
           pw.env.set(5, 5)
         `,
@@ -215,7 +183,7 @@ describe("pw.env.set", () => {
 
   test("set environment values are reflected in the script execution", () => {
     return expect(
-      funcTest(
+      runTest(
         `
           pw.env.set("a", "b")
           pw.expect(pw.env.get("a")).toBe("b")

@@ -4,57 +4,34 @@
     :class="[vertical ? 'border-r' : 'border-b', styles]"
   >
     <div class="flex flex-1">
-      <div
-        class="flex flex-1 justify-between"
-        :class="{ 'flex-col': vertical }"
-      >
-        <template v-for="(tabGroup, alignment) in alignedTabs" :key="alignment">
-          <div
-            class="flex flex-1"
-            :class="{
-              'flex-col space-y-2 p-2': vertical,
-              'justify-end': alignment === 'right',
-            }"
-          >
-            <router-link
-              v-for="(item, index) in tabGroup"
-              :key="`nav-${index}`"
-              :to="item.route"
-              v-tippy="{
-                theme: 'tooltip',
-                placement: 'left',
-                content: vertical ? item.label : null,
-              }"
-              active-class="active"
-              exact-active-class="active"
-              class="tab"
-              :class="[
-                { vertical: vertical },
-                { '!cursor-not-allowed opacity-75': item.disabled },
-              ]"
-              :aria-label="item.label || ''"
-              role="link"
-            >
-              <component
-                :is="item.icon"
-                v-if="item.icon"
-                class="svg-icons"
-                :class="{ 'mr-2': item.label && !vertical }"
-              />
-              <span v-if="item.label && !vertical">{{ item.label }}</span>
-              <span v-if="item.info && item.info !== 'null'" class="tab-info">
-                {{ item.info }}
-              </span>
-              <span
-                v-if="item.indicator"
-                class="ml-2 h-1 w-1 rounded-full bg-accentLight"
-              ></span>
-            </router-link>
-          </div>
-        </template>
-        <div class="flex items-center justify-center">
-          <slot name="actions"></slot>
-        </div>
+      <div class="flex flex-1">
+        <router-link
+          v-for="(item, index) in items"
+          :key="`nav-${index}`"
+          :to="item.route"
+          v-tippy="{
+            theme: 'tooltip',
+            placement: 'left',
+            content: vertical ? item.label : null,
+          }"
+          active-class="active"
+          exact-active-class="active"
+          class="tab"
+          :class="[{ vertical: vertical }]"
+          :aria-label="item.label || ''"
+          role="link"
+        >
+          <component
+            :is="item.icon"
+            v-if="item.icon"
+            class="svg-icons"
+            :class="{ 'mr-2': item.label && !vertical }"
+          />
+          <span v-if="item.label && !vertical">{{ item.label }}</span>
+        </router-link>
+      </div>
+      <div class="flex items-center justify-center">
+        <slot name="actions"></slot>
       </div>
     </div>
   </div>
@@ -62,30 +39,19 @@
 
 <script setup lang="ts">
 import type { Component } from "vue"
-import { computed } from "vue"
 
 export type NavItem = {
   label: string | null
   icon: string | Component | null
   route: string
-  indicator: boolean
-  info: string | null
-  disabled: boolean
-  alignLast: boolean
   exactMatch?: boolean
 }
 
-const props = defineProps<{
+defineProps<{
   items: readonly NavItem[]
   styles?: string
   vertical?: boolean
 }>()
-
-const alignedTabs = computed(() => {
-  const leftTabs = props.items.filter((item) => !item.alignLast)
-  const rightTabs = props.items.filter((item) => item.alignLast)
-  return { left: leftTabs, right: rightTabs }
-})
 </script>
 
 <style lang="scss" scoped>

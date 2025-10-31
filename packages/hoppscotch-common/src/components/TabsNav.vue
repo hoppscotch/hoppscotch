@@ -25,9 +25,10 @@
                 placement: 'left',
                 content: vertical ? item.label : null,
               }"
+              active-class="active"
+              exact-active-class="active"
               class="tab"
               :class="[
-                { active: isActive(item.route) },
                 { vertical: vertical },
                 { '!cursor-not-allowed opacity-75': item.disabled },
               ]"
@@ -60,9 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
-import { useRoute } from "vue-router"
 import type { Component } from "vue"
+import { computed } from "vue"
 
 export type NavItem = {
   label: string | null
@@ -72,6 +72,7 @@ export type NavItem = {
   info: string | null
   disabled: boolean
   alignLast: boolean
+  exactMatch?: boolean
 }
 
 const props = defineProps<{
@@ -80,17 +81,11 @@ const props = defineProps<{
   vertical?: boolean
 }>()
 
-const route = useRoute()
-
 const alignedTabs = computed(() => {
   const leftTabs = props.items.filter((item) => !item.alignLast)
   const rightTabs = props.items.filter((item) => item.alignLast)
   return { left: leftTabs, right: rightTabs }
 })
-
-const isActive = (itemRoute: string) => {
-  return route.path === itemRoute || route.path.startsWith(itemRoute + "/")
-}
 </script>
 
 <style lang="scss" scoped>

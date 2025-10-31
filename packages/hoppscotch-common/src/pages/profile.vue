@@ -157,6 +157,7 @@ const PROFILE_NAVIGATION = [
     info: null,
     disabled: false,
     alignLast: false,
+    exactMatch: true,
   },
   {
     route: "/profile/teams",

@@ -6,9 +6,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -16,7 +15,6 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -25,7 +23,7 @@
           @click="downloadResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body && !isEditable"
+          v-if="!isEditable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="
             isSavable
@@ -41,7 +39,6 @@
           @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -50,11 +47,11 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="response.body"
+          v-if="!isEditable"
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => copyInterfaceTippyActions.focus()"
+          :on-shown="() => responseMoreActionsTippy?.focus()"
         >
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -63,13 +60,12 @@
           />
           <template #content="{ hide }">
             <div
-              ref="copyInterfaceTippyActions"
+              ref="responseMoreActionsTippy"
               class="flex flex-col focus:outline-none"
               tabindex="0"
               @keyup.escape="hide()"
             >
               <HoppSmartItem
-                v-if="response.body && !isEditable"
                 :label="t('action.clear_response')"
                 :icon="IconEraser"
                 :shortcut="[getSpecialKey(), 'Delete']"
@@ -200,7 +196,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const xmlResponse = ref<any | null>(null)
-const copyInterfaceTippyActions = ref<any | null>(null)
+const responseMoreActionsTippy = ref<HTMLElement | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 
 const saveAsExample = () => {

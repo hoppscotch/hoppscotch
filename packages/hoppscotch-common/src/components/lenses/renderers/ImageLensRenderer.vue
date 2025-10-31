@@ -6,9 +6,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body && !isEditable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -17,7 +16,7 @@
           @click="downloadResponse"
         />
         <tippy
-          v-if="response.body && !isEditable"
+          v-if="!isEditable"
           interactive
           trigger="click"
           theme="popover"

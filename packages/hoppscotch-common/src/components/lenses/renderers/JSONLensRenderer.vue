@@ -59,7 +59,7 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="showResponse"
+          v-if="showResponse && response.body && !isEditable"
           interactive
           trigger="click"
           theme="popover"
@@ -88,7 +88,6 @@
                 "
               />
               <HoppSmartItem
-                v-if="response.body && !isEditable"
                 :label="t('action.clear_response')"
                 :icon="IconEraser"
                 :shortcut="[getSpecialKey(), 'Delete']"

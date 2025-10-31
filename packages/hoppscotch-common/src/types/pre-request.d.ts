@@ -275,10 +275,10 @@ declare namespace hopp {
     setUrl(url: string): void
     setMethod(method: string): void
     setHeader(name: string, value: string): void
-    setHeaders(headers: HoppRESTHeader[]): void
+    setHeaders(headers: Array<Partial<HoppRESTHeader>>): void
     removeHeader(key: string): void
     setParam(name: string, value: string): void
-    setParams(params: HoppRESTParam[]): void
+    setParams(params: Array<Partial<HoppRESTParam>>): void
     removeParam(key: string): void
     /**
      * Set or update request body with automatic merging

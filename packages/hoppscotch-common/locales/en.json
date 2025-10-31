@@ -1037,6 +1037,8 @@
     "no_collection": "No collection",
     "collection_deleted": "associated collection deleted.",
     "private_access_hint": "For private mock servers, include the header 'x-api-key' with your Personal Access Token (create one from your profile).",
+    "private_access_instruction": "To access this private mock server, you need a Personal Access Token.",
+    "create_token_here": "Create one here",
     "status": "Status",
     "server_running": "Server is running",
     "server_stopped": "Server is stopped",

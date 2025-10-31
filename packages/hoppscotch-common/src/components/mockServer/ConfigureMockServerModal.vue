@@ -120,7 +120,15 @@
           </div>
           <!-- Hint for private mock servers -->
           <div v-if="!isPublic" class="w-full mt-2 text-xs text-secondaryLight">
-            {{ t("mock_server.private_access_hint") }}
+            {{ t("mock_server.private_access_instruction") }}
+            <HoppSmartAnchor
+              class="link"
+              to="/profile/tokens"
+              blank
+              :icon="IconExternalLink"
+              :label="t('mock_server.create_token_here')"
+              reverse
+            />
           </div>
 
           <!-- Set in Environment Toggle -->
@@ -202,6 +210,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconPlay from "~icons/lucide/play"
 import IconServer from "~icons/lucide/server"
 import IconSquare from "~icons/lucide/square"
+import IconExternalLink from "~icons/lucide/external-link"
 
 const t = useI18n()
 const toast = useToast()

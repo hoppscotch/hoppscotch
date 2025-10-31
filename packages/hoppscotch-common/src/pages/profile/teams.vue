@@ -1,7 +1,5 @@
 <template>
-  asdf
-
-  <!-- <Teams :modal="false" class="p-4" /> -->
+  <TeamsView :modal="false" class="p-4" />
 </template>
 
 <script setup lang="ts"></script>

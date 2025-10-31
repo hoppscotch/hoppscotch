@@ -17,7 +17,8 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
   }
 
   const setMethod = (method: string) => {
-    updatedRequest.method = method.toUpperCase()
+    // NOTE: Postman does NOT normalize method to uppercase, so we preserve the original case
+    updatedRequest.method = method
   }
   const setHeader = (name: string, value: string) => {
     const headers = [...updatedRequest.headers]
@@ -45,7 +46,9 @@ export const getRequestSetterMethods = (request: HoppRESTRequest) => {
   }
 
   const removeHeader = (key: string) => {
-    updatedRequest.headers = updatedRequest.headers.filter((h) => h.key !== key)
+    updatedRequest.headers = updatedRequest.headers.filter(
+      (h) => h.key.toLowerCase() !== key.toLowerCase()
+    )
   }
 
   const setParam = (name: string, value: string) => {

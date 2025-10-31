@@ -12,7 +12,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupSwagger(app, isProduction: boolean) {
+function setupSwagger(app: NestExpressApplication, isProduction: boolean): void {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
@@ -49,8 +49,13 @@ async function bootstrap() {
 
   app.use(
     session({
+      // Allow overriding the default cookie name 'connect.sid' (which contains a dot).
+      // Some proxies/load balancers (like older Kong versions) cannot hash cookie names with dots,
+      // so we allow setting an alternative name via the INFRA.SESSION_COOKIE_NAME configuration.
+      name:
+        configService.get<string>('INFRA.SESSION_COOKIE_NAME') || 'connect.sid',
       secret:
-        configService.get('INFRA.SESSION_SECRET') ||
+        configService.get<string>('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
     }),
   );
@@ -99,8 +104,10 @@ async function bootstrap() {
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
-    console.info('SIGTERM signal received');
+    console.info('SIGTERM signal received, initiating graceful shutdown...');
     await app.close();
+    console.info('Application closed successfully');
+    process.exit(0);
   });
 }
 

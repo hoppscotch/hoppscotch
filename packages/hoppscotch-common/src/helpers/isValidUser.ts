@@ -8,7 +8,27 @@ export type ValidUserResponse = {
 export const SESSION_EXPIRED = "Session expired. Please log in again."
 
 /**
+ * Attempts to refresh the authentication token
+ * @returns Promise resolving to a ValidUserResponse with the result
+ */
+const attemptTokenRefresh = async (): Promise<ValidUserResponse> => {
+  if (!platform.auth.refreshAuthToken)
+    return { valid: false, error: SESSION_EXPIRED }
+
+  try {
+    const refreshSuccessful = await platform.auth.refreshAuthToken()
+    return {
+      valid: refreshSuccessful,
+      error: refreshSuccessful ? "" : SESSION_EXPIRED,
+    }
+  } catch {
+    return { valid: false, error: SESSION_EXPIRED }
+  }
+}
+
+/**
  * Validates user authentication and token validity by making an API call.
+ * Refreshes tokens if they are expired.
  *
  * This function is kept separate from `handleTokenValidation()` to enable different use cases:
  * - Silent validation for conditional UI states (e.g., disabling components on token expiration)
@@ -23,22 +43,26 @@ export const SESSION_EXPIRED = "Session expired. Please log in again."
 export const isValidUser = async (): Promise<ValidUserResponse> => {
   const user = platform.auth.getCurrentUser()
 
-  if (user) {
-    try {
-      // If the platform provides a method to verify auth tokens, use it else assume tokens are valid (for central instance where firebase handles it)
-      const hasValidTokens = platform.auth.verifyAuthTokens
-        ? await platform.auth.verifyAuthTokens()
-        : true
+  // If no user is logged in, consider it valid (allows public actions)
+  if (!user) return { valid: true, error: "" }
 
-      return {
-        valid: hasValidTokens,
-        error: hasValidTokens ? "" : SESSION_EXPIRED,
+  try {
+    // If the platform provides a method to verify auth tokens, use it
+    if (platform.auth.verifyAuthTokens) {
+      const hasValidTokens = await platform.auth.verifyAuthTokens()
+
+      if (hasValidTokens) {
+        return { valid: true, error: "" }
       }
-    } catch (error) {
-      return { valid: false, error: SESSION_EXPIRED }
-    }
-  }
 
-  // allow user to perform actions without being logged in
-  return { valid: true, error: "" }
+      // Try token refresh if verification failed
+      return attemptTokenRefresh()
+    }
+
+    // For platforms without token verification capability
+    return { valid: true, error: "" }
+  } catch (error) {
+    // Handle errors from token verification
+    return attemptTokenRefresh()
+  }
 }

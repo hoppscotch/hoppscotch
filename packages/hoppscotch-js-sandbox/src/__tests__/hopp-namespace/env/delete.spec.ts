@@ -1,41 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.envs)
-  )
-
-const funcTest = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTestAndGetEnvs, runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.delete", () => {
   test("removes variable from selected environment", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, {
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
         global: [],
         selected: [
           {
@@ -50,7 +19,7 @@ describe("hopp.env.delete", () => {
 
   test("removes variable from global environment", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, {
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
         global: [
           {
             key: "baseUrl",
@@ -65,7 +34,7 @@ describe("hopp.env.delete", () => {
 
   test("removes only from selected if present in both", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, {
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
         global: [
           {
             key: "baseUrl",
@@ -99,7 +68,7 @@ describe("hopp.env.delete", () => {
 
   test("removes only first matching entry if duplicates exist in selected", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, {
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
         global: [
           {
             key: "baseUrl",
@@ -146,7 +115,7 @@ describe("hopp.env.delete", () => {
 
   test("removes only first matching entry if duplicates exist in global", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, {
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
         global: [
           {
             key: "baseUrl",
@@ -179,19 +148,22 @@ describe("hopp.env.delete", () => {
 
   test("no change if attempting to delete non-existent key", () =>
     expect(
-      func(`hopp.env.delete("baseUrl")`, { global: [], selected: [] })()
+      runTestAndGetEnvs(`hopp.env.delete("baseUrl")`, {
+        global: [],
+        selected: [],
+      })()
     ).resolves.toEqualRight(
       expect.objectContaining({ global: [], selected: [] })
     ))
 
   test("key must be a string", () =>
     expect(
-      func(`hopp.env.delete(5)`, { global: [], selected: [] })()
+      runTestAndGetEnvs(`hopp.env.delete(5)`, { global: [], selected: [] })()
     ).resolves.toBeLeft())
 
   test("reflected in script execution", () =>
     expect(
-      funcTest(
+      runTest(
         `
           hopp.env.delete("baseUrl")
           hopp.expect(hopp.env.get("baseUrl")).toBe(null)
@@ -220,7 +192,7 @@ describe("hopp.env.delete", () => {
 describe("hopp.env.active.delete", () => {
   test("removes variable from selected environment", () =>
     expect(
-      func(`hopp.env.active.delete("foo")`, {
+      runTestAndGetEnvs(`hopp.env.active.delete("foo")`, {
         selected: [
           {
             key: "foo",
@@ -254,7 +226,7 @@ describe("hopp.env.active.delete", () => {
 
   test("no effect if not present in selected", () =>
     expect(
-      func(`hopp.env.active.delete("nope")`, {
+      runTestAndGetEnvs(`hopp.env.active.delete("nope")`, {
         selected: [],
         global: [
           {
@@ -281,14 +253,17 @@ describe("hopp.env.active.delete", () => {
 
   test("key must be a string", () =>
     expect(
-      func(`hopp.env.active.delete({})`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.active.delete({})`, {
+        selected: [],
+        global: [],
+      })()
     ).resolves.toBeLeft())
 })
 
 describe("hopp.env.global.delete", () => {
   test("removes variable from global environment", () =>
     expect(
-      func(`hopp.env.global.delete("foo")`, {
+      runTestAndGetEnvs(`hopp.env.global.delete("foo")`, {
         selected: [
           {
             key: "foo",
@@ -322,7 +297,7 @@ describe("hopp.env.global.delete", () => {
 
   test("no effect if not present in global", () =>
     expect(
-      func(`hopp.env.global.delete("missing")`, {
+      runTestAndGetEnvs(`hopp.env.global.delete("missing")`, {
         selected: [
           {
             key: "missing",
@@ -349,6 +324,9 @@ describe("hopp.env.global.delete", () => {
 
   test("key must be a string", () =>
     expect(
-      func(`hopp.env.global.delete([])`, { selected: [], global: [] })()
+      runTestAndGetEnvs(`hopp.env.global.delete([])`, {
+        selected: [],
+        global: [],
+      })()
     ).resolves.toBeLeft())
 })

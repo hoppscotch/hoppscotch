@@ -63,6 +63,7 @@ import {
 } from "./workers/sandbox.worker"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
 import { isJSONContentType } from "./utils/contenttypes"
+import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
 
 const sandboxWorker = new Worker(
   new URL("./workers/sandbox.worker.ts", import.meta.url),
@@ -468,10 +469,10 @@ export function runRESTRequest$(
         secret,
       }))
 
-    const finalRequest = {
-      ...resolvedRequest,
-      ...(preRequestScriptResult.right.updatedRequest ?? {}),
-    }
+    const finalRequest = applyScriptRequestUpdates(
+      resolvedRequest,
+      preRequestScriptResult.right.updatedRequest
+    )
 
     // Propagate changes to request variables from the scripting context to the UI
     tab.value.document.request.requestVariables = finalRequest.requestVariables
@@ -686,10 +687,10 @@ export function runTestRunnerRequest(
     )
 
     // Calculate the final updated request after pre-request script changes
-    const finalRequest = {
-      ...request,
-      ...(preRequestScriptResult.right.updatedRequest ?? {}),
-    }
+    const finalRequest = applyScriptRequestUpdates(
+      request,
+      preRequestScriptResult.right.updatedRequest
+    )
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",

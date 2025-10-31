@@ -1,0 +1,18 @@
+query GetMockServerLogs($mockServerID: ID!, $skip: Int, $take: Int) {
+  mockServerLogs(mockServerID: $mockServerID, skip: $skip, take: $take) {
+    id
+    mockServerID
+    requestMethod
+    requestPath
+    requestHeaders
+    requestBody
+    requestQuery
+    responseStatus
+    responseHeaders
+    responseBody
+    responseTime
+    ipAddress
+    userAgent
+    executedAt
+  }
+}

@@ -395,6 +395,10 @@ export const def: AuthPlatformDef = {
     })
   },
 
+  async refreshAuthToken() {
+    return refreshToken()
+  },
+
   /**
    * Verifies if the current user's authentication tokens are valid
    * @returns True if tokens are valid, false otherwise

@@ -4,8 +4,7 @@ import {
 } from "@hoppscotch/data"
 import { refDebounced } from "@vueuse/core"
 import { Service } from "dioc"
-import { computed, markRaw, reactive } from "vue"
-import { Component, Ref, ref, watch } from "vue"
+import { Component, Ref, ref, watch, computed, markRaw, reactive } from "vue"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { RESTTabService } from "../tab/rest"
 /**

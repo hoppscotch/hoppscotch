@@ -270,6 +270,7 @@ import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const interceptorService = useService(KernelInterceptorService)
@@ -514,7 +515,10 @@ const cycleDownMethod = () => {
   }
 }
 
-const saveRequest = () => {
+const saveRequest = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+
   const saveCtx = tab.value.document.saveContext
 
   if (!saveCtx) {

@@ -52,6 +52,9 @@
         "refresh_token_validity": "Refresh Token Validity (in milliseconds)",
         "access_token_validity": "Access Token Validity (in milliseconds)",
         "session_secret": "Session Secret",
+        "session_cookie_name": "Session Cookie Name (optional)",
+        "session_cookie_name_help": "Only letters, numbers, underscore, and hyphen. Leave empty to use default 'connect.sid'.",
+        "session_cookie_name_invalid": "Invalid cookie name. Only letters, numbers, underscore, and hyphen allowed.",
         "update_failure": "Failed to update token configurations!!"
       },
       "update_failure": "Failed to update authentication provider configurations!!"
@@ -101,7 +104,7 @@
     "rate_limit": {
       "description": "Configure rate limiting for your Hoppscotch instance",
       "rate_limit_max": "Maximum Requests",
-      "rate_limit_ttl": "Time to Leave (in seconds)",
+      "rate_limit_ttl": "Time to Leave (in milliseconds)",
       "title": "Rate Limit Configurations",
       "update_failure": "Failed to update rate limit configurations!!",
       "input_validation_error": "Please enter valid values for rate limit configurations"
@@ -129,6 +132,13 @@
       "reset": "Reset Configurations"
     },
     "title": "Configurations",
+    "mock_server": {
+      "title": "Mock Server",
+      "description": "Configure mock server settings used to host example responses.",
+      "wildcard_domain": "Wildcard Domain",
+      "wildcard_domain_description": "This field requires a full wildcard domain format. The input must start with an asterisk (*) followed by a dot (.) and then the domain name.",
+      "wildcard_domain_example": "Example: *.mock.domain.com"
+    },
     "update_failure": "Failed to update server configurations"
   },
   "data_sharing": {

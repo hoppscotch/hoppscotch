@@ -74,6 +74,7 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
+  // TODO: fix collection schema transformation on backend maybe?
   loadUserCollections("REST")
   loadUserCollections("GQL")
 

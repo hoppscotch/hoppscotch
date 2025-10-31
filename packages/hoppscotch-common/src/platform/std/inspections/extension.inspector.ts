@@ -6,9 +6,8 @@ import {
 } from "~/services/inspection"
 import { getI18n } from "~/modules/i18n"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { computed, markRaw } from "vue"
+import { computed, markRaw, Ref } from "vue"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import { Ref } from "vue"
 import { InterceptorService } from "~/services/interceptor.service"
 import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
 

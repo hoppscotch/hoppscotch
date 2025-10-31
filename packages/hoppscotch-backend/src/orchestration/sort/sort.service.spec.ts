@@ -1,4 +1,4 @@
-import { mockDeep, mockReset } from 'jest-mock-extended';
+import { mockDeep } from 'jest-mock-extended';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
 import { TeamRequestService } from 'src/team-request/team-request.service';

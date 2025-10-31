@@ -36,6 +36,7 @@ import { InfraTokenModule } from './infra-token/infra-token.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PubSubModule } from './pubsub/pubsub.module';
 import { SortModule } from './orchestration/sort/sort.module';
+import { MockServerModule } from './mock-server/mock-server.module';
 
 @Module({
   imports: [
@@ -124,6 +125,7 @@ import { SortModule } from './orchestration/sort/sort.module';
     AccessTokenModule,
     InfraTokenModule,
     SortModule,
+    MockServerModule,
   ],
   providers: [
     GQLComplexityPlugin,

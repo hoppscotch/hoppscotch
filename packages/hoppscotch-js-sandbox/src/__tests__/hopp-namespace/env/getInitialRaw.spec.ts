@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.getInitialRaw", () => {
   test("returns initial value for existing selected env variable", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("foo")
           hopp.expect(val).toBe("bar")
@@ -54,7 +32,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("returns initial value from global if not in selected", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("foo")
           hopp.expect(val).toBe("bar")
@@ -82,7 +60,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("selected shadows global when both present", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("foo")
           hopp.expect(val).toBe("selVal")
@@ -117,7 +95,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("returns null for missing key", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("notFound")
           hopp.expect(val).toBe(null)
@@ -135,7 +113,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("returns empty string if initial value was empty", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("empty")
           hopp.expect(val).toBe("")
@@ -156,7 +134,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("returns literal template syntax, no resolution", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.getInitialRaw("templ")
           hopp.expect(val).toBe("<<FOO>>")
@@ -190,7 +168,7 @@ describe("hopp.env.getInitialRaw", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.getInitialRaw(5)
         `,
@@ -203,7 +181,7 @@ describe("hopp.env.getInitialRaw", () => {
 describe("hopp.env.active.getInitialRaw", () => {
   test("returns initial value if present in selected env", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.active.getInitialRaw("alpha")
           hopp.expect(val).toBe("a_value")
@@ -238,7 +216,7 @@ describe("hopp.env.active.getInitialRaw", () => {
 
   test("returns null if not present in selected env", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.active.getInitialRaw("missing")
           hopp.expect(val).toBe(null)
@@ -266,7 +244,7 @@ describe("hopp.env.active.getInitialRaw", () => {
 
   test("returns '' if initial value was empty string", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.active.getInitialRaw("blank")
           hopp.expect(val).toBe("")
@@ -287,7 +265,7 @@ describe("hopp.env.active.getInitialRaw", () => {
 
   test("returns literal template if present", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.active.getInitialRaw("tmpl")
           hopp.expect(val).toBe("<<BAR>>")
@@ -321,7 +299,7 @@ describe("hopp.env.active.getInitialRaw", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.getInitialRaw({})
         `,
@@ -334,7 +312,7 @@ describe("hopp.env.active.getInitialRaw", () => {
 describe("hopp.env.global.getInitialRaw", () => {
   test("returns initial value if present in global env", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.global.getInitialRaw("gamma")
           hopp.expect(val).toBe("g_val")
@@ -369,7 +347,7 @@ describe("hopp.env.global.getInitialRaw", () => {
 
   test("returns null if not present in global env", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.global.getInitialRaw("none")
           hopp.expect(val).toBe(null)
@@ -397,7 +375,7 @@ describe("hopp.env.global.getInitialRaw", () => {
 
   test("returns '' if initial value was empty string", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.global.getInitialRaw("empty")
           hopp.expect(val).toBe("")
@@ -418,7 +396,7 @@ describe("hopp.env.global.getInitialRaw", () => {
 
   test("returns literal template value if present", () => {
     return expect(
-      func(
+      runTest(
         `
           const val = hopp.env.global.getInitialRaw("tmpl")
           hopp.expect(val).toBe("<<ZED>>")
@@ -452,7 +430,7 @@ describe("hopp.env.global.getInitialRaw", () => {
 
   test("errors for non-string key", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.getInitialRaw([])
         `,

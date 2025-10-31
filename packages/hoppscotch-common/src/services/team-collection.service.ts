@@ -1060,6 +1060,15 @@ export class TeamCollectionsService extends Service<void> {
       requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
 
       this.collections.value = [...tree]
+    } catch (error) {
+      console.error(`Error expanding collection ${collectionID}:`, error)
+
+      // Set empty arrays instead of leaving as null to prevent future expansion attempts
+      // This prevents the infinite loop by ensuring the collection is marked as expanded
+      collection.children = []
+      collection.requests = []
+
+      this.collections.value = [...tree]
     } finally {
       this.loadingCollections.value = this.loadingCollections.value.filter(
         (x) => x !== collectionID

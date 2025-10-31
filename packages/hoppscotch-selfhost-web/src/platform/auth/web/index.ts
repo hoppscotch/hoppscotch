@@ -353,6 +353,10 @@ export const def: AuthPlatformDef = {
     })
   },
 
+  async refreshAuthToken() {
+    return refreshToken()
+  },
+
   async processMagicLink() {
     if (this.isSignInWithEmailLink(window.location.href)) {
       const deviceIdentifier =

@@ -15,9 +15,8 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
-import { getSyncInitFunction } from "../../lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "../../lib/sync"
 
-import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   createRESTChildUserCollection,
@@ -144,13 +143,11 @@ const recursivelySyncCollections = async (
   // create the requests
   if (parentCollectionID) {
     collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createRESTUserRequest(
-          request.name,
-          JSON.stringify(request),
-          parentCollectionID
-        ))
+      const res = await createRESTUserRequest(
+        request.name,
+        JSON.stringify(request),
+        parentCollectionID
+      )
 
       if (res && E.isRight(res)) {
         const requestId = res.right.createRESTUserRequest.id

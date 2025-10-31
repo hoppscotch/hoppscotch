@@ -6,10 +6,12 @@ import {
   defineSandboxObject,
 } from "faraday-cage/modules"
 
+import { getStatusReason } from "~/constants/http-status-codes"
 import { TestDescriptor, TestResponse, TestResult } from "~/types"
 import postRequestBootstrapCode from "../bootstrap-code/post-request?raw"
 import preRequestBootstrapCode from "../bootstrap-code/pre-request?raw"
 import { createBaseInputs } from "./utils/base-inputs"
+import { createChaiMethods } from "./utils/chai-helpers"
 import { createExpectationMethods } from "./utils/expectation-helpers"
 import { createRequestSetterMethods } from "./utils/request-setters"
 
@@ -125,19 +127,20 @@ const createScriptingInputsObj = (
   type: ModuleType,
   config: ModuleConfig
 ) => {
-  // Create base inputs shared across all namespaces
-  const baseInputs = createBaseInputs(ctx, {
-    envs: config.envs,
-    request: config.request,
-    cookies: config.cookies,
-  })
-
   if (type === "pre") {
     const preConfig = config as PreRequestModuleConfig
 
-    // Create request setter methods for pre-request scripts
+    // Create request setter methods FIRST for pre-request scripts
     const { methods: requestSetterMethods, getUpdatedRequest } =
       createRequestSetterMethods(ctx, preConfig.request)
+
+    // Create base inputs with access to updated request
+    const baseInputs = createBaseInputs(ctx, {
+      envs: config.envs,
+      request: config.request,
+      cookies: config.cookies,
+      getUpdatedRequest, // Pass the updater function for pre-request
+    })
 
     // Register hook with helper function
     registerAfterScriptExecutionHook(ctx, "pre", preConfig, baseInputs, {
@@ -150,6 +153,13 @@ const createScriptingInputsObj = (
     }
   }
 
+  // Create base inputs shared across all namespaces (post-request path)
+  const baseInputs = createBaseInputs(ctx, {
+    envs: config.envs,
+    request: config.request,
+    cookies: config.cookies,
+  })
+
   if (type === "post") {
     const postConfig = config as PostRequestModuleConfig
 
@@ -159,20 +169,24 @@ const createScriptingInputsObj = (
       postConfig.testRunStack
     )
 
+    // Create Chai methods
+    const chaiMethods = createChaiMethods(ctx, postConfig.testRunStack)
+
     // Register hook with helper function
     registerAfterScriptExecutionHook(ctx, "post", postConfig, baseInputs)
 
     return {
       ...baseInputs,
       ...expectationMethods,
+      ...chaiMethods,
 
       // Test management methods
       preTest: defineSandboxFn(
         ctx,
         "preTest",
-        function preTest(descriptor: any) {
+        function preTest(descriptor: unknown) {
           postConfig.testRunStack.push({
-            descriptor,
+            descriptor: descriptor as string,
             expectResults: [],
             children: [],
           })
@@ -187,6 +201,90 @@ const createScriptingInputsObj = (
       getResponse: defineSandboxFn(ctx, "getResponse", function getResponse() {
         return postConfig.response
       }),
+      // Response utility methods as cage functions
+      responseReason: defineSandboxFn(
+        ctx,
+        "responseReason",
+        function responseReason() {
+          return getStatusReason(postConfig.response.status)
+        }
+      ),
+      responseDataURI: defineSandboxFn(
+        ctx,
+        "responseDataURI",
+        function responseDataURI() {
+          try {
+            const body = postConfig.response.body
+            const contentType =
+              postConfig.response.headers.find(
+                (h) => h.key.toLowerCase() === "content-type"
+              )?.value || "application/octet-stream"
+
+            // Convert body to base64 (browser and Node.js compatible)
+            let base64Body: string
+            const bodyString = typeof body === "string" ? body : String(body)
+
+            // Check if we're in a browser environment (btoa available)
+            if (typeof btoa !== "undefined") {
+              // Browser environment: use btoa
+              // btoa requires binary string, so we need to handle UTF-8 properly
+              const utf8Bytes = new TextEncoder().encode(bodyString)
+              const binaryString = Array.from(utf8Bytes, (byte) =>
+                String.fromCharCode(byte)
+              ).join("")
+              base64Body = btoa(binaryString)
+            } else if (typeof Buffer !== "undefined") {
+              // Node.js environment: use Buffer
+              base64Body = Buffer.from(bodyString).toString("base64")
+            } else {
+              throw new Error("No base64 encoding method available")
+            }
+
+            return `data:${contentType};base64,${base64Body}`
+          } catch (error) {
+            throw new Error(`Failed to convert response to data URI: ${error}`)
+          }
+        }
+      ),
+      responseJsonp: defineSandboxFn(
+        ctx,
+        "responseJsonp",
+        function responseJsonp(...args: unknown[]) {
+          const callbackName = args[0]
+          const body = postConfig.response.body
+          const text = typeof body === "string" ? body : String(body)
+
+          if (callbackName && typeof callbackName === "string") {
+            // Escape special regex characters in callback name
+            const escapedName = callbackName.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              "\\$&"
+            )
+            const regex = new RegExp(
+              `^\\s*${escapedName}\\s*\\(([\\s\\S]*)\\)\\s*;?\\s*$`
+            )
+            const match = text.match(regex)
+            if (match && match[1]) {
+              return JSON.parse(match[1])
+            }
+          }
+
+          // Auto-detect callback wrapper
+          const autoDetect = text.match(
+            /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([\s\S]*)\)\s*;?\s*$/
+          )
+          if (autoDetect && autoDetect[2]) {
+            try {
+              return JSON.parse(autoDetect[2])
+            } catch {
+              // If parsing fails, fall through to plain JSON
+            }
+          }
+
+          // No JSONP wrapper found, parse as plain JSON
+          return JSON.parse(text)
+        }
+      ),
     }
   }
 

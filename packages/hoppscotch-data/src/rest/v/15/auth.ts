@@ -6,8 +6,10 @@ import {
   HoppRESTAuthNone,
 } from "../1"
 import { HoppRESTAuthAPIKey } from "../4"
-import { AuthCodeGrantTypeParams as AuthCodeGrantTypeParamsOld } from "../7"
-import { HoppRESTAuthAWSSignature } from "../7"
+import {
+  AuthCodeGrantTypeParams as AuthCodeGrantTypeParamsOld,
+  HoppRESTAuthAWSSignature,
+} from "../7"
 import {
   HoppRESTAuthDigest,
   PasswordGrantTypeParams as PasswordGrantTypeParamsOld,

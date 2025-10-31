@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, res: TestResponse) =>
-  pipe(
-    runTestScript(script, {
-      envs: { global: [], selected: [] },
-      request: defaultRequest,
-      response: res,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest, fakeResponse } from "~/utils/test-helpers"
 
 describe("runTestScript", () => {
   test("returns a resolved promise for a valid test script with all green", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;
@@ -43,7 +21,7 @@ describe("runTestScript", () => {
 
   test("resolves for tests with failed expectations", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;
@@ -61,7 +39,7 @@ describe("runTestScript", () => {
   // TODO: We need a more concrete behavior for this
   test("rejects for invalid syntax on tests", () => {
     return expect(
-      func(
+      runTest(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;

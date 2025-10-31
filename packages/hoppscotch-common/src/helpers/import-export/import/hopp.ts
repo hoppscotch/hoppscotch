@@ -4,14 +4,14 @@ import {
   getDefaultGQLRequest,
   getDefaultRESTRequest,
   translateToNewRESTCollection,
+  HoppGQLRequest,
+  translateToNewGQLCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
-
-import { HoppGQLRequest, translateToNewGQLCollection } from "@hoppscotch/data"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 

@@ -52,13 +52,41 @@
         }}
       </template>
     </p>
+
+    <!-- Postman-specific: Script import checkbox (only use case so far) -->
+    <div
+      v-if="showPostmanScriptOption && experimentalScriptingEnabled"
+      class="flex items-start space-x-3 px-1"
+    >
+      <HoppSmartCheckbox
+        :on="importScripts"
+        @change="importScripts = !importScripts"
+      />
+      <label
+        for="importScriptsCheckbox"
+        class="cursor-pointer select-none text-secondary flex flex-col space-y-0.5"
+      >
+        <span class="font-semibold flex space-x-1">
+          <span>
+            {{ t("import.import_scripts") }}
+          </span>
+          <span class="text-tiny text-secondaryLight">
+            ({{ t("state.experimental") }})
+          </span>
+        </span>
+        <span class="text-tiny text-secondaryLight">
+          {{ t("import.import_scripts_description") }}</span
+        >
+      </label>
+    </div>
+
     <div>
       <HoppButtonPrimary
         :disabled="disableImportCTA"
         :label="t('import.title')"
         :loading="loading"
         class="w-full"
-        @click="emit('importFromFile', fileContent)"
+        @click="handleImport"
       />
     </div>
   </div>
@@ -69,6 +97,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { computed, ref } from "vue"
 import { platform } from "~/platform"
+import { useSetting } from "~/composables/settings"
 
 const props = withDefaults(
   defineProps<{
@@ -76,15 +105,23 @@ const props = withDefaults(
     acceptedFileTypes: string
     loading?: boolean
     description?: string
+    showPostmanScriptOption?: boolean
   }>(),
   {
     loading: false,
     description: undefined,
+    showPostmanScriptOption: false,
   }
 )
 
 const t = useI18n()
 const toast = useToast()
+
+// Postman-specific: Script import state (only use case so far)
+const importScripts = ref(false)
+const experimentalScriptingEnabled = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
 
 const ALLOWED_FILE_SIZE_LIMIT = platform.limits?.collectionImportSizeLimit ?? 10 // Default to 10 MB
 
@@ -97,7 +134,7 @@ const fileContent = ref<string[]>([])
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
 
 const emit = defineEmits<{
-  (e: "importFromFile", content: string[]): void
+  (e: "importFromFile", content: string[], ...additionalArgs: any[]): void
 }>()
 
 // Disable the import CTA if no file is selected, the file size limit is exceeded, or during an import action indicated by the `isLoading` prop
@@ -105,6 +142,16 @@ const disableImportCTA = computed(
   () =>
     !hasFile.value || showFileSizeLimitExceededWarning.value || props.loading
 )
+
+const handleImport = () => {
+  // If Postman script option is enabled AND experimental sandbox is enabled, pass the importScripts value
+  // Otherwise, don't pass it (undefined) to indicate the feature wasn't available
+  if (props.showPostmanScriptOption && experimentalScriptingEnabled.value) {
+    emit("importFromFile", fileContent.value, importScripts.value)
+  } else {
+    emit("importFromFile", fileContent.value)
+  }
+}
 
 const onFileChange = async () => {
   // Reset the state on entering the handler to avoid any stale state

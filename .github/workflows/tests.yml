@@ -13,7 +13,10 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ["lts/*"]
+        # Pinned to Node.js 22 to maintain compatibility with isolated-vm v5.x
+        # Node.js 24 requires isolated-vm v6+ due to V8 API changes
+        # TODO: Upgrade to isolated-vm v6 and support Node.js 24 in future dependency update cycle
+        node-version: ["22"]
 
     steps:
       - name: Checkout

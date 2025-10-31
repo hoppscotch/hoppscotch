@@ -615,21 +615,26 @@ export class InfraConfigService implements OnModuleInit {
       InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
     ];
     try {
-      const infraConfigDefaultObjs = await getDefaultInfraConfigs();
-      const updatedInfraConfigDefaultObjs = infraConfigDefaultObjs.filter(
+      const defaultConfigs = await getDefaultInfraConfigs();
+
+      const configsToReset = defaultConfigs.filter(
         (p) => RESET_EXCLUSION_LIST.includes(p.name) === false,
       );
 
+      // Update ONBOARDING_COMPLETED value to false
+      const onboardingCompletedIndex = configsToReset.findIndex(
+        (p) => p.name === InfraConfigEnum.ONBOARDING_COMPLETED,
+      );
+      if (onboardingCompletedIndex !== -1) {
+        configsToReset[onboardingCompletedIndex].value = 'false';
+      }
+
       await this.prisma.infraConfig.deleteMany({
-        where: {
-          name: {
-            in: updatedInfraConfigDefaultObjs.map((p) => p.name),
-          },
-        },
+        where: { name: { in: configsToReset.map((p) => p.name) } },
       });
 
       await this.prisma.infraConfig.createMany({
-        data: updatedInfraConfigDefaultObjs,
+        data: configsToReset,
       });
 
       stopApp();
@@ -671,6 +676,17 @@ export class InfraConfigService implements OnModuleInit {
 
         case InfraConfigEnum.MAILER_ADDRESS_FROM:
           if (!validateSMTPEmail(value)) return fail();
+          break;
+
+        case InfraConfigEnum.MOCK_SERVER_WILDCARD_DOMAIN:
+          if (!value) break; // Allow empty value
+
+          if (!value.startsWith('*.mock.')) return fail();
+          // Validate domain format after *.mock.
+          const domainPart = value.substring(7); // Remove '*.mock.'
+          const domainRegex =
+            /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+          if (!domainPart || !domainRegex.test(domainPart)) return fail();
           break;
 
         case InfraConfigEnum.MAILER_SMTP_HOST:
@@ -716,6 +732,11 @@ export class InfraConfigService implements OnModuleInit {
         case InfraConfigEnum.RATE_LIMIT_MAX:
           if (!Number.isInteger(Number(value)) || Number(value) < 1)
             return fail();
+          break;
+
+        case InfraConfigEnum.SESSION_COOKIE_NAME:
+          // Allow empty to fall back to default; otherwise enforce allowed characters
+          if (value && !/^[A-Za-z0-9_-]+$/.test(value)) return fail();
           break;
 
         default:

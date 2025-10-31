@@ -1,6 +1,5 @@
 import { Container, Service } from "dioc"
-import { nextTick } from "vue"
-import { reactive, computed, watch } from "vue"
+import { reactive, computed, watch, nextTick } from "vue"
 
 /**
  * Defines a secret environment variable.

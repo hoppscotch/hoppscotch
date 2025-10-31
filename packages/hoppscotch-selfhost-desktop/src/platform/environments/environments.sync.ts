@@ -8,11 +8,10 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { getSyncInitFunction } from "../../lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "../../lib/sync"
 
 import * as E from "fp-ts/Either"
 
-import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   clearGlobalEnvironmentVariables,

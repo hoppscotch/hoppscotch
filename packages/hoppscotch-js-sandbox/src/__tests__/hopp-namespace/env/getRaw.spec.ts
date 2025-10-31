@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("hopp.env.getRaw", () => {
   test("returns the correct value for an existing selected environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe("b")
@@ -47,7 +25,7 @@ describe("hopp.env.getRaw", () => {
 
   test("returns the correct value for an existing global environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe("b")
@@ -68,7 +46,7 @@ describe("hopp.env.getRaw", () => {
 
   test("returns null for a key that is not present in both selected and global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe(null)
@@ -89,7 +67,7 @@ describe("hopp.env.getRaw", () => {
 
   test("returns the value defined in selected if also present in global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe("selected val")
@@ -127,7 +105,7 @@ describe("hopp.env.getRaw", () => {
 
   test("does not resolve values recursively", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe("<<hello>>")
@@ -161,7 +139,7 @@ describe("hopp.env.getRaw", () => {
 
   test("returns the value as is even if there is a potential recursion", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw("a")
           hopp.expect(data).toBe("<<hello>>")
@@ -195,7 +173,7 @@ describe("hopp.env.getRaw", () => {
 
   test("errors if the key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = hopp.env.getRaw(5)
         `,
@@ -208,7 +186,7 @@ describe("hopp.env.getRaw", () => {
 describe("hopp.env.active.getRaw", () => {
   test("returns only from selected", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.expect(hopp.env.active.getRaw("a")).toBe("a-selected")
           hopp.expect(hopp.env.active.getRaw("b")).toBe(null)
@@ -247,7 +225,7 @@ describe("hopp.env.active.getRaw", () => {
 
   test("returns null if key absent in selected", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.expect(hopp.env.active.getRaw("missing")).toBe(null)
         `,
@@ -274,7 +252,7 @@ describe("hopp.env.active.getRaw", () => {
 
   test("errors if key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.active.getRaw({})
         `,
@@ -287,7 +265,7 @@ describe("hopp.env.active.getRaw", () => {
 describe("hopp.env.global.getRaw", () => {
   test("returns only from global", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.expect(hopp.env.global.getRaw("b")).toBe("b-global")
           hopp.expect(hopp.env.global.getRaw("a")).toBe(null)
@@ -323,7 +301,7 @@ describe("hopp.env.global.getRaw", () => {
 
   test("returns null if key absent in global", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.expect(hopp.env.global.getRaw("missing")).toBe(null)
         `,
@@ -350,7 +328,7 @@ describe("hopp.env.global.getRaw", () => {
 
   test("errors if key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           hopp.env.global.getRaw([])
         `,

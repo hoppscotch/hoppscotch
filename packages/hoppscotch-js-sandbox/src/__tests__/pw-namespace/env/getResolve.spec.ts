@@ -1,32 +1,10 @@
-import { getDefaultRESTRequest } from "@hoppscotch/data"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { describe, expect, test } from "vitest"
-
-import { runTestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
-
-const defaultRequest = getDefaultRESTRequest()
-const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
-  headers: [],
-}
-
-const func = (script: string, envs: TestResult["envs"]) =>
-  pipe(
-    runTestScript(script, {
-      envs,
-      request: defaultRequest,
-      response: fakeResponse,
-    }),
-    TE.map((x) => x.tests)
-  )
+import { runTest } from "~/utils/test-helpers"
 
 describe("pw.env.getResolve", () => {
   test("returns the correct value for an existing selected environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe("b")
@@ -57,7 +35,7 @@ describe("pw.env.getResolve", () => {
 
   test("returns the correct value for an existing global environment value", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe("b")
@@ -88,7 +66,7 @@ describe("pw.env.getResolve", () => {
 
   test("returns undefined for a key that is not present in both selected or environment", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe(undefined)
@@ -112,7 +90,7 @@ describe("pw.env.getResolve", () => {
 
   test("returns the value defined in selected environment if it is also present in global", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe("selected val")
@@ -150,7 +128,7 @@ describe("pw.env.getResolve", () => {
 
   test("resolve environment values", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe("there")
@@ -187,7 +165,7 @@ describe("pw.env.getResolve", () => {
 
   test("returns unresolved value on infinite loop in resolution", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve("a")
           pw.expect(data).toBe("<<hello>>")
@@ -224,7 +202,7 @@ describe("pw.env.getResolve", () => {
 
   test("errors if the key is not a string", () => {
     return expect(
-      func(
+      runTest(
         `
           const data = pw.env.getResolve(5)
       `,

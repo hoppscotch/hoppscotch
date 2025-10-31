@@ -327,7 +327,6 @@ declare module 'vue' {
     TabPrimary: typeof import('./components/tab/Primary.vue')['default']
     TabSecondary: typeof import('./components/tab/Secondary.vue')['default']
     TabsNav: typeof import('./components/TabsNav.vue')['default']
-    Teams: typeof import('./components/teams/index.vue')['default']
     TeamsAdd: typeof import('./components/teams/Add.vue')['default']
     TeamsEdit: typeof import('./components/teams/Edit.vue')['default']
     TeamsInvite: typeof import('./components/teams/Invite.vue')['default']

@@ -71,17 +71,10 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <HoppSmartTabs
-            v-model="currentTab"
+          <TabsNav
+            :items="PROFILE_NAVIGATION"
             styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
-          >
-            <HoppSmartTab
-              v-for="navItem in PROFILE_NAVIGATION"
-              :id="navItem.target"
-              :name="navItem.target"
-              :label="navItem.title"
-            />
-          </HoppSmartTabs>
+          />
 
           <RouterView />
         </div>
@@ -91,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue"
+import { computed, ref, watchEffect } from "vue"
 
 import { platform } from "~/platform"
 
@@ -102,15 +95,14 @@ import { useColorMode } from "@composables/theming"
 import { useToast } from "@composables/toast"
 import { invokeAction } from "~/helpers/actions"
 
-import { useRoute, useRouter } from "vue-router"
 import IconSettings from "~icons/lucide/settings"
 import IconVerified from "~icons/lucide/verified"
+
+import TabsNav from "~/components/TabsNav.vue"
 
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
-const route = useRoute()
-const router = useRouter()
 
 usePageHead({
   title: computed(() => t("navigation.profile")),
@@ -158,51 +150,31 @@ const sendEmailVerification = () => {
 
 const PROFILE_NAVIGATION = [
   {
-    target: "sync",
-    title: t("settings.account"),
+    route: "/profile",
+    label: t("settings.account"),
+    icon: null,
+    indicator: false,
+    info: null,
+    disabled: false,
+    alignLast: false,
   },
   {
-    target: "teams",
-    title: t("team.title"),
+    route: "/profile/teams",
+    label: t("team.title"),
+    icon: null,
+    indicator: false,
+    info: null,
+    disabled: false,
+    alignLast: false,
   },
-  { target: "tokens", title: t("access_tokens.tab_title") },
+  {
+    route: "/profile/tokens",
+    label: t("access_tokens.tab_title"),
+    icon: null,
+    indicator: false,
+    info: null,
+    disabled: false,
+    alignLast: false,
+  },
 ] as const
-
-type ProfileTabNav = (typeof PROFILE_NAVIGATION)[number]["target"]
-
-const currentTab = ref<ProfileTabNav>("sync")
-
-usePageHead({
-  title: computed(
-    () =>
-      PROFILE_NAVIGATION.find((nav) => nav.target === currentTab.value)?.title
-  ),
-})
-
-// Update the router when the tab is updated
-watch(currentTab, (newTab) => {
-  if (newTab === "sync") {
-    router.push(`/profile`)
-    return
-  }
-
-  router.push(`/profile/${newTab}`)
-})
-
-// Update the tab when router is updated
-watch(
-  route,
-  (activeRoute) => {
-    const path = activeRoute.path
-
-    const destination: string | undefined = path.split("profile/")[1]
-
-    const target = PROFILE_NAVIGATION.find(
-      ({ target }) => target === destination
-    )?.target
-
-    if (target) currentTab.value = target
-  },
-  { immediate: true }
-)
 </script>

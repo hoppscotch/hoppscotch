@@ -8,3 +8,7 @@ updates:
   open-pull-requests-limit: 0
   reviewers:
   - liyasthomas
+- package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

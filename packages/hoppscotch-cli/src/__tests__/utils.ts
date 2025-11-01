@@ -1,43 +1,26 @@
-import { exec } from "child_process";
-import { resolve } from "path";
+import { execFile } from "child_process"
+import * as path from "path"
 
-import { ExecResponse } from "./types";
+const HOPP_EXECUTABLE_PATH = path.resolve(
+  __dirname,
+  "../../bin/hopp-cli.js"
+)
 
-export const runCLI = (args: string, options = {}): Promise<ExecResponse> => {
-  const CLI_PATH = resolve(__dirname, "../../bin/hopp.js");
-  const command = `node ${CLI_PATH} ${args}`;
+export const execHopp = (args: string) => {
+  const argsArr = args.split(" ").filter((arg) => arg.length > 0)
 
-  return new Promise((resolve) =>
-    exec(command, options, (error, stdout, stderr) =>
-      resolve({ error, stdout, stderr })
+  return new Promise((resolve) => {
+    execFile(
+      "node",
+      [HOPP_EXECUTABLE_PATH, ...argsArr],
+      (error, stdout, stderr) => {
+        resolve({
+          code: error && error.code ? error.code : 0,
+          error,
+          stdout,
+          stderr,
+        })
+      }
     )
-  );
-};
-
-export const trimAnsi = (target: string) => {
-  const ansiRegex =
-    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
-
-  return target.replace(ansiRegex, "");
-};
-
-export const getErrorCode = (out: string) => {
-  const ansiTrimmedStr = trimAnsi(out);
-  return ansiTrimmedStr.split(" ")[0];
-};
-
-export const getTestJsonFilePath = (
-  file: string,
-  kind: "collection" | "environment"
-) => {
-  const kindDir = {
-    collection: "collections",
-    environment: "environments",
-  }[kind];
-
-  const filePath = resolve(
-    __dirname,
-    `../../src/__tests__/e2e/fixtures/${kindDir}/${file}`
-  );
-  return filePath;
-};
+  })
+}

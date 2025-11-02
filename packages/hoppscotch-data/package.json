@@ -38,7 +38,7 @@
     "@types/lodash": "4.17.20",
     "@types/uuid": "10.0.0",
     "typescript": "5.9.3",
-    "vite": "6.3.6"
+    "vite": "5.4.21"
   },
   "dependencies": {
     "fp-ts": "2.16.11",

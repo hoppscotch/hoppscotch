@@ -24,7 +24,7 @@
     "@urql/exchange-auth": "3.0.0",
     "@urql/vue": "2.0.0",
     "@vueuse/core": "13.7.0",
-    "axios": "1.12.2",
+    "axios": "1.12.0",
     "cors": "2.8.5",
     "date-fns": "4.1.0",
     "fp-ts": "2.16.11",
@@ -68,7 +68,7 @@
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
     "unplugin-fonts": "1.4.0",
-    "vite": "6.3.5",
+    "vite": "5.4.21",
     "vite-plugin-pages": "0.33.1",
     "vite-plugin-vue-layouts": "0.11.0",
     "vue-tsc": "2.1.6"

@@ -74,7 +74,7 @@
     "io-ts": "2.2.22",
     "prettier": "3.6.2",
     "typescript": "5.9.3",
-    "vite": "6.3.6",
+    "vite": "5.4.21",
     "vitest": "3.2.4"
   },
   "peerDependencies": {

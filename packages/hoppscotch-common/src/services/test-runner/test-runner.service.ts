@@ -20,6 +20,14 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestData, HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppTab } from "../tab"
 import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import {
+  generateOAuth2TokenForCollection,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
+} from "~/helpers/oauth/auto-token-generator"
+import { useI18n } from "~/composables/i18n"
+import { useToast } from "~/composables/toast"
 
 export type TestRunnerOptions = {
   stopRef: Ref<boolean>
@@ -49,10 +57,12 @@ function delay(timeMS: number) {
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
 
-  public runTests(
+  public async runTests(
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
-    options: TestRunnerOptions
+    options: TestRunnerOptions,
+    t: ReturnType<typeof useI18n>,
+    toast: ReturnType<typeof useToast>
   ) {
     // Reset the result collection
     tab.value.document.status = "running"
@@ -65,6 +75,67 @@ export class TestRunnerService extends Service {
       folders: [],
       requests: [],
       variables: [],
+    }
+
+    // Auto-generate OAuth 2.0 token if collection has OAuth configured
+    if (hasOAuth2Auth(collection)) {
+      const auth = collection.auth
+
+      if (requiresRedirect(auth!)) {
+        // Grant types that require redirect cannot be auto-generated
+        toast.error(
+          t("authorization.oauth.redirect_not_supported_for_collection", {
+            grantType:
+              auth!.authType === "oauth-2"
+                ? auth!.grantTypeInfo.grantType
+                : "unknown",
+          })
+        )
+        tab.value.document.status = "error"
+        return
+      }
+
+      // Generate token automatically
+      const tokenResult = await generateOAuth2TokenForCollection(collection)
+
+      if (E.isLeft(tokenResult)) {
+        const errorMessages: Record<string, string> = {
+          NO_OAUTH_CONFIG: t("authorization.oauth.no_config_found"),
+          REDIRECT_GRANT_TYPE_NOT_SUPPORTED: t(
+            "authorization.oauth.redirect_not_supported_for_collection"
+          ),
+          VALIDATION_FAILED: t(
+            "authorization.oauth.auto_generation_validation_failed"
+          ),
+          TOKEN_GENERATION_FAILED: t("authorization.token_fetch_failed"),
+          UNSUPPORTED_GRANT_TYPE: t(
+            "authorization.oauth.unsupported_grant_type_for_auto_generation"
+          ),
+        }
+
+        toast.error(
+          errorMessages[tokenResult.left] ||
+            t("authorization.token_fetch_failed")
+        )
+        tab.value.document.status = "error"
+        return
+      }
+
+      // Update collection with the generated token
+      updateCollectionWithToken(
+        collection,
+        tokenResult.right.access_token,
+        tokenResult.right.refresh_token
+      )
+
+      // Also update the result collection
+      updateCollectionWithToken(
+        tab.value.document.resultCollection!,
+        tokenResult.right.access_token,
+        tokenResult.right.refresh_token
+      )
+
+      toast.success(t("authorization.token_fetched_successfully"))
     }
 
     this.runTestCollection(tab, collection, options)

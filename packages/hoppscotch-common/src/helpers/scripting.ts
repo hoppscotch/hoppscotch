@@ -15,7 +15,8 @@ export const stripModulePrefix = (script: string): string => {
 }
 
 /**
- * Regex for stripping `export {};\n` from JSON-serialized scripts
- * during collection exports.
+ * Regex for stripping the JSON-serialized module prefix (`export {};\\n`)
+ * from scripts during collection exports.
+ * Note: This matches the literal backslash-n (`\\n`), not an actual newline character.
  */
-export const MODULE_PREFIX_REGEX = /export \{\};\\n/g
+export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};\\n/g

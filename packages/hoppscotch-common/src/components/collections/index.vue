@@ -239,6 +239,7 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
+import { MODULE_PREFIX_REGEX } from "~/helpers/scripting"
 
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -2832,7 +2833,10 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
     const collectionJSON = JSON.stringify(collection, null, 2)
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON = collectionJSON.replace(/export \{\};\\n/g, "")
+    const cleanedCollectionJSON = collectionJSON.replace(
+      MODULE_PREFIX_REGEX,
+      ""
+    )
 
     const name = (collection as HoppCollection).name
 
@@ -2855,7 +2859,7 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
 
           // Strip `export {};\n` from `testScript` and `preRequestScript` fields
           const cleanedCollectionJSON = collectionJSONString.replace(
-            /export \{\};\\n/g,
+            MODULE_PREFIX_REGEX,
             ""
           )
 

@@ -292,10 +292,16 @@ const runTests = async () => {
   }
 
   testRunnerStopRef.value = false // when testRunnerStopRef is false, the test runner will start running
-  testRunnerService.runTests(tab, resolvedCollection, {
-    ...testRunnerConfig.value,
-    stopRef: testRunnerStopRef,
-  })
+  await testRunnerService.runTests(
+    tab,
+    resolvedCollection,
+    {
+      ...testRunnerConfig.value,
+      stopRef: testRunnerStopRef,
+    },
+    t,
+    toast
+  )
 }
 
 const stopTests = () => {
@@ -322,7 +328,7 @@ const runAgain = async () => {
 
     tab.value.document.collection = updatedCollection
     await nextTick()
-    runTests()
+    await runTests()
   } else {
     tabs.closeTab(tab.value.id)
     toast.error(t("collection_runner.collection_not_found"))

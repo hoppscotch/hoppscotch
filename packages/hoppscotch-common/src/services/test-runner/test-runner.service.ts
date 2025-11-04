@@ -8,7 +8,11 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { Ref } from "vue"
-import { runTestRunnerRequest } from "~/helpers/RequestRunner"
+import {
+  captureInitialEnvironmentState,
+  InitialEnvironmentState,
+  runTestRunnerRequest,
+} from "~/helpers/RequestRunner"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
@@ -64,7 +68,10 @@ export class TestRunnerService extends Service {
       variables: [],
     }
 
-    this.runTestCollection(tab, collection, options)
+    // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
+    const initialEnvironmentState = captureInitialEnvironmentState()
+
+    this.runTestCollection(tab, collection, options, initialEnvironmentState)
       .then(() => {
         tab.value.document.status = "stopped"
       })
@@ -88,6 +95,7 @@ export class TestRunnerService extends Service {
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
     options: TestRunnerOptions,
+    initialEnvironmentState: InitialEnvironmentState,
     parentPath: number[] = [],
     parentHeaders?: HoppRESTHeaders,
     parentAuth?: HoppRESTRequest["auth"],
@@ -143,6 +151,7 @@ export class TestRunnerService extends Service {
           tab,
           folder,
           options,
+          initialEnvironmentState,
           currentPath,
           inheritedHeaders,
           inheritedAuth,
@@ -184,7 +193,8 @@ export class TestRunnerService extends Service {
           collection,
           options,
           currentPath,
-          inheritedVariables
+          inheritedVariables,
+          initialEnvironmentState
         )
 
         if (options.delay && options.delay > 0) {
@@ -275,7 +285,8 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
-    inheritedVariables: HoppCollectionVariable[] = []
+    inheritedVariables: HoppCollectionVariable[] = [],
+    initialEnvironmentState: InitialEnvironmentState
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -291,7 +302,8 @@ export class TestRunnerService extends Service {
       const results = await runTestRunnerRequest(
         request,
         options.keepVariableValues,
-        inheritedVariables
+        inheritedVariables,
+        initialEnvironmentState
       )
 
       if (options.stopRef?.value) {

@@ -595,8 +595,8 @@ export function runRESTRequest$(
 
             // Check if scripts actually modified environment variables
             if (
-              hasScriptEnvironmentChanges(
-                initialEnvsForComparison, // Initial environment when scripts started
+              hasEnvironmentChanges(
+                initialEnvsForComparison, // Initial environment when request started
                 postRequestScriptResult.right.envs // Final script environment after test script execution
               )
             ) {

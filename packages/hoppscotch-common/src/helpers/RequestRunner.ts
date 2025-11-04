@@ -703,42 +703,42 @@ function updateEnvsAfterTestScript(
 }
 
 /**
- * Check if scripts actually modified environment variables by comparing
- * the initial script environment with the final script environment
- * @param initialScriptEnvs The environment state when scripts started
- * @param finalScriptEnvs The environment state after scripts finished
- * @returns true if scripts made actual environment changes, false otherwise
+ * Checks if there are any changes between two environment states by comparing
+ * the initial environment state with the final environment state.
+ * @param initialEnvs The environment state at the start
+ * @param finalEnvs The environment state after changes
+ * @returns true if there are any environment changes, false otherwise
  */
-const hasScriptEnvironmentChanges = (
-  initialScriptEnvs: TestResult["envs"],
-  finalScriptEnvs: TestResult["envs"]
+const hasEnvironmentChanges = (
+  initialEnvs: TestResult["envs"],
+  finalEnvs: TestResult["envs"]
 ): boolean => {
   // Check global environment changes
   const globalAdditions = getAddedEnvVariables(
-    initialScriptEnvs.global,
-    finalScriptEnvs.global
+    initialEnvs.global,
+    finalEnvs.global
   )
   const globalDeletions = getRemovedEnvVariables(
-    initialScriptEnvs.global,
-    finalScriptEnvs.global
+    initialEnvs.global,
+    finalEnvs.global
   )
   const globalUpdations = getUpdatedEnvVariables(
-    initialScriptEnvs.global,
-    finalScriptEnvs.global
+    initialEnvs.global,
+    finalEnvs.global
   )
 
   // Check selected environment changes
   const selectedAdditions = getAddedEnvVariables(
-    initialScriptEnvs.selected,
-    finalScriptEnvs.selected
+    initialEnvs.selected,
+    finalEnvs.selected
   )
   const selectedDeletions = getRemovedEnvVariables(
-    initialScriptEnvs.selected,
-    finalScriptEnvs.selected
+    initialEnvs.selected,
+    finalEnvs.selected
   )
   const selectedUpdations = getUpdatedEnvVariables(
-    initialScriptEnvs.selected,
-    finalScriptEnvs.selected
+    initialEnvs.selected,
+    finalEnvs.selected
   )
 
   return (

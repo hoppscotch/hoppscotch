@@ -27,6 +27,7 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
+import { stripModulePrefix } from "~/helpers/scripting"
 import {
   environmentsStore,
   getCurrentEnvironment,
@@ -306,7 +307,10 @@ const delegatePreRequestScriptRunner = (
   const { preRequestScript } = request
 
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    return runPreRequestScript(preRequestScript, {
+    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
+    const cleanScript = stripModulePrefix(preRequestScript)
+
+    return runPreRequestScript(cleanScript, {
       envs,
       experimentalScriptingSandbox: false,
     })
@@ -352,7 +356,10 @@ const runPostRequestScript = (
   const { testScript } = request
 
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
-    return runTestScript(testScript, {
+    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
+    const cleanScript = stripModulePrefix(testScript)
+
+    return runTestScript(cleanScript, {
       envs,
       response,
       experimentalScriptingSandbox: false,

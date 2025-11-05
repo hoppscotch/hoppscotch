@@ -3,11 +3,97 @@ query GetGQLRootUserCollections {
   rootGQLUserCollections(take: 99999) {
     id
     title
+    data
     type
+    parent {
+      id
+    }
+    requests {
+      id
+      title
+      request
+      type
+      collectionID
+    }
     childrenGQL {
       id
       title
+      data
       type
+      parent {
+        id
+      }
+      requests {
+        id
+        title
+        request
+        type
+        collectionID
+      }
+      childrenGQL {
+        id
+        title
+        data
+        type
+        parent {
+          id
+        }
+        requests {
+          id
+          title
+          request
+          type
+          collectionID
+        }
+        childrenGQL {
+          id
+          title
+          data
+          type
+          parent {
+            id
+          }
+          requests {
+            id
+            title
+            request
+            type
+            collectionID
+          }
+          childrenGQL {
+            id
+            title
+            data
+            type
+            parent {
+              id
+            }
+            requests {
+              id
+              title
+              request
+              type
+              collectionID
+            }
+            childrenGQL {
+              id
+              title
+              data
+              type
+              parent {
+                id
+              }
+              requests {
+                id
+                title
+                request
+                type
+                collectionID
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

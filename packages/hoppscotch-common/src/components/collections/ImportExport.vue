@@ -1,12 +1,6 @@
 <template>
-  <ImportExportBase
-    ref="collections-import-export"
-    modal-title="modal.collections"
-    :importer-modules="importerModules"
-    :exporter-modules="exporterModules"
-    :has-team-write-access="hasTeamWriteAccess"
-    @hide-modal="emit('hide-modal')"
-  />
+  <ImportExportBase ref="collections-import-export" modal-title="modal.collections" :importer-modules="importerModules"
+    :exporter-modules="exporterModules" :has-team-write-access="hasTeamWriteAccess" @hide-modal="emit('hide-modal')" />
 </template>
 
 <script setup lang="ts">
@@ -80,9 +74,9 @@ const toast = useToast()
 
 type CollectionType =
   | {
-      type: "team-collections"
-      selectedTeam: TeamWorkspace
-    }
+    type: "team-collections"
+    selectedTeam: TeamWorkspace
+  }
   | { type: "my-collections" }
 
 const props = defineProps({
@@ -121,6 +115,12 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 }
 
 const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
+  // Check if platform has a specific import function
+  if (platform.sync.collections.importToPersonalWorkspace) {
+    return await platform.sync.collections.importToPersonalWorkspace(collections, ReqType.Rest)
+  }
+
+  // Fallback to common implementation for platforms without specific import
   // If user is logged in, try to import to backend first
   if (currentUser.value) {
     try {
@@ -227,8 +227,8 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   return E.isRight(res)
     ? E.right({ success: true })
     : E.left({
-        success: false,
-      })
+      success: false,
+    })
 }
 
 const emit = defineEmits<{
@@ -836,7 +836,7 @@ const importerModules = computed(() => {
 
     return isTeams
       ? importer.metadata.applicableTo.includes("team-workspace") &&
-          hasTeamWriteAccess.value
+      hasTeamWriteAccess.value
       : importer.metadata.applicableTo.includes("personal-workspace")
   })
 })

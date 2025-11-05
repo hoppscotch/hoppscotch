@@ -1,11 +1,6 @@
 <template>
-  <ImportExportBase
-    ref="collections-import-export"
-    modal-title="graphql_collections.title"
-    :importer-modules="importerModules"
-    :exporter-modules="exporterModules"
-    @hide-modal="emit('hide-modal')"
-  />
+  <ImportExportBase ref="collections-import-export" modal-title="graphql_collections.title"
+    :importer-modules="importerModules" :exporter-modules="exporterModules" @hide-modal="emit('hide-modal')" />
 </template>
 
 <script setup lang="ts">
@@ -238,6 +233,16 @@ const showImportFailedError = () => {
 }
 
 const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  // Check if platform has a specific import function
+  if (platform.sync.collections.importToPersonalWorkspace) {
+    const result = await platform.sync.collections.importToPersonalWorkspace(gqlCollections, ReqType.Gql)
+    if (E.isRight(result)) {
+      toast.success(t("state.file_imported"))
+    }
+    return
+  }
+
+  // Fallback to common implementation for platforms without specific import
   // If user is logged in, try to import to backend first
   if (currentUser.value) {
     try {

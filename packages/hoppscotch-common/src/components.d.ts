@@ -61,6 +61,7 @@ declare module 'vue' {
     CollectionsDocumentationPreview: typeof import('./components/collections/documentation/Preview.vue')['default']
     CollectionsDocumentationRequestPreview: typeof import('./components/collections/documentation/RequestPreview.vue')['default']
     CollectionsDocumentationSectionsAuth: typeof import('./components/collections/documentation/sections/Auth.vue')['default']
+    CollectionsDocumentationSectionsCurlView: typeof import('./components/collections/documentation/sections/CurlView.vue')['default']
     CollectionsDocumentationSectionsHeaders: typeof import('./components/collections/documentation/sections/Headers.vue')['default']
     CollectionsDocumentationSectionsParameters: typeof import('./components/collections/documentation/sections/Parameters.vue')['default']
     CollectionsDocumentationSectionsPreRequestScript: typeof import('./components/collections/documentation/sections/PreRequestScript.vue')['default']

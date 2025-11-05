@@ -6,14 +6,22 @@
         <!-- Collection Header -->
         <div class="flex items-center justify-between px-10 mt-4">
           <button
-            class="py-1.5 text-xs rounded-md bg-accent/20 text-accent hover:bg-accent/30 transition-colors flex items-center"
+            class="py-1.5 text-xs rounded-md text-accent transition-colors flex items-center disabled:cursor-not-allowed"
+            :disabled="isProcessingDocumentation"
             @click="toggleAllDocumentation"
           >
-            <icon-lucide-file-text class="mr-1.5" size="14" />
+            <icon-lucide-loader-2
+              v-if="isProcessingDocumentation"
+              class="mr-1.5 animate-spin"
+              size="14"
+            />
+            <icon-lucide-file-text v-else class="mr-1.5" size="14" />
             {{
-              showAllDocumentation
-                ? "Hide All Documentation"
-                : "Show All Documentation"
+              isProcessingDocumentation
+                ? `Processing... ${processingProgress}%`
+                : showAllDocumentation
+                  ? "Hide All Documentation"
+                  : "Show All Documentation"
             }}
           </button>
         </div>
@@ -109,7 +117,6 @@
                 />
 
                 <CollectionsDocumentationCollectionPreview
-                  v-else
                   :collection="itemData.item as HoppCollection"
                   :documentation-description="
                     (itemData.item as HoppCollection).documentation?.content ||
@@ -128,7 +135,7 @@
         </template>
       </div>
 
-      <div v-if="showAllDocumentation" class="flex-shrink-0 p-6 sticky top-0">
+      <div v-if="showAllDocumentation" class="p-6 sticky top-0">
         <CollectionsDocumentationCollectionStructure
           :collection="collection"
           @request-select="handleRequestSelect"
@@ -198,6 +205,8 @@ const allItems = ref<Array<DocumentationItem>>([])
 const selectedRequest = ref<HoppRESTRequest | null>(null)
 const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
+const isProcessingDocumentation = ref<boolean>(false)
+const processingProgress = ref<number>(0)
 
 /**
  * Handles a request being selected from the collection structure
@@ -284,10 +293,12 @@ function scrollToItemByNameAndType(
 }
 
 /**
- * Gathers all items with documentation from the collection
+ * Gathers all items with documentation from the collection with async processing
  */
-function gatherAllItems(): void {
+async function gatherAllItems(): Promise<void> {
   const items: Array<DocumentationItem> = []
+  let processedCount = 0
+  let totalCount = 0
 
   console.log(
     "Gathering all documentation items from collection",
@@ -300,54 +311,69 @@ function gatherAllItems(): void {
     return
   }
 
+  // First pass: count total items
+  const countItems = (collection: HoppCollection): number => {
+    let count = 0
+    if (collection.requests?.length) count += collection.requests.length
+    if (collection.folders?.length) {
+      count += collection.folders.length
+      collection.folders.forEach((folder) => {
+        count += countItems(folder)
+      })
+    }
+    return count
+  }
+
+  totalCount = countItems(props.collection)
+  console.log("Total items to process:", totalCount)
+
   const baseCollectionPath = props.collectionPath || ""
 
+  // Process collection requests in batches
   if (props.collection.requests?.length) {
     console.log(
       "Processing collection requests:",
       props.collection.requests.length
     )
-    props.collection.requests.forEach((request, index) => {
+
+    for (let i = 0; i < props.collection.requests.length; i++) {
+      const request = props.collection.requests[i]
       const requestId =
         request.id ||
         ("_ref_id" in request ? request._ref_id : undefined) ||
-        `request-${index}`
+        `request-${i}`
 
-      console.log("Adding request:", request.name, "with ID:", requestId)
       items.push({
         type: "request",
         item: request as HoppRESTRequest,
         parentPath: props.collection?.name || "",
         id: requestId,
         folderPath: baseCollectionPath,
-        requestIndex: index,
+        requestIndex: i,
       })
-    })
-  } else {
-    console.log("No requests found in collection")
+
+      processedCount++
+
+      // Update progress and yield control every 10 items
+      if (processedCount % 10 === 0) {
+        processingProgress.value = Math.round(
+          (processedCount / totalCount) * 100
+        )
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+    }
   }
 
   /**
-   * Process folders recursively to gather all nested content
-   * @param folders Array of folders to process
-   * @param parentPath Path string representing the folder hierarchy
-   * @param currentFolderPath Path for save context (slash-separated)
+   * Process folders recursively with async batching
    */
-  const processFolders = (
+  const processFoldersAsync = async (
     folders: HoppCollection[],
     parentPath: string = "",
     currentFolderPath: string = ""
-  ): void => {
-    console.log(
-      "Processing folders:",
-      folders.length,
-      "with parent path:",
-      parentPath,
-      "folder path:",
-      currentFolderPath
-    )
-
-    folders.forEach((folder, folderIndex) => {
+  ): Promise<void> => {
+    for (let folderIndex = 0; folderIndex < folders.length; folderIndex++) {
+      const folder = folders[folderIndex]
       const folderId =
         folder.id ||
         ("_ref_id" in folder ? folder._ref_id : undefined) ||
@@ -364,15 +390,6 @@ function gatherAllItems(): void {
           : `${folderIndex}`
       }
 
-      console.log(
-        "Adding folder:",
-        folder.name,
-        "with ID:",
-        folderId,
-        "folder path:",
-        thisFolderPath
-      )
-
       // Add folder
       items.push({
         type: "folder",
@@ -383,24 +400,21 @@ function gatherAllItems(): void {
         requestIndex: null,
       })
 
+      processedCount++
+
+      // Process folder requests
       if (folder.requests?.length) {
-        console.log("Processing folder requests:", folder.requests.length)
-        folder.requests.forEach((request, requestIndex) => {
+        for (
+          let requestIndex = 0;
+          requestIndex < folder.requests.length;
+          requestIndex++
+        ) {
+          const request = folder.requests[requestIndex]
           const requestId =
             request.id ||
             ("_ref_id" in request ? request._ref_id : undefined) ||
             `${folderId}-request-${requestIndex}`
 
-          console.log(
-            "Adding folder request:",
-            request.name,
-            "with ID:",
-            requestId,
-            "folder path:",
-            thisFolderPath,
-            "request index:",
-            requestIndex
-          )
           items.push({
             type: "request",
             item: request as HoppRESTRequest,
@@ -411,26 +425,40 @@ function gatherAllItems(): void {
             folderPath: thisFolderPath,
             requestIndex: requestIndex,
           })
-        })
-      } else {
-        console.log("No requests in folder:", folder.name)
+
+          processedCount++
+
+          // Update progress and yield control every 5 items
+          if (processedCount % 5 === 0) {
+            processingProgress.value = Math.round(
+              (processedCount / totalCount) * 100
+            )
+            await new Promise((resolve) => setTimeout(resolve, 0))
+          }
+        }
       }
 
+      // Process nested folders
       if (folder.folders?.length) {
         const newParentPath: string = parentPath
           ? `${parentPath} / ${folder.name}`
           : folder.name
-        console.log("Processing nested folders for:", folder.name)
 
         const relativeFolderPath = currentFolderPath
           ? `${currentFolderPath}/${folderIndex}`
           : `${folderIndex}`
 
-        processFolders(folder.folders, newParentPath, relativeFolderPath)
-      } else {
-        console.log("No nested folders in:", folder.name)
+        await processFoldersAsync(
+          folder.folders,
+          newParentPath,
+          relativeFolderPath
+        )
       }
-    })
+
+      // Update progress after each folder
+      processingProgress.value = Math.round((processedCount / totalCount) * 100)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
   }
 
   if (props.collection.folders?.length) {
@@ -438,43 +466,51 @@ function gatherAllItems(): void {
       "Processing top-level folders:",
       props.collection.folders.length
     )
-    processFolders(props.collection.folders)
-  } else {
-    console.log("No top-level folders found")
+    await processFoldersAsync(props.collection.folders)
   }
 
   console.log("Total items gathered:", items.length)
   allItems.value = items
-  console.log("///all gathered items:", allItems.value)
+  processingProgress.value = 100
 }
 
 /**
- * Toggles between normal view and "All Documentation" view
+ * Toggles between normal view and "All Documentation" view with async processing
  */
-function toggleAllDocumentation(): void {
+async function toggleAllDocumentation(): Promise<void> {
   if (!showAllDocumentation.value) {
-    gatherAllItems()
-    showAllDocumentation.value = true
+    isProcessingDocumentation.value = true
+    processingProgress.value = 0
 
-    // Force scroll to top after DOM update
-    setTimeout(() => {
-      const container = document.getElementById("documentation-container")
-      if (container) {
-        console.log("Found container by ID, scrolling to top")
-        container.scrollTop = 0
-        return
-      }
+    try {
+      await gatherAllItems()
+      showAllDocumentation.value = true
 
-      const containerByClass = document.querySelector(".flex-1.overflow-y-auto")
-      if (containerByClass) {
-        console.log("Found container by class, scrolling to top")
-        containerByClass.scrollTop = 0
-        return
-      }
+      // Force scroll to top after DOM update
+      await nextTick()
+      setTimeout(() => {
+        const container = document.getElementById("documentation-container")
+        if (container) {
+          container.scrollTop = 0
+          return
+        }
 
-      console.log("Using window scroll as fallback")
-      window.scrollTo(0, 0)
-    }, 50)
+        const containerByClass = document.querySelector(
+          ".flex-1.overflow-y-auto"
+        )
+        if (containerByClass) {
+          containerByClass.scrollTop = 0
+          return
+        }
+
+        window.scrollTo(0, 0)
+      }, 50)
+    } catch (error) {
+      console.error("Error processing documentation:", error)
+    } finally {
+      isProcessingDocumentation.value = false
+      processingProgress.value = 0
+    }
   } else {
     showAllDocumentation.value = false
   }
@@ -509,20 +545,17 @@ watch(
 }
 
 :deep(.scrollable-structure::-webkit-scrollbar-track) {
-  @apply bg-transparent;
+  background: transparent;
 }
 
 :deep(.scrollable-structure::-webkit-scrollbar-thumb) {
-  @apply bg-divider rounded-full;
+  background: var(--divider-color);
+  border-radius: 9999px;
 }
 
 :deep(.scrollable-structure::-webkit-scrollbar-thumb:hover) {
-  @apply bg-dividerLight;
+  background: var(--divider-light-color);
 }
-
-/* .highlight-item {
-  @apply border-l-4 border-accent transition-all;
-} */
 
 :deep(.overflow-y-auto) {
   scroll-behavior: smooth;

@@ -1,26 +1,24 @@
 <template>
   <div class="rounded-md border border-divider w-64">
     <div
-      class="p-2 border-b border-divider bg-divider flex items-center justify-between space-x-16"
+      class="py-2 border-b border-divider bg-divider flex items-center justify-between space-x-16"
     >
-      <h2 class="font-medium text-secondaryDark flex items-center text-xs">
-        <icon-lucide-folder-tree class="mr-2 svg-icons" />
-        <span>
+      <div
+        class="font-medium text-secondaryDark flex items-center text-xs px-2 truncate"
+      >
+        <span class="truncate">
           {{ collection.name }}
         </span>
-      </h2>
-      <button
-        class="p-1 rounded hover:bg-divider text-secondaryLight"
-        title="Expand/Collapse All"
+      </div>
+      <HoppSmartItem
+        :icon="allExpanded ? IconCheveronsUp : IconCheveronsDown"
+        class="focus-visible:bg-transparent hover:bg-transparent"
         @click="toggleAllFolders"
-      >
-        <icon-lucide-chevrons-down v-if="!allExpanded" size="14" />
-        <icon-lucide-chevrons-up v-else size="14" />
-      </button>
+      />
     </div>
 
     <!-- Tree structure -->
-    <div class="max-h-[calc(100vh-180px)] overflow-y-auto scrollable-structure">
+    <div class="max-h-[400px] overflow-y-auto">
       <div v-if="hasItems(collection.folders)">
         <FolderItem
           v-for="(rootFolder, rootFolderIndex) in collection.folders"
@@ -42,16 +40,18 @@
           :key="getRequestId(request, requestIndex)"
         >
           <div
-            class="px-3 py-1.5 flex items-center group border-l-2 border-transparent hover:bg-divider/20 hover:border-l-2 hover:border-dividerLight cursor-pointer"
+            class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
             @click.stop="onRequestSelect(request as HoppRESTRequest)"
           >
             <span
-              class="text-tiny font-mono mr-2 px-1 rounded-sm"
+              class="text-tiny mr-2 px-0.5 rounded-sm"
               :class="getMethodClass(getRequestMethod(request))"
             >
               {{ getRequestMethod(request) }}
             </span>
-            <span class="text-secondaryLight text-xs truncate">
+            <span
+              class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
+            >
               {{ request.name }}
             </span>
           </div>
@@ -76,6 +76,8 @@ import {
 } from "@hoppscotch/data"
 import { ref, reactive, watch } from "vue"
 import FolderItem from "./FolderItem.vue"
+import IconCheveronsDown from "~icons/lucide/chevrons-down"
+import IconCheveronsUp from "~icons/lucide/chevrons-up"
 
 type ExpandedFoldersType = { [key: string]: boolean }
 

@@ -21,20 +21,6 @@
         >{{ testScript }}</pre
       >
     </div>
-    <div
-      class="mt-2 p-3 bg-primaryDark rounded-md border-l-4 border-accent text-xs text-secondaryLight"
-    >
-      <div class="flex items-start">
-        <icon-lucide-lightbulb
-          class="mr-2 text-accent flex-shrink-0 mt-0.5"
-          size="14"
-        />
-        <div>
-          Test scripts run after the response is received. They can be used to
-          validate responses, set environment variables, or perform assertions.
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

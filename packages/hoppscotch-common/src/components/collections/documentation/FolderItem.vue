@@ -1,20 +1,22 @@
 <template>
   <div>
     <div
-      class="px-3 py-1.5 flex items-center cursor-pointer hover:bg-divider/20"
+      class="px-3 py-1.5 flex items-center cursor-pointer group"
       @click.stop="emit('toggle-folder', currentFolderId)"
     >
       <span
-        class="w-4 h-4 flex items-center justify-center text-secondaryLight transition-transform-2"
+        class="w-4 h-4 flex items-center justify-center transition-transform-2"
         :class="{
           'transform rotate-90': expandedFolders[currentFolderId],
         }"
       >
         <icon-lucide-chevron-right class="svg-icons" />
       </span>
-      <icon-lucide-folder class="ml-1 mr-1.5 text-secondaryLight svg-icons" />
+      <icon-lucide-folder
+        class="ml-1 mr-1.5 svg-icons transition-colors group-hover:text-secondaryDark"
+      />
       <span
-        class="text-secondaryDark text-xs truncate flex-1"
+        class="text-xs truncate flex-1 transition-colors group-hover:text-secondaryDark"
         @click.stop="emit('folder-select', folder)"
       >
         {{ folder.name }}
@@ -44,16 +46,18 @@
         <div
           v-for="(request, requestIndex) in folder.requests"
           :key="getRequestId(request, requestIndex)"
-          class="py-1.5 pl-8 flex items-center border-l-2 border-transparent hover:bg-divider/20 hover:border-l-2 hover:border-dividerLight cursor-pointer"
+          class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
           @click.stop="emit('request-select', request as HoppRESTRequest)"
         >
           <span
-            class="text-xs font-mono mr-2 px-1 rounded-sm"
+            class="text-tiny px-1 rounded-sm"
             :class="getMethodClass(getRequestMethod(request))"
           >
             {{ getRequestMethod(request) }}
           </span>
-          <span class="text-secondaryLight text-xs truncate">
+          <span
+            class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
+          >
             {{ request.name }}
           </span>
         </div>

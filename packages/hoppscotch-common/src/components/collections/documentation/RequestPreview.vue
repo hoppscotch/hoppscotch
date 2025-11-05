@@ -24,12 +24,12 @@
           class="text-secondaryLight text-sm break-all bg-primaryLight py-1 pl-2 rounded-md flex justify-between items-center"
         >
           <span>
-            {{ getFullEndpoint() }}
+            {{ getFullEndpoint }}
           </span>
           <span>
             <HoppSmartItem
               :icon="IconCopy"
-              @click="copyToClipboard(getFullEndpoint())"
+              @click="copyToClipboard(getFullEndpoint)"
             />
           </span>
         </div>
@@ -63,97 +63,15 @@
       </div>
 
       <!-- cURL Command Section -->
-      <div class="space-y-2">
-        <div class="rounded-md border border-divider overflow-hidden">
-          <div
-            class="flex items-center justify-between p-2 bg-divider/30 border-b border-divider"
-          >
-            <div
-              class="text-sm font-medium text-secondaryDark flex items-center"
-            >
-              <icon-lucide-terminal class="mr-2" size="14" />
-              cURL
-            </div>
-            <div class="flex items-center space-x-2">
-              <div>
-                <tippy
-                  interactive
-                  trigger="click"
-                  theme="popover"
-                  placement="bottom"
-                  :on-shown="() => tippyActions?.focus()"
-                >
-                  <HoppSmartSelectWrapper>
-                    <HoppButtonSecondary
-                      :label="
-                        CodegenDefinitions.find((x) => x.name === codegenType)!
-                          .caption
-                      "
-                      outline
-                      class="flex-1 pr-8"
-                    />
-                  </HoppSmartSelectWrapper>
-                  <template #content="{ hide }">
-                    <div class="flex flex-col space-y-2">
-                      <div
-                        class="sticky top-0 z-10 flex-shrink-0 overflow-x-auto"
-                      >
-                        <input
-                          v-model="searchQuery"
-                          type="search"
-                          autocomplete="off"
-                          class="input flex w-full !bg-primaryContrast p-4 py-2"
-                          :placeholder="`${t('action.search')}`"
-                        />
-                      </div>
-                      <div
-                        ref="tippyActions"
-                        class="flex flex-col focus:outline-none"
-                        tabindex="0"
-                        @keyup.escape="hide()"
-                      >
-                        <HoppSmartItem
-                          v-for="codegen in filteredCodegenDefinitions"
-                          :key="codegen.name"
-                          :label="codegen.caption"
-                          :info-icon="
-                            codegen.name === codegenType ? IconCheck : undefined
-                          "
-                          :active-info-icon="codegen.name === codegenType"
-                          @click="
-                            () => {
-                              codegenType = codegen.name
-                              codegenMode = codegen.lang
-                              hide()
-                            }
-                          "
-                        />
-                        <HoppSmartPlaceholder
-                          v-if="filteredCodegenDefinitions.length === 0"
-                          :text="`${t('state.nothing_found')} ‟${searchQuery}”`"
-                        >
-                          <template #icon>
-                            <icon-lucide-search class="svg-icons opacity-75" />
-                          </template>
-                        </HoppSmartPlaceholder>
-                      </div>
-                    </div>
-                  </template>
-                </tippy>
-              </div>
-              <div class="flex space-x-2">
-                <HoppSmartItem
-                  :icon="curlCopied ? IconCheck : IconCopy"
-                  title="Copy to clipboard"
-                  @click="copyCurlCommand"
-                />
-              </div>
-            </div>
-          </div>
 
-          <div ref="curlCodeMirrorContainer" class="curl-editor h-auto"></div>
-        </div>
-      </div>
+      <CollectionsDocumentationSectionsCurlView
+        :request="request"
+        :collection-i-d="collectionID"
+        :collection-path="collectionPath"
+        :folder-path="folderPath"
+        :request-index="requestIndex"
+        :team-i-d="teamID"
+      />
 
       <CollectionsDocumentationSectionsAuth :auth="request.auth" />
 
@@ -169,9 +87,9 @@
         :pre-request-script="request.preRequestScript"
       />
 
-      <CollectionsDocumentationSectionsTestScript
+      <!-- <CollectionsDocumentationSectionsTestScript
         :test-script="request.testScript"
-      />
+      /> -->
 
       <CollectionsDocumentationSectionsRequestBody :body="request.body" />
 
@@ -188,30 +106,31 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest, makeRESTRequest } from "@hoppscotch/data"
-import { ref, computed, watch, reactive, nextTick, onMounted } from "vue"
-import MarkdownIt from "markdown-it"
-import { useCodemirror } from "@composables/codemirror"
-import { useNestedSetting } from "~/composables/settings"
 import {
-  CodegenDefinitions,
-  CodegenLang,
-  CodegenName,
-  generateCode,
-} from "~/helpers/new-codegen"
-import IconCheck from "~icons/lucide/check"
+  Environment,
+  HoppCollectionVariable,
+  HoppRESTRequest,
+  makeRESTRequest,
+} from "@hoppscotch/data"
+import { ref, computed, watch, nextTick, onMounted } from "vue"
+import MarkdownIt from "markdown-it"
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
-import { useI18n } from "~/composables/i18n"
-import * as O from "fp-ts/Option"
 import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
 import { cloneDeep } from "lodash-es"
+import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
+import { computedAsync } from "@vueuse/core"
+import {
+  AggregateEnvironment,
+  getCurrentEnvironment,
+} from "~/newstore/environments"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import CollectionsDocumentationSectionsCurlView from "./sections/CurlView.vue"
 
-const t = useI18n()
 const toast = useToast()
 
 const md = new MarkdownIt({
@@ -223,8 +142,8 @@ const md = new MarkdownIt({
 
 const props = withDefaults(
   defineProps<{
-    documentationDescription: string
-    request: HoppRESTRequest | null
+    documentationDescription?: string
+    request?: HoppRESTRequest | null
     collectionID?: string
     collectionPath?: string | null
     folderPath?: string | null
@@ -250,60 +169,91 @@ const emit = defineEmits<{
 const editMode = ref<boolean>(false)
 const editableContent = ref<string>(props.documentationDescription)
 
-const curlCodeMirrorContainer = ref<HTMLElement | null>(null)
-const curlCopied = ref<boolean>(false)
-const WRAP_LINES = useNestedSetting("WRAP_LINES", "codeGen")
-const codegenType = ref<CodegenName>("shell-curl")
-const codegenMode = ref<CodegenLang>("shell")
+const currentEnvironmentValueService = useService(CurrentValueService)
 
-const tippyActions = ref<HTMLElement | null>(null)
+const getCurrentValue = (env: AggregateEnvironment) => {
+  const currentSelectedEnvironment = getCurrentEnvironment()
 
-const searchQuery = ref("")
+  if (env && env.secret) {
+    return env.currentValue
+  }
+  return currentEnvironmentValueService.getEnvironmentByKey(
+    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
+    env?.key ?? ""
+  )?.currentValue
+}
 
-const filteredCodegenDefinitions = computed(() => {
-  return CodegenDefinitions.filter((obj) =>
-    Object.values(obj).some((val) =>
-      val.toLowerCase().includes(searchQuery.value.toLowerCase())
+const getEffectiveRequest = async () => {
+  if (!props.request) return null
+
+  let collectionVariables: HoppCollectionVariable[] = []
+
+  if (props.teamID && props.collectionID) {
+    const inheritedProperties =
+      teamCollectionsService.cascadeParentCollectionForProperties(
+        props.collectionID
+      )
+
+    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
+      parentVar.inheritedVariables.map((variable) => ({
+        key: variable.key,
+        initialValue: variable.initialValue,
+        currentValue: variable.currentValue,
+        secret: variable.secret,
+      }))
     )
+  } else if (props.folderPath) {
+    const inheritedProperties = cascadeParentCollectionForProperties(
+      props.folderPath,
+      "rest"
+    )
+
+    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
+      parentVar.inheritedVariables.map((variable) => ({
+        key: variable.key,
+        initialValue: variable.initialValue,
+        currentValue: variable.currentValue,
+        secret: variable.secret,
+      }))
+    )
+  }
+
+  const requestVariables = props.request.requestVariables.map(
+    (requestVariable) => {
+      if (requestVariable.active)
+        return {
+          key: requestVariable.key,
+          currentValue: requestVariable.value,
+          initialValue: requestVariable.value,
+          secret: false,
+        }
+      return {}
+    }
   )
-})
 
-// Generate cURL command from request
-const curlCommand = computed((): string => {
-  if (!props.request) return "# No request data available"
+  const env: Environment = {
+    v: 2,
+    id: "env",
+    name: "Env",
+    variables: [
+      ...(requestVariables as Environment["variables"]),
+      ...collectionVariables.map((env) => ({
+        ...env,
+        currentValue: getCurrentValue(env) || env.initialValue,
+      })),
+    ],
+  }
 
-  const lang = codegenType.value
-
-  const result = generateCode(
-    lang,
+  const effectiveReq = await getEffectiveRESTRequest(
     makeRESTRequest({
       ...props.request,
-    })
+    }),
+    env,
+    true
   )
 
-  if (O.isSome(result)) {
-    return result.value
-  }
-  return ""
-})
-
-useCodemirror(
-  curlCodeMirrorContainer,
-  curlCommand,
-  reactive({
-    extendedEditorConfig: {
-      mode: "shell",
-      readOnly: true,
-      lineWrapping: WRAP_LINES,
-      theme: "material",
-      lineNumbers: false,
-      viewportMargin: Infinity,
-    },
-    linter: null,
-    completer: null,
-    environmentHighlights: false,
-  })
-)
+  return { effectiveRequest: effectiveReq, env }
+}
 
 watch(
   () => props.documentationDescription,
@@ -323,10 +273,8 @@ watch(
   { immediate: true }
 )
 
-// Use MarkdownIt to render markdown
 const renderedMarkdown = computed(() => {
   try {
-    // Use MarkdownIt to parse markdown to HTML
     return md.render(editableContent.value || "")
   } catch (e) {
     console.error("Markdown parsing error:", e)
@@ -335,44 +283,27 @@ const renderedMarkdown = computed(() => {
 })
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const textareaHeight = ref<number>(200) // Default height
+const textareaHeight = ref<number>(200)
 
-// Function to adjust textarea height
 function adjustTextareaHeight() {
   if (textareaRef.value) {
-    // Reset height to auto to get the correct scrollHeight
     textareaRef.value.style.height = "auto"
-
-    // Calculate new height (scrollHeight + small buffer for better appearance)
     const newHeight = textareaRef.value.scrollHeight + 4
-
-    // Set minimum height (52px matches your min-h-52 class)
-    const minHeight = 208 // equivalent to min-h-52
-
-    // Update height (use the larger of calculated height or minimum height)
+    const minHeight = 208
     textareaHeight.value = Math.max(newHeight, minHeight)
-
-    // Update textarea height
     textareaRef.value.style.height = `${textareaHeight.value}px`
   }
 }
 
-/**
- * Extract response examples from the request data
- * This function safely handles the fact that HoppRESTRequest doesn't have responseExamples by default
- * but may have responses data that can be converted to examples
- */
 function getResponseExamples() {
   if (!props.request) return null
 
-  // Check if there are any saved responses that can be used as examples
   if (
     props.request.responses &&
     Object.keys(props.request.responses).length > 0
   ) {
     const examples = []
 
-    // Convert saved responses to example format
     for (const [name, response] of Object.entries(props.request.responses)) {
       if (response && typeof response === "object") {
         console.log("Processing response for example:", name, response)
@@ -390,44 +321,32 @@ function getResponseExamples() {
     return examples.length > 0 ? examples : null
   }
 
-  // For now, return null if no response examples are available
-  // In the future, this could be extended to support a responseExamples field
   return null
 }
 
-// Enable edit mode and focus the textarea
 function enableEditMode(): void {
   editMode.value = true
 
-  // After Vue updates the DOM
   nextTick(() => {
     if (textareaRef.value) {
-      // Focus textarea
       textareaRef.value.focus()
-
-      // Adjust height to match content
       adjustTextareaHeight()
     }
   })
 }
 
-// Handle blur event (when clicking outside or tabbing away)
 function handleBlur(): void {
-  // Save changes when exiting edit mode
   emit("update:documentationDescription", editableContent.value)
   editMode.value = false
 }
 
-// Watch for content changes to adjust height
 watch(editableContent, () => {
   nextTick(() => {
     adjustTextareaHeight()
   })
 })
 
-// Initialize height when component mounts
 onMounted(() => {
-  // Adjust height on initial render if in edit mode
   if (editMode.value) {
     nextTick(() => {
       adjustTextareaHeight()
@@ -435,11 +354,6 @@ onMounted(() => {
   }
 })
 
-/**
- * Returns the appropriate CSS class for styling the request method badge
- * @param method The HTTP method
- * @returns CSS class string for the method badge
- */
 function getMethodClass(method: string): string {
   const methodLower: string = method?.toLowerCase() || ""
 
@@ -459,64 +373,42 @@ function getMethodClass(method: string): string {
   }
 }
 
-/**
- * Builds a full endpoint URL with base path if available
- * @returns Formatted endpoint URL
- */
-function getFullEndpoint(): string {
-  if (!props.request) return ""
+const getFullEndpoint = computedAsync(async () => {
+  const res = await getEffectiveRequest()
 
-  const basePath = props.request.basePath || ""
-  const endpoint = props.request.endpoint || ""
+  if (!res) return ""
 
-  if (basePath && !endpoint.startsWith("http")) {
-    return `${basePath}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`
+  const { effectiveRequest } = res
+
+  if (!effectiveRequest) return ""
+
+  const input = effectiveRequest.effectiveFinalURL
+
+  console.log("getFullEndpoint input:", input)
+
+  if (!input) {
+    return "https://"
   }
 
-  return endpoint
-}
+  let url = input.trim()
 
-/**
- * Format JSON string for display
- * @param jsonString String to format
- * @returns Formatted JSON string
- */
-// function formatJSON(jsonString: string): string {
-//   try {
-//     const parsed = JSON.parse(jsonString || "{}")
-//     return JSON.stringify(parsed, null, 2)
-//   } catch (e) {
-//     return jsonString || ""
-//   }
-// }
+  url = url.replace(/^https?:\s*\/+\s*/i, (match) =>
+    match.toLowerCase().startsWith("https") ? "https://" : "http://"
+  )
 
-/**
- * Parse form data into key-value pairs
- * @param formData Form data string
- * @returns Array of key-value pairs
- */
-// function parseFormData(formData: string): { key: string; value: string }[] {
-//   try {
-//     const result: { key: string; value: string }[] = []
-//     const pairs = formData.split("&")
+  if (!/^https?:\/\//i.test(url) && !url.startsWith("<<")) {
+    const endpoint = url
+    const domain = endpoint.split(/[/:#?]+/)[0]
 
-//     pairs.forEach((pair) => {
-//       const [key, value] = pair.split("=")
-//       if (key) {
-//         result.push({
-//           key: decodeURIComponent(key),
-//           value: decodeURIComponent(value || ""),
-//         })
-//       }
-//     })
+    const isLocalOrIP = /^(localhost|(\d{1,3}\.){3}\d{1,3})$/.test(domain)
+    url = (isLocalOrIP ? "http://" : "https://") + endpoint
+  }
 
-//     return result
-//   } catch (e) {
-//     return []
-//   }
-// }
+  return url
+})
 
-const copyToClipboard = async (text: string) => {
+const copyToClipboard = async (text: string | undefined) => {
+  if (!text) return
   try {
     await navigator.clipboard.writeText(text)
     toast.success("Copied to clipboard!")
@@ -525,20 +417,6 @@ const copyToClipboard = async (text: string) => {
   }
 }
 
-const copyCurlCommand = async () => {
-  try {
-    await navigator.clipboard.writeText(curlCommand.value)
-    curlCopied.value = true
-    setTimeout(() => {
-      curlCopied.value = false
-    }, 2000)
-    toast.success("cURL command copied to clipboard!")
-  } catch (err) {
-    console.error("Failed to copy cURL command: ", err)
-  }
-}
-
-// Get services
 const restTabs = useService(RESTTabService)
 const teamCollectionsService = useService(TeamCollectionsService)
 

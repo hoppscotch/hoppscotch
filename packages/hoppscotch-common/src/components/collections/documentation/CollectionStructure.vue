@@ -1,10 +1,10 @@
 <template>
   <div class="rounded-md border border-divider w-64">
     <div
-      class="py-2 border-b border-divider bg-divider flex items-center justify-between space-x-16"
+      class="py-2 border-b border-divider bg-divider flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex items-center text-xs px-2 truncate"
+        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate"
       >
         <span class="truncate">
           {{ collection.name }}

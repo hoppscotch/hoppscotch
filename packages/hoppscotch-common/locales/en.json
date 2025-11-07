@@ -1719,7 +1719,7 @@
     "invalid_csv" : "Invalid CSV file format",
     "invalid_json" : "Invalid JSON file format",
     "dataset_iterations_info" : "Dataset contains {rows} rows, running {total} iterations as per your configuration.",
-    "dataset_iterations_exceeds" : "Dataset contains {rows} rows, but only {extra} iterations will be run as per your configuration.",
+    "dataset_iterations_exceeds" : "Dataset contains {rows} rows, but {extra} iterations are requested. The last row will be reused for the remaining iterations.",
     "no_failed_tests": "No tests failed"
   },
   "ai_experiments": {

@@ -723,7 +723,7 @@ export function runTestRunnerRequest(
           global: preRequestScriptResult.right.updatedEnvs.global,
           selected: preRequestScriptResult.right.updatedEnvs.selected,
           temp: [
-            ...iterationDataVars, // Add iteration data from dataset
+            ...preRequestScriptResult.right.updatedEnvs.temp, // Use updated temp variables from pre-request script
             ...(!persistEnv ? getTemporaryVariables() : []), // Add temporary variables if not persisting
           ],
         },

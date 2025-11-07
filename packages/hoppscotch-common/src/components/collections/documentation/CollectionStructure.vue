@@ -4,7 +4,8 @@
       class="py-2 border-b border-divider bg-divider flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate"
+        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate cursor-pointer hover:bg-dividerLight/50 transition-colors"
+        @click="scrollToTop"
       >
         <span class="truncate">
           {{ collection.name }}
@@ -148,6 +149,23 @@ function onRequestSelect(request: HoppRESTRequest): void {
 
 function onFolderSelect(folder: HoppCollection): void {
   emit("folder-select", folder)
+}
+
+/**
+ * Scrolls to the top of the documentation when collection name is clicked
+ */
+function scrollToTop(): void {
+  // Find the documentation container and scroll to top
+  const documentationContainer = document.querySelector(
+    "#documentation-container"
+  )
+
+  if (documentationContainer && "scrollTo" in documentationContainer) {
+    documentationContainer.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }
 }
 
 /**

@@ -76,9 +76,6 @@
                   </div>
 
                   <div v-if="!datasetEnabled" class="space-y-2">
-<!--                    <p class="text-xs text-secondaryLight">
-                      {{ t("collection_runner.data_feed_description") }}
-                    </p>-->
                     <div class="flex gap-2">
                       <label
                         class="flex items-center justify-center px-4 py-2 text-sm border rounded cursor-pointer border-divider hover:bg-primaryLight transition"

@@ -42,7 +42,14 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  const args: parser.Arguments = parser(curlCommand, {
+    boolean: ["compressed"],
+    configuration: {
+      "parse-numbers": false,
+      "camel-case-expansion": false,
+      "boolean-negation": false,
+    },
+  })
 
   const parsedArguments = pipe(
     args,

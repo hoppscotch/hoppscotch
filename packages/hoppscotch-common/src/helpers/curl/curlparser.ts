@@ -46,8 +46,6 @@ export const parseCurlCommand = (curlCommand: string) => {
     boolean: ["compressed"],
     configuration: {
       "parse-numbers": false,
-      "camel-case-expansion": false,
-      "boolean-negation": false,
     },
   })
 

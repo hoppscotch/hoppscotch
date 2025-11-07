@@ -61,7 +61,7 @@
                       t("collection_runner.dataset_iterations_exceeds", {
                         iterations: config.iterations,
                         rows: datasetRowCount,
-                        extra: config.iterations * datasetRowCount,
+                        extra: config.iterations - datasetRowCount,
                       })
                     }}
                   </span>

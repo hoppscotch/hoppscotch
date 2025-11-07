@@ -434,7 +434,7 @@ const emit = defineEmits<{
 }>()
 
 const includeEnvironmentID = ref(false)
-const activeTab = ref<"gui" | "cli" | "data">("gui")
+const activeTab = ref<"gui" | "cli">("gui")
 
 const environmentID = ref("")
 const currentEnv = ref<CurrentEnv>(null)

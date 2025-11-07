@@ -62,8 +62,7 @@
         </div>
       </div>
 
-      <!-- cURL Command Section -->
-
+      <!-- Check performance issue -->
       <CollectionsDocumentationSectionsCurlView
         :request="request"
         :collection-i-d="collectionID"
@@ -129,7 +128,6 @@ import {
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-import CollectionsDocumentationSectionsCurlView from "./sections/CurlView.vue"
 
 const toast = useToast()
 
@@ -262,8 +260,6 @@ watch(
       editableContent.value = newContent
     }
 
-    console.log("Updated editableContent:", newContent)
-
     if (newContent.trim() === "") {
       console.log("Setting default content")
       editableContent.value =
@@ -383,8 +379,6 @@ const getFullEndpoint = computedAsync(async () => {
   if (!effectiveRequest) return ""
 
   const input = effectiveRequest.effectiveFinalURL
-
-  console.log("getFullEndpoint input:", input)
 
   if (!input) {
     return "https://"

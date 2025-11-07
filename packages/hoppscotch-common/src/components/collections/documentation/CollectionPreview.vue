@@ -108,10 +108,10 @@ watch(
       editableContent.value = newContent
     }
 
-    console.log("Updated editableContent:", newContent)
+    // console.log("Updated editableContent:", newContent)
 
     if (newContent.trim() === "") {
-      console.log("Setting default content")
+      // console.log("Setting default content")
       editableContent.value =
         "Enter markdown documentation for this collection..."
     }

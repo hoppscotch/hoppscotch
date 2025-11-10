@@ -1,14 +1,10 @@
 import { z } from "zod"
-import { defineVersion, entityReference } from "verzod"
+import { defineVersion } from "verzod"
 import { V16_SCHEMA } from "./16"
-import {
-  getDefaultRequestDocumentation,
-  RequestDocumentation,
-} from "../../documentation/request"
 
 export const V17_SCHEMA = V16_SCHEMA.extend({
   v: z.literal("17"),
-  documentation: entityReference(RequestDocumentation).nullable().catch(null),
+  description: z.string().nullable().catch(null),
 })
 
 const V17_VERSION = defineVersion({
@@ -19,8 +15,7 @@ const V17_VERSION = defineVersion({
     return {
       ...old,
       v: "17" as const,
-      documentation:
-        old.documentation ?? getDefaultRequestDocumentation(old._ref_id),
+      description: old.description ?? null,
     }
   },
 })

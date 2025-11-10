@@ -28,10 +28,6 @@ import V16_VERSION from "./v/16"
 import { HoppRESTRequestResponses } from "../rest-request-response"
 import { generateUniqueRefId } from "../utils/collection"
 import V17_VERSION from "./v/17"
-import {
-  getDefaultRequestDocumentation,
-  RequestDocumentation,
-} from "../documentation/request"
 
 export * from "./content-types"
 
@@ -143,7 +139,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   ),
   responses: lodashIsEqualEq,
   _ref_id: undefinedEq(S.Eq),
-  documentation: lodashIsEqualEq,
+  description: lodashIsEqualEq,
 })
 
 export const RESTReqSchemaVersion = "17"
@@ -235,13 +231,8 @@ export function safelyExtractRESTRequest(
       }
     }
 
-    if ("documentation" in x) {
-      const result = entityReference(RequestDocumentation).safeParse(
-        x.documentation
-      )
-      if (result.success) {
-        req.documentation = result.data
-      }
+    if ("description" in x && typeof x.description === "string") {
+      req.description = x.description
     }
   }
 
@@ -280,7 +271,7 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
     requestVariables: [],
     responses: {},
     _ref_id: ref_id,
-    documentation: getDefaultRequestDocumentation(ref_id),
+    description: null,
   }
 }
 

@@ -18,7 +18,6 @@ import { z } from "zod"
 import { translateToNewRequest } from "../rest"
 import { translateToGQLRequest } from "../graphql"
 import { generateUniqueRefId } from "../utils/collection"
-import { getDefaultCollectionDocumentation } from "../documentation/collection"
 
 const versionedObject = z.object({
   v: z.number(),
@@ -87,7 +86,7 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
   const headers = x.headers ?? []
   const variables = x.variables ?? []
 
-  const documentation = x.documentation ?? getDefaultCollectionDocumentation()
+  const description = x.description ?? null
 
   const obj = makeCollection({
     name,
@@ -96,13 +95,12 @@ export function translateToNewRESTCollection(x: any): HoppCollection {
     auth,
     headers,
     variables,
-    documentation,
+    description,
   })
 
   if (x.id) obj.id = x.id
   if (x._ref_id) {
     obj._ref_id = x._ref_id
-    if (obj.documentation) obj.documentation.collectionId = x._ref_id
   }
 
   return obj
@@ -123,7 +121,7 @@ export function translateToNewGQLCollection(x: any): HoppCollection {
   const headers = x.headers ?? []
   const variables = x.variables ?? []
 
-  const documentation = x.documentation ?? getDefaultCollectionDocumentation()
+  const description = x.description ?? null
 
   const obj = makeCollection({
     name,
@@ -132,13 +130,12 @@ export function translateToNewGQLCollection(x: any): HoppCollection {
     auth,
     headers,
     variables,
-    documentation,
+    description,
   })
 
   if (x.id) obj.id = x.id
   if (x._ref_id) {
     obj._ref_id = x._ref_id
-    if (obj.documentation) obj.documentation.collectionId = x._ref_id
   }
 
   return obj

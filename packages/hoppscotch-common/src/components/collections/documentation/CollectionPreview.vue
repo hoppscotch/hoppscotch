@@ -227,7 +227,7 @@ onMounted(() => {
 
 /* Paragraph and text styles */
 .markdown-content :deep(p) {
-  @apply text-sm my-2 leading-relaxed text-secondaryLight;
+  @apply text-sm my-2 leading-relaxed text-secondary;
 }
 
 .markdown-content :deep(strong) {

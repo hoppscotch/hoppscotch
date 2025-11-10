@@ -118,6 +118,7 @@ model User {
   userRequests         UserRequest[]
   settings             UserSettings?
   VerificationToken    VerificationToken[]
+  publishedDocs        PublishedDocs[]
 }
 
 model Account {
@@ -299,6 +300,22 @@ model MockServerActivity {
   mockServer   MockServer       @relation(fields: [mockServerID], references: [id], onDelete: Cascade)
 
   @@index([mockServerID])
+}
+
+model PublishedDocs {
+  id            String        @id @default(cuid())
+  title         String
+  collectionID  String
+  creatorUid    String
+  version       String
+  autoSync      Boolean
+  documentTree  Json? // Optional if autoSync is true
+  workspaceType WorkspaceType
+  workspaceID   String
+  metadata      Json?
+  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+  user          User          @relation(fields: [creatorUid], references: [uid], onDelete: Cascade)
 }
 
 enum WorkspaceType {

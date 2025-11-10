@@ -66,6 +66,7 @@ import {
   UserRequest,
 } from "../../api/generated/graphql"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import { importToPersonalWorkspace } from "./import"
 
 function initCollectionsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -1016,6 +1017,7 @@ function setupUserRequestDeletedSubscription() {
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  importToPersonalWorkspace,
 }
 
 function getCollectionPathFromCollectionID(

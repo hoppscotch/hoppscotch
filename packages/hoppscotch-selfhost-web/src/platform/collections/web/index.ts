@@ -67,6 +67,7 @@ import {
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import { importToPersonalWorkspace } from "./import"
 
 function initCollectionsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -1031,6 +1032,7 @@ function setupUserRequestDeletedSubscription() {
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  importToPersonalWorkspace,
 }
 
 function getCollectionPathFromCollectionID(

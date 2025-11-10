@@ -19,6 +19,12 @@ export class UserRequest {
   title: string;
 
   @Field({
+    description: 'Description of the user request',
+    nullable: true,
+  })
+  description: string;
+
+  @Field({
     description: 'Content/Body of the user request',
   })
   request: string;

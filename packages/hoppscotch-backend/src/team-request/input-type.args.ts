@@ -32,6 +32,12 @@ export class UpdateTeamRequestInput {
     nullable: true,
   })
   title?: string;
+
+  @Field({
+    nullable: true,
+    description: 'Description of the user request',
+  })
+  description?: string;
 }
 
 @ArgsType()

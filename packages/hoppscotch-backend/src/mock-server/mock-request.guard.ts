@@ -47,7 +47,7 @@ export class MockRequestGuard implements CanActivate {
 
     if (E.isLeft(mockServerResult)) {
       console.warn(
-        `Mock server lookup failed for subdomain: ${String(mockServerSubdomain).replace(/\r|\n/g, "")}, error: ${mockServerResult.left}`,
+        `Mock server lookup failed for subdomain: ${String(mockServerSubdomain).replace(/\r|\n/g, '')}, error: ${mockServerResult.left}`,
       );
       throw new NotFoundException(
         `Mock server '${mockServerSubdomain}' not found`,

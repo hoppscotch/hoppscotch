@@ -106,6 +106,14 @@ export class UpdateTeamCollectionArgs {
   newTitle: string;
 
   @Field({
+    name: 'description',
+    description: 'Description of the team collection',
+    nullable: true,
+    defaultValue: undefined,
+  })
+  description: string;
+
+  @Field({
     name: 'data',
     description: 'JSON string representing the collection data',
     nullable: true,

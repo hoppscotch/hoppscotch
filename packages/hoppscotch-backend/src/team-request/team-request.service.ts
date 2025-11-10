@@ -31,12 +31,9 @@ export class TeamRequestService {
    * A helper function to cast the Prisma TeamRequest model to the TeamRequest model
    * @param tr TeamRequest model from Prisma
    */
-  private cast(tr: DbTeamRequest) {
+  private cast(tr: DbTeamRequest): TeamRequest {
     return {
-      id: tr.id,
-      collectionID: tr.collectionID,
-      teamID: tr.teamID,
-      title: tr.title,
+      ...tr,
       request: JSON.stringify(tr.request),
     };
   }
@@ -47,9 +44,14 @@ export class TeamRequestService {
    * @param title Title of the request
    * @param request Request body of the request
    */
-  async updateTeamRequest(requestID: string, title: string, request: string) {
+  async updateTeamRequest(
+    requestID: string,
+    title: string,
+    request: string,
+    description: string,
+  ) {
     try {
-      const updateInput: Prisma.TeamRequestUpdateInput = { title };
+      const updateInput: Prisma.TeamRequestUpdateInput = { title, description };
       if (request) {
         const jsonReq = stringToJson(request);
         if (E.isLeft(jsonReq)) return E.left(jsonReq.left);

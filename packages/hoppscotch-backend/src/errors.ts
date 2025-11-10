@@ -34,7 +34,8 @@ export const JSON_INVALID = 'json_invalid' as const;
  * Auth Provider not specified
  * (Auth)
  */
-export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified' as const;
+export const AUTH_PROVIDER_NOT_SPECIFIED =
+  'auth/provider_not_specified' as const;
 
 /**
  * Email not provided by OAuth provider

@@ -13,6 +13,12 @@ export class TeamCollection {
   title: string;
 
   @Field({
+    description: 'Description of the collection',
+    nullable: true,
+  })
+  description: string;
+
+  @Field({
     description: 'JSON string representing the collection data',
     nullable: true,
   })

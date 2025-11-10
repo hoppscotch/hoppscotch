@@ -333,6 +333,7 @@ export class TeamCollectionResolver {
         args.collectionID,
         args.data,
         args.newTitle,
+        args.description,
       );
 
     if (E.isLeft(updatedTeamCollection)) throwErr(updatedTeamCollection.left);

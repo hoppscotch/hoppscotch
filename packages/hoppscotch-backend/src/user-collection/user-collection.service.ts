@@ -58,6 +58,7 @@ export class UserCollectionService {
     return <UserCollectionModel>{
       id: collection.id,
       title: collection.title,
+      description: collection.description,
       type: collection.type,
       parentID: collection.parentID,
       userID: collection.userUid,
@@ -1175,6 +1176,7 @@ export class UserCollectionService {
     newTitle: string = null,
     collectionData: string | null = null,
     userCollectionID: string,
+    description: string | null = null,
     userID: string,
   ) {
     if (collectionData === '') return E.left(USER_COLL_DATA_INVALID);
@@ -1202,6 +1204,7 @@ export class UserCollectionService {
         data: {
           data: collectionData ?? undefined,
           title: newTitle ?? undefined,
+          description,
         },
       });
 

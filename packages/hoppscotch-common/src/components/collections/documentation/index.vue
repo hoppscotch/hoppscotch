@@ -67,9 +67,11 @@ import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { editRESTCollection, editRESTRequest } from "~/newstore/collections"
-import { useReadonlyStream } from "~/composables/stream"
-import { platform } from "~/platform"
+import {
+  editRESTCollection,
+  editRESTFolder,
+  editRESTRequest,
+} from "~/newstore/collections"
 
 const t = useI18n()
 const toast = useToast()
@@ -103,11 +105,9 @@ const props = withDefaults(
 
 const documentationDescription = ref<string>(
   props.collection
-    ? props.collection.documentation?.content ||
-        "### Hoppscotch Collection Documentation"
+    ? props.collection.description || "### Hoppscotch Collection Documentation"
     : props.request
-      ? props.request.documentation?.content ||
-        " ### Hoppscotch Request Documentation"
+      ? props.request.description || " ### Hoppscotch Request Documentation"
       : ""
 )
 
@@ -122,41 +122,30 @@ const emit = defineEmits<{
   (e: "update:modelValue"): void
 }>()
 
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
-
 const saveDocumentation = async () => {
   if (!props.hasTeamWriteAccess) {
     toast.error(t("documentation.no_write_access"))
     return
   }
 
-  if (
-    props.collection &&
-    props.collectionPath &&
-    props.collection.documentation
-  ) {
+  if (props.collection && props.collectionPath) {
     const updatedCollection = {
       ...props.collection,
-      documentation: {
-        ...props.collection?.documentation,
-        content: documentationDescription.value,
-        title: props.collection?.name
-          ? `${props.collection.name} Documentation`
-          : "Collection Documentation",
-        updatedAt: Date.now(),
-        lastModifiedBy:
-          currentUser.value?.uid ??
-          props.collection?.documentation?.lastModifiedBy, // Replace with actual user ID
-      },
+      description: documentationDescription.value,
     }
 
     console.log("collection-path", props.collectionPath)
 
     try {
-      editRESTCollection(parseInt(props.collectionPath), updatedCollection)
+      // Check if this is a root collection (no "/" in path) or a folder
+      const pathSegments = props.collectionPath.split("/")
+
+      if (pathSegments.length === 1) {
+        editRESTCollection(parseInt(props.collectionPath), updatedCollection)
+      } else {
+        editRESTFolder(props.collectionPath, updatedCollection)
+      }
+
       toast.success(t("documentation.save_success"))
     } catch (error) {
       console.error("Error saving documentation:", error)
@@ -167,27 +156,17 @@ const saveDocumentation = async () => {
     props.folderPath !== undefined &&
     props.folderPath !== null &&
     props.requestIndex !== undefined &&
-    props.requestIndex !== null &&
-    props.request.documentation
+    props.requestIndex !== null
   ) {
     const updatedRequest = {
       ...props.request,
-      documentation: {
-        ...props.request.documentation,
-        content: documentationDescription.value,
-        title: props.request.name
-          ? `${props.request.name} Documentation`
-          : "Request Documentation",
-        updatedAt: Date.now(),
-        lastModifiedBy:
-          currentUser.value?.uid ?? props.request.documentation?.lastModifiedBy,
-      },
+      description: documentationDescription.value,
     }
     console.log("updatedRequest", updatedRequest)
     console.log("props.folderPath", props.folderPath)
     console.log("props.requestIndex", props.requestIndex)
     editRESTRequest(props.folderPath, props.requestIndex, updatedRequest)
-    toast.info("Request documentation saved successfully.")
+    toast.success("Request documentation saved successfully.")
   }
 }
 

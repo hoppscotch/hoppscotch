@@ -1015,6 +1015,83 @@ export class UserCollectionService {
   }
 
   /**
+   * Fetch all descendants of given parent IDs and build nested structure
+   * @param parentIds Array of parent collection IDs to start from
+   * @returns Array of nested collection structures with all descendants and their requests
+   */
+  private async getMultiLayerNestedChildren(parentIds: string[]) {
+    // Step 1: Get all collections that are descendants of the parent IDs using recursive CTE
+    const allDescendants = await this.prisma.$queryRaw<UserCollection[]>`
+      WITH RECURSIVE nested_collections AS (
+        -- Base case: the parent collections themselves
+        SELECT * FROM "UserCollection" 
+        WHERE id = ANY(${parentIds}::text[])
+        
+        UNION ALL
+        
+        -- Recursive case: all descendants
+        SELECT c.*
+        FROM "UserCollection" c
+        INNER JOIN nested_collections nc ON c."parentID" = nc.id
+      )
+      SELECT * FROM nested_collections
+      ORDER BY "orderIndex" ASC;
+    `;
+
+    // Step 2: Fetch all requests for all the collections
+    const collectionIds = allDescendants.map((col) => col.id);
+    const allRequests = await this.prisma.userRequest.findMany({
+      where: {
+        collectionID: { in: collectionIds },
+      },
+      orderBy: {
+        orderIndex: 'asc',
+      },
+    });
+
+    // Group requests by collectionID for easy lookup
+    const requestsByCollectionId = new Map();
+    allRequests.forEach((request) => {
+      if (!requestsByCollectionId.has(request.collectionID)) {
+        requestsByCollectionId.set(request.collectionID, []);
+      }
+      requestsByCollectionId.get(request.collectionID).push(request);
+    });
+
+    // Step 4: Build nested structure
+    const collectionMap = new Map();
+
+    // First pass: Create a map of all collections with empty children arrays and their requests
+    allDescendants.forEach((collection) => {
+      collectionMap.set(collection.id, {
+        ...this.cast(collection),
+        children: [],
+        requests: requestsByCollectionId.get(collection.id) || [],
+      });
+    });
+
+    // Second pass: Build the tree structure by connecting parents and children
+    const roots = [];
+    allDescendants.forEach((collection) => {
+      const node = collectionMap.get(collection.id);
+
+      if (parentIds.includes(collection.id)) {
+        // This is a root node (one of the requested parents)
+        roots.push(node);
+      } else if (
+        collection.parentID &&
+        collectionMap.has(collection.parentID)
+      ) {
+        // Add to parent's children array
+        const parent = collectionMap.get(collection.parentID);
+        parent.children.push(node);
+      }
+    });
+
+    return roots;
+  }
+
+  /**
    * Generate a Prisma query object representation of a collection and its child collections and requests
    *
    * @param folder CollectionFolder from client
@@ -1033,7 +1110,10 @@ export class UserCollectionService {
     let data = null;
     if (folder.data) {
       try {
-        data = JSON.parse(folder.data);
+        data =
+          typeof folder.data === 'string'
+            ? JSON.parse(folder.data)
+            : folder.data;
       } catch (error) {
         // If data parsing fails, log error and continue without data
         console.error('Failed to parse collection data:', error);
@@ -1149,6 +1229,11 @@ export class UserCollectionService {
       return E.left(USER_COLLECTION_CREATION_FAILED);
     }
 
+    // Fetch nested collections after transaction is committed
+    const nestedCollections = await this.getMultiLayerNestedChildren(
+      userCollections.map((x) => x.id),
+    );
+
     if (isCollectionDuplication) {
       const collectionData = await this.fetchCollectionData(
         userCollections[0].id,
@@ -1168,7 +1253,7 @@ export class UserCollectionService {
       );
     }
 
-    return E.right(true);
+    return E.right(nestedCollections);
   }
 
   /**

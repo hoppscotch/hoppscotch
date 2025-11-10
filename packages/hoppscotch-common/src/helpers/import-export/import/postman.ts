@@ -14,10 +14,6 @@ import {
   HoppRESTRequestResponses,
   makeHoppRESTResponseOriginalRequest,
   HoppCollectionVariable,
-  getDefaultCollectionDocumentation,
-  CollectionDocumentation,
-  getDefaultRequestDocumentation,
-  RequestDocumentation,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
@@ -554,46 +550,36 @@ const getHoppScripts = (
   return { preRequestScript, testScript }
 }
 
-const getDocumentationCollectionDescription = (
+const getCollectionDescription = (
   docField?: string | DescriptionDefinition
-): CollectionDocumentation => {
+): string | null => {
   if (!docField) {
-    return getDefaultCollectionDocumentation()
+    return null
   }
-
-  let description = ""
 
   if (typeof docField === "string") {
-    description = docField
+    return docField
   } else if (typeof docField === "object" && "content" in docField) {
-    description = docField.content || ""
+    return docField.content || null
   }
 
-  return {
-    ...getDefaultCollectionDocumentation(),
-    content: description,
-  }
+  return null
 }
 
-const getDocumentationRequestDescription = (
+const getRequestDescription = (
   docField?: string | DescriptionDefinition
-): RequestDocumentation => {
+): string | null => {
   if (!docField) {
-    return getDefaultRequestDocumentation()
+    return null
   }
-
-  let description = ""
 
   if (typeof docField === "string") {
-    description = docField
+    return docField
   } else if (typeof docField === "object" && "content" in docField) {
-    description = docField.content || ""
+    return docField.content || null
   }
 
-  return {
-    ...getDefaultRequestDocumentation(),
-    content: description,
-  }
+  return null
 }
 
 const getHoppRequest = (
@@ -616,7 +602,7 @@ const getHoppRequest = (
     responses: getHoppResponses(item.responses),
     preRequestScript,
     testScript,
-    documentation: getDocumentationRequestDescription(item.request.description),
+    description: getRequestDescription(item.request.description),
   })
 }
 
@@ -639,7 +625,7 @@ const getHoppFolder = (
     auth: getHoppReqAuth(ig.auth),
     headers: [],
     variables: getHoppCollVariables(ig),
-    documentation: getDocumentationCollectionDescription(ig.description),
+    description: getCollectionDescription(ig.description),
   })
 
 export const getHoppCollections = (

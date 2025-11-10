@@ -50,9 +50,7 @@
           <CollectionsDocumentationRequestPreview
             v-if="selectedRequest"
             :request="selectedRequest"
-            :documentation-description="
-              selectedRequest.documentation?.content || ''
-            "
+            :documentation-description="selectedRequest.description || ''"
             :collection-id="collectionID"
             :collection-path="collectionPath"
             :folder-path="folderPath"
@@ -60,8 +58,8 @@
             :team-id="teamID"
             @update:documentation-description="
               (value) => {
-                if (selectedRequest?.documentation) {
-                  selectedRequest.documentation.content = value
+                if (selectedRequest) {
+                  selectedRequest.description = value
                 }
               }
             "
@@ -70,9 +68,7 @@
           <CollectionsDocumentationCollectionPreview
             v-else-if="selectedFolder"
             :collection="selectedFolder"
-            :documentation-description="
-              selectedFolder.documentation?.content || ''
-            "
+            :documentation-description="selectedFolder.description || ''"
           />
           <CollectionsDocumentationCollectionPreview
             v-else
@@ -124,7 +120,7 @@
                   v-if="item.type === 'request'"
                   :request="item.item as HoppRESTRequest"
                   :documentation-description="
-                    (item.item as HoppRESTRequest).documentation?.content || ''
+                    (item.item as HoppRESTRequest).description || ''
                   "
                   :collection-id="collectionID"
                   :collection-path="collectionPath"
@@ -133,8 +129,7 @@
                   :team-id="teamID"
                   @update:documentation-description="
                     (value) =>
-                      ((item.item as HoppRESTRequest).documentation!.content =
-                        value)
+                      ((item.item as HoppRESTRequest).description = value)
                   "
                   @close-modal="closeModal"
                 />
@@ -143,12 +138,11 @@
                   v-else
                   :collection="item.item as HoppCollection"
                   :documentation-description="
-                    (item.item as HoppCollection).documentation?.content || ''
+                    (item.item as HoppCollection).description || ''
                   "
                   @update:documentation-description="
                     (value) =>
-                      ((item.item as HoppCollection).documentation!.content =
-                        value)
+                      ((item.item as HoppCollection).description = value)
                   "
                 />
               </div>
@@ -399,9 +393,9 @@ watch(
         const documentedItems = allItems.value.filter(
           (item) =>
             (item.type === "request" &&
-              (item.item as HoppRESTRequest).documentation?.content) ||
+              (item.item as HoppRESTRequest).description) ||
             (item.type === "folder" &&
-              (item.item as HoppCollection).documentation?.content)
+              (item.item as HoppCollection).description)
         )
 
         // Wait a bit more if we have many components to render

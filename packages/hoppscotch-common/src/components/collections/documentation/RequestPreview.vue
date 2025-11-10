@@ -484,7 +484,7 @@ const openInNewTab = () => {
 
 <style scoped>
 .markdown-content :deep(a) {
-  @apply text-accent hover:underline;
+  @apply hover:underline;
 }
 
 /* Heading styles with proper font sizes */
@@ -511,7 +511,7 @@ const openInNewTab = () => {
 
 /* Paragraph and text styles */
 .markdown-content :deep(p) {
-  @apply text-sm my-2 leading-relaxed text-secondaryLight;
+  @apply text-sm my-2 leading-relaxed text-secondary;
 }
 
 .markdown-content :deep(strong) {

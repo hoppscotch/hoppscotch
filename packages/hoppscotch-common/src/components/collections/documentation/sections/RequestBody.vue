@@ -39,10 +39,10 @@
               :key="index"
               class="border-t border-divider"
             >
-              <td class="py-2 px-4 font-mono text-accent">
+              <td class="py-2 px-4 text-accent">
                 {{ item.key }}
               </td>
-              <td class="py-2 px-4 text-secondaryLight font-mono">
+              <td class="py-2 px-4 text-secondaryLight">
                 {{ item.value }}
               </td>
             </tr>
@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTReqBody } from "@hoppscotch/data"
+import { HoppRESTReqBody, parseRawKeyValueEntries } from "@hoppscotch/data"
 
 defineProps<{
   body: HoppRESTReqBody | null | undefined
@@ -88,20 +88,7 @@ function formatJSON(jsonString: string): string {
  */
 function parseFormData(formData: string): { key: string; value: string }[] {
   try {
-    const result: { key: string; value: string }[] = []
-    const pairs = formData.split("&")
-
-    pairs.forEach((pair) => {
-      const [key, value] = pair.split("=")
-      if (key) {
-        result.push({
-          key: decodeURIComponent(key),
-          value: decodeURIComponent(value || ""),
-        })
-      }
-    })
-
-    return result
+    return typeof formData === "string" ? parseRawKeyValueEntries(formData) : []
   } catch (e) {
     return []
   }

@@ -1028,8 +1028,11 @@ function setupUserRequestDeletedSubscription() {
   return userRequestDeletedSub
 }
 
+import { importToPersonalWorkspace } from "./import"
+
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  importToPersonalWorkspace,
 }
 
 function getCollectionPathFromCollectionID(

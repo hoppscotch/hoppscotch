@@ -16,6 +16,7 @@
           }"
           active-class="active"
           exact-active-class="active"
+          :exact="item.exactMatch"
           class="tab"
           :class="[{ vertical: vertical }]"
           :aria-label="item.label || ''"

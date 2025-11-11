@@ -33,6 +33,7 @@ import {
   getCurrentEnvironment,
   getEnvironment,
   getGlobalVariables,
+  SelectedEnvironmentIndex,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
@@ -80,6 +81,56 @@ const cookieJarService = getService(CookieJarService)
 const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
+
+export type InitialEnvironmentState = {
+  initialGlobalEnvs: Environment["variables"]
+  initialEnvID: string
+  initialSelectedEnvs: Environment["variables"]
+  initialEnvironmentIndex: SelectedEnvironmentIndex
+  initialEnvs: TestResult["envs"] & {
+    temp: Environment["variables"]
+  }
+  initialEnvsForComparison: TestResult["envs"]
+}
+
+/**
+ * Captures the initial environment state before request execution
+ * So that we can compare and update environment variables after test script execution
+ * because the current environment can change during the request execution.
+ * @returns Object containing all initial environment states needed for comparison and updates
+ */
+export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
+  // Capture initial environment state before request execution
+  const initialGlobalEnvs = resolveEnvVars(
+    "Global",
+    cloneDeep(getGlobalVariables())
+  )
+  const { id: initialEnvID, variables: initialEnvVariables } =
+    getCurrentEnvironment()
+
+  const initialSelectedEnvs = resolveEnvVars(initialEnvID, initialEnvVariables)
+
+  // Capture initial environment index for later use in updateEnvsAfterTestScript
+  const initialEnvironmentIndex = cloneDeep(
+    environmentsStore.value.selectedEnvironmentIndex
+  )
+
+  // Capture the initial script environment state (the environment passed to scripts)
+  const initialEnvs = getCombinedEnvVariables()
+  const initialEnvsForComparison: TestResult["envs"] = {
+    global: initialEnvs.global,
+    selected: initialEnvs.selected,
+  }
+
+  return {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvs,
+    initialEnvsForComparison,
+  }
+}
 
 export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -143,20 +194,16 @@ export const executedResponses$ = new Subject<
  * and secret environment service.
  * @param envs The environment variables to update
  * @param type Whether the environment variables are global or selected
+ * @param initialEnvID The initial environment ID to use for updates
  * @returns the updated environment variables
  */
 const updateEnvironments = (
-  envs: Environment["variables"] &
-    {
-      secret: true
-      currentValue: string
-      initialValue: string
-      key: string
-    }[],
-  type: "global" | "selected"
+  envs: Environment["variables"],
+  type: "global" | "selected",
+  initialEnvID?: string
 ) => {
-  const currentEnvID =
-    type === "selected" ? getCurrentEnvironment().id : "Global"
+  const envID =
+    type === "selected" ? initialEnvID || getCurrentEnvironment().id : "Global"
 
   const updatedSecretEnvironments: SecretVariable[] = []
   const nonSecretVariables: Variable[] = []
@@ -172,12 +219,11 @@ const updateEnvironments = (
           initialValue: e.initialValue ?? "",
         })
 
-        // create a new object with cleared values for secret variables
-        // so that these values don't get saved in the environment
+        // For secret variables, keep the initialValue but clear currentValue for storage
         return {
           key: e.key,
           secret: e.secret,
-          initialValue: e.secret ? "" : (e.initialValue ?? ""),
+          initialValue: e.initialValue ?? "",
           currentValue: "",
         }
       }
@@ -188,27 +234,26 @@ const updateEnvironments = (
         varIndex: index,
         currentValue: e.currentValue ?? "",
       })
-      // set the current value as empty string
-      // so that it doesn't get saved in the environment
+
+      // For non-secret variables, preserve both initialValue and currentValue
       return {
         key: e.key,
-        secret: e.secret,
+        secret: e.secret ?? false,
         initialValue: e.initialValue ?? "",
-        currentValue: "",
+        currentValue: e.currentValue ?? "",
       }
     })
   )
-  if (currentEnvID) {
+
+  if (envID) {
     secretEnvironmentService.addSecretEnvironment(
-      currentEnvID,
+      envID,
       updatedSecretEnvironments
     )
 
-    currentEnvironmentValueService.addEnvironment(
-      currentEnvID,
-      nonSecretVariables
-    )
+    currentEnvironmentValueService.addEnvironment(envID, nonSecretVariables)
   }
+
   return updatedEnv
 }
 
@@ -439,9 +484,18 @@ export function runRESTRequest$(
     headers: requestHeaders,
   }
 
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = captureInitialEnvironmentState()
+
   const res = delegatePreRequestScriptRunner(
     resolvedRequest,
-    getCombinedEnvVariables(),
+    initialEnvs,
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
@@ -541,9 +595,24 @@ export function runRESTRequest$(
             ) as E.Right<SandboxTestResult>
 
             tab.value.document.testResults = translateToSandboxTestResults(
-              combinedResult.right
+              combinedResult.right,
+              initialGlobalEnvs,
+              initialSelectedEnvs
             )
-            updateEnvsAfterTestScript(combinedResult)
+
+            // Check if scripts actually modified environment variables
+            if (
+              hasEnvironmentChanges(
+                initialEnvsForComparison, // Initial environment when request started
+                postRequestScriptResult.right.envs // Final script environment after test script execution
+              )
+            ) {
+              updateEnvsAfterTestScript(
+                combinedResult,
+                initialEnvironmentIndex,
+                initialEnvID
+              )
+            }
 
             const updatedCookies = postRequestScriptResult.right.updatedCookies
 
@@ -594,9 +663,12 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
+function updateEnvsAfterTestScript(
+  runResult: E.Right<SandboxTestResult>,
+  initialEnvironmentIndex: SelectedEnvironmentIndex,
+  initialEnvID?: string
+) {
   const globalEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
     runResult.right.envs.global,
     "global"
   )
@@ -605,36 +677,85 @@ function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
     v: 2,
     variables: globalEnvVariables,
   })
+
   const selectedEnvVariables = updateEnvironments(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
     cloneDeep(runResult.right.envs.selected),
-    "selected"
+    "selected",
+    initialEnvID
   )
-  if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
+
+  if (initialEnvironmentIndex.type === "MY_ENV") {
     const env = getEnvironment({
       type: "MY_ENV",
-      index: environmentsStore.value.selectedEnvironmentIndex.index,
+      index: initialEnvironmentIndex.index,
     })
-    updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
+    updateEnvironment(initialEnvironmentIndex.index, {
       name: env.name,
       v: 2,
       id: "id" in env ? env.id : "",
       variables: selectedEnvVariables,
     })
-  } else if (
-    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
-  ) {
+  } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
     const env = getEnvironment({
       type: "TEAM_ENV",
     })
     pipe(
       updateTeamEnvironment(
         JSON.stringify(selectedEnvVariables),
-        environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
+        initialEnvironmentIndex.teamEnvID,
         env.name
       )
     )()
   }
+}
+
+/**
+ * Checks if there are any changes between two environment states by comparing
+ * the initial environment state with the final environment state.
+ * @param initialEnvs The environment state at the start
+ * @param finalEnvs The environment state after changes
+ * @returns true if there are any environment changes, false otherwise
+ */
+const hasEnvironmentChanges = (
+  initialEnvs: TestResult["envs"],
+  finalEnvs: TestResult["envs"]
+): boolean => {
+  // Check global environment changes
+  const globalAdditions = getAddedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+  const globalDeletions = getRemovedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+  const globalUpdations = getUpdatedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+
+  // Check selected environment changes
+  const selectedAdditions = getAddedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+  const selectedDeletions = getRemovedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+  const selectedUpdations = getUpdatedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+
+  return (
+    globalAdditions.length > 0 ||
+    globalDeletions.length > 0 ||
+    globalUpdations.length > 0 ||
+    selectedAdditions.length > 0 ||
+    selectedDeletions.length > 0 ||
+    selectedUpdations.length > 0
+  )
 }
 
 const getCookieJarEntries = () => {
@@ -654,13 +775,16 @@ const getCookieJarEntries = () => {
  * Run the test runner request
  * @param request The request to run
  * @param persistEnv Whether to persist the environment variables after running the test script
+ * @param inheritedVariables The inherited collection variables from the collection/folder
+ * @param initialEnvironmentState The initial environment state before collection run execution
  * @returns The response and the test result
  */
 
 export function runTestRunnerRequest(
   request: HoppRESTRequest,
   persistEnv = true,
-  inheritedVariables: HoppCollectionVariable[] = []
+  inheritedVariables: HoppCollectionVariable[] = [],
+  initialEnvironmentState: InitialEnvironmentState
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
@@ -672,9 +796,18 @@ export function runTestRunnerRequest(
 > {
   const cookieJarEntries = getCookieJarEntries()
 
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = initialEnvironmentState
+
   return delegatePreRequestScriptRunner(
     request,
-    getCombinedEnvVariables(),
+    initialEnvs,
     cookieJarEntries
   ).then(async (preRequestScriptResult) => {
     if (E.isLeft(preRequestScriptResult)) {
@@ -747,12 +880,26 @@ export function runTestRunnerRequest(
               ],
             }
 
-            const sandboxTestResult =
-              translateToSandboxTestResults(combinedResult)
+            const sandboxTestResult = translateToSandboxTestResults(
+              combinedResult,
+              initialGlobalEnvs,
+              initialSelectedEnvs
+            )
 
             // Update the environment variables after running the test script when persistEnv is true. else store the updated environment variables in the store as a temporary variable.
             if (persistEnv) {
-              updateEnvsAfterTestScript(postRequestScriptResult)
+              if (
+                hasEnvironmentChanges(
+                  initialEnvsForComparison, // Initial script environment when requests started
+                  postRequestScriptResult.right.envs // Final script environment after test script execution
+                )
+              ) {
+                updateEnvsAfterTestScript(
+                  postRequestScriptResult,
+                  initialEnvironmentIndex,
+                  initialEnvID
+                )
+              }
             } else {
               // Combine global and selected environment changes
               const allChanges = [
@@ -865,7 +1012,9 @@ const resolveEnvVars = (
   })
 
 function translateToSandboxTestResults(
-  testDesc: SandboxTestResult
+  testDesc: SandboxTestResult,
+  initialGlobalEnvs: Environment["variables"],
+  initialSelectedEnvs: Environment["variables"]
 ): HoppTestResult {
   const translateChildTests = (child: TestDescriptor): HoppTestData => {
     return {
@@ -875,11 +1024,6 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = resolveEnvVars("Global", cloneDeep(getGlobalVariables()))
-  const { id: currentEnvID, variables: currentEnvVariables } =
-    getCurrentEnvironment()
-  const envVars = resolveEnvVars(currentEnvID, currentEnvVariables)
-
   return {
     description: "",
     expectResults: testDesc.tests.expectResults,
@@ -887,14 +1031,32 @@ function translateToSandboxTestResults(
     scriptError: false,
     envDiff: {
       global: {
-        additions: getAddedEnvVariables(globals, testDesc.envs.global),
-        deletions: getRemovedEnvVariables(globals, testDesc.envs.global),
-        updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
+        additions: getAddedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
+        deletions: getRemovedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
+        updations: getUpdatedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
       },
       selected: {
-        additions: getAddedEnvVariables(envVars, testDesc.envs.selected),
-        deletions: getRemovedEnvVariables(envVars, testDesc.envs.selected),
-        updations: getUpdatedEnvVariables(envVars, testDesc.envs.selected),
+        additions: getAddedEnvVariables(
+          initialSelectedEnvs,
+          testDesc.envs.selected
+        ),
+        deletions: getRemovedEnvVariables(
+          initialSelectedEnvs,
+          testDesc.envs.selected
+        ),
+        updations: getUpdatedEnvVariables(
+          initialSelectedEnvs,
+          testDesc.envs.selected
+        ),
       },
     },
     consoleEntries: testDesc.consoleEntries,

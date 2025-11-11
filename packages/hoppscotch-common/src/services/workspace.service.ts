@@ -116,7 +116,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private setupTeamCollectionServiceSync() {
     watch(
       this._currentWorkspace,
-      async (newWorkspace, oldWorkspace) => {
+      (newWorkspace, oldWorkspace) => {
         // Skip update if workspaces are effectively the same
         if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
 

@@ -68,10 +68,7 @@ export class TestRunnerService extends Service {
       variables: [],
     }
 
-    // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
-    const initialEnvironmentState = captureInitialEnvironmentState()
-
-    this.runTestCollection(tab, collection, options, initialEnvironmentState)
+    this.runTestCollection(tab, collection, options)
       .then(() => {
         tab.value.document.status = "stopped"
       })
@@ -95,7 +92,6 @@ export class TestRunnerService extends Service {
     tab: Ref<HoppTab<HoppTestRunnerDocument>>,
     collection: HoppCollection,
     options: TestRunnerOptions,
-    initialEnvironmentState: InitialEnvironmentState,
     parentPath: number[] = [],
     parentHeaders?: HoppRESTHeaders,
     parentAuth?: HoppRESTRequest["auth"],
@@ -151,7 +147,6 @@ export class TestRunnerService extends Service {
           tab,
           folder,
           options,
-          initialEnvironmentState,
           currentPath,
           inheritedHeaders,
           inheritedAuth,
@@ -186,6 +181,9 @@ export class TestRunnerService extends Service {
               : request.auth,
           headers: [...inheritedHeaders, ...request.headers],
         }
+
+        // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
+        const initialEnvironmentState = captureInitialEnvironmentState()
 
         await this.runTestRequest(
           tab,

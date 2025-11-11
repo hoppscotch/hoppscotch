@@ -6,6 +6,7 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamCollectionsService } from "./team-collection.service"
 
 /**
  * Defines a workspace and its information
@@ -44,6 +45,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private teamListAdapterLocks = reactive(new Map<number, number | null>())
   private teamListAdapterLockTicker = 0 // Used to generate unique lock IDs
   private managedTeamListAdapter = new TeamListAdapter(true, false)
+
+  private teamCollectionService = this.bind(TeamCollectionsService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -118,16 +121,10 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
 
         try {
-          // Use dynamic import to avoid circular dependency
-          const { TeamCollectionsService } = await import(
-            "./team-collection.service"
-          )
-          const teamCollectionService = this.bind(TeamCollectionsService)
-
           if (newWorkspace.type === "team" && newWorkspace.teamID) {
-            teamCollectionService.changeTeamID(newWorkspace.teamID)
+            this.teamCollectionService.changeTeamID(newWorkspace.teamID)
           } else {
-            teamCollectionService.clearCollections()
+            this.teamCollectionService.clearCollections()
           }
         } catch (error) {
           console.error("Failed to sync team collections:", error)

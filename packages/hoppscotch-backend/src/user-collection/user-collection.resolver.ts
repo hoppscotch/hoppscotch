@@ -18,7 +18,7 @@ import {
   UserCollection,
   UserCollectionDuplicatedData,
   UserCollectionExportJSONData,
-  UserCollectionNestedChildren,
+  UserCollectionImportResult,
   UserCollectionRemovedData,
   UserCollectionReorderData,
 } from './user-collections.model';
@@ -376,7 +376,7 @@ export class UserCollectionResolver {
     return res.right;
   }
 
-  @Mutation(() => UserCollectionNestedChildren, {
+  @Mutation(() => UserCollectionImportResult, {
     description: 'Import collections from JSON string to the specified Team',
   })
   @UseGuards(GqlAuthGuard)

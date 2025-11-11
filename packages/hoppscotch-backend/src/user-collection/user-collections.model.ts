@@ -117,41 +117,14 @@ export class UserCollectionDuplicatedData {
 }
 
 @ObjectType()
-export class UserCollectionNestedChildren {
-  @Field(() => ID, {
-    description: 'ID of the user collection',
+export class UserCollectionImportResult {
+  @Field(() => [UserCollection], {
+    description: 'Flat array of all collections',
   })
-  id: string;
-
-  @Field({
-    description: 'Displayed title of the user collection',
-  })
-  title: string;
-
-  @Field(() => ReqType, {
-    description: 'Type of the user collection',
-  })
-  type: ReqType;
-
-  @Field({
-    description: 'Parent ID of the user collection',
-    nullable: true,
-  })
-  parentID: string;
-
-  @Field({
-    description: 'JSON string representing the collection data',
-    nullable: true,
-  })
-  data: string;
-
-  @Field(() => [UserCollectionNestedChildren], {
-    description: 'Child collections of the user collection',
-  })
-  children: UserCollectionNestedChildren[];
+  collections: UserCollection[];
 
   @Field(() => [UserRequest], {
-    description: 'Requests of the user collection',
+    description: 'Flat array of all requests',
   })
   requests: UserRequest[];
 }

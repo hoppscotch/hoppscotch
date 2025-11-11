@@ -40,6 +40,7 @@ import {
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { SortOptions } from 'src/types/SortOptions';
+import { UserRequest } from 'src/user-request/user-request.model';
 
 @Injectable()
 export class UserCollectionService {
@@ -1015,9 +1016,9 @@ export class UserCollectionService {
   }
 
   /**
-   * Fetch all descendants of given parent IDs and build nested structure
+   * Fetch all descendants of given parent IDs and return flat arrays
    * @param parentIds Array of parent collection IDs to start from
-   * @returns Array of nested collection structures with all descendants and their requests
+   * @returns Object containing flat arrays of collections and requests
    */
   private async getMultiLayerNestedChildren(parentIds: string[]) {
     // Step 1: Get all collections that are descendants of the parent IDs using recursive CTE
@@ -1049,46 +1050,20 @@ export class UserCollectionService {
       },
     });
 
-    // Group requests by collectionID for easy lookup
-    const requestsByCollectionId = new Map();
-    allRequests.forEach((request) => {
-      if (!requestsByCollectionId.has(request.collectionID)) {
-        requestsByCollectionId.set(request.collectionID, []);
-      }
-      requestsByCollectionId.get(request.collectionID).push(request);
-    });
-
-    // Step 4: Build nested structure
-    const collectionMap = new Map();
-
-    // First pass: Create a map of all collections with empty children arrays and their requests
-    allDescendants.forEach((collection) => {
-      collectionMap.set(collection.id, {
-        ...this.cast(collection),
-        children: [],
-        requests: requestsByCollectionId.get(collection.id) || [],
-      });
-    });
-
-    // Second pass: Build the tree structure by connecting parents and children
-    const roots = [];
-    allDescendants.forEach((collection) => {
-      const node = collectionMap.get(collection.id);
-
-      if (parentIds.includes(collection.id)) {
-        // This is a root node (one of the requested parents)
-        roots.push(node);
-      } else if (
-        collection.parentID &&
-        collectionMap.has(collection.parentID)
-      ) {
-        // Add to parent's children array
-        const parent = collectionMap.get(collection.parentID);
-        parent.children.push(node);
-      }
-    });
-
-    return roots;
+    // Step 3: Return flat arrays with casted data
+    return {
+      collections: allDescendants.map((collection) => this.cast(collection)),
+      // Note: This casting logic is identical to UserRequestService.cast()
+      // We duplicate it here to avoid circular dependency between services
+      requests: allRequests.map(
+        (request) =>
+          ({
+            ...request,
+            type: ReqType[request.type],
+            request: JSON.stringify(request.request),
+          }) as UserRequest,
+      ),
+    };
   }
 
   /**
@@ -1230,7 +1205,7 @@ export class UserCollectionService {
     }
 
     // Fetch nested collections after transaction is committed
-    const nestedCollections = await this.getMultiLayerNestedChildren(
+    const nestedCollectionsAndRequests = await this.getMultiLayerNestedChildren(
       userCollections.map((x) => x.id),
     );
 
@@ -1253,7 +1228,7 @@ export class UserCollectionService {
       );
     }
 
-    return E.right(nestedCollections);
+    return E.right(nestedCollectionsAndRequests);
   }
 
   /**

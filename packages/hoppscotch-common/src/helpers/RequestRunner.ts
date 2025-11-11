@@ -882,7 +882,7 @@ export function runTestRunnerRequest(
             // Update the environment variables after running the test script when persistEnv is true. else store the updated environment variables in the store as a temporary variable.
             if (persistEnv) {
               if (
-                hasScriptEnvironmentChanges(
+                hasEnvironmentChanges(
                   initialEnvsForComparison, // Initial script environment when requests started
                   postRequestScriptResult.right.envs // Final script environment after test script execution
                 )

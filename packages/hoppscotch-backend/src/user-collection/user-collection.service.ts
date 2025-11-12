@@ -971,7 +971,7 @@ export class UserCollectionService {
       collectionListObjects.push(result.right);
     }
 
-    // If collectionID is not null, return JSONified data for specific collection
+    // If collectionID is not null, return JSON stringified data for specific collection
     if (collectionID) {
       // Get Details of collection
       const parentCollection = await this.getUserCollection(collectionID);
@@ -1205,18 +1205,27 @@ export class UserCollectionService {
     }
 
     // Fetch nested collections after transaction is committed
-    const nestedCollectionsAndRequests = await this.getMultiLayerNestedChildren(
-      userCollections.map((x) => x.id),
+    const importedCollectionsWithChildren: CollectionFolder[] = [];
+    for (const userCollection of userCollections) {
+      const exportedCollectionJSON =
+        await this.exportUserCollectionToJSONObject(userID, userCollection.id);
+      if (E.isLeft(exportedCollectionJSON))
+        return E.left(exportedCollectionJSON.left);
+      importedCollectionsWithChildren.push(exportedCollectionJSON.right);
+    }
+
+    const collectionsToReturn = importedCollectionsWithChildren.map(
+      (obj) => obj,
     );
 
     if (isCollectionDuplication) {
-      const collectionData = await this.fetchCollectionData(
+      const duplicatedCollectionData = await this.fetchCollectionData(
         userCollections[0].id,
       );
-      if (E.isRight(collectionData)) {
+      if (E.isRight(duplicatedCollectionData)) {
         this.pubsub.publish(
           `user_coll/${userID}/duplicated`,
-          collectionData.right,
+          duplicatedCollectionData.right,
         );
       }
     } else {
@@ -1228,7 +1237,10 @@ export class UserCollectionService {
       );
     }
 
-    return E.right(nestedCollectionsAndRequests);
+    return E.right({
+      exportedCollection: JSON.stringify(collectionsToReturn),
+      collectionType: reqType,
+    } as UserCollectionExportJSONData);
   }
 
   /**

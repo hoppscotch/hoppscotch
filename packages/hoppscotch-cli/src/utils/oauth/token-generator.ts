@@ -1,4 +1,4 @@
-import { HoppCollection, HoppRESTAuth } from "@hoppscotch/data"
+import { HoppCollection, HoppRESTAuth, parseTemplateStringE, EnvironmentVariable } from "@hoppscotch/data"
 import axios from "axios"
 import * as E from "fp-ts/Either"
 import { z } from "zod"
@@ -32,13 +32,27 @@ export function requiresRedirect(auth: HoppRESTAuth): boolean {
 }
 
 /**
+ * Expands template strings in a value using environment variables
+ * Returns the original value if expansion fails
+ */
+function expandTemplateString(
+  value: string,
+  envVariables: EnvironmentVariable[]
+): string {
+  const result = parseTemplateStringE(value, envVariables)
+  return E.isRight(result) ? result.right : value
+}
+
+/**
  * Automatically generates an OAuth 2.0 token for a collection in CLI environment
  *
  * @param collection - The collection with OAuth 2.0 auth configured
+ * @param envVariables - Environment variables for template string expansion
  * @returns Either an error or the generated access token and optional refresh token
  */
 export async function generateOAuth2TokenForCollection(
-  collection: HoppCollection
+  collection: HoppCollection,
+  envVariables: EnvironmentVariable[] = []
 ): Promise<
   E.Either<
     OAuthTokenGenerationError,
@@ -62,10 +76,10 @@ export async function generateOAuth2TokenForCollection(
   try {
     switch (grantType) {
       case "CLIENT_CREDENTIALS":
-        return await generateClientCredentialsToken(auth)
+        return await generateClientCredentialsToken(auth, envVariables)
 
       case "PASSWORD":
-        return await generatePasswordToken(auth)
+        return await generatePasswordToken(auth, envVariables)
 
       default:
         return E.left("UNSUPPORTED_GRANT_TYPE")
@@ -80,7 +94,8 @@ export async function generateOAuth2TokenForCollection(
  * Generate token using Client Credentials grant type
  */
 async function generateClientCredentialsToken(
-  auth: HoppRESTAuth & { authType: "oauth-2" }
+  auth: HoppRESTAuth & { authType: "oauth-2" },
+  envVariables: EnvironmentVariable[]
 ): Promise<
   E.Either<
     OAuthTokenGenerationError,
@@ -94,19 +109,20 @@ async function generateClientCredentialsToken(
     return E.left("VALIDATION_FAILED")
   }
 
-  const authEndpoint = grantTypeInfo.authEndpoint
-  const clientID = grantTypeInfo.clientID
-  const clientSecret = (grantTypeInfo as any).clientSecret || ""
-  const scopes = grantTypeInfo.scopes
+  // Expand template strings in OAuth configuration
+  const authEndpoint = expandTemplateString(grantTypeInfo.authEndpoint, envVariables)
+  const clientID = expandTemplateString(grantTypeInfo.clientID, envVariables)
+  const clientSecret = expandTemplateString((grantTypeInfo as any).clientSecret || "", envVariables)
+  const scopes = expandTemplateString(grantTypeInfo.scopes || "", envVariables)
   const clientAuthentication =
     (grantTypeInfo as any).clientAuthentication || "IN_BODY"
   const tokenRequestParams = (grantTypeInfo as any).tokenRequestParams || []
 
   // Validate required parameters
   if (!authEndpoint || !clientID) {
-    console.error("❌ Client Credentials validation failed: missing required parameters")
-    console.error(`Auth endpoint: ${authEndpoint || "(missing)"}`);
-    console.error(`Client ID: ${clientID || "(missing)"}`);
+    console.error("❌ Client Credentials validation failed: missing required parameters.")
+    console.error(`Auth endpoint: ${authEndpoint || "(missing)"}`)
+    console.error(`Client ID: ${clientID || "(missing)"}`)
     return E.left("VALIDATION_FAILED")
   }
 
@@ -189,6 +205,14 @@ async function generateClientCredentialsToken(
       return E.left("TOKEN_GENERATION_FAILED")
     }
 
+    // Check for missing or empty access_token
+    if (
+      !parsedResponse.data.access_token ||
+      parsedResponse.data.access_token.trim() === ""
+    ) {
+      return E.left("TOKEN_GENERATION_FAILED")
+    }
+
     return E.right(parsedResponse.data)
   } catch (error) {
     console.error("\n❌ Client Credentials token generation failed:", error);
@@ -200,7 +224,8 @@ async function generateClientCredentialsToken(
  * Generate token using Password grant type
  */
 async function generatePasswordToken(
-  auth: HoppRESTAuth & { authType: "oauth-2" }
+  auth: HoppRESTAuth & { authType: "oauth-2" },
+  envVariables: EnvironmentVariable[]
 ): Promise<
   E.Either<
     OAuthTokenGenerationError,
@@ -214,17 +239,18 @@ async function generatePasswordToken(
     return E.left("VALIDATION_FAILED")
   }
 
-  const authEndpoint = grantTypeInfo.authEndpoint
-  const clientID = grantTypeInfo.clientID
-  const clientSecret = (grantTypeInfo as any).clientSecret || ""
-  const username = (grantTypeInfo as any).username || ""
-  const password = (grantTypeInfo as any).password || ""
-  const scopes = grantTypeInfo.scopes
+  // Expand template strings in OAuth configuration
+  const authEndpoint = expandTemplateString(grantTypeInfo.authEndpoint, envVariables)
+  const clientID = expandTemplateString(grantTypeInfo.clientID, envVariables)
+  const clientSecret = expandTemplateString((grantTypeInfo as any).clientSecret || "", envVariables)
+  const username = expandTemplateString((grantTypeInfo as any).username || "", envVariables)
+  const password = expandTemplateString((grantTypeInfo as any).password || "", envVariables)
+  const scopes = expandTemplateString(grantTypeInfo.scopes || "", envVariables)
   const tokenRequestParams = (grantTypeInfo as any).tokenRequestParams || []
 
   // Validate required parameters
   if (!authEndpoint || !clientID || !username || !password) {
-    console.error("Password flow validation failed: missing required parameters")
+    console.error("Password flow validation failed: missing required parameters.")
     return E.left("VALIDATION_FAILED")
   }
 
@@ -292,6 +318,15 @@ async function generatePasswordToken(
 
     if (!parsedResponse.success) {
       console.error("Invalid token response:", parsedResponse.error)
+      return E.left("TOKEN_GENERATION_FAILED")
+    }
+
+    // Check for missing or empty access_token
+    if (
+      !parsedResponse.data.access_token ||
+      typeof parsedResponse.data.access_token !== "string" ||
+      parsedResponse.data.access_token.trim() === ""
+    ) {
       return E.left("TOKEN_GENERATION_FAILED")
     }
 

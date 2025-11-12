@@ -136,10 +136,14 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
 
   /**
    * Checks if two workspaces are effectively equal to avoid unnecessary updates
+   *
+   * Note: Vue's watch API provides `undefined` as `oldValue` on the first callback
+   * invocation when using `{ immediate: true }`, since there is no previous value yet.
+   * This is why `oldWorkspace` has an optional type, while `newWorkspace` is always defined.
    */
   private areWorkspacesEqual(
-    newWorkspace: Workspace | undefined,
-    oldWorkspace: Workspace | undefined
+    newWorkspace: Workspace,
+    oldWorkspace?: Workspace
   ): boolean {
     if (!newWorkspace || !oldWorkspace) return false
 

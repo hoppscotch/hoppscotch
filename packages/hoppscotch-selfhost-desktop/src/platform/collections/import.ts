@@ -14,7 +14,7 @@ import {
 } from "./collections.platform"
 
 /**
- * Platform-specific import function for selfhost-web that uses the correct nested collection queries
+ * Platform-specific import function for selfhost-desktop that uses the correct nested collection queries
  */
 export const importToPersonalWorkspace = async (
   collections: HoppCollection[],

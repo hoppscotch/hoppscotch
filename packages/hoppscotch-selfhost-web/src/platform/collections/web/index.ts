@@ -99,7 +99,7 @@ function initCollectionsSync() {
   })
 }
 
-type ExportedUserCollectionREST = {
+export type ExportedUserCollectionREST = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionREST[]
@@ -108,7 +108,7 @@ type ExportedUserCollectionREST = {
   data: string
 }
 
-type ExportedUserCollectionGQL = {
+export type ExportedUserCollectionGQL = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionGQL[]
@@ -126,7 +126,7 @@ function addDescriptionField(
   }))
 }
 
-function exportedCollectionToHoppCollection(
+export function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {

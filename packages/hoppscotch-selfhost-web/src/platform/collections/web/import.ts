@@ -10,7 +10,7 @@ import {
   exportedCollectionToHoppCollection,
   ExportedUserCollectionGQL,
   ExportedUserCollectionREST,
-} from "../desktop"
+} from "../web"
 import { importUserCollectionsFromJSON } from "./api"
 
 /**
@@ -41,14 +41,13 @@ export const importToPersonalWorkspace = async (
     }
     // Backend import failed, fall back to local storage
     return appendCollectionsToStore(collections, reqType)
-  } catch (e) {
-    console.log("Import to backend encountered an error", e)
+  } catch {
     // On any error, fall back to local storage
     return appendCollectionsToStore(collections, reqType)
   }
 }
 
-const appendCollectionsToStore = (
+export const appendCollectionsToStore = (
   collections: HoppCollection[],
   reqType: ReqType
 ) => {
@@ -60,7 +59,7 @@ const appendCollectionsToStore = (
   return E.right({ success: true })
 }
 
-function translateToPersonalCollectionFormat(x: HoppCollection) {
+export function translateToPersonalCollectionFormat(x: HoppCollection) {
   const folders: HoppCollection[] = (x.folders ?? []).map(
     translateToPersonalCollectionFormat
   )
@@ -80,7 +79,7 @@ function translateToPersonalCollectionFormat(x: HoppCollection) {
   return obj
 }
 
-async function loadImportedUserCollections(
+export async function loadImportedUserCollections(
   collectionsJSONString: string,
   collectionType: "REST" | "GQL"
 ) {

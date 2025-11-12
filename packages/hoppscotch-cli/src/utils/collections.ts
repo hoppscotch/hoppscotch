@@ -1,4 +1,4 @@
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import { HoppCollection, HoppRESTRequest, HoppRESTAuth } from "@hoppscotch/data";
 import chalk from "chalk";
 import { log } from "console";
 import * as A from "fp-ts/Array";
@@ -52,7 +52,8 @@ const { WARN, FAIL, INFO } = exceptionColors;
  */
 
 export const collectionsRunner = async (
-  param: CollectionRunnerParam): Promise<RequestReport[]> => {
+  param: CollectionRunnerParam
+): Promise<RequestReport[]> => {
   const {
     collections,
     envs,
@@ -74,7 +75,7 @@ export const collectionsRunner = async (
 
       // Check if grant type requires redirect (not supported in CLI)
       if (requiresRedirect(auth)) {
-        const grantType = auth.authType === "oauth-2" ? auth.grantTypeInfo.grantType : "UNKNOWN"
+        const grantType = (auth as Extract<HoppRESTAuth, { authType: "oauth-2" }>).grantTypeInfo.grantType
         log(
           FAIL(
             `\n${chalk.bold("OAuth Error:")} Grant type '${grantType}' requires browser redirect and cannot be used in CLI.`
@@ -88,8 +89,10 @@ export const collectionsRunner = async (
         process.exit(1)
       }
 
-      // Generate OAuth token
-      const tokenResult = await generateOAuth2TokenForCollection(collection)
+      // Generate OAuth token with environment variable expansion
+      // Combine global and selected environment variables for template expansion
+      const allEnvVariables = [...envs.global, ...envs.selected]
+      const tokenResult = await generateOAuth2TokenForCollection(collection, allEnvVariables)
 
       if (E.isLeft(tokenResult)) {
         const errorMessages: Record<string, string> = {

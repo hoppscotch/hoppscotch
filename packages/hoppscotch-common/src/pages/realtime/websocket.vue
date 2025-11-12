@@ -264,13 +264,7 @@ watch(url, (newUrl) => {
 watch(
   protocols,
   (newProtocols) => {
-    activeProtocols.value = newProtocols
-      .filter((item) =>
-        Object.prototype.hasOwnProperty.call(item, "active")
-          ? item.active === true
-          : true
-      )
-      .map(({ value }) => value)
+    activeProtocols.value = getActiveProtocols(newProtocols)
   },
   { deep: true }
 )
@@ -280,6 +274,16 @@ const workerResponseHandler = ({
   data: { url: string; result: boolean }
 }) => {
   if (data.url === url.value) isUrlValid.value = data.result
+}
+
+const getActiveProtocols = (protocolList) => {
+  return protocolList
+    .filter((item) =>
+      Object.prototype.hasOwnProperty.call(item, "active")
+        ? item.active === true
+        : true
+    )
+    .map(({ value }) => value)
 }
 
 const getErrorPayload = (error: WSErrorMessage): string => {
@@ -292,6 +296,7 @@ const getErrorPayload = (error: WSErrorMessage): string => {
 onMounted(() => {
   worker = new RegexWorker()
   worker.addEventListener("message", workerResponseHandler)
+  activeProtocols.value = getActiveProtocols(protocols.value)
 
   subscribeToStream(socket.value.event$, (event) => {
     switch (event?.type) {

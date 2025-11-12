@@ -1,101 +1,95 @@
-import * as E from "fp-ts/Either"
-import { ReqType } from "@api/generated/graphql"
-import { HoppCollection } from "@hoppscotch/data"
-import { fetchAndConvertUserCollections } from "./mutations"
 import {
-    setRESTCollections,
-    setGraphqlCollections,
-    appendRESTCollections,
-    appendGraphqlCollections
+  appendGraphqlCollections,
+  appendRESTCollections,
+  setGraphqlCollections,
+  setRESTCollections,
 } from "@hoppscotch/common/newstore/collections"
-import {
-    importUserCollectionsFromJSON
-} from "./api"
-import { def as platformAuth } from "@platform/auth/web"
+import { HoppCollection } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import { importUserCollectionsFromJSON } from "./api"
+import { fetchAndConvertUserCollections } from "./mutations"
+import { ReqType } from "@hoppscotch/common/helpers/backend/graphql"
 
 /**
  * Platform-specific import function for selfhost-web that uses the correct nested collection queries
  */
-export const importToPersonalWorkspace = async (collections: HoppCollection[], reqType: ReqType) => {
-    const currentUser = platformAuth.getCurrentUserStream()
+export const importToPersonalWorkspace = async (
+  collections: HoppCollection[],
+  reqType: ReqType
+) => {
+  console.log("Importing collections to personal workspace via backend")
+  try {
+    const transformedCollection = collections.map((collection) =>
+      translateToPersonalCollectionFormat(collection)
+    )
 
-    // If user is logged in, try to import to backend first
-    if (currentUser.value) {
-        try {
-            const transformedCollection = collections.map((collection) =>
-                translateToPersonalCollectionFormat(collection)
-            )
+    console.log("Transformed collections for import:", transformedCollection)
 
-            const res = await importUserCollectionsFromJSON(
-                JSON.stringify(transformedCollection),
-                reqType
-            )
+    const res = await importUserCollectionsFromJSON(
+      JSON.stringify(transformedCollection),
+      reqType
+    )
 
-            if (E.isRight(res)) {
-                // Backend import succeeded, now fetch and persist collections in store
-                const fetchResult = await fetchAndConvertUserCollections(reqType)
+    console.log("Import to backend response:", res)
 
-                if (E.isRight(fetchResult)) {
-                    // Replace local collections with backend collections
-                    if (reqType === ReqType.Rest) {
-                        setRESTCollections(fetchResult.right)
-                    } else {
-                        setGraphqlCollections(fetchResult.right)
-                    }
-                } else {
-                    // Failed to fetch, append to local store as fallback
-                    if (reqType === ReqType.Rest) {
-                        appendRESTCollections(collections)
-                    } else {
-                        appendGraphqlCollections(collections)
-                    }
-                }
+    if (E.isRight(res)) {
+      console.log("Import to backend succeeded:", res.right)
+      // Backend import succeeded, now fetch and persist collections in store
+      const fetchResult = await fetchAndConvertUserCollections(reqType)
 
-                return E.right({ success: true })
-            }
-            // Backend import failed, fall back to local storage
-            if (reqType === ReqType.Rest) {
-                appendRESTCollections(collections)
-            } else {
-                appendGraphqlCollections(collections)
-            }
-            return E.right({ success: true })
-        } catch {
-            // Backend import failed, fall back to local storage
-            if (reqType === ReqType.Rest) {
-                appendRESTCollections(collections)
-            } else {
-                appendGraphqlCollections(collections)
-            }
-            return E.right({ success: true })
-        }
-    } else {
-        // User not logged in, use local storage
+      if (E.isRight(fetchResult)) {
+        console.log("Fetch after import succeeded:", fetchResult.right)
+        // Replace local collections with backend collections
         if (reqType === ReqType.Rest) {
-            appendRESTCollections(collections)
+          setRESTCollections(fetchResult.right)
         } else {
-            appendGraphqlCollections(collections)
+          setGraphqlCollections(fetchResult.right)
         }
-        return E.right({ success: true })
+      } else {
+        console.log("Fetch after import failed:", fetchResult.left)
+        // Failed to fetch, append to local store as fallback
+        return appendCollectionsToStore(collections, reqType)
+      }
+
+      return E.right({ success: true })
     }
+    // Backend import failed, fall back to local storage
+    return appendCollectionsToStore(collections, reqType)
+  } catch {
+    console.log("Import to backend encountered an error")
+    // On any error, fall back to local storage
+    return appendCollectionsToStore(collections, reqType)
+  }
+}
+
+const appendCollectionsToStore = (
+  collections: HoppCollection[],
+  reqType: ReqType
+) => {
+  if (reqType === ReqType.Rest) {
+    appendRESTCollections(collections)
+  } else {
+    appendGraphqlCollections(collections)
+  }
+  return E.right({ success: true })
 }
 
 function translateToPersonalCollectionFormat(x: HoppCollection) {
-    const folders: HoppCollection[] = (x.folders ?? []).map(
-        translateToPersonalCollectionFormat
-    )
+  const folders: HoppCollection[] = (x.folders ?? []).map(
+    translateToPersonalCollectionFormat
+  )
 
-    const data = {
-        auth: x.auth,
-        headers: x.headers,
-        variables: x.variables,
-    }
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+    variables: x.variables,
+  }
 
-    const obj = {
-        ...x,
-        folders,
-        data,
-    }
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
 
-    return obj
+  return obj
 }

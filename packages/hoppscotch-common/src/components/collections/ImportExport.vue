@@ -1,6 +1,12 @@
 <template>
-  <ImportExportBase ref="collections-import-export" modal-title="modal.collections" :importer-modules="importerModules"
-    :exporter-modules="exporterModules" :has-team-write-access="hasTeamWriteAccess" @hide-modal="emit('hide-modal')" />
+  <ImportExportBase
+    ref="collections-import-export"
+    modal-title="modal.collections"
+    :importer-modules="importerModules"
+    :exporter-modules="exporterModules"
+    :has-team-write-access="hasTeamWriteAccess"
+    @hide-modal="emit('hide-modal')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -27,11 +33,7 @@ import { defineStep } from "~/composables/step-components"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import {
-  appendRESTCollections,
-  restCollections$,
-  setRESTCollections,
-} from "~/newstore/collections"
+import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -44,11 +46,6 @@ import { useReadonlyStream } from "~/composables/stream"
 import IconUser from "~icons/lucide/user"
 
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
-import {
-  importUserCollectionsFromJSON,
-  fetchAndConvertUserCollections,
-} from "~/helpers/backend/mutations/UserCollection"
-import { ReqType } from "~/helpers/backend/graphql"
 
 import { platform } from "~/platform"
 
@@ -61,6 +58,7 @@ import { ImporterOrExporter } from "~/components/importExport/types"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
+import { ReqType } from "~/helpers/backend/graphql"
 
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
@@ -74,9 +72,9 @@ const toast = useToast()
 
 type CollectionType =
   | {
-    type: "team-collections"
-    selectedTeam: TeamWorkspace
-  }
+      type: "team-collections"
+      selectedTeam: TeamWorkspace
+    }
   | { type: "my-collections" }
 
 const props = defineProps({
@@ -115,79 +113,23 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 }
 
 const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
-  // Check if platform has a specific import function
-  if (platform.sync.collections.importToPersonalWorkspace) {
-    return await platform.sync.collections.importToPersonalWorkspace(collections, ReqType.Rest)
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    console.log("Importing to personal workspace via platform sync function")
+    return await platform.sync.collections.importToPersonalWorkspace(
+      collections,
+      ReqType.Rest
+    )
   }
-
-  // Fallback to common implementation for platforms without specific import
-  // If user is logged in, try to import to backend first
-  if (currentUser.value) {
-    try {
-      const transformedCollection = collections.map((collection) =>
-        translateToPersonalCollectionFormat(collection)
-      )
-
-      const res = await importUserCollectionsFromJSON(
-        JSON.stringify(transformedCollection),
-        ReqType.Rest
-      )()
-
-      if (E.isRight(res)) {
-        // Backend import succeeded, now fetch and persist collections in store
-        const fetchResult = await fetchAndConvertUserCollections(ReqType.Rest)
-
-        if (E.isRight(fetchResult)) {
-          // Replace local collections with backend collections
-          setRESTCollections(fetchResult.right)
-        } else {
-          // Failed to fetch, append to local store as fallback
-          appendRESTCollections(collections)
-        }
-
-        return E.right({ success: true })
-      }
-      // Backend import failed, fall back to local storage
-      appendRESTCollections(collections)
-      return E.right({ success: true })
-    } catch {
-      // Backend import failed, fall back to local storage
-      appendRESTCollections(collections)
-      return E.right({ success: true })
-    }
-  } else {
-    // User not logged in, use local storage
-    appendRESTCollections(collections)
-    return E.right({ success: true })
-  }
+  appendRESTCollections(collections)
+  return E.right({ success: true })
 }
 
 function translateToTeamCollectionFormat(x: HoppCollection) {
   const folders: HoppCollection[] = (x.folders ?? []).map(
     translateToTeamCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-    description: x.description,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
-function translateToPersonalCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToPersonalCollectionFormat
   )
 
   const data = {
@@ -227,8 +169,8 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   return E.isRight(res)
     ? E.right({ success: true })
     : E.left({
-      success: false,
-    })
+        success: false,
+      })
 }
 
 const emit = defineEmits<{
@@ -836,7 +778,7 @@ const importerModules = computed(() => {
 
     return isTeams
       ? importer.metadata.applicableTo.includes("team-workspace") &&
-      hasTeamWriteAccess.value
+          hasTeamWriteAccess.value
       : importer.metadata.applicableTo.includes("personal-workspace")
   })
 })

@@ -89,7 +89,7 @@ export async function loadImportedUserCollections(
     >
   ).map((collection) => ({ v: 1, ...collection }))
   runDispatchWithOutSyncing(() => {
-    collectionType == "REST"
+    collectionType === "REST"
       ? appendRESTCollections(
           importedCollections.map(
             (collection) =>

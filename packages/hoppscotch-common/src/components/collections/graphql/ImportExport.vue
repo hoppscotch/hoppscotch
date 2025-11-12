@@ -34,6 +34,7 @@ import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollec
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
+import { ReqType } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const toast = useToast()
@@ -231,7 +232,16 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = (gqlCollections: HoppCollection[]) => {
+const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    return await platform.sync.collections.importToPersonalWorkspace(
+      gqlCollections,
+      ReqType.Gql
+    )
+  }
   appendGraphqlCollections(gqlCollections)
   toast.success(t("state.file_imported"))
 }

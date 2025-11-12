@@ -117,7 +117,6 @@ const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
-    console.log("Importing to personal workspace via platform sync function")
     return await platform.sync.collections.importToPersonalWorkspace(
       collections,
       ReqType.Rest

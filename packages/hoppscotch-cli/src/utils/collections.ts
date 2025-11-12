@@ -2,6 +2,7 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import chalk from "chalk";
 import { log } from "console";
 import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
 import { round } from "lodash-es";
 
@@ -34,6 +35,12 @@ import {
   processRequest,
 } from "./request";
 import { getTestMetrics } from "./test";
+import {
+  generateOAuth2TokenForCollection,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
+} from "./oauth/token-generator";
 
 const { WARN, FAIL, INFO } = exceptionColors;
 
@@ -45,8 +52,7 @@ const { WARN, FAIL, INFO } = exceptionColors;
  */
 
 export const collectionsRunner = async (
-  param: CollectionRunnerParam
-): Promise<RequestReport[]> => {
+  param: CollectionRunnerParam): Promise<RequestReport[]> => {
   const {
     collections,
     envs,
@@ -57,8 +63,56 @@ export const collectionsRunner = async (
   } = param;
 
   const resolvedDelay = delay ?? 0;
-
   const requestsReport: RequestReport[] = [];
+
+  // Process OAuth 2.0 token generation for collections BEFORE running any requests
+  for (const collection of collections) {
+    if (hasOAuth2Auth(collection)) {
+      const auth = collection.auth!
+
+      log(INFO(`\nGenerating OAuth 2.0 token for collection: ${chalk.bold(collection.name)}`));
+
+      // Check if grant type requires redirect (not supported in CLI)
+      if (requiresRedirect(auth)) {
+        const grantType = auth.authType === "oauth-2" ? auth.grantTypeInfo.grantType : "UNKNOWN"
+        log(
+          FAIL(
+            `\n${chalk.bold("OAuth Error:")} Grant type '${grantType}' requires browser redirect and cannot be used in CLI.`
+          )
+        )
+        log(
+          INFO(
+            `Supported grant types for CLI: CLIENT_CREDENTIALS, PASSWORD`
+          )
+        )
+        process.exit(1)
+      }
+
+      // Generate OAuth token
+      const tokenResult = await generateOAuth2TokenForCollection(collection)
+
+      if (E.isLeft(tokenResult)) {
+        const errorMessages: Record<string, string> = {
+          NO_OAUTH_CONFIG: "No OAuth 2.0 configuration found",
+          REDIRECT_GRANT_TYPE_NOT_SUPPORTED: "OAuth grant type requires browser redirect",
+          VALIDATION_FAILED: "OAuth 2.0 configuration validation failed",
+          TOKEN_GENERATION_FAILED: "Failed to fetch OAuth token",
+          UNSUPPORTED_GRANT_TYPE: "Unsupported OAuth 2.0 grant type for auto-generation",
+        }
+
+        const errorMessage = errorMessages[tokenResult.left] || "OAuth token generation failed"
+        log(FAIL(`\n${chalk.bold("OAuth Error:")} ${errorMessage}`))
+        process.exit(1)
+      }
+
+      // Update collection with the generated token
+      const { access_token, refresh_token } = tokenResult.right
+      updateCollectionWithToken(collection, access_token, refresh_token)
+
+      log(INFO(`${chalk.green("✓")} OAuth token generated successfully`))
+    }
+  }
+
   const collectionQueue = getCollectionQueue(collections);
 
   // If iteration count is not supplied, it should be based on the size of iteration data if in scope

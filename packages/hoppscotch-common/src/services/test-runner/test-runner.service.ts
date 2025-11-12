@@ -104,7 +104,7 @@ export class TestRunnerService extends Service {
           VALIDATION_FAILED: t(
             "authorization.oauth.auto_generation_validation_failed"
           ),
-          TOKEN_GENERATION_FAILED: t("authorization.token_fetch_failed"),
+          TOKEN_GENERATION_FAILED: t("authorization.oauth.token_fetch_failed"),
           UNSUPPORTED_GRANT_TYPE: t(
             "authorization.oauth.unsupported_grant_type_for_auto_generation"
           ),
@@ -112,7 +112,7 @@ export class TestRunnerService extends Service {
 
         toast.error(
           errorMessages[tokenResult.left] ||
-            t("authorization.token_fetch_failed")
+            t("authorization.oauth.token_fetch_failed")
         )
         tab.value.document.status = "error"
         return
@@ -132,7 +132,7 @@ export class TestRunnerService extends Service {
         tokenResult.right.refresh_token
       )
 
-      toast.success(t("authorization.token_fetched_successfully"))
+      toast.success(t("authorization.oauth.token_fetched_successfully"))
     }
 
     this.runTestCollection(tab, collection, options)

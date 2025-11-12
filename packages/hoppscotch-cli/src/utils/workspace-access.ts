@@ -58,7 +58,14 @@ const normalizeEnvironmentVariable = (variable: HoppEnvPair): HoppEnvPair => {
     "initialValue" in variable &&
     "currentValue" in variable
   ) {
-    return variable;
+    // If currentValue is empty but initialValue exists, use initialValue
+    // This happens when loading from workspace where currentValue might not be set
+    const currentValue = variable.currentValue || variable.initialValue;
+
+    return {
+      ...variable,
+      currentValue,
+    };
   }
 
   const envPair = variable as Partial<HoppEnvPair> & {

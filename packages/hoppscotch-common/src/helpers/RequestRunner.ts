@@ -6,6 +6,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
+  HoppReusableFunction,
 } from "@hoppscotch/data"
 import {
   SandboxPreRequestResult,
@@ -37,6 +38,7 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { reusableFunctionsStore } from "~/newstore/reusableFunctions"
 import { platform } from "~/platform"
 import { CookieJarService } from "~/services/cookie-jar.service"
 import {
@@ -355,6 +357,7 @@ const delegatePreRequestScriptRunner = (
   cookies: Cookie[] | null
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const { preRequestScript } = request
+  const reusableFunctions = reusableFunctionsStore.value.functions
 
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
     // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
@@ -362,6 +365,7 @@ const delegatePreRequestScriptRunner = (
 
     return runPreRequestScript(cleanScript, {
       envs,
+      reusableFunctions,
       experimentalScriptingSandbox: false,
     })
   }
@@ -393,6 +397,7 @@ const delegatePreRequestScriptRunner = (
       envs,
       request: JSON.stringify(request),
       cookies: cookies ? JSON.stringify(cookies) : null,
+      reusableFunctions: JSON.stringify(reusableFunctions),
     })
   })
 }

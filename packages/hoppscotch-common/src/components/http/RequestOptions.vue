@@ -68,6 +68,13 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="properties?.includes('reusableFunctions') ?? true"
+      :id="'reusableFunctions'"
+      :label="`${t('reusable_functions.title')}`"
+    >
+      <HttpReusableFunctions />
+    </HoppSmartTab>
+    <HoppSmartTab
       v-if="showTestsTab"
       :id="'tests'"
       :label="`${t('tab.post_request_script')}`"
@@ -116,6 +123,7 @@ const VALID_OPTION_TABS = [
   "headers",
   "authorization",
   "preRequestScript",
+  "reusableFunctions",
   "tests",
   "requestVariables",
 ] as const

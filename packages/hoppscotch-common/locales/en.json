@@ -908,6 +908,21 @@
     "script": "Pre-Request Script",
     "snippets": "Snippets"
   },
+  "reusable_functions": {
+    "title": "Reusable Functions",
+    "add_function": "Add Function",
+    "functions": "Functions",
+    "no_functions": "No functions created yet",
+    "select_function": "Select a function to edit",
+    "function_name": "Function Name",
+    "enter_name": "Enter function name",
+    "description": "Description",
+    "enter_description": "Enter function description (optional)",
+    "enter_code": "Write your JavaScript function here...",
+    "usage": "Usage in Pre-Request Scripts",
+    "usage_instruction_1": "Use this function in your pre-request scripts:",
+    "usage_example": "Call this function:"
+  },
   "profile": {
     "app_settings": "App Settings",
     "default_hopp_displayname": "Unnamed User",

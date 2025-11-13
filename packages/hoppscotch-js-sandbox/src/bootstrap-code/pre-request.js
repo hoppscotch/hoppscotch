@@ -158,6 +158,17 @@
     },
   }
 
+  if (inputs.getReusableFunctionsCode) {
+    try {
+      const reusableFunctionsCode = inputs.getReusableFunctionsCode()
+      if (reusableFunctionsCode?.trim()) {
+        globalThis.eval(reusableFunctionsCode)
+      }
+    } catch (error) {
+      // Silently fail if reusable functions can't be loaded
+    }
+  }
+
   // PM Namespace - Postman Compatibility Layer
   globalThis.pm = {
     environment: {

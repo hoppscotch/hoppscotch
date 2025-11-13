@@ -1,4 +1,4 @@
-import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
+import { Cookie, HoppRESTRequest, HoppReusableFunction } from "@hoppscotch/data"
 import { ConsoleEntry, defineSandboxFn } from "faraday-cage/modules"
 
 import type { EnvAPIOptions } from "~/utils/shared"
@@ -191,10 +191,12 @@ export type RunPreRequestScriptOptions =
       envs: TestResult["envs"]
       request: HoppRESTRequest
       cookies: Cookie[] | null // Exclusive to the Desktop App
+      reusableFunctions?: HoppReusableFunction[]
       experimentalScriptingSandbox: true
     }
   | {
       envs: TestResult["envs"]
+      reusableFunctions?: HoppReusableFunction[]
       experimentalScriptingSandbox?: false
     }
 

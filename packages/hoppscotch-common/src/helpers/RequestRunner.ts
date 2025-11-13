@@ -705,7 +705,8 @@ function updateEnvsAfterTestScript(
     })
   } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
     // Use the initial environment name to avoid issues when environment changes during request execution
-    const envName = initialEnvName || getCurrentEnvironment().name
+    // adding a fallback to current environment name just in case so it's not null
+    const envName = initialEnvName ?? getCurrentEnvironment().name
     pipe(
       updateTeamEnvironment(
         JSON.stringify(selectedEnvVariables),

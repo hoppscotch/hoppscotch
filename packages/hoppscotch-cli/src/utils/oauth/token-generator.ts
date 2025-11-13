@@ -1,75 +1,26 @@
-import { HoppCollection, HoppRESTAuth, parseTemplateStringE, EnvironmentVariable } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTAuth,
+  EnvironmentVariable,
+  REDIRECT_GRANT_TYPES,
+  OAuthTokenGenerationError,
+  ClientCredentialsGrantInfo,
+  PasswordGrantInfo,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
+  expandTemplateString,
+} from "@hoppscotch/data"
 import axios from "axios"
 import * as E from "fp-ts/Either"
 import { z } from "zod"
 
-/**
- * OAuth grant types that require browser redirect flows
- * These cannot be auto-generated in CLI
- */
-export const REDIRECT_GRANT_TYPES = ["AUTHORIZATION_CODE", "IMPLICIT"] as const
-
-export type OAuthTokenGenerationError =
-  | "NO_OAUTH_CONFIG"
-  | "REDIRECT_GRANT_TYPE_NOT_SUPPORTED"
-  | "VALIDATION_FAILED"
-  | "TOKEN_GENERATION_FAILED"
-  | "UNSUPPORTED_GRANT_TYPE"
-
-/**
- * Type for CLIENT_CREDENTIALS grant type info with all required fields
- */
-interface ClientCredentialsGrantInfo {
-  grantType: "CLIENT_CREDENTIALS"
-  authEndpoint: string
-  clientID: string
-  clientSecret: string
-  scopes?: string
-  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
-  tokenRequestParams?: Array<{ key: string; value: string }>
-}
-
-/**
- * Type for PASSWORD grant type info with all required fields
- */
-interface PasswordGrantInfo {
-  grantType: "PASSWORD"
-  authEndpoint: string
-  clientID: string
-  clientSecret: string
-  username: string
-  password: string
-  scopes?: string
-  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
-  tokenRequestParams?: Array<{ key: string; value: string }>
-  refreshToken?: string
-}
-
-/**
- * Checks if a collection has OAuth 2.0 authentication configured
- */
-export function hasOAuth2Auth(collection: HoppCollection): boolean {
-  return collection.auth?.authType === "oauth-2" && collection.auth.authActive
-}
-
-/**
- * Checks if the OAuth grant type requires browser redirect
- */
-export function requiresRedirect(auth: HoppRESTAuth): boolean {
-  if (auth.authType !== "oauth-2") return false
-  return REDIRECT_GRANT_TYPES.includes(auth.grantTypeInfo.grantType as any)
-}
-
-/**
- * Expands template strings in a value using environment variables
- * Returns the original value if expansion fails
- */
-function expandTemplateString(
-  value: string,
-  envVariables: EnvironmentVariable[]
-): string {
-  const result = parseTemplateStringE(value, envVariables)
-  return E.isRight(result) ? result.right : value
+export {
+  REDIRECT_GRANT_TYPES,
+  OAuthTokenGenerationError,
+  hasOAuth2Auth,
+  requiresRedirect,
+  updateCollectionWithToken,
 }
 
 /**
@@ -362,29 +313,5 @@ async function generatePasswordToken(
   } catch (error) {
     console.error("Password flow token generation failed:", error)
     return E.left("TOKEN_GENERATION_FAILED")
-  }
-}
-
-/**
- * Updates a collection's OAuth configuration with the generated token
- */
-export function updateCollectionWithToken(
-  collection: HoppCollection,
-  token: string,
-  refreshToken?: string
-): void {
-  if (collection.auth?.authType === "oauth-2") {
-    const grantType = collection.auth.grantTypeInfo.grantType
-
-    // Update with token
-    collection.auth.grantTypeInfo = {
-      ...collection.auth.grantTypeInfo,
-      token,
-    }
-
-    // Set refresh token if provided and grant type supports it
-    if (refreshToken && (grantType === "PASSWORD" || grantType === "AUTHORIZATION_CODE")) {
-      (collection.auth.grantTypeInfo as any).refreshToken = refreshToken
-    }
   }
 }

@@ -276,13 +276,9 @@ const workerResponseHandler = ({
   if (data.url === url.value) isUrlValid.value = data.result
 }
 
-const getActiveProtocols = (protocolList) => {
+const getActiveProtocols = (protocolList: HoppWSProtocol[]): string[] => {
   return protocolList
-    .filter((item) =>
-      Object.prototype.hasOwnProperty.call(item, "active")
-        ? item.active === true
-        : true
-    )
+    .filter((item) => Object.hasOwn(item, "active"))
     .map(({ value }) => value)
 }
 

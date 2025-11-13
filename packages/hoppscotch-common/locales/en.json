@@ -1009,10 +1009,16 @@
     "video": "Video",
     "waiting_for_connection": "waiting for connection",
     "xml": "XML",
+    "table": "Table",
     "generate_data_schema": "Generate Data Schema",
     "data_schema": "Data Schema",
     "saved": "Response saved",
-    "invalid_name": "Please provide a name for the response"
+    "invalid_name": "Please provide a name for the response",
+    "table_not_available": "Table view not available",
+    "table_not_available_description": "Table view is only available for JSON responses that contain an array of objects. Your response doesn't match this format.",
+    "view_json": "View as JSON",
+    "table_showing_rows": "Showing {count} of {total} rows",
+    "table_filtered_info": "Filtered results based on search"
   },
   "settings": {
     "accent_color": "Accent color",

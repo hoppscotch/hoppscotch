@@ -534,6 +534,9 @@ importers:
       '@shopify/lang-jsonc':
         specifier: 1.0.1
         version: 1.0.1
+      '@tanstack/vue-table':
+        specifier: 8.20.5
+        version: 8.20.5(vue@3.5.22(typescript@5.9.2))
       '@tauri-apps/api':
         specifier: 2.1.1
         version: 2.1.1
@@ -7028,6 +7031,16 @@ packages:
 
   '@swc/types@0.1.25':
     resolution: {integrity: sha512-iAoY/qRhNH8a/hBvm3zKj9qQ4oc2+3w1unPJa2XvTK3XjeLXtzcCingVPw/9e5mn1+0yPqxcBGp9Jf0pkfMb1g==}
+
+  '@tanstack/table-core@8.20.5':
+    resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
+    engines: {node: '>=12'}
+
+  '@tanstack/vue-table@8.20.5':
+    resolution: {integrity: sha512-2xixT3BEgSDw+jOSqPt6ylO/eutDI107t2WdFMVYIZZ45UmTHLySqNriNs0+dMaKR56K5z3t+97P6VuVnI2L+Q==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      vue: 3.5.22
 
   '@tauri-apps/api@1.5.1':
     resolution: {integrity: sha512-6unsZDOdlXTmauU3NhWhn+Cx0rODV+rvNvTdvolE5Kls5ybA6cqndQENDt1+FS0tF7ozCP66jwWoH6a5h90BrA==}
@@ -22612,6 +22625,13 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
     optional: true
+
+  '@tanstack/table-core@8.20.5': {}
+
+  '@tanstack/vue-table@8.20.5(vue@3.5.22(typescript@5.9.2))':
+    dependencies:
+      '@tanstack/table-core': 8.20.5
+      vue: 3.5.22(typescript@5.9.2)
 
   '@tauri-apps/api@1.5.1': {}
 

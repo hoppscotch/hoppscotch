@@ -87,6 +87,7 @@ export type InitialEnvironmentState = {
   initialEnvID: string
   initialSelectedEnvs: Environment["variables"]
   initialEnvironmentIndex: SelectedEnvironmentIndex
+  initialEnvName: string
   initialEnvs: TestResult["envs"] & {
     temp: Environment["variables"]
   }
@@ -115,6 +116,9 @@ export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
     environmentsStore.value.selectedEnvironmentIndex
   )
 
+  // Capture the initial environment name
+  const initialEnvName = getCurrentEnvironment().name
+
   // Capture the initial script environment state (the environment passed to scripts)
   const initialEnvs = getCombinedEnvVariables()
   const initialEnvsForComparison: TestResult["envs"] = {
@@ -127,6 +131,7 @@ export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
     initialEnvID,
     initialSelectedEnvs,
     initialEnvironmentIndex,
+    initialEnvName,
     initialEnvs,
     initialEnvsForComparison,
   }
@@ -489,6 +494,7 @@ export function runRESTRequest$(
     initialEnvID,
     initialSelectedEnvs,
     initialEnvironmentIndex,
+    initialEnvName,
     initialEnvs,
     initialEnvsForComparison,
   } = captureInitialEnvironmentState()
@@ -610,7 +616,8 @@ export function runRESTRequest$(
               updateEnvsAfterTestScript(
                 combinedResult,
                 initialEnvironmentIndex,
-                initialEnvID
+                initialEnvID,
+                initialEnvName
               )
             }
 
@@ -666,7 +673,8 @@ export function runRESTRequest$(
 function updateEnvsAfterTestScript(
   runResult: E.Right<SandboxTestResult>,
   initialEnvironmentIndex: SelectedEnvironmentIndex,
-  initialEnvID?: string
+  initialEnvID?: string,
+  initialEnvName?: string
 ) {
   const globalEnvVariables = updateEnvironments(
     runResult.right.envs.global,
@@ -696,14 +704,13 @@ function updateEnvsAfterTestScript(
       variables: selectedEnvVariables,
     })
   } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
-    const env = getEnvironment({
-      type: "TEAM_ENV",
-    })
+    // Use the initial environment name to avoid issues when environment changes during request execution
+    const envName = initialEnvName || getCurrentEnvironment().name
     pipe(
       updateTeamEnvironment(
         JSON.stringify(selectedEnvVariables),
         initialEnvironmentIndex.teamEnvID,
-        env.name
+        envName
       )
     )()
   }
@@ -801,6 +808,7 @@ export function runTestRunnerRequest(
     initialEnvID,
     initialSelectedEnvs,
     initialEnvironmentIndex,
+    initialEnvName,
     initialEnvs,
     initialEnvsForComparison,
   } = initialEnvironmentState
@@ -897,7 +905,8 @@ export function runTestRunnerRequest(
                 updateEnvsAfterTestScript(
                   postRequestScriptResult,
                   initialEnvironmentIndex,
-                  initialEnvID
+                  initialEnvID,
+                  initialEnvName
                 )
               }
             } else {

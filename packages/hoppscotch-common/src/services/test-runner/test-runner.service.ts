@@ -9,7 +9,10 @@ import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
 import { Ref } from "vue"
-import { runTestRunnerRequest } from "~/helpers/RequestRunner"
+import {
+  captureInitialEnvironmentState,
+  runTestRunnerRequest,
+} from "~/helpers/RequestRunner"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
@@ -360,10 +363,14 @@ export class TestRunnerService extends Service {
         error: undefined,
       })
 
+      // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
+      const initialEnvironmentState = captureInitialEnvironmentState()
+
       const results = await runTestRunnerRequest(
         request,
         options.keepVariableValues,
-        inheritedVariables
+        inheritedVariables,
+        initialEnvironmentState
       )
 
       if (options.stopRef?.value) {

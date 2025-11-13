@@ -10,7 +10,6 @@ import { cloneDeep } from "lodash-es"
 import { Ref } from "vue"
 import {
   captureInitialEnvironmentState,
-  InitialEnvironmentState,
   runTestRunnerRequest,
 } from "~/helpers/RequestRunner"
 import {
@@ -182,17 +181,13 @@ export class TestRunnerService extends Service {
           headers: [...inheritedHeaders, ...request.headers],
         }
 
-        // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
-        const initialEnvironmentState = captureInitialEnvironmentState()
-
         await this.runTestRequest(
           tab,
           finalRequest,
           collection,
           options,
           currentPath,
-          inheritedVariables,
-          initialEnvironmentState
+          inheritedVariables
         )
 
         if (options.delay && options.delay > 0) {
@@ -283,8 +278,7 @@ export class TestRunnerService extends Service {
     collection: HoppCollection,
     options: TestRunnerOptions,
     path: number[],
-    inheritedVariables: HoppCollectionVariable[] = [],
-    initialEnvironmentState: InitialEnvironmentState
+    inheritedVariables: HoppCollectionVariable[] = []
   ) {
     if (options.stopRef?.value) {
       throw new Error("Test execution stopped")
@@ -296,6 +290,9 @@ export class TestRunnerService extends Service {
         isLoading: true,
         error: undefined,
       })
+
+      // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
+      const initialEnvironmentState = captureInitialEnvironmentState()
 
       const results = await runTestRunnerRequest(
         request,

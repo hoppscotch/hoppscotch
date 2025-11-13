@@ -1016,57 +1016,6 @@ export class UserCollectionService {
   }
 
   /**
-   * Fetch all descendants of given parent IDs and return flat arrays
-   * @param parentIds Array of parent collection IDs to start from
-   * @returns Object containing flat arrays of collections and requests
-   */
-  private async getMultiLayerNestedChildren(parentIds: string[]) {
-    // Step 1: Get all collections that are descendants of the parent IDs using recursive CTE
-    const allDescendants = await this.prisma.$queryRaw<UserCollection[]>`
-      WITH RECURSIVE nested_collections AS (
-        -- Base case: the parent collections themselves
-        SELECT * FROM "UserCollection" 
-        WHERE id = ANY(${parentIds}::text[])
-        
-        UNION ALL
-        
-        -- Recursive case: all descendants
-        SELECT c.*
-        FROM "UserCollection" c
-        INNER JOIN nested_collections nc ON c."parentID" = nc.id
-      )
-      SELECT * FROM nested_collections
-      ORDER BY "orderIndex" ASC;
-    `;
-
-    // Step 2: Fetch all requests for all the collections
-    const collectionIds = allDescendants.map((col) => col.id);
-    const allRequests = await this.prisma.userRequest.findMany({
-      where: {
-        collectionID: { in: collectionIds },
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
-
-    // Step 3: Return flat arrays with casted data
-    return {
-      collections: allDescendants.map((collection) => this.cast(collection)),
-      // Note: This casting logic is identical to UserRequestService.cast()
-      // We duplicate it here to avoid circular dependency between services
-      requests: allRequests.map(
-        (request) =>
-          ({
-            ...request,
-            type: ReqType[request.type],
-            request: JSON.stringify(request.request),
-          }) as UserRequest,
-      ),
-    };
-  }
-
-  /**
    * Generate a Prisma query object representation of a collection and its child collections and requests
    *
    * @param folder CollectionFolder from client
@@ -1214,10 +1163,6 @@ export class UserCollectionService {
       importedCollectionsWithChildren.push(exportedCollectionJSON.right);
     }
 
-    const collectionsToReturn = importedCollectionsWithChildren.map(
-      (obj) => obj,
-    );
-
     if (isCollectionDuplication) {
       const duplicatedCollectionData = await this.fetchCollectionData(
         userCollections[0].id,
@@ -1238,7 +1183,7 @@ export class UserCollectionService {
     }
 
     return E.right({
-      exportedCollection: JSON.stringify(collectionsToReturn),
+      exportedCollection: JSON.stringify(importedCollectionsWithChildren),
       collectionType: reqType,
     } as UserCollectionExportJSONData);
   }

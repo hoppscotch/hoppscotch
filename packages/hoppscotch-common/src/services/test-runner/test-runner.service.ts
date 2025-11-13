@@ -1,6 +1,7 @@
 import {
   HoppCollection,
   HoppCollectionVariable,
+  HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
 } from "@hoppscotch/data"
@@ -79,16 +80,16 @@ export class TestRunnerService extends Service {
 
     // Auto-generate OAuth 2.0 token if collection has OAuth configured
     if (hasOAuth2Auth(collection)) {
-      const auth = collection.auth
+      const auth = collection.auth as Extract<
+        HoppRESTAuth,
+        { authType: "oauth-2" }
+      >
 
-      if (requiresRedirect(auth!)) {
+      if (requiresRedirect(auth)) {
         // Grant types that require redirect cannot be auto-generated
         toast.error(
           t("authorization.oauth.redirect_not_supported_for_collection", {
-            grantType:
-              auth!.authType === "oauth-2"
-                ? auth!.grantTypeInfo.grantType
-                : "unknown",
+            grantType: auth.grantTypeInfo.grantType,
           })
         )
         tab.value.document.status = "error"

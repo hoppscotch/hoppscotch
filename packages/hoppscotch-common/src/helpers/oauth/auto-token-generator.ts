@@ -18,6 +18,58 @@ export type OAuthTokenGenerationError =
   | "UNSUPPORTED_GRANT_TYPE"
 
 /**
+ * Type for CLIENT_CREDENTIALS grant type info with all required fields
+ */
+interface ClientCredentialsGrantInfo {
+  grantType: "CLIENT_CREDENTIALS"
+  authEndpoint: string
+  clientID: string
+  clientSecret: string
+  scopes?: string
+  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
+  tokenRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+  refreshRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+}
+
+/**
+ * Type for PASSWORD grant type info with all required fields
+ */
+interface PasswordGrantInfo {
+  grantType: "PASSWORD"
+  authEndpoint: string
+  clientID: string
+  clientSecret: string
+  username: string
+  password: string
+  scopes?: string
+  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
+  tokenRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+  refreshRequestParams?: Array<{
+    key: string
+    value: string
+    active: boolean
+    sendIn?: string
+  }>
+  token?: string
+  refreshToken?: string
+}
+
+/**
  * Checks if a collection has OAuth 2.0 authentication configured
  */
 export function hasOAuth2Auth(collection: HoppCollection): boolean {
@@ -89,7 +141,7 @@ async function generateClientCredentialsToken(
     { access_token: string; refresh_token?: string }
   >
 > {
-  const grantTypeInfo = auth.grantTypeInfo
+  const grantTypeInfo = auth.grantTypeInfo as ClientCredentialsGrantInfo
 
   // Type guard to ensure we have the right grant type
   if (grantTypeInfo.grantType !== "CLIENT_CREDENTIALS") {
@@ -100,12 +152,11 @@ async function generateClientCredentialsToken(
   const values = replaceTemplateStringsInObjectValues({
     authEndpoint: grantTypeInfo.authEndpoint,
     clientID: grantTypeInfo.clientID,
-    clientSecret: (grantTypeInfo as any).clientSecret || "",
+    clientSecret: grantTypeInfo.clientSecret || "",
     scopes: grantTypeInfo.scopes,
-    clientAuthentication:
-      (grantTypeInfo as any).clientAuthentication || "IN_BODY",
-    tokenRequestParams: (grantTypeInfo as any).tokenRequestParams || [],
-    refreshRequestParams: (grantTypeInfo as any).refreshRequestParams || [],
+    clientAuthentication: grantTypeInfo.clientAuthentication || "IN_BODY",
+    tokenRequestParams: grantTypeInfo.tokenRequestParams || [],
+    refreshRequestParams: grantTypeInfo.refreshRequestParams || [],
   })
 
   // Validate the parameters
@@ -139,7 +190,7 @@ async function generatePasswordToken(
     { access_token: string; refresh_token?: string }
   >
 > {
-  const grantTypeInfo = auth.grantTypeInfo
+  const grantTypeInfo = auth.grantTypeInfo as PasswordGrantInfo
 
   // Type guard to ensure we have the right grant type
   if (grantTypeInfo.grantType !== "PASSWORD") {
@@ -150,12 +201,12 @@ async function generatePasswordToken(
   const values = replaceTemplateStringsInObjectValues({
     authEndpoint: grantTypeInfo.authEndpoint,
     clientID: grantTypeInfo.clientID,
-    clientSecret: (grantTypeInfo as any).clientSecret || "",
-    username: (grantTypeInfo as any).username || "",
-    password: (grantTypeInfo as any).password || "",
+    clientSecret: grantTypeInfo.clientSecret || "",
+    username: grantTypeInfo.username || "",
+    password: grantTypeInfo.password || "",
     scopes: grantTypeInfo.scopes,
-    tokenRequestParams: (grantTypeInfo as any).tokenRequestParams || [],
-    refreshRequestParams: (grantTypeInfo as any).refreshRequestParams || [],
+    tokenRequestParams: grantTypeInfo.tokenRequestParams || [],
+    refreshRequestParams: grantTypeInfo.refreshRequestParams || [],
   })
 
   // Validate the parameters
@@ -175,7 +226,9 @@ async function generatePasswordToken(
 
   return E.right({
     access_token: result.right?.access_token || "",
-    refresh_token: (result.right as any)?.refresh_token,
+    refresh_token: (
+      result.right as { access_token: string; refresh_token?: string }
+    )?.refresh_token,
   })
 }
 
@@ -189,17 +242,17 @@ export function updateCollectionWithToken(
   refreshToken?: string
 ): void {
   if (collection.auth?.authType === "oauth-2") {
+    const grantType = collection.auth.grantTypeInfo.grantType
+
     collection.auth.grantTypeInfo = {
       ...collection.auth.grantTypeInfo,
       token,
     }
 
     // Set refresh token if provided and grant type supports it
-    if (
-      refreshToken &&
-      collection.auth.grantTypeInfo.grantType === "PASSWORD"
-    ) {
-      ;(collection.auth.grantTypeInfo as any).refreshToken = refreshToken
+    if (refreshToken && grantType === "PASSWORD") {
+      const grantTypeInfo = collection.auth.grantTypeInfo as PasswordGrantInfo
+      grantTypeInfo.refreshToken = refreshToken
     }
   }
 }

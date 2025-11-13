@@ -17,6 +17,35 @@ export type OAuthTokenGenerationError =
   | "UNSUPPORTED_GRANT_TYPE"
 
 /**
+ * Type for CLIENT_CREDENTIALS grant type info with all required fields
+ */
+interface ClientCredentialsGrantInfo {
+  grantType: "CLIENT_CREDENTIALS"
+  authEndpoint: string
+  clientID: string
+  clientSecret: string
+  scopes?: string
+  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
+  tokenRequestParams?: Array<{ key: string; value: string }>
+}
+
+/**
+ * Type for PASSWORD grant type info with all required fields
+ */
+interface PasswordGrantInfo {
+  grantType: "PASSWORD"
+  authEndpoint: string
+  clientID: string
+  clientSecret: string
+  username: string
+  password: string
+  scopes?: string
+  clientAuthentication?: "IN_BODY" | "AS_BASIC_AUTH_HEADERS"
+  tokenRequestParams?: Array<{ key: string; value: string }>
+  refreshToken?: string
+}
+
+/**
  * Checks if a collection has OAuth 2.0 authentication configured
  */
 export function hasOAuth2Auth(collection: HoppCollection): boolean {
@@ -102,7 +131,7 @@ async function generateClientCredentialsToken(
     { access_token: string; refresh_token?: string; token_type?: string; expires_in?: number }
   >
 > {
-  const grantTypeInfo = auth.grantTypeInfo
+  const grantTypeInfo = auth.grantTypeInfo as ClientCredentialsGrantInfo
 
   // Type guard to ensure we have the right grant type
   if (grantTypeInfo.grantType !== "CLIENT_CREDENTIALS") {
@@ -112,17 +141,16 @@ async function generateClientCredentialsToken(
   // Expand template strings in OAuth configuration
   const authEndpoint = expandTemplateString(grantTypeInfo.authEndpoint, envVariables)
   const clientID = expandTemplateString(grantTypeInfo.clientID, envVariables)
-  const clientSecret = expandTemplateString((grantTypeInfo as any).clientSecret || "", envVariables)
+  const clientSecret = expandTemplateString(grantTypeInfo.clientSecret || "", envVariables)
   const scopes = expandTemplateString(grantTypeInfo.scopes || "", envVariables)
-  const clientAuthentication =
-    (grantTypeInfo as any).clientAuthentication || "IN_BODY"
-  const tokenRequestParams = (grantTypeInfo as any).tokenRequestParams || []
+  const clientAuthentication = grantTypeInfo.clientAuthentication || "IN_BODY"
+  const tokenRequestParams = grantTypeInfo.tokenRequestParams || []
 
   // Validate required parameters
   if (!authEndpoint || !clientID) {
     console.error("❌ Client Credentials validation failed: missing required parameters.")
-    console.error(`Auth endpoint: ${authEndpoint || "(missing)"}`)
-    console.error(`Client ID: ${clientID || "(missing)"}`)
+    if (!authEndpoint) console.error("Auth endpoint is missing.")
+    if (!clientID) console.error("Client ID is missing.")
     return E.left("VALIDATION_FAILED")
   }
 
@@ -232,7 +260,7 @@ async function generatePasswordToken(
     { access_token: string; refresh_token?: string; token_type?: string; expires_in?: number }
   >
 > {
-  const grantTypeInfo = auth.grantTypeInfo
+  const grantTypeInfo = auth.grantTypeInfo as PasswordGrantInfo
 
   // Type guard to ensure we have the right grant type
   if (grantTypeInfo.grantType !== "PASSWORD") {
@@ -242,11 +270,11 @@ async function generatePasswordToken(
   // Expand template strings in OAuth configuration
   const authEndpoint = expandTemplateString(grantTypeInfo.authEndpoint, envVariables)
   const clientID = expandTemplateString(grantTypeInfo.clientID, envVariables)
-  const clientSecret = expandTemplateString((grantTypeInfo as any).clientSecret || "", envVariables)
-  const username = expandTemplateString((grantTypeInfo as any).username || "", envVariables)
-  const password = expandTemplateString((grantTypeInfo as any).password || "", envVariables)
+  const clientSecret = expandTemplateString(grantTypeInfo.clientSecret || "", envVariables)
+  const username = expandTemplateString(grantTypeInfo.username || "", envVariables)
+  const password = expandTemplateString(grantTypeInfo.password || "", envVariables)
   const scopes = expandTemplateString(grantTypeInfo.scopes || "", envVariables)
-  const tokenRequestParams = (grantTypeInfo as any).tokenRequestParams || []
+  const tokenRequestParams = grantTypeInfo.tokenRequestParams || []
 
   // Validate required parameters
   if (!authEndpoint || !clientID || !username || !password) {
@@ -338,8 +366,7 @@ async function generatePasswordToken(
 }
 
 /**
- * Updates the collection's auth configuration with the generated token
- * This mutates the collection object
+ * Updates a collection's OAuth configuration with the generated token
  */
 export function updateCollectionWithToken(
   collection: HoppCollection,
@@ -347,17 +374,17 @@ export function updateCollectionWithToken(
   refreshToken?: string
 ): void {
   if (collection.auth?.authType === "oauth-2") {
+    const grantType = collection.auth.grantTypeInfo.grantType
+
+    // Update with token
     collection.auth.grantTypeInfo = {
       ...collection.auth.grantTypeInfo,
       token,
     }
 
     // Set refresh token if provided and grant type supports it
-    if (refreshToken) {
-      const grantType = collection.auth.grantTypeInfo.grantType
-      if (grantType === "PASSWORD" || grantType === "AUTHORIZATION_CODE") {
-        ;(collection.auth.grantTypeInfo as any).refreshToken = refreshToken
-      }
+    if (refreshToken && (grantType === "PASSWORD" || grantType === "AUTHORIZATION_CODE")) {
+      (collection.auth.grantTypeInfo as any).refreshToken = refreshToken
     }
   }
 }

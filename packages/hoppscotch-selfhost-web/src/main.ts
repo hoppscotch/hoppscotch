@@ -28,6 +28,7 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 import { HeaderDownloadableLinksService } from "./services/headerDownloadableLinks.service"
+import { getDefaultInterceptor } from "@hoppscotch/common/helpers/interceptorConfig"
 
 type Platform = "web" | "desktop"
 
@@ -96,7 +97,9 @@ async function initApp() {
       history: platformDefs.history.get(kernelMode),
     },
     kernelInterceptors: {
-      default: kernelMode === "desktop" ? "native" : "browser",
+      default: getDefaultInterceptor(
+        kernelMode === "desktop" ? "native" : "browser"
+      ),
       interceptors: getInterceptors(kernelMode),
     },
     platformFeatureFlags: {

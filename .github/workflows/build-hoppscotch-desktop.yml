@@ -11,7 +11,7 @@ on:
         default: "hoppscotch/hoppscotch"
       branch:
         description: Branch to checkout
-        required: false
+        required: true
         default: "main"
       tag:
         description: Tag to checkout (takes precedence over branch if provided)
@@ -26,6 +26,26 @@ on:
         required: false
         type: boolean
         default: false
+      build_linux:
+        description: Build for Linux
+        type: boolean
+        required: false
+        default: true
+      build_windows:
+        description: Build for Windows
+        type: boolean
+        required: false
+        default: true
+      build_macos_x64:
+        description: Build for macOS x64
+        type: boolean
+        required: false
+        default: true
+      build_macos_arm64:
+        description: Build for macOS ARM64
+        type: boolean
+        required: false
+        default: true
 env:
   CARGO_TERM_COLOR: always
   WORKSPACE_PATH: ${{ github.workspace }}
@@ -35,18 +55,19 @@ env:
 jobs:
   build-linux:
     runs-on: ubuntu-24.04
+    if: ${{ inputs.build_linux }}
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
-          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.2.1
+          version: 10.18.3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -131,16 +152,17 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux
+          name: selfhost-desktop-linux
           path: dist/*
   build-windows:
     runs-on: windows-latest
+    if: ${{ inputs.build_windows }}
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
-          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Set Perl environment variables
         shell: pwsh
         run: |
@@ -151,7 +173,7 @@ jobs:
           node-version: 20
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.2.1
+          version: 10.18.3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -161,7 +183,7 @@ jobs:
         shell: pwsh
         run: |
           $ProgressPreference = 'SilentlyContinue'
-          Invoke-WebRequest -Uri "https://github.com/Levminer/trusted-signing-cli/releases/download/0.5.0/trusted-signing-cli.exe" -OutFile "trusted-signing-cli.exe"
+          Invoke-WebRequest -Uri "https://github.com/Levminer/trusted-signing-cli/releases/download/0.8.0/trusted-signing-cli.exe" -OutFile "trusted-signing-cli.exe"
           Move-Item -Path "trusted-signing-cli.exe" -Destination "$env:GITHUB_WORKSPACE\trusted-signing-cli.exe"
           echo "$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
       - name: Setting up Windows Signing Environment
@@ -238,22 +260,23 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows
+          name: selfhost-desktop-windows
           path: dist/*
   build-macos-x64:
     runs-on: macos-latest
+    if: ${{ inputs.build_macos_x64 }}
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
-          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.2.1
+          version: 10.18.3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -271,8 +294,8 @@ jobs:
       - uses: apple-actions/import-codesign-certs@v3
         if: ${{ inputs.disable_signing != true }}
         with:
-          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
-          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
       - uses: actions/cache@v4
         with:
@@ -310,10 +333,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.HOPPSCOTCH_APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.HOPPSCOTCH_APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.HOPPSCOTCH_APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.HOPPSCOTCH_APPLE_SIGNING_IDENTITY }}
           RUST_LOG: debug
         run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target x86_64-apple-darwin
       - name: Build Tauri app without Apple signing
@@ -334,22 +357,23 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-x64
+          name: selfhost-desktop-macos-x64
           path: dist/*
   build-macos-arm64:
     runs-on: macos-latest
+    if: ${{ inputs.build_macos_arm64 }}
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
-          token: ${{ secrets.CHECKOUT_GITHUB_TOKEN }}
+          token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.2.1
+          version: 10.18.3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -367,8 +391,8 @@ jobs:
       - uses: apple-actions/import-codesign-certs@v3
         if: ${{ inputs.disable_signing != true }}
         with:
-          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
-          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
       - uses: actions/cache@v4
         with:
@@ -406,10 +430,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.HOPPSCOTCH_APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.HOPPSCOTCH_APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.HOPPSCOTCH_APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.HOPPSCOTCH_APPLE_SIGNING_IDENTITY }}
           RUST_LOG: debug
         run: pnpm --dir ${{ env.DESKTOP_PATH }} tauri build --verbose --target aarch64-apple-darwin
       - name: Build Tauri app without Apple signing
@@ -430,11 +454,12 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-aarch64
+          name: selfhost-desktop-macos-aarch64
           path: dist/*
   create-update-manifest:
     needs: [build-linux, build-windows, build-macos-x64, build-macos-arm64]
     runs-on: ubuntu-latest
+    if: ${{ inputs.build_linux && inputs.build_windows && inputs.build_macos_x64 && inputs.build_macos_arm64 }}
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -452,19 +477,19 @@ jobs:
             "pub_date": "${CURRENT_DATE}",
             "platforms": {
               "linux-x86_64": {
-                "signature": "$(cat artifacts/linux/Hoppscotch_SelfHost_linux_x64.AppImage.sig)",
+                "signature": "$(cat artifacts/selfhost-desktop-linux/Hoppscotch_SelfHost_linux_x64.AppImage.sig)",
                 "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_linux_x64.AppImage"
               },
               "windows-x86_64": {
-                "signature": "$(cat artifacts/windows/Hoppscotch_SelfHost_win_x64.msi.sig)",
+                "signature": "$(cat artifacts/selfhost-desktop-windows/Hoppscotch_SelfHost_win_x64.msi.sig)",
                 "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_win_x64.msi"
               },
               "darwin-x86_64": {
-                "signature": "$(cat artifacts/macos-x64/Hoppscotch_SelfHost_mac_x64.tar.gz.sig)",
+                "signature": "$(cat artifacts/selfhost-desktop-macos-x64/Hoppscotch_SelfHost_mac_x64.tar.gz.sig)",
                 "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_mac_x64.tar.gz"
               },
               "darwin-aarch64": {
-                "signature": "$(cat artifacts/macos-aarch64/Hoppscotch_SelfHost_mac_aarch64.tar.gz.sig)",
+                "signature": "$(cat artifacts/selfhost-desktop-macos-aarch64/Hoppscotch_SelfHost_mac_aarch64.tar.gz.sig)",
                 "url": "https://github.com/hoppscotch/releases/releases/download/${VERSION}/Hoppscotch_SelfHost_mac_aarch64.tar.gz"
               }
             }
@@ -473,5 +498,5 @@ jobs:
       - name: Upload manifest
         uses: actions/upload-artifact@v4
         with:
-          name: update-manifest
+          name: selfhost-desktop-update-manifest
           path: artifacts/hoppscotch-selfhost-desktop.json

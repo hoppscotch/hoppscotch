@@ -44,6 +44,7 @@ import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
 import { LinterDefinition } from "@helpers/editor/linting/linter"
+import { MODULE_PREFIX } from "@helpers/scripting"
 import {
   basicSetup,
   baseTheme,
@@ -268,14 +269,12 @@ const getEditorLanguage = (
   completer: Completer | undefined
 ): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
 
-const MODULE_PREFIX = "export {};\n" as const
-
 /**
  * Strips the `export {};\n` prefix from the value for display in the editor.
- * The above is only used internally for Monaco editor's module scope,
+ * The prefix is used internally for Monaco editor's module scope,
  * and should not be visible in the CodeMirror editor.
  */
-const stripModulePrefix = (value?: string): string | undefined => {
+const stripModulePrefixForDisplay = (value?: string): string | undefined => {
   return value?.startsWith(MODULE_PREFIX)
     ? value.slice(MODULE_PREFIX.length)
     : value
@@ -488,7 +487,7 @@ export function useCodemirror(
       parent: el,
       state: EditorState.create({
         doc: parseDoc(
-          stripModulePrefix(value.value),
+          stripModulePrefixForDisplay(value.value),
           options.extendedEditorConfig.mode ?? ""
         ),
         extensions,
@@ -532,7 +531,7 @@ export function useCodemirror(
     }
 
     // Strip `export {};\n` before displaying in CodeMirror
-    const displayValue = stripModulePrefix(newVal) ?? ""
+    const displayValue = stripModulePrefixForDisplay(newVal) ?? ""
 
     if (cachedValue.value !== newVal) {
       view.value?.dispatch({

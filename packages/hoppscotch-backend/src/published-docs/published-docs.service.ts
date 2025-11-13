@@ -20,10 +20,18 @@ import * as E from 'fp-ts/Either';
 import { PublishedDocs } from './published-docs.model';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { stringToJson } from 'src/utils';
+import { UserCollectionService } from 'src/user-collection/user-collection.service';
+import { TeamCollectionService } from 'src/team-collection/team-collection.service';
+import { CollectionFolder } from 'src/types/CollectionFolder';
+import { GetPublishedDocsQueryDto, TreeLevel } from './published-docs.dto';
 
 @Injectable()
 export class PublishedDocsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userCollectionService: UserCollectionService,
+    private readonly teamCollectionService: TeamCollectionService,
+  ) {}
 
   /**
    * Cast database PublishedDocs to GraphQL PublishedDocs
@@ -189,6 +197,39 @@ export class PublishedDocsService {
     if (!hasAccess) return E.left(PUBLISHED_DOCS_NOT_FOUND);
 
     return E.right(this.cast(publishedDocs));
+  }
+
+  /**
+   * Get a published document by ID for public access (unauthenticated)
+   * @param id - The ID of the published document
+   * @param query - Query parameters specifying tree level
+   */
+  async getPublishedDocByIDPublic(
+    id: string,
+    query: GetPublishedDocsQueryDto,
+  ): Promise<E.Either<string, CollectionFolder>> {
+    const publishedDocs = await this.prisma.publishedDocs.findUnique({
+      where: { id },
+    });
+    if (!publishedDocs) return E.left(PUBLISHED_DOCS_NOT_FOUND);
+
+    // if autoSync is enabled, fetch from the collection directly
+    if (publishedDocs.autoSync) {
+      const collectionResult =
+        publishedDocs.workspaceType === WorkspaceType.USER
+          ? await this.userCollectionService.exportUserCollectionToJSONObject(
+              publishedDocs.creatorUid,
+              publishedDocs.collectionID,
+              query.tree === TreeLevel.FULL
+            )
+          : await this.teamCollectionService.exportCollectionToJSONObject(
+              publishedDocs.workspaceID,
+              publishedDocs.collectionID,
+              query.tree === TreeLevel.FULL
+            );
+
+      return collectionResult;
+    }
   }
 
   /**

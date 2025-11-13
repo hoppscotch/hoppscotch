@@ -865,37 +865,41 @@ export class UserCollectionService {
    *
    * @param userUID The User UID
    * @param collectionID The Collection ID
+   * @param withChildren Whether to include child collections and their requests
    * @returns A JSON string containing all the contents of a collection
    */
   async exportUserCollectionToJSONObject(
     userUID: string,
     collectionID: string,
+    withChildren: boolean = true,
   ): Promise<E.Left<string> | E.Right<CollectionFolder>> {
     // Get Collection details
     const collection = await this.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
-    // Get all child collections whose parentID === collectionID
-    const childCollectionList = await this.prisma.userCollection.findMany({
-      where: {
-        parentID: collectionID,
-        userUid: userUID,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
-
-    // Create a list of child collection and request data ready for export
     const childrenCollectionObjects: CollectionFolder[] = [];
-    for (const coll of childCollectionList) {
-      const result = await this.exportUserCollectionToJSONObject(
-        userUID,
-        coll.id,
-      );
-      if (E.isLeft(result)) return E.left(result.left);
+    if (withChildren) {
+      // Get all child collections whose parentID === collectionID
+      const childCollectionList = await this.prisma.userCollection.findMany({
+        where: {
+          parentID: collectionID,
+          userUid: userUID,
+        },
+        orderBy: {
+          orderIndex: 'asc',
+        },
+      });
 
-      childrenCollectionObjects.push(result.right);
+      // Create a list of child collection and request data ready for export
+      for (const coll of childCollectionList) {
+        const result = await this.exportUserCollectionToJSONObject(
+          userUID,
+          coll.id,
+        );
+        if (E.isLeft(result)) return E.left(result.left);
+
+        childrenCollectionObjects.push(result.right);
+      }
     }
 
     // Fetch all child requests that belong to collectionID
@@ -914,11 +918,13 @@ export class UserCollectionService {
     const result: CollectionFolder = {
       id: collection.right.id,
       name: collection.right.title,
+      description: collection.right.description,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => {
         return {
           id: x.id,
           name: x.title,
+          description: x.description,
           ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
         };
       }),
@@ -987,11 +993,13 @@ export class UserCollectionService {
         exportedCollection: JSON.stringify({
           id: parentCollection.right.id,
           name: parentCollection.right.title,
+          description: parentCollection.right.description,
           folders: collectionListObjects,
           requests: requests.map((x) => {
             return {
               id: x.id,
               name: x.title,
+              description: x.description,
               ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
             };
           }),
@@ -1035,6 +1043,7 @@ export class UserCollectionService {
 
     return {
       title: folder.name,
+      description: folder.description ?? null,
       data,
       user: {
         connect: {

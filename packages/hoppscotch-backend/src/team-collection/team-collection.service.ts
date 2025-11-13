@@ -74,6 +74,7 @@ export class TeamCollectionService {
   ): Prisma.TeamCollectionCreateInput {
     return {
       title: folder.name,
+      description: folder.description ?? null,
       team: {
         connect: {
           id: teamID,
@@ -106,31 +107,35 @@ export class TeamCollectionService {
    *
    * @param teamID The Team ID
    * @param collectionID The Collection ID
+   * @param withChildren Whether to include child collections and their requests
    * @returns A JSON string containing all the contents of a collection
    */
   async exportCollectionToJSONObject(
     teamID: string,
     collectionID: string,
+    withChildren: boolean = true,
   ): Promise<E.Right<CollectionFolder> | E.Left<string>> {
     const collection = await this.getCollection(collectionID);
     if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
 
-    const childrenCollection = await this.prisma.teamCollection.findMany({
-      where: {
-        teamID,
-        parentID: collectionID,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
-
     const childrenCollectionObjects = [];
-    for (const coll of childrenCollection) {
-      const result = await this.exportCollectionToJSONObject(teamID, coll.id);
-      if (E.isLeft(result)) return E.left(result.left);
+    if (withChildren) {
+      const childrenCollection = await this.prisma.teamCollection.findMany({
+        where: {
+          teamID,
+          parentID: collectionID,
+        },
+        orderBy: {
+          orderIndex: 'asc',
+        },
+      });
 
-      childrenCollectionObjects.push(result.right);
+      for (const coll of childrenCollection) {
+        const result = await this.exportCollectionToJSONObject(teamID, coll.id);
+        if (E.isLeft(result)) return E.left(result.left);
+
+        childrenCollectionObjects.push(result.right);
+      }
     }
 
     const requests = await this.prisma.teamRequest.findMany({
@@ -146,7 +151,9 @@ export class TeamCollectionService {
     const data = transformCollectionData(collection.right.data);
 
     const result: CollectionFolder = {
+      id: collection.right.id,
       name: collection.right.title,
+      description: collection.right.description,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => x.request),
       data,

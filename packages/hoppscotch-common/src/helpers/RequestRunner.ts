@@ -616,8 +616,8 @@ export function runRESTRequest$(
               updateEnvsAfterTestScript(
                 combinedResult,
                 initialEnvironmentIndex,
-                initialEnvID,
-                initialEnvName
+                initialEnvName,
+                initialEnvID
               )
             }
 
@@ -673,8 +673,8 @@ export function runRESTRequest$(
 function updateEnvsAfterTestScript(
   runResult: E.Right<SandboxTestResult>,
   initialEnvironmentIndex: SelectedEnvironmentIndex,
-  initialEnvID?: string,
-  initialEnvName?: string
+  initialEnvName: string,
+  initialEnvID?: string
 ) {
   const globalEnvVariables = updateEnvironments(
     runResult.right.envs.global,
@@ -905,8 +905,8 @@ export function runTestRunnerRequest(
                 updateEnvsAfterTestScript(
                   postRequestScriptResult,
                   initialEnvironmentIndex,
-                  initialEnvID,
-                  initialEnvName
+                  initialEnvName,
+                  initialEnvID
                 )
               }
             } else {

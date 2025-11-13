@@ -175,7 +175,7 @@ export class TestRunnerService extends Service {
 
       const inheritedHeaders: HoppRESTHeaders = [
         ...(parentHeaders || []),
-        ...collection.headers,
+        ...(collection.headers || []),
       ]
 
       const inheritedVariables = [
@@ -184,7 +184,7 @@ export class TestRunnerService extends Service {
           parentID || collection._ref_id || collection.id
         ) || []),
         ...(populateValuesInInheritedCollectionVars(
-          collection.variables,
+          collection.variables || [],
           collection._ref_id || collection.id
         ) || []),
       ]

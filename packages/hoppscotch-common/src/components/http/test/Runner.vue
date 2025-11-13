@@ -250,6 +250,9 @@ const runTests = async () => {
 
   let resolvedCollection: HoppCollection = collection.value
 
+  // Preserve the original auth if it's OAuth, don't override it with inherited props
+  const originalAuth = collection.value.auth
+
   if (!isPersonalWorkspace) {
     const requestAuth = tab.value.document.inheritedProperties?.auth
       .inheritedAuth ?? {
@@ -272,7 +275,8 @@ const runTests = async () => {
 
     resolvedCollection = {
       ...collection.value,
-      auth: requestAuth,
+      // Use original OAuth auth if present, otherwise use inherited auth
+      auth: originalAuth?.authType === "oauth-2" ? originalAuth : requestAuth,
       headers: requestHeaders as HoppRESTHeader[],
       variables: parentVariables,
     }
@@ -285,7 +289,8 @@ const runTests = async () => {
 
     resolvedCollection = {
       ...collection.value,
-      auth,
+      // Use original OAuth auth if present, otherwise use inherited auth
+      auth: originalAuth?.authType === "oauth-2" ? originalAuth : auth,
       headers,
       variables,
     }
@@ -346,12 +351,23 @@ const resetRunnerState = () => {
   }
 }
 
-onMounted(() => {
-  if (tab.value.document.status === "idle") runTests()
-  if (
-    tab.value.document.status === "stopped" ||
-    tab.value.document.status === "error"
-  ) {
+onMounted(async () => {
+  if (tab.value.document.status === "idle") {
+    // Refetch collection to ensure we have the latest OAuth configuration
+    const updatedCollection = await refetchCollectionTree()
+    if (updatedCollection) {
+      if (checkIfCollectionIsEmpty(updatedCollection)) {
+        tabs.closeTab(tab.value.id)
+        toast.error(t("collection_runner.empty_collection"))
+        return
+      }
+      tab.value.document.collection = updatedCollection
+      await nextTick()
+      await runTests()
+    } else {
+      tabs.closeTab(tab.value.id)
+      toast.error(t("collection_runner.collection_not_found"))
+    }
   }
 })
 

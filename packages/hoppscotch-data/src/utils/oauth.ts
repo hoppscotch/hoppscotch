@@ -18,6 +18,32 @@ export type OAuthTokenGenerationError =
   | "UNSUPPORTED_GRANT_TYPE"
 
 /**
+ * Error message keys for OAuth token generation failures
+ * These keys map to i18n translation keys in the UI and plain messages in CLI
+ */
+export const OAUTH_ERROR_MESSAGES = {
+  NO_OAUTH_CONFIG: "authorization.oauth.no_config_found",
+  REDIRECT_GRANT_TYPE_NOT_SUPPORTED:
+    "authorization.oauth.redirect_not_supported_for_collection",
+  VALIDATION_FAILED: "authorization.oauth.auto_generation_validation_failed",
+  TOKEN_GENERATION_FAILED: "authorization.oauth.token_fetch_failed",
+  UNSUPPORTED_GRANT_TYPE:
+    "authorization.oauth.unsupported_grant_type_for_auto_generation",
+} as const
+
+/**
+ * CLI-specific error messages for OAuth token generation failures
+ * Plain English messages for command-line output (no i18n)
+ */
+export const OAUTH_CLI_ERROR_MESSAGES: Record<OAuthTokenGenerationError, string> = {
+  NO_OAUTH_CONFIG: "No OAuth 2.0 configuration found",
+  REDIRECT_GRANT_TYPE_NOT_SUPPORTED: "OAuth grant type requires browser redirect",
+  VALIDATION_FAILED: "OAuth 2.0 configuration validation failed. Check your client ID and auth endpoint.",
+  TOKEN_GENERATION_FAILED: "Failed to fetch OAuth token. Check your credentials and configuration.",
+  UNSUPPORTED_GRANT_TYPE: "Unsupported OAuth 2.0 grant type for auto-generation",
+}
+
+/**
  * Type for CLIENT_CREDENTIALS grant type info with all required fields
  */
 export interface ClientCredentialsGrantInfo {

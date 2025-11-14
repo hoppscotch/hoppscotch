@@ -26,6 +26,7 @@ import {
   hasOAuth2Auth,
   requiresRedirect,
   updateCollectionWithToken,
+  OAUTH_ERROR_MESSAGES,
 } from "~/helpers/oauth/auto-token-generator"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -100,24 +101,7 @@ export class TestRunnerService extends Service {
       const tokenResult = await generateOAuth2TokenForCollection(collection)
 
       if (E.isLeft(tokenResult)) {
-        const errorMessages: Record<string, string> = {
-          NO_OAUTH_CONFIG: t("authorization.oauth.no_config_found"),
-          REDIRECT_GRANT_TYPE_NOT_SUPPORTED: t(
-            "authorization.oauth.redirect_not_supported_for_collection"
-          ),
-          VALIDATION_FAILED: t(
-            "authorization.oauth.auto_generation_validation_failed"
-          ),
-          TOKEN_GENERATION_FAILED: t("authorization.oauth.token_fetch_failed"),
-          UNSUPPORTED_GRANT_TYPE: t(
-            "authorization.oauth.unsupported_grant_type_for_auto_generation"
-          ),
-        }
-
-        toast.error(
-          errorMessages[tokenResult.left] ||
-            t("authorization.oauth.token_fetch_failed")
-        )
+        toast.error(t(OAUTH_ERROR_MESSAGES[tokenResult.left]))
         tab.value.document.status = "error"
         return
       }
@@ -129,12 +113,14 @@ export class TestRunnerService extends Service {
         tokenResult.right.refresh_token
       )
 
-      // Also update the result collection
-      updateCollectionWithToken(
-        tab.value.document.resultCollection!,
-        tokenResult.right.access_token,
-        tokenResult.right.refresh_token
-      )
+      // Also update the result collection if it exists
+      if (tab.value.document.resultCollection) {
+        updateCollectionWithToken(
+          tab.value.document.resultCollection,
+          tokenResult.right.access_token,
+          tokenResult.right.refresh_token
+        )
+      }
 
       toast.success(t("authorization.oauth.token_fetched_successfully"))
     }

@@ -2,6 +2,7 @@ import {
   HoppCollection,
   HoppRESTAuth,
   REDIRECT_GRANT_TYPES,
+  OAUTH_ERROR_MESSAGES,
   type OAuthTokenGenerationError,
   type ClientCredentialsGrantInfo,
   type PasswordGrantInfo,
@@ -16,6 +17,7 @@ import { replaceTemplateStringsInObjectValues } from "../auth"
 
 export {
   REDIRECT_GRANT_TYPES,
+  OAUTH_ERROR_MESSAGES,
   hasOAuth2Auth,
   requiresRedirect,
   updateCollectionWithToken,
@@ -62,7 +64,9 @@ export async function generateOAuth2TokenForCollection(
         return E.left("UNSUPPORTED_GRANT_TYPE")
     }
   } catch (error) {
-    console.error("OAuth token generation error:", error)
+    console.error(
+      "OAuth token generation error. Check configuration and credentials."
+    )
     return E.left("TOKEN_GENERATION_FAILED")
   }
 }
@@ -100,7 +104,9 @@ async function generateClientCredentialsToken(
   const parsedArgs = clientCredentials.params.safeParse(values)
 
   if (!parsedArgs.success) {
-    console.error("Client Credentials validation failed:", parsedArgs.error)
+    console.error(
+      "Client Credentials validation failed. Check configuration and credentials."
+    )
     return E.left("VALIDATION_FAILED")
   }
 
@@ -150,7 +156,9 @@ async function generatePasswordToken(
   const parsedArgs = passwordFlow.params.safeParse(values)
 
   if (!parsedArgs.success) {
-    console.error("Password flow validation failed:", parsedArgs.error)
+    console.error(
+      "Password flow validation failed. Check configuration and credentials."
+    )
     return E.left("VALIDATION_FAILED")
   }
 

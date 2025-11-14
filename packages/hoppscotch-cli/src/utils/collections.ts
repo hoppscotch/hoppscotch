@@ -40,6 +40,7 @@ import {
   hasOAuth2Auth,
   requiresRedirect,
   updateCollectionWithToken,
+  OAUTH_CLI_ERROR_MESSAGES,
 } from "./oauth/token-generator";
 
 const { WARN, FAIL, INFO } = exceptionColors;
@@ -90,20 +91,41 @@ export const collectionsRunner = async (
       }
 
       // Generate OAuth token with environment variable expansion
+      // Process secret variables from system environment before OAuth generation
+      const processedGlobal = envs.global.map((variable) => {
+        // Only fetch from system environment for secret variables
+        if (variable.secret) {
+          return {
+            ...variable,
+            currentValue:
+              variable.currentValue !== ""
+                ? variable.currentValue
+                : process.env[variable.key] || variable.initialValue,
+          }
+        }
+        return variable
+      })
+
+      const processedSelected = envs.selected.map((variable) => {
+        // Only fetch from system environment for secret variables
+        if (variable.secret) {
+          return {
+            ...variable,
+            currentValue:
+              variable.currentValue !== ""
+                ? variable.currentValue
+                : process.env[variable.key] || variable.initialValue,
+          }
+        }
+        return variable
+      })
+
       // Combine global and selected environment variables for template expansion
-      const allEnvVariables = [...envs.global, ...envs.selected]
+      const allEnvVariables = [...processedGlobal, ...processedSelected]
       const tokenResult = await generateOAuth2TokenForCollection(collection, allEnvVariables)
 
       if (E.isLeft(tokenResult)) {
-        const errorMessages: Record<string, string> = {
-          NO_OAUTH_CONFIG: "No OAuth 2.0 configuration found",
-          REDIRECT_GRANT_TYPE_NOT_SUPPORTED: "OAuth grant type requires browser redirect",
-          VALIDATION_FAILED: "OAuth 2.0 configuration validation failed",
-          TOKEN_GENERATION_FAILED: "Failed to fetch OAuth token",
-          UNSUPPORTED_GRANT_TYPE: "Unsupported OAuth 2.0 grant type for auto-generation",
-        }
-
-        const errorMessage = errorMessages[tokenResult.left] || "OAuth token generation failed"
+        const errorMessage = OAUTH_CLI_ERROR_MESSAGES[tokenResult.left] || "OAuth token generation failed"
         log(FAIL(`\n${chalk.bold("OAuth Error:")} ${errorMessage}`))
         process.exit(1)
       }

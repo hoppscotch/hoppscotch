@@ -3,6 +3,8 @@ import {
   HoppRESTAuth,
   EnvironmentVariable,
   REDIRECT_GRANT_TYPES,
+  OAUTH_ERROR_MESSAGES,
+  OAUTH_CLI_ERROR_MESSAGES,
   OAuthTokenGenerationError,
   ClientCredentialsGrantInfo,
   PasswordGrantInfo,
@@ -17,10 +19,47 @@ import { z } from "zod"
 
 export {
   REDIRECT_GRANT_TYPES,
+  OAUTH_ERROR_MESSAGES,
+  OAUTH_CLI_ERROR_MESSAGES,
   OAuthTokenGenerationError,
   hasOAuth2Auth,
   requiresRedirect,
   updateCollectionWithToken,
+}
+
+/**
+ * Shared token response validation schema
+ */
+const TOKEN_RESPONSE_SCHEMA = z.object({
+  access_token: z.string(),
+  token_type: z.string().optional(),
+  expires_in: z.number().optional(),
+  refresh_token: z.string().optional(),
+})
+
+/**
+ * Processes token request parameters and distributes them to headers, URL params, or body
+ */
+function processTokenRequestParams(
+  tokenRequestParams: any[],
+  headers: Record<string, string>,
+  bodyParams: Record<string, string>,
+  urlParams: Record<string, string>
+): void {
+  if (tokenRequestParams && Array.isArray(tokenRequestParams)) {
+    tokenRequestParams
+      .filter((param: any) => param.active && param.key && param.value)
+      .forEach((param: any) => {
+        if (param.sendIn === "headers") {
+          headers[param.key] = param.value
+        } else if (param.sendIn === "url") {
+          urlParams[param.key] = param.value
+        } else {
+          // Default to body
+          bodyParams[param.key] = param.value
+        }
+      })
+  }
 }
 
 /**
@@ -65,7 +104,9 @@ export async function generateOAuth2TokenForCollection(
         return E.left("UNSUPPORTED_GRANT_TYPE")
     }
   } catch (error) {
-    console.error("OAuth token generation error:", error)
+    console.error(
+      "OAuth token generation error. Check configuration and credentials."
+    )
     return E.left("TOKEN_GENERATION_FAILED")
   }
 }
@@ -142,23 +183,17 @@ async function generateClientCredentialsToken(
     }
 
     // Process additional token request parameters
-    if (tokenRequestParams && Array.isArray(tokenRequestParams)) {
-      tokenRequestParams
-        .filter((param: any) => param.active && param.key && param.value)
-        .forEach((param: any) => {
-          if (param.sendIn === "headers") {
-            headers[param.key] = param.value
-          } else if (param.sendIn === "url") {
-            urlParams[param.key] = param.value
-          } else {
-            // Default to body
-            bodyParams[param.key] = param.value
-          }
-        })
-    }
+    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
 
     // Build URL with query parameters
-    const url = new URL(authEndpoint)
+    let url: URL
+    try {
+      url = new URL(authEndpoint)
+    } catch (error) {
+      console.error("Invalid auth endpoint URL:", authEndpoint)
+      return E.left("VALIDATION_FAILED")
+    }
+
     Object.entries(urlParams).forEach(([key, value]) => {
       url.searchParams.set(key, value)
     })
@@ -171,14 +206,7 @@ async function generateClientCredentialsToken(
     )
 
     // Validate response
-    const tokenResponseSchema = z.object({
-      access_token: z.string(),
-      token_type: z.string().optional(),
-      expires_in: z.number().optional(),
-      refresh_token: z.string().optional(),
-    })
-
-    const parsedResponse = tokenResponseSchema.safeParse(response.data)
+    const parsedResponse = TOKEN_RESPONSE_SCHEMA.safeParse(response.data)
 
     if (!parsedResponse.success) {
       return E.left("TOKEN_GENERATION_FAILED")
@@ -194,7 +222,9 @@ async function generateClientCredentialsToken(
 
     return E.right(parsedResponse.data)
   } catch (error) {
-    console.error("\n❌ Client Credentials token generation failed:", error);
+    console.error(
+      "\n❌ Client Credentials token generation failed. Check configuration and credentials."
+    )
     return E.left("TOKEN_GENERATION_FAILED")
   }
 }
@@ -257,23 +287,17 @@ async function generatePasswordToken(
     const urlParams: Record<string, string> = {}
 
     // Process additional token request parameters
-    if (tokenRequestParams && Array.isArray(tokenRequestParams)) {
-      tokenRequestParams
-        .filter((param: any) => param.active && param.key && param.value)
-        .forEach((param: any) => {
-          if (param.sendIn === "headers") {
-            headers[param.key] = param.value
-          } else if (param.sendIn === "url") {
-            urlParams[param.key] = param.value
-          } else {
-            // Default to body
-            bodyParams[param.key] = param.value
-          }
-        })
-    }
+    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
 
     // Build URL with query parameters
-    const url = new URL(authEndpoint)
+    let url: URL
+    try {
+      url = new URL(authEndpoint)
+    } catch (error) {
+      console.error("Invalid auth endpoint URL:", authEndpoint)
+      return E.left("VALIDATION_FAILED")
+    }
+
     Object.entries(urlParams).forEach(([key, value]) => {
       url.searchParams.set(key, value)
     })
@@ -286,17 +310,10 @@ async function generatePasswordToken(
     )
 
     // Validate response
-    const tokenResponseSchema = z.object({
-      access_token: z.string(),
-      token_type: z.string().optional(),
-      expires_in: z.number().optional(),
-      refresh_token: z.string().optional(),
-    })
-
-    const parsedResponse = tokenResponseSchema.safeParse(response.data)
+    const parsedResponse = TOKEN_RESPONSE_SCHEMA.safeParse(response.data)
 
     if (!parsedResponse.success) {
-      console.error("Invalid token response:", parsedResponse.error)
+      console.error("Invalid token response. Check configuration and credentials.")
       return E.left("TOKEN_GENERATION_FAILED")
     }
 
@@ -311,7 +328,9 @@ async function generatePasswordToken(
 
     return E.right(parsedResponse.data)
   } catch (error) {
-    console.error("Password flow token generation failed:", error)
+    console.error(
+      "Password flow token generation failed. Check configuration and credentials."
+    )
     return E.left("TOKEN_GENERATION_FAILED")
   }
 }

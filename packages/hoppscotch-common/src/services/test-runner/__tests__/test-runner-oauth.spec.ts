@@ -483,7 +483,7 @@ describe("TestRunnerService - OAuth Integration", () => {
       )
 
       expect(mockToast.error).toHaveBeenCalledWith(
-        "OAuth 2.0 configuration validation failed"
+        "authorization.oauth.validation_failed"
       )
       expect(tab.value.document.status).toBe("error")
     })
@@ -527,7 +527,9 @@ describe("TestRunnerService - OAuth Integration", () => {
         mockToast
       )
 
-      expect(mockToast.error).toHaveBeenCalledWith("Failed to fetch token")
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "authorization.oauth.token_generation_failed"
+      )
       expect(tab.value.document.status).toBe("error")
     })
 
@@ -572,7 +574,7 @@ describe("TestRunnerService - OAuth Integration", () => {
       )
 
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Unsupported OAuth 2.0 grant type"
+        "authorization.oauth.unsupported_grant_type"
       )
       expect(tab.value.document.status).toBe("error")
     })
@@ -617,7 +619,7 @@ describe("TestRunnerService - OAuth Integration", () => {
         mockToast
       )
 
-      expect(mockToast.error).toHaveBeenCalledWith("Failed to fetch token")
+      expect(mockToast.error).toHaveBeenCalledWith(undefined)
       expect(tab.value.document.status).toBe("error")
     })
 

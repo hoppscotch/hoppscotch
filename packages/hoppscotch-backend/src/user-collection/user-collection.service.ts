@@ -917,13 +917,11 @@ export class UserCollectionService {
     const result: CollectionFolder = {
       id: collection.right.id,
       name: collection.right.title,
-      description: collection.right.description,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => {
         return {
           id: x.id,
           name: x.title,
-          description: x.description,
           ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
         };
       }),
@@ -992,13 +990,11 @@ export class UserCollectionService {
         exportedCollection: JSON.stringify({
           id: parentCollection.right.id,
           name: parentCollection.right.title,
-          description: parentCollection.right.description,
           folders: collectionListObjects,
           requests: requests.map((x) => {
             return {
               id: x.id,
               name: x.title,
-              description: x.description,
               ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
             };
           }),
@@ -1042,7 +1038,6 @@ export class UserCollectionService {
 
     return {
       title: folder.name,
-      description: folder.description ?? null,
       data,
       user: {
         connect: {

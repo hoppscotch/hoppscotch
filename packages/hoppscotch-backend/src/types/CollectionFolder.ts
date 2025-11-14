@@ -26,12 +26,6 @@ export class CollectionFolder {
   })
   name: string;
 
-  @ApiPropertyOptional({
-    description: 'Description of the collection folder',
-    example: 'This folder contains my API requests',
-  })
-  description: string;
-
   @ApiProperty({
     description: 'Additional data for the collection folder',
     type: String,

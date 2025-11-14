@@ -74,7 +74,6 @@ export class TeamCollectionService {
   ): Prisma.TeamCollectionCreateInput {
     return {
       title: folder.name,
-      description: folder.description ?? null,
       team: {
         connect: {
           id: teamID,
@@ -153,7 +152,6 @@ export class TeamCollectionService {
     const result: CollectionFolder = {
       id: collection.right.id,
       name: collection.right.title,
-      description: collection.right.description,
       folders: childrenCollectionObjects,
       requests: requests.map((x) => x.request),
       data,

@@ -220,12 +220,12 @@ export class PublishedDocsService {
           ? await this.userCollectionService.exportUserCollectionToJSONObject(
               publishedDocs.creatorUid,
               publishedDocs.collectionID,
-              query.tree === TreeLevel.FULL
+              query.tree === TreeLevel.FULL,
             )
           : await this.teamCollectionService.exportCollectionToJSONObject(
               publishedDocs.workspaceID,
               publishedDocs.collectionID,
-              query.tree === TreeLevel.FULL
+              query.tree === TreeLevel.FULL,
             );
 
       return collectionResult;

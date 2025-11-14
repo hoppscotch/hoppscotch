@@ -107,6 +107,8 @@
       @edit-request="editRequest"
       @edit-response="editResponse"
       @edit-properties="editProperties"
+      @open-documentation="openDocumentation"
+      @open-request-documentation="openRequestDocumentation"
       @create-mock-server="createTeamMockServer"
       @export-data="exportData"
       @expand-team-collection="expandTeamCollection"
@@ -222,9 +224,17 @@
       :show="showModalDocumentation"
       :collection-path="editingCollectionPath"
       :collection="editingCollection"
+      :collection-i-d="editingCollectionID"
       :folder-path="editingFolderPath"
       :request-index="editingRequestIndex"
+      :request-i-d="editingRequestID"
       :request="editingRequest"
+      :is-team-collection="editingCollectionIsTeam"
+      :team-i-d="
+        collectionsType.type === 'team-collections'
+          ? collectionsType.selectedTeam?.teamID
+          : undefined
+      "
       @hide-modal="displayModalDocumentation(false)"
     />
 
@@ -249,7 +259,6 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   makeCollection,
-  getDefaultCollectionDocumentation,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 
@@ -380,6 +389,7 @@ const collectionsType = ref<CollectionType>({
 
 // Collection Data
 const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
+const editingCollectionIsTeam = ref<boolean>(false)
 const editingCollectionName = ref<string | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
 const editingCollectionID = ref<string | null>(null)
@@ -841,7 +851,7 @@ const addNewRootCollection = async (name: string) => {
           authActive: true,
         },
         variables: [],
-        documentation: getDefaultCollectionDocumentation(),
+        description: "",
       })
     )
 
@@ -3137,9 +3147,10 @@ const setCollectionProperties = (newCollection: {
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
     const data = {
-      auth: collection.auth,
-      headers: collection.headers,
-      variables: collection.variables,
+      auth: collection.auth ?? null,
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      description: collection.description ?? null,
     }
 
     // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array
@@ -3150,7 +3161,7 @@ const setCollectionProperties = (newCollection: {
     }
 
     pipe(
-      updateTeamCollection(collectionId, JSON.stringify(data), undefined),
+      updateTeamCollection(collectionId, data, undefined),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -3247,9 +3258,10 @@ const openDocumentation = ({
   collectionRefID: string
   collection: HoppCollection | TeamCollection
 }) => {
-  console.log("Open documentation for", pathOrID, collectionRefID)
+  console.log("Open documentation for", pathOrID, collectionRefID, collection)
   editingCollectionPath.value = pathOrID
   editingCollection.value = collection
+  editingCollectionIsTeam.value = "data" in collection
   displayModalDocumentation(true)
 }
 
@@ -3277,6 +3289,8 @@ const openRequestDocumentation = ({
   editingRequest.value = request
   editingFolderPath.value = folderPath
   editingRequestIndex.value = parseInt(requestIndex)
+  editingRequestID.value = requestIndex
+  editingCollectionID.value = folderPath.split("/").at(-1) ?? null
 
   displayModalDocumentation(true)
 }

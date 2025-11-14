@@ -13,20 +13,25 @@
         <icon-lucide-chevron-right class="svg-icons" />
       </span>
       <icon-lucide-folder
+        v-if="!expandedFolders[currentFolderId]"
+        class="ml-1 mr-1.5 svg-icons transition-colors group-hover:text-secondaryDark"
+      />
+      <icon-lucide-folder-open
+        v-else
         class="ml-1 mr-1.5 svg-icons transition-colors group-hover:text-secondaryDark"
       />
       <span
         class="text-xs truncate flex-1 transition-colors group-hover:text-secondaryDark"
         @click.stop="emit('folder-select', folder)"
       >
-        {{ folder.name }}
+        {{ folderName }}
       </span>
     </div>
 
     <div v-if="expandedFolders[currentFolderId]">
-      <div v-if="hasItems(folder.folders)" class="mb-1">
+      <div v-if="hasItems(childFolders)" class="mb-1">
         <div
-          v-for="(nestedFolder, nestedIndex) in folder.folders"
+          v-for="(nestedFolder, nestedIndex) in childFolders"
           :key="getFolderId(nestedFolder, nestedIndex)"
           class="pl-4"
         >
@@ -43,24 +48,13 @@
       </div>
 
       <div v-if="hasItems(folder.requests)" class="mb-1">
-        <div
+        <RequestItem
           v-for="(request, requestIndex) in folder.requests"
           :key="getRequestId(request, requestIndex)"
-          class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
-          @click.stop="emit('request-select', request as HoppRESTRequest)"
-        >
-          <span
-            class="text-tiny px-1 rounded-sm"
-            :class="getMethodClass(getRequestMethod(request))"
-          >
-            {{ getRequestMethod(request) }}
-          </span>
-          <span
-            class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
-          >
-            {{ request.name }}
-          </span>
-        </div>
+          :request="request"
+          :depth="depth + 1"
+          @request-select="emit('request-select', $event)"
+        />
       </div>
     </div>
   </div>
@@ -73,6 +67,7 @@ import {
   HoppGQLRequest,
 } from "@hoppscotch/data"
 import { computed } from "vue"
+import RequestItem from "./RequestItem.vue"
 
 type ExpandedFoldersType = { [key: string]: boolean }
 
@@ -92,11 +87,17 @@ const props = defineProps<{
   expandedFolders: ExpandedFoldersType
 }>()
 
+const folderName = computed(() => props.folder.name)
+
 const emit = defineEmits<{
   (e: "toggle-folder", folderId: string): void
   (e: "request-select", request: HoppRESTRequest): void
   (e: "folder-select", folder: HoppCollection): void
 }>()
+
+const childFolders = computed<Array<HoppCollection>>(() => {
+  return props.folder.folders || []
+})
 
 const currentFolderId = computed(() =>
   getFolderId(props.folder, props.folderIndex)
@@ -107,49 +108,6 @@ const currentFolderId = computed(() =>
  * @param request The request object to check
  * @returns True if the request is a REST request
  */
-function isRESTRequest(request: HoppRequest): request is HoppRESTRequest {
-  return "method" in request && typeof request.method === "string"
-}
-
-/**
- * Gets the HTTP method from a request object, handling different request types
- * @param request The request object (REST or GraphQL)
- * @returns The HTTP method string
- */
-function getRequestMethod(request: HoppRequest): string {
-  // Handle REST requests that have a method property
-  if (isRESTRequest(request)) {
-    return request.method
-  }
-
-  // Default fallback
-  return "GET"
-}
-
-/**
- * Returns the appropriate CSS class for styling the request method badge
- * @param method The HTTP method
- * @returns CSS class string for the method badge
- */
-function getMethodClass(method: string): string {
-  const methodLower: string = method?.toLowerCase() || ""
-
-  switch (methodLower) {
-    case "get":
-      return "bg-green-500/10 text-green-500"
-    case "post":
-      return "bg-blue-500/10 text-blue-500"
-    case "put":
-      return "bg-orange-500/10 text-orange-500"
-    case "delete":
-      return "bg-red-500/10 text-red-500"
-    case "patch":
-      return "bg-teal-500/10 text-teal-500"
-    default:
-      return "bg-gray-500/10 text-secondaryLight"
-  }
-}
-
 /**
  * Check if a value exists and has length > 0
  * @param value Array to check
@@ -171,6 +129,7 @@ function generateFallbackId(
   index: number,
   prefix: string
 ): string {
+  // Handle regular items with id, _ref_id, and name properties
   return (
     item.id ||
     item._ref_id ||

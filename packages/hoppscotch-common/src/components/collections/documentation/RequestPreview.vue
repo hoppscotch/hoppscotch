@@ -6,12 +6,12 @@
           <div class="flex items-center gap-3">
             <span
               class="px-2 py-1 text-xs font-mono rounded"
-              :class="getMethodClass(request.method)"
+              :class="getMethodClass(requestMethod)"
             >
-              {{ request.method }}
+              {{ requestMethod }}
             </span>
             <h1 class="text-2xl font-bold text-secondaryDark">
-              {{ request.name }}
+              {{ requestName }}
             </h1>
           </div>
           <HoppSmartItem
@@ -72,25 +72,29 @@
         :team-i-d="teamID"
       />
 
-      <CollectionsDocumentationSectionsAuth :auth="request.auth" />
+      <CollectionsDocumentationSectionsAuth :auth="request?.auth" />
 
-      <CollectionsDocumentationSectionsHeaders :headers="request.headers" />
+      <CollectionsDocumentationSectionsHeaders
+        :headers="request?.headers || []"
+      />
 
-      <CollectionsDocumentationSectionsParameters :params="request.params" />
+      <CollectionsDocumentationSectionsParameters
+        :params="request?.params || []"
+      />
 
       <CollectionsDocumentationSectionsVariables
-        :variables="request.requestVariables"
+        :variables="request?.requestVariables || []"
       />
 
       <CollectionsDocumentationSectionsPreRequestScript
-        :pre-request-script="request.preRequestScript"
+        :pre-request-script="request?.preRequestScript"
       />
 
       <!-- <CollectionsDocumentationSectionsTestScript
-        :test-script="request.testScript"
+        :test-script="request?.testScript"
       /> -->
 
-      <CollectionsDocumentationSectionsRequestBody :body="request.body" />
+      <CollectionsDocumentationSectionsRequestBody :body="request?.body" />
 
       <CollectionsDocumentationSectionsResponse
         :response-examples="getResponseExamples()"
@@ -128,7 +132,6 @@ import {
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-
 const toast = useToast()
 
 const md = new MarkdownIt({
@@ -146,6 +149,7 @@ const props = withDefaults(
     collectionPath?: string | null
     folderPath?: string | null
     requestIndex?: number | null
+    requestID?: string | null
     teamID?: string
   }>(),
   {
@@ -155,6 +159,7 @@ const props = withDefaults(
     collectionPath: null,
     folderPath: null,
     requestIndex: null,
+    requestID: null,
     teamID: undefined,
   }
 )
@@ -163,6 +168,30 @@ const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
   (event: "close-modal"): void
 }>()
+
+const restTabs = useService(RESTTabService)
+const teamCollectionsService = useService(TeamCollectionsService)
+
+// No need for actualRequest computed since we now directly use props.request
+
+const requestName = computed<string>(() => {
+  if (!props.request) return ""
+  // HoppRESTRequest - use name
+  return props.request.name || "Untitled Request"
+})
+
+const requestMethod = computed<string>(() => {
+  return props.request?.method || "GET"
+})
+
+const requestId = computed<string>(() => {
+  if (!props.request) return ""
+
+  console.log("Computing requestId for request:", props.request)
+
+  // HoppRESTRequest - use _ref_id or id
+  return props.request._ref_id || (props.request as any).id || ""
+})
 
 const editMode = ref<boolean>(false)
 const editableContent = ref<string>(props.documentationDescription)
@@ -186,10 +215,15 @@ const getEffectiveRequest = async () => {
 
   let collectionVariables: HoppCollectionVariable[] = []
 
-  if (props.teamID && props.collectionID) {
+  // console.log("collectionID:", props.collectionID)
+  // console.log("teamID:", props.teamID)
+  // console.log("requst", props.request)
+  // console.log("folderPath", props.folderPath?.split("/")[0])
+
+  if (props.teamID && props.folderPath?.split("/")[0]) {
     const inheritedProperties =
       teamCollectionsService.cascadeParentCollectionForProperties(
-        props.collectionID
+        props.folderPath?.split("/")[0] || ""
       )
 
     collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
@@ -216,7 +250,7 @@ const getEffectiveRequest = async () => {
     )
   }
 
-  const requestVariables = props.request.requestVariables.map(
+  const requestVariables = (props.request.requestVariables || []).map(
     (requestVariable) => {
       if (requestVariable.active)
         return {
@@ -305,9 +339,9 @@ function getResponseExamples() {
         console.log("Processing response for example:", name, response)
         const example = {
           name: name || "Response Example",
-          statusCode: response.code || 200,
-          headers: response.headers || [],
-          body: response.body || "",
+          statusCode: (response as any).code || 200,
+          headers: (response as any).headers || [],
+          body: (response as any).body || "",
           contentType: "application/json",
         }
         examples.push(example)
@@ -411,72 +445,99 @@ const copyToClipboard = async (text: string | undefined) => {
   }
 }
 
-const restTabs = useService(RESTTabService)
-const teamCollectionsService = useService(TeamCollectionsService)
-
 const openInNewTab = () => {
   console.log("Opening request in new tab...", props)
+  console.log("collectionID:", props.collectionID)
+  console.log("request", props.request)
+  console.log("folderPath", props.folderPath)
+  console.log("collectionPath", props.collectionPath)
+  console.log("requestIndex", props.requestIndex)
+  console.log("requestID", props.requestID)
   if (props.request) {
     let saveContext = null
     let inheritedProperties = null
 
-    if (props.collectionID && props.teamID) {
+    // Determine if this is a team collection or user collection
+    const isTeamCollection =
+      props.teamID && props.collectionID && props.folderPath
+
+    if (isTeamCollection) {
+      // Team collection - use team-specific context
       saveContext = {
         originLocation: "team-collection" as const,
-        requestID: props.request._ref_id || "",
-        teamID: props.teamID,
-        collectionID: props.collectionID,
+        requestID: props.requestID || requestId.value || "",
+        collectionID: props.folderPath!,
       }
 
       inheritedProperties =
         teamCollectionsService.cascadeParentCollectionForProperties(
-          props.collectionID
+          props.folderPath!
         )
+
+      console.log("inheritedProperties:", inheritedProperties)
+
+      // Check if tab already exists for team request
+      const possibleTeamTab = restTabs.getTabRefWithSaveContext(saveContext)
+
+      if (possibleTeamTab) {
+        restTabs.setActiveTab(possibleTeamTab.value.id)
+      } else {
+        restTabs.createNewTab({
+          type: "request",
+          request: cloneDeep(props.request),
+          isDirty: false,
+          saveContext,
+          inheritedProperties,
+        })
+      }
     } else if (props.folderPath !== null && props.requestIndex !== null) {
+      // User collection - use user-specific context
       saveContext = {
         originLocation: "user-collection" as const,
         folderPath: props.folderPath,
         requestIndex: props.requestIndex,
-        requestRefID: props.request._ref_id,
+        requestRefID: requestId.value,
       }
+
+      console.log("//user collection saveContext://", saveContext)
 
       inheritedProperties = cascadeParentCollectionForProperties(
         props.folderPath,
         "rest"
       )
-    }
 
-    console.log("inheritedProperties:", inheritedProperties)
-    console.log("saveContext:", saveContext)
+      // Check if tab already exists for user request
+      const possibleUserTab = restTabs.getTabRefWithSaveContext(saveContext)
 
-    const possibleTab = restTabs.getTabRefWithSaveContext({
-      originLocation: "user-collection",
-      requestIndex: props.requestIndex!,
-      folderPath: props.folderPath!,
-    })
-
-    if (possibleTab) {
-      restTabs.setActiveTab(possibleTab.value.id)
+      if (possibleUserTab) {
+        restTabs.setActiveTab(possibleUserTab.value.id)
+      } else {
+        restTabs.createNewTab({
+          type: "request",
+          request: cloneDeep(props.request),
+          isDirty: false,
+          saveContext,
+          inheritedProperties,
+        })
+      }
     } else {
+      // Fallback: create a new tab without save context
+      console.warn(
+        "Unable to determine collection type, creating tab without save context"
+      )
       restTabs.createNewTab({
         type: "request",
         request: cloneDeep(props.request),
         isDirty: false,
-        saveContext: {
-          originLocation: "user-collection",
-          folderPath: props.folderPath!,
-          requestIndex: props.requestIndex!,
-          requestRefID: props.request._ref_id ?? props.request.id,
-        },
-        inheritedProperties: cascadeParentCollectionForProperties(
-          props.folderPath!,
-          "rest"
-        ),
+        saveContext: undefined,
+        inheritedProperties: undefined,
       })
     }
 
-    emit("close-modal")
+    console.log("Created tab with saveContext:", saveContext)
+    console.log("inheritedProperties:", inheritedProperties)
 
+    emit("close-modal")
     toast.success("Request opened in new tab!")
   }
 }

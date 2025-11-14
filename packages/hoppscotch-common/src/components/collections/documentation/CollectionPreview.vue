@@ -12,7 +12,7 @@
           {{ collection.id }}
         </span>
         <h1 class="text-3xl font-bold text-secondaryDark my-2">
-          {{ collection.name }}
+          {{ collectionName }}
         </h1>
       </div>
 
@@ -44,13 +44,13 @@
         </div>
       </div>
 
-      <CollectionsDocumentationSectionsAuth :auth="collection.auth" />
+      <CollectionsDocumentationSectionsAuth :auth="collectionAuth" />
 
       <CollectionsDocumentationSectionsVariables
-        :variables="collection.variables"
+        :variables="collectionVariables"
       />
 
-      <CollectionsDocumentationSectionsHeaders :headers="collection.headers" />
+      <CollectionsDocumentationSectionsHeaders :headers="collectionHeaders" />
     </div>
 
     <div v-else class="text-center py-8 text-secondaryLight">
@@ -61,11 +61,15 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppCollection } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTAuth,
+  HoppRESTHeaders,
+  HoppCollectionVariable,
+} from "@hoppscotch/data"
 import { ref, computed, watch, nextTick, onMounted } from "vue"
 import MarkdownIt from "markdown-it"
 import { useVModel } from "@vueuse/core"
-
 const md = new MarkdownIt({
   html: true,
   breaks: true,
@@ -89,6 +93,36 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
 }>()
+
+const collectionName = computed<string>(() => {
+  console.log("Collection prop in CollectionPreview.vue:", props.collection)
+  if (!props.collection) return ""
+
+  // Always HoppCollection since parent converts TeamCollection
+  return props.collection.name
+})
+
+// Computed properties for HoppCollection (TeamCollection already converted by parent)
+const collectionAuth = computed<HoppRESTAuth | null>(() => {
+  if (!props.collection) return null
+
+  // Always HoppCollection since parent converts TeamCollection
+  return props.collection.auth || { authType: "inherit", authActive: true }
+})
+
+const collectionVariables = computed<HoppCollectionVariable[]>(() => {
+  if (!props.collection) return []
+
+  // Always HoppCollection since parent converts TeamCollection
+  return props.collection.variables || []
+})
+
+const collectionHeaders = computed<HoppRESTHeaders>(() => {
+  if (!props.collection) return []
+
+  // Always HoppCollection since parent converts TeamCollection
+  return props.collection.headers || []
+})
 
 const collectionDescription = useVModel(
   props,

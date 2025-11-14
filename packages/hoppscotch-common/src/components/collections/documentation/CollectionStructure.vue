@@ -8,10 +8,11 @@
         @click="scrollToTop"
       >
         <span class="truncate">
-          {{ collection.name }}
+          {{ collectionName }}
         </span>
       </div>
       <HoppSmartItem
+        v-if="hasItems(collectionFolders) || hasItems(collectionRequests)"
         :icon="allExpanded ? IconCheveronsUp : IconCheveronsDown"
         class="focus-visible:bg-transparent hover:bg-transparent"
         @click="toggleAllFolders"
@@ -20,9 +21,9 @@
 
     <!-- Tree structure -->
     <div class="max-h-[400px] overflow-y-auto">
-      <div v-if="hasItems(collection.folders)">
+      <div v-if="hasItems(collectionFolders)">
         <FolderItem
-          v-for="(rootFolder, rootFolderIndex) in collection.folders"
+          v-for="(rootFolder, rootFolderIndex) in collectionFolders"
           :key="getFolderId(rootFolder, rootFolderIndex)"
           :folder="rootFolder"
           :folder-index="rootFolderIndex"
@@ -35,32 +36,18 @@
       </div>
 
       <!-- Root Requests -->
-      <div v-if="hasItems(collection.requests)">
-        <div
-          v-for="(request, requestIndex) in collection.requests"
+      <div v-if="hasItems(collectionRequests)">
+        <RequestItem
+          v-for="(request, requestIndex) in collectionRequests"
           :key="getRequestId(request, requestIndex)"
-        >
-          <div
-            class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
-            @click.stop="onRequestSelect(request as HoppRESTRequest)"
-          >
-            <span
-              class="text-tiny mr-2 px-0.5 rounded-sm"
-              :class="getMethodClass(getRequestMethod(request))"
-            >
-              {{ getRequestMethod(request) }}
-            </span>
-            <span
-              class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
-            >
-              {{ request.name }}
-            </span>
-          </div>
-        </div>
+          :request="request"
+          :depth="0"
+          @request-select="onRequestSelect"
+        />
       </div>
 
       <div
-        v-if="!hasItems(collection.folders) && !hasItems(collection.requests)"
+        v-if="!hasItems(collectionFolders) && !hasItems(collectionRequests)"
         class="p-3 text-center text-secondaryLight text-xs italic"
       >
         No requests or folders
@@ -75,10 +62,14 @@ import {
   HoppRESTRequest,
   HoppGQLRequest,
 } from "@hoppscotch/data"
-import { ref, reactive, watch } from "vue"
+import { ref, reactive, watch, computed } from "vue"
 import FolderItem from "./FolderItem.vue"
+import RequestItem from "./RequestItem.vue"
 import IconCheveronsDown from "~icons/lucide/chevrons-down"
 import IconCheveronsUp from "~icons/lucide/chevrons-up"
+import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import { useService } from "dioc/vue"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 
 type ExpandedFoldersType = { [key: string]: boolean }
 
@@ -92,7 +83,7 @@ type ItemWithPossibleId = {
 }
 
 const props = defineProps<{
-  collection: HoppCollection
+  collection: HoppCollection | TeamCollection
   initiallyExpanded?: boolean
 }>()
 
@@ -103,6 +94,33 @@ const emit = defineEmits<{
 
 const expandedFolders = reactive<ExpandedFoldersType>({})
 const allExpanded = ref<boolean>(props.initiallyExpanded || false)
+
+const teamCollectionService = useService(TeamCollectionsService)
+
+console.log("Props in CollectionStructure.vue:", props.collection.children)
+
+const collectionFolders = computed<HoppCollection[]>(() => {
+  return "children" in props.collection
+    ? props.collection.children || []
+    : props.collection.folders || []
+})
+
+const collectionRequests = computed<HoppRequest[]>(() => {
+  return "requests" in props.collection ? props.collection.requests || [] : []
+})
+
+const collectionName = computed<string>(() => {
+  return "title" in props.collection
+    ? props.collection.title || "Untitled Collection"
+    : props.collection.name || "Untitled Collection"
+})
+// onMounted(() => {
+//   console.log("Mounted CollectionStructure.vue")
+//   nextTick(() => {
+//     if ("children" in props.collection)
+//       teamCollectionService.expandCollection(props.collection.id)
+//   })
+// })
 
 // Initialize folder structure with first level expanded
 watch(
@@ -119,8 +137,9 @@ watch(
   { immediate: true }
 )
 
-function toggleFolder(folderId: string): void {
+async function toggleFolder(folderId: string): Promise<void> {
   expandedFolders[folderId] = !expandedFolders[folderId]
+  await teamCollectionService.expandCollection(folderId)
 }
 
 function toggleAllFolders(): void {
@@ -173,49 +192,6 @@ function scrollToTop(): void {
  * @param request The request object to check
  * @returns True if the request is a REST request
  */
-function isRESTRequest(request: HoppRequest): request is HoppRESTRequest {
-  return "method" in request && typeof request.method === "string"
-}
-
-/**
- * Gets the HTTP method from a request object, handling different request types
- * @param request The request object (REST or GraphQL)
- * @returns The HTTP method string
- */
-function getRequestMethod(request: HoppRequest): string {
-  // Handle REST requests that have a method property
-  if (isRESTRequest(request)) {
-    return request.method
-  }
-
-  // Default fallback
-  return "GET"
-}
-
-/**
- * Returns the appropriate CSS class for styling the request method badge
- * @param method The HTTP method
- * @returns CSS class string for the method badge
- */
-function getMethodClass(method: string): string {
-  const methodLower: string = method?.toLowerCase() || ""
-
-  switch (methodLower) {
-    case "get":
-      return "bg-green-500/10 text-green-500"
-    case "post":
-      return "bg-blue-500/10 text-blue-500"
-    case "put":
-      return "bg-orange-500/10 text-orange-500"
-    case "delete":
-      return "bg-red-500/10 text-red-500"
-    case "patch":
-      return "bg-teal-500/10 text-teal-500"
-    default:
-      return "bg-gray-500/10 text-secondaryLight"
-  }
-}
-
 /**
  * Check if a value exists and has length > 0
  * @param value Array to check

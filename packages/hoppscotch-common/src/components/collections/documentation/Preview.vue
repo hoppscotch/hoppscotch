@@ -51,11 +51,11 @@
             v-if="selectedRequest"
             :request="selectedRequest"
             :documentation-description="selectedRequest.description || ''"
-            :collection-id="collectionID"
+            :collection-i-d="collectionID"
             :collection-path="collectionPath"
             :folder-path="folderPath"
             :request-index="requestIndex"
-            :team-id="teamID"
+            :team-i-d="teamID"
             @update:documentation-description="
               (value) => {
                 if (selectedRequest) {
@@ -122,11 +122,11 @@
                   :documentation-description="
                     (item.item as HoppRESTRequest).description || ''
                   "
-                  :collection-id="collectionID"
+                  :collection-i-d="collectionID"
                   :collection-path="collectionPath"
                   :folder-path="item.folderPath"
                   :request-index="item.requestIndex"
-                  :team-id="teamID"
+                  :team-i-d="teamID"
                   @update:documentation-description="
                     (value) =>
                       ((item.item as HoppRESTRequest).description = value)
@@ -171,7 +171,9 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { ref, watch, nextTick, computed } from "vue"
-import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
+
+import { useService } from "dioc/vue"
+import { TeamCollectionsService } from "~/services/team-collection.service"
 
 type CollectionType = HoppCollection | null
 
@@ -193,6 +195,11 @@ const props = withDefaults(
     folderPath?: string | null
     requestIndex?: number | null
     teamID?: string
+    isTeamCollection?: boolean
+    allItems?: Array<DocumentationItem>
+    showAllDocumentation?: boolean
+    isProcessingDocumentation?: boolean
+    processingProgress?: number
   }>(),
   {
     documentationDescription: "",
@@ -202,13 +209,21 @@ const props = withDefaults(
     folderPath: null,
     requestIndex: null,
     teamID: undefined,
+    isTeamCollection: false,
+    allItems: () => [],
+    showAllDocumentation: false,
+    isProcessingDocumentation: false,
+    processingProgress: 0,
   }
 )
 
 const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
   (event: "close-modal"): void
+  (event: "toggle-all-documentation"): void
 }>()
+
+const teamCollectionService = useService(TeamCollectionsService)
 
 const collectionDescription = useVModel(
   props,
@@ -217,8 +232,6 @@ const collectionDescription = useVModel(
   { passive: true }
 )
 
-const showAllDocumentation = ref<boolean>(false)
-const allItems = ref<Array<DocumentationItem>>([])
 const selectedRequest = ref<HoppRESTRequest | null>(null)
 const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
@@ -227,22 +240,18 @@ const selectedItemId = ref<string | null>(null)
 const isLoadingComponents = ref<boolean>(false)
 const loadingMessage = ref<string>("Processing Documentation")
 
-// Use the documentation worker
-const {
-  isProcessing: isProcessingDocumentation,
-  progress: processingProgress,
-  processDocumentation,
-} = useDocumentationWorker()
-
 // Computed property for overall loading state
 const isLoading = computed(
-  () => isProcessingDocumentation.value || isLoadingComponents.value
+  () =>
+    props.isProcessingDocumentation ||
+    isLoadingComponents.value ||
+    teamCollectionService.loadingCollections.value.length !== 0
 )
 
 // Simple progress calculation
 const displayProgress = computed(() => {
-  if (isProcessingDocumentation.value) {
-    return processingProgress.value
+  if (props.isProcessingDocumentation) {
+    return props.processingProgress
   }
   return 100 // Show 100% during component loading
 })
@@ -277,12 +286,12 @@ function scrollToItemByNameAndType(
 ): void {
   console.log(`Looking for ${type} with name: ${name}`)
 
-  const itemIndex = allItems.value.findIndex(
-    (item) => item.item.name === name && item.type === type
+  const itemIndex = props.allItems.findIndex(
+    (item: DocumentationItem) => item.item.name === name && item.type === type
   )
 
   if (itemIndex !== -1) {
-    const targetItem = allItems.value[itemIndex]
+    const targetItem = props.allItems[itemIndex]
     console.log(`Found ${type} at index: ${itemIndex}`)
     scrollToItem(targetItem.id)
   } else {
@@ -298,7 +307,7 @@ function handleRequestSelect(request: HoppRESTRequest): void {
   selectedFolder.value = null
   selectedItemId.value = request.id || null
 
-  if (showAllDocumentation.value) {
+  if (props.showAllDocumentation) {
     const requestId = request.id || request._ref_id
     if (requestId) {
       scrollToItem(requestId)
@@ -316,7 +325,7 @@ function handleFolderSelect(folder: HoppCollection): void {
   selectedRequest.value = null
   selectedItemId.value = folder.id || null
 
-  if (showAllDocumentation.value) {
+  if (props.showAllDocumentation) {
     const folderId = folder.id || folder._ref_id
     if (folderId) {
       scrollToItem(folderId)
@@ -327,48 +336,10 @@ function handleFolderSelect(folder: HoppCollection): void {
 }
 
 /**
- * Toggles between normal view and "All Documentation" view using the worker
+ * Emits toggle event for parent to handle processing
  */
-async function toggleAllDocumentation(): Promise<void> {
-  if (!showAllDocumentation.value) {
-    if (!props.collection) {
-      console.log("No collection provided")
-      return
-    }
-
-    try {
-      // Reset states
-      isLoadingComponents.value = true
-      loadingMessage.value = "Processing Documentation"
-
-      // Process documentation
-      const items = await processDocumentation(
-        props.collection,
-        props.collectionPath
-      )
-
-      // Set items and show documentation view
-      allItems.value = items
-      showAllDocumentation.value = true
-
-      // Simulate component loading progress
-      await nextTick()
-
-      // Additional delay to ensure all components are fully rendered
-      setTimeout(() => {
-        isLoadingComponents.value = false
-        loadingMessage.value = ""
-      }, 300)
-    } catch (error) {
-      console.error("Error processing documentation:", error)
-      allItems.value = []
-      isLoadingComponents.value = false
-    }
-  } else {
-    showAllDocumentation.value = false
-    allItems.value = []
-    isLoadingComponents.value = false
-  }
+function toggleAllDocumentation(): void {
+  emit("toggle-all-documentation")
 }
 
 /**
@@ -378,20 +349,59 @@ function closeModal(): void {
   emit("close-modal")
 }
 
+// Watch for showAllDocumentation prop changes
+watch(
+  () => props.showAllDocumentation,
+  (newValue) => {
+    if (newValue && props.allItems.length > 0) {
+      // Starting to show all documentation - set loading state
+      isLoadingComponents.value = true
+      loadingMessage.value = "Rendering Documentation"
+
+      nextTick(() => {
+        // Check if all documentation components are present in DOM
+        const documentedItems = props.allItems.filter(
+          (item: DocumentationItem) =>
+            (item.type === "request" &&
+              (item.item as HoppRESTRequest).description) ||
+            (item.type === "folder" &&
+              (item.item as HoppCollection).description)
+        )
+
+        // Wait a bit for components to render
+        const extraDelay = Math.min(documentedItems.length * 50, 1000) // Max 1 second
+        setTimeout(() => {
+          isLoadingComponents.value = false
+          loadingMessage.value = ""
+        }, extraDelay)
+      })
+    } else if (!newValue) {
+      // Hiding all documentation - reset to original collection state
+      isLoadingComponents.value = false
+      loadingMessage.value = ""
+
+      // Clear all selections to return to the main collection view
+      selectedRequest.value = null
+      selectedFolder.value = null
+      selectedItemId.value = null
+    }
+  }
+)
+
 // Watch for allItems changes to handle component loading
 watch(
-  () => allItems.value.length,
+  () => props.allItems.length,
   (newLength) => {
     if (
       newLength > 0 &&
-      showAllDocumentation.value &&
-      !isProcessingDocumentation.value
+      props.showAllDocumentation &&
+      !props.isProcessingDocumentation
     ) {
       // Items are set, now wait for component rendering
       nextTick(() => {
         // Check if all documentation components are present in DOM
-        const documentedItems = allItems.value.filter(
-          (item) =>
+        const documentedItems = props.allItems.filter(
+          (item: DocumentationItem) =>
             (item.type === "request" &&
               (item.item as HoppRESTRequest).description) ||
             (item.type === "folder" &&
@@ -415,12 +425,6 @@ watch(
     selectedRequest.value = null
     selectedFolder.value = null
     selectedItemId.value = null
-
-    // Reset documentation view when collection changes
-    if (showAllDocumentation.value) {
-      showAllDocumentation.value = false
-      allItems.value = []
-    }
   },
   { immediate: true }
 )

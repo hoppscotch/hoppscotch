@@ -1,0 +1,80 @@
+<template>
+  <div
+    class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
+    @click.stop="$emit('request-select', actualRequest)"
+  >
+    <span
+      class="text-tiny px-1 rounded-sm"
+      :class="getMethodClass(requestMethod)"
+    >
+      {{ requestMethod }}
+    </span>
+    <span
+      class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
+    >
+      {{ requestName }}
+    </span>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { HoppRESTRequest, HoppGQLRequest } from "@hoppscotch/data"
+import { computed } from "vue"
+
+type HoppRequest = HoppRESTRequest | HoppGQLRequest
+
+const props = defineProps<{
+  request: HoppRequest
+  depth?: number
+}>()
+
+defineEmits<{
+  (e: "request-select", request: HoppRESTRequest): void
+}>()
+
+// Get the actual request object (assume HoppRESTRequest since parent converts TeamRequest)
+const actualRequest = computed<HoppRESTRequest>(() => {
+  // HoppRequest - return as is (cast to HoppRESTRequest)
+  return props.request as HoppRESTRequest
+})
+
+// Get the request name (HoppRequest uses name property)
+const requestName = computed<string>(() => {
+  // HoppRequest - use name
+  return props.request.name
+})
+
+// Get the request method
+const requestMethod = computed<string>(() => {
+  // HoppRequest - check if it has method (REST request)
+  if ("method" in props.request) {
+    return props.request.method
+  }
+  // Default fallback for GQL or other types
+  return "GET"
+})
+
+/**
+ * Returns the appropriate CSS class for styling the request method badge
+ * @param method The HTTP method
+ * @returns CSS class string for the method badge
+ */
+function getMethodClass(method: string): string {
+  const methodLower: string = method?.toLowerCase() || ""
+
+  switch (methodLower) {
+    case "get":
+      return "bg-green-500/10 text-green-500"
+    case "post":
+      return "bg-blue-500/10 text-blue-500"
+    case "put":
+      return "bg-orange-500/10 text-orange-500"
+    case "delete":
+      return "bg-red-500/10 text-red-500"
+    case "patch":
+      return "bg-teal-500/10 text-teal-500"
+    default:
+      return "bg-gray-500/10 text-secondaryLight"
+  }
+}
+</script>

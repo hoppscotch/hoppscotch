@@ -238,8 +238,6 @@ export class PublishedDocsService {
    * @param args - Pagination arguments
    */
   async getAllUserPublishedDocs(userUid: string, args: OffsetPaginationArgs) {
-    console.log('sa');
-
     const docs = await this.prisma.publishedDocs.findMany({
       where: {
         workspaceType: WorkspaceType.USER,

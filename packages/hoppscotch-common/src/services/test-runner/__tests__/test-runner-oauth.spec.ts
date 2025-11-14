@@ -25,6 +25,14 @@ vi.mock("~/helpers/oauth/auto-token-generator", () => ({
   hasOAuth2Auth: mockHasOAuth2Auth,
   requiresRedirect: mockRequiresRedirect,
   updateCollectionWithToken: mockUpdateCollectionWithToken,
+  OAUTH_ERROR_MESSAGES: {
+    NO_OAUTH_CONFIG: "authorization.oauth.no_config_found",
+    REDIRECT_GRANT_TYPE_NOT_SUPPORTED:
+      "authorization.oauth.redirect_not_supported",
+    VALIDATION_FAILED: "authorization.oauth.validation_failed",
+    TOKEN_GENERATION_FAILED: "authorization.oauth.token_generation_failed",
+    UNSUPPORTED_GRANT_TYPE: "authorization.oauth.unsupported_grant_type",
+  },
 }))
 
 // Mock runTestRunnerRequest

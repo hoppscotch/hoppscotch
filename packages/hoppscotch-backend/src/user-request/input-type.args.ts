@@ -68,11 +68,4 @@ export class UpdateUserRequestArgs {
     description: 'content/body of the user request',
   })
   request: string;
-
-  @Field({
-    nullable: true,
-    defaultValue: undefined,
-    description: 'Description of the user request',
-  })
-  description: string;
 }

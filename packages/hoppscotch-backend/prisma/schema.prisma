@@ -41,19 +41,18 @@ model TeamInvitation {
 }
 
 model TeamCollection {
-  id          String           @id @default(cuid())
-  parentID    String?
-  teamID      String
-  title       String
-  description String?
-  orderIndex  Int
-  createdOn   DateTime         @default(now()) @db.Timestamptz(3)
-  updatedOn   DateTime         @updatedAt @db.Timestamptz(3)
-  data        Json?
-  parent      TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
-  children    TeamCollection[] @relation("TeamCollectionChildParent")
-  team        Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
-  requests    TeamRequest[]
+  id         String           @id @default(cuid())
+  parentID   String?
+  teamID     String
+  title      String
+  orderIndex Int
+  createdOn  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
+  data       Json?
+  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  children   TeamCollection[] @relation("TeamCollectionChildParent")
+  team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  requests   TeamRequest[]
 
   @@unique([teamID, parentID, orderIndex])
 }
@@ -63,7 +62,6 @@ model TeamRequest {
   collectionID String
   teamID       String
   title        String
-  description  String?
   request      Json
   mockExamples Json?
   orderIndex   Int
@@ -186,7 +184,6 @@ model UserRequest {
   collectionID   String
   userUid        String
   title          String
-  description    String?
   request        Json
   mockExamples   Json?
   type           ReqType
@@ -200,20 +197,19 @@ model UserRequest {
 }
 
 model UserCollection {
-  id          String           @id @default(cuid())
-  parentID    String?
-  userUid     String
-  title       String
-  description String?
-  orderIndex  Int
-  type        ReqType
-  createdOn   DateTime         @default(now()) @db.Timestamptz(3)
-  updatedOn   DateTime         @updatedAt @db.Timestamptz(3)
-  data        Json?
-  parent      UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
-  children    UserCollection[] @relation("ParentUserCollection")
-  user        User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  requests    UserRequest[]
+  id         String           @id @default(cuid())
+  parentID   String?
+  userUid    String
+  title      String
+  orderIndex Int
+  type       ReqType
+  createdOn  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamptz(3)
+  data       Json?
+  parent     UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
+  children   UserCollection[] @relation("ParentUserCollection")
+  user       User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  requests   UserRequest[]
 
   @@unique([userUid, parentID, orderIndex])
 }

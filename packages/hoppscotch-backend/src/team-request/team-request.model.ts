@@ -26,12 +26,6 @@ export class TeamRequest {
     description: 'Displayed title of the request',
   })
   title: string;
-
-  @Field({
-    nullable: true,
-    description: 'Description of the user request',
-  })
-  description: string;
 }
 
 @ObjectType()

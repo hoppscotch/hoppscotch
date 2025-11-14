@@ -177,7 +177,6 @@ export class TeamRequestResolver {
       requestID,
       data.title,
       data.request,
-      data.description,
     );
     if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
     return teamRequest.right;

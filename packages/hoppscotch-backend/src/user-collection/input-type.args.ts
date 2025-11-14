@@ -131,12 +131,4 @@ export class UpdateUserCollectionsArgs {
     nullable: true,
   })
   data: string;
-
-  @Field({
-    name: 'description',
-    description: 'Description of the user collection',
-    nullable: true,
-    defaultValue: undefined,
-  })
-  description: string;
 }

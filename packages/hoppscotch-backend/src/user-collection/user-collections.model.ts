@@ -15,12 +15,6 @@ export class UserCollection {
   title: string;
 
   @Field({
-    description: 'Description of the user collection',
-    nullable: true,
-  })
-  description: string | null;
-
-  @Field({
     description: 'JSON string representing the collection data',
     nullable: true,
   })

@@ -407,7 +407,6 @@ export class UserCollectionResolver {
         args.newTitle,
         args.data,
         args.userCollectionID,
-        args.description,
         user.uid,
       );
 

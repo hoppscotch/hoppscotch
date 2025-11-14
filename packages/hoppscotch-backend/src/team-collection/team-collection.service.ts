@@ -276,7 +276,6 @@ export class TeamCollectionService {
     return <TeamCollection>{
       id: teamCollection.id,
       title: teamCollection.title,
-      description: teamCollection.description ?? null,
       parentID: teamCollection.parentID,
       data,
     };
@@ -1043,7 +1042,6 @@ export class TeamCollectionService {
     collectionID: string,
     collectionData: string = null,
     newTitle: string = null,
-    description: string = null,
   ) {
     try {
       if (newTitle != null) {
@@ -1063,7 +1061,6 @@ export class TeamCollectionService {
         data: {
           data: collectionData ?? undefined,
           title: newTitle ?? undefined,
-          description: description ?? undefined,
         },
       });
 

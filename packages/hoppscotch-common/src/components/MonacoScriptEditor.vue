@@ -16,10 +16,11 @@ import { v4 as uuidv4 } from "uuid"
 import { computed, onMounted, onUnmounted, ref } from "vue"
 
 import { useColorMode } from "~/composables/theming"
+import { MODULE_PREFIX } from "~/helpers/scripting"
 
 // Import type definitions as raw strings
-import preRequestTypes from "~/types/pre-request.d.ts?raw"
 import postRequestTypes from "~/types/post-request.d.ts?raw"
+import preRequestTypes from "~/types/pre-request.d.ts?raw"
 
 const props = withDefaults(
   defineProps<{
@@ -59,8 +60,6 @@ const extraLibRefs = new Map<string, monaco.IDisposable>()
 
 // Track context-specific type definition for this editor instance
 const contextTypeDefRef = ref<monaco.IDisposable | null>(null)
-
-const MODULE_PREFIX = "export {};\n" as const
 
 const ensureCompilerOptions = (() => {
   let applied = false

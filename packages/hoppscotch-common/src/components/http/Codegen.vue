@@ -320,17 +320,15 @@ const buildFinalRequest = (auth: HoppRESTAuth, headers: HoppRESTHeaders) => {
 }
 
 /**
- * Main function for generating request code
+ * Generates the request code based on the current request and selected codegen type
  */
 const requestCode = asyncComputed(async (): Promise<string> => {
   try {
-    // Early return for non-request documents
     if (currentActiveTabDocument.value.type !== "request") {
       errorState.value = true
       return ""
     }
 
-    // Capture reactive values before async operations to maintain reactivity
     const selectedCodegenType = codegenType.value
 
     // Build environment with all variable sources
@@ -339,10 +337,8 @@ const requestCode = asyncComputed(async (): Promise<string> => {
     // Resolve authentication and headers with inheritance
     const { auth, headers } = resolveRequestAuthAndHeaders()
 
-    // Create the final request
     const finalRequest = buildFinalRequest(auth, headers)
 
-    // Get the effective request with resolved environment variables
     const effectiveRequest = await getEffectiveRESTRequest(
       finalRequest,
       environment,
@@ -370,7 +366,6 @@ const requestCode = asyncComputed(async (): Promise<string> => {
       ),
     })
 
-    // Generate the code
     const codeResult = generateCode(selectedCodegenType, codegenRequest)
 
     if (O.isSome(codeResult)) {
@@ -380,7 +375,6 @@ const requestCode = asyncComputed(async (): Promise<string> => {
       return generatedCode
     }
 
-    // Handle code generation failure
     console.warn("Code generation failed for type:", selectedCodegenType)
     errorState.value = true
     return ""
@@ -398,7 +392,7 @@ const WRAP_LINES = useNestedSetting("WRAP_LINES", "codeGen")
 
 useCodemirror(
   generatedCode,
-  computed(() => requestCode.value || ""),
+  requestCode,
   reactive({
     extendedEditorConfig: {
       mode: codegenMode,
@@ -427,9 +421,7 @@ const filteredCodegenDefinitions = computed(() => {
   )
 })
 
-const { copyIcon, copyResponse } = useCopyResponse(
-  computed(() => requestCode.value || "")
-)
+const { copyIcon, copyResponse } = useCopyResponse(requestCode)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "",
   computed(() => requestCode.value || ""),

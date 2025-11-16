@@ -319,7 +319,7 @@ const getTransformedEnvs = (
  * @param envs The environment list to be transformed
  * @returns The transformed environment list with keys with value
  */
-const filterNonEmptyEnvironmentVariables = (
+export const filterNonEmptyEnvironmentVariables = (
   envs: Environment["variables"]
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()

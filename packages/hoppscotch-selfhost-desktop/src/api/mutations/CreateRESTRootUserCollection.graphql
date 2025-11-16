@@ -1,6 +1,0 @@
-mutation CreateRESTRootUserCollection($title: String!, $data: String) {
-  createRESTRootUserCollection(title: $title, data: $data) {
-    id
-    data
-  }
-}

@@ -171,8 +171,6 @@ async function generatePasswordToken(
 
   return E.right({
     access_token: result.right?.access_token || "",
-    refresh_token: (
-      result.right as { access_token: string; refresh_token?: string }
-    )?.refresh_token,
+    refresh_token: result.right?.refresh_token,
   })
 }

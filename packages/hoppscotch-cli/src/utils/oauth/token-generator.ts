@@ -44,19 +44,24 @@ function processTokenRequestParams(
   tokenRequestParams: any[],
   headers: Record<string, string>,
   bodyParams: Record<string, string>,
-  urlParams: Record<string, string>
+  urlParams: Record<string, string>,
+  envVariables: EnvironmentVariable[]
 ): void {
   if (tokenRequestParams && Array.isArray(tokenRequestParams)) {
     tokenRequestParams
       .filter((param: any) => param.active && param.key && param.value)
       .forEach((param: any) => {
+        // Expand template strings in param key and value
+        const expandedKey = expandTemplateString(param.key, envVariables)
+        const expandedValue = expandTemplateString(param.value, envVariables)
+
         if (param.sendIn === "headers") {
-          headers[param.key] = param.value
+          headers[expandedKey] = expandedValue
         } else if (param.sendIn === "url") {
-          urlParams[param.key] = param.value
+          urlParams[expandedKey] = expandedValue
         } else {
           // Default to body
-          bodyParams[param.key] = param.value
+          bodyParams[expandedKey] = expandedValue
         }
       })
   }
@@ -158,17 +163,12 @@ async function generateClientCredentialsToken(
     }
 
     const urlParams: Record<string, string> = {}
-
-    if (clientAuthentication === "AS_BASIC_AUTH_HEADERS") {
-      // RFC 6749 Section 2.3.1 - credentials in Authorization header
-      const encodedClientID = encodeURIComponent(clientID).replace(/%20/g, "+")
-      const encodedClientSecret = encodeURIComponent(clientSecret).replace(
-        /%20/g,
-        "+"
-      )
-      const basicAuthToken = Buffer.from(
-        `${encodedClientID}:${encodedClientSecret}`
-      ).toString("base64")
+      if (clientAuthentication === "AS_BASIC_AUTH_HEADERS") {
+        const encodedClientID = encodeURIComponent(clientID)
+        const encodedClientSecret = encodeURIComponent(clientSecret)
+        const basicAuthToken = Buffer.from(
+          `${encodedClientID}:${encodedClientSecret}`
+        ).toString("base64")
       headers.Authorization = `Basic ${basicAuthToken}`
     } else {
       // Credentials in body
@@ -183,7 +183,7 @@ async function generateClientCredentialsToken(
     }
 
     // Process additional token request parameters
-    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
+    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams, envVariables)
 
     // Build URL with query parameters
     let url: URL
@@ -215,6 +215,7 @@ async function generateClientCredentialsToken(
     // Check for missing or empty access_token
     if (
       !parsedResponse.data.access_token ||
+      typeof parsedResponse.data.access_token !== "string" ||
       parsedResponse.data.access_token.trim() === ""
     ) {
       return E.left("TOKEN_GENERATION_FAILED")
@@ -287,7 +288,7 @@ async function generatePasswordToken(
     const urlParams: Record<string, string> = {}
 
     // Process additional token request parameters
-    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams)
+    processTokenRequestParams(tokenRequestParams, headers, bodyParams, urlParams, envVariables)
 
     // Build URL with query parameters
     let url: URL

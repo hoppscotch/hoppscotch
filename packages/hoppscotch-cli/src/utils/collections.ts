@@ -98,9 +98,9 @@ export const collectionsRunner = async (
           return {
             ...variable,
             currentValue:
-              variable.currentValue !== ""
-                ? variable.currentValue
-                : process.env[variable.key] || variable.initialValue,
+              variable.currentValue ||
+              process.env[variable.key] ||
+              variable.initialValue,
           }
         }
         return variable
@@ -112,9 +112,9 @@ export const collectionsRunner = async (
           return {
             ...variable,
             currentValue:
-              variable.currentValue !== ""
-                ? variable.currentValue
-                : process.env[variable.key] || variable.initialValue,
+              variable.currentValue ||
+              process.env[variable.key] ||
+              variable.initialValue,
           }
         }
         return variable

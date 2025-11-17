@@ -1,5 +1,25 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file> --iteration-count <no_of_iterations>\` command: > Errors with the code \`INVALID_ARGUMENT\` on not supplying an iteration count 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="12" failures="0" errors="0" time="time">
+  <testsuite name="Test environment variables in request body/test-request" time="time" timestamp="timestamp" tests="12" failures="0" errors="0">
+    <testcase name="Status code is 200 - Expected '200' to be '200'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments recursively - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments recursively - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments recursively - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'Hello' to be 'Hello'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected '7' to be '7'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'John' to be 'John'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'Doe' to be 'Doe'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'John Doe' to be 'John Doe'" classname="Test environment variables in request body/test-request"/>
+    <testcase name="Successfully resolves environments referenced in the request body - Expected 'Hello, John Doe' to be 'Hello, John Doe'" classname="Test environment variables in request body/test-request"/>
+  </testsuite>
+</testsuites>"
+`;
+
 exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the default path 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="76" failures="2" errors="66" time="time">

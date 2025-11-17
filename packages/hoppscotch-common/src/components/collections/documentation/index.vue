@@ -284,11 +284,9 @@ watch(
   (newCollection) => {
     if (newCollection) {
       documentationDescription.value =
-        (newCollection as HoppCollection).description ||
-        "### Hoppscotch Collection Documentation"
+        (newCollection as HoppCollection).description || ""
     } else if (props.request) {
-      documentationDescription.value =
-        props.request.description || "### Hoppscotch Request Documentation"
+      documentationDescription.value = props.request.description || ""
     } else {
       documentationDescription.value = ""
     }

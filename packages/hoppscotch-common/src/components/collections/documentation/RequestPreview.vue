@@ -45,7 +45,7 @@
               class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondaryLight outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition"
               :style="{ height: textareaHeight + 'px' }"
               spellcheck="false"
-              placeholder="Enter markdown documentation for this collection..."
+              placeholder="Add description for request here..."
               @blur="handleBlur"
               @click.stop
               @input="adjustTextareaHeight"
@@ -296,18 +296,22 @@ watch(
       editableContent.value = newContent
     }
 
-    if (newContent.trim() === "") {
-      console.log("Setting default content")
-      editableContent.value =
-        "Enter markdown documentation for this collection..."
-    }
+    // if (newContent.trim() === "") {
+    //   console.log("Setting default content")
+    //   editableContent.value =
+    //     "Enter markdown documentation for this collection..."
+    // }
   },
   { immediate: true }
 )
 
 const renderedMarkdown = computed(() => {
   try {
-    return md.render(editableContent.value || "")
+    const content = editableContent.value || ""
+    if (content.trim() === "") {
+      return "<p class='text-secondaryLight italic'>Add description for request here...</p>"
+    }
+    return md.render(content)
   } catch (e) {
     console.error("Markdown parsing error:", e)
     return "<p class='text-red-500'>Error rendering markdown content</p>"

@@ -27,7 +27,7 @@
               class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondaryLight outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition"
               :style="{ height: textareaHeight + 'px' }"
               spellcheck="false"
-              placeholder="Enter markdown documentation for this collection..."
+              placeholder="Add description for this collection here..."
               @blur="handleBlur"
               @click.stop
               @input="adjustTextareaHeight"
@@ -170,7 +170,11 @@ watch(
 // Use MarkdownIt to render markdown
 const renderedMarkdown = computed(() => {
   try {
-    return md.render(editableContent.value || "")
+    // Show placeholder if content is empty or only whitespace
+    if (!editableContent.value || editableContent.value.trim() === "") {
+      return "<p class='text-secondaryLight italic'>Add description for this collection here...</p>"
+    }
+    return md.render(editableContent.value)
   } catch (e) {
     console.error("Markdown parsing error:", e)
     return "<p class='text-red-500'>Error rendering markdown content</p>"

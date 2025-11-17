@@ -98,8 +98,8 @@ export const collectionsRunner = async (
           return {
             ...variable,
             currentValue:
-              variable.currentValue ||
-              process.env[variable.key] ||
+              variable.currentValue ??
+              process.env[variable.key] ??
               variable.initialValue,
           }
         }
@@ -112,8 +112,8 @@ export const collectionsRunner = async (
           return {
             ...variable,
             currentValue:
-              variable.currentValue ||
-              process.env[variable.key] ||
+              variable.currentValue ??
+              process.env[variable.key] ??
               variable.initialValue,
           }
         }

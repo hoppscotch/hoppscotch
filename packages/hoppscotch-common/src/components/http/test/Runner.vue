@@ -275,8 +275,12 @@ const runTests = async () => {
 
     resolvedCollection = {
       ...collection.value,
-      // Use original OAuth auth if present, otherwise use inherited auth
-      auth: originalAuth?.authType === "oauth-2" ? originalAuth : requestAuth,
+      // Use original OAuth auth if present and active, otherwise use inherited auth
+      auth:
+        originalAuth?.authType === "oauth-2" &&
+        originalAuth?.authActive === true
+          ? originalAuth
+          : requestAuth,
       headers: requestHeaders as HoppRESTHeader[],
       variables: parentVariables,
     }
@@ -361,6 +365,7 @@ onMounted(async () => {
     const updatedCollection = await refetchCollectionTree()
     if (updatedCollection) {
       if (checkIfCollectionIsEmpty(updatedCollection)) {
+        resetRunnerState()
         tabs.closeTab(tab.value.id)
         toast.error(t("collection_runner.empty_collection"))
         return
@@ -369,6 +374,7 @@ onMounted(async () => {
       await nextTick()
       await runTests()
     } else {
+      resetRunnerState()
       tabs.closeTab(tab.value.id)
       toast.error(t("collection_runner.collection_not_found"))
     }

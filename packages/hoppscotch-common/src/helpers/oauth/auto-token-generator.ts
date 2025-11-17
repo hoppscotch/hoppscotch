@@ -117,8 +117,12 @@ async function generateClientCredentialsToken(
     return E.left("TOKEN_GENERATION_FAILED")
   }
 
+  if (!result.right?.access_token) {
+    return E.left("TOKEN_GENERATION_FAILED")
+  }
+
   return E.right({
-    access_token: result.right?.access_token || "",
+    access_token: result.right.access_token,
   })
 }
 
@@ -169,8 +173,12 @@ async function generatePasswordToken(
     return E.left("TOKEN_GENERATION_FAILED")
   }
 
+  if (!result.right?.access_token) {
+    return E.left("TOKEN_GENERATION_FAILED")
+  }
+
   return E.right({
-    access_token: result.right?.access_token || "",
+    access_token: result.right.access_token,
     refresh_token: result.right?.refresh_token,
   })
 }

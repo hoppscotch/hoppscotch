@@ -135,8 +135,8 @@ const transformAuth = (auth: HoppRESTAuth): HoppRESTAuth => {
     } else if (oldGrantTypeInfo.grantType === "IMPLICIT") {
       newGrantTypeInfo = {
         ...oldGrantTypeInfo,
-        authRequestParams: oldGrantTypeInfo.authRequestParams || [],
-        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams || [],
+        authRequestParams: oldGrantTypeInfo.authRequestParams ?? [],
+        refreshRequestParams: oldGrantTypeInfo.refreshRequestParams ?? [],
       };
     }
 

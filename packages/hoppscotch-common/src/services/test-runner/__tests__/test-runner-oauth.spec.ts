@@ -101,6 +101,7 @@ describe("TestRunnerService - OAuth Integration", () => {
       "authorization.oauth.auto_generation_validation_failed":
         "OAuth 2.0 configuration validation failed",
       "authorization.oauth.token_fetch_failed": "Failed to fetch token",
+      "authorization.oauth.token_generation_failed": "Token generation failed",
       "authorization.oauth.unsupported_grant_type_for_auto_generation":
         "Unsupported OAuth 2.0 grant type",
       "authorization.oauth.token_fetched_successfully":
@@ -618,7 +619,7 @@ describe("TestRunnerService - OAuth Integration", () => {
         mockToast
       )
 
-      expect(mockToast.error).toHaveBeenCalledWith(undefined)
+      expect(mockToast.error).toHaveBeenCalledWith("Token generation failed")
       expect(tab.value.document.status).toBe("error")
     })
 

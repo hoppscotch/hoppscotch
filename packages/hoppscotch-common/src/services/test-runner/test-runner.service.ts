@@ -101,7 +101,12 @@ export class TestRunnerService extends Service {
       const tokenResult = await generateOAuth2TokenForCollection(collection)
 
       if (E.isLeft(tokenResult)) {
-        toast.error(t(OAUTH_ERROR_MESSAGES[tokenResult.left]))
+        const errorMessage = OAUTH_ERROR_MESSAGES[tokenResult.left]
+        toast.error(
+          errorMessage
+            ? t(errorMessage)
+            : t("authorization.oauth.token_generation_failed")
+        )
         tab.value.document.status = "error"
         return
       }

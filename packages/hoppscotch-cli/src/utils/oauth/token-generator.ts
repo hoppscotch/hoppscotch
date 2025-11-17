@@ -38,6 +38,29 @@ const TOKEN_RESPONSE_SCHEMA = z.object({
 })
 
 /**
+ * Validates that the token response contains a valid access_token
+ * @returns E.left if invalid, E.right with the parsed data if valid
+ */
+function validateTokenResponse(
+  parsedResponse: z.SafeParseReturnType<any, z.infer<typeof TOKEN_RESPONSE_SCHEMA>>
+): E.Either<OAuthTokenGenerationError, z.infer<typeof TOKEN_RESPONSE_SCHEMA>> {
+  if (!parsedResponse.success) {
+    return E.left("TOKEN_GENERATION_FAILED")
+  }
+
+  // Check for missing or empty access_token
+  if (
+    !parsedResponse.data.access_token ||
+    typeof parsedResponse.data.access_token !== "string" ||
+    parsedResponse.data.access_token.trim() === ""
+  ) {
+    return E.left("TOKEN_GENERATION_FAILED")
+  }
+
+  return E.right(parsedResponse.data)
+}
+
+/**
  * Processes token request parameters and distributes them to headers, URL params, or body
  */
 function processTokenRequestParams(
@@ -207,21 +230,7 @@ async function generateClientCredentialsToken(
 
     // Validate response
     const parsedResponse = TOKEN_RESPONSE_SCHEMA.safeParse(response.data)
-
-    if (!parsedResponse.success) {
-      return E.left("TOKEN_GENERATION_FAILED")
-    }
-
-    // Check for missing or empty access_token
-    if (
-      !parsedResponse.data.access_token ||
-      typeof parsedResponse.data.access_token !== "string" ||
-      parsedResponse.data.access_token.trim() === ""
-    ) {
-      return E.left("TOKEN_GENERATION_FAILED")
-    }
-
-    return E.right(parsedResponse.data)
+    return validateTokenResponse(parsedResponse)
   } catch (error) {
     console.error(
       "\n❌ Client Credentials token generation failed. Check configuration and credentials."
@@ -317,22 +326,7 @@ async function generatePasswordToken(
 
     // Validate response
     const parsedResponse = TOKEN_RESPONSE_SCHEMA.safeParse(response.data)
-
-    if (!parsedResponse.success) {
-      console.error("Invalid token response. Check configuration and credentials.")
-      return E.left("TOKEN_GENERATION_FAILED")
-    }
-
-    // Check for missing or empty access_token
-    if (
-      !parsedResponse.data.access_token ||
-      typeof parsedResponse.data.access_token !== "string" ||
-      parsedResponse.data.access_token.trim() === ""
-    ) {
-      return E.left("TOKEN_GENERATION_FAILED")
-    }
-
-    return E.right(parsedResponse.data)
+    return validateTokenResponse(parsedResponse)
   } catch (error) {
     console.error(
       "Password flow token generation failed. Check configuration and credentials."

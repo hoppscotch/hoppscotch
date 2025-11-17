@@ -372,6 +372,11 @@ onMounted(async () => {
       tabs.closeTab(tab.value.id)
       toast.error(t("collection_runner.collection_not_found"))
     }
+  } else if (
+    tab.value.document.status === "stopped" ||
+    tab.value.document.status === "error"
+  ) {
+    resetRunnerState()
   }
 })
 

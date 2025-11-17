@@ -145,9 +145,10 @@ async function generateClientCredentialsToken(
 
   // Validate required parameters
   if (!authEndpoint || !clientID) {
-    console.error("❌ Client Credentials validation failed: missing required parameters.")
-    if (!authEndpoint) console.error("Auth endpoint is missing.")
-    if (!clientID) console.error("Client ID is missing.")
+    const missingFields = []
+    if (!authEndpoint) missingFields.push("authEndpoint")
+    if (!clientID) missingFields.push("clientID")
+    console.error(`❌ Client Credentials validation failed: missing required parameters: ${missingFields.join(", ")}`)
     return E.left("VALIDATION_FAILED")
   }
 
@@ -163,12 +164,11 @@ async function generateClientCredentialsToken(
     }
 
     const urlParams: Record<string, string> = {}
-      if (clientAuthentication === "AS_BASIC_AUTH_HEADERS") {
-        const encodedClientID = encodeURIComponent(clientID)
-        const encodedClientSecret = encodeURIComponent(clientSecret)
-        const basicAuthToken = Buffer.from(
-          `${encodedClientID}:${encodedClientSecret}`
-        ).toString("base64")
+
+    if (clientAuthentication === "AS_BASIC_AUTH_HEADERS") {
+      const basicAuthToken = Buffer.from(
+        `${clientID}:${clientSecret}`
+      ).toString("base64")
       headers.Authorization = `Basic ${basicAuthToken}`
     } else {
       // Credentials in body
@@ -260,7 +260,12 @@ async function generatePasswordToken(
 
   // Validate required parameters
   if (!authEndpoint || !clientID || !username || !password) {
-    console.error("Password flow validation failed: missing required parameters.")
+    const missingFields = []
+    if (!authEndpoint) missingFields.push("authEndpoint")
+    if (!clientID) missingFields.push("clientID")
+    if (!username) missingFields.push("username")
+    if (!password) missingFields.push("password")
+    console.error(`Password flow validation failed: missing required parameters: ${missingFields.join(", ")}`)
     return E.left("VALIDATION_FAILED")
   }
 

@@ -108,7 +108,7 @@ export function hasOAuth2Auth(collection: HoppCollection): boolean {
  */
 export function requiresRedirect(auth: HoppRESTAuth): boolean {
   if (auth.authType !== "oauth-2") return false
-  return REDIRECT_GRANT_TYPES.includes(auth.grantTypeInfo.grantType as any)
+  return REDIRECT_GRANT_TYPES.includes(auth.grantTypeInfo.grantType as typeof REDIRECT_GRANT_TYPES[number])
 }
 
 /**
@@ -131,19 +131,19 @@ export function updateCollectionWithToken(
   token: string,
   refreshToken?: string
 ): void {
-  if (collection.auth?.authType === "oauth-2") {
-    const grantType = collection.auth.grantTypeInfo.grantType
+  if (!collection.auth || collection.auth.authType !== "oauth-2") return;
 
-    collection.auth.grantTypeInfo = {
-      ...collection.auth.grantTypeInfo,
-      token,
-    }
+  const grantType = collection.auth.grantTypeInfo.grantType
 
-    // Set refresh token if provided and grant type supports it
-    if (refreshToken && grantType === "PASSWORD") {
-      const grantTypeInfo = collection.auth.grantTypeInfo as PasswordGrantInfo
-      grantTypeInfo.refreshToken = refreshToken
-    }
+  collection.auth.grantTypeInfo = {
+    ...collection.auth.grantTypeInfo,
+    token,
+  }
+
+  // Set refresh token if provided and grant type supports it
+  if (refreshToken && grantType === "PASSWORD") {
+    const grantTypeInfo = collection.auth.grantTypeInfo as PasswordGrantInfo
+    grantTypeInfo.refreshToken = refreshToken
   }
 }
 

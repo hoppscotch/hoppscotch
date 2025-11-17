@@ -744,7 +744,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
     });
   });
 
-  describe("Test`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path]", () => {
+  describe("Test `hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path]", () => {
     const genPath = path.resolve("hopp-cli-test");
 
     // Helper function to replace dynamic values before generating test snapshots

@@ -190,7 +190,7 @@ async function generateClientCredentialsToken(
     try {
       url = new URL(authEndpoint)
     } catch (error) {
-      console.error("Invalid auth endpoint URL:", authEndpoint)
+      console.error("Invalid auth endpoint URL.")
       return E.left("VALIDATION_FAILED")
     }
 
@@ -295,7 +295,7 @@ async function generatePasswordToken(
     try {
       url = new URL(authEndpoint)
     } catch (error) {
-      console.error("Invalid auth endpoint URL:", authEndpoint)
+      console.error("Invalid auth endpoint URL.")
       return E.left("VALIDATION_FAILED")
     }
 

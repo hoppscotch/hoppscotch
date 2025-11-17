@@ -289,8 +289,12 @@ const runTests = async () => {
 
     resolvedCollection = {
       ...collection.value,
-      // Use original OAuth auth if present, otherwise use inherited auth
-      auth: originalAuth?.authType === "oauth-2" ? originalAuth : auth,
+      // Use original OAuth auth if present and active, otherwise use inherited auth
+      auth:
+        originalAuth?.authType === "oauth-2" &&
+        originalAuth?.authActive === true
+          ? originalAuth
+          : auth,
       headers,
       variables,
     }

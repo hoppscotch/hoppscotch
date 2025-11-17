@@ -28,10 +28,11 @@ vi.mock("~/helpers/oauth/auto-token-generator", () => ({
   OAUTH_ERROR_MESSAGES: {
     NO_OAUTH_CONFIG: "authorization.oauth.no_config_found",
     REDIRECT_GRANT_TYPE_NOT_SUPPORTED:
-      "authorization.oauth.redirect_not_supported",
-    VALIDATION_FAILED: "authorization.oauth.validation_failed",
-    TOKEN_GENERATION_FAILED: "authorization.oauth.token_generation_failed",
-    UNSUPPORTED_GRANT_TYPE: "authorization.oauth.unsupported_grant_type",
+      "authorization.oauth.redirect_not_supported_for_collection",
+    VALIDATION_FAILED: "authorization.oauth.auto_generation_validation_failed",
+    TOKEN_GENERATION_FAILED: "authorization.oauth.token_fetch_failed",
+    UNSUPPORTED_GRANT_TYPE:
+      "authorization.oauth.unsupported_grant_type_for_auto_generation",
   },
 }))
 
@@ -483,7 +484,7 @@ describe("TestRunnerService - OAuth Integration", () => {
       )
 
       expect(mockToast.error).toHaveBeenCalledWith(
-        "authorization.oauth.validation_failed"
+        "authorization.oauth.auto_generation_validation_failed"
       )
       expect(tab.value.document.status).toBe("error")
     })
@@ -528,7 +529,7 @@ describe("TestRunnerService - OAuth Integration", () => {
       )
 
       expect(mockToast.error).toHaveBeenCalledWith(
-        "authorization.oauth.token_generation_failed"
+        "authorization.oauth.token_fetch_failed"
       )
       expect(tab.value.document.status).toBe("error")
     })

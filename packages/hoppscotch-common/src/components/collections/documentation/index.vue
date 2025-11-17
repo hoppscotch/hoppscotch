@@ -239,7 +239,8 @@ const handleToggleAllDocumentation = async () => {
       // Process documentation in parent
       const items = await processDocumentation(
         collectionToProcess as HoppCollection,
-        props.pathOrID
+        props.pathOrID,
+        props.isTeamCollection
       )
 
       console.log("All documentation items processed:", items)

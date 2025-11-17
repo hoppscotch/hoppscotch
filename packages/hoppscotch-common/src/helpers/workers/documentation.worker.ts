@@ -5,6 +5,7 @@ interface GatherDocumentationMessage {
   type: "GATHER_DOCUMENTATION"
   collection: string // JSON stringified collection
   pathOrID: string | null
+  isTeamCollection?: boolean // Flag to indicate team collection
 }
 
 interface DocumentationProgressMessage {
@@ -31,7 +32,8 @@ type IncomingDocumentationWorkerMessage = GatherDocumentationMessage
  */
 async function gatherAllItems(
   collection: HoppCollection,
-  collectionPath: string | null
+  collectionPath: string | null,
+  isTeamCollection: boolean = false
 ): Promise<DocumentationItem[]> {
   const items: DocumentationItem[] = []
   let processedCount = 0
@@ -135,14 +137,16 @@ async function gatherAllItems(
         `folder-${folderIndex}`
 
       let thisFolderPath: string
+      const pathSegment = isTeamCollection ? folderId : folderIndex.toString()
+
       if (baseCollectionPath) {
         thisFolderPath = currentFolderPath
-          ? `${baseCollectionPath}/${currentFolderPath}/${folderIndex}`
-          : `${baseCollectionPath}/${folderIndex}`
+          ? `${baseCollectionPath}/${currentFolderPath}/${pathSegment}`
+          : `${baseCollectionPath}/${pathSegment}`
       } else {
         thisFolderPath = currentFolderPath
-          ? `${currentFolderPath}/${folderIndex}`
-          : `${folderIndex}`
+          ? `${currentFolderPath}/${pathSegment}`
+          : `${pathSegment}`
       }
 
       // Add folder
@@ -196,8 +200,8 @@ async function gatherAllItems(
           : folder.name
 
         const relativeFolderPath = currentFolderPath
-          ? `${currentFolderPath}/${folderIndex}`
-          : `${folderIndex}`
+          ? `${currentFolderPath}/${pathSegment}`
+          : `${pathSegment}`
 
         await processFoldersAsync(
           folder.folders,
@@ -226,14 +230,23 @@ async function gatherAllItems(
 self.addEventListener(
   "message",
   async (event: MessageEvent<IncomingDocumentationWorkerMessage>) => {
-    const { type, collection: collectionString, pathOrID } = event.data
+    const {
+      type,
+      collection: collectionString,
+      pathOrID,
+      isTeamCollection,
+    } = event.data
 
     if (type === "GATHER_DOCUMENTATION") {
       try {
         // Parse the stringified collection
         const collection = JSON.parse(collectionString) as HoppCollection
 
-        const items = await gatherAllItems(collection, pathOrID)
+        const items = await gatherAllItems(
+          collection,
+          pathOrID,
+          isTeamCollection || false
+        )
 
         const result: DocumentationResultMessage = {
           type: "DOCUMENTATION_RESULT",

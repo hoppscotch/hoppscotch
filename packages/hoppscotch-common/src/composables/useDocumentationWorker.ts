@@ -86,7 +86,8 @@ export function useDocumentationWorker() {
    */
   function processDocumentation(
     collection: HoppCollection,
-    pathOrID: string | null
+    pathOrID: string | null,
+    isTeamCollection: boolean = false
   ): Promise<DocumentationItem[]> {
     return new Promise((resolve, reject) => {
       if (!collection) {
@@ -111,6 +112,7 @@ export function useDocumentationWorker() {
           type: "GATHER_DOCUMENTATION",
           collection: collectionString,
           pathOrID,
+          isTeamCollection,
         })
       } catch (error) {
         isProcessing.value = false

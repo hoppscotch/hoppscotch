@@ -509,8 +509,7 @@ const openInNewTab = () => {
     let inheritedProperties = null
 
     // Determine if this is a team collection or user collection
-    const isTeamCollection =
-      props.teamID && props.collectionID && props.folderPath
+    const isTeamCollection = props.teamID && props.folderPath
 
     if (isTeamCollection) {
       // Team collection - use team-specific context

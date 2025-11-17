@@ -1,5 +1,5 @@
 import { Service } from "dioc"
-import { reactive, computed, watch } from "vue"
+import { reactive, computed } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
 // Types for documentation

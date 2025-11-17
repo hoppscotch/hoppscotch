@@ -153,7 +153,14 @@ export class TeamCollectionService {
       id: collection.right.id,
       name: collection.right.title,
       folders: childrenCollectionObjects,
-      requests: requests.map((x) => x.request),
+      requests: requests.map((x) => {
+        const requestData =
+          typeof x.request === 'string' ? JSON.parse(x.request) : x.request;
+        return {
+          ...requestData,
+          id: x.id,
+        };
+      }),
       data,
     };
 

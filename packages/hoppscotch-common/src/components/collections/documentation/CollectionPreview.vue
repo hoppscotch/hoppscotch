@@ -70,6 +70,8 @@ import {
 import { ref, computed, watch, nextTick, onMounted } from "vue"
 import MarkdownIt from "markdown-it"
 import { useVModel } from "@vueuse/core"
+import { useService } from "dioc/vue"
+import { DocumentationService } from "~/services/documentation.service"
 const md = new MarkdownIt({
   html: true,
   breaks: true,
@@ -83,10 +85,20 @@ const props = withDefaults(
   defineProps<{
     documentationDescription: string
     collection: CollectionType
+    pathOrID: string | null
+    folderPath?: string
+    isTeamCollection?: boolean
+    collectionPath?: string
+    teamID?: string
   }>(),
   {
     documentationDescription: "",
     collection: null,
+    pathOrID: null,
+    folderPath: "",
+    isTeamCollection: false,
+    collectionPath: "",
+    teamID: "",
   }
 )
 
@@ -131,6 +143,8 @@ const collectionDescription = useVModel(
   { passive: true }
 )
 
+const documentationService = useService(DocumentationService)
+
 const editMode = ref<boolean>(false)
 const editableContent = ref<string>(collectionDescription.value)
 
@@ -146,8 +160,8 @@ watch(
 
     if (newContent.trim() === "") {
       // console.log("Setting default content")
-      editableContent.value =
-        "Enter markdown documentation for this collection..."
+      // editableContent.value =
+      //   "Enter markdown documentation for this collection..."
     }
   },
   { immediate: true }
@@ -205,9 +219,31 @@ function enableEditMode(): void {
 // Handle blur event (when clicking outside or tabbing away)
 function handleBlur(): void {
   if (editableContent.value.trim() === "") {
-    editableContent.value =
-      "Enter markdown documentation for this collection..."
+    // editableContent.value =
+    //   "Enter markdown documentation for this collection..."
   }
+
+  console.log("collection-pathOrID", props.pathOrID)
+  console.log("collection-folderPath", props.folderPath)
+  console.log("collectionPath", props.collectionPath)
+  console.log("colection-id", props.collection?.id)
+
+  // Only store changes in documentation service if there's actually a change
+  const hasChanged = editableContent.value !== collectionDescription.value
+
+  if (hasChanged && (props.collection?.id || props.collection?._ref_id)) {
+    documentationService.setCollectionDocumentation(
+      props.collection.id ?? props.collection._ref_id!,
+      editableContent.value,
+      {
+        isTeamItem: props.isTeamCollection,
+        pathOrID: props.pathOrID ?? props.folderPath,
+        teamID: props.teamID,
+        collectionData: props.collection as HoppCollection,
+      }
+    )
+  }
+
   // Save changes when exiting edit mode
   emit("update:documentationDescription", editableContent.value)
   editMode.value = false

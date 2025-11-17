@@ -123,6 +123,7 @@ import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamCollectionsService } from "~/services/team-collection.service"
+import { DocumentationService } from "~/services/documentation.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
 import { cloneDeep } from "lodash-es"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
@@ -171,6 +172,7 @@ const emit = defineEmits<{
 
 const restTabs = useService(RESTTabService)
 const teamCollectionsService = useService(TeamCollectionsService)
+const documentationService = useService(DocumentationService)
 
 // No need for actualRequest computed since we now directly use props.request
 
@@ -366,6 +368,51 @@ function enableEditMode(): void {
 }
 
 function handleBlur(): void {
+  // Only store changes in documentation service if there's actually a change
+  const hasChanged = editableContent.value !== props.documentationDescription
+
+  // Store changes in documentation service if request ID exists and content changed
+  if (hasChanged && requestId.value && props.request) {
+    const isTeamRequest = !!props.teamID && props.requestID
+
+    console.log("saving req blur", props.teamID, props.requestID, props.request)
+
+    if (isTeamRequest && props.requestID) {
+      // Team request - use requestID
+      documentationService.setRequestDocumentation(
+        requestId.value,
+        editableContent.value,
+        {
+          parentCollectionID: props.collectionID,
+          isTeamItem: true,
+          folderPath: props.folderPath || "",
+          requestID: props.requestID,
+          teamID: props.teamID,
+          requestData: props.request,
+        }
+      )
+    } else if (
+      props.folderPath !== null &&
+      props.folderPath !== undefined &&
+      props.requestIndex !== null &&
+      props.requestIndex !== undefined
+    ) {
+      // Personal request - use requestIndex
+      documentationService.setRequestDocumentation(
+        requestId.value,
+        editableContent.value,
+        {
+          parentCollectionID: props.collectionID,
+          isTeamItem: false,
+          folderPath: props.folderPath,
+          requestIndex: props.requestIndex,
+          teamID: props.teamID,
+          requestData: props.request,
+        }
+      )
+    }
+  }
+
   emit("update:documentationDescription", editableContent.value)
   editMode.value = false
 }

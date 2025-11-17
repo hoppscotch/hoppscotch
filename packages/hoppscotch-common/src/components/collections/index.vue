@@ -222,9 +222,9 @@
     <CollectionsDocumentation
       v-if="showModalDocumentation"
       :show="showModalDocumentation"
-      :collection-path="editingCollectionPath"
+      :path-or-i-d="editingCollectionPath"
       :collection="editingCollection"
-      :collection-i-d="editingCollectionID"
+      :collection-i-d="editingCollectionID ?? undefined"
       :folder-path="editingFolderPath"
       :request-index="editingRequestIndex"
       :request-i-d="editingRequestID"
@@ -3147,7 +3147,10 @@ const setCollectionProperties = (newCollection: {
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
     const data = {
-      auth: collection.auth ?? null,
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
       description: collection.description ?? null,
@@ -3261,7 +3264,8 @@ const openDocumentation = ({
   console.log("Open documentation for", pathOrID, collectionRefID, collection)
   editingCollectionPath.value = pathOrID
   editingCollection.value = collection
-  editingCollectionIsTeam.value = "data" in collection
+  editingCollectionIsTeam.value =
+    collectionsType.value.type === "team-collections"
   displayModalDocumentation(true)
 }
 
@@ -3291,6 +3295,8 @@ const openRequestDocumentation = ({
   editingRequestIndex.value = parseInt(requestIndex)
   editingRequestID.value = requestIndex
   editingCollectionID.value = folderPath.split("/").at(-1) ?? null
+  editingCollectionIsTeam.value =
+    collectionsType.value.type === "team-collections"
 
   displayModalDocumentation(true)
 }

@@ -1,13 +1,15 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { ref, readonly } from "vue"
 
-interface DocumentationItem {
+export interface DocumentationItem {
   type: "folder" | "request"
   item: HoppCollection | HoppRESTRequest
   parentPath: string
   id: string
+  pathOrID?: string | null
   folderPath?: string | null
   requestIndex?: number | null
+  requestID?: string | null
 }
 
 const worker = new Worker(
@@ -84,7 +86,7 @@ export function useDocumentationWorker() {
    */
   function processDocumentation(
     collection: HoppCollection,
-    collectionPath: string | null
+    pathOrID: string | null
   ): Promise<DocumentationItem[]> {
     return new Promise((resolve, reject) => {
       if (!collection) {
@@ -108,7 +110,7 @@ export function useDocumentationWorker() {
         currentWorker.postMessage({
           type: "GATHER_DOCUMENTATION",
           collection: collectionString,
-          collectionPath,
+          pathOrID,
         })
       } catch (error) {
         isProcessing.value = false

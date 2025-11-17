@@ -236,6 +236,7 @@ export const getCompleteCollectionTree = (
 export const teamCollToHoppRESTColl = (
   coll: TeamCollection
 ): HoppCollection => {
+  console.log("teamCollToHoppRESTColl", coll.requests)
   const data =
     coll.data && coll.data !== "null"
       ? JSON.parse(coll.data)

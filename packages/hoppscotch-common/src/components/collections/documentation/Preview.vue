@@ -65,15 +65,26 @@
             "
             @close-modal="closeModal"
           />
+
           <CollectionsDocumentationCollectionPreview
             v-else-if="selectedFolder"
             :collection="selectedFolder"
             :documentation-description="selectedFolder.description || ''"
+            :folder-path="folderPath ?? undefined"
+            :path-or-i-d="pathOrID"
+            :is-team-collection="isTeamCollection"
+            :collection-path="collectionPath || undefined"
+            :team-i-d="teamID"
           />
           <CollectionsDocumentationCollectionPreview
             v-else
             :collection="collection"
             :documentation-description="documentationDescription"
+            :folder-path="folderPath ?? undefined"
+            :path-or-i-d="pathOrID"
+            :is-team-collection="isTeamCollection"
+            :collection-path="collectionPath || undefined"
+            :team-i-d="teamID"
             @update:documentation-description="
               (value) => emit('update:documentationDescription', value)
             "
@@ -86,6 +97,11 @@
             <CollectionsDocumentationCollectionPreview
               v-model:documentation-description="collectionDescription"
               :collection="collection"
+              :folder-path="folderPath ?? undefined"
+              :path-or-i-d="pathOrID"
+              :is-team-collection="isTeamCollection"
+              :collection-path="collectionPath || undefined"
+              :team-i-d="teamID"
             />
           </div>
 
@@ -126,6 +142,7 @@
                   :collection-path="collectionPath"
                   :folder-path="item.folderPath"
                   :request-index="item.requestIndex"
+                  :request-i-d="item.requestID"
                   :team-i-d="teamID"
                   @update:documentation-description="
                     (value) =>
@@ -140,6 +157,11 @@
                   :documentation-description="
                     (item.item as HoppCollection).description || ''
                   "
+                  :folder-path="item.folderPath ?? undefined"
+                  :path-or-i-d="item.pathOrID ?? null"
+                  :is-team-collection="isTeamCollection"
+                  :collection-path="collectionPath || undefined"
+                  :team-i-d="teamID"
                   @update:documentation-description="
                     (value) =>
                       ((item.item as HoppCollection).description = value)
@@ -174,17 +196,9 @@ import { ref, watch, nextTick, computed } from "vue"
 
 import { useService } from "dioc/vue"
 import { TeamCollectionsService } from "~/services/team-collection.service"
+import { DocumentationItem } from "~/composables/useDocumentationWorker"
 
 type CollectionType = HoppCollection | null
-
-interface DocumentationItem {
-  type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
-  parentPath: string
-  id: string
-  folderPath?: string | null
-  requestIndex?: number | null
-}
 
 const props = withDefaults(
   defineProps<{
@@ -193,7 +207,9 @@ const props = withDefaults(
     collectionID?: string
     collectionPath?: string | null
     folderPath?: string | null
+    pathOrID?: string | null
     requestIndex?: number | null
+    requestID?: string | null
     teamID?: string
     isTeamCollection?: boolean
     allItems?: Array<DocumentationItem>
@@ -207,6 +223,7 @@ const props = withDefaults(
     collectionID: "",
     collectionPath: null,
     folderPath: null,
+    pathOrID: null,
     requestIndex: null,
     teamID: undefined,
     isTeamCollection: false,

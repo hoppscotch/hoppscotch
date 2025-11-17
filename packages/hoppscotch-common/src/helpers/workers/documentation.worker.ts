@@ -1,18 +1,10 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-
-interface DocumentationItem {
-  type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
-  parentPath: string
-  id: string
-  folderPath?: string | null
-  requestIndex?: number | null
-}
+import { DocumentationItem } from "~/composables/useDocumentationWorker"
 
 interface GatherDocumentationMessage {
   type: "GATHER_DOCUMENTATION"
   collection: string // JSON stringified collection
-  collectionPath: string | null
+  pathOrID: string | null
 }
 
 interface DocumentationProgressMessage {
@@ -117,6 +109,7 @@ async function gatherAllItems(
           id: requestId,
           folderPath: baseCollectionPath,
           requestIndex: j,
+          requestID: request.id,
         })
 
         processedCount++
@@ -158,8 +151,9 @@ async function gatherAllItems(
         item: folder,
         parentPath,
         id: folderId,
-        folderPath: thisFolderPath,
+        pathOrID: thisFolderPath,
         requestIndex: null,
+        requestID: null,
       })
 
       processedCount++
@@ -185,6 +179,7 @@ async function gatherAllItems(
               id: requestId,
               folderPath: thisFolderPath,
               requestIndex: j,
+              requestID: request.id,
             })
 
             processedCount++
@@ -231,14 +226,14 @@ async function gatherAllItems(
 self.addEventListener(
   "message",
   async (event: MessageEvent<IncomingDocumentationWorkerMessage>) => {
-    const { type, collection: collectionString, collectionPath } = event.data
+    const { type, collection: collectionString, pathOrID } = event.data
 
     if (type === "GATHER_DOCUMENTATION") {
       try {
         // Parse the stringified collection
         const collection = JSON.parse(collectionString) as HoppCollection
 
-        const items = await gatherAllItems(collection, collectionPath)
+        const items = await gatherAllItems(collection, pathOrID)
 
         const result: DocumentationResultMessage = {
           type: "DOCUMENTATION_RESULT",

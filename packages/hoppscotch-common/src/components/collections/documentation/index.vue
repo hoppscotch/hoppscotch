@@ -22,9 +22,10 @@
               v-model:documentation-description="documentationDescription"
               :collection="currentCollection"
               :collection-i-d="collectionID"
-              :collection-path="collectionPath"
+              :path-or-i-d="pathOrID"
               :folder-path="folderPath"
               :request-index="requestIndex"
+              :request-i-d="requestID"
               :team-i-d="teamID"
               :is-team-collection="isTeamCollection"
               :all-items="allItems"
@@ -39,7 +40,7 @@
               v-model:documentation-description="documentationDescription"
               :request="request"
               :collection-i-d="collectionID"
-              :collection-path="collectionPath"
+              :path-or-i-d="pathOrID"
               :folder-path="folderPath"
               :request-index="requestIndex"
               :request-i-d="requestID"
@@ -60,6 +61,8 @@
         />
         <HoppButtonPrimary
           :label="t('action.save')"
+          :loading="isSavingDocumentation"
+          :disabled="isSavingDocumentation"
           outline
           filled
           @click="saveDocumentation"
@@ -92,11 +95,21 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
+import { useService } from "dioc/vue"
+import {
+  DocumentationService,
+  type DocumentationItem,
+} from "~/services/documentation.service"
 
 const t = useI18n()
 const toast = useToast()
+const documentationService = useService(DocumentationService)
 // Loading state for team collection fetching
 const isLoadingTeamCollection = ref<boolean>(false)
+
+// Loading state for saving documentation
+const isSavingDocumentation = ref<boolean>(false)
 
 // Documentation processing state
 const allItems = ref<Array<any>>([])
@@ -115,7 +128,7 @@ const props = withDefaults(
     loadingState?: boolean
     hasTeamWriteAccess?: boolean
     collectionID?: string
-    collectionPath?: string | null
+    pathOrID: string | null
     collection?: HoppCollection | TeamCollection | null
     folderPath?: string | null
     requestIndex?: number | null
@@ -198,7 +211,7 @@ const currentCollection = computed<HoppCollection | null>(() => {
 
   // Use the prop collection by default
   console.log("Using prop collection as currentCollection", props.collection)
-  return props.collection
+  return props.collection as HoppCollection
 })
 
 // Handle toggle all documentation - process items in parent
@@ -226,7 +239,7 @@ const handleToggleAllDocumentation = async () => {
       // Process documentation in parent
       const items = await processDocumentation(
         collectionToProcess as HoppCollection,
-        props.collectionPath
+        props.pathOrID
       )
 
       console.log("All documentation items processed:", items)
@@ -254,6 +267,11 @@ watch(
       // Reset when modal closes
       fetchedTeamCollection.value = null
       isLoadingTeamCollection.value = false
+      // clear all processed items
+      allItems.value = []
+      showAllDocumentation.value = false
+      // clear documentation service changes
+      documentationService.clearAll()
     }
   }
 )
@@ -283,114 +301,268 @@ const emit = defineEmits<{
   (e: "update:modelValue"): void
 }>()
 
-// TODO: Save documentation for sub folders in show all doc state
 const saveDocumentation = async () => {
   if (!props.hasTeamWriteAccess) {
     toast.error(t("documentation.no_write_access"))
     return
   }
 
-  if (currentCollection.value && props.collectionPath) {
-    console.log("collection-path", props.collectionPath)
+  try {
+    // Get all changed items from documentation service
+    const changedItems = documentationService.getChangedItems()
 
-    try {
-      // Check if this is a team collection
-      if (props.isTeamCollection) {
-        // Team collection
-        const teamCollection = currentCollection.value
-        console.log("props.collectionID", props.collectionID)
-        console.log("saving team collection documentation...", teamCollection)
-        console.log("documentationDescription", documentationDescription.value)
-
-        let data: CollectionDataProps | undefined = undefined
-
-        if (
-          "data" in teamCollection &&
-          typeof teamCollection.data === "string"
-        ) {
-          const parsedData = JSON.parse(teamCollection.data)
-          data = {
-            auth: parsedData.auth ?? null,
-            headers: parsedData.headers ?? [],
-            variables: parsedData.variables ?? [],
-            description: documentationDescription.value,
-          }
-        } else {
-          const coll = teamCollection as HoppCollection
-          data = {
-            auth: coll.auth,
-            headers: coll.headers,
-            variables: coll.variables,
-            description: documentationDescription.value,
-          }
-        }
-
-        console.log("updateTeamCollection data:", data)
-
-        pipe(
-          updateTeamCollection(teamCollection.id!, data),
-          TE.match(
-            (err: GQLError<string>) => {
-              toast.error(`${getErrorMessage(err)}`)
-            },
-            () => {
-              toast.success(t("documentation.save_success"))
-            }
-          )
-        )()
-      } else {
-        // Personal collection
-        const personalCollection = currentCollection.value as HoppCollection
-        const updatedCollection = {
-          ...personalCollection,
-          description: documentationDescription.value,
-        }
-
-        // Check if this is a root collection (no "/" in path) or a folder
-        const pathSegments = props.collectionPath.split("/")
-
-        if (pathSegments.length === 1) {
-          editRESTCollection(parseInt(props.collectionPath), updatedCollection)
-        } else {
-          editRESTFolder(props.collectionPath, updatedCollection)
-        }
-        toast.success(t("documentation.save_success"))
+    if (changedItems.length === 0 && !showAllDocumentation.value) {
+      // No changes to save, but save current documentation description if exists
+      if (currentCollection.value && props.pathOrID) {
+        await saveCollectionDocumentation()
+      } else if (
+        props.request &&
+        props.folderPath !== undefined &&
+        props.folderPath !== null &&
+        props.requestIndex !== undefined &&
+        props.requestIndex !== null
+      ) {
+        await saveRequestDocumentation()
       }
-    } catch (error) {
-      console.error("Error saving documentation:", error)
-      toast.error(t("documentation.save_error"))
+    } else {
+      // Save all changed items from documentation service
+      for (const item of changedItems) {
+        if (item.type === "collection") {
+          await saveCollectionDocumentationById(item)
+        } else if (item.type === "request") {
+          await saveRequestDocumentationById(item)
+        }
+      }
+
+      // Clear all changes after successful save
+      documentationService.clearAll()
     }
-  } else if (
-    props.request &&
-    props.folderPath !== undefined &&
-    props.folderPath !== null &&
-    props.requestIndex !== undefined &&
-    props.requestIndex !== null
-  ) {
-    const updatedRequest = {
-      ...props.request,
+  } catch (error) {
+    console.error("Error saving documentation:", error)
+    toast.error(t("documentation.save_error"))
+  }
+}
+
+// Helper function to save collection documentation
+const saveCollectionDocumentation = async () => {
+  const collection = currentCollection.value!
+
+  if (props.isTeamCollection) {
+    // Set loading state for team operations only
+    isSavingDocumentation.value = true
+
+    // Team collection
+    const data: CollectionDataProps = {
+      auth: collection.auth || { authType: "inherit", authActive: true },
+      headers: collection.headers || [],
+      variables: collection.variables || [],
       description: documentationDescription.value,
     }
-    console.log("updatedRequest", updatedRequest)
-    console.log("props.folderPath", props.folderPath)
-    console.log("props.requestIndex", props.requestIndex)
 
-    try {
-      if (props.isTeamCollection || props.teamID) {
-        // Team request - we need the requestRefID to update it
-        // For now, this is a limitation - team requests need the requestRefID
-        console.warn(
-          "Team request documentation update not fully implemented - need requestRefID"
-        )
-        toast.error("Team request documentation update not fully supported yet")
-      } else {
-        // Personal request
-        editRESTRequest(props.folderPath, props.requestIndex, updatedRequest)
-        toast.success(t("documentation.save_success"))
+    pipe(
+      updateTeamCollection(collection.id!, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          isSavingDocumentation.value = false
+        },
+        () => {
+          toast.success(t("documentation.save_success"))
+          isSavingDocumentation.value = false
+        }
+      )
+    )()
+  } else {
+    // Personal collection (no loading state)
+    const updatedCollection = {
+      ...collection,
+      description: documentationDescription.value,
+    }
+
+    // Check if this is a root collection or a folder
+    const pathSegments = props.pathOrID!.split("/")
+    if (pathSegments.length === 1) {
+      editRESTCollection(parseInt(props.pathOrID!), updatedCollection)
+    } else {
+      editRESTFolder(props.pathOrID!, updatedCollection)
+    }
+    toast.success(t("documentation.save_success"))
+  }
+}
+
+// Helper function to save request documentation
+const saveRequestDocumentation = async () => {
+  const updatedRequest = {
+    ...props.request!,
+    description: documentationDescription.value,
+  }
+
+  if (props.isTeamCollection && props.requestID) {
+    // Set loading state for team operations only
+    isSavingDocumentation.value = true
+
+    // Team request
+    const data = {
+      request: JSON.stringify(updatedRequest),
+      title: updatedRequest.name,
+    }
+
+    pipe(
+      updateTeamRequest(props.requestID!, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          isSavingDocumentation.value = false
+        },
+        () => {
+          toast.success(t("documentation.save_success"))
+          isSavingDocumentation.value = false
+        }
+      )
+    )()
+  } else {
+    // Personal request (no loading state)
+    editRESTRequest(props.folderPath!, props.requestIndex!, updatedRequest)
+    toast.success(t("documentation.save_success"))
+  }
+}
+
+// Helper function to save collection documentation by ID
+const saveCollectionDocumentationById = async (item: DocumentationItem) => {
+  // Type guard to ensure it's a collection item
+  if (item.type !== "collection") {
+    console.error("Expected collection item, received:", item.type)
+    return
+  }
+
+  console.log("Saving collection documentation item:", item)
+
+  // Now TypeScript knows this is a CollectionDocumentationItem
+  const {
+    id: collectionId,
+    documentation,
+    isTeamItem,
+    pathOrID,
+    collectionData,
+  } = item
+
+  if (isTeamItem) {
+    // Set loading state for team operations only
+    isSavingDocumentation.value = true
+
+    // Use the stored collection data from the service
+    if (collectionData) {
+      const data: CollectionDataProps = {
+        auth: collectionData.auth || { authType: "inherit", authActive: true },
+        headers: collectionData.headers || [],
+        variables: collectionData.variables || [],
+        description: documentation,
       }
-    } catch (error) {
-      console.error("Error saving request documentation:", error)
-      toast.error(t("documentation.save_error"))
+
+      pipe(
+        updateTeamCollection(collectionId, data),
+        TE.match(
+          (err: GQLError<string>) => {
+            toast.error(`${getErrorMessage(err)}`)
+            isSavingDocumentation.value = false
+          },
+          () => {
+            toast.success(t("documentation.save_success"))
+            isSavingDocumentation.value = false
+          }
+        )
+      )()
+    } else {
+      toast.error("Collection data not found in service")
+      isSavingDocumentation.value = false
+    }
+  } else {
+    // Personal collection - use the stored collection data and path
+    if (pathOrID && collectionData) {
+      const updatedCollection = {
+        ...collectionData,
+        description: documentation,
+      }
+
+      console.log("Saving personal collection documentation:", {
+        pathOrID,
+        updatedCollection,
+      })
+
+      // Check if this is a root collection or a folder
+      const pathSegments = pathOrID.split("/")
+      if (pathSegments.length === 1) {
+        editRESTCollection(parseInt(pathOrID), updatedCollection)
+      } else {
+        editRESTFolder(pathOrID, updatedCollection)
+      }
+      toast.success(t("documentation.save_success"))
+    } else {
+      toast.error("Collection path or data not found")
+    }
+  }
+}
+
+// Helper function to save request documentation by ID
+const saveRequestDocumentationById = async (item: DocumentationItem) => {
+  // Type guard to ensure it's a request item
+  if (item.type !== "request") {
+    console.error("Expected request item, received:", item.type)
+    return
+  }
+
+  // Now TypeScript knows this is a RequestDocumentationItem
+  const { documentation, isTeamItem, folderPath, requestData } = item
+
+  if (isTeamItem) {
+    // Set loading state for team operations only
+    isSavingDocumentation.value = true
+
+    // For team requests, check if requestID exists
+    if (requestData && item.requestID) {
+      const updatedRequest = {
+        ...requestData,
+        description: documentation,
+      }
+
+      const data = {
+        request: JSON.stringify(updatedRequest),
+        title: updatedRequest.name,
+      }
+
+      pipe(
+        updateTeamRequest(item.requestID, data),
+        TE.match(
+          (err: GQLError<string>) => {
+            toast.error(`${getErrorMessage(err)}`)
+            isSavingDocumentation.value = false
+          },
+          () => {
+            toast.success(t("documentation.save_success"))
+            isSavingDocumentation.value = false
+          }
+        )
+      )()
+    } else {
+      toast.error("Team request data not found in service")
+      isSavingDocumentation.value = false
+    }
+  } else {
+    // Personal request - check if requestIndex exists
+    if (
+      folderPath !== undefined &&
+      item.requestIndex !== undefined &&
+      requestData
+    ) {
+      const updatedRequest = {
+        ...requestData,
+        description: documentation,
+      }
+
+      editRESTRequest(folderPath, item.requestIndex, updatedRequest)
+      toast.success(t("documentation.save_success"))
+    } else {
+      toast.error("Personal request data not found in service")
     }
   }
 }

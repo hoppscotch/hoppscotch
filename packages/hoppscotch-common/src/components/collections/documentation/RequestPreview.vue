@@ -86,9 +86,9 @@
         :variables="request?.requestVariables || []"
       />
 
-      <CollectionsDocumentationSectionsPreRequestScript
+      <!-- <CollectionsDocumentationSectionsPreRequestScript
         :pre-request-script="request?.preRequestScript"
-      />
+      /> -->
 
       <!-- <CollectionsDocumentationSectionsTestScript
         :test-script="request?.testScript"

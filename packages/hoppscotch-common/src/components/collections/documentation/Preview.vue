@@ -11,10 +11,9 @@
       <div class="flex flex-col items-center space-y-4 text-center">
         <icon-lucide-loader-2 class="animate-spin" size="32" />
         <div class="text-sm text-secondaryLight">
-          <p class="font-medium mb-1">{{ loadingMessage }}</p>
-          <p class="text-xs">{{ displayProgress }}% complete</p>
-          <p v-if="isLoadingComponents" class="text-xs">
-            Rendering {{ allItems.length }} items...
+          <p class="font-medium mb-1">{{ currentLoadingMessage }}</p>
+          <p v-if="!props.isExternalLoading" class="text-xs">
+            {{ displayProgress }}% complete
           </p>
         </div>
       </div>
@@ -124,13 +123,6 @@
                 'highlight-item': selectedItemId === item.id,
               }"
             >
-              <div
-                class="p-3 flex flex-col bg-divider/20"
-                :class="{
-                  'bg-accent/10': selectedItemId === item.id,
-                }"
-              />
-
               <div class="p-0">
                 <CollectionsDocumentationRequestPreview
                   v-if="item.type === 'request'"
@@ -216,6 +208,7 @@ const props = withDefaults(
     showAllDocumentation?: boolean
     isProcessingDocumentation?: boolean
     processingProgress?: number
+    isExternalLoading?: boolean
   }>(),
   {
     documentationDescription: "",
@@ -225,12 +218,14 @@ const props = withDefaults(
     folderPath: null,
     pathOrID: null,
     requestIndex: null,
+    requestID: null,
     teamID: undefined,
     isTeamCollection: false,
     allItems: () => [],
     showAllDocumentation: false,
     isProcessingDocumentation: false,
     processingProgress: 0,
+    isExternalLoading: false,
   }
 )
 
@@ -254,23 +249,35 @@ const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
 
 // Enhanced loading states
-const isLoadingComponents = ref<boolean>(false)
-const loadingMessage = ref<string>("Processing Documentation")
 
 // Computed property for overall loading state
 const isLoading = computed(
   () =>
     props.isProcessingDocumentation ||
-    isLoadingComponents.value ||
+    props.isExternalLoading ||
     teamCollectionService.loadingCollections.value.length !== 0
 )
 
-// Simple progress calculation
+// Computed loading message based on current state
+const currentLoadingMessage = computed(() => {
+  if (props.isExternalLoading) {
+    return "Loading Collection Data..."
+  }
+  if (props.isProcessingDocumentation) {
+    return "Processing Documentation"
+  }
+  return "Loading..."
+})
+
+// Simple progress calculation - only show progress after external loading is complete
 const displayProgress = computed(() => {
+  if (props.isExternalLoading) {
+    return 0 // Don't show progress during external loading
+  }
   if (props.isProcessingDocumentation) {
     return props.processingProgress
   }
-  return 100 // Show 100% during component loading
+  return 0 // No progress for other states
 })
 
 /**
@@ -370,67 +377,11 @@ function closeModal(): void {
 watch(
   () => props.showAllDocumentation,
   (newValue) => {
-    if (newValue && props.allItems.length > 0) {
-      // Starting to show all documentation - set loading state
-      isLoadingComponents.value = true
-      loadingMessage.value = "Rendering Documentation"
-
-      nextTick(() => {
-        // Check if all documentation components are present in DOM
-        const documentedItems = props.allItems.filter(
-          (item: DocumentationItem) =>
-            (item.type === "request" &&
-              (item.item as HoppRESTRequest).description) ||
-            (item.type === "folder" &&
-              (item.item as HoppCollection).description)
-        )
-
-        // Wait a bit for components to render
-        const extraDelay = Math.min(documentedItems.length * 50, 1000) // Max 1 second
-        setTimeout(() => {
-          isLoadingComponents.value = false
-          loadingMessage.value = ""
-        }, extraDelay)
-      })
-    } else if (!newValue) {
-      // Hiding all documentation - reset to original collection state
-      isLoadingComponents.value = false
-      loadingMessage.value = ""
-
-      // Clear all selections to return to the main collection view
+    if (!newValue) {
+      // Hiding all documentation - clear all selections to return to the main collection view
       selectedRequest.value = null
       selectedFolder.value = null
       selectedItemId.value = null
-    }
-  }
-)
-
-// Watch for allItems changes to handle component loading
-watch(
-  () => props.allItems.length,
-  (newLength) => {
-    if (
-      newLength > 0 &&
-      props.showAllDocumentation &&
-      !props.isProcessingDocumentation
-    ) {
-      // Items are set, now wait for component rendering
-      nextTick(() => {
-        // Check if all documentation components are present in DOM
-        const documentedItems = props.allItems.filter(
-          (item: DocumentationItem) =>
-            (item.type === "request" &&
-              (item.item as HoppRESTRequest).description) ||
-            (item.type === "folder" &&
-              (item.item as HoppCollection).description)
-        )
-
-        // Wait a bit more if we have many components to render
-        const extraDelay = Math.min(documentedItems.length * 50, 1000) // Max 1 second
-        setTimeout(() => {
-          isLoadingComponents.value = false
-        }, extraDelay)
-      })
     }
   }
 )

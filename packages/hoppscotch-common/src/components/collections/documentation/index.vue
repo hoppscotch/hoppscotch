@@ -8,13 +8,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div
-        v-if="loadingState || isLoadingTeamCollection"
-        class="w-full h-96 flex items-center justify-center"
-      >
-        <icon-lucide-loader class="svg-icons animate-spin text-4xl" />
-      </div>
-      <div v-else class="w-full h-[80vh] overflow-hidden">
+      <div class="w-full h-[80vh] overflow-hidden">
         <div class="flex h-full">
           <div class="flex-1 flex">
             <CollectionsDocumentationPreview
@@ -32,6 +26,7 @@
               :show-all-documentation="showAllDocumentation"
               :is-processing-documentation="isProcessingDocumentation"
               :processing-progress="processingProgress"
+              :is-external-loading="loadingState || isLoadingTeamCollection"
               @close-modal="hideModal"
               @toggle-all-documentation="handleToggleAllDocumentation"
             />
@@ -153,8 +148,8 @@ const props = withDefaults(
   }
 )
 
-// Store the fetched team collection data
-const fetchedTeamCollection = ref<TeamCollection | null>(null)
+// Store the full collection data (with all nested folders and requests)
+const fullCollectionData = ref<HoppCollection | null>(null)
 
 // Fetch team collection data when needed
 const fetchTeamCollection = async () => {
@@ -174,14 +169,18 @@ const fetchTeamCollection = async () => {
       console.log("Data fetched for team collection:", JSON.parse(data.right))
       const parsedCollection = JSON.parse(data.right)
       console.log("///parsedCollection///", parsedCollection)
-      fetchedTeamCollection.value = parsedCollection
+      fullCollectionData.value = parsedCollection
     } else {
       console.error("Failed to fetch team collection data")
-      fetchedTeamCollection.value = props.collection as TeamCollection
+      fullCollectionData.value = teamCollToHoppRESTColl(
+        props.collection as TeamCollection
+      )
     }
   } catch (error) {
     console.error("Error fetching team collection:", error)
-    fetchedTeamCollection.value = props.collection as TeamCollection
+    fullCollectionData.value = teamCollToHoppRESTColl(
+      props.collection as TeamCollection
+    )
   } finally {
     isLoadingTeamCollection.value = false
   }
@@ -191,13 +190,13 @@ const fetchTeamCollection = async () => {
 const currentCollection = computed<HoppCollection | null>(() => {
   if (!props.collection) return null
 
-  // For team collections, use the fetched data only if available (after toggle)
-  if (props.isTeamCollection && fetchedTeamCollection.value) {
+  // For team collections, use the full collection data only if available (after toggle)
+  if (props.isTeamCollection && fullCollectionData.value) {
     console.log(
-      "Using fetched team collection as currentCollection",
-      fetchedTeamCollection.value
+      "Using full collection data as currentCollection",
+      fullCollectionData.value
     )
-    return fetchedTeamCollection.value
+    return fullCollectionData.value
   }
 
   if (props.isTeamCollection) {
@@ -266,7 +265,7 @@ watch(
   (isVisible) => {
     if (!isVisible) {
       // Reset when modal closes
-      fetchedTeamCollection.value = null
+      fullCollectionData.value = null
       isLoadingTeamCollection.value = false
       // clear all processed items
       allItems.value = []

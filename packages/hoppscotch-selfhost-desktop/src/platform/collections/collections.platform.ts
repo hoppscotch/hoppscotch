@@ -136,11 +136,12 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: true },
             headers: [],
             variables: [],
+            description: null,
           }
 
     return {
       id: restCollection.id,
-      v: 10,
+      v: 11,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -165,6 +166,7 @@ function exportedCollectionToHoppCollection(
           testScript,
           requestVariables,
           responses,
+          description,
         } = request
 
         const resolvedParams = addDescriptionField(params)
@@ -184,11 +186,13 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           responses,
+          description,
         }
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
+      description: data.description ?? null,
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -200,11 +204,12 @@ function exportedCollectionToHoppCollection(
             auth: { authType: "inherit", authActive: true },
             headers: [],
             variables: [],
+            description: null,
           }
 
     return {
       id: gqlCollection.id,
-      v: 10,
+      v: 11,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -233,6 +238,7 @@ function exportedCollectionToHoppCollection(
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
+      description: data.description ?? null,
     }
   }
 }
@@ -382,6 +388,7 @@ function setupUserCollectionCreatedSubscription() {
                 auth: { authType: "inherit", authActive: true },
                 headers: [],
                 variables: [],
+                description: null,
               }
 
         runDispatchWithOutSyncing(() => {
@@ -390,19 +397,21 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 10,
+                v: 11,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
                 variables: data.variables ?? [],
+                description: data.description ?? null,
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 10,
+                v: 11,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
                 variables: data.variables ?? [],
+                description: data.description ?? null,
               })
 
           const localIndex = collectionStore.value.state.length - 1
@@ -605,13 +614,14 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers, variables } =
+      const { auth, headers, variables, description } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
               variables: [],
+              description: null,
             }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
@@ -626,10 +636,11 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 10,
+        v: 11,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
+        description: description ?? null,
       }
 
       // only folders will have parent collection id
@@ -1093,13 +1104,14 @@ function transformDuplicatedCollections(
       requests: userRequests,
       title: name,
     }) => {
-      const { auth, headers, variables } =
+      const { auth, headers, variables, description } =
         data && data !== "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
               variables: [],
+              description: null,
             }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
@@ -1111,10 +1123,11 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 10,
+        v: 11,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
+        description: description ?? null,
       }
     }
   )

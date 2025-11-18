@@ -12,9 +12,9 @@ RUN expected="a9efa00c161922dd24650fd0bee2f4f8bb2fb69ff3e63dcc44f0694da64bb0cf" 
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 
-# Install Go 1.25.3 from GitHub releases to fix CVE-2025-47907
+# Install Go 1.25.4 from GitHub releases to fix CVE-2025-47907
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.25.3
+ENV GOLANG_VERSION=1.25.4
 # Download and install Go from the official tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
@@ -27,8 +27,10 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
-  # Patch to resolve CVE on quic-go
+  # Patch to resolve CVE-2025-59530 on quic-go
   go get github.com/quic-go/quic-go@v0.55.0 && \
+  # Patch to resolve CVE-2025-62820 on nebula
+  go get github.com/slackhq/nebula@v1.9.7 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -61,7 +63,7 @@ RUN tar -xzf npm.tgz && \
   node bin/npm-cli.js install -g npm@11.6.2 && \
   cd / && \
   rm -rf /tmp/npm-install && \
-  npm install -g pnpm@10.18.3 @import-meta-env/cli
+  npm install -g pnpm@10.22.0 @import-meta-env/cli
 
 
 

@@ -30,7 +30,7 @@
     "do-test": "pnpm run test"
   },
   "dependencies": {
-    "@apollo/server": "4.12.1",
+    "@apollo/server": "5.1.0",
     "@as-integrations/express5": "1.1.2",
     "@nestjs-modules/mailer": "2.0.2",
     "@nestjs/apollo": "13.2.1",

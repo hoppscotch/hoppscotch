@@ -106,33 +106,27 @@ const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
 }>()
 
+// Extract collection name with fallback for null collections
 const collectionName = computed<string>(() => {
-  console.log("Collection prop in CollectionPreview.vue:", props.collection)
   if (!props.collection) return ""
-
-  // Always HoppCollection since parent converts TeamCollection
   return props.collection.name
 })
 
-// Computed properties for HoppCollection (TeamCollection already converted by parent)
+// Extract collection auth configuration with inherit default
 const collectionAuth = computed<HoppRESTAuth | null>(() => {
   if (!props.collection) return null
-
-  // Always HoppCollection since parent converts TeamCollection
   return props.collection.auth || { authType: "inherit", authActive: true }
 })
 
+// Extract collection variables with empty array fallback
 const collectionVariables = computed<HoppCollectionVariable[]>(() => {
   if (!props.collection) return []
-
-  // Always HoppCollection since parent converts TeamCollection
   return props.collection.variables || []
 })
 
+// Extract collection headers with empty array fallback
 const collectionHeaders = computed<HoppRESTHeaders>(() => {
   if (!props.collection) return []
-
-  // Always HoppCollection since parent converts TeamCollection
   return props.collection.headers || []
 })
 
@@ -145,29 +139,21 @@ const collectionDescription = useVModel(
 
 const documentationService = useService(DocumentationService)
 
+// Edit mode state and content management
 const editMode = ref<boolean>(false)
 const editableContent = ref<string>(collectionDescription.value)
 
-// Update editable content when props change
+// Sync collection description with editable content when not in edit mode
 watch(
   () => collectionDescription.value,
   (newContent) => {
     if (!editMode.value) {
       editableContent.value = newContent
     }
-
-    // console.log("Updated editableContent:", newContent)
-
-    if (newContent.trim() === "") {
-      // console.log("Setting default content")
-      // editableContent.value =
-      //   "Enter markdown documentation for this collection..."
-    }
   },
   { immediate: true }
 )
 
-// Use MarkdownIt to render markdown
 const renderedMarkdown = computed(() => {
   try {
     // Show placeholder if content is empty or only whitespace
@@ -182,57 +168,33 @@ const renderedMarkdown = computed(() => {
 })
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const textareaHeight = ref<number>(200) // Default height
+const textareaHeight = ref<number>(200)
 
-// Function to adjust textarea height
+// Dynamically adjust textarea height to fit content
 function adjustTextareaHeight() {
   if (textareaRef.value) {
-    // Reset height to auto to get the correct scrollHeight
     textareaRef.value.style.height = "auto"
-
-    // Calculate new height (scrollHeight + small buffer for better appearance)
     const newHeight = textareaRef.value.scrollHeight + 4
-
-    // Set minimum height (52px matches your min-h-52 class)
-    const minHeight = 208 // equivalent to min-h-52
-
-    // Update height (use the larger of calculated height or minimum height)
+    const minHeight = 208
     textareaHeight.value = Math.max(newHeight, minHeight)
-
-    // Update textarea height
     textareaRef.value.style.height = `${textareaHeight.value}px`
   }
 }
 
-// Enable edit mode and focus the textarea
+// Switch to edit mode and focus the textarea
 function enableEditMode(): void {
   editMode.value = true
-
-  // After Vue updates the DOM
   nextTick(() => {
     if (textareaRef.value) {
-      // Focus textarea
       textareaRef.value.focus()
-
-      // Adjust height to match content
       adjustTextareaHeight()
     }
   })
 }
 
-// Handle blur event (when clicking outside or tabbing away)
+// Handle blur event save changes and exit edit mode
 function handleBlur(): void {
-  if (editableContent.value.trim() === "") {
-    // editableContent.value =
-    //   "Enter markdown documentation for this collection..."
-  }
-
-  console.log("collection-pathOrID", props.pathOrID)
-  console.log("collection-folderPath", props.folderPath)
-  console.log("collectionPath", props.collectionPath)
-  console.log("colection-id", props.collection?.id)
-
-  // Only store changes in documentation service if there's actually a change
+  // Check if content has changed
   const hasChanged = editableContent.value !== collectionDescription.value
 
   if (hasChanged && (props.collection?.id || props.collection?._ref_id)) {
@@ -248,21 +210,19 @@ function handleBlur(): void {
     )
   }
 
-  // Save changes when exiting edit mode
   emit("update:documentationDescription", editableContent.value)
   editMode.value = false
 }
 
-// Watch for content changes to adjust height
+// Watch for content changes to dynamically adjust textarea height
 watch(editableContent, () => {
   nextTick(() => {
     adjustTextareaHeight()
   })
 })
 
-// Initialize height when component mounts
+// Initialize textarea height when component mounts
 onMounted(() => {
-  // Adjust height on initial render if in edit mode
   if (editMode.value) {
     nextTick(() => {
       adjustTextareaHeight()

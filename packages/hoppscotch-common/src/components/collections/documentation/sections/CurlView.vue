@@ -257,12 +257,6 @@ const currentEnvironmentValueService = useService(CurrentValueService)
 const teamCollectionsService = useService(TeamCollectionsService)
 
 const getCurrentValue = (env: AggregateEnvironment) => {
-  //const cacheKey = `${env?.sourceEnv}-${env?.key}`
-
-  // if (environmentValueCache.has(cacheKey)) {
-  //   return environmentValueCache.get(cacheKey)
-  // }
-
   const currentSelectedEnvironment = getCurrentEnvironment()
   let value: string | undefined
 
@@ -274,10 +268,6 @@ const getCurrentValue = (env: AggregateEnvironment) => {
       env?.key ?? ""
     )?.currentValue
   }
-
-  // if (value) {
-  //   environmentValueCache.set(cacheKey, value)
-  // }
 
   return value
 }
@@ -306,18 +296,6 @@ const getFinalURL = (input: string): string => {
 
 const getEffectiveRequest = async () => {
   if (!props.request) return null
-
-  // const cacheKey = JSON.stringify({
-  //   request: props.request,
-  //   teamID: props.teamID,
-  //   collectionID: props.collectionID,
-  //   folderPath: props.folderPath,
-  //   timestamp: Math.floor(Date.now() / 60000), // Cache for 1 minute
-  // })
-
-  // if (effectiveRequestCache.has(cacheKey)) {
-  //   return effectiveRequestCache.get(cacheKey)
-  // }
 
   let collectionVariables: HoppCollectionVariable[] = []
 
@@ -390,15 +368,6 @@ const getEffectiveRequest = async () => {
   )
 
   const result = { effectiveRequest: effectiveReq, env }
-
-  // effectiveRequestCache.set(cacheKey, result)
-
-  // if (effectiveRequestCache.size > 100) {
-  //   const firstKey = effectiveRequestCache.keys().next().value
-  //   if (firstKey) {
-  //     effectiveRequestCache.delete(firstKey)
-  //   }
-  // }
 
   return result
 }
@@ -554,7 +523,6 @@ onMounted(() => {
 onUnmounted(() => {
   // Stop intersection observer
   stop()
-  //environmentValueCache.clear()
 })
 </script>
 

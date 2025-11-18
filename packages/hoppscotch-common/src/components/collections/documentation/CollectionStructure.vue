@@ -67,7 +67,6 @@ import FolderItem from "./FolderItem.vue"
 import RequestItem from "./RequestItem.vue"
 import IconCheveronsDown from "~icons/lucide/chevrons-down"
 import IconCheveronsUp from "~icons/lucide/chevrons-up"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { useService } from "dioc/vue"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 
@@ -83,7 +82,7 @@ type ItemWithPossibleId = {
 }
 
 const props = defineProps<{
-  collection: HoppCollection | TeamCollection
+  collection: HoppCollection
   initiallyExpanded?: boolean
 }>()
 
@@ -97,38 +96,25 @@ const allExpanded = ref<boolean>(props.initiallyExpanded || false)
 
 const teamCollectionService = useService(TeamCollectionsService)
 
-console.log("Props in CollectionStructure.vue:", props.collection.children)
-
 const collectionFolders = computed<HoppCollection[]>(() => {
-  return "children" in props.collection
-    ? props.collection.children || []
-    : props.collection.folders || []
+  return props.collection.folders || []
 })
 
 const collectionRequests = computed<HoppRequest[]>(() => {
-  return "requests" in props.collection ? props.collection.requests || [] : []
+  return props.collection.requests
 })
 
 const collectionName = computed<string>(() => {
-  return "title" in props.collection
-    ? props.collection.title || "Untitled Collection"
-    : props.collection.name || "Untitled Collection"
+  return props.collection.name || "Untitled Collection"
 })
-// onMounted(() => {
-//   console.log("Mounted CollectionStructure.vue")
-//   nextTick(() => {
-//     if ("children" in props.collection)
-//       teamCollectionService.expandCollection(props.collection.id)
-//   })
-// })
 
 // Initialize folder structure with first level expanded
 watch(
   () => props.collection,
-  (newCollection) => {
-    if (newCollection?.folders?.length) {
-      // By default, expand first level folders using fallback IDs
-      newCollection.folders.forEach((folder: HoppCollection, index: number) => {
+  () => {
+    const folders = collectionFolders.value
+    if (folders?.length) {
+      folders.forEach((folder: HoppCollection, index: number) => {
         const folderId = getFolderId(folder, index)
         expandedFolders[folderId] = true
       })
@@ -145,20 +131,20 @@ async function toggleFolder(folderId: string): Promise<void> {
 function toggleAllFolders(): void {
   allExpanded.value = !allExpanded.value
 
-  // Recursively expand or collapse all folders
-  if (props.collection?.folders) {
-    const processAllFolders = (folders: HoppCollection[]) => {
-      folders.forEach((folder, index) => {
-        const folderId = getFolderId(folder, index)
-        expandedFolders[folderId] = allExpanded.value
+  const processAllFolders = (folders: HoppCollection[]) => {
+    folders.forEach((folder, index) => {
+      const folderId = getFolderId(folder, index)
+      expandedFolders[folderId] = allExpanded.value
 
-        if (folder.folders && folder.folders.length > 0) {
-          processAllFolders(folder.folders)
-        }
-      })
-    }
+      if (folder.folders && folder.folders.length > 0) {
+        processAllFolders(folder.folders)
+      }
+    })
+  }
 
-    processAllFolders(props.collection.folders)
+  const folders = collectionFolders.value
+  if (folders?.length) {
+    processAllFolders(folders)
   }
 }
 

@@ -20,9 +20,7 @@
     </div>
 
     <div v-if="collection" class="flex items-start relative">
-      <!-- Left Column - Collection Details -->
       <div class="flex-1 min-w-0 overflow-y-auto">
-        <!-- Collection Header -->
         <div class="flex items-center justify-between px-10 mt-4">
           <button
             class="py-1.5 text-xs rounded-md text-accent transition-colors flex items-center disabled:cursor-not-allowed"
@@ -112,7 +110,7 @@
             <p>No documentation found for folders or requests</p>
           </div>
 
-          <!-- Simple rendering of all items -->
+          <!-- Rendering of all items -->
           <div v-else class="space-y-8">
             <div
               v-for="(item, index) in allItems"
@@ -248,9 +246,6 @@ const selectedRequest = ref<HoppRESTRequest | null>(null)
 const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
 
-// Enhanced loading states
-
-// Computed property for overall loading state
 const isLoading = computed(
   () =>
     props.isProcessingDocumentation ||
@@ -258,7 +253,7 @@ const isLoading = computed(
     teamCollectionService.loadingCollections.value.length !== 0
 )
 
-// Computed loading message based on current state
+// Loading message based on current state
 const currentLoadingMessage = computed(() => {
   if (props.isExternalLoading) {
     return "Loading Collection Data..."
@@ -284,12 +279,9 @@ const displayProgress = computed(() => {
  * Simple scroll to item function
  */
 function scrollToItem(id: string): void {
-  console.log("Scrolling to item with ID:", id)
-
   nextTick(() => {
     const element = document.getElementById(`doc-item-${id}`)
     if (element) {
-      console.log("Item found, scrolling to it")
       element.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -308,8 +300,6 @@ function scrollToItemByNameAndType(
   name: string,
   type: "request" | "folder"
 ): void {
-  console.log(`Looking for ${type} with name: ${name}`)
-
   const itemIndex = props.allItems.findIndex(
     (item: DocumentationItem) => item.item.name === name && item.type === type
   )

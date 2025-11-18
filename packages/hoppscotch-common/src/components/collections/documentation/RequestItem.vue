@@ -18,10 +18,10 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppRESTRequest, HoppGQLRequest } from "@hoppscotch/data"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { computed } from "vue"
 
-type HoppRequest = HoppRESTRequest | HoppGQLRequest
+type HoppRequest = HoppRESTRequest
 
 const props = defineProps<{
   request: HoppRequest
@@ -32,26 +32,16 @@ defineEmits<{
   (e: "request-select", request: HoppRESTRequest): void
 }>()
 
-// Get the actual request object (assume HoppRESTRequest since parent converts TeamRequest)
 const actualRequest = computed<HoppRESTRequest>(() => {
-  // HoppRequest - return as is (cast to HoppRESTRequest)
-  return props.request as HoppRESTRequest
+  return props.request
 })
 
-// Get the request name (HoppRequest uses name property)
 const requestName = computed<string>(() => {
-  // HoppRequest - use name
   return props.request.name
 })
 
-// Get the request method
 const requestMethod = computed<string>(() => {
-  // HoppRequest - check if it has method (REST request)
-  if ("method" in props.request) {
-    return props.request.method
-  }
-  // Default fallback for GQL or other types
-  return "GET"
+  return props.request.method
 })
 
 /**

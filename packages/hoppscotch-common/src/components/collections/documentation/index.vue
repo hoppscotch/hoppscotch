@@ -68,49 +68,49 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, computed, watch, nextTick } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { ref, computed, watch, nextTick } from "vue"
+import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
+import { useService } from "dioc/vue"
+
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+
 import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
 } from "~/newstore/collections"
+
 import { updateTeamCollection } from "~/helpers/backend/mutations/TeamCollection"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import {
   CollectionDataProps,
   getSingleTeamCollectionJSON,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
-import * as E from "fp-ts/Either"
-import * as TE from "fp-ts/TaskEither"
-import { pipe } from "fp-ts/function"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
-import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
-import { useService } from "dioc/vue"
+
 import {
   DocumentationService,
   type DocumentationItem,
 } from "~/services/documentation.service"
 
+import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+
 const t = useI18n()
 const toast = useToast()
 const documentationService = useService(DocumentationService)
-// Loading state for team collection fetching
+
 const isLoadingTeamCollection = ref<boolean>(false)
-
-// Loading state for saving documentation
 const isSavingDocumentation = ref<boolean>(false)
-
-// Documentation processing state
 const allItems = ref<Array<any>>([])
 const showAllDocumentation = ref<boolean>(false)
 
-// Use the documentation worker
 const {
   isProcessing: isProcessingDocumentation,
   progress: processingProgress,
@@ -138,7 +138,6 @@ const props = withDefaults(
     hasTeamWriteAccess: true,
     isTeamCollection: false,
     collectionID: "",
-    collectionPath: null,
     collection: null,
     folderPath: null,
     requestIndex: null,
@@ -148,10 +147,9 @@ const props = withDefaults(
   }
 )
 
-// Store the full collection data (with all nested folders and requests)
+// Store the full collection data with all nested folders and requests
 const fullCollectionData = ref<HoppCollection | null>(null)
 
-// Fetch team collection data when needed
 const fetchTeamCollection = async () => {
   if (!props.isTeamCollection || !props.collection?.id || !props.teamID) {
     return
@@ -166,18 +164,14 @@ const fetchTeamCollection = async () => {
     )
 
     if (data && E.isRight(data)) {
-      console.log("Data fetched for team collection:", JSON.parse(data.right))
       const parsedCollection = JSON.parse(data.right)
-      console.log("///parsedCollection///", parsedCollection)
       fullCollectionData.value = parsedCollection
     } else {
-      console.error("Failed to fetch team collection data")
       fullCollectionData.value = teamCollToHoppRESTColl(
         props.collection as TeamCollection
       )
     }
   } catch (error) {
-    console.error("Error fetching team collection:", error)
     fullCollectionData.value = teamCollToHoppRESTColl(
       props.collection as TeamCollection
     )
@@ -192,24 +186,14 @@ const currentCollection = computed<HoppCollection | null>(() => {
 
   // For team collections, use the full collection data only if available (after toggle)
   if (props.isTeamCollection && fullCollectionData.value) {
-    console.log(
-      "Using full collection data as currentCollection",
-      fullCollectionData.value
-    )
     return fullCollectionData.value
   }
 
   if (props.isTeamCollection) {
-    console.log(
-      "Using original prop collection as currentCollection",
-      props.collection
-    )
-
     return teamCollToHoppRESTColl(props.collection as TeamCollection)
   }
 
   // Use the prop collection by default
-  console.log("Using prop collection as currentCollection", props.collection)
   return props.collection as HoppCollection
 })
 
@@ -222,27 +206,18 @@ const handleToggleAllDocumentation = async () => {
       await nextTick() // Wait for collection to update
     }
 
-    // Get the current collection to process
     const collectionToProcess = currentCollection.value
     if (!collectionToProcess) {
-      console.log("No collection available to process")
       return
     }
 
     try {
-      console.log(
-        "Processing documentation for collection",
-        collectionToProcess
-      )
-
       // Process documentation in parent
       const items = await processDocumentation(
         collectionToProcess as HoppCollection,
         props.pathOrID,
         props.isTeamCollection
       )
-
-      console.log("All documentation items processed:", items)
 
       // Set processed items and toggle state - child will react automatically
       allItems.value = items
@@ -267,24 +242,22 @@ watch(
       // Reset when modal closes
       fullCollectionData.value = null
       isLoadingTeamCollection.value = false
-      // clear all processed items
+      // Clear all processed items
       allItems.value = []
       showAllDocumentation.value = false
-      // clear documentation service changes
+      // Clear documentation service changes
       documentationService.clearAll()
     }
   }
 )
 
-// Watch for changes in current collection and update documentation description
 const documentationDescription = ref<string>("")
 
 watch(
   () => currentCollection.value,
   (newCollection) => {
     if (newCollection) {
-      documentationDescription.value =
-        (newCollection as HoppCollection).description || ""
+      documentationDescription.value = newCollection.description || ""
     } else if (props.request) {
       documentationDescription.value = props.request.description || ""
     } else {
@@ -341,7 +314,6 @@ const saveDocumentation = async () => {
   }
 }
 
-// Helper function to save collection documentation
 const saveCollectionDocumentation = async () => {
   const collection = currentCollection.value!
 
@@ -349,7 +321,7 @@ const saveCollectionDocumentation = async () => {
     // Set loading state for team operations only
     isSavingDocumentation.value = true
 
-    // Team collection
+    // Team collection data
     const data: CollectionDataProps = {
       auth: collection.auth || { authType: "inherit", authActive: true },
       headers: collection.headers || [],
@@ -388,7 +360,6 @@ const saveCollectionDocumentation = async () => {
   }
 }
 
-// Helper function to save request documentation
 const saveRequestDocumentation = async () => {
   const updatedRequest = {
     ...props.request!,
@@ -399,7 +370,6 @@ const saveRequestDocumentation = async () => {
     // Set loading state for team operations only
     isSavingDocumentation.value = true
 
-    // Team request
     const data = {
       request: JSON.stringify(updatedRequest),
       title: updatedRequest.name,
@@ -419,23 +389,17 @@ const saveRequestDocumentation = async () => {
       )
     )()
   } else {
-    // Personal request (no loading state)
+    // Personal request
     editRESTRequest(props.folderPath!, props.requestIndex!, updatedRequest)
     toast.success(t("documentation.save_success"))
   }
 }
 
-// Helper function to save collection documentation by ID
+// Save collection documentation by ID
 const saveCollectionDocumentationById = async (item: DocumentationItem) => {
   // Type guard to ensure it's a collection item
-  if (item.type !== "collection") {
-    console.error("Expected collection item, received:", item.type)
-    return
-  }
+  if (item.type !== "collection") return
 
-  console.log("Saving collection documentation item:", item)
-
-  // Now TypeScript knows this is a CollectionDocumentationItem
   const {
     id: collectionId,
     documentation,
@@ -475,17 +439,11 @@ const saveCollectionDocumentationById = async (item: DocumentationItem) => {
       isSavingDocumentation.value = false
     }
   } else {
-    // Personal collection - use the stored collection data and path
     if (pathOrID && collectionData) {
       const updatedCollection = {
         ...collectionData,
         description: documentation,
       }
-
-      console.log("Saving personal collection documentation:", {
-        pathOrID,
-        updatedCollection,
-      })
 
       // Check if this is a root collection or a folder
       const pathSegments = pathOrID.split("/")
@@ -501,15 +459,10 @@ const saveCollectionDocumentationById = async (item: DocumentationItem) => {
   }
 }
 
-// Helper function to save request documentation by ID
+// Save request documentation by ID
 const saveRequestDocumentationById = async (item: DocumentationItem) => {
-  // Type guard to ensure it's a request item
-  if (item.type !== "request") {
-    console.error("Expected request item, received:", item.type)
-    return
-  }
+  if (item.type !== "request") return
 
-  // Now TypeScript knows this is a RequestDocumentationItem
   const { documentation, isTeamItem, folderPath, requestData } = item
 
   if (isTeamItem) {
@@ -546,7 +499,6 @@ const saveRequestDocumentationById = async (item: DocumentationItem) => {
       isSavingDocumentation.value = false
     }
   } else {
-    // Personal request - check if requestIndex exists
     if (
       folderPath !== undefined &&
       item.requestIndex !== undefined &&
@@ -565,8 +517,7 @@ const saveRequestDocumentationById = async (item: DocumentationItem) => {
   }
 }
 
-const hideModal = async () => {
-  console.log("Hiding documentation modal...")
+const hideModal = () => {
   emit("hide-modal")
 }
 </script>

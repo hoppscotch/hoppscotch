@@ -426,7 +426,7 @@ const envVars = computed(() => {
       ? document.response.originalRequest.requestVariables
       : []
 
-  // formated request variables
+  // formatted request variables
   const requestVariables = rawRequestVars
     .filter((v) => v.active)
     .map(({ key, value }) => ({

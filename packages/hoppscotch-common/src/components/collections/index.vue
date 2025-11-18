@@ -405,7 +405,6 @@ const editingResponseName = ref("")
 const editingResponseOldName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
-// const editingRequestPath = ref<string | null>(null)
 
 const editingResponseID = ref<string | null>(null)
 

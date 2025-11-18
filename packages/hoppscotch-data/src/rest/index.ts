@@ -1,7 +1,7 @@
 import * as Eq from "fp-ts/Eq"
 import * as S from "fp-ts/string"
 import cloneDeep from "lodash/cloneDeep"
-import { createVersionedEntity, entityReference, InferredEntity } from "verzod"
+import { createVersionedEntity, InferredEntity } from "verzod"
 import { z } from "zod"
 
 import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"

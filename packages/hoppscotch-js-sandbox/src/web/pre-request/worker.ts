@@ -1,28 +1,120 @@
 import * as TE from "fp-ts/TaskEither"
 
-import { getPreRequestScriptMethods } from "~/utils/shared"
 import { SandboxPreRequestResult, TestResult } from "~/types"
+import { getTestRunnerScriptMethods } from "~/utils/shared"
 
 const executeScriptInContext = (
   preRequestScript: string,
-  envs: TestResult["envs"]
+  envs: TestResult["envs"] & {
+    temp?: Array<{
+      key: string
+      currentValue: string
+      initialValue: string
+      secret: boolean
+    }>
+  },
 ): TE.TaskEither<string, SandboxPreRequestResult> => {
-  try {
-    const { pw, updatedEnvs } = getPreRequestScriptMethods(envs)
+  return TE.tryCatch(
+    async () => {
+      // Preserve the temp array if it exists
+      const tempEnvs = envs.temp || []
+      const { pw, updatedEnvs } = getTestRunnerScriptMethods(envs)
 
-    // Create a function from the pre request script using the `Function` constructor
-    const executeScript = new Function("pw", preRequestScript)
+      // Create a console proxy that forwards logs to the main thread
+      const proxyConsole = {
+        log: (...args: any[]) => {
+          self.postMessage({
+            type: "console",
+            level: "log",
+            args,
+          })
+        },
+        info: (...args: any[]) => {
+          self.postMessage({
+            type: "console",
+            level: "info",
+            args,
+          })
+        },
+        warn: (...args: any[]) => {
+          self.postMessage({
+            type: "console",
+            level: "warn",
+            args,
+          })
+        },
+        error: (...args: any[]) => {
+          self.postMessage({
+            type: "console",
+            level: "error",
+            args,
+          })
+        },
+        debug: (...args: any[]) => {
+          self.postMessage({
+            type: "console",
+            level: "debug",
+            args,
+          })
+        },
+      }
 
-    // Execute the script
-    executeScript(pw)
+      // Clean the script to remove any export/import statements
+      const cleanedScript = preRequestScript
+        .replace(/^\s*export\s+.*$/gm, "") // Remove export statements
+        .replace(/^\s*import\s+.*$/gm, "") // Remove import statements
+        .trim()
 
-    return TE.right({
-      updatedEnvs,
-      updatedCookies: null,
-    })
-  } catch (error) {
-    return TE.left(`Script execution failed: ${(error as Error).message}`)
-  }
+      // Set up globals BEFORE executing the user's script
+      // Note: Pre-request scripts don't have a response object
+      ;(globalThis as any).pw = pw
+      ;(globalThis as any).console = proxyConsole
+      ;(globalThis as any).fetch = self.fetch
+        ? self.fetch.bind(self)
+        : globalThis.fetch
+
+      // Also set on self for redundancy
+      ;(self as any).pw = pw
+      ;(self as any).console = proxyConsole
+      ;(self as any).fetch = self.fetch
+        ? self.fetch.bind(self)
+        : globalThis.fetch
+
+      // Execute the user's script using Function constructor
+      // Remove trailing semicolon to avoid syntax errors when using 'return'
+      const scriptToExecute = cleanedScript.trim().replace(/;$/, "")
+      const scriptFunction = new Function(`return ${scriptToExecute}`)
+      const scriptResult = scriptFunction()
+
+      // If the script returns a promise (e.g., from an async IIFE), wait for it
+      if (scriptResult && typeof scriptResult.then === "function") {
+        await scriptResult
+      }
+
+      return {
+        updatedEnvs: {
+          ...updatedEnvs,
+          temp: tempEnvs, // Preserve the temp array
+        },
+        consoleEntries: [],
+        updatedRequest: undefined,
+        updatedCookies: null,
+      }
+    },
+    (error) => {
+      const errorMessage = (error as Error).message
+
+      // Provide more helpful error messages for common issues
+      if (errorMessage.includes("export")) {
+        return `Script execution failed: ES6 module syntax (export/import) is not supported in test scripts. Please use regular JavaScript.`
+      }
+      if (errorMessage.includes("import")) {
+        return `Script execution failed: ES6 module syntax (export/import) is not supported in test scripts. Please use regular JavaScript.`
+      }
+
+      return `Script execution failed: ${errorMessage}`
+    },
+  )
 }
 
 // Listen for messages from the main thread

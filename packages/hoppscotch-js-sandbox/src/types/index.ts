@@ -156,6 +156,7 @@ export type TestResult = {
   envs: {
     global: EnvironmentVariable[]
     selected: EnvironmentVariable[]
+    temp?: EnvironmentVariable[]
   }
 }
 

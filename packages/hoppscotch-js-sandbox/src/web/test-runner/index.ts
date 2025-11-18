@@ -19,15 +19,30 @@ import Worker from "./worker?worker&inline"
 const runPostRequestScriptWithWebWorker = (
   testScript: string,
   envs: TestResult["envs"],
-  response: TestResponse
+  response: TestResponse,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   return new Promise((resolve) => {
     const worker = new Worker()
 
-    // Listen for the results from the web worker
-    worker.addEventListener("message", (event: MessageEvent) =>
-      resolve(event.data.results)
-    )
+    // Listen for messages from the web worker
+    worker.addEventListener("message", (event: MessageEvent) => {
+      const { type, results, level, args } = event.data
+
+      if (type === "console") {
+        // Forward console messages to the main thread console
+        const logMethod = level as keyof typeof console
+        if (typeof console[logMethod] === "function") {
+          ;(console[logMethod] as any)(
+            `[Test Script ${level.toUpperCase()}]:`,
+            ...args,
+          )
+        }
+      } else if (results) {
+        // This is the final result message
+        worker.terminate()
+        return resolve(results)
+      }
+    })
 
     // Send the script to the web worker
     worker.postMessage({
@@ -43,7 +58,7 @@ const runPostRequestScriptWithFaradayCage = async (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: TestResponse,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
@@ -56,48 +71,56 @@ const runPostRequestScriptWithFaradayCage = async (
 
   const cage = await FaradayCage.create()
 
-  const result = await cage.runCode(testScript, [
-    ...defaultModules({
-      handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
-    }),
+  try {
+    const result = await cage.runCode(testScript, [
+      ...defaultModules({
+        handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
+      }),
 
-    postRequestModule({
-      envs: cloneDeep(envs),
-      testRunStack: cloneDeep(testRunStack),
-      request: cloneDeep(request),
-      response: cloneDeep(response),
-      cookies: cookies ? cloneDeep(cookies) : null,
-      handleSandboxResults: ({ envs, testRunStack, cookies }) => {
-        finalEnvs = envs
-        finalTestResults = testRunStack
-        finalCookies = cookies
-      },
-    }),
-  ])
+      postRequestModule({
+        envs: cloneDeep(envs),
+        testRunStack: cloneDeep(testRunStack),
+        request: cloneDeep(request),
+        response: cloneDeep(response),
+        cookies: cookies ? cloneDeep(cookies) : null,
+        handleSandboxResults: ({ envs, testRunStack, cookies }) => {
+          finalEnvs = envs
+          finalTestResults = testRunStack
+          finalCookies = cookies
+        },
+      }),
+    ])
 
-  if (result.type === "error") {
-    if (
-      result.err !== null &&
-      typeof result.err === "object" &&
-      "message" in result.err
-    ) {
-      return E.left(`Script execution failed: ${result.err.message}`)
+    if (result.type === "error") {
+      if (
+        result.err !== null &&
+        typeof result.err === "object" &&
+        "message" in result.err
+      ) {
+        return E.left(`Script execution failed: ${result.err.message}`)
+      }
+
+      return E.left(`Script execution failed: ${String(result.err)}`)
     }
 
-    return E.left(`Script execution failed: ${String(result.err)}`)
+    return E.right(<SandboxTestResult>{
+      tests: finalTestResults[0],
+      envs: finalEnvs,
+      consoleEntries,
+      updatedCookies: finalCookies,
+    })
+  } catch (error) {
+    // Handle any errors that occur during execution
+    if (error instanceof Error) {
+      return E.left(`Sandbox execution failed: ${error.message}`)
+    }
+    return E.left(`Sandbox execution failed: ${String(error)}`)
   }
-
-  return E.right(<SandboxTestResult>{
-    tests: finalTestResults[0],
-    envs: finalEnvs,
-    consoleEntries,
-    updatedCookies: finalCookies,
-  })
 }
 
 export const runTestScript = async (
   testScript: string,
-  options: RunPostRequestScriptOptions
+  options: RunPostRequestScriptOptions,
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
@@ -109,7 +132,10 @@ export const runTestScript = async (
 
   const { envs, experimentalScriptingSandbox = true } = options
 
-  if (experimentalScriptingSandbox) {
+  // Check if script uses fetch - if so, use web worker to avoid QuickJS lifetime issues
+  const usesFetch = testScript.includes("fetch(")
+
+  if (experimentalScriptingSandbox && !usesFetch) {
     const { request, cookies } = options as Extract<
       RunPostRequestScriptOptions,
       { experimentalScriptingSandbox: true }
@@ -120,9 +146,10 @@ export const runTestScript = async (
       envs,
       request,
       resolvedResponse,
-      cookies
+      cookies,
     )
   }
 
+  // Use web worker for fetch operations or when experimental sandbox is disabled
   return runPostRequestScriptWithWebWorker(testScript, envs, resolvedResponse)
 }

@@ -183,19 +183,6 @@ async function initApp() {
   })
 
   if (platform === "desktop") {
-    listen("will-enter-fullscreen", () => {
-      headerPaddingTop.value = "0px"
-      headerPaddingLeft.value = "0px"
-    })
-
-    listen("will-exit-fullscreen", () => {
-      headerPaddingTop.value = "0px"
-      headerPaddingLeft.value = "80px"
-    })
-
-    headerPaddingTop.value = "0px"
-    headerPaddingLeft.value = "80px"
-
     const ALLOWED_DROP_SELECTORS = [
       '[draggable="true"]',
       ".draggable-content",
@@ -401,24 +388,6 @@ async function initApp() {
         }
       },
       true
-    )
-
-    // Watch background color changes
-    watch(
-      useSettingStatic("BG_COLOR")[0],
-      async () => {
-        await nextTick()
-        await emit(
-          "hopp-bg-changed"
-          // TODO: Look into why this is causing
-          //    "fatal runtime error: Rust cannot catch foreign exceptions"
-          //
-          // getComputedStyle(document.documentElement).getPropertyValue(
-          //   "--primary-color"
-          // )
-        )
-      },
-      { immediate: true }
     )
   }
 }

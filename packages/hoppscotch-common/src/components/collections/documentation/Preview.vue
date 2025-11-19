@@ -3,7 +3,6 @@
     id="documentation-container"
     class="rounded-md flex-1 overflow-y-auto relative"
   >
-    <!-- Loading Overlay -->
     <div
       v-if="isLoading"
       class="absolute inset-0 bg-primary/80 backdrop-blur-sm z-50 flex items-center justify-center"
@@ -113,52 +112,61 @@
           <!-- Rendering of all items -->
           <div v-else class="space-y-8">
             <div
-              v-for="(item, index) in allItems"
+              v-for="(item, index) in displayedItems"
               :id="`doc-item-${item.id}`"
-              :key="`doc-${index}`"
-              class="rounded-md overflow-hidden"
-              :class="{
-                'highlight-item': selectedItemId === item.id,
-              }"
+              :key="item.id"
+              class="flex flex-col"
             >
-              <div class="p-0">
-                <CollectionsDocumentationRequestPreview
-                  v-if="item.type === 'request'"
-                  :request="item.item as HoppRESTRequest"
-                  :documentation-description="
-                    (item.item as HoppRESTRequest).description || ''
-                  "
-                  :collection-i-d="collectionID"
-                  :collection-path="collectionPath"
-                  :folder-path="item.folderPath"
-                  :request-index="item.requestIndex"
-                  :request-i-d="item.requestID"
-                  :team-i-d="teamID"
-                  @update:documentation-description="
-                    (value) =>
-                      ((item.item as HoppRESTRequest).description = value)
-                  "
-                  @close-modal="closeModal"
-                />
+              <LazyDocumentationItem
+                :min-height="MIN_HEIGHT_PER_ITEM"
+                :force-render="shouldForceRender(index)"
+              >
+                <div class="p-0">
+                  <CollectionsDocumentationRequestPreview
+                    v-if="item.type === 'request'"
+                    :request="item.item as HoppRESTRequest"
+                    :documentation-description="
+                      (item.item as HoppRESTRequest).description || ''
+                    "
+                    :collection-i-d="collectionID"
+                    :collection-path="collectionPath"
+                    :folder-path="item.folderPath"
+                    :request-index="item.requestIndex"
+                    :request-i-d="item.requestID"
+                    :team-i-d="teamID"
+                    @update:documentation-description="
+                      (value) =>
+                        ((item.item as HoppRESTRequest).description = value)
+                    "
+                    @close-modal="closeModal"
+                  />
 
-                <CollectionsDocumentationCollectionPreview
-                  v-else
-                  :collection="item.item as HoppCollection"
-                  :documentation-description="
-                    (item.item as HoppCollection).description || ''
-                  "
-                  :folder-path="item.folderPath ?? undefined"
-                  :path-or-i-d="item.pathOrID ?? null"
-                  :is-team-collection="isTeamCollection"
-                  :collection-path="collectionPath || undefined"
-                  :team-i-d="teamID"
-                  @update:documentation-description="
-                    (value) =>
-                      ((item.item as HoppCollection).description = value)
-                  "
-                />
-              </div>
+                  <CollectionsDocumentationCollectionPreview
+                    v-else
+                    :collection="item.item as HoppCollection"
+                    :documentation-description="
+                      (item.item as HoppCollection).description || ''
+                    "
+                    :folder-path="item.folderPath ?? undefined"
+                    :path-or-i-d="item.pathOrID ?? null"
+                    :is-team-collection="isTeamCollection"
+                    :collection-path="collectionPath || undefined"
+                    :team-i-d="teamID"
+                    @update:documentation-description="
+                      (value) =>
+                        ((item.item as HoppCollection).description = value)
+                    "
+                  />
+                </div>
+              </LazyDocumentationItem>
             </div>
+
+            <!-- Dummy element for infinite scroll -->
+            <div
+              v-if="displayedItems.length < allItems.length"
+              ref="loadMoreTrigger"
+              class="h-4 w-full"
+            ></div>
           </div>
         </template>
       </div>
@@ -180,13 +188,13 @@
 </template>
 
 <script lang="ts" setup>
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { useVModel } from "@vueuse/core"
 import { ref, watch, nextTick, computed } from "vue"
-
+import { useVModel, useIntersectionObserver } from "@vueuse/core"
 import { useService } from "dioc/vue"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { DocumentationItem } from "~/composables/useDocumentationWorker"
+import LazyDocumentationItem from "./LazyDocumentationItem.vue"
 
 type CollectionType = HoppCollection | null
 
@@ -246,6 +254,42 @@ const selectedRequest = ref<HoppRESTRequest | null>(null)
 const selectedFolder = ref<HoppCollection | null>(null)
 const selectedItemId = ref<string | null>(null)
 
+// Lazy loading state for lazy loading documentation items to prevent performance issues
+const ITEMS_PER_PAGE = 40
+const MIN_HEIGHT_PER_ITEM = "150px"
+const displayedItems = ref<Array<DocumentationItem>>([])
+const loadMoreTrigger = ref<HTMLElement | null>(null)
+
+/**
+ * Loads more items into the displayed list when scrolling
+ */
+const loadMoreItems = () => {
+  if (displayedItems.value.length < props.allItems.length) {
+    const currentLength = displayedItems.value.length
+    const nextItems = props.allItems.slice(
+      currentLength,
+      currentLength + ITEMS_PER_PAGE
+    )
+    displayedItems.value = [...displayedItems.value, ...nextItems]
+  }
+}
+
+// Intersection Observer for infinite scroll
+useIntersectionObserver(
+  loadMoreTrigger,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting) {
+      loadMoreItems()
+    }
+  },
+  { threshold: 0.1 }
+)
+
+/**
+ * Computed property to determine if the collection is loading
+ * Loads when the collection is processing or external loading is active
+ * or when the team collection is loading
+ */
 const isLoading = computed(
   () =>
     props.isProcessingDocumentation ||
@@ -253,7 +297,12 @@ const isLoading = computed(
     teamCollectionService.loadingCollections.value.length !== 0
 )
 
-// Loading message based on current state
+/**
+ * Computed property to determine the current loading message
+ * Returns "Loading Collection Data..." when external loading is active
+ * Returns "Processing Documentation" when processing documentation is active
+ * Returns "Loading..." when neither is active
+ */
 const currentLoadingMessage = computed(() => {
   if (props.isExternalLoading) {
     return "Loading Collection Data..."
@@ -264,7 +313,6 @@ const currentLoadingMessage = computed(() => {
   return "Loading..."
 })
 
-// Simple progress calculation - only show progress after external loading is complete
 const displayProgress = computed(() => {
   if (props.isExternalLoading) {
     return 0 // Don't show progress during external loading
@@ -275,31 +323,63 @@ const displayProgress = computed(() => {
   return 0 // No progress for other states
 })
 
+const selectedIndex = computed(() => {
+  return displayedItems.value.findIndex(
+    (item) => item.id === selectedItemId.value
+  )
+})
+
 /**
- * Simple scroll to item function
+ * Determines if an item should be forcefully rendered based on its proximity to the selected item
  */
-function scrollToItem(id: string): void {
+const shouldForceRender = (index: number) => {
+  if (selectedIndex.value === -1) return false
+  // Render a buffer of 20 items around the selected item to prevent scroll jumping
+  return Math.abs(index - selectedIndex.value) <= 20
+}
+
+/**
+ * Scrolls to a specific item by its ID, loading it if necessary
+ */
+const scrollToItem = (id: string): void => {
+  // Check if item is in displayedItems, if not, load until it is
+  const itemIndex = props.allItems.findIndex((item) => item.id === id)
+  let shouldAutoScroll = false
+
+  if (itemIndex !== -1 && itemIndex >= displayedItems.value.length) {
+    // Load all items up to the target item plus a buffer page
+    const targetPage = Math.ceil((itemIndex + 1) / ITEMS_PER_PAGE)
+    const itemsToLoad = (targetPage + 1) * ITEMS_PER_PAGE
+    displayedItems.value = props.allItems.slice(0, itemsToLoad)
+    shouldAutoScroll = true
+  }
+
+  // Set selectedItemId immediately to trigger forceRender on the target item
+  selectedItemId.value = id
+
   nextTick(() => {
-    const element = document.getElementById(`doc-item-${id}`)
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      })
-      selectedItemId.value = id
-    } else {
-      console.log("Item not found:", id)
-    }
+    // Use a small timeout to ensure layout is fully stable after forceRender
+    setTimeout(() => {
+      const element = document.getElementById(`doc-item-${id}`)
+      if (element) {
+        element.scrollIntoView({
+          behavior: shouldAutoScroll ? "auto" : "instant",
+          block: "start",
+        })
+      } else {
+        console.log("Item not found:", id)
+      }
+    }, 50)
   })
 }
 
 /**
- * Backup function that scrolls by name and type
+ * Backup function that scrolls by name and type if ID is not available
  */
-function scrollToItemByNameAndType(
+const scrollToItemByNameAndType = (
   name: string,
   type: "request" | "folder"
-): void {
+) => {
   const itemIndex = props.allItems.findIndex(
     (item: DocumentationItem) => item.item.name === name && item.type === type
   )
@@ -316,7 +396,7 @@ function scrollToItemByNameAndType(
 /**
  * Handles a request being selected from the collection structure
  */
-function handleRequestSelect(request: HoppRESTRequest): void {
+const handleRequestSelect = (request: HoppRESTRequest) => {
   selectedRequest.value = request
   selectedFolder.value = null
   selectedItemId.value = request.id || null
@@ -334,7 +414,7 @@ function handleRequestSelect(request: HoppRESTRequest): void {
 /**
  * Handles a folder being selected from the collection structure
  */
-function handleFolderSelect(folder: HoppCollection): void {
+const handleFolderSelect = (folder: HoppCollection) => {
   selectedFolder.value = folder
   selectedRequest.value = null
   selectedItemId.value = folder.id || null
@@ -352,18 +432,31 @@ function handleFolderSelect(folder: HoppCollection): void {
 /**
  * Emits toggle event for parent to handle processing
  */
-function toggleAllDocumentation(): void {
+const toggleAllDocumentation = () => {
   emit("toggle-all-documentation")
 }
 
 /**
  * Closes the modal by emitting the close-modal event
  */
-function closeModal(): void {
+const closeModal = () => {
   emit("close-modal")
 }
 
-// Watch for showAllDocumentation prop changes
+// Initialize displayed items when allItems changes
+watch(
+  () => props.allItems,
+  (newItems) => {
+    if (newItems && newItems.length > 0) {
+      displayedItems.value = newItems.slice(0, ITEMS_PER_PAGE)
+    } else {
+      displayedItems.value = []
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for showAllDocumentation prop changes to reset state
 watch(
   () => props.showAllDocumentation,
   (newValue) => {
@@ -372,11 +465,18 @@ watch(
       selectedRequest.value = null
       selectedFolder.value = null
       selectedItemId.value = null
+      // Reset displayed items
+      displayedItems.value = []
+    } else {
+      // Reset displayed items when showing documentation
+      if (props.allItems && props.allItems.length > 0) {
+        displayedItems.value = props.allItems.slice(0, ITEMS_PER_PAGE)
+      }
     }
   }
 )
 
-// Watch for collection changes
+// Watch for collection changes to reset selection
 watch(
   () => props.collection,
   () => {
@@ -410,22 +510,7 @@ watch(
   background: var(--divider-light-color);
 }
 
-:deep(.overflow-y-auto) {
-  scroll-behavior: smooth;
-}
-
 #documentation-container {
   min-height: 300px;
-  scroll-behavior: smooth;
-}
-
-.overflow-y-auto {
-  scroll-behavior: smooth !important;
-}
-
-.highlight-item {
-  background-color: rgba(var(--accent-color-rgb), 0.1);
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
 }
 </style>

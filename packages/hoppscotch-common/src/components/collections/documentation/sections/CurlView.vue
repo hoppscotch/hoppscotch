@@ -196,9 +196,6 @@ const initializeHighlightJS = (() => {
   }
 })()
 
-// const effectiveRequestCache = new Map<string, any>()
-// const environmentValueCache = new Map<string, string>()
-
 const t = useI18n()
 const toast = useToast()
 
@@ -299,10 +296,10 @@ const getEffectiveRequest = async () => {
 
   let collectionVariables: HoppCollectionVariable[] = []
 
-  if (props.teamID && props.collectionID) {
+  if (props.teamID && props.folderPath) {
     const inheritedProperties =
-      teamCollectionsService.cascadeParentCollectionForProperties(
-        props.collectionID
+      await teamCollectionsService.cascadeParentCollectionForPropertiesAsync(
+        props.folderPath
       )
 
     collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
@@ -568,7 +565,4 @@ onUnmounted(() => {
 .hljs-ln-code {
   padding-left: 10px;
 }
-
-/* Line numbers styling */
-/*  */
 </style>

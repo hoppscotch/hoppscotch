@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick } from "vue"
+import { ref, computed, watch, nextTick, onUnmounted } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
@@ -251,6 +251,11 @@ watch(
   }
 )
 
+// Ensure cleanup when component is unmounted
+onUnmounted(() => {
+  documentationService.clearAll()
+})
+
 const documentationDescription = ref<string>("")
 
 watch(
@@ -297,12 +302,29 @@ const saveDocumentation = async () => {
       }
     } else {
       // Save all changed items from documentation service
+      const results: boolean[] = []
       for (const item of changedItems) {
         if (item.type === "collection") {
-          await saveCollectionDocumentationById(item)
+          const saveCollectionResult =
+            await saveCollectionDocumentationById(item)
+          results.push(saveCollectionResult)
         } else if (item.type === "request") {
-          await saveRequestDocumentationById(item)
+          const saveRequestResult = await saveRequestDocumentationById(item)
+          results.push(saveRequestResult)
         }
+      }
+
+      const successCount = results.filter((r) => r).length
+      const failureCount = results.length - successCount
+
+      if (failureCount === 0) {
+        toast.success(t("documentation.save_success"))
+      } else if (successCount === 0) {
+        toast.error(t("documentation.save_error"))
+      } else {
+        toast.success(
+          `Saved ${successCount} items. Failed to save ${failureCount} items.`
+        )
       }
 
       // Clear all changes after successful save
@@ -396,9 +418,11 @@ const saveRequestDocumentation = async () => {
 }
 
 // Save collection documentation by ID
-const saveCollectionDocumentationById = async (item: DocumentationItem) => {
+const saveCollectionDocumentationById = async (
+  item: DocumentationItem
+): Promise<boolean> => {
   // Type guard to ensure it's a collection item
-  if (item.type !== "collection") return
+  if (item.type !== "collection") return false
 
   const {
     id: collectionId,
@@ -421,22 +445,24 @@ const saveCollectionDocumentationById = async (item: DocumentationItem) => {
         description: documentation,
       }
 
-      pipe(
+      const result = await pipe(
         updateTeamCollection(collectionId, data),
         TE.match(
           (err: GQLError<string>) => {
-            toast.error(`${getErrorMessage(err)}`)
-            isSavingDocumentation.value = false
+            console.error(getErrorMessage(err))
+            return false
           },
           () => {
-            toast.success(t("documentation.save_success"))
-            isSavingDocumentation.value = false
+            return true
           }
         )
       )()
-    } else {
-      toast.error("Collection data not found in service")
       isSavingDocumentation.value = false
+      return result
+    } else {
+      console.error("Collection data not found in service")
+      isSavingDocumentation.value = false
+      return false
     }
   } else {
     if (pathOrID && collectionData) {
@@ -447,21 +473,29 @@ const saveCollectionDocumentationById = async (item: DocumentationItem) => {
 
       // Check if this is a root collection or a folder
       const pathSegments = pathOrID.split("/")
-      if (pathSegments.length === 1) {
-        editRESTCollection(parseInt(pathOrID), updatedCollection)
-      } else {
-        editRESTFolder(pathOrID, updatedCollection)
+      try {
+        if (pathSegments.length === 1) {
+          editRESTCollection(parseInt(pathOrID), updatedCollection)
+        } else {
+          editRESTFolder(pathOrID, updatedCollection)
+        }
+        return true
+      } catch (e) {
+        console.error(e)
+        return false
       }
-      toast.success(t("documentation.save_success"))
     } else {
-      toast.error("Collection path or data not found")
+      console.error("Collection path or data not found")
+      return false
     }
   }
 }
 
 // Save request documentation by ID
-const saveRequestDocumentationById = async (item: DocumentationItem) => {
-  if (item.type !== "request") return
+const saveRequestDocumentationById = async (
+  item: DocumentationItem
+): Promise<boolean> => {
+  if (item.type !== "request") return false
 
   const { documentation, isTeamItem, folderPath, requestData } = item
 
@@ -481,22 +515,24 @@ const saveRequestDocumentationById = async (item: DocumentationItem) => {
         title: updatedRequest.name,
       }
 
-      pipe(
+      const result = await pipe(
         updateTeamRequest(item.requestID, data),
         TE.match(
           (err: GQLError<string>) => {
-            toast.error(`${getErrorMessage(err)}`)
-            isSavingDocumentation.value = false
+            console.error(getErrorMessage(err))
+            return false
           },
           () => {
-            toast.success(t("documentation.save_success"))
-            isSavingDocumentation.value = false
+            return true
           }
         )
       )()
-    } else {
-      toast.error("Team request data not found in service")
       isSavingDocumentation.value = false
+      return result
+    } else {
+      console.error("Team request data not found in service")
+      isSavingDocumentation.value = false
+      return false
     }
   } else {
     if (
@@ -509,10 +545,16 @@ const saveRequestDocumentationById = async (item: DocumentationItem) => {
         description: documentation,
       }
 
-      editRESTRequest(folderPath, item.requestIndex, updatedRequest)
-      toast.success(t("documentation.save_success"))
+      try {
+        editRESTRequest(folderPath, item.requestIndex, updatedRequest)
+        return true
+      } catch (e) {
+        console.error(e)
+        return false
+      }
     } else {
-      toast.error("Personal request data not found in service")
+      console.error("Personal request data not found in service")
+      return false
     }
   }
 }

@@ -36,30 +36,11 @@
       </div>
 
       <div class="">
-        <div class="rounded-sm relative h-full" @click.stop>
-          <!-- Edit mode with textarea -->
-          <template v-if="editMode">
-            <textarea
-              ref="textareaRef"
-              v-model="editableContent"
-              class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondaryLight outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition"
-              :style="{ height: textareaHeight + 'px' }"
-              spellcheck="false"
-              placeholder="Add description for request here..."
-              @blur="handleBlur"
-              @click.stop
-              @input="adjustTextareaHeight"
-            ></textarea>
-          </template>
-
-          <!-- Preview mode with rendered markdown -->
-          <div
-            v-else
-            class="cursor-text min-h-52 p-4 prose prose-invert prose-sm max-w-none markdown-content relative hover:bg-primaryLight transition border border-transparent rounded-sm"
-            @click.stop="enableEditMode"
-            v-html="renderedMarkdown"
-          ></div>
-        </div>
+        <CollectionsDocumentationMarkdownEditor
+          v-model="editableContent"
+          placeholder="Add description for request here..."
+          @blur="handleBlur"
+        />
       </div>
 
       <!-- Check performance issue -->
@@ -107,8 +88,7 @@ import {
   HoppRESTRequest,
   makeRESTRequest,
 } from "@hoppscotch/data"
-import { ref, computed, watch, nextTick, onMounted } from "vue"
-import MarkdownIt from "markdown-it"
+import { ref, computed, watch } from "vue"
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
 import { useToast } from "~/composables/toast"
@@ -125,14 +105,8 @@ import {
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
-const toast = useToast()
 
-const md = new MarkdownIt({
-  html: true,
-  breaks: true,
-  linkify: true,
-  typographer: true,
-})
+const toast = useToast()
 
 const props = withDefaults(
   defineProps<{
@@ -284,32 +258,6 @@ watch(
   { immediate: true }
 )
 
-const renderedMarkdown = computed(() => {
-  try {
-    const content = editableContent.value || ""
-    if (content.trim() === "") {
-      return "<p class='text-secondaryLight italic'>Add description for request here...</p>"
-    }
-    return md.render(content)
-  } catch (e) {
-    console.error("Markdown parsing error:", e)
-    return "<p class='text-red-500'>Error rendering markdown content</p>"
-  }
-})
-
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const textareaHeight = ref<number>(200)
-
-function adjustTextareaHeight() {
-  if (textareaRef.value) {
-    textareaRef.value.style.height = "auto"
-    const newHeight = textareaRef.value.scrollHeight + 4
-    const minHeight = 208
-    textareaHeight.value = Math.max(newHeight, minHeight)
-    textareaRef.value.style.height = `${textareaHeight.value}px`
-  }
-}
-
 function getResponseExamples() {
   if (!props.request) return null
 
@@ -336,17 +284,6 @@ function getResponseExamples() {
   }
 
   return null
-}
-
-function enableEditMode(): void {
-  editMode.value = true
-
-  nextTick(() => {
-    if (textareaRef.value) {
-      textareaRef.value.focus()
-      adjustTextareaHeight()
-    }
-  })
 }
 
 function handleBlur(): void {
@@ -392,22 +329,7 @@ function handleBlur(): void {
   }
 
   emit("update:documentationDescription", editableContent.value)
-  editMode.value = false
 }
-
-watch(editableContent, () => {
-  nextTick(() => {
-    adjustTextareaHeight()
-  })
-})
-
-onMounted(() => {
-  if (editMode.value) {
-    nextTick(() => {
-      adjustTextareaHeight()
-    })
-  }
-})
 
 function getMethodClass(method: string): string {
   const methodLower: string = method?.toLowerCase() || ""
@@ -545,124 +467,6 @@ const openInNewTab = () => {
 </script>
 
 <style scoped>
-.markdown-content :deep(a) {
-  @apply hover:underline;
-}
-
-/* Heading styles with proper font sizes */
-.markdown-content :deep(h1) {
-  @apply text-xl font-semibold text-secondaryDark mt-6 mb-4;
-}
-
-.markdown-content :deep(h2) {
-  @apply text-lg font-semibold text-secondaryDark mt-5 mb-3;
-}
-
-.markdown-content :deep(h3) {
-  @apply text-base font-medium text-secondaryDark mt-4 mb-2;
-}
-
-.markdown-content :deep(h4) {
-  @apply text-sm font-medium text-secondaryDark mt-3 mb-2;
-}
-
-.markdown-content :deep(h5),
-.markdown-content :deep(h6) {
-  @apply text-xs font-medium text-secondaryDark mt-2 mb-1;
-}
-
-/* Paragraph and text styles */
-.markdown-content :deep(p) {
-  @apply text-sm my-2 leading-relaxed text-secondary;
-}
-
-.markdown-content :deep(strong) {
-  @apply font-semibold text-secondaryDark;
-}
-
-.markdown-content :deep(em) {
-  @apply italic;
-}
-
-.markdown-content :deep(del) {
-  @apply line-through;
-}
-
-/* List styles */
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-  @apply pl-6 my-3 text-sm text-secondaryLight space-y-1;
-}
-
-/* Nested list styling */
-.markdown-content :deep(li > ul),
-.markdown-content :deep(li > ol) {
-  @apply my-1 ml-4;
-}
-
-.markdown-content :deep(li) {
-  @apply my-1 leading-relaxed;
-}
-
-.markdown-content :deep(ul) {
-  @apply list-disc;
-}
-
-.markdown-content :deep(ol) {
-  @apply list-decimal;
-}
-
-/* Code styles */
-.markdown-content :deep(code) {
-  @apply bg-primaryLight text-accent px-1.5 py-0.5 rounded font-mono text-xs;
-}
-
-.markdown-content :deep(pre) {
-  @apply bg-primaryLight p-3 rounded my-3 overflow-auto;
-}
-
-.markdown-content :deep(pre code) {
-  @apply bg-transparent p-0 text-xs leading-normal block;
-}
-
-/* Blockquote styles */
-.markdown-content :deep(blockquote) {
-  @apply border-l-4 border-divider pl-4 italic text-secondaryLight my-4 text-sm bg-primaryDark py-2 rounded-r;
-}
-
-/* Horizontal rule */
-.markdown-content :deep(hr) {
-  @apply my-6 border-none h-px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--divider-color),
-    transparent
-  );
-}
-
-/* Table styles */
-.markdown-content :deep(table) {
-  @apply border-collapse w-full my-4 text-xs;
-  border-spacing: 0;
-}
-
-.markdown-content :deep(thead tr) {
-  @apply bg-divider;
-}
-
-.markdown-content :deep(tbody tr:nth-child(odd)) {
-  @apply bg-primaryDark;
-}
-
-.markdown-content :deep(th) {
-  @apply border border-divider px-3 py-2 text-left font-medium text-secondaryDark;
-}
-
-.markdown-content :deep(td) {
-  @apply border border-divider px-3 py-1 text-secondaryLight;
-}
-
 /* CodeMirror customization */
 :deep(.curl-code-mirror) {
   @apply bg-primaryDark font-mono text-sm;

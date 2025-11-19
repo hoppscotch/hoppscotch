@@ -54,6 +54,7 @@ declare module 'vue' {
     CollectionsDocumentationCollectionPreview: typeof import('./components/collections/documentation/CollectionPreview.vue')['default']
     CollectionsDocumentationCollectionStructure: typeof import('./components/collections/documentation/CollectionStructure.vue')['default']
     CollectionsDocumentationFolderItem: typeof import('./components/collections/documentation/FolderItem.vue')['default']
+    CollectionsDocumentationMarkdownEditor: typeof import('./components/collections/documentation/MarkdownEditor.vue')['default']
     CollectionsDocumentationPreview: typeof import('./components/collections/documentation/Preview.vue')['default']
     CollectionsDocumentationRequestItem: typeof import('./components/collections/documentation/RequestItem.vue')['default']
     CollectionsDocumentationRequestPreview: typeof import('./components/collections/documentation/RequestPreview.vue')['default']

@@ -62,6 +62,7 @@
     "buffer": "6.0.3",
     "cookie-es": "2.0.0",
     "dioc": "3.0.2",
+    "dompurify": "3.3.0",
     "esprima": "4.0.1",
     "events": "3.3.0",
     "fp-ts": "2.16.11",

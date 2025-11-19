@@ -559,7 +559,41 @@ const saveRequestDocumentationById = async (
   }
 }
 
+// Used to prevent accidental closing of the modal with unsaved changes
+const closeAttempted = ref(false)
+
+let closeTimeout: ReturnType<typeof setTimeout> | null = null
+
 const hideModal = () => {
+  if (documentationService.hasChanges.value && !closeAttempted.value) {
+    // Get the number of unsaved changes
+    const unsavedChangesLength = documentationService.getChangedItems().length
+
+    closeAttempted.value = true
+    toast.info(
+      `You have ${unsavedChangesLength} unsaved changes. Please save before closing.`,
+      {
+        action: {
+          text: "Close",
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+            closeAttempted.value = false
+            emit("hide-modal")
+          },
+        },
+      }
+    )
+
+    if (closeTimeout) clearTimeout(closeTimeout)
+    closeTimeout = setTimeout(() => {
+      closeAttempted.value = false
+    }, 3000)
+
+    return
+  }
+
   emit("hide-modal")
+  closeAttempted.value = false
+  if (closeTimeout) clearTimeout(closeTimeout)
 }
 </script>

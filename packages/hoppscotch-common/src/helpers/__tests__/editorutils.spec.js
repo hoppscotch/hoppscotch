@@ -1,11 +1,15 @@
 import { describe, expect, test } from "vitest"
 import { getEditorLangForMimeType } from "../editorutils"
+import { INTUIT_GRAPHQL_CONTENT_TYPE } from "../constants"
 
 describe("getEditorLangForMimeType", () => {
   test("returns 'json' for valid JSON mimes", () => {
     expect(getEditorLangForMimeType("application/json")).toMatch("json")
     expect(getEditorLangForMimeType("application/hal+json")).toMatch("json")
     expect(getEditorLangForMimeType("application/vnd.api+json")).toMatch("json")
+    expect(getEditorLangForMimeType(INTUIT_GRAPHQL_CONTENT_TYPE)).toMatch(
+      "json"
+    )
   })
 
   test("returns 'xml' for valid XML mimes", () => {
@@ -16,16 +20,16 @@ describe("getEditorLangForMimeType", () => {
     expect(getEditorLangForMimeType("text/html")).toMatch("html")
   })
 
-  test("returns 'text/x-yaml' for plain text mime", () => {
-    expect(getEditorLangForMimeType("text/plain")).toMatch("text/x-yaml")
+  test("returns null for plain text mime", () => {
+    expect(getEditorLangForMimeType("text/plain")).toBeNull()
   })
 
-  test("returns 'text/x-yaml' for unimplemented mimes", () => {
-    expect(getEditorLangForMimeType("image/gif")).toMatch("text/x-yaml")
+  test("returns null for unimplemented mimes", () => {
+    expect(getEditorLangForMimeType("image/gif")).toBeNull()
   })
 
-  test("returns 'text/x-yaml' for null/undefined mimes", () => {
-    expect(getEditorLangForMimeType(null)).toMatch("text/x-yaml")
-    expect(getEditorLangForMimeType(undefined)).toMatch("text/x-yaml")
+  test("returns null for null/undefined mimes", () => {
+    expect(getEditorLangForMimeType(null)).toBeNull()
+    expect(getEditorLangForMimeType(undefined)).toBeNull()
   })
 })

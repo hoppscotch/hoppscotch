@@ -54,7 +54,6 @@ export class UpdatePublishedDocsArgs {
     name: 'title',
     description: 'Title of the published document',
     nullable: true,
-    defaultValue: undefined,
   })
   title?: string;
 
@@ -62,7 +61,6 @@ export class UpdatePublishedDocsArgs {
     name: 'version',
     description: 'Version of the published document',
     nullable: true,
-    defaultValue: undefined,
   })
   version?: string;
 
@@ -71,7 +69,6 @@ export class UpdatePublishedDocsArgs {
     description:
       'Whether the published document should auto-sync with the source',
     nullable: true,
-    defaultValue: undefined,
   })
   autoSync?: boolean;
 
@@ -79,7 +76,6 @@ export class UpdatePublishedDocsArgs {
     name: 'metadata',
     description: 'Metadata associated with the published document',
     nullable: true,
-    defaultValue: undefined,
   })
   metadata?: string;
 }

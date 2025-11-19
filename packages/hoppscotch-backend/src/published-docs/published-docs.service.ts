@@ -338,7 +338,7 @@ export class PublishedDocsService {
     id: string,
     args: UpdatePublishedDocsArgs,
     user: User,
-  ) {
+  ): Promise<E.Either<string, PublishedDocs>> {
     try {
       const publishedDocs = await this.prisma.publishedDocs.findUnique({
         where: { id },
@@ -354,10 +354,10 @@ export class PublishedDocsService {
       if (!hasAccess) return E.left(PUBLISHED_DOCS_UPDATE_FAILED);
 
       //Parse metadata if provided
-      let metadata = undefined;
+      let metadata: E.Either<string, any>;
       if (args.metadata) {
         metadata = stringToJson(args.metadata);
-        if (E.isLeft(metadata)) return E.left(metadata.left as string);
+        if (E.isLeft(metadata)) return E.left(metadata.left);
       }
 
       // Update published document
@@ -367,7 +367,8 @@ export class PublishedDocsService {
           title: args.title,
           version: args.version,
           autoSync: args.autoSync,
-          metadata: metadata ? metadata.right : undefined,
+          metadata:
+            metadata && E.isRight(metadata) ? metadata.right : undefined,
         },
       });
 

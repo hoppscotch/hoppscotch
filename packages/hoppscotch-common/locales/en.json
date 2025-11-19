@@ -1041,7 +1041,11 @@
     "response_headers": "Response Headers",
     "response_body": "Response Body",
     "log_deleted": "Log deleted successfully",
-    "description": "Mock servers allow you to simulate API responses based on your collection's example responses."
+    "description": "Mock servers allow you to simulate API responses based on your collection's example responses.",
+    "set_in_environment": "Set in environment",
+    "set_in_environment_hint": "The mock server URL will be automatically added as 'mockUrl' variable in the collection's environment",
+    "environment_variable_added": "Mock URL added to environment",
+    "environment_created_with_variable": "Environment created with mock URL"
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",

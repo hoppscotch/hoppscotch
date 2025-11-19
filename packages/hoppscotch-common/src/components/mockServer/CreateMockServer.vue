@@ -187,6 +187,24 @@
             {{ t("mock_server.private_access_hint") }}
           </div>
 
+          <!-- Set in Environment Toggle -->
+          <div class="flex flex-col space-y-2">
+            <div class="flex items-center">
+              <HoppSmartToggle
+                :on="setInEnvironment"
+                @change="setInEnvironment = !setInEnvironment"
+              >
+                {{ t("mock_server.set_in_environment") }}
+              </HoppSmartToggle>
+            </div>
+            <div
+              v-if="setInEnvironment"
+              class="w-full text-xs text-secondaryLight"
+            >
+              {{ t("mock_server.set_in_environment_hint") }}
+            </div>
+          </div>
+
           <!-- Display created server info -->
           <div v-if="createdServer" class="flex flex-col space-y-4">
             <div class="flex flex-col space-y-2">
@@ -311,6 +329,17 @@ import {
   showCreateMockServerModal$,
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
+import {
+  addEnvironmentVariable,
+  createEnvironment,
+  environments$,
+  getSelectedEnvironmentIndex,
+} from "~/newstore/environments"
+import {
+  createTeamEnvironment,
+  updateTeamEnvironment,
+} from "~/helpers/backend/mutations/TeamEnvironment"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -352,6 +381,7 @@ const showCloseButton = ref(false)
 const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
+const setInEnvironment = ref<boolean>(true)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
@@ -432,6 +462,112 @@ const copyToClipboard = (text: string) => {
   toast.success(t("state.copied_to_clipboard"))
 }
 
+// Environment management
+const myEnvironments = useReadonlyStream(environments$, [])
+const teamEnvironmentAdapter = new TeamEnvironmentAdapter(
+  currentWorkspace.value.type === "team"
+    ? currentWorkspace.value.teamID
+    : undefined
+)
+
+// Function to add mock URL to environment
+const addMockUrlToEnvironment = async (mockUrl: string) => {
+  if (!setInEnvironment.value) return
+
+  const workspaceType = currentWorkspace.value.type
+
+  if (workspaceType === "personal") {
+    // For personal workspace, add to selected environment or create new one
+    const selectedEnvIndex = getSelectedEnvironmentIndex()
+
+    if (selectedEnvIndex.type === "MY_ENV") {
+      // Check if mockUrl already exists in the environment
+      const env = myEnvironments.value[selectedEnvIndex.index]
+      const hasVariable = env.variables.some((v) => v.key === "mockUrl")
+
+      if (!hasVariable) {
+        // Add to existing selected environment
+        addEnvironmentVariable(selectedEnvIndex.index, {
+          key: "mockUrl",
+          initialValue: mockUrl,
+          currentValue: mockUrl,
+          secret: false,
+        })
+        toast.success(t("mock_server.environment_variable_added"))
+      }
+    } else {
+      // Create a new environment with the mock URL
+      const envName = `${collectionName.value} Environment`
+      createEnvironment(envName, [
+        {
+          key: "mockUrl",
+          initialValue: mockUrl,
+          currentValue: mockUrl,
+          secret: false,
+        },
+      ])
+      toast.success(t("mock_server.environment_created_with_variable"))
+    }
+  } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
+    // For team workspace, create a new team environment or update existing one
+    const teamID = currentWorkspace.value.teamID
+
+    // Check if there's an existing team environment for this collection
+    const teamEnvs = teamEnvironmentAdapter.teamEnvironmentList$.value
+    const existingEnv = teamEnvs.find((env) =>
+      env.environment.name.includes(collectionName.value)
+    )
+
+    if (existingEnv) {
+      // Update existing environment (add the variable if it doesn't exist)
+      const hasVariable = existingEnv.environment.variables.some(
+        (v) => v.key === "mockUrl"
+      )
+
+      if (!hasVariable) {
+        const updatedVariables = [
+          ...existingEnv.environment.variables,
+          { key: "mockUrl", value: mockUrl },
+        ]
+
+        await pipe(
+          updateTeamEnvironment(
+            JSON.stringify(updatedVariables),
+            existingEnv.id,
+            existingEnv.environment.name
+          ),
+          TE.match(
+            (error) => {
+              console.error("Failed to update team environment:", error)
+              toast.error(t("error.something_went_wrong"))
+            },
+            () => {
+              toast.success(t("mock_server.environment_variable_added"))
+            }
+          )
+        )()
+      }
+    } else {
+      // Create new team environment
+      const envName = `${collectionName.value} Environment`
+      const variables = [{ key: "mockUrl", value: mockUrl }]
+
+      await pipe(
+        createTeamEnvironment(JSON.stringify(variables), teamID, envName),
+        TE.match(
+          (error) => {
+            console.error("Failed to create team environment:", error)
+            toast.error(t("error.something_went_wrong"))
+          },
+          () => {
+            toast.success(t("mock_server.environment_created_with_variable"))
+          }
+        )
+      )()
+    }
+  }
+}
+
 // Reset form when modal opens/closes
 watch(show, (newShow) => {
   if (newShow) {
@@ -439,6 +575,7 @@ watch(show, (newShow) => {
     loading.value = false
     delayInMsVal.value = "0"
     isPublic.value = true
+    setInEnvironment.value = true
     selectedCollectionID.value = ""
     selectedCollectionName.value = ""
     showCloseButton.value = false
@@ -483,7 +620,7 @@ const createMockServer = async () => {
         toast.error(String(error) || t("error.something_went_wrong"))
         loading.value = false
       },
-      (result) => {
+      async (result) => {
         toast.success(t("mock_server.mock_server_created"))
 
         // Add the new mock server to the store
@@ -492,6 +629,13 @@ const createMockServer = async () => {
         // Store the created server data and show close button
         createdServer.value = result
         showCloseButton.value = true
+
+        // Add mock URL to environment if enabled
+        const mockUrl =
+          result.serverUrlPathBased || result.serverUrlDomainBased || ""
+        if (mockUrl) {
+          await addMockUrlToEnvironment(mockUrl)
+        }
 
         loading.value = false
         // Don't close the modal automatically

@@ -22,13 +22,13 @@
       </div>
 
       <div v-else-if="body.contentType === 'application/x-www-form-urlencoded'">
-        <table class="w-full border-collapse text-sm mt-2">
-          <thead class="bg-divider">
+        <table class="w-full border-collapse mt-2">
+          <thead class="">
             <tr>
-              <th class="text-left py-2 px-4 font-semibold text-secondaryDark">
+              <th class="text-left py-2 font-semibold text-secondaryDark">
                 Key
               </th>
-              <th class="text-left py-2 px-4 font-semibold text-secondaryDark">
+              <th class="text-left py-2 font-semibold text-secondaryDark">
                 Value
               </th>
             </tr>
@@ -39,10 +39,10 @@
               :key="index"
               class="border-t border-divider"
             >
-              <td class="py-2 px-4 text-accent">
+              <td class="py-2">
                 {{ item.key }}
               </td>
-              <td class="py-2 px-4 text-secondaryLight">
+              <td class="py-2 text-secondaryLight">
                 {{ item.value }}
               </td>
             </tr>

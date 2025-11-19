@@ -13,10 +13,10 @@
           class="flex items-center space-x-4"
         >
           <div class="flex items-center">
-            <span class="font-medium text-secondaryDark w-32 font-mono">{{
+            <span class="font-medium text-secondaryDark w-32">{{
               variable.key
             }}</span>
-            <code class="px-1 w-32">{{ getVariableValue(variable) }}</code>
+            <span class="px-1">{{ getVariableValue(variable) }}</span>
           </div>
           <div v-if="'active' in variable" class="flex items-center">
             <span

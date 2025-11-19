@@ -16,7 +16,7 @@
             <span class="font-medium text-secondaryDark w-32">{{
               header.key
             }}</span>
-            <code class="px-1 w-64">{{ header.value }}</code>
+            <span class="px-1 w-64">{{ header.value }}</span>
             <span
               v-if="header.description"
               class="px-1 w-52 text-xs text-secondaryLight"

@@ -16,7 +16,7 @@
             <span class="font-medium text-secondaryDark w-32">{{
               param.key
             }}</span>
-            <code class="px-1 w-32">{{ param.value }}</code>
+            <span class="px-1 w-32">{{ param.value }}</span>
             <span
               v-if="param.description"
               class="px-1 w-56 text-xs text-secondaryLight"

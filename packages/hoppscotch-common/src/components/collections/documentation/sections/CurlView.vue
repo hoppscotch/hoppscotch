@@ -532,7 +532,6 @@ onUnmounted(() => {
   margin: 0;
   overflow: visible;
   display: block;
-  font-size: 0.875rem;
   line-height: 1.5;
 }
 

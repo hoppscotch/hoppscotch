@@ -18,6 +18,7 @@ model Team {
   TeamRequest     TeamRequest[]
 }
 
+
 model TeamMember {
   id      String         @id @default(uuid())
   role    TeamAccessRole

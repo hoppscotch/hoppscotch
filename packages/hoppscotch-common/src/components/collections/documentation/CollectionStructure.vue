@@ -22,7 +22,7 @@
     <!-- Tree structure -->
     <div class="max-h-[400px] overflow-y-auto">
       <div v-if="hasItems(collectionFolders)">
-        <FolderItem
+        <CollectionsDocumentationFolderItem
           v-for="(rootFolder, rootFolderIndex) in collectionFolders"
           :key="getFolderId(rootFolder, rootFolderIndex)"
           :folder="rootFolder"
@@ -36,11 +36,11 @@
       </div>
 
       <!-- Root Requests -->
-      <div v-if="hasItems(collectionRequests)">
-        <RequestItem
+      <div v-if="hasItems(collectionRequests)" class="ml-4">
+        <CollectionsDocumentationRequestItem
           v-for="(request, requestIndex) in collectionRequests"
           :key="getRequestId(request, requestIndex)"
-          :request="request"
+          :request="request as HoppRESTRequest"
           :depth="0"
           @request-select="onRequestSelect"
         />
@@ -63,8 +63,6 @@ import {
   HoppGQLRequest,
 } from "@hoppscotch/data"
 import { ref, reactive, watch, computed } from "vue"
-import FolderItem from "./FolderItem.vue"
-import RequestItem from "./RequestItem.vue"
 import IconCheveronsDown from "~icons/lucide/chevrons-down"
 import IconCheveronsUp from "~icons/lucide/chevrons-up"
 import { useService } from "dioc/vue"

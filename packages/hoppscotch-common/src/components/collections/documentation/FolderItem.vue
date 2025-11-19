@@ -35,7 +35,7 @@
           :key="getFolderId(nestedFolder, nestedIndex)"
           class="pl-4"
         >
-          <FolderItem
+          <CollectionsDocumentationFolderItem
             :folder="nestedFolder"
             :folder-index="nestedIndex"
             :depth="depth + 1"
@@ -47,11 +47,11 @@
         </div>
       </div>
 
-      <div v-if="hasItems(folder.requests)" class="mb-1">
-        <RequestItem
+      <div v-if="hasItems(folder.requests)" class="mb-1 pl-8">
+        <CollectionsDocumentationRequestItem
           v-for="(request, requestIndex) in folder.requests"
           :key="getRequestId(request, requestIndex)"
-          :request="request"
+          :request="request as HoppRESTRequest"
           :depth="depth + 1"
           @request-select="emit('request-select', $event)"
         />
@@ -67,7 +67,6 @@ import {
   HoppGQLRequest,
 } from "@hoppscotch/data"
 import { computed } from "vue"
-import RequestItem from "./RequestItem.vue"
 
 type ExpandedFoldersType = { [key: string]: boolean }
 

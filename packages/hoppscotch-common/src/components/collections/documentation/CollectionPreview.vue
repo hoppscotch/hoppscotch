@@ -5,12 +5,6 @@
       class="flex-1 min-w-0 flex flex-col space-y-8 overflow-y-auto"
     >
       <div class="px-4">
-        <span
-          v-if="collection.id"
-          class="text-xs text-secondaryLight bg-primaryDark inline-flex py-1 px-1.5 rounded-xl border border-divider shadow-sm"
-        >
-          {{ collection.id }}
-        </span>
         <h1 class="text-3xl font-bold text-secondaryDark my-2">
           {{ collectionName }}
         </h1>

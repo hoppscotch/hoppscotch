@@ -19,32 +19,20 @@
     </div>
 
     <div v-if="collection" class="flex items-start relative">
-      <div class="flex-1 min-w-0 overflow-y-auto">
-        <div class="flex items-center justify-between px-10 mt-4">
-          <button
-            class="py-1.5 text-xs rounded-md text-accent transition-colors flex items-center disabled:cursor-not-allowed"
-            :disabled="isProcessingDocumentation"
-            @click="toggleAllDocumentation"
-          >
-            <icon-lucide-loader-2
-              v-if="isProcessingDocumentation"
-              class="mr-1.5 animate-spin"
-              size="14"
-            />
-            <icon-lucide-file-text v-else class="mr-1.5" size="14" />
-            {{
-              isProcessingDocumentation
-                ? `Processing... ${processingProgress}%`
-                : showAllDocumentation
-                  ? "Hide All Documentation"
-                  : "Show All Documentation"
-            }}
-          </button>
-        </div>
-
+      <div class="flex-1 min-w-0">
         <template v-if="!showAllDocumentation">
+          <CollectionsDocumentationCollectionPreview
+            v-if="selectedFolder"
+            :collection="selectedFolder"
+            :documentation-description="selectedFolder.description || ''"
+            :folder-path="folderPath ?? undefined"
+            :path-or-i-d="pathOrID"
+            :is-team-collection="isTeamCollection"
+            :collection-path="collectionPath || undefined"
+            :team-i-d="teamID"
+          />
           <CollectionsDocumentationRequestPreview
-            v-if="selectedRequest"
+            v-else-if="selectedRequest"
             :request="selectedRequest"
             :documentation-description="selectedRequest.description || ''"
             :collection-i-d="collectionID"
@@ -62,16 +50,6 @@
             @close-modal="closeModal"
           />
 
-          <CollectionsDocumentationCollectionPreview
-            v-else-if="selectedFolder"
-            :collection="selectedFolder"
-            :documentation-description="selectedFolder.description || ''"
-            :folder-path="folderPath ?? undefined"
-            :path-or-i-d="pathOrID"
-            :is-team-collection="isTeamCollection"
-            :collection-path="collectionPath || undefined"
-            :team-i-d="teamID"
-          />
           <CollectionsDocumentationCollectionPreview
             v-else
             :collection="collection"
@@ -122,8 +100,24 @@
                 :force-render="shouldForceRender(index)"
               >
                 <div class="p-0">
+                  <CollectionsDocumentationCollectionPreview
+                    v-if="item.type === 'folder'"
+                    :collection="item.item as HoppCollection"
+                    :documentation-description="
+                      (item.item as HoppCollection).description || ''
+                    "
+                    :folder-path="item.folderPath ?? undefined"
+                    :path-or-i-d="item.pathOrID ?? null"
+                    :is-team-collection="isTeamCollection"
+                    :collection-path="collectionPath || undefined"
+                    :team-i-d="teamID"
+                    @update:documentation-description="
+                      (value) =>
+                        ((item.item as HoppCollection).description = value)
+                    "
+                  />
                   <CollectionsDocumentationRequestPreview
-                    v-if="item.type === 'request'"
+                    v-else
                     :request="item.item as HoppRESTRequest"
                     :documentation-description="
                       (item.item as HoppRESTRequest).description || ''
@@ -139,23 +133,6 @@
                         ((item.item as HoppRESTRequest).description = value)
                     "
                     @close-modal="closeModal"
-                  />
-
-                  <CollectionsDocumentationCollectionPreview
-                    v-else
-                    :collection="item.item as HoppCollection"
-                    :documentation-description="
-                      (item.item as HoppCollection).description || ''
-                    "
-                    :folder-path="item.folderPath ?? undefined"
-                    :path-or-i-d="item.pathOrID ?? null"
-                    :is-team-collection="isTeamCollection"
-                    :collection-path="collectionPath || undefined"
-                    :team-i-d="teamID"
-                    @update:documentation-description="
-                      (value) =>
-                        ((item.item as HoppCollection).description = value)
-                    "
                   />
                 </div>
               </LazyDocumentationItem>
@@ -238,7 +215,6 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
   (event: "close-modal"): void
-  (event: "toggle-all-documentation"): void
 }>()
 
 const teamCollectionService = useService(TeamCollectionsService)
@@ -427,13 +403,6 @@ const handleFolderSelect = (folder: HoppCollection) => {
       scrollToItemByNameAndType(folder.name, "folder")
     }
   }
-}
-
-/**
- * Emits toggle event for parent to handle processing
- */
-const toggleAllDocumentation = () => {
-  emit("toggle-all-documentation")
 }
 
 /**

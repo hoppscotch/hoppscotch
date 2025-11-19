@@ -1,6 +1,6 @@
 <template>
   <div
-    class="py-1.5 ml-6 pl-2 space-x-2 flex items-center group cursor-pointer"
+    class="py-1.5 space-x-2 flex items-center group cursor-pointer"
     @click.stop="$emit('request-select', actualRequest)"
   >
     <span

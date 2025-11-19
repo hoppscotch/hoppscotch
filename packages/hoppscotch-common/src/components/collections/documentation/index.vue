@@ -47,22 +47,37 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
+      <div class="flex justify-between items-center w-full">
+        <span class="flex space-x-2">
+          <HoppButtonSecondary
+            :label="t('action.close')"
+            outline
+            filled
+            @click="hideModal"
+          />
+          <HoppButtonPrimary
+            :label="t('action.save')"
+            :loading="isSavingDocumentation"
+            :disabled="isSavingDocumentation"
+            outline
+            filled
+            @click="saveDocumentation"
+          />
+        </span>
         <HoppButtonSecondary
-          :label="t('action.close')"
-          outline
+          :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
+          :label="
+            isDocumentationProcessing
+              ? 'Fetching Documentation...'
+              : showAllDocumentation
+                ? 'Hide All Documentation'
+                : 'Show All Documentation'
+          "
           filled
-          @click="hideModal"
-        />
-        <HoppButtonPrimary
-          :label="t('action.save')"
-          :loading="isSavingDocumentation"
-          :disabled="isSavingDocumentation"
           outline
-          filled
-          @click="saveDocumentation"
+          @click="handleToggleAllDocumentation"
         />
-      </span>
+      </div>
     </template>
   </HoppSmartModal>
 </template>
@@ -98,6 +113,9 @@ import {
   type DocumentationItem,
 } from "~/services/documentation.service"
 
+import IconFileText from "~icons/lucide/file-text"
+import IconLoader2 from "~icons/lucide/loader-2"
+
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -110,6 +128,10 @@ const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
 const allItems = ref<Array<any>>([])
 const showAllDocumentation = ref<boolean>(false)
+
+const isDocumentationProcessing = computed(() => {
+  return isProcessingDocumentation.value || isLoadingTeamCollection.value
+})
 
 const {
   isProcessing: isProcessingDocumentation,

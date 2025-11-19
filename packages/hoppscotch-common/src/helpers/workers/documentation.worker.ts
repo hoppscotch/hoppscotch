@@ -92,35 +92,6 @@ async function gatherAllItems(
     }
   }
 
-  // Process collection requests in larger batches
-  if (collection.requests?.length) {
-    for (let i = 0; i < collection.requests.length; i += BATCH_SIZE) {
-      const batchEnd = Math.min(i + BATCH_SIZE, collection.requests.length)
-
-      for (let j = i; j < batchEnd; j++) {
-        const request = collection.requests[j]
-        const requestId =
-          request.id ||
-          ("_ref_id" in request ? request._ref_id : undefined) ||
-          `request-${j}`
-
-        items.push({
-          type: "request",
-          item: request as HoppRESTRequest,
-          parentPath: collection?.name || "",
-          id: requestId,
-          folderPath: baseCollectionPath,
-          requestIndex: j,
-          requestID: request.id,
-        })
-
-        processedCount++
-      }
-
-      await updateProgress()
-    }
-  }
-
   /**
    * Process folders recursively with optimized batching
    */
@@ -219,6 +190,35 @@ async function gatherAllItems(
 
   if (collection.folders?.length) {
     await processFoldersAsync(collection.folders)
+  }
+
+  // Process collection requests in larger batches
+  if (collection.requests?.length) {
+    for (let i = 0; i < collection.requests.length; i += BATCH_SIZE) {
+      const batchEnd = Math.min(i + BATCH_SIZE, collection.requests.length)
+
+      for (let j = i; j < batchEnd; j++) {
+        const request = collection.requests[j]
+        const requestId =
+          request.id ||
+          ("_ref_id" in request ? request._ref_id : undefined) ||
+          `request-${j}`
+
+        items.push({
+          type: "request",
+          item: request as HoppRESTRequest,
+          parentPath: collection?.name || "",
+          id: requestId,
+          folderPath: baseCollectionPath,
+          requestIndex: j,
+          requestID: request.id,
+        })
+
+        processedCount++
+      }
+
+      await updateProgress()
+    }
   }
 
   // Send final progress update

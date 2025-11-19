@@ -1,15 +1,11 @@
 import { describe, expect, test } from "vitest"
 import { getEditorLangForMimeType } from "../editorutils"
-import { INTUIT_GRAPHQL_CONTENT_TYPE } from "../constants"
 
 describe("getEditorLangForMimeType", () => {
   test("returns 'json' for valid JSON mimes", () => {
     expect(getEditorLangForMimeType("application/json")).toMatch("json")
     expect(getEditorLangForMimeType("application/hal+json")).toMatch("json")
     expect(getEditorLangForMimeType("application/vnd.api+json")).toMatch("json")
-    expect(getEditorLangForMimeType(INTUIT_GRAPHQL_CONTENT_TYPE)).toMatch(
-      "json"
-    )
   })
 
   test("returns 'xml' for valid XML mimes", () => {

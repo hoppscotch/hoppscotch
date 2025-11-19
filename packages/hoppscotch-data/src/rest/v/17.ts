@@ -11,7 +11,6 @@ const V17_VERSION = defineVersion({
   schema: V17_SCHEMA,
   initial: false,
   up(old: z.infer<typeof V17_SCHEMA>) {
-    console.log("Migrating to V17 Request", old)
     return {
       ...old,
       v: "17" as const,

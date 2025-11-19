@@ -32,8 +32,6 @@ export function useDocumentationWorker() {
    * Initialize the worker and set up message handlers
    */
   function initWorker(): Worker {
-    console.log("Initializing documentation worker", worker)
-
     worker.onmessage = (event) => {
       const { type } = event.data
 

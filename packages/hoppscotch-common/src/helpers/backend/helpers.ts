@@ -236,7 +236,6 @@ export const getCompleteCollectionTree = (
 export const teamCollToHoppRESTColl = (
   coll: TeamCollection
 ): HoppCollection => {
-  console.log("teamCollToHoppRESTColl", coll.requests)
   const data =
     coll.data && coll.data !== "null"
       ? JSON.parse(coll.data)
@@ -312,8 +311,6 @@ export const getSingleTeamCollectionJSON = async (
   }
 
   const collection = JSON.parse(data.right.exportCollectionToJSON)
-
-  console.log("export-collection-to-json", collection)
 
   if (!collection) {
     const t = getI18n()

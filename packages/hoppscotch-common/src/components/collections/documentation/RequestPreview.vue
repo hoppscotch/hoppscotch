@@ -252,9 +252,13 @@ const getEffectiveRequest = async () => {
     name: "Env",
     variables: [
       ...(requestVariables as Environment["variables"]),
-      ...collectionVariables.map((env) => ({
-        ...env,
-        currentValue: getCurrentValue(env) || env.initialValue,
+      ...collectionVariables.map((e) => ({
+        ...e,
+        currentValue:
+          getCurrentValue({
+            ...e,
+            sourceEnv: "CollectionVariables",
+          }) || e.initialValue,
       })),
     ],
   }
@@ -317,12 +321,11 @@ function getResponseExamples() {
 
     for (const [name, response] of Object.entries(props.request.responses)) {
       if (response && typeof response === "object") {
-        console.log("Processing response for example:", name, response)
         const example = {
           name: name || "Response Example",
-          statusCode: (response as any).code || 200,
-          headers: (response as any).headers || [],
-          body: (response as any).body || "",
+          statusCode: response.code || 200,
+          headers: response.headers || [],
+          body: response.body || "",
           contentType: "application/json",
         }
         examples.push(example)
@@ -353,8 +356,6 @@ function handleBlur(): void {
   // Store changes in documentation service if request ID exists and content changed
   if (hasChanged && requestId.value && props.request) {
     const isTeamRequest = !!props.teamID && props.requestID
-
-    console.log("saving req blur", props.teamID, props.requestID, props.request)
 
     if (isTeamRequest && props.requestID) {
       documentationService.setRequestDocumentation(

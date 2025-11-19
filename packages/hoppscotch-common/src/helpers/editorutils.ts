@@ -1,5 +1,6 @@
 const mimeToMode = {
-  "text/plain": "text/x-yaml",
+  "text/plain": null,
+  "text/xml": "application/xml",
   "text/html": "htmlmixed",
   "application/xml": "application/xml",
   "application/hal+json": "application/ld+json",
@@ -7,6 +8,6 @@ const mimeToMode = {
   "application/json": "application/ld+json",
 }
 
-export function getEditorLangForMimeType(mimeType: string): string {
-  return mimeToMode[mimeType] || "text/x-yaml"
+export function getEditorLangForMimeType(mimeType: string): string | null {
+  return mimeToMode[mimeType] || null
 }

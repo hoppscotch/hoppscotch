@@ -1457,7 +1457,7 @@ describe("hopp.fetch() and global fetch()", () => {
         runTest(
           `
             const headers = new Headers({ "Content-Type": "application/json", "X-Custom": "test" })
-            const entries = headers.entries()
+            const entries = Array.from(headers.entries())
 
             pw.expect(Array.isArray(entries)).toBe(true)
             pw.expect(entries.length).toBe(2)

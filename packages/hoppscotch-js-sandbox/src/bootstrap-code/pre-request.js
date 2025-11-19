@@ -1297,9 +1297,10 @@
       // Call hopp.fetch() and adapt response
       globalThis.hopp
         .fetch(url, options)
-        .then((response) => {
+        .then(async (response) => {
           // Convert Response to Postman response format
-          response.text().then((body) => {
+          try {
+            const body = await response.text()
             // Calculate response metrics
             const responseTime = Date.now() - startTime
             const responseSize = new Blob([body]).size
@@ -1427,7 +1428,10 @@
             }
 
             callback(null, pmResponse)
-          })
+          } catch (textError) {
+            // Handle response.text() errors
+            callback(textError, null)
+          }
         })
         .catch((error) => {
           callback(error, null)

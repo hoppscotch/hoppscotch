@@ -155,7 +155,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           tooltipEnv?.key ?? ""
         )
 
-      // Display secret values as "******" if stored, otherwise show actual/initial value
+      // Display secret values as "******" when stored; if no secret is saved, show "Empty" placeholders instead
       if (isSecret) {
         if (hasSecretValueStored && hasSecretInitialValueStored) {
           envInitialValue = "******"

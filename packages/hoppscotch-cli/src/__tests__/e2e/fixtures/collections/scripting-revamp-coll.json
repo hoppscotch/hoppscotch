@@ -1,12 +1,11 @@
 {
-  "id": "cmfhzf0oo0091qt0iu8yy94rw",
-  "_ref_id": "coll_mfhz1cx0_5ae46b4c-d9d4-4ef8-92bc-af63525a73d7",
   "v": 10,
+  "id": "cmi8s7e0b000alj0isau8jt3x",
   "name": "scripting-revamp-coll",
   "folders": [],
   "requests": [
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0oo0092qt0if5rvd2g4",
       "name": "json-response-test",
       "method": "POST",
@@ -31,10 +30,11 @@
         "body": "{\n  \"name\": \"John Doe\",\n  \"age\": 35\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz1_0e51a53b-8e08-4390-a2c8-bf4034623f78"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0093qt0ictgoxymy",
       "name": "html-response-test",
       "method": "GET",
@@ -59,10 +59,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz1_87685b90-47bb-4272-b9e3-78efc86ce298"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0094qt0ixbo9rqnw",
       "name": "environment-variables-test",
       "method": "GET",
@@ -80,10 +81,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz1_7e619d82-0e16-4a24-bc03-d070cd5f0621"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0095qt0ieogkxx1w",
       "name": "request-modification-test",
       "method": "GET",
@@ -115,10 +117,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_5d3ccef8-8ed9-45b4-b8da-a83127730147"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0096qt0i6wellfus",
       "name": "response-parsing-test",
       "method": "POST",
@@ -143,10 +146,11 @@
         "body": "{\n  \"test\": \"response parsing\",\n  \"timestamp\": \"{{$timestamp}}\",\n  \"data\": {\n    \"nested\": true,\n    \"value\": 42\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_d04535d4-ea26-40bf-be2b-e5fef0051b03"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0097qt0ia4wf0lej",
       "name": "request-variables-test",
       "method": "GET",
@@ -180,10 +184,11 @@
           "active": true
         }
       ],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_29079e08-dc98-4332-87e6-12f86ca273a5"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0098qt0ii9fguj6e",
       "name": "info-context-test",
       "method": "GET",
@@ -201,10 +206,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_f95a19a0-fcaf-4aac-a0cc-80d103e0a500"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op0099qt0iamthw97r",
       "name": "pm-namespace-additional-test",
       "method": "GET",
@@ -222,10 +228,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_61a82bd3-0884-4b29-bb6e-0807c694e6dd"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op009aqt0inw3j6dq9",
       "name": "expectation-methods-test",
       "method": "POST",
@@ -243,10 +250,11 @@
         "body": "{\n  \"message\": \"Test expectation methods\",\n  \"numbers\": [1, 2, 3, 4, 5],\n  \"metadata\": {\n    \"timestamp\": \"{{$timestamp}}\",\n    \"test\": true\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_c7de9aae-5936-4fe7-9205-2823b560f8ad"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00chai1qt0inext01",
       "name": "chai-assertions-hopp-extended",
       "method": "POST",
@@ -264,10 +272,11 @@
         "body": "{\n  \"testData\": {\n    \"number\": 42,\n    \"string\": \"hello world\",\n    \"array\": [1, 2, 3, 4, 5],\n    \"object\": { \"nested\": { \"value\": true } },\n    \"bool\": true,\n    \"nullValue\": null\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz2_d4acd239-fd73-43e7-a96b-27f293b4f8ce"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00chai2qt0inext02",
       "name": "chai-assertions-pm-parity",
       "method": "POST",
@@ -285,10 +294,11 @@
         "body": "{\n  \"pmTest\": {\n    \"value\": 42,\n    \"text\": \"postman compatible\"\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_e33cf09a-d284-46ca-a394-c8033d5dde84"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00cookies01",
       "name": "cookie-assertions-test",
       "method": "GET",
@@ -313,10 +323,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_0bff5a56-b147-45f8-a8da-e5175eb940d9"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00schema01",
       "name": "json-schema-validation-test",
       "method": "POST",
@@ -334,10 +345,11 @@
         "body": "{\n  \"name\": \"Alice Smith\",\n  \"age\": 28,\n  \"email\": \"alice@example.com\"\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_05e595b7-ff00-4ae8-b695-8957c1381387"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00charset01",
       "name": "charset-validation-test",
       "method": "GET",
@@ -355,10 +367,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_0e536fee-92a3-4131-8a67-a7fd69cd189f"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00jsonpath01",
       "name": "jsonpath-query-test",
       "method": "POST",
@@ -376,10 +389,11 @@
         "body": "{\n  \"users\": [\n    { \"name\": \"John\", \"active\": true },\n    { \"name\": \"Jane\", \"active\": false }\n  ],\n  \"metadata\": {\n    \"version\": \"1.0\",\n    \"timestamp\": \"2025-01-15\"\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_db1401ea-7ef8-4838-a570-dc3782610050"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00envext01",
       "name": "environment-extensions-test",
       "method": "GET",
@@ -397,10 +411,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_b749ccf4-0efb-4543-b8c5-94a142d53876"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00respext01",
       "name": "response-extensions-test",
       "method": "POST",
@@ -418,10 +433,11 @@
         "body": "{\n  \"message\": \"Testing response size calculation\",\n  \"data\": {\n    \"items\": [1, 2, 3, 4, 5],\n    \"metadata\": {\n      \"count\": 5,\n      \"type\": \"numeric\"\n    }\n  }\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_27dfe163-c152-46b4-b3ce-a90377b640f7"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00execext01",
       "name": "execution-context-test",
       "method": "GET",
@@ -439,10 +455,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_57859840-7e61-4114-b514-199ab51ba57e"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00bddassert01",
       "name": "bdd-response-assertions-test",
       "method": "POST",
@@ -467,10 +484,11 @@
         "body": "{\n  \"test\": \"BDD assertions\",\n  \"status\": \"success\"\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz3_ec06bb6c-1857-4352-bdb5-24b349a51a09"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00includecontain01",
       "name": "include-contain-assertions-test",
       "method": "POST",
@@ -488,10 +506,11 @@
         "body": "{\n  \"includeTest\": \"This text should be found\",\n  \"array\": [1, 2, 3]\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_11cc69ef-f13a-4d02-9c42-607bcd84054b"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00envunsetclear01",
       "name": "environment-unset-clear-test",
       "method": "GET",
@@ -509,10 +528,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_ab8af065-c323-4830-86b8-be5f8b8570a7"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00pmmutate01",
       "name": "pm-request-mutation-test",
       "method": "GET",
@@ -544,10 +564,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_f73dfa1a-8539-425b-a6af-0a4622aec733"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00urlmutate01",
       "name": "pm-url-property-mutations-test",
       "method": "GET",
@@ -565,10 +586,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_4ecd2c5d-acbe-4f77-987a-a6c257b7f825"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00unsupported01",
       "name": "unsupported-features-test",
       "method": "GET",
@@ -586,10 +608,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_d3265ddb-982b-4da6-9506-125b0657fa13"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "cmfhzf0op00urlpropertylist01",
       "name": "url-propertylist-helpers-test",
       "method": "GET",
@@ -645,10 +668,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_d8fa5d58-1a76-420d-946e-5cb063fc65e3"
     },
     {
-      "v": "15",
+      "v": "16",
       "name": "propertylist-advanced-methods-test",
       "method": "GET",
       "endpoint": "https://echo.hoppscotch.io/propertylist",
@@ -697,10 +721,11 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_8e31db5d-90ed-4bad-b92a-67976c476c35"
     },
     {
-      "v": "5",
+      "v": "16",
       "id": "advanced-response-methods-test",
       "name": "advanced-response-methods-test",
       "method": "POST",
@@ -710,7 +735,8 @@
         {
           "key": "Content-Type",
           "value": "application/json",
-          "active": true
+          "active": true,
+          "description": ""
         }
       ],
       "preRequestScript": "",
@@ -724,10 +750,11 @@
         "body": "{\"test\": \"data\"}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_80b32834-2683-4a4a-a866-90a3a97c7471"
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "advanced-chai-map-set-test",
       "name": "advanced-chai-map-set-test",
       "method": "GET",
@@ -745,7 +772,8 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz4_c10eecab-a890-4a1b-97bb-99ddaa9bca9c"
     },
     {
       "v": "16",
@@ -769,7 +797,7 @@
       "responses": {}
     },
     {
-      "v": "15",
+      "v": "16",
       "id": "type_preservation_ui_compat",
       "name": "type-preservation-ui-compatibility-test",
       "method": "POST",
@@ -787,7 +815,8 @@
         "body": "{\n  \"test\": \"type preservation validation\"\n}"
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s7dz5_94e03aa3-8d21-4bad-8d3f-e4a276e1667e"
     },
     {
       "v": "16",
@@ -1029,7 +1058,7 @@
       "params": [],
       "headers": [],
       "preRequestScript": "",
-      "testScript": "pm.test('pm.sendRequest() should handle network errors gracefully', () => {\n  pm.sendRequest('https://echo.hoppscotch.io/invalid-endpoint-test', (error, response) => {\n    // Either we get an error or a 404 response\n    if (error) {\n      pm.expect(error).to.not.be.null\n    } else {\n      pm.expect(response.code).to.satisfy(code => code === 404 || code >= 400)\n    }\n  })\n})\n\npm.test('pm.sendRequest() should handle 404 error', () => {\n  pm.sendRequest('https://httpbin.org/status/404', (error, response) => {\n    pm.expect(error).to.be.null\n    // Fault-tolerant: Skip if httpbin is down (5xx)\n    if (response.code >= 500 && response.code < 600) {\n      console.log('httpbin.org is down (5xx), skipping assertions')\n      return\n    }\n    pm.expect(response.code).to.equal(404)\n  })\n})\n",
+      "testScript": "pm.test('pm.sendRequest() should handle network errors gracefully', () => {\n  pm.sendRequest('https://httpbin.org/status/500', (error, response) => {\n    pm.expect(error).to.be.null\n    pm.expect(response.code).to.toBeLevel5xx()\n  })\n})\n\npm.test('pm.sendRequest() should handle 404 error', () => {\n  pm.sendRequest('https://httpbin.org/status/404', (error, response) => {\n    pm.expect(error).to.be.null\n    // Fault-tolerant: Skip if httpbin is down (5xx)\n    if (response.code >= 500 && response.code < 600) {\n      console.log('httpbin.org is down (5xx), skipping assertions')\n      return\n    }\n    pm.expect(response.code).to.equal(404)\n  })\n})\n",
       "auth": {
         "authType": "inherit",
         "authActive": true
@@ -1039,7 +1068,8 @@
         "body": null
       },
       "requestVariables": [],
-      "responses": {}
+      "responses": {},
+      "_ref_id": "req_mi8s89cl_01becae7-dca6-47ab-87e5-fb2df28fc393"
     },
     {
       "v": "16",
@@ -1136,7 +1166,8 @@
         {
           "key": "Accept",
           "value": "application/json",
-          "active": true
+          "active": true,
+          "description": ""
         }
       ],
       "preRequestScript": "",
@@ -1163,7 +1194,8 @@
         {
           "key": "X-Custom-Test",
           "value": "test-value",
-          "active": true
+          "active": true,
+          "description": ""
         }
       ],
       "preRequestScript": "",
@@ -1232,7 +1264,8 @@
         {
           "key": "X-Test-Header",
           "value": "test-123",
-          "active": true
+          "active": true,
+          "description": ""
         }
       ],
       "preRequestScript": "",
@@ -1590,5 +1623,6 @@
     "authActive": true
   },
   "headers": [],
-  "variables": []
+  "variables": [],
+  "_ref_id": "coll_mi8sfgx8_4523effa-e775-4550-afb8-4ab5a4ef45ae"
 }

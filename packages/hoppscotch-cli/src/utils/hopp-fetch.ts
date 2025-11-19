@@ -23,14 +23,40 @@ export const createHoppFetchHook = (): HoppFetchHook => {
           ? input.href
           : input.url;
 
+    // Extract method from Request object if available (init takes precedence)
+    const requestMethod = input instanceof Request ? input.method : undefined;
+    const method = (init?.method || requestMethod || "GET") as Method;
+
+    // Merge headers from Request object and init (init takes precedence)
+    const headers: Record<string, string> = {};
+
+    // First, add headers from Request object if input is a Request
+    if (input instanceof Request) {
+      input.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+    }
+
+    // Then overlay with init.headers (takes precedence)
+    if (init?.headers) {
+      Object.assign(headers, headersToObject(init.headers));
+    }
+
+    // Extract body from Request object if available (init takes precedence)
+    const body = init?.body !== undefined
+      ? init?.body
+      : input instanceof Request
+        ? input.body
+        : undefined;
+
     // Convert Fetch API options to axios config
     // Note: Using 'any' for config because axios-cookiejar-support extends AxiosRequestConfig
     // with 'jar' property that isn't in standard types
     const config: any = {
       url: urlStr,
-      method: (init?.method || "GET") as Method,
-      headers: init?.headers ? headersToObject(init.headers) : {},
-      data: init?.body,
+      method,
+      headers: Object.keys(headers).length > 0 ? headers : {},
+      data: body,
       responseType: "arraybuffer", // Prevents binary corruption from string encoding
       validateStatus: () => true, // Don't throw on any status code
       jar,

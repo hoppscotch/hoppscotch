@@ -28,7 +28,6 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 import { HeaderDownloadableLinksService } from "./services/headerDownloadableLinks.service"
-import { ScriptingInterceptorInspectorService } from "./services/scripting-interceptor.inspector"
 
 type Platform = "web" | "desktop"
 
@@ -100,16 +99,6 @@ async function initApp() {
       default: kernelMode === "desktop" ? "native" : "browser",
       interceptors: getInterceptors(kernelMode),
     },
-    // Scripting interceptor inspector validates proper interceptor usage with fetch APIs
-    // - Warns when Extension/Proxy is used (they don't support scripting calls)
-    // - Web mode only: Warns about CSRF with Browser interceptor + same-origin requests
-    // - Desktop mode: No CSRF concerns as it uses bearer tokens, not cookies
-    additionalInspectors: [
-      {
-        type: "service",
-        service: ScriptingInterceptorInspectorService,
-      },
-    ],
     platformFeatureFlags: {
       exportAsGIST: false,
       hasTelemetry: false,

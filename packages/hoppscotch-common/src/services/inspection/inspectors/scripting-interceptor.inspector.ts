@@ -3,17 +3,17 @@ import {
   InspectionService,
   Inspector,
   InspectorResult,
-} from "@hoppscotch/common/services/inspection"
+} from "~/services/inspection"
 import { computed, markRaw, Ref } from "vue"
 import {
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
-import { HoppRESTResponse } from "@hoppscotch/common/helpers/types/HoppRESTResponse"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
-import { getI18n } from "@hoppscotch/common/modules/i18n"
-import { KernelInterceptorService } from "@hoppscotch/common/services/kernel-interceptor.service"
-import { platform } from "@hoppscotch/common/platform"
+import { getI18n } from "~/modules/i18n"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { platform } from "~/platform"
 
 /**
  * Inspector that validates proper interceptor usage when scripts make HTTP requests.
@@ -70,6 +70,7 @@ export class ScriptingInterceptorInspectorService
    * 1. Relative URLs (starts with /, ./, or ../)
    * 2. window.location references
    * 3. Absolute URLs matching current origin
+   * 4. Request objects with same-origin URLs (for pm.sendRequest)
    */
   private scriptContainsSameOriginFetch(script: string): boolean {
     if (!script || script.trim() === "") {
@@ -78,7 +79,7 @@ export class ScriptingInterceptorInspectorService
 
     const currentOrigin = window.location.origin
 
-    // Check for relative URLs
+    // Check for relative URLs in string arguments
     const relativeUrlPatterns = [
       /(?:fetch|sendRequest)\s*\(\s*['"`]\/[^/]/i,
       /(?:fetch|sendRequest)\s*\(\s*['"`]\.\//i,
@@ -94,7 +95,7 @@ export class ScriptingInterceptorInspectorService
       return true
     }
 
-    // Check for absolute URLs matching current origin
+    // Check for absolute URLs matching current origin in string arguments
     const fetchUrlPattern =
       /(?:fetch|sendRequest)\s*\(\s*['"`](https?:\/\/[^'"`]+)['"`]/gi
     const matches = script.matchAll(fetchUrlPattern)
@@ -107,6 +108,36 @@ export class ScriptingInterceptorInspectorService
           return true
         }
       } catch {
+        continue
+      }
+    }
+
+    // Check for request objects with same-origin URLs (pm.sendRequest pattern)
+    // Matches patterns like: pm.sendRequest({url: '/path'}, ...) or pm.sendRequest({url: 'http://...'}, ...)
+    const requestObjectPattern =
+      /(?:sendRequest)\s*\(\s*\{[^}]*url\s*:\s*['"`]([^'"`]+)['"`][^}]*\}/gi
+    const requestObjectMatches = script.matchAll(requestObjectPattern)
+
+    for (const match of requestObjectMatches) {
+      const url = match[1]
+
+      // Check if it's a relative URL
+      if (
+        url.startsWith("/") ||
+        url.startsWith("./") ||
+        url.startsWith("../")
+      ) {
+        return true
+      }
+
+      // Check if it's an absolute URL matching current origin
+      try {
+        const urlObj = new URL(url)
+        if (urlObj.origin === currentOrigin) {
+          return true
+        }
+      } catch {
+        // Invalid URL, skip
         continue
       }
     }

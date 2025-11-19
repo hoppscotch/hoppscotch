@@ -74,10 +74,26 @@ async function convertFetchToRelayRequest(
       : input instanceof URL
         ? input.href
         : input.url
-  const method = (init?.method || "GET").toUpperCase() as RelayRequest["method"]
 
-  // Convert headers
+  // Extract method from Request object if available
+  const requestMethod = input instanceof Request ? input.method : undefined
+  const method = (
+    init?.method ||
+    requestMethod ||
+    "GET"
+  ).toUpperCase() as RelayRequest["method"]
+
+  // Convert headers - merge from Request object if present
   const headers: Record<string, string> = {}
+
+  // First, add headers from Request object if input is a Request
+  if (input instanceof Request) {
+    input.headers.forEach((value, key) => {
+      headers[key] = value
+    })
+  }
+
+  // Then overlay with init.headers (takes precedence)
   if (init?.headers) {
     const headersObj =
       init.headers instanceof Headers ? init.headers : new Headers(init.headers)
@@ -90,43 +106,59 @@ async function convertFetchToRelayRequest(
   // Handle body based on type
   let content: RelayRequest["content"] | undefined
 
-  if (init?.body) {
-    if (typeof init.body === "string") {
+  // Check both init.body and Request body (init.body takes precedence)
+  // For Request objects, we need to clone and read the body since it's a stream
+  let bodyToUse: BodyInit | null | undefined
+
+  if (init?.body !== undefined) {
+    bodyToUse = init.body
+  } else if (input instanceof Request && input.body !== null) {
+    // Clone the request to avoid consuming the original body
+    const clonedRequest = input.clone()
+    // Read the body as text first - we'll process it based on content-type
+    const bodyText = await clonedRequest.text()
+    bodyToUse = bodyText || undefined
+  } else {
+    bodyToUse = undefined
+  }
+
+  if (bodyToUse) {
+    if (typeof bodyToUse === "string") {
       // Headers API normalizes keys to lowercase during forEach iteration
       const mediaType = headers["content-type"] || "text/plain"
 
       // Use "text" kind for string bodies (including JSON strings)
       content = {
         kind: "text",
-        content: init.body,
+        content: bodyToUse,
         mediaType,
       }
-    } else if (init.body instanceof FormData) {
+    } else if (bodyToUse instanceof FormData) {
       content = {
         kind: "multipart",
-        content: init.body,
+        content: bodyToUse,
         mediaType: "multipart/form-data",
       }
-    } else if (init.body instanceof Blob) {
-      const arrayBuffer = await init.body.arrayBuffer()
+    } else if (bodyToUse instanceof Blob) {
+      const arrayBuffer = await bodyToUse.arrayBuffer()
       content = {
         kind: "binary",
         content: new Uint8Array(arrayBuffer),
-        mediaType: init.body.type || "application/octet-stream",
+        mediaType: bodyToUse.type || "application/octet-stream",
       }
-    } else if (init.body instanceof ArrayBuffer) {
+    } else if (bodyToUse instanceof ArrayBuffer) {
       content = {
         kind: "binary",
-        content: new Uint8Array(init.body),
+        content: new Uint8Array(bodyToUse),
         mediaType: "application/octet-stream",
       }
-    } else if (ArrayBuffer.isView(init.body)) {
+    } else if (ArrayBuffer.isView(bodyToUse)) {
       content = {
         kind: "binary",
         content: new Uint8Array(
-          init.body.buffer,
-          init.body.byteOffset,
-          init.body.byteLength
+          bodyToUse.buffer,
+          bodyToUse.byteOffset,
+          bodyToUse.byteLength
         ),
         mediaType: "application/octet-stream",
       }
@@ -138,7 +170,7 @@ async function convertFetchToRelayRequest(
     url: urlStr,
     method,
     version: "HTTP/1.1", // HTTP version
-    headers: Object.keys(headers).length > 0 ? headers : undefined,
+    headers,
     params: undefined, // Undefined so preProcessRelayRequest doesn't try to process it
     auth: { kind: "none" }, // Required field - no auth for fetch()
     content,

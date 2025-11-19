@@ -115,9 +115,6 @@ const newSendRequest = async () => {
           updateRESTResponse(responseState)
         }
       },
-      () => {
-        loading.value = false
-      },
       (error) => {
         // Error handler - handle all error types and clear loading
         const result = error || (streamResult.right as any).value
@@ -139,6 +136,9 @@ const newSendRequest = async () => {
         }
 
         // Always clear loading state on error
+        loading.value = false
+      },
+      () => {
         loading.value = false
       }
     )

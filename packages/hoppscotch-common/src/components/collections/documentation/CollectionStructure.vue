@@ -50,7 +50,7 @@
         v-if="!hasItems(collectionFolders) && !hasItems(collectionRequests)"
         class="p-3 text-center text-secondaryLight text-xs italic"
       >
-        No requests or folders
+        {{ t("documentation.no_requests_or_folders") }}
       </div>
     </div>
   </div>
@@ -67,6 +67,9 @@ import IconCheveronsDown from "~icons/lucide/chevrons-down"
 import IconCheveronsUp from "~icons/lucide/chevrons-up"
 import { useService } from "dioc/vue"
 import { TeamCollectionsService } from "~/services/team-collection.service"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 type ExpandedFoldersType = { [key: string]: boolean }
 
@@ -103,7 +106,7 @@ const collectionRequests = computed<HoppRequest[]>(() => {
 })
 
 const collectionName = computed<string>(() => {
-  return props.collection.name || "Untitled Collection"
+  return props.collection.name || t("documentation.untitled_collection")
 })
 
 // Initialize folder structure with first level expanded

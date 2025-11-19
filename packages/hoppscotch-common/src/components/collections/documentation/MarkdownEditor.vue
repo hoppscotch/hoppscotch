@@ -30,6 +30,9 @@
 import { ref, computed, watch, nextTick, onMounted } from "vue"
 import MarkdownIt from "markdown-it"
 import DOMPurify from "dompurify"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -79,7 +82,7 @@ const renderedMarkdown = computed(() => {
   try {
     if (!internalContent.value || internalContent.value.trim() === "") {
       return DOMPurify.sanitize(
-        `<p class='text-secondaryLight italic'>${props.placeholder}</p>`
+        `<p class='text-secondaryLight italic'>${props.placeholder || t("documentation.add_description_placeholder")}</p>`
       )
     }
 
@@ -91,7 +94,7 @@ const renderedMarkdown = computed(() => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     return DOMPurify.sanitize(
-      `<div class="text-red-400">Error rendering markdown: ${errorMessage}</div>`
+      `<div class="text-red-400">${t("documentation.error_rendering_markdown")} ${errorMessage}</div>`
     )
   }
 })

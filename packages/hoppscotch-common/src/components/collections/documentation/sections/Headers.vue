@@ -3,7 +3,7 @@
     <h2
       class="text-sm font-semibold text-secondaryDark flex items-end px-4 p-2 border-b border-divider"
     >
-      <span>Headers</span>
+      <span>{{ t("documentation.headers.title") }}</span>
     </h2>
     <div class="px-4 py-2 flex flex-col">
       <div class="space-y-3">
@@ -33,7 +33,9 @@
                   : 'bg-red-500/20 text-red-500'
               "
             >
-              {{ header.active ? "Active" : "Inactive" }}
+              {{
+                header.active ? t("documentation.yes") : t("documentation.no")
+              }}
             </span>
           </div>
         </div>
@@ -41,7 +43,7 @@
           v-if="headers.length === 0"
           class="text-secondaryLight text-sm py-1"
         >
-          No headers defined
+          {{ t("documentation.headers.no_headers") }}
         </div>
       </div>
     </div>
@@ -50,6 +52,9 @@
 
 <script lang="ts" setup>
 import { HoppRESTHeader } from "@hoppscotch/data"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 defineProps<{
   headers: HoppRESTHeader[]

@@ -16,7 +16,7 @@
           </div>
           <HoppSmartItem
             :icon="IconExternalLink"
-            title="Open request in new tab"
+            :title="t('documentation.open_request_in_new_tab')"
             @click="openInNewTab"
           />
         </div>
@@ -38,7 +38,7 @@
       <div class="">
         <CollectionsDocumentationMarkdownEditor
           v-model="editableContent"
-          placeholder="Add description for request here..."
+          :placeholder="t('documentation.add_request_description')"
           @blur="handleBlur"
         />
       </div>
@@ -76,7 +76,7 @@
 
     <div v-else class="text-center py-8 text-secondaryLight">
       <icon-lucide-file-question class="mx-auto mb-2" size="32" />
-      <p>No request data available</p>
+      <p>{{ t("documentation.no_request_data") }}</p>
     </div>
   </div>
 </template>
@@ -105,6 +105,9 @@ import {
   getCurrentEnvironment,
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const toast = useToast()
 
@@ -142,7 +145,7 @@ const documentationService = useService(DocumentationService)
 
 const requestName = computed<string>(() => {
   if (!props.request) return ""
-  return props.request.name || "Untitled Request"
+  return props.request.name || t("documentation.untitled_request")
 })
 
 const requestMethod = computed<string>(() => {
@@ -386,7 +389,7 @@ const copyToClipboard = async (text: string | undefined) => {
   if (!text) return
   try {
     await navigator.clipboard.writeText(text)
-    toast.success("Copied to clipboard!")
+    toast.success(t("documentation.copied_to_clipboard"))
   } catch (err) {
     console.error("Failed to copy text: ", err)
   }
@@ -461,7 +464,7 @@ const openInNewTab = () => {
     }
 
     emit("close-modal")
-    toast.success("Request opened in new tab!")
+    toast.success(t("documentation.request_opened_in_new_tab"))
   }
 }
 </script>

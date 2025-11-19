@@ -27,7 +27,9 @@
                   : 'bg-red-500/20 text-red-500'
               "
             >
-              {{ variable.active ? "Active" : "Inactive" }}
+              {{
+                variable.active ? t("documentation.yes") : t("documentation.no")
+              }}
             </span>
           </div>
         </div>
@@ -35,7 +37,7 @@
           v-if="variables.length === 0"
           class="text-secondaryLight text-sm py-1"
         >
-          No {{ title.toLowerCase() }} defined
+          {{ t("documentation.variables.no_vars") }}
         </div>
       </div>
     </div>
@@ -47,13 +49,17 @@ import {
   HoppRESTRequestVariable,
   HoppCollectionVariable,
 } from "@hoppscotch/data"
+import { computed } from "vue"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const props = defineProps<{
   variables: (HoppRESTRequestVariable | HoppCollectionVariable)[]
   title?: string
 }>()
 
-const title = props.title || "Variables"
+const title = computed(() => props.title || t("documentation.variables.title"))
 
 function hasItems<T>(value: T[] | undefined): boolean {
   return !!value && value.length > 0

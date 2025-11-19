@@ -14,7 +14,7 @@
       <div class="">
         <CollectionsDocumentationMarkdownEditor
           v-model="editableContent"
-          placeholder="Add description for this collection here..."
+          :placeholder="t('documentation.add_description')"
           @blur="handleBlur"
         />
       </div>
@@ -30,7 +30,7 @@
 
     <div v-else class="text-center py-8 text-secondaryLight">
       <icon-lucide-file-question class="mx-auto mb-2" size="32" />
-      <p>No collection data available</p>
+      <p>{{ t("documentation.no_collection_data") }}</p>
     </div>
   </div>
 </template>
@@ -46,6 +46,9 @@ import { ref, computed, watch } from "vue"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { DocumentationService } from "~/services/documentation.service"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 type CollectionType = HoppCollection | null
 

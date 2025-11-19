@@ -3,11 +3,13 @@
     <h2
       class="text-sm font-semibold text-secondaryDark flex items-end px-4 p-2 border-b border-divider"
     >
-      Request Body
+      {{ t("documentation.body.title") }}
     </h2>
     <div class="p-4">
       <div class="flex items-center mb-2">
-        <span class="font-medium text-secondaryDark w-32">Content Type:</span>
+        <span class="font-medium text-secondaryDark w-32"
+          >{{ t("documentation.body.content_type") }}:</span
+        >
         <span class="px-2 py-1 text-xs rounded bg-divider text-secondaryDark">
           {{ body.contentType }}
         </span>
@@ -26,10 +28,10 @@
           <thead class="">
             <tr>
               <th class="text-left py-2 font-semibold text-secondaryDark">
-                Key
+                {{ t("documentation.key") }}
               </th>
               <th class="text-left py-2 font-semibold text-secondaryDark">
-                Value
+                {{ t("documentation.value") }}
               </th>
             </tr>
           </thead>
@@ -62,6 +64,9 @@
 
 <script lang="ts" setup>
 import { HoppRESTReqBody, parseRawKeyValueEntries } from "@hoppscotch/data"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 defineProps<{
   body: HoppRESTReqBody | null | undefined

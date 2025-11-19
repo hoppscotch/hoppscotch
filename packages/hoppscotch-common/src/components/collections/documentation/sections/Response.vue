@@ -3,7 +3,7 @@
     <h2
       class="text-sm font-semibold text-secondaryDark flex items-end px-4 p-2 border-b border-divider"
     >
-      Response Examples
+      {{ t("documentation.response.title") }}
     </h2>
 
     <div
@@ -31,7 +31,7 @@
                 </div>
                 <HoppSmartItem
                   :icon="IconCopy"
-                  title="Copy response"
+                  :title="t('documentation.copy_response')"
                   @click="copyResponseExample(example)"
                 />
               </div>
@@ -44,7 +44,7 @@
               <HoppSmartTab
                 v-if="example.body"
                 id="body"
-                label="Response Body"
+                :label="t('documentation.response_body')"
                 class="flex h-full w-full flex-1 flex-col"
               >
                 <div class="p-4">
@@ -66,7 +66,7 @@
               <HoppSmartTab
                 v-if="example.headers && example.headers.length > 0"
                 id="headers"
-                :label="`Headers (${example.headers.length})`"
+                :label="`${t('documentation.response_headers')} (${example.headers.length})`"
                 class="flex h-full w-full flex-1 flex-col"
               >
                 <div class="p-4">
@@ -76,12 +76,12 @@
                         <th
                           class="text-left py-2 px-3 font-semibold text-secondaryDark text-xs"
                         >
-                          Key
+                          {{ t("documentation.key") }}
                         </th>
                         <th
                           class="text-left py-2 px-3 font-semibold text-secondaryDark text-xs"
                         >
-                          Value
+                          {{ t("documentation.value") }}
                         </th>
                       </tr>
                     </thead>
@@ -125,7 +125,7 @@
 
     <div v-else class="text-center py-8 text-secondaryLight">
       <icon-lucide-file-text class="mx-auto mb-2" size="24" />
-      <p class="text-sm">No response examples available</p>
+      <p class="text-sm">{{ t("documentation.response.no_examples") }}</p>
     </div>
   </div>
 </template>
@@ -135,6 +135,9 @@ import { computed, ref, watch } from "vue"
 import IconCopy from "~icons/lucide/copy"
 import { useToast } from "~/composables/toast"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 interface ResponseExample {
   name?: string
@@ -235,10 +238,10 @@ async function copyResponseExample(example: ResponseExample): Promise<void> {
   try {
     const responseText = example.body || ""
     await navigator.clipboard.writeText(responseText)
-    toast.success("Response example copied to clipboard!")
+    toast.success(t("documentation.response.example_copied"))
   } catch (err) {
     console.error("Failed to copy response example: ", err)
-    toast.error("Failed to copy response example")
+    toast.error(t("documentation.response.example_copy_failed"))
   }
 }
 </script>

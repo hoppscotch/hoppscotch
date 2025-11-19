@@ -12,7 +12,7 @@
         <div class="text-sm text-secondaryLight">
           <p class="font-medium mb-1">{{ currentLoadingMessage }}</p>
           <p v-if="!props.isExternalLoading" class="text-xs">
-            {{ displayProgress }}% complete
+            {{ displayProgress }}{{ t("documentation.percent_complete") }}
           </p>
         </div>
       </div>
@@ -84,7 +84,7 @@
             class="p-8 text-center text-secondaryLight"
           >
             <icon-lucide-file-question class="mx-auto mb-2" size="32" />
-            <p>No documentation found for folders or requests</p>
+            <p>{{ t("documentation.no_documentation_found") }}</p>
           </div>
 
           <!-- Rendering of all items -->
@@ -159,7 +159,7 @@
 
     <div v-else class="text-center py-8 text-secondaryLight">
       <icon-lucide-file-question class="mx-auto mb-2" size="32" />
-      <p>No collection data available</p>
+      <p>{{ t("documentation.no_collection_data") }}</p>
     </div>
   </div>
 </template>
@@ -172,6 +172,9 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { DocumentationItem } from "~/composables/useDocumentationWorker"
 import LazyDocumentationItem from "./LazyDocumentationItem.vue"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 type CollectionType = HoppCollection | null
 
@@ -281,12 +284,12 @@ const isLoading = computed(
  */
 const currentLoadingMessage = computed(() => {
   if (props.isExternalLoading) {
-    return "Loading Collection Data..."
+    return t("documentation.loading_collection_data")
   }
   if (props.isProcessingDocumentation) {
-    return "Processing Documentation"
+    return t("documentation.processing_documentation")
   }
-  return "Loading..."
+  return t("documentation.loading")
 })
 
 const displayProgress = computed(() => {

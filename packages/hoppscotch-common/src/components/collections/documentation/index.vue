@@ -68,10 +68,10 @@
           :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
           :label="
             isDocumentationProcessing
-              ? 'Fetching Documentation...'
+              ? t('documentation.fetching_documentation')
               : showAllDocumentation
-                ? 'Hide All Documentation'
-                : 'Show All Documentation'
+                ? t('documentation.hide_all_documentation')
+                : t('documentation.show_all_documentation')
           "
           filled
           outline
@@ -345,7 +345,10 @@ const saveDocumentation = async () => {
         toast.error(t("documentation.save_error"))
       } else {
         toast.success(
-          `Saved ${successCount} items. Failed to save ${failureCount} items.`
+          t("documentation.saved_items_status", {
+            success: successCount,
+            failure: failureCount,
+          })
         )
       }
 
@@ -593,10 +596,10 @@ const hideModal = () => {
 
     closeAttempted.value = true
     toast.info(
-      `You have ${unsavedChangesLength} unsaved changes. Please save before closing.`,
+      t("documentation.unsaved_changes", { count: unsavedChangesLength }),
       {
         action: {
-          text: "Close",
+          text: t("action.close"),
           onClick: (_, toastObject) => {
             toastObject.goAway(0)
             closeAttempted.value = false

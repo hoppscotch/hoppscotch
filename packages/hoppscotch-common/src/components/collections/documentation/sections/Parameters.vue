@@ -3,7 +3,7 @@
     <h2
       class="text-sm font-semibold text-secondaryDark flex items-end px-4 p-2 border-b border-divider"
     >
-      <span>Parameters</span>
+      <span>{{ t("documentation.parameters.title") }}</span>
     </h2>
     <div class="px-4 py-2 flex flex-col">
       <div class="space-y-3">
@@ -33,7 +33,9 @@
                   : 'bg-red-500/20 text-red-500'
               "
             >
-              {{ param.active ? "Active" : "Inactive" }}
+              {{
+                param.active ? t("documentation.yes") : t("documentation.no")
+              }}
             </span>
           </div>
         </div>
@@ -41,7 +43,7 @@
           v-if="params.length === 0"
           class="text-secondaryLight text-sm py-1"
         >
-          No parameters defined
+          {{ t("documentation.parameters.no_params") }}
         </div>
       </div>
     </div>
@@ -50,6 +52,9 @@
 
 <script lang="ts" setup>
 import { HoppRESTParam } from "@hoppscotch/data"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 defineProps<{
   params: HoppRESTParam[]

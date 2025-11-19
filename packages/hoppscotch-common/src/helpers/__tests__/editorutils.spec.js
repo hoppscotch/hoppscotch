@@ -16,16 +16,16 @@ describe("getEditorLangForMimeType", () => {
     expect(getEditorLangForMimeType("text/html")).toMatch("html")
   })
 
-  test("returns null for plain text mime", () => {
-    expect(getEditorLangForMimeType("text/plain")).toBeNull()
+  test("returns text/plain for plain text mime", () => {
+    expect(getEditorLangForMimeType("text/plain")).toBe("text/plain")
   })
 
-  test("returns null for unimplemented mimes", () => {
-    expect(getEditorLangForMimeType("image/gif")).toBeNull()
+  test("returns text/plain for unimplemented mimes", () => {
+    expect(getEditorLangForMimeType("image/gif")).toBe("text/plain")
   })
 
-  test("returns null for null/undefined mimes", () => {
-    expect(getEditorLangForMimeType(null)).toBeNull()
-    expect(getEditorLangForMimeType(undefined)).toBeNull()
+  test("returns text/plain for null/undefined mimes", () => {
+    expect(getEditorLangForMimeType(null)).toBe("text/plain")
+    expect(getEditorLangForMimeType(undefined)).toBe("text/plain")
   })
 })

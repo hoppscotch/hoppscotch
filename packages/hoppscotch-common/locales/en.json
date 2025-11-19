@@ -770,6 +770,13 @@
     },
     "body": {
       "binary": "Sending binary data via the current interceptor is not supported yet."
+    },
+    "scripting_interceptor": {
+      "pre_request": "pre-request script",
+      "post_request": "post-request script",
+      "both_scripts": "pre-request and post-request scripts",
+      "unsupported_interceptor": "Your {scriptType} uses {apiUsed}. For reliable script execution, switch to Agent interceptor (web app) or Native interceptor (Desktop app). The {interceptor} interceptor has limited support for scripting requests and may not work as expected.",
+      "same_origin_csrf_warning": "Security Warning: Your {scriptType} makes same-origin requests using {apiUsed}. Since this platform uses cookie-based authentication, these requests automatically include your session cookies, potentially allowing malicious scripts to perform unauthorized actions. Use Agent interceptor for same-origin requests, or only run scripts you trust."
     }
   },
   "interceptor": {

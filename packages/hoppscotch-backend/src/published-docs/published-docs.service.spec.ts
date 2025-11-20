@@ -22,15 +22,18 @@ import {
 } from './input-type.args';
 import { TeamAccessRole } from 'src/team/team.model';
 import { TreeLevel } from './published-docs.dto';
+import { ConfigService } from '@nestjs/config/dist/config.service';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUserCollectionService = mockDeep<UserCollectionService>();
 const mockTeamCollectionService = mockDeep<TeamCollectionService>();
+const mockConfigService = mockDeep<ConfigService>();
 
 const publishedDocsService = new PublishedDocsService(
   mockPrisma,
   mockUserCollectionService,
   mockTeamCollectionService,
+  mockConfigService,
 );
 
 const currentTime = new Date();
@@ -74,7 +77,7 @@ const userPublishedDocCasted: PublishedDocs = {
   metadata: JSON.stringify(userPublishedDoc.metadata),
   createdOn: userPublishedDoc.createdOn,
   updatedOn: userPublishedDoc.updatedOn,
-  url: `https://api-docs.hoppscotch.io/view/${userPublishedDoc.id}/${userPublishedDoc.version}`,
+  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${userPublishedDoc.id}/${userPublishedDoc.version}`,
 };
 
 const teamPublishedDoc: DBPublishedDocs = {
@@ -103,7 +106,7 @@ const teamPublishedDocCasted: PublishedDocs = {
   metadata: JSON.stringify(teamPublishedDoc.metadata),
   createdOn: teamPublishedDoc.createdOn,
   updatedOn: teamPublishedDoc.updatedOn,
-  url: `https://api-docs.hoppscotch.io/view/${teamPublishedDoc.id}/${teamPublishedDoc.version}`,
+  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${teamPublishedDoc.id}/${teamPublishedDoc.version}`,
 };
 
 beforeEach(() => {

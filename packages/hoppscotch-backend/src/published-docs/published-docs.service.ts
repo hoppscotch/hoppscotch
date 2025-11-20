@@ -24,6 +24,7 @@ import { UserCollectionService } from 'src/user-collection/user-collection.servi
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { GetPublishedDocsQueryDto, TreeLevel } from './published-docs.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PublishedDocsService {
@@ -31,6 +32,7 @@ export class PublishedDocsService {
     private readonly prisma: PrismaService,
     private readonly userCollectionService: UserCollectionService,
     private readonly teamCollectionService: TeamCollectionService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -41,7 +43,7 @@ export class PublishedDocsService {
       ...doc,
       documentTree: JSON.stringify(doc.documentTree),
       metadata: JSON.stringify(doc.metadata),
-      url: `https://api-docs.hoppscotch.io/view/${doc.id}/${doc.version}`,
+      url: `${this.configService.get('VITE_BASE_URL')}/view/${doc.id}/${doc.version}`,
     };
   }
 

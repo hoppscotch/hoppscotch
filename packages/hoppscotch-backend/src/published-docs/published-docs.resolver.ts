@@ -22,6 +22,8 @@ import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
+import { TeamAccessRole } from 'src/team/team.model';
 
 @UseGuards(GqlThrottlerGuard)
 @Resolver(() => PublishedDocs)
@@ -101,6 +103,11 @@ export class PublishedDocsResolver {
     description: 'Get all published documents',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  @RequiresTeamRole(
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
+  )
   async teamPublishedDocsList(
     @Args({
       name: 'teamID',

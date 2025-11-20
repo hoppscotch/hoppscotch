@@ -34,17 +34,17 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       section: t("shortcut.general.title"),
     },
     {
-      label: "Undo",
+      label: t("shortcut.general.undo"),
       keys: [getPlatformSpecialKey(), "Z"],
       section: t("shortcut.general.title"),
     },
     {
-      label: "Redo",
+      label: t("shortcut.general.redo"),
       keys: [getPlatformSpecialKey(), "Y"],
       section: t("shortcut.general.title"),
     },
     {
-      label: "Comment/Uncomment",
+      label: t("shortcut.general.comment_uncomment"),
       keys: [getPlatformSpecialKey(), "/"],
       section: t("shortcut.general.title"),
     },
@@ -166,7 +166,7 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
   // Web-only shortcuts
   const webShortcuts: ShortcutDef[] = [
     {
-      label: "Close Tab",
+      label: t("shortcut.general.close_tab"),
       keys: [getPlatformSpecialKey(), "D"],
       section: t("shortcut.general.title"),
     },

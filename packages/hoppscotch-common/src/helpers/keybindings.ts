@@ -1,7 +1,12 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
-import { isCodeMirrorEditor, isDOMElement, isTypableElement } from "./utils/dom"
+import {
+  isCodeMirrorEditor,
+  isDOMElement,
+  isMonacoEditor,
+  isTypableElement,
+} from "./utils/dom"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
@@ -168,12 +173,6 @@ function handleKeyDown(ev: KeyboardEvent) {
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[binding]
-  if (binding === "ctrl-z" || binding === "ctrl-y") {
-    const target = ev.target
-    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
-      return
-    }
-  }
 
   // Special handling for Ctrl+D (tab close for web browsers)
   if (binding === "ctrl-d") {
@@ -187,18 +186,24 @@ function handleKeyDown(ev: KeyboardEvent) {
     return
   }
 
-  // Special handling for undo/redo - let CodeMirror handle these in editors
+  // Special handling for undo/redo - let CodeMirror and Monaco handle these in editors
   if (binding === "ctrl-z" || binding === "ctrl-y") {
     const target = ev.target
-    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
+    if (
+      isDOMElement(target) &&
+      (isCodeMirrorEditor(target) || isMonacoEditor(target))
+    ) {
       return
     }
   }
 
-  // Special handling for comment toggle - let CodeMirror handle this in editors
+  // Special handling for comment toggle - let CodeMirror and Monaco handle this in editors
   if (binding === "ctrl-/") {
     const target = ev.target
-    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
+    if (
+      isDOMElement(target) &&
+      (isCodeMirrorEditor(target) || isMonacoEditor(target))
+    ) {
       return
     }
     // If not in editor, fall back to keybinds flyout if no other action is bound
@@ -250,11 +255,11 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
       return null
     }
 
-    // Restrict alt+up and alt+down when the target is a codemirror editor
+    // Restrict alt+up and alt+down when the target is a CodeMirror or Monaco editor
     if (
       modifierKey === "alt" &&
       (key === "up" || key === "down") &&
-      isCodeMirrorEditor(target)
+      (isCodeMirrorEditor(target) || isMonacoEditor(target))
     ) {
       return null
     }

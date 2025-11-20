@@ -27,3 +27,13 @@ export function isCodeMirrorEditor(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
   return el.closest(".cm-editor") !== null
 }
+
+/**
+ * Checks if an element is a Monaco editor.
+ * @param el The element to check. If this is not an HTMLElement, the function will return false.
+ * @returns True if the element is a Monaco editor, false otherwise.
+ */
+export function isMonacoEditor(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false
+  return el.closest(".monaco-editor") !== null
+}

@@ -13,6 +13,7 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { invoke } from "@tauri-apps/api/core"
 import { undo, redo, toggleComment } from "@codemirror/commands"
 import { EditorView } from "@codemirror/view"
+import { isCodeMirrorEditor } from "./utils/dom"
 
 // Global registry for CodeMirror views
 const codeMirrorViews = new WeakMap<Element, EditorView>()
@@ -29,13 +30,6 @@ export function registerCodeMirrorView(element: Element, view: EditorView) {
  */
 export function unregisterCodeMirrorView(element: Element) {
   codeMirrorViews.delete(element)
-}
-
-/**
- * Check if an element is part of a CodeMirror editor
- */
-function isCodeMirrorElement(element: Element): boolean {
-  return element.closest(".cm-editor") !== null
 }
 
 /**
@@ -397,7 +391,7 @@ function setupCoreActionHandlers() {
 // Editor action handlers
 bindAction("editor.undo", () => {
   const activeElement = document.activeElement
-  if (activeElement && isCodeMirrorElement(activeElement)) {
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
     const editorView = getCodeMirrorView(activeElement)
     if (editorView) {
       undo(editorView)
@@ -407,7 +401,7 @@ bindAction("editor.undo", () => {
 
 bindAction("editor.redo", () => {
   const activeElement = document.activeElement
-  if (activeElement && isCodeMirrorElement(activeElement)) {
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
     const editorView = getCodeMirrorView(activeElement)
     if (editorView) {
       redo(editorView)
@@ -417,7 +411,7 @@ bindAction("editor.redo", () => {
 
 bindAction("editor.comment-toggle", () => {
   const activeElement = document.activeElement
-  if (activeElement && isCodeMirrorElement(activeElement)) {
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
     const editorView = getCodeMirrorView(activeElement)
     if (editorView) {
       toggleComment(editorView)

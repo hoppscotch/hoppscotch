@@ -19,7 +19,12 @@ import {
   StreamLanguage,
   syntaxHighlighting,
 } from "@codemirror/language"
-import { defaultKeymap, indentLess, insertTab } from "@codemirror/commands"
+import {
+  defaultKeymap,
+  indentLess,
+  insertTab,
+  redo,
+} from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
@@ -53,7 +58,10 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
-import { invokeAction } from "~/helpers/actions"
+import { invokeAction,
+  registerCodeMirrorView,
+  unregisterCodeMirrorView,
+} from "~/helpers/actions"
 import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
@@ -164,6 +172,13 @@ const hoppLang = (
 
   exts.push(hoppLinterExt(linter))
   if (completer) exts.push(hoppCompleterExt(completer))
+
+  // Add comment token configuration for JSONC to enable comment toggle
+  if (language === jsoncLanguage) {
+    exts.push(
+      EditorState.languageData.of(() => [{ commentTokens: { line: "//" } }])
+    )
+  }
 
   return language ? new LanguageSupport(language, exts) : exts
 }
@@ -405,7 +420,10 @@ export function useCodemirror(
                 .toJSON()
                 .join(update.state.lineBreak)
               if (!options.extendedEditorConfig.readOnly) {
-                value.value = cachedValue.value
+                // Only update if the value is actually different to prevent circular updates
+                if (value.value !== cachedValue.value) {
+                  value.value = cachedValue.value
+                }
                 if (options.onChange) {
                   options.onChange(cachedValue.value)
                 }
@@ -465,6 +483,16 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
+            key: "Ctrl-y",
+            mac: "Cmd-y",
+            preventDefault: true,
+            run: redo,
+          },
+        ])
+      ),
+      Prec.highest(
+        keymap.of([
+          {
             key: "Ctrl-Enter" /* Windows */,
             mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
@@ -496,6 +524,9 @@ export function useCodemirror(
       scrollTo: EditorView.scrollIntoView(0),
     })
 
+    // Register the view for global access
+    registerCodeMirrorView(view.value.dom, view.value)
+
     options.onInit?.(view.value)
   }
 
@@ -507,10 +538,16 @@ export function useCodemirror(
 
   watch(el, () => {
     if (el.value) {
-      if (view.value) view.value.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       initView(el.value)
     } else {
-      view.value?.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       view.value = undefined
     }
   })
@@ -521,7 +558,10 @@ export function useCodemirror(
 
   watch(value, (newVal) => {
     if (newVal === undefined) {
-      view.value?.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       view.value = undefined
       return
     }

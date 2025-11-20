@@ -22,6 +22,7 @@
         </div>
         <div class="flex">
           <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
+          <kbd class="shortcut-key">⇧</kbd>
           <kbd class="shortcut-key">/</kbd>
         </div>
         <div class="flex">

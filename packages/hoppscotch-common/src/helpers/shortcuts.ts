@@ -25,12 +25,27 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
     {
       label: t("shortcut.general.show_all"),
-      keys: [getPlatformSpecialKey(), "/"],
+      keys: [getPlatformSpecialKey(), "⇧", "/"],
       section: t("shortcut.general.title"),
     },
     {
       label: t("shortcut.general.close_current_menu"),
       keys: ["ESC"],
+      section: t("shortcut.general.title"),
+    },
+    {
+      label: "Undo",
+      keys: [getPlatformSpecialKey(), "Z"],
+      section: t("shortcut.general.title"),
+    },
+    {
+      label: "Redo",
+      keys: [getPlatformSpecialKey(), "Y"],
+      section: t("shortcut.general.title"),
+    },
+    {
+      label: "Comment/Uncomment",
+      keys: [getPlatformSpecialKey(), "/"],
       section: t("shortcut.general.title"),
     },
 
@@ -148,6 +163,15 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
   ]
 
+  // Web-only shortcuts
+  const webShortcuts: ShortcutDef[] = [
+    {
+      label: "Close Tab",
+      keys: [getPlatformSpecialKey(), "D"],
+      section: t("shortcut.general.title"),
+    },
+  ]
+
   // Desktop-only shortcuts
   const desktopShortcuts: ShortcutDef[] = [
     {
@@ -182,6 +206,9 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
   ]
 
-  // Return base shortcuts + desktop shortcuts only if in desktop mode
-  return isDesktop ? [...baseShortcuts, ...desktopShortcuts] : baseShortcuts
+  // Return base shortcuts + platform-specific shortcuts
+  if (isDesktop) {
+    return [...baseShortcuts, ...desktopShortcuts]
+  }
+  return [...baseShortcuts, ...webShortcuts]
 }

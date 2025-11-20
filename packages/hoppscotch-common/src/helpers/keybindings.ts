@@ -63,8 +63,9 @@ const baseBindings: {
   "alt-u": "request.method.put",
   "alt-x": "request.method.delete",
   "ctrl-k": "modals.search.toggle",
-  "ctrl-/": "flyouts.keybinds.toggle",
+  "ctrl-/": "editor.comment-toggle",
   "shift-/": "modals.support.toggle",
+  "ctrl-shift-/": "flyouts.keybinds.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
@@ -77,6 +78,15 @@ const baseBindings: {
   "ctrl-.": "response.copy",
   "ctrl-e": "response.save-as-example",
   "ctrl-shift-l": "editor.format",
+  "ctrl-z": "editor.undo",
+  "ctrl-y": "editor.redo",
+}
+
+// Web-only bindings
+const webBindings: {
+  [_ in ShortcutKey]?: HoppActionWithOptionalArgs
+} = {
+  "ctrl-d": "tab.close-current",
 }
 
 // Desktop-only bindings
@@ -105,7 +115,10 @@ function getActiveBindings(): typeof baseBindings {
     }
   }
 
-  return baseBindings
+  return {
+    ...baseBindings,
+    ...webBindings,
+  }
 }
 
 export const bindings = getActiveBindings()
@@ -117,7 +130,8 @@ export const bindings = getActiveBindings()
  */
 export function hookKeybindingsListener() {
   onMounted(async () => {
-    document.addEventListener("keydown", handleKeyDown)
+    // Use capture phase to intercept events before browser handles them
+    document.addEventListener("keydown", handleKeyDown, true)
 
     // Listen for Tauri events (desktop only)
     if (getKernelMode() === "desktop") {
@@ -136,7 +150,7 @@ export function hookKeybindingsListener() {
   })
 
   onBeforeUnmount(() => {
-    document.removeEventListener("keydown", handleKeyDown)
+    document.removeEventListener("keydown", handleKeyDown, true)
 
     if (unlistenTauriEvent) {
       unlistenTauriEvent()
@@ -154,6 +168,48 @@ function handleKeyDown(ev: KeyboardEvent) {
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[binding]
+  if (binding === "ctrl-z" || binding === "ctrl-y") {
+    const target = ev.target
+    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
+      return
+    }
+  }
+
+  // Special handling for Ctrl+D (tab close for web browsers)
+  if (binding === "ctrl-d") {
+    ev.preventDefault()
+    ev.stopPropagation()
+    ev.stopImmediatePropagation()
+
+    if (boundAction) {
+      invokeAction(boundAction, undefined, "keypress")
+    }
+    return
+  }
+
+  // Special handling for undo/redo - let CodeMirror handle these in editors
+  if (binding === "ctrl-z" || binding === "ctrl-y") {
+    const target = ev.target
+    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
+      return
+    }
+  }
+
+  // Special handling for comment toggle - let CodeMirror handle this in editors
+  if (binding === "ctrl-/") {
+    const target = ev.target
+    if (isDOMElement(target) && isCodeMirrorEditor(target)) {
+      return
+    }
+    // If not in editor, fall back to keybinds flyout if no other action is bound
+    if (!boundAction) {
+      invokeAction("flyouts.keybinds.toggle", undefined, "keypress")
+      ev.preventDefault()
+      return
+    }
+  }
+
+  // If no action is bound, do nothing
   if (!boundAction) return
 
   ev.preventDefault()

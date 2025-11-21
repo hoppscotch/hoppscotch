@@ -209,7 +209,7 @@ export class PublishedDocsService {
   async getPublishedDocByIDPublic(
     id: string,
     query: GetPublishedDocsQueryDto,
-  ): Promise<E.Either<string, CollectionFolder>> {
+  ): Promise<E.Either<string, PublishedDocs>> {
     const publishedDocs = await this.prisma.publishedDocs.findUnique({
       where: { id },
     });
@@ -230,7 +230,14 @@ export class PublishedDocsService {
               query.tree === TreeLevel.FULL,
             );
 
-      return collectionResult;
+      if (E.isLeft(collectionResult)) return E.left(collectionResult.left);
+
+      return E.right(
+        this.cast({
+          ...publishedDocs,
+          documentTree: JSON.parse(JSON.stringify(collectionResult.right)),
+        }),
+      );
     }
   }
 

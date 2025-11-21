@@ -1,29 +1,13 @@
 <template>
   <div class="flex flex-col min-h-screen bg-primary">
-    <!-- Header -->
-    <!-- <header class="border-b border-divider bg-primary sticky top-0 z-10">
-      <div class="max-w-5xl mx-auto px-4 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-secondaryDark">
-              {{ collectionData?.name || "Loading..." }}
-            </h1>
-          </div>
-        </div>
-      </div>
-    </header> -->
+    <DocumentationHeader
+      v-if="!loading && !error && publishedDoc"
+      :published-doc="publishedDoc"
+      :instance-display-name="instanceDisplayName"
+    />
 
-    <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center flex-1 py-20">
-      <div class="flex flex-col items-center space-y-4">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"
-        ></div>
-        <p class="text-secondaryLight">{{ t("state.loading") }}</p>
-      </div>
-    </div>
+    <DocumentationSkeleton v-if="loading" />
 
-    <!-- Error State -->
     <div
       v-else-if="error"
       class="flex items-center justify-center flex-1 py-20"
@@ -37,69 +21,11 @@
       </div>
     </div>
 
-    <!-- Content -->
-    <main v-else-if="collectionData" class="flex-1 flex">
-      <!-- Sidebar with Collection Structure -->
-      <div
-        class="sticky top-0 w-80 border-r border-divider bg-primary overflow-y-auto max-h-screen"
-      >
-        <CollectionsDocumentationCollectionStructure
-          v-if="collectionData"
-          :collection="collectionData"
-          :is-doc-modal="false"
-          @request-select="handleRequestSelect"
-          @folder-select="handleFolderSelect"
-        />
-      </div>
-
-      <!-- Main Content -->
-      <div class="flex-1 p-6 overflow-y-auto">
-        <div class="flex-1 min-w-0 flex flex-col space-y-8">
-          <!-- Main Collection Documentation -->
-          <div class="mb-8 overflow-hidden">
-            <CollectionsDocumentationCollectionPreview
-              v-if="collectionData"
-              :collection="collectionData"
-              :documentation-description="collectionData.description || ''"
-              :path-or-i-d="null"
-              :read-only="true"
-            />
-          </div>
-
-          <!-- All Items Documentation -->
-          <div
-            v-if="allItems.length > 0"
-            class="space-y-8 mt-8 divide-y divide-divider"
-          >
-            <div
-              v-for="item in allItems"
-              :id="`doc-item-${item.id}`"
-              :key="item.id"
-              class="flex flex-col py-4"
-            >
-              <CollectionsDocumentationCollectionPreview
-                v-if="item.type === 'folder'"
-                :collection="item.item as HoppCollection"
-                :documentation-description="
-                  (item.item as HoppCollection).description || ''
-                "
-                :path-or-i-d="null"
-                :read-only="true"
-              />
-              <CollectionsDocumentationRequestPreview
-                v-else
-                :request="item.item as HoppRESTRequest"
-                :documentation-description="
-                  (item.item as HoppRESTRequest).description || ''
-                "
-                :collection-i-d="''"
-                :read-only="true"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+    <DocumentationContent
+      v-else-if="collectionData"
+      :collection-data="collectionData"
+      :all-items="allItems"
+    />
   </div>
 </template>
 
@@ -114,10 +40,38 @@ import {
 import * as E from "fp-ts/Either"
 import IconAlertCircle from "~icons/lucide/alert-circle"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { PublishedDocs } from "~/helpers/backend/graphql"
+import { getKernelMode } from "@hoppscotch/kernel"
+import { useService } from "dioc/vue"
+import { InstanceSwitcherService } from "~/services/instance-switcher.service"
+import { useReadonlyStream } from "~/composables/stream"
 
 const route = useRoute()
 const t = useI18n()
 
+const kernelMode = getKernelMode()
+const instanceSwitcherService =
+  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
+
+const currentState =
+  kernelMode === "desktop" && instanceSwitcherService
+    ? useReadonlyStream(
+        instanceSwitcherService.getStateStream(),
+        instanceSwitcherService.getCurrentState().value
+      )
+    : ref({
+        status: "disconnected",
+        instance: { displayName: "Hoppscotch" },
+      })
+
+const instanceDisplayName = computed(() => {
+  if (currentState.value.status !== "connected") {
+    return "Hoppscotch"
+  }
+  return currentState.value.instance.displayName
+})
+
+const publishedDoc = ref<Partial<PublishedDocs> | null>(null)
 const collectionData = ref<any>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -135,7 +89,6 @@ const flattenCollection = (
   collection: HoppCollection,
   items: DocumentationItem[] = []
 ): DocumentationItem[] => {
-  // Add folders
   if (collection.folders && collection.folders.length > 0) {
     collection.folders.forEach((folder: HoppCollection) => {
       items.push({
@@ -143,13 +96,11 @@ const flattenCollection = (
         type: "folder",
         item: folder,
       })
-      // Recursively flatten nested folders
       flattenCollection(folder, items)
     })
   }
 
-  // Add requests
-  // Note: collectionFolderToHoppCollection ensures all requests are converted to the latest version
+  // collectionFolderToHoppCollection ensures all requests are converted to the latest version
   if (collection.requests && collection.requests.length > 0) {
     ;(collection.requests as HoppRESTRequest[]).forEach((request) => {
       items.push({
@@ -167,62 +118,6 @@ const allItems = computed<DocumentationItem[]>(() => {
   if (!collectionData.value) return []
   return flattenCollection(collectionData.value)
 })
-
-/**
- * Handles a request being selected from the collection structure sidebar
- */
-const handleRequestSelect = (request: HoppRESTRequest) => {
-  const requestId = request.id || (request as any)._ref_id
-  if (requestId) {
-    scrollToItem(requestId)
-  } else {
-    scrollToItemByName(request.name, "request")
-  }
-}
-
-/**
- * Handles a folder being selected from the collection structure sidebar
- */
-const handleFolderSelect = (folder: HoppCollection) => {
-  const folderId = folder.id || (folder as any)._ref_id
-  if (folderId) {
-    scrollToItem(folderId)
-  } else {
-    scrollToItemByName(folder.name, "folder")
-  }
-}
-
-/**
- * Scrolls to a specific item by its ID
- */
-const scrollToItem = (id: string): void => {
-  setTimeout(() => {
-    const element = document.getElementById(`doc-item-${id}`)
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      })
-    } else {
-      console.log("Item not found:", id)
-    }
-  }, 100)
-}
-
-/**
- * Backup function that scrolls by name and type if ID is not available
- */
-const scrollToItemByName = (name: string, type: "request" | "folder") => {
-  const item = allItems.value.find(
-    (item) => item.item.name === name && item.type === type
-  )
-
-  if (item) {
-    scrollToItem(item.id)
-  } else {
-    console.log(`${type} with name "${name}" not found in allItems`)
-  }
-}
 
 onMounted(async () => {
   const docId = route.params.id as string
@@ -248,8 +143,23 @@ onMounted(async () => {
     return
   }
 
+  publishedDoc.value = {
+    autoSync: false,
+    createdOn: result.right.createdOn,
+    id: result.right.id,
+    updatedOn: result.right.updatedOn,
+    version: result.right.version,
+    metadata: result.right.metadata,
+    title: result.right.title,
+    creator: result.right.creator,
+  }
+
+  console.log("publishedDoc.value", publishedDoc.value)
+
+  const publishedData = JSON.parse(result.right.documentTree)
+
   // Convert the REST API response (CollectionFolder) to HoppCollection format
-  const hoppCollection = collectionFolderToHoppCollection(result.right)
+  const hoppCollection = collectionFolderToHoppCollection(publishedData)
   collectionData.value = hoppCollection
   console.log(
     "Collection data converted to HoppCollection:",

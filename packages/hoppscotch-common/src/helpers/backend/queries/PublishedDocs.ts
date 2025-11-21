@@ -7,6 +7,7 @@ import {
   type UserPublishedDocsListQuery,
   type TeamPublishedDocsListQuery,
   PublishedDocDocument,
+  PublishedDocs,
 } from "../graphql"
 import {
   HoppCollection,
@@ -230,7 +231,7 @@ export const getPublishedDocByID = (id: string) =>
 export const getPublishedDocByIDREST = (
   id: string
   //tree: "FULL" | "MINIMAL" = "FULL"
-): TE.TaskEither<GetPublishedDocError, CollectionFolder> =>
+): TE.TaskEither<GetPublishedDocError, PublishedDocs> =>
   TE.tryCatch(
     async () => {
       const backendUrl = import.meta.env.VITE_BACKEND_API_URL || ""

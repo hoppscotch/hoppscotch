@@ -80,7 +80,7 @@
           <div class="flex space-x-2">
             <HoppSmartItem
               :icon="curlCopied ? IconCheck : IconCopy"
-              :title="t('documentation.copy_to_clipboard')"
+              :title="t('documentation.curl.copy_to_clipboard')"
               @click="copyCurlCommand"
             />
           </div>
@@ -92,7 +92,7 @@
         <div v-if="!isVisible" class="text-secondary text-center py-8">
           <div class="text-sm">{{ t("documentation.curl.click_to_load") }}</div>
           <HoppButtonSecondary
-            :label="t('documentation.load_curl')"
+            :label="t('documentation.curl.load')"
             class="mt-2"
             @click="loadCurl"
           />

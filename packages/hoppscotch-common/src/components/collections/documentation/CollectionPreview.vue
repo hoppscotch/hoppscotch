@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 flex-1 overflow-y-auto">
+  <div class="flex-1 overflow-y-auto">
     <div
       v-if="collection"
       class="flex-1 min-w-0 flex flex-col space-y-8 overflow-y-auto"
@@ -15,6 +15,7 @@
         <CollectionsDocumentationMarkdownEditor
           v-model="editableContent"
           :placeholder="t('documentation.add_description')"
+          :read-only="readOnly"
           @blur="handleBlur"
         />
       </div>
@@ -61,6 +62,7 @@ const props = withDefaults(
     isTeamCollection?: boolean
     collectionPath?: string
     teamID?: string
+    readOnly?: boolean
   }>(),
   {
     documentationDescription: "",
@@ -70,6 +72,7 @@ const props = withDefaults(
     isTeamCollection: false,
     collectionPath: "",
     teamID: "",
+    readOnly: false,
   }
 )
 

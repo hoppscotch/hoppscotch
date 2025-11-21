@@ -9,7 +9,6 @@ import {
   PublishedDocDocument,
 } from "../graphql"
 import {
-  HoppRESTRequest,
   HoppCollection,
   makeCollection,
   translateToNewRequest,
@@ -57,8 +56,8 @@ export type PublishedDocQuery = {
 type CollectionFolder = {
   id?: string
   folders: CollectionFolder[]
-  // Backend store this as any but we set it as HoppRESTRequest
-  requests: HoppRESTRequest[]
+  // Backend stores this as any, we translate it to HoppRESTRequest via translateToNewRequest
+  requests: any[]
   name: string
   data?: string
 }

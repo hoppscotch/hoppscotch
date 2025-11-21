@@ -1,7 +1,12 @@
 <template>
-  <div class="rounded-md border border-divider w-64">
+  <div
+    class="rounded-md border border-divider"
+    :class="{
+      ' w-64': isDocModal,
+    }"
+  >
     <div
-      class="py-2 border-b border-divider bg-divider flex items-center justify-between space-x-3"
+      class="sticky top-0 z-[99] py-2 border-b border-divider bg-divider flex items-center justify-between space-x-3"
     >
       <div
         class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate cursor-pointer hover:bg-dividerLight/50 transition-colors"
@@ -20,7 +25,12 @@
     </div>
 
     <!-- Tree structure -->
-    <div class="max-h-[400px] overflow-y-auto">
+    <div
+      class="overflow-y-auto"
+      :class="{
+        'max-h-[400]': isDocModal,
+      }"
+    >
       <div v-if="hasItems(collectionFolders)">
         <CollectionsDocumentationFolderItem
           v-for="(rootFolder, rootFolderIndex) in collectionFolders"
@@ -82,10 +92,17 @@ type ItemWithPossibleId = {
   [key: string]: unknown
 }
 
-const props = defineProps<{
-  collection: HoppCollection
-  initiallyExpanded?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    collection: HoppCollection
+    initiallyExpanded?: boolean
+    isDocModal?: boolean
+  }>(),
+  {
+    initiallyExpanded: false,
+    isDocModal: true,
+  }
+)
 
 const emit = defineEmits<{
   (e: "request-select", request: HoppRESTRequest): void
@@ -159,15 +176,24 @@ function onFolderSelect(folder: HoppCollection): void {
 
 /**
  * Scrolls to the top of the documentation when collection name is clicked
+ * Works in both the documentation modal and the published doc view
  */
 function scrollToTop(): void {
-  // Find the documentation container and scroll to top
-  const documentationContainer = document.querySelector(
-    "#documentation-container"
+  // Try to find the documentation container by ID (published doc view)
+  const documentationContainer = document.getElementById(
+    "documentation-container"
   )
 
-  if (documentationContainer && "scrollTo" in documentationContainer) {
+  console.log("scroll-to-top", documentationContainer)
+
+  if (documentationContainer) {
     documentationContainer.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  } else {
+    // Fallback: scroll the window (for documentation modal)
+    window.scrollTo({
       top: 0,
       behavior: "smooth",
     })
@@ -176,7 +202,6 @@ function scrollToTop(): void {
 
 /**
  * Type guard to check if a request is a REST request
- * @param request The request object to check
  * @returns True if the request is a REST request
  */
 /**

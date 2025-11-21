@@ -67,6 +67,7 @@ import {
   HoppGQLRequest,
 } from "@hoppscotch/data"
 import { computed } from "vue"
+import CollectionsDocumentationFolderItem from "./FolderItem.vue"
 
 type ExpandedFoldersType = { [key: string]: boolean }
 

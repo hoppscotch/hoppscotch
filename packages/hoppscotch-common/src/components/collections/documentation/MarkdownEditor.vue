@@ -1,7 +1,7 @@
 <template>
   <div class="rounded-sm relative h-full" @click.stop>
     <!-- Edit mode textarea -->
-    <template v-if="editMode">
+    <template v-if="editMode && !readOnly">
       <textarea
         ref="textareaRef"
         v-model="internalContent"
@@ -19,7 +19,13 @@
     <!-- eslint-disable vue/no-v-html -->
     <div
       v-else
-      class="cursor-text min-h-52 p-4 prose prose-invert prose-sm max-w-none markdown-content relative hover:bg-primaryLight transition border border-transparent rounded-sm"
+      :class="[
+        'min-h-52 p-4 prose prose-invert prose-sm max-w-none markdown-content relative border border-transparent rounded-sm',
+        {
+          'cursor-text hover:bg-primaryLight transition': !readOnly,
+          'cursor-text select-auto': readOnly,
+        },
+      ]"
       @click.stop="enableEditMode"
       v-html="renderedMarkdown"
     ></div>
@@ -38,10 +44,12 @@ const props = withDefaults(
   defineProps<{
     modelValue?: string
     placeholder?: string
+    readOnly?: boolean
   }>(),
   {
     modelValue: "",
     placeholder: "Add description here...",
+    readOnly: false,
   }
 )
 
@@ -112,6 +120,9 @@ const adjustTextareaHeight = () => {
 
 // Switch to edit mode and focus the textarea
 const enableEditMode = () => {
+  // Prevent editing if readOnly is true
+  if (props.readOnly) return
+
   editMode.value = true
   nextTick(() => {
     if (textareaRef.value) {

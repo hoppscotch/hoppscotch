@@ -67,7 +67,7 @@
 
         <!-- All Documentation View -->
         <template v-else>
-          <div class="mb-8 overflow-hidden">
+          <div class="mb-8 overflow-hidden p-6">
             <CollectionsDocumentationCollectionPreview
               v-model:documentation-description="collectionDescription"
               :collection="collection"
@@ -100,24 +100,8 @@
                 :force-render="shouldForceRender(index)"
               >
                 <div class="p-0">
-                  <CollectionsDocumentationCollectionPreview
-                    v-if="item.type === 'folder'"
-                    :collection="item.item as HoppCollection"
-                    :documentation-description="
-                      (item.item as HoppCollection).description || ''
-                    "
-                    :folder-path="item.folderPath ?? undefined"
-                    :path-or-i-d="item.pathOrID ?? null"
-                    :is-team-collection="isTeamCollection"
-                    :collection-path="collectionPath || undefined"
-                    :team-i-d="teamID"
-                    @update:documentation-description="
-                      (value) =>
-                        ((item.item as HoppCollection).description = value)
-                    "
-                  />
                   <CollectionsDocumentationRequestPreview
-                    v-else
+                    v-if="item.type === 'request'"
                     :request="item.item as HoppRESTRequest"
                     :documentation-description="
                       (item.item as HoppRESTRequest).description || ''
@@ -133,6 +117,22 @@
                         ((item.item as HoppRESTRequest).description = value)
                     "
                     @close-modal="closeModal"
+                  />
+                  <CollectionsDocumentationCollectionPreview
+                    v-else
+                    :collection="item.item as HoppCollection"
+                    :documentation-description="
+                      (item.item as HoppCollection).description || ''
+                    "
+                    :folder-path="item.folderPath ?? undefined"
+                    :path-or-i-d="item.pathOrID ?? null"
+                    :is-team-collection="isTeamCollection"
+                    :collection-path="collectionPath || undefined"
+                    :team-i-d="teamID"
+                    @update:documentation-description="
+                      (value) =>
+                        ((item.item as HoppCollection).description = value)
+                    "
                   />
                 </div>
               </LazyDocumentationItem>

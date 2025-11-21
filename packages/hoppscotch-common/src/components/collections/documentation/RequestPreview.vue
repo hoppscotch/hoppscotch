@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 flex-1 overflow-y-auto">
+  <div class="flex-1 overflow-y-auto">
     <div v-if="request" class="space-y-8">
       <div class="flex-col space-y-4">
         <div class="flex items-center justify-between mb-2">
@@ -39,6 +39,7 @@
         <CollectionsDocumentationMarkdownEditor
           v-model="editableContent"
           :placeholder="t('documentation.add_request_description')"
+          :read-only="readOnly"
           @blur="handleBlur"
         />
       </div>
@@ -106,6 +107,7 @@ import {
 } from "~/newstore/environments"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { useI18n } from "~/composables/i18n"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -121,6 +123,7 @@ const props = withDefaults(
     requestIndex?: number | null
     requestID?: string | null
     teamID?: string
+    readOnly?: boolean
   }>(),
   {
     documentationDescription: "",
@@ -131,6 +134,7 @@ const props = withDefaults(
     requestIndex: null,
     requestID: null,
     teamID: undefined,
+    readOnly: false,
   }
 )
 
@@ -397,6 +401,13 @@ const copyToClipboard = async (text: string | undefined) => {
 
 const openInNewTab = () => {
   if (props.request) {
+    // If in read-only mode (published documentation), open external link
+    // for now open hoppscotch.io, we can pass the request to be opened in the future
+    if (props.readOnly) {
+      platform.kernelIO.openExternalLink({ url: "https://hoppscotch.io" })
+      return
+    }
+
     let saveContext = null
 
     // Determine if this is a team collection or user collection

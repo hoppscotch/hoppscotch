@@ -27,11 +27,11 @@
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@hoppscotch/ui": "0.2.5",
-    "@types/node": "24.9.1",
+    "@types/node": "24.10.1",
     "cross-env": "10.1.0",
     "http-server": "14.1.1",
     "husky": "9.1.7",
-    "lint-staged": "16.2.5"
+    "lint-staged": "16.2.7"
   },
   "pnpm": {
     "overrides": {

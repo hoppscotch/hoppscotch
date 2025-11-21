@@ -24,8 +24,8 @@
   "devDependencies": {
     "@lezer/generator": "1.8.0",
     "@rollup/plugin-typescript": "12.1.4",
-    "mocha": "11.7.4",
-    "rollup": "4.52.5",
+    "mocha": "11.7.5",
+    "rollup": "4.53.3",
     "typescript": "5.9.3"
   }
 }

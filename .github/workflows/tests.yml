@@ -13,10 +13,9 @@ jobs:
 
     strategy:
       matrix:
-        # Pinned to Node.js 22 to maintain compatibility with isolated-vm v5.x
-        # Node.js 24 requires isolated-vm v6+ due to V8 API changes
-        # TODO: Upgrade to isolated-vm v6 and support Node.js 24 in future dependency update cycle
-        node-version: ["22"]
+        # Pinned to Node.js 22 due to known test failures on Node.js 24.
+        # Future TODO: Investigate test failures and move to Node.js 24 (Active LTS).
+        node-version: [22]
 
     steps:
       - name: Checkout
@@ -33,7 +32,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 10
           run_install: true
 
       - name: Run tests

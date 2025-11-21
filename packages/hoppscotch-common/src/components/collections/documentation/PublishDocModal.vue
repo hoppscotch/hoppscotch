@@ -67,6 +67,20 @@
             <HoppButtonSecondary :icon="copyIcon" outline @click="copyUrl" />
           </div>
         </div>
+
+        <div class="flex">
+          <HoppButtonSecondary
+            v-if="mode === 'update'"
+            :icon="IconTrash2"
+            label="Delete Documentation"
+            class="!text-red-500"
+            :loading="loading"
+            :disabled="loading"
+            filled
+            outline
+            @click="showDeleteConfirmModal = true"
+          />
+        </div>
       </div>
     </template>
 
@@ -101,6 +115,15 @@
       </div>
     </template>
   </HoppSmartModal>
+
+  <HoppSmartConfirmModal
+    :show="showDeleteConfirmModal"
+    :title="t('documentation.publish.delete_published_doc')"
+    :confirm="t('action.delete')"
+    :loading-state="loading"
+    @hide-modal="showDeleteConfirmModal = false"
+    @resolve="confirmDelete"
+  />
 </template>
 
 <script setup lang="ts">
@@ -111,6 +134,7 @@ import { useToast } from "~/composables/toast"
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCheck from "~icons/lucide/check"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 import {
   CreatePublishedDocsArgs,
@@ -144,6 +168,7 @@ const emit = defineEmits<{
   (e: "publish", data: CreatePublishedDocsArgs): void
   (e: "update", id: string, data: UpdatePublishedDocsArgs): void
   (e: "published", url: string): void
+  (e: "delete"): void
 }>()
 
 const publishTitle = ref(props.existingData?.title || props.collectionTitle)
@@ -152,8 +177,9 @@ const autoSync = ref(props.existingData?.autoSync ?? true)
 const publishedUrl = ref<string | null>(props.existingData?.url || null)
 
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
-
 const { copy } = useClipboard()
+
+const showDeleteConfirmModal = ref(false)
 
 // Initialize form data based on existingData or defaults
 const initializeFormData = () => {
@@ -246,5 +272,10 @@ const viewPublished = () => {
   if (publishedUrl.value) {
     window.open(publishedUrl.value, "_blank")
   }
+}
+
+const confirmDelete = () => {
+  emit("delete")
+  showDeleteConfirmModal.value = false
 }
 </script>

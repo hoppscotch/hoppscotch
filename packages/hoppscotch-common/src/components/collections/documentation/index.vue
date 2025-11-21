@@ -116,7 +116,7 @@
                     <HoppSmartInput
                       :model-value="existingPublishedData?.url"
                       disabled
-                      class="flex-1"
+                      class="flex-1 !min-w-60"
                     />
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
@@ -127,6 +127,7 @@
                   </div>
 
                   <HoppSmartItem
+                    reverse
                     :icon="IconPenLine"
                     :label="t('documentation.publish.edit_published_doc')"
                     @click="
@@ -170,10 +171,11 @@
     :mode="publishModalMode"
     :published-doc-id="publishedDocId"
     :existing-data="existingPublishedData"
-    :loading="isPublishing"
+    :loading="isProcessingPublish"
     @hide-modal="showPublishModal = false"
     @publish="handlePublish"
     @update="handleUpdate"
+    @delete="handleDelete"
   />
 </template>
 
@@ -223,6 +225,7 @@ import {
 } from "~/helpers/backend/graphql"
 import {
   createPublishedDoc,
+  deletePublishedDoc,
   updatePublishedDoc,
 } from "~/helpers/backend/mutations/PublishedDocs"
 import {
@@ -275,7 +278,7 @@ const documentationService = useService(DocumentationService)
 const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
 const isCheckingPublishedStatus = ref<boolean>(false)
-const isPublishing = ref<boolean>(false)
+const isProcessingPublish = ref<boolean>(false)
 
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
 const { copy } = useClipboard()
@@ -864,7 +867,7 @@ const hideModal = () => {
 }
 
 const handlePublish = async (doc: CreatePublishedDocsArgs) => {
-  isPublishing.value = true
+  isProcessingPublish.value = true
   await pipe(
     createPublishedDoc(doc),
     TE.match(
@@ -889,11 +892,11 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
       }
     )
   )()
-  isPublishing.value = false
+  isProcessingPublish.value = false
 }
 
 const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
-  isPublishing.value = true
+  isProcessingPublish.value = true
   await pipe(
     updatePublishedDoc(id, doc),
     TE.match(
@@ -920,6 +923,30 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
       }
     )
   )()
-  isPublishing.value = false
+  isProcessingPublish.value = false
+}
+
+const handleDelete = async () => {
+  if (!publishedDocId.value) return
+
+  isProcessingPublish.value = true
+  await pipe(
+    deletePublishedDoc(publishedDocId.value),
+    TE.match(
+      (error) => {
+        console.error("Error deleting documentation:", error)
+        toast.error(t("documentation.publish.delete_error"))
+      },
+      () => {
+        toast.success(t("documentation.publish.delete_success"))
+
+        isCollectionPublished.value = false
+        publishedDocId.value = undefined
+        existingPublishedData.value = undefined
+        showPublishModal.value = false
+      }
+    )
+  )()
+  isProcessingPublish.value = false
 }
 </script>

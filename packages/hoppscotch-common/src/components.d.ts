@@ -256,6 +256,7 @@ declare module 'vue' {
     IconLucideTerminal: typeof import('~icons/lucide/terminal')['default']
     IconLucideTriangleAlert: typeof import('~icons/lucide/triangle-alert')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
+    IconLucideVerified: typeof import('~icons/lucide/verified')['default']
     IconLucideX: typeof import('~icons/lucide/x')['default']
     ImportExportBase: typeof import('./components/importExport/Base.vue')['default']
     ImportExportImportExportList: typeof import('./components/importExport/ImportExportList.vue')['default']

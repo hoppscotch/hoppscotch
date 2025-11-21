@@ -63,27 +63,122 @@
             filled
             @click="saveDocumentation"
           />
+          <!-- Publish Button - Simple button when not published -->
         </span>
-        <HoppButtonSecondary
-          :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
-          :label="
-            isDocumentationProcessing
-              ? t('documentation.fetching_documentation')
-              : showAllDocumentation
-                ? t('documentation.hide_all_documentation')
-                : t('documentation.show_all_documentation')
-          "
-          filled
-          outline
-          @click="handleToggleAllDocumentation"
-        />
+
+        <div class="flex space-x-2 items-center">
+          <HoppButtonSecondary
+            v-if="currentCollection && !isCollectionPublished"
+            :icon="isCheckingPublishedStatus ? IconLoader2 : IconShare2"
+            :label="t('documentation.publish.button')"
+            :loading="isCheckingPublishedStatus"
+            :disabled="isCheckingPublishedStatus"
+            outline
+            filled
+            @click="openPublishModal"
+          />
+          <tippy
+            v-else-if="
+              currentCollection &&
+              isCollectionPublished &&
+              !isCheckingPublishedStatus
+            "
+            ref="publishedDropdown"
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => publishedDropdownActions?.focus()"
+          >
+            <div
+              class="flex items-center border border-accent pl-4 pr-2 rounded cursor-pointer"
+            >
+              <icon-lucide-globe class="svg-icons" />
+
+              <HoppButtonSecondary
+                :icon="IconCheveronDown"
+                reverse
+                :label="t('documentation.publish.published')"
+                :loading="isCheckingPublishedStatus"
+                :disabled="isCheckingPublishedStatus"
+                class="!pr-2"
+              />
+            </div>
+
+            <template #content="{ hide }">
+              <div
+                ref="publishedDropdownActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <div class="flex flex-col space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <HoppSmartInput
+                      :model-value="existingPublishedData?.url"
+                      disabled
+                      class="flex-1"
+                    />
+                    <HoppButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="t('action.copy')"
+                      :icon="copyIcon"
+                      @click="copyPublishedUrl"
+                    />
+                  </div>
+
+                  <HoppSmartItem
+                    :icon="IconPenLine"
+                    :label="t('documentation.publish.edit_published_doc')"
+                    @click="
+                      () => {
+                        hide()
+                        openPublishModal()
+                      }
+                    "
+                  />
+                </div>
+              </div>
+            </template>
+          </tippy>
+          <HoppButtonSecondary
+            :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
+            :label="
+              isDocumentationProcessing
+                ? t('documentation.fetching_documentation')
+                : showAllDocumentation
+                  ? t('documentation.hide_all_documentation')
+                  : t('documentation.show_all_documentation')
+            "
+            filled
+            outline
+            @click="handleToggleAllDocumentation"
+          />
+        </div>
       </div>
     </template>
   </HoppSmartModal>
+
+  <CollectionsDocumentationPublishDocModal
+    v-if="currentCollection && collectionID"
+    :show="showPublishModal"
+    :collection-i-d="collectionID"
+    :collection-title="
+      currentCollection.name || t('documentation.untitled_collection')
+    "
+    :workspace-type="isTeamCollection ? WorkspaceType.Team : WorkspaceType.User"
+    :workspace-i-d="isTeamCollection ? teamID || '' : ''"
+    :mode="publishModalMode"
+    :published-doc-id="publishedDocId"
+    :existing-data="existingPublishedData"
+    :loading="isPublishing"
+    @hide-modal="showPublishModal = false"
+    @publish="handlePublish"
+    @update="handleUpdate"
+  />
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick, onUnmounted } from "vue"
+import { ref, computed, watch, nextTick, onUnmounted, markRaw } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { useDocumentationWorker } from "~/composables/useDocumentationWorker"
@@ -115,29 +210,35 @@ import {
 
 import IconFileText from "~icons/lucide/file-text"
 import IconLoader2 from "~icons/lucide/loader-2"
+import IconShare2 from "~icons/lucide/share-2"
+import IconPenLine from "~icons/lucide/pen-line"
+import IconCheveronDown from "~icons/lucide/chevron-down"
+import IconCopy from "~icons/lucide/copy"
+import IconCheck from "~icons/lucide/check"
+
+import {
+  WorkspaceType,
+  CreatePublishedDocsArgs,
+  UpdatePublishedDocsArgs,
+} from "~/helpers/backend/graphql"
+import {
+  createPublishedDoc,
+  updatePublishedDoc,
+} from "~/helpers/backend/mutations/PublishedDocs"
+import {
+  getUserPublishedDocs,
+  getTeamPublishedDocs,
+} from "~/helpers/backend/queries/PublishedDocs"
+
+import { TippyComponent } from "vue-tippy"
 
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
+import { refAutoReset, useClipboard } from "@vueuse/core"
 
 const t = useI18n()
 const toast = useToast()
-const documentationService = useService(DocumentationService)
-
-const isLoadingTeamCollection = ref<boolean>(false)
-const isSavingDocumentation = ref<boolean>(false)
-const allItems = ref<Array<any>>([])
-const showAllDocumentation = ref<boolean>(false)
-
-const isDocumentationProcessing = computed(() => {
-  return isProcessingDocumentation.value || isLoadingTeamCollection.value
-})
-
-const {
-  isProcessing: isProcessingDocumentation,
-  progress: processingProgress,
-  processDocumentation,
-} = useDocumentationWorker()
 
 const props = withDefaults(
   defineProps<{
@@ -168,6 +269,51 @@ const props = withDefaults(
     teamID: undefined,
   }
 )
+
+const documentationService = useService(DocumentationService)
+
+const isLoadingTeamCollection = ref<boolean>(false)
+const isSavingDocumentation = ref<boolean>(false)
+const isCheckingPublishedStatus = ref<boolean>(false)
+const isPublishing = ref<boolean>(false)
+
+const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
+const { copy } = useClipboard()
+
+const allItems = ref<Array<any>>([])
+
+const showAllDocumentation = ref<boolean>(false)
+const showPublishModal = ref<boolean>(false)
+
+const publishedDropdown = ref<TippyComponent | null>(null)
+const publishedDropdownActions = ref<HTMLDivElement | null>(null)
+
+// Published docs state
+const isCollectionPublished = ref<boolean>(false)
+const publishedDocId = ref<string | undefined>(undefined)
+const existingPublishedData = ref<
+  | {
+      title: string
+      version: string
+      autoSync: boolean
+      url: string
+    }
+  | undefined
+>(undefined)
+
+const publishModalMode = computed<"create" | "update" | "view">(() => {
+  return isCollectionPublished.value ? "update" : "create"
+})
+
+const isDocumentationProcessing = computed(() => {
+  return isProcessingDocumentation.value || isLoadingTeamCollection.value
+})
+
+const {
+  isProcessing: isProcessingDocumentation,
+  progress: processingProgress,
+  processDocumentation,
+} = useDocumentationWorker()
 
 // Store the full collection data with all nested folders and requests
 const fullCollectionData = ref<HoppCollection | null>(null)
@@ -256,11 +402,90 @@ const handleToggleAllDocumentation = async () => {
   }
 }
 
+// Check for existing published docs status
+const checkPublishedDocsStatus = async () => {
+  if (!props.collectionID) return
+
+  console.log("currentCollection.value", currentCollection.value)
+  console.log("///collection-id///", props.collectionID)
+  console.log("///team-id///", props.teamID)
+
+  isCheckingPublishedStatus.value = true
+
+  isCollectionPublished.value = false
+  publishedDocId.value = undefined
+  existingPublishedData.value = undefined
+
+  // Check if collection is already published
+  if (props.isTeamCollection && props.teamID) {
+    await pipe(
+      getTeamPublishedDocs(props.teamID, props.collectionID),
+      TE.match(
+        (error) => {
+          console.log("No published docs found or error:", error)
+          isCheckingPublishedStatus.value = false
+        },
+        (docs) => {
+          console.log("//published-docs///", docs)
+          // Find published doc for this collection
+          const publishedDoc = docs.find(
+            (doc) => doc.collection.id === props.collectionID
+          )
+          if (publishedDoc) {
+            isCollectionPublished.value = true
+            publishedDocId.value = publishedDoc.id
+            existingPublishedData.value = {
+              title: publishedDoc.title,
+              version: publishedDoc.version,
+              autoSync: publishedDoc.autoSync,
+              url: publishedDoc.url,
+            }
+          }
+          isCheckingPublishedStatus.value = false
+        }
+      )
+    )()
+  } else {
+    await pipe(
+      getUserPublishedDocs(),
+      TE.match(
+        (error) => {
+          console.log("No published docs found or error:", error)
+          isCheckingPublishedStatus.value = false
+        },
+        (docs) => {
+          console.log("//published-docs///", docs)
+          // Find published doc for this collection
+          const publishedDoc = docs.find(
+            (doc) => doc.collection.id === props.collectionID
+          )
+          if (publishedDoc) {
+            isCollectionPublished.value = true
+            publishedDocId.value = publishedDoc.id
+            existingPublishedData.value = {
+              title: publishedDoc.title,
+              version: publishedDoc.version,
+              autoSync: publishedDoc.autoSync,
+              url: publishedDoc.url,
+            }
+          }
+          isCheckingPublishedStatus.value = false
+        }
+      )
+    )()
+  }
+}
+
 // Reset fetched collection data when modal opens/closes
 watch(
   () => props.show,
-  (isVisible) => {
-    if (!isVisible) {
+  async (newVal) => {
+    console.log("///show///", newVal)
+    if (newVal) {
+      console.log("//check-published-docs-status///")
+      // Check for existing published docs when modal opens
+      await checkPublishedDocsStatus()
+    } else {
       // Reset when modal closes
       fullCollectionData.value = null
       isLoadingTeamCollection.value = false
@@ -270,6 +495,9 @@ watch(
       // Clear documentation service changes
       documentationService.clearAll()
     }
+  },
+  {
+    immediate: true,
   }
 )
 
@@ -293,6 +521,19 @@ watch(
   },
   { immediate: true }
 )
+
+const openPublishModal = () => {
+  showPublishModal.value = true
+}
+
+const copyPublishedUrl = () => {
+  if (existingPublishedData.value?.url) {
+    copyIcon.value = markRaw(IconCheck)
+    copy(existingPublishedData.value.url)
+
+    toast.success(t("documentation.publish.url_copied"))
+  }
+}
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
@@ -620,5 +861,65 @@ const hideModal = () => {
   emit("hide-modal")
   closeAttempted.value = false
   if (closeTimeout) clearTimeout(closeTimeout)
+}
+
+const handlePublish = async (doc: CreatePublishedDocsArgs) => {
+  isPublishing.value = true
+  await pipe(
+    createPublishedDoc(doc),
+    TE.match(
+      (error) => {
+        console.error("Error publishing documentation:", error)
+        toast.error(t("documentation.publish.publish_error"))
+      },
+      (data) => {
+        const url = data.createPublishedDoc.url
+        toast.success(t("documentation.publish.publish_success"))
+
+        // Update state
+        isCollectionPublished.value = true
+        publishedDocId.value = data.createPublishedDoc.id
+
+        existingPublishedData.value = {
+          title: doc.title,
+          version: doc.version,
+          autoSync: doc.autoSync,
+          url: url,
+        }
+      }
+    )
+  )()
+  isPublishing.value = false
+}
+
+const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
+  isPublishing.value = true
+  await pipe(
+    updatePublishedDoc(id, doc),
+    TE.match(
+      (error) => {
+        console.error("Error updating documentation:", error)
+        toast.error(t("documentation.publish.update_error"))
+      },
+      (data) => {
+        const url = data.updatePublishedDoc.url
+        toast.success(t("documentation.publish.update_success"))
+        // Update existing data
+        if (existingPublishedData.value) {
+          existingPublishedData.value = {
+            title: data.updatePublishedDoc.title,
+            version: data.updatePublishedDoc.version,
+            autoSync: data.updatePublishedDoc.autoSync,
+            url: url,
+          }
+        }
+        // Set the URL in the modal
+        // if (publishModalRef.value) {
+        //   publishModalRef.value.setPublishedUrl(url)
+        // }
+      }
+    )
+  )()
+  isPublishing.value = false
 }
 </script>

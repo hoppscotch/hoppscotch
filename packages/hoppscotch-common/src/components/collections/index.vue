@@ -3265,6 +3265,13 @@ const openDocumentation = ({
   editingCollection.value = collection
   editingCollectionIsTeam.value =
     collectionsType.value.type === "team-collections"
+  editingCollectionID.value =
+    collectionsType.value.type === "team-collections"
+      ? (collection.id ?? null)
+      : ((collection as HoppCollection).id ??
+        (collection as HoppCollection)._ref_id ??
+        null)
+
   displayModalDocumentation(true)
 }
 

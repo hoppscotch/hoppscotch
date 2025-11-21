@@ -32,7 +32,7 @@
             v-for="item in allItems"
             :id="`doc-item-${item.id}`"
             :key="item.id"
-            class="flex flex-col py-4"
+            class="flex flex-col py-4 scroll-mt-14"
           >
             <CollectionsDocumentationCollectionPreview
               v-if="item.type === 'folder'"

@@ -14,7 +14,7 @@ import { throwHTTPErr } from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 
 @ApiTags('Published Docs')
-@Controller('published-docs')
+@Controller({version: '1', path: 'published-docs'})
 export class PublishedDocsController {
   constructor(private readonly publishedDocsService: PublishedDocsService) {}
 

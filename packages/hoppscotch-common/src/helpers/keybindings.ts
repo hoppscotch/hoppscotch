@@ -175,7 +175,7 @@ function handleKeyDown(ev: KeyboardEvent) {
   const boundAction = activeBindings[binding]
 
   // Special handling for Ctrl+D (tab close for web browsers)
-  if (binding === "ctrl-d") {
+  if (binding === "ctrl-d" && boundAction) {
     ev.preventDefault()
     ev.stopPropagation()
     ev.stopImmediatePropagation()

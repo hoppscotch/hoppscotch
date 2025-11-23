@@ -1,6 +1,7 @@
 <template>
   <div
     id="documentation-container"
+    ref="documentationContainerRef"
     class="rounded-md flex-1 overflow-y-auto relative"
   >
     <div
@@ -19,7 +20,7 @@
     </div>
 
     <div v-if="collection" class="flex items-start relative">
-      <div class="flex-1 min-w-0">
+      <div class="flex-1 min-w-0 p-4">
         <template v-if="!showAllDocumentation">
           <CollectionsDocumentationCollectionPreview
             v-if="selectedFolder"
@@ -67,7 +68,7 @@
 
         <!-- All Documentation View -->
         <template v-else>
-          <div class="mb-8 overflow-hidden p-6">
+          <div class="mb-8 overflow-hidden">
             <CollectionsDocumentationCollectionPreview
               v-model:documentation-description="collectionDescription"
               :collection="collection"
@@ -148,11 +149,12 @@
         </template>
       </div>
 
-      <div v-if="showAllDocumentation" class="p-6 sticky top-0">
+      <div v-if="showAllDocumentation" class="p-4 sticky top-0">
         <CollectionsDocumentationCollectionStructure
           :collection="collection"
           @request-select="handleRequestSelect"
           @folder-select="handleFolderSelect"
+          @scroll-to-top="handleScrollToTop"
         />
       </div>
     </div>
@@ -413,6 +415,20 @@ const handleFolderSelect = (folder: HoppCollection) => {
  */
 const closeModal = () => {
   emit("close-modal")
+}
+
+const documentationContainerRef = ref<HTMLElement | null>(null)
+
+/**
+ * Scrolls the documentation container to the top
+ */
+const handleScrollToTop = () => {
+  if (documentationContainerRef.value) {
+    documentationContainerRef.value.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }
 }
 
 // Initialize displayed items when allItems changes

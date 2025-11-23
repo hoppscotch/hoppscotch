@@ -1,7 +1,7 @@
 <template>
-  <header class="border-b border-divider bg-primary sticky top-0 z-10">
+  <header class="border-b border-divider bg-primary">
     <div class="px-6 py-4">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-8">
         <div>
           <span
             class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
@@ -10,15 +10,15 @@
           </span>
         </div>
         <div class="flex items-center gap-4">
-          <h1 class="text-md font-bold text-secondaryDark">
+          <span class="text-md font-bold text-secondaryDark">
             {{ publishedDoc?.title || "Untitled Project" }}
-          </h1>
-          <span
+          </span>
+          <!-- <span
             v-if="publishedDoc?.version"
             class="px-2 py-0.5 text-xs font-medium rounded-md bg-accent/10 text-accent"
           >
             {{ publishedDoc.version }}
-          </span>
+          </span> -->
         </div>
       </div>
     </div>

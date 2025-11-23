@@ -6,10 +6,10 @@
     }"
   >
     <div
-      class="sticky top-0 z-[99] py-2 border-b border-divider bg-divider flex items-center justify-between space-x-3"
+      class="sticky top-0 z-[99] py-2 border-b border-divider bg-primaryLight flex items-center justify-between space-x-3"
     >
       <div
-        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate cursor-pointer hover:bg-dividerLight/50 transition-colors"
+        class="font-medium text-secondaryDark flex flex-1 items-center text-xs px-2 truncate cursor-pointer transition-colors"
         @click="scrollToTop"
       >
         <span class="truncate">
@@ -28,7 +28,7 @@
     <div
       class="overflow-y-auto"
       :class="{
-        'max-h-[400]': isDocModal,
+        '!max-h-[400px]': isDocModal,
       }"
     >
       <div v-if="hasItems(collectionFolders)">
@@ -107,6 +107,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: "request-select", request: HoppRESTRequest): void
   (e: "folder-select", folder: HoppCollection): void
+  (e: "scroll-to-top"): void
 }>()
 
 const expandedFolders = reactive<ExpandedFoldersType>({})
@@ -125,6 +126,34 @@ const collectionRequests = computed<HoppRequest[]>(() => {
 const collectionName = computed<string>(() => {
   return props.collection.name || t("documentation.untitled_collection")
 })
+/**
+ * Generate a fallback ID for items that don't have one
+ * @param item The folder or request item
+ * @param index The index of the item in its parent array
+ * @param prefix The prefix to use for the generated ID
+ * @returns A generated ID string
+ */
+const generateFallbackId = (
+  item: ItemWithPossibleId,
+  index: number,
+  prefix: string
+): string => {
+  return (
+    item.id ||
+    item._ref_id ||
+    `${prefix}-${item.name?.replace(/\s+/g, "-").toLowerCase()}-${index}`
+  )
+}
+
+/**
+ * Get a reliable ID for a folder, with fallback generation
+ * @param folder The folder object
+ * @param index The folder's index in its parent array
+ * @returns A reliable ID string
+ */
+const getFolderId = (folder: HoppCollection, index: number): string => {
+  return generateFallbackId(folder, index, "folder")
+}
 
 // Initialize folder structure with first level expanded
 watch(
@@ -141,12 +170,12 @@ watch(
   { immediate: true }
 )
 
-async function toggleFolder(folderId: string): Promise<void> {
+const toggleFolder = async (folderId: string) => {
   expandedFolders[folderId] = !expandedFolders[folderId]
   await teamCollectionService.expandCollection(folderId)
 }
 
-function toggleAllFolders(): void {
+const toggleAllFolders = () => {
   allExpanded.value = !allExpanded.value
 
   const processAllFolders = (folders: HoppCollection[]) => {
@@ -166,38 +195,19 @@ function toggleAllFolders(): void {
   }
 }
 
-function onRequestSelect(request: HoppRESTRequest): void {
+const onRequestSelect = (request: HoppRESTRequest) => {
   emit("request-select", request)
 }
 
-function onFolderSelect(folder: HoppCollection): void {
+const onFolderSelect = (folder: HoppCollection) => {
   emit("folder-select", folder)
 }
 
 /**
- * Scrolls to the top of the documentation when collection name is clicked
- * Works in both the documentation modal and the published doc view
+ * Emits event to scroll to the top of the documentation
  */
-function scrollToTop(): void {
-  // Try to find the documentation container by ID (published doc view)
-  const documentationContainer = document.getElementById(
-    "documentation-container"
-  )
-
-  console.log("scroll-to-top", documentationContainer)
-
-  if (documentationContainer) {
-    documentationContainer.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
-  } else {
-    // Fallback: scroll the window (for documentation modal)
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
-  }
+const scrollToTop = () => {
+  emit("scroll-to-top")
 }
 
 /**
@@ -209,37 +219,8 @@ function scrollToTop(): void {
  * @param value Array to check
  * @returns Boolean indicating if array has items
  */
-function hasItems<T>(value: T[] | undefined): boolean {
+const hasItems = <T,>(value: T[] | undefined): boolean => {
   return !!value && value.length > 0
-}
-
-/**
- * Generate a fallback ID for items that don't have one
- * @param item The folder or request item
- * @param index The index of the item in its parent array
- * @param prefix The prefix to use for the generated ID
- * @returns A generated ID string
- */
-function generateFallbackId(
-  item: ItemWithPossibleId,
-  index: number,
-  prefix: string
-): string {
-  return (
-    item.id ||
-    item._ref_id ||
-    `${prefix}-${item.name?.replace(/\s+/g, "-").toLowerCase()}-${index}`
-  )
-}
-
-/**
- * Get a reliable ID for a folder, with fallback generation
- * @param folder The folder object
- * @param index The folder's index in its parent array
- * @returns A reliable ID string
- */
-function getFolderId(folder: HoppCollection, index: number): string {
-  return generateFallbackId(folder, index, "folder")
 }
 
 /**
@@ -248,7 +229,7 @@ function getFolderId(folder: HoppCollection, index: number): string {
  * @param index The request's index in its parent array
  * @returns A reliable ID string
  */
-function getRequestId(request: HoppRequest, index: number): string {
+const getRequestId = (request: HoppRequest, index: number): string => {
   return generateFallbackId(request, index, "request")
 }
 </script>

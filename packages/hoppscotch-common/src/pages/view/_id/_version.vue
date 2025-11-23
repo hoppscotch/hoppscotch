@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-primary">
+  <div class="flex flex-col h-screen overflow-hidden bg-primary">
     <DocumentationHeader
       v-if="!loading && !error && publishedDoc"
       :published-doc="publishedDoc"

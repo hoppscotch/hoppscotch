@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1">
     <div class="border-b border-divider bg-primary px-6 py-4">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-8">
         <div class="w-24 h-6 bg-primaryLight rounded animate-pulse"></div>
         <div class="flex items-center gap-4">
           <div class="w-48 h-6 bg-primaryLight rounded animate-pulse"></div>

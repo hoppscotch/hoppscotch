@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="px-3 py-1.5 flex items-center cursor-pointer group"
+      class="px-2 py-1.5 flex items-center cursor-pointer group"
       @click.stop="emit('toggle-folder', currentFolderId)"
     >
       <span

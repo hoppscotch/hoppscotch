@@ -1,18 +1,17 @@
 <template>
-  <main class="flex-1 flex">
-    <div
-      class="sticky top-[3.3rem] w-80 border-r border-divider bg-primary overflow-y-auto max-h-screen"
-    >
+  <main class="flex-1 flex overflow-hidden">
+    <div class="w-80 border-r border-divider bg-primary overflow-y-auto h-full">
       <CollectionsDocumentationCollectionStructure
         v-if="collectionData"
         :collection="collectionData"
         :is-doc-modal="false"
         @request-select="handleRequestSelect"
         @folder-select="handleFolderSelect"
+        @scroll-to-top="handleScrollToTop"
       />
     </div>
 
-    <div class="flex-1 p-6 overflow-y-auto">
+    <div ref="mainContentRef" class="flex-1 p-6 overflow-y-auto h-full">
       <div class="flex-1 min-w-0 flex flex-col space-y-8">
         <div class="mb-8 overflow-hidden">
           <CollectionsDocumentationCollectionPreview
@@ -60,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue"
+import { PropType, ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 
 type DocumentationItem = {
@@ -133,6 +132,20 @@ const scrollToItemByName = (name: string, type: "request" | "folder") => {
     scrollToItem(item.id)
   } else {
     console.log(`${type} with name "${name}" not found in allItems`)
+  }
+}
+
+const mainContentRef = ref<HTMLElement | null>(null)
+
+/**
+ * Scrolls the main content to the top
+ */
+const handleScrollToTop = () => {
+  if (mainContentRef.value) {
+    mainContentRef.value.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
   }
 }
 </script>

@@ -183,6 +183,7 @@ import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
 import {
+  generateUniqueRefId,
   getDefaultGQLRequest,
   HoppCollection,
   HoppGQLRequest,
@@ -514,6 +515,8 @@ const duplicateRequest = async ({
   if (!isValidToken) return
   saveGraphqlRequestAs(folderPath, {
     ...cloneDeep(request),
+    id: undefined,
+    _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
   })
 }

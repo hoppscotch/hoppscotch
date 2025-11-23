@@ -329,7 +329,7 @@ const saveRequestAction = ref<any | null>(null)
 const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
 
 const userHistories = computed(() => {
-  return history.value.map((history) => history.request.endpoint).slice(0, 10)
+  return history.value.slice(0, 10).map((history) => history.request.endpoint)
 })
 
 const inspectionService = useService(InspectionService)

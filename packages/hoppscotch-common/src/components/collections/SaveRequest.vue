@@ -312,7 +312,7 @@ const onSelect = (pickedVal: Picked | null) => {
   picked.value = pickedVal
 }
 
-const saveRequestAs = async () => {
+const handleSaveRequestAs = async () => {
   const isValidToken = await handleTokenValidation()
   if (!isValidToken) return
 
@@ -588,6 +588,14 @@ const saveRequestAs = async () => {
 
     requestSaved("GQL")
   }
+}
+
+const saveRequestAs = async () => {
+  // Avoids UI jank, freezing
+  setTimeout(() => {
+    handleSaveRequestAs()
+  }, 0)
+  return
 }
 
 /**

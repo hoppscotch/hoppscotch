@@ -1478,7 +1478,6 @@ const duplicateRequest = async (payload: {
 
   const newRequest = {
     ...cloneDeep(request),
-    id: undefined,
     _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
   }

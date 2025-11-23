@@ -282,7 +282,6 @@ const duplicateTab = (tabID: string) => {
       type: "request",
       request: {
         ...cloneDeep(tab.value.document.request),
-        id: undefined,
         _ref_id: generateUniqueRefId("req"),
       },
       isDirty: true,

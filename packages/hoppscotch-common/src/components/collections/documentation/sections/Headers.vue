@@ -18,34 +18,37 @@
           <span class="truncate">{{ t("documentation.description") }}</span>
           <span class="truncate"></span>
         </div>
-        <!-- Inherited Headers -->
-        <div
-          v-for="(header, index) in inheritedHeaders"
-          :key="`inherited-${index}`"
-          class="grid grid-cols-[8rem_16rem_1fr_12rem] gap-4 items-center"
-        >
-          <span
-            class="font-medium text-secondaryDark truncate"
-            :title="header.inheritedHeader.key"
-            >{{ header.inheritedHeader.key }}</span
+
+        <template v-if="inheritedHeaders">
+          <!-- Inherited Headers -->
+          <div
+            v-for="(header, index) in inheritedHeaders"
+            :key="`inherited-${index}`"
+            class="grid grid-cols-[8rem_16rem_1fr_12rem] gap-4 items-center"
           >
-          <span class="truncate" :title="header.inheritedHeader.value">{{
-            header.inheritedHeader.value
-          }}</span>
-          <span
-            class="text-xs text-secondaryLight truncate"
-            :title="header.inheritedHeader.description"
-          >
-            {{ header.inheritedHeader.description }}
-          </span>
-          <div class="truncate">
-            <span class="text-tiny text-secondaryLight">
-              {{
-                t("documentation.inherited_from", { name: header.parentName })
-              }}
+            <span
+              class="font-medium text-secondaryDark truncate"
+              :title="header.inheritedHeader.key"
+              >{{ header.inheritedHeader.key }}</span
+            >
+            <span class="truncate" :title="header.inheritedHeader.value">{{
+              header.inheritedHeader.value
+            }}</span>
+            <span
+              class="text-xs text-secondaryLight truncate"
+              :title="header.inheritedHeader.description"
+            >
+              {{ header.inheritedHeader.description }}
             </span>
+            <div class="truncate">
+              <span class="text-tiny text-secondaryLight">
+                {{
+                  t("documentation.inherited_from", { name: header.parentName })
+                }}
+              </span>
+            </div>
           </div>
-        </div>
+        </template>
 
         <!-- Request Headers -->
         <div

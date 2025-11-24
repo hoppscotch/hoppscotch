@@ -469,6 +469,7 @@
       "load": "Load cURL",
       "title": "cURL"
     },
+    "description": "Description",
     "error_rendering_markdown": "Error rendering markdown:",
     "fetching_documentation": "Fetching Documentation...",
     "generate": "Generate documentation",
@@ -478,6 +479,8 @@
       "title": "Headers"
     },
     "hide_all_documentation": "Hide All Documentation",
+    "inherited_from": "Inherited from {name}",
+    "inherited_with_type": "Inherited {type} from {name}",
     "key": "Key",
     "loading": "Loading...",
     "loading_collection_data": "Loading Collection Data...",
@@ -535,6 +538,7 @@
     "save_success": "Documentation saved successfully",
     "saved_items_status": "Saved {success} items. Failed to save {failure} items.",
     "show_all_documentation": "Show All Documentation",
+    "source": "Source",
     "title": "Documentation",
     "unsaved_changes": "You have {count} unsaved changes. Please save before closing.",
     "untitled_collection": "Untitled Collection",

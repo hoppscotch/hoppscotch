@@ -20,13 +20,19 @@
         />
       </div>
 
-      <CollectionsDocumentationSectionsAuth :auth="collectionAuth" />
+      <CollectionsDocumentationSectionsAuth
+        :auth="collectionAuth"
+        :inherited-auth="inheritedProperties?.auth"
+      />
 
       <CollectionsDocumentationSectionsVariables
         :variables="collectionVariables"
       />
 
-      <CollectionsDocumentationSectionsHeaders :headers="collectionHeaders" />
+      <CollectionsDocumentationSectionsHeaders
+        :headers="collectionHeaders"
+        :inherited-headers="inheritedProperties?.headers"
+      />
     </div>
 
     <div v-else class="text-center py-8 text-secondaryLight">
@@ -48,6 +54,9 @@ import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { DocumentationService } from "~/services/documentation.service"
 import { useI18n } from "~/composables/i18n"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { TeamCollectionsService } from "~/services/team-collection.service"
+import { cascadeParentCollectionForProperties } from "~/newstore/collections"
 
 const t = useI18n()
 
@@ -63,6 +72,7 @@ const props = withDefaults(
     collectionPath?: string
     teamID?: string
     readOnly?: boolean
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     documentationDescription: "",
@@ -73,12 +83,33 @@ const props = withDefaults(
     collectionPath: "",
     teamID: "",
     readOnly: false,
+    inheritedProperties: undefined,
   }
 )
 
 const emit = defineEmits<{
   (event: "update:documentationDescription", value: string): void
 }>()
+
+const teamCollectionsService = useService(TeamCollectionsService)
+
+const inheritedProperties = computed(() => {
+  if (props.inheritedProperties) {
+    return props.inheritedProperties
+  }
+
+  if (props.isTeamCollection && props.teamID && props.folderPath) {
+    return teamCollectionsService.cascadeParentCollectionForProperties(
+      props.folderPath
+    )
+  }
+
+  if (!props.isTeamCollection && props.folderPath) {
+    return cascadeParentCollectionForProperties(props.folderPath, "rest")
+  }
+
+  return undefined
+})
 
 // Extract collection name with fallback for null collections
 const collectionName = computed<string>(() => {

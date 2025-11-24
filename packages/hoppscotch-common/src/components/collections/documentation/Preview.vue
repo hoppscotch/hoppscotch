@@ -2,11 +2,11 @@
   <div
     id="documentation-container"
     ref="documentationContainerRef"
-    class="rounded-md flex-1 overflow-y-auto relative"
+    class="rounded-md flex-1 relative"
   >
     <div
       v-if="isLoading"
-      class="absolute inset-0 bg-primary/80 backdrop-blur-sm z-50 flex items-center justify-center"
+      class="absolute inset-0 bg-primary backdrop-blur-sm z-50 flex items-center justify-center"
     >
       <div class="flex flex-col items-center space-y-4 text-center">
         <icon-lucide-loader-2 class="animate-spin" size="32" />

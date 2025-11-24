@@ -137,8 +137,7 @@ import { useI18n } from "~/composables/i18n"
 import * as O from "fp-ts/Option"
 import { useToast } from "~/composables/toast"
 import { useService } from "dioc/vue"
-import { TeamCollectionsService } from "~/services/team-collection.service"
-import { cascadeParentCollectionForProperties } from "~/newstore/collections"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
@@ -209,6 +208,7 @@ const props = withDefaults(
     folderPath?: string | null
     requestIndex?: number | null
     teamID?: string
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     request: null,
@@ -253,7 +253,6 @@ const filteredCodegenDefinitions = computed(() => {
 })
 
 const currentEnvironmentValueService = useService(CurrentValueService)
-const teamCollectionsService = useService(TeamCollectionsService)
 
 const getCurrentValue = (env: AggregateEnvironment) => {
   const currentSelectedEnvironment = getCurrentEnvironment()
@@ -298,33 +297,15 @@ const getEffectiveRequest = async () => {
 
   let collectionVariables: HoppCollectionVariable[] = []
 
-  if (props.teamID && props.folderPath) {
-    const inheritedProperties =
-      await teamCollectionsService.cascadeParentCollectionForPropertiesAsync(
-        props.folderPath
-      )
-
-    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
-      parentVar.inheritedVariables.map((variable) => ({
-        key: variable.key,
-        initialValue: variable.initialValue,
-        currentValue: variable.currentValue,
-        secret: variable.secret,
-      }))
-    )
-  } else if (props.folderPath) {
-    const inheritedProperties = cascadeParentCollectionForProperties(
-      props.folderPath,
-      "rest"
-    )
-
-    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
-      parentVar.inheritedVariables.map((variable) => ({
-        key: variable.key,
-        initialValue: variable.initialValue,
-        currentValue: variable.currentValue,
-        secret: variable.secret,
-      }))
+  if (props.inheritedProperties) {
+    collectionVariables = props.inheritedProperties.variables.flatMap(
+      (parentVar) =>
+        parentVar.inheritedVariables.map((variable) => ({
+          key: variable.key,
+          initialValue: variable.initialValue,
+          currentValue: variable.currentValue,
+          secret: variable.secret,
+        }))
     )
   }
 

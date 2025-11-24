@@ -40,6 +40,7 @@ import {
 import * as E from "fp-ts/Either"
 import IconAlertCircle from "~icons/lucide/alert-circle"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { PublishedDocs } from "~/helpers/backend/graphql"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { useService } from "dioc/vue"
@@ -72,7 +73,7 @@ const instanceDisplayName = computed(() => {
 })
 
 const publishedDoc = ref<Partial<PublishedDocs> | null>(null)
-const collectionData = ref<any>(null)
+const collectionData = ref<HoppCollection | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
@@ -80,6 +81,7 @@ type DocumentationItem = {
   id: string
   type: "folder" | "request"
   item: HoppCollection | HoppRESTRequest
+  inheritedProperties: HoppInheritedProperty
 }
 
 /**
@@ -87,16 +89,52 @@ type DocumentationItem = {
  */
 const flattenCollection = (
   collection: HoppCollection,
-  items: DocumentationItem[] = []
+  items: DocumentationItem[] = [],
+  inheritedProperties: HoppInheritedProperty | undefined = undefined
 ): DocumentationItem[] => {
+  const currentInheritedProps: HoppInheritedProperty = {
+    auth:
+      collection.auth.authType === "inherit"
+        ? (inheritedProperties?.auth ?? {
+            parentID: "",
+            parentName: "",
+            inheritedAuth: { authType: "none", authActive: true },
+          })
+        : {
+            parentID: collection.id || "",
+            parentName: collection.name,
+            inheritedAuth: collection.auth,
+          },
+    headers: [
+      ...(inheritedProperties?.headers || []),
+      ...(collection.headers || []).map((h) => ({
+        parentID: collection.id || "",
+        parentName: collection.name,
+        inheritedHeader: h,
+      })),
+    ],
+    variables: [
+      ...(inheritedProperties?.variables || []),
+      {
+        parentID: collection.id || "",
+        parentName: collection.name,
+        inheritedVariables: (collection.variables || []).map((v) => ({
+          ...v,
+          secret: v.secret,
+        })),
+      },
+    ],
+  }
+
   if (collection.folders && collection.folders.length > 0) {
     collection.folders.forEach((folder: HoppCollection) => {
       items.push({
         id: folder.id || (folder as any)._ref_id || `folder-${folder.name}`,
         type: "folder",
         item: folder,
+        inheritedProperties: currentInheritedProps,
       })
-      flattenCollection(folder, items)
+      flattenCollection(folder, items, currentInheritedProps)
     })
   }
 
@@ -107,6 +145,7 @@ const flattenCollection = (
         id: request.id || (request as any)._ref_id || `request-${request.name}`,
         type: "request",
         item: request,
+        inheritedProperties: currentInheritedProps,
       })
     })
   }
@@ -116,6 +155,7 @@ const flattenCollection = (
 
 const allItems = computed<DocumentationItem[]>(() => {
   if (!collectionData.value) return []
+
   return flattenCollection(collectionData.value)
 })
 

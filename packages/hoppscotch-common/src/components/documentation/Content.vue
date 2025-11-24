@@ -41,14 +41,16 @@
               "
               :path-or-i-d="null"
               :read-only="true"
+              :inherited-properties="getInheritedProperties(item)"
             />
             <CollectionsDocumentationRequestPreview
-              v-else
+              v-if="item.type === 'request'"
               :request="item.item as HoppRESTRequest"
               :documentation-description="
                 (item.item as HoppRESTRequest).description || ''
               "
-              :collection-i-d="''"
+              :collection-i-d="collectionData.id"
+              :inherited-properties="getInheritedProperties(item)"
               :read-only="true"
             />
           </div>
@@ -61,16 +63,18 @@
 <script setup lang="ts">
 import { PropType, ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 type DocumentationItem = {
   id: string
   type: "folder" | "request"
   item: HoppCollection | HoppRESTRequest
+  inheritedProperties: HoppInheritedProperty
 }
 
 const props = defineProps({
   collectionData: {
-    type: Object as PropType<any>,
+    type: Object as PropType<HoppCollection>,
     default: null,
   },
   allItems: {
@@ -147,5 +151,11 @@ const handleScrollToTop = () => {
       behavior: "smooth",
     })
   }
+}
+
+const getInheritedProperties = (
+  item: DocumentationItem
+): HoppInheritedProperty => {
+  return item.inheritedProperties
 }
 </script>

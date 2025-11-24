@@ -41,6 +41,7 @@
               :request-i-d="requestID"
               :team-i-d="teamID"
               @close-modal="hideModal"
+              class="p-4"
             />
           </div>
         </div>

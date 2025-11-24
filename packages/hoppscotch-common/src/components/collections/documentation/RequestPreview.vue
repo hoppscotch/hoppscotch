@@ -52,12 +52,17 @@
         :folder-path="folderPath"
         :request-index="requestIndex"
         :team-i-d="teamID"
+        :inherited-properties="inheritedProperties"
       />
 
-      <CollectionsDocumentationSectionsAuth :auth="request?.auth" />
+      <CollectionsDocumentationSectionsAuth
+        :auth="request?.auth"
+        :inherited-auth="inheritedProperties?.auth"
+      />
 
       <CollectionsDocumentationSectionsHeaders
         :headers="request?.headers || []"
+        :inherited-headers="inheritedProperties?.headers"
       />
 
       <CollectionsDocumentationSectionsParameters
@@ -89,6 +94,7 @@ import {
   HoppRESTRequest,
   makeRESTRequest,
 } from "@hoppscotch/data"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, computed, watch } from "vue"
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
@@ -124,6 +130,7 @@ const props = withDefaults(
     requestID?: string | null
     teamID?: string
     readOnly?: boolean
+    inheritedProperties?: HoppInheritedProperty
   }>(),
   {
     documentationDescription: "",
@@ -135,6 +142,7 @@ const props = withDefaults(
     requestID: null,
     teamID: undefined,
     readOnly: false,
+    inheritedProperties: undefined,
   }
 )
 
@@ -179,38 +187,54 @@ const getCurrentValue = (env: AggregateEnvironment) => {
   )?.currentValue
 }
 
+const inheritedProperties = computed(() => {
+  if (props.inheritedProperties) return props.inheritedProperties
+
+  if (props.teamID && props.folderPath) {
+    return teamCollectionsService.cascadeParentCollectionForProperties(
+      props.folderPath.split("/")[0]
+    )
+  }
+
+  if (props.folderPath) {
+    return cascadeParentCollectionForProperties(props.folderPath, "rest")
+  }
+
+  return undefined
+})
+
 const getEffectiveRequest = async () => {
   if (!props.request) return null
 
+  //let finalAuth = props.request.auth
+  //let finalHeaders = props.request.headers
+
+  // if (inheritedProperties.value) {
+  //   if (
+  //     props.request.auth.authType === "inherit" &&
+  //     inheritedProperties.value.auth.inheritedAuth
+  //   ) {
+  //     finalAuth = inheritedProperties.value.auth.inheritedAuth
+  //   }
+
+  //   if (inheritedProperties.value.headers) {
+  //     const inheritedHeaders = inheritedProperties.value.headers.map(
+  //       (header) => ({
+  //         key: header.inheritedHeader.key,
+  //         value: header.inheritedHeader.value,
+  //         active: header.inheritedHeader.active,
+  //         description: header.inheritedHeader.description,
+  //       })
+  //     )
+  //     finalHeaders = [...inheritedHeaders, ...finalHeaders]
+  //   }
+  // }
+
   let collectionVariables: HoppCollectionVariable[] = []
 
-  if (props.teamID && props.folderPath?.split("/")[0]) {
-    const inheritedProperties =
-      teamCollectionsService.cascadeParentCollectionForProperties(
-        props.folderPath?.split("/")[0] || ""
-      )
-
-    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
-      parentVar.inheritedVariables.map((variable) => ({
-        key: variable.key,
-        initialValue: variable.initialValue,
-        currentValue: variable.currentValue,
-        secret: variable.secret,
-      }))
-    )
-  } else if (props.folderPath) {
-    const inheritedProperties = cascadeParentCollectionForProperties(
-      props.folderPath,
-      "rest"
-    )
-
-    collectionVariables = inheritedProperties.variables.flatMap((parentVar) =>
-      parentVar.inheritedVariables.map((variable) => ({
-        key: variable.key,
-        initialValue: variable.initialValue,
-        currentValue: variable.currentValue,
-        secret: variable.secret,
-      }))
+  if (inheritedProperties.value) {
+    collectionVariables = inheritedProperties.value.variables.flatMap(
+      (v) => v.inheritedVariables
     )
   }
 

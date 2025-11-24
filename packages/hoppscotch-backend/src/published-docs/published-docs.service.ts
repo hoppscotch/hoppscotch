@@ -325,7 +325,10 @@ export class PublishedDocsService {
           version: args.version,
           autoSync: args.autoSync,
           workspaceType: args.workspaceType,
-          workspaceID: args.workspaceID,
+          workspaceID:
+            args.workspaceType === WorkspaceType.TEAM
+              ? args.workspaceID
+              : user.uid,
           metadata: metadata.right,
         },
       });

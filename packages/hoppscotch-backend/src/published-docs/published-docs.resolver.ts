@@ -80,7 +80,7 @@ export class PublishedDocsResolver {
   ) {
     const doc = await this.publishedDocsService.getPublishedDocByID(id, user);
 
-    if (E.isLeft(doc)) return doc.left;
+    if (E.isLeft(doc)) throwErr(doc.left);
     return doc.right;
   }
 

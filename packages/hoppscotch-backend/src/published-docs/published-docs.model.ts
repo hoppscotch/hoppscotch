@@ -65,13 +65,11 @@ export class PublishedDocs {
   @Field({
     description:
       'Workspace ID (of team/user ID) associated with the published documentation',
-    nullable: true,
   })
   @ApiProperty({
     description:
       'Workspace ID (of team/user ID) associated with the published documentation',
     example: 'workspace_12345',
-    nullable: true,
   })
   workspaceID: string;
 

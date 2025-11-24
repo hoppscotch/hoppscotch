@@ -26,7 +26,7 @@ export class CollectionFolder {
   })
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Additional data for the collection folder',
     type: String,
   })

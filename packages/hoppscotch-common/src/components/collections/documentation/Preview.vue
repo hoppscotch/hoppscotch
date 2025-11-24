@@ -2,7 +2,7 @@
   <div
     id="documentation-container"
     ref="documentationContainerRef"
-    class="rounded-md flex-1 relative"
+    class="rounded-md flex-1 relative overflow-y-auto h-full"
   >
     <div
       v-if="isLoading"

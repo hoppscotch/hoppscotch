@@ -251,6 +251,7 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="isDocumentationVisible"
                     ref="documentationAction"
                     :icon="IconBook"
                     :label="t('documentation.title')"
@@ -314,6 +315,7 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { HoppCollection } from "@hoppscotch/data"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
@@ -427,6 +429,8 @@ const propertiesAction = ref<HTMLButtonElement | null>(null)
 const runCollectionAction = ref<HTMLButtonElement | null>(null)
 const sortAction = ref<HTMLButtonElement | null>(null)
 const documentationAction = ref<HTMLButtonElement | null>(null)
+
+const { isDocumentationVisible } = useDocumentationVisibility()
 
 const dragging = ref(false)
 const ordering = ref(false)

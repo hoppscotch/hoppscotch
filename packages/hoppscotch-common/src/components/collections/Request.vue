@@ -102,6 +102,7 @@
                 @keyup.d="duplicate?.$el.click()"
                 @keyup.delete="deleteAction?.$el.click()"
                 @keyup.s="shareAction?.$el.click()"
+                @keyup.i="documentationAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -134,7 +135,7 @@
                   ref="documentationAction"
                   :icon="IconBook"
                   :label="t('documentation.title')"
-                  :shortcut="['D']"
+                  :shortcut="['I']"
                   @click="
                     () => {
                       emit('open-request-documentation')
@@ -329,6 +330,7 @@ const deleteAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
 const shareAction = ref<HTMLButtonElement | null>(null)
+const documentationAction = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)

@@ -354,7 +354,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       headers: folder.headers,
       variables: folder.variables,
       _ref_id: folder._ref_id,
-      description: folder.description ?? null,
+      description: folder.description,
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))

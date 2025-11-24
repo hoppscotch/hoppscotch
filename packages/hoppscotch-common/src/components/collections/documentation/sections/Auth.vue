@@ -3,7 +3,8 @@
     v-if="
       effectiveAuth &&
       effectiveAuth.authActive &&
-      effectiveAuth.authType !== 'none'
+      effectiveAuth.authType !== 'none' &&
+      effectiveAuth.authType !== 'inherit'
     "
     class="max-w-2xl space-y-2"
   >

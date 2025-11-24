@@ -49,7 +49,7 @@ import {
   HoppRESTHeaders,
   HoppCollectionVariable,
 } from "@hoppscotch/data"
-import { ref, computed, watch } from "vue"
+import { ref, computed } from "vue"
 import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { DocumentationService } from "~/services/documentation.service"
@@ -145,19 +145,7 @@ const collectionDescription = useVModel(
 const documentationService = useService(DocumentationService)
 
 // Edit mode state and content management
-const editMode = ref<boolean>(false)
 const editableContent = ref<string>(collectionDescription.value)
-
-// Sync collection description with editable content when not in edit mode
-watch(
-  () => collectionDescription.value,
-  (newContent) => {
-    if (!editMode.value) {
-      editableContent.value = newContent
-    }
-  },
-  { immediate: true }
-)
 
 // Handle blur event - save changes and exit edit mode
 function handleBlur(): void {

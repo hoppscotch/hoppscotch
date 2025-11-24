@@ -213,7 +213,7 @@
         collectionsType.type === 'team-collections' && hasTeamWriteAccess
       "
       :has-team-write-access="
-        collectionsType.type === 'team-collections' ? hasTeamWriteAccess : true
+        hasTeamWriteAccess || collectionsType.type === 'my-collections'
       "
       source="REST"
       @hide-modal="displayModalEditProperties(false)"
@@ -235,7 +235,9 @@
           ? collectionsType.selectedTeam?.teamID
           : undefined
       "
-      :has-team-write-access="hasTeamWriteAccess"
+      :has-team-write-access="
+        hasTeamWriteAccess || collectionsType.type === 'my-collections'
+      "
       @hide-modal="displayModalDocumentation(false)"
     />
 

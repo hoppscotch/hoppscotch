@@ -138,6 +138,7 @@
                   @keyup.m="
                     isMockServerVisible && mockServerAction?.$el.click()
                   "
+                  @keyup.i="documentationAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
                   <HoppSmartItem
@@ -253,7 +254,7 @@
                     ref="documentationAction"
                     :icon="IconBook"
                     :label="t('documentation.title')"
-                    :shortcut="['D']"
+                    :shortcut="['I']"
                     @click="
                       () => {
                         emit('open-documentation')

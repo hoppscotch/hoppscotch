@@ -17,7 +17,7 @@ import {
   UserCollection,
   TeamCollection,
   UserRequest,
-} from '@prisma/client';
+} from 'src/generated/prisma/client';
 import { WorkspaceType } from '../types/WorkspaceTypes';
 import { User } from '../user/user.model';
 import {

@@ -35,7 +35,7 @@ import {
   Prisma,
   TeamCollection as DBTeamCollection,
   TeamRequest,
-} from '@prisma/client';
+} from 'src/generated/prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
 import {

@@ -1,5 +1,11 @@
 <template>
-  <HoppSmartModal v-if="show" dialog :title="modalTitle" @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="modalTitle"
+    styles="sm:max-w-2xl"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col space-y-6">
         <!-- Title Input -->
@@ -68,7 +74,12 @@
           </div>
         </div>
 
-        <div class="flex">
+        <div class="flex space-x-2">
+          <HoppButtonPrimary
+            :label="t('documentation.publish.view_published')"
+            :icon="IconExternalLink"
+            @click="viewPublished"
+          />
           <HoppButtonSecondary
             v-if="mode === 'update'"
             :icon="IconTrash2"
@@ -106,12 +117,6 @@
           :loading="loading"
           @click="handleUpdate"
         />
-        <HoppButtonPrimary
-          v-else
-          :label="t('documentation.publish.view_published')"
-          :icon="IconExternalLink"
-          @click="viewPublished"
-        />
       </div>
     </template>
   </HoppSmartModal>
@@ -130,6 +135,7 @@
 import { ref, computed, watch, markRaw } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
+import { platform } from "~/platform"
 
 import IconCopy from "~icons/lucide/copy"
 import IconExternalLink from "~icons/lucide/external-link"
@@ -270,7 +276,7 @@ const copyUrl = () => {
 
 const viewPublished = () => {
   if (publishedUrl.value) {
-    window.open(publishedUrl.value, "_blank")
+    platform.kernelIO.openExternalLink({ url: publishedUrl.value })
   }
 }
 

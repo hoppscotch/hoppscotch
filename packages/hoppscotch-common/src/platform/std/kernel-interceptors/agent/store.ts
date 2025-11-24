@@ -323,7 +323,6 @@ export class KernelInterceptorAgentStore extends Service {
     const sharedSecretKeyBytes = new Uint8Array(
       base16.decode(this.sharedSecretB16.value!.toUpperCase())
     )
-
     const sharedSecretKey = await window.crypto.subtle.importKey(
       "raw",
       sharedSecretKeyBytes,

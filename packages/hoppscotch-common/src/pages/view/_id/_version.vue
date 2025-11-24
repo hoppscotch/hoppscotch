@@ -162,10 +162,9 @@ const allItems = computed<DocumentationItem[]>(() => {
 
 onMounted(async () => {
   const docId = route.params.id as string
-  const version = route.params.version as string
+  // will use in next iteration
+  //const version = route.params.version as string
 
-  console.log("Fetching published doc via REST API:", docId)
-  console.log("Version:", version)
   if (!docId) {
     error.value = "No document ID provided"
     loading.value = false
@@ -174,8 +173,6 @@ onMounted(async () => {
 
   // Fetch published doc using REST API (public access, no authentication required)
   const result = await getPublishedDocByIDREST(docId)()
-
-  console.log("//result///", result)
 
   if (E.isLeft(result)) {
     console.error("Error fetching published doc:", result.left)
@@ -195,17 +192,11 @@ onMounted(async () => {
     creator: result.right.creator,
   }
 
-  console.log("publishedDoc.value", publishedDoc.value)
-
   const publishedData = JSON.parse(result.right.documentTree)
 
   // Convert the REST API response (CollectionFolder) to HoppCollection format
   const hoppCollection = collectionFolderToHoppCollection(publishedData)
   collectionData.value = hoppCollection
-  console.log(
-    "Collection data converted to HoppCollection:",
-    collectionData.value
-  )
 
   loading.value = false
 })

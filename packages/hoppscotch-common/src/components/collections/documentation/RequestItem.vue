@@ -37,7 +37,7 @@ const actualRequest = computed<HoppRESTRequest>(() => {
 })
 
 const requestName = computed<string>(() => {
-  return props.request.name
+  return props.request.name || "Untitled Request"
 })
 
 const requestMethod = computed<string>(() => {

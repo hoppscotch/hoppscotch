@@ -11,7 +11,7 @@ import { PublishedDocsService } from './published-docs.service';
 import { GetPublishedDocsQueryDto } from './published-docs.dto';
 import * as E from 'fp-ts/Either';
 import { throwHTTPErr } from 'src/utils';
-import { CollectionFolder } from 'src/types/CollectionFolder';
+import { PublishedDocs } from './published-docs.model';
 
 @ApiTags('Published Docs')
 @Controller({ version: '1', path: 'published-docs' })
@@ -28,7 +28,7 @@ export class PublishedDocsController {
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved published documentation',
-    type: () => CollectionFolder,
+    type: () => PublishedDocs,
   })
   @ApiResponse({
     status: 404,

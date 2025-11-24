@@ -37,3 +37,5 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/hoppscotch

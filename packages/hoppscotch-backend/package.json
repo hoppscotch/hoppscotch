@@ -14,7 +14,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "postbuild": "mkdir -p dist/mailer && cp -r src/mailer/templates dist/mailer/templates",
-    "generate-gql-sdl": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' GENERATE_GQL_SCHEMA=true WHITELISTED_ORIGINS='' nest start",
+    "generate-gql-sdl": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../../gql-gen/backend-schema.gql' GENERATE_GQL_SCHEMA=true WHITELISTED_ORIGINS='' nest start",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

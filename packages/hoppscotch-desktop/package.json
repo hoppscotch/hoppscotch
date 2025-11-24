@@ -32,7 +32,6 @@
     "@tauri-apps/plugin-shell": "2.3.3",
     "@tauri-apps/plugin-store": "2.2.0",
     "@tauri-apps/plugin-updater": "2.9.0",
-    "@vueuse/core": "14.0.0",
     "fp-ts": "2.16.11",
     "rxjs": "7.8.2",
     "vue": "3.5.22",

@@ -234,30 +234,6 @@ onMounted(() => {
   @apply bg-transparent p-0 text-xs leading-normal block;
 }
 
-.markdown-content :deep(h1)::before {
-  @apply border-l-2 border-blue-500;
-}
-
-.markdown-content :deep(h2)::before {
-  @apply border-l-2 border-yellow-500;
-}
-
-.markdown-content :deep(h3)::before {
-  @apply border-l-2 border-blue-400;
-}
-
-.markdown-content :deep(h4)::before {
-  @apply border-l-2 border-green-400;
-}
-
-.markdown-content :deep(h5)::before {
-  @apply border-l-2 border-orange-400;
-}
-
-.markdown-content :deep(h6)::before {
-  @apply border-l-2 border-purple-400;
-}
-
 .markdown-content :deep(blockquote) {
   @apply border-l-4 border-divider pl-4 italic text-secondaryLight my-4 text-sm bg-primaryDark py-2 rounded-r;
 }

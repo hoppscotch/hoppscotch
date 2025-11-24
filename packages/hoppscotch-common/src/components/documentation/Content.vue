@@ -61,9 +61,10 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue"
+import { PropType, ref, onMounted } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
+import { useRouter, useRoute } from "vue-router"
 
 type DocumentationItem = {
   id: string
@@ -81,7 +82,14 @@ const props = defineProps({
     type: Array as PropType<DocumentationItem[]>,
     default: () => [],
   },
+  updateUrlOnSelect: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const router = useRouter()
+const route = useRoute()
 
 /**
  * Handles a request being selected from the collection structure sidebar
@@ -90,6 +98,9 @@ const handleRequestSelect = (request: HoppRESTRequest) => {
   const requestId = request.id || (request as any)._ref_id
   if (requestId) {
     scrollToItem(requestId)
+    if (props.updateUrlOnSelect) {
+      router.replace({ query: { ...route.query, section: requestId } })
+    }
   } else {
     scrollToItemByName(request.name, "request")
   }
@@ -102,6 +113,9 @@ const handleFolderSelect = (folder: HoppCollection) => {
   const folderId = folder.id || (folder as any)._ref_id
   if (folderId) {
     scrollToItem(folderId)
+    if (props.updateUrlOnSelect) {
+      router.replace({ query: { ...route.query, section: folderId } })
+    }
   } else {
     scrollToItemByName(folder.name, "folder")
   }
@@ -158,4 +172,14 @@ const getInheritedProperties = (
 ): HoppInheritedProperty => {
   return item.inheritedProperties
 }
+
+// Scroll to the section specified in the URL on mount
+onMounted(() => {
+  if (props.updateUrlOnSelect) {
+    const sectionId = route.query.section as string
+    if (sectionId) {
+      scrollToItem(sectionId)
+    }
+  }
+})
 </script>

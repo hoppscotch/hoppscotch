@@ -25,6 +25,7 @@
       v-else-if="collectionData"
       :collection-data="collectionData"
       :all-items="allItems"
+      :update-url-on-select="true"
     />
   </div>
 </template>

@@ -47,7 +47,8 @@ export class PublishedDocs {
   })
   @ApiProperty({
     description: 'Document tree structure associated with the documentation',
-    example: '{"folders": [], "requests": []}',
+    example:
+      '{"id": "string", "name": "string", "folders": [], "requests": [], "data": "string"}',
   })
   documentTree: string;
 

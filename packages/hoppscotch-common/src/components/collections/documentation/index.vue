@@ -27,6 +27,7 @@
               :is-processing-documentation="isProcessingDocumentation"
               :processing-progress="processingProgress"
               :is-external-loading="loadingState || isLoadingTeamCollection"
+              :has-team-write-access="hasTeamWriteAccess"
               @close-modal="hideModal"
               @toggle-all-documentation="handleToggleAllDocumentation"
             />
@@ -57,6 +58,7 @@
             @click="hideModal"
           />
           <HoppButtonPrimary
+            v-if="hasTeamWriteAccess"
             :label="t('action.save')"
             :loading="isSavingDocumentation"
             :disabled="isSavingDocumentation"
@@ -69,7 +71,9 @@
 
         <div class="flex space-x-2 items-center">
           <HoppButtonSecondary
-            v-if="currentCollection && !isCollectionPublished"
+            v-if="
+              currentCollection && !isCollectionPublished && hasTeamWriteAccess
+            "
             :icon="isCheckingPublishedStatus ? IconLoader2 : IconShare2"
             :label="t('documentation.publish.button')"
             :loading="isCheckingPublishedStatus"
@@ -82,7 +86,8 @@
             v-else-if="
               currentCollection &&
               isCollectionPublished &&
-              !isCheckingPublishedStatus
+              !isCheckingPublishedStatus &&
+              hasTeamWriteAccess
             "
             ref="publishedDropdown"
             interactive

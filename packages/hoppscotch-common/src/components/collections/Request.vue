@@ -71,9 +71,9 @@
           </span>
         </span>
       </div>
-      <div v-if="!hasNoTeamAccess" class="flex">
+      <div class="flex">
         <HoppButtonSecondary
-          v-if="!saveRequest"
+          v-if="!saveRequest && !hasNoTeamAccess"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
           :title="t('action.restore')"
@@ -105,6 +105,7 @@
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="edit"
                   :icon="IconEdit"
                   :label="t('action.edit')"
@@ -117,6 +118,7 @@
                   "
                 />
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="duplicate"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
@@ -141,6 +143,7 @@
                   "
                 />
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="shareAction"
                   :icon="IconShare2"
                   :label="t('action.share')"
@@ -153,6 +156,7 @@
                   "
                 />
                 <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"

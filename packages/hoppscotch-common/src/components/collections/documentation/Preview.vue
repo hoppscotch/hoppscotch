@@ -31,6 +31,7 @@
             :is-team-collection="isTeamCollection"
             :collection-path="collectionPath || undefined"
             :team-i-d="teamID"
+            :read-only="!hasTeamWriteAccess"
           />
           <CollectionsDocumentationRequestPreview
             v-else-if="selectedRequest"
@@ -41,6 +42,7 @@
             :folder-path="folderPath"
             :request-index="requestIndex"
             :team-i-d="teamID"
+            :read-only="!hasTeamWriteAccess"
             @update:documentation-description="
               (value) => {
                 if (selectedRequest) {
@@ -60,6 +62,7 @@
             :is-team-collection="isTeamCollection"
             :collection-path="collectionPath || undefined"
             :team-i-d="teamID"
+            :read-only="!hasTeamWriteAccess"
             @update:documentation-description="
               (value) => emit('update:documentationDescription', value)
             "
@@ -77,6 +80,7 @@
               :is-team-collection="isTeamCollection"
               :collection-path="collectionPath || undefined"
               :team-i-d="teamID"
+              :read-only="!hasTeamWriteAccess"
             />
           </div>
 
@@ -113,6 +117,7 @@
                     :request-index="item.requestIndex"
                     :request-i-d="item.requestID"
                     :team-i-d="teamID"
+                    :read-only="!hasTeamWriteAccess"
                     @update:documentation-description="
                       (value) =>
                         ((item.item as HoppRESTRequest).description = value)
@@ -130,6 +135,7 @@
                     :is-team-collection="isTeamCollection"
                     :collection-path="collectionPath || undefined"
                     :team-i-d="teamID"
+                    :read-only="!hasTeamWriteAccess"
                     @update:documentation-description="
                       (value) =>
                         ((item.item as HoppCollection).description = value)
@@ -197,6 +203,7 @@ const props = withDefaults(
     isProcessingDocumentation?: boolean
     processingProgress?: number
     isExternalLoading?: boolean
+    hasTeamWriteAccess?: boolean
   }>(),
   {
     documentationDescription: "",
@@ -214,6 +221,7 @@ const props = withDefaults(
     isProcessingDocumentation: false,
     processingProgress: 0,
     isExternalLoading: false,
+    hasTeamWriteAccess: true,
   }
 )
 

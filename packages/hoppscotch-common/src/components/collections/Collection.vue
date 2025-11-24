@@ -250,7 +250,6 @@
                     "
                   />
                   <HoppSmartItem
-                    v-if="!hasNoTeamAccess"
                     ref="documentationAction"
                     :icon="IconBook"
                     :label="t('documentation.title')"

@@ -235,6 +235,7 @@
           ? collectionsType.selectedTeam?.teamID
           : undefined
       "
+      :has-team-write-access="hasTeamWriteAccess"
       @hide-modal="displayModalDocumentation(false)"
     />
 

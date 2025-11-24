@@ -246,7 +246,9 @@ export class KernelInterceptorAgentStore extends Service {
     if (typeof newAuthKey !== "string")
       throw new Error("Invalid auth key received")
 
-    const agentPublicKey = new Uint8Array(base16.decode(agentPublicKeyB16.toUpperCase()))
+    const agentPublicKey = new Uint8Array(
+      base16.decode(agentPublicKeyB16.toUpperCase())
+    )
     const sharedSecret = x25519.getSharedSecret(myPrivateKey, agentPublicKey)
     const sharedSecretB16 = base16.encode(sharedSecret).toLowerCase()
 
@@ -293,9 +295,9 @@ export class KernelInterceptorAgentStore extends Service {
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()
 
-    const sharedSecretKeyBytes = new Uint8Array(base16.decode(
-      this.sharedSecretB16.value!.toUpperCase()
-    ))
+    const sharedSecretKeyBytes = new Uint8Array(
+      base16.decode(this.sharedSecretB16.value!.toUpperCase())
+    )
     const sharedSecretKey = await window.crypto.subtle.importKey(
       "raw",
       sharedSecretKeyBytes,
@@ -318,9 +320,9 @@ export class KernelInterceptorAgentStore extends Service {
     encryptedResponse: ArrayBuffer
   ): Promise<PluginResponse> {
     const nonce = new Uint8Array(base16.decode(nonceB16.toUpperCase()))
-    const sharedSecretKeyBytes = new Uint8Array(base16.decode(
-      this.sharedSecretB16.value!.toUpperCase()
-    ))
+    const sharedSecretKeyBytes = new Uint8Array(
+      base16.decode(this.sharedSecretB16.value!.toUpperCase())
+    )
 
     const sharedSecretKey = await window.crypto.subtle.importKey(
       "raw",

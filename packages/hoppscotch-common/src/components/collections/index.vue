@@ -231,6 +231,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  generateUniqueRefId,
   getDefaultRESTRequest,
   HoppCollection,
   HoppRESTAuth,
@@ -1477,6 +1478,7 @@ const duplicateRequest = async (payload: {
 
   const newRequest = {
     ...cloneDeep(request),
+    _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 

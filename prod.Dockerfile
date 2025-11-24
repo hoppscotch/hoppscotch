@@ -83,6 +83,7 @@ RUN apk add --no-cache python3 make g++ zlib-dev brotli-dev c-ares-dev nghttp2-d
 
 WORKDIR /usr/src/app
 ENV HOPP_ALLOW_RUNTIME_ENV=true
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 
 COPY pnpm-lock.yaml .
 RUN pnpm fetch

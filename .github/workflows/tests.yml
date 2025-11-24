@@ -39,8 +39,7 @@ jobs:
         run: pnpm install
         env:
           DATABASE_URL: postgresql://postgres:testpass@localhost:5432/hoppscotch
+          DATA_ENCRYPTION_KEY: "12345678901234567890123456789012"
 
       - name: Run tests
         run: pnpm test
-        env:
-          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/hoppscotch

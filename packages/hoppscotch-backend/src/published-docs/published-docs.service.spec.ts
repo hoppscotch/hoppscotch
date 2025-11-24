@@ -22,7 +22,7 @@ import {
 } from './input-type.args';
 import { TeamAccessRole } from 'src/team/team.model';
 import { TreeLevel } from './published-docs.dto';
-import { ConfigService } from '@nestjs/config/dist/config.service';
+import { ConfigService } from '@nestjs/config';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUserCollectionService = mockDeep<UserCollectionService>();

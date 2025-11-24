@@ -410,10 +410,6 @@ const handleToggleAllDocumentation = async () => {
 const checkPublishedDocsStatus = async () => {
   if (!props.collectionID) return
 
-  console.log("currentCollection.value", currentCollection.value)
-  console.log("///collection-id///", props.collectionID)
-  console.log("///team-id///", props.teamID)
-
   isCheckingPublishedStatus.value = true
 
   isCollectionPublished.value = false
@@ -430,7 +426,6 @@ const checkPublishedDocsStatus = async () => {
           isCheckingPublishedStatus.value = false
         },
         (docs) => {
-          console.log("//published-docs///", docs)
           // Find published doc for this collection
           const publishedDoc = docs.find(
             (doc) => doc.collection.id === props.collectionID
@@ -917,10 +912,6 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
             url: url,
           }
         }
-        // Set the URL in the modal
-        // if (publishModalRef.value) {
-        //   publishModalRef.value.setPublishedUrl(url)
-        // }
       }
     )
   )()

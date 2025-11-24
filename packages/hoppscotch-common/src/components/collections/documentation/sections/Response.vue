@@ -26,7 +26,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <span class="text-sm text-secondary">
-                    {{ example.name || `` }}
+                    {{ example.name || "Untitled" }}
                   </span>
                 </div>
                 <HoppSmartItem

@@ -227,7 +227,12 @@ export const getPublishedDocByID = (id: string) =>
     }
   )
 
-// Get a single published doc by ID using REST API (for public access)
+/**
+ *
+ * @param id - The ID of the published doc to fetch
+ * @param tree - The tree level to fetch (FULL or MINIMAL) Default is FULL so we can skip it, keeping it for future use
+ * @returns The published doc with the specified ID
+ */
 export const getPublishedDocByIDREST = (
   id: string
   //tree: "FULL" | "MINIMAL" = "FULL"

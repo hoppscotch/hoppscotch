@@ -206,30 +206,6 @@ const inheritedProperties = computed(() => {
 const getEffectiveRequest = async () => {
   if (!props.request) return null
 
-  //let finalAuth = props.request.auth
-  //let finalHeaders = props.request.headers
-
-  // if (inheritedProperties.value) {
-  //   if (
-  //     props.request.auth.authType === "inherit" &&
-  //     inheritedProperties.value.auth.inheritedAuth
-  //   ) {
-  //     finalAuth = inheritedProperties.value.auth.inheritedAuth
-  //   }
-
-  //   if (inheritedProperties.value.headers) {
-  //     const inheritedHeaders = inheritedProperties.value.headers.map(
-  //       (header) => ({
-  //         key: header.inheritedHeader.key,
-  //         value: header.inheritedHeader.value,
-  //         active: header.inheritedHeader.active,
-  //         description: header.inheritedHeader.description,
-  //       })
-  //     )
-  //     finalHeaders = [...inheritedHeaders, ...finalHeaders]
-  //   }
-  // }
-
   let collectionVariables: HoppCollectionVariable[] = []
 
   if (inheritedProperties.value) {

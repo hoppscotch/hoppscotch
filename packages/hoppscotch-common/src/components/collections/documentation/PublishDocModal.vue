@@ -14,7 +14,7 @@
           />
         </div>
 
-        <!-- Additional Fields (will be anabled in the future) -->
+        <!-- Additional Fields (will be enabled in the future) -->
         <!-- Version Input -->
         <!-- <div>
           <label class="block text-sm font-medium text-secondaryDark mb-2">

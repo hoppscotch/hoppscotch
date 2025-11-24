@@ -13,6 +13,7 @@
           <span class="text-md font-bold text-secondaryDark">
             {{ publishedDoc?.title || "Untitled Project" }}
           </span>
+          <!-- TODO: Add version (will be added in next iteration) -->
           <!-- <span
             v-if="publishedDoc?.version"
             class="px-2 py-0.5 text-xs font-medium rounded-md bg-accent/10 text-accent"

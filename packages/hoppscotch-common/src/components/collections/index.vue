@@ -274,6 +274,7 @@ import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
+  CollectionDataProps,
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
@@ -2946,6 +2947,7 @@ const editProperties = async (payload: {
   collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
+  console.log("collection", collection)
 
   const collectionId = collection.id ?? collectionIndex.split("/").pop()
 
@@ -3015,6 +3017,7 @@ const editProperties = async (payload: {
       } as HoppRESTAuth,
       headers: [] as HoppRESTHeaders,
       variables: [] as HoppCollectionVariable[],
+      description: null as string | null,
       folders: null,
       requests: null,
     }
@@ -3042,11 +3045,16 @@ const editProperties = async (payload: {
         })
       )
 
+      const collectionData: CollectionDataProps = {
+        auth: data.auth,
+        headers: data.headers,
+        variables: collectionVariables,
+        description: data.description,
+      }
+
       coll = {
         ...coll,
-        auth: data.auth,
-        headers: data.headers as HoppRESTHeaders,
-        variables: collectionVariables as HoppCollectionVariable[],
+        ...collectionData,
       }
     }
 

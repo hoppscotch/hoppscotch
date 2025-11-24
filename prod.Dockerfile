@@ -31,6 +31,8 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   go get github.com/quic-go/quic-go@v0.55.0 && \
   # Patch to resolve CVE-2025-62820 on nebula
   go get github.com/slackhq/nebula@v1.9.7 && \
+  # Patch to resolve CVE-2025-47913 on crypto
+  go get golang.org/x/crypto@v0.45.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -50,9 +52,9 @@ RUN apk add --no-cache nodejs curl bash tini ca-certificates \
 # Set working directory for NPM installation
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.2.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.3.tgz -o npm.tgz
 # Verify checksum
-RUN expected="585f95094ee5cb2788ee11d90f2a518a7c9ef6e083fa141d0b63ca3383675a20" \
+RUN expected="f021e628209026669ec9e3881523a7efcf26934fd3fb5dd3fd9aa2a5030c7c41" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -60,10 +62,18 @@ RUN expected="585f95094ee5cb2788ee11d90f2a518a7c9ef6e083fa141d0b63ca3383675a20" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.6.2 && \
+  node bin/npm-cli.js install -g npm@11.6.3 && \
   cd / && \
   rm -rf /tmp/npm-install && \
-  npm install -g pnpm@10.22.0 @import-meta-env/cli
+  npm install -g pnpm@10.23.0 @import-meta-env/cli && \
+  # Fix CVE-2025-64756 by replacing vulnerable glob with patched version
+  npm install -g glob@11.1.0 && \
+  # Replace glob in npm's node_modules
+  rm -rf /usr/lib/node_modules/npm/node_modules/glob && \
+  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/npm/node_modules/ && \
+  # Replace glob in @import-meta-env/cli's node_modules
+  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
+  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
 
 
 

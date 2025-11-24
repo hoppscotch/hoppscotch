@@ -12,6 +12,14 @@ export interface DocumentationItem {
   requestID?: string | null
 }
 
+interface QueueItem {
+  collection: HoppCollection
+  pathOrID: string | null
+  isTeamCollection: boolean
+  resolve: (items: DocumentationItem[]) => void
+  reject: (error: Error) => void
+}
+
 const worker = new Worker(
   new URL("../helpers/workers/documentation.worker.ts", import.meta.url),
   {
@@ -19,66 +27,101 @@ const worker = new Worker(
   }
 )
 
-export function useDocumentationWorker() {
-  const isProcessing = ref<boolean>(false)
-  const progress = ref<number>(0)
-  const processedCount = ref<number>(0)
-  const totalCount = ref<number>(0)
+// Global queue state
+const queue: QueueItem[] = []
+let isWorkerBusy = false
 
-  let resolvePromise: ((items: DocumentationItem[]) => void) | null = null
-  let rejectPromise: ((error: Error) => void) | null = null
+// Global state refs (shared across composables)
+const isProcessing = ref<boolean>(false)
+const progress = ref<number>(0)
+const processedCount = ref<number>(0)
+const totalCount = ref<number>(0)
 
-  /**
-   * Initialize the worker and set up message handlers
-   */
-  function initWorker(): Worker {
-    worker.onmessage = (event) => {
-      const { type } = event.data
+// Worker message handler
+worker.onmessage = (event) => {
+  const { type } = event.data
 
-      switch (type) {
-        case "DOCUMENTATION_PROGRESS":
-          progress.value = event.data.progress
-          processedCount.value = event.data.processed
-          totalCount.value = event.data.total
-          break
+  switch (type) {
+    case "DOCUMENTATION_PROGRESS":
+      progress.value = event.data.progress
+      processedCount.value = event.data.processed
+      totalCount.value = event.data.total
+      break
 
-        case "DOCUMENTATION_RESULT":
-          isProcessing.value = false
-          progress.value = 100
-          if (resolvePromise) {
-            // Parse the stringified items
-            const items = JSON.parse(event.data.items) as DocumentationItem[]
-            resolvePromise(items)
-            resolvePromise = null
-            rejectPromise = null
-          }
-          break
+    case "DOCUMENTATION_RESULT":
+      if (queue.length > 0) {
+        const currentItem = queue[0] // The item currently being processed
 
-        case "DOCUMENTATION_ERROR":
-          isProcessing.value = false
-          progress.value = 0
-          if (rejectPromise) {
-            rejectPromise(new Error(event.data.error))
-            resolvePromise = null
-            rejectPromise = null
-          }
-          break
+        // Parse the stringified items
+        const items = JSON.parse(event.data.items) as DocumentationItem[]
+        currentItem.resolve(items)
+
+        // Remove completed item and process next
+        queue.shift()
+        processQueue()
       }
-    }
+      break
 
-    worker.onerror = (error) => {
-      isProcessing.value = false
-      progress.value = 0
-      if (rejectPromise) {
-        rejectPromise(new Error(`Worker error: ${error.message}`))
-        resolvePromise = null
-        rejectPromise = null
+    case "DOCUMENTATION_ERROR":
+      if (queue.length > 0) {
+        const currentItem = queue[0]
+        currentItem.reject(new Error(event.data.error))
+
+        // Remove failed item and process next
+        queue.shift()
+        processQueue()
       }
-    }
+      break
+  }
+}
 
-    return worker
+worker.onerror = (error) => {
+  if (queue.length > 0) {
+    const currentItem = queue[0]
+    currentItem.reject(new Error(`Worker error: ${error.message}`))
+
+    // Remove failed item and process next
+    queue.shift()
+    processQueue()
+  }
+}
+
+function processQueue() {
+  if (queue.length === 0) {
+    isWorkerBusy = false
+    isProcessing.value = false
+    progress.value = 100 // Ensure progress shows complete
+    return
   }
 
+  isWorkerBusy = true
+  isProcessing.value = true
+  progress.value = 0
+  processedCount.value = 0
+  totalCount.value = 0
+
+  const nextItem = queue[0]
+
+  try {
+    const collectionString = JSON.stringify(nextItem.collection)
+    worker.postMessage({
+      type: "GATHER_DOCUMENTATION",
+      collection: collectionString,
+      pathOrID: nextItem.pathOrID,
+      isTeamCollection: nextItem.isTeamCollection,
+    })
+  } catch (error) {
+    nextItem.reject(
+      new Error(
+        `Failed to serialize collection: ${error instanceof Error ? error.message : String(error)}`
+      )
+    )
+    queue.shift()
+    processQueue()
+  }
+}
+
+export function useDocumentationWorker() {
   /**
    * Process documentation using the worker
    */
@@ -93,32 +136,18 @@ export function useDocumentationWorker() {
         return
       }
 
-      isProcessing.value = true
-      progress.value = 0
-      processedCount.value = 0
-      totalCount.value = 0
+      // Add to queue
+      queue.push({
+        collection,
+        pathOrID,
+        isTeamCollection,
+        resolve,
+        reject,
+      })
 
-      resolvePromise = resolve
-      rejectPromise = reject
-
-      const currentWorker = initWorker()
-
-      // Stringify the collection before sending to worker
-      try {
-        const collectionString = JSON.stringify(collection)
-        currentWorker.postMessage({
-          type: "GATHER_DOCUMENTATION",
-          collection: collectionString,
-          pathOrID,
-          isTeamCollection,
-        })
-      } catch (error) {
-        isProcessing.value = false
-        reject(
-          new Error(
-            `Failed to serialize collection: ${error instanceof Error ? error.message : String(error)}`
-          )
-        )
+      // If worker is not busy, start processing
+      if (!isWorkerBusy) {
+        processQueue()
       }
     })
   }

@@ -1,4 +1,7 @@
-import { Team, TeamCollection as DBTeamCollection } from '@prisma/client';
+import {
+  Team,
+  TeamCollection as DBTeamCollection,
+} from 'src/generated/prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   TEAM_COLL_DATA_INVALID,

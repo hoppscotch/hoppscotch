@@ -20,7 +20,11 @@ import { AuthUser } from 'src/types/AuthUser';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { Prisma, UserCollection, ReqType as DBReqType } from '@prisma/client';
+import {
+  Prisma,
+  UserCollection,
+  ReqType as DBReqType,
+} from 'src/generated/prisma/client';
 import {
   UserCollection as UserCollectionModel,
   UserCollectionExportJSONData,

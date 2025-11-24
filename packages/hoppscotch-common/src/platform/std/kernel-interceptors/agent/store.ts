@@ -4,7 +4,7 @@ import * as E from "fp-ts/Either"
 import axios from "axios"
 import { Store } from "~/kernel/store"
 import type { PluginRequest, PluginResponse } from "@hoppscotch/kernel"
-import { x25519 } from "@noble/curves/ed25519"
+import { x25519 } from "@noble/curves/ed25519.js"
 import { base16 } from "@scure/base"
 import {
   InputDomainSetting,

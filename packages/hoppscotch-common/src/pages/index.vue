@@ -134,7 +134,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from "vue"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
@@ -280,7 +280,10 @@ const duplicateTab = (tabID: string) => {
   if (tab.value && tab.value.document.type === "request") {
     const newTab = tabs.createNewTab({
       type: "request",
-      request: cloneDeep(tab.value.document.request),
+      request: {
+        ...cloneDeep(tab.value.document.request),
+        _ref_id: generateUniqueRefId("req"),
+      },
       isDirty: true,
     })
     tabs.setActiveTab(newTab.id)

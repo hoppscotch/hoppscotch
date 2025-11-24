@@ -5,8 +5,7 @@ import {
   type SpotlightSearcherSessionState,
 } from "../.."
 import MiniSearch from "minisearch"
-import { Ref, computed, effectScope, ref, watch } from "vue"
-import { resolveUnref } from "@vueuse/core"
+import { Ref, computed, effectScope, ref, watch, toValue } from "vue"
 
 /**
  * Defines a search result and additional metadata returned by a StaticSpotlightSearcher
@@ -175,6 +174,6 @@ export abstract class StaticSpotlightSearcherService<
   public abstract onDocSelected(id: string, doc: Doc): void
 
   public onResultSelect(result: SpotlightSearcherResult): void {
-    this.onDocSelected(result.id, resolveUnref(this._documents)[result.id])
+    this.onDocSelected(result.id, toValue(this._documents)[result.id])
   }
 }

@@ -256,6 +256,7 @@
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
+  generateUniqueRefId,
   getDefaultRESTRequest,
   HoppCollection,
   HoppRESTAuth,
@@ -264,6 +265,7 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
+import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
 
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -1515,6 +1517,7 @@ const duplicateRequest = async (payload: {
 
   const newRequest = {
     ...cloneDeep(request),
+    _ref_id: generateUniqueRefId("req"),
     name: `${request.name} - ${t("action.duplicate")}`,
   }
 
@@ -2871,7 +2874,10 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
     const collectionJSON = JSON.stringify(collection, null, 2)
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
-    const cleanedCollectionJSON = collectionJSON.replace(/export \{\};\\n/g, "")
+    const cleanedCollectionJSON = collectionJSON.replace(
+      MODULE_PREFIX_REGEX_JSON_SERIALIZED,
+      ""
+    )
 
     const name = (collection as HoppCollection).name
 
@@ -2894,7 +2900,7 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
 
           // Strip `export {};\n` from `testScript` and `preRequestScript` fields
           const cleanedCollectionJSON = collectionJSONString.replace(
-            /export \{\};\\n/g,
+            MODULE_PREFIX_REGEX_JSON_SERIALIZED,
             ""
           )
 

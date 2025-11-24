@@ -165,6 +165,13 @@ const handleScrollToTop = () => {
       behavior: "smooth",
     })
   }
+
+  // Clear the section query parameter when scrolling to top
+  if (props.updateUrlOnSelect) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { section, ...restQuery } = route.query
+    router.replace({ query: restQuery })
+  }
 }
 
 const getInheritedProperties = (

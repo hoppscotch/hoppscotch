@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "files": [
     "prisma",
+    "prisma.config.ts",
     "dist",
     "src/mailer/templates"
   ],
@@ -22,7 +23,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "postinstall": "prisma generate && pnpm run generate-gql-sdl",
+    "postinstall": "cross-env DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder prisma generate && pnpm run generate-gql-sdl",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

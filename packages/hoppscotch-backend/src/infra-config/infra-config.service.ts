@@ -525,10 +525,12 @@ export class InfraConfigService implements OnModuleInit {
     const onboardingRecoveryToken = crypto.randomUUID();
 
     const configEntries: InfraConfigArgs[] = [
-      ...Object.entries(dto).map(([key, value]) => ({
-        name: key as InfraConfigEnum,
-        value,
-      })),
+      ...Object.entries(dto)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => ({
+          name: key as InfraConfigEnum,
+          value,
+        })),
       {
         name: InfraConfigEnum.ONBOARDING_COMPLETED,
         value: 'true',

@@ -205,6 +205,27 @@
             </div>
           </div>
 
+          <!-- Create Example Collection Toggle (only when no collection is pre-selected) -->
+          <div
+            v-if="!collectionID && !isExistingMockServer"
+            class="flex flex-col space-y-2"
+          >
+            <div class="flex items-center">
+              <HoppSmartToggle
+                :on="createExampleCollection"
+                @change="createExampleCollection = !createExampleCollection"
+              >
+                {{ t("mock_server.create_example_collection") }}
+              </HoppSmartToggle>
+            </div>
+            <div
+              v-if="createExampleCollection"
+              class="w-full text-xs text-secondaryLight"
+            >
+              {{ t("mock_server.create_example_collection_hint") }}
+            </div>
+          </div>
+
           <!-- Display created server info -->
           <div v-if="createdServer" class="flex flex-col space-y-4">
             <div class="flex flex-col space-y-2">
@@ -342,6 +363,9 @@ import {
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
+import { createExamplePetStoreCollection } from "~/helpers/mockServer/exampleCollection"
+import { addRESTCollection } from "~/newstore/collections"
+import { importJSONToTeam } from "~/helpers/backend/mutations/TeamCollection"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -382,6 +406,7 @@ const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
 const setInEnvironment = ref<boolean>(true)
+const createExampleCollection = ref<boolean>(false)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
@@ -576,6 +601,7 @@ watch(show, (newShow) => {
     delayInMsVal.value = "0"
     isPublic.value = true
     setInEnvironment.value = true
+    createExampleCollection.value = false
     selectedCollectionID.value = ""
     selectedCollectionName.value = ""
     showCloseButton.value = false
@@ -583,10 +609,82 @@ watch(show, (newShow) => {
   }
 })
 
+// Function to create an example collection and return its ID
+const createExampleCollectionAndGetID = async (): Promise<string> => {
+  const exampleCollection = createExamplePetStoreCollection(
+    mockServerName.value.trim() || "Pet Store Mock Server"
+  )
+  const workspaceType = currentWorkspace.value.type
+
+  if (workspaceType === "personal") {
+    // For personal workspace, add collection to local store
+    addRESTCollection(exampleCollection)
+
+    // Return the collection ID (for personal, we'll use index as string)
+    const newIndex = collections.value.length - 1
+    return String(newIndex)
+  } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
+    // For team workspace, use importJSONToTeam
+    const teamID = currentWorkspace.value.teamID
+    const collectionJSON = JSON.stringify([exampleCollection])
+
+    // Import the collection to team
+    const result = await pipe(
+      importJSONToTeam(collectionJSON, teamID),
+      TE.match(
+        (error) => {
+          console.error("Failed to import team collection:", error)
+          throw error
+        },
+        (result) => result.importCollectionsFromJSON
+      )
+    )()
+
+    if (!result) {
+      throw new Error("Failed to import collection")
+    }
+
+    // Wait a moment for the subscription to sync the collections
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // Get the latest collection from the team collections service
+    const teamCollections = teamCollectionsService.collections.value
+    if (!teamCollections || teamCollections.length === 0) {
+      throw new Error("No team collections found after import")
+    }
+
+    // Return the ID of the last collection (the one we just imported)
+    const lastCollection = teamCollections[teamCollections.length - 1]
+    return lastCollection.id
+  }
+
+  throw new Error("Unknown workspace type")
+}
+
 // Create new mock server
 const createMockServer = async () => {
-  if (!mockServerName.value.trim() || !effectiveCollectionID.value) {
-    if (!effectiveCollectionID.value) {
+  // If example collection is enabled and no collection is selected, create it first
+  let collectionIDToUse = effectiveCollectionID.value
+
+  if (createExampleCollection.value && !collectionID.value) {
+    loading.value = true
+    toast.info(t("mock_server.creating_example_collection"))
+
+    try {
+      collectionIDToUse = await createExampleCollectionAndGetID()
+
+      // Update the selected collection
+      selectedCollectionID.value = collectionIDToUse
+    } catch (error) {
+      console.error("Failed to create example collection:", error)
+      toast.error(t("mock_server.failed_to_create_collection"))
+      loading.value = false
+      return
+    }
+  }
+
+  if (!mockServerName.value.trim() || !collectionIDToUse) {
+    if (!collectionIDToUse) {
       toast.error(t("mock_server.select_collection_error"))
     }
     return

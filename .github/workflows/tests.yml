@@ -33,7 +33,12 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 10
-          run_install: true
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          DATABASE_URL: postgresql://postgres:testpass@localhost:5432/hoppscotch
 
       - name: Run tests
         run: pnpm test

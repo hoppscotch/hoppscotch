@@ -41,8 +41,8 @@
               :request-index="requestIndex"
               :request-i-d="requestID"
               :team-i-d="teamID"
-              @close-modal="hideModal"
               class="p-4"
+              @close-modal="hideModal"
             />
           </div>
         </div>
@@ -729,35 +729,33 @@ const saveCollectionDocumentationById = async (
       )()
       isSavingDocumentation.value = false
       return result
-    } else {
-      console.error("Collection data not found in service")
-      isSavingDocumentation.value = false
+    }
+    console.error("Collection data not found in service")
+    isSavingDocumentation.value = false
+    return false
+  }
+  if (pathOrID && collectionData) {
+    const updatedCollection = {
+      ...collectionData,
+      description: documentation,
+    }
+
+    // Check if this is a root collection or a folder
+    const pathSegments = pathOrID.split("/")
+    try {
+      if (pathSegments.length === 1) {
+        editRESTCollection(parseInt(pathOrID), updatedCollection)
+      } else {
+        editRESTFolder(pathOrID, updatedCollection)
+      }
+      return true
+    } catch (e) {
+      console.error(e)
       return false
     }
   } else {
-    if (pathOrID && collectionData) {
-      const updatedCollection = {
-        ...collectionData,
-        description: documentation,
-      }
-
-      // Check if this is a root collection or a folder
-      const pathSegments = pathOrID.split("/")
-      try {
-        if (pathSegments.length === 1) {
-          editRESTCollection(parseInt(pathOrID), updatedCollection)
-        } else {
-          editRESTFolder(pathOrID, updatedCollection)
-        }
-        return true
-      } catch (e) {
-        console.error(e)
-        return false
-      }
-    } else {
-      console.error("Collection path or data not found")
-      return false
-    }
+    console.error("Collection path or data not found")
+    return false
   }
 }
 
@@ -799,33 +797,31 @@ const saveRequestDocumentationById = async (
       )()
       isSavingDocumentation.value = false
       return result
-    } else {
-      console.error("Team request data not found in service")
-      isSavingDocumentation.value = false
+    }
+    console.error("Team request data not found in service")
+    isSavingDocumentation.value = false
+    return false
+  }
+  if (
+    folderPath !== undefined &&
+    item.requestIndex !== undefined &&
+    requestData
+  ) {
+    const updatedRequest = {
+      ...requestData,
+      description: documentation,
+    }
+
+    try {
+      editRESTRequest(folderPath, item.requestIndex, updatedRequest)
+      return true
+    } catch (e) {
+      console.error(e)
       return false
     }
   } else {
-    if (
-      folderPath !== undefined &&
-      item.requestIndex !== undefined &&
-      requestData
-    ) {
-      const updatedRequest = {
-        ...requestData,
-        description: documentation,
-      }
-
-      try {
-        editRESTRequest(folderPath, item.requestIndex, updatedRequest)
-        return true
-      } catch (e) {
-        console.error(e)
-        return false
-      }
-    } else {
-      console.error("Personal request data not found in service")
-      return false
-    }
+    console.error("Personal request data not found in service")
+    return false
   }
 }
 

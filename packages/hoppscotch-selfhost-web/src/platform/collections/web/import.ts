@@ -4,7 +4,6 @@ import {
   appendRESTCollections,
 } from "@hoppscotch/common/newstore/collections"
 import { HoppCollection } from "@hoppscotch/data"
-import { runDispatchWithOutSyncing } from "@lib/sync"
 import * as E from "fp-ts/Either"
 import {
   exportedCollectionToHoppCollection,
@@ -12,6 +11,7 @@ import {
   ExportedUserCollectionREST,
 } from "../web"
 import { importUserCollectionsFromJSON } from "./api"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 /**
  * Platform-specific import function for selfhost-web that uses the correct nested collection queries

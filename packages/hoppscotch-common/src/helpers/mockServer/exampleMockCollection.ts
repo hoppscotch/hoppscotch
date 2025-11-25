@@ -6,11 +6,6 @@ import { createNewRootCollection } from "~/helpers/backend/mutations/TeamCollect
 import { createRequestInCollection } from "~/helpers/backend/mutations/TeamRequest"
 
 /**
- * Collection name for the mock server example
- */
-export const MOCK_COLLECTION_NAME = "Hoppscotch API Mock example"
-
-/**
  * Get example REST requests for mock server collection
  */
 export function getExampleMockRequests(): HoppRESTRequest[] {
@@ -183,11 +178,12 @@ export function getExampleMockRequests(): HoppRESTRequest[] {
  * Create a mock collection for team workspace
  */
 export async function createMockCollectionForTeam(
-  teamID: string
+  teamID: string,
+  collectionName: string
 ): Promise<E.Either<string, { id: string; name: string }>> {
   // Create the root collection
   const collectionResult = await pipe(
-    createNewRootCollection(MOCK_COLLECTION_NAME, teamID),
+    createNewRootCollection(collectionName, teamID),
     TE.match(
       (error) => E.left(`Failed to create collection: ${error}`),
       (collection) => E.right(collection)
@@ -228,7 +224,7 @@ export async function createMockCollectionForTeam(
 
   return E.right({
     id: collectionID,
-    name: MOCK_COLLECTION_NAME,
+    name: collectionName,
   })
 }
 
@@ -236,9 +232,9 @@ export async function createMockCollectionForTeam(
  * Create a mock collection for personal workspace
  * Uses the hoppscotch/data makeCollection to create a local collection
  */
-export async function createMockCollectionForPersonal(): Promise<
-  E.Either<string, { id: string; name: string }>
-> {
+export async function createMockCollectionForPersonal(
+  collectionName: string
+): Promise<E.Either<string, { id: string; name: string }>> {
   const { makeCollection } = await import("@hoppscotch/data")
   const { appendRESTCollections } = await import("~/newstore/collections")
 
@@ -246,7 +242,7 @@ export async function createMockCollectionForPersonal(): Promise<
   const requests = getExampleMockRequests()
 
   const collection = makeCollection({
-    name: MOCK_COLLECTION_NAME,
+    name: collectionName,
     folders: [],
     requests,
     auth: {
@@ -266,6 +262,6 @@ export async function createMockCollectionForPersonal(): Promise<
 
   return E.right({
     id: collectionID,
-    name: MOCK_COLLECTION_NAME,
+    name: collectionName,
   })
 }

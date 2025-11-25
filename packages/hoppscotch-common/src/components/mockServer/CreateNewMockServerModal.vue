@@ -331,7 +331,9 @@ const selectCollection = (option: any) => {
 }
 
 // Function to create an example collection and return its ID and name
-const createExampleCollectionAndGetID = async (): Promise<{
+const createExampleCollectionAndGetID = async (
+  collectionName: string
+): Promise<{
   id: string
   name: string
 }> => {
@@ -339,7 +341,7 @@ const createExampleCollectionAndGetID = async (): Promise<{
 
   if (workspaceType === "personal") {
     // For personal workspace
-    const result = await createMockCollectionForPersonal()
+    const result = await createMockCollectionForPersonal(collectionName)
 
     if (E.isLeft(result)) {
       throw new Error(result.left)
@@ -349,7 +351,7 @@ const createExampleCollectionAndGetID = async (): Promise<{
   } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
     // For team workspace
     const teamID = currentWorkspace.value.teamID
-    const result = await createMockCollectionForTeam(teamID)
+    const result = await createMockCollectionForTeam(teamID, collectionName)
 
     if (E.isLeft(result)) {
       throw new Error(result.left)
@@ -371,11 +373,19 @@ const handleCreateMockServer = async () => {
 
   if (collectionSelectionMode.value === "new") {
     if (createExampleCollection.value) {
+      // Check if mock server name is provided before creating collection
+      if (!mockServerName.value.trim()) {
+        toast.error(t("mock_server.provide_mock_server_name"))
+        return
+      }
+
       loading.value = true
       toast.info(t("mock_server.creating_example_collection"))
 
       try {
-        const newCollection = await createExampleCollectionAndGetID()
+        const newCollection = await createExampleCollectionAndGetID(
+          mockServerName.value.trim()
+        )
 
         // Update the selected collection with the actual created collection's ID and name
         collectionIDToUse = newCollection.id

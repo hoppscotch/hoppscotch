@@ -96,7 +96,7 @@ describe("CLI hopp-fetch", () => {
 
       expect(mockAxiosInstance).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.any(ReadableStream), // Body is a ReadableStream
+          data: expect.any(ArrayBuffer), // Body is converted to ArrayBuffer
         })
       )
     })
@@ -182,7 +182,7 @@ describe("CLI hopp-fetch", () => {
             "content-type": "application/json",
             "x-api-key": "secret",
           }),
-          data: expect.any(ReadableStream),
+          data: expect.any(ArrayBuffer),
         })
       )
     })
@@ -273,7 +273,7 @@ describe("CLI hopp-fetch", () => {
 
       expect(mockAxiosInstance).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: null,
+          data: undefined,
         })
       )
     })

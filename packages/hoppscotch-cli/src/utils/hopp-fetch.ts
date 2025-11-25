@@ -43,11 +43,18 @@ export const createHoppFetchHook = (): HoppFetchHook => {
     }
 
     // Extract body from Request object if available (init takes precedence)
-    const body = init?.body !== undefined
-      ? init?.body
-      : input instanceof Request
-        ? input.body
-        : undefined;
+    // Note: Request.body is a ReadableStream which axios cannot handle,
+    // so we need to read it first
+    let body: BodyInit | null | undefined;
+    if (init?.body !== undefined) {
+      body = init.body;
+    } else if (input instanceof Request && input.body !== null) {
+      // Read the ReadableStream into an ArrayBuffer that axios can send
+      const clonedRequest = input.clone();
+      body = await clonedRequest.arrayBuffer();
+    } else {
+      body = undefined;
+    }
 
     // Convert Fetch API options to axios config
     // Note: Using 'any' for config because axios-cookiejar-support extends AxiosRequestConfig
@@ -62,6 +69,11 @@ export const createHoppFetchHook = (): HoppFetchHook => {
       jar,
       withCredentials: true, // Required for cookie jar
     };
+
+    // Handle AbortController signal if provided
+    if (init?.signal) {
+      config.signal = init.signal;
+    }
 
     try {
       const axiosResponse = await axiosWithCookies(config);

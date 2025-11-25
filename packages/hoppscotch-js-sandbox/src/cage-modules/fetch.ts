@@ -1354,20 +1354,49 @@ export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
         const ok = status >= 200 && status < 300
         ctx.vm.setProp(responseInstance, "ok", ok ? ctx.vm.true : ctx.vm.false)
 
-        // Set headers property - create headers inline
-        const responseHeadersData = init.headers || {}
+        // Set headers property - convert HeadersInit to plain object with get() method
+        // Handles plain objects, arrays of tuples, and Headers instances
         const responseHeadersObj = ctx.scope.manage(ctx.vm.newObject())
+        const headersMap: Record<string, string> = {}
 
-        // Populate headers from init
-        if (responseHeadersData && typeof responseHeadersData === "object") {
-          for (const [key, value] of Object.entries(responseHeadersData)) {
-            ctx.vm.setProp(
-              responseHeadersObj,
-              key.toLowerCase(),
-              ctx.scope.manage(ctx.vm.newString(String(value)))
-            )
+        // Process headers based on type (HeadersInit: Headers | string[][] | Record<string, string>)
+        if (init.headers) {
+          if (Array.isArray(init.headers)) {
+            // Array of tuples: [["key", "value"], ...]
+            for (const [key, value] of init.headers) {
+              headersMap[String(key).toLowerCase()] = String(value)
+            }
+          } else if (typeof init.headers === "object") {
+            // Plain object or Headers instance - iterate with Object.entries
+            for (const [key, value] of Object.entries(init.headers)) {
+              headersMap[String(key).toLowerCase()] = String(value)
+            }
           }
         }
+
+        // Set header properties
+        for (const [key, value] of Object.entries(headersMap)) {
+          ctx.vm.setProp(
+            responseHeadersObj,
+            key,
+            ctx.scope.manage(ctx.vm.newString(String(value)))
+          )
+        }
+
+        // Add get() method for Headers API compatibility
+        const getHeaderFn = defineSandboxFunctionRaw(ctx, "get", (...args) => {
+          const key = String(ctx.vm.dump(args[0])).toLowerCase()
+          const value = headersMap[key]
+          return value ? ctx.scope.manage(ctx.vm.newString(value)) : ctx.vm.null
+        })
+        ctx.vm.setProp(responseHeadersObj, "get", getHeaderFn)
+
+        // Add has() method
+        const hasHeaderFn = defineSandboxFunctionRaw(ctx, "has", (...args) => {
+          const key = String(ctx.vm.dump(args[0])).toLowerCase()
+          return headersMap[key] !== undefined ? ctx.vm.true : ctx.vm.false
+        })
+        ctx.vm.setProp(responseHeadersObj, "has", hasHeaderFn)
 
         ctx.vm.setProp(responseInstance, "headers", responseHeadersObj)
 
@@ -1691,17 +1720,56 @@ export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
           )
           ctx.vm.setProp(clonedResponse, "ok", ok ? ctx.vm.true : ctx.vm.false)
 
-          // Clone headers
+          // Clone headers - same logic as Response constructor
           const clonedResponseHeadersObj = ctx.scope.manage(ctx.vm.newObject())
-          if (responseHeadersData && typeof responseHeadersData === "object") {
-            for (const [key, value] of Object.entries(responseHeadersData)) {
-              ctx.vm.setProp(
-                clonedResponseHeadersObj,
-                key.toLowerCase(),
-                ctx.scope.manage(ctx.vm.newString(String(value)))
-              )
+          const clonedHeadersMap: Record<string, string> = {}
+
+          if (init.headers) {
+            if (Array.isArray(init.headers)) {
+              for (const [key, value] of init.headers) {
+                clonedHeadersMap[String(key).toLowerCase()] = String(value)
+              }
+            } else if (typeof init.headers === "object") {
+              for (const [key, value] of Object.entries(init.headers)) {
+                clonedHeadersMap[String(key).toLowerCase()] = String(value)
+              }
             }
           }
+
+          for (const [key, value] of Object.entries(clonedHeadersMap)) {
+            ctx.vm.setProp(
+              clonedResponseHeadersObj,
+              key,
+              ctx.scope.manage(ctx.vm.newString(String(value)))
+            )
+          }
+
+          // Add get() and has() methods
+          const clonedGetFn = defineSandboxFunctionRaw(
+            ctx,
+            "get",
+            (...args) => {
+              const key = String(ctx.vm.dump(args[0])).toLowerCase()
+              const value = clonedHeadersMap[key]
+              return value
+                ? ctx.scope.manage(ctx.vm.newString(value))
+                : ctx.vm.null
+            }
+          )
+          ctx.vm.setProp(clonedResponseHeadersObj, "get", clonedGetFn)
+
+          const clonedHasFn = defineSandboxFunctionRaw(
+            ctx,
+            "has",
+            (...args) => {
+              const key = String(ctx.vm.dump(args[0])).toLowerCase()
+              return clonedHeadersMap[key] !== undefined
+                ? ctx.vm.true
+                : ctx.vm.false
+            }
+          )
+          ctx.vm.setProp(clonedResponseHeadersObj, "has", clonedHasFn)
+
           ctx.vm.setProp(clonedResponse, "headers", clonedResponseHeadersObj)
 
           // Copy other properties

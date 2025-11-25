@@ -15,30 +15,21 @@
       >
         <div class="flex">
           <tippy
-            v-if="kernelMode === 'desktop'"
+            v-if="platform.instance?.instanceSwitchingEnabled"
             interactive
             trigger="click"
             theme="popover"
             :on-shown="() => instanceSwitcherRef.focus()"
           >
             <div class="flex items-center cursor-pointer">
-              <div class="flex">
-                <span
-                  class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-                >
-                  {{ instanceDisplayName }}
-                </span>
-                <span
-                  v-if="
-                    currentState.status === 'connected' &&
-                    'type' in currentState.instance &&
-                    currentState.instance.type === 'vendored'
-                  "
-                  class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
-                >
-                  {{ platform.instance.displayConfig.description }}
-                </span>
-              </div>
+              <span
+                class="!font-bold uppercase tracking-wide !text-secondaryDark pr-1"
+              >
+                {{
+                  platform.instance.getCurrentInstance?.()?.displayName ||
+                  "Hoppscotch"
+                }}
+              </span>
               <IconChevronDown class="h-4 w-4 text-secondaryDark" />
             </div>
             <template #content="{ hide }">
@@ -378,7 +369,6 @@ import {
   BannerService,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
-import { InstanceSwitcherService } from "~/services/instance-switcher.service"
 import IconDownload from "~icons/lucide/download"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
@@ -393,32 +383,13 @@ import { AdditionalLinksService } from "~/services/additionalLinks.service"
 const t = useI18n()
 const toast = useToast()
 const kernelMode = getKernelMode()
-const instanceSwitcherService =
-  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
-const instanceSwitcherRef =
-  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
+
 const downloadableLinksRef =
   kernelMode === "web" ? ref<any | null>(null) : ref(null)
+const instanceSwitcherRef =
+  kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
 
 const isUserAdmin = ref(false)
-
-const currentState =
-  kernelMode === "desktop" && instanceSwitcherService
-    ? useReadonlyStream(
-        instanceSwitcherService.getStateStream(),
-        instanceSwitcherService.getCurrentState().value
-      )
-    : ref({
-        status: "disconnected",
-        instance: { displayName: "Hoppscotch" },
-      })
-
-const instanceDisplayName = computed(() => {
-  if (currentState.value.status !== "connected") {
-    return "Hoppscotch"
-  }
-  return currentState.value.instance.displayName
-})
 
 /**
  * Feature flag to enable the workspace selector login conversion

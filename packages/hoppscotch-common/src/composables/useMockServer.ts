@@ -252,9 +252,7 @@ export function useMockServer() {
     // Add mock URL to environment if enabled
     if (setInEnvironment) {
       const mockUrl =
-        (result as any).serverUrlPathBased ||
-        (result as any).serverUrlDomainBased ||
-        ""
+        result.serverUrlPathBased || result.serverUrlDomainBased || ""
       if (mockUrl) {
         await addMockUrlToEnvironment(mockUrl, collectionName)
       }

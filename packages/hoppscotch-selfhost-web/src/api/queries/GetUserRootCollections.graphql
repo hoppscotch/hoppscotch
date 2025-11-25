@@ -3,97 +3,13 @@ query GetUserRootCollections {
   rootRESTUserCollections(take: 99999) {
     id
     title
-    data
     type
-    parent {
-      id
-    }
-    requests {
-      id
-      title
-      request
-      type
-      collectionID
-    }
+    data
     childrenREST {
       id
       title
-      data
       type
-      parent {
-        id
-      }
-      requests {
-        id
-        title
-        request
-        type
-        collectionID
-      }
-      childrenREST {
-        id
-        title
-        data
-        type
-        parent {
-          id
-        }
-        requests {
-          id
-          title
-          request
-          type
-          collectionID
-        }
-        childrenREST {
-          id
-          title
-          data
-          type
-          parent {
-            id
-          }
-          requests {
-            id
-            title
-            request
-            type
-            collectionID
-          }
-          childrenREST {
-            id
-            title
-            data
-            type
-            parent {
-              id
-            }
-            requests {
-              id
-              title
-              request
-              type
-              collectionID
-            }
-            childrenREST {
-              id
-              title
-              data
-              type
-              parent {
-                id
-              }
-              requests {
-                id
-                title
-                request
-                type
-                collectionID
-              }
-            }
-          }
-        }
-      }
+      data
     }
   }
 }

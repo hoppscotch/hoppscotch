@@ -34,7 +34,7 @@ export const getInstanceDir = async (): Promise<string> => {
 const getStorePath = async (): Promise<string> => {
   try {
     const instanceDir = await getInstanceDir()
-    return join(instanceDir, STORE_PATH)
+    return await join(instanceDir, STORE_PATH)
   } catch (error) {
     console.error("Failed to get instance directory:", error)
     return "hoppscotch-unified.store"

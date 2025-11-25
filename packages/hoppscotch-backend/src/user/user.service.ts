@@ -13,7 +13,7 @@ import {
   USER_NOT_FOUND,
   USER_SHORT_DISPLAY_NAME,
   USER_UPDATE_FAILED,
-  USER_EMAIL,
+  INVALID_EMAIL,
 } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
@@ -330,7 +330,7 @@ export class UserService {
    */
   async updateUserEmail(userUID: string, email: string) {
     if (!email || email.length === 0 || !validateEmail(email)) {
-      return E.left(USER_EMAIL);
+      return E.left(INVALID_EMAIL);
     }
 
     try {

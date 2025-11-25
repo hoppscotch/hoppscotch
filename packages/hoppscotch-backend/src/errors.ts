@@ -85,12 +85,6 @@ export const USER_UPDATE_FAILED = 'user/update_failed' as const;
 export const USER_SHORT_DISPLAY_NAME = 'user/short_display_name' as const;
 
 /**
- * User email validation failure
- * (UserService)
- */
-export const USER_EMAIL = 'user/email' as const;
-
-/**
  * User deletion failure
  * (UserService)
  */

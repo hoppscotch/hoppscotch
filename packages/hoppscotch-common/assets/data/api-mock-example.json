@@ -5,17 +5,16 @@
   "requests": [
     {
       "v": "16",
-      "_ref_id": "req_midlz8s1_d98f3972-dfdd-48fe-84bc-af18a913f4be",
       "name": "addPet",
       "method": "POST",
-      "endpoint": "<<url>>/v2/pet",
+      "endpoint": "<<mockUrl>>/v2/pet",
       "params": [],
       "headers": [],
       "auth": {
         "authType": "oauth-2",
         "authActive": true,
         "grantTypeInfo": {
-          "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+          "authEndpoint": "<<mockUrl>>/oauth/authorize",
           "clientID": "",
           "grantType": "IMPLICIT",
           "scopes": "write:pets read:pets",
@@ -53,7 +52,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -67,7 +66,7 @@
               "contentType": "application/json",
               "body": "{\n\t\"id\": 1,\n\t\"category\": {\n\t\t\"id\": 1,\n\t\t\"name\": \"string\"\n\t},\n\t\"name\": \"doggie\",\n\t\"photoUrls\": [\n\t\t\"string\"\n\t],\n\t\"tags\": [],\n\t\"status\": \"available\"\n}"
             },
-            "endpoint": "<<url>>/v2/pet",
+            "endpoint": "<<mockUrl>>/v2/pet",
             "params": [],
             "headers": [],
             "method": "POST",
@@ -78,17 +77,16 @@
     },
     {
       "v": "16",
-      "_ref_id": "req_midlz8s1_5fd66936-c9a0-4847-be94-78a0f97a7a81",
       "name": "updatePet",
       "method": "PUT",
-      "endpoint": "<<url>>/v2/pet",
+      "endpoint": "<<mockUrl>>/v2/pet",
       "params": [],
       "headers": [],
       "auth": {
         "authType": "oauth-2",
         "authActive": true,
         "grantTypeInfo": {
-          "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+          "authEndpoint": "<<mockUrl>>/oauth/authorize",
           "clientID": "",
           "grantType": "IMPLICIT",
           "scopes": "write:pets read:pets",
@@ -126,7 +124,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -140,7 +138,7 @@
               "contentType": "application/json",
               "body": "{\n\t\"id\": 1,\n\t\"category\": {\n\t\t\"id\": 1,\n\t\t\"name\": \"string\"\n\t},\n\t\"name\": \"doggie\",\n\t\"photoUrls\": [\n\t\t\"string\"\n\t],\n\t\"tags\": [],\n\t\"status\": \"available\"\n}"
             },
-            "endpoint": "<<url>>/v2/pet",
+            "endpoint": "<<mockUrl>>/v2/pet",
             "params": [],
             "headers": [],
             "method": "PUT",
@@ -167,7 +165,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -181,7 +179,7 @@
               "contentType": "application/json",
               "body": "{\n\t\"id\": 1,\n\t\"category\": {\n\t\t\"id\": 1,\n\t\t\"name\": \"string\"\n\t},\n\t\"name\": \"doggie\",\n\t\"photoUrls\": [\n\t\t\"string\"\n\t],\n\t\"tags\": [],\n\t\"status\": \"available\"\n}"
             },
-            "endpoint": "<<url>>/v2/pet",
+            "endpoint": "<<mockUrl>>/v2/pet",
             "params": [],
             "headers": [],
             "method": "PUT",
@@ -208,7 +206,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -222,7 +220,7 @@
               "contentType": "application/json",
               "body": "{\n\t\"id\": 1,\n\t\"category\": {\n\t\t\"id\": 1,\n\t\t\"name\": \"string\"\n\t},\n\t\"name\": \"doggie\",\n\t\"photoUrls\": [\n\t\t\"string\"\n\t],\n\t\"tags\": [],\n\t\"status\": \"available\"\n}"
             },
-            "endpoint": "<<url>>/v2/pet",
+            "endpoint": "<<mockUrl>>/v2/pet",
             "params": [],
             "headers": [],
             "method": "PUT",
@@ -233,10 +231,9 @@
     },
     {
       "v": "16",
-      "_ref_id": "req_midlz8s1_16050f4d-725a-4e75-8497-77aed00dc265",
       "name": "findPetsByStatus",
       "method": "GET",
-      "endpoint": "<<url>>/v2/pet/findByStatus",
+      "endpoint": "<<mockUrl>>/v2/pet/findByStatus",
       "params": [
         {
           "key": "status",
@@ -250,7 +247,7 @@
         "authType": "oauth-2",
         "authActive": true,
         "grantTypeInfo": {
-          "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+          "authEndpoint": "<<mockUrl>>/oauth/authorize",
           "clientID": "",
           "grantType": "IMPLICIT",
           "scopes": "write:pets read:pets",
@@ -288,7 +285,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -336,7 +333,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -368,10 +365,9 @@
     },
     {
       "v": "16",
-      "_ref_id": "req_midlz8s2_cc092dd3-261e-45d9-acf4-2c6632821084",
       "name": "getPetById",
       "method": "GET",
-      "endpoint": "<<url>>/v2/pet/<<petId>>",
+      "endpoint": "<<mockUrl>>/v2/pet/<<petId>>",
       "params": [],
       "headers": [],
       "auth": {
@@ -519,17 +515,16 @@
     },
     {
       "v": "16",
-      "_ref_id": "req_midlz8s2_34421ae3-7d6c-43b4-a3bb-6f5bd9ade076",
       "name": "updatePetWithForm",
       "method": "POST",
-      "endpoint": "<<url>>/v2/pet/<<petId>>",
+      "endpoint": "<<mockUrl>>/v2/pet/<<petId>>",
       "params": [],
       "headers": [],
       "auth": {
         "authType": "oauth-2",
         "authActive": true,
         "grantTypeInfo": {
-          "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+          "authEndpoint": "<<mockUrl>>/oauth/authorize",
           "clientID": "",
           "grantType": "IMPLICIT",
           "scopes": "write:pets read:pets",
@@ -573,7 +568,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -604,10 +599,9 @@
     },
     {
       "v": "16",
-      "_ref_id": "req_midlz8s2_7d8ef13a-d71c-4ca0-b43b-1d4c961c2d34",
       "name": "deletePet",
       "method": "DELETE",
-      "endpoint": "<<url>>/v2/pet/<<petId>>",
+      "endpoint": "<<mockUrl>>/v2/pet/<<petId>>",
       "params": [],
       "headers": [
         {
@@ -621,7 +615,7 @@
         "authType": "oauth-2",
         "authActive": true,
         "grantTypeInfo": {
-          "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+          "authEndpoint": "<<mockUrl>>/oauth/authorize",
           "clientID": "",
           "grantType": "IMPLICIT",
           "scopes": "write:pets read:pets",
@@ -665,7 +659,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -719,7 +713,7 @@
               "authType": "oauth-2",
               "authActive": true,
               "grantTypeInfo": {
-                "authEndpoint": "https://petstore.swagger.io/oauth/authorize",
+                "authEndpoint": "<<mockUrl>>/oauth/authorize",
                 "clientID": "",
                 "grantType": "IMPLICIT",
                 "scopes": "write:pets read:pets",
@@ -760,6 +754,5 @@
     "authType": "inherit",
     "authActive": true
   },
-  "headers": [],
-  "_ref_id": "coll_midlz8s2_4c6e4506-0f93-43b8-961b-f02aca702641"
+  "headers": []
 }

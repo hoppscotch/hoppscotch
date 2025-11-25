@@ -277,7 +277,6 @@ let connectionStateSubscription: Subscription | null = null
 let recentInstancesSubscription: Subscription | null = null
 let currentInstanceSubscription: Subscription | null = null
 
-
 const isInstanceSwitchingEnabled = computed(() => {
   return platform.instance?.instanceSwitchingEnabled ?? false
 })

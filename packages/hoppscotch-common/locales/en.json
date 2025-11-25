@@ -530,7 +530,7 @@
       "copy": "Copy response",
       "example_copied": "Response example copied to clipboard!",
       "example_copy_failed": "Failed to copy response example",
-      "headers": "Headers",
+      "headers": "Response Headers",
       "no_examples": "No response examples available",
       "title": "Response Examples"
     },

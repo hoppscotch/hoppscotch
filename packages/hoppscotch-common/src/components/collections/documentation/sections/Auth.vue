@@ -14,7 +14,7 @@
       <span>{{ t("documentation.auth.title") }}</span>
       <span
         v-if="auth?.authType === 'inherit'"
-        class="ml-2 font-semibold capitalize px-2 py-1 text-tiny rounded bg-divider text-secondaryDark"
+        class="ml-2 font-semibold capitalize px-2 py-1 text-tiny rounded bg-divider text-secondaryDark truncate"
       >
         ({{
           t("documentation.inherited_with_type", {

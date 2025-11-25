@@ -148,6 +148,7 @@
             </template>
           </tippy>
           <HoppButtonSecondary
+            v-if="currentCollection"
             :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
             :label="
               isDocumentationProcessing
@@ -427,7 +428,7 @@ const checkPublishedDocsStatus = async () => {
       getTeamPublishedDocs(props.teamID, props.collectionID),
       TE.match(
         (error) => {
-          console.log("No published docs found or error:", error)
+          console.error("No published docs found or error:", error)
           isCheckingPublishedStatus.value = false
         },
         (docs) => {
@@ -454,11 +455,10 @@ const checkPublishedDocsStatus = async () => {
       getUserPublishedDocs(),
       TE.match(
         (error) => {
-          console.log("No published docs found or error:", error)
+          console.error("No published docs found or error:", error)
           isCheckingPublishedStatus.value = false
         },
         (docs) => {
-          console.log("//published-docs///", docs)
           // Find published doc for this collection
           const publishedDoc = docs.find(
             (doc) => doc.collection.id === props.collectionID
@@ -484,9 +484,7 @@ const checkPublishedDocsStatus = async () => {
 watch(
   () => props.show,
   async (newVal) => {
-    console.log("///show///", newVal)
     if (newVal) {
-      console.log("//check-published-docs-status///")
       // Check for existing published docs when modal opens
       await checkPublishedDocsStatus()
     } else {

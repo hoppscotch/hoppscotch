@@ -258,7 +258,7 @@
                     :shortcut="['I']"
                     @click="
                       () => {
-                        emit('open-documentation')
+                        handleDocumentationAction()
                         hide()
                       }
                     "
@@ -681,6 +681,19 @@ const handleMockServerAction = () => {
 
   // User is authenticated, proceed with mock server creation
   emit("create-mock-server")
+}
+
+const handleDocumentationAction = () => {
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (!currentUser) {
+    // Show login modal if user is not authenticated
+    invokeAction("modals.login.toggle")
+    return
+  }
+
+  // User is authenticated, proceed with opening documentation
+  emit("open-documentation")
 }
 
 const resetDragState = () => {

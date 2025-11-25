@@ -15,6 +15,10 @@ dist-ssr
 bundle.zip
 manifest.json
 
+src-tauri/hopp_bundle.zip
+src-tauri/hopp_manifest.json
+src-tauri/hoppscotch-desktop-data
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

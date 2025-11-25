@@ -119,8 +119,8 @@
           </div>
         </div>
 
-        <!-- Mock Server Form -->
-        <div class="flex flex-col gap-6">
+        <!-- Mock Server Form (Before Creation) -->
+        <div v-if="!createdServer" class="flex flex-col gap-6">
           <div>
             <HoppSmartInput
               v-model="mockServerName"
@@ -198,6 +198,48 @@
               {{ t("mock_server.create_example_collection_hint") }}
             </div>
           </div>
+        </div>
+
+        <!-- Mock Server Created Info (After Creation) -->
+        <div v-else class="flex flex-col space-y-4">
+          <div class="flex flex-col space-y-2">
+            <label class="text-sm font-semibold text-secondaryDark">
+              {{ t("mock_server.mock_server_name") }}
+            </label>
+            <div class="text-body text-secondary">
+              {{ createdServer.name }}
+            </div>
+          </div>
+
+          <div class="flex flex-col space-y-2">
+            <label class="text-sm font-semibold text-secondaryDark">
+              {{ t("app.status") }}
+            </label>
+            <div class="flex items-center space-x-2">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                :class="
+                  createdServer.isActive
+                    ? 'bg-green-600/20 text-green-500 border border-green-600/30'
+                    : 'text-secondary border border-secondaryLight'
+                "
+              >
+                <span
+                  class="w-2 h-2 rounded-full mr-2"
+                  :class="
+                    createdServer.isActive
+                      ? 'bg-green-400'
+                      : 'bg-secondaryLight'
+                  "
+                ></span>
+                {{
+                  createdServer.isActive
+                    ? t("mockServer.dashboard.active")
+                    : t("mockServer.dashboard.inactive")
+                }}
+              </span>
+            </div>
+          </div>
 
           <MockServerCreatedInfo :mock-server="createdServer" />
         </div>
@@ -206,8 +248,22 @@
 
     <template #footer>
       <div class="flex justify-end space-x-2">
-        <!-- Create Mock Server Button -->
+        <!-- Start/Stop Server Button (after creation) -->
         <HoppButtonPrimary
+          v-if="createdServer"
+          :label="
+            createdServer.isActive
+              ? t('mock_server.stop_server')
+              : t('mock_server.start_server')
+          "
+          :loading="loading"
+          :icon="createdServer.isActive ? IconSquare : IconPlay"
+          @click="handleToggleMockServer"
+        />
+
+        <!-- Create Mock Server Button (before creation) -->
+        <HoppButtonPrimary
+          v-else
           :label="t('mock_server.create_mock_server')"
           :loading="loading"
           :disabled="
@@ -250,13 +306,20 @@ import {
 
 // Icons
 import IconCheck from "~icons/lucide/check"
+import IconPlay from "~icons/lucide/play"
 import IconServer from "~icons/lucide/server"
+import IconSquare from "~icons/lucide/square"
 
 const t = useI18n()
 const toast = useToast()
 
 // Use the composable for shared logic
-const { mockServers, availableCollections, createMockServer } = useMockServer()
+const {
+  mockServers,
+  availableCollections,
+  createMockServer,
+  toggleMockServer,
+} = useMockServer()
 
 // Services
 const workspaceService = useService(WorkspaceService)
@@ -434,6 +497,23 @@ const handleCreateMockServer = async () => {
 
   if (result.success && result.server) {
     createdServer.value = result.server
+  }
+}
+
+// Toggle mock server active state
+const handleToggleMockServer = async () => {
+  if (!createdServer.value) return
+
+  loading.value = true
+  await toggleMockServer(createdServer.value as any)
+  loading.value = false
+
+  // Update the local createdServer state with the toggled state
+  if (createdServer.value) {
+    createdServer.value = {
+      ...createdServer.value,
+      isActive: !createdServer.value.isActive,
+    }
   }
 }
 

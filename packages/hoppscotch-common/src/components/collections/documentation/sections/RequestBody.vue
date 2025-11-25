@@ -18,7 +18,7 @@
       <!-- Display body content based on type -->
       <div v-if="body.contentType === 'application/json'">
         <pre
-          class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-sm font-mono text-secondaryLight"
+          class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-xs font-mono text-secondaryLight"
           >{{ formatJSON(body.body) }}</pre
         >
       </div>
@@ -54,7 +54,7 @@
 
       <div v-else>
         <pre
-          class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 text-sm font-mono text-secondaryLight"
+          class="bg-primaryLight p-3 rounded my-2 overflow-auto max-h-64 font-mono text-secondaryLight"
           >{{ body.body }}</pre
         >
       </div>

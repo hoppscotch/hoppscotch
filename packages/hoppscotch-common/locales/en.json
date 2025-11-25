@@ -525,6 +525,9 @@
       "view_title": "View Published Documentation"
     },
     "request_opened_in_new_tab": "Request opened in new tab!",
+    "copy_response": "Copy response",
+    "response_body": "Response Body",
+    "response_headers": "Response Headers",
     "response": {
       "body": "Response Body",
       "copy": "Copy response",

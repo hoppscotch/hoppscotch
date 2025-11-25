@@ -76,6 +76,7 @@
 
         <div class="flex space-x-2">
           <HoppButtonPrimary
+            v-if="mode === 'view' || mode === 'update'"
             :label="t('documentation.publish.view_published')"
             :icon="IconExternalLink"
             @click="viewPublished"

@@ -929,6 +929,7 @@ const convertPathToHoppReqs = (
       } = {
         request: makeRESTRequest({
           name: info.operationId ?? info.summary ?? "Untitled Request",
+          description: info.description ?? "",
           method: method.toUpperCase(),
           endpoint,
 
@@ -1000,6 +1001,17 @@ const convertOpenApiDocsToHopp = (
 
   const collections = docs.map((doc) => {
     const name = doc.info.title
+    const description = doc.info.description ?? ""
+
+    // Extract tag descriptions from OpenAPI spec
+    const tagDescriptions: Record<string, string> = {}
+    if ("tags" in doc && Array.isArray(doc.tags)) {
+      doc.tags.forEach((tag: any) => {
+        if (tag.name && tag.description) {
+          tagDescriptions[tag.name] = tag.description
+        }
+      })
+    }
 
     const paths = Object.entries(doc.paths ?? {})
       .map(([pathName, pathObj]) =>
@@ -1029,18 +1041,22 @@ const convertOpenApiDocsToHopp = (
 
     return makeCollection({
       name,
+      description,
       folders: Object.entries(requestsByTags).map(([name, paths]) =>
         makeCollection({
           name,
+          description: tagDescriptions[name] ?? "",
           requests: paths,
           folders: [],
           auth: { authType: "inherit", authActive: true },
           headers: [],
+          variables: [],
         })
       ),
       requests: requestsWithoutTags,
       auth: { authType: "inherit", authActive: true },
       headers: [],
+      variables: [],
     })
   })
 

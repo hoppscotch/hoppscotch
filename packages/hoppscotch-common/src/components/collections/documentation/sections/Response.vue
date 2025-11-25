@@ -66,7 +66,7 @@
               <HoppSmartTab
                 v-if="example.headers && example.headers.length > 0"
                 id="headers"
-                :label="`${t('documentation.response_headers')} (${example.headers.length})`"
+                :label="`${t('documentation.response_headers')} ( ${example.headers.length} )`"
                 class="flex h-full w-full flex-1 flex-col"
               >
                 <div class="p-4">
@@ -91,7 +91,7 @@
                         :key="headerIndex"
                         class="border-t border-divider"
                       >
-                        <td class="py-2 px-3 text-accent text-xs">
+                        <td class="py-2 px-3 text-xs">
                           {{ header.key }}
                         </td>
                         <td class="py-2 px-3 text-secondaryLight text-xs">

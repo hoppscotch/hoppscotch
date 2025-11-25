@@ -148,6 +148,7 @@
             </template>
           </tippy>
           <HoppButtonSecondary
+            v-if="currentCollection"
             :icon="isDocumentationProcessing ? IconLoader2 : IconFileText"
             :label="
               isDocumentationProcessing

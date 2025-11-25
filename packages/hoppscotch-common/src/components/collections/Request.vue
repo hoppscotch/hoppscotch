@@ -139,7 +139,7 @@
                   :shortcut="['I']"
                   @click="
                     () => {
-                      emit('open-request-documentation')
+                      handleDocumentationAction()
                       hide()
                     }
                   "
@@ -241,6 +241,8 @@ import {
 } from "~/newstore/reordering"
 import { useReadonlyStream } from "~/composables/stream"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { platform } from "~/platform"
+import { invokeAction } from "~/helpers/actions"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -454,6 +456,19 @@ const isRequestLoading = computed(() => {
   }
   return false
 })
+
+const handleDocumentationAction = () => {
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (!currentUser) {
+    // Show login modal if user is not authenticated
+    invokeAction("modals.login.toggle")
+    return
+  }
+
+  // User is authenticated, proceed with opening documentation
+  emit("open-request-documentation")
+}
 
 const resetDragState = () => {
   dragging.value = false

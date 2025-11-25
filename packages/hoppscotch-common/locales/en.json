@@ -1045,6 +1045,7 @@
     "set_in_environment": "Set in environment",
     "set_in_environment_hint": "The mock server URL will be automatically added as 'mockUrl' variable in the collection's environment",
     "environment_variable_added": "Mock URL added to environment",
+    "environment_variable_updated": "Mock URL updated in environment",
     "environment_created_with_variable": "Environment created with mock URL",
     "create_example_collection": "Create example collection",
     "create_example_collection_hint": "Create a pet store example collection with sample requests (GET, POST, PUT, DELETE)",

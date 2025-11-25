@@ -75,9 +75,11 @@ export function useMockServer() {
       if (selectedEnvIndex.type === "MY_ENV") {
         // Check if mockUrl already exists in the environment
         const env = myEnvironments.value[selectedEnvIndex.index]
-        const hasVariable = env.variables.some((v) => v.key === "mockUrl")
+        const existingVariableIndex = env.variables.findIndex(
+          (v) => v.key === "mockUrl"
+        )
 
-        if (!hasVariable) {
+        if (existingVariableIndex === -1) {
           // Add to existing selected environment
           addEnvironmentVariable(selectedEnvIndex.index, {
             key: "mockUrl",
@@ -86,6 +88,14 @@ export function useMockServer() {
             secret: false,
           })
           toast.success(t("mock_server.environment_variable_added"))
+        } else {
+          // Update existing mockUrl variable with new value
+          env.variables[existingVariableIndex] = {
+            ...env.variables[existingVariableIndex],
+            initialValue: mockUrl,
+            currentValue: mockUrl,
+          }
+          toast.success(t("mock_server.environment_variable_updated"))
         }
       } else {
         // Create a new environment with the mock URL
@@ -111,34 +121,46 @@ export function useMockServer() {
       )
 
       if (existingEnv) {
-        // Update existing environment (add the variable if it doesn't exist)
-        const hasVariable = existingEnv.environment.variables.some(
-          (v) => v.key === "mockUrl"
-        )
+        // Update existing environment (add or update the mockUrl variable)
+        const existingVariableIndex =
+          existingEnv.environment.variables.findIndex(
+            (v) => v.key === "mockUrl"
+          )
 
-        if (!hasVariable) {
-          const updatedVariables = [
+        let updatedVariables
+        let successMessage
+
+        if (existingVariableIndex === -1) {
+          // Variable doesn't exist, add it
+          updatedVariables = [
             ...existingEnv.environment.variables,
             { key: "mockUrl", value: mockUrl },
           ]
-
-          await pipe(
-            updateTeamEnvironment(
-              JSON.stringify(updatedVariables),
-              existingEnv.id,
-              existingEnv.environment.name
-            ),
-            TE.match(
-              (error) => {
-                console.error("Failed to update team environment:", error)
-                toast.error(t("error.something_went_wrong"))
-              },
-              () => {
-                toast.success(t("mock_server.environment_variable_added"))
-              }
-            )
-          )()
+          successMessage = t("mock_server.environment_variable_added")
+        } else {
+          // Variable exists, update its value
+          updatedVariables = existingEnv.environment.variables.map((v, idx) =>
+            idx === existingVariableIndex ? { ...v, value: mockUrl } : v
+          )
+          successMessage = t("mock_server.environment_variable_updated")
         }
+
+        await pipe(
+          updateTeamEnvironment(
+            JSON.stringify(updatedVariables),
+            existingEnv.id,
+            existingEnv.environment.name
+          ),
+          TE.match(
+            (error) => {
+              console.error("Failed to update team environment:", error)
+              toast.error(t("error.something_went_wrong"))
+            },
+            () => {
+              toast.success(successMessage)
+            }
+          )
+        )()
       } else {
         // Create new team environment
         const envName = `${collectionName} Environment`

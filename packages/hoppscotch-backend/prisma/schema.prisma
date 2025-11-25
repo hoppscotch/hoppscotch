@@ -115,7 +115,6 @@ model User {
   userRequests         UserRequest[]
   settings             UserSettings?
   VerificationToken    VerificationToken[]
-  publishedDocs        PublishedDocs[]
 }
 
 model Account {
@@ -310,7 +309,6 @@ model PublishedDocs {
   metadata      Json?
   createdOn     DateTime      @default(now()) @db.Timestamptz(3)
   updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
-  user          User          @relation(fields: [creatorUid], references: [uid], onDelete: Cascade)
 }
 
 enum WorkspaceType {

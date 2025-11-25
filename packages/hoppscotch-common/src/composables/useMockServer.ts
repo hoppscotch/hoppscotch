@@ -21,6 +21,7 @@ import {
   createEnvironment,
   environments$,
   getSelectedEnvironmentIndex,
+  updateEnvironmentVariable,
 } from "~/newstore/environments"
 import {
   addMockServer,
@@ -89,12 +90,16 @@ export function useMockServer() {
           })
           toast.success(t("mock_server.environment_variable_added"))
         } else {
-          // Update existing mockUrl variable with new value
-          env.variables[existingVariableIndex] = {
-            ...env.variables[existingVariableIndex],
-            initialValue: mockUrl,
-            currentValue: mockUrl,
-          }
+          // Update existing mockUrl variable with new value using the store dispatcher
+          updateEnvironmentVariable(
+            selectedEnvIndex.index,
+            existingVariableIndex,
+            {
+              key: "mockUrl",
+              initialValue: mockUrl,
+              currentValue: mockUrl,
+            }
+          )
           toast.success(t("mock_server.environment_variable_updated"))
         }
       } else {

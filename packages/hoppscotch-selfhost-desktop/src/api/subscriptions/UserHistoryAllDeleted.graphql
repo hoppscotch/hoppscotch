@@ -1,3 +1,0 @@
-subscription UserHistoryAllDeleted {
-  userHistoryAllDeleted
-}

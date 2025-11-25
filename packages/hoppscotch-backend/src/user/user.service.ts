@@ -346,7 +346,7 @@ export class UserService {
 
       return E.right(updatedUser);
     } catch (error) {
-      return E.left(USER_NOT_FOUND);
+      return E.left(INVALID_EMAIL);
     }
   }
 

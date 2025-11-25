@@ -193,7 +193,7 @@
       <template #body>
         <p>
           {{
-            t("instances.remove_info") ||
+            t("instances.remove_warning") ||
             "Are you sure you want to remove this instance?"
           }}
           <span class="font-bold">{{ instanceToRemove?.displayName }}</span>

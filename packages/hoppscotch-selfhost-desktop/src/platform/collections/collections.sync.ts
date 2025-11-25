@@ -61,6 +61,7 @@ const recursivelySyncCollections = async (
       },
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
+      description: collection.description ?? null,
       _ref_id: collection._ref_id,
     }
     const res = await createRESTRootUserCollection(
@@ -81,6 +82,7 @@ const recursivelySyncCollections = async (
             headers: [],
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
+            description: null,
           }
 
       collection.id = parentCollectionID
@@ -88,6 +90,7 @@ const recursivelySyncCollections = async (
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       collection.variables = returnedData.variables
+      collection.description = returnedData.description ?? null
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
@@ -102,6 +105,7 @@ const recursivelySyncCollections = async (
       },
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
+      description: collection.description ?? null,
       _ref_id: collection._ref_id,
     }
 
@@ -124,6 +128,7 @@ const recursivelySyncCollections = async (
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
             variables: [],
+            description: null,
           }
 
       collection.id = childCollectionId
@@ -132,6 +137,7 @@ const recursivelySyncCollections = async (
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
       collection.variables = returnedData.variables
+      collection.description = returnedData.description ?? null
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -177,6 +183,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
     },
     headers: collection.headers ?? [],
     variables: collection.variables ?? [],
+    description: collection.description ?? null,
     _ref_id: collection._ref_id,
   }
 
@@ -254,6 +261,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       headers: collection.headers,
       variables: collection.variables,
       _ref_id: collection._ref_id,
+      description: collection.description,
     }
 
     if (collectionID) {
@@ -335,6 +343,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       headers: folder.headers,
       variables: folder.variables,
       _ref_id: folder._ref_id,
+      description: folder.description,
     }
 
     if (folderID) {

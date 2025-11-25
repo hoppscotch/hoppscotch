@@ -171,6 +171,7 @@ function translateToTeamCollectionFormat(x: HoppCollection) {
     auth: x.auth,
     headers: x.headers,
     variables: x.variables,
+    description: x.description,
   }
 
   const obj = {
@@ -193,6 +194,7 @@ function translateToPersonalCollectionFormat(x: HoppCollection) {
     auth: x.auth,
     headers: x.headers,
     variables: x.variables,
+    description: x.description,
   }
 
   const obj = {

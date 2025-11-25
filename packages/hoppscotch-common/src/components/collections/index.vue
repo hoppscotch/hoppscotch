@@ -53,6 +53,8 @@
         displayModalImportExport(true, 'my-collections')
       "
       @duplicate-collection="duplicateCollection"
+      @open-documentation="openDocumentation"
+      @open-request-documentation="openRequestDocumentation"
       @duplicate-request="duplicateRequest"
       @duplicate-response="duplicateResponse"
       @edit-properties="editProperties"
@@ -105,6 +107,8 @@
       @edit-request="editRequest"
       @edit-response="editResponse"
       @edit-properties="editProperties"
+      @open-documentation="openDocumentation"
+      @open-request-documentation="openRequestDocumentation"
       @create-mock-server="createTeamMockServer"
       @export-data="exportData"
       @expand-team-collection="expandTeamCollection"
@@ -209,11 +213,32 @@
         collectionsType.type === 'team-collections' && hasTeamWriteAccess
       "
       :has-team-write-access="
-        collectionsType.type === 'team-collections' ? hasTeamWriteAccess : true
+        hasTeamWriteAccess || collectionsType.type === 'my-collections'
       "
       source="REST"
       @hide-modal="displayModalEditProperties(false)"
       @set-collection-properties="setCollectionProperties"
+    />
+    <CollectionsDocumentation
+      v-if="showModalDocumentation"
+      :show="showModalDocumentation"
+      :path-or-i-d="editingCollectionPath"
+      :collection="editingCollection"
+      :collection-i-d="editingCollectionID ?? undefined"
+      :folder-path="editingFolderPath"
+      :request-index="editingRequestIndex"
+      :request-i-d="editingRequestID"
+      :request="editingRequest"
+      :is-team-collection="editingCollectionIsTeam"
+      :team-i-d="
+        collectionsType.type === 'team-collections'
+          ? collectionsType.selectedTeam?.teamID
+          : undefined
+      "
+      :has-team-write-access="
+        hasTeamWriteAccess || collectionsType.type === 'my-collections'
+      "
+      @hide-modal="displayModalDocumentation(false)"
     />
 
     <!-- `selectedCollectionID` is guaranteed to be a string when `showCollectionsRunnerModal` is `true` -->
@@ -254,6 +279,7 @@ import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
+  CollectionDataProps,
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
@@ -369,18 +395,23 @@ const collectionsType = ref<CollectionType>({
 
 // Collection Data
 const editingCollection = ref<HoppCollection | TeamCollection | null>(null)
+const editingCollectionIsTeam = ref<boolean>(false)
 const editingCollectionName = ref<string | null>(null)
 const editingCollectionIndex = ref<number | null>(null)
 const editingCollectionID = ref<string | null>(null)
+const editingCollectionPath = ref<string | null>(null)
+
 const editingFolder = ref<HoppCollection | TeamCollection | null>(null)
 const editingFolderName = ref<string | null>(null)
 const editingFolderPath = ref<string | null>(null)
+
 const editingRequest = ref<HoppRESTRequest | null>(null)
 const editingRequestName = ref("")
 const editingResponseName = ref("")
 const editingResponseOldName = ref("")
 const editingRequestIndex = ref<number | null>(null)
 const editingRequestID = ref<string | null>(null)
+
 const editingResponseID = ref<string | null>(null)
 
 const editingProperties = ref<EditingProperties>({
@@ -720,6 +751,7 @@ const showModalEditRequest = ref(false)
 const showModalEditResponse = ref(false)
 const showModalImportExport = ref(false)
 const showModalEditProperties = ref(false)
+const showModalDocumentation = ref(false)
 const showConfirmModal = ref(false)
 const showTeamModalAdd = ref(false)
 
@@ -799,6 +831,12 @@ const displayTeamModalAdd = (show: boolean) => {
   teamListAdapter.fetchList()
 }
 
+const displayModalDocumentation = (show: boolean) => {
+  showModalDocumentation.value = show
+
+  if (!show) resetSelectedData()
+}
+
 const addNewRootCollection = async (name: string) => {
   if (collectionsType.value.type === "my-collections") {
     modalLoadingState.value = true
@@ -818,6 +856,7 @@ const addNewRootCollection = async (name: string) => {
           authActive: true,
         },
         variables: [],
+        description: "",
       })
     )
 
@@ -2917,6 +2956,7 @@ const editProperties = async (payload: {
   collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
+  console.log("collection", collection)
 
   const collectionId = collection.id ?? collectionIndex.split("/").pop()
 
@@ -2986,6 +3026,7 @@ const editProperties = async (payload: {
       } as HoppRESTAuth,
       headers: [] as HoppRESTHeaders,
       variables: [] as HoppCollectionVariable[],
+      description: null as string | null,
       folders: null,
       requests: null,
     }
@@ -3013,11 +3054,16 @@ const editProperties = async (payload: {
         })
       )
 
+      const collectionData: CollectionDataProps = {
+        auth: data.auth,
+        headers: data.headers,
+        variables: collectionVariables,
+        description: data.description,
+      }
+
       coll = {
         ...coll,
-        auth: data.auth,
-        headers: data.headers as HoppRESTHeaders,
-        variables: collectionVariables as HoppCollectionVariable[],
+        ...collectionData,
       }
     }
 
@@ -3117,9 +3163,13 @@ const setCollectionProperties = (newCollection: {
     toast.success(t("collection.properties_updated"))
   } else if (hasTeamWriteAccess.value && collectionId) {
     const data = {
-      auth: collection.auth,
-      headers: collection.headers,
-      variables: collection.variables,
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      description: collection.description ?? null,
     }
 
     // Mark as loading BEFORE triggering async update to avoid race conditions and push the collectionId to the loading array
@@ -3130,7 +3180,7 @@ const setCollectionProperties = (newCollection: {
     }
 
     pipe(
-      updateTeamCollection(collectionId, JSON.stringify(data), undefined),
+      updateTeamCollection(collectionId, data, undefined),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -3216,6 +3266,62 @@ const sortCollections = (payload: {
     sortBy: "name",
     sortOrder,
   })
+}
+
+const openDocumentation = ({
+  pathOrID,
+  collectionRefID,
+  collection,
+}: {
+  pathOrID: string
+  collectionRefID: string
+  collection: HoppCollection | TeamCollection
+}) => {
+  console.log("Open documentation for", pathOrID, collectionRefID, collection)
+  editingCollectionPath.value = pathOrID
+  editingCollection.value = collection
+  editingCollectionIsTeam.value =
+    collectionsType.value.type === "team-collections"
+  editingCollectionID.value =
+    collectionsType.value.type === "team-collections"
+      ? (collection.id ?? null)
+      : ((collection as HoppCollection).id ??
+        (collection as HoppCollection)._ref_id ??
+        null)
+
+  displayModalDocumentation(true)
+}
+
+const openRequestDocumentation = ({
+  folderPath,
+  requestIndex,
+  requestRefID,
+  request,
+}: {
+  folderPath: string
+  requestIndex: string
+  requestRefID?: string
+  request: HoppRESTRequest
+}) => {
+  console.log(
+    "Open documentation for request",
+    folderPath,
+    requestIndex,
+    requestRefID,
+    request
+  )
+  // editingCollectionPath.value = pathOrID
+  // editingCollection.value = collection
+
+  editingRequest.value = request
+  editingFolderPath.value = folderPath
+  editingRequestIndex.value = parseInt(requestIndex)
+  editingRequestID.value = requestIndex
+  editingCollectionID.value = folderPath.split("/").at(-1) ?? null
+  editingCollectionIsTeam.value =
+    collectionsType.value.type === "team-collections"
+
+  displayModalDocumentation(true)
 }
 
 const resolveConfirmModal = (title: string | null) => {

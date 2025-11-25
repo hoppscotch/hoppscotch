@@ -296,6 +296,21 @@ model MockServerActivity {
   @@index([mockServerID])
 }
 
+model PublishedDocs {
+  id            String        @id @default(cuid())
+  title         String
+  collectionID  String
+  creatorUid    String
+  version       String
+  autoSync      Boolean
+  documentTree  Json? // Optional if autoSync is true
+  workspaceType WorkspaceType
+  workspaceID   String
+  metadata      Json?
+  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+}
+
 enum WorkspaceType {
   USER
   TEAM

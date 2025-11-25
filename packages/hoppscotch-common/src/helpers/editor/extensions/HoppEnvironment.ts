@@ -412,14 +412,21 @@ export class HoppEnvironmentPlugin {
         : currentTab.document.request
     const currentTabInheritedProperty = currentTab.document.inheritedProperties
 
-    if (!currentTabRequest || !currentTabInheritedProperty) return
+    // Don't return early if inheritedProperties is undefined - new tabs might not have it yet
+    if (!currentTabRequest) return
 
     watch(
       [currentTabRequest, currentTabInheritedProperty],
       ([request, document]) => {
+        if (!request || !("requestVariables" in request)) return
+
+        // Extract collection variables safely, handling undefined or non-inherited-property types
+        const collectionVariables =
+          document && "variables" in document ? document.variables : []
+
         const requestAndCollVars = getRequestAndCollectionVariables(
           request.requestVariables,
-          document.variables
+          collectionVariables
         )
 
         this.envs = [...requestAndCollVars, ...aggregateEnvs]
@@ -434,13 +441,23 @@ export class HoppEnvironmentPlugin {
       { immediate: true, deep: true }
     )
 
-    const requestAndCollVars = getRequestAndCollectionVariables(
-      currentTabRequest.requestVariables,
-      currentTabInheritedProperty.variables
-    )
-
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
-      this.envs = [...requestAndCollVars, ...envs]
+      // Recompute request and collection variables from current tab to avoid stale closure values
+      const tab = restTabs.currentActiveTab.value
+      const request =
+        tab.document.type === "example-response"
+          ? tab.document.response.originalRequest
+          : tab.document.request
+      const inheritedProperty = tab.document.inheritedProperties
+
+      if (!request || !("requestVariables" in request)) return
+
+      const freshRequestAndCollVars = getRequestAndCollectionVariables(
+        request.requestVariables,
+        inheritedProperty?.variables ?? []
+      )
+
+      this.envs = [...freshRequestAndCollVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

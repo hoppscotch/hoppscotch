@@ -86,6 +86,75 @@ describe("Common hopp-fetch", () => {
       )
     })
 
+    it("should preserve binary data from Request object with binary content-type", async () => {
+      const hoppFetch = createHoppFetchHook(mockKernelInterceptor)
+
+      // Create binary data (e.g., image bytes)
+      const binaryData = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a])
+
+      const request = new Request("https://api.example.com/upload", {
+        method: "POST",
+        headers: { "Content-Type": "image/png" },
+        body: binaryData,
+      })
+
+      await hoppFetch(request)
+
+      const call = (mockKernelInterceptor.execute as any).mock.calls[0][0]
+      expect(call.content.kind).toBe("binary")
+      expect(call.content.content).toBeInstanceOf(Uint8Array)
+      // Verify the binary data is preserved (not corrupted by text conversion)
+      expect(Array.from(call.content.content as Uint8Array)).toEqual([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a,
+      ])
+    })
+
+    it("should convert text content from Request object with text content-type", async () => {
+      const hoppFetch = createHoppFetchHook(mockKernelInterceptor)
+
+      const textData = new TextEncoder().encode("Hello World")
+
+      const request = new Request("https://api.example.com/data", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: textData,
+      })
+
+      await hoppFetch(request)
+
+      expect(mockKernelInterceptor.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            kind: "text",
+            content: "Hello World",
+          }),
+        })
+      )
+    })
+
+    it("should handle JSON content from Request object with json content-type", async () => {
+      const hoppFetch = createHoppFetchHook(mockKernelInterceptor)
+
+      const jsonData = new TextEncoder().encode('{"key":"value"}')
+
+      const request = new Request("https://api.example.com/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: jsonData,
+      })
+
+      await hoppFetch(request)
+
+      expect(mockKernelInterceptor.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            kind: "text",
+            content: '{"key":"value"}',
+          }),
+        })
+      )
+    })
+
     it("should prefer init options over Request properties (method)", async () => {
       const hoppFetch = createHoppFetchHook(mockKernelInterceptor)
 

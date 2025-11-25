@@ -355,7 +355,6 @@ export class ExtensionKernelInterceptorService
           encodedAsBase64 = true
         } else if (typeof File !== "undefined" && requestData instanceof File) {
           const buf = await requestData.arrayBuffer()
-          ;(requestData as any).arrayBuffer?.()
           transportedData = toBase64(new Uint8Array(buf))
           encodedAsBase64 = true
         }

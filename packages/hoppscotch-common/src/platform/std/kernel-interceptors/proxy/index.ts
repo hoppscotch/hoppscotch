@@ -163,8 +163,20 @@ export class ProxyKernelInterceptorService
           break
 
         case "form":
-          // Form data - pass directly
-          requestData = request.content.content
+          // Form data - convert to URLSearchParams for JSON serialization
+          // FormData objects are not JSON-serializable and will be lost when proxied
+          if (request.content.content instanceof FormData) {
+            const params = new URLSearchParams()
+            for (const [key, value] of request.content.content.entries()) {
+              // Only handle string values - File/Blob uploads not supported via proxy
+              if (typeof value === "string") {
+                params.append(key, value)
+              }
+            }
+            requestData = params.toString()
+          } else {
+            requestData = request.content.content
+          }
           break
 
         default:

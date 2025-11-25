@@ -115,9 +115,27 @@ async function convertFetchToRelayRequest(
   } else if (input instanceof Request && input.body !== null) {
     // Clone the request to avoid consuming the original body
     const clonedRequest = input.clone()
-    // Read the body as text first - we'll process it based on content-type
-    const bodyText = await clonedRequest.text()
-    bodyToUse = bodyText || undefined
+    // Read the body as arrayBuffer to preserve binary data
+    // We'll convert to appropriate type based on content-type
+    const bodyBuffer = await clonedRequest.arrayBuffer()
+
+    // Check content-type to determine if body is text or binary
+    const contentType = input.headers.get("content-type") || ""
+    const isTextContent =
+      contentType.includes("text/") ||
+      contentType.includes("json") ||
+      contentType.includes("xml") ||
+      contentType.includes("javascript") ||
+      contentType.includes("form-urlencoded")
+
+    if (isTextContent) {
+      // Decode as text for text-based content types
+      const decoder = new TextDecoder()
+      bodyToUse = decoder.decode(bodyBuffer)
+    } else {
+      // Keep as ArrayBuffer for binary content
+      bodyToUse = bodyBuffer
+    }
   } else {
     bodyToUse = undefined
   }

@@ -1250,14 +1250,39 @@
         // Object format: { url, method, header, body }
         url = urlOrRequest.url
 
-        // Parse headers - support both array [{key, value}] and object {key: value} formats
+        // Parse headers - support both array [{key, value, disabled}] and object {key: value} formats
         let headers = {}
         if (urlOrRequest.header) {
           if (Array.isArray(urlOrRequest.header)) {
-            // Array format: [{ key: 'Content-Type', value: 'application/json' }]
-            headers = Object.fromEntries(
-              urlOrRequest.header.map((h) => [h.key, h.value])
+            // Array format: [{ key: 'Content-Type', value: 'application/json', disabled: false }]
+            // Filter out disabled headers and handle duplicates properly
+            const activeHeaders = urlOrRequest.header.filter(
+              (h) => h.disabled !== true
             )
+
+            // Check if there are duplicate keys (e.g., multiple Set-Cookie headers)
+            const headerKeys = new Set()
+            const hasDuplicates = activeHeaders.some((h) => {
+              if (headerKeys.has(h.key.toLowerCase())) {
+                return true
+              }
+              headerKeys.add(h.key.toLowerCase())
+              return false
+            })
+
+            if (hasDuplicates) {
+              // Use Headers API to properly handle duplicate headers
+              const headersInit = new Headers()
+              activeHeaders.forEach((h) => {
+                headersInit.append(h.key, h.value)
+              })
+              headers = headersInit
+            } else {
+              // No duplicates - simple object is fine
+              headers = Object.fromEntries(
+                activeHeaders.map((h) => [h.key, h.value])
+              )
+            }
           } else if (typeof urlOrRequest.header === "object") {
             // Plain object format: { 'Content-Type': 'application/json' }
             headers = urlOrRequest.header

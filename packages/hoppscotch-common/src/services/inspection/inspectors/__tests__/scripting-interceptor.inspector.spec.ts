@@ -1,5 +1,5 @@
 import { TestContainer } from "dioc/testing"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
 import { ScriptingInterceptorInspectorService } from "../scripting-interceptor.inspector"
 import { InspectionService } from "../../index"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
@@ -47,6 +47,14 @@ beforeEach(() => {
       href: "https://example.com/",
       hostname: "example.com",
     } as any
+  }
+})
+
+afterEach(() => {
+  // Restore original location to prevent test leakage
+  if (global.window && originalLocation) {
+    delete (global.window as any).location
+    global.window.location = originalLocation
   }
 })
 

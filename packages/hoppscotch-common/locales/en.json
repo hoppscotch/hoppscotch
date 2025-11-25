@@ -525,15 +525,12 @@
       "view_title": "View Published Documentation"
     },
     "request_opened_in_new_tab": "Request opened in new tab!",
-    "copy_response": "Copy response",
-    "response_body": "Response Body",
-    "response_headers": "Response Headers",
     "response": {
       "body": "Response Body",
       "copy": "Copy response",
       "example_copied": "Response example copied to clipboard!",
       "example_copy_failed": "Failed to copy response example",
-      "headers": "Headers",
+      "headers": "Response Headers",
       "no_examples": "No response examples available",
       "title": "Response Examples"
     },

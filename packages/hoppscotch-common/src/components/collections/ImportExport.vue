@@ -13,6 +13,7 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { PropType, Ref, computed, ref } from "vue"
+import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
@@ -126,29 +127,6 @@ const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
   return E.right({ success: true })
 }
 
-function translateToTeamCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToTeamCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-    description: x.description,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
     return E.left({
@@ -157,7 +135,7 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   }
 
   const transformedCollection = collections.map((collection) =>
-    translateToTeamCollectionFormat(collection)
+    transformCollectionForImport(collection)
   )
 
   const res = await toTeamsImporter(

@@ -286,3 +286,31 @@ export function getFoldersByPath(
 
   return currentCollection.folders
 }
+
+/**
+ * Transforms a collection to the format expected by team or personal collections.
+ * Extracts auth, headers, and variables into a data object and recursively processes folders.
+ * @param collection The collection to transform
+ * @returns The transformed collection
+ */
+export function transformCollectionForImport(collection: any): any {
+  const folders: any[] = (collection.folders ?? []).map(
+    transformCollectionForImport
+  )
+
+  const data = {
+    auth: collection.auth,
+    headers: collection.headers,
+    variables: collection.variables,
+  }
+
+  const obj = {
+    ...collection,
+    folders,
+    data,
+  }
+
+  if (collection.id) obj.id = collection.id
+
+  return obj
+}

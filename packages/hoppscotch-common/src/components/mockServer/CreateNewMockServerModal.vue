@@ -18,8 +18,8 @@
             <div class="flex space-x-6">
               <label class="flex items-center space-x-2 cursor-pointer">
                 <input
-                  type="radio"
                   v-model="collectionSelectionMode"
+                  type="radio"
                   value="existing"
                   class="w-4 h-4 text-accent border-divider focus:ring-accent"
                 />
@@ -29,8 +29,8 @@
               </label>
               <label class="flex items-center space-x-2 cursor-pointer">
                 <input
-                  type="radio"
                   v-model="collectionSelectionMode"
+                  type="radio"
                   value="new"
                   class="w-4 h-4 text-accent border-divider focus:ring-accent"
                 />

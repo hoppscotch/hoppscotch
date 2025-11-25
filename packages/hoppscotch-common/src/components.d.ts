@@ -241,6 +241,7 @@ declare module 'vue' {
     IconLucideCode2: typeof import('~icons/lucide/code2')['default']
     IconLucideEyeOff: typeof import('~icons/lucide/eye-off')['default']
     IconLucideFileQuestion: typeof import('~icons/lucide/file-question')['default']
+    IconLucideFileText: typeof import('~icons/lucide/file-text')['default']
     IconLucideFolder: typeof import('~icons/lucide/folder')['default']
     IconLucideFolderOpen: typeof import('~icons/lucide/folder-open')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']

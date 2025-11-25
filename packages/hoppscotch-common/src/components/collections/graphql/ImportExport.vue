@@ -12,18 +12,12 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
-import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { ImporterOrExporter } from "~/components/importExport/types"
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
-import {
-  importUserCollectionsFromJSON,
-  fetchAndConvertUserCollections,
-} from "~/helpers/backend/mutations/UserCollection"
-import { ReqType } from "~/helpers/backend/graphql"
 
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconUser from "~icons/lucide/user"
@@ -34,13 +28,13 @@ import { platform } from "~/platform"
 import {
   appendGraphqlCollections,
   graphqlCollections$,
-  setGraphqlCollections,
 } from "~/newstore/collections"
 import { hoppGqlCollectionsImporter } from "~/helpers/import-export/import/hoppGql"
 import { gqlCollectionsExporter } from "~/helpers/import-export/export/gqlCollections"
 import { gistExporter } from "~/helpers/import-export/export/gist"
 import { computed } from "vue"
 import { hoppGQLImporter } from "~/helpers/import-export/import/hopp"
+import { ReqType } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const toast = useToast()
@@ -238,49 +232,19 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
-  // If user is logged in, try to import to backend first
-  if (currentUser.value) {
-    try {
-      const transformedCollection = gqlCollections.map((collection) =>
-        transformCollectionForImport(collection)
-      )
-
-      const res = await importUserCollectionsFromJSON(
-        JSON.stringify(transformedCollection),
-        ReqType.Gql
-      )()
-
-      if (E.isRight(res)) {
-        // Backend import succeeded, now fetch and persist collections in store
-        const fetchResult = await fetchAndConvertUserCollections(ReqType.Gql)
-
-        if (E.isRight(fetchResult)) {
-          // Replace local collections with backend collections
-          setGraphqlCollections(fetchResult.right)
-        } else {
-          // Failed to fetch, append to local store as fallback
-          appendGraphqlCollections(gqlCollections)
-        }
-
-        toast.success(t("state.file_imported"))
-        return
-      }
-      // Backend import failed, fall back to local storage
-      appendGraphqlCollections(gqlCollections)
-      toast.success(t("state.file_imported"))
-      return
-    } catch {
-      // Backend import failed, fall back to local storage
-      appendGraphqlCollections(gqlCollections)
-      toast.success(t("state.file_imported"))
-      return
-    }
-  } else {
-    // User not logged in, use local storage
-    appendGraphqlCollections(gqlCollections)
-    toast.success(t("state.file_imported"))
+const handleImportToStore = (gqlCollections: HoppCollection[]) => {
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    return platform.sync.collections.importToPersonalWorkspace(
+      gqlCollections,
+      ReqType.Gql
+    )
   }
+
+  appendGraphqlCollections(gqlCollections)
+  toast.success(t("state.file_imported"))
 }
 
 const emit = defineEmits<{

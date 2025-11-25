@@ -67,6 +67,7 @@ import {
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import { importToPersonalWorkspace } from "./import"
 
 function initCollectionsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -98,7 +99,7 @@ function initCollectionsSync() {
   })
 }
 
-type ExportedUserCollectionREST = {
+export type ExportedUserCollectionREST = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionREST[]
@@ -107,7 +108,7 @@ type ExportedUserCollectionREST = {
   data: string
 }
 
-type ExportedUserCollectionGQL = {
+export type ExportedUserCollectionGQL = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionGQL[]
@@ -125,7 +126,7 @@ function addDescriptionField(
   }))
 }
 
-function exportedCollectionToHoppCollection(
+export function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {
@@ -1031,6 +1032,7 @@ function setupUserRequestDeletedSubscription() {
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  importToPersonalWorkspace,
 }
 
 function getCollectionPathFromCollectionID(

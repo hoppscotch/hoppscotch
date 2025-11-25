@@ -94,8 +94,8 @@
 
     <template v-if="platform.ui?.additionalProfileSections?.length">
       <template
-        v-for="item in platform.ui?.additionalProfileSections"
-        :key="item.name || item.__name || item.__file || 'unknown'"
+        v-for="(item, index) in platform.ui?.additionalProfileSections"
+        :key="index"
       >
         <component :is="item" />
       </template>

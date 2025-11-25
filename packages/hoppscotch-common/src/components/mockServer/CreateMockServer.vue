@@ -442,6 +442,7 @@ import { ReqType } from "~/helpers/backend/graphql"
 import exampleCollectionJSON from "./../../../assets/data/api-mock-example.json"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
+import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -700,50 +701,6 @@ watch(collectionSelectionMode, (newMode) => {
   }
 })
 
-// Helper function to transform collection for team format
-function translateToTeamCollectionFormat(x: any) {
-  const folders: any[] = (x.folders ?? []).map(translateToTeamCollectionFormat)
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
-// Helper function to transform collection for personal format
-function translateToPersonalCollectionFormat(x: any) {
-  const folders: any[] = (x.folders ?? []).map(
-    translateToPersonalCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
 // Function to create an example collection and return its ID
 const createExampleCollectionAndGetID = async (): Promise<string> => {
   const workspaceType = currentWorkspace.value.type
@@ -772,7 +729,7 @@ const createExampleCollectionAndGetID = async (): Promise<string> => {
       // User is logged in, try to import to backend first
       try {
         const transformedCollection = collections.map((collection) =>
-          translateToPersonalCollectionFormat(collection)
+          transformCollectionForImport(collection)
         )
 
         const res = await importUserCollectionsFromJSON(
@@ -822,7 +779,7 @@ const createExampleCollectionAndGetID = async (): Promise<string> => {
     const teamID = currentWorkspace.value.teamID
 
     const transformedCollection = collections.map((collection) =>
-      translateToTeamCollectionFormat(collection)
+      transformCollectionForImport(collection)
     )
 
     const result = await pipe(

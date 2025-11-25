@@ -40,14 +40,6 @@
               </label>
             </div>
 
-            <!-- Hint for new collection mode -->
-            <div
-              v-if="collectionSelectionMode === 'new'"
-              class="w-full text-xs text-secondaryLight"
-            >
-              {{ t("mock_server.new_collection_name_hint") }}
-            </div>
-
             <!-- Collection dropdown (shown for existing collection mode) -->
             <div v-if="collectionSelectionMode === 'existing'" class="flex">
               <tippy
@@ -118,14 +110,24 @@
         </div>
 
         <!-- Mock Server Form -->
-        <div class="flex flex-col space-y-6">
-          <HoppSmartInput
-            v-model="mockServerName"
-            v-focus
-            :label="t('mock_server.mock_server_name')"
-            input-styles="floating-input"
-            :disabled="loading"
-          />
+        <div class="flex flex-col gap-6">
+          <div>
+            <HoppSmartInput
+              v-model="mockServerName"
+              v-focus
+              :label="t('mock_server.mock_server_name')"
+              input-styles="floating-input"
+              :disabled="loading"
+            />
+            <!-- Hint for new collection mode -->
+            <div
+              v-if="collectionSelectionMode === 'new'"
+              class="w-full text-xs text-secondaryLight mt-3"
+            >
+              {{ t("mock_server.new_collection_name_hint") }}
+            </div>
+          </div>
+
           <div class="flex items-center space-x-4">
             <div class="w-48">
               <HoppSmartInput

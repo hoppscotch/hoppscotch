@@ -645,10 +645,8 @@ describe('deletePublishedDoc', () => {
 
 describe('getPublishedDocsCreator', () => {
   test('should return the creator of a published document', async () => {
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
-      ...userPublishedDoc,
-      user: user,
-    } as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.user.findUnique.mockResolvedValueOnce(user as any);
 
     const result = await publishedDocsService.getPublishedDocsCreator(
       userPublishedDoc.id,

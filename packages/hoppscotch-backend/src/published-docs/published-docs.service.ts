@@ -15,6 +15,7 @@ import {
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
   TEAM_INVALID_ID,
+  USERS_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PublishedDocs } from './published-docs.model';
@@ -149,10 +150,15 @@ export class PublishedDocsService {
   async getPublishedDocsCreator(id: string) {
     const publishedDocs = await this.prisma.publishedDocs.findUnique({
       where: { id },
-      include: { user: true },
     });
     if (!publishedDocs) return E.left(PUBLISHED_DOCS_NOT_FOUND);
-    return E.right(publishedDocs.user);
+
+    const user = await this.prisma.user.findUnique({
+      where: { uid: publishedDocs.creatorUid },
+    });
+    if (!user) return E.left(USERS_NOT_FOUND);
+
+    return E.right(user);
   }
 
   /**

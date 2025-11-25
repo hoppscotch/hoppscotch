@@ -1050,7 +1050,8 @@
     "create_example_collection_hint": "Create a pet store example collection with sample requests (GET, POST, PUT, DELETE)",
     "creating_example_collection": "Creating example collection...",
     "failed_to_create_collection": "Failed to create example collection",
-    "enable_example_collection_hint": "Please enable 'Create example collection' toggle for new collection mode"
+    "enable_example_collection_hint": "Please enable 'Create example collection' toggle for new collection mode",
+    "new_collection_name_hint": "The collection will be created with the same name as your mock server"
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",

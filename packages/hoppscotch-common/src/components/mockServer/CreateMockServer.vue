@@ -56,6 +56,14 @@
               </label>
             </div>
 
+            <!-- Hint for new collection mode -->
+            <div
+              v-if="collectionSelectionMode === 'new'"
+              class="w-full text-xs text-secondaryLight"
+            >
+              {{ t("mock_server.new_collection_name_hint") }}
+            </div>
+
             <!-- Collection dropdown (shown for existing collection mode) -->
             <div v-if="collectionSelectionMode === 'existing'" class="flex">
               <tippy

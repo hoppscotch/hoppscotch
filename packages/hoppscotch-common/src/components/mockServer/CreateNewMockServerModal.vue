@@ -368,48 +368,59 @@ const createExampleCollectionAndGetID = async (
 
 // Create new mock server
 const handleCreateMockServer = async () => {
+  // Validate mock server name first
+  if (!mockServerName.value.trim()) {
+    toast.error(t("mock_server.provide_mock_server_name"))
+    return
+  }
+
+  // Start loading and show creating message
+  loading.value = true
+  toast.info(t("mock_server.creating_mock_server"))
+
   // If "new collection" mode is selected, create example collection (if toggle is enabled)
   let collectionIDToUse = effectiveCollectionID.value
 
   if (collectionSelectionMode.value === "new") {
     if (createExampleCollection.value) {
-      // Check if mock server name is provided before creating collection
-      if (!mockServerName.value.trim()) {
-        toast.error(t("mock_server.provide_mock_server_name"))
-        return
-      }
-
-      loading.value = true
-      toast.info(t("mock_server.creating_example_collection"))
-
       try {
+        // Silently create the collection in the background
         const newCollection = await createExampleCollectionAndGetID(
           mockServerName.value.trim()
         )
+
+        console.log("Created new collection:", newCollection)
 
         // Update the selected collection with the actual created collection's ID and name
         collectionIDToUse = newCollection.id
         selectedCollectionID.value = newCollection.id
         selectedCollectionName.value = newCollection.name
       } catch (error) {
-        console.error("Failed to create example collection:", error)
-        toast.error(t("mock_server.failed_to_create_collection"))
+        console.error("Failed to create collection:", error)
+        // If collection creation fails, stop the entire process
+        toast.error(t("mock_server.failed_to_create_mock_server"))
         loading.value = false
         return
       }
     } else {
       // If new collection mode but example collection is not enabled
       toast.error(t("mock_server.enable_example_collection_hint"))
+      loading.value = false
       return
     }
   }
 
-  if (!mockServerName.value.trim() || !collectionIDToUse) {
+  // Validate collection ID
+  if (!collectionIDToUse) {
+    toast.error(t("mock_server.select_collection_error"))
+    loading.value = false
     return
   }
 
-  loading.value = true
+  // Wait a bit more to ensure collection is fully available in the system
+  await new Promise((resolve) => setTimeout(resolve, 300))
 
+  // Now create the mock server
   const result = await createMockServer({
     mockServerName: mockServerName.value,
     collectionID: collectionIDToUse,

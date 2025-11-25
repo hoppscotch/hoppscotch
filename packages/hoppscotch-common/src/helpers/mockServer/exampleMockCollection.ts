@@ -256,6 +256,9 @@ export async function createMockCollectionForPersonal(
   // Append to local storage
   appendRESTCollections([collection])
 
+  // Wait a bit to ensure the collection is registered in the store
+  await new Promise((resolve) => setTimeout(resolve, 200))
+
   // Return the collection info (generate ID if not present)
   const collectionID =
     collection.id || collection._ref_id || Date.now().toString()

@@ -439,7 +439,6 @@ const handleCreateMockServer = async () => {
 
   // Start loading and show creating message
   loading.value = true
-  toast.info(t("mock_server.creating_mock_server"))
 
   // If "new collection" mode is selected, create example collection (if toggle is enabled)
   let collectionIDToUse = effectiveCollectionID.value
@@ -451,8 +450,6 @@ const handleCreateMockServer = async () => {
         const newCollection = await createExampleCollectionAndGetID(
           mockServerName.value.trim()
         )
-
-        console.log("Created new collection:", newCollection)
 
         // Update the selected collection with the actual created collection's ID and name
         collectionIDToUse = newCollection.id

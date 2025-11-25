@@ -6,6 +6,8 @@ import {
 } from "@hoppscotch/data"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 
+const MOCK_URL_VAR = "<<mockUrl>>"
+
 /**
  * Returns a JSON string of the Pet Store example collection for import
  * @returns JSON string representation of the collection
@@ -29,7 +31,7 @@ export function createExamplePetStoreCollection(
       id: uniqueID(),
       name: "Get All Pets",
       method: "GET",
-      endpoint: "/pets",
+      endpoint: `${MOCK_URL_VAR}/pets`,
       params: [],
       headers: [],
       auth: {
@@ -93,7 +95,7 @@ export function createExamplePetStoreCollection(
       id: uniqueID(),
       name: "Get Pet by ID",
       method: "GET",
-      endpoint: "/pets/1",
+      endpoint: `${MOCK_URL_VAR}/pets/1`,
       params: [],
       headers: [],
       auth: {
@@ -142,7 +144,7 @@ export function createExamplePetStoreCollection(
       id: uniqueID(),
       name: "Create New Pet",
       method: "POST",
-      endpoint: "/pets",
+      endpoint: `${MOCK_URL_VAR}/pets`,
       params: [],
       headers: [
         {
@@ -218,7 +220,7 @@ export function createExamplePetStoreCollection(
       id: uniqueID(),
       name: "Update Pet",
       method: "PUT",
-      endpoint: "/pets/1",
+      endpoint: `${MOCK_URL_VAR}/pets/1`,
       params: [],
       headers: [
         {
@@ -288,7 +290,7 @@ export function createExamplePetStoreCollection(
       id: uniqueID(),
       name: "Delete Pet",
       method: "DELETE",
-      endpoint: "/pets/3",
+      endpoint: `${MOCK_URL_VAR}/pets/3`,
       params: [],
       headers: [],
       auth: {

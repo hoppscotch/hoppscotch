@@ -4,7 +4,7 @@ import {
   UpdatePublishedDocsArgs,
 } from './input-type.args';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PublishedDocs as DbPublishedDocs } from '@prisma/client';
+import { PublishedDocs as DbPublishedDocs } from 'src/generated/prisma/client';
 import { TeamAccessRole } from 'src/team/team.model';
 import { User } from 'src/user/user.model';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
@@ -239,6 +239,8 @@ export class PublishedDocsService {
         }),
       );
     }
+
+    return E.right(this.cast(publishedDocs));
   }
 
   /**

@@ -1,4 +1,4 @@
-import { PublishedDocs as DBPublishedDocs } from '@prisma/client';
+import { PublishedDocs as DBPublishedDocs } from 'src/generated/prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   PUBLISHED_DOCS_CREATION_FAILED,
@@ -23,6 +23,7 @@ import {
 import { TeamAccessRole } from 'src/team/team.model';
 import { TreeLevel } from './published-docs.dto';
 import { ConfigService } from '@nestjs/config';
+import { right } from 'fp-ts/lib/EitherT';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUserCollectionService = mockDeep<UserCollectionService>();
@@ -84,7 +85,7 @@ const teamPublishedDoc: DBPublishedDocs = {
   id: 'pub_doc_2',
   title: 'Team API Documentation',
   version: '1.0.0',
-  autoSync: false,
+  autoSync: true,
   documentTree: {},
   workspaceType: WorkspaceType.TEAM,
   workspaceID: 'team_1',
@@ -819,7 +820,13 @@ describe('getPublishedDocByIDPublic', () => {
       userPublishedDoc.id,
       { tree: TreeLevel.FULL },
     );
-    expect(result).toEqualRight(collectionData);
+
+    expect(result).toMatchObject(
+      E.right({
+        ...userPublishedDocCasted,
+        documentTree: JSON.stringify(collectionData),
+      }),
+    );
   });
 
   test('should return collection data when autoSync is enabled for team workspace', async () => {
@@ -842,7 +849,13 @@ describe('getPublishedDocByIDPublic', () => {
       teamPublishedDoc.id,
       { tree: TreeLevel.FULL },
     );
-    expect(result).toEqualRight(collectionData);
+
+    expect(result).toMatchObject(
+      E.right({
+        ...teamPublishedDocCasted,
+        documentTree: JSON.stringify(collectionData),
+      }),
+    );
   });
 
   test('should throw PUBLISHED_DOCS_NOT_FOUND when document ID is invalid', async () => {

@@ -1,3 +1,0 @@
-mutation DeleteUserRequest($requestID: ID!) {
-  deleteUserRequest(id: $requestID)
-}

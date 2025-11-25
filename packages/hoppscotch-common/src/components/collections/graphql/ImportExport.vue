@@ -12,6 +12,7 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
+import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -242,7 +243,7 @@ const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
   if (currentUser.value) {
     try {
       const transformedCollection = gqlCollections.map((collection) =>
-        translateToPersonalCollectionFormat(collection)
+        transformCollectionForImport(collection)
       )
 
       const res = await importUserCollectionsFromJSON(
@@ -280,28 +281,6 @@ const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
     appendGraphqlCollections(gqlCollections)
     toast.success(t("state.file_imported"))
   }
-}
-
-function translateToPersonalCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToPersonalCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
 }
 
 const emit = defineEmits<{

@@ -20,22 +20,25 @@ import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
 import {
   ExportAsJsonDocument,
+  ExportCollectionToJsonDocument,
   GetCollectionChildrenIDsDocument,
   GetCollectionRequestsDocument,
   GetCollectionTitleAndDataDocument,
 } from "./graphql"
 
 type TeamCollectionJSON = {
+  id: string
   name: string
   folders: TeamCollectionJSON[]
   requests: HoppRESTRequest[]
-  data: string
+  data: string | null
 }
 
-type CollectionDataProps = {
+export type CollectionDataProps = {
   auth: HoppRESTAuth
   headers: HoppRESTHeaders
   variables: HoppCollectionVariable[]
+  description: string | null
 }
 
 export const BACKEND_PAGE_SIZE = 10
@@ -116,6 +119,7 @@ const parseCollectionData = (
     auth: { authType: "inherit", authActive: true },
     headers: [],
     variables: [],
+    description: null,
   }
 
   if (!data) {
@@ -149,26 +153,36 @@ const parseCollectionData = (
     defaultDataProps.variables
   )
 
+  const description =
+    typeof parsedData?.description === "string"
+      ? parsedData.description
+      : defaultDataProps.description
+
   return {
     auth,
     headers,
     variables,
+    description,
   }
 }
 
 // Transforms the collection JSON string obtained with workspace level export to `HoppRESTCollection`
-const teamCollectionJSONToHoppRESTColl = (
+export const teamCollectionJSONToHoppRESTColl = (
   coll: TeamCollectionJSON
 ): HoppCollection => {
-  const { auth, headers, variables } = parseCollectionData(coll.data)
+  const { auth, headers, variables, description } = parseCollectionData(
+    coll.data
+  )
 
   return makeCollection({
+    id: coll.id,
     name: coll.name,
-    folders: coll.folders.map(teamCollectionJSONToHoppRESTColl),
+    folders: coll.folders?.map(teamCollectionJSONToHoppRESTColl),
     requests: coll.requests,
     auth,
     headers,
     variables,
+    description,
   })
 }
 
@@ -229,9 +243,10 @@ export const teamCollToHoppRESTColl = (
           auth: { authType: "inherit", authActive: true },
           headers: [],
           variables: [],
+          description: null,
         }
 
-  const { auth, headers, variables } = parseCollectionData(data)
+  const { auth, headers, variables, description } = parseCollectionData(data)
 
   return makeCollection({
     id: coll.id,
@@ -241,6 +256,7 @@ export const teamCollToHoppRESTColl = (
     auth: auth ?? { authType: "inherit", authActive: true },
     headers: headers ?? [],
     variables: variables ?? [],
+    description: description ?? null,
   })
 }
 
@@ -271,4 +287,37 @@ export const getTeamCollectionJSON = async (teamID: string) => {
 
   const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
   return E.right(JSON.stringify(hoppCollections, null, 2))
+}
+
+/**
+ * Get the JSON string of a single collection of the specified team
+ * @param teamID - ID of the team
+ * @param collectionID - ID of the collection
+ */
+export const getSingleTeamCollectionJSON = async (
+  teamID: string,
+  collectionID: string
+) => {
+  const data = await runGQLQuery({
+    query: ExportCollectionToJsonDocument,
+    variables: {
+      teamID,
+      collectionID,
+    },
+  })
+
+  if (E.isLeft(data)) {
+    return E.left(data.left.error.toString())
+  }
+
+  const collection = JSON.parse(data.right.exportCollectionToJSON)
+
+  if (!collection) {
+    const t = getI18n()
+
+    return E.left(t("error.no_collections_to_export"))
+  }
+
+  const hoppCollection = teamCollectionJSONToHoppRESTColl(collection)
+  return E.right(JSON.stringify(hoppCollection, null, 2))
 }

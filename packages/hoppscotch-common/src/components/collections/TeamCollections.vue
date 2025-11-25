@@ -118,6 +118,14 @@
                 collection: node.data.data.data,
               })
             "
+            @open-documentation="
+              node.data.type === 'collections' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data.id,
+                collection: node.data.data.data,
+              })
+            "
             @create-mock-server="
               node.data.type === 'collections' &&
               emit('create-mock-server', {
@@ -226,6 +234,14 @@
                 collection: node.data.data.data,
               })
             "
+            @open-documentation="
+              node.data.type === 'folders' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data.id,
+                collection: node.data.data.data,
+              })
+            "
             @export-data="
               node.data.type === 'folders' &&
               emit('export-data', node.data.data.data)
@@ -306,6 +322,15 @@
               node.data.type === 'requests' &&
               emit('edit-request', {
                 requestIndex: node.data.data.data.id,
+                request: node.data.data.data.request,
+              })
+            "
+            @open-request-documentation="
+              node.data.type === 'requests' &&
+              emit('open-request-documentation', {
+                folderPath: getPath(node.id),
+                requestIndex: node.data.data.data.id,
+                requestRefID: node.data.data.data.id,
                 request: node.data.data.data.request,
               })
             "
@@ -657,6 +682,23 @@ const emit = defineEmits<{
     }
   ): void
   (event: "select-response", payload: ResponsePayload): void
+  (
+    event: "open-documentation",
+    payload: {
+      pathOrID: string
+      collectionRefID: string
+      collection: TeamCollection
+    }
+  ): void
+  (
+    event: "open-request-documentation",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      requestRefID?: string
+      request: HoppRESTRequest
+    }
+  ): void
   (
     event: "share-request",
     payload: {

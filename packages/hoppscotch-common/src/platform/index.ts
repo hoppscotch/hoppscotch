@@ -42,6 +42,7 @@ export type PlatformDef = {
   // NOTE: To be deprecated
   // interceptors: InterceptorsPlatformDef
   kernelInterceptors: KernelInterceptorsPlatformDef
+  instance?: InstancePlatformDef
   additionalInspectors?: InspectorsPlatformDef
   spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {

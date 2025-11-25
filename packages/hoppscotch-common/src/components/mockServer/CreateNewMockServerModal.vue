@@ -237,26 +237,16 @@ import { useToast } from "@composables/toast"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import * as E from "fp-ts/Either"
-import { platform } from "~/platform"
-import { MockServer, ReqType } from "~/helpers/backend/graphql"
+import { MockServer } from "~/helpers/backend/graphql"
 import { showCreateMockServerModal$ } from "~/newstore/mockServers"
 import { useMockServer } from "~/composables/useMockServer"
 import MockServerCreatedInfo from "~/components/mockServer/MockServerCreatedInfo.vue"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
-import { TeamCollectionsService } from "~/services/team-collection.service"
 import {
-  restCollections$,
-  appendRESTCollections,
-  setRESTCollections,
-} from "~/newstore/collections"
-import { hoppRESTImporter } from "~/helpers/import-export/import/importers"
-import { importJSONToTeam } from "~/helpers/backend/mutations/TeamCollection"
-import {
-  importUserCollectionsFromJSON,
-  fetchAndConvertUserCollections,
-} from "~/helpers/backend/mutations/UserCollection"
-import exampleCollectionJSON from "../../../assets/data/api-mock-example.json"
+  createMockCollectionForTeam,
+  createMockCollectionForPersonal,
+} from "~/helpers/mockServer/exampleMockCollection"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -270,16 +260,6 @@ const { mockServers, availableCollections, createMockServer } = useMockServer()
 
 // Services
 const workspaceService = useService(WorkspaceService)
-const teamCollectionsService = useService(TeamCollectionsService)
-
-// Get current user for personal workspace import
-const currentUser = useReadonlyStream(
-  platform.auth.getCurrentUserStream(),
-  platform.auth.getCurrentUser()
-)
-
-// Get collections
-const collections = useReadonlyStream(restCollections$, [])
 
 // Current workspace
 const currentWorkspace = computed(() => workspaceService.currentWorkspace.value)
@@ -350,50 +330,6 @@ const selectCollection = (option: any) => {
   selectedCollectionName.value = option.label
 }
 
-// Helper function to transform collection for team format
-function translateToTeamCollectionFormat(x: any) {
-  const folders: any[] = (x.folders ?? []).map(translateToTeamCollectionFormat)
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
-// Helper function to transform collection for personal format
-function translateToPersonalCollectionFormat(x: any) {
-  const folders: any[] = (x.folders ?? []).map(
-    translateToPersonalCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
 // Function to create an example collection and return its ID and name
 const createExampleCollectionAndGetID = async (): Promise<{
   id: string
@@ -401,152 +337,28 @@ const createExampleCollectionAndGetID = async (): Promise<{
 }> => {
   const workspaceType = currentWorkspace.value.type
 
-  // Parse the example collection JSON using hoppRESTImporter
-  const parseResult = await hoppRESTImporter([
-    JSON.stringify(exampleCollectionJSON),
-  ])()
-
-  if (E.isLeft(parseResult)) {
-    throw new Error("Failed to parse example collection")
-  }
-
-  const collectionsData = parseResult.right
-
   if (workspaceType === "personal") {
-    // For personal workspace, use the same import logic as ImportExport.vue
-    const currentUserValue = currentUser.value
+    // For personal workspace
+    const result = await createMockCollectionForPersonal()
 
-    if (currentUserValue) {
-      // User is logged in, try to import to backend first
-      try {
-        // Get existing collection IDs before import
-        const existingCollectionIDs = new Set(
-          availableCollections.value.map((col: any) => col.id ?? col._ref_id)
-        )
-
-        const transformedCollection = collectionsData.map((collection) =>
-          translateToPersonalCollectionFormat(collection)
-        )
-
-        await importUserCollectionsFromJSON(
-          JSON.stringify(transformedCollection),
-          ReqType.Rest
-        )
-
-        // Fetch the updated collections from backend
-        const updatedCollections = await fetchAndConvertUserCollections(
-          ReqType.Rest
-        )
-
-        if (E.isRight(updatedCollections)) {
-          setRESTCollections(updatedCollections.right)
-
-          // Find the newly created collection by comparing IDs
-          const newCollection = updatedCollections.right.find((col) => {
-            const colId = col.id ?? col._ref_id
-            return colId && !existingCollectionIDs.has(colId)
-          })
-
-          if (newCollection) {
-            return {
-              id: newCollection.id ?? newCollection._ref_id ?? "",
-              name: newCollection.name || "Unknown Collection",
-            }
-          }
-
-          // Fallback: return the last collection if we can't find a new one
-          const lastCollection =
-            updatedCollections.right[updatedCollections.right.length - 1]
-          return {
-            id: lastCollection.id ?? lastCollection._ref_id ?? "",
-            name: lastCollection.name || "Unknown Collection",
-          }
-        }
-      } catch (error) {
-        console.error("Backend import failed, falling back to local:", error)
-      }
+    if (E.isLeft(result)) {
+      throw new Error(result.left)
     }
 
-    // Fallback: append to local storage
-    // Get existing collection IDs before import
-    const existingCollectionIDs = new Set(
-      availableCollections.value.map((col: any) => col.id ?? col._ref_id)
-    )
-
-    appendRESTCollections(collectionsData)
-
-    // Get the appended collections
-    const updatedCollections = useReadonlyStream(restCollections$, [])
-
-    // Find the newly created collection by comparing IDs
-    const newCollection = updatedCollections.value.find((col: any) => {
-      const colId = col.id ?? col._ref_id
-      return colId && !existingCollectionIDs.has(colId)
-    })
-
-    if (newCollection) {
-      return {
-        id: newCollection.id ?? newCollection._ref_id ?? "",
-        name: newCollection.name || "Unknown Collection",
-      }
-    }
-
-    // Fallback: return the last collection
-    const lastCollection =
-      updatedCollections.value[updatedCollections.value.length - 1]
-    return {
-      id: lastCollection.id ?? lastCollection._ref_id ?? "",
-      name: lastCollection.name || "Unknown Collection",
-    }
+    return result.right
   } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
     // For team workspace
     const teamID = currentWorkspace.value.teamID
+    const result = await createMockCollectionForTeam(teamID)
 
-    // Get existing collection IDs before import
-    const existingCollectionIDs = new Set(
-      teamCollectionsService.collections.value?.map((col: any) => col.id) ?? []
-    )
-
-    const transformedCollection = collectionsData.map((collection) =>
-      translateToTeamCollectionFormat(collection)
-    )
-
-    const importResult = await importJSONToTeam(
-      JSON.stringify(transformedCollection),
-      teamID
-    )
-
-    if (!importResult) {
-      throw new Error("Failed to import to team workspace")
+    if (E.isLeft(result)) {
+      throw new Error(result.left)
     }
 
     // Wait a bit for the subscription to update
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Get the team collections and find the newly created one
-    const teamCollections = teamCollectionsService.collections.value
-    if (teamCollections && teamCollections.length > 0) {
-      // Find the newly created collection by comparing IDs
-      const newCollection = teamCollections.find(
-        (col: any) => col.id && !existingCollectionIDs.has(col.id)
-      )
-
-      if (newCollection) {
-        return {
-          id: newCollection.id,
-          name: newCollection.title || "Unknown Collection",
-        }
-      }
-
-      // Fallback: return the last collection
-      const lastCollection = teamCollections[teamCollections.length - 1]
-      return {
-        id: lastCollection.id,
-        name: lastCollection.title || "Unknown Collection",
-      }
-    }
-
-    throw new Error("Failed to get imported team collection")
+    return result.right
   }
 
   throw new Error("Unknown workspace type")

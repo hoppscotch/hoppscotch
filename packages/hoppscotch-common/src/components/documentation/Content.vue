@@ -133,7 +133,7 @@ const scrollToItem = (id: string): void => {
         block: "start",
       })
     } else {
-      console.log("Item not found:", id)
+      console.error("Item not found:", id)
     }
   }, 100)
 }
@@ -149,7 +149,7 @@ const scrollToItemByName = (name: string, type: "request" | "folder") => {
   if (item) {
     scrollToItem(item.id)
   } else {
-    console.log(`${type} with name "${name}" not found in allItems`)
+    console.error(`${type} with name "${name}" not found in allItems`)
   }
 }
 

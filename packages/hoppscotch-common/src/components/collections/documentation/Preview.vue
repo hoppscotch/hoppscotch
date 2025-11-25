@@ -356,7 +356,7 @@ const scrollToItem = (id: string): void => {
           block: "start",
         })
       } else {
-        console.log("Item not found:", id)
+        console.error("Item not found:", id)
       }
     }, 50)
   })
@@ -375,10 +375,9 @@ const scrollToItemByNameAndType = (
 
   if (itemIndex !== -1) {
     const targetItem = props.allItems[itemIndex]
-    console.log(`Found ${type} at index: ${itemIndex}`)
     scrollToItem(targetItem.id)
   } else {
-    console.log(`${type} with name "${name}" not found in allItems`)
+    console.error(`${type} with name "${name}" not found in allItems`)
   }
 }
 

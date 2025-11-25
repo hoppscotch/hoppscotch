@@ -2956,7 +2956,6 @@ const editProperties = async (payload: {
   collection: HoppCollection | TeamCollection
 }) => {
   const { collection, collectionIndex } = payload
-  console.log("collection", collection)
 
   const collectionId = collection.id ?? collectionIndex.split("/").pop()
 
@@ -3270,14 +3269,11 @@ const sortCollections = (payload: {
 
 const openDocumentation = ({
   pathOrID,
-  collectionRefID,
   collection,
 }: {
   pathOrID: string
-  collectionRefID: string
   collection: HoppCollection | TeamCollection
 }) => {
-  console.log("Open documentation for", pathOrID, collectionRefID, collection)
   editingCollectionPath.value = pathOrID
   editingCollection.value = collection
   editingCollectionIsTeam.value =
@@ -3295,24 +3291,12 @@ const openDocumentation = ({
 const openRequestDocumentation = ({
   folderPath,
   requestIndex,
-  requestRefID,
   request,
 }: {
   folderPath: string
   requestIndex: string
-  requestRefID?: string
   request: HoppRESTRequest
 }) => {
-  console.log(
-    "Open documentation for request",
-    folderPath,
-    requestIndex,
-    requestRefID,
-    request
-  )
-  // editingCollectionPath.value = pathOrID
-  // editingCollection.value = collection
-
   editingRequest.value = request
   editingFolderPath.value = folderPath
   editingRequestIndex.value = parseInt(requestIndex)

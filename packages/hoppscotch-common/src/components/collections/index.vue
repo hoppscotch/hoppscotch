@@ -248,7 +248,7 @@
       @hide-modal="showCollectionsRunnerModal = false"
     />
 
-    <MockServerCreateMockServer />
+    <MockServerConfigureMockServerModal />
   </div>
 </template>
 

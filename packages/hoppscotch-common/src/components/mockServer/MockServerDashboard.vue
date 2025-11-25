@@ -177,8 +177,7 @@
     </div>
 
     <!-- Modals -->
-    <MockServerConfigureMockServer />
-    <MockServerCreateNewMockServer />
+    <MockServerCreateNewMockServerModal />
     <MockServerEditMockServer
       v-if="showEditModal && selectedMockServer"
       :show="showEditModal"
@@ -220,8 +219,6 @@ import {
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
 
-import MockServerConfigureMockServer from "~/components/mockServer/ConfigureMockServerModal.vue"
-import MockServerCreateNewMockServer from "~/components/mockServer/CreateNewMockServerModal.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 import {

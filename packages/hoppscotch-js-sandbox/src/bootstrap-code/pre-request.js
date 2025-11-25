@@ -1219,7 +1219,7 @@
     },
 
     // Unsupported APIs that throw errors
-    sendRequest: () => {
+    sendRequest: (_request, _callback) => {
       throw new Error("pm.sendRequest() is not yet implemented in Hoppscotch")
     },
 
@@ -1253,6 +1253,11 @@
       toObject: () => {
         throw new Error(
           "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)"
+        )
+      },
+      replaceIn: () => {
+        throw new Error(
+          "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
     },
@@ -1317,15 +1322,47 @@
           "pm.iterationData.toObject() is not supported in Hoppscotch (Collection Runner feature)"
         )
       },
+      toJSON: () => {
+        throw new Error(
+          "pm.iterationData.toJSON() is not supported in Hoppscotch (Collection Runner feature)"
+        )
+      },
     },
 
     // Execution control (unsupported)
     execution: {
+      location: (() => {
+        const location = ["Hoppscotch"]
+        Object.defineProperty(location, "current", {
+          value: "Hoppscotch",
+          writable: false,
+          enumerable: true,
+        })
+        Object.freeze(location)
+        return location
+      })(),
       setNextRequest: () => {
         throw new Error(
           "pm.execution.setNextRequest() is not supported in Hoppscotch (Collection Runner feature)"
         )
       },
+      skipRequest: () => {
+        throw new Error(
+          "pm.execution.skipRequest() is not supported in Hoppscotch (Collection Runner feature)"
+        )
+      },
+      runRequest: () => {
+        throw new Error(
+          "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)"
+        )
+      },
+    },
+
+    // Package imports (unsupported)
+    require: (packageName) => {
+      throw new Error(
+        `pm.require('${packageName}') is not supported in Hoppscotch (Package Library feature)`
+      )
     },
   }
 }

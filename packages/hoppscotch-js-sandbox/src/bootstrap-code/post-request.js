@@ -3751,37 +3751,37 @@
     collectionVariables: {
       get: () => {
         throw new Error(
-          "pm.collectionVariables.get() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.get() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       set: () => {
         throw new Error(
-          "pm.collectionVariables.set() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.set() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       unset: () => {
         throw new Error(
-          "pm.collectionVariables.unset() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.unset() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       has: () => {
         throw new Error(
-          "pm.collectionVariables.has() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.has() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       clear: () => {
         throw new Error(
-          "pm.collectionVariables.clear() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.clear() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       toObject: () => {
         throw new Error(
-          "pm.collectionVariables.toObject() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.toObject() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
       replaceIn: () => {
         throw new Error(
-          "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (Workspace feature)"
+          "pm.collectionVariables.replaceIn() is not supported in Hoppscotch (use environment or request variables instead)"
         )
       },
     },

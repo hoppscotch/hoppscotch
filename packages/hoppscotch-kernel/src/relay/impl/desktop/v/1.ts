@@ -154,6 +154,7 @@ export const implementation: VersionedAPI<RelayV1> = {
                         auth: request.auth,
                         security: request.security,
                         proxy: request.proxy,
+                        meta: request.meta,
                     }
 
                     return execute(pluginRequest)

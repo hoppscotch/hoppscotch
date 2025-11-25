@@ -44,7 +44,12 @@ describe("getters", () => {
 
   describe("getEffectiveFinalMetaData", () => {
     const environmentVariables = [
-      { key: "PARAM", value: "parsed_param", secret: false },
+      {
+        key: "PARAM",
+        initialValue: "parsed_param",
+        currentValue: "parsed_param",
+        secret: false,
+      },
     ];
 
     test("Empty list of meta-data", () => {
@@ -258,7 +263,7 @@ describe("getters", () => {
       test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", () => {
         const expected = {
           code: "UNKNOWN_ERROR",
-          data: new TypeError("UNKNOWN_ERROR"),
+          data: new Error("UNKNOWN_ERROR"),
         };
 
         vi.spyOn(axios, "get").mockImplementation(() =>
@@ -421,27 +426,32 @@ describe("getters", () => {
     const environmentVariables = [
       {
         key: "SHARED_KEY_I",
-        value: "environment-variable-shared-value-I",
+        initialValue: "environment-variable-shared-value-I",
+        currentValue: "environment-variable-shared-value-I",
         secret: false,
       },
       {
         key: "SHARED_KEY_II",
-        value: "environment-variable-shared-value-II",
+        initialValue: "environment-variable-shared-value-II",
+        currentValue: "environment-variable-shared-value-II",
         secret: false,
       },
       {
         key: "ENV_VAR_III",
-        value: "environment-variable-value-III",
+        initialValue: "environment-variable-value-III",
+        currentValue: "environment-variable-value-III",
         secret: false,
       },
       {
         key: "ENV_VAR_IV",
-        value: "environment-variable-value-IV",
+        initialValue: "environment-variable-value-IV",
+        currentValue: "environment-variable-value-IV",
         secret: false,
       },
       {
         key: "ENV_VAR_V",
-        value: "environment-variable-value-V",
+        initialValue: "environment-variable-value-V",
+        currentValue: "environment-variable-value-V",
         secret: false,
       },
     ];
@@ -450,32 +460,38 @@ describe("getters", () => {
       const expected = [
         {
           key: "SHARED_KEY_I",
-          value: "request-variable-shared-value-I",
+          currentValue: "request-variable-shared-value-I",
+          initialValue: "request-variable-shared-value-I",
           secret: false,
         },
         {
           key: "REQUEST_VAR_III",
-          value: "request-variable-value-III",
+          currentValue: "request-variable-value-III",
+          initialValue: "request-variable-value-III",
           secret: false,
         },
         {
           key: "SHARED_KEY_II",
-          value: "environment-variable-shared-value-II",
+          currentValue: "environment-variable-shared-value-II",
+          initialValue: "environment-variable-shared-value-II",
           secret: false,
         },
         {
           key: "ENV_VAR_III",
-          value: "environment-variable-value-III",
+          currentValue: "environment-variable-value-III",
+          initialValue: "environment-variable-value-III",
           secret: false,
         },
         {
           key: "ENV_VAR_IV",
-          value: "environment-variable-value-IV",
+          currentValue: "environment-variable-value-IV",
+          initialValue: "environment-variable-value-IV",
           secret: false,
         },
         {
           key: "ENV_VAR_V",
-          value: "environment-variable-value-V",
+          currentValue: "environment-variable-value-V",
+          initialValue: "environment-variable-value-V",
           secret: false,
         },
       ];

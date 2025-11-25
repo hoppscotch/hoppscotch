@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import {
   USER_COLL_DEST_SAME,
   USER_COLL_IS_PARENT_COLL,
@@ -13,6 +13,7 @@ import {
   USER_NOT_OWNER,
   USER_COLL_INVALID_JSON,
   USER_COLL_DATA_INVALID,
+  USER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
@@ -27,11 +28,14 @@ import {
 } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
 import {
+  delay,
   isValidLength,
   stringToJson,
   transformCollectionData,
 } from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()
 export class UserCollectionService {
@@ -41,6 +45,7 @@ export class UserCollectionService {
   ) {}
 
   TITLE_LENGTH = 1;
+  MAX_RETRIES = 5; // Maximum number of retries for database transactions
 
   /**
    * Typecast a database UserCollection to a UserCollection model
@@ -58,42 +63,6 @@ export class UserCollectionService {
       userID: collection.userUid,
       data,
     };
-  }
-
-  /**
-   * Returns the count of child collections present for a given collectionID
-   * * The count returned is highest OrderIndex + 1
-   *
-   * @param collectionID The Collection ID
-   * @returns Number of Child Collections
-   */
-  private async getChildCollectionsCount(collectionID: string) {
-    const childCollectionCount = await this.prisma.userCollection.findMany({
-      where: { parentID: collectionID },
-      orderBy: {
-        orderIndex: 'desc',
-      },
-    });
-    if (!childCollectionCount.length) return 0;
-    return childCollectionCount[0].orderIndex;
-  }
-
-  /**
-   * Returns the count of root collections present for a given userUID
-   * * The count returned is highest OrderIndex + 1
-   *
-   * @param userID The User UID
-   * @returns Number of Root Collections
-   */
-  private async getRootCollectionsCount(userID: string) {
-    const rootCollectionCount = await this.prisma.userCollection.findMany({
-      where: { userUid: userID, parentID: null },
-      orderBy: {
-        orderIndex: 'desc',
-      },
-    });
-    if (!rootCollectionCount.length) return 0;
-    return rootCollectionCount[0].orderIndex;
   }
 
   /**
@@ -205,11 +174,7 @@ export class UserCollectionService {
   async getUserCollection(collectionID: string) {
     try {
       const userCollection = await this.prisma.userCollection.findUniqueOrThrow(
-        {
-          where: {
-            id: collectionID,
-          },
-        },
+        { where: { id: collectionID } },
       );
       return E.right(userCollection);
     } catch (error) {
@@ -222,7 +187,7 @@ export class UserCollectionService {
    *
    * @param user The User object
    * @param title The title of new UserCollection
-   * @param parentUserCollectionID The parent collectionID (null if root collection)
+   * @param parentID The parent collectionID (null if root collection)
    * @param type Type of Collection we want to create (REST/GQL)
    * @returns
    */
@@ -230,7 +195,7 @@ export class UserCollectionService {
     user: AuthUser,
     title: string,
     data: string | null = null,
-    parentUserCollectionID: string | null,
+    parentID: string | null,
     type: ReqType,
   ) {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
@@ -244,10 +209,8 @@ export class UserCollectionService {
     }
 
     // If creating a child collection
-    if (parentUserCollectionID !== null) {
-      const parentCollection = await this.getUserCollection(
-        parentUserCollectionID,
-      );
+    if (parentID !== null) {
+      const parentCollection = await this.getUserCollection(parentID);
       if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
 
       // Check to see if parentUserCollectionID belongs to this User
@@ -259,30 +222,44 @@ export class UserCollectionService {
         return E.left(USER_COLL_NOT_SAME_TYPE);
     }
 
-    const isParent = parentUserCollectionID
-      ? {
-          connect: {
-            id: parentUserCollectionID,
-          },
-        }
-      : undefined;
+    let userCollection: UserCollection = null;
+    try {
+      userCollection = await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-    const userCollection = await this.prisma.userCollection.create({
-      data: {
-        title: title,
-        type: type,
-        user: {
-          connect: {
-            uid: user.uid,
-          },
-        },
-        parent: isParent,
-        data: data ?? undefined,
-        orderIndex: !parentUserCollectionID
-          ? (await this.getRootCollectionsCount(user.uid)) + 1
-          : (await this.getChildCollectionsCount(parentUserCollectionID)) + 1,
-      },
-    });
+          // fetch last user collection
+          const lastUserCollection = await tx.userCollection.findFirst({
+            where: { userUid: user.uid, parentID },
+            orderBy: { orderIndex: 'desc' },
+            select: { orderIndex: true },
+          });
+
+          // create new user collection
+          return tx.userCollection.create({
+            data: {
+              title: title,
+              type: type,
+              user: { connect: { uid: user.uid } },
+              parent: parentID ? { connect: { id: parentID } } : undefined,
+              data: data ?? undefined,
+              orderIndex: lastUserCollection
+                ? lastUserCollection.orderIndex + 1
+                : 1,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
+      });
+    } catch (error) {
+      console.error(
+        'Error from UserCollectionService.createUserCollection',
+        error,
+      );
+      return E.left(USER_COLLECTION_CREATION_FAILED);
+    }
 
     await this.pubsub.publish(
       `user_coll/${user.uid}/created`,
@@ -384,12 +361,8 @@ export class UserCollectionService {
 
     try {
       const updatedUserCollection = await this.prisma.userCollection.update({
-        where: {
-          id: userCollectionID,
-        },
-        data: {
-          title: newTitle,
-        },
+        where: { id: userCollectionID },
+        data: { title: newTitle },
       });
 
       this.pubsub.publish(
@@ -398,26 +371,6 @@ export class UserCollectionService {
       );
 
       return E.right(this.cast(updatedUserCollection));
-    } catch (error) {
-      return E.left(USER_COLL_NOT_FOUND);
-    }
-  }
-
-  /**
-   * Delete a UserCollection from the DB
-   *
-   * @param collectionID The Collection Id
-   * @returns The deleted UserCollection
-   */
-  private async removeUserCollection(collectionID: string) {
-    try {
-      const deletedUserCollection = await this.prisma.userCollection.delete({
-        where: {
-          id: collectionID,
-        },
-      });
-
-      return E.right(deletedUserCollection);
     } catch (error) {
       return E.left(USER_COLL_NOT_FOUND);
     }
@@ -452,26 +405,17 @@ export class UserCollectionService {
     });
 
     // Update orderIndexes in userCollection table for user
-    await this.updateOrderIndex(
-      collection.parentID,
+    const isDeleted = await this.removeCollectionAndUpdateSiblingsOrderIndex(
+      collection,
       { gt: collection.orderIndex },
       { decrement: 1 },
     );
+    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
 
-    // Delete collection from UserCollection table
-    const deletedUserCollection = await this.removeUserCollection(
-      collection.id,
-    );
-    if (E.isLeft(deletedUserCollection))
-      return E.left(deletedUserCollection.left);
-
-    this.pubsub.publish(
-      `user_coll/${deletedUserCollection.right.userUid}/deleted`,
-      {
-        id: deletedUserCollection.right.id,
-        type: ReqType[deletedUserCollection.right.type],
-      },
-    );
+    this.pubsub.publish(`user_coll/${collection.userUid}/deleted`, {
+      id: collection.id,
+      type: ReqType[collection.type],
+    });
 
     return E.right(true);
   }
@@ -500,39 +444,60 @@ export class UserCollectionService {
 
   /**
    * Change parentID of UserCollection's
-   *
-   * @param collectionID The collection ID
-   * @param parentCollectionID The new parent's collection ID or change to root collection
-   * @returns  If successful return an Either of true
+
+   * @param collection The collection that is being moved
+   * @param newParentID The new parent's collection ID or change to root collection
+   * @returns If successful return an Either of collection or error message
    */
-  private async changeParent(
+  private async changeParentAndUpdateOrderIndex(
     collection: UserCollection,
-    parentCollectionID: string | null,
+    newParentID: string | null,
   ) {
+    let updatedCollection: UserCollection = null;
+
     try {
-      let collectionCount: number;
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // fetch last collection
+          const lastCollectionUnderNewParent =
+            await tx.userCollection.findFirst({
+              where: { userUid: collection.userUid, parentID: newParentID },
+              orderBy: { orderIndex: 'desc' },
+            });
 
-      if (!parentCollectionID)
-        collectionCount = await this.getRootCollectionsCount(
-          collection.userUid,
-        );
-      collectionCount = await this.getChildCollectionsCount(parentCollectionID);
+          // update collection's parentID and orderIndex
+          updatedCollection = await tx.userCollection.update({
+            where: { id: collection.id },
+            data: {
+              // if parentCollectionID == null, collection becomes root collection
+              // if parentCollectionID != null, collection becomes child collection
+              parentID: newParentID,
+              orderIndex: lastCollectionUnderNewParent
+                ? lastCollectionUnderNewParent.orderIndex + 1
+                : 1,
+            },
+          });
 
-      const updatedCollection = await this.prisma.userCollection.update({
-        where: {
-          id: collection.id,
-        },
-        data: {
-          // if parentCollectionID == null, collection becomes root collection
-          // if parentCollectionID != null, collection becomes child collection
-          parentID: parentCollectionID,
-          orderIndex: collectionCount + 1,
-        },
+          // decrement orderIndex of all next sibling collections from original collection
+          await tx.userCollection.updateMany({
+            where: {
+              parentID: collection.parentID,
+              orderIndex: { gt: collection.orderIndex },
+            },
+            data: { orderIndex: { decrement: 1 } },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
 
       return E.right(updatedCollection);
     } catch (error) {
-      return E.left(USER_COLL_NOT_FOUND);
+      console.error(
+        'Error from UserCollectionService.changeParentAndUpdateOrderIndex:',
+        error,
+      );
+      return E.left(USER_COLL_REORDERING_FAILED);
     }
   }
 
@@ -571,27 +536,63 @@ export class UserCollectionService {
   }
 
   /**
-   * Update the OrderIndex of all collections in given parentID
-   *
-   * @param parentID The Parent collectionID
+   * Delete collection and Update the OrderIndex of all collections in given parentID
+   * @param collection The collection to delete
    * @param orderIndexCondition Condition to decide what collections will be updated
    * @param dataCondition Increment/Decrement OrderIndex condition
    * @returns A Collection with updated OrderIndexes
    */
-  private async updateOrderIndex(
-    parentID: string,
+  private async removeCollectionAndUpdateSiblingsOrderIndex(
+    collection: UserCollection,
     orderIndexCondition: Prisma.IntFilter,
     dataCondition: Prisma.IntFieldUpdateOperationsInput,
   ) {
-    const updatedUserCollection = await this.prisma.userCollection.updateMany({
-      where: {
-        parentID: parentID,
-        orderIndex: orderIndexCondition,
-      },
-      data: { orderIndex: dataCondition },
-    });
+    let retryCount = 0;
+    while (retryCount < this.MAX_RETRIES) {
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          try {
+            // lock the rows
+            await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-    return updatedUserCollection;
+            await tx.userCollection.delete({
+              where: { id: collection.id },
+            });
+
+            // update orderIndexes
+            await tx.userCollection.updateMany({
+              where: {
+                parentID: collection.parentID,
+                orderIndex: orderIndexCondition,
+              },
+              data: { orderIndex: dataCondition },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
+        });
+
+        break;
+      } catch (error) {
+        console.error(
+          'Error from UserCollectionService.updateOrderIndex:',
+          error,
+        );
+        retryCount++;
+        if (
+          retryCount >= this.MAX_RETRIES ||
+          (error.code !== PrismaError.UNIQUE_CONSTRAINT_VIOLATION &&
+            error.code !== PrismaError.TRANSACTION_DEADLOCK &&
+            error.code !== PrismaError.TRANSACTION_TIMEOUT) // return for all DB error except deadlocks, unique constraint violations, transaction timeouts
+        )
+          return E.left(USER_COLL_REORDERING_FAILED);
+
+        await delay(retryCount * 100);
+        console.debug(`Retrying... (${retryCount})`);
+      }
+    }
+
+    return E.right(true);
   }
 
   /**
@@ -621,15 +622,13 @@ export class UserCollectionService {
         // Throw error if collection is already a root collection
         return E.left(USER_COLL_ALREADY_ROOT);
       }
-      // Move child collection into root and update orderIndexes for root userCollections
-      await this.updateOrderIndex(
-        collection.right.parentID,
-        { gt: collection.right.orderIndex },
-        { decrement: 1 },
-      );
 
       // Change parent from child to root i.e child collection becomes a root collection
-      const updatedCollection = await this.changeParent(collection.right, null);
+      // Move child collection into root and update orderIndexes for child userCollections
+      const updatedCollection = await this.changeParentAndUpdateOrderIndex(
+        collection.right,
+        null,
+      );
       if (E.isLeft(updatedCollection)) return E.left(updatedCollection.left);
 
       this.pubsub.publish(
@@ -669,15 +668,9 @@ export class UserCollectionService {
       return E.left(USER_COLL_IS_PARENT_COLL);
     }
 
-    // Move root/child collection into another child collection and update orderIndexes of the previous parent
-    await this.updateOrderIndex(
-      collection.right.parentID,
-      { gt: collection.right.orderIndex },
-      { decrement: 1 },
-    );
-
     // Change parent from null to teamCollection i.e collection becomes a child collection
-    const updatedCollection = await this.changeParent(
+    // Move root/child collection into another child collection and update orderIndexes of the previous parent
+    const updatedCollection = await this.changeParentAndUpdateOrderIndex(
       collection.right,
       destCollection.right.id,
     );
@@ -731,27 +724,40 @@ export class UserCollectionService {
       // nextCollectionID == null i.e move collection to the end of the list
       try {
         await this.prisma.$transaction(async (tx) => {
-          // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
-          await tx.userCollection.updateMany({
-            where: {
-              parentID: collection.right.parentID,
-              orderIndex: {
-                gte: collection.right.orderIndex + 1,
+          try {
+            // Step 0: lock the rows
+            await this.prisma.acquireLocks(
+              tx,
+              'UserCollection',
+              userID,
+              collection.right.parentID,
+            );
+
+            // Step 1: Decrement orderIndex of all items that come after collection.orderIndex till end of list of items
+            const collectionInTx = await tx.userCollection.findFirst({
+              where: { id: collectionID },
+              select: { orderIndex: true },
+            });
+            await tx.userCollection.updateMany({
+              where: {
+                parentID: collection.right.parentID,
+                orderIndex: { gte: collectionInTx.orderIndex + 1 },
               },
-            },
-            data: {
-              orderIndex: { decrement: 1 },
-            },
-          });
-          // Step 2: Update orderIndex of collection to length of list
-          const updatedUserCollection = await tx.userCollection.update({
-            where: { id: collection.right.id },
-            data: {
-              orderIndex: await this.getCollectionCount(
-                collection.right.parentID,
-              ),
-            },
-          });
+              data: { orderIndex: { decrement: 1 } },
+            });
+
+            // Step 2: Update orderIndex of collection to length of list
+            await tx.userCollection.update({
+              where: { id: collection.right.id },
+              data: {
+                orderIndex: await this.getCollectionCount(
+                  collection.right.parentID,
+                ),
+              },
+            });
+          } catch (error) {
+            throw new ConflictException(error);
+          }
         });
 
         this.pubsub.publish(
@@ -783,36 +789,60 @@ export class UserCollectionService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // Step 1: Determine if we are moving collection up or down the list
-        const isMovingUp =
-          subsequentCollection.right.orderIndex < collection.right.orderIndex;
-        // Step 2: Update OrderIndex of items in list depending on moving up or down
-        const updateFrom = isMovingUp
-          ? subsequentCollection.right.orderIndex
-          : collection.right.orderIndex + 1;
+        try {
+          // Step 0: lock the rows
+          await this.prisma.acquireLocks(
+            tx,
+            'UserCollection',
+            userID,
+            subsequentCollection.right.parentID,
+          );
 
-        const updateTo = isMovingUp
-          ? collection.right.orderIndex - 1
-          : subsequentCollection.right.orderIndex - 1;
+          // subsequentCollectionInTx and subsequentCollection are same, just to make sure, orderIndex value is concrete
+          const collectionInTx = await tx.userCollection.findFirst({
+            where: { id: collectionID },
+            select: { orderIndex: true },
+          });
+          const subsequentCollectionInTx = await tx.userCollection.findFirst({
+            where: { id: nextCollectionID },
+            select: { orderIndex: true },
+          });
 
-        await tx.userCollection.updateMany({
-          where: {
-            parentID: collection.right.parentID,
-            orderIndex: { gte: updateFrom, lte: updateTo },
-          },
-          data: {
-            orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
-          },
-        });
-        // Step 3: Update OrderIndex of collection
-        const updatedUserCollection = await tx.userCollection.update({
-          where: { id: collection.right.id },
-          data: {
-            orderIndex: isMovingUp
-              ? subsequentCollection.right.orderIndex
-              : subsequentCollection.right.orderIndex - 1,
-          },
-        });
+          // Step 1: Determine if we are moving collection up or down the list
+          const isMovingUp =
+            subsequentCollectionInTx.orderIndex < collectionInTx.orderIndex;
+
+          // Step 2: Update OrderIndex of items in list depending on moving up or down
+          const updateFrom = isMovingUp
+            ? subsequentCollectionInTx.orderIndex
+            : collectionInTx.orderIndex + 1;
+
+          const updateTo = isMovingUp
+            ? collectionInTx.orderIndex - 1
+            : subsequentCollectionInTx.orderIndex - 1;
+
+          await tx.userCollection.updateMany({
+            where: {
+              parentID: collection.right.parentID,
+              orderIndex: { gte: updateFrom, lte: updateTo },
+            },
+            data: {
+              orderIndex: isMovingUp ? { increment: 1 } : { decrement: 1 },
+            },
+          });
+
+          // Step 3: Update OrderIndex of collection
+          await tx.userCollection.update({
+            where: { id: collection.right.id },
+            data: {
+              orderIndex: isMovingUp
+                ? subsequentCollectionInTx.orderIndex
+                : subsequentCollectionInTx.orderIndex - 1,
+            },
+          });
+        } catch (error) {
+          throw new ConflictException(error);
+        }
       });
 
       this.pubsub.publish(
@@ -991,8 +1021,20 @@ export class UserCollectionService {
     orderIndex: number,
     reqType: DBReqType,
   ): Prisma.UserCollectionCreateInput {
+    // Parse collection data if it exists
+    let data = null;
+    if (folder.data) {
+      try {
+        data = JSON.parse(folder.data);
+      } catch (error) {
+        // If data parsing fails, log error and continue without data
+        console.error('Failed to parse collection data:', error);
+      }
+    }
+
     return {
       title: folder.name,
+      data,
       user: {
         connect: {
           uid: userID,
@@ -1018,7 +1060,6 @@ export class UserCollectionService {
           this.generatePrismaQueryObj(f, userID, index + 1, reqType),
         ),
       },
-      data: folder.data ?? undefined,
     };
   }
 
@@ -1029,6 +1070,7 @@ export class UserCollectionService {
    * @param userID The User ID
    * @param destCollectionID The Collection ID
    * @param reqType The Type of Collection
+   * @param isCollectionDuplication Boolean to publish collection create event on designated channel
    * @returns An Either of a Boolean if the creation operation was successful
    */
   async importCollectionsFromJSON(
@@ -1060,34 +1102,44 @@ export class UserCollectionService {
         return E.left(USER_COLL_NOT_SAME_TYPE);
     }
 
-    // Get number of root or child collections for destCollectionID(if destcollectionID != null) or destTeamID(if destcollectionID == null)
-    const count = !destCollectionID
-      ? await this.getRootCollectionsCount(userID)
-      : await this.getChildCollectionsCount(destCollectionID);
+    let userCollections: UserCollection[] = [];
 
-    // Generate Prisma Query Object for all child collections in collectionsList
-    const queryList = collectionsList.right.map((x) =>
-      this.generatePrismaQueryObj(x, userID, count + 1, reqType),
-    );
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        try {
+          // lock the rows
+          await this.prisma.lockTableExclusive(tx, 'UserCollection');
 
-    const parent = destCollectionID
-      ? {
-          connect: {
-            id: destCollectionID,
-          },
+          // Get the last order index
+          const lastCollection = await tx.userCollection.findFirst({
+            where: { userUid: userID, parentID: destCollectionID },
+            orderBy: { orderIndex: 'desc' },
+          });
+          let lastOrderIndex = lastCollection ? lastCollection.orderIndex : 0;
+
+          // Generate Prisma Query Object for all child collections in collectionsList
+          const queryList = collectionsList.right.map((x) =>
+            this.generatePrismaQueryObj(x, userID, ++lastOrderIndex, reqType),
+          );
+
+          const parent = destCollectionID
+            ? { connect: { id: destCollectionID } }
+            : undefined;
+
+          const promises = queryList.map((query) =>
+            tx.userCollection.create({
+              data: { ...query, parent },
+            }),
+          );
+
+          userCollections = await Promise.all(promises);
+        } catch (error) {
+          throw new ConflictException(error);
         }
-      : undefined;
-
-    const userCollections = await this.prisma.$transaction(
-      queryList.map((x) =>
-        this.prisma.userCollection.create({
-          data: {
-            ...x,
-            parent,
-          },
-        }),
-      ),
-    );
+      });
+    } catch (error) {
+      return E.left(USER_COLLECTION_CREATION_FAILED);
+    }
 
     if (isCollectionDuplication) {
       const collectionData = await this.fetchCollectionData(
@@ -1260,5 +1312,55 @@ export class UserCollectionService {
       childCollections: childCollectionsJSONStr,
       requests: transformedRequests,
     });
+  }
+
+  /**
+   * Sort collections in a parent collection
+   * @param userID The User UID
+   * @param parentID The ID of the parent collection or null for root collections
+   * @param sortBy The sorting option
+   * @returns An Either of a Boolean if the sorting operation was successful
+   */
+  async sortUserCollections(
+    userID: string,
+    parentID: string | null,
+    sortBy: SortOptions,
+  ) {
+    // Handle all sort options, including a default
+    let orderBy: Prisma.Enumerable<Prisma.UserCollectionOrderByWithRelationInput>;
+    if (sortBy === SortOptions.TITLE_ASC) {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === SortOptions.TITLE_DESC) {
+      orderBy = { title: 'desc' };
+    } else {
+      orderBy = { orderIndex: 'asc' };
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await this.prisma.acquireLocks(tx, 'UserCollection', userID, parentID);
+
+        const collections = await tx.userCollection.findMany({
+          where: { userUid: userID, parentID },
+          orderBy,
+          select: { id: true },
+        });
+
+        const promises = collections.map((coll, index) =>
+          tx.userCollection.update({
+            where: { id: coll.id },
+            data: { orderIndex: index + 1 },
+          }),
+        );
+        await Promise.all(promises);
+      });
+    } catch (error) {
+      console.error('Error from UserCollectionService.sortUserCollections:', {
+        error,
+      });
+      return E.left(USER_COLL_REORDERING_FAILED);
+    }
+
+    return E.right(true);
   }
 }

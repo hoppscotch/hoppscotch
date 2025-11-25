@@ -135,7 +135,16 @@ services:
   # you are using an external postgres instance
   # This will be exposed at port 5432
   hoppscotch-db:
-    profiles: ["default", "database", "just-backend", "backend", "app", "admin", "deprecated"]
+    profiles:
+      [
+        "default",
+        "database",
+        "just-backend",
+        "backend",
+        "app",
+        "admin",
+        "deprecated",
+      ]
     image: postgres:15
     ports:
       - "5432:5432"

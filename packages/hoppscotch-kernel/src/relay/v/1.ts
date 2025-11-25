@@ -105,14 +105,17 @@ export enum MediaType {
 }
 
 export type ContentType =
-    | { kind: "text"; content: string; mediaType: MediaType.TEXT_PLAIN | MediaType.TEXT_HTML | MediaType.TEXT_CSS | MediaType.TEXT_CSV }
-    | { kind: "json"; content: unknown; mediaType: MediaType.APPLICATION_JSON | MediaType.APPLICATION_LD_JSON }
-    | { kind: "xml"; content: string; mediaType: MediaType.APPLICATION_XML | MediaType.TEXT_XML }
-    | { kind: "form"; content: FormData; mediaType: MediaType.APPLICATION_FORM }
-    | { kind: "binary"; content: Uint8Array; mediaType: MediaType.APPLICATION_OCTET | string; filename?: string }
-    | { kind: "multipart"; content: FormData; mediaType: MediaType.MULTIPART_FORM }
-    | { kind: "urlencoded"; content: string; mediaType: MediaType.APPLICATION_FORM }
-    | { kind: "stream"; content: ReadableStream; mediaType: string }
+    | { kind: "text"; content: string; mediaType: MediaType | string }
+    | { kind: "json"; content: unknown; mediaType: MediaType | string }
+    | { kind: "xml"; content: string; mediaType: MediaType | string }
+    | { kind: "form"; content: FormData; mediaType: MediaType | string }
+    | { kind: "binary"; content: Uint8Array; mediaType: MediaType | string; filename?: string }
+    | { kind: "multipart"; content: FormData; mediaType: MediaType | string }
+    | { kind: "urlencoded"; content: string; mediaType: MediaType | string }
+    | { kind: "stream"; content: ReadableStream; mediaType: MediaType | string }
+    // TODO: Considering adding a "raw" kind for explicit pass-through content in the future,
+    // not required at the moment tho, needs some plumbing on the relay side.
+    // | { kind: "raw"; content: string; mediaType: MediaType | string }
 
 export interface RelayResponseBody {
     body: Uint8Array
@@ -526,43 +529,79 @@ export const transform = {
         )
 }
 
+/**
+ * Content factory functions for creating standardized HTTP request content.
+ *
+ * The `kind` field determines how content is processed, basically
+ * - Web (Axios + JS): `kind` is ignored, relying on Axios' auto-detect
+ * - Desktop (`relay` + Rust): `kind` routes to processing `fn` in `relay`
+ *
+ * NOTE: `mediaType` field sets the HTTP `Content-Type` header in both.
+ *
+ * There are a bunch of reasons for separating routing and `Content-Type`,
+ * see `relay` code for more info.
+ * Essentially this allows for flexible scenarios like:
+ * - Sending pre-stringified JSON as text to avoid double-encoding
+ * - Using custom vendor media types with standard processing
+ * - Future processing evolution without breaking HTTP contracts
+ */
 export const content = {
+    /**
+     * Creates text content. Useful for:
+     * - Plain text
+     * - Pre-stringified JSON (to avoid encoding escapes)
+     * - Custom text formats
+     */
     text: (
         content: string,
-        mediaType?: MediaType.TEXT_PLAIN | MediaType.TEXT_HTML | MediaType.TEXT_CSS | MediaType.TEXT_CSV
+        mediaType?: MediaType | string
     ): ContentType => ({
         kind: "text",
         content: transform.text(content),
         mediaType: mediaType ?? MediaType.TEXT_PLAIN
     }),
 
+    /**
+     * Creates JSON content with automatic serialization.
+     * Note: If you already have a JSON string, consider using `text()`
+     * with `APPLICATION_JSON` mediaType to avoid double-encoding.
+     */
     json: <T>(
         content: T,
-        mediaType?: MediaType.APPLICATION_JSON | MediaType.APPLICATION_LD_JSON | MediaType.APPLICATION_JSON
+        mediaType?: MediaType | string
     ): ContentType => ({
         kind: "json",
         content: transform.json(content),
         mediaType: mediaType ?? MediaType.APPLICATION_JSON
     }),
 
+    /**
+     * Creates XML content. Currently processed as text.
+     */
     xml: (
         content: string,
-        mediaType?: MediaType.APPLICATION_XML | MediaType.TEXT_XML
+        mediaType?: MediaType | string
     ): ContentType => ({
         kind: "xml",
         content: transform.xml(content),
         mediaType: mediaType ?? MediaType.APPLICATION_XML
     }),
 
-    form: (content: FormData): ContentType => ({
+    /**
+     * Creates form-encoded content from FormData.
+     */
+    form: (content: FormData, mediaType?: MediaType | string): ContentType => ({
         kind: "form",
         content: transform.form(content),
-        mediaType: MediaType.APPLICATION_FORM
+        mediaType: mediaType ?? MediaType.APPLICATION_FORM
     }),
 
+    /**
+     * Creates binary content. Supports any binary format.
+     */
     binary: (
         content: Uint8Array,
-        mediaType: string = MediaType.APPLICATION_OCTET,
+        mediaType: MediaType | string = MediaType.APPLICATION_OCTET,
         filename?: string
     ): ContentType => ({
         kind: "binary",
@@ -571,24 +610,91 @@ export const content = {
         filename
     }),
 
-    multipart: (content: FormData): ContentType => ({
+    /**
+     * Creates multipart form content with file upload support.
+     */
+    multipart: (content: FormData, mediaType?: MediaType | string): ContentType => ({
         kind: "multipart",
         content: transform.multipart(content),
-        mediaType: MediaType.MULTIPART_FORM
+        mediaType: mediaType ?? MediaType.MULTIPART_FORM
     }),
 
-    urlencoded: (content: string | Record<string, any>): ContentType => ({
+    /**
+     * Creates URL-encoded content from string or object.
+     */
+    urlencoded: (content: string | Record<string, any>, mediaType?: MediaType | string): ContentType => ({
         kind: "urlencoded",
         content: transform.urlencoded(content),
-        mediaType: MediaType.APPLICATION_FORM
+        mediaType: mediaType ?? MediaType.APPLICATION_FORM
     }),
 
-    stream: (content: ReadableStream, mediaType: string): ContentType => ({
+    /**
+     * Creates streaming content for large payloads.
+     */
+    stream: (content: ReadableStream, mediaType: MediaType | string): ContentType => ({
         kind: "stream",
         content: transform.stream(content),
         mediaType
     })
+
+    // TODO: Raw content type for pass-through scenarios:
+    // raw: (content: string, mediaType: MediaType | string): ContentType => ({
+    //     kind: "raw",
+    //     content,
+    //     mediaType
+    // })
 }
+
+/**
+ * Executable usage examples for content factory functions
+ * usage / patterns / executable guarantees.
+ *
+ * These examples show API usage patterns but also act as compile-time
+ * guarantees that the API works as documented. If the content factory functions
+ * change in breaking ways, these examples will fail to type-check,
+ * these aren't exactly docs nor tests but a mix,
+ * and these also prevent documentations drift.
+ *
+ * Pattern borrowed from Rust's documentation tests where executable code examples are
+ * embedded alongside API definitions.
+ * See: https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html
+ *
+ * Since TypeScript lacks built-in doc-tests, this provides somewhat similar
+ * guarantees, essentially serving as
+ * - discoverable docs that devs can copy-paste or import, and also
+ * - type-checked contracts so these cannot become outdated since they're actual
+ *   executable code validated at compile time.
+ */
+export const examples = {
+    // Avoid double-encoding of pre-stringified JSON
+    preStringifiedJson: content.text(
+        '{"message": "Hello \\"world\\"", "path": "C:\\\\Users\\\\file.txt"}',
+        MediaType.APPLICATION_JSON
+    ),
+
+    // Vendor-specific JSON formats
+    jsonApi: content.json(
+        { data: { type: "users", id: "1" } },
+        "application/vnd.api+json"
+    ),
+
+    // Custom XML schema
+    soapXml: content.xml(
+        '<soap:Envelope>...</soap:Envelope>',
+        "application/soap+xml"
+    ),
+
+    // Custom binary format
+    customBinary: content.binary(
+        new Uint8Array([0x89, 0x50, 0x4E, 0x47]),
+        "image/png"
+    ),
+
+    // Backwards compatible - uses defaults
+    standardJson: content.json({ name: "John" }),
+    standardText: content.text("Hello world")
+}
+
 
 /**
  * Helper function to convert standard `FormData` to array of arrays `[string, FormDataValue[]][]`

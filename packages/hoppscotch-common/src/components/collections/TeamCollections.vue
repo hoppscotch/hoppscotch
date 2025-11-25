@@ -33,6 +33,20 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
+          v-if="teamCollectionList && teamCollectionList.length > 1"
+          v-tippy="{ theme: 'tooltip' }"
+          :disabled="
+            (collectionsType.type === 'team-collections' &&
+              collectionsType.selectedTeam === undefined) ||
+            isShowingSearchResults ||
+            hasNoTeamAccess
+          "
+          blank
+          :title="t('action.sort')"
+          :icon="IconArrowUpDown"
+          @click="debouncedSorting"
+        />
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
@@ -40,8 +54,8 @@
               collectionsType.selectedTeam === undefined) ||
             isShowingSearchResults
           "
-          :icon="IconImport"
           :title="t('modal.import_export')"
+          :icon="IconImport"
           @click="emit('display-modal-import-export')"
         />
       </span>
@@ -58,6 +72,7 @@
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
+            :team-loading-collections="teamLoadingCollections"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
@@ -71,44 +86,52 @@
             folder-type="collection"
             @add-request="
               node.data.type === 'collections' &&
-                emit('add-request', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @add-folder="
               node.data.type === 'collections' &&
-                emit('add-folder', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-folder', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @edit-collection="
               node.data.type === 'collections' &&
-                emit('edit-collection', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-collection', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @duplicate-collection="
               node.data.type === 'collections' &&
-                emit('duplicate-collection', {
-                  pathOrID: node.data.data.data.id,
-                })
+              emit('duplicate-collection', {
+                pathOrID: node.data.data.data.id,
+              })
             "
             @edit-properties="
               node.data.type === 'collections' &&
-                emit('edit-properties', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-properties', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
+            "
+            @create-mock-server="
+              node.data.type === 'collections' &&
+              emit('create-mock-server', {
+                collectionID: node.data.data.data.id,
+                collection: node.data.data.data,
+              })
             "
             @export-data="
               node.data.type === 'collections' &&
-                emit('export-data', node.data.data.data)
+              emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
-            @drop-event="dropEvent($event, node.id)"
+            @sort-collections="emit('sort-collections', $event)"
+            @drop-event="dropEvent($event, node.id, getPath(node.id, false))"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
               updateCollectionOrder($event, {
@@ -128,12 +151,12 @@
             "
             @toggle-children="
               () => {
-                toggleChildren(),
-                  saveRequest &&
-                    emit('select', {
-                      pickedType: 'teams-collection',
-                      collectionID: node.id,
-                    })
+                ;(saveRequest &&
+                  emit('select', {
+                    pickedType: 'teams-collection',
+                    collectionID: node.id,
+                  }),
+                  toggleChildren())
               }
             "
             @run-collection="
@@ -159,6 +182,7 @@
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
+            :team-loading-collections="teamLoadingCollections"
             :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
             :collection-move-loading="collectionMoveLoading"
             :duplicate-collection-loading="duplicateCollectionLoading"
@@ -171,47 +195,54 @@
             folder-type="folder"
             @add-request="
               node.data.type === 'folders' &&
-                emit('add-request', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-request', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @add-folder="
               node.data.type === 'folders' &&
-                emit('add-folder', {
-                  path: node.id,
-                  folder: node.data.data.data,
-                })
+              emit('add-folder', {
+                path: node.id,
+                folder: node.data.data.data,
+              })
             "
             @edit-collection="
               node.data.type === 'folders' &&
-                emit('edit-folder', {
-                  folder: node.data.data.data,
-                })
+              emit('edit-folder', {
+                folder: node.data.data.data,
+              })
             "
             @duplicate-collection="
               node.data.type === 'folders' &&
-                emit('duplicate-collection', {
-                  pathOrID: node.data.data.data.id,
-                })
+              emit('duplicate-collection', {
+                pathOrID: node.data.data.data.id,
+              })
             "
             @edit-properties="
               node.data.type === 'folders' &&
-                emit('edit-properties', {
-                  collectionIndex: node.id,
-                  collection: node.data.data.data,
-                })
+              emit('edit-properties', {
+                collectionIndex: node.id,
+                collection: node.data.data.data,
+              })
             "
             @export-data="
               node.data.type === 'folders' &&
-                emit('export-data', node.data.data.data)
+              emit('export-data', node.data.data.data)
             "
             @remove-collection="
               node.data.type === 'folders' &&
-                emit('remove-folder', node.data.data.data.id)
+              emit('remove-folder', node.data.data.data.id)
             "
-            @drop-event="dropEvent($event, node.data.data.data.id)"
-            @drag-event="dragEvent($event, node.data.data.data.id)"
+            @sort-collections="
+              node.data.type === 'folders' && emit('sort-collections', $event)
+            "
+            @drop-event="
+              dropEvent($event, node.data.data.data.id, getPath(node.id, false))
+            "
+            @drag-event="
+              dragEvent($event, node.data.data.data.id, getPath(node.id, true))
+            "
             @update-collection-order="
               updateCollectionOrder($event, {
                 destinationCollectionIndex: node.data.data.data.id,
@@ -230,12 +261,12 @@
             "
             @toggle-children="
               () => {
-                toggleChildren(),
+                ;(toggleChildren(),
                   saveRequest &&
                     emit('select', {
                       pickedType: 'teams-folder',
                       folderID: node.data.data.data.id,
-                    })
+                    }))
               }
             "
             @run-collection="
@@ -246,11 +277,12 @@
             "
             @click="
               () => {
-                handleCollectionClick({
-                  // for the folders, we get a path, so we need to get the last part of the path which is the folder id
-                  collectionID: node.id.split('/').pop() as string,
-                  isOpen,
-                })
+                node.data.type === 'folders' &&
+                  handleCollectionClick({
+                    // for the folders, we get a path, so we need to get the last part of the path which is the folder id
+                    collectionID: node.id.split('/').pop() as string,
+                    isOpen,
+                  })
               }
             "
           />
@@ -272,10 +304,10 @@
             "
             @edit-request="
               node.data.type === 'requests' &&
-                emit('edit-request', {
-                  requestIndex: node.data.data.data.id,
-                  request: node.data.data.data.request,
-                })
+              emit('edit-request', {
+                requestIndex: node.data.data.data.id,
+                request: node.data.data.data.request,
+              })
             "
             @edit-response="
               emit('edit-response', {
@@ -288,10 +320,10 @@
             "
             @duplicate-request="
               node.data.type === 'requests' &&
-                emit('duplicate-request', {
-                  folderPath: node.data.data.parentIndex,
-                  request: node.data.data.data.request,
-                })
+              emit('duplicate-request', {
+                folderPath: node.data.data.parentIndex,
+                request: node.data.data.data.request,
+              })
             "
             @duplicate-response="
               emit('duplicate-response', {
@@ -304,10 +336,10 @@
             "
             @remove-request="
               node.data.type === 'requests' &&
-                emit('remove-request', {
-                  folderPath: null,
-                  requestIndex: node.data.data.data.id,
-                })
+              emit('remove-request', {
+                folderPath: null,
+                requestIndex: node.data.data.data.id,
+              })
             "
             @remove-response="
               emit('remove-response', {
@@ -320,11 +352,11 @@
             "
             @select-request="
               node.data.type === 'requests' &&
-                selectRequest({
-                  request: node.data.data.data.request,
-                  requestIndex: node.data.data.data.id,
-                  folderPath: getPath(node.id),
-                })
+              selectRequest({
+                request: node.data.data.data.request,
+                requestIndex: node.data.data.data.id,
+                folderPath: getPath(node.id),
+              })
             "
             @select-response="
               emit('select-response', {
@@ -337,9 +369,9 @@
             "
             @share-request="
               node.data.type === 'requests' &&
-                emit('share-request', {
-                  request: node.data.data.data.request,
-                })
+              emit('share-request', {
+                request: node.data.data.data.request,
+              })
             "
             @drag-request="
               dragRequest($event, {
@@ -423,10 +455,10 @@
                 outline
                 @click="
                   node.data.type === 'collections' &&
-                    emit('add-folder', {
-                      path: node.id,
-                      folder: node.data.data.data,
-                    })
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
                 "
               />
             </template>
@@ -448,7 +480,9 @@
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
-import { computed, PropType, Ref, toRef } from "vue"
+import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+
+import { computed, PropType, ref, Ref, toRef } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -462,6 +496,8 @@ import { Picked } from "~/helpers/types/HoppPicked.js"
 import { RESTTabService } from "~/services/tab/rest"
 import { useService } from "dioc/vue"
 import { TeamWorkspace } from "~/services/workspace.service"
+import { useDebounceFn } from "@vueuse/core"
+import { CurrentSortValuesService } from "~/services/current-sort.service"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -628,11 +664,20 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "sort-collections",
+    payload: {
+      collectionID: string | null
+      sortOrder: "asc" | "desc"
+      collectionRefID: string
+    }
+  ): void
+  (
     event: "drop-request",
     payload: {
       folderPath: string
       requestIndex: string
       destinationCollectionIndex: string
+      destinationParentPath?: string
     }
   ): void
   (
@@ -640,6 +685,8 @@ const emit = defineEmits<{
     payload: {
       collectionIndexDragged: string
       destinationCollectionIndex: string
+      destinationParentPath?: string
+      currentParentIndex?: string
     }
   ): void
   (
@@ -676,11 +723,29 @@ const emit = defineEmits<{
     event: "run-collection",
     payload: { collectionID: string; path: string }
   ): void
+  (
+    event: "create-mock-server",
+    payload: {
+      collectionID: string
+      collection: TeamCollection
+    }
+  ): void
 }>()
 
-const getPath = (path: string) => {
+const currentSortValuesService = useService(CurrentSortValuesService)
+
+const teamID = computed(() => {
+  return props.collectionsType.selectedTeam?.teamID
+})
+
+const currentSortOrder = ref<"asc" | "desc">(
+  currentSortValuesService.getSortOption(teamID.value ?? "personal")
+    ?.sortOrder ?? "asc"
+)
+
+const getPath = (path: string, pop: boolean = true) => {
   const pathArray = path.split("/")
-  pathArray.pop()
+  if (pop) pathArray.pop()
   return pathArray.join("/")
 }
 
@@ -734,9 +799,14 @@ const isSelected = ({
   )
 }
 
-const active = computed(() => tabs.currentActiveTab.value.document.saveContext)
+const active = computed(
+  () =>
+    tabs.currentActiveTab.value.document.type !== "test-runner" &&
+    tabs.currentActiveTab.value.document.saveContext
+)
 
 const isActiveRequest = (requestID: string) => {
+  if (!active.value) return false
   return pipe(
     active.value,
     O.fromNullable,
@@ -783,27 +853,37 @@ const dragRequest = (
   dataTransfer.setData("requestIndex", requestIndex)
 }
 
-const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+const dragEvent = (
+  dataTransfer: DataTransfer,
+  collectionIndex: string,
+  parentIndex?: string
+) => {
   dataTransfer.setData("collectionIndex", collectionIndex)
+  if (parentIndex) dataTransfer.setData("parentIndex", parentIndex)
 }
 
 const dropEvent = (
   dataTransfer: DataTransfer,
-  destinationCollectionIndex: string
+  destinationCollectionIndex: string,
+  destinationParentPath?: string
 ) => {
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
   const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+  const currentParentIndex = dataTransfer.getData("parentIndex")
   if (folderPath && requestIndex) {
     emit("drop-request", {
       folderPath,
       requestIndex,
       destinationCollectionIndex,
+      destinationParentPath,
     })
   } else {
     emit("drop-collection", {
       collectionIndexDragged,
       destinationCollectionIndex,
+      destinationParentPath,
+      currentParentIndex,
     })
   }
 }
@@ -839,6 +919,20 @@ const updateCollectionOrder = (
   emit("update-collection-order", {
     dragedCollectionIndex,
     destinationCollection,
+  })
+}
+
+const debouncedSorting = useDebounceFn(() => {
+  sortCollection()
+}, 250)
+
+const sortCollection = () => {
+  currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
+
+  emit("sort-collections", {
+    collectionID: null,
+    sortOrder: currentSortOrder.value,
+    collectionRefID: teamID.value ?? "personal",
   })
 }
 
@@ -919,7 +1013,7 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
       }
       const parsedID = id.split("/")[id.split("/").length - 1]
 
-      !props.teamLoadingCollections.includes(parsedID) &&
+      if (!props.teamLoadingCollections.includes(parsedID))
         emit("expand-team-collection", parsedID)
 
       if (props.teamLoadingCollections.includes(parsedID)) {

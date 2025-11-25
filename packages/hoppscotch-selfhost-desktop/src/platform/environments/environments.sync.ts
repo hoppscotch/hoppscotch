@@ -8,11 +8,10 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { getSyncInitFunction } from "../../lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "../../lib/sync"
 
 import * as E from "fp-ts/Either"
 
-import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   clearGlobalEnvironmentVariables,
@@ -97,7 +96,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
   setGlobalVariables({ entries }) {
     const backendId = getGlobalVariableID()
     if (backendId) {
-      updateUserEnvironment(backendId, { name: "", variables: entries })()
+      updateUserEnvironment(backendId, {
+        name: "",
+        variables: entries,
+        id: "",
+        v: 2,
+      })()
     }
   },
   clearGlobalVariables() {

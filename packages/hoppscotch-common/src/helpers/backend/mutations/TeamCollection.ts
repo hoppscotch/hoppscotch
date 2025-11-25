@@ -21,6 +21,10 @@ import {
   RenameCollectionDocument,
   RenameCollectionMutation,
   RenameCollectionMutationVariables,
+  SortOptions,
+  SortTeamCollectionsDocument,
+  SortTeamCollectionsMutation,
+  SortTeamCollectionsMutationVariables,
   UpdateCollectionOrderDocument,
   UpdateCollectionOrderMutation,
   UpdateCollectionOrderMutationVariables,
@@ -151,4 +155,19 @@ export const duplicateTeamCollection = (collectionID: string) =>
     ""
   >(DuplicateTeamCollectionDocument, {
     collectionID,
+  })
+
+export const sortTeamCollections = (
+  teamID: string,
+  parentCollectionID: string | null,
+  sortOption: SortOptions
+) =>
+  runMutation<
+    SortTeamCollectionsMutation,
+    SortTeamCollectionsMutationVariables,
+    ""
+  >(SortTeamCollectionsDocument, {
+    teamID,
+    parentCollectionID,
+    sortOption,
   })

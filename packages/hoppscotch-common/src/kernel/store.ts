@@ -7,40 +7,67 @@ import type {
 import * as E from "fp-ts/Either"
 import { getModule } from "."
 
+const STORE_PATH = `${window.location.host}.hoppscotch.store`
+
 export const Store = (() => {
   const module = () => getModule("store")
 
   return {
     capabilities: () => module().capabilities,
-    init: () => module().init(),
-    set: (
+
+    init: async () => {
+      return module().init(STORE_PATH)
+    },
+
+    set: async (
       namespace: string,
       key: string,
       value: unknown,
       options?: StorageOptions
-    ): Promise<E.Either<StoreError, void>> =>
-      module().set(namespace, key, value, options),
-    get: <T>(
+    ): Promise<E.Either<StoreError, void>> => {
+      return module().set(STORE_PATH, namespace, key, value, options)
+    },
+
+    get: async <T>(
       namespace: string,
       key: string
-    ): Promise<E.Either<StoreError, T | undefined>> =>
-      module().get<T>(namespace, key),
-    remove: (
+    ): Promise<E.Either<StoreError, T | undefined>> => {
+      return module().get<T>(STORE_PATH, namespace, key)
+    },
+
+    remove: async (
       namespace: string,
       key: string
-    ): Promise<E.Either<StoreError, boolean>> =>
-      module().remove(namespace, key),
-    clear: (namespace?: string): Promise<E.Either<StoreError, void>> =>
-      module().clear(namespace),
-    has: (
+    ): Promise<E.Either<StoreError, boolean>> => {
+      return module().remove(STORE_PATH, namespace, key)
+    },
+
+    clear: async (namespace?: string): Promise<E.Either<StoreError, void>> => {
+      return module().clear(STORE_PATH, namespace)
+    },
+
+    has: async (
       namespace: string,
       key: string
-    ): Promise<E.Either<StoreError, boolean>> => module().has(namespace, key),
-    listNamespaces: (): Promise<E.Either<StoreError, string[]>> =>
-      module().listNamespaces(),
-    listKeys: (namespace: string): Promise<E.Either<StoreError, string[]>> =>
-      module().listKeys(namespace),
-    watch: (namespace: string, key: string): StoreEventEmitter<StoreEvents> =>
-      module().watch(namespace, key),
+    ): Promise<E.Either<StoreError, boolean>> => {
+      return module().has(STORE_PATH, namespace, key)
+    },
+
+    listNamespaces: async (): Promise<E.Either<StoreError, string[]>> => {
+      return module().listNamespaces(STORE_PATH)
+    },
+
+    listKeys: async (
+      namespace: string
+    ): Promise<E.Either<StoreError, string[]>> => {
+      return module().listKeys(STORE_PATH, namespace)
+    },
+
+    watch: async (
+      namespace: string,
+      key: string
+    ): Promise<StoreEventEmitter<StoreEvents>> => {
+      return module().watch(STORE_PATH, namespace, key)
+    },
   } as const
 })()

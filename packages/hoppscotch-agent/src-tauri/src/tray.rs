@@ -96,10 +96,9 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                 }
             }
             "maximize_window" => {
-                app.emit("maximize-window", ())
-                    .unwrap_or_else(|e| {
-                        tracing::error!("Failed to emit maximize-window event: {}", e);
-                    });
+                app.emit("maximize-window", ()).unwrap_or_else(|e| {
+                    tracing::error!("Failed to emit maximize-window event: {}", e);
+                });
                 if let Err(e) = show_main_window(&app) {
                     tracing::error!("Failed to maximize window: {}", e);
                 }

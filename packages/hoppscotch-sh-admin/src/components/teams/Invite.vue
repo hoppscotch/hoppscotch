@@ -72,7 +72,7 @@
                       :active="member.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamMemberRole.Owner);
+                          updateNewAccessRole(index, TeamAccessRole.Owner);
                           hide();
                         }
                       "
@@ -85,7 +85,7 @@
                       :active="member.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamMemberRole.Editor);
+                          updateNewAccessRole(index, TeamAccessRole.Editor);
                           hide();
                         }
                       "
@@ -98,7 +98,7 @@
                       :active="member.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewMemberRole(index, TeamMemberRole.Viewer);
+                          updateNewAccessRole(index, TeamAccessRole.Viewer);
                           hide();
                         }
                       "
@@ -222,7 +222,7 @@ import IconTrash from '~icons/lucide/trash';
 import {
   AddUserToTeamByAdminDocument,
   MetricsDocument,
-  TeamMemberRole,
+  TeamAccessRole,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
 
@@ -258,21 +258,21 @@ const { list: usersList } = usePagedQuery(
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
 
-const newMembersList = ref<Array<{ key: string; value: TeamMemberRole }>>([
+const newMembersList = ref<Array<{ key: string; value: TeamAccessRole }>>([
   {
     key: '',
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   },
 ]);
 
 const addNewMember = () => {
   newMembersList.value.push({
     key: '',
-    value: TeamMemberRole.Viewer,
+    value: TeamAccessRole.Viewer,
   });
 };
 
-const updateNewMemberRole = (index: number, role: TeamMemberRole) => {
+const updateNewAccessRole = (index: number, role: TeamAccessRole) => {
   newMembersList.value[index].value = role;
 };
 
@@ -291,7 +291,7 @@ const addUserasTeamMember = async () => {
     O.fromPredicate(
       (
         memberInvites
-      ): memberInvites is Array<{ key: Email; value: TeamMemberRole }> =>
+      ): memberInvites is Array<{ key: Email; value: TeamAccessRole }> =>
         pipe(
           memberInvites,
           A.every((member) => EmailCodec.is(member.key))
@@ -319,7 +319,7 @@ const hideModal = () => {
   newMembersList.value = [
     {
       key: '',
-      value: TeamMemberRole.Viewer,
+      value: TeamAccessRole.Viewer,
     },
   ];
   emit('hide-modal');
@@ -328,7 +328,7 @@ const hideModal = () => {
 const addUserToTeamMutation = useMutation(AddUserToTeamByAdminDocument);
 const addUserToTeam = async (
   email: string,
-  userRole: TeamMemberRole,
+  userRole: TeamAccessRole,
   teamID: string
 ) => {
   const variables = { userEmail: email, role: userRole, teamID: teamID };

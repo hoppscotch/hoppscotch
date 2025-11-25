@@ -18,7 +18,11 @@ import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient
 import { environnmentsSyncer } from "@platform/environments/desktop/sync"
 
 import * as E from "fp-ts/Either"
-import { GlobalEnvironment } from "@hoppscotch/data"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 import { runDispatchWithOutSyncing } from "@lib/sync"
 import {
   createUserGlobalEnvironment,
@@ -82,13 +86,26 @@ async function loadUserEnvironments() {
 
     if (environments.length > 0) {
       runDispatchWithOutSyncing(() => {
+        const formatedEnvironments = environments.map(
+          (env) =>
+            <Environment>{
+              id: env.id,
+              name: env.name,
+              variables: JSON.parse(env.variables),
+            }
+        )
+
         replaceEnvironments(
-          environments.map(({ id, variables, name }) => ({
-            v: 1,
-            id,
-            name,
-            variables: JSON.parse(variables),
-          }))
+          formatedEnvironments.map((environment) => {
+            const parsedEnv = Environment.safeParse(environment)
+
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+          })
         )
       })
     }
@@ -176,7 +193,7 @@ function setupUserEnvironmentUpdatedSubscription() {
         if ((localIndex || localIndex == 0) && name) {
           runDispatchWithOutSyncing(() => {
             updateEnvironment(localIndex, {
-              v: 1,
+              v: 2,
               id,
               name,
               variables: JSON.parse(variables),

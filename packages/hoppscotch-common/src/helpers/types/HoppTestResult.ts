@@ -1,4 +1,5 @@
 import { Environment } from "@hoppscotch/data"
+import { SandboxTestResult } from "@hoppscotch/js-sandbox"
 
 export type HoppTestExpectResult = {
   status: "fail" | "pass" | "error"
@@ -33,4 +34,6 @@ export type HoppTestResult = {
       deletions: Environment["variables"]
     }
   }
+
+  consoleEntries: SandboxTestResult["consoleEntries"]
 }

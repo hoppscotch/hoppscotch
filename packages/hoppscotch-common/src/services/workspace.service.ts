@@ -5,7 +5,8 @@ import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { min } from "lodash-es"
-import { TeamMemberRole } from "~/helpers/backend/graphql"
+import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamCollectionsService } from "./team-collection.service"
 
 /**
  * Defines a workspace and its information
@@ -19,7 +20,7 @@ export type TeamWorkspace = {
   type: "team"
   teamID: string
   teamName: string
-  role: TeamMemberRole | null | undefined
+  role: TeamAccessRole | null | undefined
 }
 
 export type Workspace = PersonalWorkspace | TeamWorkspace
@@ -44,6 +45,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private teamListAdapterLocks = reactive(new Map<number, number | null>())
   private teamListAdapterLockTicker = 0 // Used to generate unique lock IDs
   private managedTeamListAdapter = new TeamListAdapter(true, false)
+
+  private teamCollectionService = this.bind(TeamCollectionsService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -100,6 +103,59 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         }
       },
       { immediate: true }
+    )
+
+    // Watch for workspace changes and update team collection service accordingly
+    this.setupTeamCollectionServiceSync()
+  }
+
+  /**
+   * Sets up synchronization with team collection service
+   * This ensures team collections are updated when workspace changes
+   */
+  private setupTeamCollectionServiceSync() {
+    watch(
+      this._currentWorkspace,
+      (newWorkspace, oldWorkspace) => {
+        // Skip update if workspaces are effectively the same
+        if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
+
+        try {
+          if (newWorkspace.type === "team" && newWorkspace.teamID) {
+            this.teamCollectionService.changeTeamID(newWorkspace.teamID)
+          } else {
+            this.teamCollectionService.clearCollections()
+          }
+        } catch (error) {
+          console.error("Failed to sync team collections:", error)
+        }
+      },
+      { immediate: true }
+    )
+  }
+
+  /**
+   * Checks if two workspaces are effectively equal to avoid unnecessary updates
+   *
+   * Note: Vue's watch API provides `undefined` as `oldValue` on the first callback
+   * invocation when using `{ immediate: true }`, since there is no previous value yet.
+   * This is why `oldWorkspace` has an optional type, while `newWorkspace` is always defined.
+   */
+  private areWorkspacesEqual(
+    newWorkspace: Workspace,
+    oldWorkspace?: Workspace
+  ): boolean {
+    if (!newWorkspace || !oldWorkspace) return false
+
+    // Both are personal workspaces
+    if (newWorkspace.type === "personal" && oldWorkspace.type === "personal")
+      return true
+
+    // Team workspaces are equal only if they share the same team ID
+    return (
+      newWorkspace.type === "team" &&
+      oldWorkspace.type === "team" &&
+      newWorkspace.teamID === oldWorkspace.teamID
     )
   }
 

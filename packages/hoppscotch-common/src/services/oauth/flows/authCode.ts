@@ -10,21 +10,27 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { AuthCodeGrantTypeParams } from "@hoppscotch/data"
 import { content } from "@hoppscotch/kernel"
+import { refreshToken, OAuth2ParamSchema } from "../utils"
+import {
+  AuthCodeGrantTypeParams,
+  OAuth2AuthRequestParam,
+} from "@hoppscotch/data"
 
 const persistenceService = getService(PersistenceService)
 const interceptorService = getService(KernelInterceptorService)
 
-const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.pick({
-  authEndpoint: true,
-  tokenEndpoint: true,
-  clientID: true,
-  clientSecret: true,
-  scopes: true,
-  isPKCE: true,
-  codeVerifierMethod: true,
+// Use the existing schema from hoppscotch-data but ensure required arrays
+const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
+  grantType: true,
+  token: true,
 })
+  .extend({
+    // Override optional arrays to be required for the service layer
+    authRequestParams: z.array(OAuth2AuthRequestParam),
+    tokenRequestParams: z.array(OAuth2ParamSchema),
+    refreshRequestParams: z.array(OAuth2ParamSchema),
+  })
   .refine(
     (params) => {
       return (
@@ -63,6 +69,9 @@ export const getDefaultAuthCodeOauthFlowParams =
     scopes: undefined,
     isPKCE: false,
     codeVerifierMethod: "S256",
+    authRequestParams: [],
+    refreshRequestParams: [],
+    tokenRequestParams: [],
   })
 
 const initAuthCodeOauthFlow = async ({
@@ -73,17 +82,28 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  authRequestParams,
+  refreshRequestParams,
+  tokenRequestParams,
 }: AuthCodeOauthFlowParams) => {
   const state = generateRandomString()
 
   let codeVerifier: string | undefined
   let codeChallenge: string | undefined
 
+  // Ensure backward compatibility for collections that were imported before
+  // `codeVerifierMethod` was added. If PKCE is enabled but the method is
+  // missing, default to 'plain' as requested by the user.
+  const codeVerifierMethodNormalized =
+    isPKCE && !codeVerifierMethod ? ("plain" as const) : codeVerifierMethod
+
   if (isPKCE) {
     codeVerifier = generateCodeVerifier()
+    // codeVerifierMethodNormalized might be undefined only if isPKCE is false,
+    // but here we guard with isPKCE so it's safe to pass a value.
     codeChallenge = await generateCodeChallenge(
       codeVerifier,
-      codeVerifierMethod
+      codeVerifierMethodNormalized
     )
   }
 
@@ -99,6 +119,24 @@ const initAuthCodeOauthFlow = async ({
     codeVerifierMethod?: string
     codeChallenge?: string
     scopes?: string
+    authRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    refreshRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
+    tokenRequestParams?: Array<{
+      key: string
+      value: string
+      active: boolean
+      sendIn?: string
+    }>
   } = {
     state,
     grant_type: "AUTHORIZATION_CODE",
@@ -107,8 +145,12 @@ const initAuthCodeOauthFlow = async ({
     clientSecret,
     clientID,
     isPKCE,
-    codeVerifierMethod,
+    // Persist the normalized method so subsequent redirect handling has a value
+    codeVerifierMethod: codeVerifierMethodNormalized,
     scopes,
+    authRequestParams,
+    refreshRequestParams,
+    tokenRequestParams,
   }
 
   if (codeVerifier && codeChallenge) {
@@ -158,6 +200,14 @@ const initAuthCodeOauthFlow = async ({
   if (codeVerifierMethod && codeChallenge) {
     url.searchParams.set("code_challenge", codeChallenge)
     url.searchParams.set("code_challenge_method", codeVerifierMethod)
+  }
+
+  if (authRequestParams.length > 0) {
+    authRequestParams.forEach((param) => {
+      if (param.active && param.key && param.value) {
+        url.searchParams.set(param.key, param.value)
+      }
+    })
   }
 
   // Redirect to the authorization server
@@ -291,57 +341,6 @@ const encodeArrayBufferAsUrlEncodedBase64 = (buffer: ArrayBuffer) => {
     .replace(/\//g, "_")
 
   return hashBase64URL
-}
-
-const refreshToken = async ({
-  tokenEndpoint,
-  clientID,
-  refreshToken,
-  clientSecret,
-}: AuthCodeOauthRefreshParams) => {
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: tokenEndpoint,
-    method: "POST",
-    version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: clientID,
-      ...(clientSecret && {
-        client_secret: clientSecret,
-      }),
-    }),
-  })
-
-  const res = await response
-
-  if (E.isLeft(res)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const responsePayload = decodeResponseAsJSON(res.right)
-
-  if (E.isLeft(responsePayload)) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
-  }
-
-  const withAccessTokenAndRefreshTokenSchema = z.object({
-    access_token: z.string(),
-    refresh_token: z.string().optional(),
-  })
-
-  const parsedTokenResponse = withAccessTokenAndRefreshTokenSchema.safeParse(
-    responsePayload.right
-  )
-
-  return parsedTokenResponse.success
-    ? E.right(parsedTokenResponse.data)
-    : E.left("AUTH_TOKEN_REQUEST_INVALID_RESPONSE" as const)
 }
 
 export default createFlowConfig(

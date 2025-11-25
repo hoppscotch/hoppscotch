@@ -1,6 +1,10 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AccessTokenPayload } from 'src/types/AuthTokens';
 import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
@@ -8,7 +12,11 @@ import { Request } from 'express';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/function';
-import { COOKIES_NOT_FOUND, INVALID_ACCESS_TOKEN, USER_NOT_FOUND } from 'src/errors';
+import {
+  COOKIES_NOT_FOUND,
+  INVALID_ACCESS_TOKEN,
+  USER_NOT_FOUND,
+} from 'src/errors';
 
 /**
  * Extracts an access token from a cookie in the request.
@@ -19,7 +27,7 @@ import { COOKIES_NOT_FOUND, INVALID_ACCESS_TOKEN, USER_NOT_FOUND } from 'src/err
 const extractFromCookie = (request: Request): O.Option<string> =>
   pipe(
     O.fromNullable(request.cookies),
-    O.chain(cookies => O.fromNullable(cookies['access_token']))
+    O.chain((cookies) => O.fromNullable(cookies['access_token'])),
   );
 
 /**
@@ -35,13 +43,15 @@ const extractFromAuthHeaders = (request: Request): O.Option<string> =>
     // see `gql-auth.guard` for more info.
     O.fromNullable(
       request?.headers?.authorization ||
-      (request && 'authorization' in request ? request['authorization'] : undefined)
+        (request && 'authorization' in request
+          ? request['authorization']
+          : undefined),
     ),
-    O.chain(auth =>
+    O.chain((auth) =>
       typeof auth === 'string' && auth.startsWith('Bearer ')
         ? O.some(auth.slice(7))
-        : O.none
-    )
+        : O.none,
+    ),
   );
 
 /**
@@ -59,7 +69,7 @@ const extractToken = (request: Request): E.Either<Error, string> =>
     // `COOKIES_NOT_FOUND` for backwards compatibility.
     E.fromOption(() => {
       return new ForbiddenException(COOKIES_NOT_FOUND);
-    })
+    }),
   );
 
 @Injectable()
@@ -74,12 +84,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           pipe(
             extractToken(request),
             E.fold(
-              error => { throw error; },
-              token => { return token }
-            )
+              (error) => {
+                throw error;
+              },
+              (token) => {
+                return token;
+              },
+            ),
           ),
       ]),
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get('INFRA.JWT_SECRET'),
     });
   }
 

@@ -1,4 +1,4 @@
-mutation CreateTeamInvitation($inviteeEmail: String!, $inviteeRole: TeamMemberRole!, $teamID: ID!) {
+mutation CreateTeamInvitation($inviteeEmail: String!, $inviteeRole: TeamAccessRole!, $teamID: ID!) {
   createTeamInvitation(inviteeRole: $inviteeRole, inviteeEmail: $inviteeEmail, teamID: $teamID) {
     id
     teamID

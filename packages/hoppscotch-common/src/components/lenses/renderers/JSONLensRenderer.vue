@@ -132,7 +132,10 @@
         />
       </div>
     </div>
-    <div class="h-full relative overflow-auto flex flex-col flex-1">
+    <div
+      ref="containerRef"
+      class="h-full relative overflow-auto flex flex-col flex-1"
+    >
       <div ref="jsonResponse" class="absolute inset-0 h-full"></div>
     </div>
     <div
@@ -274,6 +277,7 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
@@ -281,7 +285,15 @@ const props = defineProps<{
   response: HoppRESTResponse | HoppRESTRequestResponse
   isSavable: boolean
   isEditable: boolean
+  tabId: string
 }>()
+
+const { containerRef } = useScrollerRef(
+  "JSONLens",
+  ".cm-scroller",
+  undefined, // skip initial
+  `${props.tabId}::json`
+)
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
@@ -350,7 +362,7 @@ const jsonResponseBodyText = computed(() => {
           () =>
             JSONPath({
               path: filterQueryText.value,
-              json: parsedJSON as any,
+              json: JSON.parse(LJSON.stringify(parsedJSON as any) || "{}"),
             }),
           (err): BodyParseError => ({
             type: "JSON_PATH_QUERY_FAILED",
@@ -358,7 +370,7 @@ const jsonResponseBodyText = computed(() => {
           })
         )
       ),
-      E.map(JSON.stringify)
+      E.map((result: any) => result as string | object)
     )
   }
   return E.right(responseBodyText.value)
@@ -369,12 +381,35 @@ const jsonBodyText = computed(() => {
     props.response as HoppRESTResponse
   )
 
-  return pipe(
+  const rawValue = pipe(
     jsonResponseBodyText.value,
-    E.getOrElse(() => responseBodyText.value),
+    E.getOrElse(() => responseBodyText.value)
+  )
+
+  // If the rawValue is already an object (from JSONPath filtering), stringify it directly
+  if (typeof rawValue === "object" && rawValue !== null) {
+    return JSON.stringify(rawValue, null, 2)
+  }
+
+  // If it's a string, we need to parse and re-stringify
+  const stringValue = rawValue as string
+
+  // If we're filtering, the string should already be clean JSON (no lossless numbers)
+  if (filterQueryText.value.length > 0) {
+    return pipe(
+      stringValue,
+      O.tryCatchK(JSON.parse),
+      O.map((val) => JSON.stringify(val, null, 2)),
+      O.getOrElse(() => stringValue)
+    )
+  }
+
+  // For unfiltered responses, use LJSON for lossless parsing
+  return pipe(
+    stringValue,
     O.tryCatchK(LJSON.parse),
     O.map((val) => LJSON.stringify(val, undefined, 2)),
-    O.getOrElse(() => responseBodyText.value)
+    O.getOrElse(() => stringValue)
   )
 })
 
@@ -401,13 +436,19 @@ const filterResponseError = computed(() =>
             }
         }
       },
-      (result) =>
-        result === "[]"
+      (result) => {
+        const isEmpty =
+          typeof result === "object" && result !== null
+            ? Array.isArray(result) && result.length === 0
+            : result === "[]"
+
+        return isEmpty
           ? {
               type: "RESPONSE_EMPTY",
               error: t("error.no_results_found").toString(),
             }
           : undefined
+      }
     )
   )
 )

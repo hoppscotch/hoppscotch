@@ -91,7 +91,7 @@ class BrowserStoreManager {
             .map(key => key.replace(`${namespace}:`, ''));
     }
 
-    watch(namespace: string, key: string): StoreEventEmitter<StoreEvents> {
+    async watch(namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>> {
         const fullKey = this.getFullKey(namespace, key);
         return {
             on: (event, handler) => {
@@ -129,7 +129,10 @@ export const implementation: VersionedAPI<StoreV1> = {
         id: 'browser-store',
         capabilities: new Set(['permanent', 'structured', 'watch', 'namespace']),
 
-        async init() {
+        // `init` and other methods in `web` don't `storePath`
+        // but having a consistent API where first param of every method
+        // is the path that filteres to the "realm" makes it easier to reason around
+        async init(_storePath) {
             try {
                 return E.right(undefined);
             } catch (e) {
@@ -141,7 +144,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async set(namespace, key, value, options) {
+        async set(_storePath, namespace, key, value, options) {
             try {
                 const manager = BrowserStoreManager.new();
                 const existingData = await manager.getRaw(namespace, key);
@@ -172,7 +175,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async get(namespace, key) {
+        async get(_storePath, namespace, key) {
             try {
                 const manager = BrowserStoreManager.new();
                 return E.right(await manager.get(namespace, key));
@@ -185,7 +188,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async has(namespace, key) {
+        async has(_storePath, namespace, key) {
             try {
                 const manager = BrowserStoreManager.new();
                 return E.right(await manager.has(namespace, key));
@@ -198,7 +201,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async remove(namespace, key) {
+        async remove(_storePath, namespace, key) {
             try {
                 const manager = BrowserStoreManager.new();
                 return E.right(await manager.delete(namespace, key));
@@ -211,7 +214,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async clear(namespace) {
+        async clear(_storePath, namespace) {
             try {
                 const manager = BrowserStoreManager.new();
                 await manager.clear(namespace);
@@ -225,7 +228,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async listNamespaces() {
+        async listNamespaces(_storePath){
             try {
                 const manager = BrowserStoreManager.new();
                 return E.right(await manager.listNamespaces());
@@ -238,7 +241,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        async listKeys(namespace) {
+        async listKeys(_storePath, namespace) {
             try {
                 const manager = BrowserStoreManager.new();
                 return E.right(await manager.listKeys(namespace));
@@ -251,7 +254,7 @@ export const implementation: VersionedAPI<StoreV1> = {
             }
         },
 
-        watch(namespace, key) {
+        async watch(_storePath, namespace, key) {
             const manager = BrowserStoreManager.new();
             return manager.watch(namespace, key);
         },

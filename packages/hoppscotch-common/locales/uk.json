@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Не вдалося виконати сценарій попереднього запиту",
     "something_went_wrong": "Щось пішло не так",
-    "test_script_fail": "Не вдалося виконати скрипт після запиту",
+    "post_request_script_fail": "Не вдалося виконати скрипт після запиту",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Тестові скрипти записуються на JavaScript і запускаються після отримання відповіді.",
     "pre_request_script": "Скрипти написані на JavaScript і запускаються перед надсиланням запиту.",
     "script_fail": "Схоже, є збій у скрипті. Перевірте помилку нижче та виправте відповідним чином сценарій.",
-    "test_script_fail": "Здається виникла помилка з тестовим скриптом. Будь ласка, виправте помилки і спробуйте знову",
-    "tests": "Напишіть тестовий скрипт для автоматизації налагодження."
+    "post_request_script_fail": "Здається виникла помилка з тестовим скриптом. Будь ласка, виправте помилки і спробуйте знову",
+    "post_request_script": "Напишіть тестовий скрипт для автоматизації налагодження."
   },
   "hide": {
     "collection": "Згорнути панель колекції",

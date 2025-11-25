@@ -5,13 +5,14 @@ import * as cookieParser from 'cookie-parser';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
-import { checkEnvironmentAuthProvider } from './utils';
+import * as crypto from 'crypto';
+import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { InfraTokensController } from './infra-token/infra-token.controller';
 import { InfraTokenModule } from './infra-token/infra-token.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupSwagger(app) {
+function setupSwagger(app: NestExpressApplication, isProduction: boolean): void {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
@@ -30,7 +31,7 @@ function setupSwagger(app) {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    include: [InfraTokenModule],
+    include: isProduction ? [InfraTokenModule] : [],
   });
   SwaggerModule.setup(swaggerDocPath, app, document, {
     swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
@@ -38,46 +39,48 @@ function setupSwagger(app) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
+  const isProduction = configService.get('PRODUCTION') === 'true';
 
-  console.log(`Running in production:  ${configService.get('PRODUCTION')}`);
+  console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
-
-  checkEnvironmentAuthProvider(
-    configService.get('INFRA.VITE_ALLOWED_AUTH_PROVIDERS') ??
-      configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
-  );
 
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET'),
+      // Allow overriding the default cookie name 'connect.sid' (which contains a dot).
+      // Some proxies/load balancers (like older Kong versions) cannot hash cookie names with dots,
+      // so we allow setting an alternative name via the INFRA.SESSION_COOKIE_NAME configuration.
+      name:
+        configService.get<string>('INFRA.SESSION_COOKIE_NAME') || 'connect.sid',
+      secret:
+        configService.get<string>('INFRA.SESSION_SECRET') ||
+        crypto.randomBytes(16).toString('hex'),
     }),
   );
 
-  // Increase fil upload limit to 50MB
+  // Increase file upload limit to 100MB
   app.use(
     json({
       limit: '100mb',
     }),
   );
 
-  if (configService.get('PRODUCTION') === 'false') {
-    console.log('Enabling CORS with development settings');
-
+  if (isProduction) {
+    console.log('Enabling CORS with production settings');
     app.enableCors({
       origin: configService.get('WHITELISTED_ORIGINS').split(','),
       credentials: true,
     });
   } else {
-    console.log('Enabling CORS with production settings');
-
+    console.log('Enabling CORS with development settings');
     app.enableCors({
-      origin: configService.get('WHITELISTED_ORIGINS').split(','),
+      origin: true,
       credentials: true,
     });
   }
+
   app.enableVersioning({
     type: VersioningType.URI,
   });
@@ -88,14 +91,23 @@ async function bootstrap() {
     }),
   );
 
-  await setupSwagger(app);
+  if (configService.get('TRUST_PROXY') === 'true') {
+    console.log('Enabling trust proxy');
+    app.set('trust proxy', true);
+  }
+
+  app.use(morgan(':remote-addr :method :url :status - :response-time ms'));
+
+  await setupSwagger(app, isProduction);
 
   await app.listen(configService.get('PORT') || 3170);
 
   // Graceful shutdown
   process.on('SIGTERM', async () => {
-    console.info('SIGTERM signal received');
+    console.info('SIGTERM signal received, initiating graceful shutdown...');
     await app.close();
+    console.info('Application closed successfully');
+    process.exit(0);
   });
 }
 

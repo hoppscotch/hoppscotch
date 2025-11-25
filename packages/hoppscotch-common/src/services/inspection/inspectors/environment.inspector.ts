@@ -6,7 +6,7 @@ import {
   InspectorResult,
 } from ".."
 import { Service } from "dioc"
-import { Ref, markRaw } from "vue"
+import { Ref, markRaw, computed } from "vue"
 import IconPlusCircle from "~icons/lucide/plus-circle"
 import {
   HoppRESTRequest,
@@ -14,21 +14,19 @@ import {
 } from "@hoppscotch/data"
 import {
   AggregateEnvironment,
-  aggregateEnvsWithSecrets$,
+  aggregateEnvsWithCurrentValue$,
   getCurrentEnvironment,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { invokeAction } from "~/helpers/actions"
-import { computed } from "vue"
 import { useStreamStatic } from "~/composables/stream"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { RESTTabService } from "~/services/tab/rest"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
-
-const isENVInString = (str: string) => {
-  return HOPP_ENVIRONMENT_REGEX.test(str)
-}
+const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 /**
  * This inspector is responsible for inspecting the environment variables of a input.
@@ -46,10 +44,11 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
   private readonly inspection = this.bind(InspectionService)
   private readonly secretEnvs = this.bind(SecretEnvironmentService)
+  private readonly currentEnvs = this.bind(CurrentValueService)
   private readonly restTabs = this.bind(RESTTabService)
 
-  private aggregateEnvsWithSecrets = useStreamStatic(
-    aggregateEnvsWithSecrets$,
+  private aggregateEnvsWithValue = useStreamStatic(
+    aggregateEnvsWithCurrentValue$,
     [],
     () => {
       /* noop */
@@ -61,19 +60,20 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
-   * Validates the environment variables in the target array
+   * Looks for environment variables in an array of strings.
+   * Reports variables that are referenced but not defined.
    * @param target The target array to validate
    * @param locations The location where results are to be displayed
    * @returns The results array containing the results of the validation
    */
   private validateEnvironmentVariables = (
-    target: any[],
+    target: string[],
     locations: InspectorLocation
   ) => {
     const newErrors: InspectorResult[] = []
-
     const currentTab = this.restTabs.currentActiveTab.value
 
+    // Get the current request or example-response request
     const currentTabRequest =
       currentTab.document.type === "request"
         ? currentTab.document.request
@@ -81,70 +81,91 @@ export class EnvironmentInspectorService extends Service implements Inspector {
           ? currentTab.document.response.originalRequest
           : null
 
-    const environmentVariables = [
-      ...(currentTabRequest?.requestVariables ?? []),
-      ...this.aggregateEnvsWithSecrets.value,
-    ]
+    // inherited collection-level variables
+    const collectionVariables =
+      currentTab.document.type === "request" ||
+      currentTab.document.type === "example-response"
+        ? transformInheritedCollectionVariablesToAggregateEnv(
+            currentTab.document.inheritedProperties?.variables ?? []
+          )
+        : []
 
+    // request variables (active only)
+    const requestVariables =
+      currentTabRequest?.requestVariables
+        .filter((v) => v.active)
+        .map(({ key, value }) => ({
+          key,
+          currentValue: value,
+          initialValue: value,
+          sourceEnv: "RequestVariable",
+          secret: false,
+        })) ?? []
+
+    // combine everything into one list
+    const environmentVariables = [
+      ...requestVariables,
+      ...collectionVariables,
+      ...this.aggregateEnvsWithValue.value,
+    ]
     const envKeys = environmentVariables.map((e) => e.key)
 
+    // Scan each string for <<VAR>> patterns
     target.forEach((element, index) => {
-      if (isENVInString(element)) {
-        const extractedEnv = element.match(HOPP_ENVIRONMENT_REGEX)
+      if (!isENVInString(element)) return
+      const matches = element.match(HOPP_ENVIRONMENT_REGEX)
+      matches?.forEach((exEnv) => {
+        const formattedExEnv = exEnv.slice(2, -2)
+        const itemLocation: InspectorLocation = {
+          type: locations.type,
+          position:
+            locations.type === "url" ||
+            locations.type === "body" ||
+            locations.type === "response" ||
+            locations.type === "body-content-type-header"
+              ? "key"
+              : locations.position,
+          index,
+          key: element,
+        }
 
-        if (extractedEnv) {
-          extractedEnv.forEach((exEnv: string) => {
-            const formattedExEnv = exEnv.slice(2, -2)
-            const itemLocation: InspectorLocation = {
-              type: locations.type,
-              position:
-                locations.type === "url" ||
-                locations.type === "body" ||
-                locations.type === "response" ||
-                locations.type === "body-content-type-header"
-                  ? "key"
-                  : locations.position,
-              index: index,
-              key: element,
-            }
-            if (!envKeys.includes(formattedExEnv)) {
-              newErrors.push({
-                id: `environment-not-found-${newErrors.length}`,
-                text: {
-                  type: "text",
-                  text: this.t("inspections.environment.not_found", {
-                    environment: exEnv,
-                  }),
-                },
-                icon: markRaw(IconPlusCircle),
-                action: {
-                  text: this.t("inspections.environment.add_environment"),
-                  apply: () => {
-                    invokeAction("modals.environment.add", {
-                      envName: formattedExEnv,
-                      variableName: "",
-                    })
-                  },
-                },
-                severity: 3,
-                isApplicable: true,
-                locations: itemLocation,
-                doc: {
-                  text: this.t("action.learn_more"),
-                  link: "https://docs.hoppscotch.io/documentation/features/inspections",
-                },
-              })
-            }
+        // If the variable doesn't exist, add an inspection
+        if (!envKeys.includes(formattedExEnv)) {
+          newErrors.push({
+            id: `environment-not-found-${newErrors.length}`,
+            text: {
+              type: "text",
+              text: this.t("inspections.environment.not_found", {
+                environment: exEnv,
+              }),
+            },
+            icon: markRaw(IconPlusCircle),
+            action: {
+              text: this.t("inspections.environment.add_environment"),
+              apply: () =>
+                invokeAction("modals.environment.add", {
+                  envName: formattedExEnv,
+                  variableName: "",
+                }),
+              showAction: true,
+            },
+            severity: 3,
+            isApplicable: true,
+            locations: itemLocation,
+            doc: {
+              text: this.t("action.learn_more"),
+              link: "https://docs.hoppscotch.io/documentation/features/inspections",
+            },
           })
         }
-      }
+      })
     })
 
     return newErrors
   }
 
   /**
-   * Transforms the environment list to a list with unique keys with value
+   * Keeps only unique environment variables and prefers ones with values.
    * @param envs The environment list to be transformed
    * @returns The transformed environment list with keys with value
    */
@@ -156,8 +177,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     envs.forEach((env) => {
       if (envsMap.has(env.key)) {
         const existingEnv = envsMap.get(env.key)
-
-        if (existingEnv?.value === "" && env.value !== "") {
+        // Replace if existing is empty and this one has a value
+        if (existingEnv?.currentValue === "" && env.currentValue !== "") {
           envsMap.set(env.key, env)
         }
       } else {
@@ -169,227 +190,222 @@ export class EnvironmentInspectorService extends Service implements Inspector {
   }
 
   /**
-   * Checks if the environment variables in the target array are empty
+   * Looks for variables that exist but are empty (no value or secret).
+   * Suggests adding a value for them.
    * @param target The target array to validate
    * @param locations The location where results are to be displayed
    * @returns The results array containing the results of the validation
    */
   private validateEmptyEnvironmentVariables = (
-    target: any[],
+    target: string[],
     locations: InspectorLocation
   ) => {
     const newErrors: InspectorResult[] = []
 
     target.forEach((element, index) => {
-      if (isENVInString(element)) {
-        const extractedEnv = element.match(HOPP_ENVIRONMENT_REGEX)
+      if (!isENVInString(element)) return
+      const matches = element.match(HOPP_ENVIRONMENT_REGEX)
+      matches?.forEach((exEnv) => {
+        const formattedExEnv = exEnv.slice(2, -2)
+        const currentSelectedEnvironment = getCurrentEnvironment()
+        const currentTab = this.restTabs.currentActiveTab.value
 
-        if (extractedEnv) {
-          extractedEnv.forEach((exEnv: string) => {
-            const formattedExEnv = exEnv.slice(2, -2)
-            const currentSelectedEnvironment = getCurrentEnvironment()
+        // Get current request or example
+        const currentTabRequest =
+          currentTab.document.type === "request"
+            ? currentTab.document.request
+            : currentTab.document.type === "example-response"
+              ? currentTab.document.response.originalRequest
+              : null
 
-            const currentTab = this.restTabs.currentActiveTab.value
+        // request variables (active only)
+        const requestVariables =
+          currentTabRequest?.requestVariables
+            .filter((v) => v.active)
+            .map(({ key, value }) => ({
+              key,
+              currentValue: value,
+              initialValue: value,
+              sourceEnv: "RequestVariable",
+              secret: false,
+            })) ?? []
 
-            const currentTabRequest =
-              currentTab.document.type === "request"
-                ? currentTab.document.request
-                : currentTab.document.type === "example-response"
-                  ? currentTab.document.response.originalRequest
-                  : null
-
-            const environmentVariables =
-              this.filterNonEmptyEnvironmentVariables([
-                ...(currentTabRequest?.requestVariables ?? []).map((env) => ({
-                  ...env,
-                  secret: false,
-                  sourceEnv: "RequestVariable",
-                })),
-                ...this.aggregateEnvsWithSecrets.value,
-              ])
-
-            environmentVariables.forEach((env) => {
-              const hasSecretEnv = this.secretEnvs.hasSecretValue(
-                env.sourceEnv !== "Global"
-                  ? currentSelectedEnvironment.id
-                  : "Global",
-                env.key
+        // inherited collection variables
+        const collectionVariables =
+          currentTab.document.type === "request" ||
+          currentTab.document.type === "example-response"
+            ? transformInheritedCollectionVariablesToAggregateEnv(
+                currentTab.document.inheritedProperties?.variables ?? [],
+                false
               )
+            : []
 
-              if (env.key === formattedExEnv) {
-                if (env.secret ? !hasSecretEnv : env.value === "") {
-                  const itemLocation: InspectorLocation = {
-                    type: locations.type,
-                    position:
-                      locations.type === "url" ||
-                      locations.type === "body" ||
-                      locations.type === "response" ||
-                      locations.type === "body-content-type-header"
-                        ? "key"
-                        : locations.position,
-                    index: index,
-                    key: element,
-                  }
+        // Merge all variables
+        const environmentVariables = this.filterNonEmptyEnvironmentVariables([
+          ...requestVariables,
+          ...collectionVariables,
+          ...this.aggregateEnvsWithValue.value,
+        ])
 
-                  const currentEnvironmentType = getSelectedEnvironmentType()
+        // Check each variable for missing values
+        environmentVariables.forEach((env) => {
+          const sourceEnvID =
+            env.sourceEnv === "Global"
+              ? "Global"
+              : env.sourceEnv === "CollectionVariable"
+                ? env.sourceEnvID!
+                : currentSelectedEnvironment.id
 
-                  let invokeActionType:
-                    | "modals.my.environment.edit"
-                    | "modals.team.environment.edit"
-                    | "modals.global.environment.update" =
-                    "modals.my.environment.edit"
+          const hasSecretEnv = this.secretEnvs.hasSecretValue(
+            sourceEnvID,
+            env.key
+          )
 
-                  if (env.sourceEnv === "Global") {
-                    invokeActionType = "modals.global.environment.update"
-                  } else if (currentEnvironmentType === "MY_ENV") {
-                    invokeActionType = "modals.my.environment.edit"
-                  } else if (currentEnvironmentType === "TEAM_ENV") {
-                    invokeActionType = "modals.team.environment.edit"
+          const hasValue =
+            this.currentEnvs.hasValue(
+              env.sourceEnv !== "Global"
+                ? currentSelectedEnvironment.id
+                : "Global",
+              env.key
+            ) ||
+            env.currentValue !== "" ||
+            env.initialValue !== ""
+
+          if (env.key !== formattedExEnv) return
+
+          // Flag variables that are empty
+          if (env.secret ? !hasSecretEnv : !hasValue) {
+            const itemLocation: InspectorLocation = {
+              type: locations.type,
+              position:
+                locations.type === "url" ||
+                locations.type === "body" ||
+                locations.type === "response" ||
+                locations.type === "body-content-type-header"
+                  ? "key"
+                  : locations.position,
+              index,
+              key: element,
+            }
+
+            // Pick the right modal to open for editing
+            const currentEnvironmentType = getSelectedEnvironmentType()
+            const invokeActionType:
+              | "modals.my.environment.edit"
+              | "modals.team.environment.edit"
+              | "modals.global.environment.update" =
+              env.sourceEnv === "Global"
+                ? "modals.global.environment.update"
+                : currentEnvironmentType === "TEAM_ENV"
+                  ? "modals.team.environment.edit"
+                  : "modals.my.environment.edit"
+
+            newErrors.push({
+              id: `environment-empty-${newErrors.length}`,
+              text: {
+                type: "text",
+                text: this.t("inspections.environment.empty_value", {
+                  variable: exEnv,
+                }),
+              },
+              icon: markRaw(IconPlusCircle),
+              action: {
+                text: this.t("inspections.environment.add_environment_value"),
+                apply: () => {
+                  // If it's a request variable, open the requestVariables tab
+                  if (
+                    env.sourceEnv === "RequestVariable" &&
+                    currentTab.document.type === "request"
+                  ) {
+                    currentTab.document.optionTabPreference = "requestVariables"
                   } else {
-                    invokeActionType = "modals.my.environment.edit"
+                    invokeAction(invokeActionType, {
+                      envName:
+                        env.sourceEnv === "Global"
+                          ? "Global"
+                          : currentSelectedEnvironment.name,
+                      variableName: formattedExEnv,
+                      isSecret: env.secret,
+                    })
                   }
-
-                  newErrors.push({
-                    id: `environment-empty-${newErrors.length}`,
-                    text: {
-                      type: "text",
-                      text: this.t("inspections.environment.empty_value", {
-                        variable: exEnv,
-                      }),
-                    },
-                    icon: markRaw(IconPlusCircle),
-                    action: {
-                      text: this.t(
-                        "inspections.environment.add_environment_value"
-                      ),
-                      apply: () => {
-                        if (
-                          env.sourceEnv === "RequestVariable" &&
-                          currentTab.document.type === "request"
-                        ) {
-                          currentTab.document.optionTabPreference =
-                            "requestVariables"
-                        } else {
-                          invokeAction(invokeActionType, {
-                            envName:
-                              env.sourceEnv === "Global"
-                                ? "Global"
-                                : currentSelectedEnvironment.name,
-                            variableName: formattedExEnv,
-                            isSecret: env.secret,
-                          })
-                        }
-                      },
-                    },
-                    severity: 2,
-                    isApplicable: true,
-                    locations: itemLocation,
-                    doc: {
-                      text: this.t("action.learn_more"),
-                      link: "https://docs.hoppscotch.io/documentation/features/inspections",
-                    },
-                  })
-                }
-              }
+                },
+                showAction: env.sourceEnv !== "CollectionVariable", // skip collection vars for now
+              },
+              severity: 2,
+              isApplicable: true,
+              locations: itemLocation,
+              doc: {
+                text: this.t("action.learn_more"),
+                link: "https://docs.hoppscotch.io/documentation/features/inspections",
+              },
             })
-          })
-        }
-      }
+          }
+        })
+      })
     })
 
     return newErrors
   }
 
+  /**
+   * Runs all inspections for a given request and returns a computed list of results.
+   */
   getInspections(
     req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>
   ) {
     return computed(() => {
       const results: InspectorResult[] = []
-
       if (!req.value) return results
 
-      const headers = req.value.headers
+      const { endpoint, headers, params } = req.value
 
-      const params = req.value.params
-
-      /**
-       * Validate the environment variables in the URL
-       */
-      const url = req.value.endpoint
-
+      // URL check
       results.push(
-        ...this.validateEnvironmentVariables([url], {
-          type: "url",
-        })
-      )
-      results.push(
-        ...this.validateEmptyEnvironmentVariables([url], {
-          type: "url",
-        })
+        ...this.validateEnvironmentVariables([endpoint], { type: "url" }),
+        ...this.validateEmptyEnvironmentVariables([endpoint], { type: "url" })
       )
 
-      /**
-       * Validate the environment variables in the headers
-       */
-      const headerKeys = Object.values(headers).map((header) => header.key)
+      // Header keys and values
+      const headerKeys = Object.values(headers).map((h) => h.key)
+      const headerValues = Object.values(headers).map((h) => h.value)
 
       results.push(
         ...this.validateEnvironmentVariables(headerKeys, {
           type: "header",
           position: "key",
-        })
-      )
-      results.push(
+        }),
         ...this.validateEmptyEnvironmentVariables(headerKeys, {
           type: "header",
           position: "key",
-        })
-      )
-
-      const headerValues = Object.values(headers).map((header) => header.value)
-
-      results.push(
+        }),
         ...this.validateEnvironmentVariables(headerValues, {
           type: "header",
           position: "value",
-        })
-      )
-      results.push(
+        }),
         ...this.validateEmptyEnvironmentVariables(headerValues, {
           type: "header",
           position: "value",
         })
       )
 
-      /**
-       * Validate the environment variables in the parameters
-       */
-      const paramsKeys = Object.values(params).map((param) => param.key)
+      // Parameter keys and values
+      const paramKeys = Object.values(params).map((p) => p.key)
+      const paramValues = Object.values(params).map((p) => p.value)
 
       results.push(
-        ...this.validateEnvironmentVariables(paramsKeys, {
+        ...this.validateEnvironmentVariables(paramKeys, {
           type: "parameter",
           position: "key",
-        })
-      )
-      results.push(
-        ...this.validateEmptyEnvironmentVariables(paramsKeys, {
+        }),
+        ...this.validateEmptyEnvironmentVariables(paramKeys, {
           type: "parameter",
           position: "key",
-        })
-      )
-
-      const paramsValues = Object.values(params).map((param) => param.value)
-
-      results.push(
-        ...this.validateEnvironmentVariables(paramsValues, {
+        }),
+        ...this.validateEnvironmentVariables(paramValues, {
           type: "parameter",
           position: "value",
-        })
-      )
-
-      results.push(
-        ...this.validateEmptyEnvironmentVariables(paramsValues, {
+        }),
+        ...this.validateEmptyEnvironmentVariables(paramValues, {
           type: "parameter",
           position: "value",
         })

@@ -26,6 +26,9 @@ const defaultDomainConfig: InputDomainSetting = {
     verifyPeer: true,
   },
   proxy: undefined,
+  options: {
+    followRedirects: true,
+  },
 }
 
 export class KernelInterceptorNativeStore extends Service {
@@ -72,16 +75,14 @@ export class KernelInterceptorNativeStore extends Service {
     }
   }
 
-  private setupWatchers() {
-    Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS).on(
-      "change",
-      async ({ value }) => {
-        if (value) {
-          const store = value as StoredData
-          this.domainSettings = new Map(Object.entries(store.domains))
-        }
+  private async setupWatchers() {
+    const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
+    watcher.on("change", async ({ value }) => {
+      if (value) {
+        const store = value as StoredData
+        this.domainSettings = new Map(Object.entries(store.domains))
       }
-    )
+    })
   }
 
   private async persistStore(): Promise<void> {
@@ -119,6 +120,15 @@ export class KernelInterceptorNativeStore extends Service {
     )
   }
 
+  private mergeOptions(
+    ...settings: (Required<InputDomainSetting>["options"] | undefined)[]
+  ): Required<InputDomainSetting>["options"] | undefined {
+    return settings.reduce(
+      (acc, setting) => (setting ? { ...acc, ...setting } : acc),
+      undefined as Required<InputDomainSetting>["options"] | undefined
+    )
+  }
+
   private getMergedSettings(domain: string): InputDomainSetting {
     const domainSettings = this.domainSettings.get(domain)
     const globalSettings =
@@ -132,13 +142,17 @@ export class KernelInterceptorNativeStore extends Service {
         domainSettings?.security
       ),
       proxy: this.mergeProxy(globalSettings?.proxy, domainSettings?.proxy),
+      options: this.mergeOptions(
+        globalSettings?.options,
+        domainSettings?.options
+      ),
     }
 
     return { version: "v1", ...result }
   }
 
   public completeRequest(
-    request: Omit<RelayRequest, "proxy" | "security">
+    request: Omit<RelayRequest, "proxy" | "security" | "meta">
   ): RelayRequest {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)

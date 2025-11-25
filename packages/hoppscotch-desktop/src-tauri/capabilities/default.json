@@ -16,7 +16,22 @@
     "dialog:default",
     "process:default",
     "updater:default",
+    "fs:allow-copy-file",
+    "fs:allow-remove",
+    "fs:allow-exists",
+    "fs:allow-read-file",
+    "fs:allow-read-dir",
+    "fs:allow-write-file",
     "fs:allow-write-text-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$APPCONFIG" },
+        { "path": "$APPCONFIG/**" },
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" }
+      ]
+    },
     "deep-link:default",
     "appload:default",
     "relay:default"

@@ -1,13 +1,17 @@
-import { Service } from "dioc"
-import { reactive, computed } from "vue"
+import { Container, Service } from "dioc"
+import { reactive, computed, watch, nextTick } from "vue"
 
 /**
  * Defines a secret environment variable.
+ * Value is the current value of the variable.
+ * InitialValue is the value of the variable when it was created.
+ * VarIndex is the index of the variable in the environment.
  */
 export type SecretVariable = {
   key: string
   value: string
   varIndex: number
+  initialValue?: string
 }
 
 /**
@@ -18,6 +22,12 @@ export type SecretVariable = {
  */
 export class SecretEnvironmentService extends Service {
   public static readonly ID = "SECRET_ENVIRONMENT_SERVICE"
+
+  constructor(c: Container) {
+    super(c)
+    // Initialize the secret environments map
+    this.watchSecretEnvironments()
+  }
 
   /**
    * Map of secret environments.
@@ -54,13 +64,17 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Used to get the value of a secret environment variable.
+   * Used to get the initial and current value of a secret environment variable.
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
-=   */
+   */
   public getSecretEnvironmentVariableValue(id: string, varIndex: number) {
     const secretVar = this.getSecretEnvironmentVariable(id, varIndex)
-    return secretVar?.value
+    if (!secretVar) return null
+    return {
+      value: secretVar.value || "",
+      initialValue: secretVar.initialValue || "",
+    }
   }
 
   /**
@@ -101,7 +115,7 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Used to update thye ID of a secret environment.
+   * Used to update the ID of a secret environment.
    * Used while syncing with the server.
    * @param oldID old ID of the environment
    * @param newID new ID of the environment
@@ -128,6 +142,21 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
+   * Checks if a secret variable has an initial value set.
+   * @param id ID of the environment
+   * @param key Key of the variable to check the initial value exists
+   * @returns true if the key has an initial value
+   */
+  public hasSecretInitialValue(id: string, key: string) {
+    return (
+      this.secretEnvironments.has(id) &&
+      this.secretEnvironments
+        .get(id)!
+        .some((secretVar) => secretVar.key === key && secretVar.initialValue)
+    )
+  }
+
+  /**
    * Used to update the value of a secret environment variable.
    */
   public persistableSecretEnvironments = computed(() => {
@@ -137,4 +166,26 @@ export class SecretEnvironmentService extends Service {
     })
     return secretEnvironments
   })
+
+  /**
+   * Watches the secret environments for changes.
+   * If a secret variable is removed or has an empty key, it will be deleted.
+   */
+  protected watchSecretEnvironments() {
+    watch(
+      () => this.secretEnvironments,
+      () => {
+        nextTick(() => {
+          this.secretEnvironments.forEach((secretVars, id) => {
+            const filteredVars = secretVars.filter((v) => v.key !== "")
+
+            if (filteredVars.length === 0) {
+              this.secretEnvironments.delete(id)
+            }
+          })
+        })
+      },
+      { deep: true }
+    )
+  }
 }

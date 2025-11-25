@@ -11,6 +11,9 @@ pub enum StorageError {
     #[error("Invalid path: {0}")]
     InvalidPath(String),
 
+    #[error("Disk not found: fatal error, unable to resolve user config storage disk")]
+    DiskNotFound,
+
     #[error("Storage full: required {required} bytes, available {available} bytes")]
     StorageFull { required: u64, available: u64 },
 

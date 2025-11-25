@@ -17,7 +17,7 @@ import {
   MoveTeamRequestArgs,
   UpdateLookUpRequestOrderArgs,
 } from './input-type.args';
-import { Team, TeamMemberRole } from '../team/team.model';
+import { Team, TeamAccessRole } from '../team/team.model';
 import { TeamRequestService } from './team-request.service';
 import { TeamCollection } from '../team-collection/team-collection.model';
 import { UseGuards } from '@nestjs/common';
@@ -57,9 +57,8 @@ export class TeamRequestResolver {
     complexity: 3,
   })
   async collection(@Parent() req: TeamRequest) {
-    const teamCollection = await this.teamRequestService.getCollectionOfRequest(
-      req,
-    );
+    const teamCollection =
+      await this.teamRequestService.getCollectionOfRequest(req);
     if (E.isLeft(teamCollection)) throwErr(teamCollection.left);
     return teamCollection.right;
   }
@@ -70,9 +69,9 @@ export class TeamRequestResolver {
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.VIEWER,
   )
   async searchForRequest(@Args() args: SearchTeamRequestArgs) {
     return this.teamRequestService.searchRequest(
@@ -89,9 +88,9 @@ export class TeamRequestResolver {
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.VIEWER,
   )
   async request(
     @Args({
@@ -111,9 +110,9 @@ export class TeamRequestResolver {
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.VIEWER,
   )
   async requestsInCollection(@Args() input: GetTeamRequestInCollectionArgs) {
     return this.teamRequestService.getRequestsInCollection(
@@ -128,7 +127,7 @@ export class TeamRequestResolver {
     description: 'Create a team request in the given collection.',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.EDITOR, TeamAccessRole.OWNER)
   async createRequestInCollection(
     @Args({
       name: 'collectionID',
@@ -158,7 +157,7 @@ export class TeamRequestResolver {
     description: 'Update a request with the given ID',
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.EDITOR, TeamAccessRole.OWNER)
   async updateRequest(
     @Args({
       name: 'requestID',
@@ -187,7 +186,7 @@ export class TeamRequestResolver {
     description: 'Delete a request with the given ID',
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.EDITOR, TeamAccessRole.OWNER)
   async deleteRequest(
     @Args({
       name: 'requestID',
@@ -196,9 +195,8 @@ export class TeamRequestResolver {
     })
     requestID: string,
   ) {
-    const isDeleted = await this.teamRequestService.deleteTeamRequest(
-      requestID,
-    );
+    const isDeleted =
+      await this.teamRequestService.deleteTeamRequest(requestID);
     if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
     return isDeleted.right;
   }
@@ -207,7 +205,7 @@ export class TeamRequestResolver {
     description: 'Update the order of requests in the lookup table',
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.EDITOR, TeamAccessRole.OWNER)
   async updateLookUpRequestOrder(
     @Args()
     args: UpdateLookUpRequestOrderArgs,
@@ -227,7 +225,7 @@ export class TeamRequestResolver {
     description: 'Move a request to the given collection',
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.EDITOR, TeamAccessRole.OWNER)
   async moveRequest(@Args() args: MoveTeamRequestArgs) {
     const teamRequest = await this.teamRequestService.moveRequest(
       args.srcCollID,
@@ -248,9 +246,9 @@ export class TeamRequestResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   teamRequestAdded(
     @Args({
@@ -270,9 +268,9 @@ export class TeamRequestResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   teamRequestUpdated(
     @Args({
@@ -293,9 +291,9 @@ export class TeamRequestResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   teamRequestDeleted(
     @Args({
@@ -316,9 +314,9 @@ export class TeamRequestResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   requestOrderUpdated(
     @Args({
@@ -339,9 +337,9 @@ export class TeamRequestResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.VIEWER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.OWNER,
+    TeamAccessRole.VIEWER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.OWNER,
   )
   requestMoved(
     @Args({

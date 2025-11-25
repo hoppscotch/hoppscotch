@@ -12,23 +12,23 @@ import {
   USERS_NOT_FOUND,
   USER_NOT_FOUND,
   USER_SHORT_DISPLAY_NAME,
+  USER_UPDATE_FAILED,
   USER_EMAIL,
 } from 'src/errors';
 import { SessionType, User } from './user.model';
-import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { encrypt, stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
 import { User as DbUser } from '@prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { GetUserWorkspacesResponse } from 'src/infra-token/request-response.dto';
-import { TeamMemberRole } from 'src/team/team.model';
+import { TeamAccessRole } from 'src/team/team.model';
 import { validateEmail } from '../utils';
 
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
+    private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
 
@@ -656,13 +656,13 @@ export class UserService {
     const workspaces: GetUserWorkspacesResponse[] = [];
     team.forEach((t) => {
       const ownerCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.OWNER,
+        (m) => m.role === TeamAccessRole.OWNER,
       ).length;
       const editorCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.EDITOR,
+        (m) => m.role === TeamAccessRole.EDITOR,
       ).length;
       const viewerCount = t.members.filter(
-        (m) => m.role === TeamMemberRole.VIEWER,
+        (m) => m.role === TeamAccessRole.VIEWER,
       ).length;
       const memberCount = t.members.length;
 

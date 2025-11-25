@@ -1,0 +1,91 @@
+{
+  "v": 8,
+  "id": "cmbgcmyly10yhdjet63hiorps",
+  "name": "Valid mixed versions collection",
+  "folders": [
+    {
+      "v": 7,
+      "id": "cmbgnb4h100v613phgrz6vku9",
+      "name": "fold1",
+      "folders": [
+        {
+          "v": 6,
+          "id": "cmbhux44609zs2triccmql79r",
+          "name": "fold2",
+          "folders": [
+            {
+              "v": 5,
+              "id": "cmbhux6es09zv2triton3kzv4",
+              "name": "fold3",
+              "folders": [
+                {
+                  "v": 4,
+                  "id": "cmbhux9vo0b2t13ph6dwapwh3",
+                  "name": "fold4",
+                  "folders": [],
+                  "requests": [
+                    {
+                      "v": "13",
+                      "name": "req",
+                      "method": "GET",
+                      "endpoint": "https://echo.hoppscotch.io",
+                      "params": [],
+                      "headers": [],
+                      "preRequestScript": "",
+                      "testScript": "",
+                      "auth": {
+                        "authType": "inherit",
+                        "authActive": true
+                      },
+                      "body": {
+                        "contentType": null,
+                        "body": null
+                      },
+                      "requestVariables": [],
+                      "responses": {}
+                    }
+                  ],
+                  "auth": {
+                    "authType": "inherit",
+                    "authActive": true
+                  },
+                  "headers": [],
+                  "_ref_id": "coll_mbhuxoci_023b77eb-ed0c-4ec7-97ca-f46cf327cc54"
+                }
+              ],
+              "requests": [],
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "headers": [],
+              "_ref_id": "coll_mbhuxoci_d22767f4-fd0a-4264-a86a-ba4a87c009cb"
+            }
+          ],
+          "requests": [],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_mbhuxoci_0effd54f-8e08-441f-9b44-95d02ff1861e"
+        }
+      ],
+      "requests": [],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mbhuxoci_d7eee2ab-a921-447f-931d-bdce8c715770"
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "_ref_id": "coll_mbhuxoci_a8fc710e-04c1-489c-a183-7f16946a7225"
+}

@@ -6,7 +6,7 @@ import {
   RevokeTeamInvitationDocument,
   RevokeTeamInvitationMutation,
   RevokeTeamInvitationMutationVariables,
-  TeamMemberRole,
+  TeamAccessRole,
 } from "../graphql"
 import { Email } from "../types/Email"
 
@@ -29,7 +29,7 @@ type AcceptTeamInvitationErrors =
 
 export const createTeamInvitation = (
   inviteeEmail: Email,
-  inviteeRole: TeamMemberRole,
+  inviteeRole: TeamAccessRole,
   teamID: string
 ) => {
   return pipe(

@@ -25,6 +25,12 @@ import {
   runUserEnvironmentDeletedSubscription,
   runUserEnvironmentUpdatedSubscription,
 } from "@platform/environments/environments.api"
+import { entityReference } from "verzod"
+import {
+  Environment,
+  EnvironmentSchemaVersion,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 
 export function initEnvironmentsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
@@ -79,12 +85,26 @@ async function loadUserEnvironments() {
 
     if (environments.length > 0) {
       runDispatchWithOutSyncing(() => {
+        const formatedEnvironments = environments.map(
+          (env) =>
+            <Environment>{
+              id: env.id,
+              name: env.name,
+              variables: JSON.parse(env.variables),
+            }
+        )
+
         replaceEnvironments(
-          environments.map(({ id, variables, name }) => ({
-            id,
-            name,
-            variables: JSON.parse(variables),
-          }))
+          formatedEnvironments.map((environment) => {
+            const parsedEnv = Environment.safeParse(environment)
+
+            return parsedEnv.type === "ok"
+              ? parsedEnv.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+          })
         )
       })
     }
@@ -98,8 +118,16 @@ async function loadGlobalEnvironments() {
     const globalEnv = res.right.me.globalEnvironments
 
     if (globalEnv) {
+      const globalEnvVariableEntries = JSON.parse(globalEnv.variables)
+
+      const result = entityReference(GlobalEnvironment).safeParse(
+        globalEnvVariableEntries
+      )
+
       runDispatchWithOutSyncing(() => {
-        setGlobalEnvVariables(JSON.parse(globalEnv.variables))
+        setGlobalEnvVariables(
+          result.success ? result.data : globalEnvVariableEntries
+        )
         setGlobalEnvID(globalEnv.id)
       })
     }
@@ -162,12 +190,24 @@ function setupUserEnvironmentUpdatedSubscription() {
         )
 
         if ((localIndex || localIndex == 0) && name) {
+          const environment = {
+            id,
+            name,
+            variables: JSON.parse(variables),
+          }
+
+          const parsedEnvResult = Environment.safeParse(environment)
+
+          const parsedEnv: Environment =
+            parsedEnvResult.type === "ok"
+              ? parsedEnvResult.value
+              : {
+                  ...environment,
+                  v: EnvironmentSchemaVersion,
+                }
+
           runDispatchWithOutSyncing(() => {
-            updateEnvironment(localIndex, {
-              id,
-              name,
-              variables: JSON.parse(variables),
-            })
+            updateEnvironment(localIndex, parsedEnv)
           })
         }
       }

@@ -1,39 +1,38 @@
 {
-  "v": 3,
-  "id": "clx1f86hv000010f8szcfya0t",
-  "name": "Multiple child collections with authorization & headers set at each level",
+  "v": 6,
+  "id": "cm9wmuzj46s3imbs891pdamv4",
+  "name": "Multiple child collections with authorization, headers and variables set at each level",
   "folders": [
     {
-      "v": 3,
-      "id": "clx1fjgah000110f8a5bs68gd",
+      "v": 6,
+      "id": "cm9wmuzjp6s3lmbs878f67qr9",
       "name": "folder-1",
       "folders": [
         {
-          "v": 3,
-          "id": "clx1fjwmm000410f8l1gkkr1a",
+          "v": 6,
+          "id": "cm9wmuzln6s3umbs8j8lasa3u",
           "name": "folder-11",
           "folders": [],
           "requests": [
             {
-              "v": "4",
+              "v": "11",
+              "name": "folder-11-request",
+              "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-1\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
               "auth": {
                 "authType": "inherit",
-                "password": "testpass",
-                "username": "testuser",
                 "authActive": true
               },
               "body": {
-                "body": null,
-                "contentType": null
+                "contentType": null,
+                "body": null
               },
-              "name": "folder-11-request",
-              "method": "GET",
-              "params": [],
-              "headers": [],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-1\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
-              "preRequestScript": "",
-              "requestVariables": []
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -44,45 +43,50 @@
             {
               "key": "key",
               "value": "Set at folder-11",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_c1131ca7-4f49-4c25-b524-c00b0c94a9d5"
         },
         {
-          "v": 3,
-          "id": "clx1fjyxm000510f8pv90dt43",
+          "v": 6,
+          "id": "cm9wmuzm66s3xmbs8lzb76mkm",
           "name": "folder-12",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "authType": "none",
-                "authActive": true
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-12-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header",
                   "value": "Custom header value overriden at folder-12-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-12-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-12-request\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-12-request\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-12-request\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-12-request\")\n})",
+              "auth": {
+                "authType": "none",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -93,107 +97,102 @@
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-12",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-12",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_2bcc342f-8817-4450-8d1e-4786cfad0d83"
         },
         {
-          "v": 3,
-          "id": "clx1fk1cv000610f88kc3aupy",
+          "v": 6,
+          "id": "cm9wmuzmp6s40mbs8lspc4162",
           "name": "folder-13",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "key": "api-key",
-                "addTo": "HEADERS",
-                "value": "api-key-value",
-                "authType": "basic",
-                "password": "testpass",
-                "username": "testuser",
-                "authActive": true,
-                "grantTypeInfo": {
-                  "token": "",
-                  "isPKCE": true,
-                  "clientID": "sfasfa",
-                  "password": "",
-                  "username": "",
-                  "grantType": "AUTHORIZATION_CODE",
-                  "authEndpoint": "asfafs",
-                  "clientSecret": "sfasfasf",
-                  "tokenEndpoint": "asfa",
-                  "codeVerifierMethod": "S256"
-                }
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-13-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header-Request-Level",
                   "value": "New custom header added at the folder-13-request level",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-13-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-13\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-13-request\")\n  pw.expect(pw.response.body.headers[\"Custom-Header-Request-Level\"]).toBe(\"New custom header added at the folder-13-request level\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-13\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-13-request\")\n  pw.expect(pw.response.body.headers[\"custom-header-request-level\"]).toBe(\"New custom header added at the folder-13-request level\")\n})",
+              "auth": {
+                "authType": "basic",
+                "username": "testuser",
+                "password": "testpass",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
-            "token": "test-token",
             "authType": "bearer",
+            "token": "test-token",
             "authActive": true
           },
           "headers": [
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-13",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-13",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_cbab702b-28e6-4ec9-9b13-84f7b154fc1e"
         }
       ],
       "requests": [
         {
-          "v": "4",
+          "v": "11",
+          "name": "folder-1-request",
+          "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-1\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
           "auth": {
             "authType": "inherit",
             "authActive": true
           },
           "body": {
-            "body": null,
-            "contentType": null
+            "contentType": null,
+            "body": null
           },
-          "name": "folder-1-request",
-          "method": "GET",
-          "params": [],
-          "headers": [],
-          "endpoint": "https://httpbin.org/get",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-1\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
-          "preRequestScript": "",
-          "requestVariables": []
+          "requestVariables": [],
+          "responses": {}
         }
       ],
       "auth": {
@@ -204,39 +203,42 @@
         {
           "key": "Custom-Header",
           "value": "Custom header value overriden at folder-1",
-          "active": true
+          "active": true,
+          "description": ""
         }
-      ]
+      ],
+      "_ref_id": "coll_m9wn4jl9_d82c9136-95cd-4b72-b49d-f6980c153a9b"
     },
     {
-      "v": 3,
-      "id": "clx1fjk9o000210f8j0573pls",
+      "v": 6,
+      "id": "cm9wmuzk96s3ombs80h6zpd5d",
       "name": "folder-2",
       "folders": [
         {
-          "v": 3,
-          "id": "clx1fk516000710f87sfpw6bo",
+          "v": 6,
+          "id": "cm9wmuzn96s43mbs8ty5ruesu",
           "name": "folder-21",
           "folders": [],
           "requests": [
             {
-              "v": "4",
+              "v": "11",
+              "name": "folder-21-request",
+              "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-2\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
               "auth": {
                 "authType": "inherit",
                 "authActive": true
               },
               "body": {
-                "body": null,
-                "contentType": null
+                "contentType": null,
+                "body": null
               },
-              "name": "folder-21-request",
-              "method": "GET",
-              "params": [],
-              "headers": [],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-2\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
-              "preRequestScript": "",
-              "requestVariables": []
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -247,45 +249,50 @@
             {
               "key": "key",
               "value": "Set at folder-21",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_a1ae4845-9eab-4963-9ba3-51f8887b8fdd"
         },
         {
-          "v": 3,
-          "id": "clx1fk72t000810f8gfwkpi5y",
+          "v": 6,
+          "id": "cm9wmuznr6s46mbs8j6598bvx",
           "name": "folder-22",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "authType": "none",
-                "authActive": true
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-22-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header",
                   "value": "Custom header value overriden at folder-22-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-22-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-22-request\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-22-request\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-22-request\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-22-request\")\n})",
+              "auth": {
+                "authType": "none",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -296,100 +303,109 @@
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-22",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-22",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_2215866f-b5d2-4a18-853a-c40ac9238729"
         },
         {
-          "v": 3,
-          "id": "clx1fk95g000910f8bunhaoo8",
+          "v": 6,
+          "id": "cm9wmuzo96s49mbs8ripqlpct",
           "name": "folder-23",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "authType": "basic",
-                "password": "testpass",
-                "username": "testuser",
-                "authActive": true
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-23-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header-Request-Level",
                   "value": "New custom header added at the folder-23-request level",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-23-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-23\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-23-request\")\n  pw.expect(pw.response.body.headers[\"Custom-Header-Request-Level\"]).toBe(\"New custom header added at the folder-23-request level\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-23\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-23-request\")\n  pw.expect(pw.response.body.headers[\"custom-header-request-level\"]).toBe(\"New custom header added at the folder-23-request level\")\n})",
+              "auth": {
+                "authType": "basic",
+                "username": "testuser",
+                "password": "testpass",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
-            "token": "test-token",
             "authType": "bearer",
-            "password": "testpass",
-            "username": "testuser",
+            "token": "test-token",
             "authActive": true
           },
           "headers": [
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-23",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-23",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_11b0fc1e-0ecc-45d2-a7e6-5e3600f2972f"
         }
       ],
       "requests": [
         {
-          "v": "4",
-          "auth": {
-            "authType": "none",
-            "authActive": true
-          },
-          "body": {
-            "body": null,
-            "contentType": null
-          },
+          "v": "11",
           "name": "folder-2-request",
           "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
           "params": [],
           "headers": [
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-2-request",
-              "active": true
+              "active": true,
+              "description": ""
             }
           ],
-          "endpoint": "https://httpbin.org/get",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-2-request\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
           "preRequestScript": "",
-          "requestVariables": []
+          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-2-request\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
+          "auth": {
+            "authType": "none",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
         }
       ],
       "auth": {
@@ -400,39 +416,42 @@
         {
           "key": "Custom-Header",
           "value": "Custom header value overriden at folder-2",
-          "active": true
+          "active": true,
+          "description": ""
         }
-      ]
+      ],
+      "_ref_id": "coll_m9wn4jl9_02b9a042-e935-4d0e-a30e-720b13ebf77b"
     },
     {
-      "v": 3,
-      "id": "clx1fjmlq000310f86o4d3w2o",
+      "v": 6,
+      "id": "cm9wmuzl26s3rmbs8mdewgock",
       "name": "folder-3",
       "folders": [
         {
-          "v": 3,
-          "id": "clx1iwq0p003e10f8u8zg0p85",
+          "v": 6,
+          "id": "cm9wmuzor6s4cmbs833gdoh57",
           "name": "folder-31",
           "folders": [],
           "requests": [
             {
-              "v": "4",
+              "v": "11",
+              "name": "folder-31-request",
+              "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-3\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
               "auth": {
                 "authType": "inherit",
                 "authActive": true
               },
               "body": {
-                "body": null,
-                "contentType": null
+                "contentType": null,
+                "body": null
               },
-              "name": "folder-31-request",
-              "method": "GET",
-              "params": [],
-              "headers": [],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-3\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
-              "preRequestScript": "",
-              "requestVariables": []
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -443,45 +462,50 @@
             {
               "key": "key",
               "value": "Set at folder-31",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_875254bc-5d26-4235-acfa-e8e93638f828"
         },
         {
-          "v": 3,
-          "id": "clx1izut7003m10f894ip59zg",
+          "v": 6,
+          "id": "cm9wmuzp96s4fmbs8aj730ukh",
           "name": "folder-32",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "authType": "none",
-                "authActive": true
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-32-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header",
                   "value": "Custom header value overriden at folder-32-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-32-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-32-request\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-32-request\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(undefined)\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-32-request\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n  pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-32-request\")\n})",
+              "auth": {
+                "authType": "none",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
@@ -492,164 +516,185 @@
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-32",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-32",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_da0095e7-8a92-4187-ac56-d62ac9ea0ba8"
         },
         {
-          "v": 3,
-          "id": "clx1j2ka9003q10f8cdbzpgpg",
+          "v": 6,
+          "id": "cm9wmuzpr6s4imbs8a2ludk99",
           "name": "folder-33",
           "folders": [],
           "requests": [
             {
-              "v": "4",
-              "auth": {
-                "authType": "basic",
-                "password": "testpass",
-                "username": "testuser",
-                "authActive": true
-              },
-              "body": {
-                "body": null,
-                "contentType": null
-              },
+              "v": "11",
               "name": "folder-33-request",
               "method": "GET",
+              "endpoint": "https://echo.hoppscotch.io",
               "params": [],
               "headers": [
                 {
                   "key": "Custom-Header-Request-Level",
                   "value": "New custom header added at the folder-33-request level",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 },
                 {
                   "key": "key",
                   "value": "Overriden at folder-33-request",
-                  "active": true
+                  "active": true,
+                  "description": ""
                 }
               ],
-              "endpoint": "https://httpbin.org/get",
-              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-33\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Overriden at folder-33-request\")\n  pw.expect(pw.response.body.headers[\"Custom-Header-Request-Level\"]).toBe(\"New custom header added at the folder-33-request level\")\n})",
               "preRequestScript": "",
-              "requestVariables": []
+              "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-33\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n    pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Overriden at folder-33-request\")\n  pw.expect(pw.response.body.headers[\"custom-header-request-level\"]).toBe(\"New custom header added at the folder-33-request level\")\n})",
+              "auth": {
+                "authType": "basic",
+                "username": "testuser",
+                "password": "testpass",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
             }
           ],
           "auth": {
-            "token": "test-token",
             "authType": "bearer",
-            "password": "testpass",
-            "username": "testuser",
+            "token": "test-token",
             "authActive": true
           },
           "headers": [
             {
               "key": "Custom-Header",
               "value": "Custom header value overriden at folder-33",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-33",
-              "active": true
+              "active": true,
+              "description": ""
             }
-          ]
+          ],
+          "_ref_id": "coll_m9wn4jl9_992c8305-c7dc-4ec3-a940-3f1fd1ea5d36"
         }
       ],
       "requests": [
         {
-          "v": "4",
-          "auth": {
-            "authType": "basic",
-            "password": "testpass",
-            "username": "testuser",
-            "authActive": true
-          },
-          "body": {
-            "body": null,
-            "contentType": null
-          },
+          "v": "11",
           "name": "folder-3-request",
           "method": "GET",
+          "endpoint": "https://echo.hoppscotch.io",
           "params": [],
           "headers": [
             {
               "key": "Custom-Header-Request-Level",
               "value": "New custom header added at the folder-3-request level",
-              "active": true
+              "active": true,
+              "description": ""
             },
             {
               "key": "key",
               "value": "Set at folder-3-request",
-              "active": true
+              "active": true,
+              "description": ""
             }
           ],
-          "endpoint": "https://httpbin.org/get",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value overriden at folder-3\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n      pw.expect(pw.response.body.headers[\"Key\"]).toBe(\"Set at folder-3-request\")\n  pw.expect(pw.response.body.headers[\"Custom-Header-Request-Level\"]).toBe(\"New custom header added at the folder-3-request level\")\n})",
           "preRequestScript": "",
-          "requestVariables": []
+          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits/overrides authorization/header set at the parent collection level with new header addition\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value overriden at folder-3\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n      pw.expect(pw.response.body.headers[\"key\"]).toBe(\"Set at folder-3-request\")\n  pw.expect(pw.response.body.headers[\"custom-header-request-level\"]).toBe(\"New custom header added at the folder-3-request level\")\n})",
+          "auth": {
+            "authType": "basic",
+            "username": "testuser",
+            "password": "testpass",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
         }
       ],
       "auth": {
-        "key": "testuser",
-        "addTo": "HEADERS",
-        "value": "testpass",
         "authType": "basic",
-        "password": "testpass",
         "username": "testuser",
+        "password": "testpass",
         "authActive": true
       },
       "headers": [
         {
           "key": "Custom-Header",
           "value": "Custom header value overriden at folder-3",
-          "active": true
+          "active": true,
+          "description": ""
         }
-      ]
+      ],
+      "_ref_id": "coll_m9wn4jl9_c3efcd2a-36d9-48d0-824e-ef5a8bdddab9"
     }
   ],
   "requests": [
     {
-      "v": "4",
+      "v": "11",
+      "name": "root-collection-request",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"custom-header\"]).toBe(\"Custom header value set at the root collection\")\n  pw.expect(pw.response.body.headers[\"inherited-header\"]).toBe(\"Inherited header at all levels\")\n})",
       "auth": {
         "authType": "inherit",
         "authActive": true
       },
       "body": {
-        "body": null,
-        "contentType": null
+        "contentType": null,
+        "body": null
       },
-      "name": "root-collection-request",
-      "method": "GET",
-      "params": [],
-      "headers": [],
-      "endpoint": "https://httpbin.org/get",
-      "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\npw.test(\"Successfully inherits authorization/header set at the parent collection level\", () => {\n  pw.expect(pw.response.body.headers[\"Authorization\"]).toBe(\"Basic dGVzdHVzZXI6dGVzdHBhc3M=\")\n  \n  pw.expect(pw.response.body.headers[\"Custom-Header\"]).toBe(\"Custom header value set at the root collection\")\n  pw.expect(pw.response.body.headers[\"Inherited-Header\"]).toBe(\"Inherited header at all levels\")\n})",
-      "preRequestScript": "",
-      "requestVariables": []
+      "requestVariables": [],
+      "responses": {}
     }
   ],
   "auth": {
     "authType": "basic",
-    "password": "testpass",
     "username": "testuser",
+    "password": "testpass",
     "authActive": true
   },
   "headers": [
     {
       "key": "Custom-Header",
       "value": "Custom header value set at the root collection",
-      "active": true
+      "active": true,
+      "description": ""
     },
     {
       "key": "Inherited-Header",
       "value": "Inherited header at all levels",
-      "active": true
+      "active": true,
+      "description": ""
     }
-  ]
+  ],
+  "variables": [
+    {
+      "key": "collection-variable",
+      "currentValue": "collection-variable-value",
+      "initialValue": "collection-variable-value",
+      "secret": false
+    }
+  ],
+  "_ref_id": "coll_m9wn4jl9_aa8a3bc2-a96f-4cac-86f3-2df4bb355cc8"
 }

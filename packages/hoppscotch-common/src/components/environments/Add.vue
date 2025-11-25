@@ -70,7 +70,6 @@
 </template>
 
 <script lang="ts" setup>
-import { Environment } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -80,17 +79,20 @@ import { useToast } from "~/composables/toast"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { updateTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { getEnvActionErrorMessage } from "~/helpers/error-messages"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import {
-  addEnvironmentVariable,
-  addGlobalEnvVariable,
+  setGlobalEnvVariables,
+  updateEnvironment,
 } from "~/newstore/environments"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { RESTTabService } from "~/services/tab/rest"
+import { Scope } from "./Selector.vue"
+import { GlobalEnvironment } from "@hoppscotch/data"
 
 const t = useI18n()
 const toast = useToast()
 
 const tabs = useService(RESTTabService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const props = defineProps<{
   show: boolean
@@ -113,6 +115,7 @@ watch(
     if (!newVal) {
       scope.value = {
         type: "global",
+        variables: [],
       }
       replaceWithVariable.value = false
       editingName.value = ""
@@ -123,22 +126,9 @@ watch(
   }
 )
 
-type Scope =
-  | {
-      type: "global"
-    }
-  | {
-      type: "my-environment"
-      environment: Environment
-      index: number
-    }
-  | {
-      type: "team-environment"
-      environment: TeamEnvironment
-    }
-
 const scope = ref<Scope>({
   type: "global",
+  variables: [],
 })
 
 const replaceWithVariable = ref(false)
@@ -152,27 +142,67 @@ const addEnvironment = async () => {
     return
   }
   if (scope.value.type === "global") {
-    addGlobalEnvVariable({
+    const newVariables = [
+      ...scope.value.variables,
+      {
+        key: editingName.value,
+        initialValue: editingValue.value,
+        currentValue: "",
+        secret: false,
+      },
+    ]
+
+    const newEnv: GlobalEnvironment = {
+      v: 2,
+      variables: newVariables,
+    }
+
+    setGlobalEnvVariables(newEnv)
+    currentEnvironmentValueService.addEnvironmentVariable("Global", {
       key: editingName.value,
-      value: editingValue.value,
-      secret: false,
+      currentValue: editingValue.value,
+      isSecret: false,
+      varIndex: scope.value.variables.length,
     })
     toast.success(`${t("environment.updated")}`)
   } else if (scope.value.type === "my-environment") {
-    addEnvironmentVariable(scope.value.index, {
-      key: editingName.value,
-      value: editingValue.value,
-      secret: false,
-    })
+    const newVariables = [
+      ...scope.value.environment.variables,
+      {
+        key: editingName.value,
+        initialValue: editingValue.value,
+        currentValue: "",
+        secret: false,
+      },
+    ]
+
+    const newEnv = {
+      ...scope.value.environment,
+      variables: newVariables,
+    }
+
+    updateEnvironment(scope.value.index, newEnv)
+    currentEnvironmentValueService.addEnvironmentVariable(
+      scope.value.environment.id,
+      {
+        key: editingName.value,
+        currentValue: editingValue.value,
+        isSecret: false,
+        varIndex: scope.value.environment.variables.length,
+      }
+    )
     toast.success(`${t("environment.updated")}`)
   } else {
     const newVariables = [
       ...scope.value.environment.environment.variables,
       {
         key: editingName.value,
-        value: editingValue.value,
+        initialValue: editingValue.value,
+        currentValue: "",
+        secret: false,
       },
     ]
+
     await pipe(
       updateTeamEnvironment(
         JSON.stringify(newVariables),
@@ -185,6 +215,18 @@ const addEnvironment = async () => {
           toast.error(t(getEnvActionErrorMessage(err)))
         },
         () => {
+          if (scope.value.type === "team-environment") {
+            currentEnvironmentValueService.addEnvironmentVariable(
+              scope.value.environment.id,
+              {
+                key: editingName.value,
+                currentValue: editingValue.value,
+                isSecret: false,
+                varIndex:
+                  scope.value.environment.environment.variables.length - 1,
+              }
+            )
+          }
           hideModal()
           toast.success(`${t("environment.updated")}`)
         }

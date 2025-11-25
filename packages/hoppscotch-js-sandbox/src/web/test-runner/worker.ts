@@ -5,7 +5,7 @@ import { SandboxTestResult, TestResponse, TestResult } from "~/types"
 import {
   getTestRunnerScriptMethods,
   preventCyclicObjects,
-} from "~/shared-utils"
+} from "~/utils/shared"
 
 const executeScriptInContext = (
   testScript: string,

@@ -3,6 +3,7 @@
     v-if="show"
     dialog
     :title="t(`environment.${action}`)"
+    styles="sm:max-w-3xl"
     @close="hideModal"
   >
     <template #body>
@@ -45,6 +46,59 @@
                   :title="t('add.new')"
                   @click="addEnvironmentVariable"
                 />
+                <tippy
+                  ref="options"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                  :on-shown="() => tippyActions!.focus()"
+                >
+                  <HoppButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('action.more')"
+                    :icon="IconMoreVertical"
+                  />
+                  <template #content="{ hide }">
+                    <div
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
+                      tabindex="0"
+                      role="menu"
+                      @keyup.escape="hide()"
+                    >
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyLeft"
+                        :label="
+                          t('environment.replace_all_initial_with_current')
+                        "
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.initialValue = v.env.currentValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                      <HoppSmartItem
+                        v-tippy="{ theme: 'tooltip' }"
+                        :icon="IconCopyRight"
+                        :label="
+                          t('environment.replace_all_current_with_initial')
+                        "
+                        @click="
+                          () => {
+                            vars.forEach((v) => {
+                              v.env.currentValue = v.env.initialValue
+                            })
+                            hide()
+                          }
+                        "
+                      />
+                    </div>
+                  </template>
+                </tippy>
               </div>
             </template>
 
@@ -74,28 +128,66 @@
                 <template v-else>
                   <div
                     v-for="({ id, env }, index) in tab.variables"
-                    :key="`variable-${id}-${index}`"
+                    :key="`${tab.id}-${id}-${index}`"
                     class="flex divide-x divide-dividerLight"
                   >
                     <input
                       v-model="env.key"
                       v-focus
-                      class="flex flex-1 bg-transparent px-4 py-2"
+                      class="flex flex-1 bg-transparent px-4 py-2 text-secondaryDark"
                       :placeholder="`${t('count.variable', {
                         count: index + 1,
                       })}`"
-                      :name="'param' + index"
+                      :name="'variable' + index"
                     />
-                    <SmartEnvInput
-                      v-model="env.value"
-                      :placeholder="`${t('count.value', { count: index + 1 })}`"
-                      :envs="liveEnvs"
-                      :name="'value' + index"
-                      :secret="tab.isSecret"
-                      :select-text-on-mount="
-                        env.key ? env.key === editingVariableName : false
-                      "
-                    />
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.initialValue"
+                        :placeholder="`${t('count.initialValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'initialValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                        :auto-complete-env="true"
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_initial_with_current')"
+                        :icon="IconCopyLeft"
+                        @click="
+                          () => {
+                            env.initialValue = env.currentValue
+                          }
+                        "
+                      />
+                    </div>
+
+                    <div class="flex items-center flex-1">
+                      <SmartEnvInput
+                        v-model="env.currentValue"
+                        :placeholder="`${t('count.currentValue', { count: index + 1 })}`"
+                        :envs="liveEnvs"
+                        :name="'currentValue' + index"
+                        :secret="tab.isSecret"
+                        :select-text-on-mount="
+                          env.key ? env.key === editingVariableName : false
+                        "
+                        :auto-complete-env="true"
+                      />
+                      <HoppButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="t('environment.replace_current_with_initial')"
+                        :icon="IconCopyRight"
+                        @click="
+                          () => {
+                            env.currentValue = env.initialValue
+                          }
+                        "
+                      />
+                    </div>
+
                     <div class="flex">
                       <HoppButtonSecondary
                         id="variable"
@@ -162,20 +254,21 @@ import {
   updateEnvironment,
 } from "~/newstore/environments"
 import { platform } from "~/platform"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconDone from "~icons/lucide/check"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconCopyRight from "~icons/lucide/clipboard-paste"
+import IconCopyLeft from "~icons/lucide/clipboard-copy"
+import IconMoreVertical from "~icons/lucide/more-vertical"
+import { TippyComponent } from "vue-tippy"
 
 type EnvironmentVariable = {
   id: number
-  env: {
-    value: string
-    key: string
-    secret: boolean
-  }
+  env: Environment["variables"][number]
 }
 
 const t = useI18n()
@@ -234,13 +327,20 @@ const tabsData: ComputedRef<
   ]
 })
 
+const options = ref<TippyComponent | null>(null)
+const tippyActions = ref<HTMLDivElement | null>(null)
+
 const editingName = ref<string | null>(null)
 const editingID = ref<string>("")
 const vars = ref<EnvironmentVariable[]>([
-  { id: idTicker.value++, env: { key: "", value: "", secret: false } },
+  {
+    id: idTicker.value++,
+    env: { key: "", currentValue: "", initialValue: "", secret: false },
+  },
 ])
 
 const secretEnvironmentService = useService(SecretEnvironmentService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 const secretVars = computed(() =>
   pipe(
@@ -302,8 +402,9 @@ const evnExpandError = computed(() => {
 
   return pipe(
     variables,
-    A.filter(({ secret }) => !secret),
-    A.exists(({ value }) => E.isLeft(parseTemplateStringE(value, variables)))
+    A.exists(({ currentValue }) =>
+      E.isLeft(parseTemplateStringE(currentValue, variables))
+    )
   )
 })
 
@@ -314,12 +415,12 @@ const liveEnvs = computed(() => {
 
   if (props.editingEnvironmentIndex === "Global") {
     return [
-      ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
+      ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
     ]
   }
   return [
-    ...vars.value.map((x) => ({ ...x.env, source: editingName.value! })),
-    ...globalEnv.value.variables.map((x) => ({ ...x, source: "Global" })),
+    ...vars.value.map((x) => ({ ...x.env, sourceEnv: editingName.value! })),
+    ...globalEnv.value.variables.map((x) => ({ ...x, sourceEnv: "Global" })),
   ]
 })
 
@@ -332,6 +433,25 @@ const workingEnvID = computed(() => {
 
   return uniqueID()
 })
+
+const getCurrentValue = (id: string | "Global", varIndex: number) => {
+  const env = workingEnv.value?.variables[varIndex]
+  if (env?.secret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
+      ?.value
+  }
+  return currentEnvironmentValueService.getEnvironmentVariable(id, varIndex)
+    ?.currentValue
+}
+
+const getInitialValue = (id: string | "Global", varIndex: number) => {
+  const env = workingEnv.value?.variables[varIndex]
+  if (env?.secret) {
+    return secretEnvironmentService.getSecretEnvironmentVariable(id, varIndex)
+      ?.initialValue
+  }
+  return env?.initialValue
+}
 
 watch(
   () => props.show,
@@ -351,17 +471,20 @@ watch(
           id: idTicker.value++,
           env: {
             key: e.key,
-            value: e.secret
-              ? (secretEnvironmentService.getSecretEnvironmentVariable(
-                  props.editingEnvironmentIndex === "Global"
-                    ? "Global"
-                    : workingEnvID.value,
-                  index
-                )?.value ??
-                // @ts-expect-error `value` field can exist for secret environment variables as inferred while importing
-                e.value ??
-                "")
-              : e.value,
+            currentValue:
+              getCurrentValue(
+                props.editingEnvironmentIndex === "Global"
+                  ? "Global"
+                  : workingEnvID.value,
+                index
+              ) ?? e.currentValue,
+            initialValue:
+              getInitialValue(
+                props.editingEnvironmentIndex === "Global"
+                  ? "Global"
+                  : workingEnvID.value,
+                index
+              ) ?? e.initialValue,
             secret: e.secret,
           },
         }))
@@ -384,7 +507,8 @@ const addEnvironmentVariable = () => {
     id: idTicker.value++,
     env: {
       key: "",
-      value: "",
+      currentValue: "",
+      initialValue: "",
       secret: selectedEnvOption.value === "secret",
     },
   })
@@ -403,7 +527,7 @@ const saveEnvironment = () => {
     return
   }
 
-  if (editingName.value.length < 3) {
+  if (editingName.value.trim().length === 0) {
     toast.error(`${t("environment.short_name")}`)
     return
   }
@@ -421,26 +545,67 @@ const saveEnvironment = () => {
   const secretVariables = pipe(
     filteredVariables,
     A.filterMapWithIndex((i, e) =>
-      e.secret ? O.some({ key: e.key, value: e.value, varIndex: i }) : O.none
+      e.secret
+        ? O.some({
+            key: e.key,
+            value: e.currentValue,
+            varIndex: i,
+            initialValue: e.initialValue,
+          })
+        : O.none
     )
   )
 
-  if (editingID.value) {
-    secretEnvironmentService.addSecretEnvironment(
-      editingID.value,
-      secretVariables
+  const nonSecretVariables = pipe(
+    filteredVariables,
+    A.filterMapWithIndex((i, e) =>
+      !e.secret
+        ? O.some({
+            key: e.key,
+            currentValue: e.currentValue,
+            varIndex: i,
+            isSecret: e.secret ?? false,
+          })
+        : O.none
     )
-  } else if (props.editingEnvironmentIndex === "Global") {
-    secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+  )
+
+  if (secretVariables.length > 0) {
+    if (editingID.value) {
+      secretEnvironmentService.addSecretEnvironment(
+        editingID.value,
+        secretVariables
+      )
+    } else if (props.editingEnvironmentIndex === "Global") {
+      secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
+    }
+  }
+  if (nonSecretVariables.length > 0) {
+    if (editingID.value) {
+      currentEnvironmentValueService.addEnvironment(
+        editingID.value,
+        nonSecretVariables
+      )
+    } else if (props.editingEnvironmentIndex === "Global") {
+      currentEnvironmentValueService.addEnvironment(
+        "Global",
+        nonSecretVariables
+      )
+    }
   }
 
   const variables = pipe(
     filteredVariables,
-    A.map((e) => (e.secret ? { key: e.key, secret: e.secret } : e))
+    A.map((e) => ({
+      key: e.key,
+      secret: e.secret,
+      initialValue: e.secret ? "" : e.initialValue,
+      currentValue: "",
+    }))
   )
 
   const environmentUpdated: Environment = {
-    v: 1,
+    v: 2,
     id: uniqueID(),
     name: editingName.value,
     variables,

@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "something_went_wrong": "משהו השתבש",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "סקריפטים לבדיקה נכתבים ב- JavaScript ומופעלים לאחר קבלת התגובה.",
     "pre_request_script": "סקריפטים לבקשה מראש נכתבים ב- JavaScript ומופעלים לפני שליחת הבקשה.",
     "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

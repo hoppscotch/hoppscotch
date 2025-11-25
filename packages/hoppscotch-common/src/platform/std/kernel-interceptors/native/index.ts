@@ -58,7 +58,7 @@ export class NativeKernelInterceptorService
       "urlencoded",
       "compression",
     ]),
-    auth: new Set(["basic", "bearer", "apikey", "digest", "aws"]),
+    auth: new Set(["basic", "bearer", "apikey", "digest", "aws", "hawk"]),
     security: new Set([
       "clientcertificates",
       "cacertificates",
@@ -207,7 +207,7 @@ export class NativeKernelInterceptorService
           ...effectiveRequest.headers,
           "User-Agent": existingUserAgentHeader
             ? effectiveRequest.headers[existingUserAgentHeader]
-            : "HoppscotchKernel/0.1.0",
+            : "HoppscotchKernel/0.2.0",
         },
       }
 

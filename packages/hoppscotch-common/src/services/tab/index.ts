@@ -100,6 +100,39 @@ export interface TabService<Doc> {
   closeOtherTabs(tabID: string): void
 
   /**
+   * Navigates to the next tab in the tab order.
+   */
+  goToNextTab(): void
+
+  /**
+   * Navigates to the previous tab in the tab order.
+   */
+  goToPreviousTab(): void
+
+  /**
+   * NOTE: Currently inert, plumbing is done, some platform issues around shortcuts, WIP for future.
+   * Navigates to a tab by its index position (1-based).
+   * @param index - The 1-based index of the tab to navigate to.
+   */
+  goToTabByIndex(index: number): void
+
+  /**
+   * Navigates to the first tab in the tab order.
+   */
+  goToFirstTab(): void
+
+  /**
+   * Navigates to the last tab in the tab order.
+   */
+  goToLastTab(): void
+
+  /**
+   * Reopens the most recently closed tab.
+   * @returns True if a tab was reopened, false if no closed tabs are available.
+   */
+  reopenClosedTab(): boolean
+
+  /**
    * Gets a computed reference to a persistable tab state.
    * @returns A computed reference to a persistable tab state object.
    */

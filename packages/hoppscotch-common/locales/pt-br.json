@@ -421,7 +421,7 @@
     "same_profile_name": "O nome do perfil atualizado é igual ao atual",
     "script_fail": "Não foi possível executar o script pré-requisição",
     "something_went_wrong": "Algo deu errado",
-    "test_script_fail": "Não foi possível executar o script pós-requisição",
+    "post_request_script_fail": "Não foi possível executar o script pós-requisição",
     "reading_files": "Erro na leitura de um ou mais arquivos.",
     "fetching_access_tokens_list": "Algo deu errado ao buscar a lista de tokens",
     "generate_access_token": "Algo deu errado ao gerar o token de acesso",
@@ -493,8 +493,8 @@
     "post_request_tests": "Os scripts de teste são gravados em JavaScript e executados após o recebimento da resposta.",
     "pre_request_script": "Os scripts de pré-requisição são gravados em JavaScript e executados antes do envio da requisição.",
     "script_fail": "Parece que há uma falha no script de pré-requisição. Verifique o erro abaixo e corrija o script de acordo.",
-    "test_script_fail": "Parece haver um erro com o script de teste. Corrija os erros e execute os testes novamente",
-    "tests": "Escreva um script de teste para automatizar a depuração."
+    "post_request_script_fail": "Parece haver um erro com o script de teste. Corrija os erros e execute os testes novamente",
+    "post_request_script": "Escreva um script de teste para automatizar a depuração."
   },
   "hide": {
     "collection": "Encolher Painel de Coleções",
@@ -552,7 +552,7 @@
     "import_summary_requests_title": "Requisições",
     "import_summary_responses_title": "Respostas",
     "import_summary_pre_request_scripts_title": "Scripts de Pré-Requisição",
-    "import_summary_test_scripts_title": "Scripts de teste",
+    "import_summary_post_request_scripts_title": "Scripts pós-requisição",
     "import_summary_not_supported_by_hoppscotch_import": "No momento, não suportamos a importação de {featureLabel} deste tipo de fonte."
   },
   "inspections": {
@@ -1262,8 +1262,8 @@
     "feedback_cta_request_name": "Você gostou do nome gerado?",
     "modify_request_body_error": "Falha ao modificar o corpo da requisição",
     "generate_or_modify_prerequest_input_placeholder": "Insira um prompt para gerar ou modificar o script de pré-requisição",
-    "generate_or_modify_test_script_input_placeholder": "Insira um prompt para gerar ou modificar o script de teste",
-    "modify_test_script_error": "Falha ao modificar o script de teste",
+    "generate_or_modify_post_request_script_input_placeholder": "Insira um prompt para gerar ou modificar o script de teste",
+    "modify_post_request_script_error": "Falha ao modificar o script de teste",
     "modify_prerequest_error": "Falha ao modificar o script de pré-requisição"
   }
 }

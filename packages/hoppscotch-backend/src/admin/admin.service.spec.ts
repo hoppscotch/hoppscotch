@@ -16,7 +16,6 @@ import {
   ONLY_ONE_ADMIN_ACCOUNT,
   USER_ALREADY_INVITED,
   USER_INVITATION_DELETION_FAILED,
-  USER_NOT_FOUND,
 } from '../errors';
 import { ShortcodeService } from 'src/shortcode/shortcode.service';
 import { ConfigService } from '@nestjs/config';
@@ -44,8 +43,8 @@ const adminService = new AdminService(
   mockTeamRequestService,
   mockTeamEnvironmentsService,
   mockTeamInvitationService,
-  mockPubSub as any,
-  mockPrisma as any,
+  mockPubSub,
+  mockPrisma,
   mockMailerService,
   mockShortcodeService,
   mockConfigService,
@@ -99,14 +98,11 @@ const dbAdminUsers: DbUser[] = [
 describe('AdminService', () => {
   describe('fetchInvitedUsers', () => {
     test('should resolve right and apply pagination correctly', async () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
       const paginationArgs: OffsetPaginationArgs = { take: 5, skip: 2 };
-      const results = await adminService.fetchInvitedUsers(paginationArgs);
+      await adminService.fetchInvitedUsers(paginationArgs);
 
       expect(mockPrisma.invitedUsers.findMany).toHaveBeenCalledWith({
         ...paginationArgs,
@@ -126,10 +122,7 @@ describe('AdminService', () => {
     test('should resolve right and return an array of invited users', async () => {
       const paginationArgs: OffsetPaginationArgs = { take: 10, skip: 0 };
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       mockPrisma.user.findMany.mockResolvedValue([dbAdminUsers[0]]);
-      // @ts-ignore
       mockPrisma.invitedUsers.findMany.mockResolvedValue(invitedUsers);
 
       const results = await adminService.fetchInvitedUsers(paginationArgs);
@@ -217,7 +210,6 @@ describe('AdminService', () => {
     });
 
     test('should resolve right and return deleted invitee email', async () => {
-      const adminUid = 'adminUid';
       mockPrisma.invitedUsers.deleteMany.mockResolvedValueOnce({ count: 1 });
 
       const result = await adminService.revokeUserInvitations([

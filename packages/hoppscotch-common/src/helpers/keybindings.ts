@@ -1,7 +1,9 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
-import { isDOMElement, isTypableElement } from "./utils/dom"
+import { isCodeMirrorEditor, isDOMElement, isTypableElement } from "./utils/dom"
+import { getKernelMode } from "@hoppscotch/kernel"
+import { listen } from "@tauri-apps/api/event"
 
 /**
  * This variable keeps track whether keybindings are being accepted
@@ -9,6 +11,11 @@ import { isDOMElement, isTypableElement } from "./utils/dom"
  * false -> Key presses are ignored (Keybindings are not checked)
  */
 let keybindingsEnabled = true
+
+/**
+ * Unlisten function for Tauri event
+ */
+let unlistenTauriEvent: (() => void) | null = null
 
 /**
  * Alt is also regarded as macOS OPTION (⌥) key
@@ -30,7 +37,7 @@ type Key =
   | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
-  | "right" | "/" | "?" | "." | "enter"
+  | "right" | "/" | "?" | "." | "enter" | "tab"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -39,7 +46,8 @@ type SingleCharacterShortcutKey = `${Key}`
 
 type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
-export const bindings: {
+// Base bindings available on all platforms
+const baseBindings: {
   [_ in ShortcutKey]?: HoppActionWithOptionalArgs
 } = {
   "ctrl-enter": "request.send-cancel",
@@ -71,18 +79,69 @@ export const bindings: {
   "ctrl-shift-l": "editor.format",
 }
 
+// Desktop-only bindings
+const desktopBindings: {
+  [_ in ShortcutKey]?: HoppActionWithOptionalArgs
+} = {
+  "ctrl-w": "tab.close-current",
+  "ctrl-t": "tab.open-new",
+  "ctrl-alt-left": "tab.prev",
+  "ctrl-alt-right": "tab.next",
+  "ctrl-alt-0": "tab.switch-to-last",
+  "ctrl-alt-9": "tab.switch-to-first",
+  "ctrl-q": "app.quit",
+}
+
+/**
+ * Get bindings based on the current kernel mode
+ */
+function getActiveBindings(): typeof baseBindings {
+  const kernelMode = getKernelMode()
+
+  if (kernelMode === "desktop") {
+    return {
+      ...baseBindings,
+      ...desktopBindings,
+    }
+  }
+
+  return baseBindings
+}
+
+export const bindings = getActiveBindings()
+
 /**
  * A composable that hooks to the caller component's
  * lifecycle and hooks to the keyboard events to fire
  * the appropriate actions based on keybindings
  */
 export function hookKeybindingsListener() {
-  onMounted(() => {
+  onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown)
+
+    // Listen for Tauri events (desktop only)
+    if (getKernelMode() === "desktop") {
+      try {
+        unlistenTauriEvent = await listen(
+          "hoppscotch_desktop_shortcut",
+          (ev) => {
+            console.info("Tauri shortcut ev", ev)
+            handleTauriShortcut(ev.payload as string)
+          }
+        )
+      } catch (error) {
+        console.error("Failed to setup Tauri event listener:", error)
+      }
+    }
   })
 
   onBeforeUnmount(() => {
     document.removeEventListener("keydown", handleKeyDown)
+
+    if (unlistenTauriEvent) {
+      unlistenTauriEvent()
+      unlistenTauriEvent = null
+    }
   })
 }
 
@@ -93,10 +152,24 @@ function handleKeyDown(ev: KeyboardEvent) {
   const binding = generateKeybindingString(ev)
   if (!binding) return
 
-  const boundAction = bindings[binding]
+  const activeBindings = getActiveBindings()
+  const boundAction = activeBindings[binding]
   if (!boundAction) return
 
   ev.preventDefault()
+  invokeAction(boundAction, undefined, "keypress")
+}
+
+function handleTauriShortcut(shortcut: string) {
+  console.info("Tauri shortcut:", shortcut)
+
+  // Do not check keybinds if the mode is disabled
+  if (!keybindingsEnabled) return
+
+  const activeBindings = getActiveBindings()
+  const boundAction = activeBindings[shortcut as ShortcutKey]
+  if (!boundAction) return
+
   invokeAction(boundAction, undefined, "keypress")
 }
 
@@ -121,6 +194,15 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
       return null
     }
 
+    // Restrict alt+up and alt+down when the target is a codemirror editor
+    if (
+      modifierKey === "alt" &&
+      (key === "up" || key === "down") &&
+      isCodeMirrorEditor(target)
+    ) {
+      return null
+    }
+
     return `${modifierKey}-${key}`
   }
 
@@ -139,6 +221,9 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
   if (key.startsWith("arrow")) {
     return key.slice(5) as Key
   }
+
+  // Check for Tab key
+  if (key === "tab") return "tab"
 
   // Check letter keys
   const isLetter = key.length === 1 && key >= "a" && key <= "z"

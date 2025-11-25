@@ -68,6 +68,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent): boolean =>
+            isDragDropAllowed(event, workingHeaders.length)
+        "
       >
         <template #item="{ element: header, index }">
           <HttpKeyValue
@@ -156,7 +160,7 @@
       </draggable>
 
       <draggable
-        v-model="inheritedProperties"
+        v-model="inheritedProperty"
         item-key="id"
         animation="250"
         handle=".draggable-handle"
@@ -262,23 +266,24 @@ import { cloneDeep, isEqual } from "lodash-es"
 import { reactive, Ref, ref, toRef, watch } from "vue"
 import draggable from "vuedraggable-es"
 
-import { computedAsync, useVModel } from "@vueuse/core"
+import { useVModel } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { commonHeaders } from "~/helpers/headers"
-import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import {
   ComputedHeader,
   getComputedAuthHeaders,
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
+  getCurrentEnvironment,
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { InspectionService, InspectorResult } from "~/services/inspection"
@@ -294,6 +299,8 @@ import IconPlus from "~icons/lucide/plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { RESTOptionTabs } from "./RequestOptions.vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 
 const t = useI18n()
 const toast = useToast()
@@ -310,6 +317,8 @@ const bulkEditor = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpHeaders")
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // v-model integration with props and emit
 const props = defineProps<{
@@ -554,86 +563,88 @@ const computedHeaders: Ref<
   }[]
 > = ref([])
 
+const inheritedProperty = ref<
+  {
+    inheritedFrom: string
+    source: "auth" | "headers"
+    id: string
+    header: HoppRESTHeader
+  }[]
+>([])
+
+const currentSelectedEnvironment = getCurrentEnvironment()
+
 watch([props.modelValue, aggregateEnvs], async () => {
+  const resolvedEnvs = aggregateEnvs.value.map((env) => {
+    return {
+      ...env,
+      currentValue:
+        env.currentValue !== ""
+          ? env.currentValue
+          : (currentEnvironmentValueService.getEnvironmentByKey(
+              env?.sourceEnv !== "Global"
+                ? currentSelectedEnvironment.id
+                : "Global",
+              env?.key ?? ""
+            )?.currentValue ?? ""),
+    }
+  })
   computedHeaders.value = (
-    await getComputedHeaders(props.modelValue, aggregateEnvs.value, false)
+    await getComputedHeaders(props.modelValue, resolvedEnvs)
   ).map((header, index) => ({
     id: `header-${index}`,
     ...header,
   }))
 })
 
-const inheritedProperties = computedAsync(async () => {
-  if (!props.inheritedProperties?.auth || !props.inheritedProperties.headers)
-    return []
+watch(
+  () => [props.inheritedProperties, request.value],
+  async () => {
+    if (!props.inheritedProperties) return
 
-  //filter out headers that are already in the request headers
-
-  const inheritedHeaders = props.inheritedProperties.headers.filter(
-    (header) =>
-      !request.value.headers.some(
-        (requestHeader) => requestHeader.key === header.inheritedHeader?.key
-      )
-  )
-
-  const headers = inheritedHeaders
-    .filter(
+    //filter out headers that are already in the request headers
+    const inheritedHeaders = props.inheritedProperties.headers.filter(
       (header) =>
-        header.inheritedHeader !== null &&
-        header.inheritedHeader !== undefined &&
-        header.inheritedHeader.active
+        !request.value.headers.some(
+          (requestHeader) =>
+            requestHeader.key === header.inheritedHeader?.key &&
+            requestHeader.active
+        )
     )
-    .map((header, index) => {
-      const { key, value, active, description } = header.inheritedHeader
+    inheritedProperty.value = inheritedHeaders.map((header, index) => ({
+      inheritedFrom: props.inheritedProperties!.headers[index].parentName!,
+      source: "headers",
+      id: `header-${index}`,
+      header: header.inheritedHeader,
+    }))
 
-      return {
-        inheritedFrom: props.inheritedProperties?.headers[index].parentName,
-        source: "headers",
-        id: `header-${index}`,
-        header: {
-          key,
-          value,
-          active,
-          description,
-        },
+    if (
+      props.inheritedProperties.auth &&
+      request.value.auth.authType === "inherit" &&
+      request.value.auth.authActive &&
+      !request.value.headers.some(
+        (requestHeader) =>
+          requestHeader.key === "Authorization" && requestHeader.active
+      )
+    ) {
+      const [computedAuthHeader] = await getComputedAuthHeaders(
+        aggregateEnvs.value,
+        request.value,
+        props.inheritedProperties.auth.inheritedAuth,
+        false
+      )
+      if (computedAuthHeader) {
+        inheritedProperty.value.push({
+          inheritedFrom: props.inheritedProperties.auth.parentName,
+          source: "auth",
+          id: `header-auth`,
+          header: computedAuthHeader,
+        })
       }
-    })
-
-  let auth = [] as {
-    inheritedFrom: string
-    source: "auth"
-    id: string
-    header: {
-      key: string
-      value: string
-      active: boolean
     }
-  }[]
-
-  const [computedAuthHeader] = await getComputedAuthHeaders(
-    aggregateEnvs.value,
-    request.value,
-    props.inheritedProperties.auth.inheritedAuth,
-    false
-  )
-
-  if (
-    computedAuthHeader &&
-    request.value.auth.authType === "inherit" &&
-    request.value.auth.authActive
-  ) {
-    auth = [
-      {
-        inheritedFrom: props.inheritedProperties?.auth.parentName,
-        source: "auth",
-        id: `header-auth`,
-        header: computedAuthHeader,
-      },
-    ]
-  }
-
-  return [...headers, ...auth]
-})
+  },
+  { immediate: true, deep: true }
+)
 
 const masking = ref(true)
 

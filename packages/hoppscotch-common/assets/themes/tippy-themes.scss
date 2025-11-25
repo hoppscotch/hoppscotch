@@ -1,0 +1,228 @@
+// Base shared styles for all tippy themes
+@mixin base-tippy-styles {
+  .cm-tooltip {
+    @apply z-[1000] #{!important};
+    .tippy-box {
+      @apply shadow-none #{!important};
+      @apply fixed;
+      @apply inline-flex;
+    }
+  }
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply rounded;
+
+    .env-tooltip-content {
+      @apply flex-col;
+    }
+
+    .tippy-content {
+      @apply flex;
+      @apply text-tiny;
+      @apply font-semibold;
+      @apply px-2 py-1;
+      @apply truncate;
+      @apply leading-body;
+      @apply items-center;
+
+      kbd {
+        @apply hidden;
+        @apply font-sans;
+        @apply rounded-sm;
+        @apply px-1;
+        @apply my-0 ml-1;
+        @apply truncate;
+        @apply sm:inline-flex;
+        @apply justify-center;
+        min-width: 17px;
+      }
+
+      .env-icon {
+        @apply transition;
+        @apply inline-flex;
+        @apply items-center;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply bg-popover;
+    @apply border-solid;
+    @apply rounded;
+    @apply max-w-[45vw] #{!important};
+
+    .tippy-content {
+      @apply flex flex-col;
+      @apply max-h-[45vh];
+      @apply items-stretch;
+      @apply overflow-y-auto;
+      @apply text-body text-secondary;
+      @apply p-2;
+      @apply leading-body;
+      @apply focus:outline-none;
+      scroll-behavior: smooth;
+
+      & > span {
+        @apply block #{!important};
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  [data-v-tippy] {
+    @apply flex flex-1;
+    @apply truncate;
+  }
+
+  [interactive] > div {
+    @apply flex flex-1;
+    @apply h-full;
+  }
+}
+
+// Theme-specific styles
+@mixin light-tippy-theme {
+  @include base-tippy-styles;
+
+  .cm-tooltip {
+    .cm-tooltip-arrow:after,
+    .cm-tooltip-arrow:before {
+      border-bottom-color: theme("colors.primaryDark") !important;
+    }
+  }
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-popover;
+    @apply border-solid border-dividerDark;
+    @apply shadow;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(0, 0, 0, 0.1);
+        @apply text-secondaryDark;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-dividerDark;
+      }
+
+      svg:last-child {
+        @apply fill-popover;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-dividerDark;
+    @apply shadow-lg;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-dividerDark;
+      }
+    }
+  }
+}
+
+@mixin dark-tippy-theme {
+  @include base-tippy-styles;
+
+  .cm-tooltip {
+    .cm-tooltip-arrow::after,
+    .cm-tooltip-arrow::before {
+      border-bottom-color: theme("colors.primaryDark") !important;
+    }
+  }
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-primaryDark;
+    @apply border-solid;
+    @apply shadow-lg;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(255, 255, 255, 0.1);
+        @apply text-secondary;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-primaryDark;
+      }
+
+      svg:last-child {
+        @apply fill-primaryDark;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-divider;
+    @apply shadow-xl;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+    }
+  }
+}
+
+@mixin black-tippy-theme {
+  @include base-tippy-styles;
+
+  .cm-tooltip {
+    .cm-tooltip-arrow:after,
+    .cm-tooltip-arrow:before {
+      border-bottom-color: theme("colors.primaryLight") !important;
+    }
+  }
+
+  .tippy-box[data-theme~="tooltip"] {
+    @apply bg-primaryLight;
+    @apply border-solid border-[#33363d];
+    @apply shadow-lg;
+
+    .tippy-content {
+      @apply text-secondary;
+
+      kbd {
+        background-color: rgba(255, 255, 255, 0.1);
+        @apply text-secondary;
+      }
+    }
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-primaryLight;
+      }
+
+      svg:last-child {
+        @apply fill-primaryLight;
+      }
+    }
+  }
+
+  .tippy-box[data-theme~="popover"] {
+    @apply border-divider;
+    @apply shadow-xl;
+
+    .tippy-svg-arrow {
+      svg:first-child {
+        @apply fill-divider;
+      }
+    }
+  }
+}

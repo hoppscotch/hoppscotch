@@ -9,12 +9,12 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
 links = "tauri-plugin-appload"
 
 [dependencies]
-tauri = { version = "2.0.6", features = ["unstable"] }
+tauri = { version = "2.0.6" }
 serde = "1.0"
 serde_json = { version = "1", features = [] }
 thiserror = { version = "2.0.3", features = [] }
 url = { version = "2.5.3", features = ["serde"] }
-reqwest = { version = "0.12.9", features = [] }
+reqwest = { version = "0.12.9", features = ["json"] }
 zip = { version = "2.2.0", features = [] }
 tokio = { version = "1.41.1", features = [] }
 mime-infer = { version = "3.0.0", features = [] }
@@ -28,12 +28,14 @@ blake3 = { version = "1.5.4", features = ["serde"] }
 ed25519-dalek = { version = "2.1.1", features = ["rand_core", "serde"] }
 hex = "0.4.3"
 lru = "0.12.5"
-sys-info = "0.9.1"
+sysinfo = "0.34.2"
 humantime-serde = "1.1.1"
 futures = "0.3.31"
 mime_guess = "2.0.5"
 rayon = "1.10.0"
 hex_color = "3.0.0"
+dunce = "1.0.5"
+bon = "3.6.3"
 
 [build-dependencies]
 tauri-plugin = { version = "2.0.1", features = ["build"] }

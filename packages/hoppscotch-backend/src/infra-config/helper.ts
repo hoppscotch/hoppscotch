@@ -1,14 +1,9 @@
 import { AuthProvider } from 'src/auth/helper';
-import {
-  AUTH_PROVIDER_NOT_CONFIGURED,
-  DATABASE_TABLE_NOT_EXIST,
-  ENV_INVALID_DATA_ENCRYPTION_KEY,
-} from 'src/errors';
+import { ENV_INVALID_DATA_ENCRYPTION_KEY } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
-import { decrypt, encrypt, throwErr } from 'src/utils';
+import { decrypt, encrypt } from 'src/utils';
 import { randomBytes } from 'crypto';
-import { InfraConfig } from '@prisma/client';
 
 export enum ServiceStatus {
   ENABLE = 'ENABLE',
@@ -18,43 +13,52 @@ export enum ServiceStatus {
 type DefaultInfraConfig = {
   name: InfraConfigEnum;
   value: string;
-  lastSyncedEnvFileValue: string;
   isEncrypted: boolean;
 };
 
-const AuthProviderConfigurations = {
-  [AuthProvider.GOOGLE]: [
-    InfraConfigEnum.GOOGLE_CLIENT_ID,
-    InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-    InfraConfigEnum.GOOGLE_CALLBACK_URL,
-    InfraConfigEnum.GOOGLE_SCOPE,
-  ],
-  [AuthProvider.GITHUB]: [
-    InfraConfigEnum.GITHUB_CLIENT_ID,
-    InfraConfigEnum.GITHUB_CLIENT_SECRET,
-    InfraConfigEnum.GITHUB_CALLBACK_URL,
-    InfraConfigEnum.GITHUB_SCOPE,
-  ],
-  [AuthProvider.MICROSOFT]: [
-    InfraConfigEnum.MICROSOFT_CLIENT_ID,
-    InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-    InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-    InfraConfigEnum.MICROSOFT_SCOPE,
-    InfraConfigEnum.MICROSOFT_TENANT,
-  ],
-  [AuthProvider.EMAIL]:
-    process.env.MAILER_USE_CUSTOM_CONFIGS === 'true'
-      ? [
-          InfraConfigEnum.MAILER_SMTP_HOST,
-          InfraConfigEnum.MAILER_SMTP_PORT,
-          InfraConfigEnum.MAILER_SMTP_SECURE,
-          InfraConfigEnum.MAILER_SMTP_USER,
-          InfraConfigEnum.MAILER_SMTP_PASSWORD,
-          InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-          InfraConfigEnum.MAILER_ADDRESS_FROM,
-        ]
-      : [InfraConfigEnum.MAILER_SMTP_URL, InfraConfigEnum.MAILER_ADDRESS_FROM],
-};
+/**
+ * Returns a mapping of authentication providers to their required configuration keys based on the current environment configuration.
+ */
+export function getAuthProviderRequiredKeys(
+  env: Record<string, any>,
+): Record<AuthProvider, InfraConfigEnum[]> {
+  return {
+    [AuthProvider.GOOGLE]: [
+      InfraConfigEnum.GOOGLE_CLIENT_ID,
+      InfraConfigEnum.GOOGLE_CLIENT_SECRET,
+      InfraConfigEnum.GOOGLE_CALLBACK_URL,
+      InfraConfigEnum.GOOGLE_SCOPE,
+    ],
+    [AuthProvider.GITHUB]: [
+      InfraConfigEnum.GITHUB_CLIENT_ID,
+      InfraConfigEnum.GITHUB_CLIENT_SECRET,
+      InfraConfigEnum.GITHUB_CALLBACK_URL,
+      InfraConfigEnum.GITHUB_SCOPE,
+    ],
+    [AuthProvider.MICROSOFT]: [
+      InfraConfigEnum.MICROSOFT_CLIENT_ID,
+      InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
+      InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      InfraConfigEnum.MICROSOFT_SCOPE,
+      InfraConfigEnum.MICROSOFT_TENANT,
+    ],
+    [AuthProvider.EMAIL]:
+      env['INFRA'].MAILER_USE_CUSTOM_CONFIGS === 'true'
+        ? [
+            InfraConfigEnum.MAILER_SMTP_HOST,
+            InfraConfigEnum.MAILER_SMTP_PORT,
+            InfraConfigEnum.MAILER_SMTP_SECURE,
+            InfraConfigEnum.MAILER_SMTP_USER,
+            InfraConfigEnum.MAILER_SMTP_PASSWORD,
+            InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
+            InfraConfigEnum.MAILER_ADDRESS_FROM,
+          ]
+        : [
+            InfraConfigEnum.MAILER_SMTP_URL,
+            InfraConfigEnum.MAILER_ADDRESS_FROM,
+          ],
+  };
+}
 
 /**
  * Load environment variables from the database and set them in the process
@@ -65,10 +69,9 @@ const AuthProviderConfigurations = {
 export async function loadInfraConfiguration() {
   try {
     const prisma = new PrismaService();
-
     const infraConfigs = await prisma.infraConfig.findMany();
 
-    let environmentObject: Record<string, any> = {};
+    const environmentObject: Record<string, string> = {};
     infraConfigs.forEach((infraConfig) => {
       if (infraConfig.isEncrypted) {
         environmentObject[infraConfig.name] = decrypt(infraConfig.value);
@@ -84,6 +87,7 @@ export async function loadInfraConfiguration() {
 
     // Prisma throw error if 'Can't reach at database server' OR 'Table does not exist'
     // Reason for not throwing error is, we want successful build during 'postinstall' and generate dist files
+    console.error('Error from loadInfraConfiguration', error);
     return { INFRA: {} };
   }
 }
@@ -96,176 +100,216 @@ export async function getDefaultInfraConfigs(): Promise<DefaultInfraConfig[]> {
   const prisma = new PrismaService();
 
   // Prepare rows for 'infra_config' table with default values (from .env) for each 'name'
-  const configuredSSOProviders = getConfiguredSSOProvidersFromEnvFile();
+  const onboardingCompleteStatus = await isOnboardingCompleted();
   const generatedAnalyticsUserId = generateAnalyticsUserId();
+  const isSecureCookies = determineAllowSecureCookies(
+    process.env.VITE_BASE_URL,
+  );
 
   const infraConfigDefaultObjs: DefaultInfraConfig[] = [
     {
+      name: InfraConfigEnum.ONBOARDING_COMPLETED,
+      value: onboardingCompleteStatus.toString(),
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.ONBOARDING_RECOVERY_TOKEN,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.JWT_SECRET,
+      value: encrypt(randomBytes(32).toString('hex')),
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.SESSION_SECRET,
+      value: encrypt(randomBytes(32).toString('hex')),
+      isEncrypted: true,
+    },
+    {
+      name: InfraConfigEnum.SESSION_COOKIE_NAME,
+      value: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.TOKEN_SALT_COMPLEXITY,
+      value: '10',
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MAGIC_LINK_TOKEN_VALIDITY,
+      value: '24', // 24 hours
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.REFRESH_TOKEN_VALIDITY,
+      value: '604800000', // 7 days in milliseconds
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.ACCESS_TOKEN_VALIDITY,
+      value: '86400000', // 1 day in milliseconds
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.ALLOW_SECURE_COOKIES,
+      value: isSecureCookies.toString(),
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.RATE_LIMIT_TTL,
+      value: '10000', // in milliseconds (10 seconds)
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.RATE_LIMIT_MAX,
+      value: '100', // 100 requests per IP per RATE_LIMIT_TTL
+      isEncrypted: false,
+    },
+    {
       name: InfraConfigEnum.MAILER_SMTP_ENABLE,
-      value: process.env.MAILER_SMTP_ENABLE ?? 'true',
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_ENABLE ?? 'true',
+      value: 'false',
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_USE_CUSTOM_CONFIGS,
-      value: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
-      lastSyncedEnvFileValue: process.env.MAILER_USE_CUSTOM_CONFIGS ?? 'false',
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_URL,
-      value: encrypt(process.env.MAILER_SMTP_URL),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_URL),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_ADDRESS_FROM,
-      value: process.env.MAILER_ADDRESS_FROM,
-      lastSyncedEnvFileValue: process.env.MAILER_ADDRESS_FROM,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_HOST,
-      value: process.env.MAILER_SMTP_HOST,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_HOST,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PORT,
-      value: process.env.MAILER_SMTP_PORT,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_PORT,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_SECURE,
-      value: process.env.MAILER_SMTP_SECURE,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_SECURE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_USER,
-      value: process.env.MAILER_SMTP_USER,
-      lastSyncedEnvFileValue: process.env.MAILER_SMTP_USER,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MAILER_SMTP_PASSWORD,
-      value: encrypt(process.env.MAILER_SMTP_PASSWORD),
-      lastSyncedEnvFileValue: encrypt(process.env.MAILER_SMTP_PASSWORD),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MAILER_TLS_REJECT_UNAUTHORIZED,
-      value: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
-      lastSyncedEnvFileValue: process.env.MAILER_TLS_REJECT_UNAUTHORIZED,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_ID,
-      value: encrypt(process.env.GOOGLE_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CLIENT_SECRET,
-      value: encrypt(process.env.GOOGLE_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GOOGLE_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GOOGLE_CALLBACK_URL,
-      value: process.env.GOOGLE_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GOOGLE_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GOOGLE_SCOPE,
-      value: process.env.GOOGLE_SCOPE,
-      lastSyncedEnvFileValue: process.env.GOOGLE_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_ID,
-      value: encrypt(process.env.GITHUB_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CLIENT_SECRET,
-      value: encrypt(process.env.GITHUB_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.GITHUB_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.GITHUB_CALLBACK_URL,
-      value: process.env.GITHUB_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.GITHUB_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.GITHUB_SCOPE,
-      value: process.env.GITHUB_SCOPE,
-      lastSyncedEnvFileValue: process.env.GITHUB_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_ID,
-      value: encrypt(process.env.MICROSOFT_CLIENT_ID),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_ID),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CLIENT_SECRET,
-      value: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
-      lastSyncedEnvFileValue: encrypt(process.env.MICROSOFT_CLIENT_SECRET),
+      value: null,
       isEncrypted: true,
     },
     {
       name: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
-      value: process.env.MICROSOFT_CALLBACK_URL,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_CALLBACK_URL,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_SCOPE,
-      value: process.env.MICROSOFT_SCOPE,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_SCOPE,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.MICROSOFT_TENANT,
-      value: process.env.MICROSOFT_TENANT,
-      lastSyncedEnvFileValue: process.env.MICROSOFT_TENANT,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS,
-      value: configuredSSOProviders,
-      lastSyncedEnvFileValue: configuredSSOProviders,
+      value: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ALLOW_ANALYTICS_COLLECTION,
       value: false.toString(),
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.ANALYTICS_USER_ID,
       value: generatedAnalyticsUserId,
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
       value: (await prisma.infraConfig.count()) === 0 ? 'true' : 'false',
-      lastSyncedEnvFileValue: null,
       isEncrypted: false,
     },
     {
       name: InfraConfigEnum.USER_HISTORY_STORE_ENABLED,
       value: 'true',
-      lastSyncedEnvFileValue: null,
+      isEncrypted: false,
+    },
+    {
+      name: InfraConfigEnum.MOCK_SERVER_WILDCARD_DOMAIN,
+      value: null,
       isEncrypted: false,
     },
   ];
@@ -313,48 +357,6 @@ export async function getEncryptionRequiredInfraConfigEntries(
 }
 
 /**
- * Sync the 'infra_config' table with .env file
- * @returns Array of InfraConfig
- */
-export async function syncInfraConfigWithEnvFile() {
-  const prisma = new PrismaService();
-  const dbInfraConfigs = await prisma.infraConfig.findMany();
-
-  const updateRequiredObjs: (Partial<InfraConfig> & { id: string })[] = [];
-
-  for (const dbConfig of dbInfraConfigs) {
-    let envValue = process.env[dbConfig.name];
-
-    // lastSyncedEnvFileValue null check for backward compatibility from 2024.10.2 and below
-    if (!dbConfig.lastSyncedEnvFileValue && envValue) {
-      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
-      updateRequiredObjs.push({
-        id: dbConfig.id,
-        value: dbConfig.value === null ? configValue : undefined,
-        lastSyncedEnvFileValue: configValue,
-      });
-      continue;
-    }
-
-    // If the value in the database is different from the value in the .env file, means the value in the .env file has been updated
-    const rawLastSyncedEnvFileValue = dbConfig.isEncrypted
-      ? decrypt(dbConfig.lastSyncedEnvFileValue)
-      : dbConfig.lastSyncedEnvFileValue;
-
-    if (rawLastSyncedEnvFileValue != envValue) {
-      const configValue = dbConfig.isEncrypted ? encrypt(envValue) : envValue;
-      updateRequiredObjs.push({
-        id: dbConfig.id,
-        value: configValue ?? null,
-        lastSyncedEnvFileValue: configValue ?? null,
-      });
-    }
-  }
-
-  return updateRequiredObjs;
-}
-
-/**
  * Verify if 'infra_config' table is loaded with all entries
  * @returns boolean
  */
@@ -378,55 +380,18 @@ export async function isInfraConfigTablePopulated(): Promise<boolean> {
 }
 
 /**
- * Stop the app after 5 seconds
- * (Docker will re-start the app)
+ * Stop the app after 5 seconds with graceful shutdown
+ * (Sends SIGTERM to trigger NestJS graceful shutdown, then Docker container stops)
  */
 export function stopApp() {
   console.log('Stopping app in 5 seconds...');
 
   setTimeout(() => {
-    console.log('Stopping app now...');
+    console.log('Stopping app now with graceful shutdown...');
+    // Send SIGTERM to the current process to trigger graceful shutdown
+    // This will call app.close() which triggers onModuleDestroy lifecycle hooks
     process.kill(process.pid, 'SIGTERM');
   }, 5000);
-}
-
-/**
- * Get the configured SSO providers from .env file
- * @description This function verify if the required parameters for each SSO provider are configured in .env file. Usage on first time setup and reset.
- * @returns Array of configured SSO providers
- */
-export function getConfiguredSSOProvidersFromEnvFile() {
-  const allowedAuthProviders: string[] =
-    process.env.VITE_ALLOWED_AUTH_PROVIDERS.split(',');
-  let configuredAuthProviders: string[] = [];
-
-  const addProviderIfConfigured = (provider) => {
-    const configParameters: string[] = AuthProviderConfigurations[provider];
-
-    const isConfigured = configParameters.every((configParameter) => {
-      return process.env[configParameter];
-    });
-    if (isConfigured) configuredAuthProviders.push(provider);
-  };
-
-  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
-
-  if (configuredAuthProviders.length === 0) {
-    throwErr(AUTH_PROVIDER_NOT_CONFIGURED);
-  } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
-    const unConfiguredAuthProviders = allowedAuthProviders.filter(
-      (provider) => {
-        return !configuredAuthProviders.includes(provider);
-      },
-    );
-    console.log(
-      `${unConfiguredAuthProviders.join(
-        ',',
-      )} SSO auth provider(s) are not configured properly in .env file. Do configure them from Admin Dashboard.`,
-    );
-  }
-
-  return configuredAuthProviders.join(',');
 }
 
 /**
@@ -435,27 +400,25 @@ export function getConfiguredSSOProvidersFromEnvFile() {
  * @returns Array of configured SSO providers
  */
 export async function getConfiguredSSOProvidersFromInfraConfig() {
+  const prisma = new PrismaService();
   const env = await loadInfraConfiguration();
+  const providerConfigKeys = getAuthProviderRequiredKeys(env);
 
   const allowedAuthProviders: string[] =
-    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS.split(',');
-  let configuredAuthProviders: string[] = [];
+    env['INFRA'].VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
 
-  const addProviderIfConfigured = (provider) => {
-    const configParameters: string[] = AuthProviderConfigurations[provider];
-
-    const isConfigured = configParameters.every((configParameter) => {
-      return env['INFRA'][configParameter];
-    });
-    if (isConfigured) configuredAuthProviders.push(provider);
-  };
-
-  allowedAuthProviders.forEach((provider) => addProviderIfConfigured(provider));
+  const configuredAuthProviders = allowedAuthProviders.filter((provider) => {
+    const requiredKeys = providerConfigKeys[provider];
+    return requiredKeys?.every((key) => env['INFRA'][key]);
+  });
 
   if (configuredAuthProviders.length === 0) {
+    await prisma.infraConfig.update({
+      where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
+      data: { value: null },
+    });
     return '';
   } else if (allowedAuthProviders.length !== configuredAuthProviders.length) {
-    const prisma = new PrismaService();
     await prisma.infraConfig.update({
       where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
       data: { value: configuredAuthProviders.join(',') },
@@ -470,10 +433,83 @@ export async function getConfiguredSSOProvidersFromInfraConfig() {
 }
 
 /**
+ * Check if the onboarding is completed by verifying if the allowed auth providers are configured
+ * @returns boolean
+ */
+export async function isOnboardingCompleted(): Promise<boolean> {
+  const prisma = new PrismaService();
+  const allowedProviders = await prisma.infraConfig.findUnique({
+    where: { name: InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS },
+    select: { value: true },
+  });
+
+  if (!allowedProviders?.value || allowedProviders.value === '') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Generate a hashed valued for analytics
  * @returns Generated hashed value
  */
 export function generateAnalyticsUserId() {
   const hashedUserID = randomBytes(20).toString('hex');
   return hashedUserID;
+}
+
+/**
+ * Determine if ALLOW_SECURE_COOKIES should be true or false
+ * @returns boolean
+ */
+export function determineAllowSecureCookies(appBaseUrl: string) {
+  return appBaseUrl.startsWith('https');
+}
+
+/**
+ * Builds a map of environment variables that are derived from other configuration values
+ * @returns Record<string, string>
+ */
+export async function buildDerivedEnv() {
+  const envConfigMap = await loadInfraConfiguration();
+  const derivedEnv: Record<string, string> = {};
+
+  // Normalize URLs
+  const baseUrl = process.env.VITE_BASE_URL || '';
+  const backendUrl = process.env.VITE_BACKEND_API_URL || '';
+  const normalizedBackendUrl = backendUrl?.replace(/\/+$/, ''); // remove trailing slash
+
+  // Set ALLOW_SECURE_COOKIES based on base URL protocol
+  const expectedSecure = determineAllowSecureCookies(baseUrl).toString();
+  const currentSecure = envConfigMap.INFRA.ALLOW_SECURE_COOKIES;
+  if (currentSecure !== expectedSecure) {
+    derivedEnv.ALLOW_SECURE_COOKIES = expectedSecure;
+  }
+
+  // Set GOOGLE_CALLBACK_URL, MICROSOFT_CALLBACK_URL, and GITHUB_CALLBACK_URL based on backend URL (self healing) if user changed the backend URL
+  // Callback URL definitions
+  const callbackConfigs = [
+    { key: InfraConfigEnum.GOOGLE_CALLBACK_URL, path: '/auth/google/callback' },
+    {
+      key: InfraConfigEnum.MICROSOFT_CALLBACK_URL,
+      path: '/auth/microsoft/callback',
+    },
+    { key: InfraConfigEnum.GITHUB_CALLBACK_URL, path: '/auth/github/callback' },
+  ];
+  // Update callback URLs if they don't match the backend
+  for (const { key, path } of callbackConfigs) {
+    const currentCallback = envConfigMap.INFRA[key];
+    const expectedCallback = `${normalizedBackendUrl}${path}`;
+
+    if (
+      backendUrl.length > 0 &&
+      currentCallback &&
+      currentCallback !== expectedCallback
+    ) {
+      derivedEnv[key] = expectedCallback;
+    }
+  }
+
+  return derivedEnv;
 }

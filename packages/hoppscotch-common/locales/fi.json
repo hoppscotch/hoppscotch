@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Ennakkopyyntöskriptiä ei voitu suorittaa",
     "something_went_wrong": "Jotain meni pieleen",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Testikomentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan vastauksen vastaanottamisen jälkeen.",
     "pre_request_script": "Pyyntöä edeltävät komentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan ennen pyynnön lähettämistä.",
     "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

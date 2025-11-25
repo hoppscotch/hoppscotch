@@ -8,17 +8,19 @@ import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
 import * as T from 'fp-ts/Task';
 import * as TE from 'fp-ts/TaskEither';
-import { AuthProvider } from './auth/helper';
-import {
-  ENV_EMPTY_AUTH_PROVIDERS,
-  ENV_NOT_FOUND_KEY_AUTH_PROVIDERS,
-  ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY,
-  ENV_NOT_SUPPORT_AUTH_PROVIDERS,
-  JSON_INVALID,
-} from './errors';
-import { TeamMemberRole } from './team/team.model';
+import { ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY, JSON_INVALID } from './errors';
+import { TeamAccessRole } from './team/team.model';
 import { RESTError } from './types/RESTError';
 import * as crypto from 'crypto';
+
+/**
+ * Delays the execution for a given number of milliseconds.
+ * @param ms The number of milliseconds to delay
+ * @returns A promise that resolves after the delay
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /**
  * A workaround to throw an exception in an expression.
@@ -76,7 +78,7 @@ export const getAnnotatedRequiredRoles = (
   context: ExecutionContext,
 ) =>
   pipe(
-    reflector.get<TeamMemberRole[]>('requiresTeamRole', context.getHandler()),
+    reflector.get<TeamAccessRole[]>('requiresTeamRole', context.getHandler()),
     O.fromNullable,
   );
 
@@ -227,41 +229,11 @@ export function stringToJson<T>(
  * @returns boolean if title is of valid length or not
  */
 export function isValidLength(title: string, length: number) {
-  if (title.length < length) {
+  if (!title || title.trim() === '' || title.length < length) {
     return false;
   }
 
   return true;
-}
-
-/**
- * This function is called by bootstrap() in main.ts
- * It checks if the "VITE_ALLOWED_AUTH_PROVIDERS" environment variable is properly set or not.
- * If not, it throws an error.
- */
-export function checkEnvironmentAuthProvider(
-  VITE_ALLOWED_AUTH_PROVIDERS: string,
-) {
-  if (!VITE_ALLOWED_AUTH_PROVIDERS) {
-    throw new Error(ENV_NOT_FOUND_KEY_AUTH_PROVIDERS);
-  }
-
-  if (VITE_ALLOWED_AUTH_PROVIDERS === '') {
-    throw new Error(ENV_EMPTY_AUTH_PROVIDERS);
-  }
-
-  const givenAuthProviders = VITE_ALLOWED_AUTH_PROVIDERS.split(',').map(
-    (provider) => provider.toLocaleUpperCase(),
-  );
-  const supportedAuthProviders = Object.values(AuthProvider).map(
-    (provider: string) => provider.toLocaleUpperCase(),
-  );
-
-  for (const givenAuthProvider of givenAuthProviders) {
-    if (!supportedAuthProviders.includes(givenAuthProvider)) {
-      throw new Error(ENV_NOT_SUPPORT_AUTH_PROVIDERS);
-    }
-  }
 }
 
 /**
@@ -303,12 +275,12 @@ export function escapeSqlLikeString(str: string) {
 /**
  * Calculate the expiration date of the token
  *
- * @param expiresOn Number of days the token is valid for
+ * @param expiresInDays Number of days the token is valid for
  * @returns Date object of the expiration date
  */
-export function calculateExpirationDate(expiresOn: null | number) {
-  if (expiresOn === null) return null;
-  return new Date(Date.now() + expiresOn * 24 * 60 * 60 * 1000);
+export function calculateExpirationDate(expiresInDays: null | number) {
+  if (expiresInDays === null) return null;
+  return new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
 }
 
 /*
@@ -342,7 +314,7 @@ const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
 export function encrypt(text: string, key = process.env.DATA_ENCRYPTION_KEY) {
   if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
 
-  if (text === null || text === undefined) return text;
+  if (!text || text === '') return text;
 
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
@@ -367,7 +339,7 @@ export function decrypt(
 ) {
   if (!key) throw new Error(ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY);
 
-  if (encryptedData === null || encryptedData === undefined) {
+  if (!encryptedData || encryptedData === '') {
     return encryptedData;
   }
 

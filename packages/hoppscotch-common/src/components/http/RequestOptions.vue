@@ -64,12 +64,13 @@
       <HttpPreRequestScript
         v-if="'preRequestScript' in request"
         v-model="request.preRequestScript"
+        :is-active="selectedOptionTab === 'preRequestScript'"
       />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="showTestsTab"
       :id="'tests'"
-      :label="`${t('tab.tests')}`"
+      :label="`${t('tab.post_request_script')}`"
       :indicator="
         'testScript' in request &&
         request.testScript &&
@@ -78,7 +79,11 @@
           : false
       "
     >
-      <HttpTests v-if="'testScript' in request" v-model="request.testScript" />
+      <HttpTests
+        v-if="'testScript' in request"
+        v-model="request.testScript"
+        :is-active="selectedOptionTab === 'tests'"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="properties?.includes('requestVariables') ?? true"
@@ -100,6 +105,7 @@ import {
 } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { computed } from "vue"
+
 import { defineActionHandler } from "~/helpers/actions"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { AggregateEnvironment } from "~/newstore/environments"

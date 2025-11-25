@@ -82,6 +82,9 @@ export type SettingsDef = {
     | "PascalCase"
     | "CUSTOM"
   CUSTOM_NAMING_STYLE: string
+
+  EXPERIMENTAL_SCRIPTING_SANDBOX: boolean
+  ENABLE_EXPERIMENTAL_MOCK_SERVERS: boolean
 }
 
 let defaultProxyURL = DEFAULT_HOPP_PROXY_URL
@@ -142,6 +145,9 @@ export const getDefaultSettings = (): SettingsDef => {
     ENABLE_AI_EXPERIMENTS: true,
     AI_REQUEST_NAMING_STYLE: "DESCRIPTIVE_WITH_SPACES",
     CUSTOM_NAMING_STYLE: "",
+
+    EXPERIMENTAL_SCRIPTING_SANDBOX: true,
+    ENABLE_EXPERIMENTAL_MOCK_SERVERS: true,
   }
 }
 

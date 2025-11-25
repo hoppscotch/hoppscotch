@@ -39,6 +39,7 @@ in {
     nodePackages.prisma
     prisma-engines
     cargo-edit
+    cargo-tauri
   ] ++ lib.optionals pkgs.stdenv.isDarwin darwinPackages
     ++ lib.optionals pkgs.stdenv.isLinux linuxPackages;
 

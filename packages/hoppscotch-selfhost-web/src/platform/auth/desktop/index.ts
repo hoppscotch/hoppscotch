@@ -62,19 +62,25 @@ async function logout() {
 
 async function signInUserWithGithubFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/github?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/github?redirect_uri=desktop`,
   })
 }
 
 async function signInUserWithGoogleFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/google?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/google?redirect_uri=desktop`,
   })
 }
 
 async function signInUserWithMicrosoftFB() {
   await Io.openExternalLink({
-    url: `${import.meta.env.VITE_BACKEND_API_URL}/auth/microsoft?redirect_uri=desktop`,
+    url: `${
+      import.meta.env.VITE_BACKEND_API_URL
+    }/auth/microsoft?redirect_uri=desktop`,
   })
 }
 
@@ -165,9 +171,6 @@ export async function setInitialUser() {
   isGettingInitialUser.value = true
   const res = await getInitialUserDetails()
 
-  // NOTE: This is required for further diagnosis,
-  //       to be removed after patch confirmation.
-  console.info("Auth response structure:", JSON.stringify(res, null, 2))
   if ("error" in res) {
     await setUser(null)
     isGettingInitialUser.value = false
@@ -285,19 +288,16 @@ async function sendMagicLink(email: string) {
 
 async function setAuthCookies(headers: Headers) {
   const cookieHeader = headers.get("set-cookie")
-  const cookies = cookieHeader ? cookieHeader.split(",") : []
+  if (!cookieHeader) return
 
-  const accessTokenMatch = cookies.join(",").match(/access_token=([^;]+)/)
-  const refreshTokenMatch = cookies.join(",").match(/refresh_token=([^;]+)/)
+  const accessTMatch = cookieHeader.match(/access_token=([^;,\s]+)/)
+  const refreshTMatch = cookieHeader.match(/refresh_token=([^;,\s]+)/)
 
-  if (accessTokenMatch) {
-    const accessToken = accessTokenMatch[1]
-    await persistenceService.setLocalConfig("access_token", accessToken)
+  if (accessTMatch) {
+    await persistenceService.setLocalConfig("access_token", accessTMatch[1])
   }
-
-  if (refreshTokenMatch) {
-    const refreshToken = refreshTokenMatch[1]
-    await persistenceService.setLocalConfig("refresh_token", refreshToken)
+  if (refreshTMatch) {
+    await persistenceService.setLocalConfig("refresh_token", refreshTMatch[1])
   }
 }
 
@@ -519,5 +519,40 @@ export const def: AuthPlatformDef = {
     authEvents$.next({
       event: "logout",
     })
+  },
+
+  async refreshAuthToken() {
+    const refreshed = await refreshToken()
+    return refreshed ?? false
+  },
+
+  /**
+   * Verifies if the current user's authentication tokens are valid
+   * @returns True if tokens are valid, false otherwise
+   */
+  async verifyAuthTokens() {
+    const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL
+
+    const { response } = interceptorService.execute({
+      id: Date.now(),
+      url: `${BACKEND_API_URL}/auth/verify-token`,
+      method: "GET",
+      version: "HTTP/1.1",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getBackendHeaders(),
+      },
+    })
+
+    const res = await response
+    if (E.isLeft(res)) return false
+
+    const parsed = parseBodyAsJSON<{ isValid: boolean }>(res.right.body)
+    if (parsed._tag === "Some" && parsed.value.isValid) {
+      return true
+    }
+
+    const refreshed = await refreshToken()
+    return refreshed ?? false
   },
 }

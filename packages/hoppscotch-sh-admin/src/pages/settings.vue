@@ -18,14 +18,31 @@
 
   <div v-else-if="workingConfigs" class="flex flex-col py-8">
     <HoppSmartTabs v-model="selectedOptionTab" render-inactive-tabs>
-      <HoppSmartTab :id="'config'" :label="t('configs.title')">
-        <SettingsConfigurations
-          v-model:config="workingConfigs"
-          class="py-8 px-4"
-        />
+      <HoppSmartTab id="auth" :label="t('configs.tabs.auth')">
+        <SettingsAuthConfigurations v-model:config="workingConfigs" />
       </HoppSmartTab>
-      <HoppSmartTab :id="'token'" :label="t('infra_tokens.tab_title')">
+
+      <HoppSmartTab id="smtp" :label="t('configs.tabs.smtp')">
+        <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
+          <SettingsSmtpConfiguration v-model:config="workingConfigs" />
+        </div>
+      </HoppSmartTab>
+
+      <HoppSmartTab :id="'token'" :label="t('configs.tabs.infra_tokens')">
         <Tokens />
+      </HoppSmartTab>
+      <HoppSmartTab :id="'rate-limit'" :label="t('configs.tabs.rate_limit')">
+        <SettingsRateLimit v-model:config="workingConfigs" />
+      </HoppSmartTab>
+      <HoppSmartTab id="miscellaneous" :label="t('configs.tabs.miscellaneous')">
+        <div class="pb-8 px-4 flex flex-col space-y-8 divide-y divide-divider">
+          <SettingsDataSharing v-model:config="workingConfigs" />
+          <SettingsMockServer v-model:config="workingConfigs" />
+          <SettingsReset />
+        </div>
+      </HoppSmartTab>
+      <HoppSmartTab id="mock" :label="t('configs.mock_server.title')">
+        <SettingsMockServerConfig v-model:config="workingConfigs" />
       </HoppSmartTab>
     </HoppSmartTabs>
   </div>
@@ -66,8 +83,8 @@ const showSaveChangesModal = ref(false);
 const initiateServerRestart = ref(false);
 
 // Tabs
-type OptionTabs = 'config' | 'token';
-const selectedOptionTab = ref<OptionTabs>('config');
+type OptionTabs = 'auth' | 'smtp' | 'token' | 'miscellaneous' | 'rate-limit';
+const selectedOptionTab = ref<OptionTabs>('auth');
 
 // Obtain the current and working configs from the useConfigHandler composable
 const {

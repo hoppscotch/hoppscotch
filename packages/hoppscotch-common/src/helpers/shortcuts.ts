@@ -1,4 +1,5 @@
 import { getPlatformAlternateKey, getPlatformSpecialKey } from "./platformutils"
+import { getKernelMode } from "@hoppscotch/kernel"
 
 export type ShortcutDef = {
   label: string
@@ -7,8 +8,11 @@ export type ShortcutDef = {
 }
 
 export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
-  // General
-  return [
+  const kernelMode = getKernelMode()
+  const isDesktop = kernelMode === "desktop"
+
+  const baseShortcuts: ShortcutDef[] = [
+    // General
     {
       label: t("shortcut.general.help_menu"),
       keys: ["?"],
@@ -143,4 +147,41 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       section: t("shortcut.miscellaneous.title"),
     },
   ]
+
+  // Desktop-only shortcuts
+  const desktopShortcuts: ShortcutDef[] = [
+    {
+      keys: [getPlatformSpecialKey(), "T"],
+      label: t("shortcut.tabs.new_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), "W"],
+      label: t("shortcut.tabs.close_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "→"],
+      label: t("shortcut.tabs.next_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "←"],
+      label: t("shortcut.tabs.previous_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "9"],
+      label: t("shortcut.tabs.first_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "0"],
+      label: t("shortcut.tabs.last_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+  ]
+
+  // Return base shortcuts + desktop shortcuts only if in desktop mode
+  return isDesktop ? [...baseShortcuts, ...desktopShortcuts] : baseShortcuts
 }

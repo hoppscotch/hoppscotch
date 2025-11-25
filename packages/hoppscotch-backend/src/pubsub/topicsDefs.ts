@@ -28,6 +28,7 @@ import {
   UserCollectionReorderData,
 } from 'src/user-collection/user-collections.model';
 import { Shortcode } from 'src/shortcode/shortcode.model';
+import { UserCollectionSortData } from 'src/orchestration/sort/sort.model';
 
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
@@ -53,6 +54,8 @@ export type TopicDef = {
   [topic: `user_coll/${string}/${'duplicated'}`]: UserCollectionDuplicatedData;
   [topic: `user_coll/${string}/${'deleted'}`]: UserCollectionRemovedData;
   [topic: `user_coll/${string}/${'order_updated'}`]: UserCollectionReorderData;
+  [topic: `user_coll_root/${string}/${'sorted'}`]: UserCollectionSortData;
+  [topic: `user_coll_child/${string}/${'sorted'}`]: UserCollectionSortData;
   [topic: `team/${string}/member_removed`]: string;
   [topic: `team/${string}/${'member_added' | 'member_updated'}`]: TeamMember;
   [
@@ -64,6 +67,8 @@ export type TopicDef = {
   [topic: `team_coll/${string}/${'coll_removed'}`]: string;
   [topic: `team_coll/${string}/${'coll_moved'}`]: TeamCollection;
   [topic: `team_coll/${string}/${'coll_order_updated'}`]: CollectionReorderData;
+  [topic: `team_coll_root/${string}/${'sorted'}`]: boolean;
+  [topic: `team_coll_child/${string}/${'sorted'}`]: string;
   [
     topic: `team_req/${string}/${'req_created' | 'req_updated' | 'req_moved'}`
   ]: TeamRequest;

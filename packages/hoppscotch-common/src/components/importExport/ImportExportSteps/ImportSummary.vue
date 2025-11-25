@@ -1,3 +1,120 @@
+<template>
+  <div class="flex flex-col p-1">
+    <div class="space-y-4 p-1">
+      <div v-for="feature in visibleFeatures" :key="feature.id">
+        <p class="flex items-center">
+          <span
+            class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary"
+            :class="{
+              'text-green-500':
+                featureSupportForImportFormat[feature.id] === 'SUPPORTED' ||
+                featureSupportForImportFormat[feature.id] === 'SKIPPED',
+              'text-amber-500':
+                featureSupportForImportFormat[feature.id] ===
+                'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT',
+            }"
+          >
+            <icon-lucide-check-circle
+              v-if="
+                featureSupportForImportFormat[feature.id] === 'SUPPORTED' ||
+                featureSupportForImportFormat[feature.id] === 'SKIPPED'
+              "
+              class="svg-icons"
+            />
+
+            <IconInfo
+              v-else-if="
+                featureSupportForImportFormat[feature.id] ===
+                'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
+              "
+              class="svg-icons"
+            />
+          </span>
+          <span>{{ t(feature.label) }}</span>
+        </p>
+
+        <p class="ml-10 text-secondaryLight">
+          <template
+            v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
+          >
+            {{ feature.count }}
+            {{
+              feature.count != 1
+                ? t(feature.label)
+                : t(feature.label).slice(0, -1)
+            }}
+            Imported
+          </template>
+
+          <template
+            v-else-if="featureSupportForImportFormat[feature.id] === 'SKIPPED'"
+          >
+            0 {{ t(feature.label) }} Imported
+          </template>
+
+          <template
+            v-else-if="
+              featureSupportForImportFormat[feature.id] ===
+              'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
+            "
+          >
+            <!-- Special message for Postman scripts when using legacy sandbox -->
+            <template
+              v-if="
+                importFormat === 'postman' &&
+                (feature.id === 'preRequestScripts' ||
+                  feature.id === 'testScripts') &&
+                scriptsImported === undefined
+              "
+            >
+              0 {{ t(feature.label) }} Imported
+            </template>
+            <!-- Generic message for other unsupported features -->
+            <template v-else>
+              {{
+                t("import.import_summary_not_supported_by_hoppscotch_import", {
+                  featureLabel: t(feature.label),
+                })
+              }}
+            </template>
+          </template>
+        </p>
+      </div>
+    </div>
+
+    <!-- Informational banner for script imports when experimental sandbox is disabled -->
+    <div
+      v-if="showScriptImportInfo"
+      class="mt-6 flex items-start space-x-3 rounded border border-dividerLight shadow-sm bg-primaryLight px-2 py-4"
+    >
+      <IconInfo class="flex-shrink-0 text-accent svg-icons" />
+      <div class="flex-1 space-y-2">
+        <p class="font-semibold text-secondary">
+          {{ totalScriptsCount }}
+          {{
+            totalScriptsCount === 1
+              ? t("import.import_summary_script_found")
+              : t("import.import_summary_scripts_found")
+          }}
+        </p>
+        <p class="text-secondaryLight">
+          {{ t("import.import_summary_enable_experimental_sandbox") }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-9">
+      <HoppButtonSecondary
+        class="w-full"
+        :label="t('action.close')"
+        outline
+        filled
+        @click="onClose"
+      />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { computed, Ref, ref, watch } from "vue"
@@ -18,6 +135,7 @@ type FeatureStatus =
   | "SUPPORTED"
   | "NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT"
   | "NOT_SUPPORTED_BY_SOURCE"
+  | "SKIPPED"
 
 type FeatureWithCount = {
   count: number
@@ -28,6 +146,8 @@ type FeatureWithCount = {
 const props = defineProps<{
   importFormat: SupportedImportFormat
   collections: HoppCollection[]
+  scriptsImported?: boolean
+  originalScriptCounts?: { preRequest: number; test: number }
   onClose: () => void
 }>()
 
@@ -147,7 +267,7 @@ watch(
       },
       {
         count: testScriptsCount,
-        label: "import.import_summary_test_scripts_title",
+        label: "import.import_summary_post_request_scripts_title",
         id: "testScripts" as const,
       },
     ]
@@ -158,7 +278,30 @@ watch(
 )
 
 const featureSupportForImportFormat = computed(() => {
-  return importSourceAndSupportedFeatures[props.importFormat]
+  const baseSupport = importSourceAndSupportedFeatures[props.importFormat]
+
+  // Handle Postman script import status
+  if (props.importFormat === "postman") {
+    if (props.scriptsImported === true) {
+      // User checked the box and imported scripts
+      return {
+        ...baseSupport,
+        preRequestScripts: "SUPPORTED" as FeatureStatus,
+        testScripts: "SUPPORTED" as FeatureStatus,
+      }
+    } else if (props.scriptsImported === false) {
+      // User explicitly didn't import scripts (checkbox unchecked)
+      return {
+        ...baseSupport,
+        preRequestScripts: "SKIPPED" as FeatureStatus,
+        testScripts: "SKIPPED" as FeatureStatus,
+      }
+    }
+    // props.scriptsImported === undefined means legacy sandbox or old import
+    // Keep default NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT
+  }
+
+  return baseSupport
 })
 
 const visibleFeatures = computed(() => {
@@ -169,74 +312,23 @@ const visibleFeatures = computed(() => {
     )
   })
 })
+
+const showScriptImportInfo = computed(() => {
+  return (
+    props.importFormat === "postman" &&
+    props.scriptsImported === undefined &&
+    totalScriptsCount.value > 0
+  )
+})
+
+const totalScriptsCount = computed(() => {
+  if (props.importFormat !== "postman" || props.scriptsImported !== undefined)
+    return 0
+
+  // Use original counts from raw Postman JSON
+  const preRequestScripts = props.originalScriptCounts?.preRequest || 0
+  const testScripts = props.originalScriptCounts?.test || 0
+
+  return preRequestScripts + testScripts
+})
 </script>
-
-<template>
-  <div class="space-y-4">
-    <div v-for="feature in visibleFeatures" :key="feature.id">
-      <p class="flex items-center">
-        <span
-          class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary"
-          :class="{
-            'text-green-500':
-              featureSupportForImportFormat[feature.id] === 'SUPPORTED',
-            'text-amber-500':
-              featureSupportForImportFormat[feature.id] ===
-              'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT',
-          }"
-        >
-          <icon-lucide-check-circle
-            v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
-            class="svg-icons"
-          />
-
-          <IconInfo
-            v-else-if="
-              featureSupportForImportFormat[feature.id] ===
-              'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
-            "
-            class="svg-icons"
-          />
-        </span>
-        <span>{{ t(feature.label) }}</span>
-      </p>
-
-      <p class="ml-10 text-secondaryLight">
-        <template
-          v-if="featureSupportForImportFormat[feature.id] === 'SUPPORTED'"
-        >
-          {{ feature.count }}
-          {{
-            feature.count != 1
-              ? t(feature.label)
-              : t(feature.label).slice(0, -1)
-          }}
-          Imported
-        </template>
-
-        <template
-          v-else-if="
-            featureSupportForImportFormat[feature.id] ===
-            'NOT_SUPPORTED_BY_HOPPSCOTCH_IMPORT'
-          "
-        >
-          {{
-            t("import.import_summary_not_supported_by_hoppscotch_import", {
-              featureLabel: t(feature.label),
-            })
-          }}
-        </template>
-      </p>
-    </div>
-  </div>
-
-  <div class="mt-10">
-    <HoppButtonSecondary
-      class="w-full"
-      :label="t('action.close')"
-      outline
-      filled
-      @click="onClose"
-    />
-  </div>
-</template>

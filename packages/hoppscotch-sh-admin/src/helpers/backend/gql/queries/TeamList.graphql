@@ -3,7 +3,7 @@ query TeamList($cursor: ID, $take: Int) {
     allTeams(cursor: $cursor, take: $take) {
       id
       name
-      members {
+      teamMembers {
         membershipID
       }
     }

@@ -1,0 +1,34 @@
+query GetUserRootCollections($cursor: ID, $take: Int) {
+  rootRESTUserCollections(cursor: $cursor, take: $take) {
+    id
+    title
+    data
+    type
+    parent {
+      id
+    }
+    requests {
+      id
+      title
+      request
+      type
+      collectionID
+    }
+    childrenREST {
+      id
+      title
+      data
+      type
+      parent {
+        id
+      }
+      requests {
+        id
+        title
+        request
+        type
+        collectionID
+      }
+    }
+  }
+}

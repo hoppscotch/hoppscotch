@@ -6,6 +6,9 @@ import {
   parseRawKeyValueEntriesE,
   parseTemplateString,
   parseTemplateStringE,
+  generateJWTToken,
+  HoppCollectionVariable,
+  calculateHawkHeader
 } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import * as A from "fp-ts/Array";
@@ -42,29 +45,62 @@ import {
  */
 export const preRequestScriptRunner = (
   request: HoppRESTRequest,
-  envs: HoppEnvs
+  envs: HoppEnvs,
+  legacySandbox: boolean,
+  collectionVariables?: HoppCollectionVariable[]
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
-> =>
-  pipe(
+> => {
+  const experimentalScriptingSandbox = !legacySandbox;
+
+  return pipe(
     TE.of(request),
     TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, envs)
+      runPreRequestScript(preRequestScript, {
+        envs,
+        experimentalScriptingSandbox,
+        request,
+        cookies: null,
+      })
     ),
-    TE.map(
-      ({ selected, global }) =>
-        <Environment>{
+    TE.map(({ updatedEnvs, updatedRequest }) => {
+      const { selected, global } = updatedEnvs;
+
+      return {
+        // Keep the original updatedEnvs with separate global and selected arrays
+        preRequestUpdatedEnvs: updatedEnvs,
+        // Create Environment format for getEffectiveRESTRequest
+        envForEffectiveRequest: <Environment>{
           name: "Env",
           variables: [...(selected ?? []), ...(global ?? [])],
-        }
-    ),
-    TE.chainW((env) =>
-      TE.tryCatch(
-        () => getEffectiveRESTRequest(request, env),
+        },
+        updatedRequest: updatedRequest ?? {},
+      };
+    }),
+    TE.chainW(({ preRequestUpdatedEnvs, envForEffectiveRequest, updatedRequest }) => {
+      const finalRequest = { ...request, ...updatedRequest };
+
+      return TE.tryCatch(
+        async () => {
+          const result = await getEffectiveRESTRequest(
+            finalRequest,
+            envForEffectiveRequest,
+            collectionVariables
+          );
+          // Replace the updatedEnvs from getEffectiveRESTRequest with the one from pre-request script
+          // This preserves the global/selected separation
+          if (E.isRight(result)) {
+            return E.right({
+              ...result.right,
+              updatedEnvs: preRequestUpdatedEnvs,
+            });
+          }
+          return result;
+        },
         (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
-      )
-    ),
+      );
+    }),
     TE.chainEitherKW((effectiveRequest) => effectiveRequest),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)
@@ -75,6 +111,7 @@ export const preRequestScriptRunner = (
           })
     )
   );
+};
 
 /**
  * Outputs an executable request format with environment variables applied
@@ -86,7 +123,8 @@ export const preRequestScriptRunner = (
  */
 export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
-  environment: Environment
+  environment: Environment,
+  collectionVariables?: HoppCollectionVariable[]
 ): Promise<
   E.Either<
     HoppCLIError,
@@ -97,7 +135,8 @@ export async function getEffectiveRESTRequest(
 
   const resolvedVariables = getResolvedVariables(
     request.requestVariables,
-    envVariables
+    envVariables,
+    collectionVariables
   );
 
   // Parsing final headers with applied ENVs.
@@ -200,8 +239,11 @@ export async function getEffectiveRESTRequest(
       const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
       const { method, endpoint } = request;
 
+      const body = getFinalBodyFromRequest(request, resolvedVariables);
+
       const signer = new AwsV4Signer({
         method,
+        body: E.isRight(body) ? body.right?.toString() : undefined,
         datetime: amzDate,
         signQuery: addTo === "QUERY_PARAMS",
         accessKeyId: parseTemplateString(
@@ -287,6 +329,88 @@ export async function getEffectiveRESTRequest(
         value: authHeaderValue,
         description: "",
       });
+    } else if (request.auth.authType === "hawk") {
+      const { method, endpoint } = request;
+
+      const hawkHeader = await calculateHawkHeader({
+        url: parseTemplateString(endpoint, resolvedVariables), // URL
+        method: method, // HTTP method
+        id: parseTemplateString(request.auth.authId, resolvedVariables),
+        key: parseTemplateString(request.auth.authKey, resolvedVariables),
+        algorithm: request.auth.algorithm,
+
+        // advanced parameters (optional)
+        includePayloadHash: request.auth.includePayloadHash,
+        nonce: request.auth.nonce
+          ? parseTemplateString(request.auth.nonce, resolvedVariables)
+          : undefined,
+        ext: request.auth.ext
+          ? parseTemplateString(request.auth.ext, resolvedVariables)
+          : undefined,
+        app: request.auth.app
+          ? parseTemplateString(request.auth.app, resolvedVariables)
+          : undefined,
+        dlg: request.auth.dlg
+          ? parseTemplateString(request.auth.dlg, resolvedVariables)
+          : undefined,
+        timestamp: request.auth.timestamp
+          ? parseInt(
+              parseTemplateString(request.auth.timestamp, resolvedVariables),
+              10
+            )
+          : undefined,
+      });
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: hawkHeader,
+        description: "",
+      });
+    } else if (request.auth.authType === "jwt") {
+      const { addTo } = request.auth;
+
+      // Generate JWT token
+      const token = await generateJWTToken({
+        algorithm: request.auth.algorithm || "HS256",
+        secret: parseTemplateString(request.auth.secret, resolvedVariables),
+        privateKey: parseTemplateString(
+          request.auth.privateKey,
+          resolvedVariables
+        ),
+        payload: parseTemplateString(request.auth.payload, resolvedVariables),
+        jwtHeaders: parseTemplateString(
+          request.auth.jwtHeaders,
+          resolvedVariables
+        ),
+        isSecretBase64Encoded: request.auth.isSecretBase64Encoded,
+      });
+
+      if (token) {
+        if (addTo === "HEADERS") {
+          const headerPrefix =
+            parseTemplateString(request.auth.headerPrefix, resolvedVariables) ||
+            "Bearer ";
+
+          effectiveFinalHeaders.push({
+            active: true,
+            key: "Authorization",
+            value: `${headerPrefix}${token}`,
+            description: "",
+          });
+        } else if (addTo === "QUERY_PARAMS") {
+          const paramName =
+            parseTemplateString(request.auth.paramName, resolvedVariables) ||
+            "token";
+
+          effectiveFinalParams.push({
+            active: true,
+            key: paramName,
+            value: token,
+            description: "",
+          });
+        }
+      }
     }
   }
 
@@ -419,7 +543,7 @@ function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? x.value.map((v) => ({
+          ? (x.value as (Blob | null)[]).map((v: Blob | null) => ({
               key: parseTemplateString(x.key, resolvedVariables),
               value: v as string | Blob,
               contentType: x.contentType,

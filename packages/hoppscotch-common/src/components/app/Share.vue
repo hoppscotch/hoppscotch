@@ -1,7 +1,6 @@
 <template>
   <HoppSmartModal
     v-if="show"
-    dialog
     :title="t('app.invite_your_friends')"
     @close="hideModal"
   >
@@ -85,7 +84,7 @@ const platforms = [
   {
     name: "Twitter",
     icon: IconTwitter,
-    link: `https://twitter.com/intent/tweet?text=${text} ${description}&url=${url}&via=${twitter}`,
+    link: `https://x.com/intent/tweet?text=${text} ${description}&url=${url}&via=${twitter}`,
   },
   {
     name: "Facebook",

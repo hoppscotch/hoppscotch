@@ -1,0 +1,34 @@
+{
+  "v": 7,
+  "id": "cmb4vtsqh00nxwvqryk6jmnaz",
+  "name": "test-scripting-sandbox-modes",
+  "folders": [],
+  "requests": [
+    {
+      "v": "12",
+      "name": "sample-req",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "const url = new URL('https://example.com/path?foo=bar');\nurl.searchParams.set('baz', 'qux');\nurl.toString(); // 'https://example.com/path?foo=bar&baz=qux'\n\nconsole.debug(url)\n\nconst encoder = new TextEncoder();\n\nconst text = \"Hello, world!\";\n\nconst encoded = encoder.encode(text);\nconsole.log(\"Encoded:\", encoded);\n\nconst decoder = new TextDecoder();\n\nconst decoded = decoder.decode(encoded);\nconsole.log(\"Decoded:\", decoded);\n\nsetTimeout(() => console.log(\"Hello after 1s\"), 1000);\n    \nconst intervalId = setInterval(() => console.log(\"Every 500ms\"), 500);\n\nsetTimeout(() => clearInterval(intervalId), 2000);",
+      "testScript": "console.log(JSON.stringify(pw, null, 2))\n\n\npw.test(\"Sample assertion\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx()\n  \tconsole.log(\"Status code received is \", pw.response.status)\n});\n\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mb4vvacd_e015964c-b5c8-4b90-a564-4a8b62bc1631"
+}

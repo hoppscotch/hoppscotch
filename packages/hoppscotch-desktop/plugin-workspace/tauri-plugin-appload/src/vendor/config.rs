@@ -1,6 +1,8 @@
+use std::fs;
+use std::path::PathBuf;
 use std::sync::Arc;
 
-use tauri::Config;
+use tauri::Config as TauriConfig;
 
 use crate::{
     bundle::VerifiedBundle, cache::CacheManager, storage::StorageManager, vendor::VendorError,
@@ -11,22 +13,26 @@ use super::Result;
 
 const VENDOR_SOURCE: &str = "vendor";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct VendorConfig {
-    pub(super) bundle: Option<(Vec<u8>, Manifest)>,
+    pub bundle_path: PathBuf,
+    pub manifest_path: PathBuf,
 }
 
 impl VendorConfig {
-    pub(crate) async fn initialize(
-        self,
-        config: Config,
+    pub async fn initialize(
+        &self,
+        config: TauriConfig,
         cache: Arc<CacheManager>,
         storage: Arc<StorageManager>,
     ) -> Result<()> {
-        let Some((content, manifest)) = self.bundle else {
-            tracing::info!("No vendored bundle provided, skipping initialization");
-            return Ok(());
-        };
+        let content = fs::read(&self.bundle_path).map_err(|e| VendorError::Io(e))?;
+
+        let manifest_str =
+            fs::read_to_string(&self.manifest_path).map_err(|e| VendorError::Io(e))?;
+
+        let manifest: Manifest =
+            serde_json::from_str(&manifest_str).map_err(|e| VendorError::Json(e))?;
 
         let max_bundle_size = 100 * 1024 * 1024;
         if content.len() > max_bundle_size {
@@ -55,6 +61,9 @@ impl VendorConfig {
 
         let verified = VerifiedBundle::trust(content, manifest)?;
 
+        // NOTE: This is temporary, to make sure bundle verifier
+        // has required file at the location,
+        // won't be necessary after source refactor.
         storage
             .store_bundle(&name, VENDOR_SOURCE, &version, &verified)
             .await?;

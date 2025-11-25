@@ -141,7 +141,7 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import {
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlRequest,
   editRESTRequest,
   saveGraphqlRequestAs,
@@ -154,6 +154,7 @@ import { TeamWorkspace } from "~/services/workspace.service"
 import IconSparkle from "~icons/lucide/sparkles"
 import IconThumbsDown from "~icons/lucide/thumbs-down"
 import IconThumbsUp from "~icons/lucide/thumbs-up"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -312,6 +313,9 @@ const onSelect = (pickedVal: Picked | null) => {
 }
 
 const saveRequestAs = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+
   if (!requestName.value) {
     toast.error(`${t("error.empty_req_name")}`)
     return
@@ -357,15 +361,11 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(
+        `${picked.value.collectionIndex}`,
+        "rest"
+      )
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -395,15 +395,8 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -434,15 +427,8 @@ const saveRequestAs = async () => {
       },
     }
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "rest"
-    )
-
-    RESTTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    RESTTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "rest")
 
     platform.analytics?.logEvent({
       type: "HOPP_SAVE_REQUEST",
@@ -538,15 +524,8 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-folder") {
@@ -573,15 +552,8 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      picked.value.folderPath,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(picked.value.folderPath, "graphql")
 
     requestSaved("GQL")
   } else if (picked.value.pickedType === "gql-my-collection") {
@@ -608,15 +580,11 @@ const saveRequestAs = async () => {
       workspaceType: "team",
     })
 
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-      `${picked.value.collectionIndex}`,
-      "graphql"
-    )
-
-    GQLTabs.currentActiveTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    GQLTabs.currentActiveTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(
+        `${picked.value.collectionIndex}`,
+        "graphql"
+      )
 
     requestSaved("GQL")
   }

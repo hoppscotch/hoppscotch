@@ -82,6 +82,10 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
   public readonly searcherID = "environments"
   public searcherSectionTitle = this.t("spotlight.environments.title")
 
+  private readonly workspaceService = this.bind(WorkspaceService)
+
+  private workspace = this.workspaceService.currentWorkspace
+
   private readonly spotlight = this.bind(SpotlightService)
 
   private selectedEnvIndex = useStreamStatic(
@@ -239,10 +243,17 @@ export class EnvironmentsSpotlightSearcherService extends StaticSpotlightSearche
         })
         break
       case "edit_selected_env":
-        if (this.selectedEnv.value)
-          invokeAction(`modals.my.environment.edit`, {
-            envName: this.selectedEnv.value.name,
-          })
+        if (this.selectedEnv.value) {
+          if (this.workspace.value.type === "personal") {
+            invokeAction(`modals.my.environment.edit`, {
+              envName: this.selectedEnv.value.name,
+            })
+          } else {
+            invokeAction(`modals.team.environment.edit`, {
+              envName: this.selectedEnv.value.name,
+            })
+          }
+        }
         break
       case "delete_selected_env":
         invokeAction(`modals.environment.delete-selected`)

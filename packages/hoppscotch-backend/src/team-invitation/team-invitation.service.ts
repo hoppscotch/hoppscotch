@@ -3,7 +3,7 @@ import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamInvitation as DBTeamInvitation } from '@prisma/client';
-import { TeamMember, TeamMemberRole } from 'src/team/team.model';
+import { TeamMember, TeamAccessRole } from 'src/team/team.model';
 import { TeamService } from 'src/team/team.service';
 import {
   INVALID_EMAIL,
@@ -38,10 +38,10 @@ export class TeamInvitationService {
    * @param dbTeamInvitation database TeamInvitation
    * @returns TeamInvitation model
    */
-  cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
+  private cast(dbTeamInvitation: DBTeamInvitation): TeamInvitation {
     return {
       ...dbTeamInvitation,
-      inviteeRole: TeamMemberRole[dbTeamInvitation.inviteeRole],
+      inviteeRole: TeamAccessRole[dbTeamInvitation.inviteeRole],
     };
   }
 
@@ -103,7 +103,7 @@ export class TeamInvitationService {
     creator: AuthUser,
     teamID: string,
     inviteeEmail: string,
-    inviteeRole: TeamMemberRole,
+    inviteeRole: TeamAccessRole,
   ) {
     // validate email
     const isEmailValid = validateEmail(inviteeEmail);

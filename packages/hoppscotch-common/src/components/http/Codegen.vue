@@ -45,6 +45,7 @@
               @click="
                 () => {
                   codegenType = codegen.name
+                  codegenMode = codegen.lang
                   hide()
                 }
               "
@@ -124,12 +125,13 @@ import {
   CodegenDefinitions,
   CodegenName,
   generateCode,
+  CodegenLang,
 } from "~/helpers/new-codegen"
 import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { getAggregateEnvs } from "~/newstore/environments"
+import { AggregateEnvironment, getAggregateEnvs } from "~/newstore/environments"
 
 import { useService } from "dioc/vue"
 import cloneDeep from "lodash-es/cloneDeep"
@@ -142,10 +144,13 @@ import IconCheck from "~icons/lucide/check"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+import { getCurrentEnvironment } from "../../newstore/environments"
 
 const t = useI18n()
 
 const tabs = useService(RESTTabService)
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // Get the current active request if the current active tab is a request else get the original request from the response tab
 const currentActiveRequest = computed(() => {
@@ -171,6 +176,7 @@ const currentActiveTabDocument = computed(() =>
 )
 
 const codegenType = ref<CodegenName>("shell-curl")
+const codegenMode = ref<CodegenLang>("shell")
 const errorState = ref(false)
 
 defineProps({
@@ -183,6 +189,47 @@ defineProps({
 const emit = defineEmits<{
   (e: "request-code", value: string): void
 }>()
+
+const getCurrentValue = (env: AggregateEnvironment) => {
+  const currentSelectedEnvironment = getCurrentEnvironment()
+
+  if (env && env.secret) {
+    return env.currentValue
+  }
+  return currentEnvironmentValueService.getEnvironmentByKey(
+    env?.sourceEnv !== "Global" ? currentSelectedEnvironment.id : "Global",
+    env?.key ?? ""
+  )?.currentValue
+}
+
+const getFinalURL = (input: string): string => {
+  // If the URL is empty, return "https://"
+  // This is to ensure that the URL is always valid and can be used in code generation
+  if (!input) {
+    return "https://"
+  }
+
+  let url = input.trim()
+
+  // Fix malformed protocols
+  url = url.replace(/^https?:\s*\/+\s*/i, (match) =>
+    match.toLowerCase().startsWith("https") ? "https://" : "http://"
+  )
+
+  // If the URL does not start with http(s):// or is not a variable, prepend http(s)://
+  // If the URL starts with <<, it is a variable and should not be modified
+  if (!/^https?:\/\//i.test(url) && !url.startsWith("<<")) {
+    const endpoint = url
+    const domain = endpoint.split(/[/:#?]+/)[0]
+
+    // Check if the domain is a local address or an IP address
+    // If it is, use http, otherwise use https
+    const isLocalOrIP = /^(localhost|(\d{1,3}\.){3}\d{1,3})$/.test(domain)
+    url = (isLocalOrIP ? "http://" : "https://") + endpoint
+  }
+
+  return url
+}
 
 const requestCode = asyncComputed(async () => {
   // Generate code snippet action only applies to request documents
@@ -197,19 +244,23 @@ const requestCode = asyncComputed(async () => {
       if (requestVariable.active)
         return {
           key: requestVariable.key,
-          value: requestVariable.value,
+          currentValue: requestVariable.value,
+          initialValue: requestVariable.value,
           secret: false,
         }
       return {}
     }
   )
   const env: Environment = {
-    v: 1,
+    v: 2,
     id: "env",
     name: "Env",
     variables: [
       ...(requestVariables as Environment["variables"]),
-      ...aggregateEnvs,
+      ...aggregateEnvs.map((env) => ({
+        ...env,
+        currentValue: getCurrentValue(env) || env.initialValue,
+      })),
     ],
   }
 
@@ -260,7 +311,7 @@ const requestCode = asyncComputed(async () => {
         ...param,
         active: true,
       })),
-      endpoint: effectiveRequest.effectiveFinalURL,
+      endpoint: getFinalURL(effectiveRequest.effectiveFinalURL),
       requestVariables: effectiveRequest.effectiveFinalRequestVariables.map(
         (requestVariable) => ({
           ...requestVariable,
@@ -289,7 +340,7 @@ useCodemirror(
   requestCode,
   reactive({
     extendedEditorConfig: {
-      mode: "text/plain",
+      mode: codegenMode,
       readOnly: true,
       lineWrapping: WRAP_LINES,
     },

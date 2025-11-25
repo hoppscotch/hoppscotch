@@ -1,11 +1,18 @@
 import {
+  Cookie,
   Environment,
+  HoppCollectionVariable,
+  HoppRESTHeader,
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
 } from "@hoppscotch/data"
-import { SandboxTestResult, TestDescriptor } from "@hoppscotch/js-sandbox"
-import { runTestScript } from "@hoppscotch/js-sandbox/web"
+import {
+  SandboxPreRequestResult,
+  SandboxTestResult,
+  TestDescriptor,
+  TestResult,
+} from "@hoppscotch/js-sandbox"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
@@ -15,15 +22,27 @@ import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
 import { Ref } from "vue"
 
+import { map } from "fp-ts/Either"
+
+import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
+import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
+import { stripModulePrefix } from "~/helpers/scripting"
 import {
   environmentsStore,
   getCurrentEnvironment,
   getEnvironment,
   getGlobalVariables,
+  SelectedEnvironmentIndex,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { platform } from "~/platform"
+import { CookieJarService } from "~/services/cookie-jar.service"
+import {
+  CurrentValueService,
+  Variable,
+} from "~/services/current-environment-value.service"
 import {
   SecretEnvironmentService,
   SecretVariable,
@@ -31,27 +50,98 @@ import {
 import { HoppTab } from "~/services/tab"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { createRESTNetworkRequestStream } from "./network"
-import {
-  getCombinedEnvVariables,
-  getFinalEnvsFromPreRequest,
-} from "./preRequest"
 import { HoppRequestDocument } from "./rest/document"
-import { HoppRESTResponse } from "./types/HoppRESTResponse"
-import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
-import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
-import { isJSONContentType } from "./utils/contenttypes"
 import {
   getTemporaryVariables,
   setTemporaryVariables,
 } from "./runner/temp_envs"
+import { HoppRESTResponse } from "./types/HoppRESTResponse"
+import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
+import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
+import { getCombinedEnvVariables } from "./utils/environments"
+import {
+  OutgoingSandboxPostRequestWorkerMessage,
+  OutgoingSandboxPreRequestWorkerMessage,
+} from "./workers/sandbox.worker"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "./utils/inheritedCollectionVarTransformer"
+import { isJSONContentType } from "./utils/contenttypes"
+import { applyScriptRequestUpdates } from "./experimental-sandbox-integration"
+
+const sandboxWorker = new Worker(
+  new URL("./workers/sandbox.worker.ts", import.meta.url),
+  {
+    type: "module",
+  }
+)
 
 const secretEnvironmentService = getService(SecretEnvironmentService)
+const currentEnvironmentValueService = getService(CurrentValueService)
+const cookieJarService = getService(CookieJarService)
+
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
+
+export type InitialEnvironmentState = {
+  initialGlobalEnvs: Environment["variables"]
+  initialEnvID: string
+  initialSelectedEnvs: Environment["variables"]
+  initialEnvironmentIndex: SelectedEnvironmentIndex
+  initialEnvName: string
+  initialEnvs: TestResult["envs"] & {
+    temp: Environment["variables"]
+  }
+  initialEnvsForComparison: TestResult["envs"]
+}
+
+/**
+ * Captures the initial environment state before request execution
+ * So that we can compare and update environment variables after test script execution
+ * because the current environment can change during the request execution.
+ * @returns Object containing all initial environment states needed for comparison and updates
+ */
+export const captureInitialEnvironmentState = (): InitialEnvironmentState => {
+  // Capture initial environment state before request execution
+  const initialGlobalEnvs = resolveEnvVars(
+    "Global",
+    cloneDeep(getGlobalVariables())
+  )
+  const { id: initialEnvID, variables: initialEnvVariables } =
+    getCurrentEnvironment()
+
+  const initialSelectedEnvs = resolveEnvVars(initialEnvID, initialEnvVariables)
+
+  // Capture initial environment index for later use in updateEnvsAfterTestScript
+  const initialEnvironmentIndex = cloneDeep(
+    environmentsStore.value.selectedEnvironmentIndex
+  )
+
+  // Capture the initial environment name
+  const initialEnvName = getCurrentEnvironment().name
+
+  // Capture the initial script environment state (the environment passed to scripts)
+  const initialEnvs = getCombinedEnvVariables()
+  const initialEnvsForComparison: TestResult["envs"] = {
+    global: initialEnvs.global,
+    selected: initialEnvs.selected,
+  }
+
+  return {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvName,
+    initialEnvs,
+    initialEnvsForComparison,
+  }
+}
 
 export const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
 ) => {
   const contentTypeHeader = res.headers.find(
-    (h) => h.key.toLowerCase() === "content-type"
+    (h: HoppRESTHeader) => h.key.toLowerCase() === "content-type"
   )
 
   const rawBody = new TextDecoder("utf-8")
@@ -74,6 +164,16 @@ export const getTestableBody = (
   return x
 }
 
+/**
+ * Combines the environment variables from the request and the selected, global, and temporary environments.
+ * The priority is as follows:
+ * 1. Request variables
+ * 2. Temporary variables (if any)
+ * 3. Selected environment variables
+ * 4. Global environment variables
+ * @param variables The environment variables to combine
+ * @returns The combined environment variables
+ */
 export const combineEnvVariables = (variables: {
   environments: {
     selected: Environment["variables"]
@@ -81,8 +181,10 @@ export const combineEnvVariables = (variables: {
     temp?: Environment["variables"]
   }
   requestVariables: Environment["variables"]
+  collectionVariables: Environment["variables"]
 }) => [
   ...variables.requestVariables,
+  ...variables.collectionVariables,
   ...(variables.environments.temp ?? []),
   ...variables.environments.selected,
   ...variables.environments.global,
@@ -93,25 +195,23 @@ export const executedResponses$ = new Subject<
 >()
 
 /**
- * Used to update the environment schema with the secret variables
- * and store the secret variable values in the secret environment service
+ * This will update the environment variables in the current environment
+ * and secret environment service.
  * @param envs The environment variables to update
  * @param type Whether the environment variables are global or selected
+ * @param initialEnvID The initial environment ID to use for updates
  * @returns the updated environment variables
  */
-const updateEnvironmentsWithSecret = (
-  envs: Environment["variables"] &
-    {
-      secret: true
-      value: string | undefined
-      key: string
-    }[],
-  type: "global" | "selected"
+const updateEnvironments = (
+  envs: Environment["variables"],
+  type: "global" | "selected",
+  initialEnvID?: string
 ) => {
-  const currentEnvID =
-    type === "selected" ? getCurrentEnvironment().id : "Global"
+  const envID =
+    type === "selected" ? initialEnvID || getCurrentEnvironment().id : "Global"
 
   const updatedSecretEnvironments: SecretVariable[] = []
+  const nonSecretVariables: Variable[] = []
 
   const updatedEnv = pipe(
     envs,
@@ -119,29 +219,103 @@ const updateEnvironmentsWithSecret = (
       if (e.secret) {
         updatedSecretEnvironments.push({
           key: e.key,
-          value: e.value ?? "",
+          value: e.currentValue ?? "",
           varIndex: index,
+          initialValue: e.initialValue ?? "",
         })
 
-        // delete the value from the environment
-        // so that it doesn't get saved in the environment
-        delete e.value
-        return e
+        // For secret variables, keep the initialValue but clear currentValue for storage
+        return {
+          key: e.key,
+          secret: e.secret,
+          initialValue: e.initialValue ?? "",
+          currentValue: "",
+        }
       }
-      return e
+
+      nonSecretVariables.push({
+        key: e.key,
+        isSecret: e.secret ?? false,
+        varIndex: index,
+        currentValue: e.currentValue ?? "",
+      })
+
+      // For non-secret variables, preserve both initialValue and currentValue
+      return {
+        key: e.key,
+        secret: e.secret ?? false,
+        initialValue: e.initialValue ?? "",
+        currentValue: e.currentValue ?? "",
+      }
     })
   )
-  if (currentEnvID) {
+
+  if (envID) {
     secretEnvironmentService.addSecretEnvironment(
-      currentEnvID,
+      envID,
       updatedSecretEnvironments
     )
+
+    currentEnvironmentValueService.addEnvironment(envID, nonSecretVariables)
   }
+
   return updatedEnv
 }
 
 /**
+ * Get the environment variable value from the secret environment service
+ * @param envID The environment ID
+ * @param index The index of the environment variable
+ * @returns Current value and initial value of the environment variable
+ */
+const getSecretEnvironmentVariableValue = (
+  envID: string,
+  index: number
+): {
+  value: string
+  initialValue?: string
+} | null => {
+  return secretEnvironmentService.getSecretEnvironmentVariableValue(
+    envID,
+    index
+  )
+}
+
+/**
+ * Get the environment variable value from the current environment
+ * @param envID The environment ID
+ * @param index The index of the environment variable
+ * @param isSecret Whether the environment variable is a secret
+ * @returns Current value of the environment variable
+ */
+const getEnvironmentVariableValue = (
+  envID: string,
+  index: number
+): string | undefined => {
+  return currentEnvironmentValueService.getEnvironmentVariableValue(
+    envID,
+    index
+  )
+}
+
+/**
+ * Set currentValue as initialValue if currentValue is empty
+ * This is set just for request runtime and it will not be persisted.
+ * @param env The environment variable to be transformed
+ * @returns The transformed environment variable with currentValue set to initialValue if empty
+ */
+const getTransformedEnvs = (
+  env: Environment["variables"][number]
+): Environment["variables"][number] => {
+  return {
+    ...env,
+    currentValue: env.currentValue || env.initialValue,
+  }
+}
+
+/**
  * Transforms the environment list to a list with unique keys with value
+ * and set currentValue as initialValue if currentValue is empty.
  * @param envs The environment list to be transformed
  * @returns The transformed environment list with keys with value
  */
@@ -149,27 +323,129 @@ const filterNonEmptyEnvironmentVariables = (
   envs: Environment["variables"]
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()
-
   envs.forEach((env) => {
-    if (env.secret) {
-      envsMap.set(env.key, env)
-    } else if (envsMap.has(env.key)) {
-      const existingEnv = envsMap.get(env.key)
+    const transformedEnv = getTransformedEnvs(env)
+
+    if (envsMap.has(transformedEnv.key)) {
+      const existingEnv = envsMap.get(transformedEnv.key)
 
       if (
         existingEnv &&
-        "value" in existingEnv &&
-        existingEnv.value === "" &&
-        env.value !== ""
+        "currentValue" in existingEnv &&
+        existingEnv.currentValue === "" &&
+        transformedEnv.currentValue !== ""
       ) {
-        envsMap.set(env.key, env)
+        envsMap.set(transformedEnv.key, transformedEnv)
       }
     } else {
-      envsMap.set(env.key, env)
+      envsMap.set(transformedEnv.key, transformedEnv)
     }
   })
 
   return Array.from(envsMap.values())
+}
+
+const delegatePreRequestScriptRunner = (
+  request: HoppRESTRequest,
+  envs: {
+    global: Environment["variables"]
+    selected: Environment["variables"]
+    temp: Environment["variables"]
+  },
+  cookies: Cookie[] | null
+): Promise<E.Either<string, SandboxPreRequestResult>> => {
+  const { preRequestScript } = request
+
+  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
+    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
+    const cleanScript = stripModulePrefix(preRequestScript)
+
+    return runPreRequestScript(cleanScript, {
+      envs,
+      experimentalScriptingSandbox: false,
+    })
+  }
+
+  return new Promise((resolve) => {
+    const handleMessage = (
+      event: MessageEvent<OutgoingSandboxPreRequestWorkerMessage>
+    ) => {
+      if (event.data.type === "PRE_REQUEST_SCRIPT_ERROR") {
+        const error =
+          event.data.data instanceof Error
+            ? event.data.data.message
+            : String(event.data.data)
+
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(E.left(error))
+      }
+
+      if (event.data.type === "PRE_REQUEST_SCRIPT_RESULT") {
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(event.data.data)
+      }
+    }
+
+    sandboxWorker.addEventListener("message", handleMessage)
+
+    sandboxWorker.postMessage({
+      type: "pre",
+      envs,
+      request: JSON.stringify(request),
+      cookies: cookies ? JSON.stringify(cookies) : null,
+    })
+  })
+}
+
+const runPostRequestScript = (
+  envs: TestResult["envs"],
+  request: HoppRESTRequest,
+  response: HoppRESTResponse,
+  cookies: Cookie[] | null
+): Promise<E.Either<string, SandboxTestResult>> => {
+  const { testScript } = request
+
+  if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
+    // Strip `export {};\n` before executing in legacy sandbox to prevent syntax errors
+    const cleanScript = stripModulePrefix(testScript)
+
+    return runTestScript(cleanScript, {
+      envs,
+      response,
+      experimentalScriptingSandbox: false,
+    })
+  }
+
+  return new Promise((resolve) => {
+    const handleMessage = (
+      event: MessageEvent<OutgoingSandboxPostRequestWorkerMessage>
+    ) => {
+      if (event.data.type === "POST_REQUEST_SCRIPT_ERROR") {
+        const error =
+          event.data.data instanceof Error
+            ? event.data.data.message
+            : String(event.data.data)
+
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(E.left(error))
+      }
+
+      if (event.data.type === "POST_REQUEST_SCRIPT_RESULT") {
+        sandboxWorker.removeEventListener("message", handleMessage)
+        resolve(event.data.data)
+      }
+    }
+
+    sandboxWorker.addEventListener("message", handleMessage)
+
+    sandboxWorker.postMessage({
+      type: "post",
+      envs,
+      request: JSON.stringify(request),
+      response,
+      cookies: cookies ? JSON.stringify(cookies) : null,
+    })
+  })
 }
 
 export function runRESTRequest$(
@@ -189,40 +465,50 @@ export function runRESTRequest$(
     cancelFunc?.()
   }
 
-  const res = getFinalEnvsFromPreRequest(
-    tab.value.document.request.preRequestScript,
-    getCombinedEnvVariables()
-  ).then(async (envs) => {
+  const cookieJarEntries = getCookieJarEntries()
+
+  const { request, inheritedProperties } = tab.value.document
+
+  const requestAuth =
+    request.auth.authType === "inherit" && request.auth.authActive
+      ? inheritedProperties?.auth.inheritedAuth
+      : request.auth
+
+  const inheritedHeaders = inheritedProperties?.headers
+    ?.filter((header) => header.inheritedHeader)
+    .map((header) => header.inheritedHeader!)
+
+  const requestHeaders: HoppRESTHeaders = [
+    ...(inheritedHeaders ?? []),
+    ...request.headers,
+  ]
+
+  const resolvedRequest = {
+    ...tab.value.document.request,
+    auth: requestAuth ?? { authType: "none", authActive: false },
+    headers: requestHeaders,
+  }
+
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvName,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = captureInitialEnvironmentState()
+
+  const res = delegatePreRequestScriptRunner(
+    resolvedRequest,
+    initialEnvs,
+    cookieJarEntries
+  ).then(async (preRequestScriptResult) => {
     if (cancelCalled) return E.left("cancellation" as const)
 
-    if (E.isLeft(envs)) {
-      console.error(envs.left)
+    if (E.isLeft(preRequestScriptResult)) {
+      console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
-    }
-
-    const requestAuth =
-      tab.value.document.request.auth.authType === "inherit" &&
-      tab.value.document.request.auth.authActive
-        ? tab.value.document.inheritedProperties?.auth.inheritedAuth
-        : tab.value.document.request.auth
-
-    let requestHeaders
-
-    const inheritedHeaders =
-      tab.value.document.inheritedProperties?.headers.map((header) => {
-        if (header.inheritedHeader) {
-          return header.inheritedHeader
-        }
-        return []
-      })
-
-    if (inheritedHeaders) {
-      requestHeaders = [
-        ...inheritedHeaders,
-        ...tab.value.document.request.headers,
-      ]
-    } else {
-      requestHeaders = [...tab.value.document.request.headers]
     }
 
     const finalRequestVariables =
@@ -231,7 +517,8 @@ export function runRESTRequest$(
           if (v.active) {
             return {
               key: v.key,
-              value: v.value,
+              initialValue: v.value,
+              currentValue: v.value,
               secret: false,
             }
           }
@@ -239,15 +526,28 @@ export function runRESTRequest$(
         }
       )
 
-    const finalRequest = {
-      ...tab.value.document.request,
-      auth: requestAuth ?? { authType: "none", authActive: false },
-      headers: requestHeaders as HoppRESTHeaders,
-    }
+    const collectionVariables =
+      transformInheritedCollectionVariablesToAggregateEnv(
+        tab.value.document.inheritedProperties?.variables || []
+      ).map(({ key, initialValue, currentValue, secret }) => ({
+        key,
+        initialValue,
+        currentValue,
+        secret,
+      }))
+
+    const finalRequest = applyScriptRequestUpdates(
+      resolvedRequest,
+      preRequestScriptResult.right.updatedRequest
+    )
+
+    // Propagate changes to request variables from the scripting context to the UI
+    tab.value.document.request.requestVariables = finalRequest.requestVariables
 
     const finalEnvs = {
+      environments: preRequestScriptResult.right.updatedEnvs,
       requestVariables: finalRequestVariables as Environment["variables"],
-      environments: envs.right,
+      collectionVariables,
     }
 
     const finalEnvsWithNonEmptyValues = filterNonEmptyEnvironmentVariables(
@@ -256,7 +556,7 @@ export function runRESTRequest$(
 
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
-      v: 1,
+      v: 2,
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
@@ -269,28 +569,75 @@ export function runRESTRequest$(
       .pipe(filter((res) => res.type === "success" || res.type === "fail"))
       .subscribe(async (res) => {
         if (res.type === "success" || res.type === "fail") {
-          executedResponses$.next(
-            // @ts-expect-error Typescript can't figure out this inference for some reason
-            res
-          )
+          executedResponses$.next(res)
 
-          const runResult = await runTestScript(
-            res.req.testScript,
-            envs.right,
+          const postRequestScriptResult = await runPostRequestScript(
+            preRequestScriptResult.right.updatedEnvs,
+            res.req,
             {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
-            }
+              statusText: res.statusText,
+              responseTime: res.meta.responseDuration,
+            },
+            preRequestScriptResult.right.updatedCookies ?? null
           )
 
-          if (E.isRight(runResult)) {
+          if (E.isRight(postRequestScriptResult)) {
             // set the response in the tab so that multiple tabs can run request simultaneously
             tab.value.document.response = res
-            const updatedRunResult = updateEnvsAfterTestScript(runResult)
-            tab.value.document.testResults =
-              // @ts-expect-error Typescript can't figure out this inference for some reason
-              translateToSandboxTestResults(updatedRunResult)
+
+            // Combine console entries from pre and post request scripts
+            const combinedResult = pipe(
+              postRequestScriptResult,
+              map((result) => ({
+                ...result,
+                consoleEntries: [
+                  ...(preRequestScriptResult.right.consoleEntries ?? []),
+                  ...(result.consoleEntries ?? []),
+                ],
+              }))
+            ) as E.Right<SandboxTestResult>
+
+            tab.value.document.testResults = translateToSandboxTestResults(
+              combinedResult.right,
+              initialGlobalEnvs,
+              initialSelectedEnvs
+            )
+
+            // Check if scripts actually modified environment variables
+            if (
+              hasEnvironmentChanges(
+                initialEnvsForComparison, // Initial environment when request started
+                postRequestScriptResult.right.envs // Final script environment after test script execution
+              )
+            ) {
+              updateEnvsAfterTestScript(
+                combinedResult,
+                initialEnvironmentIndex,
+                initialEnvName,
+                initialEnvID
+              )
+            }
+
+            const updatedCookies = postRequestScriptResult.right.updatedCookies
+
+            if (updatedCookies) {
+              const newCookieMap = new Map<string, Cookie[]>()
+
+              for (const cookie of updatedCookies) {
+                const domain = cookie.domain
+
+                if (!newCookieMap.has(domain)) {
+                  newCookieMap.set(domain, [])
+                }
+
+                newCookieMap.get(domain)!.push(cookie)
+              }
+
+              cookieJarService.cookieJar.value = newCookieMap
+            }
           } else {
             tab.value.document.testResults = {
               description: "",
@@ -309,6 +656,7 @@ export function runRESTRequest$(
                 },
               },
               scriptError: true,
+              consoleEntries: [],
             }
           }
 
@@ -322,104 +670,191 @@ export function runRESTRequest$(
   return [cancel, res]
 }
 
-function updateEnvsAfterTestScript(runResult: E.Right<SandboxTestResult>) {
-  const updatedGlobalEnvVariables = updateEnvironmentsWithSecret(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.global),
-    "global"
-  )
-
-  const updatedSelectedEnvVariables = updateEnvironmentsWithSecret(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
-    cloneDeep(runResult.right.envs.selected),
-    "selected"
-  )
-
-  const updatedRunResult = {
-    ...runResult.right,
-    envs: {
-      global: updatedGlobalEnvVariables,
-      selected: updatedSelectedEnvVariables,
-    },
-  }
-
-  const globalEnvVariables = updateEnvironmentsWithSecret(
-    // @ts-expect-error Typescript can't figure out this inference for some reason
+function updateEnvsAfterTestScript(
+  runResult: E.Right<SandboxTestResult>,
+  initialEnvironmentIndex: SelectedEnvironmentIndex,
+  initialEnvName: string,
+  initialEnvID?: string
+) {
+  const globalEnvVariables = updateEnvironments(
     runResult.right.envs.global,
     "global"
   )
 
   setGlobalEnvVariables({
-    v: 1,
+    v: 2,
     variables: globalEnvVariables,
   })
-  if (environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV") {
+
+  const selectedEnvVariables = updateEnvironments(
+    cloneDeep(runResult.right.envs.selected),
+    "selected",
+    initialEnvID
+  )
+
+  if (initialEnvironmentIndex.type === "MY_ENV") {
     const env = getEnvironment({
       type: "MY_ENV",
-      index: environmentsStore.value.selectedEnvironmentIndex.index,
+      index: initialEnvironmentIndex.index,
     })
-    updateEnvironment(environmentsStore.value.selectedEnvironmentIndex.index, {
+    updateEnvironment(initialEnvironmentIndex.index, {
       name: env.name,
-      v: 1,
+      v: 2,
       id: "id" in env ? env.id : "",
-      variables: updatedRunResult.envs.selected,
+      variables: selectedEnvVariables,
     })
-  } else if (
-    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
-  ) {
-    const env = getEnvironment({
-      type: "TEAM_ENV",
-    })
+  } else if (initialEnvironmentIndex.type === "TEAM_ENV") {
+    // Use the initial environment name to avoid issues when environment changes during request execution
+    // adding a fallback to current environment name just in case so it's not null
+    const envName = initialEnvName ?? getCurrentEnvironment().name
     pipe(
       updateTeamEnvironment(
-        JSON.stringify(updatedRunResult.envs.selected),
-        environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
-        env.name
+        JSON.stringify(selectedEnvVariables),
+        initialEnvironmentIndex.teamEnvID,
+        envName
       )
     )()
   }
+}
 
-  return updatedRunResult
+/**
+ * Checks if there are any changes between two environment states by comparing
+ * the initial environment state with the final environment state.
+ * @param initialEnvs The environment state at the start
+ * @param finalEnvs The environment state after changes
+ * @returns true if there are any environment changes, false otherwise
+ */
+const hasEnvironmentChanges = (
+  initialEnvs: TestResult["envs"],
+  finalEnvs: TestResult["envs"]
+): boolean => {
+  // Check global environment changes
+  const globalAdditions = getAddedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+  const globalDeletions = getRemovedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+  const globalUpdations = getUpdatedEnvVariables(
+    initialEnvs.global,
+    finalEnvs.global
+  )
+
+  // Check selected environment changes
+  const selectedAdditions = getAddedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+  const selectedDeletions = getRemovedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+  const selectedUpdations = getUpdatedEnvVariables(
+    initialEnvs.selected,
+    finalEnvs.selected
+  )
+
+  return (
+    globalAdditions.length > 0 ||
+    globalDeletions.length > 0 ||
+    globalUpdations.length > 0 ||
+    selectedAdditions.length > 0 ||
+    selectedDeletions.length > 0 ||
+    selectedUpdations.length > 0
+  )
+}
+
+const getCookieJarEntries = () => {
+  // Exclusive to the Desktop App
+  if (!platform.platformFeatureFlags.cookiesEnabled) {
+    return null
+  }
+
+  const cookieJarEntries = Array.from(
+    cookieJarService.cookieJar.value.values()
+  ).flatMap((cookies) => cookies)
+
+  return cookieJarEntries
 }
 
 /**
  * Run the test runner request
  * @param request The request to run
  * @param persistEnv Whether to persist the environment variables after running the test script
+ * @param inheritedVariables The inherited collection variables from the collection/folder
+ * @param initialEnvironmentState The initial environment state before collection run execution
  * @returns The response and the test result
  */
 
 export function runTestRunnerRequest(
   request: HoppRESTRequest,
-  persistEnv = true
+  persistEnv = true,
+  inheritedVariables: HoppCollectionVariable[] = [],
+  initialEnvironmentState: InitialEnvironmentState
 ): Promise<
   | E.Left<"script_fail">
   | E.Right<{
       response: HoppRESTResponse
       testResult: HoppTestResult
+      updatedRequest: HoppRESTRequest
     }>
   | undefined
 > {
-  return getFinalEnvsFromPreRequest(
-    request.preRequestScript,
-    getCombinedEnvVariables()
-  ).then(async (envs) => {
-    if (E.isLeft(envs)) {
-      console.error(envs.left)
+  const cookieJarEntries = getCookieJarEntries()
+
+  const {
+    initialGlobalEnvs,
+    initialEnvID,
+    initialSelectedEnvs,
+    initialEnvironmentIndex,
+    initialEnvName,
+    initialEnvs,
+    initialEnvsForComparison,
+  } = initialEnvironmentState
+
+  return delegatePreRequestScriptRunner(
+    request,
+    initialEnvs,
+    cookieJarEntries
+  ).then(async (preRequestScriptResult) => {
+    if (E.isLeft(preRequestScriptResult)) {
+      console.error(preRequestScriptResult.left)
       return E.left("script_fail" as const)
     }
 
-    const effectiveRequest = await getEffectiveRESTRequest(request, {
+    const finalRequestVariables = pipe(
+      request.requestVariables,
+      A.filter(({ active }) => active),
+      A.map(({ key, value }) => ({
+        key,
+        initialValue: value,
+        currentValue: value,
+        secret: false,
+      }))
+    )
+
+    // Calculate the final updated request after pre-request script changes
+    const finalRequest = applyScriptRequestUpdates(
+      request,
+      preRequestScriptResult.right.updatedRequest
+    )
+
+    const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
-      v: 1,
+      v: 2,
       name: "Env",
-      variables: combineEnvVariables({
-        environments: {
-          ...envs.right,
-          temp: !persistEnv ? getTemporaryVariables() : [],
-        },
-        requestVariables: [],
-      }),
+      variables: filterNonEmptyEnvironmentVariables(
+        combineEnvVariables({
+          environments: {
+            ...preRequestScriptResult.right.updatedEnvs,
+            temp: !persistEnv ? getTemporaryVariables() : [],
+          },
+          requestVariables: finalRequestVariables,
+          collectionVariables: inheritedVariables,
+        })
+      ),
     })
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)
@@ -429,34 +864,57 @@ export function runTestRunnerRequest(
       .toPromise()
       .then(async (res) => {
         if (res?.type === "success" || res?.type === "fail") {
-          executedResponses$.next(
-            // @ts-expect-error Typescript can't figure out this inference for some reason
-            res
-          )
+          executedResponses$.next(res)
 
-          const runResult = await runTestScript(
-            res.req.testScript,
-            envs.right,
+          const postRequestScriptResult = await runPostRequestScript(
+            preRequestScriptResult.right.updatedEnvs,
+            res.req,
             {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
-            }
+              statusText: res.statusText,
+              responseTime: res.meta.responseDuration,
+            },
+            preRequestScriptResult.right.updatedCookies ?? null
           )
 
-          if (E.isRight(runResult)) {
+          if (E.isRight(postRequestScriptResult)) {
+            // Combine console entries from pre and post request scripts
+            const combinedResult = {
+              ...postRequestScriptResult.right,
+              consoleEntries: [
+                ...(preRequestScriptResult.right.consoleEntries ?? []),
+                ...(postRequestScriptResult.right.consoleEntries ?? []),
+              ],
+            }
+
             const sandboxTestResult = translateToSandboxTestResults(
-              runResult.right
+              combinedResult,
+              initialGlobalEnvs,
+              initialSelectedEnvs
             )
 
             // Update the environment variables after running the test script when persistEnv is true. else store the updated environment variables in the store as a temporary variable.
             if (persistEnv) {
-              updateEnvsAfterTestScript(runResult)
+              if (
+                hasEnvironmentChanges(
+                  initialEnvsForComparison, // Initial script environment when requests started
+                  postRequestScriptResult.right.envs // Final script environment after test script execution
+                )
+              ) {
+                updateEnvsAfterTestScript(
+                  postRequestScriptResult,
+                  initialEnvironmentIndex,
+                  initialEnvName,
+                  initialEnvID
+                )
+              }
             } else {
               // Combine global and selected environment changes
               const allChanges = [
-                ...runResult.right.envs.global,
-                ...runResult.right.envs.selected,
+                ...postRequestScriptResult.right.envs.global,
+                ...postRequestScriptResult.right.envs.selected,
               ]
 
               setTemporaryVariables(allChanges)
@@ -465,6 +923,7 @@ export function runTestRunnerRequest(
             return E.right({
               response: res,
               testResult: sandboxTestResult,
+              updatedRequest: finalRequest,
             })
           }
           const sandboxTestResult = {
@@ -484,10 +943,12 @@ export function runTestRunnerRequest(
               },
             },
             scriptError: true,
+            consoleEntries: [],
           }
           return E.right({
             response: res,
             testResult: sandboxTestResult,
+            updatedRequest: finalRequest,
           })
         }
       })
@@ -528,19 +989,42 @@ const getUpdatedEnvVariables = (
         ),
         O.chain(
           O.fromPredicate(
-            ({ env, index }) => env.value !== current[index].value
+            ({ env, index }) => env.currentValue !== current[index].currentValue
           )
         ),
         O.map(({ env, index }) => ({
           ...env,
-          previousValue: current[index].value,
+          previousValue: current[index].currentValue,
         }))
       )
     )
   )
 
+// Helper to resolve currentValue & initialValue for (secret/non-secret) env vars
+const resolveEnvVars = (
+  envID: string,
+  vars: Environment["variables"]
+): Environment["variables"] =>
+  vars.map((v, index) => {
+    const secretMeta = v.secret
+      ? getSecretEnvironmentVariableValue(envID, index)
+      : null
+    return {
+      ...v,
+      currentValue:
+        (v.secret
+          ? secretMeta?.value
+          : getEnvironmentVariableValue(envID, index)) ?? "",
+      // fallback to var initialValue if secretMeta is not found
+      initialValue:
+        (v.secret ? secretMeta?.initialValue : "") ?? v.initialValue,
+    }
+  })
+
 function translateToSandboxTestResults(
-  testDesc: SandboxTestResult
+  testDesc: SandboxTestResult,
+  initialGlobalEnvs: Environment["variables"],
+  initialSelectedEnvs: Environment["variables"]
 ): HoppTestResult {
   const translateChildTests = (child: TestDescriptor): HoppTestData => {
     return {
@@ -550,8 +1034,6 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = cloneDeep(getGlobalVariables())
-  const env = getCurrentEnvironment()
   return {
     description: "",
     expectResults: testDesc.tests.expectResults,
@@ -559,21 +1041,34 @@ function translateToSandboxTestResults(
     scriptError: false,
     envDiff: {
       global: {
-        additions: getAddedEnvVariables(globals, testDesc.envs.global),
-        deletions: getRemovedEnvVariables(globals, testDesc.envs.global),
-        updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
+        additions: getAddedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
+        deletions: getRemovedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
+        updations: getUpdatedEnvVariables(
+          initialGlobalEnvs,
+          testDesc.envs.global
+        ),
       },
       selected: {
-        additions: getAddedEnvVariables(env.variables, testDesc.envs.selected),
+        additions: getAddedEnvVariables(
+          initialSelectedEnvs,
+          testDesc.envs.selected
+        ),
         deletions: getRemovedEnvVariables(
-          env.variables,
+          initialSelectedEnvs,
           testDesc.envs.selected
         ),
         updations: getUpdatedEnvVariables(
-          env.variables,
+          initialSelectedEnvs,
           testDesc.envs.selected
         ),
       },
     },
+    consoleEntries: testDesc.consoleEntries,
   }
 }

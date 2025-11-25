@@ -6,6 +6,7 @@ import { z } from "zod"
 
 import V0_VERSION from "./v/0"
 import V1_VERSION, { uniqueID } from "./v/1"
+import V2_VERSION from "./v/2"
 import { HOPP_SUPPORTED_PREDEFINED_VARIABLES } from "../predefinedVariables"
 
 const versionedObject = z.object({
@@ -13,10 +14,11 @@ const versionedObject = z.object({
 })
 
 export const Environment = createVersionedEntity({
-  latestVersion: 1,
+  latestVersion: 2,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
+    2: V2_VERSION,
   },
   getVersion(data) {
     const versionCheck = versionedObject.safeParse(data)
@@ -48,7 +50,7 @@ const ENV_MAX_EXPAND_LIMIT = 10
  */
 const ENV_EXPAND_LOOP = "ENV_EXPAND_LOOP" as const
 
-export const EnvironmentSchemaVersion = 1
+export const EnvironmentSchemaVersion = 2
 
 export function parseBodyEnvVariablesE(
   body: string,
@@ -72,8 +74,8 @@ export function parseBodyEnvVariablesE(
 
       const foundEnv = env.find((envVar) => envVar.key === variableName)
 
-      if (foundEnv && "value" in foundEnv) {
-        return foundEnv.value
+      if (foundEnv && "currentValue" in foundEnv) {
+        return foundEnv.currentValue
       }
       return key
     })
@@ -100,9 +102,7 @@ export const parseBodyEnvVariables = (
 
 export function parseTemplateStringE(
   str: string,
-  variables:
-    | Environment["variables"]
-    | { secret: true; value: string; key: string }[],
+  variables: Environment["variables"],
   maskValue = false,
   showKeyIfSecret = false
 ) {
@@ -131,7 +131,7 @@ export function parseTemplateStringE(
 
       const variable = variables.find((x) => x && x.key === p1)
 
-      if (variable && "value" in variable) {
+      if (variable && "currentValue" in variable) {
         // Show the key if it is a secret and explicitly specified
         if (variable.secret && showKeyIfSecret) {
           isSecret = true
@@ -140,11 +140,17 @@ export function parseTemplateStringE(
         // Mask the value if it is a secret and explicitly specified
         if (variable.secret && maskValue) {
           return "*".repeat(
-            (variable as { secret: true; value: string; key: string }).value
-              .length
+            (
+              variable as {
+                secret: true
+                initialValue: string
+                currentValue: string
+                key: string
+              }
+            ).currentValue.length
           )
         }
-        return variable.value
+        return variable.currentValue
       }
 
       return ""
@@ -171,9 +177,7 @@ export type NonSecretEnvironment = Omit<Environment, "variables"> & {
  */
 export const parseTemplateString = (
   str: string,
-  variables:
-    | Environment["variables"]
-    | { secret: true; value: string; key: string }[],
+  variables: Environment["variables"],
   maskValue = false,
   showKeyIfSecret = false
 ) =>
@@ -187,8 +191,9 @@ export const translateToNewEnvironmentVariables = (
 ): Environment["variables"][number] => {
   return {
     key: x.key,
-    value: x.value,
-    secret: false,
+    initialValue: x.initialValue ?? x.value ?? "",
+    currentValue: x.currentValue ?? x.value ?? "",
+    secret: x.secret ?? false,
   }
 }
 

@@ -17,15 +17,15 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@codemirror/language": "6.10.1",
-    "@lezer/highlight": "1.2.0",
-    "@lezer/lr": "1.3.14"
+    "@codemirror/language": "6.11.3",
+    "@lezer/highlight": "1.2.1",
+    "@lezer/lr": "1.4.2"
   },
   "devDependencies": {
-    "@lezer/generator": "1.5.1",
-    "mocha": "9.2.2",
-    "rollup": "3.29.4",
-    "@rollup/plugin-typescript": "12.1.1",
-    "typescript": "5.2.2"
+    "@lezer/generator": "1.8.0",
+    "@rollup/plugin-typescript": "12.1.4",
+    "mocha": "11.7.4",
+    "rollup": "4.52.5",
+    "typescript": "5.9.3"
   }
 }

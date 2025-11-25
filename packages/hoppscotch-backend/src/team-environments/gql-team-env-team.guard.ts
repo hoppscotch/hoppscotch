@@ -11,7 +11,7 @@ import {
 import { TeamService } from 'src/team/team.service';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import * as E from 'fp-ts/Either';
-import { TeamMemberRole } from '@prisma/client';
+import { TeamAccessRole } from '@prisma/client';
 import { throwErr } from 'src/utils';
 
 /**
@@ -28,7 +28,7 @@ export class GqlTeamEnvTeamGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requireRoles = this.reflector.get<TeamMemberRole[]>(
+    const requireRoles = this.reflector.get<TeamAccessRole[]>(
       'requiresTeamRole',
       context.getHandler(),
     );

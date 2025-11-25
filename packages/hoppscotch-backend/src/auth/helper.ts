@@ -1,9 +1,13 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { DateTime } from 'luxon';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 import * as cookie from 'cookie';
-import { AUTH_HEADER_NOT_FOUND, AUTH_PROVIDER_NOT_SPECIFIED, COOKIES_NOT_FOUND, INVALID_AUTH_HEADER } from 'src/errors';
+import {
+  AUTH_HEADER_NOT_FOUND,
+  AUTH_PROVIDER_NOT_SPECIFIED,
+  COOKIES_NOT_FOUND,
+  INVALID_AUTH_HEADER,
+} from 'src/errors';
 import { throwErr } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { IncomingHttpHeaders } from 'http';
@@ -36,32 +40,31 @@ export const authCookieHandler = (
   authTokens: AuthTokens,
   redirect: boolean,
   redirectUrl: string | null,
+  configService: ConfigService,
 ) => {
-  const configService = new ConfigService();
+  // Calculate token validity periods in milliseconds
+  let accessTokenValidityInMs = parseInt(
+    configService.get('INFRA.ACCESS_TOKEN_VALIDITY'),
+  );
+  let refreshTokenValidityInMs = parseInt(
+    configService.get('INFRA.REFRESH_TOKEN_VALIDITY'),
+  );
 
-  const currentTime = DateTime.now();
-  const accessTokenValidity = currentTime
-    .plus({
-      milliseconds: parseInt(configService.get('ACCESS_TOKEN_VALIDITY')),
-    })
-    .toMillis();
-  const refreshTokenValidity = currentTime
-    .plus({
-      milliseconds: parseInt(configService.get('REFRESH_TOKEN_VALIDITY')),
-    })
-    .toMillis();
+  // Set default values if parsing results in NaN
+  if (isNaN(accessTokenValidityInMs)) accessTokenValidityInMs = 86400000; // Default: 1 day
+  if (isNaN(refreshTokenValidityInMs)) refreshTokenValidityInMs = 604800000; // Default: 7 days
 
   res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: accessTokenValidity,
+    maxAge: Date.now() + accessTokenValidityInMs,
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
-    secure: configService.get('ALLOW_SECURE_COOKIES') === 'true',
+    secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: refreshTokenValidity,
+    maxAge: Date.now() + refreshTokenValidityInMs,
   });
 
   if (!redirect) {
@@ -69,12 +72,11 @@ export const authCookieHandler = (
   }
 
   // check to see if redirectUrl is a whitelisted url
-  const whitelistedOrigins = configService
-    .get('WHITELISTED_ORIGINS')
-    .split(',');
+  const whitelistedOrigins =
+    configService.get('WHITELISTED_ORIGINS')?.split(',') ?? [];
   if (!whitelistedOrigins.includes(redirectUrl))
-    // if it is not redirect by default to REDIRECT_URL
-    redirectUrl = configService.get('REDIRECT_URL');
+    // if it is not redirect by default to App
+    redirectUrl = configService.get('VITE_BASE_URL');
 
   return res.status(HttpStatus.OK).redirect(redirectUrl);
 };
@@ -116,11 +118,7 @@ export function authProviderCheck(
     throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
   }
 
-  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS
-    ? VITE_ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
-      provider.trim().toUpperCase(),
-    )
-    : [];
+  const envVariables = VITE_ALLOWED_AUTH_PROVIDERS?.split(',') ?? [];
 
   if (!envVariables.includes(provider.toUpperCase())) return false;
 
@@ -132,8 +130,11 @@ export function authProviderCheck(
  * @param headers HTTP request headers containing auth tokens
  * @returns Cookie's key-value pairs
  */
-export const extractCookieAsKeyValuesFromHeaders = (headers: IncomingHttpHeaders) => {
-  const cookieHeader = headers['cookie'] || headers['Cookie'] || headers['COOKIE'];
+export const extractCookieAsKeyValuesFromHeaders = (
+  headers: IncomingHttpHeaders,
+) => {
+  const cookieHeader =
+    headers['cookie'] || headers['Cookie'] || headers['COOKIE'];
 
   if (!cookieHeader) {
     throw new HttpException(COOKIES_NOT_FOUND, 400, {
@@ -141,15 +142,21 @@ export const extractCookieAsKeyValuesFromHeaders = (headers: IncomingHttpHeaders
     });
   }
 
-  const cookieStr = Array.isArray(cookieHeader) ? cookieHeader[0] : cookieHeader;
+  const cookieStr = Array.isArray(cookieHeader)
+    ? cookieHeader[0]
+    : cookieHeader;
 
-  const kv = cookieStr.split(';')
-    .map(cookie => cookie.trim())
-    .reduce((acc, curr) => {
-      const [key, value] = curr.split('=');
-      acc[key] = value;
-      return acc;
-    }, {} as Record<string, string>);
+  const kv = cookieStr
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .reduce(
+      (acc, curr) => {
+        const [key, value] = curr.split('=');
+        acc[key] = value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
   return kv;
 };
@@ -159,10 +166,15 @@ export const extractCookieAsKeyValuesFromHeaders = (headers: IncomingHttpHeaders
  * @param headers HTTP request headers containing auth tokens
  * @returns AuthTokens for JWT strategy to use
  */
-export const extractAuthTokensFromCookieHeaders = (headers: IncomingHttpHeaders) => {
+export const extractAuthTokensFromCookieHeaders = (
+  headers: IncomingHttpHeaders,
+) => {
   const cookieKV = extractCookieAsKeyValuesFromHeaders(headers);
 
-  if (!cookieKV[AuthTokenType.ACCESS_TOKEN] || !cookieKV[AuthTokenType.REFRESH_TOKEN]) {
+  if (
+    !cookieKV[AuthTokenType.ACCESS_TOKEN] ||
+    !cookieKV[AuthTokenType.REFRESH_TOKEN]
+  ) {
     throw new HttpException(COOKIES_NOT_FOUND, 400, {
       cause: new Error(COOKIES_NOT_FOUND),
     });
@@ -179,7 +191,9 @@ export const extractAuthTokensFromCookieHeaders = (headers: IncomingHttpHeaders)
  * @param headers HTTP request headers containing access tokens
  * @returns AccessTokens for JWT strategy to use
  */
-export const extractAccessTokensFromCookieHeaders = (headers: IncomingHttpHeaders) => {
+export const extractAccessTokensFromCookieHeaders = (
+  headers: IncomingHttpHeaders,
+) => {
   const cookieKV = extractCookieAsKeyValuesFromHeaders(headers);
 
   if (!cookieKV[AuthTokenType.ACCESS_TOKEN]) {
@@ -198,7 +212,9 @@ export const extractAccessTokensFromCookieHeaders = (headers: IncomingHttpHeader
  * @param headers HTTP request headers containing bearer token
  * @returns AccessTokens for JWT strategy
  */
-export const extractAccessTokenFromAuthRecords = (headers: IncomingHttpHeaders) => {
+export const extractAccessTokenFromAuthRecords = (
+  headers: IncomingHttpHeaders,
+) => {
   const authHeader = headers['authorization'] || headers['Authorization'];
   if (!authHeader) {
     throw new HttpException(AUTH_HEADER_NOT_FOUND, 400, {

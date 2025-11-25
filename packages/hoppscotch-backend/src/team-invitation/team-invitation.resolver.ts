@@ -14,7 +14,7 @@ import { pipe } from 'fp-ts/function';
 import * as TE from 'fp-ts/TaskEither';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
-import { Team, TeamMember, TeamMemberRole } from 'src/team/team.model';
+import { Team, TeamMember, TeamAccessRole } from 'src/team/team.model';
 import { TEAM_INVITE_NO_INVITE_FOUND, USER_NOT_FOUND } from 'src/errors';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { User } from 'src/user/user.model';
@@ -41,7 +41,6 @@ export class TeamInvitationResolver {
     private readonly userService: UserService,
     private readonly teamService: TeamService,
     private readonly teamInvitationService: TeamInvitationService,
-
     private readonly pubsub: PubSubService,
   ) {}
 
@@ -85,9 +84,8 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<TeamInvitation> {
-    const teamInvitation = await this.teamInvitationService.getInvitation(
-      inviteID,
-    );
+    const teamInvitation =
+      await this.teamInvitationService.getInvitation(inviteID);
     if (O.isNone(teamInvitation)) throwErr(TEAM_INVITE_NO_INVITE_FOUND);
     return teamInvitation.value;
   }
@@ -96,7 +94,7 @@ export class TeamInvitationResolver {
     description: 'Creates a Team Invitation',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.OWNER)
   async createTeamInvitation(
     @GqlUser() user: AuthUser,
     @Args() args: CreateTeamInvitationArgs,
@@ -116,7 +114,7 @@ export class TeamInvitationResolver {
     description: 'Revokes an invitation and deletes it',
   })
   @UseGuards(GqlAuthGuard, TeamInviteTeamOwnerGuard)
-  @RequiresTeamRole(TeamMemberRole.OWNER)
+  @RequiresTeamRole(TeamAccessRole.OWNER)
   async revokeTeamInvitation(
     @Args({
       name: 'inviteID',
@@ -125,9 +123,8 @@ export class TeamInvitationResolver {
     })
     inviteID: string,
   ): Promise<true> {
-    const isRevoked = await this.teamInvitationService.revokeInvitation(
-      inviteID,
-    );
+    const isRevoked =
+      await this.teamInvitationService.revokeInvitation(inviteID);
     if (E.isLeft(isRevoked)) throwErr(isRevoked.left);
     return true;
   }
@@ -161,9 +158,9 @@ export class TeamInvitationResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   teamInvitationAdded(
     @Args({
@@ -183,9 +180,9 @@ export class TeamInvitationResolver {
   @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
-    TeamMemberRole.OWNER,
-    TeamMemberRole.EDITOR,
-    TeamMemberRole.VIEWER,
+    TeamAccessRole.OWNER,
+    TeamAccessRole.EDITOR,
+    TeamAccessRole.VIEWER,
   )
   teamInvitationRemoved(
     @Args({

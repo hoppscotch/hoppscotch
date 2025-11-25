@@ -11,7 +11,7 @@
             autocomplete="off"
             name="command"
             :placeholder="`${t(
-              'ai_experiments.generate_or_modify_test_script_input_placeholder'
+              'ai_experiments.generate_or_modify_post_request_script_input_placeholder'
             )}`"
             class="flex flex-1 bg-transparent px-6 text-base text-secondaryDark"
             @keypress="

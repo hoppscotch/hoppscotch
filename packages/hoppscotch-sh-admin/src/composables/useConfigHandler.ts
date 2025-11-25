@@ -26,12 +26,20 @@ import {
   GOOGLE_CONFIGS,
   MAIL_CONFIGS,
   MICROSOFT_CONFIGS,
+  MOCK_SERVER_CONFIGS,
   ServerConfigs,
+  TOKEN_VALIDATION_CONFIGS,
   UpdatedConfigs,
 } from '~/helpers/configs';
 import { getCompiledErrorMessage } from '~/helpers/errors';
 import { useToast } from './toast';
 import { useClientHandler } from './useClientHandler';
+
+const COOKIE_NAME_REGEX = /^[A-Za-z0-9_-]+$/;
+
+const OPTIONAL_TOKEN_FIELD_KEYS = new Set(
+  TOKEN_VALIDATION_CONFIGS.filter((cfg) => cfg.optional).map((cfg) => cfg.key)
+);
 
 /** Composable that handles all operations related to server configurations
  * @param updatedConfigs A Config Object containing the updated configs
@@ -136,6 +144,26 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             getFieldValue(InfraConfigEnum.MailerUseCustomConfigs) === 'true',
         },
       },
+      tokenConfigs: {
+        name: 'token',
+        fields: {
+          jwt_secret: getFieldValue(InfraConfigEnum.JwtSecret),
+          token_salt_complexity: getFieldValue(
+            InfraConfigEnum.TokenSaltComplexity
+          ),
+          magic_link_token_validity: getFieldValue(
+            InfraConfigEnum.MagicLinkTokenValidity
+          ),
+          refresh_token_validity: getFieldValue(
+            InfraConfigEnum.RefreshTokenValidity
+          ),
+          access_token_validity: getFieldValue(
+            InfraConfigEnum.AccessTokenValidity
+          ),
+          session_secret: getFieldValue(InfraConfigEnum.SessionSecret),
+          session_cookie_name: getFieldValue(InfraConfigEnum.SessionCookieName),
+        },
+      },
       dataSharingConfigs: {
         name: 'data_sharing',
         enabled: !!infraConfigs.value.find(
@@ -149,6 +177,21 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
             config.name === 'USER_HISTORY_STORE_ENABLED' &&
             config.value === 'ENABLE'
         ),
+      },
+      rateLimitConfigs: {
+        name: 'rate_limit',
+        fields: {
+          rate_limit_ttl: getFieldValue(InfraConfigEnum.RateLimitTtl),
+          rate_limit_max: getFieldValue(InfraConfigEnum.RateLimitMax),
+        },
+      },
+      mockServerConfigs: {
+        name: 'mock_server',
+        fields: {
+          mock_server_wildcard_domain: getFieldValue(
+            InfraConfigEnum.MockServerWildcardDomain
+          ),
+        },
       },
     };
 
@@ -165,10 +208,55 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     Check if any of the config fields are empty
   */
   const isFieldEmpty = (field: string | boolean) => {
-    if (typeof field === 'boolean') {
+    if (typeof field === 'boolean' || typeof field === 'number') {
       return false;
     }
     return field.trim() === '';
+  };
+
+  /**
+   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
+   * It checks if the field is a number or a numeric string, and returns true if it is not valid.
+   * @param field Field value to validate
+   * @returns Boolean indicating if the field is not valid
+   */
+  const isNotValidNumber = (field: string | boolean | number) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+
+    // Accept numbers or numeric strings (e.g., "1000"), but not non-numeric strings (e.g., "abc")
+    if (typeof field === 'number') {
+      return isNaN(field);
+    }
+
+    if (typeof field === 'string') {
+      // Trim and check if the string is a valid number
+      const trimmed = field.trim();
+      if (trimmed === '') return true;
+      return isNaN(Number(trimmed));
+    }
+
+    return true;
+  };
+
+  /**
+   * Check if the field is not valid
+   * This is used to validate number fields, ensuring they are not NaN or less than or equal to zero.
+   * @param field Field value to validate
+   * @returns Boolean indicating if the field is valid
+   */
+  const isFieldNotValid = (field: string | boolean) => {
+    if (typeof field === 'boolean') {
+      return false;
+    }
+
+    const num = Number(field);
+    if (isNaN(num) && typeof field === 'string') {
+      return field.trim() === '';
+    }
+
+    return num <= 0;
   };
 
   const AreAnyConfigFieldsEmpty = (config: ServerConfigs): boolean => {
@@ -177,25 +265,44 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       config.providers.google,
       config.providers.microsoft,
       config.mailConfigs,
+      config.rateLimitConfigs,
+      config.tokenConfigs,
     ];
 
     const hasSectionWithEmptyFields = sections.some((section) => {
-      if (
-        section.name === 'email' &&
-        !section.fields.mailer_use_custom_configs
-      ) {
+      if (section.name === 'email') {
+        const { mailer_use_custom_configs, ...otherFields } = section.fields;
+
+        const excludeKeys = mailer_use_custom_configs
+          ? ['mailer_smtp_url']
+          : [
+              'mailer_smtp_host',
+              'mailer_smtp_port',
+              'mailer_smtp_user',
+              'mailer_smtp_password',
+            ];
+
         return (
           section.enabled &&
-          Object.entries(section.fields).some(
-            ([key, value]) =>
-              isFieldEmpty(value) &&
-              key !== 'mailer_smtp_host' &&
-              key !== 'mailer_smtp_port' &&
-              key !== 'mailer_smtp_user' &&
-              key !== 'mailer_smtp_password'
+          Object.entries(otherFields).some(
+            ([key, value]) => isFieldEmpty(value) && !excludeKeys.includes(key)
           )
         );
       }
+
+      // This section has no enabled property, so we check fields directly
+      // for a valid number (>0) or non-empty string
+      if (section.name === 'token') {
+        return Object.entries(section.fields).some(
+          ([key, value]) =>
+            !OPTIONAL_TOKEN_FIELD_KEYS.has(key) && isFieldNotValid(value)
+        );
+      }
+
+      // For rate limit section, we want to check if the values are not valid numbers
+      // and not empty strings
+      if (section.name === 'rate_limit')
+        return Object.values(section.fields).some(isNotValidNumber);
 
       return (
         section.enabled && Object.values(section.fields).some(isFieldEmpty)
@@ -256,6 +363,11 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
         config: CUSTOM_MAIL_CONFIGS,
         enabled: isCustomMailConfigEnabled,
         fields: customMailConfigFields,
+      },
+      {
+        config: MOCK_SERVER_CONFIGS,
+        enabled: true,
+        fields: updatedConfigs?.mockServerConfigs?.fields ?? {},
       },
     ];
 
@@ -407,6 +519,130 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
       'configs.user_history_store.toggle_failure'
     );
 
+  const updateRateLimitConfigs = (
+    updateRateLimitMutation: UseMutationResponse<UpdateInfraConfigsMutation>
+  ) => {
+    if (!updatedConfigs?.rateLimitConfigs) {
+      toast.error(t('configs.rate_limit.input_validation_error'));
+      return false;
+    }
+
+    const rateLimitTtl = String(
+      updatedConfigs?.rateLimitConfigs.fields.rate_limit_ttl
+    );
+    const rateLimitMax = String(
+      updatedConfigs?.rateLimitConfigs.fields.rate_limit_max
+    );
+
+    if (isFieldEmpty(rateLimitTtl) || isFieldEmpty(rateLimitMax)) {
+      toast.error(t('configs.rate_limit.input_validation_error'));
+      return false;
+    }
+
+    const rateLimitConfigs: InfraConfigArgs[] = [
+      {
+        name: InfraConfigEnum.RateLimitTtl,
+        value: String(rateLimitTtl),
+      },
+      {
+        name: InfraConfigEnum.RateLimitMax,
+        value: String(rateLimitMax),
+      },
+    ];
+
+    return executeMutation(
+      updateRateLimitMutation,
+      {
+        infraConfigs: rateLimitConfigs,
+      },
+      'configs.rate_limit.update_failure'
+    );
+  };
+
+  const updateAuthTokenConfigs = (
+    updateAuthTokenMutation: UseMutationResponse<UpdateInfraConfigsMutation>
+  ) => {
+    if (!updatedConfigs?.tokenConfigs) {
+      toast.error(t('configs.auth_providers.token.update_failure'));
+      return false;
+    }
+
+    const jwtSecret = String(updatedConfigs?.tokenConfigs.fields.jwt_secret);
+    const tokenSaltComplexity = String(
+      updatedConfigs?.tokenConfigs.fields.token_salt_complexity
+    );
+    const magicLinkTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.magic_link_token_validity
+    );
+    const refreshTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.refresh_token_validity
+    );
+    const accessTokenValidity = String(
+      updatedConfigs?.tokenConfigs.fields.access_token_validity
+    );
+    const sessionSecret = String(
+      updatedConfigs?.tokenConfigs.fields.session_secret
+    );
+    const sessionCookieName = String(
+      updatedConfigs?.tokenConfigs.fields.session_cookie_name || ''
+    );
+    // Validate cookie name: allow empty (falls back to default), else enforce pattern
+    if (sessionCookieName && !COOKIE_NAME_REGEX.test(sessionCookieName)) {
+      toast.error(t('configs.auth_providers.token.session_cookie_name_invalid'));
+      return false;
+    }
+    if (
+      isFieldEmpty(jwtSecret) ||
+      isFieldEmpty(tokenSaltComplexity) ||
+      isFieldEmpty(magicLinkTokenValidity) ||
+      isFieldEmpty(refreshTokenValidity) ||
+      isFieldEmpty(accessTokenValidity) ||
+      isFieldEmpty(sessionSecret)
+    ) {
+      toast.error(t('configs.auth_providers.token.update_failure'));
+      return false;
+    }
+
+    const authTokenConfigs: InfraConfigArgs[] = [
+      {
+        name: InfraConfigEnum.JwtSecret,
+        value: jwtSecret,
+      },
+      {
+        name: InfraConfigEnum.TokenSaltComplexity,
+        value: tokenSaltComplexity,
+      },
+      {
+        name: InfraConfigEnum.MagicLinkTokenValidity,
+        value: magicLinkTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.RefreshTokenValidity,
+        value: refreshTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.AccessTokenValidity,
+        value: accessTokenValidity,
+      },
+      {
+        name: InfraConfigEnum.SessionSecret,
+        value: sessionSecret,
+      },
+      {
+        name: InfraConfigEnum.SessionCookieName,
+        value: sessionCookieName,
+      },
+    ];
+
+    return executeMutation(
+      updateAuthTokenMutation,
+      {
+        infraConfigs: authTokenConfigs,
+      },
+      'configs.auth_providers.token.update_failure'
+    );
+  };
+
   return {
     currentConfigs,
     workingConfigs,
@@ -414,6 +650,8 @@ export function useConfigHandler(updatedConfigs?: ServerConfigs) {
     updateDataSharingConfigs,
     toggleSMTPConfigs,
     toggleUserHistoryStore,
+    updateRateLimitConfigs,
+    updateAuthTokenConfigs,
     updateInfraConfigs,
     resetInfraConfigs,
     fetchingInfraConfigs,

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 pub struct StorageLayout {
-    root: PathBuf,
+    pub(crate) root: PathBuf,
 }
 
 impl StorageLayout {

@@ -9,10 +9,10 @@ import {
 } from "./2"
 import { HoppGQLAuthAPIKey } from "./4"
 import { HoppGQLAuthAWSSignature } from "./6"
-import { HoppRESTAuthOAuth2 } from "./../../rest/v/11"
+import { HoppRESTAuthOAuth2 } from "../../rest/v/11/auth"
 import { V7_SCHEMA } from "./7"
 
-export { HoppRESTAuthOAuth2 as HoppGQLAuthOAuth2 } from "../../rest/v/11"
+export { HoppRESTAuthOAuth2 as HoppGQLAuthOAuth2 } from "../../rest/v/11/auth"
 
 export const HoppGQLAuth = z
   .discriminatedUnion("authType", [

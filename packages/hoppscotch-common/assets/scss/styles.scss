@@ -153,104 +153,6 @@ a {
   }
 }
 
-.cm-tooltip {
-  .tippy-box {
-    @apply shadow-none #{!important};
-    @apply fixed;
-    @apply inline-flex;
-    @apply -mt-7;
-  }
-}
-
-.tippy-box[data-theme~="tooltip"] {
-  @apply bg-tooltip;
-  @apply border-solid border-tooltip;
-  @apply rounded;
-  @apply shadow;
-
-  .tippy-content {
-    @apply flex;
-    @apply text-tiny text-primary;
-    @apply font-semibold;
-    @apply px-2 py-1;
-    @apply truncate;
-    @apply leading-body;
-    @apply items-center;
-
-    kbd {
-      @apply hidden;
-      @apply font-sans;
-      background-color: rgba(107, 114, 128, 0.45);
-      @apply text-primaryLight;
-      @apply rounded-sm;
-      @apply px-1;
-      @apply my-0 ml-1;
-      @apply truncate;
-      @apply sm:inline-flex;
-    }
-
-    .env-icon {
-      @apply transition;
-      @apply inline-flex;
-      @apply items-center;
-    }
-  }
-
-  .tippy-svg-arrow {
-    svg:first-child {
-      @apply fill-tooltip;
-    }
-
-    svg:last-child {
-      @apply fill-tooltip;
-    }
-  }
-}
-
-.tippy-box[data-theme~="popover"] {
-  @apply bg-popover;
-  @apply border-solid border-dividerDark;
-  @apply rounded;
-  @apply shadow-lg;
-  @apply max-w-[45vw] #{!important};
-
-  .tippy-content {
-    @apply flex flex-col;
-    @apply max-h-[45vh];
-    @apply items-stretch;
-    @apply overflow-y-auto;
-    @apply text-body text-secondary;
-    @apply p-2;
-    @apply leading-body;
-    @apply focus:outline-none;
-    scroll-behavior: smooth;
-
-    & > span {
-      @apply block #{!important};
-    }
-  }
-
-  .tippy-svg-arrow {
-    svg:first-child {
-      @apply fill-dividerDark;
-    }
-
-    svg:last-child {
-      @apply fill-popover;
-    }
-  }
-}
-
-[data-v-tippy] {
-  @apply flex flex-1;
-  @apply truncate;
-}
-
-[interactive] > div {
-  @apply flex flex-1;
-  @apply h-full;
-}
-
 hr {
   @apply border-b border-dividerLight;
   @apply my-2 #{!important};
@@ -599,6 +501,11 @@ details[open] summary .indicator {
   &.request-variable-highlight {
     @apply bg-amber-500;
     @apply hover:bg-amber-600;
+  }
+
+  &.collection-variable-highlight {
+    @apply bg-purple-500;
+    @apply hover:bg-purple-600;
   }
 
   &.environment-variable-highlight {

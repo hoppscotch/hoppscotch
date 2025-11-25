@@ -4,6 +4,7 @@ import { runDispatchWithOutSyncing } from "../../lib/sync"
 
 import {
   exportUserCollectionsToJSON,
+  runUserChildCollectionSortedSubscription,
   runUserCollectionCreatedSubscription,
   runUserCollectionDuplicatedSubscription,
   runUserCollectionMovedSubscription,
@@ -14,6 +15,7 @@ import {
   runUserRequestDeletedSubscription,
   runUserRequestMovedSubscription,
   runUserRequestUpdatedSubscription,
+  runUserRootCollectionsSortedSubscription,
 } from "./collections.api"
 import { collectionsSyncer, getStoreByCollectionType } from "./collections.sync"
 
@@ -44,6 +46,8 @@ import {
   saveRESTRequestAs,
   setGraphqlCollections,
   setRESTCollections,
+  sortRESTCollection,
+  sortRESTFolder,
   updateRESTCollectionOrder,
   updateRESTRequestOrder,
 } from "@hoppscotch/common/newstore/collections"
@@ -70,6 +74,7 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
+  // TODO: fix collection schema transformation on backend maybe?
   loadUserCollections("REST")
   loadUserCollections("GQL")
 
@@ -130,11 +135,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: true },
             headers: [],
+            variables: [],
           }
 
     return {
       id: restCollection.id,
-      v: 6,
+      v: 10,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -182,6 +188,7 @@ function exportedCollectionToHoppCollection(
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
+      variables: data.variables ?? [],
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -192,11 +199,12 @@ function exportedCollectionToHoppCollection(
         : {
             auth: { authType: "inherit", authActive: true },
             headers: [],
+            variables: [],
           }
 
     return {
       id: gqlCollection.id,
-      v: 6,
+      v: 10,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -224,6 +232,7 @@ function exportedCollectionToHoppCollection(
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
+      variables: data.variables ?? [],
     }
   }
 }
@@ -276,6 +285,10 @@ function setupSubscriptions() {
     setupUserCollectionOrderUpdatedSubscription()
   const userCollectionDuplicatedSub =
     setupUserCollectionDuplicatedSubscription()
+  const userRootCollectionsSortedSub =
+    setupUserRootCollectionsSortedSubscription()
+  const userChildCollectionSortedSub =
+    setupUserChildCollectionSortedSubscription()
 
   const userRequestCreatedSub = setupUserRequestCreatedSubscription()
   const userRequestUpdatedSub = setupUserRequestUpdatedSubscription()
@@ -289,6 +302,8 @@ function setupSubscriptions() {
     userCollectionMovedSub,
     userCollectionOrderUpdatedSub,
     userCollectionDuplicatedSub,
+    userRootCollectionsSortedSub,
+    userChildCollectionSortedSub,
     userRequestCreatedSub,
     userRequestUpdatedSub,
     userRequestDeletedSub,
@@ -366,6 +381,7 @@ function setupUserCollectionCreatedSubscription() {
             : {
                 auth: { authType: "inherit", authActive: true },
                 headers: [],
+                variables: [],
               }
 
         runDispatchWithOutSyncing(() => {
@@ -374,17 +390,19 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 6,
+                v: 10,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
+                variables: data.variables ?? [],
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 6,
+                v: 10,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
+                variables: data.variables ?? [],
               })
 
           const localIndex = collectionStore.value.state.length - 1
@@ -587,12 +605,13 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers } =
+      const { auth, headers, variables } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
+              variables: [],
             }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
@@ -607,9 +626,10 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 6,
+        v: 10,
         auth,
         headers: addDescriptionField(headers),
+        variables: variables ?? [],
       }
 
       // only folders will have parent collection id
@@ -700,6 +720,56 @@ function setupUserCollectionDuplicatedSubscription() {
   })
 
   return userCollectionDuplicatedSub
+}
+
+const setupUserRootCollectionsSortedSubscription = () => {
+  const [userRootCollectionsSorted$, userRootCollectionsSortedSub] =
+    runUserRootCollectionsSortedSubscription()
+
+  userRootCollectionsSorted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      runDispatchWithOutSyncing(() => {
+        if (res.right.userRootCollectionsSorted) {
+          const { sortOption } = res.right.userRootCollectionsSorted
+
+          const sortOrder = sortOption === "TITLE_ASC" ? "asc" : "desc"
+
+          sortRESTCollection(null, sortOrder)
+        }
+      })
+    }
+  })
+  return userRootCollectionsSortedSub
+}
+
+const setupUserChildCollectionSortedSubscription = () => {
+  const [userChildCollectionSorted$, userChildCollectionSortedSub] =
+    runUserChildCollectionSortedSubscription()
+
+  userChildCollectionSorted$.subscribe((res) => {
+    if (E.isRight(res)) {
+      runDispatchWithOutSyncing(() => {
+        if (res.right.userChildCollectionsSorted) {
+          const { parentCollectionID, sortOption } =
+            res.right.userChildCollectionsSorted
+
+          if (!parentCollectionID) return
+
+          const sortOrder = sortOption === "TITLE_ASC" ? "asc" : "desc"
+
+          const sourcePath = getCollectionPathFromCollectionID(
+            parentCollectionID,
+            restCollectionStore.value.state
+          )
+
+          if (!sourcePath) return
+
+          sortRESTFolder(sourcePath, sortOrder)
+        }
+      })
+    }
+  })
+  return userChildCollectionSortedSub
 }
 
 function setupUserRequestCreatedSubscription() {
@@ -1023,10 +1093,14 @@ function transformDuplicatedCollections(
       requests: userRequests,
       title: name,
     }) => {
-      const { auth, headers } =
+      const { auth, headers, variables } =
         data && data !== "null"
           ? JSON.parse(data)
-          : { auth: { authType: "inherit", authActive: true }, headers: [] }
+          : {
+              auth: { authType: "inherit", authActive: true },
+              headers: [],
+              variables: [],
+            }
 
       const folders = transformDuplicatedCollections(childCollectionsJSONStr)
 
@@ -1037,9 +1111,10 @@ function transformDuplicatedCollections(
         name,
         folders,
         requests,
-        v: 6,
+        v: 10,
         auth,
         headers: addDescriptionField(headers),
+        variables: variables ?? [],
       }
     }
   )

@@ -1,8 +1,8 @@
 import { getService } from "~/modules/dioc"
-import { getCombinedEnvVariables } from "../preRequest"
 import { RESTTabService } from "~/services/tab/rest"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import { getCombinedEnvVariables } from "../utils/environments"
 
 export const replaceTemplateStringsInObjectValues = <
   T extends Record<string, unknown>,
@@ -19,7 +19,8 @@ export const replaceTemplateStringsInObjectValues = <
       ? restTabsService.currentActiveTab.value.document.request.requestVariables.map(
           ({ key, value }) => ({
             key,
-            value,
+            initialValue: value,
+            currentValue: value,
             secret: false,
           })
         )
@@ -54,4 +55,8 @@ export const replaceTemplateStringsInObjectValues = <
   }
 
   return newObj as T
+}
+
+export const replaceTemplateString = (str: string): string => {
+  return replaceTemplateStringsInObjectValues({ value: str }).value
 }

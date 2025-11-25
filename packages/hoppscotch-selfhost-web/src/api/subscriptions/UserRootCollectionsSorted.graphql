@@ -1,0 +1,6 @@
+subscription UserRootCollectionsSorted {
+  userRootCollectionsSorted {
+    parentCollectionID
+    sortOption
+  }
+}

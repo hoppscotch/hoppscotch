@@ -25,6 +25,18 @@ vi.mock("~/helpers/teams/TeamListAdapter", () => ({
   },
 }))
 
+// Mock TeamCollectionsService to prevent i18n dependency issues
+vi.mock("../team-collection.service", () => ({
+  TeamCollectionsService: class MockTeamCollectionsService {
+    static readonly ID = "TEAM_COLLECTIONS_SERVICE"
+
+    changeTeamID = vi.fn()
+    clearCollections = vi.fn()
+
+    onServiceInit = vi.fn()
+  },
+}))
+
 describe("WorkspaceService", () => {
   const platformMock = {
     auth: {
@@ -64,6 +76,7 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "before update",
+        role: null,
       })
 
       service.updateWorkspaceTeamName("test")
@@ -72,6 +85,7 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
     })
 
@@ -100,12 +114,14 @@ describe("WorkspaceService", () => {
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
 
       expect(service.currentWorkspace.value).toEqual({
         type: "team",
         teamID: "test",
         teamName: "test",
+        role: null,
       })
     })
   })
@@ -233,6 +249,228 @@ describe("WorkspaceService", () => {
       vi.advanceTimersByTime(100)
 
       expect(listAdapterMock.fetchList).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Team Collection Service Synchronization", () => {
+    it("should call changeTeamID when workspace changes to a team workspace", async () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      // Access the team collection service mock
+      const teamCollectionServiceMock = (service as any).teamCollectionService
+
+      // Change to team workspace
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-123",
+        teamName: "Test Team",
+        role: null,
+      })
+
+      await nextTick()
+
+      expect(teamCollectionServiceMock.changeTeamID).toHaveBeenCalledWith(
+        "team-123"
+      )
+    })
+
+    it("should call clearCollections when workspace changes to personal workspace", async () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      // Start with a team workspace
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-123",
+        teamName: "Test Team",
+        role: null,
+      })
+
+      await nextTick()
+
+      const teamCollectionServiceMock = (service as any).teamCollectionService
+      teamCollectionServiceMock.clearCollections.mockClear()
+
+      // Change to personal workspace
+      service.changeWorkspace({
+        type: "personal",
+      })
+
+      await nextTick()
+
+      expect(teamCollectionServiceMock.clearCollections).toHaveBeenCalled()
+    })
+
+    it("should call clearCollections when workspace changes to team workspace without teamID", async () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      const teamCollectionServiceMock = (service as any).teamCollectionService
+
+      // Change to team workspace without teamID
+      service.changeWorkspace({
+        type: "team",
+        teamID: "",
+        teamName: "Test Team",
+        role: null,
+      })
+
+      await nextTick()
+
+      expect(teamCollectionServiceMock.clearCollections).toHaveBeenCalled()
+    })
+
+    it("should not sync when workspaces are effectively the same", async () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      // Start with a team workspace
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-123",
+        teamName: "Test Team",
+        role: null,
+      })
+
+      await nextTick()
+
+      const teamCollectionServiceMock = (service as any).teamCollectionService
+      teamCollectionServiceMock.changeTeamID.mockClear()
+
+      // Change to same team workspace (different name, same ID)
+      service.changeWorkspace({
+        type: "team",
+        teamID: "team-123",
+        teamName: "Updated Team Name",
+        role: null,
+      })
+
+      await nextTick()
+
+      // Should not call changeTeamID again since it's the same team
+      expect(teamCollectionServiceMock.changeTeamID).not.toHaveBeenCalled()
+    })
+
+    it("should handle errors during team collection service sync gracefully", async () => {
+      const container = new TestContainer()
+      const service = container.bind(WorkspaceService)
+
+      const teamCollectionServiceMock = (service as any).teamCollectionService
+      teamCollectionServiceMock.changeTeamID.mockImplementation(() => {
+        throw new Error("Sync failed")
+      })
+
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      // Change to team workspace (should not throw)
+      expect(() => {
+        service.changeWorkspace({
+          type: "team",
+          teamID: "team-123",
+          teamName: "Test Team",
+          role: null,
+        })
+      }).not.toThrow()
+
+      await nextTick()
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to sync team collections:",
+        expect.any(Error)
+      )
+
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe("areWorkspacesEqual", () => {
+    let service: WorkspaceService
+
+    beforeEach(() => {
+      const container = new TestContainer()
+      service = container.bind(WorkspaceService)
+    })
+
+    it("should return false when newWorkspace is undefined", () => {
+      const result = (service as any).areWorkspacesEqual(undefined, {
+        type: "personal",
+      })
+      expect(result).toBe(false)
+    })
+
+    it("should return false when oldWorkspace is undefined", () => {
+      const result = (service as any).areWorkspacesEqual(
+        { type: "personal" },
+        undefined
+      )
+      expect(result).toBe(false)
+    })
+
+    it("should return true when both workspaces are personal", () => {
+      const result = (service as any).areWorkspacesEqual(
+        { type: "personal" },
+        { type: "personal" }
+      )
+      expect(result).toBe(true)
+    })
+
+    it("should return true when both workspaces are team workspaces with same teamID", () => {
+      const workspace1 = {
+        type: "team",
+        teamID: "team-123",
+        teamName: "Team A",
+        role: null,
+      }
+      const workspace2 = {
+        type: "team",
+        teamID: "team-123",
+        teamName: "Team A Updated",
+        role: null,
+      }
+
+      const result = (service as any).areWorkspacesEqual(workspace1, workspace2)
+      expect(result).toBe(true)
+    })
+
+    it("should return false when team workspaces have different teamIDs", () => {
+      const workspace1 = {
+        type: "team",
+        teamID: "team-123",
+        teamName: "Team A",
+        role: null,
+      }
+      const workspace2 = {
+        type: "team",
+        teamID: "team-456",
+        teamName: "Team B",
+        role: null,
+      }
+
+      const result = (service as any).areWorkspacesEqual(workspace1, workspace2)
+      expect(result).toBe(false)
+    })
+
+    it("should return false when one is personal and other is team workspace", () => {
+      const personalWorkspace = { type: "personal" }
+      const teamWorkspace = {
+        type: "team",
+        teamID: "team-123",
+        teamName: "Team A",
+        role: null,
+      }
+
+      const result1 = (service as any).areWorkspacesEqual(
+        personalWorkspace,
+        teamWorkspace
+      )
+      const result2 = (service as any).areWorkspacesEqual(
+        teamWorkspace,
+        personalWorkspace
+      )
+
+      expect(result1).toBe(false)
+      expect(result2).toBe(false)
     })
   })
 })

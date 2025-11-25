@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Account, VerificationToken } from '@prisma/client';
-import { mockDeep, mockFn } from 'jest-mock-extended';
+import { mockDeep } from 'jest-mock-extended';
 import {
   INVALID_EMAIL,
   INVALID_MAGIC_LINK_DATA,
@@ -81,9 +81,6 @@ const accountDetails: Account = {
 let nowPlus30 = new Date();
 nowPlus30.setMinutes(nowPlus30.getMinutes() + 30000);
 nowPlus30 = new Date(nowPlus30);
-
-const encodedRefreshToken =
-  '$argon2id$v=19$m=65536,t=3,p=4$JTP8yZ8YXMHdafb5pB9Rfg$tdZrILUxMb9dQbu0uuyeReLgKxsgYnyUNbc5ZxQmy5I';
 
 describe('signInMagicLink', () => {
   test('Should throw error if email is not in valid format', async () => {

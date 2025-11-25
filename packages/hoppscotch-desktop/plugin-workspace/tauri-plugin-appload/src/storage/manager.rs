@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
+use sysinfo::Disks;
 use tokio::sync::RwLock;
 use tracing;
 
@@ -144,12 +145,42 @@ impl StorageManager {
 
     async fn ensure_space(&self, required: usize) -> Result<()> {
         tracing::debug!(required_space = required, "Checking available disk space");
-        let available = sys_info::disk_info()
-            .map_err(|e| {
-                tracing::error!(error = %e, "Failed to retrieve disk information");
-                StorageError::OtherError(format!("Failed to get disk info: {}", e))
-            })?
-            .free;
+
+        let disks = Disks::new_with_refreshed_list();
+
+        let storage_path = self.layout.root.canonicalize().map_err(|e| {
+            tracing::error!(error = %e, "Failed to resolve storage path");
+            StorageError::Io(e)
+        })?;
+
+        // Convert both paths to the same format for comparison, Windows...
+        let normalized_storage = dunce::canonicalize(&storage_path).unwrap_or(storage_path.clone());
+
+        // NOTE: There cannot be more than one user config storage disk,
+        // although even if there is, defaulting to the first one we found
+        // is as good of a guess as any.
+        // Find the disk with the longest matching mount point
+        let disk = disks
+            .into_iter()
+            .filter_map(|disk| {
+                let normalized_disk = dunce::canonicalize(disk.mount_point())
+                    .unwrap_or_else(|_| disk.mount_point().to_path_buf());
+
+                normalized_storage
+                    .starts_with(&normalized_disk)
+                    .then_some((disk, normalized_disk))
+            })
+            .max_by_key(|(_, normalized_disk)| normalized_disk.as_os_str().len())
+            .map(|(disk, _)| disk)
+            .ok_or_else(|| {
+                tracing::error!(
+                    storage_path = %storage_path.display(),
+                    "Fatal error, unable to resolve user config storage disk"
+                );
+                StorageError::DiskNotFound
+            })?;
+
+        let available = disk.available_space();
 
         if (required as u64) > available {
             tracing::warn!(

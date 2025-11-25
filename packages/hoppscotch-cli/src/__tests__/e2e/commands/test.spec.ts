@@ -89,12 +89,31 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
             expect(error).toBeNull();
           });
         });
+
+        describe("Mixed versions", () => {
+          test("Successfully processes children based on valid version ranges", async () => {
+            const args = `test ${getTestJsonFilePath("valid-mixed-versions-coll.json", "collection")}`;
+            const { error } = await runCLI(args);
+
+            expect(error).toBeNull();
+          });
+
+          test("Errors with the code `MALFORMED_COLLECTION` if the children fall out of valid version ranges", async () => {
+            const args = `test ${getTestJsonFilePath("invalid-mixed-versions-coll.json", "collection")}`;
+
+            const { stderr } = await runCLI(args);
+            const out = getErrorCode(stderr);
+
+            expect(out).toBe<HoppErrorCode>("MALFORMED_COLLECTION");
+          });
+        });
       });
 
       describe("Environments", () => {
         const testFixtures = [
           { fileName: "env-v0.json", version: 0 },
           { fileName: "env-v1.json", version: 1 },
+          { fileName: "env-v2.json", version: 2 },
         ];
 
         testFixtures.forEach(({ fileName, version }) => {
@@ -179,45 +198,93 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         expect(error).toBeNull();
       });
     });
-  });
 
-  test("Ensures tests run in sequence order based on request path", async () => {
-    // Expected order of collection runs
-    const expectedOrder = [
-      "root-collection-request",
-      "folder-1/folder-1-request",
-      "folder-1/folder-11/folder-11-request",
-      "folder-1/folder-12/folder-12-request",
-      "folder-1/folder-13/folder-13-request",
-      "folder-2/folder-2-request",
-      "folder-2/folder-21/folder-21-request",
-      "folder-2/folder-22/folder-22-request",
-      "folder-2/folder-23/folder-23-request",
-      "folder-3/folder-3-request",
-      "folder-3/folder-31/folder-31-request",
-      "folder-3/folder-32/folder-32-request",
-      "folder-3/folder-33/folder-33-request",
-    ];
+    test("Successfully display console logs and recognizes platform APIs in the experimental scripting sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "test-scripting-sandbox-modes-coll.json",
+        "collection"
+      )}`;
+      const { error, stdout } = await runCLI(args);
 
-    const normalizePath = (path: string) => path.replace(/\\/g, "/");
+      expect(error).toBeNull();
 
-    const extractRunningOrder = (stdout: string): string[] =>
-      [...stdout.matchAll(/Running:.*?\/(.*?)\r?\n/g)].map(
-        ([, path]) => normalizePath(path.replace(/\x1b\[\d+m/g, "")) // Remove ANSI codes and normalize paths
-      );
+      const expectedStaticParts = [
+        "https://example.com/path?foo=bar&baz=qux",
+        "'0': 72",
+        "'12': 33",
+        "Decoded: Hello, world!",
+        "Hello after 1s",
+      ];
 
-    const args = `test ${getTestJsonFilePath(
-      "multiple-child-collections-auth-headers-coll.json",
-      "collection"
-    )}`;
+      // Assert that each stable part appears in the output
+      expectedStaticParts.forEach((part) => {
+        expect(stdout).toContain(part);
+      });
 
-    const { stdout, error } = await runCLI(args);
+      const every500msCount = (stdout.match(/Every 500ms/g) || []).length;
+      expect(every500msCount).toBeGreaterThanOrEqual(3);
+    });
 
-    // Verify the actual order matches the expected order
-    expect(extractRunningOrder(stdout)).toStrictEqual(expectedOrder);
+    test("Fails to display console logs and recognize platform APIs in the legacy scripting sandbox", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "test-scripting-sandbox-modes-coll.json",
+        "collection"
+      )} --legacy-sandbox`;
+      const { error, stdout } = await runCLI(args);
 
-    // Ensure no errors occurred
-    expect(error).toBeNull();
+      expect(error).toBeTruthy();
+      expect(stdout).not.toContain("https://example.com/path?foo=bar&baz=qux");
+      expect(stdout).not.toContain("Encoded");
+    });
+
+    test("Ensures tests run in sequence order based on request path", async () => {
+      // Expected order of collection runs
+      const expectedOrder = [
+        "root-collection-request",
+        "folder-1/folder-1-request",
+        "folder-1/folder-11/folder-11-request",
+        "folder-1/folder-12/folder-12-request",
+        "folder-1/folder-13/folder-13-request",
+        "folder-2/folder-2-request",
+        "folder-2/folder-21/folder-21-request",
+        "folder-2/folder-22/folder-22-request",
+        "folder-2/folder-23/folder-23-request",
+        "folder-3/folder-3-request",
+        "folder-3/folder-31/folder-31-request",
+        "folder-3/folder-32/folder-32-request",
+        "folder-3/folder-33/folder-33-request",
+      ];
+
+      const normalizePath = (path: string) => path.replace(/\\/g, "/");
+
+      const extractRunningOrder = (stdout: string): string[] =>
+        [...stdout.matchAll(/Running:.*?\/(.*?)\r?\n/g)].map(
+          ([, path]) => normalizePath(path.replace(/\x1b\[\d+m/g, "")) // Remove ANSI codes and normalize paths
+        );
+
+      const args = `test ${getTestJsonFilePath(
+        "multiple-child-collections-auth-headers-coll.json",
+        "collection"
+      )}`;
+
+      const { stdout, error } = await runCLI(args);
+
+      // Verify the actual order matches the expected order
+      expect(extractRunningOrder(stdout)).toStrictEqual(expectedOrder);
+
+      // Ensure no errors occurred
+      expect(error).toBeNull();
+    });
+
+    test("Supports the new scripting API method additions under the `hopp` and `pm` namespaces", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "scripting-revamp-coll.json",
+        "collection"
+      )}`;
+      const { error } = await runCLI(args);
+
+      expect(error).toBeNull();
+    });
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -482,6 +549,24 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       const { error } = await runCLI(args);
 
       expect(error).toBeTruthy();
+    });
+
+    describe("HAWK Authentication", () => {
+      test("Correctly generates and attaches authorization headers to the request ", async () => {
+        const COLL_PATH = getTestJsonFilePath(
+          "hawk-auth-success-coll.json",
+          "collection"
+        );
+        const ENV_PATH = getTestJsonFilePath(
+          "hawk-auth-envs.json",
+          "environment"
+        );
+
+        const args = `test ${COLL_PATH} -e ${ENV_PATH}`;
+        const { error } = await runCLI(args);
+
+        expect(error).toBeNull();
+      });
     });
   });
 

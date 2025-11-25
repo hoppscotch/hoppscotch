@@ -43,6 +43,9 @@ export default defineConfig({
       maxParallelFileOps: 2,
     },
   },
+  worker: {
+    format: "es",
+  },
   resolve: {
     alias: {
       "tailwind.config.cjs": path.resolve(
@@ -211,7 +214,7 @@ export default defineConfig({
       registerType: "prompt",
       workbox: {
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 10485760,
+        maximumFileSizeToCacheInBytes: 15728640, // 15 MB,
         navigateFallbackDenylist: [
           /robots.txt/,
           /sitemap.xml/,
@@ -257,11 +260,4 @@ export default defineConfig({
         })
       : [],
   ],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern",
-      },
-    },
-  },
 })

@@ -19,54 +19,84 @@ hopp [options or commands] arguments
 
 ## **Command Descriptions:**
 
-1. #### **`hopp -v` / `hopp --ver`**
+1.  #### **`hopp -v` / `hopp --ver`**
 
-   - Prints out the current version of the Hoppscotch CLI
+    - Prints out the current version of the Hoppscotch CLI
 
-2. #### **`hopp -h` / `hopp --help`**
+2.  #### **`hopp -h` / `hopp --help`**
 
-   - Displays the help text
+    - Displays the help text
 
-3. #### **`hopp test [options] <file_path>`**
+3.  #### **`hopp test [options] <file_path_or_id>`**
 
-   - Interactive CLI to accept Hoppscotch collection JSON path
-   - Parses the collection JSON and executes each requests
-   - Executes pre-request script.
-   - Outputs the response of each request.
-   - Executes and outputs test-script response.
+    - Interactive CLI to accept Hoppscotch collection JSON path
+    - Parses the collection JSON and executes each requests
+    - Executes pre-request script.
+    - Outputs the response of each request.
+    - Executes and outputs test-script response.
 
-   #### Options:
+    #### Options:
 
-   ##### `-e <file_path>` / `--env <file_path>`
+    ##### `-e, --env <file_path_or_id> `
 
-   - Accepts path to env.json with contents in below format:
+    - Accepts path to env.json with contents in below format:
 
-     ```json
-     {
-       "ENV1": "value1",
-       "ENV2": "value2"
-     }
-     ```
+      ```json
+      {
+        "ENV1": "value1",
+        "ENV2": "value2"
+      }
+      ```
 
-   - You can now access those variables using `pw.env.get('<var_name>')`
+    - You can now access those variables using `pw.env.get('<var_name>')`
 
-     Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
+      Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
 
-   ##### `--iteration-count <no_of_iterations>`
+    #### `-d, --delay <delay_in_ms>`
 
-   - Accepts the number of iterations to run the collection
+    - Used to defer the execution of requests in a collection.
 
-   ##### `--iteration-data <file_path>`
+    #### `--token <access_token>`
 
-   - Accepts the path to a CSV file with contents in the below format:
+    - Expects a personal access token to be passed for establishing connection with your Hoppscotch account.
 
-     ```text
-     key1,key2,key3
-     value1,value2,value3
-     value4,value5,value6
-     ```
+    #### `--server <server_url>`
 
-     For every iteration the values will be replaced with the respective keys in the environment. For iteration 1 the value1,value2,value3 will be replaced and for iteration 2 value4,value5,value6 will be replaced and so on.
+    - URL of your self-hosted instance, if your collections are on a self-hosted instance.
+
+    #### `--reporter-junit [path]`
+
+    - Expects a file path to store the JUnit Report.
+
+    ##### `--iteration-count <no_of_iterations>`
+
+    - Accepts the number of iterations to run the collection
+
+    ##### `--iteration-data <file_path>`
+
+    - Accepts the path to a CSV file with contents in the below format:
+
+      ```text
+      key1,key2,key3
+      value1,value2,value3
+      value4,value5,value6
+      ```
+
+      For every iteration the values will be replaced with the respective keys in the environment. For iteration 1 the value1,value2,value3 will be replaced and for iteration 2 value4,value5,value6 will be replaced and so on.
+
+    #### `--legacy-sandbox`
+
+    - Opt out from the experimental scripting sandbox.
+
+## Versioning
+
+The Hoppscotch CLI follows **pre-1.0 semantic versioning** conventions while in alpha (version `< 1.0.0`):
+
+- **Feature releases** (e.g., `0.20.0` → `0.21.0`): New features, enhancements, or improvements
+- **Patch releases** (e.g., `0.20.0` → `0.20.1`): Bug fixes, security patches, and minor improvements
+- **Breaking changes** (e.g., `0.21.0` → `0.30.0`): Major version-like bumps for backwards-incompatible changes
+
+> Once the CLI reaches stability and a mature feature set, we will transition to standard semantic versioning starting with `1.0.0`.
 
 ## Install
 

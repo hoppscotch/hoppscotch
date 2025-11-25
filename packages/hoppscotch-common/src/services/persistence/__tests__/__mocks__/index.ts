@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 6,
+    v: 10,
     name: "Echo",
     requests: [
       {
@@ -51,17 +51,18 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    variables: [],
     folders: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 6,
+    v: 10,
     name: "Echo",
     requests: [
       {
-        v: 8,
+        v: 9,
         name: "Echo test",
         url: "https://echo.hoppscotch.io/graphql",
         headers: [],
@@ -75,28 +76,37 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     ],
     auth: { authType: "none", authActive: true },
     headers: [],
+    variables: [],
     folders: [],
   },
 ]
 
 export const ENVIRONMENTS_MOCK: Environment[] = [
   {
-    v: 1,
+    v: 2,
     id: "ENV_1",
     name: "globals",
     variables: [
       {
         key: "test-global-key",
-        value: "test-global-value",
+        initialValue: "test-global-value",
+        currentValue: "test-global-value",
         secret: false,
       },
     ],
   },
   {
-    v: 1,
+    v: 2,
     id: "ENV_2",
     name: "Test",
-    variables: [{ key: "test-key", value: "test-value", secret: false }],
+    variables: [
+      {
+        key: "test-key",
+        initialValue: "test-value",
+        currentValue: "test-value",
+        secret: false,
+      },
+    ],
   },
 ]
 
@@ -127,8 +137,15 @@ export const MQTT_REQUEST_MOCK = {
 }
 
 export const GLOBAL_ENV_MOCK: GlobalEnvironment = {
-  v: 1,
-  variables: [{ key: "test-key", value: "test-value", secret: false }],
+  v: 2,
+  variables: [
+    {
+      key: "test-key",
+      currentValue: "test-value",
+      initialValue: "test-value",
+      secret: false,
+    },
+  ],
 }
 
 export const VUEX_DATA_MOCK: VUEX_DATA = {
@@ -167,7 +184,7 @@ export const GQL_HISTORY_MOCK: GQLHistoryEntry[] = [
   {
     v: 1,
     request: {
-      v: 8,
+      v: 9,
       name: "Untitled",
       url: "https://echo.hoppscotch.io/graphql",
       query: "query Request { url }",
@@ -188,7 +205,7 @@ export const GQL_TAB_STATE_MOCK: PersistableTabState<HoppGQLDocument> = {
       tabID: "5edbe8d4-65c9-4381-9354-5f1bf05d8ccc",
       doc: {
         request: {
-          v: 8,
+          v: 9,
           name: "Untitled",
           url: "https://echo.hoppscotch.io/graphql",
           headers: [],
@@ -223,6 +240,7 @@ export const REST_TAB_STATE_MOCK: PersistableTabState<HoppRequestDocument> = {
           body: { contentType: null, body: null },
           requestVariables: [],
           responses: {},
+          _ref_id: "req_ref_id",
         },
         isDirty: false,
         type: "request",

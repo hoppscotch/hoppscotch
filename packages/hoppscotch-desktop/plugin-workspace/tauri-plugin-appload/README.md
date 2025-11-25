@@ -100,6 +100,6 @@ Requirements:
 
 ## License
 
-Code: (c) 2024 - CuriousCorrelation
+Code: (c) 2025 - CuriousCorrelation
 
 MIT or MIT/Apache 2.0 where applicable.

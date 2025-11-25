@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/kernel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cross-platform runtime kernel for Hoppscotch platform-ops",
   "type": "module",
   "main": "dist/hoppscotch-kernel.cjs",
@@ -19,7 +19,7 @@
   },
   "exports": {
     ".": {
-      "type": "./dist/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/hoppscotch-kernel.js",
       "require": "./dist/hoppscotch-kernel.cjs"
     }
@@ -35,9 +35,9 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/node": "22.9.3",
-    "typescript": "5.7.2",
-    "vite": "5.4.11"
+    "@types/node": "24.9.1",
+    "typescript": "5.9.3",
+    "vite": "6.3.5"
   },
   "peerDependencies": {
     "@tauri-apps/api": "2.1.1"
@@ -48,15 +48,15 @@
     }
   },
   "dependencies": {
-    "axios": "1.8.2",
-    "fp-ts": "2.16.9",
-    "aws4fetch": "1.0.20",
-    "zod": "3.22.4",
-    "superjson": "2.2.2",
-    "@tauri-apps/plugin-shell": "2.0.1",
+    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay#7cf09c1ad31e228758738c2f4e1c8fe9cc141291",
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-fs": "2.0.2",
+    "@tauri-apps/plugin-shell": "2.2.1",
     "@tauri-apps/plugin-store": "2.2.0",
-    "@hoppscotch/plugin-relay": "github:CuriousCorrelation/tauri-plugin-relay"
+    "aws4fetch": "1.0.20",
+    "axios": "1.12.2",
+    "fp-ts": "2.16.11",
+    "superjson": "2.2.3",
+    "zod": "3.25.32"
   }
 }

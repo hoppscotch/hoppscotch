@@ -13,7 +13,6 @@ import {
   parseTemplateString,
   parseTemplateStringE,
 } from "@hoppscotch/data"
-import { AwsV4Signer } from "aws4fetch"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import { flow, pipe } from "fp-ts/function"
@@ -24,17 +23,13 @@ import qs from "qs"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 
+import { generateAuthHeaders, generateAuthParams } from "../auth/auth-types"
+import { stripComments } from "../editor/linting/jsonc"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
 import { isJSONContentType } from "./contenttypes"
-import { stripComments } from "../editor/linting/jsonc"
 
-import {
-  DigestAuthParams,
-  fetchInitialDigestAuthInfo,
-  generateDigestAuthHeader,
-} from "../auth/digest"
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
@@ -44,7 +39,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: HoppRESTHeaders
   effectiveFinalParams: HoppRESTParams
-  effectiveFinalBody: FormData | string | null | File
+  effectiveFinalBody: FormData | string | null | File | Blob
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
 
@@ -66,188 +61,18 @@ export const getComputedAuthHeaders = async (
         headers: HoppRESTHeaders
       },
   auth?: HoppRESTRequest["auth"],
-  parse = true,
   showKeyIfSecret = false
 ) => {
   const request = auth ? { auth: auth ?? { authActive: false } } : req
 
-  /**
-   * Handling Authorization header priority rules:
-   *
-   * 1. If a user-defined "Authorization" header exists in the request:
-   *    a. We generally give it priority over auth-generated headers
-   *    b. EXCEPTION: API Key auth that uses a different header name should still be included
-   *
-   * 2. We need to check both:
-   *    - req.auth (the current request's auth settings)
-   *    - auth param (possibly inherited auth from a parent collection)
-   *
-   * 3. Only return empty array (blocking auth headers) when:
-   *    - Neither req.auth nor auth param is using API Key auth, OR
-   *    - API Key auth is being used but specifically with the "Authorization" header name
-   *    - This prevents API Key auth from being blocked when using custom header names
-   */
-  if (req && req.headers.find((h) => h.key.toLowerCase() === "authorization")) {
-    // Only return empty array if not using API key auth or if API key is using "authorization" header
-    if (
-      (!req.auth ||
-        req.auth.authType !== "api-key" ||
-        req.auth.key.toLowerCase() === "authorization") &&
-      (!auth ||
-        auth.authType !== "api-key" ||
-        auth.key.toLowerCase() === "authorization")
-    ) {
-      return []
-    }
-  }
+  if (!request || !request.auth || !request.auth.authActive) return []
 
-  if (!request) return []
-
-  if (!request.auth || !request.auth.authActive) return []
-
-  const headers: HoppRESTHeader[] = []
-
-  // TODO: Support a better b64 implementation than btoa ?
-  if (request.auth.authType === "basic") {
-    const username = parse
-      ? parseTemplateString(
-          request.auth.username,
-          envVars,
-          false,
-          showKeyIfSecret
-        )
-      : request.auth.username
-    const password = parse
-      ? parseTemplateString(
-          request.auth.password,
-          envVars,
-          false,
-          showKeyIfSecret
-        )
-      : request.auth.password
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: `Basic ${btoa(`${username}:${password}`)}`,
-      description: "",
-    })
-  } else if (request.auth.authType === "digest") {
-    const { method, endpoint } = request as HoppRESTRequest
-
-    // Step 1: Fetch the initial auth info (nonce, realm, etc.)
-    const authInfo = await fetchInitialDigestAuthInfo(
-      parseTemplateString(endpoint, envVars),
-      method
-    )
-
-    const reqBody = getFinalBodyFromRequest(
-      req as HoppRESTRequest,
-      envVars,
-      showKeyIfSecret
-    )
-
-    // Step 2: Set up the parameters for the digest authentication header
-    const digestAuthParams: DigestAuthParams = {
-      username: parseTemplateString(request.auth.username, envVars),
-      password: parseTemplateString(request.auth.password, envVars),
-      realm: request.auth.realm
-        ? parseTemplateString(request.auth.realm, envVars)
-        : authInfo.realm,
-      nonce: request.auth.nonce
-        ? parseTemplateString(authInfo.nonce, envVars)
-        : authInfo.nonce,
-      endpoint: parseTemplateString(endpoint, envVars),
-      method,
-      algorithm: request.auth.algorithm ?? authInfo.algorithm,
-      qop: request.auth.qop
-        ? parseTemplateString(request.auth.qop, envVars)
-        : authInfo.qop,
-      opaque: request.auth.opaque
-        ? parseTemplateString(request.auth.opaque, envVars)
-        : authInfo.opaque,
-      reqBody: typeof reqBody === "string" ? reqBody : "",
-    }
-
-    // Step 3: Generate the Authorization header
-    const authHeaderValue = await generateDigestAuthHeader(digestAuthParams)
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: authHeaderValue,
-      description: "",
-    })
-  } else if (
-    request.auth.authType === "bearer" ||
-    (request.auth.authType === "oauth-2" && request.auth.addTo === "HEADERS")
-  ) {
-    const token =
-      request.auth.authType === "bearer"
-        ? request.auth.token
-        : request.auth.grantTypeInfo.token
-
-    headers.push({
-      active: true,
-      key: "Authorization",
-      value: `Bearer ${
-        parse
-          ? parseTemplateString(token, envVars, false, showKeyIfSecret)
-          : token
-      }`,
-      description: "",
-    })
-  } else if (request.auth.authType === "api-key") {
-    const { key, addTo } = request.auth
-    if (addTo === "HEADERS" && key) {
-      headers.push({
-        active: true,
-        key: parseTemplateString(key, envVars, false, showKeyIfSecret),
-        value: parse
-          ? parseTemplateString(
-              request.auth.value ?? "",
-              envVars,
-              false,
-              showKeyIfSecret
-            )
-          : (request.auth.value ?? ""),
-        description: "",
-      })
-    }
-  } else if (request.auth.authType === "aws-signature") {
-    const { addTo } = request.auth
-    if (addTo === "HEADERS") {
-      const currentDate = new Date()
-      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
-      const { method, endpoint } = req as HoppRESTRequest
-      const signer = new AwsV4Signer({
-        method: method,
-        datetime: amzDate,
-        accessKeyId: parseTemplateString(request.auth.accessKey, envVars),
-        secretAccessKey: parseTemplateString(request.auth.secretKey, envVars),
-        region:
-          parseTemplateString(request.auth.region, envVars) ?? "us-east-1",
-        service: parseTemplateString(request.auth.serviceName, envVars),
-        sessionToken:
-          request.auth.serviceToken &&
-          parseTemplateString(request.auth.serviceToken, envVars),
-        url: parseTemplateString(endpoint, envVars),
-      })
-
-      const sign = await signer.sign()
-
-      sign.headers.forEach((x, k) => {
-        headers.push({
-          active: true,
-          key: k,
-          value: x,
-          description: "",
-        })
-      })
-    }
-  }
-
-  return headers
+  return await generateAuthHeaders(
+    request.auth,
+    req as HoppRESTRequest,
+    envVars,
+    showKeyIfSecret
+  )
 }
 
 /**
@@ -334,18 +159,11 @@ export const getComputedHeaders = async (
         headers: HoppRESTHeaders
       },
   envVars: Environment["variables"],
-  parse = true,
   showKeyIfSecret = false
 ): Promise<ComputedHeader[]> => {
   return [
     ...(
-      await getComputedAuthHeaders(
-        envVars,
-        req,
-        undefined,
-        parse,
-        showKeyIfSecret
-      )
+      await getComputedAuthHeaders(envVars, req, undefined, showKeyIfSecret)
     ).map((header) => ({
       source: "auth" as const,
       header,
@@ -373,85 +191,10 @@ export const getComputedParams = async (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
 ): Promise<ComputedParam[]> => {
-  // When this gets complex, its best to split this function off (like with getComputedHeaders)
-  // API-key auth can be added to query params
   if (!req.auth || !req.auth.authActive) return []
 
-  if (
-    req.auth.authType !== "api-key" &&
-    req.auth.authType !== "oauth-2" &&
-    req.auth.authType !== "aws-signature"
-  )
-    return []
-
-  if (req.auth.addTo !== "QUERY_PARAMS") return []
-
-  if (req.auth.authType === "aws-signature") {
-    const { addTo } = req.auth
-    const params: ComputedParam[] = []
-    if (addTo === "QUERY_PARAMS") {
-      const currentDate = new Date()
-      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
-
-      const signer = new AwsV4Signer({
-        method: req.method,
-        datetime: amzDate,
-        signQuery: true,
-        accessKeyId: parseTemplateString(req.auth.accessKey, envVars),
-        secretAccessKey: parseTemplateString(req.auth.secretKey, envVars),
-        region: parseTemplateString(req.auth.region, envVars) ?? "us-east-1",
-        service: parseTemplateString(req.auth.serviceName, envVars),
-        sessionToken:
-          req.auth.serviceToken &&
-          parseTemplateString(req.auth.serviceToken, envVars),
-        url: parseTemplateString(req.endpoint, envVars),
-      })
-      const sign = await signer.sign()
-
-      for (const [k, v] of sign.url.searchParams) {
-        params.push({
-          source: "auth" as const,
-          param: {
-            active: true,
-            key: k,
-            value: v,
-            description: "",
-          },
-        })
-      }
-    }
-    return params
-  }
-
-  if (req.auth.authType === "api-key") {
-    return [
-      {
-        source: "auth" as const,
-        param: {
-          active: true,
-          key: parseTemplateString(req.auth.key, envVars, false, true),
-          value: parseTemplateString(req.auth.value, envVars, false, true),
-          description: "",
-        },
-      },
-    ]
-  }
-
-  if (req.auth.authType === "oauth-2") {
-    const { grantTypeInfo } = req.auth
-    return [
-      {
-        source: "auth",
-        param: {
-          active: true,
-          key: "access_token",
-          value: parseTemplateString(grantTypeInfo.token, envVars),
-          description: "",
-        },
-      },
-    ]
-  }
-  return []
+  const params = await generateAuthParams(req.auth, req, envVars)
+  return params.map((param) => ({ source: "auth" as const, param }))
 }
 
 // Resolves environment variables in the body
@@ -505,7 +248,7 @@ export const resolvesEnvsInBody = (
   }
 }
 
-function getFinalBodyFromRequest(
+export function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"],
   showKeyIfSecret = false
@@ -571,7 +314,8 @@ function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? x.value.map((v) => ({
+          ? // @ts-expect-error TODO: Fix this type error
+            x.value.map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
               contentType: x.contentType,
@@ -616,9 +360,9 @@ export async function getEffectiveRESTRequest(
   showKeyIfSecret = false
 ): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
-    (await getComputedHeaders(request, environment.variables)).map(
-      (h) => h.header
-    ),
+    (
+      await getComputedHeaders(request, environment.variables, showKeyIfSecret)
+    ).map((h) => h.header),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({

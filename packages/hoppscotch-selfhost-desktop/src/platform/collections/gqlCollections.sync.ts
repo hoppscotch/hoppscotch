@@ -8,11 +8,14 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  generateUniqueRefId,
+  HoppCollection,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 
-import { getSyncInitFunction } from "../../lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "../../lib/sync"
 
-import { StoreSyncDefinitionOf } from "../../lib/sync"
 import { createMapper } from "../../lib/sync/mapper"
 import {
   createGQLChildUserCollection,
@@ -21,10 +24,34 @@ import {
   deleteUserCollection,
   deleteUserRequest,
   editGQLUserRequest,
+  importUserCollectionsFromJSON,
   renameUserCollection,
+  updateUserCollection,
 } from "./collections.api"
 
+import { ReqType } from "../../api/generated/graphql"
 import * as E from "fp-ts/Either"
+
+// Helper function to transform HoppCollection to backend format
+const transformCollectionForBackend = (collection: HoppCollection): any => {
+  const data = {
+    auth: collection.auth ?? {
+      authType: "inherit",
+      authActive: true,
+    },
+    headers: collection.headers ?? [],
+    variables: collection.variables ?? [],
+    _ref_id: collection._ref_id,
+  }
+
+  return {
+    name: collection.name,
+    data: JSON.stringify(data),
+    folders: collection.folders.map(transformCollectionForBackend),
+    requests: collection.requests,
+  }
+}
+
 import { moveOrReorderRequests } from "./collections.sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier
@@ -44,12 +71,41 @@ const recursivelySyncCollections = async (
 
   // if parentUserCollectionID does not exist, create the collection as a root collection
   if (!parentUserCollectionID) {
-    const res = await createGQLRootUserCollection(collection.name)
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+    const res = await createGQLRootUserCollection(
+      collection.name,
+      JSON.stringify(data)
+    )
 
     if (E.isRight(res)) {
       parentCollectionID = res.right.createGQLRootUserCollection.id
 
+      const returnedData = res.right.createGQLRootUserCollection.data
+        ? JSON.parse(res.right.createGQLRootUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
+          }
+
       collection.id = parentCollectionID
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      collection.variables = returnedData.variables
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
+
       removeDuplicateGraphqlCollectionOrFolder(
         parentCollectionID,
         collectionPath
@@ -59,15 +115,44 @@ const recursivelySyncCollections = async (
     }
   } else {
     // if parentUserCollectionID exists, create the collection as a child collection
+
+    const data = {
+      auth: collection.auth ?? {
+        authType: "inherit",
+        authActive: true,
+      },
+      headers: collection.headers ?? [],
+      variables: collection.variables ?? [],
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+
     const res = await createGQLChildUserCollection(
       collection.name,
-      parentUserCollectionID
+      parentUserCollectionID,
+      JSON.stringify(data)
     )
 
     if (E.isRight(res)) {
       const childCollectionId = res.right.createGQLChildUserCollection.id
 
+      const returnedData = res.right.createGQLChildUserCollection.data
+        ? JSON.parse(res.right.createGQLChildUserCollection.data)
+        : {
+            auth: {
+              authType: "inherit",
+              authActive: true,
+            },
+            headers: [],
+            variables: [],
+            _ref_id: generateUniqueRefId("coll"),
+          }
+
       collection.id = childCollectionId
+      collection.auth = returnedData.auth
+      collection.headers = returnedData.headers
+      parentCollectionID = childCollectionId
+      collection.variables = returnedData.variables
+      collection._ref_id = returnedData._ref_id ?? generateUniqueRefId("coll")
 
       removeDuplicateGraphqlCollectionOrFolder(
         childCollectionId,
@@ -79,13 +164,11 @@ const recursivelySyncCollections = async (
   // create the requests
   if (parentCollectionID) {
     collection.requests.forEach(async (request) => {
-      const res =
-        parentCollectionID &&
-        (await createGQLUserRequest(
-          request.name,
-          JSON.stringify(request),
-          parentCollectionID
-        ))
+      const res = await createGQLUserRequest(
+        request.name,
+        JSON.stringify(request),
+        parentCollectionID
+      )
 
       if (res && E.isRight(res)) {
         const requestId = res.right.createGQLUserRequest.id
@@ -130,13 +213,27 @@ export const gqlCollectionsOperations: Array<OperationCollectionRemoved> = []
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof graphqlCollectionStore
 > = {
-  appendCollections({ entries }) {
-    let indexStart = graphqlCollectionStore.value.state.length - entries.length
+  async appendCollections({ entries }) {
+    // Transform collections to backend format
+    const transformedCollections = entries.map(transformCollectionForBackend)
 
-    entries.forEach((collection) => {
-      recursivelySyncCollections(collection, `${indexStart}`)
-      indexStart++
-    })
+    // Use bulk import API for better performance
+    const result = await importUserCollectionsFromJSON(
+      JSON.stringify(transformedCollections),
+      ReqType.Gql,
+      undefined // parentCollectionID is undefined for root collections
+    )
+
+    if (E.isLeft(result)) {
+      // Fallback to individual creation if bulk import fails
+      let indexStart =
+        graphqlCollectionStore.value.state.length - entries.length
+
+      entries.forEach((collection) => {
+        recursivelySyncCollections(collection, `${indexStart}`)
+        indexStart++
+      })
+    }
   },
   async addCollection({ collection }) {
     const lastCreatedCollectionIndex =
@@ -158,8 +255,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       [collectionIndex]
     )?.id
 
-    if (collectionID && collection.name) {
-      renameUserCollection(collectionID, collection.name)
+    const data = {
+      auth: collection.auth,
+      headers: collection.headers,
+      variables: collection.variables,
+      _ref_id: collection._ref_id ?? generateUniqueRefId("coll"),
+    }
+
+    if (collectionID) {
+      updateUserCollection(collectionID, collection.name, JSON.stringify(data))
     }
   },
   async addFolder({ name, path }) {
@@ -197,8 +301,15 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       path.split("/").map((index) => parseInt(index))
     )?.id
 
-    if (folderBackendId && folder.name) {
-      renameUserCollection(folderBackendId, folder.name)
+    const data = {
+      auth: folder.auth,
+      headers: folder.headers,
+      variables: folder.variables,
+      _ref_id: folder._ref_id ?? generateUniqueRefId("coll"),
+    }
+
+    if (folderBackendId) {
+      updateUserCollection(folderBackendId, folder.name, JSON.stringify(data))
     }
   },
   async removeFolder({ folderID }) {

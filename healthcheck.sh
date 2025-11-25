@@ -8,8 +8,16 @@ curlCheck() {
   fi
 }
 
+# Wait for initial startup period to avoid unnecessary error logs
+# Check if the container has been running for at least 15 seconds
+UPTIME=$(awk '{print int($1)}' /proc/uptime)
+if [ "$UPTIME" -lt 15 ]; then
+  echo "Container still starting up (uptime: ${UPTIME}s), skipping health check..."
+  exit 0
+fi
+
 if [ "$ENABLE_SUBPATH_BASED_ACCESS" = "true" ]; then
-  curlCheck "http://localhost:80/backend/ping" || exit 1
+  curlCheck "http://localhost:${HOPP_AIO_ALTERNATE_PORT:-80}/backend/ping" || exit 1
 else
   curlCheck "http://localhost:3000" || exit 1
   curlCheck "http://localhost:3100" || exit 1

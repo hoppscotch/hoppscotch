@@ -256,7 +256,7 @@ export const useModifyTestScript = (
     isModifyTestScriptPending.value = true
 
     if (!modifyTestScriptForPlatform) {
-      toast.error(t("ai_experiments.modify_test_script_error"))
+      toast.error(t("ai_experiments.modify_post_request_script_error"))
       isModifyTestScriptPending.value = false
       return
     }
@@ -267,7 +267,7 @@ export const useModifyTestScript = (
     )
 
     if (result && E.isLeft(result)) {
-      toast.error(t("ai_experiments.modify_test_script_error"))
+      toast.error(t("ai_experiments.modify_post_request_script_error"))
       isModifyTestScriptPending.value = false
       return
     }

@@ -1,5 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
-import { Injectable } from '@nestjs/common';
+import { OnModuleInit, Injectable } from '@nestjs/common';
 import { PubSub as LocalPubSub } from 'graphql-subscriptions';
 import { TopicDef } from './topicsDefs';
 
@@ -19,7 +18,7 @@ export class PubSubService implements OnModuleInit {
   }
 
   asyncIterator<T>(topic: string | string[]): AsyncIterator<T> {
-    return this.pubsub.asyncIterator(topic);
+    return this.pubsub.asyncIterableIterator(topic);
   }
 
   async publish<T extends keyof TopicDef>(topic: T, payload: TopicDef[T]) {

@@ -28,6 +28,9 @@ import {
   DeleteUserRequestDocument,
   DeleteUserRequestMutation,
   DeleteUserRequestMutationVariables,
+  DuplicateUserCollectionDocument,
+  DuplicateUserCollectionMutation,
+  DuplicateUserCollectionMutationVariables,
   ExportUserCollectionsToJsonDocument,
   ExportUserCollectionsToJsonQuery,
   ExportUserCollectionsToJsonQueryVariables,
@@ -37,6 +40,9 @@ import {
   GetUserRootCollectionsDocument,
   GetUserRootCollectionsQuery,
   GetUserRootCollectionsQueryVariables,
+  ImportUserCollectionsFromJsonDocument,
+  ImportUserCollectionsFromJsonMutation,
+  ImportUserCollectionsFromJsonMutationVariables,
   MoveUserCollectionDocument,
   MoveUserCollectionMutation,
   MoveUserCollectionMutationVariables,
@@ -47,15 +53,23 @@ import {
   RenameUserCollectionMutation,
   RenameUserCollectionMutationVariables,
   ReqType,
+  SortOptions,
+  SortUserCollectionsDocument,
+  SortUserCollectionsMutation,
+  SortUserCollectionsMutationVariables,
   UpdateGqlUserRequestDocument,
   UpdateGqlUserRequestMutation,
   UpdateGqlUserRequestMutationVariables,
   UpdateRestUserRequestDocument,
   UpdateRestUserRequestMutation,
   UpdateRestUserRequestMutationVariables,
+  UpdateUserCollectionDocument,
+  UpdateUserCollectionMutation,
+  UpdateUserCollectionMutationVariables,
   UpdateUserCollectionOrderDocument,
   UpdateUserCollectionOrderMutation,
   UpdateUserCollectionOrderMutationVariables,
+  UserChildCollectionSortedDocument,
   UserCollectionCreatedDocument,
   UserCollectionDuplicatedDocument,
   UserCollectionMovedDocument,
@@ -66,24 +80,27 @@ import {
   UserRequestDeletedDocument,
   UserRequestMovedDocument,
   UserRequestUpdatedDocument,
+  UserRootCollectionsSortedDocument,
 } from "../../api/generated/graphql"
 
-export const createRESTRootUserCollection = (title: string) =>
+export const createRESTRootUserCollection = (title: string, data?: string) =>
   runMutation<
     CreateRestRootUserCollectionMutation,
     CreateRestRootUserCollectionMutationVariables,
     ""
   >(CreateRestRootUserCollectionDocument, {
     title,
+    data,
   })()
 
-export const createGQLRootUserCollection = (title: string) =>
+export const createGQLRootUserCollection = (title: string, data?: string) =>
   runMutation<
     CreateGqlRootUserCollectionMutation,
     CreateGqlRootUserCollectionMutationVariables,
     ""
   >(CreateGqlRootUserCollectionDocument, {
     title,
+    data,
   })()
 
 export const createRESTUserRequest = (
@@ -118,7 +135,8 @@ export const createGQLUserRequest = (
 
 export const createRESTChildUserCollection = (
   title: string,
-  parentUserCollectionID: string
+  parentUserCollectionID: string,
+  data?: string
 ) =>
   runMutation<
     CreateRestChildUserCollectionMutation,
@@ -127,11 +145,13 @@ export const createRESTChildUserCollection = (
   >(CreateRestChildUserCollectionDocument, {
     title,
     parentUserCollectionID,
+    data,
   })()
 
 export const createGQLChildUserCollection = (
   title: string,
-  parentUserCollectionID: string
+  parentUserCollectionID: string,
+  data?: string
 ) =>
   runMutation<
     CreateGqlChildUserCollectionMutation,
@@ -140,6 +160,7 @@ export const createGQLChildUserCollection = (
   >(CreateGqlChildUserCollectionDocument, {
     title,
     parentUserCollectionID,
+    data,
   })()
 
 export const deleteUserCollection = (userCollectionID: string) =>
@@ -161,6 +182,17 @@ export const renameUserCollection = (
     ""
   >(RenameUserCollectionDocument, { userCollectionID, newTitle })()
 
+export const updateUserCollection = (
+  userCollectionID: string,
+  newTitle?: string,
+  data?: string
+) =>
+  runMutation<
+    UpdateUserCollectionMutation,
+    UpdateUserCollectionMutationVariables,
+    ""
+  >(UpdateUserCollectionDocument, { userCollectionID, newTitle, data })()
+
 export const moveUserCollection = (
   sourceCollectionID: string,
   destinationCollectionID?: string
@@ -172,6 +204,32 @@ export const moveUserCollection = (
   >(MoveUserCollectionDocument, {
     userCollectionID: sourceCollectionID,
     destCollectionID: destinationCollectionID,
+  })()
+
+export const duplicateUserCollection = (
+  collectionID: string,
+  reqType: ReqType
+) =>
+  runMutation<
+    DuplicateUserCollectionMutation,
+    DuplicateUserCollectionMutationVariables,
+    ""
+  >(DuplicateUserCollectionDocument, {
+    collectionID,
+    reqType,
+  })()
+
+export const sortUserCollections = (
+  parentCollectionID: string | null,
+  sortOption: SortOptions
+) =>
+  runMutation<
+    SortUserCollectionsMutation,
+    SortUserCollectionsMutationVariables,
+    ""
+  >(SortUserCollectionsDocument, {
+    parentCollectionID,
+    sortOption,
   })()
 
 export const editUserRequest = (
@@ -275,6 +333,21 @@ export const exportUserCollectionsToJSON = (
     variables: { collectionID, collectionType },
   })
 
+export const importUserCollectionsFromJSON = (
+  jsonString: string,
+  reqType: ReqType,
+  parentCollectionID?: string
+) =>
+  runMutation<
+    ImportUserCollectionsFromJsonMutation,
+    ImportUserCollectionsFromJsonMutationVariables,
+    ""
+  >(ImportUserCollectionsFromJsonDocument, {
+    jsonString,
+    reqType,
+    parentCollectionID,
+  })()
+
 export const runUserCollectionCreatedSubscription = () =>
   runGQLSubscription({ query: UserCollectionCreatedDocument, variables: {} })
 
@@ -296,6 +369,18 @@ export const runUserCollectionOrderUpdatedSubscription = () =>
 export const runUserCollectionDuplicatedSubscription = () =>
   runGQLSubscription({
     query: UserCollectionDuplicatedDocument,
+    variables: {},
+  })
+
+export const runUserRootCollectionsSortedSubscription = () =>
+  runGQLSubscription({
+    query: UserRootCollectionsSortedDocument,
+    variables: {},
+  })
+
+export const runUserChildCollectionSortedSubscription = () =>
+  runGQLSubscription({
+    query: UserChildCollectionSortedDocument,
     variables: {},
   })
 

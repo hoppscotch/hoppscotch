@@ -350,7 +350,7 @@
     "same_profile_name": "Güncellenen profil adı mevcut profil adıyla aynı",
     "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "something_went_wrong": "Bir şeyler yanlış gitti",
-    "test_script_fail": "Sonraki istek komut dosyası çalıştırılamadı",
+    "post_request_script_fail": "Sonraki istek komut dosyası çalıştırılamadı",
     "reading_files": "Bir veya daha fazla dosya okunurken hata oluştu.",
     "fetching_access_tokens_list": "Anahtar listesi alınırken bir sorun oluştu.",
     "generate_access_token": "Erişim anahtarı oluşturulurken bir sorun oluştu.",
@@ -412,8 +412,8 @@
     "post_request_tests": "Test komut dosyaları JavaScript'te yazılır ve yanıt alındıktan sonra çalıştırılır.",
     "pre_request_script": "Ön istek komut dosyaları JavaScript'te yazılır ve istek gönderilmeden önce çalıştırılır.",
     "script_fail": "Ön istek komut dosyasında bir aksaklık var gibi görünüyor. Aşağıdaki hatayı kontrol edin ve komut dosyasını buna göre düzeltin.",
-    "test_script_fail": "Test komutunda bir hata var gibi görünüyor. Lütfen hataları düzeltin ve testleri tekrar çalıştırın",
-    "tests": "Hata ayıklamayı otomatikleştirmek için bir test komut dosyası yazın."
+    "post_request_script_fail": "Test komutunda bir hata var gibi görünüyor. Lütfen hataları düzeltin ve testleri tekrar çalıştırın",
+    "post_request_script": "Hata ayıklamayı otomatikleştirmek için bir test komut dosyası yazın."
   },
   "hide": {
     "collection": "Koleksiyon Panelini Daralt",

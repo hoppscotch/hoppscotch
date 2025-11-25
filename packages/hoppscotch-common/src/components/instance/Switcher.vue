@@ -11,9 +11,27 @@
       <div class="flex items-center gap-4">
         <IconLucidePackage />
         <div class="flex flex-col">
-          <span class="font-semibold uppercase">Hoppscotch</span>
+          <span class="font-semibold uppercase">{{
+            platform.instance.displayConfig.displayName
+          }}</span>
           <div class="flex items-center gap-1">
-            <span class="text-xs">On-prem</span>
+            <!-- NOTE:
+                 If this is set to `platform.instance.displayConfig.description`
+                 it'll be bound to app's perspective, i.e.
+                 when in vendored cloud app, it'll show `Cloud`
+                 and in vendored self-hosted app, it'll show `On-Prem`
+                 even tho both are actually pointing to the same bundle.
+                 Essentially switching instance is a **perspective shift**
+                 for the underlying desktop app launcher.
+
+                 The best way to solve this would be to make instance information
+                 into "links" to the bundles hosted by the `appload` plugin,
+                 which is already underway in HFE-829.
+
+                 This is a workaround for the time being. See `Header.vue`
+                 for code that maintains backwards compatibility.
+            -->
+            <span class="text-xs">Default</span>
             <span class="text-xs"> app </span>
           </div>
         </div>
@@ -44,7 +62,7 @@
           class="flex items-center gap-4 flex-1 cursor-pointer"
           @click="
             !isConnectedTo(instance.serverUrl) &&
-              connectToServer(instance.serverUrl)
+            connectToServer(instance.serverUrl)
           "
         >
           <IconLucideServer />
@@ -235,6 +253,7 @@ import {
   InstanceSwitcherService,
   InstanceType,
 } from "~/services/instance-switcher.service"
+import { platform } from "~/platform"
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
@@ -285,7 +304,7 @@ const connectionError = computed(() => {
 })
 
 const isVendored = computed(() => {
-  return currentInstance.value?.type === "vendored"
+  return currentInstance.value?.type === platform.instance.instanceType
 })
 
 const isValidUrl = computed(() => {

@@ -36,15 +36,6 @@
           <div v-if="smtpConfigs.enabled" class="ml-12">
             <div class="flex flex-col items-start gap-5">
               <HoppSmartCheckbox
-                :on="smtpConfigs.fields.email_auth"
-                @change="
-                  smtpConfigs.fields.email_auth = !smtpConfigs.fields.email_auth
-                "
-              >
-                {{ t('configs.mail_configs.enable_email_auth') }}
-              </HoppSmartCheckbox>
-
-              <HoppSmartCheckbox
                 :on="smtpConfigs.fields.mailer_use_custom_configs"
                 :title="t('configs.mail_configs.custom_smtp_configs')"
                 @change="
@@ -69,23 +60,27 @@
                     :on="Boolean(smtpConfigs.fields[field.key])"
                     @change="toggleCheckbox(field)"
                   >
-                    {{ field.name }}
+                    {{ makeReadableKey(field.name, true) }}
                   </HoppSmartCheckbox>
                 </div>
                 <span v-else>
-                  <label>{{ field.name }}</label>
+                  <label>{{ makeReadableKey(field.name, true) }}</label>
                   <span class="flex max-w-lg">
                     <HoppSmartInput
                       v-model="smtpConfigs.fields[field.key]"
                       :type="isMasked(field.key) ? 'password' : 'text'"
                       :autofocus="false"
-                      class="!my-2 !bg-primaryLight flex-1"
-                    />
-                    <HoppButtonSecondary
-                      :icon="isMasked(field.key) ? IconEye : IconEyeOff"
-                      class="bg-primaryLight h-9 mt-2"
-                      @click="toggleMask(field.key)"
-                    />
+                      class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                      input-styles="!border-0"
+                    >
+                      <template #button>
+                        <HoppButtonSecondary
+                          :icon="isMasked(field.key) ? IconEye : IconEyeOff"
+                          class="bg-primaryLight rounded"
+                          @click="toggleMask(field.key)"
+                        />
+                      </template>
+                    </HoppSmartInput>
                   </span>
 
                   <div
@@ -112,6 +107,7 @@ import { useVModel } from '@vueuse/core';
 import { computed, reactive, watch } from 'vue';
 import { useI18n } from '~/composables/i18n';
 import { hasInputValidationFailed, ServerConfigs } from '~/helpers/configs';
+import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 import IconHelpCircle from '~icons/lucide/help-circle';

@@ -20,9 +20,7 @@ describe("parseCollectionData", () => {
 
   test("Invalid HoppCollection.", () => {
     return expect(
-      parseCollectionData(
-        "./src/__tests__/samples/malformed-collection2.json"
-      )
+      parseCollectionData("./src/__tests__/samples/malformed-collection2.json")
     ).rejects.toMatchObject(<HoppCLIError>{
       code: "MALFORMED_COLLECTION",
     });

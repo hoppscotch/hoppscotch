@@ -8,6 +8,7 @@ use time::OffsetDateTime;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Display, EnumString)]
 pub enum MediaType {
+    // Text
     #[serde(rename = "text/plain")]
     #[strum(to_string = "text/plain")]
     TextPlain,
@@ -20,6 +21,11 @@ pub enum MediaType {
     #[serde(rename = "text/csv")]
     #[strum(to_string = "text/csv")]
     TextCsv,
+    #[serde(rename = "text/xml")]
+    #[strum(to_string = "text/xml")]
+    TextXml,
+
+    // Application
     #[serde(rename = "application/json")]
     #[strum(to_string = "application/json")]
     Json,
@@ -29,9 +35,6 @@ pub enum MediaType {
     #[serde(rename = "application/xml")]
     #[strum(to_string = "application/xml")]
     Xml,
-    #[serde(rename = "text/xml")]
-    #[strum(to_string = "text/xml")]
-    TextXml,
     #[serde(rename = "application/x-www-form-urlencoded")]
     #[strum(to_string = "application/x-www-form-urlencoded")]
     FormUrlEncoded,
@@ -41,6 +44,83 @@ pub enum MediaType {
     #[serde(rename = "application/octet-stream")]
     #[strum(to_string = "application/octet-stream")]
     OctetStream,
+    #[serde(rename = "application/pdf")]
+    #[strum(to_string = "application/pdf")]
+    ApplicationPdf,
+    #[serde(rename = "application/zip")]
+    #[strum(to_string = "application/zip")]
+    ApplicationZip,
+    #[serde(rename = "application/javascript")]
+    #[strum(to_string = "application/javascript")]
+    ApplicationJavascript,
+
+    // Audio
+    #[serde(rename = "audio/mpeg")]
+    #[strum(to_string = "audio/mpeg")]
+    AudioMpeg,
+    #[serde(rename = "audio/mp4")]
+    #[strum(to_string = "audio/mp4")]
+    AudioMp4,
+    #[serde(rename = "audio/x-m4a")]
+    #[strum(to_string = "audio/x-m4a")]
+    AudioXM4a,
+    #[serde(rename = "audio/wav")]
+    #[strum(to_string = "audio/wav")]
+    AudioWav,
+    #[serde(rename = "audio/ogg")]
+    #[strum(to_string = "audio/ogg")]
+    AudioOgg,
+    #[serde(rename = "audio/aac")]
+    #[strum(to_string = "audio/aac")]
+    AudioAac,
+    #[serde(rename = "audio/flac")]
+    #[strum(to_string = "audio/flac")]
+    AudioFlac,
+
+    // Video
+    #[serde(rename = "video/mp4")]
+    #[strum(to_string = "video/mp4")]
+    VideoMp4,
+    #[serde(rename = "video/avi")]
+    #[strum(to_string = "video/avi")]
+    VideoAvi,
+    #[serde(rename = "video/quicktime")]
+    #[strum(to_string = "video/quicktime")]
+    VideoQuicktime,
+    #[serde(rename = "video/x-msvideo")]
+    #[strum(to_string = "video/x-msvideo")]
+    VideoXMsvideo,
+    #[serde(rename = "video/webm")]
+    #[strum(to_string = "video/webm")]
+    VideoWebm,
+    #[serde(rename = "video/x-flv")]
+    #[strum(to_string = "video/x-flv")]
+    VideoXFlv,
+
+    // Image
+    #[serde(rename = "image/png")]
+    #[strum(to_string = "image/png")]
+    ImagePng,
+    #[serde(rename = "image/jpeg")]
+    #[strum(to_string = "image/jpeg")]
+    ImageJpeg,
+    #[serde(rename = "image/gif")]
+    #[strum(to_string = "image/gif")]
+    ImageGif,
+    #[serde(rename = "image/svg+xml")]
+    #[strum(to_string = "image/svg+xml")]
+    ImageSvgXml,
+    #[serde(rename = "image/webp")]
+    #[strum(to_string = "image/webp")]
+    ImageWebp,
+    #[serde(rename = "image/bmp")]
+    #[strum(to_string = "image/bmp")]
+    ImageBmp,
+    #[serde(rename = "image/x-icon")]
+    #[strum(to_string = "image/x-icon")]
+    ImageXIcon,
+
+    // Fallback for unknown
     #[serde(other)]
     Other,
 }
@@ -234,6 +314,22 @@ pub struct CertificateConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RequestMeta {
+    pub options: Option<RequestOptions>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RequestOptions {
+    pub timeout: Option<u64>,
+    pub follow_redirects: Option<bool>,
+    pub max_redirects: Option<u32>,
+    pub decompress: Option<bool>,
+    pub cookies: Option<bool>,
+    pub keep_alive: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Request {
     pub id: i64,
     pub url: String,
@@ -247,6 +343,7 @@ pub struct Request {
     pub auth: Option<AuthType>,
     pub security: Option<SecurityConfig>,
     pub proxy: Option<ProxyConfig>,
+    pub meta: Option<RequestMeta>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

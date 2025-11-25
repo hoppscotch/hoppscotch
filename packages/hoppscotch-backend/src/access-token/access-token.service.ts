@@ -12,6 +12,7 @@ import {
 import { CreateAccessTokenResponse } from './helper';
 import { PersonalAccessToken } from '@prisma/client';
 import { AccessToken } from 'src/types/AccessToken';
+
 @Injectable()
 export class AccessTokenService {
   constructor(private readonly prisma: PrismaService) {}

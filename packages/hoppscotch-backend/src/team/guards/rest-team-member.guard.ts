@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TeamService } from '../../team/team.service';
-import { TeamMemberRole } from '../../team/team.model';
+import { TeamAccessRole } from '../../team/team.model';
 import {
   BUG_TEAM_NO_REQUIRE_TEAM_ROLE,
   BUG_AUTH_NO_USER_CTX,
@@ -19,7 +19,7 @@ export class RESTTeamMemberGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requireRoles = this.reflector.get<TeamMemberRole[]>(
+    const requireRoles = this.reflector.get<TeamAccessRole[]>(
       'requiresTeamRole',
       context.getHandler(),
     );

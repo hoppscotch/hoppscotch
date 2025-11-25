@@ -17,22 +17,18 @@ export enum UpdateStatus {
   DOWNLOADING = "downloading",
   INSTALLING = "installing",
   READY_TO_RESTART = "ready_to_restart",
-  ERROR = "error"
+  ERROR = "error",
 }
 
 export enum CheckResult {
   AVAILABLE,
   NOT_AVAILABLE,
   TIMEOUT,
-  ERROR
+  ERROR,
 }
 
 export interface UpdateState {
-  status: UpdateStatus;
-  version?: string;
-  message?: string;
-  progress?: {
-    downloaded: number;
-    total?: number;
-  };
+  status: UpdateStatus
+  version?: string
+  message?: string
 }

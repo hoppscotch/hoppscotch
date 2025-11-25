@@ -84,15 +84,15 @@ export interface StoreV1 {
   readonly id: string
   readonly capabilities: Set<StoreCapability>
 
-  init(): Promise<E.Either<StoreError, void>>
-  set(namespace: string, key: string, value: unknown, options?: StorageOptions): Promise<E.Either<StoreError, void>>
-  get<T>(namespace: string, key: string): Promise<E.Either<StoreError, T | undefined>>
-  remove(namespace: string, key: string): Promise<E.Either<StoreError, boolean>>
-  clear(namespace?: string): Promise<E.Either<StoreError, void>>
-  has(namespace: string, key: string): Promise<E.Either<StoreError, boolean>>
-  listNamespaces(): Promise<E.Either<StoreError, string[]>>
-  listKeys(namespace: string): Promise<E.Either<StoreError, string[]>>
-  watch(namespace: string, key: string): StoreEventEmitter<StoreEvents>
+  init(storePath: string): Promise<E.Either<StoreError, void>>
+  set(storePath: string, namespace: string, key: string, value: unknown, options?: StorageOptions): Promise<E.Either<StoreError, void>>
+  get<T>(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, T | undefined>>
+  remove(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, boolean>>
+  clear(storePath: string, namespace?: string): Promise<E.Either<StoreError, void>>
+  has(storePath: string, namespace: string, key: string): Promise<E.Either<StoreError, boolean>>
+  listNamespaces(storePath: string): Promise<E.Either<StoreError, string[]>>
+  listKeys(storePath: string, namespace: string): Promise<E.Either<StoreError, string[]>>
+  watch(storePath: string, namespace: string, key: string): Promise<StoreEventEmitter<StoreEvents>>
 }
 
 export const v1: VersionedAPI<StoreV1> = {
@@ -109,7 +109,7 @@ export const v1: VersionedAPI<StoreV1> = {
     has: async () => E.left({ kind: 'version', message: 'Not implemented' }),
     listNamespaces: async () => E.left({ kind: 'version', message: 'Not implemented' }),
     listKeys: async () => E.left({ kind: 'version', message: 'Not implemented' }),
-    watch: () => ({
+    watch: async () => ({
       on: () => () => {},
       once: () => () => {},
       off: () => {}

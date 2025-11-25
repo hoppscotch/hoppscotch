@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Kon nie voorafversoekskrip uitvoer nie",
     "something_went_wrong": "Iets het verkeerd geloop",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Toetsskrifte word in JavaScript geskryf en word uitgevoer nadat die antwoord ontvang is.",
     "pre_request_script": "Skripte voor die versoek word in JavaScript geskryf en word uitgevoer voordat die versoek gestuur word.",
     "script_fail": "Dit blyk dat daar 'n fout in die voorversoekskrif is. Kontroleer die fout hieronder en maak die skrif dienooreenkomstig reg.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Skryf 'n toetsskrif om ontfouting te outomatiseer."
+    "post_request_script_fail": "There seems to be an error with post-request script. Please fix the errors and run tests again",
+    "post_request_script": "Skryf 'n toetsskrif om ontfouting te outomatiseer."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

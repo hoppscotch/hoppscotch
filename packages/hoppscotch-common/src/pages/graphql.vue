@@ -240,11 +240,34 @@ defineActionHandler("request.rename", () => {
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })
+
 defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
+
 defineActionHandler("tab.close-other", () => {
   tabs.closeOtherTabs(currentTabID.value)
 })
+
 defineActionHandler("tab.open-new", addNewTab)
+
+defineActionHandler("tab.next", () => {
+  tabs.goToNextTab()
+})
+
+defineActionHandler("tab.prev", () => {
+  tabs.goToPreviousTab()
+})
+
+defineActionHandler("tab.switch-to-first", () => {
+  tabs.goToFirstTab()
+})
+
+defineActionHandler("tab.switch-to-last", () => {
+  tabs.goToLastTab()
+})
+
+defineActionHandler("tab.reopen-closed", () => {
+  tabs.reopenClosedTab()
+})
 </script>

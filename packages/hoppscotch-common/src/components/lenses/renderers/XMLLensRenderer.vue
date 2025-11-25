@@ -51,8 +51,9 @@
         />
       </div>
     </div>
-    <div class="h-full">
-      <div ref="xmlResponse" class="flex flex-1 flex-col"></div>
+
+    <div ref="containerRef" class="h-full relative flex flex-col flex-1">
+      <div ref="xmlResponse" class="absolute inset-0"></div>
     </div>
   </div>
 </template>
@@ -80,6 +81,7 @@ import { objFieldMatches } from "~/helpers/functional/object"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
 
@@ -89,7 +91,15 @@ const props = defineProps<{
     | HoppRESTRequestResponse
   isEditable: boolean
   isSavable: boolean
+  tabId: string
 }>()
+
+const { containerRef } = useScrollerRef(
+  "XMLLens",
+  ".cm-scroller",
+  undefined, // skip initial
+  `${props.tabId}::xml`
+)
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
@@ -135,12 +145,14 @@ const responseName = computed(() => {
   return props.response.name
 })
 
+const filename = t("filename.lens", {
+  request_name: responseName.value,
+})
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   responseBodyText,
-  t("filename.lens", {
-    request_name: responseName.value,
-  })
+  `${filename}.xml`
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

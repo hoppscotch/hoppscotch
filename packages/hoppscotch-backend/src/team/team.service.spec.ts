@@ -1,6 +1,6 @@
 import { TeamService } from './team.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { Team, TeamMember, TeamMemberRole } from './team.model';
+import { Team, TeamMember, TeamAccessRole } from './team.model';
 import { TeamMember as DbTeamMember } from '@prisma/client';
 import {
   USER_NOT_FOUND,
@@ -51,13 +51,13 @@ const teams: Team[] = [
 ];
 const dbTeamMember: DbTeamMember = {
   id: 'teamMemberID',
-  role: TeamMemberRole.VIEWER,
+  role: TeamAccessRole.VIEWER,
   userUid: 'userUid',
   teamID: team.id,
 };
 const teamMember: TeamMember = {
   membershipID: dbTeamMember.id,
-  role: TeamMemberRole[dbTeamMember.role],
+  role: TeamAccessRole[dbTeamMember.role],
   userUid: dbTeamMember.userUid,
 };
 
@@ -70,14 +70,14 @@ describe('getCountOfUsersWithRoleInTeam', () => {
     await expect(
       teamService.getCountOfUsersWithRoleInTeam(
         dbTeamMember.teamID,
-        TeamMemberRole.OWNER,
+        TeamAccessRole.OWNER,
       ),
     ).resolves.toEqual(2);
 
     expect(mockPrisma.teamMember.count).toHaveBeenCalledWith({
       where: {
         teamID: dbTeamMember.teamID,
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       },
     });
   });
@@ -88,14 +88,14 @@ describe('getCountOfUsersWithRoleInTeam', () => {
     await expect(
       teamService.getCountOfUsersWithRoleInTeam(
         dbTeamMember.teamID,
-        TeamMemberRole.VIEWER,
+        TeamAccessRole.VIEWER,
       ),
     ).resolves.toEqual(2);
 
     expect(mockPrisma.teamMember.count).toHaveBeenCalledWith({
       where: {
         teamID: dbTeamMember.teamID,
-        role: TeamMemberRole.VIEWER,
+        role: TeamAccessRole.VIEWER,
       },
     });
   });
@@ -106,14 +106,14 @@ describe('getCountOfUsersWithRoleInTeam', () => {
     await expect(
       teamService.getCountOfUsersWithRoleInTeam(
         dbTeamMember.teamID,
-        TeamMemberRole.EDITOR,
+        TeamAccessRole.EDITOR,
       ),
     ).resolves.toEqual(2);
 
     expect(mockPrisma.teamMember.count).toHaveBeenCalledWith({
       where: {
         teamID: dbTeamMember.teamID,
-        role: TeamMemberRole.EDITOR,
+        role: TeamAccessRole.EDITOR,
       },
     });
   });
@@ -127,7 +127,7 @@ describe('addMemberToTeam', () => {
       teamService.addMemberToTeam(
         dbTeamMember.teamID,
         dbTeamMember.userUid,
-        TeamMemberRole[dbTeamMember.role],
+        TeamAccessRole[dbTeamMember.role],
       ),
     ).resolves.toEqual(expect.objectContaining(teamMember));
   });
@@ -138,7 +138,7 @@ describe('addMemberToTeam', () => {
     await teamService.addMemberToTeam(
       dbTeamMember.teamID,
       dbTeamMember.userUid,
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
 
     expect(mockPrisma.teamMember.create).toHaveBeenCalledWith({
@@ -149,7 +149,7 @@ describe('addMemberToTeam', () => {
             id: dbTeamMember.teamID,
           },
         },
-        role: TeamMemberRole[dbTeamMember.role],
+        role: TeamAccessRole[dbTeamMember.role],
       },
     });
   });
@@ -160,7 +160,7 @@ describe('addMemberToTeam', () => {
     const member = await teamService.addMemberToTeam(
       dbTeamMember.teamID,
       dbTeamMember.userUid,
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
 
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -188,7 +188,7 @@ describe('addMemberToTeamWithEmail', () => {
     const result = teamService.addMemberToTeamWithEmail(
       dbTeamMember.teamID,
       'test@hoppscotch.io',
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
     return expect(result).resolves.toBeDefined();
   });
@@ -199,7 +199,7 @@ describe('addMemberToTeamWithEmail', () => {
     const result = teamService.addMemberToTeamWithEmail(
       dbTeamMember.teamID,
       'test@hoppscotch.io',
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
     return expect(result).resolves.toEqualLeft(USER_NOT_FOUND);
   });
@@ -215,7 +215,7 @@ describe('addMemberToTeamWithEmail', () => {
     await teamService.addMemberToTeamWithEmail(
       dbTeamMember.teamID,
       'test@hoppscotch.io',
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
 
     expect(mockPrisma.teamMember.create).toHaveBeenCalledWith({
@@ -226,7 +226,7 @@ describe('addMemberToTeamWithEmail', () => {
             id: dbTeamMember.teamID,
           },
         },
-        role: TeamMemberRole[dbTeamMember.role],
+        role: TeamAccessRole[dbTeamMember.role],
       },
     });
   });
@@ -242,7 +242,7 @@ describe('addMemberToTeamWithEmail', () => {
     await teamService.addMemberToTeamWithEmail(
       dbTeamMember.teamID,
       'test@hoppscotch.io',
-      TeamMemberRole[dbTeamMember.role],
+      TeamAccessRole[dbTeamMember.role],
     );
 
     expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -361,8 +361,8 @@ describe('renameTeam', () => {
     ).resolves.toEqualLeft(TEAM_INVALID_ID);
   });
 
-  test('rejects for new team name length < 6 with TEAM_NAME_INVALID', () => {
-    const newTeamName = 'smol';
+  test('rejects for new team name empty with TEAM_NAME_INVALID', () => {
+    const newTeamName = '';
 
     // Prisma doesn't care about the team name length, so it will resolve
     mockPrisma.team.update.mockResolvedValue({
@@ -376,7 +376,7 @@ describe('renameTeam', () => {
   });
 });
 
-describe('updateTeamMemberRole', () => {
+describe('updateTeamAccessRole', () => {
   /**
    * Test Scenario:
    * 3 users (testuid1 thru 3) having each of the roles
@@ -385,19 +385,19 @@ describe('updateTeamMemberRole', () => {
    */
 
   test('updates the role', async () => {
-    const newRole = TeamMemberRole.EDITOR;
+    const newRole = TeamAccessRole.EDITOR;
 
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole[dbTeamMember.role],
+      role: TeamAccessRole[dbTeamMember.role],
     });
     mockPrisma.teamMember.update.mockResolvedValue({
       ...dbTeamMember,
       role: newRole,
     });
 
-    await teamService.updateTeamMemberRole(
+    await teamService.updateTeamAccessRole(
       dbTeamMember.teamID,
       dbTeamMember.userUid,
       newRole,
@@ -417,7 +417,7 @@ describe('updateTeamMemberRole', () => {
   });
 
   test('returns the updated details', () => {
-    const newRole = TeamMemberRole.EDITOR;
+    const newRole = TeamAccessRole.EDITOR;
 
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue(dbTeamMember);
@@ -427,7 +427,7 @@ describe('updateTeamMemberRole', () => {
     });
 
     return expect(
-      teamService.updateTeamMemberRole(
+      teamService.updateTeamAccessRole(
         dbTeamMember.teamID,
         dbTeamMember.userUid,
         newRole,
@@ -439,17 +439,17 @@ describe('updateTeamMemberRole', () => {
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     // Prisma doesn't care if it goes through
     mockPrisma.teamMember.update.mockResolvedValue(dbTeamMember);
 
     return expect(
-      teamService.updateTeamMemberRole(
+      teamService.updateTeamAccessRole(
         dbTeamMember.teamID,
         dbTeamMember.userUid,
-        TeamMemberRole[dbTeamMember.role],
+        TeamAccessRole[dbTeamMember.role],
       ),
     ).resolves.toEqualLeft(TEAM_ONLY_ONE_OWNER);
   });
@@ -458,18 +458,18 @@ describe('updateTeamMemberRole', () => {
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
     mockPrisma.teamMember.update.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     return expect(
-      teamService.updateTeamMemberRole(
+      teamService.updateTeamAccessRole(
         dbTeamMember.teamID,
         dbTeamMember.userUid,
-        TeamMemberRole[TeamMemberRole.OWNER],
+        TeamAccessRole[TeamAccessRole.OWNER],
       ),
     ).resolves.toBeDefined();
   });
@@ -478,28 +478,28 @@ describe('updateTeamMemberRole', () => {
     mockPrisma.teamMember.count.mockResolvedValue(2);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
     mockPrisma.teamMember.update.mockResolvedValue(dbTeamMember);
 
     // Set another user as the owner
-    await teamService.updateTeamMemberRole(
+    await teamService.updateTeamAccessRole(
       dbTeamMember.teamID,
       'testuid2',
-      TeamMemberRole.OWNER,
+      TeamAccessRole.OWNER,
     );
 
     await expect(
-      teamService.updateTeamMemberRole(
+      teamService.updateTeamAccessRole(
         dbTeamMember.teamID,
         dbTeamMember.userUid,
-        TeamMemberRole[dbTeamMember.role],
+        TeamAccessRole[dbTeamMember.role],
       ),
     ).resolves.toBeDefined();
   });
 
   test('fires "team/<team_id>/member_updated" pubsub message with correct payload', async () => {
-    const newRole = TeamMemberRole.EDITOR;
+    const newRole = TeamAccessRole.EDITOR;
 
     mockPrisma.teamMember.count.mockResolvedValue(2);
     mockPrisma.teamMember.findUnique.mockResolvedValue(dbTeamMember);
@@ -508,7 +508,7 @@ describe('updateTeamMemberRole', () => {
       role: newRole,
     });
 
-    await teamService.updateTeamMemberRole(
+    await teamService.updateTeamAccessRole(
       dbTeamMember.teamID,
       dbTeamMember.userUid,
       newRole,
@@ -582,13 +582,13 @@ describe('leaveTeam', () => {
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     // Prisma does not care
     mockPrisma.teamMember.delete.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     return expect(
@@ -600,11 +600,11 @@ describe('leaveTeam', () => {
     mockPrisma.teamMember.count.mockResolvedValue(2);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
     mockPrisma.teamMember.delete.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     await expect(
@@ -652,7 +652,7 @@ describe('createTeam', () => {
           members: {
             create: {
               userUid: dbTeamMember.userUid,
-              role: TeamMemberRole.OWNER,
+              role: TeamAccessRole.OWNER,
             },
           },
         }),
@@ -668,8 +668,8 @@ describe('createTeam', () => {
     ).resolves.toEqualRight(expect.objectContaining(team));
   });
 
-  test('rejects for team name length < 6 with TEAM_NAME_INVALID', () => {
-    const newName = 'smol';
+  test('rejects for team name empty with TEAM_NAME_INVALID', () => {
+    const newName = '';
 
     // Prisma doesn't care
     mockPrisma.team.create.mockResolvedValue({
@@ -905,12 +905,12 @@ describe('deleteUserFromAllTeams', () => {
     mockPrisma.teamMember.count.mockResolvedValue(1);
     mockPrisma.teamMember.findUnique.mockResolvedValue({
       ...dbTeamMember,
-      role: TeamMemberRole.OWNER,
+      role: TeamAccessRole.OWNER,
     });
 
     const result = teamService.deleteUserFromAllTeams(dbTeamMember.userUid)();
 
-    await expect(result).rejects.toThrowError(TEAM_ONLY_ONE_OWNER);
+    await expect(result).rejects.toThrow(TEAM_ONLY_ONE_OWNER);
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       where: {
         userUid: dbTeamMember.userUid,
@@ -922,7 +922,7 @@ describe('deleteUserFromAllTeams', () => {
     mockPrisma.teamMember.findMany.mockResolvedValue([
       {
         ...dbTeamMember,
-        role: TeamMemberRole.OWNER,
+        role: TeamAccessRole.OWNER,
       },
     ]);
     mockPrisma.teamMember.count.mockResolvedValue(2);
@@ -932,7 +932,7 @@ describe('deleteUserFromAllTeams', () => {
 
     const result = teamService.deleteUserFromAllTeams(dbTeamMember.userUid);
 
-    await expect(result).rejects.toThrowError(TEAM_INVALID_ID_OR_USER);
+    await expect(result).rejects.toThrow(TEAM_INVALID_ID_OR_USER);
     expect(mockPrisma.teamMember.findMany).toHaveBeenCalledWith({
       where: {
         userUid: dbTeamMember.userUid,

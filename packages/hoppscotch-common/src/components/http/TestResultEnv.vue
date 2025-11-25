@@ -14,7 +14,7 @@
         </span>
         <span class="inline-flex text-secondaryDark">
           <icon-lucide-minus class="svg-icons mr-2" />
-          {{ env.value }}
+          {{ env.currentValue }}
         </span>
         <span
           v-if="status === 'updations'"
@@ -45,7 +45,7 @@ type Status = "updations" | "additions" | "deletions"
 type Props = {
   env: {
     key: string
-    value: string
+    currentValue: string
     previousValue?: string
   }
   status: Status

@@ -9,8 +9,10 @@
     "select_workspace": "Arbeitsbereich auswählen",
     "clear": "Zurücksetzen",
     "clear_all": "Alles zurücksetzen",
+    "clear_cache": "Cache leeren",
     "clear_history": "Alle Verlaufsdaten löschen",
     "close": "Schließen",
+    "confirm": "Bestätigen",
     "connect": "Verbinden",
     "connecting": "Verbinde",
     "copy": "Kopieren",
@@ -18,8 +20,10 @@
     "delete": "Löschen",
     "disconnect": "Trennen",
     "dismiss": "Verwerfen",
+    "done": "Fertig",
     "dont_save": "Nicht speichern",
     "download_file": "Datei herunterladen",
+    "download_test_report": "Testbericht herunterladen",
     "drag_to_reorder": "Ziehen zum Umordnen",
     "duplicate": "Duplizieren",
     "edit": "Bearbeiten",
@@ -41,6 +45,7 @@
     "properties": "Eigenschaften",
     "register": "Registrieren",
     "remove": "Entfernen",
+    "remove_instance": "Instanz entfernen",
     "rename": "Umbenennen",
     "restore": "Wiederherstellen",
     "retry": "Wiederholen",
@@ -62,7 +67,29 @@
     "turn_on": "Einschalten",
     "undo": "Rückgängig machen",
     "verify": "Überprüfen",
-    "yes": "Ja"
+    "yes": "Ja",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "assign": "Zuweisen"
+  },
+  "activity_logs": {
+    "ACTIVITY_LOG_DELETE": "Aktivitätsprotokoll gelöscht",
+    "WORKSPACE_CREATE": "Arbeitsbereich {title} erstellt",
+    "WORKSPACE_RENAME": "Arbeitsbereich von {old_name} zu {new_name} umbenannt",
+    "WORKSPACE_USER_ADD": "{user} wurde zum Arbeitsbereich als {role} hinzugefügt",
+    "WORKSPACE_USER_INVITE": "{user} wurde von {inviteeEmail} als {role} eingeladen",
+    "WORKSPACE_USER_INVITE_REVOKE": "Einladung von {inviteeEmail} als {inviteeRole} wurde zurückgezogen",
+    "WORKSPACE_USER_INVITE_ACCEPT": "{inviteeEmail} hat die Einladung als {inviteeRole} angenommen",
+    "WORKSPACE_USER_REMOVE": "{user} wurde vom Arbeitsbereich entfernt",
+    "WORKSPACE_USER_ROLE_UPDATE": "{user}s Rolle wurde von {old_role} zu {new_role} aktualisiert",
+    "COLLECTION_CREATE": "Sammlung {title} erstellt",
+    "COLLECTION_RENAME": "Sammlung von {old_title} zu {new_title} umbenannt",
+    "COLLECTION_IMPORT": "{count} Sammlung(en) importiert",
+    "COLLECTION_DELETE": "Sammlung {title} gelöscht",
+    "COLLECTION_DUPLICATE": "Sammlung {parentTitle} dupliziert",
+    "REQUEST_CREATE": "Anfrage {title} erstellt",
+    "REQUEST_RENAME": "Anfrage von {old_title} zu {new_title} umbenannt",
+    "REQUEST_DELETE": "Anfrage {title} gelöscht"
   },
   "add": {
     "new": "Neue hinzufügen",
@@ -91,6 +118,13 @@
     "add_pfx_or_pkcs_file": "PFX/PKCS12-Datei hinzufügen"
   },
   "app": {
+    "additional_links": {
+      "macOS": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "web_app": "Web App",
+      "cli": "CLI"
+    },
     "chat_with_us": "Chatte mit uns",
     "contact_us": "Kontaktiere uns",
     "cookies": "Cookies",
@@ -131,9 +165,16 @@
     "whats_new": "Was gibt's Neues?",
     "see_whats_new": "Sieh dir an, was neu ist",
     "wiki": "Wiki",
+    "collapse_sidebar": "Seitenleiste einklappen",
+    "continue_to_dashboard": "Weiter zum Dashboard",
+    "expand_sidebar": "Seitenleiste ausklappen",
+    "no_name": "Kein Name",
+    "open_navigation": "Navigation öffnen",
+    "read_documentation": "Dokumentation öffnen",
     "default": "standard: {value}"
   },
   "auth": {
+    "account_deactivated": "Dein Konto wurde deaktiviert. Bitte kontaktiere einen Admin, um es wieder zu aktivieren.",
     "account_exists": "Konto existiert mit unterschiedlichen Zugangsdaten - Melde Dich an, um beide Konten zu verknüpfen",
     "all_sign_in_options": "Alle Anmeldeoptionen",
     "continue_with_auth_provider": "Fortfahren mit {provider}",
@@ -399,7 +440,7 @@
     "same_profile_name": "Der aktualisierte Profilname ist identisch mit dem aktuellen Profilnamen",
     "script_fail": "Pre-Request-Skripte konnte nicht ausgeführt werden",
     "something_went_wrong": "Etwas ist schief gelaufen",
-    "test_script_fail": "Testskripts konnten nicht ausgeführt werden",
+    "post_request_script_fail": "Testskripts konnten nicht ausgeführt werden",
     "reading_files": "Fehler beim Lesen einer oder mehrerer Dateien.",
     "fetching_access_tokens_list": "Beim Abrufen der Liste der Tokens ist etwas schiefgegangen.",
     "generate_access_token": "Beim Generieren des Zugriffstokens ist etwas schiefgegangen.",
@@ -469,8 +510,8 @@
     "post_request_tests": "Testskripts werden in JavaScript geschrieben und nach Erhalt der Antwort ausgeführt.",
     "pre_request_script": "Pre-Request-Skripte sind in JavaScript geschrieben und werden ausgeführt, bevor die Anfrage gesendet wird.",
     "script_fail": "Es scheint ein Fehler im Pre-Request-Skript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
-    "test_script_fail": "Es scheint ein Fehler im Testskript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
-    "tests": "Schreibe ein Testskript, um das Debuggen zu automatisieren."
+    "post_request_script_fail": "Es scheint ein Fehler im Post-Request-Skript zu sein. Überprüfe den Fehler unten und korrigiere das Skript entsprechend.",
+    "post_request_script": "Schreibe ein Testskript, um das Debuggen zu automatisieren."
   },
   "hide": {
     "collection": "Sammlungsbereich einklappen",

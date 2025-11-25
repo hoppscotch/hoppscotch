@@ -25,8 +25,16 @@ import { getMethod } from "./sub_helpers/method"
 import { preProcessCurlCommand } from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
 import { concatParams, getURLObject } from "./sub_helpers/url"
+import { HOPP_ENVIRONMENT_REGEX } from "../environment-regex"
 
 const defaultRESTReq = getDefaultRESTRequest()
+
+/**
+ *
+ * @param str The string to test for environment variables.
+ * @returns A boolean indicating whether the string contains environment variables.
+ */
+const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
@@ -132,7 +140,16 @@ export const parseCurlCommand = (curlCommand: string) => {
     danglingParams = [...danglingParams, ...newQueries.danglingParams]
     hasBodyBeenParsed = true
   } else if (
-    rawContentType.includes("application/x-www-form-urlencoded") &&
+    (rawContentType.includes("application/x-www-form-urlencoded") ||
+      /**
+       * When using the -d option with curl for a POST operation,
+       * curl includes a default header: Content-Type: application/x-www-form-urlencoded.
+       * https://everything.curl.dev/http/post/content-type.html
+       */
+      (!rawContentType &&
+        method === "POST" &&
+        rawData &&
+        rawData.length > 0)) &&
     !!pairs &&
     Array.isArray(rawData)
   ) {
@@ -141,7 +158,16 @@ export const parseCurlCommand = (curlCommand: string) => {
     hasBodyBeenParsed = true
   }
 
-  const urlString = decodeURIComponent(concatParams(urlObject, danglingParams))
+  const concatedURL = concatParams(urlObject, danglingParams)
+
+  const decodedURL = decodeURIComponent(concatedURL)
+
+  // Decode the URL only if it’s safe to do so without corrupting environment variables.
+  // This is to ensure that environment variables are not decoded and remain in the format `<<variable_name>>`.
+  // This is useful for code generation where environment variables are used to store sensitive information
+  // such as API keys, secrets, etc.
+  // If the URL does not contain environment variables, decode it normally.
+  const urlString = containsEnvVariables(decodedURL) ? decodedURL : concatedURL
 
   let multipartUploads: Record<string, string> = pipe(
     O.of(parsedArguments),

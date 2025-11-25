@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Није могуће извршити скрипту пре захтева",
     "something_went_wrong": "Нешто није у реду",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Тест скрипте су написане у ЈаваСцрипт -у и покрећу се након пријема одговора.",
     "pre_request_script": "Скрипте пред-захтева су написане у ЈаваСцрипт-у и покрећу се пре слања захтева.",
     "script_fail": "Чини се да постоји грешка у скрипти пре захтева. Проверите грешку у наставку и поправите скрипту у складу са тим.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Напишите тест скрипту за аутоматизацију отклањања грешака."
+    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script": "Напишите тест скрипту за аутоматизацију отклањања грешака."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

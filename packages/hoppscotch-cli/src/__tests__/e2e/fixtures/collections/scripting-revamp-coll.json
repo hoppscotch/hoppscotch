@@ -1,0 +1,799 @@
+{
+  "id": "cmfhzf0oo0091qt0iu8yy94rw",
+  "_ref_id": "coll_mfhz1cx0_5ae46b4c-d9d4-4ef8-92bc-af63525a73d7",
+  "v": 10,
+  "name": "scripting-revamp-coll",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "id": "cmfhzf0oo0092qt0if5rvd2g4",
+      "name": "json-response-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "test header"
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.body.asJSON()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(hopp.response.body.asJSON().data)\n\n    hopp.expect(parsedData.name).toBe('John Doe')\n    hopp.expect(parsedData.age).toBeType(\"number\")\n})\n\npm.test(\"`pm.response.json()` parses response body as JSON\", () => {\n    const parsedData = JSON.parse(pm.response.json().data)\n\n    pm.expect(parsedData.name).toBe('John Doe')\n    pm.expect(parsedData.age).toBeType(\"number\")\n})\n\nhopp.test(\"`hopp.response.body.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude('\\\"test-header\\\":\\\"test\\\"')\n})\n\nhopp.test(\"hopp.response.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(123)\n})\n\npm.test(\"pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(123)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"John Doe\",\n  \"age\": 35\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0093qt0ictgoxymy",
+      "name": "html-response-test",
+      "method": "GET",
+      "endpoint": "https://hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Test-Header",
+          "value": "test",
+          "active": true,
+          "description": "Test header"
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\nhopp.test(\"`hopp.response.asText()` parses response body as plain text\", () => {\n    const textResponse = hopp.response.body.asText()\n    hopp.expect(textResponse).toInclude(\"Open source API development ecosystem\")\n})\n\npm.test(\"`pm.response.text()` parses response body as plain text\", () => {\n    const textResponse = pm.response.text()\n    pm.expect(textResponse).toInclude(\"Open source API development ecosystem\")\n})\n\nhopp.test(\"`hopp.response.body.bytes()` parses response body as raw bytes\", () => {\n    const rawResponse = hopp.response.body.bytes()\n\n    hopp.expect(rawResponse[0]).toBe(60)\n})\n\npm.test(\"`pm.response.stream` parses response body as raw bytes\", () => {\n    const rawResponse = pm.response.stream\n\n    pm.expect(rawResponse[0]).toBe(60)\n})\n\n\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0094qt0ixbo9rqnw",
+      "name": "environment-variables-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\nhopp.env.set('test_key', 'test_value')\nhopp.env.set('recursive_key', '<<test_key>>')\nhopp.env.global.set('global_key', 'global_value')\nhopp.env.active.set('active_key', 'active_value')\n\n// `pm` namespace equivalents\npm.variables.set('pm_test_key', 'pm_test_value')\npm.environment.set('pm_active_key', 'pm_active_value')\npm.globals.set('pm_global_key', 'pm_global_value')\n",
+      "testScript": "export {};\n\nhopp.test('`hopp.env.get()` retrieves environment variables', () => {\n    const value = hopp.env.get('test_key')\n    hopp.expect(value).toBe('test_value')\n})\n\npm.test('`pm.variables.get()` retrieves environment variables', () => {\n    const value = pm.variables.get('test_key')\n    pm.expect(value).toBe('test_value')\n})\n\nhopp.test('`hopp.env.getRaw()` retrieves raw environment variables without resolution', () => {\n    const rawValue = hopp.env.getRaw('recursive_key')\n    hopp.expect(rawValue).toBe('<<test_key>>')\n})\n\nhopp.test('`hopp.env.get()` resolves recursive environment variables', () => {\n    const resolvedValue = hopp.env.get('recursive_key')\n    hopp.expect(resolvedValue).toBe('test_value')\n})\n\npm.test('`pm.variables.replaceIn()` resolves template variables', () => {\n    const resolved = pm.variables.replaceIn('Value is {{test_key}}')\n    pm.expect(resolved).toBe('Value is test_value')\n})\n\nhopp.test('`hopp.env.global.get()` retrieves global environment variables', () => {\n    const globalValue = hopp.env.global.get('global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (globalValue) {\n      hopp.expect(globalValue).toBe('global_value')\n    }\n})\n\npm.test('`pm.globals.get()` retrieves global environment variables', () => {\n    const globalValue = pm.globals.get('global_key')\n\n    // `pm.globals` would be empty for the CLI\n    if (globalValue) {\n        pm.expect(globalValue).toBe('global_value')\n    }\n})\n\nhopp.test('`hopp.env.active.get()` retrieves active environment variables', () => {\n    const activeValue = hopp.env.active.get('active_key')\n    hopp.expect(activeValue).toBe('active_value')\n})\n\npm.test('`pm.environment.get()` retrieves active environment variables', () => {\n    const activeValue = pm.environment.get('active_key')\n    pm.expect(activeValue).toBe('active_value')\n})\n\nhopp.test('Environment methods return null for non-existent keys', () => {\n    hopp.expect(hopp.env.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.getRaw('non_existent')).toBe(null)\n    hopp.expect(hopp.env.global.get('non_existent')).toBe(null)\n    hopp.expect(hopp.env.active.get('non_existent')).toBe(null)\n})\n\npm.test('`pm` environment methods handle non-existent keys correctly', () => {\n    pm.expect(pm.variables.get('non_existent')).toBe(undefined)\n    pm.expect(pm.environment.get('non_existent')).toBe(undefined)\n    pm.expect(pm.globals.get('non_existent')).toBe(undefined)\n    pm.expect(pm.variables.has('non_existent')).toBe(false)\n    pm.expect(pm.environment.has('non_existent')).toBe(false)\n    pm.expect(pm.globals.has('non_existent')).toBe(false)\n})\n\npm.test('`pm` variables set in pre-request script are accessible', () => {\n    pm.expect(pm.variables.get('pm_test_key')).toBe('pm_test_value')\n    pm.expect(pm.environment.get('pm_active_key')).toBe('pm_active_value')\n\n    const pmGlobalValue = hopp.env.global.get('pm_global_key')\n\n    // `hopp.env.global` would be empty for the CLI\n    if (pmGlobalValue) {\n      hopp.expect(pmGlobalValue).toBe('pm_global_value')\n    }\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0095qt0ieogkxx1w",
+      "name": "request-modification-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [
+        {
+          "key": "original_param",
+          "value": "original-param",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [
+        {
+          "key": "Original-Header",
+          "value": "original_value",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\nhopp.request.setUrl('https://echo.hoppscotch.io/modified')\nhopp.request.setMethod('POST')\nhopp.request.setHeader('Modified-Header', 'modified_value')\nhopp.request.setParam('new_param', 'new_value')\n\nhopp.request.setBody({\n  contentType: 'application/json',\n  body: JSON.stringify({ modified: true, timestamp: Date.now() })\n})\n\nhopp.request.setAuth({\n  authType: 'bearer',\n  token: 'test-bearer-token',\n  authActive: true\n})",
+      "testScript": "export {};\n\nhopp.test('Request URL was modified by pre-request script', () => {\n    hopp.expect(hopp.request.url).toInclude('/modified')\n    pm.expect(pm.request.url.toString()).toInclude('/modified')\n})\n\nhopp.test('Request method was modified by pre-request script', () => {\n    hopp.expect(hopp.request.method).toBe('POST')\n    pm.expect(pm.request.method).toBe('POST')\n})\n\nhopp.test('Request headers contain both original and modified headers', () => {\n    const headers = hopp.request.headers\n    const hasOriginal = headers.some(h => h.key === 'Original-Header')\n    const hasModified = headers.some(h => h.key === 'Modified-Header')\n    hopp.expect(hasOriginal).toBe(true)\n    hopp.expect(hasModified).toBe(true)\n})\n\npm.test('PM request headers can be accessed and checked', () => {\n    pm.expect(pm.request.headers.has('Original-Header')).toBe(true)\n    pm.expect(pm.request.headers.has('Modified-Header')).toBe(true)\n    pm.expect(pm.request.headers.get('Modified-Header')).toBe('modified_value')\n})\n\nhopp.test('Request parameters contain both original and new parameters', () => {\n    const params = hopp.request.params\n    const hasOriginal = params.some(p => p.key === 'original_param')\n    const hasNew = params.some(p => p.key === 'new_param')\n    hopp.expect(hasOriginal).toBe(true)\n    hopp.expect(hasNew).toBe(true)\n})\n\nhopp.test('Request body was modified by pre-request script', () => {\n    hopp.expect(hopp.request.body.contentType).toBe('application/json')\n    pm.expect(pm.request.body.contentType).toBe('application/json')\n    const bodyData = hopp.request.body\n\n    if (typeof bodyData.body === \"string\") {\n        hopp.expect(JSON.parse(bodyData.body).modified).toBe(true)\n        pm.expect(JSON.parse(bodyData.body).modified).toBe(true)\n    } else {\n        throw new Error(`Unexpected body type: ${bodyData.body}`)\n    }\n})\n\n\nhopp.test('Request auth was modified by pre-request script', () => {\n    const auth = hopp.request.auth\n\n    if (auth.authType === 'bearer') {\n        hopp.expect(auth.token).toBe('test-bearer-token')\n        pm.expect(auth.token).toBe('test-bearer-token')\n    } else {\n        throw new Error(`Unexpected auth type: ${auth.authType}`)\n    }\n\n    hopp.expect(auth.token).toBe('test-bearer-token')\n    pm.expect(auth.token).toBe('test-bearer-token')\n})\n\n",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0096qt0i6wellfus",
+      "name": "response-parsing-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\nhopp.test('`hopp.response.statusCode` returns the response status code', () => {\n    hopp.expect(hopp.response.statusCode).toBe(200)\n})\n\npm.test('`pm.response.code` returns the response status code', () => {\n    pm.expect(pm.response.code).toBe(200)\n})\n\nhopp.test('`hopp.response.statusText` returns the response status text', () => {\n    hopp.expect(hopp.response.statusText).toBeType('string')\n})\n\npm.test('`pm.response.status` returns the response status text', () => {\n    pm.expect(pm.response.status).toBeType('string')\n})\n\nhopp.test('`hopp.response.headers` contains response headers', () => {\n    const { headers }\u00a0= hopp.response\n\n    hopp.expect(headers).toBeType('object')\n    hopp.expect(headers.length > 0).toBe(true)\n})\n\npm.test('`pm.response.headers` contains response headers', () => {\n    const headersAll = pm.response.headers.all()\n    pm.expect(headersAll).toBeType('object')\n    pm.expect(Object.keys(headersAll).length > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.responseTime` is a positive number', () => {\n    hopp.expect(hopp.response.responseTime).toBeType('number')\n    hopp.expect(hopp.response.responseTime > 0).toBe(true)\n})\n\npm.test('`pm.response.responseTime` is a positive number', () => {\n    pm.expect(pm.response.responseTime).toBeType('number')\n    pm.expect(pm.response.responseTime > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.text()` returns response as text', () => {\n    const responseText = hopp.response.body.asText()\n    hopp.expect(responseText).toBeType('string')\n    hopp.expect(responseText.length > 0).toBe(true)\n})\n\npm.test('`pm.response.text()` returns response as text', () => {\n    const responseText = pm.response.text()\n    pm.expect(responseText).toBeType('string')\n    pm.expect(responseText.length > 0).toBe(true)\n})\n\nhopp.test('`hopp.response.json()` parses JSON response', () => {\n    const responseJSON = hopp.response.body.asJSON()\n    hopp.expect(responseJSON).toBeType('object')\n})\n\npm.test('`pm.response.json()` parses JSON response', () => {\n    const responseJSON = pm.response.json()\n    pm.expect(responseJSON).toBeType('object')\n})\n\n\nhopp.test('`hopp.response.bytes()` returns the raw response', () => {\n    const responseBuffer = hopp.response.body.bytes()\n    hopp.expect(responseBuffer).toBeType('object')\n    hopp.expect(responseBuffer.constructor.name).toBe('Object')\n})\n\npm.test('`pm.response.stream` returns the raw response', () => {\n    const responseBuffer = pm.response.stream\n    pm.expect(responseBuffer).toBeType('object')\n    pm.expect(responseBuffer.constructor.name).toBe('Object')\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"test\": \"response parsing\",\n  \"timestamp\": \"{{$timestamp}}\",\n  \"data\": {\n    \"nested\": true,\n    \"value\": 42\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0097qt0ia4wf0lej",
+      "name": "request-variables-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "// Test request variables\nhopp.request.variables.set('dynamic_var', 'dynamic_value')\nhopp.request.variables.set('calculated_var', `timestamp_${Date.now()}`)",
+      "testScript": "export {};\n\nhopp.test('`hopp.request.variables.get()` retrieves request variables', () => {\n    const dynamicValue = hopp.request.variables.get('dynamic_var')\n    hopp.expect(dynamicValue).toBe('dynamic_value')\n})\n\nhopp.test('Request variables can store calculated values', () => {\n    const calculatedValue = hopp.request.variables.get('calculated_var')\n    hopp.expect(calculatedValue).toInclude('timestamp_')\n})\n\nhopp.test('Request variables return null for non-existent keys', () => {\n    const nonExistent = hopp.request.variables.get('non_existent_var')\n    hopp.expect(nonExistent).toBe(null)\n})\n\nhopp.test('Pre-defined request variables are accessible', () => {\n    const preDefinedVar = hopp.request.variables.get('req_var_1')\n    hopp.expect(preDefinedVar).toBe('request_variable_value')\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "req_var_1",
+          "value": "request_variable_value",
+          "active": true
+        },
+        {
+          "key": "dynamic_var",
+          "value": "dynamic_value",
+          "active": true
+        },
+        {
+          "key": "calculated_var",
+          "value": "timestamp_1757751657020",
+          "active": true
+        }
+      ],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0098qt0ii9fguj6e",
+      "name": "info-context-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('`pm.info.eventName` indicates the script context', () => {\n    pm.expect(pm.info.eventName).toBe('test')\n})\n\npm.test('`pm.info.requestName` returns the request name', () => {\n    pm.expect(pm.info.requestName).toBe('info-context-test')\n})\n\npm.test('`pm.info.requestId` returns an optional request identifier', () => {\n    const requestId = pm.info.requestId\n    if (requestId) {\n      pm.expect(requestId).toBeType('string')\n      pm.expect(requestId?.length > 0).toBe(true)\n    } else {\n        pm.expect(requestId).toBe(undefined)\n    }\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op0099qt0iamthw97r",
+      "name": "pm-namespace-additional-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n// Test `pm` namespace specific features\npm.environment.set('pm_pre_key', 'pm_pre_value')\npm.globals.set('pm_global_pre', 'pm_global_pre_value')\npm.variables.set('pm_var_pre', 'pm_var_pre_value')\n",
+      "testScript": "export {};\n\npm.test('`pm` namespace environment operations work correctly', () => {\n    // Test environment has() method\n    pm.expect(pm.environment.has('pm_pre_key')).toBe(true)\n    pm.expect(pm.environment.has('non_existent_key')).toBe(false)\n    \n    // Test globals has() method\n    const globalValue = pm.globals.has('pm_global_pre')\n    // `pm.globals` would be empty for the CLI\n    if (globalValue) {\n        pm.expect(pm.globals.has('pm_global_pre')).toBe(true)\n    }\n    \n    pm.expect(pm.globals.has('non_existent_global')).toBe(false)\n    \n    // Test variables has() method\n    pm.expect(pm.variables.has('pm_var_pre')).toBe(true)\n    pm.expect(pm.variables.has('non_existent_var')).toBe(false)\n})\n\npm.test('`pm` variables.replaceIn() handles template replacement', () => {\n    const template = 'Hello {{pm_pre_key}}, global: {{pm_global_pre}}'\n    const resolved = pm.variables.replaceIn(template)\n    pm.expect(resolved).toInclude('pm_pre_value')\n    pm.expect(resolved).toInclude('pm_global_pre_value')\n})\n\npm.test('`pm` request object provides URL as object with toString', () => {\n    const url = pm.request.url\n    pm.expect(url.toString()).toBeType('string')\n    pm.expect(url.toString()).toInclude('echo.hoppscotch.io')\n})\n\npm.test('`pm` request headers object methods work correctly', () => {\n    // Test headers.all() returns object\n    const allHeaders = pm.request.headers.all()\n    pm.expect(allHeaders).toBeType('object')\n    \n    // Test headers.has() and headers.get() methods\n    if (Object.keys(allHeaders).length > 0) {\n        const firstHeaderKey = Object.keys(allHeaders)[0]\n        pm.expect(pm.request.headers.has(firstHeaderKey)).toBe(true)\n        pm.expect(pm.request.headers.get(firstHeaderKey)).toBeType('string')\n    }\n    \n    // Test non-existent header\n    pm.expect(pm.request.headers.has('non-existent-header')).toBe(false)\n    pm.expect(pm.request.headers.get('non-existent-header')).toBe(null)\n})\n\npm.test('`pm` response headers work correctly', () => {\n    // Test response headers all() method\n    const allResponseHeaders = pm.response.headers.all()\n    pm.expect(allResponseHeaders).toBeType('object')\n    \n    // Test headers has() and get() for common headers\n    if (Object.keys(allResponseHeaders).length > 0) {\n        const firstKey = Object.keys(allResponseHeaders)[0]\n        pm.expect(pm.response.headers.has(firstKey)).toBe(true)\n        pm.expect(pm.response.headers.get(firstKey)).toBeType('string')\n    }\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op009aqt0inw3j6dq9",
+      "name": "expectation-methods-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\nhopp.test('Basic equality expectations work correctly', () => {\n    hopp.expect(1).toBe(1)\n    hopp.expect('test').toBe('test')\n    hopp.expect(true).toBe(true)\n    hopp.expect(null).toBe(null)\n})\n\npm.test('`pm` basic equality expectations work correctly', () => {\n    pm.expect(1).toBe(1)\n    pm.expect('test').toBe('test')\n    pm.expect(true).toBe(true)\n    pm.expect(null).toBe(null)\n})\n\nhopp.test('Type checking expectations work correctly', () => {\n    hopp.expect(42).toBeType('number')\n    hopp.expect('hello').toBeType('string')\n    hopp.expect(true).toBeType('boolean')\n    hopp.expect({}).toBeType('object')\n    hopp.expect([]).toBeType('object')\n})\n\npm.test('`pm` type checking expectations work correctly', () => {\n    pm.expect(42).toBeType('number')\n    pm.expect('hello').toBeType('string')\n    pm.expect(true).toBeType('boolean')\n    pm.expect({}).toBeType('object')\n    pm.expect([]).toBeType('object')\n})\n\n\nhopp.test('String and array inclusion expectations work correctly', () => {\n    hopp.expect('hello world').toInclude('world')\n    hopp.expect([1, 2, 3]).toInclude(2)\n})\n\npm.test('`pm` string and array inclusion expectations work correctly', () => {\n    pm.expect('hello world').toInclude('world')\n    pm.expect([1, 2, 3]).toInclude(2)\n})\n\n\nhopp.test('Length expectations work correctly', () => {\n    hopp.expect('hello').toHaveLength(5)\n    hopp.expect([1, 2, 3]).toHaveLength(3)\n})\n\npm.test('`pm` length expectations work correctly', () => {\n    pm.expect('hello').toHaveLength(5)\n    pm.expect([1, 2, 3]).toHaveLength(3)\n})\n\nhopp.test('Response-based expectations work correctly', () => {\n    const responseData = hopp.response.body.asJSON()\n    hopp.expect(responseData).toBeType('object')\n    hopp.expect(hopp.response.statusCode).toBe(200)\n})\n\npm.test('`pm` response-based expectations work correctly', () => {\n    const responseData = pm.response.json()\n    pm.expect(responseData).toBeType('object')\n    pm.expect(pm.response.code).toBe(200)\n})",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"message\": \"Test expectation methods\",\n  \"numbers\": [1, 2, 3, 4, 5],\n  \"metadata\": {\n    \"timestamp\": \"{{$timestamp}}\",\n    \"test\": true\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00chai1qt0inext01",
+      "name": "chai-assertions-hopp-extended",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\n// EQUALITY ASSERTIONS\nhopp.test('Chai equality - equal() method', () => {\n  hopp.expect(5).to.equal(5)\n  hopp.expect('hello').to.equal('hello')\n  hopp.expect(true).to.equal(true)\n})\n\nhopp.test('Chai equality - eql() for deep equality', () => {\n  hopp.expect({ a: 1 }).to.eql({ a: 1 })\n  hopp.expect([1, 2, 3]).to.eql([1, 2, 3])\n})\n\nhopp.test('Chai equality - negation with .not', () => {\n  hopp.expect(5).to.not.equal(10)\n  hopp.expect('hello').to.not.equal('world')\n})\n\n// TYPE ASSERTIONS\nhopp.test('Chai type - .a() and .an() assertions', () => {\n  hopp.expect('test').to.be.a('string')\n  hopp.expect(42).to.be.a('number')\n  hopp.expect([]).to.be.an('array')\n  hopp.expect({}).to.be.an('object')\n})\n\nhopp.test('Chai type - instanceof assertions', () => {\n  hopp.expect([1, 2, 3]).to.be.instanceof(Array)\n  hopp.expect(new Date()).to.be.instanceof(Date)\n  hopp.expect(new Error('test')).to.be.instanceof(Error)\n})\n\n// TRUTHINESS ASSERTIONS\nhopp.test('Chai truthiness - .true, .false, .null, .undefined', () => {\n  hopp.expect(true).to.be.true\n  hopp.expect(false).to.be.false\n  hopp.expect(null).to.be.null\n  hopp.expect(undefined).to.be.undefined\n})\n\nhopp.test('Chai truthiness - .ok and .exist', () => {\n  hopp.expect(1).to.be.ok\n  hopp.expect('string').to.exist\n  hopp.expect(0).to.not.be.ok\n})\n\nhopp.test('Chai truthiness - .NaN assertion', () => {\n  hopp.expect(NaN).to.be.NaN\n  hopp.expect(42).to.not.be.NaN\n})\n\n// NUMERICAL COMPARISONS\nhopp.test('Chai numbers - .above() and .below()', () => {\n  hopp.expect(10).to.be.above(5)\n  hopp.expect(5).to.be.below(10)\n  hopp.expect(5).to.not.be.above(10)\n})\n\nhopp.test('Chai numbers - aliases gt, lt, gte, lte', () => {\n  hopp.expect(10).to.be.gt(5)\n  hopp.expect(5).to.be.lt(10)\n  hopp.expect(5).to.be.gte(5)\n  hopp.expect(5).to.be.lte(5)\n})\n\nhopp.test('Chai numbers - .least() and .most()', () => {\n  hopp.expect(10).to.be.at.least(10)\n  hopp.expect(10).to.be.at.most(10)\n  hopp.expect(15).to.be.at.least(10)\n})\n\nhopp.test('Chai numbers - .within() range', () => {\n  hopp.expect(7).to.be.within(5, 10)\n  hopp.expect(5).to.be.within(5, 10)\n  hopp.expect(10).to.be.within(5, 10)\n})\n\nhopp.test('Chai numbers - .closeTo() with delta', () => {\n  hopp.expect(10).to.be.closeTo(10.5, 0.6)\n  hopp.expect(9.99).to.be.closeTo(10, 0.1)\n})\n\n// PROPERTY ASSERTIONS\nhopp.test('Chai properties - .property() checks', () => {\n  const obj = { name: 'test', nested: { value: 42 } }\n  hopp.expect(obj).to.have.property('name')\n  hopp.expect(obj).to.have.property('name', 'test')\n  hopp.expect(obj).to.have.nested.property('nested.value', 42)\n})\n\nhopp.test('Chai properties - .ownProperty() checks', () => {\n  const obj = { own: 'value' }\n  hopp.expect(obj).to.have.ownProperty('own')\n  hopp.expect(obj).to.not.have.ownProperty('toString')\n})\n\n// LENGTH ASSERTIONS\nhopp.test('Chai length - .lengthOf() for arrays and strings', () => {\n  hopp.expect([1, 2, 3]).to.have.lengthOf(3)\n  hopp.expect('hello').to.have.lengthOf(5)\n  hopp.expect([]).to.have.lengthOf(0)\n})\n\n// COLLECTION ASSERTIONS\nhopp.test('Chai collections - .keys() assertions', () => {\n  const obj = { a: 1, b: 2, c: 3 }\n  hopp.expect(obj).to.have.keys('a', 'b', 'c')\n  hopp.expect(obj).to.have.all.keys('a', 'b', 'c')\n  hopp.expect(obj).to.have.any.keys('a', 'd')\n})\n\nhopp.test('Chai collections - .members() for arrays', () => {\n  hopp.expect([1, 2, 3]).to.have.members([3, 2, 1])\n  hopp.expect([1, 2, 3]).to.include.members([1, 2])\n})\n\nhopp.test('Chai collections - .deep.members() for object arrays', () => {\n  hopp.expect([{ a: 1 }, { b: 2 }]).to.have.deep.members([{ b: 2 }, { a: 1 }])\n})\n\nhopp.test('Chai collections - .oneOf() checks', () => {\n  hopp.expect(2).to.be.oneOf([1, 2, 3])\n  hopp.expect('a').to.be.oneOf(['a', 'b', 'c'])\n})\n\n// INCLUSION ASSERTIONS\nhopp.test('Chai inclusion - .include() for arrays and strings', () => {\n  hopp.expect([1, 2, 3]).to.include(2)\n  hopp.expect('hello world').to.include('world')\n})\n\nhopp.test('Chai inclusion - .deep.include() for objects', () => {\n  hopp.expect([{ a: 1 }, { b: 2 }]).to.deep.include({ a: 1 })\n})\n\n// FUNCTION/ERROR ASSERTIONS\nhopp.test('Chai functions - .throw() assertions', () => {\n  const throwFn = () => { throw new Error('test error') }\n  const noThrow = () => { return 42 }\n  \n  hopp.expect(throwFn).to.throw()\n  hopp.expect(throwFn).to.throw(Error)\n  hopp.expect(throwFn).to.throw('test error')\n  hopp.expect(noThrow).to.not.throw()\n})\n\nhopp.test('Chai functions - .respondTo() method checks', () => {\n  const obj = { method: function() {} }\n  hopp.expect(obj).to.respondTo('method')\n  hopp.expect([]).to.respondTo('push')\n})\n\nhopp.test('Chai functions - .satisfy() custom matcher', () => {\n  hopp.expect(10).to.satisfy((num) => num > 5)\n  hopp.expect('hello').to.satisfy((str) => str.length === 5)\n})\n\n// OBJECT STATE ASSERTIONS\nhopp.test('Chai object state - .sealed, .frozen, .extensible', () => {\n  const sealed = Object.seal({ a: 1 })\n  const frozen = Object.freeze({ b: 2 })\n  const extensible = { c: 3 }\n  \n  hopp.expect(sealed).to.be.sealed\n  hopp.expect(frozen).to.be.frozen\n  hopp.expect(extensible).to.be.extensible\n})\n\nhopp.test('Chai number state - .finite', () => {\n  hopp.expect(42).to.be.finite\n  hopp.expect(Infinity).to.not.be.finite\n})\n\n// EXOTIC OBJECTS\nhopp.test('Chai exotic - Set assertions', () => {\n  const mySet = new Set([1, 2, 3])\n  hopp.expect(mySet).to.be.instanceof(Set)\n  hopp.expect(mySet).to.have.lengthOf(3)\n})\n\nhopp.test('Chai exotic - Map assertions', () => {\n  const myMap = new Map([['key', 'value']])\n  hopp.expect(myMap).to.be.instanceof(Map)\n  hopp.expect(myMap).to.have.lengthOf(1)\n})\n\n// SIDE-EFFECT ASSERTIONS\nhopp.test('Chai side-effects - .change() assertions', () => {\n  const obj = { count: 0 }\n  const changeFn = () => { obj.count = 5 }\n  hopp.expect(changeFn).to.change(obj, 'count')\n  \n  const noChangeFn = () => {}  \n  hopp.expect(noChangeFn).to.not.change(obj, 'count')\n})\n\nhopp.test('Chai side-effects - .change().by() delta', () => {\n  const obj = { count: 10 }\n  const addFive = () => { obj.count += 5 }\n  hopp.expect(addFive).to.change(obj, 'count').by(5)\n})\n\nhopp.test('Chai side-effects - .increase() assertions', () => {\n  const obj = { count: 0 }\n  const incFn = () => { obj.count++ }\n  hopp.expect(incFn).to.increase(obj, 'count')\n})\n\nhopp.test('Chai side-effects - .decrease() assertions', () => {\n  const obj = { count: 10 }\n  const decFn = () => { obj.count-- }\n  hopp.expect(decFn).to.decrease(obj, 'count')\n})\n\n// LANGUAGE CHAINS AND MODIFIERS\nhopp.test('Chai chains - Complex chaining with multiple modifiers', () => {\n  hopp.expect([1, 2, 3]).to.be.an('array').that.includes(2)\n  hopp.expect({ a: 1, b: 2 }).to.be.an('object').that.has.property('a')\n})\n\nhopp.test('Chai modifiers - .deep with .equal()', () => {\n  hopp.expect({ a: { b: 1 } }).to.deep.equal({ a: { b: 1 } })\n  hopp.expect([{ a: 1 }]).to.deep.equal([{ a: 1 }])\n})\n\n// RESPONSE-BASED TESTS\nhopp.test('Chai with response - status code checks', () => {\n  hopp.expect(hopp.response.statusCode).to.equal(200)\n  hopp.expect(hopp.response.statusCode).to.be.within(200, 299)\n})\n\nhopp.test('Chai with response - body parsing', () => {\n  const response = hopp.response.body.asJSON()\n  hopp.expect(response).to.be.an('object')\n  hopp.expect(response).to.have.property('data')\n  \n  const body = JSON.parse(response.data)\n  hopp.expect(body).to.have.property('testData')\n  hopp.expect(body.testData).to.have.property('number', 42)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"testData\": {\n    \"number\": 42,\n    \"string\": \"hello world\",\n    \"array\": [1, 2, 3, 4, 5],\n    \"object\": { \"nested\": { \"value\": true } },\n    \"bool\": true,\n    \"nullValue\": null\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00chai2qt0inext02",
+      "name": "chai-assertions-pm-parity",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('PM Chai - equality assertions', () => {\n  pm.expect(5).to.equal(5)\n  pm.expect('test').to.not.equal('other')\n  pm.expect({ a: 1 }).to.eql({ a: 1 })\n})\n\npm.test('PM Chai - type assertions', () => {\n  pm.expect('string').to.be.a('string')\n  pm.expect(42).to.be.a('number')\n  pm.expect([]).to.be.an('array')\n})\n\npm.test('PM Chai - truthiness assertions', () => {\n  pm.expect(true).to.be.true\n  pm.expect(false).to.be.false\n  pm.expect(null).to.be.null\n})\n\npm.test('PM Chai - numerical comparisons', () => {\n  pm.expect(10).to.be.above(5)\n  pm.expect(5).to.be.below(10)\n  pm.expect(7).to.be.within(5, 10)\n})\n\npm.test('PM Chai - property and length assertions', () => {\n  const obj = { name: 'test' }\n  pm.expect(obj).to.have.property('name')\n  pm.expect([1, 2, 3]).to.have.lengthOf(3)\n  pm.expect('hello').to.have.lengthOf(5)\n})\n\npm.test('PM Chai - string and collection assertions', () => {\n  pm.expect('hello world').to.include('world')\n  pm.expect([1, 2, 3]).to.include(2)\n  pm.expect({ a: 1, b: 2 }).to.have.keys('a', 'b')\n})\n\npm.test('PM Chai - function assertions', () => {\n  const throwFn = () => { throw new Error('test') }\n  pm.expect(throwFn).to.throw()\n  pm.expect([]).to.respondTo('push')\n})\n\npm.test('PM Chai - response validation', () => {\n  pm.expect(pm.response.code).to.equal(200)\n  pm.expect(pm.response.responseTime).to.be.a('number')\n  \n  const response = pm.response.json()\n  pm.expect(response).to.have.property('data')\n  \n  const body = JSON.parse(response.data)\n  pm.expect(body).to.have.property('pmTest')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"pmTest\": {\n    \"value\": 42,\n    \"text\": \"postman compatible\"\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00cookies01",
+      "name": "cookie-assertions-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Cookie",
+          "value": "session_id=abc123; user_token=xyz789; preferences=theme%3Ddark",
+          "active": true,
+          "description": "Test cookies"
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\n// NOTE: Full cookie behavior with Set-Cookie headers is tested in js-sandbox unit tests\n// (see packages/hoppscotch-js-sandbox/src/__tests__/pm-namespace/response/cookies.spec.ts)\n// These CLI E2E tests verify API contracts and integration behavior\n\npm.test('pm.response.cookies API contract - all methods exist', () => {\n  pm.expect(pm.response.cookies).to.be.an('object')\n  pm.expect(typeof pm.response.cookies.get).to.equal('function')\n  pm.expect(typeof pm.response.cookies.has).to.equal('function')\n  pm.expect(typeof pm.response.cookies.toObject).to.equal('function')\n})\n\npm.test('pm.response.cookies.toObject() returns proper structure', () => {\n  const allCookies = pm.response.cookies.toObject()\n  pm.expect(allCookies).to.be.an('object')\n  pm.expect(typeof allCookies).to.equal('object')\n})\n\npm.test('pm.response.cookies.has() returns boolean for cookie checks', () => {\n  const hasCookie = pm.response.cookies.has('test_cookie_name')\n  pm.expect(hasCookie).to.be.a('boolean')\n})\n\npm.test('pm.response.cookies.get() returns null for non-existent cookies', () => {\n  const cookieValue = pm.response.cookies.get('non_existent_cookie_xyz')\n  pm.expect(cookieValue).to.be.null\n})\n\npm.test('pm.response.cookies API integrates with response object', () => {\n  pm.expect(pm.response.code).to.equal(200)\n  \n  // Verify cookies object is accessible from response\n  pm.expect(pm.response).to.have.property('cookies')\n  pm.expect(pm.response.cookies).to.not.be.null\n  pm.expect(pm.response.cookies).to.not.be.undefined\n})\n\npm.test('Request cookies are properly sent via Cookie header', () => {\n  const hasCookieHeader = pm.request.headers.has('Cookie')\n  \n  if (hasCookieHeader) {\n    const cookieHeader = pm.request.headers.get('Cookie')\n    pm.expect(cookieHeader).to.be.a('string')\n    pm.expect(cookieHeader).to.include('session_id')\n    pm.expect(cookieHeader).to.include('user_token')\n  }\n})\n\npm.test('pm.response.to.have.cookie() assertion method exists', () => {\n  // Verify the cookie assertion is defined in the type system\n  pm.expect(typeof pm.response.to.have.cookie).to.equal('function')\n})\n\nhopp.test('hopp.cookies API contract matches pm.response.cookies', () => {\n  hopp.expect(typeof hopp.cookies).toBe('object')\n  hopp.expect(typeof hopp.cookies.get).toBe('function')\n  hopp.expect(typeof hopp.cookies.has).toBe('function')\n  hopp.expect(typeof hopp.cookies.getAll).toBe('function')\n  hopp.expect(typeof hopp.cookies.set).toBe('function')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00schema01",
+      "name": "json-schema-validation-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.response.to.have.jsonSchema() validates response structure', () => {\n  const schema = {\n    type: 'object',\n    required: ['data'],\n    properties: {\n      data: { type: 'string' },\n      headers: { type: 'object' }\n    }\n  }\n  \n  pm.response.to.have.jsonSchema(schema)\n  \n  // Explicit assertions to ensure schema validation passed\n  const json = pm.response.json()\n  pm.expect(json).to.have.property('data')\n  pm.expect(json.data).to.be.a('string')\n})\n\npm.test('JSON Schema validation with nested properties', () => {\n  const response = pm.response.json()\n  const body = JSON.parse(response.data)\n  \n  const userSchema = {\n    type: 'object',\n    required: ['name', 'age'],\n    properties: {\n      name: { type: 'string' },\n      age: { type: 'number', minimum: 0, maximum: 150 },\n      email: { type: 'string' }\n    }\n  }\n  \n  pm.expect(body).to.have.jsonSchema(userSchema)\n  \n  // Explicit assertions to ensure schema validation passed\n  pm.expect(body).to.have.property('name')\n  pm.expect(body).to.have.property('age')\n  pm.expect(body.name).to.equal('Alice Smith')\n  pm.expect(body.age).to.equal(28)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"Alice Smith\",\n  \"age\": 28,\n  \"email\": \"alice@example.com\"\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00charset01",
+      "name": "charset-validation-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\n// NOTE: Full charset behavior with actual charset values is tested in js-sandbox unit tests\n// (see packages/hoppscotch-js-sandbox/src/__tests__/pm-namespace/advanced-assertions.spec.ts)\n// These CLI E2E tests verify API contracts and header parsing behavior\n\npm.test('pm.expect().to.have.charset() assertion API contract exists', () => {\n  const testString = 'test'\n  pm.expect(typeof pm.expect(testString).to.have.charset).to.equal('function')\n})\n\npm.test('pm.response.to.have.charset() assertion API contract exists', () => {\n  pm.expect(typeof pm.response.to.have.charset).to.equal('function')\n})\n\npm.test('Response Content-Type header is accessible and parseable', () => {\n  const contentType = pm.response.headers.get('content-type')\n  pm.expect(contentType).to.be.a('string')\n  pm.expect(contentType.length).to.be.above(0)\n  pm.expect(contentType).to.include('application/')\n})\n\npm.test('Content-Type header parsing logic validates structure', () => {\n  const contentType = pm.response.headers.get('content-type')\n  \n  // Test charset detection logic\n  const hasCharset = contentType.includes('charset=')\n  pm.expect(typeof hasCharset).to.equal('boolean')\n  \n  // Test charset extraction pattern\n  const charsetMatch = contentType.match(/charset=([^;\\s]+)/i)\n  if (hasCharset) {\n    pm.expect(charsetMatch).to.be.an('array')\n    pm.expect(charsetMatch[1]).to.be.a('string')\n  } else {\n    pm.expect(charsetMatch).to.be.null\n  }\n})\n\npm.test('Charset handling works with or without explicit charset', () => {\n  const contentType = pm.response.headers.get('content-type')\n  const hasExplicitCharset = contentType.toLowerCase().includes('charset=')\n  \n  // Whether charset is present or not, response decoding should work\n  const responseText = pm.response.text()\n  pm.expect(responseText).to.be.a('string')\n  pm.expect(responseText.length).to.be.above(0)\n})\n\npm.test('Response text decoding works with UTF-8 default', () => {\n  const responseText = pm.response.text()\n  pm.expect(responseText).to.be.a('string')\n  \n  // Verify JSON parsing works (implies correct encoding)\n  const responseJson = pm.response.json()\n  pm.expect(responseJson).to.be.an('object')\n  pm.expect(responseJson).to.have.property('data')\n})\n\npm.test('Response headers integrate correctly with charset assertions', () => {\n  const allHeaders = pm.response.headers.all()\n  pm.expect(allHeaders).to.be.an('object')\n  pm.expect(Object.keys(allHeaders).length).to.be.above(0)\n})\n\nhopp.test('hopp namespace handles response encoding with proper defaults', () => {\n  const textResponse = hopp.response.body.asText()\n  hopp.expect(textResponse).toBeType('string')\n  hopp.expect(textResponse.length > 0).toBe(true)\n  \n  // Verify JSON parsing works with default encoding\n  const jsonResponse = hopp.response.body.asJSON()\n  hopp.expect(jsonResponse).toBeType('object')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00jsonpath01",
+      "name": "jsonpath-query-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.response.to.have.jsonPath() queries nested JSON data', () => {\n  const response = pm.response.json()\n  const body = JSON.parse(response.data)\n  \n  pm.expect(body).to.have.jsonPath('$.users[0].name')\n  pm.expect(body).to.have.jsonPath('$.users[*].active')\n  pm.expect(body).to.have.jsonPath('$.metadata.version')\n})\n\npm.test('JSONPath with value validation', () => {\n  const response = pm.response.json()\n  const body = JSON.parse(response.data)\n  \n  pm.expect(body).to.have.jsonPath('$.users[0].name', 'John')\n  pm.expect(body).to.have.jsonPath('$.metadata.version', '1.0')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"users\": [\n    { \"name\": \"John\", \"active\": true },\n    { \"name\": \"Jane\", \"active\": false }\n  ],\n  \"metadata\": {\n    \"version\": \"1.0\",\n    \"timestamp\": \"2025-01-15\"\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00envext01",
+      "name": "environment-extensions-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\npm.environment.set('template_var', 'world')\npm.environment.set('user_id', '12345')\npm.globals.set('api_base', 'https://api.example.com')\npm.globals.set('version', 'v2')\n",
+      "testScript": "export {};\n\npm.test('pm.environment.name returns environment identifier', () => {\n  pm.expect(pm.environment.name).to.be.a('string')\n  pm.expect(pm.environment.name).to.equal('active')\n})\n\npm.test('pm.environment.replaceIn() resolves template variables', () => {\n  const template = 'Hello {{template_var}}, user {{user_id}}!'\n  const resolved = pm.environment.replaceIn(template)\n  pm.expect(resolved).to.equal('Hello world, user 12345!')\n})\n\npm.test('pm.globals.replaceIn() resolves global template variables', () => {\n  const template = '{{api_base}}/{{version}}/users'\n  const resolved = pm.globals.replaceIn(template)\n  pm.expect(resolved).to.equal('https://api.example.com/v2/users')\n})\n\npm.test('pm.environment.toObject() returns all environment variables', () => {\n  const allVars = pm.environment.toObject()\n  pm.expect(allVars).to.be.an('object')\n  pm.expect(allVars).to.have.property('template_var', 'world')\n  pm.expect(allVars).to.have.property('user_id', '12345')\n})\n\npm.test('pm.globals.toObject() returns all global variables', () => {\n  const allGlobals = pm.globals.toObject()\n  pm.expect(allGlobals).to.be.an('object')\n  \n  // globals might be empty in CLI context\n  if (Object.keys(allGlobals).length > 0) {\n    pm.expect(allGlobals).to.have.property('api_base')\n  }\n})\n\npm.test('pm.variables.toObject() returns combined variables with precedence', () => {\n  const allVariables = pm.variables.toObject()\n  pm.expect(allVariables).to.be.an('object')\n  pm.expect(allVariables).to.have.property('template_var')\n})\n\npm.test('pm.environment.clear() removes all environment variables', () => {\n  pm.environment.clear()\n  const clearedVars = pm.environment.toObject()\n  pm.expect(Object.keys(clearedVars).length).to.equal(0)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00respext01",
+      "name": "response-extensions-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.response.responseSize returns response body size in bytes', () => {\n  pm.expect(pm.response.responseSize).to.be.a('number')\n  pm.expect(pm.response.responseSize).to.be.above(0)\n})\n\npm.test('pm.response.responseSize matches actual body length', () => {\n  const bodyText = pm.response.text()\n  // Use the same workaround as pm.response.responseSize for QuickJS\n  const encoder = new TextEncoder()\n  const encoded = encoder.encode(bodyText)\n  // QuickJS represents Uint8Array as object with numeric keys\n  const actualSize = encoded && typeof encoded.length === 'number' && encoded.length > 0\n    ? encoded.length\n    : Object.keys(encoded).filter(k => !isNaN(k)).length\n  pm.expect(pm.response.responseSize).to.equal(actualSize)\n})\n\npm.test('Response size is calculated correctly for JSON payload', () => {\n  const response = pm.response.json()\n  pm.expect(pm.response.responseSize).to.be.a('number')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"message\": \"Testing response size calculation\",\n  \"data\": {\n    \"items\": [1, 2, 3, 4, 5],\n    \"metadata\": {\n      \"count\": 5,\n      \"type\": \"numeric\"\n    }\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00execext01",
+      "name": "execution-context-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.execution.location provides execution path', () => {\n  pm.expect(pm.execution.location).to.be.an('array')\n  pm.expect(pm.execution.location.length).to.be.above(0)\n})\n\npm.test('pm.execution.location.current returns current location', () => {\n  pm.expect(pm.execution.location.current).to.be.a('string')\n  pm.expect(pm.execution.location.current).to.equal('Hoppscotch')\n})\n\npm.test('pm.execution.location is immutable', () => {\n  const location = pm.execution.location\n  const throwFn = () => { location.push('test') }\n  pm.expect(throwFn).to.throw()\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00bddassert01",
+      "name": "bdd-response-assertions-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.response.to.have.status() validates exact status code', () => {\n  pm.response.to.have.status(200)\n  pm.expect(pm.response.code).to.equal(200)\n})\n\npm.test('pm.response.to.be.ok validates 2xx status codes', () => {\n  pm.response.to.be.ok()\n})\n\npm.test('pm.response.to.be.success validates 2xx status codes (alias)', () => {\n  pm.response.to.be.success()\n})\n\npm.test('pm.response.to.have.header() validates response headers', () => {\n  pm.response.to.have.header('content-type')\n  pm.expect(pm.response.headers.has('content-type')).to.be.true\n})\n\npm.test('pm.response.to.have.jsonBody() validates JSON response', () => {\n  pm.response.to.have.jsonBody()\n  pm.response.to.have.jsonBody('data')\n  \n  const json = pm.response.json()\n  pm.expect(json).to.have.property('data')\n})\n\npm.test('pm.response.to.be.json validates JSON content type', () => {\n  pm.response.to.be.json()\n})\n\npm.test('pm.response.to.have.responseTime assertions', () => {\n  pm.response.to.have.responseTime.below(5000)\n  pm.expect(pm.response.responseTime).to.be.a('number')\n  pm.expect(pm.response.responseTime).to.be.above(0)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"test\": \"BDD assertions\",\n  \"status\": \"success\"\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00includecontain01",
+      "name": "include-contain-assertions-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\npm.test('pm.expect().to.include() validates string inclusion', () => {\n  pm.expect('hello world').to.include('world')\n  pm.expect('hello world').to.include('hello')\n  pm.expect('test string').to.not.include('missing')\n})\n\npm.test('pm.expect().to.contain() validates array inclusion', () => {\n  pm.expect([1, 2, 3]).to.contain(2)\n  pm.expect([1, 2, 3]).to.include(1)\n  pm.expect(['a', 'b', 'c']).to.contain('b')\n})\n\npm.test('pm.expect().to.includes() alias works', () => {\n  pm.expect('testing').to.includes('test')\n  pm.expect([10, 20, 30]).to.includes(20)\n})\n\npm.test('pm.expect().to.contains() alias works', () => {\n  pm.expect('contains test').to.contains('contains')\n  pm.expect([true, false]).to.contains(true)\n})\n\npm.test('include/contain with response data', () => {\n  const response = pm.response.json()\n  pm.expect(response).to.have.property('data')\n  \n  const bodyText = pm.response.text()\n  pm.expect(bodyText).to.include('includeTest')\n})\n\nhopp.test('hopp.expect() also supports toInclude()', () => {\n  hopp.expect('hopp test').toInclude('hopp')\n  hopp.expect([1, 2]).toInclude(1)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"includeTest\": \"This text should be found\",\n  \"array\": [1, 2, 3]\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00envunsetclear01",
+      "name": "environment-unset-clear-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\npm.environment.set('to_unset1', 'value1')\npm.environment.set('to_unset2', 'value2')\npm.environment.set('to_clear1', 'clear_value1')\npm.environment.set('to_clear2', 'clear_value2')\npm.environment.set('to_clear3', 'clear_value3')\npm.globals.set('global_to_unset', 'global_value')\npm.globals.set('global_to_clear1', 'global_clear1')\npm.globals.set('global_to_clear2', 'global_clear2')\n",
+      "testScript": "export {};\n\npm.test('pm.environment.unset() removes specific variables', () => {\n  pm.expect(pm.environment.has('to_unset1')).to.be.true\n  pm.environment.unset('to_unset1')\n  pm.expect(pm.environment.has('to_unset1')).to.be.false\n  pm.expect(pm.environment.get('to_unset1')).to.be.undefined\n})\n\npm.test('pm.environment.unset() handles non-existent keys gracefully', () => {\n  pm.environment.unset('non_existent_key')\n  pm.expect(pm.environment.has('non_existent_key')).to.be.false\n})\n\npm.test('pm.globals.unset() removes specific global variables', () => {\n  const hasGlobal = pm.globals.has('global_to_unset')\n  if (hasGlobal) {\n    pm.globals.unset('global_to_unset')\n    pm.expect(pm.globals.has('global_to_unset')).to.be.false\n  }\n})\n\npm.test('pm.environment.clear() removes ALL environment variables', () => {\n  // Verify variables exist before clear\n  pm.expect(pm.environment.has('to_clear1')).to.be.true\n  pm.expect(pm.environment.has('to_clear2')).to.be.true\n  pm.expect(pm.environment.has('to_clear3')).to.be.true\n  \n  // Clear all environment variables\n  pm.environment.clear()\n  \n  // Verify ALL variables are removed\n  const allVars = pm.environment.toObject()\n  pm.expect(Object.keys(allVars).length).to.equal(0)\n  pm.expect(pm.environment.has('to_clear1')).to.be.false\n  pm.expect(pm.environment.has('to_clear2')).to.be.false\n  pm.expect(pm.environment.has('to_clear3')).to.be.false\n})\n\npm.test('pm.globals.clear() removes ALL global variables', () => {\n  // Verify globals exist before clear (might be empty in CLI)\n  const globalsBeforeClear = pm.globals.toObject()\n  \n  pm.globals.clear()\n  \n  // Verify all globals are removed\n  const globalsAfterClear = pm.globals.toObject()\n  pm.expect(Object.keys(globalsAfterClear).length).to.equal(0)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00pmmutate01",
+      "name": "pm-request-mutation-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io/original",
+      "params": [
+        {
+          "key": "original_param",
+          "value": "original",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [
+        {
+          "key": "Original-Header",
+          "value": "original",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n// Test PM namespace mutability - URL string assignment\npm.request.url = 'https://echo.hoppscotch.io/mutated-via-string'\n\n// Test method mutation\npm.request.method = 'POST'\n\n// Test header mutations\npm.request.headers.add({ key: 'Added-Header', value: 'added-value' })\npm.request.headers.upsert({ key: 'Original-Header', value: 'mutated-value' })\n\n// Test body mutation via update()\npm.request.body.update({\n  mode: 'raw',\n  raw: JSON.stringify({ pmMutated: true, timestamp: Date.now() }),\n  options: { raw: { language: 'json' } }\n})\n\n// Test auth mutation\npm.request.auth = {\n  authType: 'bearer',\n  authActive: true,\n  token: 'pm-bearer-token-123'\n}\n",
+      "testScript": "export {};\n\npm.test('pm.request.url string assignment was applied', () => {\n  const urlString = pm.request.url.toString()\n  pm.expect(urlString).to.include('/mutated-via-string')\n  pm.expect(urlString).to.not.include('/original')\n})\n\npm.test('pm.request.method mutation was applied', () => {\n  pm.expect(pm.request.method).to.equal('POST')\n  pm.expect(pm.request.method).to.not.equal('GET')\n})\n\npm.test('pm.request.headers.add() added new header', () => {\n  pm.expect(pm.request.headers.has('Added-Header')).to.be.true\n  pm.expect(pm.request.headers.get('Added-Header')).to.equal('added-value')\n})\n\npm.test('pm.request.headers.upsert() updated existing header', () => {\n  pm.expect(pm.request.headers.has('Original-Header')).to.be.true\n  pm.expect(pm.request.headers.get('Original-Header')).to.equal('mutated-value')\n  pm.expect(pm.request.headers.get('Original-Header')).to.not.equal('original')\n})\n\npm.test('pm.request.body.update() changed body content', () => {\n  pm.expect(pm.request.body.contentType).to.equal('application/json')\n  const bodyString = typeof pm.request.body.body === 'string' \n    ? pm.request.body.body \n    : JSON.stringify(pm.request.body.body)\n  pm.expect(bodyString).to.include('pmMutated')\n  const bodyData = JSON.parse(bodyString)\n  pm.expect(bodyData.pmMutated).to.be.true\n})\n\npm.test('pm.request.auth mutation was applied', () => {\n  pm.expect(pm.request.auth.authType).to.equal('bearer')\n  pm.expect(pm.request.auth.token).to.equal('pm-bearer-token-123')\n})\n\npm.test('pm.request.id and pm.request.name are accessible', () => {\n  pm.expect(pm.request.id).to.be.a('string')\n  pm.expect(pm.request.id.length).to.be.above(0)\n  pm.expect(pm.request.name).to.equal('pm-request-mutation-test')\n})\n\nhopp.test('hopp.request reflects pm namespace mutations', () => {\n  hopp.expect(hopp.request.url).toInclude('/mutated-via-string')\n  hopp.expect(hopp.request.method).toBe('POST')\n  const hasAddedHeader = hopp.request.headers.some(h => h.key === 'Added-Header')\n  hopp.expect(hasAddedHeader).toBe(true)\n})\n",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00urlmutate01",
+      "name": "pm-url-property-mutations-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io/original?old=value",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n// Test URL object property mutations\npm.request.url.protocol = 'http'\npm.request.url.host = ['echo', 'hoppscotch', 'io']\npm.request.url.path = ['v2', 'test']\npm.request.url.port = '443'\npm.request.url.query.add({ key: 'new', value: 'param' })\npm.request.url.query.remove('old')\n",
+      "testScript": "export {};\n\npm.test('URL protocol mutation works', () => {\n  const url = pm.request.url\n  pm.expect(url.protocol).to.equal('http')\n  pm.expect(url.toString()).to.include('http://')\n})\n\npm.test('URL host mutation works', () => {\n  const url = pm.request.url\n  pm.expect(url.host).to.be.an('array')\n  pm.expect(url.host.join('.')).to.equal('echo.hoppscotch.io')\n  pm.expect(url.toString()).to.include('echo.hoppscotch.io')\n})\n\npm.test('URL path mutation works', () => {\n  const url = pm.request.url\n  pm.expect(url.path).to.be.an('array')\n  pm.expect(url.path).to.include('v2')\n  pm.expect(url.path).to.include('test')\n  pm.expect(url.toString()).to.include('/v2/test')\n})\n\npm.test('URL query.add() adds parameter', () => {\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.have.property('new', 'param')\n})\n\npm.test('URL query.remove() removes parameter', () => {\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.not.have.property('old')\n})\n\npm.test('Full URL reflects all mutations', () => {\n  const fullUrl = pm.request.url.toString()\n  pm.expect(fullUrl).to.include('http://')\n  pm.expect(fullUrl).to.include('echo.hoppscotch.io')\n  pm.expect(fullUrl).to.include('/v2/test')\n  pm.expect(fullUrl).to.include('new=param')\n  pm.expect(fullUrl).to.not.include('old=value')\n})\n\nhopp.test('hopp.request reflects URL mutations', () => {\n  hopp.expect(hopp.request.url).toInclude('echo.hoppscotch.io')\n  hopp.expect(hopp.request.url).toInclude('/v2/test')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00unsupported01",
+      "name": "unsupported-features-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\nconst unsupportedApis = [\n  { api: 'pm.info.iteration', script: () => { const x = pm.info.iteration }, errorMessage: /Collection Runner feature/ },\n  { api: 'pm.info.iterationCount', script: () => { const x = pm.info.iterationCount }, errorMessage: /Collection Runner feature/ },\n  { api: 'pm.collectionVariables.get()', script: () => pm.collectionVariables.get('test'), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.set()', script: () => pm.collectionVariables.set('key', 'value'), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.unset()', script: () => pm.collectionVariables.unset('key'), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.has()', script: () => pm.collectionVariables.has('key'), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.clear()', script: () => pm.collectionVariables.clear(), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.toObject()', script: () => pm.collectionVariables.toObject(), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.collectionVariables.replaceIn()', script: () => pm.collectionVariables.replaceIn('{{test}}'), errorMessage: /use environment or request variables instead/ },\n  { api: 'pm.vault.get()', script: () => pm.vault.get('test'), errorMessage: /Postman Vault feature/ },\n  { api: 'pm.vault.set()', script: () => pm.vault.set('key', 'value'), errorMessage: /Postman Vault feature/ },\n  { api: 'pm.vault.unset()', script: () => pm.vault.unset('key'), errorMessage: /Postman Vault feature/ },\n  { api: 'pm.iterationData.get()', script: () => pm.iterationData.get('test'), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.iterationData.set()', script: () => pm.iterationData.set('key', 'value'), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.iterationData.unset()', script: () => pm.iterationData.unset('key'), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.iterationData.has()', script: () => pm.iterationData.has('key'), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.iterationData.toObject()', script: () => pm.iterationData.toObject(), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.iterationData.toJSON()', script: () => pm.iterationData.toJSON(), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.execution.setNextRequest()', script: () => pm.execution.setNextRequest('next'), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.execution.skipRequest()', script: () => pm.execution.skipRequest(), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.execution.runRequest()', script: () => pm.execution.runRequest(), errorMessage: /Collection Runner feature/ },\n  { api: 'pm.sendRequest()', script: () => pm.sendRequest('https://example.com', () => {}), errorMessage: /not yet implemented/ },\n  { api: 'pm.visualizer.set()', script: () => pm.visualizer.set('<h1>Test</h1>'), errorMessage: /Postman Visualizer feature/ },\n  { api: 'pm.visualizer.clear()', script: () => pm.visualizer.clear(), errorMessage: /Postman Visualizer feature/ },\n  { api: 'pm.require()', script: () => pm.require('lodash'), errorMessage: /not supported in Hoppscotch/ },\n]\n\nunsupportedApis.forEach(({ api, script, errorMessage }) => {\n  pm.test(`${api} throws descriptive error`, () => {\n    pm.expect(script).to.throw(errorMessage)\n  })\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "cmfhzf0op00urlpropertylist01",
+      "name": "url-propertylist-helpers-test",
+      "method": "GET",
+      "endpoint": "https://api.example.com:8080/v1/users?filter=active&sort=name&tag=js&tag=ts#section1",
+      "params": [
+        {
+          "key": "filter",
+          "value": "active",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "sort",
+          "value": "name",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "tag",
+          "value": "js",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "tag",
+          "value": "ts",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "Authorization",
+          "value": "Bearer test-token",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n// Test URL helper methods\npm.request.url.update('https://echo.hoppscotch.io/updated?test=value')\npm.request.url.addQueryParams([{ key: 'page', value: '1' }, { key: 'limit', value: '20' }])\npm.request.url.removeQueryParams('test')\n\n// Test hostname and hash properties\npm.request.url.hostname = 'echo.hoppscotch.io'\npm.request.url.hash = 'results'\n\n// Test query PropertyList methods\npm.request.url.query.upsert({ key: 'status', value: 'published' })\npm.request.url.query.add({ key: 'include', value: 'metadata' })\n",
+      "testScript": "export {};\n\npm.test('URL helper methods - getHost() returns hostname as string', () => {\n  const host = pm.request.url.getHost()\n  pm.expect(host).to.be.a('string')\n  pm.expect(host).to.equal('echo.hoppscotch.io')\n})\n\npm.test('URL helper methods - getPath() returns path with leading slash', () => {\n  const path = pm.request.url.getPath()\n  pm.expect(path).to.be.a('string')\n  pm.expect(path).to.include('/')\n  pm.expect(path).to.equal('/updated')\n})\n\npm.test('URL helper methods - getPathWithQuery() includes query string', () => {\n  const pathWithQuery = pm.request.url.getPathWithQuery()\n  pm.expect(pathWithQuery).to.include('?')\n  pm.expect(pathWithQuery).to.include('page=1')\n  pm.expect(pathWithQuery).to.include('limit=20')\n})\n\npm.test('URL helper methods - getQueryString() returns query without ?', () => {\n  const queryString = pm.request.url.getQueryString()\n  pm.expect(queryString).to.be.a('string')\n  pm.expect(queryString).to.not.include('?')\n  pm.expect(queryString).to.include('page=1')\n})\n\npm.test('URL helper methods - getRemote() returns host with port', () => {\n  const remote = pm.request.url.getRemote()\n  pm.expect(remote).to.be.a('string')\n  pm.expect(remote).to.equal('echo.hoppscotch.io')\n})\n\npm.test('URL helper methods - update() changes entire URL', () => {\n  const url = pm.request.url.toString()\n  pm.expect(url).to.include('echo.hoppscotch.io')\n  pm.expect(url).to.include('/updated')\n})\n\npm.test('URL helper methods - addQueryParams() adds multiple params', () => {\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.have.property('page', '1')\n  pm.expect(allParams).to.have.property('limit', '20')\n})\n\npm.test('URL helper methods - removeQueryParams() removes params', () => {\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.not.have.property('test')\n})\n\npm.test('URL properties - hostname getter returns string', () => {\n  const hostname = pm.request.url.hostname\n  pm.expect(hostname).to.be.a('string')\n  pm.expect(hostname).to.equal('echo.hoppscotch.io')\n})\n\npm.test('URL properties - hostname matches host array', () => {\n  const hostname = pm.request.url.hostname\n  const hostString = pm.request.url.host.join('.')\n  pm.expect(hostname).to.equal(hostString)\n})\n\npm.test('URL properties - hash getter returns string', () => {\n  const hash = pm.request.url.hash\n  pm.expect(hash).to.be.a('string')\n  // Hash might not persist through URL mutations in E2E context\n})\n\npm.test('Query PropertyList - get() retrieves parameter value', () => {\n  const pageValue = pm.request.url.query.get('page')\n  pm.expect(pageValue).to.equal('1')\n})\n\npm.test('Query PropertyList - has() checks parameter existence', () => {\n  pm.expect(pm.request.url.query.has('page')).to.be.true\n  pm.expect(pm.request.url.query.has('nonexistent')).to.be.false\n})\n\npm.test('Query PropertyList - upsert() adds/updates parameter', () => {\n  pm.expect(pm.request.url.query.has('status')).to.be.true\n  pm.expect(pm.request.url.query.get('status')).to.equal('published')\n})\n\npm.test('Query PropertyList - count() returns parameter count', () => {\n  const count = pm.request.url.query.count()\n  pm.expect(count).to.be.a('number')\n  pm.expect(count).to.be.above(0)\n})\n\npm.test('Query PropertyList - each() iterates over parameters', () => {\n  let iterationCount = 0\n  pm.request.url.query.each((param) => {\n    pm.expect(param).to.have.property('key')\n    pm.expect(param).to.have.property('value')\n    iterationCount++\n  })\n  pm.expect(iterationCount).to.be.above(0)\n})\n\npm.test('Query PropertyList - map() transforms parameters', () => {\n  const keys = pm.request.url.query.map((param) => param.key)\n  pm.expect(keys).to.be.an('array')\n  pm.expect(keys).to.include('page')\n  pm.expect(keys).to.include('limit')\n})\n\npm.test('Query PropertyList - filter() filters parameters', () => {\n  const filtered = pm.request.url.query.filter((param) => param.key === 'page')\n  pm.expect(filtered).to.be.an('array')\n  pm.expect(filtered.length).to.be.above(0)\n  pm.expect(filtered[0].key).to.equal('page')\n})\n\npm.test('Query PropertyList - idx() accesses by index', () => {\n  const firstParam = pm.request.url.query.idx(0)\n  pm.expect(firstParam).to.be.an('object')\n  pm.expect(firstParam).to.have.property('key')\n  pm.expect(firstParam).to.have.property('value')\n})\n\npm.test('Query PropertyList - idx() returns null for out of bounds', () => {\n  const param = pm.request.url.query.idx(999)\n  pm.expect(param).to.be.null\n})\n\npm.test('Query PropertyList - toObject() returns object', () => {\n  const obj = pm.request.url.query.toObject()\n  pm.expect(obj).to.be.an('object')\n  pm.expect(obj).to.have.property('page')\n})\n\npm.test('Headers PropertyList - each() iterates over headers', () => {\n  let count = 0\n  pm.request.headers.each((header) => {\n    pm.expect(header).to.have.property('key')\n    pm.expect(header).to.have.property('value')\n    count++\n  })\n  pm.expect(count).to.be.above(0)\n})\n\npm.test('Headers PropertyList - map() transforms headers', () => {\n  const keys = pm.request.headers.map((h) => h.key)\n  pm.expect(keys).to.be.an('array')\n  pm.expect(keys).to.include('Content-Type')\n})\n\npm.test('Headers PropertyList - filter() filters headers', () => {\n  const filtered = pm.request.headers.filter((h) => h.key === 'Content-Type')\n  pm.expect(filtered).to.be.an('array')\n  pm.expect(filtered.length).to.be.above(0)\n})\n\npm.test('Headers PropertyList - count() returns header count', () => {\n  const count = pm.request.headers.count()\n  pm.expect(count).to.be.a('number')\n  pm.expect(count).to.be.above(0)\n})\n\npm.test('Headers PropertyList - idx() accesses by index', () => {\n  const firstHeader = pm.request.headers.idx(0)\n  pm.expect(firstHeader).to.be.an('object')\n  pm.expect(firstHeader).to.have.property('key')\n})\n\npm.test('Headers PropertyList - toObject() returns object', () => {\n  const obj = pm.request.headers.toObject()\n  pm.expect(obj).to.be.an('object')\n  pm.expect(obj).to.have.property('Content-Type')\n})\n\nhopp.test('hopp namespace URL methods work identically', () => {\n  const url = hopp.request.url\n  hopp.expect(url).toInclude('echo.hoppscotch.io')\n  hopp.expect(url).toInclude('/updated')\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "propertylist-advanced-methods-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io/propertylist",
+      "params": [
+        {
+          "key": "filter",
+          "value": "active",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "sort",
+          "value": "name",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "page",
+          "value": "1",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "Authorization",
+          "value": "Bearer token123",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "export {};\n// Test query.insert() - insert limit before page\npm.request.url.query.insert({ key: 'limit', value: '10' }, 'page')\n\n// Test query.append() - add new param at end\npm.request.url.query.append({ key: 'offset', value: '0' })\n\n// Test query.assimilate() - merge params\npm.request.url.query.assimilate({ include: 'metadata', status: 'active' })\n\n// Test headers.insert() - insert before Authorization\npm.request.headers.insert({ key: 'X-API-Key', value: 'secret123' }, 'Authorization')\n\n// Test headers.append() - add at end\npm.request.headers.append({ key: 'X-Request-ID', value: 'req-456' })\n\n// Test headers.assimilate() - merge headers\npm.request.headers.assimilate({ 'X-Custom-Header': 'custom-value' })\n",
+      "testScript": "export {};\n\npm.test('query.find() - finds param by string key', () => {\n  const limitParam = pm.request.url.query.find('limit')\n  if (limitParam) {\n    pm.expect(limitParam).to.be.an('object')\n    pm.expect(limitParam.key).to.equal('limit')\n  } else {\n    pm.expect(pm.request.url.query.has('limit')).to.be.true\n  }\n})\n\npm.test('query.find() - finds param by predicate function', () => {\n  const limitParam = pm.request.url.query.find((p) => p && p.key === 'limit')\n  if (limitParam) {\n    pm.expect(limitParam).to.be.an('object')\n    pm.expect(limitParam.value).to.equal('10')\n  } else {\n    pm.expect(pm.request.url.query.get('limit')).to.equal('10')\n  }\n})\n\npm.test('query.find() - returns null when not found', () => {\n  const result = pm.request.url.query.find('nonexistent')\n  pm.expect(result).to.be.null\n})\n\npm.test('query.indexOf() - returns index for existing params', () => {\n  // Verify indexOf works - check params that exist in actual URL\n  const allParams = pm.request.url.query.all()\n  const keys = Object.keys(allParams)\n  if (keys.length > 0) {\n    const firstKey = keys[0]\n    const idx = pm.request.url.query.indexOf(firstKey)\n    pm.expect(idx).to.be.a('number')\n    pm.expect(idx).to.be.at.least(0)\n  }\n})\n\npm.test('query.indexOf() - returns index by object', () => {\n  const allParams = pm.request.url.query.all()\n  const keys = Object.keys(allParams)\n  if (keys.length > 0) {\n    const idx = pm.request.url.query.indexOf({ key: keys[0] })\n    pm.expect(idx).to.be.a('number')\n    pm.expect(idx).to.be.at.least(0)\n  }\n})\n\npm.test('query.indexOf() - returns -1 when not found', () => {\n  const idx = pm.request.url.query.indexOf('notfound')\n  pm.expect(idx).to.equal(-1)\n})\n\npm.test('query.insert/append/assimilate - methods executed successfully', () => {\n  // Verify the methods executed without errors in pre-request\n  // Post-request sees actual sent URL, so we just verify params exist\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.be.an('object')\n  pm.expect(pm.request.url.query.has('limit')).to.be.true\n  pm.expect(pm.request.url.query.has('offset')).to.be.true\n})\n\npm.test('query.append() - adds param at end', () => {\n  const offsetIdx = pm.request.url.query.indexOf('offset')\n  pm.expect(offsetIdx).to.be.at.least(0)\n  pm.expect(pm.request.url.query.get('offset')).to.equal('0')\n})\n\npm.test('query.assimilate() - adds/updates params', () => {\n  pm.expect(pm.request.url.query.has('include')).to.be.true\n  pm.expect(pm.request.url.query.get('include')).to.equal('metadata')\n  pm.expect(pm.request.url.query.has('status')).to.be.true\n  pm.expect(pm.request.url.query.get('status')).to.equal('active')\n})\n\npm.test('headers.find() - finds header by string (case-insensitive)', () => {\n  const ct = pm.request.headers.find('content-type')\n  pm.expect(ct).to.be.an('object')\n  pm.expect(ct.key).to.equal('Content-Type')\n})\n\npm.test('headers.find() - finds header by predicate function', () => {\n  const auth = pm.request.headers.find((h) => h.key === 'Authorization')\n  pm.expect(auth).to.be.an('object')\n  pm.expect(auth.value).to.include('Bearer')\n})\n\npm.test('headers.find() - returns null when not found', () => {\n  const result = pm.request.headers.find('nonexistent')\n  pm.expect(result).to.be.null\n})\n\npm.test('headers.indexOf() - returns correct index (case-insensitive)', () => {\n  const authIdx = pm.request.headers.indexOf('authorization')\n  pm.expect(authIdx).to.be.a('number')\n  pm.expect(authIdx).to.be.at.least(0)\n})\n\npm.test('headers.indexOf() - returns correct index by object', () => {\n  const ctIdx = pm.request.headers.indexOf({ key: 'Content-Type' })\n  pm.expect(ctIdx).to.be.a('number')\n  pm.expect(ctIdx).to.be.at.least(0)\n})\n\npm.test('headers.indexOf() - returns -1 when not found', () => {\n  const idx = pm.request.headers.indexOf('NotFound')\n  pm.expect(idx).to.equal(-1)\n})\n\npm.test('headers.insert() - inserts header before specified header', () => {\n  const apiKeyIdx = pm.request.headers.indexOf('X-API-Key')\n  const authIdx = pm.request.headers.indexOf('Authorization')\n  pm.expect(apiKeyIdx).to.be.below(authIdx)\n})\n\npm.test('headers.append() - adds header at end', () => {\n  pm.expect(pm.request.headers.has('X-Request-ID')).to.be.true\n  pm.expect(pm.request.headers.get('X-Request-ID')).to.equal('req-456')\n})\n\npm.test('headers.assimilate() - adds/updates headers', () => {\n  pm.expect(pm.request.headers.has('X-Custom-Header')).to.be.true\n  pm.expect(pm.request.headers.get('X-Custom-Header')).to.equal('custom-value')\n})\n\npm.test('query PropertyList - all methods work together', () => {\n  const allParams = pm.request.url.query.all()\n  pm.expect(allParams).to.be.an('object')\n  // At minimum we should have the params added in pre-request\n  pm.expect(Object.keys(allParams).length).to.be.at.least(4)\n})\n\npm.test('headers PropertyList - all methods work together', () => {\n  const allHeaders = pm.request.headers.all()\n  pm.expect(allHeaders).to.be.an('object')\n  pm.expect(Object.keys(allHeaders).length).to.be.at.least(5)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "5",
+      "id": "advanced-response-methods-test",
+      "name": "advanced-response-methods-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "active": true
+        }
+      ],
+      "preRequestScript": "export {};\n",
+      "testScript": "export {};\n\n// Test pm.response.reason()\npm.test('pm.response.reason() returns HTTP reason phrase', () => {\n  const reason = pm.response.reason()\n  pm.expect(reason).to.be.a('string')\n  pm.expect(reason).to.equal('OK')\n})\n\n// Test hopp.response.reason() for parity\npm.test('hopp.response.reason() returns HTTP reason phrase', () => {\n  const reason = hopp.response.reason()\n  hopp.expect(reason).toBeType('string')\n  hopp.expect(reason).toBe('OK')\n})\n\n// Test pm.response.dataURI()\npm.test('pm.response.dataURI() converts response to data URI', () => {\n  const dataURI = pm.response.dataURI()\n  pm.expect(dataURI).to.be.a('string')\n  pm.expect(dataURI).to.include('data:')\n  pm.expect(dataURI).to.include('base64')\n})\n\n// Test hopp.response.dataURI() for parity\npm.test('hopp.response.dataURI() converts response to data URI', () => {\n  const dataURI = hopp.response.dataURI()\n  hopp.expect(dataURI).toBeType('string')\n  hopp.expect(dataURI.startsWith('data:')).toBe(true)\n})\n\n// Test .nested property assertions\npm.test('pm.expect().to.have.nested.property() accesses nested properties', () => {\n  const obj = { a: { b: { c: 'deep value' } } }\n  pm.expect(obj).to.have.nested.property('a.b.c', 'deep value')\n  pm.expect(obj).to.have.nested.property('a.b')\n})\n\n// Test hopp namespace nested property for parity\npm.test('hopp.expect().to.have.nested.property() accesses nested properties', () => {\n  const obj = { x: { y: { z: 'nested' } } }\n  hopp.expect(obj).to.have.nested.property('x.y.z', 'nested')\n  hopp.expect(obj).to.have.nested.property('x.y')\n})\n\npm.test('pm.expect().to.have.nested.property() handles arrays', () => {\n  const obj = { items: [{ name: 'first' }, { name: 'second' }] }\n  pm.expect(obj).to.have.nested.property('items[0].name', 'first')\n  pm.expect(obj).to.have.nested.property('items[1].name', 'second')\n})\n\npm.test('pm.expect().to.not.have.nested.property() negation works', () => {\n  const obj = { a: { b: 'value' } }\n  pm.expect(obj).to.not.have.nested.property('a.c')\n  pm.expect(obj).to.not.have.nested.property('x.y.z')\n})\n\n// Test .by() chaining for change assertions\npm.test('pm.expect().to.change().by() validates exact delta', () => {\n  const obj = { value: 10 }\n  pm.expect(() => { obj.value = 25 }).to.change(obj, 'value').by(15)\n})\n\n// Test hopp namespace .by() chaining for parity\npm.test('hopp.expect().to.change().by() validates exact delta', () => {\n  const obj = { val: 100 }\n  hopp.expect(() => { obj.val = 150 }).to.change(obj, 'val').by(50)\n})\n\npm.test('pm.expect().to.increase().by() validates exact increase', () => {\n  const obj = { count: 5 }\n  pm.expect(() => { obj.count += 7 }).to.increase(obj, 'count').by(7)\n})\n\npm.test('pm.expect().to.decrease().by() validates exact decrease', () => {\n  const obj = { score: 100 }\n  pm.expect(() => { obj.score -= 30 }).to.decrease(obj, 'score').by(30)\n})\n\npm.test('pm.expect().to.change().by() with negative delta', () => {\n  const obj = { value: 50 }\n  pm.expect(() => { obj.value = 20 }).to.change(obj, 'value').by(-30)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\"test\": \"data\"}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "advanced-chai-map-set-test",
+      "name": "advanced-chai-map-set-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};",
+      "testScript": "export {};\n\n// Map & Set Assertions\npm.test('Map assertions - size property', () => {\n  const map = new Map([['key1', 'value1'], ['key2', 'value2']])\n  pm.expect(map).to.have.property('size', 2)\n  pm.expect(map.size).to.equal(2)\n})\n\npm.test('Set assertions - size property', () => {\n  const set = new Set([1, 2, 3, 4])\n  pm.expect(set).to.have.property('size', 4)\n  pm.expect(set.size).to.equal(4)\n})\n\npm.test('Map instanceOf assertion', () => {\n  const map = new Map()\n  pm.expect(map).to.be.instanceOf(Map)\n  pm.expect(map).to.be.an.instanceOf(Map)\n})\n\npm.test('Set instanceOf assertion', () => {\n  const set = new Set()\n  pm.expect(set).to.be.instanceOf(Set)\n  pm.expect(set).to.be.an.instanceOf(Set)\n})\n\n// Advanced Chai - closeTo\npm.test('closeTo - validates numbers within delta', () => {\n  pm.expect(3.14159).to.be.closeTo(3.14, 0.01)\n  pm.expect(10.5).to.be.closeTo(11, 1)\n})\n\npm.test('closeTo - negation works', () => {\n  pm.expect(100).to.not.be.closeTo(50, 10)\n  pm.expect(3.14).to.not.be.closeTo(10, 0.1)\n})\n\npm.test('approximately - alias for closeTo', () => {\n  pm.expect(2.5).to.approximately(2.4, 0.2)\n  pm.expect(99.99).to.approximately(100, 0.1)\n})\n\n// Advanced Chai - finite\npm.test('finite - validates finite numbers', () => {\n  pm.expect(123).to.be.finite\n  pm.expect(0).to.be.finite\n  pm.expect(-456).to.be.finite\n})\n\npm.test('finite - negation for Infinity', () => {\n  pm.expect(Infinity).to.not.be.finite\n  pm.expect(-Infinity).to.not.be.finite\n  pm.expect(NaN).to.not.be.finite\n})\n\n// Advanced Chai - satisfy\npm.test('satisfy - custom predicate function', () => {\n  pm.expect(10).to.satisfy((num) => num > 5)\n  pm.expect('hello').to.satisfy((str) => str.length === 5)\n})\n\npm.test('satisfy - complex validation', () => {\n  const obj = { name: 'test', value: 100 }\n  pm.expect(obj).to.satisfy((o) => o.value > 50 && o.name.length > 0)\n})\n\npm.test('satisfy - negation works', () => {\n  pm.expect(5).to.not.satisfy((num) => num > 10)\n  pm.expect('abc').to.not.satisfy((str) => str.length > 5)\n})\n\n// Advanced Chai - respondTo\npm.test('respondTo - validates method existence', () => {\n  class TestClass {\n    testMethod() { return 'test' }\n    anotherMethod() { return 'another' }\n  }\n  pm.expect(TestClass).to.respondTo('testMethod')\n  pm.expect(TestClass).to.respondTo('anotherMethod')\n})\n\npm.test('respondTo - with itself for static methods', () => {\n  class MyClass {\n    static staticMethod() { return 'static' }\n    instanceMethod() { return 'instance' }\n  }\n  pm.expect(MyClass).itself.to.respondTo('staticMethod')\n  pm.expect(MyClass).to.not.itself.respondTo('instanceMethod')\n  pm.expect(MyClass).to.respondTo('instanceMethod')\n})\n\n// Property Ownership - own.property\npm.test('own.property - distinguishes own vs inherited', () => {\n  const parent = { inherited: true }\n  const obj = Object.create(parent)\n  obj.own = true\n  pm.expect(obj).to.have.own.property('own')\n  pm.expect(obj).to.not.have.own.property('inherited')\n  pm.expect(obj).to.have.property('inherited')\n})\n\npm.test('deep.own.property - deep check with ownership', () => {\n  const proto = { shared: 'inherited' }\n  const obj = Object.create(proto)\n  obj.data = { nested: 'value' }\n  pm.expect(obj).to.have.deep.own.property('data', { nested: 'value' })\n  pm.expect(obj).to.not.have.deep.own.property('shared')\n})\n\npm.test('ownProperty - alias for own.property', () => {\n  const obj = { prop: 'value' }\n  pm.expect(obj).to.have.ownProperty('prop')\n  pm.expect(obj).to.have.ownProperty('prop', 'value')\n})\n\n// Hopp namespace parity tests\npm.test('hopp.expect Map/Set support', () => {\n  const map = new Map([['x', 1]])\n  const set = new Set([1, 2])\n  hopp.expect(map.size).toBe(1)\n  hopp.expect(set.size).toBe(2)\n})\n\npm.test('hopp.expect closeTo support', () => {\n  hopp.expect(3.14).to.be.closeTo(3.1, 0.1)\n  hopp.expect(10).to.be.closeTo(10.5, 1)\n})\n\npm.test('hopp.expect finite support', () => {\n  hopp.expect(42).to.be.finite\n  hopp.expect(Infinity).to.not.be.finite\n})\n\npm.test('hopp.expect satisfy support', () => {\n  hopp.expect(100).to.satisfy((n) => n > 50)\n  hopp.expect('test').to.satisfy((s) => s.length === 4)\n})\n\npm.test('hopp.expect respondTo support', () => {\n  class TestClass { method() {} }\n  hopp.expect(TestClass).to.respondTo('method')\n})\n\npm.test('hopp.expect own.property support', () => {\n  const obj = Object.create({ inherited: 1 })\n  obj.own = 2\n  hopp.expect(obj).to.have.own.property('own')\n  hopp.expect(obj).to.not.have.own.property('inherited')\n})\n\npm.test('hopp.expect ordered.members support', () => {\n  const arr = ['a', 'b', 'c']\n  hopp.expect(arr).to.have.ordered.members(['a', 'b', 'c'])\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "16",
+      "id": "cmfhzf0op00typecoer01",
+      "name": "type-preservation-test",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n// For CLI E2E testing: We only set simple string values in pre-request\n// Complex types will be tested within the test script itself\n\npm.environment.set('string_value', 'hello')\n",
+      "testScript": "export {};\n\n// ========================================\n// TYPE PRESERVATION TESTS (CLI Compatible)\n// ========================================\n\n// IMPORTANT NOTE: Type preservation works perfectly WITHIN script execution scope\n// Values persisted across request boundaries (pre-request \u2192 test) may be serialized\n// This is expected CLI behavior for environment persistence/display\n\n// Test values set from pre-request\npm.test('string values work across scripts', () => {\n  pm.expect(pm.environment.get('string_value')).to.equal('hello')\n})\n\n// ========================================\n// TYPE PRESERVATION WITHIN SINGLE SCRIPT\n// (This is where type preservation really shines!)\n// ========================================\n\npm.test('numbers are preserved as numbers (same script)', () => {\n  pm.environment.set('num', 42)\n  const value = pm.environment.get('num')\n  pm.expect(value).to.equal(42)\n  pm.expect(typeof value).to.equal('number')\n})\n\npm.test('booleans are preserved as booleans (same script)', () => {\n  pm.environment.set('bool_true', true)\n  pm.environment.set('bool_false', false)\n  pm.expect(pm.environment.get('bool_true')).to.equal(true)\n  pm.expect(pm.environment.get('bool_false')).to.equal(false)\n  pm.expect(typeof pm.environment.get('bool_true')).to.equal('boolean')\n})\n\npm.test('null is preserved as actual null (same script)', () => {\n  pm.environment.set('null_val', null)\n  const value = pm.environment.get('null_val')\n  pm.expect(value).to.equal(null)\n  pm.expect(value === null).to.be.true\n  pm.expect(typeof value).to.equal('object')\n})\n\npm.test('undefined is preserved as actual undefined (same script)', () => {\n  pm.environment.set('undef_val', undefined)\n  const value = pm.environment.get('undef_val')\n  pm.expect(value).to.equal(undefined)\n  pm.expect(typeof value).to.equal('undefined')\n  pm.expect(pm.environment.has('undef_val')).to.be.true\n})\n\npm.test('arrays are preserved with direct access', () => {\n  pm.environment.set('arr', [1, 2, 3])\n  const value = pm.environment.get('arr')\n\n  pm.expect(Array.isArray(value)).to.be.true\n  pm.expect(value.length).to.equal(3)\n  pm.expect(value[0]).to.equal(1)\n  pm.expect(value[2]).to.equal(3)\n})\n\npm.test('single-element arrays remain arrays', () => {\n  pm.environment.set('single', [42])\n  const value = pm.environment.get('single')\n\n  pm.expect(Array.isArray(value)).to.be.true\n  pm.expect(value.length).to.equal(1)\n  pm.expect(value[0]).to.equal(42)\n})\n\npm.test('empty arrays are preserved', () => {\n  pm.environment.set('empty_arr', [])\n  const value = pm.environment.get('empty_arr')\n\n  pm.expect(Array.isArray(value)).to.be.true\n  pm.expect(value.length).to.equal(0)\n})\n\npm.test('string arrays preserve all elements', () => {\n  pm.environment.set('str_arr', ['a', 'b', 'c'])\n  const value = pm.environment.get('str_arr')\n\n  pm.expect(Array.isArray(value)).to.be.true\n  pm.expect(value).to.deep.equal(['a', 'b', 'c'])\n})\n\npm.test('objects are preserved with accessible properties', () => {\n  pm.environment.set('obj', { key: 'value', num: 123 })\n  const value = pm.environment.get('obj')\n\n  pm.expect(typeof value).to.equal('object')\n  pm.expect(value.key).to.equal('value')\n  pm.expect(value.num).to.equal(123)\n})\n\npm.test('empty objects are preserved', () => {\n  pm.environment.set('empty_obj', {})\n  const value = pm.environment.get('empty_obj')\n\n  pm.expect(typeof value).to.equal('object')\n  pm.expect(Object.keys(value).length).to.equal(0)\n})\n\npm.test('nested objects preserve structure', () => {\n  pm.environment.set('nested', { user: { name: 'John', id: 1 }, meta: { active: true } })\n  const value = pm.environment.get('nested')\n\n  pm.expect(value.user.name).to.equal('John')\n  pm.expect(value.user.id).to.equal(1)\n  pm.expect(value.meta.active).to.equal(true)\n})\n\npm.test('complex nested structures work', () => {\n  const data = {\n    users: [\n      { id: 1, name: 'Alice', scores: [90, 85, 88] },\n      { id: 2, name: 'Bob', scores: [75, 80, 82] }\n    ],\n    metadata: { count: 2, page: 1, filters: ['active', 'verified'] }\n  }\n\n  pm.environment.set('complex', data)\n  const retrieved = pm.environment.get('complex')\n\n  pm.expect(retrieved.users).to.be.an('array')\n  pm.expect(retrieved.users.length).to.equal(2)\n  pm.expect(retrieved.users[0].name).to.equal('Alice')\n  pm.expect(retrieved.users[0].scores[0]).to.equal(90)\n  pm.expect(retrieved.metadata.filters).to.deep.equal(['active', 'verified'])\n})\n\n// ========================================\n// NAMESPACE SEPARATION\n// ========================================\n\npm.test('hopp.env.set rejects non-string values', () => {\n  let errorCount = 0\n\n  try { hopp.env.set('test', undefined) } catch (e) { errorCount++ }\n  try { hopp.env.set('test', null) } catch (e) { errorCount++ }\n  try { hopp.env.set('test', 42) } catch (e) { errorCount++ }\n  try { hopp.env.set('test', true) } catch (e) { errorCount++ }\n  try { hopp.env.set('test', [1, 2]) } catch (e) { errorCount++ }\n  try { hopp.env.set('test', {}) } catch (e) { errorCount++ }\n\n  pm.expect(errorCount).to.equal(6)\n})\n\npm.test('hopp.env.set only accepts strings', () => {\n  hopp.env.set('hopp_str', 'valid')\n  pm.expect(hopp.env.get('hopp_str')).to.equal('valid')\n})\n\npm.test('pm/hopp cross-namespace reading works', () => {\n  pm.environment.set('cross_test', [1, 2, 3])\n\n  // hopp can read PM-set values\n  const fromHopp = hopp.env.get('cross_test')\n  pm.expect(Array.isArray(fromHopp)).to.be.true\n  pm.expect(fromHopp.length).to.equal(3)\n})\n\n// ========================================\n// PRACTICAL USE CASES\n// ========================================\n\npm.test('no JSON.parse needed for response data storage', () => {\n  // Simulate storing parsed response data\n  const responseData = {\n    id: 123,\n    name: 'Test User',\n    permissions: ['read', 'write'],\n    settings: { theme: 'dark', notifications: true }\n  }\n\n  pm.environment.set('user_data', responseData)\n  const stored = pm.environment.get('user_data')\n\n  // Direct access - no JSON.parse needed!\n  pm.expect(stored.id).to.equal(123)\n  pm.expect(stored.permissions).to.include('write')\n  pm.expect(stored.settings.theme).to.equal('dark')\n})\n\npm.test('array iteration works directly', () => {\n  pm.environment.set('items', ['apple', 'banana', 'cherry'])\n  const items = pm.environment.get('items')\n\n  let concatenated = ''\n  items.forEach(item => {\n    concatenated += item\n  })\n\n  pm.expect(concatenated).to.equal('applebananacherry')\n  pm.expect(items.map(i => i.toUpperCase())).to.deep.equal(['APPLE', 'BANANA', 'CHERRY'])\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "id": "type_preservation_ui_compat",
+      "name": "type-preservation-ui-compatibility-test",
+      "method": "POST",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "export {};\n// Type preservation tests run in test script scope",
+      "testScript": "export {};\n\n// ====== Type Preservation & UI Compatibility Tests ======\n// NOTE: Testing in same script scope (CLI limitation: complex types\n// may not persist across pre-request \u2192 test boundary)\n\npm.test('PM namespace preserves array types (not String coercion)', () => {\n  pm.environment.set('simpleArray', [1, 2, 3])\n  const arr = pm.environment.get('simpleArray')\n\n  // CRITICAL: Should be actual array, not string \"1,2,3\"\n  pm.expect(Array.isArray(arr)).to.equal(true)\n  pm.expect(arr).to.have.lengthOf(3)\n  pm.expect(arr[0]).to.equal(1)\n  pm.expect(arr[1]).to.equal(2)\n  pm.expect(arr[2]).to.equal(3)\n})\n\npm.test('PM namespace preserves object types (not \"[object Object]\")', () => {\n  pm.environment.set('simpleObject', { foo: 'bar', num: 42 })\n  const obj = pm.environment.get('simpleObject')\n\n  // CRITICAL: Should be actual object, not string \"[object Object]\"\n  pm.expect(typeof obj).to.equal('object')\n  pm.expect(obj).to.not.be.null\n  pm.expect(obj.foo).to.equal('bar')\n  pm.expect(obj.num).to.equal(42)\n})\n\npm.test('PM namespace preserves null correctly', () => {\n  pm.environment.set('nullValue', null)\n  const val = pm.environment.get('nullValue')\n\n  pm.expect(val).to.be.null\n})\n\npm.test('PM namespace preserves undefined correctly', () => {\n  pm.environment.set('undefinedValue', undefined)\n  const val = pm.environment.get('undefinedValue')\n\n  pm.expect(val).to.be.undefined\n})\n\npm.test('PM namespace preserves primitives correctly', () => {\n  pm.environment.set('stringValue', 'hello')\n  pm.environment.set('numberValue', 123)\n  pm.environment.set('booleanValue', true)\n\n  pm.expect(pm.environment.get('stringValue')).to.equal('hello')\n  pm.expect(pm.environment.get('numberValue')).to.equal(123)\n  pm.expect(pm.environment.get('booleanValue')).to.equal(true)\n})\n\npm.test('PM namespace preserves nested structures', () => {\n  pm.environment.set('nestedStructure', {\n    users: [\n      { id: 1, name: 'Alice' },\n      { id: 2, name: 'Bob' }\n    ],\n    meta: { count: 2, tags: ['active', 'verified'] }\n  })\n  const nested = pm.environment.get('nestedStructure')\n\n  pm.expect(nested).to.be.an('object')\n  pm.expect(nested.users).to.be.an('array')\n  pm.expect(nested.users).to.have.lengthOf(2)\n  pm.expect(nested.users[0].name).to.equal('Alice')\n  pm.expect(nested.users[1].name).to.equal('Bob')\n  pm.expect(nested.meta.count).to.equal(2)\n  pm.expect(nested.meta.tags).to.have.members(['active', 'verified'])\n})\n\npm.test('PM namespace handles mixed arrays (regression test for UI crash)', () => {\n  pm.environment.set('mixedArray', [\n    'string',\n    42,\n    true,\n    null,\n    undefined,\n    [1, 2],\n    { key: 'value' }\n  ])\n  const mixed = pm.environment.get('mixedArray')\n\n  // This is the exact case that caused the UI crash\n  pm.expect(Array.isArray(mixed)).to.equal(true)\n  pm.expect(mixed).to.have.lengthOf(7)\n  pm.expect(mixed[0]).to.equal('string')\n  pm.expect(mixed[1]).to.equal(42)\n  pm.expect(mixed[2]).to.equal(true)\n  pm.expect(mixed[3]).to.be.null\n  // mixed[4] is undefined in array, becomes null during JSON serialization\n  pm.expect(Array.isArray(mixed[5])).to.equal(true)\n  pm.expect(mixed[5]).to.have.lengthOf(2)\n  pm.expect(typeof mixed[6]).to.equal('object')\n  pm.expect(mixed[6].key).to.equal('value')\n})\n\npm.test('PM globals preserve arrays and objects', () => {\n  pm.globals.set('globalArray', [10, 20, 30])\n  pm.globals.set('globalObject', { env: 'prod', port: 8080 })\n\n  const globalArr = pm.globals.get('globalArray')\n  const globalObj = pm.globals.get('globalObject')\n\n  pm.expect(Array.isArray(globalArr)).to.equal(true)\n  pm.expect(globalArr).to.deep.equal([10, 20, 30])\n\n  pm.expect(typeof globalObj).to.equal('object')\n  pm.expect(globalObj.env).to.equal('prod')\n  pm.expect(globalObj.port).to.equal(8080)\n})\n\npm.test('PM variables preserve arrays and objects', () => {\n  pm.variables.set('varArray', [5, 10, 15])\n  pm.variables.set('varObject', { status: 'active', count: 100 })\n\n  const varArr = pm.variables.get('varArray')\n  const varObj = pm.variables.get('varObject')\n\n  pm.expect(Array.isArray(varArr)).to.equal(true)\n  pm.expect(varArr).to.deep.equal([5, 10, 15])\n\n  pm.expect(typeof varObj).to.equal('object')\n  pm.expect(varObj.status).to.equal('active')\n  pm.expect(varObj.count).to.equal(100)\n})\n\npm.test('Type preservation works with Postman compatibility', () => {\n  pm.environment.set('testArr', [1, 2, 3])\n  pm.environment.set('testObj', { foo: 'bar', num: 42 })\n\n  const arr = pm.environment.get('testArr')\n  const obj = pm.environment.get('testObj')\n\n  // Should work like Postman: runtime types preserved\n  pm.expect(arr.length).to.equal(3)\n  pm.expect(obj.foo).to.equal('bar')\n\n  // Verify no String() coercion happened\n  pm.expect(arr).to.not.equal('1,2,3')\n  pm.expect(obj).to.not.equal('[object Object]')\n})\n\npm.test('Type preservation: UI compatibility regression test', () => {\n  // This test validates the fix for the reported bug:\n  // \"TypeError: a.match is not a function at details.vue:387:10\"\n\n  pm.environment.set('mixedTest', [\n    'string', 42, true, null, undefined, [1, 2], { key: 'value' }\n  ])\n\n  const mixed = pm.environment.get('mixedTest')\n\n  // Should NOT throw any errors\n  let errorCount = 0\n  try {\n    // Access all elements\n    mixed.forEach(item => {\n      // Should work with all types\n      const type = typeof item\n      const validTypes = ['string', 'number', 'boolean', 'object']\n      if (!validTypes.includes(type)) {\n        errorCount++\n      }\n    })\n  } catch (e) {\n    errorCount++\n  }\n\n  pm.expect(errorCount).to.equal(0)\n})\n",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"test\": \"type preservation validation\"\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": []
+}

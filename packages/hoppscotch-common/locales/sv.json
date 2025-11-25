@@ -353,7 +353,7 @@
     "same_profile_name": "Updated profile name is same as the current profile name",
     "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
     "something_went_wrong": "Något gick fel",
-    "test_script_fail": "Could not execute post-request script",
+    "post_request_script_fail": "Could not execute post-request script",
     "reading_files": "Error while reading one or more files.",
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
@@ -416,8 +416,8 @@
     "post_request_tests": "Testskript skrivs i JavaScript och körs efter att svaret har mottagits.",
     "pre_request_script": "Skript för förfrågan skrivs i JavaScript och körs innan begäran skickas.",
     "script_fail": "Det verkar finnas ett fel i skriptet för förhandsbegäran. Kontrollera felet nedan och fixa skriptet därefter.",
-    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
-    "tests": "Skriv ett testskript för att automatisera felsökning."
+    "post_request_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
+    "post_request_script": "Skriv ett testskript för att automatisera felsökning."
   },
   "hide": {
     "collection": "Collapse Collection Panel",

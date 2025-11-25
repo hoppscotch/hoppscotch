@@ -48,7 +48,7 @@
             </td>
 
             <td class="py-4 px-8">
-              {{ team.members?.length }}
+              {{ team.teamMembers?.length }}
             </td>
 
             <td @click.stop class="flex justify-end mr-10">

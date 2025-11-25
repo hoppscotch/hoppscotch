@@ -27,7 +27,6 @@ import {
   mockServers$,
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
-import { platform } from "~/platform"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
 
@@ -36,12 +35,6 @@ export function useMockServer() {
   const toast = useToast()
   const workspaceService = useService(WorkspaceService)
   const teamCollectionsService = useService(TeamCollectionsService)
-
-  // Get current user for personal workspace import
-  const currentUser = useReadonlyStream(
-    platform.auth.getCurrentUserStream(),
-    platform.auth.getCurrentUser()
-  )
 
   const mockServers = useReadonlyStream(mockServers$, [])
   const collections = useReadonlyStream(restCollections$, [])

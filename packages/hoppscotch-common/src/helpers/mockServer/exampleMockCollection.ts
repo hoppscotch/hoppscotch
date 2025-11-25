@@ -4,6 +4,15 @@ import * as E from "fp-ts/Either"
 import { HoppRESTRequest, RESTReqSchemaVersion } from "@hoppscotch/data"
 import { createNewRootCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { createRequestInCollection } from "~/helpers/backend/mutations/TeamRequest"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import {
+  CreateRestRootUserCollectionDocument,
+  CreateRestRootUserCollectionMutation,
+  CreateRestRootUserCollectionMutationVariables,
+  CreateRestUserRequestDocument,
+  CreateRestUserRequestMutation,
+  CreateRestUserRequestMutationVariables,
+} from "~/helpers/backend/graphql"
 
 /**
  * Get example REST requests for mock server collection
@@ -230,38 +239,76 @@ export async function createMockCollectionForTeam(
 
 /**
  * Create a mock collection for personal workspace
- * Uses the hoppscotch/data makeCollection to create a local collection
+ * Uses backend GraphQL mutations to create the collection with proper backend ID
  */
 export async function createMockCollectionForPersonal(
   collectionName: string
 ): Promise<E.Either<string, { id: string; name: string }>> {
-  const { makeCollection } = await import("@hoppscotch/data")
-  const { appendRESTCollections } = await import("~/newstore/collections")
-
-  // Create the collection structure
-  const requests = getExampleMockRequests()
-
-  const collection = makeCollection({
-    name: collectionName,
-    folders: [],
-    requests,
+  // Prepare collection data
+  const data = {
     auth: {
-      authType: "inherit",
+      authType: "inherit" as const,
       authActive: true,
     },
     headers: [],
     variables: [],
-  })
+  }
 
-  // Append to local storage
-  appendRESTCollections([collection])
+  // Create the root collection using GraphQL mutation
+  const collectionResult = await pipe(
+    runMutation<
+      CreateRestRootUserCollectionMutation,
+      CreateRestRootUserCollectionMutationVariables,
+      ""
+    >(CreateRestRootUserCollectionDocument, {
+      title: collectionName,
+      data: JSON.stringify(data),
+    }),
+    TE.match(
+      (error) => E.left(`Failed to create collection: ${error}`),
+      (response) => E.right(response)
+    )
+  )()
+
+  if (E.isLeft(collectionResult)) {
+    return collectionResult
+  }
+
+  // Extract the collection ID from the response
+  const collectionID = collectionResult.right.createRESTRootUserCollection.id
+
+  // Create requests in the collection using GraphQL mutation
+  const requests = getExampleMockRequests()
+
+  for (const request of requests) {
+    const requestResult = await pipe(
+      runMutation<
+        CreateRestUserRequestMutation,
+        CreateRestUserRequestMutationVariables,
+        ""
+      >(CreateRestUserRequestDocument, {
+        collectionID,
+        title: request.name,
+        request: JSON.stringify(request),
+      }),
+      TE.match(
+        (error) => E.left(`Failed to create request: ${error}`),
+        (req) => E.right(req)
+      )
+    )()
+
+    if (E.isLeft(requestResult)) {
+      // Log error but continue with other requests
+      console.error(
+        "Failed to create request:",
+        request.name,
+        requestResult.left
+      )
+    }
+  }
 
   // Wait a bit to ensure the collection is registered in the store
   await new Promise((resolve) => setTimeout(resolve, 200))
-
-  // Return the collection info (generate ID if not present)
-  const collectionID =
-    collection.id || collection._ref_id || Date.now().toString()
 
   return E.right({
     id: collectionID,

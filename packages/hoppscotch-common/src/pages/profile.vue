@@ -148,7 +148,7 @@ const sendEmailVerification = () => {
     })
 }
 
-const PROFILE_NAVIGATION = [
+const PROFILE_NAVIGATION = computed(() => [
   {
     route: "/profile",
     label: t("settings.account"),
@@ -165,5 +165,5 @@ const PROFILE_NAVIGATION = [
     label: t("access_tokens.tab_title"),
     icon: null,
   },
-] as const
+])
 </script>

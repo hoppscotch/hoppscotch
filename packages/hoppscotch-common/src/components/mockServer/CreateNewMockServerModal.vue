@@ -502,11 +502,11 @@ const handleToggleMockServer = async () => {
   if (!createdServer.value) return
 
   loading.value = true
-  await toggleMockServer(createdServer.value as any)
+  const result = await toggleMockServer(createdServer.value as any)
   loading.value = false
 
-  // Update the local createdServer state with the toggled state
-  if (createdServer.value) {
+  // Update the local `createdServer` state with the toggled state
+  if (result.success && createdServer.value) {
     createdServer.value = {
       ...createdServer.value,
       isActive: !createdServer.value.isActive,

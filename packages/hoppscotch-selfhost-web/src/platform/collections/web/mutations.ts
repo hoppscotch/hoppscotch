@@ -1,6 +1,6 @@
 import * as E from "fp-ts/Either"
 import { ReqType } from "@api/generated/graphql"
-import { HoppCollection } from "@hoppscotch/data"
+import { HoppCollection, CollectionSchemaVersion } from "@hoppscotch/data"
 import { getUserRootCollections, getGQLRootUserCollections } from "./api"
 import {
   GetUserRootCollectionsQuery,
@@ -37,9 +37,13 @@ function convertUserCollectionToHoppCollection(
   const children = userCollection[childrenKey] || []
 
   const collection: HoppCollection = {
-    v: 1,
+    v: CollectionSchemaVersion,
     id: userCollection.id,
     name: userCollection.title,
+    description: "",
+    headers: [],
+    variables: [],
+    auth: { authType: "none", authActive: true },
     folders: children.map((child) =>
       convertUserCollectionToHoppCollection(child, reqType)
     ),
@@ -49,7 +53,7 @@ function convertUserCollectionToHoppCollection(
       } catch {
         // Fallback for invalid JSON
         return {
-          v: "1",
+          v: CollectionSchemaVersion,
           id: request.id,
           name: request.title,
           method: "GET",

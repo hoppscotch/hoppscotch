@@ -42,10 +42,6 @@
             @click="handleCopy(mockServer.serverUrlDomainBased || '')"
           />
         </div>
-        <div class="text-xs text-secondaryLight">
-          <span class="font-medium">{{ t("mock_server.note") }}:</span>
-          {{ t("mock_server.subdomain_note") }}
-        </div>
       </div>
     </div>
 

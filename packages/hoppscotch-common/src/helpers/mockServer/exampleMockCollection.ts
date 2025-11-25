@@ -1,7 +1,11 @@
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/Either"
-import { HoppRESTRequest, RESTReqSchemaVersion } from "@hoppscotch/data"
+import {
+  HoppRESTRequest,
+  RESTReqSchemaVersion,
+  makeCollection,
+} from "@hoppscotch/data"
 import { createNewRootCollection } from "~/helpers/backend/mutations/TeamCollection"
 import { createRequestInCollection } from "~/helpers/backend/mutations/TeamRequest"
 import { runMutation } from "~/helpers/backend/GQLClient"
@@ -13,6 +17,7 @@ import {
   CreateRestUserRequestMutation,
   CreateRestUserRequestMutationVariables,
 } from "~/helpers/backend/graphql"
+import { addRESTCollection } from "~/newstore/collections"
 
 /**
  * Get example REST requests for mock server collection
@@ -279,6 +284,7 @@ export async function createMockCollectionForPersonal(
 
   // Create requests in the collection using GraphQL mutation
   const requests = getExampleMockRequests()
+  const createdRequests: HoppRESTRequest[] = []
 
   for (const request of requests) {
     const requestResult = await pipe(
@@ -304,11 +310,31 @@ export async function createMockCollectionForPersonal(
         request.name,
         requestResult.left
       )
+    } else {
+      // Add the request ID to the created request
+      const createdRequest = {
+        ...request,
+        id: requestResult.right.createRESTUserRequest.id,
+      }
+      createdRequests.push(createdRequest)
     }
   }
 
-  // Wait a bit to ensure the collection is registered in the store
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  // Create a HoppCollection object and add it to the store immediately
+  const collection = makeCollection({
+    name: collectionName,
+    folders: [],
+    requests: createdRequests,
+    auth: data.auth,
+    headers: data.headers,
+    variables: data.variables,
+  })
+
+  // Add the backend ID to the collection
+  collection.id = collectionID
+
+  // Add the collection to the store so it's visible immediately
+  addRESTCollection(collection)
 
   return E.right({
     id: collectionID,

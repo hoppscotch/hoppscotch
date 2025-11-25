@@ -71,12 +71,14 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <TabsNav
-            :items="PROFILE_NAVIGATION"
-            styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
-          />
+          <div class="flex flex-col space-y-2">
+            <TabsNav
+              :items="PROFILE_NAVIGATION"
+              styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
+            />
 
-          <RouterView />
+            <RouterView />
+          </div>
         </div>
       </div>
     </div>

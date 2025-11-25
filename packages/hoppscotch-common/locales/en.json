@@ -1049,7 +1049,8 @@
     "create_example_collection": "Create example collection",
     "create_example_collection_hint": "Create a pet store example collection with sample requests (GET, POST, PUT, DELETE)",
     "creating_example_collection": "Creating example collection...",
-    "failed_to_create_collection": "Failed to create example collection"
+    "failed_to_create_collection": "Failed to create example collection",
+    "enable_example_collection_hint": "Please enable 'Create example collection' toggle for new collection mode"
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",

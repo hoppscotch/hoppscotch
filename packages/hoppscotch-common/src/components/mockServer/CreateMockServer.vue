@@ -16,71 +16,119 @@
           <label class="text-sm font-semibold text-secondaryDark">
             {{ t("collection.title") }}
           </label>
-          <!-- Collection Selector (when no collection is pre-selected) -->
-          <div v-if="!collectionID && !isExistingMockServer" class="flex">
-            <tippy
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => tippyActions?.focus()"
-            >
-              <HoppSmartSelectWrapper>
-                <HoppButtonSecondary
-                  class="flex flex-1 !justify-start rounded-none pr-8"
-                  :label="
-                    selectedCollectionName || t('mock_server.select_collection')
-                  "
-                  outline
-                />
-              </HoppSmartSelectWrapper>
-              <template #content="{ hide }">
-                <div
-                  ref="tippyActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                >
-                  <HoppSmartLink
-                    v-for="option in collectionOptions"
-                    :key="option.value"
-                    class="flex flex-1"
-                    :class="{
-                      'opacity-50 cursor-not-allowed': option.disabled,
-                    }"
-                    @click="
-                      () => {
-                        if (!option.disabled) {
-                          selectCollection(option)
-                          hide()
-                        }
-                      }
-                    "
-                  >
-                    <HoppSmartItem
-                      :label="option.label"
-                      :active-info-icon="selectedCollectionID === option.value"
-                      :info-icon="
-                        selectedCollectionID === option.value
-                          ? IconCheck
-                          : option.hasMockServer
-                            ? IconServer
-                            : null
-                      "
-                      :disabled="option.disabled"
-                    />
-                  </HoppSmartLink>
-                  <div
-                    v-if="collectionOptions.length === 0"
-                    class="flex items-center justify-center px-4 py-8 text-secondaryLight"
-                  >
-                    {{ t("empty.collections") }}
-                  </div>
-                </div>
-              </template>
-            </tippy>
+
+          <!-- Show collection name if pre-selected -->
+          <div
+            v-if="collectionID && !isExistingMockServer"
+            class="text-body text-secondary"
+          >
+            {{ collectionName }}
           </div>
-          <!-- Collection Info (when collection is pre-selected) -->
-          <div v-else class="text-body text-secondary">
+
+          <!-- Show radio buttons and options when no collection is pre-selected -->
+          <div
+            v-else-if="!collectionID && !isExistingMockServer"
+            class="flex flex-col space-y-4"
+          >
+            <!-- Radio buttons for collection selection mode -->
+            <div class="flex space-x-6">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  v-model="collectionSelectionMode"
+                  value="existing"
+                  class="w-4 h-4 text-accent border-divider focus:ring-accent"
+                />
+                <span class="text-body text-secondary">
+                  {{ t("mock_server.existing_collection") }}
+                </span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  v-model="collectionSelectionMode"
+                  value="new"
+                  class="w-4 h-4 text-accent border-divider focus:ring-accent"
+                />
+                <span class="text-body text-secondary">
+                  {{ t("mock_server.new_collection") }}
+                </span>
+              </label>
+            </div>
+
+            <!-- Collection dropdown (shown for existing collection mode) -->
+            <div v-if="collectionSelectionMode === 'existing'" class="flex">
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => tippyActions?.focus()"
+              >
+                <HoppSmartSelectWrapper>
+                  <HoppButtonSecondary
+                    class="flex flex-1 !justify-start rounded-none pr-8"
+                    :label="
+                      selectedCollectionName ||
+                      t('mock_server.select_collection')
+                    "
+                    outline
+                  />
+                </HoppSmartSelectWrapper>
+                <template #content="{ hide }">
+                  <div
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
+                    tabindex="0"
+                    @keyup.escape="hide()"
+                  >
+                    <HoppSmartLink
+                      v-for="option in collectionOptions"
+                      :key="option.value"
+                      class="flex flex-1"
+                      :class="{
+                        'opacity-50 cursor-not-allowed': option.disabled,
+                      }"
+                      @click="
+                        () => {
+                          if (!option.disabled) {
+                            selectCollection(option)
+                            hide()
+                          }
+                        }
+                      "
+                    >
+                      <HoppSmartItem
+                        :label="option.label"
+                        :active-info-icon="
+                          selectedCollectionID === option.value
+                        "
+                        :info-icon="
+                          selectedCollectionID === option.value
+                            ? IconCheck
+                            : option.hasMockServer
+                              ? IconServer
+                              : null
+                        "
+                        :disabled="option.disabled"
+                      />
+                    </HoppSmartLink>
+                    <div
+                      v-if="collectionOptions.length === 0"
+                      class="flex items-center justify-center px-4 py-8 text-secondaryLight"
+                    >
+                      {{ t("empty.collections") }}
+                    </div>
+                  </div>
+                </template>
+              </tippy>
+            </div>
+          </div>
+
+          <!-- Collection Info (when viewing existing mock server) -->
+          <div
+            v-else-if="isExistingMockServer"
+            class="text-body text-secondary"
+          >
             {{ collectionName }}
           </div>
         </div>
@@ -205,9 +253,13 @@
             </div>
           </div>
 
-          <!-- Create Example Collection Toggle (only when no collection is pre-selected) -->
+          <!-- Create Example Collection Toggle (only when "new collection" is selected) -->
           <div
-            v-if="!collectionID && !isExistingMockServer"
+            v-if="
+              !collectionID &&
+              !isExistingMockServer &&
+              collectionSelectionMode === 'new'
+            "
             class="flex flex-col space-y-2"
           >
             <div class="flex items-center">
@@ -312,7 +364,12 @@
           v-else
           :label="t('mock_server.create_mock_server')"
           :loading="loading"
-          :disabled="!mockServerName.trim() || !effectiveCollectionID"
+          :disabled="
+            !mockServerName.trim() ||
+            (!effectiveCollectionID &&
+              collectionSelectionMode === 'existing') ||
+            (collectionSelectionMode === 'new' && !createExampleCollection)
+          "
           :icon="IconServer"
           @click="createMockServer"
         />
@@ -363,9 +420,20 @@ import {
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
-import { createExamplePetStoreCollection } from "~/helpers/mockServer/exampleCollection"
-import { addRESTCollection } from "~/newstore/collections"
+import { hoppRESTImporter } from "~/helpers/import-export/import/importers"
+import {
+  appendRESTCollections,
+  setRESTCollections,
+} from "~/newstore/collections"
 import { importJSONToTeam } from "~/helpers/backend/mutations/TeamCollection"
+import {
+  importUserCollectionsFromJSON,
+  fetchAndConvertUserCollections,
+} from "~/helpers/backend/mutations/UserCollection"
+import { ReqType } from "~/helpers/backend/graphql"
+import exampleCollectionJSON from "./../../../assets/data/api-mock-example.json"
+import * as E from "fp-ts/Either"
+import { platform } from "~/platform"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -378,6 +446,12 @@ const t = useI18n()
 const toast = useToast()
 const workspaceService = useService(WorkspaceService)
 const teamCollectionsService = useService(TeamCollectionsService)
+
+// Get current user for personal workspace import
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 // Modal state
 const modalData = useReadonlyStream(showCreateMockServerModal$, {
@@ -410,6 +484,7 @@ const createExampleCollection = ref<boolean>(false)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
+const collectionSelectionMode = ref<"new" | "existing">("existing")
 
 // Props computed from modal data
 const show = computed(() => modalData.value.show)
@@ -606,31 +681,144 @@ watch(show, (newShow) => {
     selectedCollectionName.value = ""
     showCloseButton.value = false
     createdServer.value = null
+    collectionSelectionMode.value = "existing"
   }
 })
 
+// Auto-enable example collection toggle when switching to "new" mode
+watch(collectionSelectionMode, (newMode) => {
+  if (newMode === "new") {
+    createExampleCollection.value = true
+  }
+})
+
+// Helper function to transform collection for team format
+function translateToTeamCollectionFormat(x: any) {
+  const folders: any[] = (x.folders ?? []).map(translateToTeamCollectionFormat)
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+    variables: x.variables,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
+// Helper function to transform collection for personal format
+function translateToPersonalCollectionFormat(x: any) {
+  const folders: any[] = (x.folders ?? []).map(
+    translateToPersonalCollectionFormat
+  )
+
+  const data = {
+    auth: x.auth,
+    headers: x.headers,
+    variables: x.variables,
+  }
+
+  const obj = {
+    ...x,
+    folders,
+    data,
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
 // Function to create an example collection and return its ID
 const createExampleCollectionAndGetID = async (): Promise<string> => {
-  const exampleCollection = createExamplePetStoreCollection(
-    mockServerName.value.trim() || "Pet Store Mock Server"
-  )
   const workspaceType = currentWorkspace.value.type
 
+  console.log(
+    "Creating example collection for workspace type:",
+    exampleCollectionJSON
+  )
+
+  // Parse the example collection JSON using hoppRESTImporter
+  const parseResult = await hoppRESTImporter([
+    JSON.stringify(exampleCollectionJSON),
+  ])()
+
+  if (E.isLeft(parseResult)) {
+    throw new Error("Failed to parse example collection")
+  }
+
+  const collections = parseResult.right
+
   if (workspaceType === "personal") {
-    // For personal workspace, add collection to local store
-    addRESTCollection(exampleCollection)
+    // For personal workspace, use the same import logic as ImportExport.vue
+    const currentUserValue = currentUser.value
 
-    // Return the collection ID (for personal, we'll use index as string)
-    const newIndex = collections.value.length - 1
-    return String(newIndex)
+    if (currentUserValue) {
+      // User is logged in, try to import to backend first
+      try {
+        const transformedCollection = collections.map((collection) =>
+          translateToPersonalCollectionFormat(collection)
+        )
+
+        const res = await importUserCollectionsFromJSON(
+          JSON.stringify(transformedCollection),
+          ReqType.Rest
+        )()
+
+        if (E.isRight(res)) {
+          // Backend import succeeded, now fetch and persist collections in store
+          const fetchResult = await fetchAndConvertUserCollections(ReqType.Rest)
+
+          if (E.isRight(fetchResult)) {
+            // Replace local collections with backend collections
+            setRESTCollections(fetchResult.right)
+
+            // Return the ID of the last collection (the one we just imported)
+            const lastCollection =
+              fetchResult.right[fetchResult.right.length - 1]
+            return lastCollection.id || String(fetchResult.right.length - 1)
+          }
+        }
+
+        // Backend import failed, fall back to local storage
+        appendRESTCollections(collections)
+        // Get the index after appending - using the collections ref that's already defined
+        const allCollections = useReadonlyStream(restCollections$, [])
+        const newIndex = allCollections.value.length - 1
+        return String(newIndex)
+      } catch {
+        // Backend import failed, fall back to local storage
+        appendRESTCollections(collections)
+        // Get the index after appending - using the collections ref that's already defined
+        const allCollections = useReadonlyStream(restCollections$, [])
+        const newIndex = allCollections.value.length - 1
+        return String(newIndex)
+      }
+    } else {
+      // User not logged in, use local storage
+      appendRESTCollections(collections)
+      // Get the index after appending - using the collections ref that's already defined
+      const allCollections = useReadonlyStream(restCollections$, [])
+      const newIndex = allCollections.value.length - 1
+      return String(newIndex)
+    }
   } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
-    // For team workspace, use importJSONToTeam
+    // For team workspace, use the same import logic as ImportExport.vue
     const teamID = currentWorkspace.value.teamID
-    const collectionJSON = JSON.stringify([exampleCollection])
 
-    // Import the collection to team
+    const transformedCollection = collections.map((collection) =>
+      translateToTeamCollectionFormat(collection)
+    )
+
     const result = await pipe(
-      importJSONToTeam(collectionJSON, teamID),
+      importJSONToTeam(JSON.stringify(transformedCollection), teamID),
       TE.match(
         (error) => {
           console.error("Failed to import team collection:", error)
@@ -663,22 +851,28 @@ const createExampleCollectionAndGetID = async (): Promise<string> => {
 
 // Create new mock server
 const createMockServer = async () => {
-  // If example collection is enabled and no collection is selected, create it first
+  // If "new collection" mode is selected, create example collection (if toggle is enabled)
   let collectionIDToUse = effectiveCollectionID.value
 
-  if (createExampleCollection.value && !collectionID.value) {
-    loading.value = true
-    toast.info(t("mock_server.creating_example_collection"))
+  if (collectionSelectionMode.value === "new" && !collectionID.value) {
+    if (createExampleCollection.value) {
+      loading.value = true
+      toast.info(t("mock_server.creating_example_collection"))
 
-    try {
-      collectionIDToUse = await createExampleCollectionAndGetID()
+      try {
+        collectionIDToUse = await createExampleCollectionAndGetID()
 
-      // Update the selected collection
-      selectedCollectionID.value = collectionIDToUse
-    } catch (error) {
-      console.error("Failed to create example collection:", error)
-      toast.error(t("mock_server.failed_to_create_collection"))
-      loading.value = false
+        // Update the selected collection
+        selectedCollectionID.value = collectionIDToUse
+      } catch (error) {
+        console.error("Failed to create example collection:", error)
+        toast.error(t("mock_server.failed_to_create_collection"))
+        loading.value = false
+        return
+      }
+    } else {
+      // If new collection mode but example collection is not enabled
+      toast.error(t("mock_server.enable_example_collection_hint"))
       return
     }
   }

@@ -177,11 +177,8 @@
     </div>
 
     <!-- Modals -->
-    <MockServerCreateMockServer
-      v-if="showCreateModal"
-      :show="showCreateModal"
-      @hide-modal="showCreateModal = false"
-    />
+    <MockServerConfigureMockServer />
+    <MockServerCreateNewMockServer />
     <MockServerEditMockServer
       v-if="showEditModal && selectedMockServer"
       :show="showEditModal"
@@ -223,7 +220,8 @@ import {
   updateMockServer as updateMockServerInStore,
 } from "~/newstore/mockServers"
 
-import MockServerCreateMockServer from "~/components/mockServer/CreateMockServer.vue"
+import MockServerConfigureMockServer from "~/components/mockServer/ConfigureMockServerModal.vue"
+import MockServerCreateNewMockServer from "~/components/mockServer/CreateNewMockServerModal.vue"
 import MockServerEditMockServer from "~/components/mockServer/EditMockServer.vue"
 import MockServerLogs from "~/components/mockServer/MockServerLogs.vue"
 import {
@@ -248,7 +246,6 @@ const toast = useToast()
 const colorMode = useColorMode()
 const { mockServers } = useMockServerStatus()
 const loading = ref(false)
-const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showLogsModal = ref(false)
 const selectedMockServer = ref<MockServer | null>(null)

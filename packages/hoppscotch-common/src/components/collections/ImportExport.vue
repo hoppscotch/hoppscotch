@@ -113,16 +113,17 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
-const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
+const importToPersonalWorkspace = (collections: HoppCollection[]) => {
   if (
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
-    return await platform.sync.collections.importToPersonalWorkspace(
+    return platform.sync.collections.importToPersonalWorkspace(
       collections,
       ReqType.Rest
     )
   }
+
   appendRESTCollections(collections)
   return E.right({ success: true })
 }

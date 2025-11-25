@@ -232,16 +232,17 @@ const showImportFailedError = () => {
   toast.error(t("import.failed"))
 }
 
-const handleImportToStore = async (gqlCollections: HoppCollection[]) => {
+const handleImportToStore = (gqlCollections: HoppCollection[]) => {
   if (
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
-    return await platform.sync.collections.importToPersonalWorkspace(
+    return platform.sync.collections.importToPersonalWorkspace(
       gqlCollections,
       ReqType.Gql
     )
   }
+
   appendGraphqlCollections(gqlCollections)
   toast.success(t("state.file_imported"))
 }

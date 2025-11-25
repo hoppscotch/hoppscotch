@@ -6,7 +6,7 @@
     @close="hideModal"
   >
     <template #body>
-      <Teams :modal="true" />
+      <TeamsView :modal="true" />
     </template>
   </HoppSmartModal>
 </template>

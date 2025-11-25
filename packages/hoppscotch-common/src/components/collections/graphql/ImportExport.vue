@@ -72,7 +72,7 @@ const GqlCollectionsHoppImporter: ImporterOrExporter = {
       )()
 
       if (E.isRight(validatedCollection)) {
-        handleImportToStore(validatedCollection.right)
+        await handleImportToStore(validatedCollection.right)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_COLLECTION",
@@ -111,7 +111,7 @@ const GqlCollectionsGistImporter: ImporterOrExporter = {
         return
       }
 
-      handleImportToStore(res.right)
+      await handleImportToStore(res.right)
 
       platform.analytics?.logEvent({
         type: "HOPP_IMPORT_COLLECTION",

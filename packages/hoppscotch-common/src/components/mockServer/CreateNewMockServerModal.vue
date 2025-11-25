@@ -323,11 +323,12 @@ const handleCreateMockServer = async () => {
       toast.info(t("mock_server.creating_example_collection"))
 
       try {
-        collectionIDToUse = await createExampleCollectionAndGetID()
+        const newCollection = await createExampleCollectionAndGetID()
 
-        // Update the selected collection
-        selectedCollectionID.value = collectionIDToUse
-        selectedCollectionName.value = mockServerName.value
+        // Update the selected collection with the actual created collection's ID and name
+        collectionIDToUse = newCollection.id
+        selectedCollectionID.value = newCollection.id
+        selectedCollectionName.value = newCollection.name
       } catch (error) {
         console.error("Failed to create example collection:", error)
         toast.error(t("mock_server.failed_to_create_collection"))

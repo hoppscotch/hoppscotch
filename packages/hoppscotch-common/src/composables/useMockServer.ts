@@ -225,8 +225,11 @@ export function useMockServer() {
     return obj
   }
 
-  // Function to create an example collection and return its ID
-  const createExampleCollectionAndGetID = async (): Promise<string> => {
+  // Function to create an example collection and return its ID and name
+  const createExampleCollectionAndGetID = async (): Promise<{
+    id: string
+    name: string
+  }> => {
     const workspaceType = currentWorkspace.value.type
 
     // Parse the example collection JSON using hoppRESTImporter
@@ -247,6 +250,11 @@ export function useMockServer() {
       if (currentUserValue) {
         // User is logged in, try to import to backend first
         try {
+          // Get existing collection IDs before import
+          const existingCollectionIDs = new Set(
+            availableCollections.value.map((col: any) => col.id ?? col._ref_id)
+          )
+
           const transformedCollection = collections.map((collection) =>
             translateToPersonalCollectionFormat(collection)
           )
@@ -264,10 +272,26 @@ export function useMockServer() {
           if (E.isRight(updatedCollections)) {
             setRESTCollections(updatedCollections.right)
 
-            // Return the ID of the last collection (the one we just imported)
+            // Find the newly created collection by comparing IDs
+            const newCollection = updatedCollections.right.find((col) => {
+              const colId = col.id ?? col._ref_id
+              return colId && !existingCollectionIDs.has(colId)
+            })
+
+            if (newCollection) {
+              return {
+                id: newCollection.id ?? newCollection._ref_id ?? "",
+                name: newCollection.name || "Unknown Collection",
+              }
+            }
+
+            // Fallback: return the last collection if we can't find a new one
             const lastCollection =
               updatedCollections.right[updatedCollections.right.length - 1]
-            return lastCollection.id ?? lastCollection._ref_id ?? ""
+            return {
+              id: lastCollection.id ?? lastCollection._ref_id ?? "",
+              name: lastCollection.name || "Unknown Collection",
+            }
           }
         } catch (error) {
           console.error("Backend import failed, falling back to local:", error)
@@ -275,18 +299,45 @@ export function useMockServer() {
       }
 
       // Fallback: append to local storage
+      // Get existing collection IDs before import
+      const existingCollectionIDs = new Set(
+        availableCollections.value.map((col: any) => col.id ?? col._ref_id)
+      )
+
       appendRESTCollections(collections)
 
       // Get the appended collections
       const updatedCollections = useReadonlyStream(restCollections$, [])
 
-      // Return the ID of the last collection
+      // Find the newly created collection by comparing IDs
+      const newCollection = updatedCollections.value.find((col: any) => {
+        const colId = col.id ?? col._ref_id
+        return colId && !existingCollectionIDs.has(colId)
+      })
+
+      if (newCollection) {
+        return {
+          id: newCollection.id ?? newCollection._ref_id ?? "",
+          name: newCollection.name || "Unknown Collection",
+        }
+      }
+
+      // Fallback: return the last collection
       const lastCollection =
         updatedCollections.value[updatedCollections.value.length - 1]
-      return lastCollection.id ?? lastCollection._ref_id ?? ""
+      return {
+        id: lastCollection.id ?? lastCollection._ref_id ?? "",
+        name: lastCollection.name || "Unknown Collection",
+      }
     } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
       // For team workspace
       const teamID = currentWorkspace.value.teamID
+
+      // Get existing collection IDs before import
+      const existingCollectionIDs = new Set(
+        teamCollectionsService.collections.value?.map((col: any) => col.id) ??
+          []
+      )
 
       const transformedCollection = collections.map((collection) =>
         translateToTeamCollectionFormat(collection)
@@ -304,11 +355,27 @@ export function useMockServer() {
       // Wait a bit for the subscription to update
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      // Get the last collection from the team collections
+      // Get the team collections and find the newly created one
       const teamCollections = teamCollectionsService.collections.value
       if (teamCollections && teamCollections.length > 0) {
+        // Find the newly created collection by comparing IDs
+        const newCollection = teamCollections.find(
+          (col: any) => col.id && !existingCollectionIDs.has(col.id)
+        )
+
+        if (newCollection) {
+          return {
+            id: newCollection.id,
+            name: newCollection.title || "Unknown Collection",
+          }
+        }
+
+        // Fallback: return the last collection
         const lastCollection = teamCollections[teamCollections.length - 1]
-        return lastCollection.id
+        return {
+          id: lastCollection.id,
+          name: lastCollection.title || "Unknown Collection",
+        }
       }
 
       throw new Error("Failed to get imported team collection")

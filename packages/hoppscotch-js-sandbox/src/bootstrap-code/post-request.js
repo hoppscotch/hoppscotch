@@ -2448,6 +2448,7 @@
           inputs.pushExpectResult("error", errorMessage)
         } finally {
           inputs.clearCurrentTest()
+          inputs.postTest()
         }
       })
 

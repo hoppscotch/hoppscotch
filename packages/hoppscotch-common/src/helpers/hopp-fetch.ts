@@ -157,6 +157,13 @@ async function convertFetchToRelayRequest(
         content: bodyToUse,
         mediaType: "multipart/form-data",
       }
+    } else if (bodyToUse instanceof URLSearchParams) {
+      // Handle URLSearchParams bodies
+      content = {
+        kind: "text",
+        content: bodyToUse.toString(),
+        mediaType: "application/x-www-form-urlencoded",
+      }
     } else if (bodyToUse instanceof Blob) {
       const arrayBuffer = await bodyToUse.arrayBuffer()
       content = {

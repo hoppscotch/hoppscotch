@@ -1304,8 +1304,16 @@
               params.append(pair.key, pair.value)
             })
             options.body = params.toString()
-            options.headers["Content-Type"] =
-              "application/x-www-form-urlencoded"
+            // Use .set() for Headers instance, bracket notation for plain object
+            if (options.headers instanceof Headers) {
+              options.headers.set(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+              )
+            } else {
+              options.headers["Content-Type"] =
+                "application/x-www-form-urlencoded"
+            }
           } else if (urlOrRequest.body.mode === "formdata") {
             const formData = new FormData()
             urlOrRequest.body.formdata?.forEach((pair) => {

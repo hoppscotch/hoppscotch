@@ -82,7 +82,8 @@ const ensureCompilerOptions = (() => {
       target: monaco.languages.typescript.ScriptTarget.ES2022,
       allowNonTsExtensions: true,
       // Enable top-level await support with proper lib configuration
-      lib: ["es2022", "es2022.promise", "dom"],
+      // dom.iterable is required for DOM collection iterators (Headers.entries(), etc.)
+      lib: ["es2022", "es2022.promise", "dom", "dom.iterable"],
     })
 
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({

@@ -128,7 +128,16 @@ export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
 
     // Define fetch function in the sandbox
     const fetchFn = defineSandboxFunctionRaw(ctx, "fetch", (...args) => {
-      const input = ctx.vm.dump(args[0])
+      // Check if input is a Request object with native Request data
+      let input: RequestInfo | URL
+      const firstArg = args[0]
+      if ((firstArg as any).__nativeRequestData) {
+        // Use the native Request object that was created in the Request constructor
+        // This preserves method, body, and headers that would otherwise be lost
+        input = (firstArg as any).__nativeRequestData
+      } else {
+        input = ctx.vm.dump(firstArg)
+      }
       const init = args.length > 1 ? args[1] : undefined
 
       // Check if init has headers that need conversion
@@ -1201,6 +1210,16 @@ export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
 
       // body property (simplified - most use cases don't need body in Request objects)
       ctx.vm.setProp(requestInstance, "body", ctx.vm.null)
+
+      // Store reference to native Request for fetch() to access method/body/headers
+      // This is a hidden property that won't be enumerable but allows fetch() to properly handle Request objects
+      ctx.vm.setProp(
+        requestInstance,
+        "__nativeRequest",
+        ctx.scope.manage(ctx.vm.newObject()) // Placeholder - will be replaced in fetch() with actual native Request
+      )
+      // Store the actual native request data for fetch to use
+      ;(requestInstance as any).__nativeRequestData = nativeRequest
 
       // bodyUsed property - always false since we don't support reading request bodies yet
       ctx.vm.setProp(requestInstance, "bodyUsed", ctx.vm.false)

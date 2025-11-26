@@ -46,6 +46,7 @@ import { PublishedDocs } from "~/helpers/backend/graphql"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
+import { usePageHead } from "~/composables/head"
 
 const route = useRoute()
 const t = useI18n()
@@ -202,6 +203,74 @@ onMounted(async () => {
   collectionData.value = hoppCollection
 
   loading.value = false
+})
+
+usePageHead({
+  title: computed(
+    () => publishedDoc.value?.title || "Hoppscotch Documentation"
+  ),
+  meta: [
+    {
+      name: "description",
+      content: computed(
+        () =>
+          collectionData.value?.description ||
+          "Hoppscotch API Documentation - Open source API development ecosystem"
+      ),
+    },
+    {
+      property: "og:title",
+      content: computed(
+        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+      ),
+    },
+    {
+      property: "og:description",
+      content: computed(
+        () =>
+          collectionData.value?.description ||
+          "Hoppscotch API Documentation - Open source API development ecosystem"
+      ),
+    },
+    {
+      property: "og:site_name",
+      content: "Hoppscotch",
+    },
+    {
+      property: "og:image",
+      content: "https://hoppscotch.io/banner.png",
+    },
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:site",
+      content: "@hoppscotch_io",
+    },
+    {
+      name: "twitter:creator",
+      content: "@hoppscotch_io",
+    },
+    {
+      name: "twitter:title",
+      content: computed(
+        () => publishedDoc.value?.title || "Hoppscotch Documentation"
+      ),
+    },
+    {
+      name: "twitter:description",
+      content: computed(
+        () =>
+          collectionData.value?.description ||
+          "Hoppscotch API Documentation - Open source API development ecosystem"
+      ),
+    },
+    {
+      name: "twitter:image",
+      content: "https://hoppscotch.io/banner.png",
+    },
+  ],
 })
 </script>
 

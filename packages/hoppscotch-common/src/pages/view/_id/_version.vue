@@ -44,25 +44,28 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { PublishedDocs } from "~/helpers/backend/graphql"
 import { getKernelMode } from "@hoppscotch/kernel"
-import { useService } from "dioc/vue"
-import { InstanceSwitcherService } from "~/services/instance-switcher.service"
+import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
 
 const route = useRoute()
 const t = useI18n()
 
 const kernelMode = getKernelMode()
-const instanceSwitcherService =
-  kernelMode === "desktop" ? useService(InstanceSwitcherService) : null
+
+const instancePlatform = platform.instance
 
 const currentState =
-  kernelMode === "desktop" && instanceSwitcherService
+  kernelMode === "desktop" &&
+  instancePlatform?.instanceSwitchingEnabled &&
+  instancePlatform.getConnectionStateStream
     ? useReadonlyStream(
-        instanceSwitcherService.getStateStream(),
-        instanceSwitcherService.getCurrentState().value
+        instancePlatform.getConnectionStateStream(),
+        instancePlatform.getCurrentConnectionState?.() ?? {
+          status: "disconnected" as const,
+        }
       )
     : ref({
-        status: "disconnected",
+        status: "disconnected" as const,
         instance: { displayName: "Hoppscotch" },
       })
 

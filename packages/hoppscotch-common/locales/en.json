@@ -522,6 +522,7 @@
       "update_error": "Failed to update documentation",
       "update_published_docs": "Update Published Docs",
       "update_success": "Documentation updated successfully!",
+      "unpublish": "Unpublish",
       "update_title": "Update Published Documentation",
       "url_copied": "URL copied to clipboard!",
       "view_published": "View Published Docs",

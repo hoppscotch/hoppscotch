@@ -88,12 +88,38 @@
             />
           </div>
         </div>
+      </div>
+    </template>
 
-        <div class="flex space-x-2">
+    <template #footer>
+      <div class="flex justify-between items-center flex-1">
+        <div class="flex items-center w-full space-x-2">
+          <HoppButtonPrimary
+            v-if="mode === 'create' && !publishedUrl"
+            :label="t('documentation.publish.button')"
+            :disabled="!canPublish || loading"
+            :loading="loading"
+            @click="handlePublish"
+          />
+          <HoppButtonPrimary
+            v-else-if="mode === 'update'"
+            :label="t('documentation.publish.update_button')"
+            :disabled="!canPublish || loading || !hasChanges"
+            :loading="loading"
+            @click="handleUpdate"
+          />
+          <HoppButtonSecondary
+            :label="t('action.cancel')"
+            outline
+            filled
+            @click="hideModal"
+          />
+        </div>
+        <div class="flex">
           <HoppButtonSecondary
             v-if="mode === 'update'"
             :icon="IconTrash2"
-            :label="t('documentation.publish.delete')"
+            :label="t('documentation.publish.unpublish')"
             class="!text-red-500"
             :loading="loading"
             :disabled="loading"
@@ -102,31 +128,6 @@
             @click="showDeleteConfirmModal = true"
           />
         </div>
-      </div>
-    </template>
-
-    <template #footer>
-      <div class="flex items-center w-full space-x-2">
-        <HoppButtonPrimary
-          v-if="mode === 'create' && !publishedUrl"
-          :label="t('documentation.publish.button')"
-          :disabled="!canPublish || loading"
-          :loading="loading"
-          @click="handlePublish"
-        />
-        <HoppButtonPrimary
-          v-else-if="mode === 'update'"
-          :label="t('documentation.publish.update_button')"
-          :disabled="!canPublish || loading || !hasChanges"
-          :loading="loading"
-          @click="handleUpdate"
-        />
-        <HoppButtonSecondary
-          :label="t('action.cancel')"
-          outline
-          filled
-          @click="hideModal"
-        />
       </div>
     </template>
   </HoppSmartModal>

@@ -23,7 +23,6 @@ import {
 import { TeamAccessRole } from 'src/team/team.model';
 import { TreeLevel } from './published-docs.dto';
 import { ConfigService } from '@nestjs/config';
-import { right } from 'fp-ts/lib/EitherT';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockUserCollectionService = mockDeep<UserCollectionService>();

@@ -119,8 +119,9 @@ export class PublishedDocsResolver {
       name: 'collectionID',
       type: () => ID,
       description: 'Id of the collection to add to',
+      nullable: true,
     })
-    collectionID: string,
+    collectionID: string | undefined,
     @Args() args: OffsetPaginationArgs,
   ) {
     const docs = await this.publishedDocsService.getAllTeamPublishedDocs(

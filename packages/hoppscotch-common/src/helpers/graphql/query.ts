@@ -5,6 +5,7 @@ import {
   FieldNode,
   getNamedType,
   GraphQLArgument,
+  GraphQLField,
   GraphQLType,
   Kind,
   OperationDefinitionNode,
@@ -95,7 +96,7 @@ export function useQuery() {
    */
   const createFieldNode = (
     name: string,
-    args: GraphQLArgument[] | undefined,
+    args: readonly GraphQLArgument[] | undefined,
     hasNestedFields = false
   ): Mutable<FieldNode> => ({
     kind: Kind.FIELD,
@@ -145,8 +146,10 @@ export function useQuery() {
       // Build from bottom up starting with the last field
       let currentSelection = createFieldNode(
         lastItem.name,
-        lastItem.def?.args,
-        lastItem.def?.fields?.length > 0
+        isArgument && argumentItem
+          ? [argumentItem.def as GraphQLArgument]
+          : (lastItem.def as GraphQLField<unknown, unknown>)?.args,
+        lastItem.def && (lastItem.def as any)?.fields?.length > 0
       )
 
       for (let i = queryPath.length - 2; i >= 0; i--) {
@@ -260,7 +263,9 @@ export function useQuery() {
       } else {
         const newField = createFieldNode(
           item.name,
-          (item.def as any)?.args, // these type assertion is avoidable
+          isLastItem && isArgument && argumentItem
+            ? [argumentItem.def as GraphQLArgument]
+            : (item.def as GraphQLField<unknown, unknown>)?.args,
           !isLastItem || (isLastItem && (item.def as any)?.fields?.length > 0)
         )
 
@@ -280,7 +285,7 @@ export function useQuery() {
           }
         }
 
-        currentSelectionSet.selections.push(newField)
+        ;(currentSelectionSet.selections as Mutable<FieldNode[]>).push(newField)
 
         if (!isLastItem) {
           // Move to the next level
@@ -419,7 +424,7 @@ export function useQuery() {
           fieldNode.loc.start <= cursorPosition &&
           fieldNode.loc.end >= cursorPosition
         ) {
-          args = fieldNode.arguments || []
+          args = [...(fieldNode.arguments || [])]
         }
       }
     })

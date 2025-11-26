@@ -275,6 +275,8 @@ export class DocumentationService extends Service {
           }
         })
         this.publishedDocsMap.value = newMap
+      } else {
+        console.error("Failed to fetch user published docs:", result.left)
       }
     } catch (error) {
       console.error("Failed to fetch user published docs:", error)
@@ -308,6 +310,8 @@ export class DocumentationService extends Service {
           }
         })
         this.publishedDocsMap.value = newMap
+      } else {
+        console.error("Failed to fetch team published docs:", result.left)
       }
     } catch (error) {
       console.error("Failed to fetch team published docs:", error)

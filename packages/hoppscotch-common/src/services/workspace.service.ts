@@ -133,7 +133,10 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
             this.documentationService.fetchUserPublishedDocs()
           }
         } catch (error) {
-          console.error("Failed to sync team collections:", error)
+          console.error(
+            "Failed to sync team collections and published docs:",
+            error
+          )
         }
       },
       { immediate: true }

@@ -511,7 +511,6 @@ const mockServerStatus = computed(() => {
       : (props.data as TeamCollection).id
 
   return getMockServerStatus(collectionId || "")
-  return getMockServerStatus(collectionId || "")
 })
 
 // Published Doc Status

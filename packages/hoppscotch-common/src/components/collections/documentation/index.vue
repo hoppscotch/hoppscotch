@@ -798,19 +798,8 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
         const url = data.createPublishedDoc.url
         toast.success(t("documentation.publish.publish_success"))
 
-        // Update state
-        isCollectionPublished.value = true
-        publishedDocId.value = data.createPublishedDoc.id
-
         const newDocInfo = {
           id: data.createPublishedDoc.id,
-          title: doc.title,
-          version: doc.version,
-          autoSync: doc.autoSync,
-          url: url,
-        }
-
-        existingPublishedData.value = {
           title: doc.title,
           version: doc.version,
           autoSync: doc.autoSync,
@@ -852,13 +841,6 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
             url: url,
           }
 
-          existingPublishedData.value = {
-            title: data.updatePublishedDoc.title,
-            version: data.updatePublishedDoc.version,
-            autoSync: data.updatePublishedDoc.autoSync,
-            url: url,
-          }
-
           // Update service
           if (props.collectionID) {
             documentationService.setPublishedDocStatus(
@@ -887,9 +869,6 @@ const handleDelete = async () => {
       () => {
         toast.success(t("documentation.publish.delete_success"))
 
-        isCollectionPublished.value = false
-        publishedDocId.value = undefined
-        existingPublishedData.value = undefined
         showPublishModal.value = false
 
         // Update service

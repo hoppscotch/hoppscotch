@@ -5,7 +5,7 @@
       <textarea
         ref="textareaRef"
         v-model="internalContent"
-        class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondaryLight outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition"
+        class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondary outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition placeholder:text-secondaryLight"
         :style="{ height: textareaHeight + 'px' }"
         spellcheck="false"
         :placeholder="placeholder"
@@ -201,7 +201,7 @@ onMounted(() => {
 /* List styles */
 .markdown-content :deep(ul),
 .markdown-content :deep(ol) {
-  @apply pl-6 my-3 text-sm text-secondaryLight space-y-1;
+  @apply pl-6 my-3 text-sm text-secondary space-y-1;
 }
 
 .markdown-content :deep(li > ul),
@@ -252,7 +252,7 @@ onMounted(() => {
 }
 
 .markdown-content :deep(td) {
-  @apply border border-divider px-3 py-1 text-secondaryLight;
+  @apply border border-divider px-3 py-1 text-secondary;
   @apply bg-primaryDark;
 }
 

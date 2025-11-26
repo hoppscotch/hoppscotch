@@ -51,12 +51,6 @@
     <template #footer>
       <div class="flex justify-between items-center w-full">
         <span class="flex space-x-2">
-          <HoppButtonSecondary
-            :label="t('action.close')"
-            outline
-            filled
-            @click="hideModal"
-          />
           <HoppButtonPrimary
             v-if="hasTeamWriteAccess"
             :label="t('action.save')"
@@ -66,10 +60,16 @@
             filled
             @click="saveDocumentation"
           />
-          <!-- Publish Button - Simple button when not published -->
+          <HoppButtonSecondary
+            :label="t('action.close')"
+            outline
+            filled
+            @click="hideModal"
+          />
         </span>
 
         <div class="flex space-x-2 items-center">
+          <!-- Publish Button - Simple button when not published -->
           <HoppButtonSecondary
             v-if="
               currentCollection && !isCollectionPublished && hasTeamWriteAccess
@@ -126,7 +126,7 @@
                     />
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
-                      :title="t('action.copy')"
+                      :title="t('documentation.publish.copy_url')"
                       :icon="copyIcon"
                       @click="copyPublishedUrl"
                     />

@@ -10,7 +10,9 @@
           </span>
         </div>
         <div class="flex items-center gap-4">
-          <span class="text-md font-bold text-secondaryDark">
+          <span
+            class="text-md font-bold text-secondaryDark px-6 py-1 rounded-full border border-dividerDark shadow"
+          >
             {{ publishedDoc?.title || "Untitled Project" }}
           </span>
           <!-- TODO: Add version (will be added in next iteration) -->

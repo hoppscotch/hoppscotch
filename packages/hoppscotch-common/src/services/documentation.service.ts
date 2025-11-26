@@ -255,9 +255,6 @@ export class DocumentationService extends Service {
   /**
    * Fetches user published docs and updates the map
    */
-  /**
-   * Fetches user published docs and updates the map
-   */
   public async fetchUserPublishedDocs() {
     // Increment request ID to invalidate any previous pending requests
     const requestId = ++this.fetchRequestId

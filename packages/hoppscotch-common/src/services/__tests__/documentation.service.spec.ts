@@ -578,5 +578,70 @@ describe("DocumentationService", () => {
       service.setPublishedDocStatus("col-3", null)
       expect(service.getPublishedDocStatus("col-3")).toBeUndefined()
     })
+
+    it("should handle race conditions by ignoring stale responses", async () => {
+      const slowDocs = [
+        {
+          id: "doc-slow",
+          collection: { id: "col-1" },
+          title: "Slow Doc",
+          version: "v1",
+          autoSync: true,
+          url: "url-slow",
+        },
+      ]
+
+      const fastDocs = [
+        {
+          id: "doc-fast",
+          collection: { id: "col-1" },
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+        },
+      ]
+
+      let resolveSlow: (value: any) => void
+      const slowPromise = new Promise((resolve) => {
+        resolveSlow = resolve
+      })
+
+      // Mock the first call to be slow
+      vi.mocked(getUserPublishedDocs)
+        .mockReturnValueOnce(() => slowPromise as any)
+        .mockReturnValueOnce(() => Promise.resolve(E.right(fastDocs as any)))
+
+      // Start the slow request
+      const firstCall = service.fetchUserPublishedDocs()
+
+      // Start the fast request immediately after
+      const secondCall = service.fetchUserPublishedDocs()
+
+      // Wait for the fast request to complete
+      await secondCall
+
+      // Verify the fast response is applied
+      expect(service.getPublishedDocStatus("col-1")).toEqual({
+        id: "doc-fast",
+        title: "Fast Doc",
+        version: "v2",
+        autoSync: true,
+        url: "url-fast",
+      })
+
+      // Now resolve the slow request
+      resolveSlow!(E.right(slowDocs as any))
+      await firstCall
+
+      // Verify the state hasn't changed (slow response ignored)
+      expect(service.getPublishedDocStatus("col-1")).toEqual({
+        id: "doc-fast",
+        title: "Fast Doc",
+        version: "v2",
+        autoSync: true,
+        url: "url-fast",
+      })
+    })
   })
 })

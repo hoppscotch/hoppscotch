@@ -74,20 +74,15 @@
             v-if="
               currentCollection && !isCollectionPublished && hasTeamWriteAccess
             "
-            :icon="isCheckingPublishedStatus ? IconLoader2 : IconShare2"
+            :icon="IconShare2"
             :label="t('documentation.publish.button')"
-            :loading="isCheckingPublishedStatus"
-            :disabled="isCheckingPublishedStatus"
             outline
             filled
             @click="openPublishModal"
           />
           <tippy
             v-else-if="
-              currentCollection &&
-              isCollectionPublished &&
-              !isCheckingPublishedStatus &&
-              hasTeamWriteAccess
+              currentCollection && isCollectionPublished && hasTeamWriteAccess
             "
             ref="publishedDropdown"
             interactive
@@ -104,8 +99,6 @@
                 :icon="IconCheveronDown"
                 reverse
                 :label="t('documentation.publish.published')"
-                :loading="isCheckingPublishedStatus"
-                :disabled="isCheckingPublishedStatus"
                 class="!pr-2"
               />
             </div>
@@ -280,7 +273,6 @@ const documentationService = useService(DocumentationService)
 
 const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
-const isCheckingPublishedStatus = ref<boolean>(false)
 const isProcessingPublish = ref<boolean>(false)
 
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
@@ -295,17 +287,22 @@ const publishedDropdown = ref<TippyComponent | null>(null)
 const publishedDropdownActions = ref<HTMLDivElement | null>(null)
 
 // Published docs state
-const isCollectionPublished = ref<boolean>(false)
-const publishedDocId = ref<string | undefined>(undefined)
-const existingPublishedData = ref<
-  | {
-      title: string
-      version: string
-      autoSync: boolean
-      url: string
-    }
-  | undefined
->(undefined)
+const publishedDocStatus = computed(() => {
+  if (!props.collectionID) return undefined
+  return documentationService.getPublishedDocStatus(props.collectionID)
+})
+
+const isCollectionPublished = computed(() => !!publishedDocStatus.value)
+const publishedDocId = computed(() => publishedDocStatus.value?.id)
+const existingPublishedData = computed(() => {
+  if (!publishedDocStatus.value) return undefined
+  return {
+    title: publishedDocStatus.value.title,
+    version: publishedDocStatus.value.version,
+    autoSync: publishedDocStatus.value.autoSync,
+    url: publishedDocStatus.value.url,
+  }
+})
 
 const publishModalMode = computed<"create" | "update" | "view">(() => {
   return isCollectionPublished.value ? "update" : "create"
@@ -408,39 +405,12 @@ const handleToggleAllDocumentation = async () => {
   }
 }
 
-// Check for existing published docs status
-const checkPublishedDocsStatus = async () => {
-  if (!props.collectionID) return
-
-  isCheckingPublishedStatus.value = true
-
-  isCollectionPublished.value = false
-  publishedDocId.value = undefined
-  existingPublishedData.value = undefined
-
-  const status = documentationService.getPublishedDocStatus(props.collectionID)
-
-  if (status) {
-    isCollectionPublished.value = true
-    publishedDocId.value = status.id
-    existingPublishedData.value = {
-      title: status.title,
-      version: status.version,
-      autoSync: status.autoSync,
-      url: status.url,
-    }
-  }
-
-  isCheckingPublishedStatus.value = false
-}
-
 // Reset fetched collection data when modal opens/closes
 watch(
   () => props.show,
   async (newVal) => {
     if (newVal) {
-      // Check for existing published docs when modal opens
-      await checkPublishedDocsStatus()
+      // No need to manually check published docs status as it is now reactive
     } else {
       // Reset when modal closes
       fullCollectionData.value = null

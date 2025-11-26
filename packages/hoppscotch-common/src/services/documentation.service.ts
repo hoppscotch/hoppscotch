@@ -111,9 +111,10 @@ export class DocumentationService extends Service {
   private publishedDocsMap = ref<Map<string, PublishedDocInfo>>(new Map())
 
   /**
-   * Boolean to track if docs are being fetched
+   * Counter to track the latest fetch request ID
+   * This prevents race conditions where a stale request overwrites a newer one
    */
-  private isFetchingPublishedDocs = ref(false)
+  private fetchRequestId = 0
 
   /**
    * Sets collection documentation
@@ -254,12 +255,19 @@ export class DocumentationService extends Service {
   /**
    * Fetches user published docs and updates the map
    */
+  /**
+   * Fetches user published docs and updates the map
+   */
   public async fetchUserPublishedDocs() {
-    if (this.isFetchingPublishedDocs.value) return
+    // Increment request ID to invalidate any previous pending requests
+    const requestId = ++this.fetchRequestId
 
-    this.isFetchingPublishedDocs.value = true
     try {
       const result = await getUserPublishedDocs()()
+
+      // If a newer request has started, ignore this result
+      if (requestId !== this.fetchRequestId) return
+
       if (E.isRight(result)) {
         const docs = result.right
         const newMap = new Map<string, PublishedDocInfo>()
@@ -279,9 +287,9 @@ export class DocumentationService extends Service {
         console.error("Failed to fetch user published docs:", result.left)
       }
     } catch (error) {
+      // If a newer request has started, ignore this error
+      if (requestId !== this.fetchRequestId) return
       console.error("Failed to fetch user published docs:", error)
-    } finally {
-      this.isFetchingPublishedDocs.value = false
     }
   }
 
@@ -289,12 +297,16 @@ export class DocumentationService extends Service {
    * Fetches published docs for team collections
    */
   public async fetchTeamPublishedDocs(teamID: string) {
-    if (this.isFetchingPublishedDocs.value) return
+    // Increment request ID to invalidate any previous pending requests
+    const requestId = ++this.fetchRequestId
 
-    this.isFetchingPublishedDocs.value = true
     try {
       // Fetch all published docs for the team (collectionID is optional now)
       const result = await getTeamPublishedDocs(teamID)()
+
+      // If a newer request has started, ignore this result
+      if (requestId !== this.fetchRequestId) return
+
       if (E.isRight(result)) {
         const docs = result.right
         const newMap = new Map<string, PublishedDocInfo>()
@@ -314,9 +326,9 @@ export class DocumentationService extends Service {
         console.error("Failed to fetch team published docs:", result.left)
       }
     } catch (error) {
+      // If a newer request has started, ignore this error
+      if (requestId !== this.fetchRequestId) return
       console.error("Failed to fetch team published docs:", error)
-    } finally {
-      this.isFetchingPublishedDocs.value = false
     }
   }
 

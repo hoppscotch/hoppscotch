@@ -1,5 +1,9 @@
 <template>
-  <div class="rounded-sm relative h-full" @click.stop>
+  <div
+    v-if="!(readOnly && isEmpty)"
+    class="rounded-sm relative h-full"
+    @click.stop
+  >
     <!-- Edit mode textarea -->
     <template v-if="editMode && !readOnly">
       <textarea
@@ -74,6 +78,11 @@ const textareaHeight = ref<number>(200)
 // Internal content that syncs with modelValue
 const internalContent = ref<string>(props.modelValue)
 
+// Check if the content is empty
+const isEmpty = computed(
+  () => !internalContent.value || internalContent.value.trim() === ""
+)
+
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
@@ -88,7 +97,7 @@ watch(
 // Render markdown content with DOMPurify sanitization
 const renderedMarkdown = computed(() => {
   try {
-    if (!internalContent.value || internalContent.value.trim() === "") {
+    if (isEmpty.value) {
       return DOMPurify.sanitize(
         `<p class='text-secondaryLight italic'>${props.placeholder || t("documentation.add_description_placeholder")}</p>`
       )

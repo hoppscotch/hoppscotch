@@ -180,6 +180,19 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="isDocumentationVisible"
+                    ref="documentationAction"
+                    :icon="IconBook"
+                    :label="t('documentation.title')"
+                    :shortcut="['I']"
+                    @click="
+                      () => {
+                        handleDocumentationAction()
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
                     v-if="
                       !hasNoTeamAccess &&
                       isRootCollection &&
@@ -250,19 +263,7 @@
                       }
                     "
                   />
-                  <HoppSmartItem
-                    v-if="isDocumentationVisible"
-                    ref="documentationAction"
-                    :icon="IconBook"
-                    :label="t('documentation.title')"
-                    :shortcut="['I']"
-                    @click="
-                      () => {
-                        handleDocumentationAction()
-                        hide()
-                      }
-                    "
-                  />
+
                   <HoppSmartItem
                     ref="propertiesAction"
                     :icon="IconSettings2"

@@ -171,6 +171,7 @@ async function initApp() {
       hasTelemetry: false,
       cookiesEnabled: config.cookiesEnabled,
       promptAsUsingCookies: false,
+      hasCookieBasedAuth: platform === "web",
     },
     limits: {
       collectionImportSizeLimit: 50,

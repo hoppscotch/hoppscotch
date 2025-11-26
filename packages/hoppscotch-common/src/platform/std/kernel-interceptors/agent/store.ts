@@ -290,7 +290,8 @@ export class KernelInterceptorAgentStore extends Service {
     request: PluginRequest,
     reqID: number
   ): Promise<[string, ArrayBuffer]> {
-    const reqJSON = JSON.stringify({ ...request, id: reqID })
+    const fullRequest = { ...request, id: reqID }
+    const reqJSON = JSON.stringify(fullRequest)
     const reqJSONBytes = new TextEncoder().encode(reqJSON)
     const nonce = window.crypto.getRandomValues(new Uint8Array(12))
     const nonceB16 = base16.encode(nonce).toLowerCase()

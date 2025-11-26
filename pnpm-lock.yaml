@@ -400,6 +400,9 @@ importers:
       axios:
         specifier: 1.13.2
         version: 1.13.2
+      axios-cookiejar-support:
+        specifier: 6.0.4
+        version: 6.0.4(axios@1.13.2)(tough-cookie@6.0.0)
       chalk:
         specifier: 5.6.2
         version: 5.6.2
@@ -421,6 +424,9 @@ importers:
       qs:
         specifier: 6.14.0
         version: 6.14.0
+      tough-cookie:
+        specifier: 6.0.0
+        version: 6.0.0
       verzod:
         specifier: 0.4.0
         version: 0.4.0(zod@3.25.32)
@@ -6625,6 +6631,13 @@ packages:
   aws4fetch@1.0.20:
     resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
+  axios-cookiejar-support@6.0.4:
+    resolution: {integrity: sha512-4Bzj+l63eGwnWDBFdJHeGS6Ij3ytpyqvo//ocsb5kCLN/rKthzk27Afh2iSkZtuudOBkHUWWIcyCb4GKhXqovQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      axios: '>=0.20.0'
+      tough-cookie: '>=4.0.0'
+
   axios@1.12.2:
     resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
 
@@ -8686,6 +8699,16 @@ packages:
 
   htmlparser2@9.1.0:
     resolution: {integrity: sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==}
+
+  http-cookie-agent@7.0.3:
+    resolution: {integrity: sha512-EeZo7CGhfqPW6R006rJa4QtZZUpBygDa2HZH3DJqsTzTjyRE6foDBVQIv/pjVsxHC8z2GIdbB1Hvn9SRorP3WQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      tough-cookie: ^4.0.0 || ^5.0.0 || ^6.0.0
+      undici: ^7.0.0
+    peerDependenciesMeta:
+      undici:
+        optional: true
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -19315,6 +19338,14 @@ snapshots:
 
   aws4fetch@1.0.20: {}
 
+  axios-cookiejar-support@6.0.4(axios@1.13.2)(tough-cookie@6.0.0):
+    dependencies:
+      axios: 1.13.2
+      http-cookie-agent: 7.0.3(tough-cookie@6.0.0)
+      tough-cookie: 6.0.0
+    transitivePeerDependencies:
+      - undici
+
   axios@1.12.2:
     dependencies:
       follow-redirects: 1.15.11
@@ -21768,6 +21799,11 @@ snapshots:
       domutils: 3.2.2
       entities: 4.5.0
     optional: true
+
+  http-cookie-agent@7.0.3(tough-cookie@6.0.0):
+    dependencies:
+      agent-base: 7.1.4
+      tough-cookie: 6.0.0
 
   http-errors@2.0.0:
     dependencies:

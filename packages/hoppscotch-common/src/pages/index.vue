@@ -147,6 +147,7 @@ import { InspectionService } from "~/services/inspection"
 import { RequestInspectorService } from "~/services/inspection/inspectors/request.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { ScriptingInterceptorInspectorService } from "~/services/inspection/inspectors/scripting-interceptor.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
@@ -450,6 +451,7 @@ defineActionHandler("tab.reopen-closed", () => {
 useService(RequestInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
+useService(ScriptingInterceptorInspectorService)
 
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)

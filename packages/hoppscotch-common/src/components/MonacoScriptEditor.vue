@@ -77,13 +77,20 @@ const ensureCompilerOptions = (() => {
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       module: monaco.languages.typescript.ModuleKind.ESNext,
       noEmit: true,
-      target: monaco.languages.typescript.ScriptTarget.ES2020,
+      // Target set to ES2022 to support modern JavaScript features used in scripts
+      // (e.g., top-level await, class fields, improved error handling)
+      target: monaco.languages.typescript.ScriptTarget.ES2022,
       allowNonTsExtensions: true,
+      // Enable top-level await support with proper lib configuration
+      // dom.iterable is required for DOM collection iterators (Headers.entries(), etc.)
+      lib: ["es2022", "es2022.promise", "dom", "dom.iterable"],
     })
 
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
+      // Disable specific error codes that interfere with top-level await in module context
+      diagnosticCodesToIgnore: [1375, 1378], // Top-level await errors
     })
 
     // Disable Cmd/Ctrl+Enter key binding

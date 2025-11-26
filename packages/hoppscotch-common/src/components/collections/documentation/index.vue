@@ -235,10 +235,6 @@ import {
   deletePublishedDoc,
   updatePublishedDoc,
 } from "~/helpers/backend/mutations/PublishedDocs"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
 
 import { TippyComponent } from "vue-tippy"
 
@@ -422,62 +418,20 @@ const checkPublishedDocsStatus = async () => {
   publishedDocId.value = undefined
   existingPublishedData.value = undefined
 
-  // Check if collection is already published
-  if (props.isTeamCollection && props.teamID) {
-    await pipe(
-      getTeamPublishedDocs(props.teamID, props.collectionID),
-      TE.match(
-        (error) => {
-          console.error("No published docs found or error:", error)
-          isCheckingPublishedStatus.value = false
-        },
-        (docs) => {
-          // Find published doc for this collection
-          const publishedDoc = docs.find(
-            (doc) => doc.collection.id === props.collectionID
-          )
-          if (publishedDoc) {
-            isCollectionPublished.value = true
-            publishedDocId.value = publishedDoc.id
-            existingPublishedData.value = {
-              title: publishedDoc.title,
-              version: publishedDoc.version,
-              autoSync: publishedDoc.autoSync,
-              url: publishedDoc.url,
-            }
-          }
-          isCheckingPublishedStatus.value = false
-        }
-      )
-    )()
-  } else {
-    await pipe(
-      getUserPublishedDocs(),
-      TE.match(
-        (error) => {
-          console.error("No published docs found or error:", error)
-          isCheckingPublishedStatus.value = false
-        },
-        (docs) => {
-          // Find published doc for this collection
-          const publishedDoc = docs.find(
-            (doc) => doc.collection.id === props.collectionID
-          )
-          if (publishedDoc) {
-            isCollectionPublished.value = true
-            publishedDocId.value = publishedDoc.id
-            existingPublishedData.value = {
-              title: publishedDoc.title,
-              version: publishedDoc.version,
-              autoSync: publishedDoc.autoSync,
-              url: publishedDoc.url,
-            }
-          }
-          isCheckingPublishedStatus.value = false
-        }
-      )
-    )()
+  const status = documentationService.getPublishedDocStatus(props.collectionID)
+
+  if (status) {
+    isCollectionPublished.value = true
+    publishedDocId.value = status.id
+    existingPublishedData.value = {
+      title: status.title,
+      version: status.version,
+      autoSync: status.autoSync,
+      url: status.url,
+    }
   }
+
+  isCheckingPublishedStatus.value = false
 }
 
 // Reset fetched collection data when modal opens/closes
@@ -878,11 +832,27 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
         isCollectionPublished.value = true
         publishedDocId.value = data.createPublishedDoc.id
 
+        const newDocInfo = {
+          id: data.createPublishedDoc.id,
+          title: doc.title,
+          version: doc.version,
+          autoSync: doc.autoSync,
+          url: url,
+        }
+
         existingPublishedData.value = {
           title: doc.title,
           version: doc.version,
           autoSync: doc.autoSync,
           url: url,
+        }
+
+        // Update service
+        if (props.collectionID) {
+          documentationService.setPublishedDocStatus(
+            props.collectionID,
+            newDocInfo
+          )
         }
       }
     )
@@ -904,11 +874,27 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
         toast.success(t("documentation.publish.update_success"))
         // Update existing data
         if (existingPublishedData.value) {
+          const updatedDocInfo = {
+            id: id,
+            title: data.updatePublishedDoc.title,
+            version: data.updatePublishedDoc.version,
+            autoSync: data.updatePublishedDoc.autoSync,
+            url: url,
+          }
+
           existingPublishedData.value = {
             title: data.updatePublishedDoc.title,
             version: data.updatePublishedDoc.version,
             autoSync: data.updatePublishedDoc.autoSync,
             url: url,
+          }
+
+          // Update service
+          if (props.collectionID) {
+            documentationService.setPublishedDocStatus(
+              props.collectionID,
+              updatedDocInfo
+            )
           }
         }
       }
@@ -935,6 +921,11 @@ const handleDelete = async () => {
         publishedDocId.value = undefined
         existingPublishedData.value = undefined
         showPublishModal.value = false
+
+        // Update service
+        if (props.collectionID) {
+          documentationService.setPublishedDocStatus(props.collectionID, null)
+        }
       }
     )
   )()

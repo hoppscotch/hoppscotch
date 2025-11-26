@@ -134,7 +134,7 @@
 
   <HoppSmartConfirmModal
     :show="showDeleteConfirmModal"
-    :title="t('documentation.publish.delete_published_doc')"
+    :title="t('documentation.publish.unpublish_doc')"
     :confirm="t('action.delete')"
     :loading-state="loading"
     @hide-modal="showDeleteConfirmModal = false"

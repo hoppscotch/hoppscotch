@@ -76,8 +76,18 @@
                 }"
               />
             </span>
+            <!-- Published Doc Status Indicator -->
+            <span
+              v-if="publishedDocStatus"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('documentation.publish.published')"
+              class="ml-2 flex items-center"
+            >
+              <component :is="IconGlobe" class="svg-icons text-green-500" />
+            </span>
           </span>
         </div>
+
         <div
           v-if="isCollectionLoading && !isOpen"
           class="flex items-center px-2"
@@ -347,6 +357,8 @@ import { useMockServerStatus } from "~/composables/mockServer"
 import { useMockServerVisibility } from "~/composables/mockServerVisibility"
 import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
+import { DocumentationService } from "~/services/documentation.service"
+import IconGlobe from "~icons/lucide/globe"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -499,6 +511,20 @@ const mockServerStatus = computed(() => {
       : (props.data as TeamCollection).id
 
   return getMockServerStatus(collectionId || "")
+  return getMockServerStatus(collectionId || "")
+})
+
+// Published Doc Status
+const documentationService = useService(DocumentationService)
+
+const publishedDocStatus = computed(() => {
+  const collectionId =
+    props.collectionsType === "my-collections"
+      ? ((props.data as HoppCollection).id ??
+        (props.data as HoppCollection)._ref_id)
+      : (props.data as TeamCollection).id
+
+  return documentationService.getPublishedDocStatus(collectionId || "")
 })
 
 // Determine if this is a root collection (not a child folder)

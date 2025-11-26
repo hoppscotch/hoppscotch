@@ -1,6 +1,6 @@
 query TeamPublishedDocsList(
   $teamID: ID!
-  $collectionID: ID!
+  $collectionID: ID
   $skip: Int!
   $take: Int!
 ) {

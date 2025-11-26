@@ -505,7 +505,7 @@
       "button": "Publish",
       "copy_url": "Copy URL",
       "delete": "Delete Documentation",
-      "delete_published_doc": "Are you sure you want to delete the published documentation?",
+      "unpublish_doc": "Are you sure you want to unpublish the documentation?",
       "delete_success": "Published documentation deleted successfully",
       "doc_title": "Title",
       "doc_version": "Version",

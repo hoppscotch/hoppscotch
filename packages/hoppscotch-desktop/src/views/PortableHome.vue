@@ -54,20 +54,20 @@
           <div class="flex gap-4 items-center justify-center mt-6">
             <label class="flex items-center space-x-2 cursor-pointer">
               <input
-                type="checkbox"
                 v-model="portableSettings.disableUpdateNotifications"
-                @change="onUpdateNotificationsChange"
+                type="checkbox"
                 class="form-checkbox h-4 w-4 text-accent"
+                @change="onUpdateNotificationsChange"
               />
               <span class="text-sm">Don't notify about updates</span>
             </label>
 
             <label class="flex items-center space-x-2 cursor-pointer">
               <input
-                type="checkbox"
                 v-model="portableSettings.autoSkipWelcome"
-                @change="onAutoSkipChange"
+                type="checkbox"
                 class="form-checkbox h-4 w-4 text-accent"
+                @change="onAutoSkipChange"
               />
               <span class="text-sm">Don't show this again</span>
             </label>

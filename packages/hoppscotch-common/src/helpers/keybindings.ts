@@ -37,7 +37,7 @@ type Key =
   | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
-  | "right" | "/" | "?" | "." | "enter" | "tab" | "delete"
+  | "right" | "/" | "?" | "." | "enter" | "tab" | "delete" | "backspace"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -78,6 +78,7 @@ const baseBindings: {
   "ctrl-e": "response.save-as-example",
   "ctrl-shift-l": "editor.format",
   "ctrl-delete": "response.erase",
+  "ctrl-backspace": "response.erase",
 }
 
 // Desktop-only bindings
@@ -228,6 +229,8 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check for Delete key
   if (key === "delete") return "delete"
+
+  if (key === "backspace") return "backspace"
 
   // Check letter keys
   const isLetter = key.length === 1 && key >= "a" && key <= "z"

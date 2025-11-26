@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
-import IconEraser from "~icons/lucide/Eraser"
+import IconEraser from "~icons/lucide/eraser"
 import IconMore from "~icons/lucide/more-horizontal"
 import { computed, ref, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"

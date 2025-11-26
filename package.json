@@ -44,7 +44,7 @@
       "nodemailer@<7.0.7": "7.0.7",
       "sha.js@2.4.11": "2.4.12",
       "subscriptions-transport-ws>ws": "7.5.10",
-      "vue": "3.5.22",
+      "vue": "3.5.25",
       "form-data": "4.0.4",
       "ws": "8.17.1"
     },

@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/lodash": "4.17.20",
+    "@types/lodash": "4.17.21",
     "typescript": "5.9.3",
     "vite": "7.2.4"
   },

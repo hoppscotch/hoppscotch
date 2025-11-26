@@ -17,7 +17,7 @@
     "axios": "1.13.2",
     "fp-ts": "2.16.11",
     "lodash-es": "4.17.21",
-    "vue": "3.5.22"
+    "vue": "3.5.25"
   },
   "devDependencies": {
     "@iconify-json/lucide": "1.2.73",

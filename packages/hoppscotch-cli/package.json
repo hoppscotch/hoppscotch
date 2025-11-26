@@ -43,7 +43,7 @@
   "dependencies": {
     "aws4fetch": "1.0.20",
     "axios": "1.13.2",
-    "axios-cookiejar-support": "6.0.4",
+    "axios-cookiejar-support": "6.0.5",
     "chalk": "5.6.2",
     "commander": "14.0.2",
     "isolated-vm": "6.0.2",
@@ -69,6 +69,6 @@
     "semver": "7.7.3",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "4.0.12"
+    "vitest": "4.0.14"
   }
 }

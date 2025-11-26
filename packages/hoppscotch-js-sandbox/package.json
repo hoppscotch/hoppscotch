@@ -63,10 +63,10 @@
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.20",
+    "@types/lodash": "4.17.21",
     "@types/node": "24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.47.0",
-    "@typescript-eslint/parser": "8.47.0",
+    "@typescript-eslint/eslint-plugin": "8.48.0",
+    "@typescript-eslint/parser": "8.48.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
@@ -74,7 +74,7 @@
     "prettier": "3.6.2",
     "typescript": "5.9.3",
     "vite": "7.2.4",
-    "vitest": "4.0.12"
+    "vitest": "4.0.14"
   },
   "peerDependencies": {
     "isolated-vm": "6.0.2"

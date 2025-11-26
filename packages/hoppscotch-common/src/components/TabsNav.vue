@@ -8,12 +8,12 @@
         <router-link
           v-for="(item, index) in items"
           :key="`nav-${index}`"
-          :to="item.route"
           v-tippy="{
             theme: 'tooltip',
             placement: 'left',
             content: vertical ? item.label : null,
           }"
+          :to="item.route"
           active-class="active"
           exact-active-class="active"
           :exact="item.exactMatch"

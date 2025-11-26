@@ -881,7 +881,7 @@ const debouncedSorting = useDebounceFn(() => {
     sortOrder: currentSortOrder.value,
     collectionRefID: "personal",
   })
-}, 200)
+}, 250)
 
 type MyCollectionNode = Collection | Folder | Requests
 

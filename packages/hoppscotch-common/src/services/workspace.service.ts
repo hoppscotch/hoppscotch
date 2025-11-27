@@ -117,10 +117,14 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
    */
   private setupWorkspaceSync() {
     watch(
-      this._currentWorkspace,
-      (newWorkspace, oldWorkspace) => {
-        // Skip update if workspaces are effectively the same
-        if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
+      [this._currentWorkspace, this.currentUser],
+      ([newWorkspace, user], [oldWorkspace, oldUser]) => {
+        // Skip update if workspaces are effectively the same and user hasn't changed
+        if (
+          this.areWorkspacesEqual(newWorkspace, oldWorkspace) &&
+          user?.uid === oldUser?.uid
+        )
+          return
 
         try {
           if (newWorkspace.type === "team" && newWorkspace.teamID) {
@@ -130,7 +134,9 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
             )
           } else {
             this.teamCollectionService.clearCollections()
-            this.documentationService.fetchUserPublishedDocs()
+            if (user) {
+              this.documentationService.fetchUserPublishedDocs()
+            }
           }
         } catch (error) {
           console.error(

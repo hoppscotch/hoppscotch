@@ -1,9 +1,23 @@
 import { Service } from "dioc"
-import { reactive, computed } from "vue"
+import { reactive, computed, ref } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  getUserPublishedDocs,
+  getTeamPublishedDocs,
+} from "~/helpers/backend/queries/PublishedDocs"
+import * as E from "fp-ts/Either"
 
 // Types for documentation
 export type DocumentationType = "collection" | "request"
+
+// Published documentation info
+export interface PublishedDocInfo {
+  id: string
+  title: string
+  version: string
+  autoSync: boolean
+  url: string
+}
 
 /**
  * Base documentation item with common properties
@@ -90,6 +104,17 @@ export class DocumentationService extends Service {
    * Computed property to check if there are any unsaved changes
    */
   public hasChanges = computed(() => this.editedDocumentation.size > 0)
+
+  /**
+   * Map to store published docs
+   */
+  private publishedDocsMap = ref<Map<string, PublishedDocInfo>>(new Map())
+
+  /**
+   * Counter to track the latest fetch request ID
+   * This prevents race conditions where a stale request overwrites a newer one
+   */
+  private fetchRequestId = 0
 
   /**
    * Sets collection documentation
@@ -225,5 +250,110 @@ export class DocumentationService extends Service {
    */
   public getChangesCount(): number {
     return this.editedDocumentation.size
+  }
+
+  /**
+   * Fetches user published docs and updates the map
+   */
+  public async fetchUserPublishedDocs() {
+    // Increment request ID to invalidate any previous pending requests
+    const requestId = ++this.fetchRequestId
+
+    try {
+      const result = await getUserPublishedDocs()()
+
+      // If a newer request has started, ignore this result
+      if (requestId !== this.fetchRequestId) return
+
+      if (E.isRight(result)) {
+        const docs = result.right
+        const newMap = new Map<string, PublishedDocInfo>()
+        docs.forEach((doc) => {
+          if (doc.collection?.id) {
+            newMap.set(doc.collection.id, {
+              id: doc.id,
+              title: doc.title,
+              version: doc.version,
+              autoSync: doc.autoSync,
+              url: doc.url,
+            })
+          }
+        })
+        this.publishedDocsMap.value = newMap
+      } else {
+        console.error("Failed to fetch user published docs:", result.left)
+      }
+    } catch (error) {
+      // If a newer request has started, ignore this error
+      if (requestId !== this.fetchRequestId) return
+      console.error("Failed to fetch user published docs:", error)
+    }
+  }
+
+  /**
+   * Fetches published docs for team collections
+   */
+  public async fetchTeamPublishedDocs(teamID: string) {
+    // Increment request ID to invalidate any previous pending requests
+    const requestId = ++this.fetchRequestId
+
+    try {
+      // Fetch all published docs for the team (collectionID is optional now)
+      const result = await getTeamPublishedDocs(teamID)()
+
+      // If a newer request has started, ignore this result
+      if (requestId !== this.fetchRequestId) return
+
+      if (E.isRight(result)) {
+        const docs = result.right
+        const newMap = new Map<string, PublishedDocInfo>()
+        docs.forEach((doc) => {
+          if (doc.collection?.id) {
+            newMap.set(doc.collection.id, {
+              id: doc.id,
+              title: doc.title,
+              version: doc.version,
+              autoSync: doc.autoSync,
+              url: doc.url,
+            })
+          }
+        })
+        this.publishedDocsMap.value = newMap
+      } else {
+        console.error("Failed to fetch team published docs:", result.left)
+      }
+    } catch (error) {
+      // If a newer request has started, ignore this error
+      if (requestId !== this.fetchRequestId) return
+      console.error("Failed to fetch team published docs:", error)
+    }
+  }
+
+  /**
+   * Gets the published status of a collection
+   * @param collectionId The ID of the collection
+   */
+  public getPublishedDocStatus(
+    collectionId: string
+  ): PublishedDocInfo | undefined {
+    return this.publishedDocsMap.value.get(collectionId)
+  }
+
+  /**
+   * Manually updates the published status of a collection
+   * @param collectionId The ID of the collection
+   * @param info The new info or null to remove
+   */
+  public setPublishedDocStatus(
+    collectionId: string,
+    info: PublishedDocInfo | null
+  ) {
+    const newMap = new Map(this.publishedDocsMap.value)
+    if (info) {
+      newMap.set(collectionId, info)
+    } else {
+      newMap.delete(collectionId)
+    }
+    this.publishedDocsMap.value = newMap
   }
 }

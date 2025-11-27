@@ -138,7 +138,7 @@ export const getUserPublishedDocs = (skip: number = 0, take: number = 100) =>
 
 export const getTeamPublishedDocs = (
   teamID: string,
-  collectionID: string,
+  collectionID?: string,
   skip: number = 0,
   take: number = 100
 ) =>

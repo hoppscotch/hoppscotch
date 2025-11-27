@@ -51,12 +51,6 @@
     <template #footer>
       <div class="flex justify-between items-center w-full">
         <span class="flex space-x-2">
-          <HoppButtonSecondary
-            :label="t('action.close')"
-            outline
-            filled
-            @click="hideModal"
-          />
           <HoppButtonPrimary
             v-if="hasTeamWriteAccess"
             :label="t('action.save')"
@@ -66,28 +60,29 @@
             filled
             @click="saveDocumentation"
           />
-          <!-- Publish Button - Simple button when not published -->
+          <HoppButtonSecondary
+            :label="t('action.close')"
+            outline
+            filled
+            @click="hideModal"
+          />
         </span>
 
         <div class="flex space-x-2 items-center">
+          <!-- Publish Button - Simple button when not published -->
           <HoppButtonSecondary
             v-if="
               currentCollection && !isCollectionPublished && hasTeamWriteAccess
             "
-            :icon="isCheckingPublishedStatus ? IconLoader2 : IconShare2"
+            :icon="IconShare2"
             :label="t('documentation.publish.button')"
-            :loading="isCheckingPublishedStatus"
-            :disabled="isCheckingPublishedStatus"
             outline
             filled
             @click="openPublishModal"
           />
           <tippy
             v-else-if="
-              currentCollection &&
-              isCollectionPublished &&
-              !isCheckingPublishedStatus &&
-              hasTeamWriteAccess
+              currentCollection && isCollectionPublished && hasTeamWriteAccess
             "
             ref="publishedDropdown"
             interactive
@@ -104,8 +99,6 @@
                 :icon="IconCheveronDown"
                 reverse
                 :label="t('documentation.publish.published')"
-                :loading="isCheckingPublishedStatus"
-                :disabled="isCheckingPublishedStatus"
                 class="!pr-2"
               />
             </div>
@@ -126,7 +119,7 @@
                     />
                     <HoppButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
-                      :title="t('action.copy')"
+                      :title="t('documentation.publish.copy_url')"
                       :icon="copyIcon"
                       @click="copyPublishedUrl"
                     />
@@ -235,10 +228,6 @@ import {
   deletePublishedDoc,
   updatePublishedDoc,
 } from "~/helpers/backend/mutations/PublishedDocs"
-import {
-  getUserPublishedDocs,
-  getTeamPublishedDocs,
-} from "~/helpers/backend/queries/PublishedDocs"
 
 import { TippyComponent } from "vue-tippy"
 
@@ -284,7 +273,6 @@ const documentationService = useService(DocumentationService)
 
 const isLoadingTeamCollection = ref<boolean>(false)
 const isSavingDocumentation = ref<boolean>(false)
-const isCheckingPublishedStatus = ref<boolean>(false)
 const isProcessingPublish = ref<boolean>(false)
 
 const copyIcon = refAutoReset(markRaw(IconCopy), 3000)
@@ -299,17 +287,22 @@ const publishedDropdown = ref<TippyComponent | null>(null)
 const publishedDropdownActions = ref<HTMLDivElement | null>(null)
 
 // Published docs state
-const isCollectionPublished = ref<boolean>(false)
-const publishedDocId = ref<string | undefined>(undefined)
-const existingPublishedData = ref<
-  | {
-      title: string
-      version: string
-      autoSync: boolean
-      url: string
-    }
-  | undefined
->(undefined)
+const publishedDocStatus = computed(() => {
+  if (!props.collectionID) return undefined
+  return documentationService.getPublishedDocStatus(props.collectionID)
+})
+
+const isCollectionPublished = computed(() => !!publishedDocStatus.value)
+const publishedDocId = computed(() => publishedDocStatus.value?.id)
+const existingPublishedData = computed(() => {
+  if (!publishedDocStatus.value) return undefined
+  return {
+    title: publishedDocStatus.value.title,
+    version: publishedDocStatus.value.version,
+    autoSync: publishedDocStatus.value.autoSync,
+    url: publishedDocStatus.value.url,
+  }
+})
 
 const publishModalMode = computed<"create" | "update" | "view">(() => {
   return isCollectionPublished.value ? "update" : "create"
@@ -412,81 +405,12 @@ const handleToggleAllDocumentation = async () => {
   }
 }
 
-// Check for existing published docs status
-const checkPublishedDocsStatus = async () => {
-  if (!props.collectionID) return
-
-  isCheckingPublishedStatus.value = true
-
-  isCollectionPublished.value = false
-  publishedDocId.value = undefined
-  existingPublishedData.value = undefined
-
-  // Check if collection is already published
-  if (props.isTeamCollection && props.teamID) {
-    await pipe(
-      getTeamPublishedDocs(props.teamID, props.collectionID),
-      TE.match(
-        (error) => {
-          console.error("No published docs found or error:", error)
-          isCheckingPublishedStatus.value = false
-        },
-        (docs) => {
-          // Find published doc for this collection
-          const publishedDoc = docs.find(
-            (doc) => doc.collection.id === props.collectionID
-          )
-          if (publishedDoc) {
-            isCollectionPublished.value = true
-            publishedDocId.value = publishedDoc.id
-            existingPublishedData.value = {
-              title: publishedDoc.title,
-              version: publishedDoc.version,
-              autoSync: publishedDoc.autoSync,
-              url: publishedDoc.url,
-            }
-          }
-          isCheckingPublishedStatus.value = false
-        }
-      )
-    )()
-  } else {
-    await pipe(
-      getUserPublishedDocs(),
-      TE.match(
-        (error) => {
-          console.error("No published docs found or error:", error)
-          isCheckingPublishedStatus.value = false
-        },
-        (docs) => {
-          // Find published doc for this collection
-          const publishedDoc = docs.find(
-            (doc) => doc.collection.id === props.collectionID
-          )
-          if (publishedDoc) {
-            isCollectionPublished.value = true
-            publishedDocId.value = publishedDoc.id
-            existingPublishedData.value = {
-              title: publishedDoc.title,
-              version: publishedDoc.version,
-              autoSync: publishedDoc.autoSync,
-              url: publishedDoc.url,
-            }
-          }
-          isCheckingPublishedStatus.value = false
-        }
-      )
-    )()
-  }
-}
-
 // Reset fetched collection data when modal opens/closes
 watch(
   () => props.show,
   async (newVal) => {
     if (newVal) {
-      // Check for existing published docs when modal opens
-      await checkPublishedDocsStatus()
+      // No need to manually check published docs status as it is now reactive
     } else {
       // Reset when modal closes
       fullCollectionData.value = null
@@ -874,15 +798,20 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
         const url = data.createPublishedDoc.url
         toast.success(t("documentation.publish.publish_success"))
 
-        // Update state
-        isCollectionPublished.value = true
-        publishedDocId.value = data.createPublishedDoc.id
-
-        existingPublishedData.value = {
+        const newDocInfo = {
+          id: data.createPublishedDoc.id,
           title: doc.title,
           version: doc.version,
           autoSync: doc.autoSync,
           url: url,
+        }
+
+        // Update service
+        if (props.collectionID) {
+          documentationService.setPublishedDocStatus(
+            props.collectionID,
+            newDocInfo
+          )
         }
       }
     )
@@ -904,11 +833,20 @@ const handleUpdate = async (id: string, doc: UpdatePublishedDocsArgs) => {
         toast.success(t("documentation.publish.update_success"))
         // Update existing data
         if (existingPublishedData.value) {
-          existingPublishedData.value = {
+          const updatedDocInfo = {
+            id: id,
             title: data.updatePublishedDoc.title,
             version: data.updatePublishedDoc.version,
             autoSync: data.updatePublishedDoc.autoSync,
             url: url,
+          }
+
+          // Update service
+          if (props.collectionID) {
+            documentationService.setPublishedDocStatus(
+              props.collectionID,
+              updatedDocInfo
+            )
           }
         }
       }
@@ -931,10 +869,12 @@ const handleDelete = async () => {
       () => {
         toast.success(t("documentation.publish.delete_success"))
 
-        isCollectionPublished.value = false
-        publishedDocId.value = undefined
-        existingPublishedData.value = undefined
         showPublishModal.value = false
+
+        // Update service
+        if (props.collectionID) {
+          documentationService.setPublishedDocStatus(props.collectionID, null)
+        }
       }
     )
   )()

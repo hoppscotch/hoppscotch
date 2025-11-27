@@ -23,7 +23,6 @@ import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { stringToJson } from 'src/utils';
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
-import { CollectionFolder } from 'src/types/CollectionFolder';
 import { GetPublishedDocsQueryDto, TreeLevel } from './published-docs.dto';
 import { ConfigService } from '@nestjs/config';
 
@@ -275,7 +274,7 @@ export class PublishedDocsService {
    */
   async getAllTeamPublishedDocs(
     teamID: string,
-    collectionID: string,
+    collectionID: string | undefined,
     args: OffsetPaginationArgs,
   ) {
     const docs = await this.prisma.publishedDocs.findMany({

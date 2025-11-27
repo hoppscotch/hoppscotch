@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach, vi } from "vitest"
+import * as E from "fp-ts/Either"
 import { TestContainer } from "dioc/testing"
 import {
   HoppCollection,
@@ -13,6 +14,15 @@ import {
   SetCollectionDocumentationOptions,
   SetRequestDocumentationOptions,
 } from "../documentation.service"
+import {
+  getUserPublishedDocs,
+  getTeamPublishedDocs,
+} from "~/helpers/backend/queries/PublishedDocs"
+
+vi.mock("~/helpers/backend/queries/PublishedDocs", () => ({
+  getUserPublishedDocs: vi.fn(),
+  getTeamPublishedDocs: vi.fn(),
+}))
 
 describe("DocumentationService", () => {
   let container: TestContainer
@@ -449,6 +459,189 @@ describe("DocumentationService", () => {
       service.clearAll()
 
       expect(service.hasChanges.value).toBe(false)
+    })
+  })
+
+  describe("Published Documentation", () => {
+    it("should fetch user published docs and update map", async () => {
+      const mockDocs = [
+        {
+          id: "doc-1",
+          collection: { id: "col-1" },
+          title: "Doc 1",
+          version: "v1",
+          autoSync: true,
+          url: "url-1",
+        },
+      ]
+
+      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+        Promise.resolve(E.right(mockDocs as any))
+      )
+
+      await service.fetchUserPublishedDocs()
+
+      const status = service.getPublishedDocStatus("col-1")
+      expect(status).toEqual({
+        id: "doc-1",
+        title: "Doc 1",
+        version: "v1",
+        autoSync: true,
+        url: "url-1",
+      })
+    })
+
+    it("should fetch team published docs and update map", async () => {
+      const mockDocs = [
+        {
+          id: "doc-2",
+          collection: { id: "col-2" },
+          title: "Doc 2",
+          version: "v2",
+          autoSync: false,
+          url: "url-2",
+        },
+      ]
+
+      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+        Promise.resolve(E.right(mockDocs as any))
+      )
+
+      await service.fetchTeamPublishedDocs("team-1")
+
+      const status = service.getPublishedDocStatus("col-2")
+      expect(status).toEqual({
+        id: "doc-2",
+        title: "Doc 2",
+        version: "v2",
+        autoSync: false,
+        url: "url-2",
+      })
+    })
+
+    it("should handle error when fetching user published docs", async () => {
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+      vi.mocked(getUserPublishedDocs).mockReturnValue(() =>
+        Promise.resolve(E.left("user/not_authenticated"))
+      )
+
+      await service.fetchUserPublishedDocs()
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to fetch user published docs:",
+        "user/not_authenticated"
+      )
+      consoleSpy.mockRestore()
+    })
+
+    it("should handle error when fetching team published docs", async () => {
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+      vi.mocked(getTeamPublishedDocs).mockReturnValue(() =>
+        Promise.resolve(E.left("team/not_required" as any))
+      )
+
+      await service.fetchTeamPublishedDocs("team-1")
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to fetch team published docs:",
+        "team/not_required"
+      )
+      consoleSpy.mockRestore()
+    })
+
+    it("should manually set published doc status", () => {
+      const info = {
+        id: "doc-3",
+        title: "Doc 3",
+        version: "v3",
+        autoSync: true,
+        url: "url-3",
+      }
+
+      service.setPublishedDocStatus("col-3", info)
+
+      expect(service.getPublishedDocStatus("col-3")).toEqual(info)
+    })
+
+    it("should remove published doc status", () => {
+      const info = {
+        id: "doc-3",
+        title: "Doc 3",
+        version: "v3",
+        autoSync: true,
+        url: "url-3",
+      }
+
+      service.setPublishedDocStatus("col-3", info)
+      expect(service.getPublishedDocStatus("col-3")).toBeDefined()
+
+      service.setPublishedDocStatus("col-3", null)
+      expect(service.getPublishedDocStatus("col-3")).toBeUndefined()
+    })
+
+    it("should handle race conditions by ignoring stale responses", async () => {
+      const slowDocs = [
+        {
+          id: "doc-slow",
+          collection: { id: "col-1" },
+          title: "Slow Doc",
+          version: "v1",
+          autoSync: true,
+          url: "url-slow",
+        },
+      ]
+
+      const fastDocs = [
+        {
+          id: "doc-fast",
+          collection: { id: "col-1" },
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+        },
+      ]
+
+      let resolveSlow: (value: any) => void
+      const slowPromise = new Promise((resolve) => {
+        resolveSlow = resolve
+      })
+
+      // Mock the first call to be slow
+      vi.mocked(getUserPublishedDocs)
+        .mockReturnValueOnce(() => slowPromise as any)
+        .mockReturnValueOnce(() => Promise.resolve(E.right(fastDocs as any)))
+
+      // Start the slow request
+      const firstCall = service.fetchUserPublishedDocs()
+
+      // Start the fast request immediately after
+      const secondCall = service.fetchUserPublishedDocs()
+
+      // Wait for the fast request to complete
+      await secondCall
+
+      // Verify the fast response is applied
+      expect(service.getPublishedDocStatus("col-1")).toEqual({
+        id: "doc-fast",
+        title: "Fast Doc",
+        version: "v2",
+        autoSync: true,
+        url: "url-fast",
+      })
+
+      // Now resolve the slow request
+      resolveSlow!(E.right(slowDocs as any))
+      await firstCall
+
+      // Verify the state hasn't changed (slow response ignored)
+      expect(service.getPublishedDocStatus("col-1")).toEqual({
+        id: "doc-fast",
+        title: "Fast Doc",
+        version: "v2",
+        autoSync: true,
+        url: "url-fast",
+      })
     })
   })
 })

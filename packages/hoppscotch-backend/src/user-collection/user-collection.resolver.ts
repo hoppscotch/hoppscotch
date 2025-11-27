@@ -18,7 +18,6 @@ import {
   UserCollection,
   UserCollectionDuplicatedData,
   UserCollectionExportJSONData,
-  UserCollectionImportResult,
   UserCollectionRemovedData,
   UserCollectionReorderData,
 } from './user-collections.model';

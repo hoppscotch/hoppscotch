@@ -1,11 +1,15 @@
 <template>
-  <div class="rounded-sm relative h-full" @click.stop>
+  <div
+    v-if="!(readOnly && isEmpty)"
+    class="rounded-sm relative h-full"
+    @click.stop
+  >
     <!-- Edit mode textarea -->
     <template v-if="editMode && !readOnly">
       <textarea
         ref="textareaRef"
         v-model="internalContent"
-        class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondaryLight outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition"
+        class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondary outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition placeholder:text-secondaryLight"
         :style="{ height: textareaHeight + 'px' }"
         spellcheck="false"
         :placeholder="placeholder"
@@ -74,6 +78,11 @@ const textareaHeight = ref<number>(200)
 // Internal content that syncs with modelValue
 const internalContent = ref<string>(props.modelValue)
 
+// Check if the content is empty
+const isEmpty = computed(
+  () => !internalContent.value || internalContent.value.trim() === ""
+)
+
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
@@ -88,7 +97,7 @@ watch(
 // Render markdown content with DOMPurify sanitization
 const renderedMarkdown = computed(() => {
   try {
-    if (!internalContent.value || internalContent.value.trim() === "") {
+    if (isEmpty.value) {
       return DOMPurify.sanitize(
         `<p class='text-secondaryLight italic'>${props.placeholder || t("documentation.add_description_placeholder")}</p>`
       )
@@ -201,7 +210,7 @@ onMounted(() => {
 /* List styles */
 .markdown-content :deep(ul),
 .markdown-content :deep(ol) {
-  @apply pl-6 my-3 text-sm text-secondaryLight space-y-1;
+  @apply pl-6 my-3 text-sm text-secondary space-y-1;
 }
 
 .markdown-content :deep(li > ul),
@@ -252,7 +261,7 @@ onMounted(() => {
 }
 
 .markdown-content :deep(td) {
-  @apply border border-divider px-3 py-1 text-secondaryLight;
+  @apply border border-divider px-3 py-1 text-secondary;
   @apply bg-primaryDark;
 }
 

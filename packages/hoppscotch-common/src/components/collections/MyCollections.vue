@@ -875,18 +875,13 @@ const updateCollectionOrder = (
 }
 
 const debouncedSorting = useDebounceFn(() => {
-  sortCollection()
-}, 250)
-
-const sortCollection = () => {
   currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
-
   emit("sort-collections", {
     collectionID: null,
     sortOrder: currentSortOrder.value,
     collectionRefID: "personal",
   })
-}
+}, 250)
 
 type MyCollectionNode = Collection | Folder | Requests
 

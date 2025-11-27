@@ -42,7 +42,7 @@ type Key =
   | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
-  | "right" | "/" | "?" | "." | "enter" | "tab"
+  | "right" | "/" | "?" | "." | "enter" | "tab" | "delete" | "backspace"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -85,6 +85,8 @@ const baseBindings: {
   "ctrl-shift-l": "editor.format",
   "ctrl-z": "editor.undo",
   "ctrl-y": "editor.redo",
+  "ctrl-delete": "response.erase",
+  "ctrl-backspace": "response.erase",
 }
 
 // Web-only bindings
@@ -285,6 +287,11 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check for Tab key
   if (key === "tab") return "tab"
+
+  // Check for Delete key
+  if (key === "delete") return "delete"
+
+  if (key === "backspace") return "backspace"
 
   // Check letter keys
   const isLetter = key.length === 1 && key >= "a" && key <= "z"

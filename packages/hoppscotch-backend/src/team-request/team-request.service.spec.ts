@@ -18,7 +18,7 @@ import {
   TeamRequest as DbTeamRequest,
   Team as DbTeam,
   TeamCollection as DbTeamCollection,
-} from '@prisma/client';
+} from 'src/generated/prisma/client';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { SortOptions } from 'src/types/SortOptions';
 

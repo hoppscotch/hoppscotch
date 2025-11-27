@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-desktop"
-version = "25.10.1"
+version = "25.11.0"
 description = "Desktop App for hoppscotch.io"
 authors = ["CuriousCorrelation"]
 edition = "2021"
@@ -15,45 +15,45 @@ name = "hoppscotch_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.5.2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["devtools"] }
-tauri-plugin-shell = { version = "2.2.1", features = [] }
+tauri = { version = "2.9.3", features = ["devtools"] }
+tauri-plugin-shell = { version = "2.3.3", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = [] }
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 tracing-appender = { version = "0.2.3" }
-tauri-plugin-store = "2.2.0"
-tauri-plugin-dialog = "2.2.0"
-tauri-plugin-fs = "2.2.0"
-tauri-plugin-deep-link = "2.2.0"
+tauri-plugin-store = "2.4.1"
+tauri-plugin-dialog = "2.4.2"
+tauri-plugin-fs = "2.4.4"
+tauri-plugin-deep-link = "2.4.5"
 tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plugin-appload", rev = "e05861959938b57479a1a81fa796735ebbd08c7c" }
 tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "7cf09c1ad31e228758738c2f4e1c8fe9cc141291" }
-axum = "0.8.1"
-tower-http = { version = "0.6.2", features = ["cors"] }
+axum = "0.8.7"
+tower-http = { version = "0.6.6", features = ["cors"] }
 random-port = "0.1.1"
-tokio = "1.43.0"
-tauri-plugin-process = "2.2.0"
+tokio = "1.48.0"
+tauri-plugin-process = "2.3.1"
 file-rotate = "0.8.0"
 dirs = "6.0.0"
-thiserror = "2.0.12"
+thiserror = "2.0.17"
 native-dialog = { version = "0.7.0" }
-tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
+tauri-plugin-http = { version = "2.5.4", features = ["gzip"] }
 tauri-plugin-opener = "2"
 semver = "1.0"
 
 [dev-dependencies]
-tempfile = "3.20.0"
+tempfile = "3.23.0"
 
 [target.'cfg(windows)'.dependencies]
-tempfile = { version = "3.13.0" }
+tempfile = { version = "3.23.0" }
 winreg = { version = "0.52.0" }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-updater = "2.3.1"
-tauri-plugin-window-state = "2.2.1"
+tauri-plugin-updater = "2.9.0"
+tauri-plugin-window-state = "2.4.1"
 
 [features]
 default = []

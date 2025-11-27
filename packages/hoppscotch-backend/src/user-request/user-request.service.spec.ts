@@ -1,7 +1,7 @@
 import {
   ReqType as DbRequestType,
   UserRequest as DbUserRequest,
-} from '@prisma/client';
+} from 'src/generated/prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   JSON_INVALID,

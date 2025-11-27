@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { TeamMember, TeamAccessRole, Team } from './team.model';
 import { PrismaService } from '../prisma/prisma.service';
-import { TeamMember as DbTeamMember } from '@prisma/client';
+import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
 import { UserService } from '../user/user.service';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import {

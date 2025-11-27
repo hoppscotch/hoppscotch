@@ -9,7 +9,7 @@ import {
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import * as helper from './helper';
-import { InfraConfig as dbInfraConfig } from '@prisma/client';
+import { InfraConfig as dbInfraConfig } from 'src/generated/prisma/client';
 import { InfraConfig } from './infra-config.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { ServiceStatus } from './helper';

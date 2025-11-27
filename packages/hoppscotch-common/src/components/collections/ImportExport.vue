@@ -13,6 +13,7 @@
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { PropType, Ref, computed, ref } from "vue"
+import { transformCollectionForImport } from "~/helpers/collection/collection"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
@@ -33,11 +34,7 @@ import { defineStep } from "~/composables/step-components"
 import AllCollectionImport from "~/components/importExport/ImportExportSteps/AllCollectionImport.vue"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import {
-  appendRESTCollections,
-  restCollections$,
-  setRESTCollections,
-} from "~/newstore/collections"
+import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -50,11 +47,6 @@ import { useReadonlyStream } from "~/composables/stream"
 import IconUser from "~icons/lucide/user"
 
 import { getTeamCollectionJSON } from "~/helpers/backend/helpers"
-import {
-  importUserCollectionsFromJSON,
-  fetchAndConvertUserCollections,
-} from "~/helpers/backend/mutations/UserCollection"
-import { ReqType } from "~/helpers/backend/graphql"
 
 import { platform } from "~/platform"
 
@@ -67,6 +59,7 @@ import { ImporterOrExporter } from "~/components/importExport/types"
 import { GistSource } from "~/helpers/import-export/import/import-sources/GistSource"
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
+import { ReqType } from "~/helpers/backend/graphql"
 
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
@@ -120,90 +113,19 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
-const importToPersonalWorkspace = async (collections: HoppCollection[]) => {
-  // If user is logged in, try to import to backend first
-  if (currentUser.value) {
-    try {
-      const transformedCollection = collections.map((collection) =>
-        translateToPersonalCollectionFormat(collection)
-      )
-
-      const res = await importUserCollectionsFromJSON(
-        JSON.stringify(transformedCollection),
-        ReqType.Rest
-      )()
-
-      if (E.isRight(res)) {
-        // Backend import succeeded, now fetch and persist collections in store
-        const fetchResult = await fetchAndConvertUserCollections(ReqType.Rest)
-
-        if (E.isRight(fetchResult)) {
-          // Replace local collections with backend collections
-          setRESTCollections(fetchResult.right)
-        } else {
-          // Failed to fetch, append to local store as fallback
-          appendRESTCollections(collections)
-        }
-
-        return E.right({ success: true })
-      }
-      // Backend import failed, fall back to local storage
-      appendRESTCollections(collections)
-      return E.right({ success: true })
-    } catch {
-      // Backend import failed, fall back to local storage
-      appendRESTCollections(collections)
-      return E.right({ success: true })
-    }
-  } else {
-    // User not logged in, use local storage
-    appendRESTCollections(collections)
-    return E.right({ success: true })
-  }
-}
-
-function translateToTeamCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToTeamCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
+const importToPersonalWorkspace = (collections: HoppCollection[]) => {
+  if (
+    platform.sync.collections.importToPersonalWorkspace &&
+    currentUser.value
+  ) {
+    return platform.sync.collections.importToPersonalWorkspace(
+      collections,
+      ReqType.Rest
+    )
   }
 
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
-}
-
-function translateToPersonalCollectionFormat(x: HoppCollection) {
-  const folders: HoppCollection[] = (x.folders ?? []).map(
-    translateToPersonalCollectionFormat
-  )
-
-  const data = {
-    auth: x.auth,
-    headers: x.headers,
-    variables: x.variables,
-  }
-
-  const obj = {
-    ...x,
-    folders,
-    data,
-  }
-
-  if (x.id) obj.id = x.id
-
-  return obj
+  appendRESTCollections(collections)
+  return E.right({ success: true })
 }
 
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
@@ -214,7 +136,7 @@ const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   }
 
   const transformedCollection = collections.map((collection) =>
-    translateToTeamCollectionFormat(collection)
+    transformCollectionForImport(collection)
   )
 
   const res = await toTeamsImporter(

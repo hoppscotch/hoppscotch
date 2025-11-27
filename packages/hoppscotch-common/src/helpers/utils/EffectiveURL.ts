@@ -314,8 +314,7 @@ export function getFinalBodyFromRequest(
       // we split array blobs into separate entries (FormData will then join them together during exec)
       arrayFlatMap((x) =>
         x.isFile
-          ? // @ts-expect-error TODO: Fix this type error
-            x.value.map((v) => ({
+          ? (Array.isArray(x.value) ? x.value : [x.value]).map((v) => ({
               key: parseTemplateString(x.key, envVariables),
               value: v as string | Blob,
               contentType: x.contentType,

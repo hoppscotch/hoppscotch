@@ -7,6 +7,7 @@ import { platform } from "~/platform"
 import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
+import { DocumentationService } from "./documentation.service"
 
 /**
  * Defines a workspace and its information
@@ -47,6 +48,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private managedTeamListAdapter = new TeamListAdapter(true, false)
 
   private teamCollectionService = this.bind(TeamCollectionsService)
+  private documentationService = this.bind(DocumentationService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -105,15 +107,15 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
       { immediate: true }
     )
 
-    // Watch for workspace changes and update team collection service accordingly
-    this.setupTeamCollectionServiceSync()
+    // Watch for workspace changes and update team collection service and documentation service accordingly
+    this.setupWorkspaceSync()
   }
 
   /**
-   * Sets up synchronization with team collection service
-   * This ensures team collections are updated when workspace changes
+   * Sets up synchronization with team collection service and documentation service
+   * This ensures team collections and published docs are updated when workspace changes
    */
-  private setupTeamCollectionServiceSync() {
+  private setupWorkspaceSync() {
     watch(
       this._currentWorkspace,
       (newWorkspace, oldWorkspace) => {
@@ -123,11 +125,18 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
         try {
           if (newWorkspace.type === "team" && newWorkspace.teamID) {
             this.teamCollectionService.changeTeamID(newWorkspace.teamID)
+            this.documentationService.fetchTeamPublishedDocs(
+              newWorkspace.teamID
+            )
           } else {
             this.teamCollectionService.clearCollections()
+            this.documentationService.fetchUserPublishedDocs()
           }
         } catch (error) {
-          console.error("Failed to sync team collections:", error)
+          console.error(
+            "Failed to sync team collections and published docs:",
+            error
+          )
         }
       },
       { immediate: true }

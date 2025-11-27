@@ -14,7 +14,9 @@ import {
   PUBLISHED_DOCS_INVALID_COLLECTION,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
+  TEAM_INVALID_COLL_ID,
   TEAM_INVALID_ID,
+  USER_COLL_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PublishedDocs } from './published-docs.model';
@@ -241,7 +243,20 @@ export class PublishedDocsService {
               query.tree === TreeLevel.FULL,
             );
 
-      if (E.isLeft(collectionResult)) return E.left(collectionResult.left);
+      if (E.isLeft(collectionResult)) {
+        // Delete the published doc if its collection is missing
+        const isCollectionNotFound =
+          collectionResult.left === USER_COLL_NOT_FOUND ||
+          collectionResult.left === TEAM_INVALID_COLL_ID;
+
+        if (isCollectionNotFound) {
+          await this.prisma.publishedDocs.delete({
+            where: { id: publishedDocs.id },
+          });
+        }
+
+        return E.left(collectionResult.left);
+      }
 
       return E.right(
         this.cast({

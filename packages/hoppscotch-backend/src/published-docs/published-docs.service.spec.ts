@@ -47,8 +47,8 @@ const user: User = {
   lastLoggedOn: currentTime,
   lastActiveOn: currentTime,
   createdOn: currentTime,
-  currentGQLSession: JSON.stringify({}),
-  currentRESTSession: JSON.stringify({}),
+  currentGQLSession: {} as any,
+  currentRESTSession: {} as any,
 };
 
 const userPublishedDoc: DBPublishedDocs = {
@@ -826,7 +826,14 @@ describe('getPublishedDocsCreator', () => {
     const result = await publishedDocsService.getPublishedDocsCreator(
       userPublishedDoc.id,
     );
-    expect(result).toEqualRight(user);
+
+    const expectedUser = {
+      ...user,
+      currentGQLSession: JSON.stringify(user.currentGQLSession),
+      currentRESTSession: JSON.stringify(user.currentRESTSession),
+    };
+
+    expect(result).toEqualRight(expectedUser);
   });
 
   test('should throw PUBLISHED_DOCS_NOT_FOUND when document ID is invalid', async () => {

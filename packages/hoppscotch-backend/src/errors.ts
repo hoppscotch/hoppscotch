@@ -34,7 +34,8 @@ export const JSON_INVALID = 'json_invalid' as const;
  * Auth Provider not specified
  * (Auth)
  */
-export const AUTH_PROVIDER_NOT_SPECIFIED = 'auth/provider_not_specified' as const;
+export const AUTH_PROVIDER_NOT_SPECIFIED =
+  'auth/provider_not_specified' as const;
 
 /**
  * Email not provided by OAuth provider
@@ -927,3 +928,34 @@ export const MOCK_SERVER_LOG_NOT_FOUND = 'mock_server/log_not_found';
  */
 export const MOCK_SERVER_LOG_DELETION_FAILED =
   'mock_server/log_deletion_failed';
+
+/**
+ * Published Docs invalid collection
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_INVALID_COLLECTION =
+  'published_docs/invalid_collection';
+
+/**
+ * Published Docs creation failed
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_CREATION_FAILED = 'published_docs/creation_failed';
+
+/**
+ * Published Docs update failed
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_UPDATE_FAILED = 'published_docs/update_failed';
+
+/**
+ * Published Docs deletion failed
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_DELETION_FAILED = 'published_docs/deletion_failed';
+
+/**
+ * Published Docs not found
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_NOT_FOUND = 'published_docs/not_found';

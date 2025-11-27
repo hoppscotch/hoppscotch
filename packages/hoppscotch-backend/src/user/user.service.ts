@@ -18,7 +18,7 @@ import { SessionType, User } from './user.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { encrypt, stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
-import { User as DbUser } from '@prisma/client';
+import { User as DbUser } from 'src/generated/prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { GetUserWorkspacesResponse } from 'src/infra-token/request-response.dto';
 import { TeamAccessRole } from 'src/team/team.model';

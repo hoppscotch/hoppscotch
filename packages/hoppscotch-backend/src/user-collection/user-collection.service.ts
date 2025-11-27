@@ -20,7 +20,11 @@ import { AuthUser } from 'src/types/AuthUser';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { Prisma, UserCollection, ReqType as DBReqType } from '@prisma/client';
+import {
+  Prisma,
+  UserCollection,
+  ReqType as DBReqType,
+} from 'src/generated/prisma/client';
 import {
   UserCollection as UserCollectionModel,
   UserCollectionExportJSONData,
@@ -36,6 +40,7 @@ import {
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { SortOptions } from 'src/types/SortOptions';
+import { UserRequest } from 'src/user-request/user-request.model';
 
 @Injectable()
 export class UserCollectionService {
@@ -864,37 +869,41 @@ export class UserCollectionService {
    *
    * @param userUID The User UID
    * @param collectionID The Collection ID
+   * @param withChildren Whether to include child collections and their requests
    * @returns A JSON string containing all the contents of a collection
    */
   async exportUserCollectionToJSONObject(
     userUID: string,
     collectionID: string,
+    withChildren: boolean = true,
   ): Promise<E.Left<string> | E.Right<CollectionFolder>> {
     // Get Collection details
     const collection = await this.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
-    // Get all child collections whose parentID === collectionID
-    const childCollectionList = await this.prisma.userCollection.findMany({
-      where: {
-        parentID: collectionID,
-        userUid: userUID,
-      },
-      orderBy: {
-        orderIndex: 'asc',
-      },
-    });
-
-    // Create a list of child collection and request data ready for export
     const childrenCollectionObjects: CollectionFolder[] = [];
-    for (const coll of childCollectionList) {
-      const result = await this.exportUserCollectionToJSONObject(
-        userUID,
-        coll.id,
-      );
-      if (E.isLeft(result)) return E.left(result.left);
+    if (withChildren) {
+      // Get all child collections whose parentID === collectionID
+      const childCollectionList = await this.prisma.userCollection.findMany({
+        where: {
+          parentID: collectionID,
+          userUid: userUID,
+        },
+        orderBy: {
+          orderIndex: 'asc',
+        },
+      });
 
-      childrenCollectionObjects.push(result.right);
+      // Create a list of child collection and request data ready for export
+      for (const coll of childCollectionList) {
+        const result = await this.exportUserCollectionToJSONObject(
+          userUID,
+          coll.id,
+        );
+        if (E.isLeft(result)) return E.left(result.left);
+
+        childrenCollectionObjects.push(result.right);
+      }
     }
 
     // Fetch all child requests that belong to collectionID
@@ -962,7 +971,7 @@ export class UserCollectionService {
       collectionListObjects.push(result.right);
     }
 
-    // If collectionID is not null, return JSONified data for specific collection
+    // If collectionID is not null, return JSON stringified data for specific collection
     if (collectionID) {
       // Get Details of collection
       const parentCollection = await this.getUserCollection(collectionID);
@@ -1025,7 +1034,10 @@ export class UserCollectionService {
     let data = null;
     if (folder.data) {
       try {
-        data = JSON.parse(folder.data);
+        data =
+          typeof folder.data === 'string'
+            ? JSON.parse(folder.data)
+            : folder.data;
       } catch (error) {
         // If data parsing fails, log error and continue without data
         console.error('Failed to parse collection data:', error);
@@ -1141,14 +1153,24 @@ export class UserCollectionService {
       return E.left(USER_COLLECTION_CREATION_FAILED);
     }
 
+    // Fetch nested collections after transaction is committed
+    const importedCollectionsWithChildren: CollectionFolder[] = [];
+    for (const userCollection of userCollections) {
+      const exportedCollectionJSON =
+        await this.exportUserCollectionToJSONObject(userID, userCollection.id);
+      if (E.isLeft(exportedCollectionJSON))
+        return E.left(exportedCollectionJSON.left);
+      importedCollectionsWithChildren.push(exportedCollectionJSON.right);
+    }
+
     if (isCollectionDuplication) {
-      const collectionData = await this.fetchCollectionData(
+      const duplicatedCollectionData = await this.fetchCollectionData(
         userCollections[0].id,
       );
-      if (E.isRight(collectionData)) {
+      if (E.isRight(duplicatedCollectionData)) {
         this.pubsub.publish(
           `user_coll/${userID}/duplicated`,
-          collectionData.right,
+          duplicatedCollectionData.right,
         );
       }
     } else {
@@ -1160,7 +1182,10 @@ export class UserCollectionService {
       );
     }
 
-    return E.right(true);
+    return E.right({
+      exportedCollection: JSON.stringify(importedCollectionsWithChildren),
+      collectionType: reqType,
+    } as UserCollectionExportJSONData);
   }
 
   /**

@@ -26,14 +26,10 @@ import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
-import { MockServerAnalyticsService } from './mock-server-analytics.service';
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
-  constructor(
-    private readonly mockServerService: MockServerService,
-    private readonly mockServerAnalyticsService: MockServerAnalyticsService,
-  ) {}
+  constructor(private readonly mockServerService: MockServerService) {}
 
   // Resolve Fields
 

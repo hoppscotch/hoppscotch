@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest"
+import { TestResponse } from "~/types"
 import { runTest } from "~/utils/test-helpers"
 
 describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
@@ -34,9 +35,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Response matches schema",
-            // Note: jsonSchema assertion currently doesn't populate expectResults
-            // TODO: Enhance implementation to track individual schema validation results
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -95,8 +99,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Nested schema validation",
-            // Note: jsonSchema assertion currently doesn't populate expectResults
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -141,8 +149,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Array schema validation",
-            // Note: jsonSchema assertion currently doesn't populate expectResults
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -180,7 +192,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Enum validation",
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -218,7 +235,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Number constraints",
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -259,7 +281,12 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "String constraints",
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
@@ -300,14 +327,19 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         children: [
           expect.objectContaining({
             descriptor: "Array length constraints",
-            expectResults: [],
+            expectResults: [
+              {
+                status: "pass",
+                message: "Response body matches JSON schema",
+              },
+            ],
           }),
         ],
       }),
     ])
   })
 
-  test("should fail when required property is missing", () => {
+  test("should record failed assertion when required property is missing", () => {
     const response: TestResponse = {
       status: 200,
       statusText: "OK",
@@ -333,12 +365,27 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         { global: [], selected: [] },
         response
       )()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("Required property 'age' is missing")
-    )
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        descriptor: "root",
+        children: [
+          expect.objectContaining({
+            descriptor: "Missing required property",
+            expectResults: [
+              {
+                status: "fail",
+                message: expect.stringContaining(
+                  "Required property 'age' is missing"
+                ),
+              },
+            ],
+          }),
+        ],
+      }),
+    ])
   })
 
-  test("should fail when type doesn't match", () => {
+  test("should record failed assertion when type doesn't match", () => {
     const response: TestResponse = {
       status: 200,
       statusText: "OK",
@@ -362,9 +409,24 @@ describe("`pm.response.to.have.jsonSchema` - JSON Schema Validation", () => {
         { global: [], selected: [] },
         response
       )()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("Expected type number, got string")
-    )
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        descriptor: "root",
+        children: [
+          expect.objectContaining({
+            descriptor: "Wrong type",
+            expectResults: [
+              {
+                status: "fail",
+                message: expect.stringContaining(
+                  "Expected type number, got string"
+                ),
+              },
+            ],
+          }),
+        ],
+      }),
+    ])
   })
 })
 
@@ -738,9 +800,24 @@ describe("`pm.response.to.have.jsonPath` - JSONPath Queries", () => {
         { global: [], selected: [] },
         response
       )()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("Property 'nonexistent' not found")
-    )
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        descriptor: "root",
+        children: [
+          expect.objectContaining({
+            descriptor: "Non-existent path fails",
+            expectResults: [
+              {
+                status: "fail",
+                message: expect.stringContaining(
+                  "Property 'nonexistent' not found"
+                ),
+              },
+            ],
+          }),
+        ],
+      }),
+    ])
   })
 
   test("should fail when array index is out of bounds", () => {
@@ -761,9 +838,22 @@ describe("`pm.response.to.have.jsonPath` - JSONPath Queries", () => {
         { global: [], selected: [] },
         response
       )()
-    ).resolves.toEqualLeft(
-      expect.stringContaining("Array index '10' out of bounds")
-    )
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        descriptor: "root",
+        children: [
+          expect.objectContaining({
+            descriptor: "Out of bounds index fails",
+            expectResults: [
+              {
+                status: "fail",
+                message: expect.stringContaining("out of bounds"),
+              },
+            ],
+          }),
+        ],
+      }),
+    ])
   })
 
   test("should fail when value doesn't match", () => {

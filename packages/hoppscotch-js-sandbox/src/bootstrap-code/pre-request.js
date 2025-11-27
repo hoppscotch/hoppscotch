@@ -156,6 +156,17 @@
       delete: (domain, name) => inputs.cookieDelete(domain, name),
       clear: (domain) => inputs.cookieClear(domain),
     },
+    // Expose fetch as hopp.fetch() for explicit access
+    // Note: This exposes the fetch implementation provided by the host environment via hoppFetchHook
+    // (injected in cage.ts during sandbox initialization), not the native browser fetch.
+    // This allows requests to respect interceptor settings.
+    fetch: fetch,
+  }
+
+  // Make global fetch() an alias to hopp.fetch()
+  // Both fetch() and hopp.fetch() respect interceptor settings
+  if (typeof fetch !== "undefined") {
+    globalThis.fetch = globalThis.hopp.fetch
   }
 
   // PM Namespace - Postman Compatibility Layer
@@ -1218,9 +1229,246 @@
       },
     },
 
-    // Unsupported APIs that throw errors
-    sendRequest: (_request, _callback) => {
-      throw new Error("pm.sendRequest() is not yet implemented in Hoppscotch")
+    // pm.sendRequest() - Postman-compatible fetch wrapper
+    sendRequest: (urlOrRequest, callback) => {
+      // Check if fetch is available
+      if (typeof fetch === "undefined") {
+        const error = new Error(
+          "pm.sendRequest() requires fetch API support. Enable experimental scripting sandbox or ensure fetch is available in your environment."
+        )
+        callback(error, null)
+        return
+      }
+
+      // Parse arguments (Postman supports both string and object)
+      let url, options
+
+      if (typeof urlOrRequest === "string") {
+        url = urlOrRequest
+        options = {}
+      } else {
+        // Object format: { url, method, header, body }
+        url = urlOrRequest.url
+
+        // Parse headers - support both array [{key, value, disabled}] and object {key: value} formats
+        let headers = {}
+        if (urlOrRequest.header) {
+          if (Array.isArray(urlOrRequest.header)) {
+            // Array format: [{ key: 'Content-Type', value: 'application/json', disabled: false }]
+            // Filter out disabled headers and handle duplicates properly
+            const activeHeaders = urlOrRequest.header.filter(
+              (h) => h.disabled !== true
+            )
+
+            // Check if there are duplicate keys (e.g., multiple Set-Cookie headers)
+            const headerKeys = new Set()
+            const hasDuplicates = activeHeaders.some((h) => {
+              if (headerKeys.has(h.key.toLowerCase())) {
+                return true
+              }
+              headerKeys.add(h.key.toLowerCase())
+              return false
+            })
+
+            if (hasDuplicates) {
+              // Use Headers API to properly handle duplicate headers
+              const headersInit = new Headers()
+              activeHeaders.forEach((h) => {
+                headersInit.append(h.key, h.value)
+              })
+              headers = headersInit
+            } else {
+              // No duplicates - simple object is fine
+              headers = Object.fromEntries(
+                activeHeaders.map((h) => [h.key, h.value])
+              )
+            }
+          } else if (typeof urlOrRequest.header === "object") {
+            // Plain object format: { 'Content-Type': 'application/json' }
+            headers = urlOrRequest.header
+          }
+        }
+
+        options = {
+          method: urlOrRequest.method || "GET",
+          headers,
+        }
+
+        // Handle body based on mode
+        if (urlOrRequest.body) {
+          if (urlOrRequest.body.mode === "raw") {
+            options.body = urlOrRequest.body.raw
+          } else if (urlOrRequest.body.mode === "urlencoded") {
+            const params = new URLSearchParams()
+            urlOrRequest.body.urlencoded?.forEach((pair) => {
+              params.append(pair.key, pair.value)
+            })
+            options.body = params.toString()
+            // Use .set() for Headers instance, bracket notation for plain object
+            if (options.headers instanceof Headers) {
+              options.headers.set(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+              )
+            } else {
+              options.headers["Content-Type"] =
+                "application/x-www-form-urlencoded"
+            }
+          } else if (urlOrRequest.body.mode === "formdata") {
+            const formData = new FormData()
+            urlOrRequest.body.formdata?.forEach((pair) => {
+              formData.append(pair.key, pair.value)
+            })
+            options.body = formData
+          }
+        }
+      }
+
+      // Track request start time for responseTime calculation
+      const startTime = Date.now()
+
+      // Call hopp.fetch() and adapt response
+      globalThis.hopp
+        .fetch(url, options)
+        .then(async (response) => {
+          // Convert Response to Postman response format
+          try {
+            const body = await response.text()
+            // Calculate response metrics
+            const responseTime = Date.now() - startTime
+            const responseSize = new Blob([body]).size
+
+            // Handle Set-Cookie headers specially as they can appear multiple times
+            // The Fetch API's headers.entries() may not properly enumerate multiple Set-Cookie headers
+            // Use getSetCookie() if available (modern Fetch API), otherwise fall back to entries()
+            let headerEntries = []
+            if (
+              response.headers &&
+              typeof response.headers.getSetCookie === "function"
+            ) {
+              // Modern Fetch API - getSetCookie() returns array of Set-Cookie values
+              const setCookies = response.headers.getSetCookie()
+              const otherHeaders = Array.from(response.headers.entries())
+                .filter(([k]) => k.toLowerCase() !== "set-cookie")
+                .map(([k, v]) => ({ key: k, value: v }))
+
+              // Add each Set-Cookie as a separate header entry
+              headerEntries = [
+                ...otherHeaders,
+                ...setCookies.map((value) => ({ key: "Set-Cookie", value })),
+              ]
+            } else {
+              // Fallback: use entries() for all headers
+              headerEntries = Array.from(response.headers.entries()).map(
+                ([k, v]) => ({ key: k, value: v })
+              )
+            }
+
+            // For Postman compatibility and test expectations, expose raw header entries array.
+            // Attach helper methods (get/has) directly onto the array to mimic Postman SDK convenience APIs
+            const headersArray = headerEntries.slice()
+            try {
+              Object.defineProperty(headersArray, "has", {
+                value: (name) => {
+                  const lowerName = String(name).toLowerCase()
+                  return headerEntries.some(
+                    (h) => h.key.toLowerCase() === lowerName
+                  )
+                },
+                enumerable: false,
+                configurable: true,
+              })
+              Object.defineProperty(headersArray, "get", {
+                value: (name) => {
+                  const lowerName = String(name).toLowerCase()
+                  const header = headerEntries.find(
+                    (h) => h.key.toLowerCase() === lowerName
+                  )
+                  return header ? header.value : null
+                },
+                enumerable: false,
+                configurable: true,
+              })
+            } catch (_e) {
+              // Non-fatal; plain array works for E2E expectations
+            }
+
+            const pmResponse = {
+              code: response.status,
+              status: response.statusText,
+              headers: headersArray, // Array with helper methods
+              body,
+              responseTime: responseTime,
+              responseSize: responseSize,
+              text: () => body,
+              json: () => {
+                try {
+                  return JSON.parse(body)
+                } catch {
+                  return null
+                }
+              },
+              // Parse cookies from Set-Cookie headers (matching pm.response.cookies implementation)
+              cookies: {
+                get: (name) => {
+                  // Parse cookies from Set-Cookie headers in the response
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  for (const header of setCookieHeaders) {
+                    const cookieStr = header.value
+                    const cookieName = cookieStr.split("=")[0].trim()
+                    if (cookieName === name) {
+                      // Extract cookie value (everything after first =, before first ;)
+                      const parts = cookieStr.split(";")
+                      const [, ...valueRest] = parts[0].split("=")
+                      const value = valueRest.join("=").trim()
+                      return value
+                    }
+                  }
+                  return null
+                },
+                has: (name) => {
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  for (const header of setCookieHeaders) {
+                    const cookieName = header.value.split("=")[0].trim()
+                    if (cookieName === name) {
+                      return true
+                    }
+                  }
+                  return false
+                },
+                toObject: () => {
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  const cookies = {}
+                  for (const header of setCookieHeaders) {
+                    const parts = header.value.split(";")
+                    const [nameValue] = parts
+                    const [name, ...valueRest] = nameValue.split("=")
+                    const value = valueRest.join("=").trim()
+                    cookies[name.trim()] = value
+                  }
+                  return cookies
+                },
+              },
+            }
+
+            callback(null, pmResponse)
+          } catch (textError) {
+            // Handle response.text() errors
+            callback(textError, null)
+          }
+        })
+        .catch((error) => {
+          callback(error, null)
+        })
     },
 
     // Collection variables (unsupported)

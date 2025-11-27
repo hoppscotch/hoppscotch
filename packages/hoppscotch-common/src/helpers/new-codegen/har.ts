@@ -67,12 +67,17 @@ const buildHarPostParams = (
   return req.body.body.flatMap((entry) => {
     if (entry.isFile) {
       // We support multiple files
-      return entry.value.map(
+      const values = Array.isArray(entry.value) ? entry.value : [entry.value]
+      return values.map(
         (file) =>
           <Har.Param>{
             name: entry.key,
             fileName: entry.key, // TODO: Blob doesn't contain file info, anyway to bring file name here ?
-            contentType: entry.contentType ? entry.contentType : file?.type,
+            contentType: entry.contentType
+              ? entry.contentType
+              : typeof file === "object" && file && "type" in file
+                ? file.type
+                : undefined,
           }
       )
     }
@@ -80,7 +85,7 @@ const buildHarPostParams = (
     if (entry.contentType) {
       return {
         name: entry.key,
-        value: entry.value,
+        value: entry.value as string,
         fileName: entry.key,
         contentType: entry.contentType,
       }
@@ -88,7 +93,7 @@ const buildHarPostParams = (
 
     return {
       name: entry.key,
-      value: entry.value,
+      value: entry.value as string,
       contentType: entry.contentType,
     }
   })
@@ -111,7 +116,7 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
 
   return {
     mimeType: req.body.contentType, // Let's assume by default content type is JSON
-    text: req.body.body,
+    text: (req.body.body as string) ?? "",
   }
 }
 

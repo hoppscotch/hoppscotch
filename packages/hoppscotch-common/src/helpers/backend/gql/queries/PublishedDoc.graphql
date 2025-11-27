@@ -1,0 +1,22 @@
+query PublishedDoc($id: ID!) {
+  publishedDoc(id: $id) {
+    id
+    title
+    version
+    autoSync
+    url
+    metadata
+    createdOn
+    updatedOn
+    creator {
+      uid
+      displayName
+      email
+      photoURL
+    }
+    collection {
+      id
+      title
+    }
+  }
+}

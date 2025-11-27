@@ -1,6 +1,6 @@
 import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
-import { runDispatchWithOutSyncing } from "@lib/sync"
-import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/desktop"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 
 import {
   exportUserCollectionsToJSON,
@@ -23,7 +23,7 @@ import {
   ReqType,
   UserCollectionDuplicatedData,
   UserRequest,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import {
   addGraphqlCollection,
@@ -98,7 +98,7 @@ function initCollectionsSync() {
   })
 }
 
-type ExportedUserCollectionREST = {
+export type ExportedUserCollectionREST = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionREST[]
@@ -107,7 +107,7 @@ type ExportedUserCollectionREST = {
   data: string
 }
 
-type ExportedUserCollectionGQL = {
+export type ExportedUserCollectionGQL = {
   id?: string
   _ref_id?: string
   folders: ExportedUserCollectionGQL[]
@@ -125,7 +125,7 @@ function addDescriptionField(
   }))
 }
 
-function exportedCollectionToHoppCollection(
+export function exportedCollectionToHoppCollection(
   collection: ExportedUserCollectionREST | ExportedUserCollectionGQL,
   collectionType: "REST" | "GQL"
 ): HoppCollection {
@@ -140,12 +140,13 @@ function exportedCollectionToHoppCollection(
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
             variables: [],
+            description: null,
           }
 
     return {
       id: restCollection.id,
       _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      v: 10,
+      v: 11,
       name: restCollection.name,
       folders: restCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -170,6 +171,8 @@ function exportedCollectionToHoppCollection(
           testScript,
           requestVariables,
           responses,
+          description,
+          _ref_id,
         } = request
 
         const resolvedParams = addDescriptionField(params)
@@ -189,11 +192,14 @@ function exportedCollectionToHoppCollection(
           preRequestScript,
           testScript,
           responses,
+          description: description ?? null,
+          _ref_id: _ref_id ?? generateUniqueRefId("req"),
         }
       }),
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
+      description: data.description ?? null,
     }
   } else {
     const gqlCollection = collection as ExportedUserCollectionGQL
@@ -206,12 +212,13 @@ function exportedCollectionToHoppCollection(
             headers: [],
             _ref_id: generateUniqueRefId("coll"),
             variables: [],
+            description: null,
           }
 
     return {
       id: gqlCollection.id,
       _ref_id: data._ref_id ?? generateUniqueRefId("coll"),
-      v: 10,
+      v: 11,
       name: gqlCollection.name,
       folders: gqlCollection.folders.map((folder) =>
         exportedCollectionToHoppCollection(folder, collectionType)
@@ -240,6 +247,7 @@ function exportedCollectionToHoppCollection(
       auth: data.auth,
       headers: addDescriptionField(data.headers),
       variables: data.variables ?? [],
+      description: data.description ?? null,
     }
   }
 }
@@ -398,21 +406,23 @@ function setupUserCollectionCreatedSubscription() {
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 10,
+                v: 11,
                 _ref_id: data._ref_id,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
                 variables: data.variables ?? [],
+                description: data.description ?? null,
               })
             : addRESTCollection({
                 name: res.right.userCollectionCreated.title,
                 folders: [],
                 requests: [],
-                v: 10,
+                v: 11,
                 _ref_id: data._ref_id,
                 auth: data.auth,
                 headers: addDescriptionField(data.headers),
                 variables: data.variables ?? [],
+                description: data.description ?? null,
               })
 
           const localIndex = collectionStore.value.state.length - 1
@@ -615,13 +625,14 @@ function setupUserCollectionDuplicatedSubscription() {
         )
 
       // Incoming data transformed to the respective internal representations
-      const { auth, headers, variables } =
+      const { auth, headers, variables, description } =
         data && data != "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
               variables: [],
+              description: null,
             }
       // Duplicated collection will have a unique ref id
       const _ref_id = generateUniqueRefId("coll")
@@ -638,11 +649,12 @@ function setupUserCollectionDuplicatedSubscription() {
         name,
         folders,
         requests,
-        v: 10,
+        v: 11,
         _ref_id,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
+        description: description ?? null,
       }
 
       // only folders will have parent collection id
@@ -1016,8 +1028,11 @@ function setupUserRequestDeletedSubscription() {
   return userRequestDeletedSub
 }
 
+import { importToPersonalWorkspace } from "./import"
+
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  importToPersonalWorkspace,
 }
 
 function getCollectionPathFromCollectionID(
@@ -1106,13 +1121,14 @@ function transformDuplicatedCollections(
       requests: userRequests,
       title: name,
     }) => {
-      const { auth, headers, variables } =
+      const { auth, headers, variables, description } =
         data && data !== "null"
           ? JSON.parse(data)
           : {
               auth: { authType: "inherit", authActive: true },
               headers: [],
               variables: [],
+              description: null,
             }
 
       const _ref_id = generateUniqueRefId("coll")
@@ -1127,10 +1143,11 @@ function transformDuplicatedCollections(
         folders,
         requests,
         _ref_id,
-        v: 10,
+        v: 11,
         auth,
         headers: addDescriptionField(headers),
         variables: variables ?? [],
+        description: description ?? null,
       }
     }
   )

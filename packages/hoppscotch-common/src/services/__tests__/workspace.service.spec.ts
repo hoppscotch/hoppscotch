@@ -37,6 +37,18 @@ vi.mock("../team-collection.service", () => ({
   },
 }))
 
+// Mock DocumentationService
+vi.mock("../documentation.service", () => ({
+  DocumentationService: class MockDocumentationService {
+    static readonly ID = "DOCUMENTATION_SERVICE"
+
+    fetchTeamPublishedDocs = vi.fn()
+    fetchUserPublishedDocs = vi.fn()
+
+    onServiceInit = vi.fn()
+  },
+}))
+
 describe("WorkspaceService", () => {
   const platformMock = {
     auth: {
@@ -252,13 +264,14 @@ describe("WorkspaceService", () => {
     })
   })
 
-  describe("Team Collection Service Synchronization", () => {
-    it("should call changeTeamID when workspace changes to a team workspace", async () => {
+  describe("Workspace Synchronization", () => {
+    it("should call changeTeamID and fetchTeamPublishedDocs when workspace changes to a team workspace", async () => {
       const container = new TestContainer()
       const service = container.bind(WorkspaceService)
 
-      // Access the team collection service mock
+      // Access the mocks
       const teamCollectionServiceMock = (service as any).teamCollectionService
+      const documentationServiceMock = (service as any).documentationService
 
       // Change to team workspace
       service.changeWorkspace({
@@ -273,9 +286,12 @@ describe("WorkspaceService", () => {
       expect(teamCollectionServiceMock.changeTeamID).toHaveBeenCalledWith(
         "team-123"
       )
+      expect(
+        documentationServiceMock.fetchTeamPublishedDocs
+      ).toHaveBeenCalledWith("team-123")
     })
 
-    it("should call clearCollections when workspace changes to personal workspace", async () => {
+    it("should call clearCollections and fetchUserPublishedDocs when workspace changes to personal workspace", async () => {
       const container = new TestContainer()
       const service = container.bind(WorkspaceService)
 
@@ -290,7 +306,10 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       const teamCollectionServiceMock = (service as any).teamCollectionService
+      const documentationServiceMock = (service as any).documentationService
+
       teamCollectionServiceMock.clearCollections.mockClear()
+      documentationServiceMock.fetchUserPublishedDocs.mockClear()
 
       // Change to personal workspace
       service.changeWorkspace({
@@ -300,13 +319,15 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       expect(teamCollectionServiceMock.clearCollections).toHaveBeenCalled()
+      expect(documentationServiceMock.fetchUserPublishedDocs).toHaveBeenCalled()
     })
 
-    it("should call clearCollections when workspace changes to team workspace without teamID", async () => {
+    it("should call clearCollections and fetchUserPublishedDocs when workspace changes to team workspace without teamID", async () => {
       const container = new TestContainer()
       const service = container.bind(WorkspaceService)
 
       const teamCollectionServiceMock = (service as any).teamCollectionService
+      const documentationServiceMock = (service as any).documentationService
 
       // Change to team workspace without teamID
       service.changeWorkspace({
@@ -319,6 +340,7 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       expect(teamCollectionServiceMock.clearCollections).toHaveBeenCalled()
+      expect(documentationServiceMock.fetchUserPublishedDocs).toHaveBeenCalled()
     })
 
     it("should not sync when workspaces are effectively the same", async () => {
@@ -336,7 +358,10 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       const teamCollectionServiceMock = (service as any).teamCollectionService
+      const documentationServiceMock = (service as any).documentationService
+
       teamCollectionServiceMock.changeTeamID.mockClear()
+      documentationServiceMock.fetchTeamPublishedDocs.mockClear()
 
       // Change to same team workspace (different name, same ID)
       service.changeWorkspace({
@@ -348,11 +373,14 @@ describe("WorkspaceService", () => {
 
       await nextTick()
 
-      // Should not call changeTeamID again since it's the same team
+      // Should not call sync methods again since it's the same team
       expect(teamCollectionServiceMock.changeTeamID).not.toHaveBeenCalled()
+      expect(
+        documentationServiceMock.fetchTeamPublishedDocs
+      ).not.toHaveBeenCalled()
     })
 
-    it("should handle errors during team collection service sync gracefully", async () => {
+    it("should handle errors during synchronization gracefully", async () => {
       const container = new TestContainer()
       const service = container.bind(WorkspaceService)
 
@@ -376,7 +404,7 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to sync team collections:",
+        "Failed to sync team collections and published docs:",
         expect.any(Error)
       )
 

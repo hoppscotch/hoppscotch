@@ -1,0 +1,14 @@
+query UserPublishedDocsList($skip: Int!, $take: Int!) {
+  userPublishedDocsList(skip: $skip, take: $take) {
+    id
+    title
+    version
+    autoSync
+    url
+    collection {
+      id
+    }
+    createdOn
+    updatedOn
+  }
+}

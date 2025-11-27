@@ -7,12 +7,7 @@ let
     else pkgs;
 
   darwinPackages = with pkgs; [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.CoreServices
-    darwin.apple_sdk.frameworks.CoreFoundation
-    darwin.apple_sdk.frameworks.Foundation
-    darwin.apple_sdk.frameworks.AppKit
-    darwin.apple_sdk.frameworks.WebKit
+    apple-sdk
   ];
 
   linuxPackages = with pkgs; [
@@ -33,7 +28,7 @@ in {
     # NOTE: In case there's `Cannot find module: ... bcrypt ...` error, try `npm rebuild bcrypt`
     # See: https://github.com/kelektiv/node.bcrypt.js/issues/800
     # See: https://github.com/kelektiv/node.bcrypt.js/issues/1055
-    nodejs_20
+    nodejs_22
     nodePackages.typescript-language-server
     nodePackages."@volar/vue-language-server"
     nodePackages.prisma
@@ -167,10 +162,14 @@ in {
       enable = true;
     };
     javascript = {
-      package = pkgs.nodejs_20;
+      package = pkgs.nodejs_22;
       enable = true;
       npm.enable = true;
       pnpm.enable = true;
+    };
+    go = {
+      enable = true;
+      package = pkgs.go_1_24;
     };
     rust = {
       enable = true;

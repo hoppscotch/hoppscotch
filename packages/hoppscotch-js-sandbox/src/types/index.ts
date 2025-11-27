@@ -192,6 +192,7 @@ export type RunPreRequestScriptOptions =
       request: HoppRESTRequest
       cookies: Cookie[] | null // Exclusive to the Desktop App
       experimentalScriptingSandbox: true
+      hoppFetchHook?: HoppFetchHook // Optional hook for hopp.fetch() implementation
     }
   | {
       envs: TestResult["envs"]
@@ -202,6 +203,7 @@ export type RunPostRequestScriptOptions =
   | {
       envs: TestResult["envs"]
       request: HoppRESTRequest
+      hoppFetchHook?: HoppFetchHook // Optional hook for hopp.fetch() implementation
       response: TestResponse
       cookies: Cookie[] | null // Exclusive to the Desktop App
       experimentalScriptingSandbox: true
@@ -339,3 +341,32 @@ export interface BaseInputs
   getUpdatedCookies: () => Cookie[] | null
   [key: string]: SandboxValue // Index signature for dynamic namespace properties
 }
+
+/**
+ * Metadata about a fetch() call made during script execution
+ */
+export type FetchCallMeta = {
+  url: string
+  method: string
+  timestamp: number
+}
+
+/**
+ * Hook function for implementing hopp.fetch() / pm.sendRequest()
+ *
+ * This hook is called when scripts invoke fetch APIs. Implementations
+ * differ by environment:
+ * - Web app: Routes through KernelInterceptorService (respects interceptor preference)
+ * - CLI: Uses axios directly for network requests
+ *
+ * Signature matches standard Fetch API to be compatible with faraday-cage's
+ * fetch module requirements.
+ *
+ * @param input - The URL to fetch (string, URL, or Request object)
+ * @param init - Standard Fetch API options (method, headers, body, etc.)
+ * @returns Promise<Response> - Standard Fetch API Response object
+ */
+export type HoppFetchHook = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>

@@ -249,6 +249,26 @@ export class PublishedDocsService {
   }
 
   /**
+   * Cleanup orphaned published documents whose collections no longer exist
+   */
+  private async cleanupOrphanedPublishedDocs<
+    T extends { id: string; collectionID: string },
+  >(docs: T[], existingCollectionIDs: Set<string>): Promise<T[]> {
+    const docsToDelete = docs.filter(
+      (doc) => !existingCollectionIDs.has(doc.collectionID),
+    );
+
+    if (docsToDelete.length > 0) {
+      const idsToDelete = docsToDelete.map((doc) => doc.id);
+      this.prisma.publishedDocs.deleteMany({
+        where: { id: { in: idsToDelete } },
+      });
+    }
+
+    return docs.filter((doc) => existingCollectionIDs.has(doc.collectionID));
+  }
+
+  /**
    * Get all published documents for a user with pagination
    * @param userUid - The UID of the user
    * @param args - Pagination arguments
@@ -266,7 +286,29 @@ export class PublishedDocsService {
       },
     });
 
-    return docs.map((doc) => this.cast(doc));
+    if (docs.length === 0) return [];
+
+    // Cross-check if all collections exist
+    const collectionIDs = docs.map((doc) => doc.collectionID);
+    const existingCollections = await this.prisma.userCollection.findMany({
+      where: {
+        id: { in: collectionIDs },
+        userUid,
+      },
+      select: { id: true },
+    });
+
+    const existingCollectionIDs = new Set(
+      existingCollections.map((col) => col.id),
+    );
+
+    const validDocs = await this.cleanupOrphanedPublishedDocs<DbPublishedDocs>(
+      docs,
+      existingCollectionIDs,
+    );
+
+    // Return only docs with existing collections
+    return validDocs.map((doc) => this.cast(doc));
   }
 
   /**
@@ -290,7 +332,29 @@ export class PublishedDocsService {
       },
     });
 
-    return docs.map((doc) => this.cast(doc));
+    if (docs.length === 0) return [];
+
+    // Cross-check if all collections exist
+    const collectionIDs = docs.map((doc) => doc.collectionID);
+    const existingCollections = await this.prisma.teamCollection.findMany({
+      where: {
+        id: { in: collectionIDs },
+        teamID,
+      },
+      select: { id: true },
+    });
+
+    const existingCollectionIDs = new Set(
+      existingCollections.map((col) => col.id),
+    );
+
+    const validDocs = await this.cleanupOrphanedPublishedDocs<DbPublishedDocs>(
+      docs,
+      existingCollectionIDs,
+    );
+
+    // Return only docs with existing collections
+    return validDocs.map((doc) => this.cast(doc));
   }
 
   /**

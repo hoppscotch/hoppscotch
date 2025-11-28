@@ -112,39 +112,49 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   }
 
   /**
-   * Sets up synchronization with team collection service and documentation service
-   * This ensures team collections and published docs are updated when workspace changes
-   * This watch for user changes so the initial fetch is done when the user logs and pass the correct auth credentials
-   * There was a bug where the initial fetch was not done when the user logs in cloud instance causing the getUserPublishedDocs to fail
+   * Sets up synchronization between team collection service and documentation service.
+   * Ensures that team collections and published docs stay updated whenever
+   * the workspace or user changes.
+   *
+   * Fixes a bug where the initial fetch failed on cloud instances because
+   * authorization was null during user login. Now we wait for authentication
+   * to be ready before fetching team collections and published docs.
    */
   private setupWorkspaceSync() {
     watch(
       [this._currentWorkspace, this.currentUser],
-      ([newWorkspace, user], [oldWorkspace, oldUser]) => {
-        // Skip update if workspaces are effectively the same and user hasn't changed
+      async ([newWorkspace, user], [oldWorkspace, oldUser]) => {
+        // Skip if workspace and user haven't changed
         if (
           this.areWorkspacesEqual(newWorkspace, oldWorkspace) &&
           user?.uid === oldUser?.uid
-        )
+        ) {
           return
+        }
 
         try {
-          if (newWorkspace.type === "team" && newWorkspace.teamID) {
+          // Ensure authentication is ready before fetching docs
+          if (user) {
+            await platform.auth.waitProbableLoginToConfirm()
+          }
+
+          if (newWorkspace?.type === "team" && newWorkspace.teamID) {
             this.teamCollectionService.changeTeamID(newWorkspace.teamID)
-            this.documentationService.fetchTeamPublishedDocs(
-              newWorkspace.teamID
-            )
+
+            if (user) {
+              await this.documentationService.fetchTeamPublishedDocs(
+                newWorkspace.teamID
+              )
+            }
           } else {
             this.teamCollectionService.clearCollections()
+
             if (user) {
-              this.documentationService.fetchUserPublishedDocs()
+              await this.documentationService.fetchUserPublishedDocs()
             }
           }
         } catch (error) {
-          console.error(
-            "Failed to sync team collections and published docs:",
-            error
-          )
+          console.error("Failed to sync workspace data:", error)
         }
       },
       { immediate: true }

@@ -114,6 +114,8 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   /**
    * Sets up synchronization with team collection service and documentation service
    * This ensures team collections and published docs are updated when workspace changes
+   * This watch for user changes so the initial fetch is done when the user logs and pass the correct auth credentials
+   * There was a bug where the initial fetch was not done when the user logs in cloud instance causing the getUserPublishedDocs to fail
    */
   private setupWorkspaceSync() {
     watch(

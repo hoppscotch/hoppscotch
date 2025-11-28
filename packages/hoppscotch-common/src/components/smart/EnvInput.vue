@@ -451,13 +451,13 @@ function envAutoCompletion(context: CompletionContext) {
 
   const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
   const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
-  const tagBefore = /<<\$?\w*$/.exec(textBefore) // Update regex to match <<$ as well
+  const tagBefore = /<<\$?[A-Za-z0-9_.-]*$/.exec(textBefore) // Update regex to match <<$ as well
 
   if (!tagBefore && !context.explicit) return null
   return {
     from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
     options: options,
-    validFor: /^(<<\$?\w*)?$/,
+    validFor: /^(<<\$?[A-Za-z0-9_.-]*)?$/,
   }
 }
 

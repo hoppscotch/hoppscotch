@@ -393,12 +393,14 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
 const isLoading = ref(false)
 
 const saveTeam = async () => {
+  if (isLoading.value) return
   isLoading.value = true
-  if (editingName.value !== "") {
-    if (TeamNameCodec.is(editingName.value)) {
+  const trimmedName = editingName.value.trim()
+  if (trimmedName !== "") {
+    if (TeamNameCodec.is(trimmedName)) {
       const updateTeamNameResult = await renameTeam(
         props.editingTeamID,
-        editingName.value
+        trimmedName
       )()
       if (E.isLeft(updateTeamNameResult)) {
         toast.error(`${t("error.something_went_wrong")}`)

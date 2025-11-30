@@ -107,25 +107,18 @@ let code: number
 let kind: string
 let pendingComments: JSONCommentValue[] = []
 
-export default function jsonParse(
-  str: string
-): JSONObjectValue | JSONArrayValue {
+export default function jsonParse(str: string) {
   string = str
   strLen = str.length
   start = end = lastEnd = -1
-  pendingComments = [] // Reset pending comments
+  pendingComments = []
+
   ch()
   lex()
-  try {
-    const ast = parseObj()
-    expect("EOF")
-    return ast
-  } catch (e) {
-    pendingComments = [] // Reset pending comments
-    const ast = parseArr()
-    expect("EOF")
-    return ast
-  }
+
+  const ast = parseVal()
+  expect("EOF")
+  return ast
 }
 
 function parseObj(): JSONObjectValue {
@@ -139,17 +132,24 @@ function parseObj(): JSONObjectValue {
   let first = true
   while (!skip("}")) {
     if (!first) {
-      // Expect a comma between members
+      // Store the comma token range before consuming it
+      const commaStart = start
+      const commaEnd = end
+
       expect(",")
 
-      // After comma, check for closing brace (handling trailing comma)
-      if (skip("}")) {
-        break
+      // After consuming ",", if the next token is "}", this is a trailing comma
+      if (kind === "}") {
+        // After consuming ",", if the next token is "}", this is a trailing comma
+        throw {
+          message: "Trailing comma in object is not allowed in JSON.",
+          start: commaStart,
+          end: commaEnd,
+        } satisfies SyntaxError
       }
     }
     first = false
 
-    // Capture any comments before the member
     const memberComments = [...pendingComments]
     pendingComments = []
 
@@ -187,12 +187,20 @@ function parseArr(): JSONArrayValue {
   let first = true
   while (!skip("]")) {
     if (!first) {
-      // Expect a comma between values
+      // Store the current token range before consuming the comma
+      const commaStart = start
+      const commaEnd = end
+
       expect(",")
 
-      // After comma, check for closing bracket (handling trailing comma)
-      if (skip("]")) {
-        break
+      // After consuming ",", if the next token is "]", this is a trailing comma
+      if (kind === "]") {
+        // Throw with the comma token location instead of the next token
+        throw {
+          message: "Trailing comma in array is not allowed in JSON.",
+          start: commaStart,
+          end: commaEnd,
+        } satisfies SyntaxError
       }
     }
     first = false

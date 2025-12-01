@@ -77,7 +77,7 @@ const t = useI18n()
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
   isEditable: boolean
-  isTestRunner: boolean
+  isTestRunner?: boolean
 }>()
 
 const emit = defineEmits<{

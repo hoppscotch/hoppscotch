@@ -74,7 +74,7 @@ const props = defineProps<{
     type: "success" | "fail"
   }
   isEditable: boolean
-  isTestRunner: boolean
+  isTestRunner?: boolean
 }>()
 
 const emit = defineEmits<{

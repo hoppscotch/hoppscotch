@@ -143,7 +143,7 @@ const props = defineProps<{
   isSavable: boolean
   isEditable: boolean
   tabId: string
-  isTestRunner: boolean
+  isTestRunner?: boolean
 }>()
 
 const { containerRef } = useScrollerRef(

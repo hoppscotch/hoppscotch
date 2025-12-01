@@ -121,9 +121,36 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         (env) => env.key === parsedEnvKey
       )
       const currentSelectedEnvironment = getCurrentEnvironment()
-      const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
+      // For collection variables, use parentName if available, otherwise fallback to sourceEnv
+      const envName =
+        tooltipEnv?.sourceEnv === "CollectionVariable" && tooltipEnv?.parentName
+          ? tooltipEnv.parentName
+          : tooltipEnv?.sourceEnv === "CollectionVariable"
+            ? "Collection Variable"
+            : (tooltipEnv?.sourceEnv ?? "Choose an Environment")
 
-      let envInitialValue = tooltipEnv?.initialValue
+      // Convert AggregateEnvironment[] to Environment["variables"] format for parsing
+      // For collection variables, exclude other collection variables to prevent circular references
+      const envVarsForParsing =
+        tooltipEnv?.sourceEnv === "CollectionVariable"
+          ? aggregateEnvs
+              .filter((env) => env.sourceEnv !== "CollectionVariable")
+              .map((env) => ({
+                key: env.key,
+                initialValue: env.initialValue || "",
+                currentValue: env.currentValue || env.initialValue || "",
+                secret: env.secret || false,
+              }))
+          : aggregateEnvs.map((env) => ({
+              key: env.key,
+              initialValue: env.initialValue || "",
+              currentValue: env.currentValue || env.initialValue || "",
+              secret: env.secret || false,
+            }))
+
+      // Get initial value - for collection variables, resolve it if it contains env var references
+      let envInitialValue = tooltipEnv?.initialValue || ""
+
       // If the environment is not a request variable, get the current value from the current environment service
       let envCurrentValue =
         tooltipEnv?.sourceEnv !== "RequestVariable"
@@ -132,8 +159,54 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
                 ? currentSelectedEnvironment.id
                 : "Global",
               tooltipEnv?.key ?? ""
-            )?.currentValue || tooltipEnv?.currentValue
-          : tooltipEnv?.currentValue
+            )?.currentValue ||
+            tooltipEnv?.currentValue ||
+            tooltipEnv?.initialValue ||
+            ""
+          : tooltipEnv?.currentValue || tooltipEnv?.initialValue || ""
+
+      // For collection variables, resolve both initial and current values against environment variables
+      // This is done BEFORE secret/not found checks so the resolved values are used
+      if (tooltipEnv?.sourceEnv === "CollectionVariable") {
+        // Always try to resolve initialValue - it might contain environment variable references
+        // Check if it contains env vars by testing the regex (reset lastIndex first since it's global)
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+        const hasEnvVarsInInitial = HOPP_ENVIRONMENT_REGEX.test(envInitialValue)
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+
+        if (
+          envInitialValue &&
+          hasEnvVarsInInitial &&
+          envVarsForParsing.length > 0
+        ) {
+          const parsedInitial = parseTemplateStringE(
+            envInitialValue,
+            envVarsForParsing
+          )
+          if (E.isRight(parsedInitial)) {
+            envInitialValue = parsedInitial.right
+          }
+        }
+
+        // Resolve currentValue if it contains environment variable references (in case it wasn't already resolved)
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+        const hasEnvVarsInCurrent = HOPP_ENVIRONMENT_REGEX.test(envCurrentValue)
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+
+        if (
+          envCurrentValue &&
+          hasEnvVarsInCurrent &&
+          envVarsForParsing.length > 0
+        ) {
+          const parsedCurrent = parseTemplateStringE(
+            envCurrentValue,
+            envVarsForParsing
+          )
+          if (E.isRight(parsedCurrent)) {
+            envCurrentValue = parsedCurrent.right
+          }
+        }
+      }
 
       const isSecret = tooltipEnv?.secret === true
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
@@ -172,23 +245,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         envInitialValue = "Not Found"
         envCurrentValue = "Not Found"
       } else {
-        // Parse templates only if needed and values are not already masked
+        // Fallback: if currentValue is empty, use initialValue
         if (!envCurrentValue && envInitialValue) {
-          const parsedInitial = parseTemplateStringE(
-            envInitialValue,
-            aggregateEnvs
-          )
-          envInitialValue = E.isLeft(parsedInitial)
-            ? "error"
-            : parsedInitial.right
-        } else if (!envInitialValue && envCurrentValue) {
-          const parsedCurrent = parseTemplateStringE(
-            envCurrentValue,
-            aggregateEnvs
-          )
-          envCurrentValue = E.isLeft(parsedCurrent)
-            ? "error"
-            : parsedCurrent.right
+          envCurrentValue = envInitialValue
         }
       }
 
@@ -209,9 +268,52 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const appendEditAction = (tooltip: HTMLElement) => {
         const editIcon = document.createElement("button")
+        editIcon.type = "button"
         editIcon.className =
-          "ml-2 cursor-pointer text-accent hover:text-accentDark"
-        editIcon.addEventListener("click", () => {
+          "ml-2 cursor-pointer text-accent hover:text-accentDark inline-flex items-center justify-center"
+        editIcon.setAttribute("aria-label", "Edit variable")
+        // Set innerHTML with icon, with fallback text
+        if (IconEdit && typeof IconEdit === "string") {
+          editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
+        } else {
+          // Fallback: use text if icon fails to load
+          editIcon.textContent = "✎"
+          editIcon.title = "Edit variable"
+        }
+
+        editIcon.addEventListener("click", (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          // Handle collection variables - navigate to collections page
+          if (tooltipEnv?.sourceEnv === "CollectionVariable") {
+            const currentTab = restTabs.currentActiveTab.value
+            if (
+              currentTab.document.type === "request" ||
+              currentTab.document.type === "example-response"
+            ) {
+              const inheritedProps = currentTab.document.inheritedProperties
+              if (inheritedProps && tooltipEnv.sourceEnvID) {
+                // Navigate to collections page - the user can then find and edit the collection
+                invokeAction("navigation.jump.rest")
+                // Show a toast message to guide the user
+                // Note: We can't directly open the collection properties modal from here
+                // as it requires the collection component context
+              }
+            }
+            return
+          }
+
+          // Handle request variables
+          if (
+            tooltipEnv?.sourceEnv === "RequestVariable" &&
+            restTabs.currentActiveTab.value.document.type === "request"
+          ) {
+            restTabs.currentActiveTab.value.document.optionTabPreference =
+              "requestVariables"
+            return
+          }
+
+          // Handle environment variables (Global, My Env, Team Env)
           let invokeActionType:
             | "modals.my.environment.edit"
             | "modals.team.environment.edit"
@@ -227,23 +329,15 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             invokeActionType = "modals.my.environment.edit"
           }
 
-          if (
-            tooltipEnv?.sourceEnv === "RequestVariable" &&
-            restTabs.currentActiveTab.value.document.type === "request"
-          ) {
-            restTabs.currentActiveTab.value.document.optionTabPreference =
-              "requestVariables"
-          } else {
-            invokeAction(invokeActionType, {
-              envName: tooltipEnv?.sourceEnv === "Global" ? "Global" : envName,
-              variableName: parsedEnvKey,
-              isSecret: tooltipEnv?.secret,
-            })
-          }
+          invokeAction(invokeActionType, {
+            envName: tooltipEnv?.sourceEnv === "Global" ? "Global" : envName,
+            variableName: parsedEnvKey,
+            isSecret: tooltipEnv?.secret,
+          })
         })
-        editIcon.innerHTML = `<span class="inline-flex items-center justify-center my-1">${IconEdit}</span>`
-        if (tooltipEnv?.sourceEnv !== "CollectionVariable")
-          tooltip.appendChild(editIcon)
+
+        // Show edit icon for all variable types including collection variables
+        tooltip.appendChild(editIcon)
       }
 
       return {
@@ -321,9 +415,32 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
   let className = HOPP_ENV_HIGHLIGHT_NOT_FOUND
-  const envSource = aggregateEnvs.find(
-    (k: { key: string }) => k.key === env.slice(2, -2)
-  )?.sourceEnv
+  const envKey = env.slice(2, -2)
+
+  // Prioritize variables in this order: RequestVariable > EnvironmentVariable > CollectionVariable > Global
+  // This ensures environment variables (green) take precedence over collection variables (purple)
+  const requestVar = aggregateEnvs.find(
+    (k: { key: string; sourceEnv: string }) =>
+      k.key === envKey && k.sourceEnv === "RequestVariable"
+  )
+  const envVar = aggregateEnvs.find(
+    (k: { key: string; sourceEnv: string }) =>
+      k.key === envKey &&
+      k.sourceEnv !== "RequestVariable" &&
+      k.sourceEnv !== "CollectionVariable" &&
+      k.sourceEnv !== "Global"
+  )
+  const collectionVar = aggregateEnvs.find(
+    (k: { key: string; sourceEnv: string }) =>
+      k.key === envKey && k.sourceEnv === "CollectionVariable"
+  )
+  const globalVar = aggregateEnvs.find(
+    (k: { key: string; sourceEnv: string }) =>
+      k.key === envKey && k.sourceEnv === "Global"
+  )
+
+  const matchedEnv = requestVar || envVar || collectionVar || globalVar
+  const envSource = matchedEnv?.sourceEnv
 
   if (envSource === "RequestVariable")
     className = HOPP_REQUEST_VARIABLE_HIGHLIGHT
@@ -416,7 +533,16 @@ export class HoppEnvironmentPlugin {
           document.variables
         )
 
-        this.envs = [...requestAndCollVars, ...aggregateEnvs]
+        // Prioritize environment variables over collection variables when they have the same key
+        // This ensures that environment variables (green) take precedence over collection variables (purple)
+        const envVarKeys = new Set(aggregateEnvs.map((env) => env.key))
+        const filteredCollVars = requestAndCollVars.filter(
+          (collVar) =>
+            collVar.sourceEnv !== "CollectionVariable" ||
+            !envVarKeys.has(collVar.key)
+        )
+
+        this.envs = [...filteredCollVars, ...aggregateEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
@@ -434,7 +560,15 @@ export class HoppEnvironmentPlugin {
     )
 
     subscribeToStream(aggregateEnvsWithCurrentValue$, (envs) => {
-      this.envs = [...requestAndCollVars, ...envs]
+      // Prioritize environment variables over collection variables when they have the same key
+      const envVarKeys = new Set(envs.map((env) => env.key))
+      const filteredCollVars = requestAndCollVars.filter(
+        (collVar) =>
+          collVar.sourceEnv !== "CollectionVariable" ||
+          !envVarKeys.has(collVar.key)
+      )
+
+      this.envs = [...filteredCollVars, ...envs]
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([

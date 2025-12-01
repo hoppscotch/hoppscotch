@@ -421,6 +421,7 @@ export type AggregateEnvironment = {
   secret: boolean
   sourceEnv: string
   sourceEnvID?: string
+  parentName?: string
 }
 
 /**
@@ -454,10 +455,12 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
     selectedEnv?.variables.forEach((variable) => {
       const { key, secret } = variable
-      const currentValue =
-        "currentValue" in variable ? variable.currentValue : ""
       const initialValue =
         "initialValue" in variable ? variable.initialValue : ""
+      const currentValue =
+        ("currentValue" in variable ? variable.currentValue : "") ||
+        initialValue ||
+        ""
 
       if (!aggregateEnvKeys.includes(key)) {
         effectiveAggregateEnvs.push({
@@ -472,10 +475,12 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 
     globalEnv.variables.forEach((variable) => {
       const { key, secret } = variable
-      const currentValue =
-        "currentValue" in variable ? variable.currentValue : ""
       const initialValue =
         "initialValue" in variable ? variable.initialValue : ""
+      const currentValue =
+        ("currentValue" in variable ? variable.currentValue : "") ||
+        initialValue ||
+        ""
 
       if (!aggregateEnvKeys.includes(key)) {
         effectiveAggregateEnvs.push({
@@ -510,7 +515,7 @@ export function getAggregateEnvs() {
     ...currentEnv.variables.map((x) => {
       let currentValue = ""
       if (!x.secret) {
-        currentValue = x.currentValue
+        currentValue = x.currentValue || x.initialValue || ""
       }
 
       return <AggregateEnvironment>{
@@ -524,7 +529,7 @@ export function getAggregateEnvs() {
     ...getGlobalVariables().map((x) => {
       let currentValue = ""
       if (!x.secret) {
-        currentValue = x.currentValue
+        currentValue = x.currentValue || x.initialValue || ""
       }
       return <AggregateEnvironment>{
         key: x.key,
@@ -555,7 +560,7 @@ export function getAggregateEnvsWithCurrentValue() {
     }),
 
     ...currentEnv.variables.map((x, index) => {
-      let currentValue = x.currentValue
+      let currentValue = x.currentValue || x.initialValue || ""
       let initialValue = x.initialValue
       if (x.secret) {
         currentValue =
@@ -577,14 +582,15 @@ export function getAggregateEnvsWithCurrentValue() {
           currentEnvironmentValueService.getEnvironmentVariableValue(
             currentEnv.id,
             index
-          ) ?? currentValue,
+          ) ??
+          (currentValue || initialValue || ""),
         initialValue: x.initialValue ?? initialValue,
         secret: x.secret,
         sourceEnv: currentEnv.name,
       }
     }),
     ...getGlobalVariables().map((x, index) => {
-      let currentValue = x.currentValue
+      let currentValue = x.currentValue || x.initialValue || ""
       let initialValue = x.initialValue
       if (x.secret) {
         currentValue =
@@ -605,7 +611,8 @@ export function getAggregateEnvsWithCurrentValue() {
           currentEnvironmentValueService.getEnvironmentVariableValue(
             "Global",
             index
-          ) ?? currentValue,
+          ) ??
+          (currentValue || initialValue || ""),
         initialValue: x.initialValue ?? initialValue,
         secret: x.secret,
         sourceEnv: "Global",
@@ -636,7 +643,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
       })
 
       selectedEnv?.variables.map((x, index) => {
-        let currentValue = x.currentValue
+        let currentValue = x.currentValue || x.initialValue || ""
         let initialValue = x.initialValue
         if (x.secret) {
           currentValue =
@@ -657,7 +664,8 @@ export const aggregateEnvsWithCurrentValue$: Observable<
             currentEnvironmentValueService.getEnvironmentVariableValue(
               selectedEnv.id,
               index
-            ) ?? currentValue,
+            ) ??
+            (currentValue || initialValue || ""),
           initialValue: x.initialValue ?? initialValue,
           secret: x.secret,
           sourceEnv: selectedEnv.name,
@@ -665,7 +673,7 @@ export const aggregateEnvsWithCurrentValue$: Observable<
       })
 
       globalEnv.variables.map((x, index) => {
-        let currentValue = x.currentValue
+        let currentValue = x.currentValue || x.initialValue || ""
         let initialValue = x.initialValue
         if (x.secret) {
           currentValue =
@@ -686,7 +694,8 @@ export const aggregateEnvsWithCurrentValue$: Observable<
             currentEnvironmentValueService.getEnvironmentVariableValue(
               "Global",
               index
-            ) ?? currentValue,
+            ) ??
+            (currentValue || initialValue || ""),
           initialValue: x.initialValue ?? initialValue,
           secret: x.secret,
           sourceEnv: "Global",

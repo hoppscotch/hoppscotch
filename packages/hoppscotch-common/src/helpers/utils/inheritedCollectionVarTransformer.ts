@@ -40,18 +40,23 @@ export const transformInheritedCollectionVariablesToAggregateEnv = (
   showSecret: boolean = true
 ): AggregateEnvironment[] => {
   // Flatten the inherited variables into a single array
-  const flattened = variables.flatMap(({ parentID, inheritedVariables }) =>
-    inheritedVariables.map(
-      ({ currentValue, initialValue, key, secret }, index) => ({
-        key,
-        currentValue:
-          getCurrentValue(secret, index, parentID, showSecret) ?? currentValue,
-        initialValue,
-        sourceEnv: "CollectionVariable",
-        secret,
-        sourceEnvID: parentID,
-      })
-    )
+  const flattened = variables.flatMap(
+    ({ parentID, parentName, inheritedVariables }) =>
+      inheritedVariables.map(
+        ({ currentValue, initialValue, key, secret }, index) => {
+          const resolvedCurrentValue =
+            getCurrentValue(secret, index, parentID, showSecret) ?? currentValue
+          return {
+            key,
+            currentValue: resolvedCurrentValue || initialValue || "",
+            initialValue,
+            sourceEnv: "CollectionVariable",
+            secret,
+            sourceEnvID: parentID,
+            parentName: parentName,
+          }
+        }
+      )
   )
 
   // Later values override earlier ones

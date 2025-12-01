@@ -119,6 +119,9 @@ export function parseTemplateStringE(
     depth <= ENV_MAX_EXPAND_LIMIT &&
     !isSecret
   ) {
+    // 1. Store the current state to detect if expansion actually changed anything
+    const currentResult = result
+
     result = decodeURI(encodeURI(result)).replace(REGEX_ENV_VAR, (_, p1) => {
       // Prioritise predefined variable values over normal environment variables processing.
       const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
@@ -139,22 +142,23 @@ export function parseTemplateStringE(
         }
         // Mask the value if it is a secret and explicitly specified
         if (variable.secret && maskValue) {
-          return "*".repeat(
-            (
-              variable as {
-                secret: true
-                initialValue: string
-                currentValue: string
-                key: string
-              }
-            ).currentValue.length
-          )
+          const valueToMask =
+            variable.currentValue || variable.initialValue || ""
+          return "*".repeat(valueToMask.length)
         }
-        return variable.currentValue
+        return variable.currentValue || variable.initialValue || ""
       }
 
-      return ""
+      // 2. FIX: Return the original tag if not found, instead of empty string
+      return `<<${p1}>>`
     })
+
+    // 3. FIX: Break the loop if the string didn't change
+    // This prevents an infinite loop (or hitting the recursion limit) when variables are missing.
+    if (result === currentResult) {
+      break
+    }
+
     depth++
   }
 

@@ -437,7 +437,18 @@ const envVars = computed(() => {
       secret: false,
     }))
 
-  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
+  // Prioritize environment variables over collection variables when they have the same key
+  // This ensures that environment variables (green) take precedence over collection variables (purple)
+  const envVarKeys = new Set(aggregateEnvs.value.map((env) => env.key))
+  const filteredCollectionVariables = collectionVariables.filter(
+    (collVar) => !envVarKeys.has(collVar.key)
+  )
+
+  return [
+    ...requestVariables,
+    ...filteredCollectionVariables,
+    ...aggregateEnvs.value,
+  ]
 })
 
 function envAutoCompletion(context: CompletionContext) {

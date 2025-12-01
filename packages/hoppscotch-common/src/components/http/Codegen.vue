@@ -114,7 +114,9 @@ import {
   HoppRESTAuth,
   HoppRESTHeaders,
   makeRESTRequest,
+  parseTemplateStringE,
 } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { computed, reactive, ref } from "vue"
 import {
@@ -148,6 +150,7 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { getCurrentEnvironment } from "../../newstore/environments"
 import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
 import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
+import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 
 const t = useI18n()
 
@@ -250,14 +253,54 @@ const buildFinalEnvironment = (): Environment => {
       secret: false,
     }))
 
+  // Convert environment variables to the format needed for parsing collection variables
+  const envVarsForParsing = aggregateEnvs.map((env) => ({
+    key: env.key,
+    initialValue: env.initialValue || "",
+    currentValue: getCurrentValue(env) || env.initialValue || "",
+    secret: env.secret || false,
+  }))
+
   const collectionVariables =
     transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables).map(
-      ({ key, initialValue, currentValue, secret }) => ({
-        key,
-        initialValue,
-        currentValue,
-        secret,
-      })
+      ({ key, initialValue, currentValue, secret }) => {
+        // Resolve collection variable values that contain environment variable references
+        // This prevents collection variables with values like <<baseUrl>> from showing unresolved
+        let resolvedInitialValue = initialValue
+        let resolvedCurrentValue = currentValue
+
+        // Reset regex lastIndex since it's global
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+        if (initialValue && HOPP_ENVIRONMENT_REGEX.test(initialValue)) {
+          HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+          const parsedInitial = parseTemplateStringE(
+            initialValue,
+            envVarsForParsing
+          )
+          if (E.isRight(parsedInitial)) {
+            resolvedInitialValue = parsedInitial.right
+          }
+        }
+
+        HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+        if (currentValue && HOPP_ENVIRONMENT_REGEX.test(currentValue)) {
+          HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+          const parsedCurrent = parseTemplateStringE(
+            currentValue,
+            envVarsForParsing
+          )
+          if (E.isRight(parsedCurrent)) {
+            resolvedCurrentValue = parsedCurrent.right
+          }
+        }
+
+        return {
+          key,
+          initialValue: resolvedInitialValue,
+          currentValue: resolvedCurrentValue,
+          secret,
+        }
+      }
     )
 
   const environmentVariables = aggregateEnvs.map((env) => ({

@@ -6,6 +6,7 @@ import {
   HoppRESTHeaders,
   HoppRESTRequest,
   HoppRESTRequestVariable,
+  parseTemplateStringE,
 } from "@hoppscotch/data"
 import {
   SandboxPreRequestResult,
@@ -326,8 +327,45 @@ const getTransformedEnvs = (
 }
 
 /**
+ * Checks if a value is a placeholder (contains <<...>> pattern)
+ */
+const isPlaceholderValue = (value: string): boolean => {
+  return /<<[^>]+>>/.test(value)
+}
+
+/**
+ * Resolves placeholder values (<<variableName>>) to actual values using available environment variables.
+ * @param value The value that may contain placeholders
+ * @param allEnvs All available environment variables for resolution
+ * @returns The resolved value, or the original value if resolution fails
+ */
+const resolvePlaceholderValue = (
+  value: string,
+  allEnvs: Environment["variables"]
+): string => {
+  if (!isPlaceholderValue(value)) {
+    return value
+  }
+
+  // Try to resolve the placeholder using parseTemplateStringE
+  const resolved = parseTemplateStringE(value, allEnvs)
+
+  // If resolution succeeded, use the resolved value
+  // parseTemplateStringE will resolve placeholders recursively and return the resolved value
+  // If some placeholders can't be resolved, they remain as placeholders in the result
+  if (E.isRight(resolved)) {
+    return resolved.right
+  }
+
+  // If resolution failed (e.g., expansion loop), return original
+  return value
+}
+
+/**
  * Transforms the environment list to a list with unique keys with value
  * and set currentValue as initialValue if currentValue is empty.
+ * Resolves placeholder values (<<...>>) to actual values before filtering.
+ * Prioritizes actual values over unresolved placeholder values.
  * @param envs The environment list to be transformed
  * @returns The transformed environment list with keys with value
  */
@@ -335,22 +373,52 @@ export const filterNonEmptyEnvironmentVariables = (
   envs: Environment["variables"]
 ): Environment["variables"] => {
   const envsMap = new Map<string, Environment["variables"][number]>()
-  envs.forEach((env) => {
+
+  // First pass: resolve all placeholder values using all available environment variables
+  const resolvedEnvs = envs.map((env) => {
     const transformedEnv = getTransformedEnvs(env)
+    const currentValue =
+      transformedEnv.currentValue || transformedEnv.initialValue || ""
 
-    if (envsMap.has(transformedEnv.key)) {
-      const existingEnv = envsMap.get(transformedEnv.key)
+    // Resolve placeholder values to actual values
+    const resolvedCurrentValue = resolvePlaceholderValue(currentValue, envs)
+    const resolvedInitialValue = resolvePlaceholderValue(
+      transformedEnv.initialValue || "",
+      envs
+    )
 
+    return {
+      ...transformedEnv,
+      currentValue: resolvedCurrentValue,
+      initialValue: resolvedInitialValue || transformedEnv.initialValue || "",
+    }
+  })
+
+  // Second pass: filter and deduplicate with resolved values
+  resolvedEnvs.forEach((env) => {
+    const currentValue = env.currentValue || env.initialValue || ""
+
+    if (envsMap.has(env.key)) {
+      const existingEnv = envsMap.get(env.key)
+      if (!existingEnv) return
+
+      const existingValue =
+        existingEnv.currentValue || existingEnv.initialValue || ""
+      const existingIsPlaceholder = isPlaceholderValue(existingValue)
+      const newIsPlaceholder = isPlaceholderValue(currentValue)
+
+      // Replace if:
+      // 1. Existing value is empty and new value is not empty
+      // 2. Existing value is a placeholder and new value is not a placeholder (prioritize actual values)
       if (
-        existingEnv &&
-        "currentValue" in existingEnv &&
-        existingEnv.currentValue === "" &&
-        transformedEnv.currentValue !== ""
+        (existingValue === "" && currentValue !== "") ||
+        (existingIsPlaceholder && !newIsPlaceholder)
       ) {
-        envsMap.set(transformedEnv.key, transformedEnv)
+        envsMap.set(env.key, env)
       }
+      // Otherwise keep the existing one (first occurrence wins for same type)
     } else {
-      envsMap.set(transformedEnv.key, transformedEnv)
+      envsMap.set(env.key, env)
     }
   })
 
@@ -534,6 +602,35 @@ export function runRESTRequest$(
       name: "Env",
       variables: finalEnvsWithNonEmptyValues,
     })
+
+    // Construct the full URL with query parameters for logging
+    const baseURL = effectiveRequest.effectiveFinalURL
+    const activeParams = effectiveRequest.effectiveFinalParams.filter(
+      (param) => param.active && param.key
+    )
+
+    let fullURL = baseURL
+    if (activeParams.length > 0) {
+      const queryString = activeParams
+        .map(
+          (param) =>
+            `${encodeURIComponent(param.key)}=${encodeURIComponent(param.value)}`
+        )
+        .join("&")
+      const separator = baseURL.includes("?") ? "&" : "?"
+      fullURL = `${baseURL}${separator}${queryString}`
+    }
+
+    // Log the complete URL that will be used for the request
+    console.log("[Hoppscotch Request] Method:", effectiveRequest.method)
+    console.log("[Hoppscotch Request] Complete URL:", fullURL)
+    console.log("[Hoppscotch Request] Base URL:", baseURL)
+    if (activeParams.length > 0) {
+      console.log(
+        "[Hoppscotch Request] Query Parameters:",
+        activeParams.map((p) => `${p.key}=${p.value}`).join("&")
+      )
+    }
 
     const [stream, cancelRun] =
       await createRESTNetworkRequestStream(effectiveRequest)

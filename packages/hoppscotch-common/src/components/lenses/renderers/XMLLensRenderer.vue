@@ -143,7 +143,7 @@ const emit = defineEmits<{
 
 /**
  * Erases the response body.
- * Do not erase if the tab in an saved example or test runner.
+ * Do not erase if the tab is a saved example or test runner.
  *
  */
 const eraseResponse = () => {

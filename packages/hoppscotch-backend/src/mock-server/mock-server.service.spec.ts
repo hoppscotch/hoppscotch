@@ -2,6 +2,8 @@ import { MockServerService } from './mock-server.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { MockServerAnalyticsService } from './mock-server-analytics.service';
+import { TeamCollectionService } from '../team-collection/team-collection.service';
+import { UserCollectionService } from '../user-collection/user-collection.service';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import * as E from 'fp-ts/Either';
 import {
@@ -17,9 +19,9 @@ import {
   UserCollection,
   TeamCollection,
   UserRequest,
+  User,
 } from 'src/generated/prisma/client';
 import { WorkspaceType } from '../types/WorkspaceTypes';
-import { User } from '../user/user.model';
 import {
   CreateMockServerInput,
   UpdateMockServerInput,
@@ -28,17 +30,23 @@ import {
 const mockPrisma = mockDeep<PrismaService>();
 const mockAnalyticsService = mockDeep<MockServerAnalyticsService>();
 const mockConfigService = mockDeep<ConfigService>();
+const mockTeamCollectionService = mockDeep<TeamCollectionService>();
+const mockUserCollectionService = mockDeep<UserCollectionService>();
 
 const mockServerService = new MockServerService(
-  mockAnalyticsService,
-  mockPrisma,
   mockConfigService,
+  mockPrisma,
+  mockAnalyticsService,
+  mockTeamCollectionService,
+  mockUserCollectionService,
 );
 
 beforeEach(() => {
   mockReset(mockPrisma);
   mockReset(mockAnalyticsService);
   mockReset(mockConfigService);
+  mockReset(mockTeamCollectionService);
+  mockReset(mockUserCollectionService);
 
   // Default config values
   mockConfigService.get.mockImplementation((key: string) => {
@@ -57,6 +65,7 @@ const user: User = {
   email: 'test@example.com',
   photoURL: null,
   isAdmin: false,
+  refreshToken: null,
   currentGQLSession: '{}',
   currentRESTSession: '{}',
   createdOn: currentTime,

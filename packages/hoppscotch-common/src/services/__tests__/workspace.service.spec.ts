@@ -54,6 +54,7 @@ describe("WorkspaceService", () => {
     auth: {
       getCurrentUserStream: vi.fn(),
       getCurrentUser: vi.fn(),
+      waitProbableLoginToConfirm: vi.fn().mockResolvedValue(undefined),
     },
   }
 
@@ -267,6 +268,13 @@ describe("WorkspaceService", () => {
   describe("Workspace Synchronization", () => {
     it("should call changeTeamID and fetchTeamPublishedDocs when workspace changes to a team workspace", async () => {
       const container = new TestContainer()
+
+      // Mock user for this test
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "test-user" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject({ uid: "test-user" })
+      )
+
       const service = container.bind(WorkspaceService)
 
       // Access the mocks
@@ -418,7 +426,7 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to sync team collections and published docs:",
+        "Failed to sync workspace data:",
         expect.any(Error)
       )
 

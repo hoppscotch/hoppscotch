@@ -309,8 +309,6 @@ export class MockServerService {
     user: AuthUser,
     input: CreateMockServerInput,
   ) {
-    if (!input.collectionID) return E.left(MOCK_SERVER_INVALID_COLLECTION);
-
     if (input.workspaceType === WorkspaceType.USER) {
       const userColl = await this.userCollectionService.createUserCollection(
         user,

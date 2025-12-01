@@ -140,7 +140,6 @@ function parseObj(): JSONObjectValue {
 
       // After consuming ",", if the next token is "}", this is a trailing comma
       if (kind === "}") {
-        // After consuming ",", if the next token is "}", this is a trailing comma
         throw {
           message: "Trailing comma in object is not allowed in JSON.",
           start: commaStart,

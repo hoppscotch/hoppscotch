@@ -12,7 +12,7 @@
     <Pane
       :size="SIDEBAR && hasSidebar ? PANE_MAIN_SIZE : 100"
       min-size="65"
-      class="flex flex-col !overflow-auto"
+      class="flex flex-col !overflow-hidden"
     >
       <Splitpanes
         class="smart-splitter"
@@ -21,7 +21,7 @@
       >
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
-          class="flex flex-col !overflow-auto"
+          class="flex flex-col !overflow-hidden"
           :min-size="isEmbed ? 12 : 25"
         >
           <slot name="primary" />
@@ -29,7 +29,7 @@
         <Pane
           v-if="hasSecondary"
           :size="PANE_MAIN_BOTTOM_SIZE"
-          class="flex flex-col !overflow-auto"
+          class="flex flex-col !overflow-hidden"
           min-size="25"
         >
           <slot name="secondary" />

@@ -467,7 +467,7 @@ const saveAsExample = () => {
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
 
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable) emit("update:response", null)
 }
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(

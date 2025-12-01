@@ -140,7 +140,7 @@ const emit = defineEmits<{
 }>()
 
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable) emit("update:response", null)
 }
 
 const { responseBodyText } = useResponseBody(props.response)

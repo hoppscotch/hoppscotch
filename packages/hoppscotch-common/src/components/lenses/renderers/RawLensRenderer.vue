@@ -167,7 +167,7 @@ const saveAsExample = () => {
 }
 
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable) emit("update:response", null)
 }
 
 const responseType = computed(() =>

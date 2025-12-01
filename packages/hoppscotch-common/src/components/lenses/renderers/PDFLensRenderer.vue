@@ -98,7 +98,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 )
 
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable) emit("update:response", null)
 }
 
 defineActionHandler("response.file.download", () => downloadResponse())

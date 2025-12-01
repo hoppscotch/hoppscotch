@@ -27,6 +27,7 @@ import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorat
 import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
+import { INVALID_PARAMS } from 'src/errors';
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
@@ -154,6 +155,13 @@ export class MockServerResolver {
     @Args('input') input: CreateMockServerInput,
     @GqlUser() user: AuthUser,
   ): Promise<MockServer> {
+    if (
+      (input.collectionID && input.autoCreateCollection) ||
+      (!input.collectionID && !input.autoCreateCollection)
+    ) {
+      throwErr(INVALID_PARAMS);
+    }
+
     const result = await this.mockServerService.createMockServer(user, input);
 
     if (E.isLeft(result)) throwErr(result.left);

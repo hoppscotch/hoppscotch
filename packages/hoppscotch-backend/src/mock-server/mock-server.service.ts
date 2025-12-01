@@ -283,6 +283,8 @@ export class MockServerService {
     user: AuthUser,
     input: CreateMockServerInput,
   ) {
+    if (!input.collectionID) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+
     if (input.workspaceType === WorkspaceType.TEAM) {
       const collection = await this.prisma.teamCollection.findUnique({
         where: { id: input.collectionID, teamID: input.workspaceID },
@@ -306,6 +308,8 @@ export class MockServerService {
     user: AuthUser,
     input: CreateMockServerInput,
   ) {
+    if (!input.collectionID) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+
     if (input.workspaceType === WorkspaceType.USER) {
       await this.userCollectionService.createUserCollection(
         user,
@@ -348,6 +352,13 @@ export class MockServerService {
 
       // Auto-create collection if needed
       if (input.autoCreateCollection) {
+        const isCollectionCreated = await this.createAutoCollection(
+          user,
+          input,
+        );
+        if (E.isLeft(isCollectionCreated)) {
+          return E.left(isCollectionCreated.left);
+        }
       }
 
       // Create mock server

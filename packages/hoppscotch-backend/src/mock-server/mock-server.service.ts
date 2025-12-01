@@ -18,6 +18,7 @@ import {
   MOCK_SERVER_DELETION_FAILED,
   MOCK_SERVER_LOG_NOT_FOUND,
   MOCK_SERVER_LOG_DELETION_FAILED,
+  MOCK_SERVER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
@@ -311,21 +312,29 @@ export class MockServerService {
     if (!input.collectionID) return E.left(MOCK_SERVER_INVALID_COLLECTION);
 
     if (input.workspaceType === WorkspaceType.USER) {
-      await this.userCollectionService.createUserCollection(
+      const userColl = await this.userCollectionService.createUserCollection(
         user,
         input.name,
         null,
         null,
         ReqType.REST,
       );
+
+      if (E.isLeft(userColl)) return E.left(userColl.left);
+      return E.right({ id: userColl.right.id });
     } else if (input.workspaceType === WorkspaceType.TEAM) {
-      await this.teamCollectionService.createCollection(
+      const teamColl = await this.teamCollectionService.createCollection(
         input.workspaceID,
         input.name,
         null,
         null,
       );
+
+      if (E.isLeft(teamColl)) return E.left(teamColl.left);
+      return E.right({ id: teamColl.right.id });
     }
+
+    return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
   }
 
   /**
@@ -351,14 +360,14 @@ export class MockServerService {
       }
 
       // Auto-create collection if needed
+      let collectionID = input.collectionID;
       if (input.autoCreateCollection) {
-        const isCollectionCreated = await this.createAutoCollection(
-          user,
-          input,
-        );
-        if (E.isLeft(isCollectionCreated)) {
-          return E.left(isCollectionCreated.left);
+        const newCollection = await this.createAutoCollection(user, input);
+
+        if (E.isLeft(newCollection)) {
+          return E.left(newCollection.left);
         }
+        collectionID = newCollection.right.id;
       }
 
       // Create mock server
@@ -368,7 +377,7 @@ export class MockServerService {
           name: input.name,
           subdomain,
           creatorUid: user.uid,
-          collectionID: input.collectionID,
+          collectionID,
           workspaceType: input.workspaceType,
           workspaceID:
             input.workspaceType === WorkspaceType.TEAM

@@ -1234,4 +1234,68 @@ export class TeamCollectionsService extends Service<void> {
 
     return { auth, headers, variables }
   }
+
+  private async waitForCollectionLoading(collectionID: string) {
+    while (this.loadingCollections.value.includes(collectionID)) {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+  }
+
+  /**
+   * Used to obtain the inherited auth and headers for a given folder path
+   * This function is async and will expand the collections if they are not expanded yet
+   * @param folderPath the path of the folder to cascade the auth from
+   * @returns the inherited auth and headers for the given folder path
+   */
+  public async cascadeParentCollectionForPropertiesAsync(folderPath: string) {
+    if (!folderPath)
+      return {
+        auth: {
+          parentID: "",
+          parentName: "",
+          inheritedAuth: {
+            authType: "none",
+            authActive: true,
+          },
+        },
+        headers: [],
+        variables: [],
+      }
+
+    const path = folderPath.split("/")
+
+    // Check if the path is empty or invalid
+    if (!path || path.length === 0) {
+      console.error("Invalid path:", folderPath)
+      return {
+        auth: {
+          parentID: "",
+          parentName: "",
+          inheritedAuth: {
+            authType: "none",
+            authActive: true,
+          },
+        },
+        headers: [],
+        variables: [],
+      }
+    }
+
+    // Loop through the path and expand the collections if they are not expanded
+    for (let i = 0; i < path.length; i++) {
+      const parentFolder = findCollInTree(this.collections.value, path[i])
+
+      if (parentFolder) {
+        if (parentFolder.children === null) {
+          if (this.loadingCollections.value.includes(parentFolder.id)) {
+            await this.waitForCollectionLoading(parentFolder.id)
+          } else {
+            await this.expandCollection(parentFolder.id)
+          }
+        }
+      }
+    }
+
+    return this.cascadeParentCollectionForProperties(folderPath)
+  }
 }

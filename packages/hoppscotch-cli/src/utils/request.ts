@@ -339,6 +339,34 @@ export const processRequest =
       const { envs, testsReport, duration } = testRunnerRes.right;
       const _hasFailedTestCases = hasFailedTestCases(testsReport);
 
+      // Check if any tests have uncaught runtime errors (e.g., ReferenceError, TypeError)
+      // Don't include validation errors (they're reported as individual testcases)
+      const testScriptErrors = testsReport.flatMap((testReport) =>
+        testReport.expectResults
+          .filter(
+            (result) =>
+              result.status === "error" &&
+              /^(ReferenceError|TypeError|SyntaxError|RangeError|URIError|EvalError|AggregateError|InternalError|Error):/.test(
+                result.message
+              )
+          )
+          .map((result) => result.message)
+      );
+
+      // If there are runtime errors, add them to report.errors
+      if (testScriptErrors.length > 0) {
+        const errorMessages = testScriptErrors.join("; ");
+
+        report.errors.push(
+          error({
+            code: "TEST_SCRIPT_ERROR",
+            data: errorMessages,
+          })
+        );
+
+        report.result = false;
+      }
+
       // Updating report with current tests, result and duration.
       report.tests = testsReport;
       report.result = report.result && _hasFailedTestCases;

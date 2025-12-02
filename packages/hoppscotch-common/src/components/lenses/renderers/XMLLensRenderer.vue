@@ -6,9 +6,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -16,7 +15,6 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -25,7 +23,7 @@
           @click="downloadResponse"
         />
         <HoppButtonSecondary
-          v-if="response.body && !isEditable"
+          v-if="!isEditable"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="
             isSavable
@@ -41,7 +39,6 @@
           @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -49,6 +46,34 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <tippy
+          v-if="!isEditable"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => responseMoreActionsTippy?.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="responseMoreActionsTippy"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
 
@@ -61,6 +86,8 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { computed, ref, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -103,7 +130,18 @@ const { containerRef } = useScrollerRef(
 
 const emit = defineEmits<{
   (e: "save-as-example"): void
+  (
+    e: "update:response",
+    val:
+      | (HoppRESTResponse & { type: "success" | "fail" })
+      | HoppRESTRequestResponse
+      | null
+  ): void
 }>()
+
+const eraseResponse = () => {
+  emit("update:response", null)
+}
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -158,6 +196,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const xmlResponse = ref<any | null>(null)
+const responseMoreActionsTippy = ref<HTMLElement | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
 
 const saveAsExample = () => {
@@ -184,4 +223,5 @@ defineActionHandler("response.copy", () => copyResponse())
 defineActionHandler("response.save-as-example", () => {
   props.isSavable ? saveAsExample() : null
 })
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

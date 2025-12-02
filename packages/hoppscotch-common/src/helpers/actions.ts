@@ -70,6 +70,7 @@ export type HoppAction =
   | "response.schema.toggle" // Toggle response data schema
   | "response.file.download" // Download response as file
   | "response.copy" // Copy response to clipboard
+  | "response.erase" // Erase/clear response
   | "response.save" // Save response
   | "response.save-as-example" // Save response as example
   | "modals.login.toggle" // Login to Hoppscotch

@@ -26,7 +26,7 @@ import {
   MockServerAction,
   TeamAccessRole,
   MockServer as dbMockServer,
-} from '@prisma/client';
+} from 'src/generated/prisma/client';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { ConfigService } from '@nestjs/config';
 import { MockServerAnalyticsService } from './mock-server-analytics.service';

@@ -7,9 +7,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': WRAP_LINES }"
@@ -17,7 +16,6 @@
           @click.prevent="toggleNestedSetting('WRAP_LINES', 'httpResponseBody')"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -42,7 +40,6 @@
           @click="isSavable ? saveAsExample() : null"
         />
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
@@ -50,6 +47,34 @@
           :icon="copyIcon"
           @click="copyResponse"
         />
+        <tippy
+          v-if="showResponse && !isEditable"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => responseMoreActionsTippy?.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="responseMoreActionsTippy"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
     <div
@@ -64,6 +89,8 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 import { ref, computed, reactive } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -139,6 +166,10 @@ const saveAsExample = () => {
   emit("save-as-example")
 }
 
+const eraseResponse = () => {
+  emit("update:response", null)
+}
+
 const responseType = computed(() =>
   pipe(
     props.response,
@@ -178,6 +209,7 @@ const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
 const WRAP_LINES = useNestedSetting("WRAP_LINES", "httpResponseBody")
+const responseMoreActionsTippy = ref<HTMLElement | null>(null)
 
 useCodemirror(
   rawResponse,
@@ -202,4 +234,5 @@ useCodemirror(
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

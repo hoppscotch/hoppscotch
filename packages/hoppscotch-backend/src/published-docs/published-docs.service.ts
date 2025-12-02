@@ -14,8 +14,9 @@ import {
   PUBLISHED_DOCS_INVALID_COLLECTION,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
+  TEAM_INVALID_COLL_ID,
   TEAM_INVALID_ID,
-  USERS_NOT_FOUND,
+  USER_COLL_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import { PublishedDocs } from './published-docs.model';
@@ -155,9 +156,16 @@ export class PublishedDocsService {
     const user = await this.prisma.user.findUnique({
       where: { uid: publishedDocs.creatorUid },
     });
-    if (!user) return E.left(USERS_NOT_FOUND);
 
-    return E.right(user);
+    const creator = user
+      ? {
+          ...user,
+          currentGQLSession: JSON.stringify(user.currentGQLSession),
+          currentRESTSession: JSON.stringify(user.currentRESTSession),
+        }
+      : null;
+
+    return E.right(creator);
   }
 
   /**
@@ -235,7 +243,20 @@ export class PublishedDocsService {
               query.tree === TreeLevel.FULL,
             );
 
-      if (E.isLeft(collectionResult)) return E.left(collectionResult.left);
+      if (E.isLeft(collectionResult)) {
+        // Delete the published doc if its collection is missing
+        const isCollectionNotFound =
+          collectionResult.left === USER_COLL_NOT_FOUND ||
+          collectionResult.left === TEAM_INVALID_COLL_ID;
+
+        if (isCollectionNotFound) {
+          await this.prisma.publishedDocs.delete({
+            where: { id: publishedDocs.id },
+          });
+        }
+
+        return E.left(collectionResult.left);
+      }
 
       return E.right(
         this.cast({
@@ -246,6 +267,26 @@ export class PublishedDocsService {
     }
 
     return E.right(this.cast(publishedDocs));
+  }
+
+  /**
+   * Cleanup orphaned published documents whose collections no longer exist
+   */
+  private async cleanupOrphanedPublishedDocs<
+    T extends { id: string; collectionID: string },
+  >(docs: T[], existingCollectionIDs: Set<string>): Promise<T[]> {
+    const docsToDelete = docs.filter(
+      (doc) => !existingCollectionIDs.has(doc.collectionID),
+    );
+
+    if (docsToDelete.length > 0) {
+      const idsToDelete = docsToDelete.map((doc) => doc.id);
+      this.prisma.publishedDocs.deleteMany({
+        where: { id: { in: idsToDelete } },
+      });
+    }
+
+    return docs.filter((doc) => existingCollectionIDs.has(doc.collectionID));
   }
 
   /**
@@ -266,7 +307,29 @@ export class PublishedDocsService {
       },
     });
 
-    return docs.map((doc) => this.cast(doc));
+    if (docs.length === 0) return [];
+
+    // Cross-check if all collections exist
+    const collectionIDs = docs.map((doc) => doc.collectionID);
+    const existingCollections = await this.prisma.userCollection.findMany({
+      where: {
+        id: { in: collectionIDs },
+        userUid,
+      },
+      select: { id: true },
+    });
+
+    const existingCollectionIDs = new Set(
+      existingCollections.map((col) => col.id),
+    );
+
+    const validDocs = await this.cleanupOrphanedPublishedDocs<DbPublishedDocs>(
+      docs,
+      existingCollectionIDs,
+    );
+
+    // Return only docs with existing collections
+    return validDocs.map((doc) => this.cast(doc));
   }
 
   /**
@@ -290,7 +353,29 @@ export class PublishedDocsService {
       },
     });
 
-    return docs.map((doc) => this.cast(doc));
+    if (docs.length === 0) return [];
+
+    // Cross-check if all collections exist
+    const collectionIDs = docs.map((doc) => doc.collectionID);
+    const existingCollections = await this.prisma.teamCollection.findMany({
+      where: {
+        id: { in: collectionIDs },
+        teamID,
+      },
+      select: { id: true },
+    });
+
+    const existingCollectionIDs = new Set(
+      existingCollections.map((col) => col.id),
+    );
+
+    const validDocs = await this.cleanupOrphanedPublishedDocs<DbPublishedDocs>(
+      docs,
+      existingCollectionIDs,
+    );
+
+    // Return only docs with existing collections
+    return validDocs.map((doc) => this.cast(doc));
   }
 
   /**

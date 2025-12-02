@@ -34,6 +34,7 @@ export class PublishedDocsResolver {
 
   @ResolveField(() => User, {
     description: 'Returns the creator of the published document',
+    nullable: true,
   })
   async creator(@Parent() publishedDocs: PublishedDocs): Promise<User> {
     const creator = await this.publishedDocsService.getPublishedDocsCreator(
@@ -41,11 +42,7 @@ export class PublishedDocsResolver {
     );
 
     if (E.isLeft(creator)) throwErr(creator.left);
-    return {
-      ...creator.right,
-      currentGQLSession: JSON.stringify(creator.right.currentGQLSession),
-      currentRESTSession: JSON.stringify(creator.right.currentRESTSession),
-    };
+    return creator.right;
   }
 
   @ResolveField(() => PublishedDocsCollection, {

@@ -342,8 +342,10 @@ export class MockServerService {
     user: AuthUser,
     input: CreateMockServerInput,
   ): Promise<E.Either<string, MockServer>> {
+    let collectionID;
     try {
       // Validate workspace type and ID
+
       const workspaceValidation = await this.validateWorkspace(user, input);
       if (E.isLeft(workspaceValidation)) {
         return E.left(workspaceValidation.left);
@@ -358,10 +360,8 @@ export class MockServerService {
       }
 
       // Auto-create collection if needed
-      let collectionID = input.collectionID;
       if (input.autoCreateCollection) {
         const newCollection = await this.createAutoCollection(user, input);
-
         if (E.isLeft(newCollection)) {
           return E.left(newCollection.left);
         }
@@ -375,7 +375,7 @@ export class MockServerService {
           name: input.name,
           subdomain,
           creatorUid: user.uid,
-          collectionID,
+          collectionID: input.collectionID ?? collectionID,
           workspaceType: input.workspaceType,
           workspaceID:
             input.workspaceType === WorkspaceType.TEAM
@@ -394,6 +394,16 @@ export class MockServerService {
     } catch (error) {
       if (error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION) {
         return this.createMockServer(user, input); // Retry on subdomain conflict
+      }
+      if (input.autoCreateCollection && collectionID) {
+        if (input.workspaceType === WorkspaceType.USER) {
+          await this.userCollectionService.deleteUserCollection(
+            collectionID,
+            user.uid,
+          );
+        } else if (input.workspaceType === WorkspaceType.TEAM) {
+          await this.teamCollectionService.deleteCollection(collectionID);
+        }
       }
       console.error('Error creating mock server:', error);
       return E.left(MOCK_SERVER_CREATION_FAILED);

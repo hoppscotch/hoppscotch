@@ -190,7 +190,8 @@ export function useMockServer() {
   // Create new mock server
   const createMockServer = async (params: {
     mockServerName: string
-    collectionID: string
+    collectionID?: string
+    autoCreateCollection?: boolean
     delayInMs: number
     isPublic: boolean
     setInEnvironment: boolean
@@ -199,16 +200,20 @@ export function useMockServer() {
     const {
       mockServerName,
       collectionID,
+      autoCreateCollection,
       delayInMs,
       isPublic,
       setInEnvironment,
       collectionName,
     } = params
 
-    if (!mockServerName.trim() || !collectionID) {
-      if (!collectionID) {
-        toast.error(t("mock_server.select_collection_error"))
-      }
+    if (!mockServerName.trim()) {
+      return { success: false, server: null }
+    }
+
+    // Either collectionID or autoCreateCollection must be provided
+    if (!collectionID && !autoCreateCollection) {
+      toast.error(t("mock_server.select_collection_error"))
       return { success: false, server: null }
     }
 
@@ -225,11 +230,12 @@ export function useMockServer() {
     const result = await pipe(
       createMockServerMutation(
         mockServerName.trim(),
-        collectionID,
         workspaceType,
         workspaceID,
         delayInMs,
-        isPublic
+        isPublic,
+        collectionID,
+        autoCreateCollection
       ),
       TE.match(
         (error) => {

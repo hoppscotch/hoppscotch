@@ -25,7 +25,7 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
     {
       label: t("shortcut.general.show_all"),
-      keys: [getPlatformSpecialKey(), "⇧", "/"],
+      keys: [getPlatformSpecialKey(), "/"],
       section: t("shortcut.general.title"),
     },
     {

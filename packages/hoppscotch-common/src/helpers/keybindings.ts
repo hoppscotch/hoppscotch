@@ -193,7 +193,9 @@ function handleKeyDown(ev: KeyboardEvent) {
     const target = ev.target
     if (
       isDOMElement(target) &&
-      (isCodeMirrorEditor(target) || isMonacoEditor(target))
+      (isCodeMirrorEditor(target) ||
+        isMonacoEditor(target) ||
+        isTypableElement(target))
     ) {
       return
     }
@@ -208,12 +210,14 @@ function handleKeyDown(ev: KeyboardEvent) {
     ) {
       return
     }
-    // If not in editor, fall back to keybinds flyout if no other action is bound
-    if (!boundAction) {
+    // If not in editor or input, fall back to keybinds flyout
+    if (isDOMElement(target) && !isTypableElement(target)) {
       invokeAction("flyouts.keybinds.toggle", undefined, "keypress")
       ev.preventDefault()
       return
     }
+    // If in a normal input field, let browser handle it
+    return
   }
 
   // If no action is bound, do nothing

@@ -564,6 +564,7 @@ export class TeamCollectionService {
             // update siblings orderIndexes
             await tx.teamCollection.updateMany({
               where: {
+                teamID: collection.teamID,
                 parentID: collection.parentID,
                 orderIndex: orderIndexCondition,
               },
@@ -846,11 +847,12 @@ export class TeamCollectionService {
    * Find the number of child collections present in collectionID
    *
    * @param collectionID The Collection ID
+   * @param teamID The Team ID (required when collectionID is null for root collections)
    * @returns Number of collections
    */
-  getCollectionCount(collectionID: string): Promise<number> {
+  getCollectionCount(collectionID: string, teamID: string): Promise<number> {
     return this.prisma.teamCollection.count({
-      where: { parentID: collectionID },
+      where: { parentID: collectionID, teamID: teamID },
     });
   }
 
@@ -893,6 +895,7 @@ export class TeamCollectionService {
             });
             await tx.teamCollection.updateMany({
               where: {
+                teamID: collection.right.teamID,
                 parentID: collection.right.parentID,
                 orderIndex: {
                   gte: collectionInTx.orderIndex + 1,
@@ -909,6 +912,7 @@ export class TeamCollectionService {
               data: {
                 orderIndex: await this.getCollectionCount(
                   collection.right.parentID,
+                  collection.right.teamID,
                 ),
               },
             });
@@ -974,6 +978,7 @@ export class TeamCollectionService {
 
           await tx.teamCollection.updateMany({
             where: {
+              teamID: collection.right.teamID,
               parentID: collection.right.parentID,
               orderIndex: { gte: updateFrom, lte: updateTo },
             },

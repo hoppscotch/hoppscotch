@@ -10,6 +10,7 @@ describe("getEditorLangForMimeType", () => {
 
   test("returns 'xml' for valid XML mimes", () => {
     expect(getEditorLangForMimeType("application/xml")).toMatch("xml")
+    expect(getEditorLangForMimeType("text/xml")).toMatch("xml")
   })
 
   test("returns 'html' for valid HTML mimes", () => {

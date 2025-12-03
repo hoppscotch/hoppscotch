@@ -1,6 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import type { Component } from "vue"
 import { StepsOutputList } from "../steps"
+import { HoppCollection, translateToNewRESTCollection } from "@hoppscotch/data"
 
 /**
  * A common error state to be used when the file formats are not expected
@@ -66,4 +67,24 @@ export const defineImporter = <ReturnType, StepType, Errors>(input: {
   return <HoppImporterDefinition<ReturnType, StepType, Errors>>{
     ...input,
   }
+}
+
+/**
+ * Sanitize collection for import, removes old id from collection and folders and transform it to
+ * new collection format with new ref_id
+ * @param collection The collection to sanitize
+ * @returns The sanitized collection with new ref_id
+ */
+export const sanitizeCollection = (
+  collection: HoppCollection
+): HoppCollection => {
+  const newCollection = translateToNewRESTCollection(collection)
+
+  if (newCollection.id) {
+    delete newCollection.id
+  }
+
+  newCollection.folders = newCollection.folders.map(sanitizeCollection)
+
+  return newCollection
 }

@@ -8,6 +8,8 @@ import { RESTTabService } from "~/services/tab/rest"
 import { GQLTabService } from "~/services/tab/graphql"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { cascadeParentCollectionForProperties } from "~/newstore/collections"
+import { CollectionDataProps } from "../backend/helpers"
+import { CollectionFolder } from "../backend/queries/PublishedDocs"
 
 /**
  * Resolve save context on reorder
@@ -289,25 +291,27 @@ export function getFoldersByPath(
 
 /**
  * Transforms a collection to the format expected by team or personal collections.
- * Extracts auth, headers, and variables into a data object and recursively processes folders.
+ * BE expects CollectionFolder format with a data field containing auth, headers, variables, and description.
  * @param collection The collection to transform
  * @returns The transformed collection
  */
-export function transformCollectionForImport(collection: any): any {
-  const folders: any[] = (collection.folders ?? []).map(
-    transformCollectionForImport
-  )
+export function transformCollectionForImport(
+  collection: HoppCollection
+): CollectionFolder {
+  const folders = (collection.folders ?? []).map(transformCollectionForImport)
 
-  const data = {
+  const data: CollectionDataProps = {
     auth: collection.auth,
     headers: collection.headers,
     variables: collection.variables,
+    description: collection.description,
   }
 
-  const obj = {
-    ...collection,
-    folders,
-    data,
+  const obj: CollectionFolder = {
+    name: collection.name,
+    folders: folders,
+    requests: collection.requests,
+    data: JSON.stringify(data),
   }
 
   if (collection.id) obj.id = collection.id

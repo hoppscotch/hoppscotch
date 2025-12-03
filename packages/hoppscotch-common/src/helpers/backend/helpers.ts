@@ -25,6 +25,7 @@ import {
   GetCollectionRequestsDocument,
   GetCollectionTitleAndDataDocument,
 } from "./graphql"
+import { stripRefIdReplacer } from "../import-export/export"
 
 type TeamCollectionJSON = {
   id: string
@@ -286,7 +287,7 @@ export const getTeamCollectionJSON = async (teamID: string) => {
   }
 
   const hoppCollections = collections.map(teamCollectionJSONToHoppRESTColl)
-  return E.right(JSON.stringify(hoppCollections, null, 2))
+  return E.right(JSON.stringify(hoppCollections, stripRefIdReplacer, 2))
 }
 
 /**

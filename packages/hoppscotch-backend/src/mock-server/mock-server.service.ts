@@ -333,11 +333,16 @@ export class MockServerService {
             ReqType.REST,
           );
         if (E.isLeft(importedUserColl)) return E.left(importedUserColl.left);
+        if (JSON.parse(importedUserColl.right.exportedCollection).length === 0)
+          return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
+
         return E.right({
           id: JSON.parse(importedUserColl.right.exportedCollection)[0].id,
         });
       }
     } else if (input.workspaceType === WorkspaceType.TEAM) {
+      if (!input.workspaceID) return E.left(TEAM_INVALID_ID);
+
       if (!input.autoCreateRequestExample) {
         const teamColl = await this.teamCollectionService.createCollection(
           input.workspaceID,
@@ -357,6 +362,9 @@ export class MockServerService {
           );
 
         if (E.isLeft(importedTeamColl)) return E.left(importedTeamColl.left);
+        if (importedTeamColl.right.length === 0)
+          return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
+
         return E.right({
           id: importedTeamColl.right[0].id,
         });

@@ -239,8 +239,11 @@ export function useMockServer() {
       return { success: false, server: null }
     }
 
-    // Either collectionID or autoCreateCollection must be provided
-    if (!collectionID && !autoCreateCollection) {
+    // Exactly one of collectionID or autoCreateCollection must be provided (XOR)
+    if (
+      (!collectionID && !autoCreateCollection) ||
+      (collectionID && autoCreateCollection)
+    ) {
       toast.error(t("mock_server.select_collection_error"))
       return { success: false, server: null }
     }

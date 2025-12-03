@@ -471,6 +471,7 @@ watch(show, (newShow) => {
     loading.value = false
     delayInMsVal.value = "0"
     isPublic.value = true
+    autoCreateRequestExample.value = true
     setInEnvironment.value = true
     selectedCollectionID.value = ""
     selectedCollectionName.value = ""

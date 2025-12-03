@@ -1042,12 +1042,12 @@ describe('deleteUserCollection', () => {
     );
     expect(result).toEqualLeft(USER_NOT_OWNER);
   });
-  test('should throw USER_COLL_NOT_FOUND when collectionID is invalid when deleting user-collection from UserCollectionTable ', async () => {
+  test('should throw USER_COLL_REORDERING_FAILED when removeCollectionAndUpdateSiblingsOrderIndex fails', async () => {
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootRESTUserCollection));
     jest
-      .spyOn(userCollectionService as any, 'deleteCollectionData')
+      .spyOn(userCollectionService as any, 'removeCollectionAndUpdateSiblingsOrderIndex')
       .mockResolvedValueOnce(E.left(USER_COLL_REORDERING_FAILED));
 
     const result = await userCollectionService.deleteUserCollection(

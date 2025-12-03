@@ -888,12 +888,12 @@ describe('deleteCollection', () => {
     expect(result).toEqualLeft(TEAM_COLL_NOT_FOUND);
   });
 
-  test('should throw TEAM_COLL_NOT_FOUND when collectionID is invalid when deleting TeamCollection from UserCollectionTable ', async () => {
+  test('should throw TEAM_COL_REORDERING_FAILED when deleteCollectionAndUpdateSiblingsOrderIndex fails', async () => {
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(rootTeamCollection));
     jest
-      .spyOn(teamCollectionService as any, 'deleteCollectionData')
+      .spyOn(teamCollectionService as any, 'deleteCollectionAndUpdateSiblingsOrderIndex')
       .mockResolvedValueOnce(E.left(TEAM_COL_REORDERING_FAILED));
 
     const result = await teamCollectionService.deleteCollection(

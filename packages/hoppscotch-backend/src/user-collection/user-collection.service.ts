@@ -381,50 +381,6 @@ export class UserCollectionService {
   }
 
   /**
-   * Delete child collection and requests of a UserCollection
-   *
-   * @param collectionID The Collection Id
-   * @returns A Boolean of deletion status
-   */
-  private async deleteCollectionData(collection: UserCollection) {
-    // Get all child collections in collectionID
-    const childCollectionList = await this.prisma.userCollection.findMany({
-      where: {
-        parentID: collection.id,
-      },
-    });
-
-    // Delete child collections
-    await Promise.all(
-      childCollectionList.map((coll) =>
-        this.deleteUserCollection(coll.id, coll.userUid),
-      ),
-    );
-
-    // Delete all requests in collectionID
-    await this.prisma.userRequest.deleteMany({
-      where: {
-        collectionID: collection.id,
-      },
-    });
-
-    // Update orderIndexes in userCollection table for user
-    const isDeleted = await this.removeCollectionAndUpdateSiblingsOrderIndex(
-      collection,
-      { gt: collection.orderIndex },
-      { decrement: 1 },
-    );
-    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
-
-    this.pubsub.publish(`user_coll/${collection.userUid}/deleted`, {
-      id: collection.id,
-      type: ReqType[collection.type],
-    });
-
-    return E.right(true);
-  }
-
-  /**
    * Delete a UserCollection
    *
    * @param collectionID The Collection Id
@@ -440,8 +396,17 @@ export class UserCollectionService {
     if (collection.right.userUid !== userID) return E.left(USER_NOT_OWNER);
 
     // Delete all child collections and requests in the collection
-    const collectionData = await this.deleteCollectionData(collection.right);
-    if (E.isLeft(collectionData)) return E.left(collectionData.left);
+    const isDeleted = await this.removeCollectionAndUpdateSiblingsOrderIndex(
+      collection.right,
+      { gt: collection.right.orderIndex },
+      { decrement: 1 },
+    );
+    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
+
+    this.pubsub.publish(`user_coll/${collection.right.userUid}/deleted`, {
+      id: collection.right.id,
+      type: ReqType[collection.right.type],
+    });
 
     return E.right(true);
   }

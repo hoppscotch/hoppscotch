@@ -651,11 +651,20 @@ export class TeamCollectionService {
     if (E.isLeft(collection)) return E.left(collection.left);
 
     // Delete all child collections and requests in the collection
-    const collectionData = await this.deleteCollectionData(collection.right);
-    if (E.isLeft(collectionData)) return E.left(collectionData.left);
+    const isDeleted = await this.deleteCollectionAndUpdateSiblingsOrderIndex(
+      collection.right,
+      { gt: collection.right.orderIndex },
+      { decrement: 1 },
+    );
+    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
+
+    this.pubsub.publish(
+      `team_coll/${collection.right.teamID}/coll_removed`,
+      collection.right.id,
+    );
 
     return E.right(true);
-  }
+  } 
 
   /**
    * Change parentID of TeamCollection's

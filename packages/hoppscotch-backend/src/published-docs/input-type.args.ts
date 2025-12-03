@@ -14,8 +14,9 @@ export class CreatePublishedDocsArgs {
     name: 'version',
     description: 'Version of the published document',
   })
-  @Matches(/^[a-zA-Z0-9.]+$/, {
-    message: 'Version must only contain alphanumeric characters and dots',
+  @Matches(/^[a-zA-Z0-9.-]+$/, {
+    message:
+      'Version must only contain alphanumeric characters, dots, and hyphens',
   })
   version: string;
 
@@ -67,8 +68,9 @@ export class UpdatePublishedDocsArgs {
     nullable: true,
   })
   @IsOptional()
-  @Matches(/^[a-zA-Z0-9.]+$/, {
-    message: 'Version must only contain alphanumeric characters and dots',
+  @Matches(/^[a-zA-Z0-9.-]+$/, {
+    message:
+      'Version must only contain alphanumeric characters, dots, and hyphens',
   })
   version?: string;
 

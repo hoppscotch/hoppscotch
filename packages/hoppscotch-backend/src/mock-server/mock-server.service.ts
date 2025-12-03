@@ -381,7 +381,7 @@ export class MockServerService {
     user: AuthUser,
     input: CreateMockServerInput,
   ): Promise<E.Either<string, MockServer>> {
-    let collectionID;
+    let collectionID: string | undefined = input.collectionID;
     try {
       // Validate workspace type and ID
 
@@ -431,9 +431,6 @@ export class MockServerService {
 
       return E.right(this.cast(mockServer));
     } catch (error) {
-      if (error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION) {
-        return this.createMockServer(user, input); // Retry on subdomain conflict
-      }
       if (input.autoCreateCollection && collectionID) {
         if (input.workspaceType === WorkspaceType.USER) {
           await this.userCollectionService.deleteUserCollection(
@@ -444,6 +441,11 @@ export class MockServerService {
           await this.teamCollectionService.deleteCollection(collectionID);
         }
       }
+
+      if (error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION) {
+        return this.createMockServer(user, input); // Retry on subdomain conflict
+      }
+
       console.error('Error creating mock server:', error);
       return E.left(MOCK_SERVER_CREATION_FAILED);
     }

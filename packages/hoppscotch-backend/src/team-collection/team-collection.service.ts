@@ -599,48 +599,6 @@ export class TeamCollectionService {
   }
 
   /**
-   * Delete child collection and requests of a TeamCollection
-   *
-   * @param collectionID The Collection Id
-   * @returns A Boolean of deletion status
-   */
-  private async deleteCollectionData(collection: DBTeamCollection) {
-    // Get all child collections in collectionID
-    const childCollectionList = await this.prisma.teamCollection.findMany({
-      where: {
-        parentID: collection.id,
-      },
-    });
-
-    // Delete child collections
-    await Promise.all(
-      childCollectionList.map((coll) => this.deleteCollection(coll.id)),
-    );
-
-    // Delete all requests in collectionID
-    await this.prisma.teamRequest.deleteMany({
-      where: {
-        collectionID: collection.id,
-      },
-    });
-
-    // Update orderIndexes in TeamCollection table for user
-    const isDeleted = await this.deleteCollectionAndUpdateSiblingsOrderIndex(
-      collection,
-      { gt: collection.orderIndex },
-      { decrement: 1 },
-    );
-    if (E.isLeft(isDeleted)) return E.left(isDeleted.left);
-
-    this.pubsub.publish(
-      `team_coll/${collection.teamID}/coll_removed`,
-      collection.id,
-    );
-
-    return E.right(collection);
-  }
-
-  /**
    * Delete a TeamCollection
    *
    * @param collectionID The Collection Id

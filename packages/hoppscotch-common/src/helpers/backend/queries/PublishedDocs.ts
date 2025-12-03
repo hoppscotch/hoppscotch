@@ -54,7 +54,7 @@ export type PublishedDocQuery = {
   publishedDoc: PublishedDoc
 }
 
-type CollectionFolder = {
+export type CollectionFolder = {
   id?: string
   folders: CollectionFolder[]
   // Backend stores this as any, we translate it to HoppRESTRequest via translateToNewRequest

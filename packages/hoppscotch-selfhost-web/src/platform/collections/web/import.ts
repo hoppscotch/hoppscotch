@@ -3,6 +3,7 @@ import {
   appendGraphqlCollections,
   appendRESTCollections,
 } from "@hoppscotch/common/newstore/collections"
+import { CollectionDataProps } from "@hoppscotch/common/helpers/backend/helpers"
 import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import {
@@ -64,10 +65,11 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
     translateToPersonalCollectionFormat
   )
 
-  const data = {
+  const data: CollectionDataProps = {
     auth: x.auth,
     headers: x.headers,
     variables: x.variables,
+    description: x.description,
   }
 
   const obj = {

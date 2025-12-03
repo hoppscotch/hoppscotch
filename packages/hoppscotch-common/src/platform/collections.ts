@@ -4,6 +4,7 @@ import * as E from "fp-ts/Either"
 
 export type CollectionsPlatformDef = {
   initCollectionsSync: () => void
+  loadUserCollections?: (collectionType: "REST" | "GQL") => Promise<void>
   importToPersonalWorkspace?: (
     collections: HoppCollection[],
     reqType: ReqType

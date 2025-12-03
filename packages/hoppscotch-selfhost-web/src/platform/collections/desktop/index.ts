@@ -1032,6 +1032,7 @@ import { importToPersonalWorkspace } from "./import"
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  loadUserCollections,
   importToPersonalWorkspace,
 }
 

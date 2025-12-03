@@ -127,7 +127,7 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
-    // The SH adds the id to the collection and folders but for safety we remove it
+    // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
     return platform.sync.collections.importToPersonalWorkspace(
       sanitizedCollections,
       ReqType.Rest

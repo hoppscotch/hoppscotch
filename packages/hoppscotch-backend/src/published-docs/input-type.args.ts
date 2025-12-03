@@ -1,4 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
+import { Matches } from 'class-validator';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 
 @InputType()
@@ -9,6 +10,9 @@ export class CreatePublishedDocsArgs {
   })
   title: string;
 
+  @Matches(/^[a-zA-Z0-9.]+$/, {
+    message: 'Version must only contain alphanumeric characters and dots',
+  })
   @Field({
     name: 'version',
     description: 'Version of the published document',
@@ -57,6 +61,9 @@ export class UpdatePublishedDocsArgs {
   })
   title?: string;
 
+  @Matches(/^[a-zA-Z0-9.]+$/, {
+    message: 'Version must only contain alphanumeric characters and dots',
+  })
   @Field({
     name: 'version',
     description: 'Version of the published document',

@@ -1697,6 +1697,20 @@ const addExample = (payload: {
 }) => {
   const { folderPath, request, requestIndex } = payload
 
+  // Defensive check to ensure request is valid
+  if (!request || typeof request !== "object") {
+    console.error("Invalid request object:", request)
+    toast.error(t("error.invalid_request"))
+    return
+  }
+
+  // Additional validation for required request properties
+  if (!request.name && !request.endpoint) {
+    console.error("Request missing required properties:", request)
+    toast.error(t("error.invalid_request"))
+    return
+  }
+
   editingRequest.value = request
   editingRequestName.value = request.name ?? ""
   editingResponseName.value = ""
@@ -1720,7 +1734,10 @@ const onAddExample = async () => {
   }
 
   const request = editingRequest.value
-  if (!request) return
+  if (!request || !request.name) {
+    toast.error(t("error.invalid_request"))
+    return
+  }
 
   // Check if example name already exists
   if (request.responses && request.responses[exampleName]) {
@@ -1775,6 +1792,13 @@ const onAddExample = async () => {
     modalLoadingState.value = true
 
     if (!editingRequestID.value) return
+
+    // Double-check request is still valid before proceeding
+    if (!request || !request.name) {
+      toast.error(t("error.invalid_request"))
+      modalLoadingState.value = false
+      return
+    }
 
     const data = {
       requestID: editingRequestID.value,

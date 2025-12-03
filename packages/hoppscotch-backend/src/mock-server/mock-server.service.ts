@@ -35,6 +35,7 @@ import { TeamCollectionService } from 'src/team-collection/team-collection.servi
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
 import { ReqType } from 'src/types/RequestTypes';
 import { AuthUser } from 'src/types/AuthUser';
+import { mockServerCollRequestExample } from './constants/mock-server-coll-request-example';
 
 @Injectable()
 export class MockServerService {
@@ -310,26 +311,56 @@ export class MockServerService {
     input: CreateMockServerInput,
   ) {
     if (input.workspaceType === WorkspaceType.USER) {
-      const userColl = await this.userCollectionService.createUserCollection(
-        user,
-        input.name,
-        null,
-        null,
-        ReqType.REST,
-      );
+      if (!input.autoCreateRequestExample) {
+        // create only a collection
+        const userColl = await this.userCollectionService.createUserCollection(
+          user,
+          input.name,
+          null,
+          null,
+          ReqType.REST,
+        );
 
-      if (E.isLeft(userColl)) return E.left(userColl.left);
-      return E.right({ id: userColl.right.id });
+        if (E.isLeft(userColl)) return E.left(userColl.left);
+        return E.right({ id: userColl.right.id });
+      } else {
+        // create collection with a request example
+        const importedUserColl =
+          await this.userCollectionService.importCollectionsFromJSON(
+            JSON.stringify(mockServerCollRequestExample(input.name)),
+            user.uid,
+            null,
+            ReqType.REST,
+          );
+        if (E.isLeft(importedUserColl)) return E.left(importedUserColl.left);
+        return E.right({
+          id: JSON.parse(importedUserColl.right.exportedCollection)[0].id,
+        });
+      }
     } else if (input.workspaceType === WorkspaceType.TEAM) {
-      const teamColl = await this.teamCollectionService.createCollection(
-        input.workspaceID,
-        input.name,
-        null,
-        null,
-      );
+      if (!input.autoCreateRequestExample) {
+        const teamColl = await this.teamCollectionService.createCollection(
+          input.workspaceID,
+          input.name,
+          null,
+          null,
+        );
 
-      if (E.isLeft(teamColl)) return E.left(teamColl.left);
-      return E.right({ id: teamColl.right.id });
+        if (E.isLeft(teamColl)) return E.left(teamColl.left);
+        return E.right({ id: teamColl.right.id });
+      } else {
+        const importedTeamColl =
+          await this.teamCollectionService.importCollectionsFromJSON(
+            JSON.stringify(mockServerCollRequestExample(input.name)),
+            input.workspaceID,
+            null,
+          );
+
+        if (E.isLeft(importedTeamColl)) return E.left(importedTeamColl.left);
+        return E.right({
+          id: importedTeamColl.right[0].id,
+        });
+      }
     }
 
     return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);

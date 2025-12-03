@@ -480,6 +480,282 @@ describe('MockServerService', () => {
         expect(result.left).toBe('mock_server/creation_failed');
       }
     });
+
+    describe('auto-create collection', () => {
+      test('should auto-create user collection without request example', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Auto Mock Server',
+          workspaceType: WorkspaceType.USER,
+          workspaceID: undefined,
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        const createdCollection = { ...userCollection, id: 'new-coll-123' };
+        mockUserCollectionService.createUserCollection.mockResolvedValue(
+          E.right(createdCollection as any),
+        );
+        mockPrisma.mockServer.create.mockResolvedValue({
+          ...dbMockServer,
+          collectionID: 'new-coll-123',
+        });
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isRight(result)).toBe(true);
+        expect(mockUserCollectionService.createUserCollection).toHaveBeenCalledWith(
+          user,
+          autoCreateInput.name,
+          null,
+          null,
+          'REST',
+        );
+        expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              collectionID: 'new-coll-123',
+            }),
+          }),
+        );
+      });
+
+      test('should auto-create user collection with request example', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Auto Mock Server',
+          workspaceType: WorkspaceType.USER,
+          workspaceID: undefined,
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: true,
+        };
+
+        mockUserCollectionService.importCollectionsFromJSON.mockResolvedValue(
+          E.right({
+            exportedCollection: JSON.stringify([{ id: 'imported-coll-123' }]),
+          } as any),
+        );
+        mockPrisma.mockServer.create.mockResolvedValue({
+          ...dbMockServer,
+          collectionID: 'imported-coll-123',
+        });
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isRight(result)).toBe(true);
+        expect(mockUserCollectionService.importCollectionsFromJSON).toHaveBeenCalled();
+        expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              collectionID: 'imported-coll-123',
+            }),
+          }),
+        );
+      });
+
+      test('should auto-create team collection without request example', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Team Auto Mock',
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        const createdTeamColl = { ...teamCollection, id: 'new-team-coll-123' };
+        mockPrisma.team.findFirst.mockResolvedValue({ id: 'team123' } as any);
+        mockTeamCollectionService.createCollection.mockResolvedValue(
+          E.right(createdTeamColl as any),
+        );
+        mockPrisma.mockServer.create.mockResolvedValue({
+          ...dbMockServer,
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          collectionID: 'new-team-coll-123',
+        });
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isRight(result)).toBe(true);
+        expect(mockTeamCollectionService.createCollection).toHaveBeenCalledWith(
+          'team123',
+          autoCreateInput.name,
+          null,
+          null,
+        );
+        expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              collectionID: 'new-team-coll-123',
+            }),
+          }),
+        );
+      });
+
+      test('should auto-create team collection with request example', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Team Auto Mock',
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: true,
+        };
+
+        mockPrisma.team.findFirst.mockResolvedValue({ id: 'team123' } as any);
+        mockTeamCollectionService.importCollectionsFromJSON.mockResolvedValue(
+          E.right([{ id: 'imported-team-coll-123' }] as any),
+        );
+        mockPrisma.mockServer.create.mockResolvedValue({
+          ...dbMockServer,
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          collectionID: 'imported-team-coll-123',
+        });
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isRight(result)).toBe(true);
+        expect(mockTeamCollectionService.importCollectionsFromJSON).toHaveBeenCalled();
+        expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              collectionID: 'imported-team-coll-123',
+            }),
+          }),
+        );
+      });
+
+      test('should return error when auto-create user collection fails', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Auto Mock Server',
+          workspaceType: WorkspaceType.USER,
+          workspaceID: undefined,
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        mockUserCollectionService.createUserCollection.mockResolvedValue(
+          E.left('user_collection/creation_failed'),
+        );
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isLeft(result)).toBe(true);
+        if (E.isLeft(result)) {
+          expect(result.left).toBe('user_collection/creation_failed');
+        }
+      });
+
+      test('should return error when auto-create team collection fails', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Team Auto Mock',
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        mockPrisma.team.findFirst.mockResolvedValue({ id: 'team123' } as any);
+        mockTeamCollectionService.createCollection.mockResolvedValue(
+          E.left('team_coll/short_title'),
+        );
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isLeft(result)).toBe(true);
+        if (E.isLeft(result)) {
+          expect(result.left).toBe('team_coll/short_title');
+        }
+      });
+
+      test('should rollback collection on mock server creation failure', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Auto Mock Server',
+          workspaceType: WorkspaceType.USER,
+          workspaceID: undefined,
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        const createdCollection = { ...userCollection, id: 'rollback-coll-123' };
+        mockUserCollectionService.createUserCollection.mockResolvedValue(
+          E.right(createdCollection as any),
+        );
+        mockPrisma.mockServer.create.mockRejectedValue(
+          new Error('Database error'),
+        );
+        mockUserCollectionService.deleteUserCollection.mockResolvedValue(
+          E.right(true),
+        );
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isLeft(result)).toBe(true);
+        expect(mockUserCollectionService.deleteUserCollection).toHaveBeenCalledWith(
+          'rollback-coll-123',
+          user.uid,
+        );
+      });
+
+      test('should rollback team collection on mock server creation failure', async () => {
+        const autoCreateInput: CreateMockServerInput = {
+          name: 'Team Auto Mock',
+          workspaceType: WorkspaceType.TEAM,
+          workspaceID: 'team123',
+          delayInMs: 0,
+          autoCreateCollection: true,
+          autoCreateRequestExample: false,
+        };
+
+        const createdTeamColl = { ...teamCollection, id: 'rollback-team-coll-123' };
+        mockPrisma.team.findFirst.mockResolvedValue({ id: 'team123' } as any);
+        mockTeamCollectionService.createCollection.mockResolvedValue(
+          E.right(createdTeamColl as any),
+        );
+        mockPrisma.mockServer.create.mockRejectedValue(
+          new Error('Database error'),
+        );
+        mockTeamCollectionService.deleteCollection.mockResolvedValue(
+          E.right(true),
+        );
+
+        const result = await mockServerService.createMockServer(
+          user,
+          autoCreateInput,
+        );
+
+        expect(E.isLeft(result)).toBe(true);
+        expect(mockTeamCollectionService.deleteCollection).toHaveBeenCalledWith(
+          'rollback-team-coll-123',
+        );
+      });
+    });
   });
 
   describe('updateMockServer', () => {

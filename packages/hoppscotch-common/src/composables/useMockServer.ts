@@ -79,8 +79,8 @@ export function useMockServer() {
         teamCollectionsService.changeTeamID(currentWorkspace.value.teamID)
       } else {
         // For personal workspace, load REST collections only (mock servers are REST-based)
-        if (platform.sync.collections.loadCollections) {
-          await platform.sync.collections.loadCollections("REST")
+        if (platform.sync.collections.loadUserCollections) {
+          await platform.sync.collections.loadUserCollections("REST")
         }
       }
     } catch (error) {

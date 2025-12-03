@@ -192,6 +192,7 @@ export function useMockServer() {
     mockServerName: string
     collectionID?: string
     autoCreateCollection?: boolean
+    autoCreateRequestExample?: boolean
     delayInMs: number
     isPublic: boolean
     setInEnvironment: boolean
@@ -201,6 +202,7 @@ export function useMockServer() {
       mockServerName,
       collectionID,
       autoCreateCollection,
+      autoCreateRequestExample,
       delayInMs,
       isPublic,
       setInEnvironment,
@@ -235,7 +237,8 @@ export function useMockServer() {
         delayInMs,
         isPublic,
         collectionID,
-        autoCreateCollection
+        autoCreateCollection,
+        autoCreateRequestExample
       ),
       TE.match(
         (error) => {

@@ -59,7 +59,8 @@ export const createMockServer = (
   delayInMs: number = 0,
   isPublic: boolean = true,
   collectionID?: string,
-  autoCreateCollection?: boolean
+  autoCreateCollection?: boolean,
+  autoCreateRequestExample?: boolean
 ) =>
   TE.tryCatch(
     async () => {
@@ -69,6 +70,7 @@ export const createMockServer = (
             name,
             collectionID,
             autoCreateCollection,
+            autoCreateRequestExample,
             workspaceType,
             workspaceID,
             delayInMs,

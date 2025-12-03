@@ -185,6 +185,27 @@
               {{ t("mock_server.set_in_environment_hint") }}
             </div>
           </div>
+
+          <!-- Auto-create Request Example Toggle (only for new collection mode) -->
+          <div
+            v-if="collectionSelectionMode === 'new'"
+            class="flex flex-col space-y-2"
+          >
+            <div class="flex items-center">
+              <HoppSmartToggle
+                :on="autoCreateRequestExample"
+                @change="autoCreateRequestExample = !autoCreateRequestExample"
+              >
+                {{ t("mock_server.add_example_request") }}
+              </HoppSmartToggle>
+            </div>
+            <div
+              v-if="autoCreateRequestExample"
+              class="w-full text-xs text-secondaryLight"
+            >
+              {{ t("mock_server.add_example_request_hint") }}
+            </div>
+          </div>
         </div>
 
         <!-- Mock Server Created Info (After Creation) -->
@@ -314,6 +335,7 @@ const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
 const setInEnvironment = ref<boolean>(true)
+const autoCreateRequestExample = ref<boolean>(true)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
@@ -395,6 +417,8 @@ const handleCreateMockServer = async () => {
     mockServerName: mockServerName.value,
     collectionID: isNewCollectionMode ? undefined : effectiveCollectionID.value,
     autoCreateCollection: isNewCollectionMode ? true : undefined,
+    autoCreateRequestExample:
+      isNewCollectionMode && autoCreateRequestExample.value ? true : undefined,
     delayInMs: Number(delayInMsVal.value) || 0,
     isPublic: isPublic.value,
     setInEnvironment: setInEnvironment.value,

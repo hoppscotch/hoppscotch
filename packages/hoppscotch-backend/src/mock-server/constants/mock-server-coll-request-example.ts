@@ -1,3 +1,7 @@
+import { randomUUID } from 'crypto';
+
+const generateRefId = () => `${Date.now().toString(36)}_${randomUUID()}`;
+
 export const mockServerCollRequestExample = (
   collectionName: string = 'Hoppscotch API Mock example',
 ) => {
@@ -10,7 +14,7 @@ export const mockServerCollRequestExample = (
       requests: [
         {
           v: '16',
-          _ref_id: 'req_midlz8s1_d98f3972-dfdd-48fe-84bc-af18a913f4be',
+          _ref_id: `req_${generateRefId()}`,
           name: 'addPet',
           method: 'POST',
           endpoint: baseEnv + '/v2/pet',
@@ -83,7 +87,7 @@ export const mockServerCollRequestExample = (
         },
         {
           v: '16',
-          _ref_id: 'req_midlz8s1_5fd66936-c9a0-4847-be94-78a0f97a7a81',
+          _ref_id: `req_${generateRefId()}`,
           name: 'updatePet',
           method: 'PUT',
           endpoint: baseEnv + '/v2/pet',
@@ -238,7 +242,7 @@ export const mockServerCollRequestExample = (
         },
         {
           v: '16',
-          _ref_id: 'req_midlz8s1_16050f4d-725a-4e75-8497-77aed00dc265',
+          _ref_id: `req_${generateRefId()}`,
           name: 'findPetsByStatus',
           method: 'GET',
           endpoint: baseEnv + '/v2/pet/findByStatus',
@@ -376,7 +380,7 @@ export const mockServerCollRequestExample = (
         },
         {
           v: '16',
-          _ref_id: 'req_midlz8s2_cc092dd3-261e-45d9-acf4-2c6632821084',
+          _ref_id: `req_${generateRefId()}`,
           name: 'getPetById',
           method: 'GET',
           endpoint: baseEnv + '/v2/pet/<<petId>>',
@@ -527,7 +531,7 @@ export const mockServerCollRequestExample = (
         },
         {
           v: '16',
-          _ref_id: 'req_midlz8s2_34421ae3-7d6c-43b4-a3bb-6f5bd9ade076',
+          _ref_id: `req_${generateRefId()}`,
           name: 'updatePetWithForm',
           method: 'POST',
           endpoint: baseEnv + '/v2/pet/<<petId>>',
@@ -612,7 +616,7 @@ export const mockServerCollRequestExample = (
         },
         {
           v: '16',
-          _ref_id: 'req_midlz8s2_7d8ef13a-d71c-4ca0-b43b-1d4c961c2d34',
+          _ref_id: `req_${generateRefId()}`,
           name: 'deletePet',
           method: 'DELETE',
           endpoint: baseEnv + '/v2/pet/<<petId>>',
@@ -770,7 +774,7 @@ export const mockServerCollRequestExample = (
           authActive: true,
         },
         headers: [],
-        _ref_id: 'coll_midlz8s2_4c6e4506-0f93-43b8-961b-f02aca702641',
+        _ref_id: `coll_${generateRefId()}`,
       },
     },
   ];

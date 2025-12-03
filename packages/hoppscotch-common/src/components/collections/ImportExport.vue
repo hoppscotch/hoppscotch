@@ -120,7 +120,7 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
  * @param collections Collections to import
  */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
-  // Remove old id from the imported  collection and folders and transform it to new collection format
+  // Remove old id from the imported collection and folders and transform it to new collection format
   const sanitizedCollections = collections.map(sanitizeCollection)
 
   if (

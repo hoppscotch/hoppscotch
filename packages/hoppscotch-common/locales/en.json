@@ -55,6 +55,7 @@
     "save": "Save",
     "save_as_example": "Save as example",
     "add_example": "Add example",
+    "invalid_request": "Invalid request data",
     "scroll_to_bottom": "Scroll to bottom",
     "scroll_to_top": "Scroll to top",
     "search": "Search",

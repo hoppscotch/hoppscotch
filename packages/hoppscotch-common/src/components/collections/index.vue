@@ -2872,7 +2872,6 @@ const initializeDownloadCollection = async (
  */
 const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
-    console.log("Exporting collection", collection)
     const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields

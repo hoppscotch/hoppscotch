@@ -116,7 +116,7 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
 
 /**
  * Import collections to personal workspace
- * We sanitize the collections before importing to remove old id from the imported  collection and folders and transform it to new collection format
+ * We sanitize the collections before importing to remove old id from the imported collection and folders and transform it to new collection format
  * @param collections Collections to import
  */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
@@ -127,7 +127,7 @@ const importToPersonalWorkspace = (collections: HoppCollection[]) => {
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
-    // The SH add's the id to the collection and folders but for safety we remove it
+    // The SH adds the id to the collection and folders but for safety we remove it
     return platform.sync.collections.importToPersonalWorkspace(
       sanitizedCollections,
       ReqType.Rest

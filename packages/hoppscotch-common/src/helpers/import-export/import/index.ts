@@ -78,13 +78,10 @@ export const defineImporter = <ReturnType, StepType, Errors>(input: {
 export const sanitizeCollection = (
   collection: HoppCollection
 ): HoppCollection => {
-  const newCollection = translateToNewRESTCollection(collection)
+  const { id: _id, ...rest } = translateToNewRESTCollection(collection)
 
-  if (newCollection.id) {
-    delete newCollection.id
+  return {
+    ...rest,
+    folders: rest.folders.map(sanitizeCollection),
   }
-
-  newCollection.folders = newCollection.folders.map(sanitizeCollection)
-
-  return newCollection
 }

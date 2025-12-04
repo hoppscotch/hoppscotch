@@ -345,7 +345,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
           // Check for transient errors in output (network or httpbin 5xx)
           const output = `${result.stdout}\n${result.stderr}`;
           const hasNetworkError =
-            /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED|REQUEST_ERROR.*ECONNRESET/i.test(
+            /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED|REQUEST_ERROR/i.test(
               output
             );
           const hasHttpbin5xx =
@@ -518,7 +518,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
 
       // Clean up
       fs.unlinkSync(junitPath);
-    }, 420000); // 420 second (7 minute) timeout - increased from 300s to handle retries and network delays
+    }, 600000); // 600 second (10 minute) timeout
   });
 
   describe("Test `hopp test <file_path_or_id> --env <file_path_or_id>` command:", () => {
@@ -1065,7 +1065,9 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const hasNetworkErrorInXML =
           /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
             fileContents
-          );
+          ) ||
+          (/REQUEST_ERROR/i.test(fileContents) &&
+            !/Invalid URL/i.test(fileContents));
 
         if (!hasNetworkErrorInXML) {
           break;
@@ -1133,7 +1135,9 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const hasNetworkErrorInXML =
           /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
             fileContents
-          );
+          ) ||
+          (/REQUEST_ERROR/i.test(fileContents) &&
+            !/Invalid URL/i.test(fileContents));
 
         if (!hasNetworkErrorInXML) {
           break;
@@ -1201,7 +1205,9 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const hasNetworkErrorInXML =
           /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
             fileContents
-          );
+          ) ||
+          (/REQUEST_ERROR/i.test(fileContents) &&
+            !/Invalid URL/i.test(fileContents));
 
         if (!hasNetworkErrorInXML) {
           break;
@@ -1273,7 +1279,9 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const hasNetworkErrorInXML =
           /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
             fileContents
-          );
+          ) ||
+          (/REQUEST_ERROR/i.test(fileContents) &&
+            !/Invalid URL/i.test(fileContents));
 
         if (!hasNetworkErrorInXML) {
           break;

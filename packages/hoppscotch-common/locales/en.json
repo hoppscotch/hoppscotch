@@ -1083,6 +1083,8 @@
     "environment_variable_added": "Mock URL added to environment",
     "environment_variable_updated": "Mock URL updated in environment",
     "environment_created_with_variable": "Environment created with mock URL",
+    "add_example_request": "Add example request",
+    "add_example_request_hint": "The collection will be created with a sample request that demonstrates how to use the mock server",
     "create_example_collection": "Create example collection",
     "create_example_collection_hint": "Create a pet store example collection with sample requests (GET, POST, PUT, DELETE)",
     "creating_example_collection": "Creating example collection...",

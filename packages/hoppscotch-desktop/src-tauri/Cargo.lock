@@ -2234,7 +2234,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.11.0"
+version = "25.11.1"
 dependencies = [
  "axum",
  "dirs",
@@ -2426,7 +2426,7 @@ dependencies = [
  "libc",
  "percent-encoding",
  "pin-project-lite",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "system-configuration",
  "tokio",
  "tower-service",
@@ -2446,7 +2446,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.57.0",
+ "windows-core 0.61.2",
 ]
 
 [[package]]
@@ -3719,7 +3719,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -4180,7 +4180,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "thiserror 2.0.17",
  "tokio",
  "tracing",
@@ -4217,7 +4217,7 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "once_cell",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "tracing",
  "windows-sys 0.60.2",
 ]
@@ -5568,7 +5568,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-appload"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=e05861959938b57479a1a81fa796735ebbd08c7c#e05861959938b57479a1a81fa796735ebbd08c7c"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=52744a8f35bf81b039410522efd4168bd06d4f35#52744a8f35bf81b039410522efd4168bd06d4f35"
 dependencies = [
  "base64 0.22.1",
  "blake3",
@@ -6903,7 +6903,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]

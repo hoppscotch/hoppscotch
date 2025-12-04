@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tokio::fs;
 use url::Url;
 
 use super::error::Result;
@@ -30,13 +29,18 @@ impl Registry {
             });
         }
 
-        let content = fs::read_to_string(layout.registry_path()).await?;
+        let content = tokio::fs::read_to_string(layout.registry_path()).await?;
         Ok(serde_json::from_str(&content)?)
     }
 
     pub async fn save(&self, layout: &StorageLayout) -> Result<()> {
         let content = serde_json::to_string_pretty(self)?;
-        fs::write(layout.registry_path(), content).await?;
+        let path = layout.registry_path();
+        let temp_path = path.with_extension("json.tmp");
+
+        tokio::fs::write(&temp_path, &content).await?;
+        tokio::fs::rename(&temp_path, &path).await?;
+
         Ok(())
     }
 

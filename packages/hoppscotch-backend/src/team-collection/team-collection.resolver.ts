@@ -231,7 +231,7 @@ export class TeamCollectionResolver {
         parentCollectionID ?? null,
       );
     if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
-    return importedCollection.right;
+    return true;
   }
 
   @Mutation(() => TeamCollection, {

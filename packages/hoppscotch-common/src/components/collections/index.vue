@@ -313,6 +313,7 @@ import {
   resolveSaveContextOnRequestReorder,
 } from "~/helpers/collection/request"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import { stripRefIdReplacer } from "~/helpers/import-export/export"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { TeamSearchService } from "~/helpers/teams/TeamsSearch.service"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -2871,7 +2872,7 @@ const initializeDownloadCollection = async (
  */
 const exportData = async (collection: HoppCollection | TeamCollection) => {
   if (collectionsType.value.type === "my-collections") {
-    const collectionJSON = JSON.stringify(collection, null, 2)
+    const collectionJSON = JSON.stringify(collection, stripRefIdReplacer, 2)
 
     // Strip `export {};\n` from `testScript` and `preRequestScript` fields
     const cleanedCollectionJSON = collectionJSON.replace(
@@ -2896,7 +2897,11 @@ const exportData = async (collection: HoppCollection | TeamCollection) => {
         },
         async (coll) => {
           const hoppColl = teamCollToHoppRESTColl(coll)
-          const collectionJSONString = JSON.stringify(hoppColl, null, 2)
+          const collectionJSONString = JSON.stringify(
+            hoppColl,
+            stripRefIdReplacer,
+            2
+          )
 
           // Strip `export {};\n` from `testScript` and `preRequestScript` fields
           const cleanedCollectionJSON = collectionJSONString.replace(

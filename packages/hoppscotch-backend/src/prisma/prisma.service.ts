@@ -2,19 +2,35 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient, Prisma } from 'src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
+import { parseIntSafe } from 'src/utils';
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  private pool: pg.Pool;
+  private readonly pool: pg.Pool;
 
   constructor() {
+    const databaseUrl = process.env.DATABASE_URL;
+
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+
+    const { connectionString, schema, connectionLimit, connectTimeout } =
+      PrismaService.parseDatabaseUrl(databaseUrl);
+
     const pool = new pg.Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
+      max: connectionLimit ?? 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: connectTimeout ?? 5000,
     });
-    const adapter = new PrismaPg(pool);
+
+    const adapter = new PrismaPg(pool, {
+      schema,
+    });
 
     super({
       adapter,
@@ -26,8 +42,46 @@ export class PrismaService
 
     this.pool = pool;
   }
+
+  private static parseDatabaseUrl(databaseUrl: string): {
+    connectionString: string;
+    schema: string;
+    connectionLimit?: number;
+    connectTimeout?: number;
+  } {
+    try {
+      const url = new URL(databaseUrl);
+      const schema = url.searchParams.get('schema') || 'public';
+      const connectionLimit = url.searchParams.get('connection_limit');
+      const connectTimeout = url.searchParams.get('connect_timeout');
+
+      url.searchParams.delete('schema');
+      url.searchParams.delete('connection_limit');
+      url.searchParams.delete('connect_timeout');
+
+      return {
+        connectionString: url.toString(),
+        schema,
+        connectionLimit: parseIntSafe(connectionLimit),
+        connectTimeout: parseIntSafe(connectTimeout),
+      };
+    } catch (error) {
+      throw new Error(
+        `Invalid DATABASE_URL format: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
   async onModuleInit() {
-    await this.$connect();
+    try {
+      // Verify pool connectivity
+      const client = await this.pool.connect();
+      client.release();
+
+      await this.$connect();
+    } catch (error) {
+      throw new Error(`Database connection failed: ${error.message}`);
+    }
   }
 
   async onModuleDestroy() {

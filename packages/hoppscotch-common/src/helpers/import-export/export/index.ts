@@ -34,3 +34,10 @@ export const initializeDownloadFile = async (
 
   return E.left("state.download_failed")
 }
+
+/**
+ * JSON replacer to remove `_ref_id` from the exported JSON
+ */
+export const stripRefIdReplacer = (key: string, value: any) => {
+  return key === "_ref_id" ? undefined : value
+}

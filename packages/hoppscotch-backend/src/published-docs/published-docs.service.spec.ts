@@ -47,8 +47,8 @@ const user: User = {
   lastLoggedOn: currentTime,
   lastActiveOn: currentTime,
   createdOn: currentTime,
-  currentGQLSession: JSON.stringify({}),
-  currentRESTSession: JSON.stringify({}),
+  currentGQLSession: {} as any,
+  currentRESTSession: {} as any,
 };
 
 const userPublishedDoc: DBPublishedDocs = {
@@ -179,6 +179,9 @@ describe('getPublishedDocByID', () => {
 describe('getAllUserPublishedDocs', () => {
   test('should return a list of user published documents with pagination', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([userPublishedDoc]);
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      { id: 'collection_1' },
+    ] as any);
 
     const result = await publishedDocsService.getAllUserPublishedDocs(
       user.uid,
@@ -190,6 +193,7 @@ describe('getAllUserPublishedDocs', () => {
 
   test('should return an empty array when no documents found', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
 
     const result = await publishedDocsService.getAllUserPublishedDocs(
       user.uid,
@@ -201,6 +205,9 @@ describe('getAllUserPublishedDocs', () => {
   test('should return paginated results correctly', async () => {
     const docs = [userPublishedDoc, { ...userPublishedDoc, id: 'pub_doc_3' }];
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([docs[0]]);
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      { id: 'collection_1' },
+    ] as any);
 
     const result = await publishedDocsService.getAllUserPublishedDocs(
       user.uid,
@@ -208,11 +215,94 @@ describe('getAllUserPublishedDocs', () => {
     );
     expect(result).toHaveLength(1);
   });
+
+  test('should filter out published docs with non-existent collections', async () => {
+    const doc1 = {
+      ...userPublishedDoc,
+      id: 'pub_doc_1',
+      collectionID: 'collection_1',
+    };
+    const doc2 = {
+      ...userPublishedDoc,
+      id: 'pub_doc_2',
+      collectionID: 'collection_2',
+    };
+    const doc3 = {
+      ...userPublishedDoc,
+      id: 'pub_doc_3',
+      collectionID: 'collection_3',
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([doc1, doc2, doc3]);
+    // Only collection_1 and collection_3 exist
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      { id: 'collection_1' },
+      { id: 'collection_3' },
+    ] as any);
+
+    const result = await publishedDocsService.getAllUserPublishedDocs(
+      user.uid,
+      { skip: 0, take: 10 },
+    );
+
+    // Should only return docs with existing collections
+    expect(result).toHaveLength(2);
+    expect(result.map((d) => d.id)).toEqual(['pub_doc_1', 'pub_doc_3']);
+  });
+
+  test('should delete published docs with non-existent collections', async () => {
+    const doc1 = {
+      ...userPublishedDoc,
+      id: 'pub_doc_1',
+      collectionID: 'collection_1',
+    };
+    const doc2 = {
+      ...userPublishedDoc,
+      id: 'pub_doc_2',
+      collectionID: 'collection_deleted',
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([doc1, doc2]);
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      { id: 'collection_1' },
+    ] as any);
+    mockPrisma.publishedDocs.deleteMany.mockResolvedValueOnce({
+      count: 1,
+    } as any);
+
+    await publishedDocsService.getAllUserPublishedDocs(user.uid, {
+      skip: 0,
+      take: 10,
+    });
+
+    expect(mockPrisma.publishedDocs.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: { in: ['pub_doc_2'] },
+      },
+    });
+  });
+
+  test('should not call deleteMany when all collections exist', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([userPublishedDoc]);
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([
+      { id: 'collection_1' },
+    ] as any);
+
+    await publishedDocsService.getAllUserPublishedDocs(user.uid, {
+      skip: 0,
+      take: 10,
+    });
+
+    expect(mockPrisma.publishedDocs.deleteMany).not.toHaveBeenCalled();
+  });
 });
 
 describe('getAllTeamPublishedDocs', () => {
   test('should return a list of team published documents with pagination', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([teamPublishedDoc]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      { id: 'team_collection_1' },
+    ] as any);
 
     const result = await publishedDocsService.getAllTeamPublishedDocs(
       'team_1',
@@ -225,6 +315,7 @@ describe('getAllTeamPublishedDocs', () => {
 
   test('should return an empty array when no team documents found', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
 
     const result = await publishedDocsService.getAllTeamPublishedDocs(
       'team_1',
@@ -236,6 +327,9 @@ describe('getAllTeamPublishedDocs', () => {
 
   test('should filter by teamID and collectionID correctly', async () => {
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([teamPublishedDoc]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      { id: 'team_collection_1' },
+    ] as any);
 
     await publishedDocsService.getAllTeamPublishedDocs(
       'team_1',
@@ -255,6 +349,88 @@ describe('getAllTeamPublishedDocs', () => {
         createdOn: 'desc',
       },
     });
+  });
+
+  test('should filter out published docs with non-existent team collections', async () => {
+    const doc1 = {
+      ...teamPublishedDoc,
+      id: 'pub_doc_1',
+      collectionID: 'team_collection_1',
+    };
+    const doc2 = {
+      ...teamPublishedDoc,
+      id: 'pub_doc_2',
+      collectionID: 'team_collection_2',
+    };
+    const doc3 = {
+      ...teamPublishedDoc,
+      id: 'pub_doc_3',
+      collectionID: 'team_collection_3',
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([doc1, doc2, doc3]);
+    // Only team_collection_1 and team_collection_3 exist
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      { id: 'team_collection_1' },
+      { id: 'team_collection_3' },
+    ] as any);
+
+    const result = await publishedDocsService.getAllTeamPublishedDocs(
+      'team_1',
+      undefined,
+      { skip: 0, take: 10 },
+    );
+
+    // Should only return docs with existing collections
+    expect(result).toHaveLength(2);
+    expect(result.map((d) => d.id)).toEqual(['pub_doc_1', 'pub_doc_3']);
+  });
+
+  test('should delete published docs with non-existent team collections', async () => {
+    const doc1 = {
+      ...teamPublishedDoc,
+      id: 'pub_doc_1',
+      collectionID: 'team_collection_1',
+    };
+    const doc2 = {
+      ...teamPublishedDoc,
+      id: 'pub_doc_2',
+      collectionID: 'team_collection_deleted',
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([doc1, doc2]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      { id: 'team_collection_1' },
+    ] as any);
+    mockPrisma.publishedDocs.deleteMany.mockResolvedValueOnce({
+      count: 1,
+    } as any);
+
+    await publishedDocsService.getAllTeamPublishedDocs('team_1', undefined, {
+      skip: 0,
+      take: 10,
+    });
+
+    expect(mockPrisma.publishedDocs.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: { in: ['pub_doc_2'] },
+      },
+    });
+  });
+
+  test('should not call deleteMany when all team collections exist', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([teamPublishedDoc]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([
+      { id: 'team_collection_1' },
+    ] as any);
+
+    await publishedDocsService.getAllTeamPublishedDocs(
+      'team_1',
+      'team_collection_1',
+      { skip: 0, take: 10 },
+    );
+
+    expect(mockPrisma.publishedDocs.deleteMany).not.toHaveBeenCalled();
   });
 });
 
@@ -650,7 +826,14 @@ describe('getPublishedDocsCreator', () => {
     const result = await publishedDocsService.getPublishedDocsCreator(
       userPublishedDoc.id,
     );
-    expect(result).toEqualRight(user);
+
+    const expectedUser = {
+      ...user,
+      currentGQLSession: JSON.stringify(user.currentGQLSession),
+      currentRESTSession: JSON.stringify(user.currentRESTSession),
+    };
+
+    expect(result).toEqualRight(expectedUser);
   });
 
   test('should throw PUBLISHED_DOCS_NOT_FOUND when document ID is invalid', async () => {

@@ -35,6 +35,7 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
+                v-if="!isTestRunner"
                 :label="t('action.clear_response')"
                 :icon="IconEraser"
                 :shortcut="[getSpecialKey(), 'Delete']"
@@ -73,6 +74,7 @@ const props = defineProps<{
     type: "success" | "fail"
   }
   isEditable: boolean
+  isTestRunner?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -97,8 +99,13 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   `${filename}.pdf`
 )
 
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
 }
 
 defineActionHandler("response.file.download", () => downloadResponse())

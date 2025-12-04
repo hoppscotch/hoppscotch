@@ -54,6 +54,7 @@ describe("WorkspaceService", () => {
     auth: {
       getCurrentUserStream: vi.fn(),
       getCurrentUser: vi.fn(),
+      waitProbableLoginToConfirm: vi.fn().mockResolvedValue(undefined),
     },
   }
 
@@ -267,6 +268,13 @@ describe("WorkspaceService", () => {
   describe("Workspace Synchronization", () => {
     it("should call changeTeamID and fetchTeamPublishedDocs when workspace changes to a team workspace", async () => {
       const container = new TestContainer()
+
+      // Mock user for this test
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "test-user" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject({ uid: "test-user" })
+      )
+
       const service = container.bind(WorkspaceService)
 
       // Access the mocks
@@ -293,6 +301,13 @@ describe("WorkspaceService", () => {
 
     it("should call clearCollections and fetchUserPublishedDocs when workspace changes to personal workspace", async () => {
       const container = new TestContainer()
+
+      // Mock user for this test
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "test-user" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject({ uid: "test-user" })
+      )
+
       const service = container.bind(WorkspaceService)
 
       // Start with a team workspace
@@ -324,6 +339,13 @@ describe("WorkspaceService", () => {
 
     it("should call clearCollections and fetchUserPublishedDocs when workspace changes to team workspace without teamID", async () => {
       const container = new TestContainer()
+
+      // Mock user for this test
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "test-user" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject({ uid: "test-user" })
+      )
+
       const service = container.bind(WorkspaceService)
 
       const teamCollectionServiceMock = (service as any).teamCollectionService
@@ -404,11 +426,40 @@ describe("WorkspaceService", () => {
       await nextTick()
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to sync team collections and published docs:",
+        "Failed to sync workspace data:",
         expect.any(Error)
       )
 
       consoleSpy.mockRestore()
+    })
+
+    it("should fetch user published docs only when user is authenticated", async () => {
+      // Case 1: No user
+      platformMock.auth.getCurrentUser.mockReturnValue(null)
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject(null)
+      )
+      const container1 = new TestContainer()
+      const service1 = container1.bind(WorkspaceService)
+      const docMock1 = (service1 as any).documentationService
+      docMock1.fetchUserPublishedDocs.mockClear()
+
+      service1.changeWorkspace({ type: "personal" })
+      await nextTick()
+      expect(docMock1.fetchUserPublishedDocs).not.toHaveBeenCalled()
+
+      // Case 2: With user
+      platformMock.auth.getCurrentUser.mockReturnValue({ uid: "test-user" })
+      platformMock.auth.getCurrentUserStream.mockReturnValue(
+        new BehaviorSubject({ uid: "test-user" })
+      )
+      const container2 = new TestContainer()
+      const service2 = container2.bind(WorkspaceService)
+      const docMock2 = (service2 as any).documentationService
+
+      // We check if it was called on initialization
+      await nextTick()
+      expect(docMock2.fetchUserPublishedDocs).toHaveBeenCalled()
     })
   })
 

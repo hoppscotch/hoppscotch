@@ -186,24 +186,24 @@
             </div>
           </div>
 
-          <!-- Create Example Collection Toggle (only when "new collection" is selected) -->
+          <!-- Auto-create Request Example Toggle (only for new collection mode) -->
           <div
             v-if="collectionSelectionMode === 'new'"
             class="flex flex-col space-y-2"
           >
             <div class="flex items-center">
               <HoppSmartToggle
-                :on="createExampleCollection"
-                @change="createExampleCollection = !createExampleCollection"
+                :on="autoCreateRequestExample"
+                @change="autoCreateRequestExample = !autoCreateRequestExample"
               >
-                {{ t("mock_server.create_example_collection") }}
+                {{ t("mock_server.add_example_request") }}
               </HoppSmartToggle>
             </div>
             <div
-              v-if="createExampleCollection"
+              v-if="autoCreateRequestExample"
               class="w-full text-xs text-secondaryLight"
             >
-              {{ t("mock_server.create_example_collection_hint") }}
+              {{ t("mock_server.add_example_request_hint") }}
             </div>
           </div>
         </div>
@@ -276,9 +276,7 @@
           :loading="loading"
           :disabled="
             !mockServerName.trim() ||
-            (!effectiveCollectionID &&
-              collectionSelectionMode === 'existing') ||
-            (collectionSelectionMode === 'new' && !createExampleCollection)
+            (!effectiveCollectionID && collectionSelectionMode === 'existing')
           "
           :icon="IconServer"
           @click="handleCreateMockServer"
@@ -300,17 +298,10 @@ import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { computed, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
-import * as E from "fp-ts/Either"
 import { MockServer } from "~/helpers/backend/graphql"
 import { showCreateMockServerModal$ } from "~/newstore/mockServers"
 import { useMockServer } from "~/composables/useMockServer"
 import MockServerCreatedInfo from "~/components/mockServer/MockServerCreatedInfo.vue"
-import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
-import {
-  createMockCollectionForTeam,
-  createMockCollectionForPersonal,
-} from "~/helpers/mockServer/exampleMockCollection"
 
 // Icons
 import IconCheck from "~icons/lucide/check"
@@ -330,12 +321,6 @@ const {
   toggleMockServer,
 } = useMockServer()
 
-// Services
-const workspaceService = useService(WorkspaceService)
-
-// Current workspace
-const currentWorkspace = computed(() => workspaceService.currentWorkspace.value)
-
 // Modal state
 const modalData = useReadonlyStream(showCreateMockServerModal$, {
   show: false,
@@ -350,7 +335,7 @@ const createdServer = ref<MockServer | null>(null)
 const delayInMsVal = ref<string>("0")
 const isPublic = ref<boolean>(true)
 const setInEnvironment = ref<boolean>(true)
-const createExampleCollection = ref<boolean>(false)
+const autoCreateRequestExample = ref<boolean>(true)
 const selectedCollectionID = ref("")
 const selectedCollectionName = ref("")
 const tippyActions = ref<TippyComponent | null>(null)
@@ -388,6 +373,8 @@ const effectiveCollectionID = computed(() => {
 // Get collection name
 const collectionName = computed(() => {
   if (selectedCollectionName.value) return selectedCollectionName.value
+  // When creating new collection, use the mock server name as collection name
+  if (collectionSelectionMode.value === "new") return mockServerName.value
   return "Unknown Collection"
 })
 
@@ -402,42 +389,6 @@ const selectCollection = (option: any) => {
   selectedCollectionName.value = option.label
 }
 
-// Function to create an example collection and return its ID and name
-const createExampleCollectionAndGetID = async (
-  collectionName: string
-): Promise<{
-  id: string
-  name: string
-}> => {
-  const workspaceType = currentWorkspace.value.type
-
-  if (workspaceType === "personal") {
-    // For personal workspace
-    const result = await createMockCollectionForPersonal(collectionName)
-
-    if (E.isLeft(result)) {
-      throw new Error(result.left)
-    }
-
-    return result.right
-  } else if (workspaceType === "team" && currentWorkspace.value.teamID) {
-    // For team workspace
-    const teamID = currentWorkspace.value.teamID
-    const result = await createMockCollectionForTeam(teamID, collectionName)
-
-    if (E.isLeft(result)) {
-      throw new Error(result.left)
-    }
-
-    // Wait a bit for the subscription to update
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    return result.right
-  }
-
-  throw new Error("Unknown workspace type")
-}
-
 // Create new mock server
 const handleCreateMockServer = async () => {
   // Validate mock server name first
@@ -446,53 +397,28 @@ const handleCreateMockServer = async () => {
     return
   }
 
-  // Start loading and show creating message
-  loading.value = true
-
-  // If "new collection" mode is selected, create example collection (if toggle is enabled)
-  let collectionIDToUse = effectiveCollectionID.value
-
-  if (collectionSelectionMode.value === "new") {
-    if (createExampleCollection.value) {
-      try {
-        // Silently create the collection in the background
-        const newCollection = await createExampleCollectionAndGetID(
-          mockServerName.value.trim()
-        )
-
-        // Update the selected collection with the actual created collection's ID and name
-        collectionIDToUse = newCollection.id
-        selectedCollectionID.value = newCollection.id
-        selectedCollectionName.value = newCollection.name
-      } catch (error) {
-        console.error("Failed to create collection:", error)
-        // If collection creation fails, stop the entire process
-        toast.error(t("mock_server.failed_to_create_mock_server"))
-        loading.value = false
-        return
-      }
-    } else {
-      // If new collection mode but example collection is not enabled
-      toast.error(t("mock_server.enable_example_collection_hint"))
-      loading.value = false
-      return
-    }
-  }
-
-  // Validate collection ID
-  if (!collectionIDToUse) {
+  // For existing collection mode, validate that a collection is selected
+  if (
+    collectionSelectionMode.value === "existing" &&
+    !effectiveCollectionID.value
+  ) {
     toast.error(t("mock_server.select_collection_error"))
-    loading.value = false
     return
   }
 
-  // Wait a bit more to ensure collection is fully available in the system
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  // Start loading
+  loading.value = true
+
+  // Determine if we should auto-create a collection
+  const isNewCollectionMode = collectionSelectionMode.value === "new"
 
   // Now create the mock server
   const result = await createMockServer({
     mockServerName: mockServerName.value,
-    collectionID: collectionIDToUse,
+    collectionID: isNewCollectionMode ? undefined : effectiveCollectionID.value,
+    autoCreateCollection: isNewCollectionMode ? true : undefined,
+    autoCreateRequestExample:
+      isNewCollectionMode && autoCreateRequestExample.value ? true : undefined,
     delayInMs: Number(delayInMsVal.value) || 0,
     isPublic: isPublic.value,
     setInEnvironment: setInEnvironment.value,
@@ -503,6 +429,12 @@ const handleCreateMockServer = async () => {
 
   if (result.success && result.server) {
     createdServer.value = result.server
+
+    // Update the selected collection info from the created server
+    if (result.server.collection) {
+      selectedCollectionID.value = result.server.collection.id
+      selectedCollectionName.value = result.server.collection.title
+    }
   }
 }
 
@@ -539,19 +471,12 @@ watch(show, (newShow) => {
     loading.value = false
     delayInMsVal.value = "0"
     isPublic.value = true
+    autoCreateRequestExample.value = true
     setInEnvironment.value = true
-    createExampleCollection.value = false
     selectedCollectionID.value = ""
     selectedCollectionName.value = ""
     createdServer.value = null
     collectionSelectionMode.value = "existing"
-  }
-})
-
-// Auto-enable example collection toggle when switching to "new" mode
-watch(collectionSelectionMode, (newMode) => {
-  if (newMode === "new") {
-    createExampleCollection.value = true
   }
 })
 </script>

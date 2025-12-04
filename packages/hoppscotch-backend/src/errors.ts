@@ -893,6 +893,13 @@ export const MOCK_SERVER_NOT_FOUND = 'mock_server/not_found';
 export const MOCK_SERVER_INVALID_COLLECTION = 'mock_server/invalid_collection';
 
 /**
+ * Mock server collection creation failed
+ * (MockServerService)
+ */
+export const MOCK_SERVER_COLLECTION_CREATION_FAILED =
+  'mock_server/collection_creation_failed';
+
+/**
  * Mock server already exists for this collection
  * (MockServerService)
  */

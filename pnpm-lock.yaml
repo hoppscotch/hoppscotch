@@ -534,8 +534,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#e05861959938b57479a1a81fa796735ebbd08c7c
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@8.57.0)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
@@ -1022,8 +1022,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#e05861959938b57479a1a81fa796735ebbd08c7c
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@8.57.0)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
@@ -1325,8 +1325,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#e05861959938b57479a1a81fa796735ebbd08c7c
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@8.57.0)(terser@5.44.1)(typescript@5.9.3)(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
@@ -1691,8 +1691,8 @@ packages:
       graphql:
         optional: true
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c}
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/7cf09c1ad31e228758738c2f4e1c8fe9cc141291':
@@ -13239,7 +13239,7 @@ snapshots:
     optionalDependencies:
       graphql: 16.12.0
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/e05861959938b57479a1a81fa796735ebbd08c7c':
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/52744a8f35bf81b039410522efd4168bd06d4f35':
     dependencies:
       '@tauri-apps/api': 2.1.1
 

@@ -73,7 +73,15 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    await this.$connect();
+    try {
+      // Verify pool connectivity
+      const client = await this.pool.connect();
+      client.release();
+
+      await this.$connect();
+    } catch (error) {
+      throw new Error(`Database connection failed: ${error.message}`);
+    }
   }
 
   async onModuleDestroy() {

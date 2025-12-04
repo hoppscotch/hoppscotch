@@ -122,7 +122,9 @@ import {
   HoppCollectionVariable,
   HoppRESTRequest,
   makeRESTRequest,
+  parseTemplateStringE,
 } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
 import { ref, computed, onMounted, onUnmounted, watch } from "vue"
 import { useIntersectionObserver } from "@vueuse/core"
 import {
@@ -145,7 +147,9 @@ import {
 import {
   AggregateEnvironment,
   getCurrentEnvironment,
+  getAggregateEnvs,
 } from "~/newstore/environments"
+import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import hljs from "highlight.js/lib/core"
 import javascript from "highlight.js/lib/languages/javascript"
@@ -295,17 +299,62 @@ const getFinalURL = (input: string): string => {
 const getEffectiveRequest = async () => {
   if (!props.request) return null
 
+  // Get environment variables for resolving collection variable values
+  const aggregateEnvs = getAggregateEnvs()
+  const envVarsForParsing = aggregateEnvs.map((env) => ({
+    key: env.key,
+    initialValue: env.initialValue || "",
+    currentValue: getCurrentValue(env) || env.initialValue || "",
+    secret: env.secret || false,
+  }))
+
   let collectionVariables: HoppCollectionVariable[] = []
 
   if (props.inheritedProperties) {
     collectionVariables = props.inheritedProperties.variables.flatMap(
       (parentVar) =>
-        parentVar.inheritedVariables.map((variable) => ({
-          key: variable.key,
-          initialValue: variable.initialValue,
-          currentValue: variable.currentValue,
-          secret: variable.secret,
-        }))
+        parentVar.inheritedVariables.map((variable) => {
+          // Resolve collection variable values that contain environment variable references
+          let resolvedInitialValue = variable.initialValue
+          let resolvedCurrentValue = variable.currentValue
+
+          HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+          if (
+            variable.initialValue &&
+            HOPP_ENVIRONMENT_REGEX.test(variable.initialValue)
+          ) {
+            HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+            const parsedInitial = parseTemplateStringE(
+              variable.initialValue,
+              envVarsForParsing
+            )
+            if (E.isRight(parsedInitial)) {
+              resolvedInitialValue = parsedInitial.right
+            }
+          }
+
+          HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+          if (
+            variable.currentValue &&
+            HOPP_ENVIRONMENT_REGEX.test(variable.currentValue)
+          ) {
+            HOPP_ENVIRONMENT_REGEX.lastIndex = 0
+            const parsedCurrent = parseTemplateStringE(
+              variable.currentValue,
+              envVarsForParsing
+            )
+            if (E.isRight(parsedCurrent)) {
+              resolvedCurrentValue = parsedCurrent.right
+            }
+          }
+
+          return {
+            key: variable.key,
+            initialValue: resolvedInitialValue,
+            currentValue: resolvedCurrentValue,
+            secret: variable.secret,
+          }
+        })
     )
   }
 
@@ -335,6 +384,13 @@ const getEffectiveRequest = async () => {
             ...envVar,
             sourceEnv: "Global",
           } as AggregateEnvironment) || envVar.initialValue,
+      })),
+      // Add environment variables to the environment
+      ...envVarsForParsing.map((envVar) => ({
+        key: envVar.key,
+        initialValue: envVar.initialValue,
+        currentValue: envVar.currentValue,
+        secret: envVar.secret,
       })),
     ],
   }

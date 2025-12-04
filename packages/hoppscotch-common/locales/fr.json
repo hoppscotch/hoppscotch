@@ -71,7 +71,11 @@
     "verify": "Vérifier",
     "enable": "Activer",
     "disable": "Désactiver",
-    "assign": "Assigner"
+    "assign": "Assigner",
+    "clear_response": "Réponse claire",
+    "open": "Ouvrir",
+    "sort": "Trier",
+    "unpublish": "Annuler la publication"
   },
   "activity_logs": {
     "ACTIVITY_LOG_DELETE": "Le journal des activités a bien été supprimé",
@@ -345,7 +349,8 @@
     "select": "Sélectionner une collection",
     "select_location": "Sélectionner l'emplacement",
     "details": "Détails",
-    "duplicated": "Collection dupliquée"
+    "duplicated": "Collection dupliquée",
+    "sorted": "Collection triée"
   },
   "confirm": {
     "close_unsaved_tab": "Voulez-vous vraiment fermer cet onglet ?",
@@ -365,7 +370,8 @@
     "request_change": "Voulez-vous vraiment annuler les modifications effectuées pour la requête actuelle ? Les changements non sauvegardés seront perdus.",
     "save_unsaved_tab": "Voulez-vous enregistrer les changements effectués dans cet onglet ?",
     "sync": "Voulez-vous restaurer votre espace de travail depuis le cloud ? Cela va écraser les modifications de la version locale de votre espace de travail.",
-    "delete_access_token": "Voulez-vous vraiment supprimer le jeton d'authentification {tokenLabel} ?"
+    "delete_access_token": "Voulez-vous vraiment supprimer le jeton d'authentification {tokenLabel} ?",
+    "delete_mock_server": "Êtes-vous sûr de vouloir supprimer ce serveur fictif ?"
   },
   "context_menu": {
     "add_parameters": "Ajouter aux paramètres",
@@ -404,7 +410,151 @@
   },
   "documentation": {
     "generate": "Générer la documentation",
-    "generate_message": "Importer une collection Hoppscotch pour générer directement la documentation d'API associée."
+    "generate_message": "Importer une collection Hoppscotch pour générer directement la documentation d'API associée.",
+    "add_description": "Ajoutez une description de cette collection ici...",
+    "add_description_placeholder": "Ajoutez une description ici...",
+    "add_request_description": "Ajoutez une description de la demande ici...",
+    "auth": {
+      "access_key": "Clé d'accès",
+      "access_token": "Jeton d'accès",
+      "add_to": "Ajouter à",
+      "akamai_edgegrid": "Akamai EdgeGrid",
+      "algorithm": "Algorithme",
+      "api_key": "Clé API",
+      "app_id": "Identifiant de l'application",
+      "auth_id": "ID d'authentification",
+      "auth_key": "Clé d'authentification",
+      "auth_url": "URL d'authentification",
+      "aws_signature": "Signature AWS",
+      "basic_auth": "Authentification de base",
+      "bearer_token": "Jeton du porteur",
+      "client_id": "Identifiant client",
+      "client_nonce": "Client occasionnel",
+      "client_secret": "Secret client",
+      "client_token": "Jeton client",
+      "delegation": "Délégation",
+      "digest_auth": "Authentification du résumé",
+      "extra_data": "Données supplémentaires",
+      "grant_type": "Type de subvention",
+      "hawk_auth": "Authentification HAWK",
+      "headers_to_sign": "En-têtes à signer",
+      "host": "Hôte",
+      "include_payload_hash": "Inclure le hachage de la charge utile",
+      "jwt_auth": "Authentification JWT",
+      "max_body_size": "Taille maximale du corps",
+      "no_auth": "Aucune authentification",
+      "nonce": "Occasionnellement",
+      "oauth_2": "OAuth 2.0",
+      "opaque": "Opaque",
+      "password": "Mot de passe",
+      "payload": "Charge utile",
+      "qop": "QOP",
+      "realm": "Royaume",
+      "region": "Région",
+      "scope": "Portée",
+      "secret_key": "Clé secrète",
+      "service_name": "Nom du service",
+      "timestamp": "Horodatage",
+      "title": "Authentification",
+      "token_url": "URL du jeton",
+      "user": "Utilisateur",
+      "username": "Nom d'utilisateur"
+    },
+    "body": {
+      "content_type": "Type de contenu",
+      "no_body": "Aucun corps défini",
+      "title": "Corps"
+    },
+    "copied_to_clipboard": "Copié dans le presse-papier !",
+    "curl": {
+      "click_to_load": "Cliquez pour charger la commande cURL",
+      "copied": "Commande cURL copiée dans le presse-papiers !",
+      "copy_to_clipboard": "Copier dans le presse-papier",
+      "generating": "Génération de la commande cURL...",
+      "load": "Charger cURL",
+      "title": "boucle"
+    },
+    "description": "Description",
+    "error_rendering_markdown": "Erreur de rendu de démarque :",
+    "fetching_documentation": "Récupération de la documentation...",
+    "headers": {
+      "no_headers": "Aucun en-tête défini",
+      "title": "En-têtes"
+    },
+    "hide_all_documentation": "Masquer toute la documentation",
+    "inherited_from": "Hérité de {name}",
+    "inherited_with_type": "Hérité de {type} de {name}",
+    "key": "Clé",
+    "loading": "Chargement...",
+    "loading_collection_data": "Chargement des données de collecte...",
+    "no": "Non",
+    "no_collection_data": "Aucune donnée de collecte disponible",
+    "no_documentation_found": "Aucune documentation trouvée pour les dossiers ou les demandes",
+    "no_request_data": "Aucune donnée de demande disponible",
+    "no_requests_or_folders": "Aucune demande ni dossier",
+    "not_set": "Non défini",
+    "open_request_in_new_tab": "Ouvrir la demande dans un nouvel onglet",
+    "parameters": {
+      "no_params": "Aucun paramètre défini",
+      "title": "Paramètres"
+    },
+    "percent_complete": "% complet",
+    "processing_documentation": "Documents de traitement",
+    "publish": {
+      "already_published": "Cette collection est déjà publiée",
+      "auto_sync": "Synchronisation automatique avec la collection",
+      "auto_sync_description": "Mettre à jour automatiquement les documents publiés lorsque la collection change",
+      "button": "Publier",
+      "copy_url": "Copier l'URL",
+      "delete": "Supprimer la documentation",
+      "delete_success": "Documentation publiée supprimée avec succès",
+      "doc_title": "Titre",
+      "doc_version": "Version",
+      "edit_published_doc": "Modifier le document publié",
+      "last_updated": "Dernière mise à jour",
+      "metadata": "Métadonnées (JSON)",
+      "open_published_doc": "Ouvrir la documentation publiée dans un nouvel onglet",
+      "publish_error": "Échec de la publication de la documentation",
+      "publish_success": "Documentation publiée avec succès !",
+      "published": "Publié",
+      "published_url": "URL publiée",
+      "title": "Publier des documents",
+      "unpublish": "Annuler la publication",
+      "unpublish_doc": "Êtes-vous sûr de vouloir annuler la publication de la documentation ?",
+      "update_button": "Mise à jour",
+      "update_error": "Échec de la mise à jour de la documentation",
+      "update_published_docs": "Mettre à jour les documents publiés",
+      "update_success": "Documentation mise à jour avec succès !",
+      "update_title": "Mettre à jour la documentation publiée",
+      "url_copied": "URL copiée dans le presse-papier !",
+      "view_published": "Afficher les documents publiés",
+      "view_title": "Afficher la documentation publiée"
+    },
+    "request_opened_in_new_tab": "Demande ouverte dans un nouvel onglet !",
+    "response": {
+      "body": "Corps de réponse",
+      "copy": "Copier la réponse",
+      "example_copied": "Exemple de réponse copié dans le presse-papier !",
+      "example_copy_failed": "Échec de la copie de l'exemple de réponse",
+      "headers": "En-têtes de réponse",
+      "no_examples": "Aucun exemple de réponse disponible",
+      "title": "Exemples de réponses"
+    },
+    "save_error": "Erreur lors de l'enregistrement de la documentation",
+    "save_success": "Documentation enregistrée avec succès",
+    "saved_items_status": "Éléments {success} enregistrés. Échec de l'enregistrement des éléments {failure}.",
+    "show_all_documentation": "Afficher toute la documentation",
+    "source": "Source",
+    "title": "Documentation",
+    "unsaved_changes": "Vous avez {count} modifications non enregistrées. Veuillez enregistrer avant de fermer.",
+    "untitled_collection": "Collection sans titre",
+    "untitled_request": "Demande sans titre",
+    "value": "Valeur",
+    "variables": {
+      "no_vars": "Aucune variable définie",
+      "title": "Variables"
+    },
+    "yes": "Oui"
   },
   "empty": {
     "activity_logs": "Aucune entrée de journalisation d'activité trouvée",
@@ -436,7 +586,9 @@
     "teams": "Vous n'appartenez à aucun espace de travail",
     "tests": "Aucun test pour cette requête",
     "access_tokens": "Les jetons d'authentification sont vides",
-    "response": "Aucune réponse reçue"
+    "response": "Aucune réponse reçue",
+    "collection_variables": "Les variables de collection sont vides",
+    "mock_servers": "Aucun serveur fictif trouvé"
   },
   "environment": {
     "heading": "Environnement",
@@ -603,7 +755,8 @@
     "name_length_insufficient": "Le nom du dossier doit avoir au moins 3 caractères",
     "new": "Nouveau dossier",
     "run": "Exécuter le dossier",
-    "renamed": "Dossier renommé"
+    "renamed": "Dossier renommé",
+    "sorted": "Dossier trié"
   },
   "graphql": {
     "arguments": "Arguments",
@@ -714,7 +867,12 @@
       "explanation": "Ceci est une fonctionnalité de sécurité qui empêche les pages web d'émettre des requêtes depuis des domaines différents. Vous pouvez réessayer en utilisant notre service de proxy pour contourner cette restriction.",
       "url_label": "URL tentée",
       "retry_with_proxy": "Réessayer avec le proxy"
-    }
+    },
+    "import_scripts": "Importer des scripts",
+    "import_scripts_description": "Prend en charge Postman Collection v2.0/v2.1.",
+    "import_summary_enable_experimental_sandbox": "Pour importer des scripts Postman, activez « Bac à sable de script expérimental » dans les paramètres. Remarque : Cette fonctionnalité est expérimentale.",
+    "import_summary_script_found": "script trouvé mais non importé",
+    "import_summary_scripts_found": "scripts trouvés mais non importés"
   },
   "instances": {
     "switch": "Changer d'instance Hoppscotch",
@@ -725,7 +883,28 @@
     "add_new": "Ajouter une nouvelle instance",
     "confirm_remove": "Confirmer la suppression",
     "remove_warning": "Voulez-vous vraiment supprimer cette instance ?",
-    "clear_cached_bundles": "Vider les paquets dans le cache"
+    "clear_cached_bundles": "Vider les paquets dans le cache",
+    "cancelled_removal": "Suppression de l'instance annulée",
+    "cleanup_completed": "Nettoyage du commutateur d'instance terminé",
+    "clearing_cache": "Vider le cache...",
+    "closed_add_modal": "Boîte de dialogue Ajouter une instance fermée",
+    "confirm_removal": "Confirmer la suppression de l'instance",
+    "connected_state": "Connexion réussie à l'instance",
+    "connecting": "Connexion à l'instance...",
+    "connecting_state": "Établir la connexion...",
+    "connection_cancelled": "Connexion annulée par validation pré-connexion",
+    "current_instance_error": "Échec du suivi de l'instance actuelle",
+    "disconnected_state": "Déconnecté de l'instance",
+    "initialized": "Sélecteur d'instance initialisé",
+    "instance_changed": "Passé à l'instance",
+    "not_available": "Le changement d'instance n'est pas disponible",
+    "opening_add_modal": "Ouverture de la boîte de dialogue d'ajout d'instance",
+    "post_connect_completed": "Configuration post-connexion terminée",
+    "post_remove_completed": "Nettoyage après suppression terminé",
+    "recent_instances_error": "Échec du chargement des instances récentes",
+    "removal_cancelled": "Suppression de l'instance annulée par validation préalable à la suppression",
+    "removing": "Suppression de l'instance...",
+    "stream_error": "La surveillance de l'état de la connexion a échoué"
   },
   "inspections": {
     "description": "Inspecter les erreurs possibles",
@@ -759,6 +938,13 @@
     },
     "body": {
       "binary": "L'envoi de données binaires via l'intercepteur actuel n'eset pas encore géré."
+    },
+    "scripting_interceptor": {
+      "both_scripts": "scripts de pré-demande et de post-demande",
+      "post_request": "script post-demande",
+      "pre_request": "script de pré-demande",
+      "same_origin_csrf_warning": "Avertissement de sécurité : votre {scriptType} effectue des requêtes de même origine à l'aide de {apiUsed}. Étant donné que cette plateforme utilise une authentification basée sur les cookies, ces demandes incluent automatiquement vos cookies de session, permettant potentiellement à des scripts malveillants d'effectuer des actions non autorisées. Utilisez l'intercepteur d'agent pour les requêtes de même origine ou exécutez uniquement des scripts auxquels vous faites confiance.",
+      "unsupported_interceptor": "Votre {scriptType} utilise {apiUsed}. Pour une exécution de script fiable, passez à l'intercepteur d'agent (application Web) ou à l'intercepteur natif (application de bureau). L'intercepteur {interceptor} a une prise en charge limitée pour les requêtes de script et peut ne pas fonctionner comme prévu."
     }
   },
   "interceptor": {
@@ -840,7 +1026,8 @@
     "rest": "REST",
     "settings": "Paramètres",
     "goto_app": "Aller à l'application",
-    "authentication": "Authentification"
+    "authentication": "Authentification",
+    "mock_servers": "Serveurs simulés"
   },
   "preRequest": {
     "javascript_code": "Code JavaScript",
@@ -1063,7 +1250,10 @@
     "ca_certificates": "Certificats de l'autorité certifiante",
     "ca_certificates_support": "Hoppscotch prend en charge les fichiers .crt, .cer ou .pem contenant un ou plusieurs certificats.",
     "proxy_capabilities": "L'agent Hoppscotch prend en charge les proxy HTTP/HTTPS/SOCKS avec NLTM et l'authentification basique (Basic) pour ces proxy. Le nom d'utilisateur et le mot de passe doivent être passés en paramètre de l'URL elle-même pour l'authentification via proxy.",
-    "proxy_auth": "Vous pouvez aussi inclure le nom d'utilisateur et le mot de passe dans l'URL."
+    "proxy_auth": "Vous pouvez aussi inclure le nom d'utilisateur et le mot de passe dans l'URL.",
+    "enable_experimental_documentation": "Activer la documentation",
+    "enable_experimental_mock_servers": "Activer les serveurs fictifs",
+    "follow_redirects": "Suivre les redirections"
   },
   "shared_requests": {
     "button": "Bouton",
@@ -1436,7 +1626,9 @@
     "users_to_admin_success": "Les utilisateurs sélectionnés ont été promus administrateur.",
     "users_to_admin_failure": "Impossible de promouvoir administrateur les utilisateurs sélectionnés.",
     "loading_workspaces": "Chargement des espaces de travail",
-    "loading_collections_in_workspace": "Chargement des collections de l'espace de travail"
+    "loading_collections_in_workspace": "Chargement des collections de l'espace de travail",
+    "experimental": "Expérimental",
+    "no_content_found": "Aucun contenu trouvé"
   },
   "support": {
     "changelog": "En savoir plus sur les dernières mises à jour",
@@ -1478,7 +1670,8 @@
     "websocket": "WebSocket",
     "all_tests": "Tests",
     "passed": "Réussi",
-    "failed": "Échoué"
+    "failed": "Échoué",
+    "mock_servers": "Serveurs simulés"
   },
   "team": {
     "activity_logs": "Journalisation d'activités",
@@ -1936,5 +2129,126 @@
   "app_console": {
     "entries": "Entrées console",
     "no_entries": "Aucune entrée"
+  },
+  "mockServer": {
+    "create_modal": {
+      "add_request": "Ajouter une demande",
+      "collection_name_label": "Nom de la collection",
+      "collection_name_placeholder": "Entrez le nom de la collection",
+      "collection_name_required": "Le nom de la collection est requis",
+      "collection_required": "Veuillez sélectionner une collection",
+      "collection_source_label": "Source de collecte",
+      "create_button": "Créer un serveur fictif",
+      "error": "Échec de la création du serveur fictif",
+      "existing_collection": "Collection existante",
+      "name_label": "Nom du serveur fictif",
+      "name_placeholder": "Entrez le nom du serveur fictif",
+      "name_required": "Le nom du serveur fictif est requis",
+      "new_collection": "Nouvelle collection",
+      "no_collections": "Aucune collection disponible",
+      "request_config_label": "Configuration de la demande",
+      "select_collection_label": "Sélectionnez une collection",
+      "select_collection_placeholder": "Choisissez une collection",
+      "success": "Serveur fictif créé avec succès",
+      "title": "Créer un serveur fictif"
+    },
+    "dashboard": {
+      "active": "Actif",
+      "collection": "Collection",
+      "create_button": "Créer un serveur fictif",
+      "create_first": "Créez votre premier serveur fictif",
+      "created": "Créé",
+      "delete_description": "Êtes-vous sûr de vouloir supprimer ce serveur fictif ?",
+      "delete_error": "Échec de la suppression du serveur fictif",
+      "delete_success": "Serveur fictif supprimé avec succès",
+      "delete_title": "Supprimer le serveur fictif",
+      "doc_description": "Utilisez cette URL comme URL de base de votre API dans vos applications :",
+      "documentation": "Documentation",
+      "empty_description": "Créez des serveurs fictifs basés sur vos collections d'API pour permettre le développement front-end et mobile sans dépendances back-end.",
+      "empty_title": "Aucun serveur fictif trouvé",
+      "endpoints": "Points de terminaison",
+      "inactive": "Inactif",
+      "mock_url": "URL fictive",
+      "subtitle": "Créez et gérez vos serveurs fictifs d'API",
+      "title": "Serveurs simulés",
+      "url_copied": "URL du serveur fictif copiée dans le presse-papiers",
+      "view_collection": "Voir la collection"
+    },
+    "edit_modal": {
+      "active_label": "Actif",
+      "collection_label": "Collection",
+      "error": "Échec de la mise à jour du serveur fictif",
+      "name_label": "Nom du serveur fictif",
+      "name_placeholder": "Entrez le nom du serveur fictif",
+      "name_required": "Le nom du serveur fictif est requis",
+      "success": "Serveur fictif mis à jour avec succès",
+      "title": "Modifier le serveur fictif",
+      "update_button": "Mettre à jour le serveur fictif",
+      "url_copied": "URL copiée dans le presse-papiers",
+      "url_label": "URL du serveur fictif"
+    }
+  },
+  "mock_server": {
+    "active": "Le serveur fictif est actif",
+    "base_url": "URL de base",
+    "collection_deleted": "collection associée supprimée.",
+    "confirm_delete_log": "Êtes-vous sûr de vouloir supprimer ce journal ?",
+    "create_example_collection": "Créer un exemple de collection",
+    "create_example_collection_hint": "Créez une collection d'exemples d'animalerie avec des exemples de requêtes (GET, POST, PUT, DELETE)",
+    "create_mock_server": "Configurer le serveur fictif",
+    "create_token_here": "Créez ici",
+    "creating_example_collection": "Création d'une collection d'exemples...",
+    "delay_description": "Ajouter un délai artificiel aux réponses simulées",
+    "delay_ms": "Délai de réponse (ms)",
+    "delay_placeholder": "Entrez le délai en millisecondes",
+    "description": "Les serveurs fictifs vous permettent de simuler des réponses API en fonction des exemples de réponses de votre collection.",
+    "edit_mock_server": "Modifier le serveur fictif",
+    "enable_example_collection_hint": "Veuillez activer le bouton « Créer un exemple de collection » pour un nouveau mode de collecte.",
+    "environment_created_with_variable": "Environnement créé avec une URL fictive",
+    "environment_variable_added": "URL fictive ajoutée à l'environnement",
+    "environment_variable_updated": "URL fictive mise à jour dans l'environnement",
+    "existing_collection": "Collection existante",
+    "failed_to_create_collection": "Échec de la création d'une collection d'exemples",
+    "inactive": "Le serveur fictif est inactif",
+    "invalid_collection_error": "Échec de la création d'un serveur fictif pour la collection.",
+    "log_deleted": "Journal supprimé avec succès",
+    "logs_title": "Journaux du serveur fictif",
+    "make_public": "Rendre public",
+    "mock_server_configuration": "Configuration du serveur fictif",
+    "mock_server_created": "Serveur fictif créé avec succès",
+    "mock_server_name": "Nom du serveur fictif",
+    "mock_server_name_placeholder": "Entrez le nom du serveur fictif",
+    "mock_server_started": "Le serveur fictif a démarré avec succès",
+    "mock_server_stopped": "Le serveur fictif s'est arrêté avec succès",
+    "mock_server_updated": "Serveur fictif mis à jour avec succès",
+    "new_collection": "Nouvelle collection",
+    "new_collection_name_hint": "La collection sera créée avec le même nom que votre serveur fictif",
+    "no_collection": "Pas de collecte",
+    "no_logs": "Aucun journal disponible",
+    "path_based_url": "URL basée sur le chemin",
+    "private": "Privé",
+    "private_access_hint": "Pour les serveurs fictifs privés, incluez l'en-tête « x-api-key » avec votre jeton d'accès personnel (créez-en un à partir de votre profil).",
+    "private_access_instruction": "Pour accéder à ce serveur fictif privé, incluez l'en-tête « x-api-key » avec votre jeton d'accès personnel.",
+    "private_description": "Seuls les utilisateurs authentifiés peuvent accéder à ce serveur fictif",
+    "public": "Publique",
+    "public_access": "Accès public",
+    "public_description": "Toute personne disposant de l'URL peut accéder à ce serveur fictif",
+    "request_body": "Corps de la demande",
+    "request_headers": "En-têtes de demande",
+    "response_body": "Corps de réponse",
+    "response_headers": "En-têtes de réponse",
+    "response_status": "Statut de la réponse",
+    "select_collection": "Sélectionnez une collection",
+    "select_collection_error": "Veuillez sélectionner une collection",
+    "server_running": "Le serveur est en cours d'exécution",
+    "server_stopped": "Le serveur est arrêté",
+    "set_in_environment": "Situé dans l'environnement",
+    "set_in_environment_hint": "L'URL du serveur fictif sera automatiquement ajoutée en tant que variable 'mockUrl' dans l'environnement de la collection",
+    "start_server": "Démarrer le serveur",
+    "status": "Statut",
+    "stop_server": "Arrêter le serveur",
+    "subdomain_based_url": "URL basée sur un sous-domaine",
+    "url_copied": "URL copiée dans le presse-papiers",
+    "view_logs": "Afficher les journaux"
   }
 }

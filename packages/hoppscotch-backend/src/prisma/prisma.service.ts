@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient, Prisma } from 'src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
+import { parseIntSafe } from 'src/utils';
 
 @Injectable()
 export class PrismaService
@@ -61,12 +62,8 @@ export class PrismaService
       return {
         connectionString: url.toString(),
         schema,
-        connectionLimit: connectionLimit
-          ? parseInt(connectionLimit, 10)
-          : undefined,
-        connectTimeout: connectTimeout
-          ? parseInt(connectTimeout, 10)
-          : undefined,
+        connectionLimit: parseIntSafe(connectionLimit),
+        connectTimeout: parseIntSafe(connectTimeout),
       };
     } catch (error) {
       throw new Error(

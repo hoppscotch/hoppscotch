@@ -400,7 +400,6 @@ const saveTeam = async () => {
   if (isLoading.value) return
   isLoading.value = true
 
-  // --- NEW VALIDATION + SANITIZATION ---
   const rawName = editingName.value ?? ""
   const sanitized = sanitizeWorkspaceName(rawName)
   const validation = validateWorkspaceName(sanitized)
@@ -413,7 +412,6 @@ const saveTeam = async () => {
 
   // Provide the sanitized name to backend operations
   editingName.value = sanitized
-  // --------------------------------------
 
   // Continue with original TeamNameCodec + mutation logic
   if (TeamNameCodec.is(editingName.value)) {

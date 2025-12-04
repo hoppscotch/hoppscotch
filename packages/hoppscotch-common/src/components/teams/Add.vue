@@ -66,7 +66,6 @@ const workspaceService = useService(WorkspaceService)
 const addNewTeam = async () => {
   if (isLoading.value) return
 
-  // ---- NEW VALIDATION LOGIC ----
   const rawName = editingName.value ?? ""
   const sanitized = sanitizeWorkspaceName(rawName)
   const validation = validateWorkspaceName(sanitized)
@@ -78,7 +77,6 @@ const addNewTeam = async () => {
 
   // replace the value so the codec gets clean input
   editingName.value = sanitized
-  // -------------------------------
 
   isLoading.value = true
   await pipe(

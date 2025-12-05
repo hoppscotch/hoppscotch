@@ -7,7 +7,10 @@ import {
   hoverTooltip,
 } from "@codemirror/view"
 import { StreamSubscriberFunc } from "@composables/stream"
-import { parseTemplateStringE } from "@hoppscotch/data"
+import {
+  parseTemplateStringE,
+  HoppRESTRequestVariables,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, watch } from "vue"
 
@@ -38,7 +41,6 @@ import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
 } from "~/helpers/environment-regex"
-import { HoppRESTRequestVariables } from "@hoppscotch/data"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"

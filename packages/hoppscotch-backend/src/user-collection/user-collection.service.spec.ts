@@ -12,6 +12,7 @@ import {
   USER_COLL_ALREADY_ROOT,
   USER_NOT_OWNER,
   USER_COLL_DATA_INVALID,
+  USER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
@@ -729,6 +730,7 @@ describe('createUserCollection', () => {
   });
 
   test('should throw USER_NOT_OWNER when user is not the owner of the collection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(
@@ -745,11 +747,12 @@ describe('createUserCollection', () => {
       rootRESTUserCollection.id,
       ReqType.REST,
     );
-    expect(result).toEqualLeft(USER_NOT_OWNER);
+    expect(result).toEqualLeft(USER_COLLECTION_CREATION_FAILED);
   });
 
   test('should successfully create a new root REST user-collection with valid inputs', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -767,6 +770,7 @@ describe('createUserCollection', () => {
 
   test('should successfully create a new root GQL user-collection with valid inputs', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       rootGQLUserCollection,
@@ -783,10 +787,11 @@ describe('createUserCollection', () => {
   });
 
   test('should successfully create a new child REST user-collection with valid inputs', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootRESTUserCollection));
-    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       childRESTUserCollection,
@@ -803,10 +808,11 @@ describe('createUserCollection', () => {
   });
 
   test('should successfully create a new child GQL user-collection with valid inputs', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootGQLUserCollection));
-    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       childGQLUserCollection,
@@ -823,10 +829,11 @@ describe('createUserCollection', () => {
   });
 
   test('should send pubsub message to "user_coll/<userID>/created" if child REST user-collection is created successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootRESTUserCollection));
-    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       childRESTUserCollection,
@@ -846,10 +853,11 @@ describe('createUserCollection', () => {
   });
 
   test('should send pubsub message to "user_coll/<userID>/created" if child GQL user-collection is created successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(rootGQLUserCollection));
-    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       childGQLUserCollection,
@@ -871,6 +879,7 @@ describe('createUserCollection', () => {
 
   test('should send pubsub message to "user_coll/<userID>/created" if REST root user-collection is created successfully', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -891,6 +900,7 @@ describe('createUserCollection', () => {
 
   test('should send pubsub message to "user_coll/<userID>/created" if GQL root user-collection is created successfully', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.userCollection.create.mockResolvedValueOnce(
       rootGQLUserCollection,
@@ -1091,6 +1101,7 @@ describe('deleteUserCollection', () => {
 
 describe('moveUserCollection', () => {
   test('should throw USER_COLL_NOT_FOUND if userCollectionID is invalid', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockRejectedValueOnce(
       'NotFoundError',
@@ -1105,6 +1116,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_NOT_OWNER if user is not owner of collection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1119,6 +1131,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_DEST_SAME if userCollectionID and destCollectionID is the same', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1133,6 +1146,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_NOT_FOUND if destCollectionID is invalid', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1151,6 +1165,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_NOT_SAME_TYPE if userCollectionID and destCollectionID are not the same collection type', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1169,6 +1184,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_NOT_SAME_USER if userCollectionID and destCollectionID are not from the same user', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1188,6 +1204,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_IS_PARENT_COLL if userCollectionID is parent of destCollectionID ', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1206,6 +1223,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COL_ALREADY_ROOT when moving root user-collection to root', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     // getUserCollection
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollection,
@@ -1220,6 +1238,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should successfully move a child user-collection into root', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
@@ -1241,6 +1260,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should throw USER_COLL_NOT_FOUND when trying to change parent of collection with invalid collectionID', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
@@ -1257,6 +1277,7 @@ describe('moveUserCollection', () => {
   });
 
   test('should send pubsub message to "user_coll/<userID>/moved" when user-collection is moved to root successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
       .mockResolvedValueOnce(E.right(childRESTUserCollection));
@@ -1281,11 +1302,10 @@ describe('moveUserCollection', () => {
   });
 
   test('should successfully move a root user-collection into a child user-collection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
-      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
-    jest
-      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection))
       .mockResolvedValueOnce(E.right(childRESTUserCollection_2));
     jest
       .spyOn(userCollectionService as any, 'isParent')
@@ -1311,11 +1331,10 @@ describe('moveUserCollection', () => {
   });
 
   test('should successfully move a child user-collection into another child user-collection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
-      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
-    jest
-      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection))
       .mockResolvedValueOnce(E.right(childRESTUserCollection_2));
     jest
       .spyOn(userCollectionService as any, 'isParent')
@@ -1341,11 +1360,10 @@ describe('moveUserCollection', () => {
   });
 
   test('should send pubsub message to "user_coll/<userID>/moved" when user-collection is moved into another child user-collection successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     jest
       .spyOn(userCollectionService, 'getUserCollection')
-      .mockResolvedValueOnce(E.right(rootRESTUserCollection));
-    jest
-      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(rootRESTUserCollection))
       .mockResolvedValueOnce(E.right(childRESTUserCollection_2));
     jest
       .spyOn(userCollectionService as any, 'isParent')
@@ -1417,7 +1435,15 @@ describe('updateUserCollectionOrder', () => {
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childRESTUserCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
+      childRESTUserCollectionList[4],
+    );
     mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 4 });
+    mockPrisma.userCollection.count.mockResolvedValueOnce(
+      childRESTUserCollectionList.length,
+    );
     mockPrisma.userCollection.update.mockResolvedValueOnce({
       ...childRESTUserCollectionList[4],
       orderIndex: childRESTUserCollectionList.length,
@@ -1436,7 +1462,15 @@ describe('updateUserCollectionOrder', () => {
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootRESTUserCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
+      rootRESTUserCollectionList[4],
+    );
     mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 4 });
+    mockPrisma.userCollection.count.mockResolvedValueOnce(
+      rootRESTUserCollectionList.length,
+    );
     mockPrisma.userCollection.update.mockResolvedValueOnce({
       ...rootRESTUserCollectionList[4],
       orderIndex: rootRESTUserCollectionList.length,
@@ -1470,7 +1504,15 @@ describe('updateUserCollectionOrder', () => {
     mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childRESTUserCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
+      childRESTUserCollectionList[4],
+    );
     mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 4 });
+    mockPrisma.userCollection.count.mockResolvedValueOnce(
+      childRESTUserCollectionList.length,
+    );
     mockPrisma.userCollection.update.mockResolvedValueOnce({
       ...childRESTUserCollectionList[4],
       orderIndex: childRESTUserCollectionList.length,
@@ -1532,6 +1574,16 @@ describe('updateUserCollectionOrder', () => {
     mockPrisma.userCollection.findUniqueOrThrow
       .mockResolvedValueOnce(childRESTUserCollectionList[4])
       .mockResolvedValueOnce(childRESTUserCollectionList[2]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst
+      .mockResolvedValueOnce(childRESTUserCollectionList[4])
+      .mockResolvedValueOnce(childRESTUserCollectionList[2]);
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 2 });
+    mockPrisma.userCollection.update.mockResolvedValueOnce({
+      ...childRESTUserCollectionList[4],
+      orderIndex: 2,
+    });
 
     const result = await userCollectionService.updateUserCollectionOrder(
       childRESTUserCollectionList[4].id,
@@ -1562,6 +1614,16 @@ describe('updateUserCollectionOrder', () => {
     mockPrisma.userCollection.findUniqueOrThrow
       .mockResolvedValueOnce(childRESTUserCollectionList[4])
       .mockResolvedValueOnce(childRESTUserCollectionList[2]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
+    mockPrisma.userCollection.findFirst
+      .mockResolvedValueOnce(childRESTUserCollectionList[4])
+      .mockResolvedValueOnce(childRESTUserCollectionList[2]);
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 2 });
+    mockPrisma.userCollection.update.mockResolvedValueOnce({
+      ...childRESTUserCollectionList[4],
+      orderIndex: 2,
+    });
 
     await userCollectionService.updateUserCollectionOrder(
       childRESTUserCollectionList[4].id,
@@ -1595,6 +1657,10 @@ describe('FIX: updateMany queries now include userUid filter for root collection
    * - updateUserCollectionOrder (both cases)
    * - getCollectionCount
    */
+
+  beforeEach(() => {
+    mockReset(mockPrisma);
+  });
 
   describe('SCENARIO: Two users performing concurrent operations on root collections', () => {
     /**
@@ -1790,6 +1856,7 @@ describe('FIX: updateMany queries now include userUid filter for root collection
         .mockResolvedValueOnce(aliceCollection1);
 
       mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
       mockPrisma.userCollection.findFirst
         .mockResolvedValueOnce(aliceCollection3)
         .mockResolvedValueOnce(aliceCollection1);
@@ -1819,6 +1886,7 @@ describe('FIX: updateMany queries now include userUid filter for root collection
         .mockResolvedValueOnce(bobCollection3);
 
       mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
       mockPrisma.userCollection.findFirst
         .mockResolvedValueOnce(bobCollection1)
         .mockResolvedValueOnce(bobCollection3);
@@ -1976,6 +2044,7 @@ describe('FIX: updateMany queries now include userUid filter for root collection
     );
 
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
       user1RootCollection,
     );
@@ -2032,6 +2101,7 @@ describe('FIX: updateMany queries now include userUid filter for root collection
       .mockResolvedValueOnce(user1RootCollection2);
 
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockUserCollectionByParent.mockResolvedValue(undefined);
     mockPrisma.userCollection.findFirst
       .mockResolvedValueOnce(user1RootCollection1)
       .mockResolvedValueOnce(user1RootCollection2);

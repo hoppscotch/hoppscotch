@@ -929,6 +929,8 @@ describe('deleteCollection', () => {
 
 describe('moveCollection', () => {
   test('should throw TEAM_COLL_NOT_FOUND if collectionID is invalid', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
@@ -938,6 +940,8 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_DEST_SAME if collectionID and destCollectionID is the same', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(rootTeamCollection));
@@ -950,11 +954,11 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND if destCollectionID is invalid', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(rootTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection))
       .mockResolvedValueOnce(E.left(TEAM_COLL_NOT_FOUND));
 
     const result = await teamCollectionService.moveCollection(
@@ -965,11 +969,11 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_SAME_TEAM if collectionID and destCollectionID are not from the same team', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(rootTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection))
       .mockResolvedValueOnce(
         E.right({ ...childTeamCollection_2, teamID: 'anotherTeamID' }),
       );
@@ -982,11 +986,11 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_IS_PARENT_COLL if collectionID is parent of destCollectionID ', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(rootTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection))
       .mockResolvedValueOnce(E.right(childTeamCollection));
 
     const result = await teamCollectionService.moveCollection(
@@ -997,6 +1001,8 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COL_ALREADY_ROOT when moving root TeamCollection to root', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(rootTeamCollection));
@@ -1009,6 +1015,8 @@ describe('moveCollection', () => {
   });
 
   test('should successfully move a child TeamCollection into root', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
@@ -1029,6 +1037,8 @@ describe('moveCollection', () => {
   });
 
   test('should throw TEAM_COLL_NOT_FOUND when trying to change parent of collection with invalid collectionID', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
@@ -1044,6 +1054,8 @@ describe('moveCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when a child TeamCollection is moved to root successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
       .mockResolvedValueOnce(E.right(childTeamCollection));
@@ -1064,11 +1076,11 @@ describe('moveCollection', () => {
   });
 
   test('should successfully move a root TeamCollection into a child TeamCollection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(rootTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection))
       .mockResolvedValueOnce(E.right(childTeamCollection));
     jest
       .spyOn(teamCollectionService as any, 'isParent')
@@ -1093,11 +1105,11 @@ describe('moveCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when root TeamCollection is moved into another child TeamCollection successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(rootTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(rootTeamCollection))
       .mockResolvedValueOnce(E.right(childTeamCollection));
     jest
       .spyOn(teamCollectionService as any, 'isParent')
@@ -1126,11 +1138,11 @@ describe('moveCollection', () => {
   });
 
   test('should successfully move a child TeamCollection into another child TeamCollection', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(childTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection))
       .mockResolvedValueOnce(E.right(childTeamCollection_2));
     jest
       .spyOn(teamCollectionService as any, 'isParent')
@@ -1155,11 +1167,11 @@ describe('moveCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_moved" when child TeamCollection is moved into another child TeamCollection successfully', async () => {
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     jest
       .spyOn(teamCollectionService, 'getCollection')
-      .mockResolvedValueOnce(E.right(childTeamCollection));
-    jest
-      .spyOn(teamCollectionService, 'getCollection')
+      .mockResolvedValueOnce(E.right(childTeamCollection))
       .mockResolvedValueOnce(E.right(childTeamCollection_2));
     jest
       .spyOn(teamCollectionService as any, 'isParent')
@@ -1214,7 +1226,15 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
       childTeamCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(
+      childTeamCollectionList[4],
+    );
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 10 });
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(
+      childTeamCollectionList.length,
+    );
     mockPrisma.teamCollection.update.mockResolvedValueOnce({
       ...childTeamCollectionList[4],
       orderIndex: childTeamCollectionList.length,
@@ -1232,7 +1252,15 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootTeamCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(
+      rootTeamCollectionList[4],
+    );
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 10 });
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(
+      rootTeamCollectionList.length,
+    );
     mockPrisma.teamCollection.update.mockResolvedValueOnce({
       ...rootTeamCollectionList[4],
       orderIndex: rootTeamCollectionList.length,
@@ -1264,7 +1292,15 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
       rootTeamCollectionList[4],
     );
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(
+      rootTeamCollectionList[4],
+    );
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 10 });
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(
+      rootTeamCollectionList.length,
+    );
     mockPrisma.teamCollection.update.mockResolvedValueOnce({
       ...rootTeamCollectionList[4],
       orderIndex: rootTeamCollectionList.length,
@@ -1275,7 +1311,7 @@ describe('updateCollectionOrder', () => {
       null,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
-      `team_coll/${childTeamCollectionList[4].teamID}/coll_order_updated`,
+      `team_coll/${rootTeamCollectionList[4].teamID}/coll_order_updated`,
       {
         collection: rootTeamCollectionListCasted[4],
         nextCollection: null,
@@ -1304,6 +1340,11 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow
       .mockResolvedValueOnce(childTeamCollectionList[4])
       .mockResolvedValueOnce(childTeamCollectionList[2]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollectionList[2]);
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 3 });
     mockPrisma.teamCollection.update.mockResolvedValueOnce({
       ...childTeamCollectionList[4],
@@ -1322,6 +1363,16 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow
       .mockResolvedValueOnce(rootTeamCollectionList[4])
       .mockResolvedValueOnce(rootTeamCollectionList[2]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst
+      .mockResolvedValueOnce(rootTeamCollectionList[4])
+      .mockResolvedValueOnce(rootTeamCollectionList[2]);
+    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 3 });
+    mockPrisma.teamCollection.update.mockResolvedValueOnce({
+      ...rootTeamCollectionList[4],
+      orderIndex: 2,
+    });
 
     const result = await teamCollectionService.updateCollectionOrder(
       rootTeamCollectionList[4].id,
@@ -1330,7 +1381,7 @@ describe('updateCollectionOrder', () => {
     expect(result).toEqualRight(true);
   });
 
-  test('should throw TEAM_COL_REORDERING_FAILED when re-ordering operation failed for child TeamCollection list', async () => {
+  test('should throw TEAM_COL_REORDERING_FAILED when re-ordering operation failed with nextCollection', async () => {
     // getCollection;
     mockPrisma.teamCollection.findUniqueOrThrow
       .mockResolvedValueOnce(childTeamCollectionList[4])
@@ -1350,13 +1401,23 @@ describe('updateCollectionOrder', () => {
     mockPrisma.teamCollection.findUniqueOrThrow
       .mockResolvedValueOnce(childTeamCollectionList[4])
       .mockResolvedValueOnce(childTeamCollectionList[2]);
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
+    mockPrisma.teamCollection.findFirst
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollectionList[2]);
+    mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 3 });
+    mockPrisma.teamCollection.update.mockResolvedValueOnce({
+      ...childTeamCollectionList[4],
+      orderIndex: 2,
+    });
 
     await teamCollectionService.updateCollectionOrder(
       childTeamCollectionList[4].id,
       childTeamCollectionList[2].id,
     );
     expect(mockPubSub.publish).toHaveBeenCalledWith(
-      `team_coll/${childTeamCollectionList[2].teamID}/coll_order_updated`,
+      `team_coll/${childTeamCollectionList[4].teamID}/coll_order_updated`,
       {
         collection: childTeamCollectionListCasted[4],
         nextCollection: childTeamCollectionListCasted[2],
@@ -1528,7 +1589,7 @@ describe('sortTeamCollections', () => {
     const teamID = team.id;
 
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
-    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
       rootTeamCollectionList,
     );
@@ -1555,7 +1616,7 @@ describe('sortTeamCollections', () => {
     const teamID = team.id;
 
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
-    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
       rootTeamCollectionList,
     );
@@ -1602,6 +1663,10 @@ describe('FIX: updateMany queries now include teamID filter for root collections
    * - getCollectionCount (line 851-856)
    */
 
+  beforeEach(() => {
+    mockReset(mockPrisma);
+  });
+
   const team2: Team = {
     id: 'team_2',
     name: 'Team 2',
@@ -1643,12 +1708,9 @@ describe('FIX: updateMany queries now include teamID filter for root collections
       team1RootToDelete,
     );
 
-    // deleteCollectionData mocks
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]); // No child collections
-    mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
-
     // deleteCollectionAndUpdateSiblingsOrderIndex transaction
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.delete.mockResolvedValueOnce(team1RootToDelete);
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 3 });
 
@@ -1690,6 +1752,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
 
     // Mock the transaction
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(
       team1RootCollection,
     );
@@ -1751,6 +1814,7 @@ describe('FIX: updateMany queries now include teamID filter for root collections
 
     // Mock the transaction
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findFirst
       .mockResolvedValueOnce(team1RootCollection1)
       .mockResolvedValueOnce(team1RootCollection2);
@@ -1801,6 +1865,10 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
    * Scenario tests to verify operations are correctly isolated between teams
    */
 
+  beforeEach(() => {
+    mockReset(mockPrisma);
+  });
+
   const team2: Team = {
     id: 'team_2',
     name: 'Team 2',
@@ -1840,9 +1908,8 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
     mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce(
       team1RootCollection,
     );
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce([]);
-    mockPrisma.teamRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.delete.mockResolvedValueOnce(team1RootCollection);
     mockPrisma.teamCollection.updateMany.mockResolvedValueOnce({ count: 3 });
 
@@ -1874,6 +1941,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
     );
 
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(
       team2RootCollection,
     );
@@ -1935,6 +2003,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
       .mockResolvedValueOnce(team1Root2);
 
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findFirst
       .mockResolvedValueOnce(team1Root1)
       .mockResolvedValueOnce(team1Root2);
@@ -1987,6 +2056,7 @@ describe('SCENARIO: Two teams performing concurrent operations on root collectio
       .mockResolvedValueOnce(team2Root2);
 
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.lockTeamCollectionByTeamAndParent.mockResolvedValue(undefined);
     mockPrisma.teamCollection.findFirst
       .mockResolvedValueOnce(team2Root1)
       .mockResolvedValueOnce(team2Root2);

@@ -60,6 +60,7 @@ import { GistSource } from "~/helpers/import-export/import/import-sources/GistSo
 import { TeamWorkspace } from "~/services/workspace.service"
 import { invokeAction } from "~/helpers/actions"
 import { ReqType } from "~/helpers/backend/graphql"
+import { sanitizeCollection } from "~/helpers/import-export/import"
 
 const isInsomniaImporterInProgress = ref(false)
 const isOpenAPIImporterInProgress = ref(false)
@@ -113,21 +114,35 @@ const handleImportToStore = async (collections: HoppCollection[]) => {
   }
 }
 
+/**
+ * Import collections to personal workspace
+ * We sanitize the collections before importing to remove old id from the imported collection and folders and transform it to new collection format
+ * @param collections Collections to import
+ */
 const importToPersonalWorkspace = (collections: HoppCollection[]) => {
+  // Remove old id from the imported collection and folders and transform it to new collection format
+  const sanitizedCollections = collections.map(sanitizeCollection)
+
   if (
     platform.sync.collections.importToPersonalWorkspace &&
     currentUser.value
   ) {
+    // The SH adds the id to the collection and folders but for safety we remove it by sanitizeCollection
     return platform.sync.collections.importToPersonalWorkspace(
-      collections,
+      sanitizedCollections,
       ReqType.Rest
     )
   }
 
-  appendRESTCollections(collections)
+  appendRESTCollections(sanitizedCollections)
   return E.right({ success: true })
 }
 
+/**
+ * Import collections to teams workspace
+ * No need to sanitize the collections before importing to teams workspace because the BE handles this and add the new id to the collection and folders
+ * @param collections Collections to import
+ */
 const importToTeamsWorkspace = async (collections: HoppCollection[]) => {
   if (!hasTeamWriteAccess.value || !selectedTeamID.value) {
     return E.left({

@@ -1032,6 +1032,7 @@ function setupUserRequestDeletedSubscription() {
 
 export const def: CollectionsPlatformDef = {
   initCollectionsSync,
+  loadUserCollections,
   importToPersonalWorkspace,
 }
 

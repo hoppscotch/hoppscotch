@@ -40,7 +40,6 @@ import {
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { SortOptions } from 'src/types/SortOptions';
-import { UserRequest } from 'src/user-request/user-request.model';
 
 @Injectable()
 export class UserCollectionService {

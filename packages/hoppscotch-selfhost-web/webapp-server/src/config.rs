@@ -54,7 +54,7 @@ impl Default for ServerConfig {
         Self {
             port: default_port(),
             max_bundle_size: default_max_bundle_size(),
-            bundle_version: Some("2025.11.0".to_string()),
+            bundle_version: Some("2025.11.1".to_string()),
             csp_directives: None,
             signing_key: None,
             verifying_key: None,
@@ -75,7 +75,7 @@ impl ServerConfig {
         Self {
             signing_key: Some(key_pair.signing_key),
             verifying_key: Some(key_pair.verifying_key),
-            bundle_version: Some("2025.11.0".to_string()),
+            bundle_version: Some("2025.11.1".to_string()),
             frontend_path,
             is_dev: cfg!(debug_assertions),
             ..Default::default()

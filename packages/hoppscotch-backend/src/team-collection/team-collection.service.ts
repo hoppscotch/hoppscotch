@@ -266,7 +266,7 @@ export class TeamCollectionService {
       ),
     );
 
-    return E.right(true);
+    return E.right(teamCollections);
   }
 
   /**

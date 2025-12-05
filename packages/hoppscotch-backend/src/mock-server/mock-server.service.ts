@@ -8,7 +8,6 @@ import {
   MockServerCollection,
   MockServerLog,
 } from './mock-server.model';
-import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
 import {
   MOCK_SERVER_NOT_FOUND,
@@ -19,6 +18,7 @@ import {
   MOCK_SERVER_DELETION_FAILED,
   MOCK_SERVER_LOG_NOT_FOUND,
   MOCK_SERVER_LOG_DELETION_FAILED,
+  MOCK_SERVER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import { randomBytes } from 'crypto';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
@@ -31,13 +31,20 @@ import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { ConfigService } from '@nestjs/config';
 import { MockServerAnalyticsService } from './mock-server-analytics.service';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { TeamCollectionService } from 'src/team-collection/team-collection.service';
+import { UserCollectionService } from 'src/user-collection/user-collection.service';
+import { ReqType } from 'src/types/RequestTypes';
+import { AuthUser } from 'src/types/AuthUser';
+import { mockServerCollRequestExample } from './constants/mock-server-coll-request-example';
 
 @Injectable()
 export class MockServerService {
   constructor(
-    private readonly mockServerAnalyticsService: MockServerAnalyticsService,
-    private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+    private readonly mockServerAnalyticsService: MockServerAnalyticsService,
+    private readonly teamCollectionService: TeamCollectionService,
+    private readonly userCollectionService: UserCollectionService,
   ) {}
 
   /**
@@ -252,7 +259,10 @@ export class MockServerService {
   /**
    * Validate workspace access permission and existence
    */
-  private async validateWorkspace(user: User, input: CreateMockServerInput) {
+  private async validateWorkspace(
+    user: AuthUser,
+    input: CreateMockServerInput,
+  ) {
     if (input.workspaceType === WorkspaceType.TEAM) {
       if (!input.workspaceID) return E.left(TEAM_INVALID_ID);
 
@@ -271,7 +281,12 @@ export class MockServerService {
   /**
    * Validate collection exists and user has access
    */
-  private async validateCollection(user: User, input: CreateMockServerInput) {
+  private async validateCollection(
+    user: AuthUser,
+    input: CreateMockServerInput,
+  ) {
+    if (!input.collectionID) return E.left(MOCK_SERVER_INVALID_COLLECTION);
+
     if (input.workspaceType === WorkspaceType.TEAM) {
       const collection = await this.prisma.teamCollection.findUnique({
         where: { id: input.collectionID, teamID: input.workspaceID },
@@ -291,24 +306,105 @@ export class MockServerService {
     return E.left(MOCK_SERVER_INVALID_COLLECTION);
   }
 
+  private async createAutoCollection(
+    user: AuthUser,
+    input: CreateMockServerInput,
+  ) {
+    if (input.workspaceType === WorkspaceType.USER) {
+      if (!input.autoCreateRequestExample) {
+        // create only a collection
+        const userColl = await this.userCollectionService.createUserCollection(
+          user,
+          input.name,
+          null,
+          null,
+          ReqType.REST,
+        );
+
+        if (E.isLeft(userColl)) return E.left(userColl.left);
+        return E.right({ id: userColl.right.id });
+      } else {
+        // create collection with a request example
+        const importedUserColl =
+          await this.userCollectionService.importCollectionsFromJSON(
+            JSON.stringify(mockServerCollRequestExample(input.name)),
+            user.uid,
+            null,
+            ReqType.REST,
+          );
+        if (E.isLeft(importedUserColl)) return E.left(importedUserColl.left);
+        if (JSON.parse(importedUserColl.right.exportedCollection).length === 0)
+          return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
+
+        return E.right({
+          id: JSON.parse(importedUserColl.right.exportedCollection)[0].id,
+        });
+      }
+    } else if (input.workspaceType === WorkspaceType.TEAM) {
+      if (!input.workspaceID) return E.left(TEAM_INVALID_ID);
+
+      if (!input.autoCreateRequestExample) {
+        const teamColl = await this.teamCollectionService.createCollection(
+          input.workspaceID,
+          input.name,
+          null,
+          null,
+        );
+
+        if (E.isLeft(teamColl)) return E.left(teamColl.left);
+        return E.right({ id: teamColl.right.id });
+      } else {
+        const importedTeamColl =
+          await this.teamCollectionService.importCollectionsFromJSON(
+            JSON.stringify(mockServerCollRequestExample(input.name)),
+            input.workspaceID,
+            null,
+          );
+
+        if (E.isLeft(importedTeamColl)) return E.left(importedTeamColl.left);
+        if (importedTeamColl.right.length === 0)
+          return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
+
+        return E.right({
+          id: importedTeamColl.right[0].id,
+        });
+      }
+    }
+
+    return E.left(MOCK_SERVER_COLLECTION_CREATION_FAILED);
+  }
+
   /**
    * Create a new mock server
    */
   async createMockServer(
-    user: User,
+    user: AuthUser,
     input: CreateMockServerInput,
   ): Promise<E.Either<string, MockServer>> {
+    let collectionID: string | undefined = input.collectionID;
     try {
       // Validate workspace type and ID
+
       const workspaceValidation = await this.validateWorkspace(user, input);
       if (E.isLeft(workspaceValidation)) {
         return E.left(workspaceValidation.left);
       }
 
-      // Validate collection exists and user has access
-      const collectionValidation = await this.validateCollection(user, input);
-      if (E.isLeft(collectionValidation)) {
-        return E.left(collectionValidation.left);
+      if (!input.autoCreateCollection) {
+        // Validate collection exists and user has access
+        const collectionValidation = await this.validateCollection(user, input);
+        if (E.isLeft(collectionValidation)) {
+          return E.left(collectionValidation.left);
+        }
+      }
+
+      // Auto-create collection if needed
+      if (input.autoCreateCollection) {
+        const newCollection = await this.createAutoCollection(user, input);
+        if (E.isLeft(newCollection)) {
+          return E.left(newCollection.left);
+        }
+        collectionID = newCollection.right.id;
       }
 
       // Create mock server
@@ -318,7 +414,7 @@ export class MockServerService {
           name: input.name,
           subdomain,
           creatorUid: user.uid,
-          collectionID: input.collectionID,
+          collectionID: input.collectionID ?? collectionID,
           workspaceType: input.workspaceType,
           workspaceID:
             input.workspaceType === WorkspaceType.TEAM
@@ -335,9 +431,21 @@ export class MockServerService {
 
       return E.right(this.cast(mockServer));
     } catch (error) {
+      if (input.autoCreateCollection && collectionID) {
+        if (input.workspaceType === WorkspaceType.USER) {
+          await this.userCollectionService.deleteUserCollection(
+            collectionID,
+            user.uid,
+          );
+        } else if (input.workspaceType === WorkspaceType.TEAM) {
+          await this.teamCollectionService.deleteCollection(collectionID);
+        }
+      }
+
       if (error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION) {
         return this.createMockServer(user, input); // Retry on subdomain conflict
       }
+
       console.error('Error creating mock server:', error);
       return E.left(MOCK_SERVER_CREATION_FAILED);
     }

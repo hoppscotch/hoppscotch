@@ -7,10 +7,7 @@ import {
   hoverTooltip,
 } from "@codemirror/view"
 import { StreamSubscriberFunc } from "@composables/stream"
-import {
-  HoppRESTRequestVariables,
-  parseTemplateStringE,
-} from "@hoppscotch/data"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { Ref, watch } from "vue"
 
@@ -41,6 +38,7 @@ import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
 } from "~/helpers/environment-regex"
+import { HoppRESTRequestVariables } from "@hoppscotch/data"
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -398,32 +396,32 @@ export class HoppEnvironmentPlugin {
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>
   ) {
-    const aggregateEnvs = getAggregateEnvsWithCurrentValue()
-    const currentTab = restTabs.currentActiveTab.value
-    const currentTabRequest =
-      currentTab.document.type === "example-response"
-        ? currentTab.document.response.originalRequest
-        : currentTab.document.request
-    const currentTabInheritedProperty = currentTab.document.inheritedProperties
-
-    // Don't return early if inheritedProperties is undefined - new tabs might not have it yet
-    if (!currentTabRequest) return
-
+    // Watch the current active tab to update the variables accordingly
     watch(
-      [currentTabRequest, currentTabInheritedProperty],
-      ([request, document]) => {
+      () => restTabs.currentActiveTab.value,
+      (currentTab) => {
+        const request =
+          currentTab.document.type === "example-response"
+            ? currentTab.document.response.originalRequest
+            : currentTab.document.request
+
         if (!request || !("requestVariables" in request)) return
+
+        const inheritedProperties = currentTab.document.inheritedProperties
 
         // Extract collection variables safely, handling undefined or non-inherited-property types
         const collectionVariables =
-          document && "variables" in document ? document.variables : []
+          inheritedProperties && "variables" in inheritedProperties
+            ? inheritedProperties.variables
+            : []
 
         const requestAndCollVars = getRequestAndCollectionVariables(
           request.requestVariables,
           collectionVariables
         )
 
-        this.envs = [...requestAndCollVars, ...aggregateEnvs]
+        const currentAggregateEnvs = getAggregateEnvsWithCurrentValue()
+        this.envs = [...requestAndCollVars, ...currentAggregateEnvs]
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([

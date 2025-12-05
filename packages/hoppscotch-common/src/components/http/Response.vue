@@ -1,6 +1,10 @@
 <template>
   <div class="relative flex flex-1 flex-col">
-    <HttpResponseMeta :response="doc.response" :is-embed="isEmbed" />
+    <HttpResponseMeta
+      :response="doc.response"
+      :is-embed="isEmbed"
+      :is-loading="loading"
+    />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:document="doc"
@@ -66,7 +70,11 @@ const hasSameNameResponse = computed(() => {
     : false
 })
 
-const loading = computed(() => doc.value.response?.type === "loading")
+const loading = computed(
+  // Check both response type AND testResults to ensure we stay in loading state
+  // during test execution (when testResults is null)
+  () => doc.value.response?.type === "loading" || doc.value.testResults === null
+)
 
 const saveAsExample = () => {
   showSaveResponseName.value = true

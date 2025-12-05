@@ -10,7 +10,8 @@ import {
   HoppCollectionVariable,
   calculateHawkHeader
 } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
+import { runPreRequestScript } from "@hoppscotch/js-sandbox/node"
+import { createHoppFetchHook } from "./hopp-fetch";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
@@ -53,6 +54,7 @@ export const preRequestScriptRunner = (
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
 > => {
   const experimentalScriptingSandbox = !legacySandbox;
+  const hoppFetchHook = createHoppFetchHook();
 
   return pipe(
     TE.of(request),
@@ -62,6 +64,7 @@ export const preRequestScriptRunner = (
         experimentalScriptingSandbox,
         request,
         cookies: null,
+        hoppFetchHook,
       })
     ),
     TE.map(({ updatedEnvs, updatedRequest }) => {

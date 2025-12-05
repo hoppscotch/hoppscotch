@@ -3,6 +3,13 @@
   // Keep strict mode scoped to this IIFE to avoid leaking strictness to concatenated/bootstrapped code
   "use strict"
 
+  // Sequential test execution promise chain
+  // Initialize with a resolved promise to start the chain
+  // Store on globalThis so pm.sendRequest() and test() can both access and modify it
+  if (!globalThis.__testExecutionChain) {
+    globalThis.__testExecutionChain = Promise.resolve()
+  }
+
   // Chai proxy builder - creates a Chai-like API using actual Chai SDK
   if (!globalThis.__createChaiProxy) {
     globalThis.__createChaiProxy = function (
@@ -188,7 +195,7 @@
       }
       // Add .instanceof as a property of the function
       const aInstanceOfMethod = function (constructor) {
-        // CRITICAL: Perform instanceof check HERE in the sandbox before serialization
+        // Perform instanceof check in sandbox before serialization.
         const actualInstanceCheck = expectVal instanceof constructor
 
         const objectType = Object.prototype.toString.call(expectVal)
@@ -240,7 +247,7 @@
       }
       // Add .instanceof as a property of the function
       const instanceOfMethod = function (constructor) {
-        // CRITICAL: Perform instanceof check HERE in the sandbox before serialization
+        // Perform instanceof check in sandbox before serialization.
         const actualInstanceCheck = expectVal instanceof constructor
 
         const objectType = Object.prototype.toString.call(expectVal)
@@ -1271,8 +1278,8 @@
           )
         }
 
-        // CRITICAL: Perform instanceof check HERE in the sandbox before serialization
-        // This is essential for custom user-defined classes to work correctly
+        // Perform instanceof check in sandbox before serialization.
+        // Essential for custom user-defined classes to work correctly.
         const actualInstanceCheck = expectVal instanceof constructor
 
         // Get the actual type using Object.prototype.toString for built-ins
@@ -1315,7 +1322,7 @@
         )
       }
       proxy.instanceOf = function (constructor) {
-        // CRITICAL: Perform instanceof check HERE in the sandbox before serialization
+        // Perform instanceof check in sandbox before serialization.
         const actualInstanceCheck = expectVal instanceof constructor
 
         // Get the actual type using Object.prototype.toString for built-ins
@@ -2154,9 +2161,42 @@
       return expectation
     },
     test: (descriptor, testFn) => {
+      // Register the test immediately (preserves definition order)
       inputs.preTest(descriptor)
-      testFn()
-      inputs.postTest()
+
+      // Capture chain state BEFORE executing testFn() to detect pm.sendRequest() usage
+      const _chainBeforeTest = globalThis.__testExecutionChain
+
+      // Add testFn execution to the chain to ensure correct context
+      const testPromise = globalThis.__testExecutionChain.then(async () => {
+        inputs.setCurrentTest(descriptor)
+        try {
+          const testResult = testFn()
+          // If test returns a promise, await it
+          if (testResult && typeof testResult.then === "function") {
+            await testResult
+          }
+        } catch (error) {
+          // Record uncaught errors in test functions (e.g., ReferenceError, TypeError)
+          // This ensures errors like accessing undefined variables are captured
+          const errorMessage =
+            error && typeof error === "object" && "message" in error
+              ? `${error.name || "Error"}: ${error.message}`
+              : String(error)
+          inputs.pushExpectResult("error", errorMessage)
+        } finally {
+          inputs.clearCurrentTest()
+          inputs.postTest()
+        }
+      })
+
+      // Update the chain
+      globalThis.__testExecutionChain = testPromise
+
+      // Notify runner about the test promise so it can be awaited
+      if (inputs.onTestPromise) {
+        inputs.onTestPromise(testPromise)
+      }
     },
     response: pwResponse,
   }
@@ -2315,9 +2355,13 @@
       delete: (domain, name) => inputs.cookieDelete(domain, name),
       clear: (domain) => inputs.cookieClear(domain),
     },
+    // Expose fetch as hopp.fetch() - save reference before we override global
+    fetch: typeof fetch !== "undefined" ? fetch : undefined,
     expect: Object.assign(
       (expectVal) => {
         // Use Chai if available
+        // Note: message parameter is optional and used for custom assertion messages in Postman
+        // Currently not fully implemented but accepted for API compatibility
         if (inputs.chaiEqual) {
           return globalThis.__createChaiProxy(expectVal, inputs)
         }
@@ -2379,9 +2423,42 @@
       }
     ),
     test: (descriptor, testFn) => {
+      // Register test immediately in definition order
       inputs.preTest(descriptor)
-      testFn()
-      inputs.postTest()
+
+      // Capture chain state BEFORE executing testFn() to detect pm.sendRequest() usage
+      const _chainBeforeTest = globalThis.__testExecutionChain
+
+      // Add testFn execution to the chain to ensure correct context
+      const testPromise = globalThis.__testExecutionChain.then(async () => {
+        inputs.setCurrentTest(descriptor)
+        try {
+          const testResult = testFn()
+          // If test returns a promise, await it
+          if (testResult && typeof testResult.then === "function") {
+            await testResult
+          }
+        } catch (error) {
+          // Record uncaught errors in test functions (e.g., ReferenceError, TypeError)
+          // This ensures errors like accessing undefined variables are captured
+          const errorMessage =
+            error && typeof error === "object" && "message" in error
+              ? `${error.name || "Error"}: ${error.message}`
+              : String(error)
+          inputs.pushExpectResult("error", errorMessage)
+        } finally {
+          inputs.clearCurrentTest()
+          inputs.postTest()
+        }
+      })
+
+      // Update the chain
+      globalThis.__testExecutionChain = testPromise
+
+      // Notify runner about the test promise so it can be awaited
+      if (inputs.onTestPromise) {
+        inputs.onTestPromise(testPromise)
+      }
     },
     response: hoppResponse,
   }
@@ -2414,6 +2491,16 @@
         }
       })
     }
+  }
+
+  // Make global fetch() an alias to hopp.fetch()
+  // Both fetch() and hopp.fetch() respect interceptor settings
+  if (typeof fetch !== "undefined") {
+    // hopp.fetch is already set from inputs, just create the alias
+    globalThis.fetch = globalThis.hopp.fetch
+  } else if (typeof globalThis.hopp?.fetch !== "undefined") {
+    // If fetch wasn't available but hopp.fetch is, create the global alias
+    globalThis.fetch = globalThis.hopp.fetch
   }
 
   // PM Namespace - Postman Compatibility Layer
@@ -3324,117 +3411,27 @@
             },
           },
           jsonSchema: (schema) => {
-            // Basic JSON Schema validation (supports common keywords)
+            // Manual jsonSchema validation with Postman-compatible messages
+            // Delegates to external AJV-based validator provided via inputs.validateJsonSchema
+            // This matches Postman's behavior: record assertion but don't throw
             const jsonData = globalThis.hopp.response.body.asJSON()
 
-            const validateSchema = (data, schema) => {
-              // Type validation
-              if (schema.type) {
-                const actualType = Array.isArray(data)
-                  ? "array"
-                  : data === null
-                    ? "null"
-                    : typeof data
-                if (actualType !== schema.type) {
-                  return `Expected type ${schema.type}, got ${actualType}`
-                }
-              }
-
-              // Required properties
-              if (schema.required && Array.isArray(schema.required)) {
-                for (const prop of schema.required) {
-                  if (!(prop in data)) {
-                    return `Required property '${prop}' is missing`
-                  }
-                }
-              }
-
-              // Properties validation
-              if (schema.properties && typeof data === "object") {
-                for (const prop in schema.properties) {
-                  if (prop in data) {
-                    const error = validateSchema(
-                      data[prop],
-                      schema.properties[prop]
-                    )
-                    if (error) return error
-                  }
-                }
-              }
-
-              // Array validation
-              if (schema.items && Array.isArray(data)) {
-                for (const item of data) {
-                  const error = validateSchema(item, schema.items)
-                  if (error) return error
-                }
-              }
-
-              // Enum validation
-              if (schema.enum && Array.isArray(schema.enum)) {
-                if (!schema.enum.includes(data)) {
-                  return `Value must be one of ${JSON.stringify(schema.enum)}`
-                }
-              }
-
-              // Min/max validation
-              if (typeof data === "number") {
-                if (schema.minimum !== undefined && data < schema.minimum) {
-                  return `Value must be >= ${schema.minimum}`
-                }
-                if (schema.maximum !== undefined && data > schema.maximum) {
-                  return `Value must be <= ${schema.maximum}`
-                }
-              }
-
-              // String length validation
-              if (typeof data === "string") {
-                if (
-                  schema.minLength !== undefined &&
-                  data.length < schema.minLength
-                ) {
-                  return `String length must be >= ${schema.minLength}`
-                }
-                if (
-                  schema.maxLength !== undefined &&
-                  data.length > schema.maxLength
-                ) {
-                  return `String length must be <= ${schema.maxLength}`
-                }
-                if (schema.pattern) {
-                  const regex = new RegExp(schema.pattern)
-                  if (!regex.test(data)) {
-                    return `String must match pattern ${schema.pattern}`
-                  }
-                }
-              }
-
-              // Array length validation
-              if (Array.isArray(data)) {
-                if (
-                  schema.minItems !== undefined &&
-                  data.length < schema.minItems
-                ) {
-                  return `Array must have >= ${schema.minItems} items`
-                }
-                if (
-                  schema.maxItems !== undefined &&
-                  data.length > schema.maxItems
-                ) {
-                  return `Array must have <= ${schema.maxItems} items`
-                }
-              }
-
-              return null
+            // Validate schema
+            if (!inputs.validateJsonSchema) {
+              throw new Error(
+                "JSON schema validation is not available in this environment. To use this feature, please enable the experimental scripting sandbox or upgrade to a supported version of Hoppscotch that includes JSON schema validation support."
+              )
             }
+            const validation = inputs.validateJsonSchema(jsonData, schema)
 
-            const error = validateSchema(jsonData, schema)
-            if (error) {
-              // Schema validation failed - this would throw in Postman,
-              // but we record it as a test failure instead for better UX
-              throw new Error(error)
+            // Record result with Postman-compatible message using helper
+            if (inputs.pushExpectResult) {
+              const status = validation.isValid ? "pass" : "fail"
+              const message = validation.isValid
+                ? "Response body matches JSON schema"
+                : validation.errorMessage || "Schema validation failed"
+              inputs.pushExpectResult(status, message)
             }
-            // On success, no assertion is recorded (Postman behavior)
           },
           charset: (expectedCharset) => {
             const headers = globalThis.hopp.response.headers
@@ -3534,8 +3531,15 @@
             }
 
             const result = evaluatePath(jsonData, path)
+
+            // Postman behavior: jsonPath failures record assertions but don't throw
+            // Match the same pattern as jsonSchema
             if (!result.success) {
-              throw new Error(result.error)
+              // Path evaluation failed - record failed assertion
+              if (inputs.pushExpectResult) {
+                inputs.pushExpectResult("fail", result.error)
+              }
+              return
             }
 
             if (expectedValue !== undefined) {
@@ -3648,10 +3652,13 @@
     },
 
     test: (name, fn) => globalThis.hopp.test(name, fn),
-    expect: Object.assign((value) => globalThis.hopp.expect(value), {
-      // pm.expect.fail() - Postman compatibility
-      fail: globalThis.hopp.expect.fail,
-    }),
+    expect: Object.assign(
+      (value, message) => globalThis.hopp.expect(value, message),
+      {
+        // pm.expect.fail() - Postman compatibility
+        fail: globalThis.hopp.expect.fail,
+      }
+    ),
 
     // Script context information
     info: {
@@ -3675,9 +3682,272 @@
       },
     },
 
-    // Unsupported APIs that throw errors
-    sendRequest: () => {
-      throw new Error("pm.sendRequest() is not yet implemented in Hoppscotch")
+    // pm.sendRequest() - Postman-compatible fetch wrapper
+    sendRequest: (urlOrRequest, callback) => {
+      // Check if fetch is available
+      if (typeof globalThis.hopp?.fetch === "undefined") {
+        const error = new Error(
+          "pm.sendRequest() requires the fetch API to be available in the scripting environment (usually provided by enabling the scripting sandbox)."
+        )
+        callback(error, null)
+        return
+      }
+
+      // Parse arguments (Postman supports both string and object)
+      let url, options
+
+      if (typeof urlOrRequest === "string") {
+        url = urlOrRequest
+        options = {}
+      } else {
+        // Object format: { url, method, header, body }
+        url = urlOrRequest.url
+
+        // Parse headers - support both array [{key, value}] and object {key: value} formats
+        let headers = {}
+        if (urlOrRequest.header) {
+          if (Array.isArray(urlOrRequest.header)) {
+            // Array format: [{ key: 'Content-Type', value: 'application/json' }]
+            headers = Object.fromEntries(
+              urlOrRequest.header.map((h) => [h.key, h.value])
+            )
+          } else if (typeof urlOrRequest.header === "object") {
+            // Plain object format: { 'Content-Type': 'application/json' }
+            headers = urlOrRequest.header
+          }
+        }
+
+        options = {
+          method: urlOrRequest.method || "GET",
+          headers,
+        }
+
+        // Handle body based on mode
+        if (urlOrRequest.body) {
+          if (urlOrRequest.body.mode === "raw") {
+            options.body = urlOrRequest.body.raw
+          } else if (urlOrRequest.body.mode === "urlencoded") {
+            const params = new URLSearchParams()
+            urlOrRequest.body.urlencoded?.forEach((pair) => {
+              params.append(pair.key, pair.value)
+            })
+            options.body = params.toString()
+            options.headers["Content-Type"] =
+              "application/x-www-form-urlencoded"
+          } else if (urlOrRequest.body.mode === "formdata") {
+            // LIMITATION: FormData is not available in QuickJS sandbox (used in both CLI and web).
+            // Converting to URLSearchParams as fallback, which has limitations:
+            // - File uploads are NOT supported (only key-value pairs)
+            // - Changes Content-Type from multipart/form-data to application/x-www-form-urlencoded
+            // - May cause issues with servers expecting multipart data
+            // This is a known limitation of the scripting environment.
+            const params = new URLSearchParams()
+            urlOrRequest.body.formdata?.forEach((pair) => {
+              // Note: Only text values are supported in URLSearchParams conversion
+              // File values will be converted to "[object File]" string which is not useful
+              params.append(pair.key, pair.value)
+            })
+            options.body = params.toString()
+            options.headers["Content-Type"] =
+              "application/x-www-form-urlencoded"
+          }
+        }
+      }
+
+      // Capture response data when fetch completes, then execute callback synchronously
+      // within the test execution chain before QuickJS scope is disposed.
+      // This ensures QuickJS handles (pm.expect, etc.) remain valid during callback execution.
+
+      const callbackData = {
+        callback,
+        executed: false,
+        error: null,
+        response: null,
+      }
+
+      // Track request start time for responseTime calculation
+      const startTime = Date.now()
+
+      const fetchPromise = globalThis.hopp
+        .fetch(url, options)
+        .then((response) => {
+          // Capture response metadata
+          const statusCode = response.status
+          const statusMessage = response.statusText
+
+          // Handle Set-Cookie headers specially as they can appear multiple times
+          // The Fetch API's headers.entries() may not properly enumerate multiple Set-Cookie headers
+          // Use getSetCookie() if available (modern Fetch API), otherwise fall back to entries()
+          let headerEntries = []
+          if (
+            response.headers &&
+            typeof response.headers.getSetCookie === "function"
+          ) {
+            // Modern Fetch API - getSetCookie() returns array of Set-Cookie values
+            const setCookies = response.headers.getSetCookie()
+            const otherHeaders = Array.from(response.headers.entries())
+              .filter(([k]) => k.toLowerCase() !== "set-cookie")
+              .map(([k, v]) => ({ key: k, value: v }))
+
+            // Add each Set-Cookie as a separate header entry
+            headerEntries = [
+              ...otherHeaders,
+              ...setCookies.map((value) => ({ key: "Set-Cookie", value })),
+            ]
+          } else {
+            // Fallback: use entries() for all headers
+            headerEntries = Array.from(response.headers.entries()).map(
+              ([k, v]) => ({ key: k, value: v })
+            )
+          }
+
+          // Get body text
+          return response.text().then((bodyText) => {
+            // Calculate response time and size
+            const responseTime = Date.now() - startTime
+            const responseSize = new Blob([bodyText]).size
+
+            // For Postman compatibility and test expectations, expose raw header entries array.
+            // Attach helper methods (get/has) directly onto the array to mimic Postman SDK convenience APIs
+            // Store response data - DON'T execute callback yet
+            const headersArray = headerEntries.slice()
+            // Augment array with helper methods while preserving Array semantics
+            try {
+              Object.defineProperty(headersArray, "has", {
+                value: (name) => {
+                  const lowerName = String(name).toLowerCase()
+                  return headerEntries.some(
+                    (h) => h.key.toLowerCase() === lowerName
+                  )
+                },
+                enumerable: false,
+                configurable: true,
+              })
+              Object.defineProperty(headersArray, "get", {
+                value: (name) => {
+                  const lowerName = String(name).toLowerCase()
+                  const header = headerEntries.find(
+                    (h) => h.key.toLowerCase() === lowerName
+                  )
+                  return header ? header.value : null
+                },
+                enumerable: false,
+                configurable: true,
+              })
+            } catch (_e) {
+              // Non-fatal; fallback is plain array
+            }
+            callbackData.response = {
+              code: statusCode,
+              status: statusMessage,
+              headers: headersArray, // Array with non-enum helpers; Array.isArray() still true
+              body: bodyText,
+              responseTime: responseTime,
+              responseSize: responseSize,
+              text: () => bodyText,
+              json: () => {
+                try {
+                  return JSON.parse(bodyText)
+                } catch (_err) {
+                  return null
+                }
+              },
+              // Parse cookies from Set-Cookie headers (matching pm.response.cookies implementation)
+              cookies: {
+                get: (name) => {
+                  // Parse cookies from Set-Cookie headers in the response
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  for (const header of setCookieHeaders) {
+                    const cookieStr = header.value
+                    const cookieName = cookieStr.split("=")[0].trim()
+                    if (cookieName === name) {
+                      // Extract cookie value (everything after first =, before first ;)
+                      const parts = cookieStr.split(";")
+                      const [, ...valueRest] = parts[0].split("=")
+                      const value = valueRest.join("=").trim()
+                      return value
+                    }
+                  }
+                  return null
+                },
+                has: (name) => {
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  for (const header of setCookieHeaders) {
+                    const cookieName = header.value.split("=")[0].trim()
+                    if (cookieName === name) {
+                      return true
+                    }
+                  }
+                  return false
+                },
+                toObject: () => {
+                  const setCookieHeaders = headerEntries.filter(
+                    (h) => h.key.toLowerCase() === "set-cookie"
+                  )
+
+                  const cookies = {}
+                  for (const header of setCookieHeaders) {
+                    const parts = header.value.split(";")
+                    const [nameValue] = parts
+                    const [name, ...valueRest] = nameValue.split("=")
+                    const value = valueRest.join("=").trim()
+                    cookies[name.trim()] = value
+                  }
+                  return cookies
+                },
+              },
+            }
+          })
+        })
+        .catch((err) => {
+          // Store error - DON'T execute callback yet
+          callbackData.error = err
+        })
+
+      // Add to test execution chain with callback execution
+      // IMPORTANT: Test context must be maintained when callback executes
+      // so that expect() calls inside the callback record results to the correct test
+      if (globalThis.__testExecutionChain) {
+        // Capture current test descriptor NAME when pm.sendRequest is called
+        // getCurrentTest() now returns the descriptor name (string) directly
+        const currentTestName = inputs.getCurrentTest
+          ? inputs.getCurrentTest()
+          : null
+
+        globalThis.__testExecutionChain = globalThis.__testExecutionChain.then(
+          () => {
+            // Wait for fetch to complete
+            return fetchPromise.then(() => {
+              // Restore test context before executing callback
+              // setCurrentTest() expects the descriptor name (string)
+              if (currentTestName && inputs.setCurrentTest) {
+                inputs.setCurrentTest(currentTestName)
+              }
+
+              // Now execute the callback synchronously (QuickJS handles still valid)
+              if (!callbackData.executed) {
+                callbackData.executed = true
+                try {
+                  if (callbackData.error) {
+                    callbackData.callback(callbackData.error, null)
+                  } else {
+                    callbackData.callback(null, callbackData.response)
+                  }
+                } finally {
+                  // Test context will be cleared by the test() wrapper after all chains complete
+                  // Don't clear it here as multiple pm.sendRequest calls in same test need it
+                }
+              }
+            })
+          }
+        )
+      }
     },
 
     // Postman Vault (unsupported)
@@ -3822,4 +4092,8 @@
       )
     },
   }
+
+  // Return the test execution chain promise so the host can await it
+  // This ensures all tests complete before results are captured
+  return globalThis.__testExecutionChain
 }

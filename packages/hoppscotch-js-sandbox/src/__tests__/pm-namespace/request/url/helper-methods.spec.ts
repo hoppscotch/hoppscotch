@@ -430,31 +430,15 @@ describe("pm.request.url.update()", () => {
     )
   })
 
-  test("throws error for invalid input", () => {
-    return expect(
-      runPreRequestScript(
-        `
-        try {
-          pm.request.url.update(12345)
-          console.log("Should not reach here")
-        } catch (error) {
-          console.log("Error caught:", error.message)
-        }
-        `,
-        { envs, request: baseRequest }
-      )
-    ).resolves.toEqualRight(
-      expect.objectContaining({
-        consoleEntries: expect.arrayContaining([
-          expect.objectContaining({
-            args: expect.arrayContaining([
-              "Error caught:",
-              expect.stringContaining("URL update requires"),
-            ]),
-          }),
-        ]),
-      })
-    )
+  test("throws error for invalid input", async () => {
+    const result = await runPreRequestScript(`pm.request.url.update(12345)`, {
+      envs,
+      request: baseRequest,
+      cookies: null,
+      experimentalScriptingSandbox: true,
+    })
+
+    expect(result).toEqualLeft(expect.stringContaining("URL update requires"))
   })
 })
 
@@ -519,31 +503,18 @@ describe("pm.request.url.addQueryParams()", () => {
     )
   })
 
-  test("throws error for non-array input", () => {
-    return expect(
-      runPreRequestScript(
-        `
-        try {
-          pm.request.url.addQueryParams({ key: 'test', value: '123' })
-          console.log("Should not reach here")
-        } catch (error) {
-          console.log("Error caught:", error.message)
-        }
-        `,
-        { envs, request: baseRequest }
-      )
-    ).resolves.toEqualRight(
-      expect.objectContaining({
-        consoleEntries: expect.arrayContaining([
-          expect.objectContaining({
-            args: expect.arrayContaining([
-              "Error caught:",
-              expect.stringContaining("requires an array"),
-            ]),
-          }),
-        ]),
-      })
+  test("throws error for non-array input", async () => {
+    const result = await runPreRequestScript(
+      `pm.request.url.addQueryParams({ key: 'test', value: '123' })`,
+      {
+        envs,
+        request: baseRequest,
+        cookies: null,
+        experimentalScriptingSandbox: true,
+      }
     )
+
+    expect(result).toEqualLeft(expect.stringContaining("requires an array"))
   })
 })
 

@@ -2,7 +2,7 @@ import {
   runMutation,
   runGQLQuery,
   runGQLSubscription,
-} from "@hoppscotch/common/helpers/backend/GQLClient"
+} from "@helpers/backend/GQLClient"
 
 import {
   CreateUserHistoryDocument,
@@ -30,7 +30,7 @@ import {
   IsUserHistoryEnabledDocument,
   UserHistoryStoreStatusChangedDocument,
   UserHistoryAllDeletedDocument,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 
 export const getUserHistoryEntries = () =>
   runGQLQuery<GetRestUserHistoryQuery, GetRestUserHistoryQueryVariables, "">({

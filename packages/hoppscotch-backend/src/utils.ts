@@ -23,6 +23,19 @@ export function delay(ms: number): Promise<void> {
 }
 
 /**
+ * Safely parses a string to an integer, returning undefined if the value is null, undefined, or results in NaN.
+ * @param value The string value to parse
+ * @returns The parsed integer or undefined
+ */
+export function parseIntSafe(
+  value: string | null | undefined,
+): number | undefined {
+  if (!value) return undefined;
+  const parsed = parseInt(value, 10);
+  return !isNaN(parsed) ? parsed : undefined;
+}
+
+/**
  * A workaround to throw an exception in an expression.
  * JS throw keyword creates a statement not an expression.
  * This function allows throw to be used as an expression

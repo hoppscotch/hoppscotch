@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Display created server info -->
-    <div v-if="mockServer" class="flex flex-col space-y-4">
-      <div class="flex flex-col space-y-2">
+    <div v-if="mockServer" class="flex flex-col mb-4 space-y-4">
+      <div v-if="mockServer.serverUrlPathBased" class="flex flex-col space-y-2">
         <label class="text-sm font-semibold text-secondaryDark">
           {{ t("mock_server.path_based_url") }}
         </label>

@@ -27,9 +27,11 @@ import {
   addMockServer,
   mockServers$,
   updateMockServer as updateMockServerInStore,
+  loadMockServers,
 } from "~/newstore/mockServers"
 import { TeamCollectionsService } from "~/services/team-collection.service"
 import { WorkspaceService } from "~/services/workspace.service"
+import { platform } from "~/platform"
 
 export function useMockServer() {
   const t = useI18n()
@@ -61,6 +63,30 @@ export function useMockServer() {
       ? currentWorkspace.value.teamID
       : undefined
   )
+
+  // Function to refetch collections and mock servers
+  const refetchData = async () => {
+    try {
+      // Refetch mock servers
+      await loadMockServers()
+
+      // Refetch collections based on workspace type
+      if (
+        currentWorkspace.value.type === "team" &&
+        currentWorkspace.value.teamID
+      ) {
+        // For team workspace, reload team collections by re-initializing with the same team ID
+        teamCollectionsService.changeTeamID(currentWorkspace.value.teamID)
+      } else {
+        // For personal workspace, load REST collections only (mock servers are REST-based)
+        if (platform.sync.collections.loadUserCollections) {
+          await platform.sync.collections.loadUserCollections("REST")
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refetch data:", error)
+    }
+  }
 
   // Function to add mock URL to environment
   const addMockUrlToEnvironment = async (
@@ -190,7 +216,9 @@ export function useMockServer() {
   // Create new mock server
   const createMockServer = async (params: {
     mockServerName: string
-    collectionID: string
+    collectionID?: string
+    autoCreateCollection?: boolean
+    autoCreateRequestExample?: boolean
     delayInMs: number
     isPublic: boolean
     setInEnvironment: boolean
@@ -199,16 +227,24 @@ export function useMockServer() {
     const {
       mockServerName,
       collectionID,
+      autoCreateCollection,
+      autoCreateRequestExample,
       delayInMs,
       isPublic,
       setInEnvironment,
       collectionName,
     } = params
 
-    if (!mockServerName.trim() || !collectionID) {
-      if (!collectionID) {
-        toast.error(t("mock_server.select_collection_error"))
-      }
+    if (!mockServerName.trim()) {
+      return { success: false, server: null }
+    }
+
+    // Exactly one of collectionID or autoCreateCollection must be provided (XOR)
+    if (
+      (!collectionID && !autoCreateCollection) ||
+      (collectionID && autoCreateCollection)
+    ) {
+      toast.error(t("mock_server.select_collection_error"))
       return { success: false, server: null }
     }
 
@@ -225,11 +261,13 @@ export function useMockServer() {
     const result = await pipe(
       createMockServerMutation(
         mockServerName.trim(),
-        collectionID,
         workspaceType,
         workspaceID,
         delayInMs,
-        isPublic
+        isPublic,
+        collectionID,
+        autoCreateCollection,
+        autoCreateRequestExample
       ),
       TE.match(
         (error) => {
@@ -257,6 +295,9 @@ export function useMockServer() {
         await addMockUrlToEnvironment(mockUrl, collectionName)
       }
     }
+
+    // Refetch collections and mock servers to get the latest data
+    await refetchData()
 
     return { success: true, server: result }
   }

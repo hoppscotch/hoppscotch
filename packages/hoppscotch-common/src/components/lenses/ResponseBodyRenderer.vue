@@ -17,6 +17,7 @@
         :is-savable="isSavable"
         :is-editable="isEditable"
         :tab-id="props.tabId"
+        :is-test-runner="props.isTestRunner"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>

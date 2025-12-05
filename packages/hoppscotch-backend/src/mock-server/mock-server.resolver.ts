@@ -26,6 +26,8 @@ import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { TeamAccessRole } from 'src/team/team.model';
 import { throwErr } from 'src/utils';
+import { AuthUser } from 'src/types/AuthUser';
+import { INVALID_PARAMS } from 'src/errors';
 
 @Resolver(() => MockServer)
 export class MockServerResolver {
@@ -72,7 +74,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async myMockServers(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args() args: OffsetPaginationArgs,
   ): Promise<MockServer[]> {
     return this.mockServerService.getUserMockServers(user.uid, args);
@@ -104,7 +106,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async mockServer(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'id',
       type: () => ID,
@@ -124,7 +126,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async mockServerLogs(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'mockServerID',
       type: () => ID,
@@ -151,8 +153,15 @@ export class MockServerResolver {
   @UseGuards(GqlAuthGuard)
   async createMockServer(
     @Args('input') input: CreateMockServerInput,
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
   ): Promise<MockServer> {
+    if (
+      (input.collectionID && input.autoCreateCollection) ||
+      (!input.collectionID && !input.autoCreateCollection)
+    ) {
+      throwErr(INVALID_PARAMS);
+    }
+
     const result = await this.mockServerService.createMockServer(user, input);
 
     if (E.isLeft(result)) throwErr(result.left);
@@ -164,7 +173,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async updateMockServer(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args() args: MockServerMutationArgs,
     @Args('input') input: UpdateMockServerInput,
   ): Promise<MockServer> {
@@ -183,7 +192,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async deleteMockServer(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args() args: MockServerMutationArgs,
   ): Promise<boolean> {
     const result = await this.mockServerService.deleteMockServer(
@@ -200,7 +209,7 @@ export class MockServerResolver {
   })
   @UseGuards(GqlAuthGuard)
   async deleteMockServerLog(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'logID',
       type: () => ID,

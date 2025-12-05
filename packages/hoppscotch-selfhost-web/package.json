@@ -1,7 +1,7 @@
 {
   "name": "@hoppscotch/selfhost-web",
   "private": true,
-  "version": "2025.11.0",
+  "version": "2025.11.1",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
@@ -29,7 +29,7 @@
     "@hoppscotch/common": "workspace:^",
     "@hoppscotch/data": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#e05861959938b57479a1a81fa796735ebbd08c7c",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35",
     "@hoppscotch/ui": "0.2.5",
     "@import-meta-env/unplugin": "0.6.3",
     "@tauri-apps/api": "2.1.1",

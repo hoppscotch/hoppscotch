@@ -66,6 +66,7 @@
               @keyup.escape="hide()"
             >
               <HoppSmartItem
+                v-if="!isTestRunner"
                 :label="t('action.clear_response')"
                 :icon="IconEraser"
                 :shortcut="[getSpecialKey(), 'Delete']"
@@ -119,6 +120,7 @@ const props = defineProps<{
   isEditable: boolean
   isSavable: boolean
   tabId: string
+  isTestRunner?: boolean
 }>()
 
 const { containerRef } = useScrollerRef(
@@ -139,8 +141,13 @@ const emit = defineEmits<{
   ): void
 }>()
 
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
 const eraseResponse = () => {
-  emit("update:response", null)
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
 }
 
 const { responseBodyText } = useResponseBody(props.response)

@@ -407,8 +407,6 @@ export class HoppEnvironmentPlugin {
             ? currentTab.document.response.originalRequest
             : currentTab.document.request
 
-        if (!request || !("requestVariables" in request)) return
-
         const inheritedProperties = currentTab.document.inheritedProperties
 
         // Extract collection variables safely, handling undefined or non-inherited-property types
@@ -417,8 +415,14 @@ export class HoppEnvironmentPlugin {
             ? inheritedProperties.variables
             : []
 
+        // Get request variables if available, otherwise use empty array
+        const requestVariables =
+          request && "requestVariables" in request
+            ? request.requestVariables
+            : []
+
         const requestAndCollVars = getRequestAndCollectionVariables(
-          request.requestVariables,
+          requestVariables,
           collectionVariables
         )
 
@@ -442,13 +446,15 @@ export class HoppEnvironmentPlugin {
         tab.document.type === "example-response"
           ? tab.document.response.originalRequest
           : tab.document.request
-      const inheritedProperty = tab.document.inheritedProperties
+      const inheritedProperties = tab.document.inheritedProperties
 
-      if (!request || !("requestVariables" in request)) return
+      // Get request variables if available, otherwise use empty array
+      const requestVariables =
+        request && "requestVariables" in request ? request.requestVariables : []
 
       const freshRequestAndCollVars = getRequestAndCollectionVariables(
-        request.requestVariables,
-        inheritedProperty?.variables ?? []
+        requestVariables,
+        inheritedProperties?.variables ?? []
       )
 
       this.envs = [...freshRequestAndCollVars, ...envs]

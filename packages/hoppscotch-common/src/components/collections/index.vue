@@ -300,7 +300,9 @@ import {
   HoppRESTAuth,
   HoppRESTHeaders,
   HoppRESTRequest,
+  HoppRESTRequestResponse,
   makeCollection,
+  makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { MODULE_PREFIX_REGEX_JSON_SERIALIZED } from "~/helpers/scripting"
@@ -315,7 +317,7 @@ import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { GQLError } from "~/helpers/backend/GQLClient"
+import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import {
   CollectionDataProps,
@@ -1745,14 +1747,33 @@ const onAddExample = async () => {
     return
   }
 
-  // Create a new example response with default values
+  // Create the original request from the parent request
+  const originalRequest = makeHoppRESTResponseOriginalRequest({
+    name: request.name,
+    method: request.method,
+    endpoint: request.endpoint,
+    headers: request.headers,
+    params: request.params,
+    body: request.body,
+    auth: request.auth,
+    requestVariables: request.requestVariables,
+  })
+
+  // Create a new example response with default values and original request
   const newExample: HoppRESTRequestResponse = {
     name: exampleName,
     code: 200,
     status: "OK",
     headers: [],
     body: "",
+    originalRequest,
   }
+
+  // Calculate the new example's index (will be used as exampleID)
+  const existingResponsesCount = request.responses
+    ? Object.keys(request.responses).length
+    : 0
+  const newExampleID = existingResponsesCount.toString()
 
   const updatedRequest = {
     ...request,
@@ -1788,6 +1809,29 @@ const onAddExample = async () => {
       possibleRequestActiveTab.value.document.request.responses =
         updatedRequest.responses
     }
+
+    // Close the modal first
+    displayModalAddExample(false)
+
+    // Open the new example in a new tab
+    tabs.createNewTab({
+      response: {
+        ...cloneDeep(newExample),
+        name: exampleName,
+      },
+      isDirty: false,
+      type: "example-response",
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: folderPath,
+        requestIndex: requestIndex,
+        exampleID: newExampleID,
+      },
+      inheritedProperties: cascadeParentCollectionForProperties(
+        folderPath,
+        "rest"
+      ),
+    })
   } else if (hasTeamWriteAccess.value) {
     modalLoadingState.value = true
 
@@ -1820,10 +1864,15 @@ const onAddExample = async () => {
           toast.success(t("response.saved"))
           displayModalAddExample(false)
 
+          const requestID = editingRequestID.value
+          const collectionID = editingFolderPath.value
+
+          if (!requestID) return
+
           // Update the request tab responses if it's open
           const possibleRequestActiveTab = tabs.getTabRefWithSaveContext({
             originLocation: "team-collection",
-            requestID: editingRequestID.value,
+            requestID: requestID,
           })
 
           if (
@@ -1833,12 +1882,33 @@ const onAddExample = async () => {
             possibleRequestActiveTab.value.document.request.responses =
               updatedRequest.responses
           }
+
+          // Open the new example in a new tab
+          tabs.createNewTab({
+            response: {
+              ...cloneDeep(newExample),
+              name: exampleName,
+            },
+            isDirty: false,
+            type: "example-response",
+            saveContext: {
+              originLocation: "team-collection",
+              requestID: requestID,
+              collectionID: collectionID ?? undefined,
+              exampleID: newExampleID,
+            },
+            inheritedProperties: collectionID
+              ? teamCollectionService.cascadeParentCollectionForProperties(
+                  collectionID
+                )
+              : undefined,
+          })
         }
       )
     )()
-  }
 
-  displayModalAddExample(false)
+    return
+  }
 }
 
 const removeCollection = (id: string) => {

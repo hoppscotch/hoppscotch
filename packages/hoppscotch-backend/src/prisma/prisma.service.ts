@@ -13,23 +13,25 @@ export class PrismaService
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
-
     if (!databaseUrl) {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    const { connectionString, schema, connectionLimit, connectTimeout } =
-      PrismaService.parseDatabaseUrl(databaseUrl);
+    const parsed = PrismaService.parseDatabaseUrl(databaseUrl);
 
     const pool = new pg.Pool({
-      connectionString,
-      max: connectionLimit ?? 20,
+      connectionString: parsed.connectionString,
+      max: parsed.connectionLimit ?? 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: connectTimeout ?? 5000,
+      connectionTimeoutMillis: parsed.connectTimeout ?? 5000,
+      ssl:
+        parsed.sslMode === 'require' || parsed.sslMode === 'prefer'
+          ? { rejectUnauthorized: false }
+          : undefined, // Let pg auto-detect from connection string
     });
 
     const adapter = new PrismaPg(pool, {
-      schema,
+      schema: parsed.schema,
     });
 
     super({
@@ -43,18 +45,33 @@ export class PrismaService
     this.pool = pool;
   }
 
+  /**
+   * --- DATABASE_URL Parser ---
+   * Accepts:
+   *   ?schema=custom
+   *   ?connection_limit=10
+   *   ?connect_timeout=5000
+   *   ?sslmode=disable|prefer|require
+   */
   private static parseDatabaseUrl(databaseUrl: string): {
     connectionString: string;
     schema: string;
     connectionLimit?: number;
     connectTimeout?: number;
+    sslMode?: string;
   } {
     try {
       const url = new URL(databaseUrl);
       const schema = url.searchParams.get('schema') || 'public';
-      const connectionLimit = url.searchParams.get('connection_limit');
-      const connectTimeout = url.searchParams.get('connect_timeout');
+      const connectionLimit = parseIntSafe(
+        url.searchParams.get('connection_limit'),
+      );
+      const connectTimeout = parseIntSafe(
+        url.searchParams.get('connect_timeout'),
+      );
+      const sslMode = url.searchParams.get('sslmode');
 
+      // Don't remove sslmode – let pg driver handle it
       url.searchParams.delete('schema');
       url.searchParams.delete('connection_limit');
       url.searchParams.delete('connect_timeout');
@@ -62,8 +79,9 @@ export class PrismaService
       return {
         connectionString: url.toString(),
         schema,
-        connectionLimit: parseIntSafe(connectionLimit),
-        connectTimeout: parseIntSafe(connectTimeout),
+        connectionLimit,
+        connectTimeout,
+        sslMode: sslMode || undefined,
       };
     } catch (error) {
       throw new Error(

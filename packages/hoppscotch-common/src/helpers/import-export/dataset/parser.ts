@@ -48,7 +48,7 @@ export function parseJSON(data: string): Array<Record<string, any>> {
     }
 
     // Validate all items are objects
-    if (!parsed.every((item) => typeof item === "object" && item !== null)) {
+    if (!parsed.every((item) => typeof item === "object" && item !== null && !Array.isArray(item))) {
         throw new Error("JSON array must contain only objects")
     }
 

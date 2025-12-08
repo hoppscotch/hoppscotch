@@ -10,6 +10,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly pool: pg.Pool;
+  private readonly schema: string;
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
@@ -44,6 +45,7 @@ export class PrismaService
     });
 
     this.pool = pool;
+    this.schema = schema;
   }
 
   /**

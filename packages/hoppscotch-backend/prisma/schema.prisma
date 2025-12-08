@@ -298,6 +298,7 @@ model MockServerActivity {
 
 model PublishedDocs {
   id            String        @id @default(cuid())
+  slug          String
   title         String
   collectionID  String
   creatorUid    String
@@ -309,6 +310,9 @@ model PublishedDocs {
   metadata      Json?
   createdOn     DateTime      @default(now()) @db.Timestamptz(3)
   updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@unique([slug, version])
+  @@index([collectionID])
 }
 
 enum WorkspaceType {

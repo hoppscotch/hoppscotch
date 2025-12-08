@@ -9,7 +9,11 @@ import {
   Query,
 } from '@nestjs/graphql';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
-import { PublishedDocs, PublishedDocsCollection } from './published-docs.model';
+import {
+  PublishedDocs,
+  PublishedDocsCollection,
+  PublishedDocsVersion,
+} from './published-docs.model';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import {
@@ -58,6 +62,20 @@ export class PublishedDocsResolver {
 
     if (E.isLeft(collection)) throwErr(collection.left);
     return collection.right;
+  }
+
+  @ResolveField(() => [PublishedDocsVersion], {
+    description: 'Returns all versions of the published document (same slug)',
+  })
+  async versions(
+    @Parent() publishedDocs: PublishedDocs,
+  ): Promise<PublishedDocsVersion[]> {
+    const versions = await this.publishedDocsService.getPublishedDocsVersions(
+      publishedDocs.slug,
+    );
+
+    if (E.isLeft(versions)) throwErr(versions.left);
+    return versions.right;
   }
 
   // Queries

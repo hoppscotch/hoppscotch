@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
 import {
   CreatePublishedDocsArgs,
   UpdatePublishedDocsArgs,
@@ -19,13 +20,14 @@ import {
   USER_COLL_NOT_FOUND,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
-import { PublishedDocs } from './published-docs.model';
+import { PublishedDocs, PublishedDocsVersion } from './published-docs.model';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
 import { stringToJson } from 'src/utils';
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
 import { TeamCollectionService } from 'src/team-collection/team-collection.service';
-import { GetPublishedDocsQueryDto, TreeLevel } from './published-docs.dto';
 import { ConfigService } from '@nestjs/config';
+import { PrismaError } from 'src/prisma/prisma-error-codes';
+import { CollectionFolder } from 'src/types/CollectionFolder';
 
 @Injectable()
 export class PublishedDocsService {
@@ -37,14 +39,49 @@ export class PublishedDocsService {
   ) {}
 
   /**
+   * Get or generate slug for a collection
+   * - For existing published docs with the same collectionID, reuse the slug
+   * - For new collections, generate a new UUID-based slug
+   */
+  private async getOrGenerateSlug(
+    collectionID: string,
+    workspaceType: WorkspaceType,
+    workspaceID: string,
+  ): Promise<string> {
+    // Check if there's already a published doc for this collection
+    const existingDoc = await this.prisma.publishedDocs.findFirst({
+      where: {
+        collectionID,
+        workspaceType,
+        workspaceID,
+      },
+      orderBy: {
+        createdOn: 'asc', // Get the oldest one
+      },
+    });
+
+    // If exists, reuse its slug
+    if (existingDoc) {
+      return existingDoc.slug;
+    }
+
+    // Otherwise, generate a new slug using crypto.randomUUID()
+    return crypto.randomUUID();
+  }
+
+  /**
    * Cast database PublishedDocs to GraphQL PublishedDocs
    */
-  private cast(doc: DbPublishedDocs): PublishedDocs {
+  private cast(
+    doc: DbPublishedDocs,
+    versions: PublishedDocsVersion[] = [],
+  ): PublishedDocs {
     return {
       ...doc,
+      versions,
       documentTree: JSON.stringify(doc.documentTree),
       metadata: JSON.stringify(doc.metadata),
-      url: `${this.configService.get('VITE_BASE_URL')}/view/${doc.id}/${doc.version}`,
+      url: `${this.configService.get('VITE_BASE_URL')}/view/${doc.slug}/${doc.version}`,
     };
   }
 
@@ -196,6 +233,26 @@ export class PublishedDocsService {
   }
 
   /**
+   * (Field resolver)
+   * Get all versions of a published document by slug
+   */
+  async getPublishedDocsVersions(slug: string) {
+    const allVersions = await this.prisma.publishedDocs.findMany({
+      where: { slug },
+      select: {
+        id: true,
+        slug: true,
+        version: true,
+        title: true,
+        autoSync: true,
+      },
+      orderBy: [{ autoSync: 'desc' }, { createdOn: 'desc' }],
+    });
+
+    return E.right(allVersions);
+  }
+
+  /**
    * Get a published document by ID
    */
   async getPublishedDocByID(id: string, user: User) {
@@ -221,7 +278,6 @@ export class PublishedDocsService {
    */
   async getPublishedDocByIDPublic(
     id: string,
-    query: GetPublishedDocsQueryDto,
   ): Promise<E.Either<string, PublishedDocs>> {
     const publishedDocs = await this.prisma.publishedDocs.findUnique({
       where: { id },
@@ -235,12 +291,10 @@ export class PublishedDocsService {
           ? await this.userCollectionService.exportUserCollectionToJSONObject(
               publishedDocs.creatorUid,
               publishedDocs.collectionID,
-              query.tree === TreeLevel.FULL,
             )
           : await this.teamCollectionService.exportCollectionToJSONObject(
               publishedDocs.workspaceID,
               publishedDocs.collectionID,
-              query.tree === TreeLevel.FULL,
             );
 
       if (E.isLeft(collectionResult)) {
@@ -261,12 +315,75 @@ export class PublishedDocsService {
       return E.right(
         this.cast({
           ...publishedDocs,
-          documentTree: JSON.parse(JSON.stringify(collectionResult.right)),
+          documentTree: collectionResult.right as any,
         }),
       );
     }
 
     return E.right(this.cast(publishedDocs));
+  }
+
+  /**
+   * Get a published document by slug and version for public access (unauthenticated)
+   * @param slug - The slug of the published document
+   * @param version - The version of the published document
+   * @param query - Query parameters specifying tree level
+   */
+  async getPublishedDocBySlugPublic(
+    slug: string,
+    version: string,
+  ): Promise<E.Either<string, PublishedDocs>> {
+    const publishedDocs = await this.prisma.publishedDocs.findUnique({
+      where: {
+        slug_version: {
+          slug,
+          version,
+        },
+      },
+    });
+    if (!publishedDocs) return E.left(PUBLISHED_DOCS_NOT_FOUND);
+
+    const allVersions = await this.getPublishedDocsVersions(slug);
+    if (E.isLeft(allVersions)) return E.left(allVersions.left);
+
+    // if autoSync is enabled, fetch from the collection directly
+    if (publishedDocs.autoSync) {
+      const collectionResult =
+        publishedDocs.workspaceType === WorkspaceType.USER
+          ? await this.userCollectionService.exportUserCollectionToJSONObject(
+              publishedDocs.creatorUid,
+              publishedDocs.collectionID,
+            )
+          : await this.teamCollectionService.exportCollectionToJSONObject(
+              publishedDocs.workspaceID,
+              publishedDocs.collectionID,
+            );
+
+      if (E.isLeft(collectionResult)) {
+        // Delete the published doc if its collection is missing
+        const isCollectionNotFound =
+          collectionResult.left === USER_COLL_NOT_FOUND ||
+          collectionResult.left === TEAM_INVALID_COLL_ID;
+
+        if (isCollectionNotFound) {
+          await this.prisma.publishedDocs.delete({
+            where: { id: publishedDocs.id },
+          });
+        }
+
+        return E.left(collectionResult.left);
+      }
+
+      return E.right(
+        this.cast(
+          { ...publishedDocs, documentTree: collectionResult.right as any },
+          allVersions.right,
+        ),
+      );
+    }
+
+    // When autoSync is false, use the stored documentTree
+    return E.right(this.cast(publishedDocs, allVersions.right));
   }
 
   /**
@@ -383,7 +500,11 @@ export class PublishedDocsService {
    * @param args - Arguments for creating the published document
    * @param user - The user creating the published document
    */
-  async createPublishedDoc(args: CreatePublishedDocsArgs, user: User) {
+  async createPublishedDoc(
+    args: CreatePublishedDocsArgs,
+    user: User,
+    retryCount: number = 0,
+  ): Promise<E.Either<string, PublishedDocs>> {
     try {
       // Validate workspace type and ID
       const workspaceValidation = await this.validateWorkspace(user, {
@@ -408,25 +529,67 @@ export class PublishedDocsService {
       const metadata = stringToJson(args.metadata);
       if (E.isLeft(metadata)) return E.left(metadata.left);
 
-      // Create published document
+      // Get or generate slug for this collection
+      const workspaceID =
+        args.workspaceType === WorkspaceType.TEAM ? args.workspaceID : user.uid;
+
+      // Get or generate slug
+      const slug = await this.getOrGenerateSlug(
+        args.collectionID,
+        args.workspaceType,
+        workspaceID,
+      );
+
+      let documentTree: CollectionFolder | null = null;
+      // If autoSync is disabled, fetch the latest collection data for snapshot
+      if (!args.autoSync) {
+        const collectionResult =
+          args.workspaceType === WorkspaceType.USER
+            ? await this.userCollectionService.exportUserCollectionToJSONObject(
+                user.uid,
+                args.collectionID,
+              )
+            : await this.teamCollectionService.exportCollectionToJSONObject(
+                args.workspaceID,
+                args.collectionID,
+              );
+
+        if (E.isLeft(collectionResult)) {
+          return E.left(collectionResult.left);
+        }
+
+        documentTree = collectionResult.right;
+      }
+
+      // Attempt to create the published document
       const newPublishedDoc = await this.prisma.publishedDocs.create({
         data: {
           title: args.title,
+          slug: slug,
           collectionID: args.collectionID,
           creatorUid: user.uid,
           version: args.version,
           autoSync: args.autoSync,
           workspaceType: args.workspaceType,
-          workspaceID:
-            args.workspaceType === WorkspaceType.TEAM
-              ? args.workspaceID
-              : user.uid,
+          workspaceID: workspaceID,
+          documentTree: documentTree as any,
           metadata: metadata.right,
         },
       });
 
       return E.right(this.cast(newPublishedDoc));
     } catch (error) {
+      // Check if it's a unique constraint violation on [slug, version]
+      // Allow up to 3 total attempts (initial + 2 retries)
+      const maxRetries = 2;
+      if (
+        error.code === PrismaError.UNIQUE_CONSTRAINT_VIOLATION &&
+        retryCount < maxRetries
+      ) {
+        // Race condition detected: retry with fresh slug generation
+        return this.createPublishedDoc(args, user, retryCount + 1);
+      }
+
       console.error('Error creating published document:', error);
       return E.left(PUBLISHED_DOCS_CREATION_FAILED);
     }

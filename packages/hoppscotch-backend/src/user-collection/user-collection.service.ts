@@ -859,35 +859,33 @@ export class UserCollectionService {
   async exportUserCollectionToJSONObject(
     userUID: string,
     collectionID: string,
-    withChildren: boolean = true,
   ): Promise<E.Left<string> | E.Right<CollectionFolder>> {
     // Get Collection details
     const collection = await this.getUserCollection(collectionID);
     if (E.isLeft(collection)) return E.left(collection.left);
 
     const childrenCollectionObjects: CollectionFolder[] = [];
-    if (withChildren) {
-      // Get all child collections whose parentID === collectionID
-      const childCollectionList = await this.prisma.userCollection.findMany({
-        where: {
-          parentID: collectionID,
-          userUid: userUID,
-        },
-        orderBy: {
-          orderIndex: 'asc',
-        },
-      });
 
-      // Create a list of child collection and request data ready for export
-      for (const coll of childCollectionList) {
-        const result = await this.exportUserCollectionToJSONObject(
-          userUID,
-          coll.id,
-        );
-        if (E.isLeft(result)) return E.left(result.left);
+    // Get all child collections whose parentID === collectionID
+    const childCollectionList = await this.prisma.userCollection.findMany({
+      where: {
+        parentID: collectionID,
+        userUid: userUID,
+      },
+      orderBy: {
+        orderIndex: 'asc',
+      },
+    });
 
-        childrenCollectionObjects.push(result.right);
-      }
+    // Create a list of child collection and request data ready for export
+    for (const coll of childCollectionList) {
+      const result = await this.exportUserCollectionToJSONObject(
+        userUID,
+        coll.id,
+      );
+      if (E.isLeft(result)) return E.left(result.left);
+
+      childrenCollectionObjects.push(result.right);
     }
 
     // Fetch all child requests that belong to collectionID

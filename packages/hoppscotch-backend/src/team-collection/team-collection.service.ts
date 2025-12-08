@@ -112,29 +112,27 @@ export class TeamCollectionService {
   async exportCollectionToJSONObject(
     teamID: string,
     collectionID: string,
-    withChildren: boolean = true,
   ): Promise<E.Right<CollectionFolder> | E.Left<string>> {
     const collection = await this.getCollection(collectionID);
     if (E.isLeft(collection)) return E.left(TEAM_INVALID_COLL_ID);
 
     const childrenCollectionObjects = [];
-    if (withChildren) {
-      const childrenCollection = await this.prisma.teamCollection.findMany({
-        where: {
-          teamID,
-          parentID: collectionID,
-        },
-        orderBy: {
-          orderIndex: 'asc',
-        },
-      });
 
-      for (const coll of childrenCollection) {
-        const result = await this.exportCollectionToJSONObject(teamID, coll.id);
-        if (E.isLeft(result)) return E.left(result.left);
+    const childrenCollection = await this.prisma.teamCollection.findMany({
+      where: {
+        teamID,
+        parentID: collectionID,
+      },
+      orderBy: {
+        orderIndex: 'asc',
+      },
+    });
 
-        childrenCollectionObjects.push(result.right);
-      }
+    for (const coll of childrenCollection) {
+      const result = await this.exportCollectionToJSONObject(teamID, coll.id);
+      if (E.isLeft(result)) return E.left(result.left);
+
+      childrenCollectionObjects.push(result.right);
     }
 
     const requests = await this.prisma.teamRequest.findMany({

@@ -21,7 +21,6 @@ import {
   UpdatePublishedDocsArgs,
 } from './input-type.args';
 import { TeamAccessRole } from 'src/team/team.model';
-import { TreeLevel } from './published-docs.dto';
 import { ConfigService } from '@nestjs/config';
 
 const mockPrisma = mockDeep<PrismaService>();
@@ -53,6 +52,7 @@ const user: User = {
 
 const userPublishedDoc: DBPublishedDocs = {
   id: 'pub_doc_1',
+  slug: 'slug-collection-1',
   title: 'User API Documentation',
   version: '1.0.0',
   autoSync: true,
@@ -68,6 +68,7 @@ const userPublishedDoc: DBPublishedDocs = {
 
 const userPublishedDocCasted: PublishedDocs = {
   id: userPublishedDoc.id,
+  slug: userPublishedDoc.slug,
   title: userPublishedDoc.title,
   version: userPublishedDoc.version,
   autoSync: userPublishedDoc.autoSync,
@@ -77,11 +78,12 @@ const userPublishedDocCasted: PublishedDocs = {
   metadata: JSON.stringify(userPublishedDoc.metadata),
   createdOn: userPublishedDoc.createdOn,
   updatedOn: userPublishedDoc.updatedOn,
-  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${userPublishedDoc.id}/${userPublishedDoc.version}`,
+  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${userPublishedDoc.slug}/${userPublishedDoc.version}`,
 };
 
 const teamPublishedDoc: DBPublishedDocs = {
   id: 'pub_doc_2',
+  slug: 'slug-team-collection-1',
   title: 'Team API Documentation',
   version: '1.0.0',
   autoSync: true,
@@ -97,6 +99,7 @@ const teamPublishedDoc: DBPublishedDocs = {
 
 const teamPublishedDocCasted: PublishedDocs = {
   id: teamPublishedDoc.id,
+  slug: teamPublishedDoc.slug,
   title: teamPublishedDoc.title,
   version: teamPublishedDoc.version,
   autoSync: teamPublishedDoc.autoSync,
@@ -106,7 +109,7 @@ const teamPublishedDocCasted: PublishedDocs = {
   metadata: JSON.stringify(teamPublishedDoc.metadata),
   createdOn: teamPublishedDoc.createdOn,
   updatedOn: teamPublishedDoc.updatedOn,
-  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${teamPublishedDoc.id}/${teamPublishedDoc.version}`,
+  url: `${mockConfigService.get('VITE_BASE_URL')}/view/${teamPublishedDoc.slug}/${teamPublishedDoc.version}`,
 };
 
 beforeEach(() => {
@@ -998,7 +1001,6 @@ describe('getPublishedDocByIDPublic', () => {
 
     const result = await publishedDocsService.getPublishedDocByIDPublic(
       userPublishedDoc.id,
-      { tree: TreeLevel.FULL },
     );
 
     expect(result).toMatchObject(
@@ -1027,7 +1029,6 @@ describe('getPublishedDocByIDPublic', () => {
 
     const result = await publishedDocsService.getPublishedDocByIDPublic(
       teamPublishedDoc.id,
-      { tree: TreeLevel.FULL },
     );
 
     expect(result).toMatchObject(
@@ -1041,10 +1042,8 @@ describe('getPublishedDocByIDPublic', () => {
   test('should throw PUBLISHED_DOCS_NOT_FOUND when document ID is invalid', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
 
-    const result = await publishedDocsService.getPublishedDocByIDPublic(
-      'invalid_id',
-      { tree: TreeLevel.FULL },
-    );
+    const result =
+      await publishedDocsService.getPublishedDocByIDPublic('invalid_id');
     expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
   });
 
@@ -1057,13 +1056,11 @@ describe('getPublishedDocByIDPublic', () => {
       E.right({} as any),
     );
 
-    await publishedDocsService.getPublishedDocByIDPublic(userPublishedDoc.id, {
-      tree: TreeLevel.FULL,
-    } as any);
+    await publishedDocsService.getPublishedDocByIDPublic(userPublishedDoc.id);
 
     expect(
       mockUserCollectionService.exportUserCollectionToJSONObject,
-    ).toHaveBeenCalledWith(user.uid, 'collection_1', true);
+    ).toHaveBeenCalledWith(user.uid, 'collection_1');
   });
 
   test('should call exportCollectionToJSONObject with correct parameters', async () => {
@@ -1075,12 +1072,400 @@ describe('getPublishedDocByIDPublic', () => {
       E.right({} as any),
     );
 
-    await publishedDocsService.getPublishedDocByIDPublic(teamPublishedDoc.id, {
-      tree: TreeLevel.FULL,
-    });
+    await publishedDocsService.getPublishedDocByIDPublic(teamPublishedDoc.id);
 
     expect(
       mockTeamCollectionService.exportCollectionToJSONObject,
-    ).toHaveBeenCalledWith('team_1', 'team_collection_1', true);
+    ).toHaveBeenCalledWith('team_1', 'team_collection_1');
+  });
+});
+
+describe('getPublishedDocsVersions', () => {
+  test('should return all versions for a given slug ordered by autoSync and createdOn', async () => {
+    const mockVersions = [
+      {
+        id: 'pub_doc_1',
+        slug: 'slug-collection-1',
+        version: '1.0.0',
+        title: 'API Docs v1',
+        autoSync: true,
+      },
+      {
+        id: 'pub_doc_2',
+        slug: 'slug-collection-1',
+        version: '2.0.0',
+        title: 'API Docs v2',
+        autoSync: true,
+      },
+      {
+        id: 'pub_doc_3',
+        slug: 'slug-collection-1',
+        version: '3.0.0',
+        title: 'API Docs v3',
+        autoSync: false,
+      },
+    ];
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce(
+      mockVersions as any,
+    );
+
+    const result =
+      await publishedDocsService.getPublishedDocsVersions('slug-collection-1');
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right).toEqual(mockVersions);
+    }
+  });
+
+  test('should return empty array when no versions found', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
+
+    const result =
+      await publishedDocsService.getPublishedDocsVersions('non-existent-slug');
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right).toEqual([]);
+    }
+  });
+
+  test('should query with correct orderBy clause for autoSync priority', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
+
+    await publishedDocsService.getPublishedDocsVersions('test-slug');
+
+    expect(mockPrisma.publishedDocs.findMany).toHaveBeenCalledWith({
+      where: { slug: 'test-slug' },
+      select: {
+        id: true,
+        slug: true,
+        version: true,
+        title: true,
+        autoSync: true,
+      },
+      orderBy: [{ autoSync: 'desc' }, { createdOn: 'desc' }],
+    });
+  });
+});
+
+describe('getPublishedDocBySlugPublic', () => {
+  test('should return published document by slug and version with autoSync enabled', async () => {
+    const collectionData = {
+      id: 'collection_1',
+      name: 'Test Collection',
+      folders: [],
+      requests: [],
+    };
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      autoSync: true,
+    });
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      {
+        id: userPublishedDoc.id,
+        slug: userPublishedDoc.slug,
+        version: userPublishedDoc.version,
+        title: userPublishedDoc.title,
+        autoSync: userPublishedDoc.autoSync,
+      },
+    ] as any);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.slug).toBe('slug-collection-1');
+      expect(result.right.version).toBe('1.0.0');
+      expect(result.right.documentTree).toBe(JSON.stringify(collectionData));
+    }
+  });
+
+  test('should return published document with stored documentTree when autoSync is false', async () => {
+    const storedDocTree = { folders: [], requests: [] };
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      autoSync: false,
+      documentTree: storedDocTree,
+    });
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      {
+        id: userPublishedDoc.id,
+        slug: userPublishedDoc.slug,
+        version: userPublishedDoc.version,
+        title: userPublishedDoc.title,
+        autoSync: false,
+      },
+    ] as any);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.documentTree).toBe(JSON.stringify(storedDocTree));
+    }
+  });
+
+  test('should throw PUBLISHED_DOCS_NOT_FOUND when slug and version combination not found', async () => {
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'non-existent-slug',
+      '1.0.0',
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
+  });
+
+  test('should use unique constraint slug_version for lookup', async () => {
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
+
+    await publishedDocsService.getPublishedDocBySlugPublic(
+      'test-slug',
+      '2.0.0',
+    );
+
+    expect(mockPrisma.publishedDocs.findUnique).toHaveBeenCalledWith({
+      where: {
+        slug_version: {
+          slug: 'test-slug',
+          version: '2.0.0',
+        },
+      },
+    });
+  });
+
+  test('should fetch all versions for the slug', async () => {
+    const allVersions = [
+      {
+        id: 'v1',
+        slug: 'test-slug',
+        version: '1.0.0',
+        title: 'V1',
+        autoSync: true,
+      },
+      {
+        id: 'v2',
+        slug: 'test-slug',
+        version: '2.0.0',
+        title: 'V2',
+        autoSync: true,
+      },
+    ];
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      autoSync: false,
+    });
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce(allVersions as any);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'test-slug',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+  });
+});
+
+describe('createPublishedDoc - slug generation and race conditions', () => {
+  const createArgs: CreatePublishedDocsArgs = {
+    title: 'New API Documentation',
+    version: '1.0.0',
+    autoSync: true,
+    workspaceType: WorkspaceType.USER,
+    workspaceID: user.uid,
+    collectionID: 'collection_1',
+    metadata: '{}',
+  };
+
+  test('should generate new slug for first version of a collection', async () => {
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    // No existing docs for this collection
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      slug: expect.any(String),
+    });
+
+    const result = await publishedDocsService.createPublishedDoc(
+      createArgs,
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.findFirst).toHaveBeenCalledWith({
+      where: {
+        collectionID: 'collection_1',
+        workspaceType: WorkspaceType.USER,
+        workspaceID: user.uid,
+      },
+      orderBy: {
+        createdOn: 'asc',
+      },
+    });
+  });
+
+  test('should reuse existing slug for subsequent versions of same collection', async () => {
+    const existingSlug = 'existing-slug-abc';
+    const existingDoc = {
+      ...userPublishedDoc,
+      slug: existingSlug,
+      version: '1.0.0',
+    };
+
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(existingDoc);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      slug: existingSlug,
+      version: '2.0.0',
+    });
+
+    const result = await publishedDocsService.createPublishedDoc(
+      { ...createArgs, version: '2.0.0' },
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.slug).toBe(existingSlug);
+    }
+  });
+
+  test('should retry on race condition (P2002 error) up to 3 times', async () => {
+    const uniqueConstraintError = {
+      code: 'P2002',
+      meta: { target: ['slug', 'version'] },
+    };
+
+    mockPrisma.userCollection.findUnique.mockResolvedValue({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValue(null);
+
+    // First two attempts fail with P2002, third succeeds
+    mockPrisma.publishedDocs.create
+      .mockRejectedValueOnce(uniqueConstraintError)
+      .mockRejectedValueOnce(uniqueConstraintError)
+      .mockResolvedValueOnce(userPublishedDoc);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      createArgs,
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledTimes(3);
+  });
+
+  test('should fail after max retries (3 attempts)', async () => {
+    const uniqueConstraintError = {
+      code: 'P2002',
+      meta: { target: ['slug', 'version'] },
+    };
+
+    mockPrisma.userCollection.findUnique.mockResolvedValue({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValue(null);
+
+    // All attempts fail with P2002
+    mockPrisma.publishedDocs.create.mockRejectedValue(uniqueConstraintError);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      createArgs,
+      user,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_CREATION_FAILED);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledTimes(3);
+  });
+
+  test('should not retry on non-P2002 errors', async () => {
+    const otherError = new Error('Database connection failed');
+
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.publishedDocs.create.mockRejectedValueOnce(otherError);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      createArgs,
+      user,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_CREATION_FAILED);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledTimes(1);
+  });
+
+  test('should store null documentTree when autoSync is true', async () => {
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce(userPublishedDoc);
+
+    await publishedDocsService.createPublishedDoc(
+      { ...createArgs, autoSync: true },
+      user,
+    );
+
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          documentTree: null,
+        }),
+      }),
+    );
+  });
+
+  test('should fetch and store documentTree when autoSync is false', async () => {
+    const collectionData = { folders: [], requests: [] };
+
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      documentTree: collectionData,
+    });
+
+    await publishedDocsService.createPublishedDoc(
+      { ...createArgs, autoSync: false },
+      user,
+    );
+
+    expect(
+      mockUserCollectionService.exportUserCollectionToJSONObject,
+    ).toHaveBeenCalledWith(user.uid, 'collection_1');
   });
 });

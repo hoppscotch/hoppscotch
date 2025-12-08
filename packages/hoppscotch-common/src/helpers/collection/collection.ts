@@ -229,6 +229,9 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
     if (tab.value.document.type === "request") {
       // since the request is deleted, we need to remove the saved responses as well
       tab.value.document.request.responses = {}
+
+      // remove inherited properties
+      tab.value.document.inheritedProperties = undefined
     }
   }
 }
@@ -259,6 +262,9 @@ export async function resetTeamRequestsContext() {
         if (tab.value.document.type === "request") {
           // since the request is deleted, we need to remove the saved responses as well
           tab.value.document.request.responses = {}
+
+          // remove inherited properties
+          tab.value.document.inheritedProperties = undefined
         }
       }
     }

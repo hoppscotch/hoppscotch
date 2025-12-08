@@ -21,7 +21,7 @@
       >
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
-          class="flex flex-col !overflow-hidden"
+          class="flex flex-col !overflow-auto"
           :min-size="isEmbed ? 12 : 25"
         >
           <slot name="primary" />

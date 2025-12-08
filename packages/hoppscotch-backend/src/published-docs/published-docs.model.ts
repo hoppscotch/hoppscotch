@@ -47,6 +47,15 @@ export class PublishedDocsVersion {
     example: true,
   })
   autoSync: boolean;
+
+  @Field(() => String, {
+    description: 'URL where the published API documentation can be accessed',
+  })
+  @ApiProperty({
+    description: 'URL where the published API documentation can be accessed',
+    example: 'https://docs.example.com/api/v1.0',
+  })
+  url: string;
 }
 
 @ObjectType()

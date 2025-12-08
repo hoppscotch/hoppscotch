@@ -106,7 +106,6 @@ export class TeamCollectionService {
    *
    * @param teamID The Team ID
    * @param collectionID The Collection ID
-   * @param withChildren Whether to include child collections and their requests
    * @returns A JSON string containing all the contents of a collection
    */
   async exportCollectionToJSONObject(

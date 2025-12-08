@@ -853,7 +853,6 @@ export class UserCollectionService {
    *
    * @param userUID The User UID
    * @param collectionID The Collection ID
-   * @param withChildren Whether to include child collections and their requests
    * @returns A JSON string containing all the contents of a collection
    */
   async exportUserCollectionToJSONObject(

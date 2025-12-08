@@ -47,7 +47,7 @@ export class PublishedDocsController {
     return result.right;
   }
 
-  @Get('slug/:slug/:version')
+  @Get(':slug/:version')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get published documentation by slug and version',

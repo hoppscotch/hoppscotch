@@ -239,17 +239,10 @@ export class PublishedDocsService {
   async getPublishedDocsVersions(slug: string) {
     const allVersions = await this.prisma.publishedDocs.findMany({
       where: { slug },
-      select: {
-        id: true,
-        slug: true,
-        version: true,
-        title: true,
-        autoSync: true,
-      },
       orderBy: [{ autoSync: 'desc' }, { createdOn: 'desc' }],
     });
 
-    return E.right(allVersions);
+    return E.right(allVersions.map((doc) => this.cast(doc)));
   }
 
   /**
@@ -274,7 +267,6 @@ export class PublishedDocsService {
   /**
    * Get a published document by ID for public access (unauthenticated)
    * @param id - The ID of the published document
-   * @param query - Query parameters specifying tree level
    */
   async getPublishedDocByIDPublic(
     id: string,
@@ -327,7 +319,6 @@ export class PublishedDocsService {
    * Get a published document by slug and version for public access (unauthenticated)
    * @param slug - The slug of the published document
    * @param version - The version of the published document
-   * @param query - Query parameters specifying tree level
    */
   async getPublishedDocBySlugPublic(
     slug: string,

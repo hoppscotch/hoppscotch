@@ -41,8 +41,15 @@ export function parseJSON(data: string): Array<Record<string, any>> {
     const parsed = JSON.parse(data)
 
     if (!Array.isArray(parsed)) {
-        // If it's a single object, wrap it in an array
+        if (typeof parsed !== "object" || parsed === null) {
+            throw new Error("JSON must be an object or array of objects")
+        }
         return [parsed]
+    }
+
+    // Validate all items are objects
+    if (!parsed.every((item) => typeof item === "object" && item !== null)) {
+        throw new Error("JSON array must contain only objects")
     }
 
     return parsed

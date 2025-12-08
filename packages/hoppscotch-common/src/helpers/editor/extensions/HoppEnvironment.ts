@@ -124,9 +124,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
       let envInitialValue = tooltipEnv?.initialValue
-      // If the environment is not a request variable, get the current value from the current environment service
+
+      // If the environment is not a request variable or collection variable, get the current value from the current environment service
+      // For collection variables and request variables, use the value directly from tooltipEnv
       let envCurrentValue =
-        tooltipEnv?.sourceEnv !== "RequestVariable"
+        tooltipEnv?.sourceEnv !== "RequestVariable" &&
+        tooltipEnv?.sourceEnv !== "CollectionVariable"
           ? currentEnvironmentValueService.getEnvironmentByKey(
               tooltipEnv?.sourceEnv !== "Global"
                 ? currentSelectedEnvironment.id

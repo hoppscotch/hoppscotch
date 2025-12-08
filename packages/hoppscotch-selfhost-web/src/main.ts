@@ -368,14 +368,36 @@ async function initApp() {
         } else if (
           isCtrlOrCmd &&
           !e.shiftKey &&
-          !e.altKey &&
-          e.key.toLowerCase() === "l"
+          e.altKey &&
+          e.code === "KeyU"
         ) {
-          // Ctrl/Cmd + L - Focus Address Bar
+          // Ctrl/Cmd + Alt + U - Focus URL Bar
           e.preventDefault()
           e.stopPropagation()
           e.stopImmediatePropagation()
-          shortcutEvent = "focus-url"
+          shortcutEvent = "ctrl-alt-u"
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          e.code === "BracketRight"
+        ) {
+          // Ctrl/Cmd + Alt + ] - MRU Tab Switch
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          shortcutEvent = "ctrl-alt-]"
+        } else if (
+          isCtrlOrCmd &&
+          !e.shiftKey &&
+          e.altKey &&
+          e.code === "BracketLeft"
+        ) {
+          // Ctrl/Cmd + Alt + [ - MRU Tab Switch (Reverse)
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          shortcutEvent = "ctrl-alt-["
         }
 
         if (shortcutEvent) {

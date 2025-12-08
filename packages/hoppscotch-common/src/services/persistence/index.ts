@@ -472,6 +472,7 @@ export class PersistenceService extends Service {
 
         if (result.success) {
           const translatedData = result.data.map(translateToNewRESTCollection)
+
           setRESTCollections(translatedData)
         } else {
           console.error(`Failed with `, result.error, data)

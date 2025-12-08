@@ -115,3 +115,16 @@ export class UserCollectionDuplicatedData {
   })
   requests: UserRequest[];
 }
+
+@ObjectType()
+export class UserCollectionImportResult {
+  @Field(() => [UserCollection], {
+    description: 'Flat array of all collections',
+  })
+  collections: UserCollection[];
+
+  @Field(() => [UserRequest], {
+    description: 'Flat array of all requests',
+  })
+  requests: UserRequest[];
+}

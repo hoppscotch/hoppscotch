@@ -17,7 +17,7 @@
 
     <div v-else-if="response" class="flex flex-1 flex-col">
       <div
-        v-if="response.type === 'loading'"
+        v-if="response.type === 'loading' || isLoading"
         class="flex flex-col items-center justify-center"
       >
         <HoppSmartSpinner class="my-4" />
@@ -79,7 +79,10 @@
         </template>
       </HoppSmartPlaceholder>
       <div
-        v-if="response.type === 'success' || response.type === 'fail'"
+        v-if="
+          (response.type === 'success' || response.type === 'fail') &&
+          !isLoading
+        "
         class="flex items-center text-tiny font-semibold"
       >
         <div
@@ -147,10 +150,16 @@ const t = useI18n()
 const colorMode = useColorMode()
 const tabs = useService(RESTTabService)
 
-const props = defineProps<{
-  response: HoppRESTResponse | null | undefined
-  isEmbed?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    response: HoppRESTResponse | null | undefined
+    isEmbed?: boolean
+    isLoading?: boolean
+  }>(),
+  {
+    isLoading: false,
+  }
+)
 
 /**
  * Gives the response size in a human readable format

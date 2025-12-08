@@ -1,4 +1,4 @@
-import { UserCollection as DBUserCollection } from '@prisma/client';
+import { UserCollection as DBUserCollection } from 'src/generated/prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   USER_COLL_DEST_SAME,

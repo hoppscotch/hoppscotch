@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Account, VerificationToken } from '@prisma/client';
+import { Account, VerificationToken } from 'src/generated/prisma/client';
 import { mockDeep } from 'jest-mock-extended';
 import {
   INVALID_EMAIL,

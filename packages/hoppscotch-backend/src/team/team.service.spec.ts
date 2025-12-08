@@ -1,7 +1,7 @@
 import { TeamService } from './team.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { Team, TeamMember, TeamAccessRole } from './team.model';
-import { TeamMember as DbTeamMember } from '@prisma/client';
+import { TeamMember as DbTeamMember } from 'src/generated/prisma/client';
 import {
   USER_NOT_FOUND,
   TEAM_INVALID_ID,

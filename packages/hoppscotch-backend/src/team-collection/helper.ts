@@ -1,4 +1,4 @@
-import { TeamRequest } from '@prisma/client';
+import { TeamRequest } from 'src/generated/prisma/client';
 
 // Type of data returned from the query to obtain all search results
 export type SearchQueryReturnType = {

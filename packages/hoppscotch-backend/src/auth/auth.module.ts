@@ -34,6 +34,10 @@ import { InfraConfigModule } from 'src/infra-config/infra-config.module';
 })
 export class AuthModule {
   static async register() {
+    if (process.env.GENERATE_GQL_SCHEMA === 'true') {
+      return { module: AuthModule };
+    }
+
     const isInfraConfigPopulated = await isInfraConfigTablePopulated();
     if (!isInfraConfigPopulated) {
       return { module: AuthModule };

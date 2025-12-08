@@ -356,9 +356,9 @@ describe("getters", () => {
           })
         );
 
-        vi.spyOn(mutators, "readJsonFile").mockImplementation(() =>
-          Promise.resolve(sampleCollectionContents)
-        );
+        const readJsonFileSpy = vi
+          .spyOn(mutators, "readJsonFile")
+          .mockImplementation(() => Promise.resolve(sampleCollectionContents));
 
         vi.spyOn(
           workspaceAccessHelpers,
@@ -369,6 +369,9 @@ describe("getters", () => {
         const resourceType = "collection";
         const accessToken = "valid-access-token";
         const serverUrl = "valid-url";
+
+        // Clear spy calls from setup
+        readJsonFileSpy.mockClear();
 
         await getResourceContents({
           pathOrId,
@@ -389,7 +392,7 @@ describe("getters", () => {
         expect(
           workspaceAccessHelpers.transformWorkspaceCollections
         ).toBeCalled();
-        expect(mutators.readJsonFile).not.toHaveBeenCalled();
+        expect(readJsonFileSpy).not.toHaveBeenCalled();
       });
     });
   });

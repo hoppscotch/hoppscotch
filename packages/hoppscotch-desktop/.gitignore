@@ -18,6 +18,7 @@ manifest.json
 src-tauri/hopp_bundle.zip
 src-tauri/hopp_manifest.json
 src-tauri/hoppscotch-desktop-data
+target
 
 # Editor directories and files
 .vscode/*

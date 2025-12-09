@@ -1082,13 +1082,21 @@ describe('getPublishedDocByIDPublic', () => {
 
 describe('getPublishedDocsVersions', () => {
   test('should return all versions for a given slug ordered by autoSync and createdOn', async () => {
-    const mockVersions = [
+    const mockDbRecords = [
       {
         id: 'pub_doc_1',
         slug: 'slug-collection-1',
         version: '1.0.0',
         title: 'API Docs v1',
         autoSync: true,
+        collectionID: 'coll_1',
+        creatorUid: 'user_1',
+        workspaceType: 'USER' as any,
+        workspaceID: 'workspace_1',
+        documentTree: { folders: [] },
+        metadata: { description: 'v1' },
+        createdOn: new Date(),
+        updatedOn: new Date(),
       },
       {
         id: 'pub_doc_2',
@@ -1096,6 +1104,14 @@ describe('getPublishedDocsVersions', () => {
         version: '2.0.0',
         title: 'API Docs v2',
         autoSync: true,
+        collectionID: 'coll_1',
+        creatorUid: 'user_1',
+        workspaceType: 'USER' as any,
+        workspaceID: 'workspace_1',
+        documentTree: { folders: [] },
+        metadata: { description: 'v2' },
+        createdOn: new Date(),
+        updatedOn: new Date(),
       },
       {
         id: 'pub_doc_3',
@@ -1103,11 +1119,19 @@ describe('getPublishedDocsVersions', () => {
         version: '3.0.0',
         title: 'API Docs v3',
         autoSync: false,
+        collectionID: 'coll_1',
+        creatorUid: 'user_1',
+        workspaceType: 'USER' as any,
+        workspaceID: 'workspace_1',
+        documentTree: { folders: [] },
+        metadata: { description: 'v3' },
+        createdOn: new Date(),
+        updatedOn: new Date(),
       },
     ];
 
     mockPrisma.publishedDocs.findMany.mockResolvedValueOnce(
-      mockVersions as any,
+      mockDbRecords as any,
     );
 
     const result =
@@ -1115,7 +1139,17 @@ describe('getPublishedDocsVersions', () => {
 
     expect(E.isRight(result)).toBe(true);
     if (E.isRight(result)) {
-      expect(result.right).toEqual(mockVersions);
+      // cast() adds versions array, stringifies documentTree/metadata, and adds url
+      expect(result.right).toHaveLength(3);
+      expect(result.right[0]).toMatchObject({
+        id: 'pub_doc_1',
+        slug: 'slug-collection-1',
+        version: '1.0.0',
+        title: 'API Docs v1',
+        autoSync: true,
+      });
+      expect(result.right[0].url).toContain('/view/slug-collection-1/1.0.0');
+      expect(result.right[0].versions).toEqual([]);
     }
   });
 
@@ -1138,13 +1172,6 @@ describe('getPublishedDocsVersions', () => {
 
     expect(mockPrisma.publishedDocs.findMany).toHaveBeenCalledWith({
       where: { slug: 'test-slug' },
-      select: {
-        id: true,
-        slug: true,
-        version: true,
-        title: true,
-        autoSync: true,
-      },
       orderBy: [{ autoSync: 'desc' }, { createdOn: 'desc' }],
     });
   });

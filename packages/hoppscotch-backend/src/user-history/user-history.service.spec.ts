@@ -36,6 +36,7 @@ describe('UserHistoryService', () => {
           id: '1',
           request: [{}],
           responseMetadata: [{}],
+          responseHeaders: null,
           reqType: ReqType.REST,
           executedOn: executedOn,
           isStarred: false,
@@ -45,17 +46,19 @@ describe('UserHistoryService', () => {
           id: '2',
           request: [{}],
           responseMetadata: [{}],
+          responseHeaders: null,
           reqType: ReqType.REST,
           executedOn: executedOn,
           isStarred: true,
         },
-      ]);
+      ] as any);
 
       const userHistory: UserHistory[] = [
         {
           userUid: 'abc',
           id: '1',
           request: JSON.stringify([{}]),
+          responseHeaders: null,
           responseMetadata: JSON.stringify([{}]),
           reqType: ReqType.REST,
           executedOn: executedOn,
@@ -65,6 +68,7 @@ describe('UserHistoryService', () => {
           userUid: 'abc',
           id: '2',
           request: JSON.stringify([{}]),
+          responseHeaders: null,
           responseMetadata: JSON.stringify([{}]),
           reqType: ReqType.REST,
           executedOn: executedOn,
@@ -84,6 +88,7 @@ describe('UserHistoryService', () => {
           id: '1',
           request: [{}],
           responseMetadata: [{}],
+          responseHeaders: null,
           reqType: ReqType.GQL,
           executedOn: executedOn,
           isStarred: false,
@@ -93,17 +98,19 @@ describe('UserHistoryService', () => {
           id: '2',
           request: [{}],
           responseMetadata: [{}],
+          responseHeaders: null,
           reqType: ReqType.GQL,
           executedOn: executedOn,
           isStarred: true,
         },
-      ]);
+      ] as any);
 
       const userHistory: UserHistory[] = [
         {
           userUid: 'abc',
           id: '1',
           request: JSON.stringify([{}]),
+          responseHeaders: null,
           responseMetadata: JSON.stringify([{}]),
           reqType: ReqType.GQL,
           executedOn: executedOn,
@@ -113,6 +120,7 @@ describe('UserHistoryService', () => {
           userUid: 'abc',
           id: '2',
           request: JSON.stringify([{}]),
+          responseHeaders: null,
           responseMetadata: JSON.stringify([{}]),
           reqType: ReqType.GQL,
           executedOn: executedOn,
@@ -149,16 +157,18 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn,
         isStarred: false,
-      });
+      } as any);
 
       const userHistory: UserHistory = <UserHistory>{
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn,
         isStarred: false,
@@ -181,16 +191,18 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
-      });
+      } as any);
 
       const userHistory: UserHistory = <UserHistory>{
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
+        responseHeaders: null,
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
@@ -223,16 +235,18 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
-      });
+      } as any);
 
       const userHistory: UserHistory = <UserHistory>{
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
+        responseHeaders: null,
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
@@ -258,6 +272,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn,
         isStarred: false,
@@ -267,6 +282,7 @@ describe('UserHistoryService', () => {
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
+        responseHeaders: null,
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
         executedOn,
@@ -285,6 +301,52 @@ describe('UserHistoryService', () => {
         userHistory,
       );
     });
+    test('Should resolve right and create a GQL request with response headers stored', async () => {
+      const executedOn = new Date();
+
+      mockPrisma.userHistory.create.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{ test: 'abc' }],
+        responseHeaders: { 'x-request-id': '123', 'content-type': 'application/json' },
+        reqType: ReqType.GQL,
+        executedOn,
+        isStarred: false,
+      });
+
+      const userHistory: UserHistory = <UserHistory>{
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{ test: 'abc' }]),
+        responseHeaders: JSON.stringify({ 'x-request-id': '123', 'content-type': 'application/json' }),
+        reqType: ReqType.GQL,
+        executedOn,
+        isStarred: false,
+      };
+
+      await userHistoryService.createUserHistory(
+        'abc',
+        JSON.stringify([{}]),
+        JSON.stringify([{ test: 'abc' }]),
+        'GQL',
+        JSON.stringify({ 'x-request-id': '123', 'content-type': 'application/json' })
+      );
+
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/${userHistory.userUid}/created`,
+        userHistory,
+      );
+
+      return expect(mockPrisma.userHistory.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            responseHeaders: { 'x-request-id': '123', 'content-type': 'application/json' },
+          }),
+        })
+      );
+    });
   });
   describe('toggleHistoryStarStatus', () => {
     test('Should resolve right and star/unstar a request in the history', async () => {
@@ -294,6 +356,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn: createdOnDate,
         isStarred: false,
@@ -304,6 +367,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn: createdOnDate,
         isStarred: true,
@@ -313,6 +377,7 @@ describe('UserHistoryService', () => {
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
+        responseHeaders: null,
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
         executedOn: createdOnDate,
@@ -338,6 +403,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn,
         isStarred: false,
@@ -348,6 +414,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn,
         isStarred: true,
@@ -357,6 +424,7 @@ describe('UserHistoryService', () => {
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
+        responseHeaders: null,
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
         executedOn,
@@ -379,6 +447,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn: executedOn,
         isStarred: false,
@@ -388,6 +457,7 @@ describe('UserHistoryService', () => {
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
+        responseHeaders: null,
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
         executedOn: executedOn,
@@ -411,6 +481,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
+        responseHeaders: null,
         reqType: ReqType.REST,
         executedOn: date,
         isStarred: false,
@@ -420,6 +491,7 @@ describe('UserHistoryService', () => {
         userUid: 'abc',
         id: '1',
         request: JSON.stringify([{}]),
+        responseHeaders: null,
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
         executedOn: date,

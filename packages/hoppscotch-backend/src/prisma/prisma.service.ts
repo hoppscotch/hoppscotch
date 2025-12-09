@@ -19,15 +19,16 @@ export class PrismaService
 
     const parsed = PrismaService.parseDatabaseUrl(databaseUrl);
 
+    // Generic SSL configuration for all database environments
+    // Supports: AWS Aurora, Docker, local PostgreSQL, managed databases
+    const sslConfig = PrismaService.getSSLConfig(parsed.sslMode);
+
     const pool = new pg.Pool({
       connectionString: parsed.connectionString,
       max: parsed.connectionLimit ?? 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: parsed.connectTimeout ?? 5000,
-      ssl:
-        parsed.sslMode === 'require' || parsed.sslMode === 'prefer'
-          ? { rejectUnauthorized: false }
-          : undefined, // Let pg auto-detect from connection string
+      connectionTimeoutMillis: parsed.connectTimeout ?? 10000,
+      ssl: sslConfig,
     });
 
     const adapter = new PrismaPg(pool, {
@@ -37,12 +38,46 @@ export class PrismaService
     super({
       adapter,
       transactionOptions: {
-        maxWait: 5000, // 5 seconds
-        timeout: 10000, // 10 seconds
+        maxWait: 5000,
+        timeout: 10000,
       },
     });
 
     this.pool = pool;
+  }
+
+  /**
+   * --- SSL Configuration ---
+   * Generic SSL handling for various database environments
+   * - Local/Docker: No SSL (sslmode=disable or no sslmode)
+   * - AWS Aurora/RDS: SSL with relaxed validation (common for managed databases)
+   * - Custom: Set sslmode=verify-full for strict certificate validation
+   */
+  private static getSSLConfig(
+    sslMode?: string,
+  ): false | { rejectUnauthorized: boolean } {
+    if (!sslMode || sslMode === 'disable') {
+      // Local PostgreSQL, Docker containers - no SSL
+      return false;
+    }
+
+    if (sslMode === 'require' || sslMode === 'prefer') {
+      // AWS Aurora, managed databases - SSL with relaxed validation
+      // This is a pragmatic approach for cloud databases where:
+      // - Connection is encrypted (prevents eavesdropping)
+      // - Network isolation (VPC/firewall) provides additional security
+      // - Certificate validation issues are common with managed services
+      return { rejectUnauthorized: false };
+    }
+
+    if (sslMode === 'verify-ca' || sslMode === 'verify-full') {
+      // Strict certificate validation - requires proper CA certificates
+      // Note: May require additional configuration for Prisma v7 + adapter-pg
+      return { rejectUnauthorized: true };
+    }
+
+    // Default to no SSL for unknown modes
+    return false;
   }
 
   /**
@@ -51,7 +86,7 @@ export class PrismaService
    *   ?schema=custom
    *   ?connection_limit=10
    *   ?connect_timeout=5000
-   *   ?sslmode=disable|prefer|require
+   *   ?sslmode=disable|prefer|require|verify-ca|verify-full
    */
   private static parseDatabaseUrl(databaseUrl: string): {
     connectionString: string;
@@ -71,10 +106,12 @@ export class PrismaService
       );
       const sslMode = url.searchParams.get('sslmode');
 
-      // Don't remove sslmode – let pg driver handle it
+      // Remove all custom parameters including sslmode
+      // We handle SSL configuration programmatically via the ssl option
       url.searchParams.delete('schema');
       url.searchParams.delete('connection_limit');
       url.searchParams.delete('connect_timeout');
+      url.searchParams.delete('sslmode');
 
       return {
         connectionString: url.toString(),

@@ -10,6 +10,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly pool: pg.Pool;
+  private readonly schema: string;
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
@@ -41,6 +42,7 @@ export class PrismaService
     });
 
     this.pool = pool;
+    this.schema = schema;
   }
 
   private static parseDatabaseUrl(databaseUrl: string): {
@@ -54,6 +56,14 @@ export class PrismaService
       const schema = url.searchParams.get('schema') || 'public';
       const connectionLimit = url.searchParams.get('connection_limit');
       const connectTimeout = url.searchParams.get('connect_timeout');
+
+      // Validate schema name: alphanumeric, underscores, max 63 chars
+      const schemaRegex = /^[a-zA-Z_][a-zA-Z0-9_]{0,62}$/;
+      if (!schemaRegex.test(schema)) {
+        throw new Error(
+          `Invalid schema name: "${schema}". Schema must start with a letter or underscore, contain only alphanumeric characters and underscores, and be at most 63 characters long.`,
+        );
+      }
 
       url.searchParams.delete('schema');
       url.searchParams.delete('connection_limit');
@@ -105,29 +115,35 @@ export class PrismaService
     parentID: string | null,
     collectionIDs: string[] = [],
   ) {
+    const schemaPrefix = this.schema ? `${this.schema}.` : '';
+
     if (table === 'UserCollection' && userUid) {
+      const tableName = Prisma.raw(`${schemaPrefix}"UserCollection"`);
       const lockQuery = parentID
-        ? Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userUid} AND "parentID" = ${parentID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "UserCollection" WHERE "userUid" = ${userUid} AND "parentID" IS NULL FOR UPDATE`;
+        ? Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "userUid" = ${userUid} AND "parentID" = ${parentID} FOR UPDATE`
+        : Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "userUid" = ${userUid} AND "parentID" IS NULL FOR UPDATE`;
       return tx.$executeRaw(lockQuery);
     }
 
     if (table === 'UserRequest' && collectionIDs.length > 0) {
       collectionIDs = collectionIDs.filter(Boolean).sort();
-      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "UserRequest" WHERE "collectionID" IN (${Prisma.join(collectionIDs)}) FOR UPDATE`;
+      const tableName = Prisma.raw(`${schemaPrefix}"UserRequest"`);
+      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "collectionID" IN (${Prisma.join(collectionIDs)}) FOR UPDATE`;
       return tx.$executeRaw(lockQuery);
     }
 
     if (table === 'TeamCollection') {
+      const tableName = Prisma.raw(`${schemaPrefix}"TeamCollection"`);
       const lockQuery = parentID
-        ? Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" = ${parentID} FOR UPDATE`
-        : Prisma.sql`SELECT "orderIndex" FROM "TeamCollection" WHERE "parentID" IS NULL FOR UPDATE`;
+        ? Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "parentID" = ${parentID} FOR UPDATE`
+        : Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "parentID" IS NULL FOR UPDATE`;
       return tx.$executeRaw(lockQuery);
     }
 
     if (table === 'TeamRequest' && collectionIDs.length > 0) {
       collectionIDs = collectionIDs.filter(Boolean).sort();
-      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM "TeamRequest" WHERE "collectionID" IN (${Prisma.join(collectionIDs)}) FOR UPDATE`;
+      const tableName = Prisma.raw(`${schemaPrefix}"TeamRequest"`);
+      const lockQuery = Prisma.sql`SELECT "orderIndex" FROM ${tableName} WHERE "collectionID" IN (${Prisma.join(collectionIDs)}) FOR UPDATE`;
       return tx.$executeRaw(lockQuery);
     }
   }
@@ -143,8 +159,11 @@ export class PrismaService
       | 'TeamCollection'
       | 'TeamRequest',
   ) {
+    // Use schema-qualified table names to support non-public schemas
+    const schemaPrefix = this.schema ? `${this.schema}.` : '';
+    const fullTableName = Prisma.raw(`${schemaPrefix}"${tableName}"`);
     return tx.$executeRaw(
-      Prisma.sql`LOCK TABLE ${Prisma.raw(`"${tableName}"`)} IN EXCLUSIVE MODE`,
+      Prisma.sql`LOCK TABLE ${fullTableName} IN EXCLUSIVE MODE`,
     );
   }
 }

@@ -43,6 +43,9 @@ export class UserHistoryService {
           ...history,
           request: JSON.stringify(history.request),
           responseMetadata: JSON.stringify(history.responseMetadata),
+          responseHeaders: history.responseHeaders
+            ? JSON.stringify(history.responseHeaders)
+            : null,
         },
     );
 
@@ -62,15 +65,19 @@ export class UserHistoryService {
     reqData: string,
     resMetadata: string,
     reqType: string,
+    resHeaders?: string,
   ) {
     const requestType = this.validateReqType(reqType);
     if (E.isLeft(requestType)) return E.left(requestType.left);
+
+    const parsedHeaders = resHeaders ? JSON.parse(resHeaders) : {};
 
     const history = await this.prisma.userHistory.create({
       data: {
         userUid: uid,
         request: JSON.parse(reqData),
         responseMetadata: JSON.parse(resMetadata),
+        responseHeaders: parsedHeaders,
         reqType: requestType.right,
         isStarred: false,
       },
@@ -81,6 +88,9 @@ export class UserHistoryService {
       reqType: history.reqType,
       request: JSON.stringify(history.request),
       responseMetadata: JSON.stringify(history.responseMetadata),
+      responseHeaders: history.responseHeaders
+        ? JSON.stringify(history.responseHeaders)
+        : null,
     };
 
     // Publish created user history subscription

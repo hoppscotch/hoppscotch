@@ -309,7 +309,10 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{ test: 'abc' }],
-        responseHeaders: { 'x-request-id': '123', 'content-type': 'application/json' },
+        responseHeaders: {
+          'x-request-id': '123',
+          'content-type': 'application/json',
+        },
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
@@ -320,7 +323,10 @@ describe('UserHistoryService', () => {
         id: '1',
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{ test: 'abc' }]),
-        responseHeaders: JSON.stringify({ 'x-request-id': '123', 'content-type': 'application/json' }),
+        responseHeaders: JSON.stringify({
+          'x-request-id': '123',
+          'content-type': 'application/json',
+        }),
         reqType: ReqType.GQL,
         executedOn,
         isStarred: false,
@@ -331,7 +337,10 @@ describe('UserHistoryService', () => {
         JSON.stringify([{}]),
         JSON.stringify([{ test: 'abc' }]),
         'GQL',
-        JSON.stringify({ 'x-request-id': '123', 'content-type': 'application/json' })
+        JSON.stringify({
+          'x-request-id': '123',
+          'content-type': 'application/json',
+        }),
       );
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
@@ -342,9 +351,12 @@ describe('UserHistoryService', () => {
       return expect(mockPrisma.userHistory.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            responseHeaders: { 'x-request-id': '123', 'content-type': 'application/json' },
+            responseHeaders: {
+              'x-request-id': '123',
+              'content-type': 'application/json',
+            },
           }),
-        })
+        }),
       );
     });
   });

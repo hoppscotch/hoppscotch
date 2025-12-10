@@ -38,6 +38,7 @@ type Key =
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
   | "right" | "/" | "?" | "." | "enter" | "tab" | "delete" | "backspace"
+  | "[" | "]"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -92,6 +93,9 @@ const desktopBindings: {
   "ctrl-alt-0": "tab.switch-to-last",
   "ctrl-alt-9": "tab.switch-to-first",
   "ctrl-q": "app.quit",
+  "ctrl-alt-u": "request.focus-url",
+  "ctrl-alt-]": "tab.mru-switch",
+  "ctrl-alt-[": "tab.mru-switch-reverse",
 }
 
 /**
@@ -242,6 +246,8 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check if slash, period or enter
   if (key === "/" || key === "." || key === "enter") return key
+
+  if (key === "[" || key === "]") return key
 
   // If no other cases match, this is not a valid key
   return null

@@ -133,6 +133,16 @@ export interface TabService<Doc> {
   reopenClosedTab(): boolean
 
   /**
+   * Switches to the next tab in Most Recently Used (MRU) order.
+   */
+  goToMRUTab(): void
+
+  /**
+   * Switches to the previous tab in Most Recently Used (MRU) order.
+   */
+  goToPreviousMRUTab(): void
+
+  /**
    * Gets a computed reference to a persistable tab state.
    * @returns A computed reference to a persistable tab state object.
    */

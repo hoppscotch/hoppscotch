@@ -1408,7 +1408,8 @@
       "send_request": "Send Request",
       "share_request": "Share Request",
       "show_code": "Generate code snippet",
-      "title": "Request"
+      "title": "Request",
+      "focus_url": "Focus URL bar"
     },
     "response": {
       "copy": "Copy response to clipboard",
@@ -1423,7 +1424,9 @@
       "next_tab": "Next Tab",
       "previous_tab": "Previous Tab",
       "first_tab": "Switch to First Tab",
-      "last_tab": "Switch to Last Tab"
+      "last_tab": "Switch to Last Tab",
+      "mru_switch": "Switch to recent tab (MRU)",
+      "mru_switch_reverse": "Switch to previous recent tab (MRU)"
     },
     "theme": {
       "black": "Switch theme to Black Mode",
@@ -1520,6 +1523,8 @@
       "previous": "Switch to previous tab",
       "switch_to_first": "Switch to first tab",
       "switch_to_last": "Switch to last tab",
+      "mru_switch": "Switch to recent tab",
+      "mru_switch_reverse": "Switch to previous recent tab",
       "title": "Tabs"
     },
     "workspace": {

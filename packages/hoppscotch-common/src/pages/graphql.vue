@@ -270,4 +270,12 @@ defineActionHandler("tab.switch-to-last", () => {
 defineActionHandler("tab.reopen-closed", () => {
   tabs.reopenClosedTab()
 })
+
+defineActionHandler("tab.mru-switch", () => {
+  tabs.goToMRUTab()
+})
+
+defineActionHandler("tab.mru-switch-reverse", () => {
+  tabs.goToPreviousMRUTab()
+})
 </script>

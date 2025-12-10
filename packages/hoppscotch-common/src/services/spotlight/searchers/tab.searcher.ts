@@ -146,6 +146,34 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
           this.isOnlyTab.value
       ),
     },
+    tab_mru_switch: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.mru_switch"),
+      ],
+      alternates: ["tab", "recent", "mru", "switch"],
+      icon: markRaw(IconArrowRight),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
+    tab_mru_switch_reverse: {
+      text: [
+        this.t("spotlight.tab.title"),
+        this.t("spotlight.tab.mru_switch_reverse"),
+      ],
+      alternates: ["tab", "recent", "mru", "previous", "switch"],
+      icon: markRaw(IconArrowLeft),
+      excludeFromSearch: computed(
+        () =>
+          !this.showAction.value ||
+          !this.isDesktopMode.value ||
+          this.isOnlyTab.value
+      ),
+    },
   })
 
   // TODO: Constructors are no longer recommended as of dioc > 3, use onServiceInit instead
@@ -184,5 +212,7 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
     if (id === "tab_next") invokeAction("tab.next")
     if (id === "tab_switch_to_first") invokeAction("tab.switch-to-first")
     if (id === "tab_switch_to_last") invokeAction("tab.switch-to-last")
+    if (id === "tab_mru_switch") invokeAction("tab.mru-switch")
+    if (id === "tab_mru_switch_reverse") invokeAction("tab.mru-switch-reverse")
   }
 }

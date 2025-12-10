@@ -27,6 +27,7 @@ export abstract class TabService<Doc>
   protected tabOrdering = ref<string[]>(["test"])
   protected recentlyClosedTabs: Array<{ tab: HoppTab<Doc>; index: number }> = []
   protected readonly MAX_CLOSED_TABS_HISTORY = 10
+  protected mruOrder: string[] = ["test"]
 
   public currentTabID = refWithControl("test", {
     onBeforeChange: (newTabID) => {
@@ -79,6 +80,8 @@ export abstract class TabService<Doc>
 
     if (switchToIt) {
       this.setActiveTab(id)
+    } else {
+      this.mruOrder.push(id)
     }
 
     return tab
@@ -94,12 +97,22 @@ export abstract class TabService<Doc>
 
   public setActiveTab(tabID: string): void {
     this.currentTabID.value = tabID
+    this.updateMRUOrder(tabID)
+  }
+
+  private updateMRUOrder(tabID: string): void {
+    const index = this.mruOrder.indexOf(tabID)
+    if (index > -1) {
+      this.mruOrder.splice(index, 1)
+    }
+    this.mruOrder.unshift(tabID)
   }
 
   public loadTabsFromPersistedState(data: PersistableTabState<Doc>): void {
     if (data) {
       this.tabMap.clear()
       this.tabOrdering.value = []
+      this.mruOrder = []
 
       for (const doc of data.orderedDocs) {
         this.tabMap.set(doc.tabID, {
@@ -108,6 +121,7 @@ export abstract class TabService<Doc>
         })
 
         this.tabOrdering.value.push(doc.tabID)
+        this.mruOrder.push(doc.tabID)
       }
 
       this.setActiveTab(data.lastActiveTabID)
@@ -174,6 +188,11 @@ export abstract class TabService<Doc>
     const tab = this.tabMap.get(tabID)!
 
     this.addToRecentlyClosedTabs(tab, tabIndex)
+
+    const mruIndex = this.mruOrder.indexOf(tabID)
+    if (mruIndex > -1) {
+      this.mruOrder.splice(mruIndex, 1)
+    }
 
     this.tabOrdering.value.splice(tabIndex, 1)
 
@@ -247,6 +266,31 @@ export abstract class TabService<Doc>
     this.setActiveTab(tab.id)
 
     return true
+  }
+
+  public goToMRUTab(): void {
+    this.mruOrder = this.mruOrder.filter((tabID) => this.tabMap.has(tabID))
+
+    if (this.mruOrder.length <= 1) return
+
+    // Switch to the second most recently used tab (index 1)
+    // because index 0 is the current tab
+    const nextTabID = this.mruOrder[1]
+    if (nextTabID) {
+      this.setActiveTab(nextTabID)
+    }
+  }
+
+  public goToPreviousMRUTab(): void {
+    this.mruOrder = this.mruOrder.filter((tabID) => this.tabMap.has(tabID))
+
+    if (this.mruOrder.length <= 1) return
+
+    // Switch to the least recently used tab
+    const lastTabID = this.mruOrder[this.mruOrder.length - 1]
+    if (lastTabID) {
+      this.setActiveTab(lastTabID)
+    }
   }
 
   private addToRecentlyClosedTabs(tab: HoppTab<Doc>, index: number): void {

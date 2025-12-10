@@ -507,13 +507,9 @@ describe('MockServerService', () => {
         );
 
         expect(E.isRight(result)).toBe(true);
-        expect(mockUserCollectionService.createUserCollection).toHaveBeenCalledWith(
-          user,
-          autoCreateInput.name,
-          null,
-          null,
-          'REST',
-        );
+        expect(
+          mockUserCollectionService.createUserCollection,
+        ).toHaveBeenCalledWith(user, autoCreateInput.name, null, null, 'REST');
         expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
           expect.objectContaining({
             data: expect.objectContaining({
@@ -549,7 +545,9 @@ describe('MockServerService', () => {
         );
 
         expect(E.isRight(result)).toBe(true);
-        expect(mockUserCollectionService.importCollectionsFromJSON).toHaveBeenCalled();
+        expect(
+          mockUserCollectionService.importCollectionsFromJSON,
+        ).toHaveBeenCalled();
         expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
           expect.objectContaining({
             data: expect.objectContaining({
@@ -629,7 +627,9 @@ describe('MockServerService', () => {
         );
 
         expect(E.isRight(result)).toBe(true);
-        expect(mockTeamCollectionService.importCollectionsFromJSON).toHaveBeenCalled();
+        expect(
+          mockTeamCollectionService.importCollectionsFromJSON,
+        ).toHaveBeenCalled();
         expect(mockPrisma.mockServer.create).toHaveBeenCalledWith(
           expect.objectContaining({
             data: expect.objectContaining({
@@ -700,7 +700,10 @@ describe('MockServerService', () => {
           autoCreateRequestExample: false,
         };
 
-        const createdCollection = { ...userCollection, id: 'rollback-coll-123' };
+        const createdCollection = {
+          ...userCollection,
+          id: 'rollback-coll-123',
+        };
         mockUserCollectionService.createUserCollection.mockResolvedValue(
           E.right(createdCollection as any),
         );
@@ -717,10 +720,9 @@ describe('MockServerService', () => {
         );
 
         expect(E.isLeft(result)).toBe(true);
-        expect(mockUserCollectionService.deleteUserCollection).toHaveBeenCalledWith(
-          'rollback-coll-123',
-          user.uid,
-        );
+        expect(
+          mockUserCollectionService.deleteUserCollection,
+        ).toHaveBeenCalledWith('rollback-coll-123', user.uid);
       });
 
       test('should rollback team collection on mock server creation failure', async () => {
@@ -733,7 +735,10 @@ describe('MockServerService', () => {
           autoCreateRequestExample: false,
         };
 
-        const createdTeamColl = { ...teamCollection, id: 'rollback-team-coll-123' };
+        const createdTeamColl = {
+          ...teamCollection,
+          id: 'rollback-team-coll-123',
+        };
         mockPrisma.team.findFirst.mockResolvedValue({ id: 'team123' } as any);
         mockTeamCollectionService.createCollection.mockResolvedValue(
           E.right(createdTeamColl as any),

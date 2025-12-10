@@ -61,7 +61,7 @@ export class PrismaService
       return false;
     }
 
-    if (sslMode === 'require' || sslMode === 'prefer') {
+    if (sslMode === 'require' || sslMode === 'prefer' || sslMode === 'allow') {
       // AWS Aurora, managed databases - SSL with relaxed validation
       // This is a pragmatic approach for cloud databases where:
       // - Connection is encrypted (prevents eavesdropping)

@@ -1880,6 +1880,9 @@ const onRemoveRequest = async () => {
 
       // since the request is deleted, we need to remove the saved responses as well
       possibleTab.value.document.request.responses = {}
+
+      // remove inherited properties
+      possibleTab.value.document.inheritedProperties = undefined
     }
 
     const requestToRemove = navigateToFolderWithIndexPath(
@@ -1941,6 +1944,9 @@ const onRemoveRequest = async () => {
 
       // since the request is deleted, we need to remove the saved responses as well
       possibleTab.value.document.request.responses = {}
+
+      // remove inherited properties
+      possibleTab.value.document.inheritedProperties = undefined
     }
   }
 }

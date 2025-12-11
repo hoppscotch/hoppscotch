@@ -12,7 +12,7 @@
     </b>
   </h3>
   <b>
-    Open Source API Development Ecosystem
+    Open Source API Development and Testing Ecosystem
   </b>
   <p>
 
@@ -51,7 +51,7 @@ _We highly recommend you take a look at the [**Hoppscotch Documentation**](https
 
 ⚡️ **Fast:** Send requests and get responses in real time.
 
-🗄️ **HTTP Methods:** Request methods define the type of action you are requesting to be performed.
+🗄️ **HTTP Methods:** Request methods define the type of action you want the server to perform.
 
 - `GET` - Requests retrieve resource information
 - `POST` - The server creates a new entry in a database

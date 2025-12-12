@@ -1,6 +1,6 @@
 # This step is used to build a custom build of Caddy to prevent
 # vulnerable packages on the dependency chain
-FROM alpine:3.22.2 AS caddy_builder
+FROM alpine:3.23.0 AS caddy_builder
 RUN apk add --no-cache curl git && \
   mkdir -p /tmp/caddy-build && \
   curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.10.2/caddy_2.10.2_src.tar.gz
@@ -14,7 +14,7 @@ RUN expected="a9efa00c161922dd24650fd0bee2f4f8bb2fb69ff3e63dcc44f0694da64bb0cf" 
 
 # Install Go 1.25.4 from GitHub releases to fix CVE-2025-47907
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.25.4
+ENV GOLANG_VERSION=1.25.5
 # Download and install Go from the official tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
@@ -33,6 +33,8 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   go get github.com/slackhq/nebula@v1.9.7 && \
   # Patch to resolve CVE-2025-47913 on crypto
   go get golang.org/x/crypto@v0.45.0 && \
+  # Patch to resolve CVE-2025-44005 on smallstep
+  go get github.com/smallstep/certificates@v0.29.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -45,16 +47,16 @@ RUN go build
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.22.2 AS node_base
+FROM alpine:3.23.0 AS node_base
 # Install dependencies
-RUN apk add --no-cache nodejs curl bash tini ca-certificates \
-  && mkdir -p /tmp/npm-install
+RUN apk add --no-cache nodejs curl bash tini ca-certificates
 # Set working directory for NPM installation
+RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.3.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.4.tgz -o npm.tgz
 # Verify checksum
-RUN expected="f021e628209026669ec9e3881523a7efcf26934fd3fb5dd3fd9aa2a5030c7c41" \
+RUN expected="9c07edca12853cddbf4fed4e372485aa60c064f9bf3e4cd157a2db5518a1792b" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -62,19 +64,15 @@ RUN expected="f021e628209026669ec9e3881523a7efcf26934fd3fb5dd3fd9aa2a5030c7c41" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.6.3 && \
+  node bin/npm-cli.js install -g npm@11.6.4 && \
   cd / && \
-  rm -rf /tmp/npm-install && \
-  npm install -g pnpm@10.23.0 @import-meta-env/cli && \
-  # Fix CVE-2025-64756 by replacing vulnerable glob with patched version
-  npm install -g glob@11.1.0 && \
-  # Replace glob in npm's node_modules
-  rm -rf /usr/lib/node_modules/npm/node_modules/glob && \
-  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/npm/node_modules/ && \
+  rm -rf /tmp/npm-install
+RUN npm install -g pnpm@10.25.0 @import-meta-env/cli
+# Fix CVE-2025-64756 by replacing vulnerable glob with patched version
+RUN npm install -g glob@11.1.0 && \
   # Replace glob in @import-meta-env/cli's node_modules
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
   cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
-
 
 
 FROM node_base AS base_builder

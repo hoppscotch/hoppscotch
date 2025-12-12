@@ -327,9 +327,7 @@ export interface RequestSetterMethodsResult {
  * Return type for createBaseInputs function
  */
 export interface BaseInputs
-  extends PwNamespaceMethods,
-    HoppNamespaceMethods,
-    PmNamespaceMethods {
+  extends PwNamespaceMethods, HoppNamespaceMethods, PmNamespaceMethods {
   cookieGet: SandboxFunction
   cookieSet: SandboxFunction
   cookieHas: SandboxFunction

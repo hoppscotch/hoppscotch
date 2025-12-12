@@ -24,8 +24,8 @@
     "./packages/*"
   ],
   "devDependencies": {
-    "@commitlint/cli": "20.1.0",
-    "@commitlint/config-conventional": "20.0.0",
+    "@commitlint/cli": "20.2.0",
+    "@commitlint/config-conventional": "20.2.0",
     "@hoppscotch/ui": "0.2.5",
     "@types/node": "24.10.1",
     "cross-env": "10.1.0",

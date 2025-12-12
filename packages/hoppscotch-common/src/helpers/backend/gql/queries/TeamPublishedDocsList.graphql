@@ -1,0 +1,24 @@
+query TeamPublishedDocsList(
+  $teamID: ID!
+  $collectionID: ID
+  $skip: Int!
+  $take: Int!
+) {
+  teamPublishedDocsList(
+    teamID: $teamID
+    collectionID: $collectionID
+    skip: $skip
+    take: $take
+  ) {
+    id
+    title
+    version
+    autoSync
+    url
+    collection {
+      id
+    }
+    createdOn
+    updatedOn
+  }
+}

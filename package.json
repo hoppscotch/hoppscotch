@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.23.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -27,11 +27,11 @@
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@hoppscotch/ui": "0.2.5",
-    "@types/node": "24.9.1",
+    "@types/node": "24.10.1",
     "cross-env": "10.1.0",
     "http-server": "14.1.1",
     "husky": "9.1.7",
-    "lint-staged": "16.2.5"
+    "lint-staged": "16.2.7"
   },
   "pnpm": {
     "overrides": {
@@ -39,10 +39,12 @@
       "apiconnect-wsdl": "2.0.36",
       "cross-spawn": "7.0.6",
       "execa@0.10.0": "2.0.0",
+      "glob@<11.1.0": "11.1.0",
+      "hono@<4.10.3": "4.10.3",
       "nodemailer@<7.0.7": "7.0.7",
       "sha.js@2.4.11": "2.4.12",
       "subscriptions-transport-ws>ws": "7.5.10",
-      "vue": "3.5.22",
+      "vue": "3.5.25",
       "form-data": "4.0.4",
       "ws": "8.17.1"
     },

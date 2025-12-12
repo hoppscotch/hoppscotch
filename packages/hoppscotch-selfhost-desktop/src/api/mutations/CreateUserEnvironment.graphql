@@ -1,9 +1,0 @@
-mutation CreateUserEnvironment($name: String!, $variables: String!) {
-  createUserEnvironment(name: $name, variables: $variables) {
-    id
-    userUid
-    name
-    variables
-    isGlobal
-  }
-}

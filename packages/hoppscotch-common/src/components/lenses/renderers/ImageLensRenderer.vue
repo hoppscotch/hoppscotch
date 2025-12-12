@@ -6,9 +6,8 @@
       <label class="truncate font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div v-if="response.body" class="flex">
         <HoppButtonSecondary
-          v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
@@ -16,6 +15,35 @@
           :icon="downloadIcon"
           @click="downloadResponse"
         />
+        <tippy
+          v-if="!isEditable"
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => responseMoreActionsTippy?.focus()"
+        >
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.more')"
+            :icon="IconMore"
+          />
+          <template #content="{ hide }">
+            <div
+              ref="responseMoreActionsTippy"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <HoppSmartItem
+                v-if="!isTestRunner"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
+              />
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
     <img
@@ -40,14 +68,24 @@ import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { objFieldMatches } from "~/helpers/functional/object"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
+import IconEraser from "~icons/lucide/eraser"
+import IconMore from "~icons/lucide/more-horizontal"
 
 const t = useI18n()
 
 const props = defineProps<{
   response: HoppRESTResponse & { type: "success" | "fail" }
+  isEditable: boolean
+  isTestRunner?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "update:response", val: HoppRESTRequestResponse | HoppRESTResponse): void
 }>()
 
 const imageSource = ref("")
+const responseMoreActionsTippy = ref<HTMLElement | null>(null)
 
 const responseType = computed(() =>
   pipe(
@@ -101,5 +139,15 @@ onMounted(() => {
   reader.readAsDataURL(blob)
 })
 
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
+const eraseResponse = () => {
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
+}
+
 defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 </script>

@@ -44,7 +44,7 @@ import { copyToClipboard } from "@hoppscotch/common/helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import { useService } from "dioc/vue"
-import { setInitialUser } from "@platform/auth/desktop"
+import { setInitialUser } from "@app/platform/auth/desktop"
 import { z } from "zod"
 
 const persistenceService = useService(PersistenceService)

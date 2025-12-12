@@ -118,10 +118,25 @@ export class CreateMockServerInput {
   name: string;
 
   @Field({
+    nullable: true,
     description:
       'ID of the (team or user) collection to associate with the mock server',
   })
-  collectionID: string;
+  collectionID?: string;
+
+  @Field({
+    nullable: true,
+    description:
+      'Whether to auto-create a collection for the mock server if collectionID is not provided',
+  })
+  autoCreateCollection?: boolean;
+
+  @Field({
+    nullable: true,
+    description:
+      'Whether to auto-create request examples in the collection for the mock server',
+  })
+  autoCreateRequestExample?: boolean;
 
   @Field(() => WorkspaceType, {
     description: 'Type of workspace: USER or TEAM',

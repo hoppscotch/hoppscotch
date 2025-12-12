@@ -1,14 +1,16 @@
 <template>
-  <div>
+  <!-- Only render the entire test entry if it has expect results
+       Skip rendering "root" descriptor to avoid showing synthetic test -->
+  <div v-if="hasResults && testResults.description !== 'root'">
     <span
       v-if="testResults.description"
       class="flex items-center px-4 py-2 font-bold text-secondaryDark"
     >
       {{ testResults.description }}
     </span>
-    <div v-if="testResults.expectResults" class="divide-y divide-dividerLight">
+    <div class="divide-y divide-dividerLight">
       <HttpTestResultReport
-        v-if="testResults.expectResults.length && !shouldHideResultReport"
+        v-if="!shouldHideResultReport"
         :test-results="testResults"
       />
 
@@ -47,6 +49,19 @@
           </div>
         </div>
       </template>
+    </div>
+
+    <!-- Recursively render nested test groups -->
+    <div
+      v-if="testResults.tests && testResults.tests.length > 0"
+      class="divide-y-4 divide-dividerLight"
+    >
+      <HttpTestResultEntry
+        v-for="(childTest, index) in testResults.tests"
+        :key="`child-test-${index}`"
+        :test-results="childTest"
+        :show-test-type="props.showTestType"
+      />
     </div>
   </div>
 </template>
@@ -90,5 +105,21 @@ const shouldHideResultReport = computed(() => {
   return props.testResults.expectResults.some(
     (result) => result.status === "pass" || result.status === "fail"
   )
+})
+
+/**
+ * Only show test entry if it has expect results OR nested tests
+ * This prevents showing empty test descriptors during async operations
+ * but allows rendering of test groups that contain nested tests
+ */
+const hasResults = computed(() => {
+  const hasExpectResults =
+    props.testResults.expectResults &&
+    props.testResults.expectResults.length > 0
+
+  const hasNestedTests =
+    props.testResults.tests && props.testResults.tests.length > 0
+
+  return hasExpectResults || hasNestedTests
 })
 </script>

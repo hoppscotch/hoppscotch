@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { TeamEnvironment as DBTeamEnvironment, Prisma } from '@prisma/client';
+import {
+  TeamEnvironment as DBTeamEnvironment,
+  Prisma,
+} from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { TeamEnvironment } from './team-environments.model';

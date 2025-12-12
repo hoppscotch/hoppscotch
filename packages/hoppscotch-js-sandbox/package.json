@@ -24,8 +24,7 @@
   },
   "types": "./index.d.ts",
   "engines": {
-    "node": ">=14",
-    "pnpm": ">=3"
+    "node": ">=22"
   },
   "scripts": {
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
@@ -53,7 +52,7 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
-    "chai": "6.2.0",
+    "chai": "6.2.1",
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11",
     "lodash": "4.17.21",
@@ -62,23 +61,23 @@
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
     "@relmify/jest-fp-ts": "2.1.1",
-    "@types/chai": "5.2.2",
+    "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.20",
-    "@types/node": "24.9.1",
-    "@typescript-eslint/eslint-plugin": "8.44.1",
-    "@typescript-eslint/parser": "8.44.1",
+    "@types/lodash": "4.17.21",
+    "@types/node": "24.10.1",
+    "@typescript-eslint/eslint-plugin": "8.48.0",
+    "@typescript-eslint/parser": "8.48.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "io-ts": "2.2.22",
     "prettier": "3.6.2",
     "typescript": "5.9.3",
-    "vite": "6.3.6",
-    "vitest": "3.2.4"
+    "vite": "7.2.4",
+    "vitest": "4.0.14"
   },
   "peerDependencies": {
-    "isolated-vm": "5.0.1"
+    "isolated-vm": "6.0.2"
   },
   "peerDependenciesMeta": {
     "isolated-vm": {

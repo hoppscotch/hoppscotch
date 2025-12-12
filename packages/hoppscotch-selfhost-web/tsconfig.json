@@ -15,10 +15,13 @@
     "paths": {
       "@hoppscotch/common": ["../hoppscotch-common/src/index.ts"],
       "@hoppscotch/common/*": ["../hoppscotch-common/src/*"],
-      "@platform/*": ["./src/platform/*"],
-      "@platform-components/*": ["./src/components/*"],
-      "@api/*": ["./src/api/*"],
-      "@lib/*": ["./src/lib/*"]
+      "@app/platform/*": ["./src/platform/*"],
+      "@app/services/*": ["./src/services/*"],
+      "@app/components/*": ["./src/components/*"],
+      "@app/helpers/*": ["./src/helpers/*"],
+      "@app/api/*": ["./src/api/*"],
+      "@app/lib/*": ["./src/lib/*"],
+      "@app/kernel/*": ["./src/kernel/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

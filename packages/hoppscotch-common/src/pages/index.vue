@@ -134,7 +134,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from "vue"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { generateUniqueRefId, safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { useI18n } from "@composables/i18n"
@@ -147,6 +147,7 @@ import { InspectionService } from "~/services/inspection"
 import { RequestInspectorService } from "~/services/inspection/inspectors/request.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
+import { ScriptingInterceptorInspectorService } from "~/services/inspection/inspectors/scripting-interceptor.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
@@ -280,7 +281,10 @@ const duplicateTab = (tabID: string) => {
   if (tab.value && tab.value.document.type === "request") {
     const newTab = tabs.createNewTab({
       type: "request",
-      request: cloneDeep(tab.value.document.request),
+      request: {
+        ...cloneDeep(tab.value.document.request),
+        _ref_id: generateUniqueRefId("req"),
+      },
       isDirty: true,
     })
     tabs.setActiveTab(newTab.id)
@@ -447,6 +451,7 @@ defineActionHandler("tab.reopen-closed", () => {
 useService(RequestInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
+useService(ScriptingInterceptorInspectorService)
 
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)

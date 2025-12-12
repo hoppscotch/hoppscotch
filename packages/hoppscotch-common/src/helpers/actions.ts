@@ -11,6 +11,37 @@ import { HoppGQLSaveContext } from "./graphql/document"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { invoke } from "@tauri-apps/api/core"
+import { undo, redo, toggleComment } from "@codemirror/commands"
+import { EditorView } from "@codemirror/view"
+import { isCodeMirrorEditor } from "./utils/dom"
+
+// Global registry for CodeMirror views
+const codeMirrorViews = new WeakMap<Element, EditorView>()
+
+/**
+ * Register a CodeMirror view with its DOM element
+ */
+export function registerCodeMirrorView(element: Element, view: EditorView) {
+  codeMirrorViews.set(element, view)
+}
+
+/**
+ * Unregister a CodeMirror view
+ */
+export function unregisterCodeMirrorView(element: Element) {
+  codeMirrorViews.delete(element)
+}
+
+/**
+ * Get the CodeMirror EditorView instance from a DOM element
+ */
+function getCodeMirrorView(element: Element): EditorView | null {
+  const editorElement = element.closest(".cm-editor")
+  if (editorElement) {
+    return codeMirrorViews.get(editorElement) || null
+  }
+  return null
+}
 
 export type HoppAction =
   | "contextmenu.open" // Send/Cancel a Hoppscotch Request
@@ -79,6 +110,9 @@ export type HoppAction =
   | "user.login" // Login to Hoppscotch
   | "user.logout" // Log out of Hoppscotch
   | "editor.format" // Format editor content
+  | "editor.undo" // Undo editor content
+  | "editor.redo" // Redo editor content
+  | "editor.comment-toggle" // Toggle comment in editor
   | "modals.team.delete" // Delete team
   | "workspace.switch" // Switch workspace
   | "rest.request.open" // Open REST request
@@ -354,5 +388,36 @@ function setupCoreActionHandlers() {
     }
   })
 }
+
+// Editor action handlers
+bindAction("editor.undo", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      undo(editorView)
+    }
+  }
+})
+
+bindAction("editor.redo", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      redo(editorView)
+    }
+  }
+})
+
+bindAction("editor.comment-toggle", () => {
+  const activeElement = document.activeElement
+  if (activeElement && isCodeMirrorEditor(activeElement)) {
+    const editorView = getCodeMirrorView(activeElement)
+    if (editorView) {
+      toggleComment(editorView)
+    }
+  }
+})
 
 setupCoreActionHandlers()

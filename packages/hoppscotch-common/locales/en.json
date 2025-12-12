@@ -1370,7 +1370,11 @@
       "command_menu": "Search & command menu",
       "help_menu": "Help menu",
       "show_all": "Keyboard shortcuts",
-      "title": "General"
+      "title": "General",
+      "comment_uncomment": "Comment/Uncomment",
+      "close_tab": "Close Tab",
+      "undo": "Undo",
+      "redo": "Redo"
     },
     "miscellaneous": {
       "invite": "Invite people to Hoppscotch",

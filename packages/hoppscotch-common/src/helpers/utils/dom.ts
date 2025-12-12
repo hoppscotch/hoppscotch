@@ -37,3 +37,17 @@ export function isMonacoEditor(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
   return el.closest(".monaco-editor") !== null
 }
+
+/**
+ * Checks if an element is inside the shortcuts flyout panel.
+ * @param el The element to check. If this is not an HTMLElement, the function will return false.
+ * @returns True if the element is inside the shortcuts flyout, false otherwise.
+ */
+export function isInShortcutsFlyout(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false
+
+  const slideOver = el.closest("[data-shortcuts-flyout]")
+  if (slideOver) return true
+
+  return false
+}

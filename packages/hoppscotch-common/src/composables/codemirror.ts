@@ -58,7 +58,8 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
-import { invokeAction,
+import {
+  invokeAction,
   registerCodeMirrorView,
   unregisterCodeMirrorView,
 } from "~/helpers/actions"

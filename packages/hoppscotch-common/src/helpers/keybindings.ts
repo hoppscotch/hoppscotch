@@ -4,6 +4,7 @@ import { isAppleDevice } from "./platformutils"
 import {
   isCodeMirrorEditor,
   isDOMElement,
+  isInShortcutsFlyout,
   isMonacoEditor,
   isTypableElement,
 } from "./utils/dom"
@@ -204,18 +205,23 @@ function handleKeyDown(ev: KeyboardEvent) {
   // Special handling for comment toggle - let CodeMirror and Monaco handle this in editors
   if (binding === "ctrl-/") {
     const target = ev.target
-    if (
-      isDOMElement(target) &&
-      (isCodeMirrorEditor(target) || isMonacoEditor(target))
-    ) {
-      return
-    }
+
+    if (!isDOMElement(target)) return
+
+    // Let editors handle it normally
+    if (isCodeMirrorEditor(target) || isMonacoEditor(target)) return
+
+    // If inside shortcuts flyout, always toggle it (even if focused on search input)
     // If not in editor or input, fall back to keybinds flyout
-    if (isDOMElement(target) && !isTypableElement(target)) {
+    const shouldToggle =
+      isInShortcutsFlyout(target) || !isTypableElement(target)
+
+    if (shouldToggle) {
       invokeAction("flyouts.keybinds.toggle", undefined, "keypress")
       ev.preventDefault()
       return
     }
+
     // If in a normal input field, let browser handle it
     return
   }

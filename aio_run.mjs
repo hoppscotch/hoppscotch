@@ -52,7 +52,7 @@ fs.rmSync("build.env")
 
 const caddyFileName = process.env.ENABLE_SUBPATH_BASED_ACCESS === 'true' ? 'aio-subpath-access.Caddyfile' : 'aio-multiport-setup.Caddyfile'
 const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", `/etc/caddy/${caddyFileName}`, "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
-const backendProcess = runChildProcessWithPrefix("node", ["/dist/backend/dist/main.js"], "Backend Server")
+const backendProcess = runChildProcessWithPrefix("node", ["/dist/backend/dist/src/main.js"], "Backend Server")
 const webappProcess = runChildProcessWithPrefix("webapp-server", [], "Webapp Server")
 
 caddyProcess.on("exit", (code) => {

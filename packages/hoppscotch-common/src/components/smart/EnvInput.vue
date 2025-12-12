@@ -441,23 +441,41 @@ const envVars = computed(() => {
 })
 
 function envAutoCompletion(context: CompletionContext) {
-  const options = (props.autoCompleteEnvSource ?? envVars.value ?? [])
-    .map((env) => ({
-      label: env?.key ? `<<${env.key}>>` : "",
-      info: env?.currentValue ?? "",
-      apply: env?.key ? `<<${env.key}>>` : "",
-    }))
-    .filter(Boolean)
-
   const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
   const textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
-  const tagBefore = /<<\$?\w*$/.exec(textBefore) // Update regex to match <<$ as well
+  const tagBefore = /<<\$?[A-Za-z0-9_.-]*$/.exec(textBefore) // Update regex to match <<$ as well
 
   if (!tagBefore && !context.explicit) return null
+
+  // Check if there's already a closing ">>" after the cursor
+  const textAfter = context.state.sliceDoc(context.pos, context.pos + 2)
+  const hasClosingBrackets = textAfter === ">>"
+
+  const options = (props.autoCompleteEnvSource ?? envVars.value ?? [])
+    .map((env) => {
+      const envKey = env?.key
+      if (!envKey) return null
+
+      // If closing brackets already exist, don't include them in the completion
+      const completionText = hasClosingBrackets
+        ? `<<${envKey}`
+        : `<<${envKey}>>`
+
+      return {
+        label: `<<${envKey}>>`,
+        info: env?.currentValue ?? "",
+        apply: completionText,
+      }
+    })
+    .filter(
+      (option): option is { label: string; info: string; apply: string } =>
+        option !== null
+    )
+
   return {
     from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
     options: options,
-    validFor: /^(<<\$?\w*)?$/,
+    validFor: /^(<<\$?[A-Za-z0-9_.-]*)?$/,
   }
 }
 

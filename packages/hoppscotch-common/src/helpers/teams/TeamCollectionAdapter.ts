@@ -793,7 +793,7 @@ export default class NewTeamCollectionAdapter {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: translateToNewRequest(JSON.parse(result.right.teamRequestUpdated.request)),
         title: result.right.teamRequestUpdated.title,
       })
     })

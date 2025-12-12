@@ -24,7 +24,7 @@
         />
       </HoppSmartTabs>
       <div
-        class="top-10 z-10 flex h-10 flex-shrink-0 items-center justify-end overflow-x-auto border-b border-dividerLight bg-primary pr-4"
+        class="z-10 flex h-10 flex-shrink-0 items-center justify-end overflow-x-auto border-b border-dividerLight bg-primary pr-4"
       >
         <div class="flex items-center">
           <HoppButtonSecondary
@@ -93,7 +93,7 @@
       </div>
       <div
         v-show="selectedTab === 'headers'"
-        class="h-full flex flex-col flex-1 overflow-auto bg-primary p-4"
+        class="h-full relative overflow-auto flex flex-col flex-1"
       >
         <div class="text-secondaryLight">
           <h3 class="font-semibold mb-4">Response Headers</h3>

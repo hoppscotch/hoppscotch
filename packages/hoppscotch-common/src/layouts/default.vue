@@ -4,7 +4,7 @@
       <Pane style="height: auto">
         <AppHeader />
       </Pane>
-      <Pane :class="spacerClass" class="flex flex-1 !overflow-auto md:mb-0">
+      <Pane :class="spacerClass" class="flex flex-1 !overflow-hidden md:mb-0">
         <Splitpanes
           class="no-splitter"
           :dbl-click-splitter="false"
@@ -16,13 +16,13 @@
           >
             <AppSidenav />
           </Pane>
-          <Pane class="flex flex-1 !overflow-auto">
+          <Pane class="flex flex-1 !overflow-hidden">
             <Splitpanes
               class="no-splitter"
               :dbl-click-splitter="false"
               horizontal
             >
-              <Pane class="flex flex-1 !overflow-auto">
+              <Pane class="flex flex-1 !overflow-hidden">
                 <main class="flex w-full flex-1" role="main">
                   <RouterView
                     v-slot="{ Component }"

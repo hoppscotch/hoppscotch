@@ -1584,6 +1584,536 @@ describe('updateUserCollectionOrder', () => {
   });
 });
 
+describe('FIX: updateMany queries now include userUid filter for root collections', () => {
+  /**
+   * These tests verify the fix for the bug where updateMany queries with parentID: null
+   * were not filtering by userUid, potentially affecting other users' root collections.
+   *
+   * The fix adds userUid filter to:
+   * - changeParentAndUpdateOrderIndex
+   * - removeCollectionAndUpdateSiblingsOrderIndex
+   * - updateUserCollectionOrder (both cases)
+   * - getCollectionCount
+   */
+
+  describe('SCENARIO: Two users performing concurrent operations on root collections', () => {
+    /**
+     * This scenario test simulates two users (Alice and Bob) each having multiple
+     * root collections and performing various operations. It verifies that:
+     * 1. All updateMany calls include the correct userUid filter
+     * 2. Alice's operations never affect Bob's collections and vice versa
+     */
+
+    const alice: AuthUser = {
+      uid: 'alice-uid',
+      email: 'alice@example.com',
+      displayName: 'Alice',
+      photoURL: null,
+      isAdmin: false,
+      refreshToken: 'alice-token',
+      lastLoggedOn: currentTime,
+      lastActiveOn: currentTime,
+      createdOn: currentTime,
+      currentGQLSession: {},
+      currentRESTSession: {},
+    };
+
+    const bob: AuthUser = {
+      uid: 'bob-uid',
+      email: 'bob@example.com',
+      displayName: 'Bob',
+      photoURL: null,
+      isAdmin: false,
+      refreshToken: 'bob-token',
+      lastLoggedOn: currentTime,
+      lastActiveOn: currentTime,
+      createdOn: currentTime,
+      currentGQLSession: {},
+      currentRESTSession: {},
+    };
+
+    // Alice's root collections (orderIndex: 1, 2, 3)
+    const aliceCollection1: DBUserCollection = {
+      id: 'alice-coll-1',
+      orderIndex: 1,
+      parentID: null,
+      title: 'Alice Collection 1',
+      userUid: alice.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    const aliceCollection2: DBUserCollection = {
+      id: 'alice-coll-2',
+      orderIndex: 2,
+      parentID: null,
+      title: 'Alice Collection 2',
+      userUid: alice.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    const aliceCollection3: DBUserCollection = {
+      id: 'alice-coll-3',
+      orderIndex: 3,
+      parentID: null,
+      title: 'Alice Collection 3',
+      userUid: alice.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    // Bob's root collections (orderIndex: 1, 2, 3)
+    const bobCollection1: DBUserCollection = {
+      id: 'bob-coll-1',
+      orderIndex: 1,
+      parentID: null,
+      title: 'Bob Collection 1',
+      userUid: bob.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    const bobCollection2: DBUserCollection = {
+      id: 'bob-coll-2',
+      orderIndex: 2,
+      parentID: null,
+      title: 'Bob Collection 2',
+      userUid: bob.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    const bobCollection3: DBUserCollection = {
+      id: 'bob-coll-3',
+      orderIndex: 3,
+      parentID: null,
+      title: 'Bob Collection 3',
+      userUid: bob.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    test('SCENARIO: Alice deletes collection, Bob reorders - operations are isolated', async () => {
+      /**
+       * Scenario:
+       * 1. Alice deletes her collection #2 (orderIndex: 2)
+       *    - Expected: Alice's collection #3 becomes orderIndex: 2
+       *    - Bob's collections should be UNCHANGED
+       *
+       * 2. Bob reorders his collection #1 to the end
+       *    - Expected: Bob's collections become: #2->1, #3->2, #1->3
+       *    - Alice's collections should be UNCHANGED
+       *
+       * Without the fix, both operations would affect ALL root collections
+       * because parentID: null matches everyone's root collections.
+       */
+
+      // === STEP 1: Alice deletes her collection #2 ===
+      mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+        aliceCollection2,
+      );
+      mockPrisma.userCollection.findMany.mockResolvedValueOnce([]); // No children
+      mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.delete.mockResolvedValueOnce(aliceCollection2);
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 1 });
+
+      await userCollectionService.deleteUserCollection(
+        aliceCollection2.id,
+        alice.uid,
+      );
+
+      // Verify Alice's delete only affected Alice's collections
+      const aliceDeleteCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(aliceDeleteCall.where.userUid).toBe(alice.uid);
+      expect(aliceDeleteCall.where.parentID).toBe(null);
+      expect(aliceDeleteCall.where.orderIndex).toEqual({ gt: aliceCollection2.orderIndex });
+
+      // Reset mocks for Bob's operation
+      mockReset(mockPrisma);
+
+      // === STEP 2: Bob reorders his collection #1 to the end ===
+      mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+        bobCollection1,
+      );
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.findFirst.mockResolvedValueOnce(bobCollection1);
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 2 });
+      mockPrisma.userCollection.count.mockResolvedValueOnce(3);
+      mockPrisma.userCollection.update.mockResolvedValueOnce({
+        ...bobCollection1,
+        orderIndex: 3,
+      });
+
+      await userCollectionService.updateUserCollectionOrder(
+        bobCollection1.id,
+        null,
+        bob.uid,
+      );
+
+      // Verify Bob's reorder only affected Bob's collections
+      const bobReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(bobReorderCall.where.userUid).toBe(bob.uid);
+      expect(bobReorderCall.where.parentID).toBe(null);
+    });
+
+    test('SCENARIO: Both users reorder collections simultaneously - no cross-contamination', async () => {
+      /**
+       * Scenario: Both Alice and Bob reorder their collections at the "same time"
+       *
+       * Alice: Moves collection #3 before collection #1 (to position 1)
+       *   Before: [#1, #2, #3] -> After: [#3, #1, #2]
+       *
+       * Bob: Moves collection #1 before collection #3 (to position 3)
+       *   Before: [#1, #2, #3] -> After: [#2, #3, #1]
+       *
+       * Without the fix: All 6 root collections (3 Alice + 3 Bob) would be
+       * affected by each operation, causing data corruption.
+       */
+
+      // === Alice moves collection #3 to position 1 (before #1) ===
+      mockPrisma.userCollection.findUniqueOrThrow
+        .mockResolvedValueOnce(aliceCollection3)
+        .mockResolvedValueOnce(aliceCollection1);
+
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.findFirst
+        .mockResolvedValueOnce(aliceCollection3)
+        .mockResolvedValueOnce(aliceCollection1);
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 2 });
+      mockPrisma.userCollection.update.mockResolvedValueOnce({
+        ...aliceCollection3,
+        orderIndex: 1,
+      });
+
+      await userCollectionService.updateUserCollectionOrder(
+        aliceCollection3.id,
+        aliceCollection1.id,
+        alice.uid,
+      );
+
+      // Verify Alice's operation is scoped to Alice
+      const aliceReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(aliceReorderCall.where.userUid).toBe(alice.uid);
+      expect(aliceReorderCall.where.parentID).toBe(null);
+
+      // Reset for Bob
+      mockReset(mockPrisma);
+
+      // === Bob moves collection #1 to position 3 (before #3) ===
+      mockPrisma.userCollection.findUniqueOrThrow
+        .mockResolvedValueOnce(bobCollection1)
+        .mockResolvedValueOnce(bobCollection3);
+
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.findFirst
+        .mockResolvedValueOnce(bobCollection1)
+        .mockResolvedValueOnce(bobCollection3);
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 1 });
+      mockPrisma.userCollection.update.mockResolvedValueOnce({
+        ...bobCollection1,
+        orderIndex: 2,
+      });
+
+      await userCollectionService.updateUserCollectionOrder(
+        bobCollection1.id,
+        bobCollection3.id,
+        bob.uid,
+      );
+
+      // Verify Bob's operation is scoped to Bob
+      const bobReorderCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(bobReorderCall.where.userUid).toBe(bob.uid);
+      expect(bobReorderCall.where.parentID).toBe(null);
+    });
+
+    test('SCENARIO: Alice moves child to root while Bob deletes root - isolated operations', async () => {
+      /**
+       * Complex scenario:
+       * 1. Alice has a child collection under aliceCollection1
+       * 2. Alice moves that child to root (becomes a new root collection)
+       * 3. Bob deletes his bobCollection2
+       *
+       * Both operations update orderIndex of root collections (parentID: null)
+       * Without the fix, they would interfere with each other.
+       */
+
+      const aliceChildCollection: DBUserCollection = {
+        id: 'alice-child',
+        orderIndex: 1,
+        parentID: aliceCollection1.id,
+        title: 'Alice Child Collection',
+        userUid: alice.uid,
+        type: ReqType.REST,
+        createdOn: currentTime,
+        updatedOn: currentTime,
+        data: {},
+      };
+
+      // === Alice moves child collection to root ===
+      jest
+        .spyOn(userCollectionService, 'getUserCollection')
+        .mockResolvedValueOnce(E.right(aliceChildCollection));
+
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.findFirst.mockResolvedValueOnce(aliceCollection3); // Last root
+      mockPrisma.userCollection.update.mockResolvedValueOnce({
+        ...aliceChildCollection,
+        parentID: null,
+        orderIndex: 4,
+      });
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 0 });
+
+      await userCollectionService.moveUserCollection(
+        aliceChildCollection.id,
+        null, // Move to root
+        alice.uid,
+      );
+
+      // Verify Alice's move-to-root only affects Alice's collections
+      const aliceMoveCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(aliceMoveCall.where.userUid).toBe(alice.uid);
+      expect(aliceMoveCall.where.parentID).toBe(aliceChildCollection.parentID);
+
+      // Reset mocks
+      mockReset(mockPrisma);
+      jest.restoreAllMocks();
+
+      // === Bob deletes his collection #2 ===
+      mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+        bobCollection2,
+      );
+      mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+      mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
+      mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+      mockPrisma.userCollection.delete.mockResolvedValueOnce(bobCollection2);
+      mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 1 });
+
+      await userCollectionService.deleteUserCollection(
+        bobCollection2.id,
+        bob.uid,
+      );
+
+      // Verify Bob's delete only affects Bob's collections
+      const bobDeleteCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+      expect(bobDeleteCall.where.userUid).toBe(bob.uid);
+      expect(bobDeleteCall.where.parentID).toBe(null);
+      expect(bobDeleteCall.where.orderIndex).toEqual({ gt: bobCollection2.orderIndex });
+    });
+  });
+
+  test('FIXED: moveUserCollection (child to root) - updateMany now filters by userUid', async () => {
+    const user1ChildCollection: DBUserCollection = {
+      id: 'user1-child-coll',
+      orderIndex: 2,
+      parentID: 'user1-parent-id',
+      title: 'User 1 Child Collection',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    jest
+      .spyOn(userCollectionService, 'getUserCollection')
+      .mockResolvedValueOnce(E.right(user1ChildCollection));
+
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userCollection.update.mockResolvedValueOnce({
+      ...user1ChildCollection,
+      parentID: null,
+      orderIndex: 1,
+    });
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 1 });
+
+    await userCollectionService.moveUserCollection(
+      user1ChildCollection.id,
+      null,
+      user.uid,
+    );
+
+    expect(mockPrisma.userCollection.updateMany).toHaveBeenCalled();
+    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+
+    // FIXED: The where clause now includes userUid to prevent cross-user data corruption
+    expect(updateManyCall.where).toEqual({
+      userUid: user1ChildCollection.userUid,
+      parentID: user1ChildCollection.parentID,
+      orderIndex: { gt: user1ChildCollection.orderIndex },
+    });
+  });
+
+  test('FIXED: updateUserCollectionOrder (to end) - updateMany now filters by userUid', async () => {
+    const user1RootCollection: DBUserCollection = {
+      id: 'user1-root-coll',
+      orderIndex: 2,
+      parentID: null,
+      title: 'User 1 Root Collection',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      user1RootCollection,
+    );
+
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.userCollection.findFirst.mockResolvedValueOnce(
+      user1RootCollection,
+    );
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 3 });
+    mockPrisma.userCollection.count.mockResolvedValueOnce(5);
+    mockPrisma.userCollection.update.mockResolvedValueOnce({
+      ...user1RootCollection,
+      orderIndex: 5,
+    });
+
+    await userCollectionService.updateUserCollectionOrder(
+      user1RootCollection.id,
+      null,
+      user.uid,
+    );
+
+    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+
+    // FIXED: Now includes userUid - only affects current user's root collections
+    expect(updateManyCall.where).toEqual({
+      userUid: user1RootCollection.userUid,
+      parentID: null,
+      orderIndex: { gte: user1RootCollection.orderIndex + 1 },
+    });
+  });
+
+  test('FIXED: updateUserCollectionOrder (with nextCollection) - updateMany now filters by userUid', async () => {
+    const user1RootCollection1: DBUserCollection = {
+      id: 'user1-root-1',
+      orderIndex: 1,
+      parentID: null,
+      title: 'User 1 Root 1',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    const user1RootCollection2: DBUserCollection = {
+      id: 'user1-root-2',
+      orderIndex: 4,
+      parentID: null,
+      title: 'User 1 Root 2',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    mockPrisma.userCollection.findUniqueOrThrow
+      .mockResolvedValueOnce(user1RootCollection1)
+      .mockResolvedValueOnce(user1RootCollection2);
+
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.userCollection.findFirst
+      .mockResolvedValueOnce(user1RootCollection1)
+      .mockResolvedValueOnce(user1RootCollection2);
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 2 });
+    mockPrisma.userCollection.update.mockResolvedValueOnce({
+      ...user1RootCollection1,
+      orderIndex: 3,
+    });
+
+    await userCollectionService.updateUserCollectionOrder(
+      user1RootCollection1.id,
+      user1RootCollection2.id,
+      user.uid,
+    );
+
+    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+
+    // FIXED: Now includes userUid - only affects current user's root collections
+    expect(updateManyCall.where).toEqual({
+      userUid: user1RootCollection1.userUid,
+      parentID: null,
+      orderIndex: {
+        gte: user1RootCollection1.orderIndex + 1,
+        lte: user1RootCollection2.orderIndex - 1,
+      },
+    });
+  });
+
+  test('FIXED: deleteUserCollection - removeCollectionAndUpdateSiblingsOrderIndex now filters by userUid', async () => {
+    const user1RootToDelete: DBUserCollection = {
+      id: 'user1-root-to-delete',
+      orderIndex: 2,
+      parentID: null,
+      title: 'User 1 Root To Delete',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: {},
+    };
+
+    mockPrisma.userCollection.findUniqueOrThrow.mockResolvedValueOnce(
+      user1RootToDelete,
+    );
+
+    mockPrisma.userCollection.findMany.mockResolvedValueOnce([]);
+    mockPrisma.userRequest.deleteMany.mockResolvedValueOnce({ count: 0 });
+
+    mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
+    mockPrisma.userCollection.delete.mockResolvedValueOnce(user1RootToDelete);
+    mockPrisma.userCollection.updateMany.mockResolvedValueOnce({ count: 3 });
+
+    await userCollectionService.deleteUserCollection(
+      user1RootToDelete.id,
+      user.uid,
+    );
+
+    const updateManyCall = mockPrisma.userCollection.updateMany.mock.calls[0][0];
+
+    // FIXED: Now includes userUid - only affects current user's root collections
+    expect(updateManyCall.where).toEqual({
+      userUid: user1RootToDelete.userUid,
+      parentID: null,
+      orderIndex: { gt: user1RootToDelete.orderIndex },
+    });
+  });
+
+  test('FIXED: getCollectionCount - now requires userUid parameter and filters by it', async () => {
+    mockPrisma.userCollection.count.mockResolvedValueOnce(10);
+
+    await userCollectionService.getCollectionCount(null, user.uid);
+
+    // FIXED: Now filters by userUid - only counts current user's collections
+    expect(mockPrisma.userCollection.count).toHaveBeenCalledWith({
+      where: {
+        parentID: null,
+        userUid: user.uid,
+      },
+    });
+  });
+});
+
 describe('updateUserCollection', () => {
   test('should throw USER_COLL_DATA_INVALID is collection data is invalid', async () => {
     const result = await userCollectionService.updateUserCollection(

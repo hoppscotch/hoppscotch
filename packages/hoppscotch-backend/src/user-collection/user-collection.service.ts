@@ -485,6 +485,7 @@ export class UserCollectionService {
           // decrement orderIndex of all next sibling collections from original collection
           await tx.userCollection.updateMany({
             where: {
+              userUid: collection.userUid,
               parentID: collection.parentID,
               orderIndex: { gt: collection.orderIndex },
             },
@@ -566,6 +567,7 @@ export class UserCollectionService {
             // update orderIndexes
             await tx.userCollection.updateMany({
               where: {
+                userUid: collection.userUid,
                 parentID: collection.parentID,
                 orderIndex: orderIndexCondition,
               },
@@ -689,14 +691,18 @@ export class UserCollectionService {
   }
 
   /**
-   * Find the number of child collections present in collectionID
+   * Find the number of child collections present in collectionID for a specific user
    *
-   * @param collectionID The Collection ID
+   * @param collectionID The Collection ID (parent collection ID, or null for root)
+   * @param userUid The User UID
    * @returns Number of collections
    */
-  getCollectionCount(collectionID: string): Promise<number> {
+  getCollectionCount(collectionID: string, userUid: string): Promise<number> {
     return this.prisma.userCollection.count({
-      where: { parentID: collectionID },
+      where: {
+        parentID: collectionID,
+        userUid: userUid,
+      },
     });
   }
 
@@ -744,6 +750,7 @@ export class UserCollectionService {
             });
             await tx.userCollection.updateMany({
               where: {
+                userUid: collection.right.userUid,
                 parentID: collection.right.parentID,
                 orderIndex: { gte: collectionInTx.orderIndex + 1 },
               },
@@ -756,6 +763,7 @@ export class UserCollectionService {
               data: {
                 orderIndex: await this.getCollectionCount(
                   collection.right.parentID,
+                  collection.right.userUid,
                 ),
               },
             });
@@ -827,6 +835,7 @@ export class UserCollectionService {
 
           await tx.userCollection.updateMany({
             where: {
+              userUid: collection.right.userUid,
               parentID: collection.right.parentID,
               orderIndex: { gte: updateFrom, lte: updateTo },
             },

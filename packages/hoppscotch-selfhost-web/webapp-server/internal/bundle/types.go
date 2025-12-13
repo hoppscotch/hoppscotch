@@ -3,10 +3,8 @@ package bundle
 import "time"
 
 const (
-	// matches Rust implementation for compatibility
-	Version = "2025.11.0"
+	Version = "2025.12.0"
 
-	// 50MB, same as Rust's DEFAULT_MAX_BUNDLE_SIZE
 	DefaultMaxSize = 50 * 1024 * 1024
 
 	// zstd compression method for ZIP

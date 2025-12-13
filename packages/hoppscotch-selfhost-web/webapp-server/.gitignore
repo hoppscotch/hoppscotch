@@ -1,21 +1,5 @@
-# Devenv
-.devenv*
-devenv.local.nix
+# compiled binary
+webapp-server
 
-# direnv
-.direnv
-
-# pre-commit
-.pre-commit-config.yaml
-
-/target/
-
-/gen/schemas
-
-.env
-
-bundles
-
-trust/
-
-site/
+# dev mode key directory
+.webapp-server/

@@ -1,6 +1,8 @@
-# This step is used to build a custom build of Caddy to prevent
-# vulnerable packages on the dependency chain
-FROM alpine:3.23.0 AS caddy_builder
+# Base Go builder with Go lang installation
+# This stage is used to build both Caddy and the webapp server,
+# preventing vulnerable packages on the dependency chain
+FROM alpine:3.23.0 AS go_builder
+
 RUN apk add --no-cache curl git && \
   mkdir -p /tmp/caddy-build && \
   curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.10.2/caddy_2.10.2_src.tar.gz
@@ -40,9 +42,21 @@ RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   go mod tidy && \
   go mod vendor
 
+# Build Caddy from the Go base
+FROM go_builder AS caddy_builder
 WORKDIR /tmp/caddy-build/cmd/caddy
 # Build using the updated vendored dependencies
 RUN go build
+
+# Build webapp server from the Go base
+# This reuses the Go installation from go_builder, avoiding a separate image pull
+# and significantly reducing build time (especially on ARM64 in CI)
+FROM go_builder AS webapp_server_builder
+WORKDIR /usr/src/app
+COPY . .
+WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 
@@ -123,13 +137,6 @@ FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
 
-FROM rust:1-alpine AS webapp_server_builder
-WORKDIR /usr/src/app
-RUN apk add --no-cache musl-dev
-COPY . .
-WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server
-RUN cargo build --release
-
 
 
 FROM node_base AS app
@@ -137,7 +144,7 @@ FROM node_base AS app
 COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 
 # Copy over webapp server bin
-COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
+COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
 
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
@@ -198,7 +205,7 @@ COPY --from=backend_builder /dist/backend /dist/backend
 COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /dist/backend
 
 # Static Server
-COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/target/release/webapp-server /usr/local/bin/
+COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
 RUN mkdir -p /site/selfhost-web
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 

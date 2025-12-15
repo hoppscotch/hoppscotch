@@ -515,7 +515,7 @@ describe("TabService", () => {
       const container = new TestContainer()
       const service = container.bind(MockTabService)
 
-      const tab2 = service.createNewTab({ request: "second request" })
+      service.createNewTab({ request: "second request" })
       service.createNewTab({ request: "third request" })
 
       service.goToMRUTab()

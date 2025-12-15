@@ -39,8 +39,8 @@ export type HoppAction =
   | "tab.switch-to-first" // Switch to first tab
   | "tab.switch-to-last" // Switch to last tab
   | "tab.reopen-closed" // Reopen recently closed tab
-  | "tab.mru-switch" // Switch to MRU tab (Ctrl+Tab)
-  | "tab.mru-switch-reverse" // Switch to previous MRU tab (Ctrl+Shift+Tab)
+  | "tab.mru-switch" // Switch to MRU tab (Ctrl/Cmd+Alt+])
+  | "tab.mru-switch-reverse" // Switch to previous MRU tab (Ctrl/Cmd+Alt+[)
   | "request.focus-url" // Focus the URL bar
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout

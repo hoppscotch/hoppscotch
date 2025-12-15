@@ -23,7 +23,7 @@
               horizontal
             >
               <Pane class="flex flex-1 !overflow-hidden">
-                <main class="flex w-full flex-1" role="main">
+                <main class="flex w-full flex-1 overflow-auto" role="main">
                   <RouterView
                     v-slot="{ Component }"
                     class="flex min-w-0 flex-1"

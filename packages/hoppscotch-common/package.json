@@ -33,7 +33,7 @@
     "@codemirror/merge": "6.11.2",
     "@codemirror/search": "6.5.11",
     "@codemirror/state": "6.5.2",
-    "@codemirror/view": "6.39.4",
+    "@codemirror/view": "6.38.8",
     "@guolao/vue-monaco-editor": "1.6.0",
     "@hoppscotch/codemirror-lang-graphql": "workspace:^",
     "@hoppscotch/data": "workspace:^",

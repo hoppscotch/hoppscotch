@@ -64,7 +64,7 @@ in {
     e.exec = "emacs";
     lima-setup.exec = "limactl start template://docker";
     lima-clean.exec = "limactl rm -f $(limactl ls -q)";
-    colima-start.exec = "colima start --cpu 4 --memory 50";
+    colima-start.exec = "colima start --cpu 8 --memory 50";
 
     docker-prune.exec = ''
       echo "Cleaning up unused Docker resources..."

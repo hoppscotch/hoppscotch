@@ -147,10 +147,7 @@ export class TabSpotlightSearcherService extends StaticSpotlightSearcherService<
       ),
     },
     tab_mru_switch: {
-      text: [
-        this.t("spotlight.tab.title"),
-        this.t("spotlight.tab.mru_switch"),
-      ],
+      text: [this.t("spotlight.tab.title"), this.t("spotlight.tab.mru_switch")],
       alternates: ["tab", "recent", "mru", "switch"],
       icon: markRaw(IconArrowRight),
       excludeFromSearch: computed(

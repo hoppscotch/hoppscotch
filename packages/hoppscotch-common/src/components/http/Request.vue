@@ -56,6 +56,7 @@
         class="flex flex-1 whitespace-nowrap rounded-r border-l border-divider bg-primaryLight transition"
       >
         <SmartEnvInput
+          ref="urlInput"
           v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url_placeholder')}`"
           :auto-complete-source="userHistories"
@@ -322,6 +323,7 @@ const show = ref<any | null>(null)
 const clearAll = ref<any | null>(null)
 const copyRequestAction = ref<any | null>(null)
 const saveRequestAction = ref<any | null>(null)
+const urlInput = ref<{ focus: () => void } | null>(null)
 
 const history = useReadonlyStream<RESTHistoryEntry[]>(restHistory$, [])
 
@@ -665,6 +667,10 @@ defineActionHandler("request.import-curl", () => {
 })
 defineActionHandler("request.show-code", () => {
   showCodegenModal.value = true
+})
+
+defineActionHandler("request.focus-url", () => {
+  urlInput.value?.focus()
 })
 
 const isCustomMethod = computed(() => {

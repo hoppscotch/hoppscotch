@@ -175,6 +175,11 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
   // Desktop-only shortcuts
   const desktopShortcuts: ShortcutDef[] = [
     {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "U"],
+      label: t("shortcut.request.focus_url"),
+      section: t("shortcut.request.title"),
+    },
+    {
       keys: [getPlatformSpecialKey(), "T"],
       label: t("shortcut.tabs.new_tab"),
       section: t("shortcut.tabs.title"),
@@ -202,6 +207,16 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     {
       keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "0"],
       label: t("shortcut.tabs.last_tab"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "]"],
+      label: t("shortcut.tabs.mru_switch"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "["],
+      label: t("shortcut.tabs.mru_switch_reverse"),
       section: t("shortcut.tabs.title"),
     },
   ]

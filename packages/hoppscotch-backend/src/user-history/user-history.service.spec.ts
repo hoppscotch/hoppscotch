@@ -332,7 +332,7 @@ describe('UserHistoryService', () => {
         isStarred: false,
       };
 
-      await userHistoryService.createUserHistory(
+      const result = await userHistoryService.createUserHistory(
         'abc',
         JSON.stringify([{}]),
         JSON.stringify([{ test: 'abc' }]),
@@ -342,6 +342,8 @@ describe('UserHistoryService', () => {
           'content-type': 'application/json',
         }),
       );
+
+      expect(result).toEqualRight(userHistory);
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user_history/${userHistory.userUid}/created`,
@@ -355,6 +357,49 @@ describe('UserHistoryService', () => {
               'x-request-id': '123',
               'content-type': 'application/json',
             },
+          }),
+        }),
+      );
+    });
+    test('Should create a GQL request with null responseHeaders when resHeaders is invalid JSON', async () => {
+      const executedOn = new Date();
+
+      mockPrisma.userHistory.create.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{ test: 'abc' }],
+        responseHeaders: {},
+        reqType: ReqType.GQL,
+        executedOn,
+        isStarred: false,
+      });
+
+      const userHistory: UserHistory = {
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{ test: 'abc' }]),
+        responseHeaders: JSON.stringify({}),
+        reqType: ReqType.GQL,
+        executedOn,
+        isStarred: false,
+      };
+
+      const result = await userHistoryService.createUserHistory(
+        'abc',
+        JSON.stringify([{}]),
+        JSON.stringify([{ test: 'abc' }]),
+        'GQL',
+        '{invalid-json}',
+      );
+
+      expect(result).toEqualRight(userHistory);
+
+      expect(mockPrisma.userHistory.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            responseHeaders: null,
           }),
         }),
       );

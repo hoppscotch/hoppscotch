@@ -70,7 +70,14 @@ export class UserHistoryService {
     const requestType = this.validateReqType(reqType);
     if (E.isLeft(requestType)) return E.left(requestType.left);
 
-    const parsedHeaders = resHeaders ? JSON.parse(resHeaders) : null;
+    let parsedHeaders = null;
+    if (resHeaders && resHeaders.trim()) {
+      try {
+        parsedHeaders = JSON.parse(resHeaders);
+      } catch (e) {
+        parsedHeaders = null;
+      }
+    }
 
     const history = await this.prisma.userHistory.create({
       data: {

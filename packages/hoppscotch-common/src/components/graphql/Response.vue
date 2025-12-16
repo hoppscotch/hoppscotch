@@ -7,7 +7,6 @@
       "
       class="flex flex-1 flex-col"
     >
-
       <HoppSmartTabs
         v-model="selectedTab"
         styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-0"
@@ -99,7 +98,11 @@
           <h3 class="font-semibold mb-4">Response Headers</h3>
           <div class="space-y-2">
             <div v-if="responseHeaders.length > 0">
-              <div v-for="(header, index) in responseHeaders" :key="index" class="text-sm">
+              <div
+                v-for="(header, index) in responseHeaders"
+                :key="index"
+                class="text-sm"
+              >
                 <span class="font-semibold">{{ header.key }}</span>
                 <span class="ml-2">{{ header.value }}</span>
               </div>

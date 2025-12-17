@@ -726,7 +726,8 @@
     "fetching_access_tokens_list": "Something went wrong while fetching the list of tokens",
     "generate_access_token": "Something went wrong while generating the access token",
     "delete_access_token": "Something went wrong while deleting the access token",
-    "extension_not_found": "Extension not found"
+    "extension_not_found": "Extension not found",
+    "invalid_request": "Invalid request data"
   },
   "export": {
     "as_json": "Export as JSON",

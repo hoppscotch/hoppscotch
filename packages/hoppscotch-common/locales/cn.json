@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "响应体",
-    "filter_response_body": "筛选JSON响应本体（使用JSONPath语法）",
+    "filter_response_body": "筛选JSON响应本体（使用jq语法）",
     "headers": "响应头",
     "html": "HTML",
     "image": "图像",

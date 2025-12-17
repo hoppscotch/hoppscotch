@@ -259,10 +259,10 @@ const getHoppResponses = (
 
 type PMRequestAuthDef<
   AuthType extends
-  RequestAuthDefinition["type"] = RequestAuthDefinition["type"],
+    RequestAuthDefinition["type"] = RequestAuthDefinition["type"],
 > = AuthType extends RequestAuthDefinition["type"] & string
   ? // eslint-disable-next-line no-unused-vars
-  { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
+    { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
   : { type: AuthType }
 
 const getVariableValue = (defs: VariableDefinition[], key: string) =>
@@ -655,7 +655,7 @@ export const hoppPostmanImporter = (
         if (!isSupported) {
           console.warn(
             `[Postman Import] Script import requested but collection schema "${schema ?? "unknown"}" does not support scripts. ` +
-            `Only Postman Collection Format v2.0 and v2.1 are supported. Scripts will be skipped.`
+              `Only Postman Collection Format v2.0 and v2.1 are supported. Scripts will be skipped.`
           )
           // Skip script import for unsupported versions
           return getHoppCollections(collections, false)

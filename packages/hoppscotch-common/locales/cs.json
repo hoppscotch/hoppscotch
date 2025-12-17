@@ -625,7 +625,7 @@
   "response": {
     "audio": "Audio",
     "body": "Tělo odpovědi",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Záhlaví",
     "html": "HTML",
     "image": "Obrázek",

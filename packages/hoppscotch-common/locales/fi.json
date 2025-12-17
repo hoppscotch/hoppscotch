@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Vastauselin",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Otsikot",
     "html": "HTML",
     "image": "Kuva",

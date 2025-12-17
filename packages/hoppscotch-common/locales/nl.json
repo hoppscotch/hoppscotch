@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Reactie inhoud",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Headers",
     "html": "HTML",
     "image": "Afbeelding",

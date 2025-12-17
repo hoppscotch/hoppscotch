@@ -1778,7 +1778,7 @@ const onAddExample = async () => {
   const updatedRequest = {
     ...request,
     responses: {
-      ...(request.responses ?? {}),
+      ...request.responses,
       [exampleName]: newExample,
     },
   }

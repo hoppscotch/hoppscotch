@@ -76,6 +76,7 @@
     "highlightjs-curl": "1.3.0",
     "insomnia-importers": "3.6.0",
     "io-ts": "2.2.22",
+    "jq-wasm": "1.1.0-jq-1.8.1",
     "js-md5": "0.8.3",
     "js-yaml": "4.1.1",
     "jsonc-parser": "3.3.1",

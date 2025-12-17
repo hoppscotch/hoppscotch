@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Cuerpo de respuesta",
-    "filter_response_body": "Filtrar el cuerpo de la respuesta JSON (utiliza la sintaxis JSONPath)",
+    "filter_response_body": "Filtrar el cuerpo de la respuesta JSON (utiliza la sintaxis jq)",
     "headers": "Encabezados",
     "html": "HTML",
     "image": "Imagen",

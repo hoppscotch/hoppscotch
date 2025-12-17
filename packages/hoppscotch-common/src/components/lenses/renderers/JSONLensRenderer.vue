@@ -118,11 +118,13 @@
         </span>
         <div
           v-if="filterResponseError"
+          role="alert"
+          aria-live="assertive"
           class="flex items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast"
           :class="{
             'bg-red-500':
               filterResponseError.type === 'JSON_PARSE_FAILED' ||
-              filterResponseError.type === 'JSON_PATH_QUERY_ERROR',
+              filterResponseError.type === 'JSON_QUERY_FAILED',
             'bg-amber-500': filterResponseError.type === 'RESPONSE_EMPTY',
           }"
         >
@@ -134,7 +136,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
-          to="https://github.com/JSONPath-Plus/JSONPath"
+          to="https://jqlang.org/manual/"
           blank
         />
       </div>
@@ -265,7 +267,8 @@ import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
-import { JSONPath } from "jsonpath-plus"
+import { computedAsync } from "@vueuse/core"
+import * as jq from "jq-wasm"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -329,7 +332,7 @@ const filterQueryText = ref("")
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
-  | { type: "JSON_PATH_QUERY_FAILED"; error: Error }
+  | { type: "JSON_QUERY_FAILED"; error: Error }
 
 const responseJsonObject = computed(() => {
   if (isHttpResponse.value) {
@@ -362,28 +365,40 @@ const responseName = computed(() => {
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const jsonResponseBodyText = computed(() => {
-  if (filterQueryText.value.length > 0 && responseJsonObject.value) {
-    return pipe(
-      responseJsonObject.value,
-      E.chain((parsedJSON) =>
-        E.tryCatch(
-          () =>
-            JSONPath({
-              path: filterQueryText.value,
-              json: JSON.parse(LJSON.stringify(parsedJSON as any) || "{}"),
-            }),
-          (err): BodyParseError => ({
-            type: "JSON_PATH_QUERY_FAILED",
-            error: err as Error,
-          })
+const jsonResponseBodyText = computedAsync(
+  async (): Promise<E.Either<BodyParseError, string | object>> => {
+    if (filterQueryText.value.length > 0 && responseJsonObject.value) {
+      if (E.isLeft(responseJsonObject.value)) {
+        return responseJsonObject.value
+      }
+
+      try {
+        const input = JSON.parse(
+          LJSON.stringify(responseJsonObject.value.right as any) || "{}"
         )
-      ),
-      E.map((result: any) => result as string | object)
-    )
-  }
-  return E.right(responseBodyText.value)
-})
+        const { exitCode, stdout, stderr } = await jq.raw(
+          input,
+          filterQueryText.value
+        )
+
+        if (exitCode !== 0) {
+          console.error(stderr)
+          throw new Error("Syntax Error")
+        }
+
+        return E.right(stdout as string | object)
+      } catch (err) {
+        return E.left({
+          type: "JSON_QUERY_FAILED",
+          error: err as Error,
+        })
+      }
+    }
+
+    return E.right(responseBodyText.value)
+  },
+  E.right(responseBodyText.value)
+)
 
 const jsonBodyText = computed(() => {
   const { responseBodyText } = useResponseBody(
@@ -395,7 +410,7 @@ const jsonBodyText = computed(() => {
     E.getOrElse(() => responseBodyText.value)
   )
 
-  // If the rawValue is already an object (from JSONPath filtering), stringify it directly
+  // If the rawValue is already an object (from JSON filtering), stringify it directly
   if (typeof rawValue === "object" && rawValue !== null) {
     return JSON.stringify(rawValue, null, 2)
   }
@@ -436,8 +451,8 @@ const filterResponseError = computed(() =>
     E.match(
       (e) => {
         switch (e.type) {
-          case "JSON_PATH_QUERY_FAILED":
-            return { type: "JSON_PATH_QUERY_ERROR", error: e.error.message }
+          case "JSON_QUERY_FAILED":
+            return { type: "JSON_QUERY_FAILED", error: e.error.message }
           case "JSON_PARSE_FAILED":
             return {
               type: "JSON_PARSE_FAILED",

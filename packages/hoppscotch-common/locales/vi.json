@@ -623,7 +623,7 @@
   "response": {
     "audio": "Âm thanh",
     "body": "Nội dung Phản hồi",
-    "filter_response_body": "Lọc nội dung phản hồi JSON (sử dụng cú pháp JSONPath)",
+    "filter_response_body": "Lọc nội dung phản hồi JSON (sử dụng cú pháp jq)",
     "headers": "Headers",
     "html": "HTML",
     "image": "Hình ảnh",

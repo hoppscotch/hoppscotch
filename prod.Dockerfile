@@ -30,7 +30,7 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 WORKDIR /tmp/caddy-build
 RUN tar xvf /tmp/caddy-build/src.tar.gz && \
   # Patch to resolve CVE-2025-59530 on quic-go
-  go get github.com/quic-go/quic-go@v0.55.0 && \
+  go get github.com/quic-go/quic-go@v0.57.0 && \
   # Patch to resolve CVE-2025-62820 on nebula
   go get github.com/slackhq/nebula@v1.9.7 && \
   # Patch to resolve CVE-2025-47913 on crypto

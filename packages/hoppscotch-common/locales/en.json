@@ -2227,7 +2227,8 @@
     "status_canceled": "Canceled",
     "status_inactive": "Inactive",
     "status_canceled_tooltip": "Subscription canceled - Contact support to reactivate this workspace",
-    "status_inactive_tooltip": "This organization is temporarily inactive - Contact support for assistance"
+    "status_inactive_tooltip": "This organization is temporarily inactive - Contact support for assistance",
+    "multi_account_notice": "Note: Each organization instance maintains its own authentication state. If you've signed in with different accounts across instances, accessing an instance from the sidebar will load with the account currently logged in on that instance, not necessarily the account you're switching from."
   },
   "billing": {
     "confirm": {

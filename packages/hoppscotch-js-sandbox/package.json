@@ -56,7 +56,7 @@
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11",
     "lodash": "4.17.21",
-    "lodash-es": "4.17.21"
+    "lodash-es": "4.17.22"
   },
   "devDependencies": {
     "@digitak/esrun": "3.2.26",
@@ -65,16 +65,16 @@
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.21",
     "@types/node": "24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.49.0",
-    "@typescript-eslint/parser": "8.49.0",
+    "@typescript-eslint/eslint-plugin": "8.50.0",
+    "@typescript-eslint/parser": "8.50.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "io-ts": "2.2.22",
     "prettier": "3.7.4",
     "typescript": "5.9.3",
-    "vite": "7.2.7",
-    "vitest": "4.0.15"
+    "vite": "7.3.0",
+    "vitest": "4.0.16"
   },
   "peerDependencies": {
     "isolated-vm": "6.0.2"

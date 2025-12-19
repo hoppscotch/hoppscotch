@@ -44,7 +44,7 @@
       "nodemailer@<7.0.11": "7.0.11",
       "glob@<11.1.0": "11.1.0",
       "subscriptions-transport-ws>ws": "7.5.10",
-      "vue": "3.5.25",
+      "vue": "3.5.26",
       "form-data": "4.0.4",
       "ws": "8.17.1"
     },

@@ -299,7 +299,7 @@ const getHoppReqAuth = (
         getVariableValue(auth.apikey, "value") ?? ""
       ),
       addTo:
-        (getVariableValue(auth.apikey, "in") ?? "query") === "query"
+        getVariableValue(auth.apikey, "in") === "query"
           ? "QUERY_PARAMS"
           : "HEADERS",
     }

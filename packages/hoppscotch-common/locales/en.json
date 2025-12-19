@@ -2216,19 +2216,13 @@
   "organization_sidebar": {
     "instances": "Instances",
     "hoppscotch": "Hoppscotch",
-    "organizations": "Organizations",
     "admin": "Admin",
-    "no_orgs": "No organizations yet",
     "no_orgs_title": "No organizations yet",
     "no_orgs_description": "Join or create an organization to collaborate with your team",
     "error_loading": "Failed to load organizations",
-    "expand": "Expand sidebar",
-    "collapse": "Collapse sidebar",
-    "status_canceled": "Canceled",
-    "status_inactive": "Inactive",
-    "status_canceled_tooltip": "Subscription canceled - Contact support to reactivate this workspace",
-    "status_inactive_tooltip": "This organization is temporarily inactive - Contact support for assistance",
-    "multi_account_notice": "Note: Each organization instance maintains its own authentication state. If you've signed in with different accounts across instances, accessing an instance from the sidebar will load with the account currently logged in on that instance, not necessarily the account you're switching from."
+    "inactive_orgs": "Inactive Organizations",
+    "multi_account_notice": "Each organization keeps its own login, using the last account accessed.",
+    "inactive_orgs_tooltip": "Contact support for assistance."
   },
   "billing": {
     "confirm": {

@@ -357,6 +357,16 @@ export function useCodemirror(
         return
       }
 
+      // Skip context menu for very large selections (> 100KB)
+      const selectionSize = to - from
+      const MAX_CONTEXT_MENU_SIZE = 100_000 // 100KB
+
+      if (selectionSize > MAX_CONTEXT_MENU_SIZE) {
+        closeContextMenu()
+        return
+      }
+
+      // Only extract text if selection is reasonably sized
       const text = view.value?.state.doc.sliceString(from, to)
       const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
@@ -391,13 +401,20 @@ export function useCodemirror(
 
       ViewPlugin.fromClass(
         class {
-          update(update: ViewUpdate) {
-            // Only add event listeners if context menu is enabled in the editor
-            if (options.contextMenuEnabled) {
-              el.addEventListener("mouseup", debouncedTextSelection(140))
-              el.addEventListener("keyup", debouncedTextSelection(140))
-            }
+          private mouseupHandler: (() => void) | null = null
+          private keyupHandler: (() => void) | null = null
 
+          constructor() {
+            if (options.contextMenuEnabled) {
+              this.mouseupHandler = debouncedTextSelection(140)
+              this.keyupHandler = debouncedTextSelection(140)
+
+              el.addEventListener("mouseup", this.mouseupHandler)
+              el.addEventListener("keyup", this.keyupHandler)
+            }
+          }
+
+          update(update: ViewUpdate) {
             if (options.onUpdate) {
               options.onUpdate(update)
             }
@@ -429,6 +446,18 @@ export function useCodemirror(
                   options.onChange(cachedValue.value)
                 }
               }
+            }
+          }
+
+          destroy() {
+            // Clean up event listeners when plugin is destroyed
+            if (
+              options.contextMenuEnabled &&
+              this.mouseupHandler &&
+              this.keyupHandler
+            ) {
+              el.removeEventListener("mouseup", this.mouseupHandler)
+              el.removeEventListener("keyup", this.keyupHandler)
             }
           }
         }

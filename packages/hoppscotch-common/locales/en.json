@@ -152,6 +152,7 @@
     "new_version_found": "New version found. Refresh to update.",
     "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
+    "powered_by": "Powered by Hoppscotch",
     "proxy_privacy_policy": "Proxy privacy policy",
     "reload": "Reload",
     "search": "Search and commands",
@@ -735,6 +736,22 @@
     "title": "Export",
     "success": "Successfully exported"
   },
+  "file_upload": {
+    "choose_file": "Choose file",
+    "max_size_format": "Max 5MB. Supports JPEG, PNG, GIF, WebP",
+    "profile_photo_updated": "Profile photo updated successfully",
+    "profile_photo_removed": "Profile photo removed successfully",
+    "org_logo_updated": "Organization logo updated successfully",
+    "error_size_limit": "File size must be less than 5MB",
+    "error_invalid_format": "File must be an image (JPEG, PNG, GIF, or WebP)",
+    "error_invalid_upload_type": "Invalid upload type",
+    "error_invalid_org_id": "Invalid organization ID format",
+    "error_upload_failed": "Upload failed. Please try again",
+    "error_network_failed": "Network error. Please check your connection",
+    "error_timeout": "Upload timed out after 30 seconds. Please try again",
+    "error_missing_backend_url": "Backend URL is not configured. Please set the VITE_BACKEND_API_URL environment variable in your environment settings",
+    "error_invalid_backend_url": "Invalid backend URL configuration"
+  },
   "filename": {
     "cookie_key_value_pairs": "Cookie",
     "codegen": "{request_name} - code",
@@ -1257,6 +1274,7 @@
     "profile_description": "Update your profile details",
     "profile_email": "Email address",
     "profile_name": "Profile name",
+    "profile_photo": "Profile photo",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
     "proxy_use_toggle": "Use the proxy middleware to send requests",
@@ -2191,7 +2209,25 @@
     "delete_account_description": "This will delete all data associated with your Hoppscotch account, including this and any other organizations you are part of.",
     "delete_account": "Delete Hoppscotch Account",
     "user_deletion_failed_sole_admin": "The user is the sole admin of one or more organization instances. Please demote the user before attempting deletion.",
-    "user_deletion_failed_sole_team_owner": "The user is the sole team owner on one or more organization instances. Please transfer the ownership or delete the relevant workspaces before attempting deletion."
+    "user_deletion_failed_sole_team_owner": "The user is the sole team owner on one or more organization instances. Please transfer the ownership or delete the relevant workspaces before attempting deletion.",
+    "no_organizations": "You are not a member of any organizations",
+    "admin": "Admin"
+  },
+  "organization_sidebar": {
+    "instances": "Instances",
+    "hoppscotch": "Hoppscotch",
+    "organizations": "Organizations",
+    "admin": "Admin",
+    "no_orgs": "No organizations yet",
+    "no_orgs_title": "No organizations yet",
+    "no_orgs_description": "Join or create an organization to collaborate with your team",
+    "error_loading": "Failed to load organizations",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "status_canceled": "Canceled",
+    "status_inactive": "Inactive",
+    "status_canceled_tooltip": "Subscription canceled - Contact support to reactivate this workspace",
+    "status_inactive_tooltip": "This organization is temporarily inactive - Contact support for assistance"
   },
   "billing": {
     "confirm": {

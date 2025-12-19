@@ -16,7 +16,17 @@
           >
             <AppSidenav />
           </Pane>
-          <Pane class="flex flex-1 !overflow-hidden">
+          <Pane
+            v-if="showOrgSidebar"
+            style="width: auto; height: auto"
+            class="hidden !overflow-auto md:flex md:flex-col"
+          >
+            <component
+              :is="platform.organization.customOrganizationSidebarComponent"
+            />
+          </Pane>
+          <!-- Changed to !overflow-auto to allow organization sidebar and main content to scroll independently -->
+          <Pane class="flex flex-1 !overflow-auto">
             <Splitpanes
               class="no-splitter"
               :dbl-click-splitter="false"
@@ -110,6 +120,14 @@ const uiExtensionService = useService(UIExtensionService)
 const rootExtensionComponents = uiExtensionService.rootUIExtensionComponents
 
 const HAS_OPENED_SPOTLIGHT = useSetting("HAS_OPENED_SPOTLIGHT")
+
+// Show organization sidebar if organization switching is enabled and sidebar component is provided
+const showOrgSidebar = computed(() => {
+  return (
+    platform.organization?.organizationSwitchingEnabled === true &&
+    platform.organization.customOrganizationSidebarComponent
+  )
+})
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {

@@ -14,6 +14,7 @@
         }"
       >
         <div class="flex">
+          <!-- Instance Switcher (Desktop/On-prem) -->
           <tippy
             v-if="platform.instance?.instanceSwitchingEnabled"
             interactive
@@ -43,6 +44,42 @@
               </div>
             </template>
           </tippy>
+
+          <router-link
+            v-else-if="showOrgLogo"
+            to="/"
+            class="flex items-center gap-2 px-2 py-1 rounded hover:bg-primaryDark focus-visible:bg-primaryDark focus-visible:outline-none transition-colors"
+          >
+            <div
+              v-if="orgInfo?.logo"
+              class="h-6 w-6 rounded overflow-hidden flex-shrink-0"
+            >
+              <img
+                :src="sanitizeLogoUrl(orgInfo.logo)"
+                :alt="orgInfo.name || t('app.name')"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div
+              v-else-if="orgInfo?.name"
+              class="h-6 w-6 rounded flex items-center justify-center text-xs font-semibold flex-shrink-0"
+              :class="getOrgColor(orgInfo.name)"
+              aria-hidden="true"
+            >
+              {{ getOrgInitials(orgInfo.name) }}
+            </div>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="font-bold tracking-wide text-secondaryDark truncate">
+                {{ orgInfo?.name || t("app.name") }}
+              </span>
+              <span
+                class="text-secondary text-xs hidden sm:inline flex-shrink-0"
+              >
+                • {{ t("app.powered_by") }}
+              </span>
+            </div>
+          </router-link>
+
           <HoppButtonSecondary
             v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -354,6 +391,11 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { defineActionHandler, invokeAction } from "@helpers/actions"
+import {
+  getOrgInitials,
+  getOrgColor,
+  sanitizeLogoUrl,
+} from "@helpers/utils/organization"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import * as TE from "fp-ts/TaskEither"
@@ -390,6 +432,7 @@ const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
 
 const isUserAdmin = ref(false)
+const orgInfo = ref<{ name?: string; logo?: string | null } | null>(null)
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -398,18 +441,23 @@ const workspaceSelectorFlagEnabled = computed(
   () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
 )
 
-/**
- * Show the dashboard link if the user is not on the default cloud instance and is an admin
- */
+const showOrgLogo = computed(() => {
+  return platform.organization?.isDefaultCloudInstance === false
+})
+
 onMounted(async () => {
   const { organization } = platform
 
   if (!organization || organization.isDefaultCloudInstance) return
 
-  const orgInfo = await organization.getOrgInfo()
+  const fetchedOrgInfo = await organization.getOrgInfo()
 
-  if (orgInfo) {
-    isUserAdmin.value = !!orgInfo.isAdmin
+  if (fetchedOrgInfo) {
+    isUserAdmin.value = !!fetchedOrgInfo.isAdmin
+    orgInfo.value = {
+      name: fetchedOrgInfo.name,
+      logo: fetchedOrgInfo.logo || null,
+    }
   }
 })
 

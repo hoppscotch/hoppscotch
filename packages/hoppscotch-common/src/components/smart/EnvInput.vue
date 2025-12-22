@@ -658,6 +658,18 @@ const triggerTextSelection = () => {
     })
   })
 }
+
+/**
+ * Focuses the input editor
+ */
+const focusInput = () => {
+  view.value?.focus()
+}
+
+defineExpose({
+  focus: focusInput,
+})
+
 onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)

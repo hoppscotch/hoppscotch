@@ -235,8 +235,13 @@ export const resolvesEnvsInBody = (
 
   let bodyContent = ""
 
+  // WORKAROUND: body.body can be null when creating example responses programmatically
+  // (see PR #5652), despite the Zod schema requiring string with .catch(""). The ?? ""
+  // fallback guards against stripComments() crash when passed null/empty, since the
+  // underlying stripComments_("") from jsonc-parser returns null. This pattern is used
+  // consistently throughout this file (see also getFinalBodyFromRequest).
   if (isJSONContentType(body.contentType))
-    bodyContent = stripComments(body.body)
+    bodyContent = stripComments(body.body ?? "")
 
   if (body.contentType === "application/x-www-form-urlencoded") {
     bodyContent = body.body
@@ -338,7 +343,7 @@ export function getFinalBodyFromRequest(
   let bodyContent = request.body.body ?? ""
 
   if (isJSONContentType(request.body.contentType))
-    bodyContent = stripComments(request.body.body)
+    bodyContent = stripComments(request.body.body ?? "")
 
   // body can be null if the content-type is not set
   return parseBodyEnvVariables(bodyContent, envVariables)

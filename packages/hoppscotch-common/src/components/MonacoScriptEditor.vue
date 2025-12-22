@@ -99,6 +99,12 @@ const ensureCompilerOptions = (() => {
       command: null,
     })
 
+    // Add Cmd+Y redo keybinding for Monaco
+    monaco.editor.addKeybindingRule({
+      keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY,
+      command: "redo",
+    })
+
     applied = true
   }
 })()

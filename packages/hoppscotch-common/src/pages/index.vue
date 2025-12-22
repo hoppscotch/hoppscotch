@@ -448,6 +448,14 @@ defineActionHandler("tab.reopen-closed", () => {
   tabs.reopenClosedTab()
 })
 
+defineActionHandler("tab.mru-switch", () => {
+  tabs.goToMRUTab()
+})
+
+defineActionHandler("tab.mru-switch-reverse", () => {
+  tabs.goToPreviousMRUTab()
+})
+
 useService(RequestInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)

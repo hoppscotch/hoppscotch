@@ -106,10 +106,10 @@ const showIndicator = computed(() => {
   const { expectResults, tests, envDiff } = doc.value.testResults
   return Boolean(
     expectResults.length ||
-      tests.length ||
-      envDiff.selected.additions.length ||
-      envDiff.selected.updations.length ||
-      envDiff.global.updations.length
+    tests.length ||
+    envDiff.selected.additions.length ||
+    envDiff.selected.updations.length ||
+    envDiff.global.updations.length
   )
 })
 

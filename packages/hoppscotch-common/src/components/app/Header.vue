@@ -14,6 +14,7 @@
         }"
       >
         <div class="flex">
+          <!-- Instance Switcher (Desktop/On-prem) -->
           <tippy
             v-if="platform.instance?.instanceSwitchingEnabled"
             interactive
@@ -43,8 +44,8 @@
               </div>
             </template>
           </tippy>
+
           <HoppButtonSecondary
-            v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
             :label="t('app.name')"
             to="/"
@@ -363,22 +364,22 @@ import { useToast } from "~/composables/toast"
 import { GetMyTeamsQuery, TeamAccessRole } from "~/helpers/backend/graphql"
 import { deleteTeam as backendDeleteTeam } from "~/helpers/backend/mutations/Team"
 import { platform } from "~/platform"
+import { AdditionalLinksService } from "~/services/additionalLinks.service"
 import {
   BANNER_PRIORITY_LOW,
   BannerContent,
   BannerService,
 } from "~/services/banner.service"
 import { WorkspaceService } from "~/services/workspace.service"
+import IconChevronDown from "~icons/lucide/chevron-down"
 import IconDownload from "~icons/lucide/download"
+import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
 import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconSettings from "~icons/lucide/settings"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUser from "~icons/lucide/user"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUsers from "~icons/lucide/users"
-import IconChevronDown from "~icons/lucide/chevron-down"
-import IconLayoutDashboard from "~icons/lucide/layout-dashboard"
-import { AdditionalLinksService } from "~/services/additionalLinks.service"
 
 const t = useI18n()
 const toast = useToast()
@@ -390,6 +391,7 @@ const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
 
 const isUserAdmin = ref(false)
+const orgInfo = ref<{ name?: string; logo?: string | null } | null>(null)
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -398,18 +400,19 @@ const workspaceSelectorFlagEnabled = computed(
   () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
 )
 
-/**
- * Show the dashboard link if the user is not on the default cloud instance and is an admin
- */
 onMounted(async () => {
   const { organization } = platform
 
   if (!organization || organization.isDefaultCloudInstance) return
 
-  const orgInfo = await organization.getOrgInfo()
+  const fetchedOrgInfo = await organization.getOrgInfo()
 
-  if (orgInfo) {
-    isUserAdmin.value = !!orgInfo.isAdmin
+  if (fetchedOrgInfo) {
+    isUserAdmin.value = !!fetchedOrgInfo.isAdmin
+    orgInfo.value = {
+      name: fetchedOrgInfo.name,
+      logo: fetchedOrgInfo.logo || null,
+    }
   }
 })
 

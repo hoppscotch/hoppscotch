@@ -94,6 +94,10 @@ getDefaultProxyUrl().then((url) => {
   defaultProxyURL = url
 })
 
+if (import.meta.env.VITE_PROXY_URL) {
+  defaultProxyURL = import.meta.env.VITE_PROXY_URL
+}
+
 export const getDefaultSettings = (): SettingsDef => {
   return {
     syncCollections: true,

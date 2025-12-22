@@ -45,12 +45,19 @@ export class UserHistoryResolver {
       type: () => ReqType,
     })
     reqType: ReqType,
+    @Args({
+      name: 'resHeaders',
+      description: 'JSON string of the response headers',
+      nullable: true,
+    })
+    resHeaders?: string,
   ): Promise<UserHistory> {
     const createdHistory = await this.userHistoryService.createUserHistory(
       user.uid,
       reqData,
       resMetadata,
       reqType,
+      resHeaders,
     );
     if (E.isLeft(createdHistory)) throwErr(createdHistory.left);
     return createdHistory.right;

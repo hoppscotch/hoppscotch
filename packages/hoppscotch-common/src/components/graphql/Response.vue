@@ -7,12 +7,24 @@
       "
       class="flex flex-1 flex-col"
     >
-      <div
-        class="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between overflow-x-auto border-b border-dividerLight bg-primary pl-4"
+      <HoppSmartTabs
+        v-model="selectedTab"
+        styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-0"
       >
-        <label class="truncate font-semibold text-secondaryLight">
-          {{ t("response.title") }}
-        </label>
+        <HoppSmartTab
+          id="response"
+          :label="'Response Body'"
+          class="flex flex-1 flex-col"
+        />
+        <HoppSmartTab
+          id="headers"
+          :label="'Headers'"
+          class="flex flex-1 flex-col"
+        />
+      </HoppSmartTabs>
+      <div
+        class="z-10 flex h-10 flex-shrink-0 items-center justify-end overflow-x-auto border-b border-dividerLight bg-primary pr-4"
+      >
         <div class="flex items-center">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -72,8 +84,32 @@
           </tippy>
         </div>
       </div>
-      <div class="h-full relative overflow-auto flex flex-col flex-1">
+      <div
+        v-show="selectedTab === 'response'"
+        class="h-full relative overflow-auto flex flex-col flex-1"
+      >
         <div ref="schemaEditor" class="absolute inset-0 h-full"></div>
+      </div>
+      <div
+        v-show="selectedTab === 'headers'"
+        class="h-full relative overflow-auto flex flex-col flex-1"
+      >
+        <div class="text-secondaryLight">
+          <h3 class="font-semibold mb-4">Response Headers</h3>
+          <div class="space-y-2">
+            <div v-if="responseHeaders.length > 0">
+              <div
+                v-for="(header, index) in responseHeaders"
+                :key="index"
+                class="text-sm"
+              >
+                <span class="font-semibold">{{ header.key }}</span>
+                <span class="ml-2">{{ header.value }}</span>
+              </div>
+            </div>
+            <div v-else class="text-sm italic">No headers available</div>
+          </div>
+        </div>
       </div>
     </div>
     <component
@@ -120,6 +156,8 @@ const props = withDefaults(
   }
 )
 
+const selectedTab = ref("response")
+
 const responseString = computed(() => {
   const response = props.response
   if (response && response[0].type === "error") {
@@ -133,6 +171,22 @@ const responseString = computed(() => {
     return JSON.stringify(JSON.parse(response[0].data), null, 2)
   }
   return ""
+})
+
+const responseHeaders = computed(() => {
+  const response = props.response
+  if (
+    response &&
+    response.length === 1 &&
+    response[0].type === "response" &&
+    response[0].headers
+  ) {
+    return Object.entries(response[0].headers).map(([key, value]) => ({
+      key,
+      value,
+    }))
+  }
+  return []
 })
 
 const schemaEditor = ref<any | null>(null)

@@ -2218,7 +2218,7 @@
   },
   "organization_sidebar": {
     "instances": "Instances",
-    "hoppscotch": "Hoppscotch",
+    "hoppscotch_cloud": "Hoppscotch Cloud",
     "admin": "Admin",
     "no_orgs_title": "No organizations yet",
     "no_orgs_description": "Join or create an organization to collaborate with your team",

@@ -296,6 +296,12 @@ const stripModulePrefixForDisplay = (value?: string): string | undefined => {
     : value
 }
 
+/**
+ * Maximum selection size in characters for context menu display.
+ * Selections larger than this will not trigger the context menu to prevent performance issues.
+ */
+const MAX_CONTEXT_MENU_CHAR_COUNT = 100_000
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
@@ -357,6 +363,15 @@ export function useCodemirror(
         return
       }
 
+      // Skip context menu for very large selections (> 100,000 characters)
+      const selectionSize = to - from
+
+      if (selectionSize > MAX_CONTEXT_MENU_CHAR_COUNT) {
+        closeContextMenu()
+        return
+      }
+
+      // Only extract text if selection is reasonably sized
       const text = view.value?.state.doc.sliceString(from, to)
       const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
@@ -375,11 +390,15 @@ export function useCodemirror(
     }
   }
 
-  // Debounce to prevent double click from selecting the word
-  const debouncedTextSelection = (time: number) =>
-    useDebounceFn(() => {
-      handleTextSelection()
-    }, time)
+  // Create debounced functions once at composable level to prevent memory leaks
+  // useDebounceFn returns an object with the debounced function and a cancel method
+  const debouncedMouseupHandler = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
+
+  const debouncedKeyupHandler = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
 
   const initView = (el: any) => {
     if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
@@ -391,13 +410,14 @@ export function useCodemirror(
 
       ViewPlugin.fromClass(
         class {
-          update(update: ViewUpdate) {
-            // Only add event listeners if context menu is enabled in the editor
+          constructor() {
             if (options.contextMenuEnabled) {
-              el.addEventListener("mouseup", debouncedTextSelection(140))
-              el.addEventListener("keyup", debouncedTextSelection(140))
+              el.addEventListener("mouseup", debouncedMouseupHandler)
+              el.addEventListener("keyup", debouncedKeyupHandler)
             }
+          }
 
+          update(update: ViewUpdate) {
             if (options.onUpdate) {
               options.onUpdate(update)
             }
@@ -429,6 +449,19 @@ export function useCodemirror(
                   options.onChange(cachedValue.value)
                 }
               }
+            }
+          }
+
+          destroy() {
+            // Clean up event listeners and cancel pending debounced timers
+            if (options.contextMenuEnabled) {
+              el.removeEventListener("mouseup", debouncedMouseupHandler)
+              el.removeEventListener("keyup", debouncedKeyupHandler)
+
+              // Cancel any pending debounced calls to prevent memory leaks
+              // useDebounceFn may not expose cancel in types, but it exists at runtime
+              ;(debouncedMouseupHandler as any).cancel?.()
+              ;(debouncedKeyupHandler as any).cancel?.()
             }
           }
         }

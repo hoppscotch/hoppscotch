@@ -296,6 +296,12 @@ const stripModulePrefixForDisplay = (value?: string): string | undefined => {
     : value
 }
 
+/**
+ * Maximum selection size in characters for context menu display.
+ * Selections larger than this will not trigger the context menu to prevent performance issues.
+ */
+const MAX_CONTEXT_MENU_CHAR_COUNT = 100_000
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string | undefined>,
@@ -357,11 +363,10 @@ export function useCodemirror(
         return
       }
 
-      // Skip context menu for very large selections (> 100KB)
+      // Skip context menu for very large selections (> 100,000 characters)
       const selectionSize = to - from
-      const MAX_CONTEXT_MENU_SIZE = 100_000 // 100KB
 
-      if (selectionSize > MAX_CONTEXT_MENU_SIZE) {
+      if (selectionSize > MAX_CONTEXT_MENU_CHAR_COUNT) {
         closeContextMenu()
         return
       }
@@ -385,11 +390,15 @@ export function useCodemirror(
     }
   }
 
-  // Debounce to prevent double click from selecting the word
-  const debouncedTextSelection = (time: number) =>
-    useDebounceFn(() => {
-      handleTextSelection()
-    }, time)
+  // Create debounced functions once at composable level to prevent memory leaks
+  // useDebounceFn returns an object with the debounced function and a cancel method
+  const debouncedMouseupHandler = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
+
+  const debouncedKeyupHandler = useDebounceFn(() => {
+    handleTextSelection()
+  }, 140)
 
   const initView = (el: any) => {
     if (el) platform.ui?.onCodemirrorInstanceMount?.(el)
@@ -401,16 +410,10 @@ export function useCodemirror(
 
       ViewPlugin.fromClass(
         class {
-          private mouseupHandler: (() => void) | null = null
-          private keyupHandler: (() => void) | null = null
-
           constructor() {
             if (options.contextMenuEnabled) {
-              this.mouseupHandler = debouncedTextSelection(140)
-              this.keyupHandler = debouncedTextSelection(140)
-
-              el.addEventListener("mouseup", this.mouseupHandler)
-              el.addEventListener("keyup", this.keyupHandler)
+              el.addEventListener("mouseup", debouncedMouseupHandler)
+              el.addEventListener("keyup", debouncedKeyupHandler)
             }
           }
 
@@ -450,14 +453,15 @@ export function useCodemirror(
           }
 
           destroy() {
-            // Clean up event listeners when plugin is destroyed
-            if (
-              options.contextMenuEnabled &&
-              this.mouseupHandler &&
-              this.keyupHandler
-            ) {
-              el.removeEventListener("mouseup", this.mouseupHandler)
-              el.removeEventListener("keyup", this.keyupHandler)
+            // Clean up event listeners and cancel pending debounced timers
+            if (options.contextMenuEnabled) {
+              el.removeEventListener("mouseup", debouncedMouseupHandler)
+              el.removeEventListener("keyup", debouncedKeyupHandler)
+
+              // Cancel any pending debounced calls to prevent memory leaks
+              // useDebounceFn may not expose cancel in types, but it exists at runtime
+              ;(debouncedMouseupHandler as any).cancel?.()
+              ;(debouncedKeyupHandler as any).cancel?.()
             }
           }
         }

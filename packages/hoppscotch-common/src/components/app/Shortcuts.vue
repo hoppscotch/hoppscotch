@@ -1,5 +1,10 @@
 <template>
-  <HoppSmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
+  <HoppSmartSlideOver
+    :show="show"
+    :title="t('app.shortcuts')"
+    data-shortcuts-flyout
+    @close="close()"
+  >
     <template #content>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 flex-col overflow-x-auto bg-primary"

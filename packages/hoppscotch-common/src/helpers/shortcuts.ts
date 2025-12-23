@@ -33,6 +33,21 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       keys: ["ESC"],
       section: t("shortcut.general.title"),
     },
+    {
+      label: t("shortcut.general.undo"),
+      keys: [getPlatformSpecialKey(), "Z"],
+      section: t("shortcut.general.title"),
+    },
+    {
+      label: t("shortcut.general.redo"),
+      keys: [getPlatformSpecialKey(), "Y"],
+      section: t("shortcut.general.title"),
+    },
+    {
+      label: t("shortcut.general.comment_uncomment"),
+      keys: [getPlatformSpecialKey(), "/"],
+      section: t("shortcut.general.title"),
+    },
 
     // Request
     {
@@ -148,8 +163,22 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
     },
   ]
 
+  // Web-only shortcuts
+  const webShortcuts: ShortcutDef[] = [
+    {
+      label: t("shortcut.general.close_tab"),
+      keys: [getPlatformSpecialKey(), "D"],
+      section: t("shortcut.general.title"),
+    },
+  ]
+
   // Desktop-only shortcuts
   const desktopShortcuts: ShortcutDef[] = [
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "U"],
+      label: t("shortcut.request.focus_url"),
+      section: t("shortcut.request.title"),
+    },
     {
       keys: [getPlatformSpecialKey(), "T"],
       label: t("shortcut.tabs.new_tab"),
@@ -180,8 +209,21 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       label: t("shortcut.tabs.last_tab"),
       section: t("shortcut.tabs.title"),
     },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "]"],
+      label: t("shortcut.tabs.mru_switch"),
+      section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "["],
+      label: t("shortcut.tabs.mru_switch_reverse"),
+      section: t("shortcut.tabs.title"),
+    },
   ]
 
-  // Return base shortcuts + desktop shortcuts only if in desktop mode
-  return isDesktop ? [...baseShortcuts, ...desktopShortcuts] : baseShortcuts
+  // Return base shortcuts + platform-specific shortcuts
+  if (isDesktop) {
+    return [...baseShortcuts, ...desktopShortcuts]
+  }
+  return [...baseShortcuts, ...webShortcuts]
 }

@@ -103,6 +103,7 @@
                 @keyup.delete="deleteAction?.$el.click()"
                 @keyup.s="shareAction?.$el.click()"
                 @keyup.i="documentationAction?.$el.click()"
+                @keyup.a="addExampleAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <HoppSmartItem
@@ -128,6 +129,19 @@
                   @click="
                     () => {
                       emit('duplicate-request')
+                    }
+                  "
+                />
+                <HoppSmartItem
+                  v-if="!hasNoTeamAccess"
+                  ref="addExampleAction"
+                  :icon="IconPlusCircle"
+                  :label="t('action.add_example')"
+                  :shortcut="['A']"
+                  @click="
+                    () => {
+                      emit('add-example')
+                      hide()
                     }
                   "
                 />
@@ -230,6 +244,7 @@ import IconShare2 from "~icons/lucide/share-2"
 import IconArrowRight from "~icons/lucide/chevron-right"
 import IconArrowDown from "~icons/lucide/chevron-down"
 import IconBook from "~icons/lucide/book"
+import IconPlusCircle from "~icons/lucide/plus-circle"
 import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
@@ -319,6 +334,7 @@ const emit = defineEmits<{
   (event: "remove-request"): void
   (event: "select-request"): void
   (event: "share-request"): void
+  (event: "add-example"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
   (event: "update-last-request-order", payload: DataTransfer): void
@@ -335,6 +351,7 @@ const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
 const shareAction = ref<HTMLButtonElement | null>(null)
 const documentationAction = ref<HTMLButtonElement | null>(null)
+const addExampleAction = ref<HTMLButtonElement | null>(null)
 
 const { isDocumentationVisible } = useDocumentationVisibility()
 

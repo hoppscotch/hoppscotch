@@ -258,8 +258,8 @@ const getHoppResponses = (
 }
 
 type PMRequestAuthDef<
-  AuthType extends
-    RequestAuthDefinition["type"] = RequestAuthDefinition["type"],
+  AuthType extends RequestAuthDefinition["type"] =
+    RequestAuthDefinition["type"],
 > = AuthType extends RequestAuthDefinition["type"] & string
   ? // eslint-disable-next-line no-unused-vars
     { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
@@ -299,7 +299,7 @@ const getHoppReqAuth = (
         getVariableValue(auth.apikey, "value") ?? ""
       ),
       addTo:
-        (getVariableValue(auth.apikey, "in") ?? "query") === "query"
+        getVariableValue(auth.apikey, "in") === "query"
           ? "QUERY_PARAMS"
           : "HEADERS",
     }

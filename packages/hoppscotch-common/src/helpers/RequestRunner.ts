@@ -757,6 +757,8 @@ const getCookieJarEntries = () => {
  * Run the test runner request
  * @param request The request to run
  * @param persistEnv Whether to persist the environment variables after running the test script
+ * @param inheritedVariables The inherited collection variables
+ * @param iterationData The iteration data from dataset for data-driven testing
  * @param inheritedVariables The inherited collection variables from the collection/folder
  * @param initialEnvironmentState The initial environment state before collection run execution
  * @returns The response and the test result
@@ -766,6 +768,7 @@ export async function runTestRunnerRequest(
   request: HoppRESTRequest,
   persistEnv = true,
   inheritedVariables: HoppCollectionVariable[] = [],
+  iterationData?: Record<string, any>
   initialEnvironmentState: InitialEnvironmentState
 ): Promise<
   | E.Left<"script_fail">
@@ -778,6 +781,29 @@ export async function runTestRunnerRequest(
 > {
   const cookieJarEntries = getCookieJarEntries()
 
+  // Get combined environment variables
+  const envVariables = getCombinedEnvVariables()
+
+  // Inject iteration data into environment variables if available
+  const iterationDataVars: Environment["variables"] = iterationData
+    ? Object.keys(iterationData).map((key) => ({
+        key,
+        value: String(iterationData[key]),
+        secret: false,
+        initialValue: String(iterationData[key]),
+        currentValue: String(iterationData[key]),
+      }))
+    : []
+
+  const enrichedEnvs = {
+    global: envVariables.global,
+    selected: envVariables.selected,
+    temp: [...envVariables.temp, ...iterationDataVars],
+  }
+
+  return delegatePreRequestScriptRunner(
+    request,
+    enrichedEnvs,
   const {
     initialGlobalEnvs,
     initialEnvID,
@@ -819,20 +845,28 @@ export async function runTestRunnerRequest(
       preRequestScriptResult.right.updatedRequest
     )
 
+    // Combine all environment variables including iteration data for effective request resolution
+    // The iteration data is already in enrichedEnvs.temp that was passed to pre-request script
+    const allEnvVariables = filterNonEmptyEnvironmentVariables(
+      combineEnvVariables({
+        environments: {
+          global: preRequestScriptResult.right.updatedEnvs.global,
+          selected: preRequestScriptResult.right.updatedEnvs.selected,
+          temp: [
+            ...preRequestScriptResult.right.updatedEnvs.temp, // Use updated temp variables from pre-request script
+            ...(!persistEnv ? getTemporaryVariables() : []), // Add temporary variables if not persisting
+          ],
+        },
+        requestVariables: finalRequestVariables,
+        collectionVariables: inheritedVariables,
+      })
+    )
+
     const effectiveRequest = await getEffectiveRESTRequest(finalRequest, {
       id: "env-id",
       v: 2,
       name: "Env",
-      variables: filterNonEmptyEnvironmentVariables(
-        combineEnvVariables({
-          environments: {
-            ...preRequestScriptResult.right.updatedEnvs,
-            temp: !persistEnv ? getTemporaryVariables() : [],
-          },
-          requestVariables: finalRequestVariables,
-          collectionVariables: inheritedVariables,
-        })
-      ),
+      variables: allEnvVariables,
     })
 
     const [stream] = createRESTNetworkRequestStream(effectiveRequest)

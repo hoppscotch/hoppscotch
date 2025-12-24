@@ -86,7 +86,75 @@ impl UriHandler {
                     "Failed to retrieve file content"
                 );
 
-                Response::builder().status(404).body(Vec::new())
+                // Return a user-friendly error page instead of an empty response
+                // This prevents the white screen issue when cache lookup fails
+                let error_html = format!(
+                    r#"<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Loading Error</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            color: #eee;
+        }}
+        .container {{
+            text-align: center;
+            padding: 40px;
+        }}
+        h1 {{ color: #ff6b6b; margin-bottom: 16px; }}
+        p {{ color: #aaa; margin-bottom: 24px; }}
+        button {{
+            background: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }}
+        button:hover {{ background: #45b7aa; }}
+        .error-details {{
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #888;
+            word-break: break-all;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Failed to Load Content</h1>
+        <p>The application encountered an error while loading. Please try restarting.</p>
+        <button onclick="window.location.reload()">Reload</button>
+        <div class="error-details">
+            <strong>Technical Details:</strong><br>
+            Host: {host}<br>
+            Path: {path}<br>
+            Error: {error}
+        </div>
+    </div>
+</body>
+</html>"#,
+                    host = host,
+                    path = if path.is_empty() { "index.html" } else { path },
+                    error = e
+                );
+
+                Response::builder()
+                    .status(500)
+                    .header("content-type", "text/html; charset=utf-8")
+                    .body(error_html.into_bytes())
             }
         }
         .map_err(|e| {

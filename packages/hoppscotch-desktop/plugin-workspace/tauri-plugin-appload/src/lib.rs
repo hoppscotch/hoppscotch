@@ -150,7 +150,64 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
 
             tracing::info!("Got URI handler");
 
-            tauri::async_runtime::block_on(uri_handler.handle(uri)).unwrap()
+            // Handle errors gracefully instead of panicking with unwrap()
+            // This prevents white screen issues when URI handling fails
+            match tauri::async_runtime::block_on(uri_handler.handle(uri)) {
+                Ok(response) => response,
+                Err(e) => {
+                    tracing::error!(error = %e, "URI handler failed, returning fallback error page");
+
+                    let error_html = format!(
+                        r#"<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Application Error</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            color: #eee;
+        }}
+        .container {{ text-align: center; padding: 40px; }}
+        h1 {{ color: #ff6b6b; }}
+        p {{ color: #aaa; }}
+        button {{
+            background: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Application Error</h1>
+        <p>An unexpected error occurred. Please restart the application.</p>
+        <button onclick="window.location.reload()">Try Again</button>
+        <p style="font-size: 12px; margin-top: 20px; color: #666;">Error: {}</p>
+    </div>
+</body>
+</html>"#,
+                        e
+                    );
+
+                    tauri::http::Response::builder()
+                        .status(500)
+                        .header("content-type", "text/html; charset=utf-8")
+                        .body(error_html.into_bytes())
+                        .expect("Failed to build fallback error response")
+                }
+            }
         })
         .build()
 }

@@ -86,6 +86,19 @@ impl UriHandler {
                     "Failed to retrieve file content"
                 );
 
+                // Escape HTML special characters to prevent XSS
+                let escape_html = |s: &str| -> String {
+                    s.replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;")
+                        .replace('"', "&quot;")
+                        .replace('\'', "&#39;")
+                };
+
+                let escaped_host = escape_html(host);
+                let escaped_path = escape_html(if path.is_empty() { "index.html" } else { path });
+                let escaped_error = escape_html(&e.to_string());
+
                 // Return a user-friendly error page instead of an empty response
                 // This prevents the white screen issue when cache lookup fails
                 let error_html = format!(
@@ -146,9 +159,9 @@ impl UriHandler {
     </div>
 </body>
 </html>"#,
-                    host = host,
-                    path = if path.is_empty() { "index.html" } else { path },
-                    error = e
+                    host = escaped_host,
+                    path = escaped_path,
+                    error = escaped_error
                 );
 
                 Response::builder()

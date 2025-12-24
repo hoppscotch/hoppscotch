@@ -157,6 +157,14 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
                 Err(e) => {
                     tracing::error!(error = %e, "URI handler failed, returning fallback error page");
 
+                    // Escape HTML special characters to prevent XSS
+                    let escaped_error = e.to_string()
+                        .replace('&', "&amp;")
+                        .replace('<', "&lt;")
+                        .replace('>', "&gt;")
+                        .replace('"', "&quot;")
+                        .replace('\'', "&#39;");
+
                     let error_html = format!(
                         r#"<!DOCTYPE html>
 <html>
@@ -198,7 +206,7 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
     </div>
 </body>
 </html>"#,
-                        e
+                        escaped_error
                     );
 
                     tauri::http::Response::builder()

@@ -204,7 +204,26 @@ export class AuthController {
     @GqlUser() user: AuthUser,
     @Query('redirect_uri') redirectUri: string,
   ) {
-    if (!redirectUri || !redirectUri.startsWith('http://localhost')) {
+    // FIX: Use proper URL parsing to prevent Open Redirect attacks (CWE-601)
+    // Previous vulnerable code used: redirectUri.startsWith('http://localhost')
+    // This was bypassable with URLs like http://localhost.evil.com
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(redirectUri || '');
+    } catch {
+      throwHTTPErr({
+        message: 'Invalid desktop callback URL',
+        statusCode: 400,
+      });
+      return; // Type narrowing for TypeScript
+    }
+
+    // FIX: Strictly validate hostname is exactly 'localhost' or loopback addresses
+    const validHosts = ['localhost', '127.0.0.1', '[::1]'];
+    if (
+      parsedUrl.protocol !== 'http:' ||
+      !validHosts.includes(parsedUrl.hostname)
+    ) {
       throwHTTPErr({
         message: 'Invalid desktop callback URL',
         statusCode: 400,

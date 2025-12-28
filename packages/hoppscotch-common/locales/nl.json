@@ -458,7 +458,7 @@
     "postman_environment": "Postman Omgeving",
     "postman_environment_description": "Importeer Postman Omgeving van een JSON bestand",
     "title": "Importeren",
-    "file_size_limit_exceeded_warning_multiple_files": "De geselecteerde bestanden overschrijden de aanbevolen limiet van 10 MB. Alleen de eerste {bestanden} die zijn geselecteerd,worden geïmporteerd.",
+    "file_size_limit_exceeded_warning_multiple_files": "De geselecteerde bestanden overschrijden de aanbevolen limiet van 10 MB. Alleen de eerste {files} die zijn geselecteerd, worden geïmporteerd.",
     "file_size_limit_exceeded_warning_single_file": "Het momenteel geselecteerde bestand overschrijdt de aanbevolen limiet van 10 MB. Selecteer een ander bestand.",
     "success": "Geïmporteerd met succes"
   },

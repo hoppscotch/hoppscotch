@@ -332,7 +332,7 @@
     "empty_profile_name": "Profielnaam mag niet leeg zijn",
     "empty_req_name": "Lege verzoeksnaam",
     "f12_details": "(F12 voor details)",
-    "gql_prettify_invalid_query": "Kon een onmogelijke zoekopdracht niet mooier maken,syntaxisfouten in de query oplossen en opnieuw proberen",
+    "gql_prettify_invalid_query": "Kon een ongeldige zoekopdracht niet mooier maken, syntaxisfouten in de query oplossen en opnieuw proberen",
     "incomplete_config_urls": "Onvolledige configuratie-URL's",
     "incorrect_email": "Onjuist e-mailadres",
     "invalid_link": "Ongeldige link",

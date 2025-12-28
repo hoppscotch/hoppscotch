@@ -339,7 +339,7 @@
     "invalid_link_description": "De link waarop u hebt geklikt is ongeldig of verlopen.",
     "invalid_embed_link": "De insluiting bestaat niet of is ongeldig.",
     "json_parsing_failed": "Ongeldige JSON",
-    "json_prettify_invalid_body": "Kon een behouden hoofdtekst niet mooier maken,json-syntaxisfouten oplossen en opnieuw proberen",
+    "json_prettify_invalid_body": "Kon een ongeldige hoofdtekst niet mooier maken, json-syntaxisfouten oplossen en opnieuw proberen",
     "network_error": "Er lijkt een netwerkfout te zijn opgetreden. Probeer het alstublieft opnieuw.",
     "network_fail": "Kan verzoek niet versturen",
     "no_collections_to_export": "Geen collecties om te exporteren. Maak een collectie aan om te beginnen.",

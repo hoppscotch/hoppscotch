@@ -147,7 +147,7 @@
       "grant_type_auth_code": "Autorisatiecode",
       "token_fetched_successfully": "Token succesvol opgehaald",
       "token_fetch_failed": "Het ophalen van het token is mislukt",
-      "validation_failed": "Validatie mislukt,controleer de formuliervelden",
+      "validation_failed": "Validatie mislukt, controleer de formuliervelden",
       "label_authorization_endpoint": "Autorisatie-eindpunt",
       "label_client_id": "Client-ID",
       "label_client_secret": "Clientgeheim",

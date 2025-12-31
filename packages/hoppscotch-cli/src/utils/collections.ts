@@ -167,9 +167,16 @@ const processCollection = async (
       updatedFolder.headers.push(...filteredHeaders);
     }
 
-    if (updatedFolder.variables?.length) {
-      // Filter out variable entries present in the parent collection under the same name
-      // This ensures the folder variables take precedence over the collection variables
+    // Inherit collection variables into folder
+    // Folder variables take precedence over collection variables (same key = folder wins)
+    if (collection.variables?.length) {
+      // Ensure folder has a variables array
+      if (!updatedFolder.variables) {
+        updatedFolder.variables = [];
+      }
+
+      // Filter out collection variables that have the same key as folder variables
+      // This ensures folder variables take precedence
       const filteredVariables = collection.variables.filter(
         (collectionVariableEntries) => {
           return !updatedFolder.variables.some(
@@ -178,6 +185,7 @@ const processCollection = async (
           );
         }
       );
+
       updatedFolder.variables.push(...filteredVariables);
     }
 

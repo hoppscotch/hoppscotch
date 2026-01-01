@@ -160,6 +160,16 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.error).toBeNull();
     });
 
+    test("Successfully inherits collection variables into folders without their own variables", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "collection-with-variables.json",
+        "collection"
+      )}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+      expect(result.error).toBeNull();
+    });
+
     test("Persists environment variables set in the pre-request script for consumption in the test script", async () => {
       const args = `test ${getTestJsonFilePath(
         "pre-req-script-env-var-persistence-coll.json",

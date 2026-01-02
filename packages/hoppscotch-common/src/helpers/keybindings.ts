@@ -1,7 +1,13 @@
 import { onBeforeUnmount, onMounted } from "vue"
 import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
-import { isCodeMirrorEditor, isDOMElement, isTypableElement } from "./utils/dom"
+import {
+  isCodeMirrorEditor,
+  isDOMElement,
+  isInShortcutsFlyout,
+  isMonacoEditor,
+  isTypableElement,
+} from "./utils/dom"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
@@ -38,6 +44,7 @@ type Key =
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
   | "right" | "/" | "?" | "." | "enter" | "tab" | "delete" | "backspace"
+  | "[" | "]"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -63,8 +70,9 @@ const baseBindings: {
   "alt-u": "request.method.put",
   "alt-x": "request.method.delete",
   "ctrl-k": "modals.search.toggle",
-  "ctrl-/": "flyouts.keybinds.toggle",
+  "ctrl-/": "editor.comment-toggle",
   "shift-/": "modals.support.toggle",
+  "ctrl-shift-/": "flyouts.keybinds.toggle",
   "ctrl-m": "modals.share.toggle",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
@@ -77,8 +85,17 @@ const baseBindings: {
   "ctrl-.": "response.copy",
   "ctrl-e": "response.save-as-example",
   "ctrl-shift-l": "editor.format",
+  "ctrl-z": "editor.undo",
+  "ctrl-y": "editor.redo",
   "ctrl-delete": "response.erase",
   "ctrl-backspace": "response.erase",
+}
+
+// Web-only bindings
+const webBindings: {
+  [_ in ShortcutKey]?: HoppActionWithOptionalArgs
+} = {
+  "ctrl-d": "tab.close-current",
 }
 
 // Desktop-only bindings
@@ -92,6 +109,9 @@ const desktopBindings: {
   "ctrl-alt-0": "tab.switch-to-last",
   "ctrl-alt-9": "tab.switch-to-first",
   "ctrl-q": "app.quit",
+  "ctrl-alt-u": "request.focus-url",
+  "ctrl-alt-]": "tab.mru-switch",
+  "ctrl-alt-[": "tab.mru-switch-reverse",
 }
 
 /**
@@ -107,7 +127,10 @@ function getActiveBindings(): typeof baseBindings {
     }
   }
 
-  return baseBindings
+  return {
+    ...baseBindings,
+    ...webBindings,
+  }
 }
 
 export const bindings = getActiveBindings()
@@ -119,7 +142,8 @@ export const bindings = getActiveBindings()
  */
 export function hookKeybindingsListener() {
   onMounted(async () => {
-    document.addEventListener("keydown", handleKeyDown)
+    // Use capture phase to intercept events before browser handles them
+    document.addEventListener("keydown", handleKeyDown, true)
 
     // Listen for Tauri events (desktop only)
     if (getKernelMode() === "desktop") {
@@ -138,7 +162,7 @@ export function hookKeybindingsListener() {
   })
 
   onBeforeUnmount(() => {
-    document.removeEventListener("keydown", handleKeyDown)
+    document.removeEventListener("keydown", handleKeyDown, true)
 
     if (unlistenTauriEvent) {
       unlistenTauriEvent()
@@ -156,6 +180,57 @@ function handleKeyDown(ev: KeyboardEvent) {
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[binding]
+
+  // Special handling for Ctrl+D (tab close for web browsers)
+  if (binding === "ctrl-d" && boundAction) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    ev.stopImmediatePropagation()
+
+    if (boundAction) {
+      invokeAction(boundAction, undefined, "keypress")
+    }
+    return
+  }
+
+  // Special handling for undo/redo - let CodeMirror and Monaco handle these in editors
+  if (binding === "ctrl-z" || binding === "ctrl-y") {
+    const target = ev.target
+    if (
+      isDOMElement(target) &&
+      (isCodeMirrorEditor(target) ||
+        isMonacoEditor(target) ||
+        isTypableElement(target))
+    ) {
+      return
+    }
+  }
+
+  // Special handling for comment toggle - let CodeMirror and Monaco handle this in editors
+  if (binding === "ctrl-/") {
+    const target = ev.target
+
+    if (!isDOMElement(target)) return
+
+    // Let editors handle it normally
+    if (isCodeMirrorEditor(target) || isMonacoEditor(target)) return
+
+    // If inside shortcuts flyout, always toggle it (even if focused on search input)
+    // If not in editor or input, fall back to keybinds flyout
+    const shouldToggle =
+      isInShortcutsFlyout(target) || !isTypableElement(target)
+
+    if (shouldToggle) {
+      invokeAction("flyouts.keybinds.toggle", undefined, "keypress")
+      ev.preventDefault()
+      return
+    }
+
+    // If in a normal input field, let browser handle it
+    return
+  }
+
+  // If no action is bound, do nothing
   if (!boundAction) return
 
   ev.preventDefault()
@@ -196,11 +271,11 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
       return null
     }
 
-    // Restrict alt+up and alt+down when the target is a codemirror editor
+    // Restrict alt+up and alt+down when the target is a CodeMirror or Monaco editor
     if (
       modifierKey === "alt" &&
       (key === "up" || key === "down") &&
-      isCodeMirrorEditor(target)
+      (isCodeMirrorEditor(target) || isMonacoEditor(target))
     ) {
       return null
     }
@@ -242,6 +317,8 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check if slash, period or enter
   if (key === "/" || key === "." || key === "enter") return key
+
+  if (key === "[" || key === "]") return key
 
   // If no other cases match, this is not a valid key
   return null

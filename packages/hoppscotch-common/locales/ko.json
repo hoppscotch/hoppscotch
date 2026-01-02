@@ -76,11 +76,11 @@
     "help": "도움말, 피드백 및 문서",
     "home": "홈",
     "invite": "초대",
-    "invite_description": "호프스카치에서는 API를 생성하고 관리하기 위한 간단하고 직관적인 인터페이스를 설계했습니다. 호프스카치는 API를 빌드, 테스트, 문서화, 공유하는 데 도움을 주는 도구입니다.",
+    "invite_description": "Hoppscotch에서는 API를 생성하고 관리하기 위한 간단하고 직관적인 인터페이스를 설계했습니다. Hoppscotch는 API를 빌드, 테스트, 문서화, 공유하는 데 도움을 주는 도구입니다.",
     "invite_your_friends": "친구 초대",
     "join_discord_community": "Discord 커뮤니티에 가입하세요.",
     "keyboard_shortcuts": "키보드 단축키",
-    "name": "호프스카치",
+    "name": "Hoppscotch",
     "new_version_found": "새 버전을 찾았습니다. 업데이트하려면 새로고침하세요.",
     "open_in_hoppscotch": "Open in Hoppscotch",
     "options": "Options",
@@ -116,7 +116,7 @@
     "logged_out": "로그아웃",
     "login": "로그인",
     "login_success": "로그인 성공",
-    "login_to_hoppscotch": "홉스카치에 로그인",
+    "login_to_hoppscotch": "Hoppscotch에 로그인",
     "logout": "로그아웃",
     "re_enter_email": "이메일을 다시 입력하세요",
     "send_magic_link": "매직 링크 보내기",
@@ -249,7 +249,7 @@
   },
   "documentation": {
     "generate": "문서 생성",
-    "generate_message": "호프스카치 모음집을 임포트하여 API 문서를 생성합니다."
+    "generate_message": "Hoppscotch 모음집을 임포트하여 API 문서를 생성합니다."
   },
   "empty": {
     "authorization": "이 요청은 인증을 사용하지 않습니다.",
@@ -436,8 +436,8 @@
     "from_gist_description": "Gist URL에서 가져오기",
     "from_insomnia": "Insomnia 형식 가져오기",
     "from_insomnia_description": "Insomnia 모음집을 가져옵니다.",
-    "from_json": "Import from 호프스카치",
-    "from_json_description": "호프스카치 모음집 파일을 가져옵니다.",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Hoppscotch 모음집 파일을 가져옵니다.",
     "from_my_collections": "내 모음집에서 가져오기",
     "from_my_collections_description": "내 모음집 파일을 가져옵니다.",
     "from_openapi": "OpenAPI에서 가져오기",
@@ -454,7 +454,7 @@
     "import_from_url_invalid_type": "지원되지 않는 타입입니다. 지원되는 타입은 'hoppscotch', 'openapi', 'postman', 'insomnia' 입니다.",
     "import_from_url_success": "모음집을 성공적으로 가져왔습니다.",
     "insomnia_environment_description": "Import Insomnia Environment from a JSON/YAML file",
-    "json_description": "호프스카치 모음집 JSON 파일을 가져옵니다.",
+    "json_description": "Hoppscotch 모음집 JSON 파일을 가져옵니다.",
     "postman_environment": "Postman Environment",
     "postman_environment_description": "Import Postman Environment from a JSON file",
     "title": "가져오기",
@@ -665,7 +665,7 @@
     "interceptor_description": "애플리케이션과 API 간의 미들웨어.",
     "language": "언어",
     "light_mode": "밝은 테마",
-    "official_proxy_hosting": "공식 프록시는 호프스카치에서 호스팅합니다.",
+    "official_proxy_hosting": "공식 프록시는 Hoppscotch에서 호스팅합니다.",
     "profile": "프로필",
     "profile_description": "프로필을 업데이트합니다",
     "profile_email": "이메일 주소",
@@ -728,7 +728,7 @@
       "title": "단축키"
     },
     "miscellaneous": {
-      "invite": "사람들을 호프스카치에 초대하기",
+      "invite": "사람들을 Hoppscotch에 초대하기",
       "title": "기타"
     },
     "navigation": {
@@ -929,7 +929,7 @@
     "changelog": "최신 릴리스에 대해 자세히 알아보기",
     "chat": "질문이 있다면 우리와 채팅하세요!",
     "community": "질문하고 다른 사람을 돕습니다. ",
-    "documentation": "호프스카치에 대해 자세히 알아보기",
+    "documentation": "Hoppscotch에 대해 자세히 알아보기",
     "forum": "질문하고 답변 받기",
     "github": "Follow us on Github",
     "shortcuts": "더 빠르게 앱 탐색",

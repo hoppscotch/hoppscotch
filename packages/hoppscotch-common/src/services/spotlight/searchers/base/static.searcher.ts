@@ -52,8 +52,8 @@ export type StaticSpotlightSearcherOptions<
  * that can optionally be toggled against (via the `excludeFromSearch` property in the Doc)
  */
 export abstract class StaticSpotlightSearcherService<
-    Doc extends object & { excludeFromSearch?: boolean },
-  >
+  Doc extends object & { excludeFromSearch?: boolean },
+>
   extends Service
   implements SpotlightSearcher
 {

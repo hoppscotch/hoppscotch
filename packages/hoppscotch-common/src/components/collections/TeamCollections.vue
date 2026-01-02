@@ -398,6 +398,14 @@
                 request: node.data.data.data.request,
               })
             "
+            @add-example="
+              node.data.type === 'requests' &&
+              emit('add-example', {
+                folderPath: getPath(node.id),
+                request: node.data.data.data.request,
+                requestIndex: node.data.data.data.id,
+              })
+            "
             @drag-request="
               dragRequest($event, {
                 folderPath: node.data.data.parentIndex,
@@ -703,6 +711,14 @@ const emit = defineEmits<{
     event: "share-request",
     payload: {
       request: HoppRESTRequest
+    }
+  ): void
+  (
+    event: "add-example",
+    payload: {
+      folderPath: string
+      request: HoppRESTRequest
+      requestIndex: string
     }
   ): void
   (

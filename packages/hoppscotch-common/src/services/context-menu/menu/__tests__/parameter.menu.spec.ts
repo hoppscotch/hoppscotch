@@ -25,61 +25,49 @@ describe("ParameterMenuService", () => {
 
     expect(registerContextMenuFn).toHaveBeenCalledOnce()
     expect(registerContextMenuFn).toHaveBeenCalledWith(parameter)
+  })
 
-    describe("getMenuFor", () => {
-      it("validating if the text passes the regex and return the menu", () => {
-        const container = new TestContainer()
-        const parameter = container.bind(ParameterMenuService)
+  describe("getMenuFor", () => {
+    it("validating if the text passes the regex and return the menu", () => {
+      const container = new TestContainer()
+      const parameter = container.bind(ParameterMenuService)
 
-        const test = "https://hoppscotch.io?id=some-text"
-        const result = parameter.getMenuFor(test)
+      const test = "https://hoppscotch.io?id=some-text"
+      const result = parameter.getMenuFor(test)
 
-        if (test.match(urlAndParameterRegex)) {
-          expect(result.results).toContainEqual(
-            expect.objectContaining({ id: "parameter" })
-          )
-        } else {
-          expect(result.results).not.toContainEqual(
-            expect.objectContaining({ id: "parameter" })
-          )
-        }
-      })
+      if (test.match(urlAndParameterRegex)) {
+        expect(result.results).toContainEqual(
+          expect.objectContaining({ id: "parameter" })
+        )
+      } else {
+        expect(result.results).not.toContainEqual(
+          expect.objectContaining({ id: "parameter" })
+        )
+      }
+    })
 
-      it("should call the addParameter function when action is called", () => {
-        const addParameterFn = vi.fn()
+    it("should return a result with an action when text contains parameters", () => {
+      const container = new TestContainer()
+      const parameter = container.bind(ParameterMenuService)
 
-        const container = new TestContainer()
-        const environment = container.bind(ParameterMenuService)
+      const test = "https://hoppscotch.io?id=some-text"
 
-        const test = "https://hoppscotch.io"
+      const result = parameter.getMenuFor(test)
 
-        const result = environment.getMenuFor(test)
+      expect(result.results).toHaveLength(1)
+      expect(result.results[0]).toHaveProperty("action")
+      expect(typeof result.results[0].action).toBe("function")
+    })
 
-        const action = result.results[0].action
+    it("should return empty results when text does not contain parameters", () => {
+      const container = new TestContainer()
+      const parameter = container.bind(ParameterMenuService)
 
-        action()
+      const test = "https://hoppscotch.io"
 
-        expect(addParameterFn).toHaveBeenCalledOnce()
-        expect(addParameterFn).toHaveBeenCalledWith(action)
-      })
+      const result = parameter.getMenuFor(test)
 
-      it("should call the extractParams function when addParameter function is called", () => {
-        const extractParamsFn = vi.fn()
-
-        const container = new TestContainer()
-        const environment = container.bind(ParameterMenuService)
-
-        const test = "https://hoppscotch.io"
-
-        const result = environment.getMenuFor(test)
-
-        const action = result.results[0].action
-
-        action()
-
-        expect(extractParamsFn).toHaveBeenCalledOnce()
-        expect(extractParamsFn).toHaveBeenCalledWith(action)
-      })
+      expect(result.results).toHaveLength(0)
     })
   })
 })

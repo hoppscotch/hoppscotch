@@ -16,6 +16,7 @@ const postmanEnvSchema = z.object({
       type: z.string(),
     })
   ),
+  _postman_variable_scope: z.enum(["environment", "globals"]).optional(),
 })
 
 type PostmanEnv = z.infer<typeof postmanEnvSchema>
@@ -43,25 +44,35 @@ export const postmanEnvImporter = (contents: string[]) => {
   })
 
   const validationResult = z.array(postmanEnvSchema).safeParse(parsedValues)
-
   if (!validationResult.success) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  // Convert `values` to `variables` to match the format expected by the system
-  const environments: Environment[] = validationResult.data.map(
-    ({ name, values }) => ({
-      id: uniqueID(),
-      v: EnvironmentSchemaVersion,
-      name,
-      variables: values.map(({ key, value, type }) => ({
-        key,
-        initialValue: value,
-        currentValue: value,
-        secret: type === "secret",
-      })),
-    })
+  const { globalEnvs, otherEnvs } = validationResult.data.reduce(
+    (acc, entry) => {
+      const env: Environment = {
+        id: uniqueID(),
+        v: EnvironmentSchemaVersion,
+        name: entry.name,
+        variables: entry.values.map(({ key, value, type }) => ({
+          key,
+          initialValue: value,
+          currentValue: value,
+          secret: type === "secret",
+        })),
+      }
+
+      // Save it as global or normal environment
+      if (entry._postman_variable_scope === "globals") {
+        acc.globalEnvs.push(env)
+      } else {
+        acc.otherEnvs.push(env)
+      }
+
+      return acc
+    },
+    { globalEnvs: [] as Environment[], otherEnvs: [] as Environment[] }
   )
 
-  return TE.right(environments)
+  return TE.right({ globalEnvs, otherEnvs })
 }

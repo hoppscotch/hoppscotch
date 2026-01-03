@@ -147,13 +147,18 @@ export const insomniaEnvImporter = (contents: string[]) => {
   }
 
   const processedEnvironments = environments.map((env) => ({
-    ...env,
-    variables: env.variables.map((variable) => ({
+    ...(env as any),
+    variables: (env.variables as any[]).map((variable: any) => ({
       ...variable,
       initialValue: replaceInsomniaTemplating(variable.initialValue),
       currentValue: replaceInsomniaTemplating(variable.currentValue),
     })),
   }))
 
-  return TE.right(processedEnvironments)
+  // The first environment is considered the Base/Global source
+  // (especially for V5 where it stems from the root property)
+  const globalEnvs = processedEnvironments.slice(0, 1)
+  const otherEnvs = processedEnvironments.slice(1)
+
+  return TE.right({ globalEnvs, otherEnvs })
 }

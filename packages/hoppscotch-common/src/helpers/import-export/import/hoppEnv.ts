@@ -54,6 +54,8 @@ export const hoppEnvImporter = (contents: string[]) => {
   }
 
   const environments = validationResult.data
+  const globalEnvs = environments.filter((env) => env.id === "Global")
+  const otherEnvs = environments.filter((env) => env.id !== "Global")
 
-  return TE.right(environments)
+  return TE.right({ globalEnvs, otherEnvs })
 }

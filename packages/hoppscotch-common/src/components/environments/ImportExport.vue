@@ -1,7 +1,6 @@
 <template>
   <ImportExportBase
-    ref="collections-import-export"
-    modal-title="environment.title"
+    :modal-title="modalTitle"
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
     @hide-modal="emit('hide-modal')"
@@ -9,7 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import {
+  Environment,
+  NonSecretEnvironment,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -24,6 +27,9 @@ import {
   addGlobalEnvVariable,
   appendEnvironments,
   environments$,
+  getGlobalVariables,
+  globalEnv$,
+  updateGlobalEnvVariable,
 } from "~/newstore/environments"
 
 import { GQLError } from "~/helpers/backend/GQLClient"
@@ -39,6 +45,7 @@ import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { transformEnvironmentVariables } from "~/helpers/import-export/export/environment"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
 import { gistExporter } from "~/helpers/import-export/export/gist"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { platform } from "~/platform"
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -49,10 +56,24 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
+  mode: "environments" | "globals"
   teamEnvironments?: TeamEnvironment[]
   teamId?: string | undefined
   environmentType: "MY_ENV" | "TEAM_ENV"
 }>()
+
+// Modal title changes based on mode
+const modalTitle = computed(() =>
+  props.mode === "globals"
+    ? "environment.global_variables"
+    : "environment.title"
+)
+
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  name: "Global",
+  variables: [],
+} as GlobalEnvironment)
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
@@ -254,6 +275,30 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   action: async () => {
+    // Export global variables
+    if (props.mode === "globals") {
+      if (!globalEnv.value.variables.length) {
+        return toast.error(t("error.no_global_variables_to_export"))
+      }
+
+      const environmentToExport: Environment = {
+        v: 2,
+        id: "Global",
+        name: "Global",
+        variables: globalEnv.value.variables,
+      }
+
+      const message = await exportAsJSON(environmentToExport, "Global")
+
+      if (E.isRight(message)) {
+        toast.success(t(message.right))
+      } else {
+        toast.error(t(message.left))
+      }
+      return
+    }
+
+    // Export environment variables
     if (!environmentJson.value.length) {
       return toast.error(t("error.no_environments_to_export"))
     }
@@ -360,7 +405,15 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: NonSecretEnvironment[] = []
 ) => {
-  // Add global envs to the store
+  // Import global variables
+  if (props.mode === "globals") {
+    const allVars = environments.flatMap((env) => env.variables)
+    mergeGlobalVariables(allVars)
+    toast.success(t("environment.global_variables_imported"))
+    return
+  }
+
+  // Import normal environment variables
   globalEnvs.forEach(({ variables }) => {
     variables.forEach(({ key, initialValue, currentValue, secret }) => {
       addGlobalEnvVariable({ key, initialValue, currentValue, secret })
@@ -373,6 +426,35 @@ const handleImportToStore = async (
   } else {
     await importToTeams(environments)
   }
+}
+
+/**
+ * Merges imported variables with existing global variables
+ * - Adds new variables
+ * - Updates existing variables by key
+ */
+const mergeGlobalVariables = (importedVars: Environment["variables"]) => {
+  const existing = getGlobalVariables()
+  const existingIndexMap = new Map(existing.map((v, i) => [v.key, i] as const))
+
+  importedVars.forEach((variable) => {
+    const index = existingIndexMap.get(variable.key)
+    if (index !== undefined) {
+      const currentVariable = existing[index]
+      const mergedVariable = { ...currentVariable, ...variable }
+
+      // Only update if at least one property value actually changed
+      const hasChanges =
+        variable.initialValue !== currentVariable.initialValue ||
+        variable.secret !== currentVariable.secret
+
+      if (hasChanges) {
+        updateGlobalEnvVariable(index, mergedVariable)
+      }
+    } else {
+      addGlobalEnvVariable(variable)
+    }
+  })
 }
 
 const importToTeams = async (content: Environment[]) => {

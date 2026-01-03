@@ -142,6 +142,7 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
+      mode="environments"
       :team-environments="filteredAndAlphabetizedTeamEnvs.map(({ env }) => env)"
       :team-id="team?.teamID"
       environment-type="TEAM_ENV"

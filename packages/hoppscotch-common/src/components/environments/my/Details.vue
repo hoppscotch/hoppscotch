@@ -46,6 +46,15 @@
                   :title="t('add.new')"
                   @click="addEnvironmentVariable"
                 />
+                <HoppButtonSecondary
+                  v-if="selectedEnvOption === 'variables'"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :icon="IconImport"
+                  :title="t('modal.import_export')"
+                  @click="
+                    invokeAction('modals.global.environment.import-export')
+                  "
+                />
                 <tippy
                   ref="options"
                   interactive
@@ -241,13 +250,13 @@ import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { ComputedRef, computed, ref, watch } from "vue"
+import { invokeAction } from "~/helpers/actions"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   createEnvironment,
   environments$,
   environmentsStore,
   getEnvironment,
-  getGlobalVariables,
   globalEnv$,
   setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
@@ -258,6 +267,7 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import IconDone from "~icons/lucide/check"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconImport from "~icons/lucide/import"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import IconTrash2 from "~icons/lucide/trash-2"
@@ -372,7 +382,7 @@ const workingEnv = computed(() => {
     const vars =
       props.editingVariableName === "Global"
         ? props.envVars()
-        : getGlobalVariables()
+        : globalEnv.value.variables
     return {
       name: "Global",
       variables: vars,
@@ -492,6 +502,25 @@ watch(
     }
   }
 )
+
+watch(workingEnv, (newEnv) => {
+  if (props.show && props.editingEnvironmentIndex === "Global" && newEnv) {
+    vars.value = pipe(
+      newEnv.variables as any[],
+      A.mapWithIndex((index, e) => ({
+        id: idTicker.value++,
+        env: {
+          key: e.key,
+          currentValue:
+            getCurrentValue("Global", index) ?? e.currentValue ?? e.value,
+          initialValue:
+            getInitialValue("Global", index) ?? e.initialValue ?? e.value,
+          secret: e.secret,
+        },
+      }))
+    )
+  }
+})
 
 const clearContent = () => {
   vars.value = vars.value.filter((e) =>

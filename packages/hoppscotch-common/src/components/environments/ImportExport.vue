@@ -32,6 +32,9 @@ import {
   updateGlobalEnvVariable,
 } from "~/newstore/environments"
 
+import { useService } from "dioc/vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
+
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
@@ -88,6 +91,8 @@ const isRESTImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
 
 const isEnvironmentGistExportInProgress = ref(false)
+
+const currentValueService = useService(CurrentValueService)
 
 const isTeamEnvironment = computed(() => {
   return props.environmentType === "TEAM_ENV"
@@ -424,6 +429,7 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: NonSecretEnvironment[] = []
 ) => {
+  console.log({ environments, globalEnvs })
   // Import global variables
   if (props.mode === "globals") {
     globalEnvs.forEach(({ variables }) => {
@@ -461,11 +467,54 @@ const mergeGlobalVariables = (importedVars: Environment["variables"]) => {
         variable.initialValue !== currentVariable.initialValue ||
         variable.secret !== currentVariable.secret
 
+      console.log("Has changes", hasChanges)
+      console.log("Variable", variable)
+      console.log("Current variable", currentVariable)
+
       if (hasChanges) {
         updateGlobalEnvVariable(index, mergedVariable)
       }
+
+      // Update the current value in the CurrentValueService if it exists
+      if (variable.currentValue && !variable.secret) {
+        const existingVars = currentValueService.getEnvironment("Global") || []
+        const existingVarIndex = existingVars.findIndex(
+          (v) => v.varIndex === index
+        )
+
+        if (existingVarIndex !== -1) {
+          // Update existing variable
+          existingVars[existingVarIndex] = {
+            key: variable.key,
+            currentValue: variable.currentValue,
+            varIndex: index,
+            isSecret: false,
+          }
+          currentValueService.addEnvironment("Global", existingVars)
+        } else {
+          // Add new variable to the service
+          currentValueService.addEnvironmentVariable("Global", {
+            key: variable.key,
+            currentValue: variable.currentValue,
+            varIndex: index,
+            isSecret: false,
+          })
+        }
+      }
     } else {
+      // New variable - add it
+      const newIndex = existing.length
       addGlobalEnvVariable(variable)
+
+      // Save current value to CurrentValueService if it exists
+      if (variable.currentValue && !variable.secret) {
+        currentValueService.addEnvironmentVariable("Global", {
+          key: variable.key,
+          currentValue: variable.currentValue,
+          varIndex: newIndex,
+          isSecret: false,
+        })
+      }
     }
   })
 }

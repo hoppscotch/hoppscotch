@@ -34,6 +34,11 @@ export const hoppEnvImporter = (contents: string[]) => {
               return {
                 ...valueEntry,
                 initialValue: String(valueEntry.initialValue),
+                // Preserve currentValue if it exists, otherwise use initialValue as fallback
+                currentValue:
+                  "currentValue" in valueEntry && valueEntry.currentValue
+                    ? String(valueEntry.currentValue)
+                    : String(valueEntry.initialValue),
               }
             }
 

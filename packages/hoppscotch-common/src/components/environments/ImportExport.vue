@@ -380,17 +380,27 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
   },
 }
 
-const importerModules = [
-  HoppEnvironmentsImport,
-  EnvironmentsImportFromGIST,
-  PostmanEnvironmentsImport,
-  insomniaEnvironmentsImport,
-]
+const importerModules = computed(() => {
+  const modules = [
+    HoppEnvironmentsImport,
+    EnvironmentsImportFromGIST,
+    PostmanEnvironmentsImport,
+    insomniaEnvironmentsImport,
+  ]
+
+  if (props.mode === "globals") {
+    return modules.filter(
+      (module) => module.metadata.id !== "import.environments_from_gist"
+    )
+  }
+
+  return modules
+})
 
 const exporterModules = computed(() => {
   const enabledExporters = [HoppEnvironmentsExport]
 
-  if (platform.platformFeatureFlags.exportAsGIST) {
+  if (platform.platformFeatureFlags.exportAsGIST && props.mode !== "globals") {
     enabledExporters.push(HoppEnvironmentsGistExporter)
   }
 

@@ -125,7 +125,11 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       const res = await hoppEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -162,7 +166,11 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       const res = await postmanEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -199,14 +207,11 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
       const res = await insomniaEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        const globalEnvs = res.right.filter(
-          (env) => env.name === "Base Environment"
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
         )
-        const otherEnvs = res.right.filter(
-          (env) => env.name !== "Base Environment"
-        )
-
-        await handleImportToStore(otherEnvs, globalEnvs)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -247,7 +252,11 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
       const res = await hoppEnvImporter(environments.right)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -417,18 +426,12 @@ const handleImportToStore = async (
 ) => {
   // Import global variables
   if (props.mode === "globals") {
-    const allVars = environments.flatMap((env) => env.variables)
-    mergeGlobalVariables(allVars)
+    globalEnvs.forEach(({ variables }) => {
+      mergeGlobalVariables(variables)
+    })
     toast.success(t("environment.global_variables_imported"))
     return
   }
-
-  // Import normal environment variables
-  globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, initialValue, currentValue, secret }) => {
-      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
-    })
-  })
 
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)

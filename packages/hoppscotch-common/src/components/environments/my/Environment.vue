@@ -208,6 +208,15 @@ const isGlobalEnvironment = computed(() => props.environmentIndex === "Global")
 const exportEnvironmentAsJSON = async () => {
   const { environment, environmentIndex } = props
 
+  if (environment.variables.length === 0) {
+    if (environmentIndex === "Global") {
+      toast.error(t("error.no_global_variables_to_export"))
+    } else {
+      toast.error(t("error.no_variables_to_export"))
+    }
+    return
+  }
+
   const message = await exportAsJSON(environment, environmentIndex)
   E.isRight(message)
     ? toast.success(t(message.right))

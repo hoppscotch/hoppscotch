@@ -36,7 +36,8 @@ export const hoppEnvImporter = (contents: string[]) => {
                 initialValue: String(valueEntry.initialValue),
                 currentValue:
                   "currentValue" in valueEntry &&
-                    valueEntry.currentValue !== undefined
+                    valueEntry.currentValue !== undefined &&
+                    valueEntry.currentValue !== ""
                     ? String(valueEntry.currentValue)
                     : String(valueEntry.initialValue),
               }

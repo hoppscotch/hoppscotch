@@ -295,14 +295,14 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
         return toast.error(t("error.no_global_variables_to_export"))
       }
 
-      const environmentToExport: Environment = {
-        v: 2,
-        id: "Global",
-        name: "Global",
-        variables: globalEnv.value.variables,
-      }
-
-      const message = await exportAsJSON(environmentToExport, "Global")
+      const message = await exportAsJSON(
+        {
+          ...globalEnv.value,
+          id: "Global",
+          name: "Global",
+        },
+        "Global"
+      )
 
       if (E.isRight(message)) {
         toast.success(t(message.right))
@@ -315,6 +315,11 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     // Export environment variables
     if (!environmentJson.value.length) {
       return toast.error(t("error.no_environments_to_export"))
+    }
+
+    // Check if any environment has no variables
+    if (environmentJson.value.every((env) => env.variables.length === 0)) {
+      return toast.error(t("error.no_variables_to_export"))
     }
 
     const message = await initializeDownloadFile(

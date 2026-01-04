@@ -47,7 +47,10 @@
                   @click="addEnvironmentVariable"
                 />
                 <HoppButtonSecondary
-                  v-if="selectedEnvOption === 'variables' && props.editingEnvironmentIndex === 'Global'"
+                  v-if="
+                    selectedEnvOption === 'variables' &&
+                    props.editingEnvironmentIndex === 'Global'
+                  "
                   v-tippy="{ theme: 'tooltip' }"
                   :icon="IconImport"
                   :title="t('modal.import_export')"
@@ -512,10 +515,8 @@ watch(workingEnv, (newEnv) => {
         id: idTicker.value++,
         env: {
           key: e.key,
-          currentValue:
-            getCurrentValue("Global", index) ?? e.currentValue,
-          initialValue:
-            getInitialValue("Global", index) ?? e.initialValue,
+          currentValue: getCurrentValue("Global", index) ?? e.currentValue,
+          initialValue: getInitialValue("Global", index) ?? e.initialValue,
           secret: e.secret,
         },
       }))
@@ -610,18 +611,20 @@ const saveEnvironment = () => {
       secretEnvironmentService.addSecretEnvironment("Global", secretVariables)
     }
   }
+
+  // For Global environment, we need to rebuild the CurrentValueService after saving
+  const shouldRebuildCurrentValueService = props.editingEnvironmentIndex === "Global"
+
   if (nonSecretVariables.length > 0) {
     if (editingID.value) {
       currentEnvironmentValueService.addEnvironment(
         editingID.value,
         nonSecretVariables
       )
-    } else if (props.editingEnvironmentIndex === "Global") {
-      currentEnvironmentValueService.addEnvironment(
-        "Global",
-        nonSecretVariables
-      )
     }
+  } else if (shouldRebuildCurrentValueService) {
+    // No variables - clear the service for Global
+    currentEnvironmentValueService.addEnvironment("Global", [])
   }
 
   const variables = pipe(
@@ -661,6 +664,11 @@ const saveEnvironment = () => {
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment
     setGlobalEnvVariables(environmentUpdated)
+
+    // Rebuild CurrentValueService with correct indices after saving
+    // This ensures deleted variables are removed and indices match the saved array
+    currentEnvironmentValueService.addEnvironment("Global", nonSecretVariables)
+
     toast.success(`${t("environment.updated")}`)
   } else if (props.editingEnvironmentIndex !== null) {
     const envID =

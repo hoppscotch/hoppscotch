@@ -37,12 +37,12 @@ const parseInsomniaValue = (value: unknown) => {
 const insomniaV5Schema = z.object({
   environments: z.object({
     name: z.string(),
-    data: z.record(z.any()),
+    data: z.record(z.any()).optional(),
     subEnvironments: z
       .array(
         z.object({
           name: z.string(),
-          data: z.record(z.any()),
+          data: z.record(z.any()).optional(),
         })
       )
       .optional(),
@@ -140,7 +140,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
           id: uniqueID(),
           v: EnvironmentSchemaVersion,
           name: subEnv.name,
-          variables: Object.entries(subEnv.data).map(([key, value]) => ({
+          variables: Object.entries(subEnv.data || {}).map(([key, value]) => ({
             key,
             initialValue: parseInsomniaValue(value),
             currentValue: parseInsomniaValue(value),

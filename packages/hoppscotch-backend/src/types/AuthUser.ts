@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User } from 'src/generated/prisma/client';
 
 export type AuthUser = User;
 

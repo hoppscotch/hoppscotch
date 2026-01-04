@@ -130,11 +130,6 @@ const unsupportedApis = [
       "pm.execution.runRequest() is not supported in Hoppscotch (Collection Runner feature)",
   },
   {
-    api: "pm.sendRequest()",
-    script: 'pm.sendRequest("https://example.com", () => {})',
-    errorMessage: "pm.sendRequest() is not yet implemented in Hoppscotch",
-  },
-  {
     api: "pm.visualizer.set()",
     script: 'pm.visualizer.set("<h1>Test</h1>")',
     errorMessage:
@@ -170,13 +165,85 @@ describe("pm namespace - unsupported features", () => {
 
   test.each(unsupportedApis)(
     "$api throws error in test script",
-    ({ script, errorMessage }) => {
-      return expect(
-        runTest(script, {
-          global: [],
-          selected: [],
-        })()
-      ).resolves.toEqualLeft(`Script execution failed: Error: ${errorMessage}`)
+    async ({ script, errorMessage }) => {
+      const result = await runTest(script, {
+        global: [],
+        selected: [],
+      })()
+
+      // Check that the error message contains the expected error text
+      // We use toEqualLeft with stringContaining because QuickJS may append GC disposal errors
+      expect(result).toEqualLeft(
+        expect.stringContaining(
+          `Script execution failed: Error: ${errorMessage}`
+        )
+      )
     }
   )
+
+  test("pm.collectionVariables.get() throws error", async () => {
+    await expect(
+      runTest(`pm.collectionVariables.get("test")`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.collectionVariables.get() is not supported")
+    )
+  })
+
+  test("pm.vault.get() throws error", async () => {
+    await expect(
+      runTest(`pm.vault.get("test")`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.vault.get() is not supported")
+    )
+  })
+
+  test("pm.iterationData.get() throws error", async () => {
+    await expect(
+      runTest(`pm.iterationData.get("test")`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.iterationData.get() is not supported")
+    )
+  })
+
+  test("pm.execution.setNextRequest() throws error", async () => {
+    await expect(
+      runTest(`pm.execution.setNextRequest("next-request")`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.execution.setNextRequest() is not supported")
+    )
+  })
+
+  test("pm.visualizer.set() throws error", async () => {
+    await expect(
+      runTest(`pm.visualizer.set("<h1>Test</h1>")`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.visualizer.set() is not supported")
+    )
+  })
+
+  test("pm.visualizer.clear() throws error", async () => {
+    await expect(
+      runTest(`pm.visualizer.clear()`, {
+        global: [],
+        selected: [],
+      })()
+    ).resolves.toEqualLeft(
+      expect.stringContaining("pm.visualizer.clear() is not supported")
+    )
+  })
 })

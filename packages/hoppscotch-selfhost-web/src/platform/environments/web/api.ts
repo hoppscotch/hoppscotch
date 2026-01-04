@@ -2,7 +2,7 @@ import {
   runMutation,
   runGQLQuery,
   runGQLSubscription,
-} from "@hoppscotch/common/helpers/backend/GQLClient"
+} from "@helpers/backend/GQLClient"
 
 import {
   CreateUserEnvironmentDocument,
@@ -27,7 +27,7 @@ import {
   UserEnvironmentCreatedDocument,
   UserEnvironmentUpdatedDocument,
   UserEnvironmentDeletedDocument,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
 
 import { Environment } from "@hoppscotch/data"
 

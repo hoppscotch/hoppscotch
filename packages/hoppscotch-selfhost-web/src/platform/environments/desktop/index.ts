@@ -1,4 +1,4 @@
-import { authEvents$, def as platformAuth } from "@platform/auth/desktop"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/desktop"
 import { entityReference } from "verzod"
 
 import {
@@ -15,7 +15,7 @@ import {
 import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environments"
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 
-import { environnmentsSyncer } from "@platform/environments/desktop/sync"
+import { environnmentsSyncer } from "@app/platform/environments/desktop/sync"
 
 import * as E from "fp-ts/Either"
 import {
@@ -23,7 +23,7 @@ import {
   EnvironmentSchemaVersion,
   GlobalEnvironment,
 } from "@hoppscotch/data"
-import { runDispatchWithOutSyncing } from "@lib/sync"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 import {
   createUserGlobalEnvironment,
   getGlobalEnvironments,

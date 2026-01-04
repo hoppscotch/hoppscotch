@@ -7,19 +7,23 @@ import {
 import { createBaseRequest } from "./test-utils"
 
 vi.mock("aws4fetch", () => ({
-  AwsV4Signer: vi.fn().mockImplementation((config) => ({
-    sign: vi.fn().mockResolvedValue({
-      headers: new Map([
-        [
-          "Authorization",
-          "AWS4-HMAC-SHA256 Credential=test-key/20240101/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=test-signature",
-        ],
-        ["X-Amz-Date", "20240101T120000Z"],
-        ["Host", "s3.amazonaws.com"],
-      ]),
-      url: new URL(config.url),
-    }),
-  })),
+  AwsV4Signer: vi.fn().mockImplementation(function (config) {
+    return {
+      sign: vi.fn().mockImplementation(function () {
+        return Promise.resolve({
+          headers: new Map([
+            [
+              "Authorization",
+              "AWS4-HMAC-SHA256 Credential=test-key/20240101/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=test-signature",
+            ],
+            ["X-Amz-Date", "20240101T120000Z"],
+            ["Host", "s3.amazonaws.com"],
+          ]),
+          url: new URL(config.url),
+        })
+      }),
+    }
+  }),
 }))
 
 vi.mock("~/helpers/utils/EffectiveURL", () => ({
@@ -202,18 +206,19 @@ describe("AWS Signature Auth", () => {
 
     test("should generate AWS signature query parameters correctly", async () => {
       const { AwsV4Signer } = await import("aws4fetch")
-      vi.mocked(AwsV4Signer).mockImplementation(
-        (config) =>
-          ({
-            sign: vi.fn().mockResolvedValue({
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
               headers: new Map(),
               url: new URL(
                 config.url +
                   "?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test-key%2F20240101%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240101T120000Z&X-Amz-SignedHeaders=host&X-Amz-Signature=test-signature"
               ),
-            }),
-          }) as any
-      )
+            })
+          }),
+        }
+      })
 
       const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
       const request = createBaseRequest()
@@ -261,18 +266,19 @@ describe("AWS Signature Auth", () => {
 
     test("should exclude original request parameters from result", async () => {
       const { AwsV4Signer } = await import("aws4fetch")
-      vi.mocked(AwsV4Signer).mockImplementation(
-        (config) =>
-          ({
-            sign: vi.fn().mockResolvedValue({
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
               headers: new Map(),
               url: new URL(
                 config.url +
                   "?original-param=value&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=test-signature"
               ),
-            }),
-          }) as any
-      )
+            })
+          }),
+        }
+      })
 
       const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
       const request = createBaseRequest({
@@ -301,18 +307,19 @@ describe("AWS Signature Auth", () => {
 
     test("should handle template strings in endpoint", async () => {
       const { AwsV4Signer } = await import("aws4fetch")
-      vi.mocked(AwsV4Signer).mockImplementation(
-        (config) =>
-          ({
-            sign: vi.fn().mockResolvedValue({
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
               headers: new Map(),
               url: new URL(
                 config.url +
                   "?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=test-signature"
               ),
-            }),
-          }) as any
-      )
+            })
+          }),
+        }
+      })
 
       const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
 
@@ -340,18 +347,19 @@ describe("AWS Signature Auth", () => {
 
     test("should sort existing parameters alphabetically before signing", async () => {
       const { AwsV4Signer } = await import("aws4fetch")
-      vi.mocked(AwsV4Signer).mockImplementation(
-        (config) =>
-          ({
-            sign: vi.fn().mockResolvedValue({
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
               headers: new Map(),
               url: new URL(
                 config.url +
                   "?z-param=value1&a-param=value2&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=test-signature"
               ),
-            }),
-          }) as any
-      )
+            })
+          }),
+        }
+      })
 
       const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
       const request = createBaseRequest({
@@ -377,18 +385,19 @@ describe("AWS Signature Auth", () => {
 
     test("should handle empty or missing session token", async () => {
       const { AwsV4Signer } = await import("aws4fetch")
-      vi.mocked(AwsV4Signer).mockImplementation(
-        (config) =>
-          ({
-            sign: vi.fn().mockResolvedValue({
+      vi.mocked(AwsV4Signer).mockImplementation(function (config) {
+        return {
+          sign: vi.fn().mockImplementation(function () {
+            return Promise.resolve({
               headers: new Map(),
               url: new URL(
                 config.url +
                   "?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=test-signature"
               ),
-            }),
-          }) as any
-      )
+            })
+          }),
+        }
+      })
 
       const auth = createBaseAuth({ addTo: "QUERY_PARAMS" })
       const request = createBaseRequest()

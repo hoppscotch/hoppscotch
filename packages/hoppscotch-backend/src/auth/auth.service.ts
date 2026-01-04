@@ -25,7 +25,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { RESTError } from 'src/types/RESTError';
 import { AuthUser, IsAdmin } from 'src/types/AuthUser';
-import { VerificationToken } from '@prisma/client';
+import { VerificationToken } from 'src/generated/prisma/client';
 import { Origin } from './helper';
 import { ConfigService } from '@nestjs/config';
 import { InfraConfigService } from 'src/infra-config/infra-config.service';

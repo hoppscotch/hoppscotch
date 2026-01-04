@@ -1,6 +1,0 @@
-subscription UserChildCollectionSorted {
-  userChildCollectionsSorted {
-    parentCollectionID
-    sortOption
-  }
-}

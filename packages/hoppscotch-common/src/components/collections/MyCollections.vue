@@ -92,6 +92,14 @@
                 collectionSyncID: node.data.data.data.id,
               })
             "
+            @open-documentation="
+              node.data.type === 'collections' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data._ref_id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-properties="
               node.data.type === 'collections' &&
               emit('edit-properties', {
@@ -189,6 +197,14 @@
                 collectionSyncID: node.data.data.data.id,
               })
             "
+            @open-documentation="
+              node.data.type === 'folders' &&
+              emit('open-documentation', {
+                pathOrID: node.id,
+                collectionRefID: node.data.data.data._ref_id,
+                collection: node.data.data.data,
+              })
+            "
             @edit-properties="
               node.data.type === 'folders' &&
               emit('edit-properties', {
@@ -279,6 +295,15 @@
                 request: node.data.data.data,
               })
             "
+            @open-request-documentation="
+              node.data.type === 'requests' &&
+              emit('open-request-documentation', {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: pathToIndex(node.id),
+                requestRefID: node.data.data.data._ref_id,
+                request: node.data.data.data,
+              })
+            "
             @duplicate-response="
               emit('duplicate-response', {
                 folderPath: node.data.data.parentIndex,
@@ -325,6 +350,14 @@
               node.data.type === 'requests' &&
               emit('share-request', {
                 request: node.data.data.data,
+              })
+            "
+            @add-example="
+              node.data.type === 'requests' &&
+              emit('add-example', {
+                folderPath: node.data.data.parentIndex,
+                request: node.data.data.data,
+                requestIndex: pathToIndex(node.id),
               })
             "
             @drag-request="
@@ -560,6 +593,23 @@ const emit = defineEmits<{
     }
   ): void
   (
+    event: "open-documentation",
+    payload: {
+      pathOrID: string
+      collectionRefID: string
+      collection: HoppCollection
+    }
+  ): void
+  (
+    event: "open-request-documentation",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      requestRefID: string
+      request: HoppRESTRequest
+    }
+  ): void
+  (
     event: "edit-properties",
     payload: {
       collectionIndex: string
@@ -615,6 +665,14 @@ const emit = defineEmits<{
     event: "share-request",
     payload: {
       request: HoppRESTRequest
+    }
+  ): void
+  (
+    event: "add-example",
+    payload: {
+      folderPath: string
+      request: HoppRESTRequest
+      requestIndex: number
     }
   ): void
   (
@@ -833,18 +891,13 @@ const updateCollectionOrder = (
 }
 
 const debouncedSorting = useDebounceFn(() => {
-  sortCollection()
-}, 250)
-
-const sortCollection = () => {
   currentSortOrder.value = currentSortOrder.value === "asc" ? "desc" : "asc"
-
   emit("sort-collections", {
     collectionID: null,
     sortOrder: currentSortOrder.value,
     collectionRefID: "personal",
   })
-}
+}, 250)
 
 type MyCollectionNode = Collection | Folder | Requests
 

@@ -17,6 +17,7 @@ import { HoppCLIError, error } from "../types/errors";
 import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
+import { createHoppFetchHook } from "./hopp-fetch";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
@@ -49,12 +50,14 @@ export const testRunner = (
           };
 
           const experimentalScriptingSandbox = !legacySandbox;
+          const hoppFetchHook = createHoppFetchHook();
 
           return runTestScript(request.testScript, {
             envs,
             request,
             response: effectiveResponse,
             experimentalScriptingSandbox,
+            hoppFetchHook,
           });
         })
       )
@@ -102,10 +105,11 @@ export const testDescriptorParser = (
   pipe(
     /**
      * Generate single TestReport from given testDescriptor.
+     * Skip "root" descriptor to avoid showing synthetic top-level test.
      */
     testDescriptor,
     ({ expectResults, descriptor }) =>
-      A.isNonEmpty(expectResults)
+      A.isNonEmpty(expectResults) && descriptor !== "root"
         ? pipe(
             expectResults,
             A.reduce({ failed: 0, passed: 0 }, (prev, { status }) =>

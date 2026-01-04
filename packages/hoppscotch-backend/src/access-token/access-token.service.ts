@@ -10,7 +10,7 @@ import {
   ACCESS_TOKEN_NOT_FOUND,
 } from 'src/errors';
 import { CreateAccessTokenResponse } from './helper';
-import { PersonalAccessToken } from '@prisma/client';
+import { PersonalAccessToken } from 'src/generated/prisma/client';
 import { AccessToken } from 'src/types/AccessToken';
 
 @Injectable()

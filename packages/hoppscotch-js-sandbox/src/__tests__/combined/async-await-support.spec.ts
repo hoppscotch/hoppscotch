@@ -26,8 +26,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "async with await",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])
@@ -46,8 +51,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "async arrow",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])
@@ -70,8 +80,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "Promise.all",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])
@@ -94,8 +109,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "async error",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])
@@ -116,8 +136,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "sequential awaits",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])
@@ -139,8 +164,13 @@ describe.each(NAMESPACES)("%s.test() - Async/Await Support", (namespace) => {
       expect.arrayContaining([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: expect.arrayContaining([
-            expect.objectContaining({ status: "pass" }),
+          children: expect.arrayContaining([
+            expect.objectContaining({
+              descriptor: "async IIFE",
+              expectResults: expect.arrayContaining([
+                expect.objectContaining({ status: "pass" }),
+              ]),
+            }),
           ]),
         }),
       ])

@@ -1,70 +1,54 @@
 <template>
-  <div class="flex flex-col space-y-1 w-full">
+  <!-- Use custom component if platform provides one, otherwise fallback to default impl below -->
+  <component
+    :is="platform.instance.customInstanceSwitcherComponent"
+    v-if="platform.instance?.customInstanceSwitcherComponent"
+    @close-dropdown="$emit('close-dropdown')"
+  />
+
+  <!-- Default impl -->
+  <div
+    v-else-if="isInstanceSwitchingEnabled"
+    class="flex flex-col space-y-1 w-full"
+  >
     <div
-      class="flex items-center justify-between px-4 py-3 hover:accent-primaryLight rounded-md"
-      :class="{
-        'cursor-pointer': !isVendored,
-        'bg-accent text-accentContrast': isVendored,
-      }"
-      @click="!isVendored && connectToVendored()"
+      v-if="connectedInstance"
+      class="flex items-center justify-between px-4 py-3 bg-accent text-accentContrast rounded-md"
     >
       <div class="flex items-center gap-4">
-        <IconLucidePackage />
+        <IconLucideServer />
         <div class="flex flex-col">
           <span class="font-semibold uppercase">{{
-            platform.instance.displayConfig.displayName
+            connectedInstance.displayName
           }}</span>
           <div class="flex items-center gap-1">
-            <!-- NOTE:
-                 If this is set to `platform.instance.displayConfig.description`
-                 it'll be bound to app's perspective, i.e.
-                 when in vendored cloud app, it'll show `Cloud`
-                 and in vendored self-hosted app, it'll show `On-Prem`
-                 even tho both are actually pointing to the same bundle.
-                 Essentially switching instance is a **perspective shift**
-                 for the underlying desktop app launcher.
-
-                 The best way to solve this would be to make instance information
-                 into "links" to the bundles hosted by the `appload` plugin,
-                 which is already underway in HFE-829.
-
-                 This is a workaround for the time being. See `Header.vue`
-                 for code that maintains backwards compatibility.
-            -->
-            <span class="text-xs">Default</span>
-            <span class="text-xs"> app </span>
+            <span class="text-xs">{{ connectedInstance.kind }}</span>
+            <span
+              v-if="showVersionInfo && connectedInstance.version"
+              class="text-xs"
+            >
+              v{{ connectedInstance.version }}
+            </span>
           </div>
         </div>
       </div>
-      <IconLucideCheck v-if="isVendored" />
+      <IconLucideCheck />
     </div>
 
     <div class="flex flex-col space-y-1">
       <div
         v-for="instance in recentInstances"
         :key="instance.serverUrl"
-        class="flex items-center justify-between px-4 py-2 rounded-md group"
-        :class="{
-          'bg-accent text-accentContrast':
-            currentInstance &&
-            currentInstance.type === 'server' &&
-            currentInstance.serverUrl ===
-              instanceService.normalizeUrl(instance.serverUrl),
-          'hover:bg-primaryLight': !(
-            currentInstance &&
-            currentInstance.type === 'server' &&
-            currentInstance.serverUrl ===
-              instanceService.normalizeUrl(instance.serverUrl)
-          ),
-        }"
+        class="flex items-center justify-between px-4 py-2 rounded-md group hover:bg-primaryLight cursor-pointer"
+        @click="
+          handleConnectToInstance(
+            instance.serverUrl,
+            instance.kind,
+            instance.displayName
+          )
+        "
       >
-        <div
-          class="flex items-center gap-4 flex-1 cursor-pointer"
-          @click="
-            !isConnectedTo(instance.serverUrl) &&
-            connectToServer(instance.serverUrl)
-          "
-        >
+        <div class="flex items-center gap-4 flex-1">
           <IconLucideServer />
           <div class="flex flex-col">
             <span
@@ -73,13 +57,12 @@
                 theme: 'tooltip',
               }"
               class="font-semibold uppercase"
-              >{{ getHostname(instance.displayName) }}</span
             >
+              {{ instance.displayName }}
+            </span>
             <div class="flex items-center gap-1">
-              <span v-if="isOnPrem(instance.serverUrl)" class="text-xs"
-                >On-prem</span
-              >
-              <span v-if="instance.version" class="text-xs">
+              <span class="text-xs">{{ instance.kind }}</span>
+              <span v-if="showVersionInfo && instance.version" class="text-xs">
                 v{{ instance.version }}
               </span>
             </div>
@@ -87,26 +70,29 @@
         </div>
         <div class="flex items-center">
           <div class="w-8 flex justify-center">
-            <IconLucideCheck
-              v-if="isConnectedTo(instance.serverUrl)"
-              class="text-current"
-            />
             <HoppButtonSecondary
-              v-if="!isConnectedTo(instance.serverUrl)"
+              v-if="allowInstanceRemoval && instance.kind !== 'vendored'"
               v-tippy="{
                 content: t('action.remove_instance') || 'Remove instance',
                 theme: 'tooltip',
               }"
               class="!p-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity"
               :icon="IconLucideTrash"
-              @click.stop="
-                confirmRemove(instance.serverUrl, instance.displayName)
-              "
+              @click.stop="confirmRemove(instance)"
+            />
+            <IconLucideLock
+              v-else-if="instance.kind === 'vendored'"
+              v-tippy="{
+                content: 'Built-in instance cannot be removed',
+                theme: 'tooltip',
+              }"
+              class="!p-0 ml-4 opacity-50 text-secondaryLight"
             />
           </div>
         </div>
       </div>
     </div>
+
     <hr />
 
     <HoppButtonSecondary
@@ -114,12 +100,7 @@
       :icon="IconLucidePlus"
       filled
       outline
-      @click="
-        () => {
-          showAddModal = true
-          $emit('close-dropdown')
-        }
-      "
+      @click="openAddModal"
     />
 
     <HoppSmartModal
@@ -127,7 +108,7 @@
       dialog
       :title="t('instances.add_new') || 'Add New Instance'"
       styles="sm:max-w-md"
-      @close="showAddModal = false"
+      @close="closeAddModal"
     >
       <template #body>
         <form class="flex flex-col space-y-4" @submit.prevent="handleConnect">
@@ -146,26 +127,22 @@
               <template #prefix>
                 <IconLucideGlobe />
               </template>
-              <HoppSmartInput>
-                <template #suffix>
-                  <IconLucideCheck
-                    v-if="
-                      !isConnecting &&
-                      !connectionError &&
-                      newInstanceUrl &&
-                      isValidUrl &&
-                      !isCurrentUrl
-                    "
-                    class="text-green-500"
-                  />
-                  <IconLucideAlertCircle
-                    v-else-if="
-                      !isConnecting && !connectionError && isCurrentUrl
-                    "
-                    class="text-amber-500"
-                  />
-                </template>
-              </HoppSmartInput>
+              <template #suffix>
+                <IconLucideCheck
+                  v-if="
+                    !isConnecting &&
+                    !connectionError &&
+                    newInstanceUrl &&
+                    isValidUrl &&
+                    !isCurrentUrl
+                  "
+                  class="text-green-500"
+                />
+                <IconLucideAlertCircle
+                  v-else-if="!isConnecting && !connectionError && isCurrentUrl"
+                  class="text-amber-500"
+                />
+              </template>
             </HoppSmartInput>
             <span v-if="connectionError" class="text-red-500 text-tiny">
               {{ connectionError }}
@@ -189,7 +166,7 @@
       </template>
 
       <template #footer>
-        <div class="flex justify-end w-full">
+        <div v-if="allowCacheClear" class="flex justify-end w-full">
           <HoppButtonSecondary
             v-tippy="{
               content: t('instances.clear_cached_bundles'),
@@ -205,12 +182,13 @@
         </div>
       </template>
     </HoppSmartModal>
+
     <HoppSmartModal
       v-if="showRemoveModal"
       dialog
       :title="t('instances.confirm_remove') || 'Confirm Removal'"
       styles="sm:max-w-md"
-      @close="showRemoveModal = false"
+      @close="closeRemoveModal"
     >
       <template #body>
         <p>
@@ -218,10 +196,7 @@
             t("instances.remove_warning") ||
             "Are you sure you want to remove this instance?"
           }}
-
-          <span class="font-bold">
-            {{ confirmedRemoveDisplayName }}
-          </span>
+          <span class="font-bold">{{ instanceToRemove?.displayName }}</span>
         </p>
       </template>
       <template #footer>
@@ -230,30 +205,40 @@
             :label="t('action.cancel') || 'Cancel'"
             outline
             filled
-            @click="showRemoveModal = false"
+            @click="closeRemoveModal"
           />
           <HoppButtonPrimary
             :label="t('action.remove') || 'Remove'"
             filled
             outline
-            @click="removeInstance(confirmedRemoveUrl)"
+            @click="handleRemoveInstance"
           />
         </div>
       </template>
     </HoppSmartModal>
   </div>
+
+  <!-- Fallback when instance switching is disabled -->
+  <div v-else class="flex items-center justify-center px-4 py-3">
+    <span class="text-secondaryLight text-sm"
+      >Instance switching not available</span
+    >
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
-import { useService } from "dioc/vue"
+import { ref, computed, watch, onMounted, onUnmounted } from "vue"
+import { Subscription } from "rxjs"
+
 import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import {
-  InstanceSwitcherService,
-  InstanceType,
-} from "~/services/instance-switcher.service"
+import { useToast } from "@composables/toast"
+
 import { platform } from "~/platform"
+import type {
+  ConnectionState,
+  Instance,
+  InstanceKind,
+} from "~/platform/instance"
 
 import IconLucideGlobe from "~icons/lucide/globe"
 import IconLucideCheck from "~icons/lucide/check"
@@ -262,60 +247,62 @@ import IconLucideTrash from "~icons/lucide/trash"
 import IconLucideTrash2 from "~icons/lucide/trash-2"
 import IconLucideAlertCircle from "~icons/lucide/alert-circle"
 import IconLucidePlus from "~icons/lucide/plus"
-import IconLucidePackage from "~icons/lucide/package"
 
 const t = useI18n()
-const instanceService = useService(InstanceSwitcherService)
+const toast = useToast()
 
-const emit = defineEmits(["close-dropdown"])
+const emit = defineEmits<{
+  "close-dropdown": []
+}>()
+
+const showVersionInfo = ref(true)
+const allowInstanceRemoval = ref(true)
+const allowCacheClear = ref(true)
 
 const showAddModal = ref(false)
-const newInstanceUrl = ref("")
-const isClearingCache = ref(false)
 const showRemoveModal = ref(false)
-const confirmedRemoveUrl = ref("")
-const confirmedRemoveDisplayName = ref("")
 
-const confirmRemove = (url: string, displayName: string) => {
-  confirmedRemoveUrl.value = url
-  confirmedRemoveDisplayName.value = displayName || getHostname(url)
-  showRemoveModal.value = true
-  emit("close-dropdown")
-}
+const newInstanceUrl = ref("")
+const isConnecting = ref(false)
+const connectionError = ref("")
+const isClearingCache = ref(false)
 
-const state = useReadonlyStream(
-  instanceService.getStateStream(),
-  instanceService.getCurrentState().value
-)
+const instanceToRemove = ref<Instance | null>(null)
 
-const recentInstances = useReadonlyStream(
-  instanceService.getRecentInstancesStream(),
-  []
-)
+const connectionState = ref<ConnectionState>({ status: "idle" })
+const recentInstancesList = ref<Instance[]>([])
+const currentInstance = ref<Instance | null>(null)
 
-const currentInstance = computed<InstanceType | null>(() => {
-  return state.value.status === "connected" ? state.value.instance : null
+let connectionStateSubscription: Subscription | null = null
+let recentInstancesSubscription: Subscription | null = null
+let currentInstanceSubscription: Subscription | null = null
+
+const isInstanceSwitchingEnabled = computed(() => {
+  return platform.instance?.instanceSwitchingEnabled ?? false
 })
 
-const isConnecting = computed(() => state.value.status === "connecting")
-
-const connectionError = computed(() => {
-  return state.value.status === "error" ? state.value.message : null
+const connectedInstance = computed(() => {
+  return isConnectedState(connectionState.value) ? currentInstance.value : null
 })
 
-const isVendored = computed(() => {
-  return currentInstance.value?.type === platform.instance.instanceType
+const recentInstances = computed(() => {
+  return recentInstancesList.value.filter(
+    (instance) => instance.serverUrl !== currentInstance.value?.serverUrl
+  )
 })
 
 const isValidUrl = computed(() => {
   if (!newInstanceUrl.value) return false
 
+  if (platform.instance?.normalizeUrl) {
+    return platform.instance.normalizeUrl(newInstanceUrl.value) !== null
+  }
+
   try {
-    const normalizedUrl = newInstanceUrl.value.startsWith("http")
+    const urlToTest = newInstanceUrl.value.startsWith("http")
       ? newInstanceUrl.value
-      : `http://${newInstanceUrl.value}`
-    const url = new URL(normalizedUrl)
-    console.info("url", url)
+      : `https://${newInstanceUrl.value}`
+    new URL(urlToTest)
     return true
   } catch {
     return false
@@ -323,77 +310,492 @@ const isValidUrl = computed(() => {
 })
 
 const isCurrentUrl = computed(() => {
-  if (!newInstanceUrl.value) return false
-  if (currentInstance.value?.type !== "server") return false
+  if (!newInstanceUrl.value || !currentInstance.value) return false
 
-  try {
-    return instanceService.isCurrentlyConnectedTo(newInstanceUrl.value)
-  } catch {
-    return false
-  }
+  const normalizedNew =
+    platform.instance?.normalizeUrl?.(newInstanceUrl.value) ||
+    newInstanceUrl.value
+  const normalizedCurrent =
+    platform.instance?.normalizeUrl?.(currentInstance.value.serverUrl) ||
+    currentInstance.value.serverUrl
+
+  return normalizedNew === normalizedCurrent
 })
 
-const isConnectedTo = (url: string): boolean => {
-  return instanceService.isCurrentlyConnectedTo(url)
+const isConnectedState = (
+  state: ConnectionState
+): state is Extract<ConnectionState, { status: "connected" }> => {
+  return state.status === "connected"
 }
 
-const getHostname = (url: string): string => {
-  try {
-    if (!url.startsWith("http")) {
-      return url.toUpperCase()
-    }
-    const hostname = new URL(url).hostname
-    return hostname.toUpperCase()
-  } catch {
-    return url.toUpperCase()
+const isErrorState = (
+  state: ConnectionState
+): state is Extract<ConnectionState, { status: "error" }> => {
+  return state.status === "error"
+}
+
+const openAddModal = () => {
+  showAddModal.value = true
+  emit("close-dropdown")
+  // NOTE: Just for debugging
+  // toast.info(t("instances.opening_add_modal") || "Opening add instance dialog")
+}
+
+const closeAddModal = () => {
+  showAddModal.value = false
+  newInstanceUrl.value = ""
+  connectionError.value = ""
+  // NOTE: Just for debugging
+  // toast.info(t("instances.closed_add_modal") || "Add instance dialog closed")
+}
+
+const closeRemoveModal = () => {
+  showRemoveModal.value = false
+  instanceToRemove.value = null
+  // NOTE: Just for debugging
+  // toast.info(t("instances.cancelled_removal") || "Instance removal cancelled")
+}
+
+const validateConnectionSupport = (): boolean => {
+  if (!platform.instance?.connectToInstance) {
+    toast.error("Instance connection not supported")
+    return false
   }
+  return true
 }
 
-const isOnPrem = (url: string): boolean => {
+const executeBeforeConnectHook = async (
+  serverUrl: string,
+  instanceKind: InstanceKind,
+  displayName?: string
+): Promise<boolean> => {
+  if (!platform.instance?.beforeConnect) return true
+
   try {
-    const hostname = new URL(url.startsWith("http") ? url : `http://${url}`)
-      .hostname
-    return hostname !== "hoppscotch.com"
-  } catch {
+    const result = await platform.instance.beforeConnect(
+      serverUrl,
+      instanceKind,
+      displayName
+    )
+
+    if (!result) {
+      toast.info(
+        t("instances.connection_cancelled") ||
+          "Connection cancelled by pre-connect validation"
+      )
+    }
+
+    return result
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Pre-connect validation failed"
+    toast.error(errorMessage)
     return false
   }
 }
 
-const connectToVendored = async () => {
-  if (isVendored.value) return
-  await instanceService.connectToVendoredInstance()
-  if (showAddModal.value) showAddModal.value = false
-  emit("close-dropdown")
+const executeAfterConnectHook = async (): Promise<void> => {
+  if (platform.instance?.afterConnect && currentInstance.value) {
+    try {
+      await platform.instance.afterConnect(currentInstance.value)
+      toast.success(
+        t("instances.post_connect_completed") ||
+          "Post-connection setup completed"
+      )
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Post-connection setup failed"
+      toast.info(errorMessage)
+    }
+  }
 }
 
-const connectToServer = async (url: string) => {
-  await instanceService.connectToServerInstance(url)
+const handleConnectionSuccess = async (message: string): Promise<void> => {
+  toast.success(message || "Connected successfully")
   emit("close-dropdown")
+  await executeAfterConnectHook()
 }
 
-const removeInstance = async (url: string) => {
-  await instanceService.removeInstance(url)
-  showRemoveModal.value = false
+const handleConnectionError = (message: string, serverUrl: string): void => {
+  connectionError.value = message || "Connection failed"
+  toast.error(message || "Connection failed")
+
+  if (platform.instance?.onConnectionError) {
+    platform.instance.onConnectionError(message, serverUrl)
+  }
+}
+
+const performConnection = async (
+  serverUrl: string,
+  instanceKind: InstanceKind,
+  displayName?: string
+): Promise<void> => {
+  if (!platform.instance?.connectToInstance) return
+
+  toast.info(
+    t("instances.connecting") || `Connecting to ${displayName || serverUrl}...`
+  )
+
+  const result = await platform.instance.connectToInstance(
+    serverUrl,
+    instanceKind,
+    displayName
+  )
+
+  if (result.success) {
+    await handleConnectionSuccess(result.message)
+  } else {
+    handleConnectionError(result.message, serverUrl)
+  }
+}
+
+const handleConnectToInstance = async (
+  serverUrl: string,
+  instanceKind: InstanceKind = "on-prem",
+  displayName?: string
+) => {
+  if (!validateConnectionSupport()) return
+
+  isConnecting.value = true
+  connectionError.value = ""
+
+  try {
+    const shouldConnect = await executeBeforeConnectHook(
+      serverUrl,
+      instanceKind,
+      displayName
+    )
+    if (!shouldConnect) return
+
+    await performConnection(serverUrl, instanceKind, displayName)
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred"
+    handleConnectionError(errorMessage, serverUrl)
+  } finally {
+    isConnecting.value = false
+  }
 }
 
 const handleConnect = async () => {
   if (!newInstanceUrl.value || !isValidUrl.value || isCurrentUrl.value) return
 
-  const success = await instanceService.connectToServerInstance(
+  const instanceKind: InstanceKind = "on-prem"
+
+  await handleConnectToInstance(
+    newInstanceUrl.value,
+    instanceKind,
     newInstanceUrl.value
   )
 
-  if (success) {
-    newInstanceUrl.value = ""
-    showAddModal.value = false
+  if (!connectionError.value) {
+    closeAddModal()
+  }
+}
+
+const confirmRemove = (instance: Instance) => {
+  instanceToRemove.value = instance
+  showRemoveModal.value = true
+  toast.info(
+    t("instances.confirm_removal") ||
+      `Confirm removal of ${instance.displayName}`
+  )
+}
+
+const validateRemovalSupport = (): boolean => {
+  if (!platform.instance?.removeInstance) {
+    toast.error("Instance removal not supported")
+    return false
+  }
+  return true
+}
+
+const executeBeforeRemoveHook = async (
+  instance: Instance
+): Promise<boolean> => {
+  if (!platform.instance?.beforeRemove) return true
+
+  try {
+    const result = await platform.instance.beforeRemove(instance)
+
+    if (!result) {
+      toast.info(
+        t("instances.removal_cancelled") ||
+          "Instance removal cancelled by pre-removal validation"
+      )
+    }
+
+    return result
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Pre-removal validation failed"
+    toast.error(errorMessage)
+    return false
+  }
+}
+
+const executeAfterRemoveHook = async (instance: Instance): Promise<void> => {
+  if (platform.instance?.afterRemove) {
+    try {
+      await platform.instance.afterRemove(instance)
+      toast.success(
+        t("instances.post_remove_completed") || "Post-removal cleanup completed"
+      )
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Post-removal cleanup failed"
+      toast.info(errorMessage)
+    }
+  }
+}
+
+const handleRemovalSuccess = async (
+  message: string,
+  instance: Instance
+): Promise<void> => {
+  toast.success(message || "Instance removed successfully")
+  await executeAfterRemoveHook(instance)
+}
+
+const handleRemovalError = (message: string, instance: Instance): void => {
+  toast.error(message || "Failed to remove instance")
+
+  if (platform.instance?.onRemoveError) {
+    platform.instance.onRemoveError(message, instance)
+  }
+}
+
+const performRemoval = async (instance: Instance): Promise<void> => {
+  if (!platform.instance?.removeInstance) return
+
+  toast.info(t("instances.removing") || `Removing ${instance.displayName}...`)
+
+  const result = await platform.instance.removeInstance(instance)
+
+  if (result.success) {
+    await handleRemovalSuccess(result.message, instance)
+  } else {
+    handleRemovalError(result.message, instance)
+  }
+}
+
+const handleRemoveInstance = async () => {
+  if (!instanceToRemove.value || !validateRemovalSupport()) return
+
+  const instance = instanceToRemove.value
+
+  try {
+    const shouldRemove = await executeBeforeRemoveHook(instance)
+    if (!shouldRemove) {
+      closeRemoveModal()
+      return
+    }
+
+    await performRemoval(instance)
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred"
+    handleRemovalError(errorMessage, instance)
+  } finally {
+    closeRemoveModal()
+  }
+}
+
+const validateCacheClearSupport = (): boolean => {
+  if (!platform.instance?.clearCache) {
+    toast.error("Cache clearing not supported")
+    return false
+  }
+  return true
+}
+
+const performCacheClear = async (): Promise<void> => {
+  if (!platform.instance?.clearCache) return
+
+  toast.info(t("instances.clearing_cache") || "Clearing cache...")
+
+  const result = await platform.instance.clearCache()
+
+  if (result.success) {
+    toast.success(result.message || "Cache cleared successfully")
+  } else {
+    toast.error(result.message || "Failed to clear cache")
   }
 }
 
 const handleClearCache = async () => {
-  if (isClearingCache.value) return
+  if (!validateCacheClearSupport()) return
 
   isClearingCache.value = true
-  await instanceService.clearCache()
-  isClearingCache.value = false
+
+  try {
+    await performCacheClear()
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred"
+    toast.error(errorMessage)
+  } finally {
+    isClearingCache.value = false
+  }
 }
+
+const initializeSynchronousState = (): void => {
+  if (!platform.instance) return
+
+  if (platform.instance.getCurrentConnectionState) {
+    connectionState.value = platform.instance.getCurrentConnectionState()
+  }
+
+  if (platform.instance.getRecentInstances) {
+    recentInstancesList.value = platform.instance.getRecentInstances()
+  }
+
+  if (platform.instance.getCurrentInstance) {
+    currentInstance.value = platform.instance.getCurrentInstance()
+  }
+
+  // NOTE: Just for debugging
+  // toast.info(t("instances.initialized") || "Instance switcher initialized")
+}
+
+const handleConnectionStateChange = (state: ConnectionState): void => {
+  const previousState = connectionState.value.status
+  connectionState.value = state
+
+  if (isErrorState(state)) {
+    connectionError.value = state.message
+    if (previousState !== "error") {
+      toast.error(state.message || "Connection error occurred")
+    }
+  } else if (state.status === "connecting") {
+    connectionError.value = ""
+    isConnecting.value = true
+    if (previousState !== "connecting") {
+      toast.info(
+        t("instances.connecting_state") || "Establishing connection..."
+      )
+    }
+  } else if (state.status === "connected") {
+    isConnecting.value = false
+    if (previousState !== "connected") {
+      toast.success(
+        t("instances.connected_state") || "Successfully connected to instance"
+      )
+    }
+  } else if (state.status === "idle") {
+    isConnecting.value = false
+    if (previousState === "connected") {
+      toast.info(
+        t("instances.disconnected_state") || "Disconnected from instance"
+      )
+    }
+  }
+}
+
+const subscribeToConnectionState = (): void => {
+  if (!platform.instance?.getConnectionStateStream) return
+
+  connectionStateSubscription = platform.instance
+    .getConnectionStateStream()
+    .subscribe({
+      next: handleConnectionStateChange,
+      error: (error) => {
+        console.error("Connection state stream error:", error)
+        toast.error(
+          t("instances.stream_error") || "Connection state monitoring failed"
+        )
+        connectionState.value = {
+          status: "error",
+          target: "stream",
+          message: error.message,
+        }
+      },
+    })
+}
+
+const subscribeToRecentInstances = (): void => {
+  if (!platform.instance?.getRecentInstancesStream) return
+
+  recentInstancesSubscription = platform.instance
+    .getRecentInstancesStream()
+    .subscribe({
+      next: (instances) => {
+        recentInstancesList.value = instances
+      },
+      error: (error) => {
+        console.error("Recent instances stream error:", error)
+        toast.error(
+          t("instances.recent_instances_error") ||
+            "Failed to load recent instances"
+        )
+      },
+    })
+}
+
+const subscribeToCurrentInstance = (): void => {
+  if (!platform.instance?.getCurrentInstanceStream) return
+
+  currentInstanceSubscription = platform.instance
+    .getCurrentInstanceStream()
+    .subscribe({
+      next: (instance) => {
+        const previousInstance = currentInstance.value
+        currentInstance.value = instance
+
+        if (
+          instance &&
+          (!previousInstance ||
+            previousInstance.serverUrl !== instance.serverUrl)
+        ) {
+          toast.success(
+            t("instances.instance_changed") ||
+              `Switched to ${instance.displayName}`
+          )
+        }
+      },
+      error: (error) => {
+        console.error("Current instance stream error:", error)
+        toast.error(
+          t("instances.current_instance_error") ||
+            "Failed to track current instance"
+        )
+      },
+    })
+}
+
+const initializeStreams = () => {
+  if (!platform.instance) {
+    toast.info(
+      t("instances.not_available") || "Instance switching is not available"
+    )
+    return
+  }
+
+  initializeSynchronousState()
+  subscribeToConnectionState()
+  subscribeToRecentInstances()
+  subscribeToCurrentInstance()
+}
+
+const cleanup = () => {
+  connectionStateSubscription?.unsubscribe()
+  recentInstancesSubscription?.unsubscribe()
+  currentInstanceSubscription?.unsubscribe()
+
+  toast.info(
+    t("instances.cleanup_completed") || "Instance switcher cleanup completed"
+  )
+}
+
+watch(newInstanceUrl, () => {
+  connectionError.value = ""
+})
+
+onMounted(() => {
+  initializeStreams()
+})
+
+onUnmounted(() => {
+  cleanup()
+})
 </script>

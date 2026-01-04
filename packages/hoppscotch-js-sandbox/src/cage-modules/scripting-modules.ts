@@ -5,9 +5,10 @@ import {
   defineSandboxFn,
   defineSandboxObject,
 } from "faraday-cage/modules"
+import { cloneDeep } from "lodash-es"
 
 import { getStatusReason } from "~/constants/http-status-codes"
-import { TestDescriptor, TestResponse, TestResult } from "~/types"
+import { BaseInputs, TestDescriptor, TestResponse, TestResult } from "~/types"
 import postRequestBootstrapCode from "../bootstrap-code/post-request?raw"
 import preRequestBootstrapCode from "../bootstrap-code/pre-request?raw"
 import { createBaseInputs } from "./utils/base-inputs"
@@ -30,6 +31,7 @@ type PostRequestModuleConfig = {
     testRunStack: TestDescriptor[]
     cookies: Cookie[] | null
   }) => void
+  onTestPromise?: (promise: Promise<void>) => void
 }
 
 type PreRequestModuleConfig = {
@@ -58,6 +60,30 @@ type HookRegistrationAdditionalResults = {
 }
 
 /**
+ * Type for pre-request script inputs (includes BaseInputs + request setters)
+ */
+type PreRequestInputs = BaseInputs &
+  ReturnType<typeof createRequestSetterMethods>["methods"]
+
+/**
+ * Type for post-request script inputs (includes BaseInputs + test/expectation methods)
+ */
+type PostRequestInputs = BaseInputs &
+  ReturnType<typeof createExpectationMethods> &
+  ReturnType<typeof createChaiMethods> & {
+    preTest: ReturnType<typeof defineSandboxFn>
+    postTest: ReturnType<typeof defineSandboxFn>
+    setCurrentTest: ReturnType<typeof defineSandboxFn>
+    clearCurrentTest: ReturnType<typeof defineSandboxFn>
+    getCurrentTest: ReturnType<typeof defineSandboxFn>
+    pushExpectResult: ReturnType<typeof defineSandboxFn>
+    getResponse: ReturnType<typeof defineSandboxFn>
+    responseReason: ReturnType<typeof defineSandboxFn>
+    responseDataURI: ReturnType<typeof defineSandboxFn>
+    responseJsonp: ReturnType<typeof defineSandboxFn>
+  }
+
+/**
  * Helper function to register after-script execution hooks with proper typing
  * Overload for pre-request hooks (requires additionalResults)
  */
@@ -80,59 +106,53 @@ function registerAfterScriptExecutionHook(
 ): void
 
 /**
- * Implementation of the hook registration function
+ * Registers hook for capturing script results after async operations complete.
+ * We wait for keepAlivePromises to resolve before capturing results,
+ * ensuring env mutations from async callbacks (like hopp.fetch().then()) are included.
  */
 function registerAfterScriptExecutionHook(
-  ctx: CageModuleCtx,
-  type: ModuleType,
-  config: ModuleConfig,
-  baseInputs: ReturnType<typeof createBaseInputs>,
-  additionalResults?: HookRegistrationAdditionalResults
+  _ctx: CageModuleCtx,
+  _type: ModuleType,
+  _config: ModuleConfig,
+  _baseInputs: ReturnType<typeof createBaseInputs>,
+  _additionalResults?: HookRegistrationAdditionalResults
 ) {
-  if (type === "pre") {
-    const preConfig = config as PreRequestModuleConfig
-    const getUpdatedRequest = additionalResults?.getUpdatedRequest
-
-    if (!getUpdatedRequest) {
-      throw new Error(
-        "getUpdatedRequest is required for pre-request hook registration"
-      )
-    }
-
-    ctx.afterScriptExecutionHooks.push(() => {
-      preConfig.handleSandboxResults({
-        envs: baseInputs.getUpdatedEnvs(),
-        request: getUpdatedRequest(),
-        cookies: baseInputs.getUpdatedCookies(),
-      })
-    })
-  } else if (type === "post") {
-    const postConfig = config as PostRequestModuleConfig
-
-    ctx.afterScriptExecutionHooks.push(() => {
-      postConfig.handleSandboxResults({
-        envs: baseInputs.getUpdatedEnvs(),
-        testRunStack: postConfig.testRunStack,
-        cookies: baseInputs.getUpdatedCookies(),
-      })
-    })
-  }
+  // No-op: result capture happens after cage.runCode() completes.
 }
 
 /**
  * Creates input object for scripting modules with appropriate methods based on type
+ * Overloads ensure proper return types for pre vs post request contexts
  */
-const createScriptingInputsObj = (
+function createScriptingInputsObj(
+  ctx: CageModuleCtx,
+  type: "pre",
+  config: PreRequestModuleConfig,
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+): PreRequestInputs
+function createScriptingInputsObj(
+  ctx: CageModuleCtx,
+  type: "post",
+  config: PostRequestModuleConfig,
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+): PostRequestInputs
+function createScriptingInputsObj(
   ctx: CageModuleCtx,
   type: ModuleType,
-  config: ModuleConfig
-) => {
+  config: ModuleConfig,
+  captureGetUpdatedRequest?: (fn: () => HoppRESTRequest) => void
+): PreRequestInputs | PostRequestInputs {
   if (type === "pre") {
     const preConfig = config as PreRequestModuleConfig
 
     // Create request setter methods FIRST for pre-request scripts
     const { methods: requestSetterMethods, getUpdatedRequest } =
       createRequestSetterMethods(ctx, preConfig.request)
+
+    // Capture the getUpdatedRequest function so the caller can use it
+    if (captureGetUpdatedRequest) {
+      captureGetUpdatedRequest(getUpdatedRequest)
+    }
 
     // Create base inputs with access to updated request
     const baseInputs = createBaseInputs(ctx, {
@@ -150,7 +170,7 @@ const createScriptingInputsObj = (
     return {
       ...baseInputs,
       ...requestSetterMethods,
-    }
+    } as PreRequestInputs
   }
 
   // Create base inputs shared across all namespaces (post-request path)
@@ -163,17 +183,26 @@ const createScriptingInputsObj = (
   if (type === "post") {
     const postConfig = config as PostRequestModuleConfig
 
+    // Track current executing test
+    let currentExecutingTest: TestDescriptor | null = null
+
+    const getCurrentTestContext = (): TestDescriptor | null => {
+      return currentExecutingTest
+    }
+
     // Create expectation methods for post-request scripts
     const expectationMethods = createExpectationMethods(
       ctx,
-      postConfig.testRunStack
+      postConfig.testRunStack,
+      getCurrentTestContext // Pass getter for current test context
     )
 
     // Create Chai methods
-    const chaiMethods = createChaiMethods(ctx, postConfig.testRunStack)
-
-    // Register hook with helper function
-    registerAfterScriptExecutionHook(ctx, "post", postConfig, baseInputs)
+    const chaiMethods = createChaiMethods(
+      ctx,
+      postConfig.testRunStack,
+      getCurrentTestContext // Pass getter for current test context
+    )
 
     return {
       ...baseInputs,
@@ -185,19 +214,77 @@ const createScriptingInputsObj = (
         ctx,
         "preTest",
         function preTest(descriptor: unknown) {
-          postConfig.testRunStack.push({
+          const testDescriptor: TestDescriptor = {
             descriptor: descriptor as string,
             expectResults: [],
             children: [],
-          })
+          }
+
+          // Add to root.children immediately to preserve registration order.
+          postConfig.testRunStack[0].children.push(testDescriptor)
+
+          // Stack tracking is handled by setCurrentTest() in bootstrap code.
+
+          // Return the test descriptor so it can be set as context
+          return testDescriptor
         }
       ),
       postTest: defineSandboxFn(ctx, "postTest", function postTest() {
-        const child = postConfig.testRunStack.pop() as TestDescriptor
-        postConfig.testRunStack[
-          postConfig.testRunStack.length - 1
-        ].children.push(child)
+        // Test cleanup handled by clearCurrentTest() in bootstrap.
       }),
+      setCurrentTest: defineSandboxFn(
+        ctx,
+        "setCurrentTest",
+        function setCurrentTest(descriptorName: unknown) {
+          // Find the test descriptor in the testRunStack by descriptor name
+          // This ensures we use the ACTUAL object, not a serialized copy
+          const found = postConfig.testRunStack[0].children.find(
+            (test) => test.descriptor === descriptorName
+          )
+          currentExecutingTest = found || null
+        }
+      ),
+      clearCurrentTest: defineSandboxFn(
+        ctx,
+        "clearCurrentTest",
+        function clearCurrentTest() {
+          currentExecutingTest = null
+        }
+      ),
+      getCurrentTest: defineSandboxFn(
+        ctx,
+        "getCurrentTest",
+        function getCurrentTest() {
+          // Return the descriptor NAME (string) instead of the object
+          // This allows QuickJS code to store and pass it back to setCurrentTest()
+          return currentExecutingTest ? currentExecutingTest.descriptor : null
+        }
+      ),
+      // Helper to push expectation results directly to the current test
+      pushExpectResult: defineSandboxFn(
+        ctx,
+        "pushExpectResult",
+        function pushExpectResult(status: unknown, message: unknown) {
+          if (currentExecutingTest) {
+            currentExecutingTest.expectResults.push({
+              status: status as "pass" | "fail" | "error",
+              message: message as string,
+            })
+          }
+        }
+      ),
+      // Allow bootstrap code to notify when test promises are created
+      onTestPromise: postConfig.onTestPromise
+        ? defineSandboxFn(
+            ctx,
+            "onTestPromise",
+            function onTestPromise(promise: unknown) {
+              if (postConfig.onTestPromise) {
+                postConfig.onTestPromise(promise as Promise<void>)
+              }
+            }
+          )
+        : undefined,
       getResponse: defineSandboxFn(ctx, "getResponse", function getResponse() {
         return postConfig.response
       }),
@@ -285,10 +372,11 @@ const createScriptingInputsObj = (
           return JSON.parse(text)
         }
       ),
-    }
+    } as PostRequestInputs
   }
 
-  return baseInputs
+  // This should never be reached due to the type guards above
+  throw new Error(`Invalid module type: ${type}`)
 }
 
 /**
@@ -297,22 +385,165 @@ const createScriptingInputsObj = (
 const createScriptingModule = (
   type: ModuleType,
   bootstrapCode: string,
-  config: ModuleConfig
+  config: ModuleConfig,
+  captureHook?: { capture?: () => void }
 ) => {
   return defineCageModule((ctx) => {
+    // Track test promises for keepAlive (only for post-request scripts)
+    const testPromises: Promise<unknown>[] = []
+    let resolveKeepAlive: (() => void) | null = null
+    let rejectKeepAlive: ((error: Error) => void) | null = null
+
+    // Only register keepAlive for post-request tests; pre-request scripts shouldn't block on this
+    let testPromiseKeepAlive: Promise<void> | null = null
+    if ((type as ModuleType) === "post") {
+      testPromiseKeepAlive = new Promise<void>((resolve, reject) => {
+        resolveKeepAlive = resolve
+        rejectKeepAlive = reject
+      })
+      ctx.keepAlivePromises.push(testPromiseKeepAlive)
+    }
+
+    // Wrap onTestPromise to track in testPromises array (post-request only)
+    const originalOnTestPromise = (config as PostRequestModuleConfig)
+      .onTestPromise
+    if (originalOnTestPromise) {
+      ;(config as PostRequestModuleConfig).onTestPromise = (promise) => {
+        testPromises.push(promise)
+        originalOnTestPromise(promise)
+      }
+    }
+
     const funcHandle = ctx.scope.manage(ctx.vm.evalCode(bootstrapCode)).unwrap()
 
-    const inputsObj = defineSandboxObject(
+    // Capture getUpdatedRequest via callback for pre-request scripts
+    let getUpdatedRequest: (() => HoppRESTRequest) | undefined = undefined
+    // Type assertion needed here because TypeScript can't narrow ModuleType to "pre" | "post"
+    // in this generic context. The function overloads ensure type safety at call sites.
+    const inputsObj = createScriptingInputsObj(
       ctx,
-      createScriptingInputsObj(ctx, type, config)
+      type as "pre",
+      config as PreRequestModuleConfig,
+      (fn) => {
+        getUpdatedRequest = fn
+      }
+    ) as PreRequestInputs | PostRequestInputs
+
+    // Set up capture function to capture results after runCode() completes.
+    if (captureHook && type === "pre") {
+      const preConfig = config as PreRequestModuleConfig
+      const preInputs = inputsObj as PreRequestInputs
+
+      captureHook.capture = () => {
+        const capturedEnvs = preInputs.getUpdatedEnvs() || {
+          global: [],
+          selected: [],
+        }
+        // Use the getUpdatedRequest from request setters (via createRequestSetterMethods)
+        // This returns the mutated request, not the original
+        const finalRequest = getUpdatedRequest
+          ? getUpdatedRequest()
+          : config.request
+
+        preConfig.handleSandboxResults({
+          envs: capturedEnvs,
+          request: finalRequest,
+          cookies: preInputs.getUpdatedCookies() || null,
+        })
+      }
+    } else if (captureHook && type === "post") {
+      const postConfig = config as PostRequestModuleConfig
+      const postInputs = inputsObj as PostRequestInputs
+
+      captureHook.capture = () => {
+        // Deep clone testRunStack to prevent UI reactivity to async mutations
+        // Without this, async test callbacks that complete after capture will mutate
+        // the same object being displayed in the UI, causing flickering test results
+
+        postConfig.handleSandboxResults({
+          envs: postInputs.getUpdatedEnvs() || {
+            global: [],
+            selected: [],
+          },
+          testRunStack: cloneDeep(postConfig.testRunStack),
+          cookies: postInputs.getUpdatedCookies() || null,
+        })
+      }
+    }
+
+    const sandboxInputsObj = defineSandboxObject(ctx, inputsObj)
+
+    const bootstrapResult = ctx.vm.callFunction(
+      funcHandle,
+      ctx.vm.undefined,
+      sandboxInputsObj
     )
 
-    ctx.vm.callFunction(funcHandle, ctx.vm.undefined, inputsObj)
+    // Extract the test execution chain promise from the bootstrap function's return value
+    let testExecutionChainPromise: any = null
+    if (bootstrapResult.error) {
+      console.error(
+        "[SCRIPTING] Bootstrap function error:",
+        ctx.vm.dump(bootstrapResult.error)
+      )
+      bootstrapResult.error.dispose()
+    } else if (bootstrapResult.value) {
+      testExecutionChainPromise = bootstrapResult.value
+      // Don't dispose the value yet - we need to await it
+    }
+
+    // Wait for test execution chain before resolving keepAlive.
+    // Ensures QuickJS context stays active for callbacks accessing handles (pm.expect, etc.).
+    if ((type as ModuleType) === "post") {
+      ctx.afterScriptExecutionHooks.push(async () => {
+        try {
+          // If we have a test execution chain, await it
+          if (testExecutionChainPromise) {
+            const resolvedPromise = ctx.vm.resolvePromise(
+              testExecutionChainPromise
+            )
+            testExecutionChainPromise.dispose()
+
+            const awaitResult = await resolvedPromise
+            if (awaitResult.error) {
+              const errorDump = ctx.vm.dump(awaitResult.error)
+              awaitResult.error.dispose()
+              // Propagate test execution errors.
+              const error = new Error(
+                typeof errorDump === "string"
+                  ? errorDump
+                  : JSON.stringify(errorDump)
+              )
+              rejectKeepAlive?.(error)
+              return
+            } else {
+              awaitResult.value?.dispose()
+            }
+          }
+
+          // Also wait for any old-style test promises (for backwards compatibility)
+          if (testPromises.length > 0) {
+            await Promise.allSettled(testPromises)
+          }
+
+          resolveKeepAlive?.()
+        } catch (error) {
+          rejectKeepAlive?.(
+            error instanceof Error ? error : new Error(String(error))
+          )
+        }
+      })
+    }
   })
 }
 
-export const preRequestModule = (config: PreRequestModuleConfig) =>
-  createScriptingModule("pre", preRequestBootstrapCode, config)
+export const preRequestModule = (
+  config: PreRequestModuleConfig,
+  captureHook?: { capture?: () => void }
+) => createScriptingModule("pre", preRequestBootstrapCode, config, captureHook)
 
-export const postRequestModule = (config: PostRequestModuleConfig) =>
-  createScriptingModule("post", postRequestBootstrapCode, config)
+export const postRequestModule = (
+  config: PostRequestModuleConfig,
+  captureHook?: { capture?: () => void }
+) =>
+  createScriptingModule("post", postRequestBootstrapCode, config, captureHook)

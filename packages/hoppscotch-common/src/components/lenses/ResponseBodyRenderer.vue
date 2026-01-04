@@ -17,6 +17,7 @@
         :is-savable="isSavable"
         :is-editable="isEditable"
         :tab-id="props.tabId"
+        :is-test-runner="props.isTestRunner"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -36,7 +37,10 @@
       :indicator="showIndicator"
       class="flex flex-1 flex-col"
     >
-      <HttpTestResult v-model="doc.testResults" />
+      <HttpTestResult
+        v-model="doc.testResults"
+        :is-loading="doc.response?.type === 'loading'"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       v-if="requestHeaders"
@@ -102,10 +106,10 @@ const showIndicator = computed(() => {
   const { expectResults, tests, envDiff } = doc.value.testResults
   return Boolean(
     expectResults.length ||
-      tests.length ||
-      envDiff.selected.additions.length ||
-      envDiff.selected.updations.length ||
-      envDiff.global.updations.length
+    tests.length ||
+    envDiff.selected.additions.length ||
+    envDiff.selected.updations.length ||
+    envDiff.global.updations.length
   )
 })
 

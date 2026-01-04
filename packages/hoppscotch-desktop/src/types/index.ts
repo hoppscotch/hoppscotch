@@ -32,3 +32,8 @@ export interface UpdateState {
   version?: string
   message?: string
 }
+
+export interface PortableSettings {
+  disableUpdateNotifications: boolean
+  autoSkipWelcome: boolean
+}

@@ -3,7 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { UserRequest } from './user-request.model';
-import { Prisma, UserRequest as DbUserRequest } from '@prisma/client';
+import {
+  Prisma,
+  UserRequest as DbUserRequest,
+} from 'src/generated/prisma/client';
 import {
   USER_COLLECTION_NOT_FOUND,
   USER_REQUEST_CREATION_FAILED,

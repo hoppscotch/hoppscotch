@@ -1,6 +1,0 @@
-mutation UpdateUserCollectionOrder($collectionID: ID!, $nextCollectionID: ID) {
-  updateUserCollectionOrder(
-    collectionID: $collectionID
-    nextCollectionID: $nextCollectionID
-  )
-}

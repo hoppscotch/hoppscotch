@@ -33,6 +33,7 @@ import { InfraTokenResolver } from './infra-token/infra-token.resolver';
 import { SortTeamCollectionResolver } from './orchestration/sort/sort-team-collection.resolver';
 import { SortUserCollectionResolver } from './orchestration/sort/sort-user-collection.resolver';
 import { MockServerResolver } from './mock-server/mock-server.resolver';
+import { PublishedDocsResolver } from './published-docs/published-docs.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -68,6 +69,7 @@ const RESOLVERS = [
   SortUserCollectionResolver,
   SortTeamCollectionResolver,
   MockServerResolver,
+  PublishedDocsResolver,
 ];
 
 /**

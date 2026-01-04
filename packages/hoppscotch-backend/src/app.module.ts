@@ -37,6 +37,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PubSubModule } from './pubsub/pubsub.module';
 import { SortModule } from './orchestration/sort/sort.module';
 import { MockServerModule } from './mock-server/mock-server.module';
+import { PublishedDocsModule } from './published-docs/published-docs.module';
 
 @Module({
   imports: [
@@ -126,6 +127,7 @@ import { MockServerModule } from './mock-server/mock-server.module';
     InfraTokenModule,
     SortModule,
     MockServerModule,
+    PublishedDocsModule,
   ],
   providers: [
     GQLComplexityPlugin,

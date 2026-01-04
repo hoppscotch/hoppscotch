@@ -1,6 +1,6 @@
 import { settingsStore } from "@hoppscotch/common/newstore/settings"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@app/lib/sync"
 
 import { updateUserSettings } from "./api"
 

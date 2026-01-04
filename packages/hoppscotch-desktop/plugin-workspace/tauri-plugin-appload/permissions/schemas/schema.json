@@ -319,6 +319,16 @@
           "markdownDescription": "Denies the close command without any pre-configured scope."
         },
         {
+          "description": "Enables the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close"
+        },
+        {
+          "description": "Denies the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close"
+        },
+        {
           "description": "Enables the download command without any pre-configured scope.",
           "type": "string",
           "const": "allow-download",

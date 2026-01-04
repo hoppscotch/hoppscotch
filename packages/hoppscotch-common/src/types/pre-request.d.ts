@@ -344,7 +344,30 @@ declare namespace hopp {
     delete(domain: string, name: string): void
     clear(domain: string): void
   }>
+
+  /**
+   * Fetch API - Makes HTTP requests respecting interceptor settings
+   * @param input - URL string or Request object
+   * @param init - Optional request options
+   * @returns Promise that resolves to Response object
+   */
+  function fetch(
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response>
 }
+
+/**
+ * Global fetch function - alias to hopp.fetch()
+ * Makes HTTP requests respecting interceptor settings
+ * @param input - URL string or Request object
+ * @param init - Optional request options
+ * @returns Promise that resolves to Response object
+ */
+declare function fetch(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response>
 
 declare namespace pm {
   const environment: Readonly<{

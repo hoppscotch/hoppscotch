@@ -1,8 +1,0 @@
-mutation MoveUserCollection($destCollectionID: ID, $userCollectionID: ID!) {
-  moveUserCollection(
-    destCollectionID: $destCollectionID
-    userCollectionID: $userCollectionID
-  ) {
-    id
-  }
-}

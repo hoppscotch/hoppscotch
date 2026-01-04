@@ -9,7 +9,7 @@ import {
   settingsStore,
 } from "@hoppscotch/common/newstore/settings"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@app/lib/sync"
 
 import * as E from "fp-ts/Either"
 
@@ -19,7 +19,7 @@ import {
   removeRequestFromHistory,
   toggleHistoryStarStatus,
 } from "./api"
-import { ReqType } from "@api/generated/graphql"
+import { ReqType } from "@app/api/generated/graphql"
 
 import { isHistoryStoreEnabled } from "."
 

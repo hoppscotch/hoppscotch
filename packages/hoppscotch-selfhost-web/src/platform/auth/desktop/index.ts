@@ -13,7 +13,7 @@ import { AuthEvent, AuthPlatformDef } from "@hoppscotch/common/platform/auth"
 import { PersistenceService } from "@hoppscotch/common/services/persistence"
 import { KernelInterceptorService } from "@hoppscotch/common/services/kernel-interceptor.service"
 
-import Login from "@platform-components/Login.vue"
+import Login from "@app/components/Login.vue"
 import { getAllowedAuthProviders, updateUserDisplayName } from "./api"
 
 export type HoppUserWithAuthDetail = {

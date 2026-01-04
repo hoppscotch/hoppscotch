@@ -16,17 +16,17 @@ const packageJsonPath = fileURLToPath(
 );
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
 
-const requiredNodeVersionRange = packageJson.engines?.node || ">=20";
+const requiredNodeVersionRange = packageJson.engines?.node || ">=22";
 
 // Extract the major version from the start of the range
 const requiredNodeVersion = semver.major(
-  semver.minVersion(requiredNodeVersionRange) ?? "20"
+  semver.minVersion(requiredNodeVersionRange) ?? "22"
 );
 
 const currentNodeVersion = process.versions.node;
 
-// Last supported version of the CLI for Node.js v18
-const lastSupportedVersion = "0.11.1";
+// Last supported version of the CLI for Node.js v20
+const lastSupportedVersion = "0.26.0";
 
 if (!semver.satisfies(currentNodeVersion, requiredNodeVersionRange)) {
   console.error(
@@ -34,8 +34,8 @@ if (!semver.satisfies(currentNodeVersion, requiredNodeVersionRange)) {
   );
 
   console.error(
-    `\nIf you prefer staying on Node.js ${highlightVersion("18")}, you can install the last supported version of the CLI:\n` +
-      `${chalk.green(`npm install -g @hoppscotch/cli@${lastSupportedVersion}`)}`
+    `\nIf you prefer staying on Node.js ${highlightVersion("20")}, you can install the last supported version of the CLI:\n` +
+      `${chalk.green(`npm install -g @hoppscotch/cli@${lastSupportedVersion}`)} alongside ${highlightVersion("2025.10.1")} of the Hoppscotch app.\n`
   );
   process.exit(1);
 }

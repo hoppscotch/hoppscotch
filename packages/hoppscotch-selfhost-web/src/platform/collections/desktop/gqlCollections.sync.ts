@@ -14,9 +14,10 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
-import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@lib/sync"
+import { getSyncInitFunction, type StoreSyncDefinitionOf } from "@app/lib/sync"
 
-import { createMapper } from "@lib/sync/mapper"
+import { createMapper } from "@app/lib/sync/mapper"
+
 import {
   createGQLChildUserCollection,
   createGQLRootUserCollection,
@@ -30,7 +31,7 @@ import {
 } from "./api"
 
 import * as E from "fp-ts/Either"
-import { ReqType } from "@api/generated/graphql"
+import { ReqType } from "@app/api/generated/graphql"
 import { moveOrReorderRequests } from "./sync"
 
 // gqlCollectionsMapper uses the collectionPath as the local identifier

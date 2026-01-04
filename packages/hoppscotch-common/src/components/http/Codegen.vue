@@ -146,6 +146,8 @@ import { asyncComputed } from "@vueuse/core"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { getCurrentEnvironment } from "../../newstore/environments"
+import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { filterNonEmptyEnvironmentVariables } from "~/helpers/RequestRunner"
 
 const t = useI18n()
 
@@ -231,78 +233,122 @@ const getFinalURL = (input: string): string => {
   return url
 }
 
-const requestCode = asyncComputed(async () => {
-  // Generate code snippet action only applies to request documents
-  if (currentActiveTabDocument.value.type !== "request") {
-    errorState.value = true
-    return ""
-  }
-
+/**
+ * Combines all environment variables into a single environment object
+ */
+const buildFinalEnvironment = (): Environment => {
   const aggregateEnvs = getAggregateEnvs()
-  const requestVariables = currentActiveRequest.value?.requestVariables.map(
-    (requestVariable) => {
-      if (requestVariable.active)
-        return {
-          key: requestVariable.key,
-          currentValue: requestVariable.value,
-          initialValue: requestVariable.value,
-          secret: false,
-        }
-      return {}
-    }
-  )
-  const env: Environment = {
+  const inheritedVariables =
+    currentActiveTabDocument.value.inheritedProperties?.variables || []
+
+  const requestVariables = (currentActiveRequest.value?.requestVariables || [])
+    .filter((variable) => variable.active)
+    .map((variable) => ({
+      key: variable.key,
+      initialValue: variable.value,
+      currentValue: variable.value,
+      secret: false,
+    }))
+
+  const collectionVariables =
+    transformInheritedCollectionVariablesToAggregateEnv(inheritedVariables).map(
+      ({ key, initialValue, currentValue, secret }) => ({
+        key,
+        initialValue,
+        currentValue,
+        secret,
+      })
+    )
+
+  const environmentVariables = aggregateEnvs.map((env) => ({
+    key: env.key,
+    secret: env.secret,
+    initialValue: env.initialValue,
+    currentValue: getCurrentValue(env) || env.initialValue,
+  }))
+
+  const allVariables = [
+    ...requestVariables,
+    ...collectionVariables,
+    ...environmentVariables,
+  ]
+
+  const filteredVariables = filterNonEmptyEnvironmentVariables(allVariables)
+
+  return {
     v: 2,
     id: "env",
     name: "Env",
-    variables: [
-      ...(requestVariables as Environment["variables"]),
-      ...aggregateEnvs.map((env) => ({
-        ...env,
-        currentValue: getCurrentValue(env) || env.initialValue,
-      })),
-    ],
+    variables: filteredVariables,
   }
+}
 
-  // Calculating this before to keep the reactivity as asyncComputed will lose
-  // reactivity tracking after the await point
-  const lang = codegenType.value
-
-  let requestHeaders: HoppRESTHeaders = []
-  let requestAuth: HoppRESTAuth = { authType: "none", authActive: false }
-
-  // Add inherited headers and auth from the parent
+/**
+ * Resolves authentication and headers with inheritance
+ */
+const resolveRequestAuthAndHeaders = () => {
   const { auth, headers } = currentActiveRequest.value
   const { inheritedProperties } = currentActiveTabDocument.value
 
-  requestAuth =
+  const resolvedAuth: HoppRESTAuth =
     auth.authType === "inherit" && auth.authActive
-      ? (inheritedProperties?.auth?.inheritedAuth as HoppRESTAuth)
+      ? ((inheritedProperties?.auth?.inheritedAuth as HoppRESTAuth) ?? {
+          authType: "none",
+          authActive: false,
+        })
       : auth
 
   const inheritedHeaders =
-    inheritedProperties?.headers?.flatMap((header) => header.inheritedHeader) ??
-    []
+    inheritedProperties?.headers
+      ?.flatMap((header) => header.inheritedHeader)
+      ?.filter(Boolean) ?? []
 
-  requestHeaders = [...inheritedHeaders, ...headers]
+  const resolvedHeaders: HoppRESTHeaders = [...inheritedHeaders, ...headers]
 
-  const finalRequest = {
+  return { auth: resolvedAuth, headers: resolvedHeaders }
+}
+
+/**
+ * Creates the final request object for code generation
+ */
+const buildFinalRequest = (auth: HoppRESTAuth, headers: HoppRESTHeaders) => {
+  return {
     ...currentActiveRequest.value,
-    auth: requestAuth,
-    headers: requestHeaders,
+    auth,
+    headers,
   }
+}
 
-  const effectiveRequest = await getEffectiveRESTRequest(
-    finalRequest,
-    env,
-    true
-  )
+/**
+ * Generates the request code based on the current request and selected codegen type
+ */
+const requestCode = asyncComputed(async (): Promise<string> => {
+  try {
+    if (currentActiveTabDocument.value.type !== "request") {
+      errorState.value = true
+      return ""
+    }
 
-  const result = generateCode(
-    lang,
-    makeRESTRequest({
+    const selectedCodegenType = codegenType.value
+
+    // Build environment with all variable sources
+    const environment = buildFinalEnvironment()
+
+    // Resolve authentication and headers with inheritance
+    const { auth, headers } = resolveRequestAuthAndHeaders()
+
+    const finalRequest = buildFinalRequest(auth, headers)
+
+    const effectiveRequest = await getEffectiveRESTRequest(
+      finalRequest,
+      environment,
+      true
+    )
+
+    // Build the request object for code generation
+    const codegenRequest = makeRESTRequest({
       ...effectiveRequest,
-      body: resolvesEnvsInBody(effectiveRequest.body, env),
+      body: resolvesEnvsInBody(effectiveRequest.body, environment),
       headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
         ...header,
         active: true,
@@ -319,15 +365,24 @@ const requestCode = asyncComputed(async () => {
         })
       ),
     })
-  )
 
-  if (O.isSome(result)) {
-    errorState.value = false
-    emit("request-code", result.value)
-    return result.value
+    const codeResult = generateCode(selectedCodegenType, codegenRequest)
+
+    if (O.isSome(codeResult)) {
+      errorState.value = false
+      const generatedCode = codeResult.value
+      emit("request-code", generatedCode)
+      return generatedCode
+    }
+
+    console.warn("Code generation failed for type:", selectedCodegenType)
+    errorState.value = true
+    return ""
+  } catch (error) {
+    console.error("Error generating request code:", error)
+    errorState.value = true
+    return ""
   }
-  errorState.value = true
-  return ""
 })
 
 // Template refs
@@ -369,7 +424,7 @@ const filteredCodegenDefinitions = computed(() => {
 const { copyIcon, copyResponse } = useCopyResponse(requestCode)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "",
-  requestCode,
+  computed(() => requestCode.value || ""),
   t("filename.codegen", {
     request_name: currentActiveRequest.value.name,
   })

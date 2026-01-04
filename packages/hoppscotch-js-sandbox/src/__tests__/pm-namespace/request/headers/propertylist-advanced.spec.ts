@@ -262,27 +262,19 @@ describe("pm.request.headers.insert()", () => {
     )
   })
 
-  test("throws error when item has no key", () => {
-    return expect(
-      runPreRequestScript(
-        `
-        try {
-          pm.request.headers.insert({ value: 'test' })
-          console.log("Should not reach here")
-        } catch (error) {
-          console.log("Error caught:", error.message)
-        }
-        `,
-        { envs, request: baseRequest }
-      )
-    ).resolves.toEqualRight(
-      expect.objectContaining({
-        consoleEntries: expect.arrayContaining([
-          expect.objectContaining({
-            args: ["Error caught:", "Header must have a 'key' property"],
-          }),
-        ]),
-      })
+  test("throws error when item has no key", async () => {
+    const result = await runPreRequestScript(
+      `pm.request.headers.insert({ value: 'test' })`,
+      {
+        envs,
+        request: baseRequest,
+        cookies: null,
+        experimentalScriptingSandbox: true,
+      }
+    )
+
+    expect(result).toEqualLeft(
+      expect.stringContaining("Header must have a 'key' property")
     )
   })
 })
@@ -349,27 +341,19 @@ describe("pm.request.headers.append()", () => {
     )
   })
 
-  test("throws error when item has no key", () => {
-    return expect(
-      runPreRequestScript(
-        `
-        try {
-          pm.request.headers.append({ value: 'test' })
-          console.log("Should not reach here")
-        } catch (error) {
-          console.log("Error caught:", error.message)
-        }
-        `,
-        { envs, request: baseRequest }
-      )
-    ).resolves.toEqualRight(
-      expect.objectContaining({
-        consoleEntries: expect.arrayContaining([
-          expect.objectContaining({
-            args: ["Error caught:", "Header must have a 'key' property"],
-          }),
-        ]),
-      })
+  test("throws error when item has no key", async () => {
+    const result = await runPreRequestScript(
+      `pm.request.headers.append({ value: 'test' })`,
+      {
+        envs,
+        request: baseRequest,
+        cookies: null,
+        experimentalScriptingSandbox: true,
+      }
+    )
+
+    expect(result).toEqualLeft(
+      expect.stringContaining("Header must have a 'key' property")
     )
   })
 })
@@ -483,27 +467,19 @@ describe("pm.request.headers.assimilate()", () => {
     )
   })
 
-  test("throws error for invalid source", () => {
-    return expect(
-      runPreRequestScript(
-        `
-        try {
-          pm.request.headers.assimilate("invalid")
-          console.log("Should not reach here")
-        } catch (error) {
-          console.log("Error caught:", error.message)
-        }
-        `,
-        { envs, request: baseRequest }
-      )
-    ).resolves.toEqualRight(
-      expect.objectContaining({
-        consoleEntries: expect.arrayContaining([
-          expect.objectContaining({
-            args: ["Error caught:", "Source must be an array or object"],
-          }),
-        ]),
-      })
+  test("throws error for invalid source", async () => {
+    const result = await runPreRequestScript(
+      `pm.request.headers.assimilate("invalid")`,
+      {
+        envs,
+        request: baseRequest,
+        cookies: null,
+        experimentalScriptingSandbox: true,
+      }
+    )
+
+    expect(result).toEqualLeft(
+      expect.stringContaining("Source must be an array or object")
     )
   })
 })

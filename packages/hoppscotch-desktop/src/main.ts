@@ -9,6 +9,10 @@ import "@fontsource-variable/inter"
 import "@fontsource-variable/material-symbols-rounded"
 import "@fontsource-variable/roboto-mono"
 
+import { initKernel } from "@hoppscotch/kernel"
+
 const app = createApp(App)
 app.use(router)
 app.mount("#app")
+
+initKernel("desktop")

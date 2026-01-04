@@ -42,6 +42,7 @@ export type PlatformDef = {
   // NOTE: To be deprecated
   // interceptors: InterceptorsPlatformDef
   kernelInterceptors: KernelInterceptorsPlatformDef
+  instance?: InstancePlatformDef
   additionalInspectors?: InspectorsPlatformDef
   spotlight?: SpotlightPlatformDef
   platformFeatureFlags: {
@@ -66,6 +67,15 @@ export type PlatformDef = {
      * Whether to show the A/B testing workspace switcher click login flow or not
      */
     workspaceSwitcherLogin?: Ref<boolean>
+
+    /**
+     * Whether the platform uses cookie-based authentication.
+     * This affects CSRF security warnings for same-origin fetch calls in scripts.
+     * Self-hosted web instances use cookies, while cloud/desktop use bearer tokens.
+     *
+     * If not provided, defaults to false (no cookie-based auth).
+     */
+    hasCookieBasedAuth?: boolean
   }
   limits?: LimitsPlatformDef
   infra?: InfraPlatformDef

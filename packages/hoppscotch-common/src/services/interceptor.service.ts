@@ -1,10 +1,19 @@
 import * as E from "fp-ts/Either"
 import { Service } from "dioc"
-import { MaybeRef, refWithControl } from "@vueuse/core"
+import { refWithControl } from "@vueuse/core"
 import { AxiosRequestConfig, AxiosResponse } from "axios"
 import type { getI18n } from "~/modules/i18n"
 import { throwError } from "~/helpers/functional/error"
-import { Component, Ref, computed, reactive, watch, unref, markRaw } from "vue"
+import {
+  Component,
+  MaybeRef,
+  Ref,
+  computed,
+  reactive,
+  watch,
+  unref,
+  markRaw,
+} from "vue"
 
 /**
  * Defines the response data from an interceptor request run.

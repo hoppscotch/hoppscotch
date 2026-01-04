@@ -1,5 +1,0 @@
-mutation UpdateUserSettings($properties: String!) {
-  updateUserSettings(properties: $properties) {
-    id
-  }
-}

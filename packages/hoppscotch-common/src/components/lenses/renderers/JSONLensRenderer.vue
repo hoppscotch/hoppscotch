@@ -59,7 +59,7 @@
           @click="copyResponse"
         />
         <tippy
-          v-if="showResponse"
+          v-if="showResponse && response.body && !isEditable"
           interactive
           trigger="click"
           theme="popover"
@@ -86,6 +86,13 @@
                     hide()
                   }
                 "
+              />
+              <HoppSmartItem
+                v-if="!isTestRunner"
+                :label="t('action.clear_response')"
+                :icon="IconEraser"
+                :shortcut="[getSpecialKey(), 'Delete']"
+                @click="eraseResponse"
               />
             </div>
           </template>
@@ -252,6 +259,7 @@ import IconMore from "~icons/lucide/more-horizontal"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconNetwork from "~icons/lucide/network"
 import IconSave from "~icons/lucide/save"
+import IconEraser from "~icons/lucide/eraser"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -286,6 +294,7 @@ const props = defineProps<{
   isSavable: boolean
   isEditable: boolean
   tabId: string
+  isTestRunner?: boolean
 }>()
 
 const { containerRef } = useScrollerRef(
@@ -458,6 +467,16 @@ const saveAsExample = () => {
 }
 
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
+
+/**
+ * Erases the response body.
+ * Do not erase if the tab is a saved example or test runner.
+ *
+ */
+const eraseResponse = () => {
+  if (!props.isEditable && !props.isTestRunner) emit("update:response", null)
+}
+
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
   jsonBodyText,
@@ -520,6 +539,7 @@ const toggleFilterState = () => {
 
 defineActionHandler("response.file.download", () => downloadResponse())
 defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.erase", () => eraseResponse())
 defineActionHandler("response.save-as-example", () => {
   props.isSavable ? saveAsExample() : null
 })

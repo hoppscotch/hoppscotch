@@ -94,6 +94,14 @@ export class ProxyKernelInterceptorService
     // This is required for backwards compatibility with current proxyscotch impl
     if (request.content) {
       switch (request.content.kind) {
+        case "text":
+          // Text content - pass string directly
+          requestData =
+            typeof request.content.content === "string"
+              ? request.content.content
+              : String(request.content.content)
+          break
+
         case "json":
           requestData =
             typeof request.content.content === "string"
@@ -117,11 +125,15 @@ export class ProxyKernelInterceptorService
               for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i)
               }
-              requestData = new Blob([bytes.buffer])
+              // Pass the Uint8Array directly, not .buffer, to avoid offset issues
+              requestData = new Blob([bytes])
             } catch (e) {
               console.error("Error converting binary data:", e)
               requestData = request.content.content
             }
+          } else if (request.content.content instanceof Uint8Array) {
+            // Wrap Uint8Array in Blob for proxy compatibility, avoiding .buffer to prevent offset issues
+            requestData = new Blob([request.content.content])
           } else {
             requestData = request.content.content
           }
@@ -132,6 +144,39 @@ export class ProxyKernelInterceptorService
           // where we combine request with request body
           // so removing that part right now
           requestData = ""
+          break
+
+        case "urlencoded":
+          // URL-encoded form data - pass string directly
+          requestData =
+            typeof request.content.content === "string"
+              ? request.content.content
+              : String(request.content.content)
+          break
+
+        case "xml":
+          // XML content - pass string directly
+          requestData =
+            typeof request.content.content === "string"
+              ? request.content.content
+              : String(request.content.content)
+          break
+
+        case "form":
+          // Form data - convert to URLSearchParams for JSON serialization
+          // FormData objects are not JSON-serializable and will be lost when proxied
+          if (request.content.content instanceof FormData) {
+            const params = new URLSearchParams()
+            for (const [key, value] of request.content.content.entries()) {
+              // Only handle string values - File/Blob uploads not supported via proxy
+              if (typeof value === "string") {
+                params.append(key, value)
+              }
+            }
+            requestData = params.toString()
+          } else {
+            requestData = request.content.content
+          }
           break
 
         default:

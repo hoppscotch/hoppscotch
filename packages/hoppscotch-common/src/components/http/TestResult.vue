@@ -2,6 +2,7 @@
   <div>
     <div
       v-if="
+        !isLoading &&
         testResults &&
         (testResults.expectResults.length ||
           testResults.tests.length ||
@@ -115,11 +116,21 @@
             </div>
           </details>
         </div>
-        <div v-if="testResults.tests" class="divide-y-4 divide-dividerLight">
+        <!-- Only show nested tests if they have content
+             This prevents showing empty test descriptors during async operations -->
+        <div
+          v-if="testResults.tests && testResults.tests.length > 0"
+          class="divide-y-4 divide-dividerLight"
+        >
           <HttpTestResultEntry
-            v-for="(result, index) in testResults.tests"
+            v-for="(result, index) in testResults.tests.filter(
+              (test) =>
+                (test.expectResults && test.expectResults.length > 0) ||
+                (test.tests && test.tests.length > 0)
+            )"
             :key="`result-${index}`"
-            :test-results="result"
+            :test-results="result as any"
+            show-test-type="all"
           />
         </div>
         <div
@@ -166,6 +177,10 @@
         </div>
       </div>
     </div>
+    <div v-else-if="isLoading" class="flex flex-col items-center p-6">
+      <HoppSmartSpinner class="mb-4" />
+      <span class="text-secondaryLight text-sm">{{ t("test.running") }}</span>
+    </div>
     <HoppSmartPlaceholder
       v-else-if="testResults && testResults.scriptError"
       :src="`/images/states/${colorMode.value}/upload_error.svg`"
@@ -174,7 +189,7 @@
       :text="t('helpers.post_request_script_fail')"
     />
     <HoppSmartPlaceholder
-      v-else
+      v-else-if="showEmptyMessage && !isLoading"
       :src="`/images/states/${colorMode.value}/validation.svg`"
       :alt="`${t('empty.tests')}`"
       :heading="t('empty.tests')"
@@ -239,9 +254,11 @@ const props = withDefaults(
   defineProps<{
     modelValue: HoppTestResult | null | undefined
     showEmptyMessage?: boolean
+    isLoading?: boolean
   }>(),
   {
     showEmptyMessage: true,
+    isLoading: false,
   }
 )
 

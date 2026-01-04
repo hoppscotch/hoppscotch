@@ -1,4 +1,4 @@
-import { TeamAccessRole } from '@prisma/client';
+import { TeamAccessRole } from 'src/generated/prisma/client';
 import { SetMetadata } from '@nestjs/common';
 
 export const RequiresTeamRole = (...roles: TeamAccessRole[]) =>

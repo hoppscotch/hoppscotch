@@ -5,13 +5,14 @@ import * as TE from "fp-ts/lib/TaskEither"
 import { cloneDeep } from "lodash"
 
 import { defaultModules, preRequestModule } from "~/cage-modules"
-import { SandboxPreRequestResult, TestResult } from "~/types"
+import { HoppFetchHook, SandboxPreRequestResult, TestResult } from "~/types"
 
 export const runPreRequestScriptWithFaradayCage = (
   preRequestScript: string,
   envs: TestResult["envs"],
   request: HoppRESTRequest,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  hoppFetchHook?: HoppFetchHook
 ): TE.TaskEither<string, SandboxPreRequestResult> => {
   return pipe(
     TE.tryCatch(
@@ -22,29 +23,45 @@ export const runPreRequestScriptWithFaradayCage = (
 
         const cage = await FaradayCage.create()
 
-        const result = await cage.runCode(preRequestScript, [
-          ...defaultModules(),
+        try {
+          const captureHook: { capture?: () => void } = {}
 
-          preRequestModule({
-            envs: cloneDeep(envs),
-            request: cloneDeep(request),
-            cookies: cookies ? cloneDeep(cookies) : null,
-            handleSandboxResults: ({ envs, request, cookies }) => {
-              finalEnvs = envs
-              finalRequest = request
-              finalCookies = cookies
-            },
-          }),
-        ])
+          const result = await cage.runCode(preRequestScript, [
+            ...defaultModules({
+              hoppFetchHook,
+            }),
 
-        if (result.type === "error") {
-          throw result.err
-        }
+            preRequestModule(
+              {
+                envs: cloneDeep(envs),
+                request: cloneDeep(request),
+                cookies: cookies ? cloneDeep(cookies) : null,
+                handleSandboxResults: ({ envs, request, cookies }) => {
+                  finalEnvs = envs
+                  finalRequest = request
+                  finalCookies = cookies
+                },
+              },
+              captureHook
+            ),
+          ])
 
-        return {
-          updatedEnvs: finalEnvs,
-          updatedRequest: finalRequest,
-          updatedCookies: finalCookies,
+          if (captureHook.capture) {
+            captureHook.capture()
+          }
+
+          if (result.type === "error") {
+            throw result.err
+          }
+
+          return {
+            updatedEnvs: finalEnvs,
+            updatedRequest: finalRequest,
+            updatedCookies: finalCookies,
+          }
+        } finally {
+          // Don't dispose cage here - returned objects may still be accessed.
+          // Rely on garbage collection for cleanup.
         }
       },
       (error) => {

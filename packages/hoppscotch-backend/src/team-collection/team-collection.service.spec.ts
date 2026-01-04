@@ -1,4 +1,7 @@
-import { Team, TeamCollection as DBTeamCollection } from '@prisma/client';
+import {
+  Team,
+  TeamCollection as DBTeamCollection,
+} from 'src/generated/prisma/client';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import {
   TEAM_COLL_DATA_INVALID,
@@ -1394,7 +1397,7 @@ describe('importCollectionsFromJSON', () => {
       rootTeamCollection.teamID,
       null,
     );
-    expect(result).toEqualRight(true);
+    expect(result).toEqualRight([rootTeamCollection]);
   });
 
   test('should successfully create new TeamCollections in a child collection and TeamRequests with valid inputs', async () => {
@@ -1407,7 +1410,7 @@ describe('importCollectionsFromJSON', () => {
       rootTeamCollection.teamID,
       rootTeamCollection.id,
     );
-    expect(result).toEqualRight(true);
+    expect(result).toEqualRight([rootTeamCollection]);
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" on successful creation from jsonString', async () => {

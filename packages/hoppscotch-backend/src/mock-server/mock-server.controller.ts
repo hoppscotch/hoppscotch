@@ -12,7 +12,7 @@ import { MockServerService } from './mock-server.service';
 import { MockServerLoggingInterceptor } from './mock-server-logging.interceptor';
 import * as E from 'fp-ts/Either';
 import { MockRequestGuard } from './mock-request.guard';
-import { MockServer } from '@prisma/client';
+import { MockServer } from 'src/generated/prisma/client';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
 /**

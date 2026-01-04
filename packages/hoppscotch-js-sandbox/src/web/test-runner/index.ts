@@ -5,6 +5,7 @@ import { cloneDeep } from "lodash-es"
 
 import { defaultModules, postRequestModule } from "~/cage-modules"
 import {
+  HoppFetchHook,
   RunPostRequestScriptOptions,
   SandboxTestResult,
   TestDescriptor,
@@ -43,7 +44,8 @@ const runPostRequestScriptWithFaradayCage = async (
   envs: TestResult["envs"],
   request: HoppRESTRequest,
   response: TestResponse,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  hoppFetchHook?: HoppFetchHook
 ): Promise<E.Either<string, SandboxTestResult>> => {
   const testRunStack: TestDescriptor[] = [
     { descriptor: "root", expectResults: [], children: [] },
@@ -53,52 +55,100 @@ const runPostRequestScriptWithFaradayCage = async (
   let finalTestResults = testRunStack
   const consoleEntries: ConsoleEntry[] = []
   let finalCookies = cookies
+  const testPromises: Promise<void>[] = []
 
   const cage = await FaradayCage.create()
 
-  const result = await cage.runCode(testScript, [
-    ...defaultModules({
-      handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
-    }),
+  try {
+    // Create a hook object to receive the capture function from the module
+    const captureHook: { capture?: () => void } = {}
 
-    postRequestModule({
-      envs: cloneDeep(envs),
-      testRunStack: cloneDeep(testRunStack),
-      request: cloneDeep(request),
-      response: cloneDeep(response),
-      cookies: cookies ? cloneDeep(cookies) : null,
-      handleSandboxResults: ({ envs, testRunStack, cookies }) => {
-        finalEnvs = envs
-        finalTestResults = testRunStack
-        finalCookies = cookies
-      },
-    }),
-  ])
+    const result = await cage.runCode(testScript, [
+      ...defaultModules({
+        handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
+        hoppFetchHook,
+      }),
 
-  if (result.type === "error") {
-    if (
-      result.err !== null &&
-      typeof result.err === "object" &&
-      "message" in result.err
-    ) {
-      return E.left(`Script execution failed: ${result.err.message}`)
+      postRequestModule(
+        {
+          envs: cloneDeep(envs),
+          testRunStack: cloneDeep(testRunStack),
+          request: cloneDeep(request),
+          response: cloneDeep(response),
+          cookies: cookies ? cloneDeep(cookies) : null,
+          handleSandboxResults: ({ envs, testRunStack, cookies }) => {
+            finalEnvs = envs
+            finalTestResults = testRunStack
+            finalCookies = cookies
+          },
+          onTestPromise: (promise) => {
+            testPromises.push(promise)
+          },
+        },
+        captureHook
+      ),
+    ])
+
+    // Check for script execution errors first
+    if (result.type === "error") {
+      if (
+        result.err !== null &&
+        typeof result.err === "object" &&
+        "message" in result.err
+      ) {
+        return E.left(`Script execution failed: ${result.err.message}`)
+      }
+
+      return E.left(`Script execution failed: ${String(result.err)}`)
     }
 
-    return E.left(`Script execution failed: ${String(result.err)}`)
-  }
+    // Wait for async test functions before capturing results.
+    if (testPromises.length > 0) {
+      await Promise.all(testPromises)
+    }
 
-  return E.right(<SandboxTestResult>{
-    tests: finalTestResults[0],
-    envs: finalEnvs,
-    consoleEntries,
-    updatedCookies: finalCookies,
-  })
+    // Capture results AFTER all async tests complete
+    // This prevents showing intermediate/failed state in UI
+    if (captureHook.capture) {
+      captureHook.capture()
+    }
+
+    // Deep clone results to prevent mutable references causing UI flickering.
+    const safeTestResults = cloneDeep(finalTestResults[0])
+
+    const safeEnvs = cloneDeep(finalEnvs)
+    const safeConsoleEntries = cloneDeep(consoleEntries)
+    const safeCookies = finalCookies ? cloneDeep(finalCookies) : null
+
+    return E.right(<SandboxTestResult>{
+      tests: safeTestResults,
+      envs: safeEnvs,
+      consoleEntries: safeConsoleEntries,
+      updatedCookies: safeCookies,
+    })
+  } finally {
+    // FaradayCage relies on garbage collection for cleanup.
+  }
 }
 
 export const runTestScript = async (
   testScript: string,
   options: RunPostRequestScriptOptions
 ): Promise<E.Either<string, SandboxTestResult>> => {
+  // Pre-parse the script to catch syntax errors before execution
+  // Use AsyncFunction to support top-level await (required for hopp.fetch, etc.)
+  try {
+    // eslint-disable-next-line no-new-func
+    const AsyncFunction = Object.getPrototypeOf(
+      async function () {}
+    ).constructor
+    new (AsyncFunction as any)(testScript)
+  } catch (e) {
+    const err = e as Error
+    const reason = `${"name" in err ? (err as any).name : "SyntaxError"}: ${err.message}`
+    return E.left(`Script execution failed: ${reason}`)
+  }
+
   const responseObjHandle = preventCyclicObjects<TestResponse>(options.response)
 
   if (E.isLeft(responseObjHandle)) {
@@ -110,7 +160,7 @@ export const runTestScript = async (
   const { envs, experimentalScriptingSandbox = true } = options
 
   if (experimentalScriptingSandbox) {
-    const { request, cookies } = options as Extract<
+    const { request, cookies, hoppFetchHook } = options as Extract<
       RunPostRequestScriptOptions,
       { experimentalScriptingSandbox: true }
     >
@@ -120,7 +170,8 @@ export const runTestScript = async (
       envs,
       request,
       resolvedResponse,
-      cookies
+      cookies,
+      hoppFetchHook
     )
   }
 

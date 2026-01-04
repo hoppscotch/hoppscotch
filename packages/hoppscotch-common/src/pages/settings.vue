@@ -156,21 +156,32 @@
                 </div>
               </div>
             </div>
-            <div class="flex items-center py-4">
-              <HoppSmartToggle
-                :on="EXPERIMENTAL_SCRIPTING_SANDBOX"
-                @change="toggleSetting('EXPERIMENTAL_SCRIPTING_SANDBOX')"
-              >
-                {{ t("settings.experimental_scripting_sandbox") }}
-              </HoppSmartToggle>
-            </div>
-            <div class="flex items-center">
-              <HoppSmartToggle
-                :on="ENABLE_EXPERIMENTAL_MOCK_SERVERS"
-                @change="toggleSetting('ENABLE_EXPERIMENTAL_MOCK_SERVERS')"
-              >
-                {{ t("settings.enable_experimental_mock_servers") }}
-              </HoppSmartToggle>
+
+            <div class="flex flex-col space-y-4 py-4">
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="EXPERIMENTAL_SCRIPTING_SANDBOX"
+                  @change="toggleSetting('EXPERIMENTAL_SCRIPTING_SANDBOX')"
+                >
+                  {{ t("settings.experimental_scripting_sandbox") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+                  @change="toggleSetting('ENABLE_EXPERIMENTAL_MOCK_SERVERS')"
+                >
+                  {{ t("settings.enable_experimental_mock_servers") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_EXPERIMENTAL_DOCUMENTATION"
+                  @change="toggleSetting('ENABLE_EXPERIMENTAL_DOCUMENTATION')"
+                >
+                  {{ t("settings.enable_experimental_documentation") }}
+                </HoppSmartToggle>
+              </div>
             </div>
           </section>
         </div>
@@ -364,6 +375,9 @@ const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
 )
 const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
   "ENABLE_EXPERIMENTAL_MOCK_SERVERS"
+)
+const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
+  "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
 
 const supportedNamingStyles = [

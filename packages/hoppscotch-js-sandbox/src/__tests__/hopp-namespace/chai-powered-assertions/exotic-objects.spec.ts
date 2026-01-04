@@ -671,24 +671,23 @@ describe("hopp.expect - Exotic Objects & Error Edge Cases", () => {
       ).resolves.toEqualRight([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: [
-            {
-              status: "pass",
-              message: "Expected 42 to equal 42",
-            },
-            {
-              status: "pass",
-              message: expect.stringMatching(/to be an instanceof Error/),
-            },
-            {
-              status: "pass",
-              message: "Expected 'Failed' to equal 'Failed'",
-            },
-          ],
           children: [
             expect.objectContaining({
               descriptor: "promise tests work",
-              expectResults: [],
+              expectResults: [
+                {
+                  status: "pass",
+                  message: "Expected 42 to equal 42",
+                },
+                {
+                  status: "pass",
+                  message: expect.stringMatching(/to be an instanceof Error/),
+                },
+                {
+                  status: "pass",
+                  message: "Expected 'Failed' to equal 'Failed'",
+                },
+              ],
             }),
           ],
         }),
@@ -713,24 +712,23 @@ describe("hopp.expect - Exotic Objects & Error Edge Cases", () => {
       ).resolves.toEqualRight([
         expect.objectContaining({
           descriptor: "root",
-          expectResults: [
-            {
-              status: "pass",
-              message: expect.stringMatching(/to have lengthOf 3/),
-            },
-            {
-              status: "pass",
-              message: "Expected 1 to equal 1",
-            },
-            {
-              status: "pass",
-              message: "Expected 3 to equal 3",
-            },
-          ],
           children: [
             expect.objectContaining({
               descriptor: "promise.all tests work",
-              expectResults: [],
+              expectResults: [
+                {
+                  status: "pass",
+                  message: expect.stringMatching(/to have lengthOf 3/),
+                },
+                {
+                  status: "pass",
+                  message: "Expected 1 to equal 1",
+                },
+                {
+                  status: "pass",
+                  message: "Expected 3 to equal 3",
+                },
+              ],
             }),
           ],
         }),

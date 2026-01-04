@@ -1,6 +1,6 @@
 [package]
 name = "hoppscotch-agent"
-version = "0.1.15"
+version = "0.1.16"
 description = "A cross-platform HTTP request agent for Hoppscotch for advanced request handling including custom headers, certificates, proxies, and local system integration."
 authors = ["AndrewBastin", "CuriousCorrelation"]
 edition = "2021"
@@ -12,44 +12,44 @@ name = "hoppscotch_agent_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.1", features = [] }
+tauri-build = { version = "2.5.2", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.4", features = ["tray-icon", "image-png"] }
-tauri-plugin-shell = "2.2.1"
-tauri-plugin-autostart = { version = "2.0.1", optional = true }
+tauri = { version = "2.9.3", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2.3.3"
+tauri-plugin-autostart = { version = "2.5.1", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = { version = "1.40.0", features = ["full"] }
+tokio = { version = "1.48.0", features = ["full"] }
 dashmap = { version = "6.1.0", features = ["serde"] }
-axum = { version = "0.7.7" }
-axum-extra = { version = "0.9.4", features = ["typed-header"] }
-tower-http = { version = "0.6.1", features = ["cors"] }
-tokio-util = "0.7.12"
-uuid = { version = "1.11.0", features = [ "v4", "fast-rng" ] }
+axum = { version = "0.7.9" }
+axum-extra = { version = "0.9.6", features = ["typed-header"] }
+tower-http = { version = "0.6.6", features = ["cors"] }
+tokio-util = "0.7.17"
+uuid = { version = "1.18.1", features = [ "v4", "fast-rng" ] }
 chrono = { version = "0.4", features = ["serde"] }
 rand = "0.8.5"
-tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json", "fmt", "std", "time"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json", "fmt", "std", "time"] }
 tracing-appender = "0.2.3"
 relay = { git = "https://github.com/CuriousCorrelation/relay.git" }
-thiserror = "1.0.64"
-tauri-plugin-store = "2.1.0"
+thiserror = "1.0.69"
+tauri-plugin-store = "2.4.1"
 x25519-dalek = { version = "2.0.1", features = ["getrandom"] }
 base16 = "0.2.1"
 aes-gcm = { version = "0.10.3", features = ["aes"] }
-tauri-plugin-updater = "2.0.2"
-tauri-plugin-dialog = "2.0.1"
+tauri-plugin-updater = "2.9.0"
+tauri-plugin-dialog = "2.4.2"
 lazy_static = "1.5.0"
-tauri-plugin-single-instance = "2.0.1"
-tauri-plugin-http = { version = "2.0.1", features = ["gzip"] }
+tauri-plugin-single-instance = "2.3.6"
+tauri-plugin-http = { version = "2.5.4", features = ["gzip"] }
 native-dialog = "0.7.0"
-sha2 = "0.10.8"
+sha2 = "0.10.9"
 file-rotate = "0.8.0"
 dirs = "6.0.0"
 
 [target.'cfg(windows)'.dependencies]
-tempfile = { version = "3.13.0" }
+tempfile = { version = "3.23.0" }
 winreg = { version = "0.52.0" }
 
 [features]

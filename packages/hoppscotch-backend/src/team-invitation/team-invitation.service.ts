@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TeamInvitation as DBTeamInvitation } from '@prisma/client';
+import { TeamInvitation as DBTeamInvitation } from 'src/generated/prisma/client';
 import { TeamMember, TeamAccessRole } from 'src/team/team.model';
 import { TeamService } from 'src/team/team.service';
 import {

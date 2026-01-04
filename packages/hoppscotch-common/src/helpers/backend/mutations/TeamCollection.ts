@@ -32,6 +32,7 @@ import {
   UpdateTeamCollectionMutation,
   UpdateTeamCollectionMutationVariables,
 } from "../graphql"
+import { CollectionDataProps } from "../helpers"
 
 type CreateNewRootCollectionError = "team_coll/short_title"
 
@@ -135,7 +136,7 @@ export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
 
 export const updateTeamCollection = (
   collectionID: string,
-  data?: string,
+  data?: CollectionDataProps,
   newTitle?: string
 ) =>
   runMutation<
@@ -144,7 +145,7 @@ export const updateTeamCollection = (
     ""
   >(UpdateTeamCollectionDocument, {
     collectionID,
-    data,
+    data: JSON.stringify(data),
     newTitle,
   })
 

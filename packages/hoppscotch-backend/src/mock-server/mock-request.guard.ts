@@ -11,7 +11,7 @@ import { MockServerService } from './mock-server.service';
 import * as E from 'fp-ts/Either';
 import { AccessTokenService } from 'src/access-token/access-token.service';
 import { TeamService } from 'src/team/team.service';
-import { WorkspaceType } from '@prisma/client';
+import { WorkspaceType } from 'src/generated/prisma/client';
 
 /**
  * Guard to extract and validate mock server ID from either:
@@ -47,7 +47,7 @@ export class MockRequestGuard implements CanActivate {
 
     if (E.isLeft(mockServerResult)) {
       console.warn(
-        `Mock server lookup failed for subdomain: ${String(mockServerSubdomain).replace(/\r|\n/g, "")}, error: ${mockServerResult.left}`,
+        `Mock server lookup failed for subdomain: ${String(mockServerSubdomain).replace(/\r|\n/g, '')}, error: ${mockServerResult.left}`,
       );
       throw new NotFoundException(
         `Mock server '${mockServerSubdomain}' not found`,

@@ -15,7 +15,10 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { stringToJson } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
-import { Prisma, TeamRequest as DbTeamRequest } from '@prisma/client';
+import {
+  Prisma,
+  TeamRequest as DbTeamRequest,
+} from 'src/generated/prisma/client';
 import { SortOptions } from 'src/types/SortOptions';
 
 @Injectable()

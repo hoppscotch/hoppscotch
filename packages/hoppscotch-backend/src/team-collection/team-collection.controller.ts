@@ -11,7 +11,7 @@ import * as E from 'fp-ts/Either';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
-import { TeamAccessRole } from '@prisma/client';
+import { TeamAccessRole } from 'src/generated/prisma/client';
 import { RESTTeamMemberGuard } from 'src/team/guards/rest-team-member.guard';
 import { throwHTTPErr } from 'src/utils';
 import { RESTError } from 'src/types/RESTError';

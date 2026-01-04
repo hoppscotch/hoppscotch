@@ -3,6 +3,7 @@ import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash"
 import {
+  HoppFetchHook,
   RunPreRequestScriptOptions,
   SandboxPreRequestResult,
   TestResult,
@@ -38,7 +39,8 @@ const runPreRequestScriptWithFaradayCage = async (
   preRequestScript: string,
   envs: TestResult["envs"],
   request: HoppRESTRequest,
-  cookies: Cookie[] | null
+  cookies: Cookie[] | null,
+  hoppFetchHook?: HoppFetchHook
 ): Promise<E.Either<string, SandboxPreRequestResult>> => {
   const consoleEntries: ConsoleEntry[] = []
   let finalEnvs = envs
@@ -47,41 +49,58 @@ const runPreRequestScriptWithFaradayCage = async (
 
   const cage = await FaradayCage.create()
 
-  const result = await cage.runCode(preRequestScript, [
-    ...defaultModules({
-      handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
-    }),
+  try {
+    // Create a hook object to receive the capture function from the module
+    const captureHook: { capture?: () => void } = {}
 
-    preRequestModule({
-      envs: cloneDeep(envs),
-      request: cloneDeep(request),
-      cookies: cookies ? cloneDeep(cookies) : null,
-      handleSandboxResults: ({ envs, request, cookies }) => {
-        finalEnvs = envs
-        finalRequest = request
-        finalCookies = cookies
-      },
-    }),
-  ])
+    const result = await cage.runCode(preRequestScript, [
+      ...defaultModules({
+        handleConsoleEntry: (consoleEntry) => consoleEntries.push(consoleEntry),
+        hoppFetchHook,
+      }),
 
-  if (result.type === "error") {
-    if (
-      result.err !== null &&
-      typeof result.err === "object" &&
-      "message" in result.err
-    ) {
-      return E.left(`Script execution failed: ${result.err.message}`)
+      preRequestModule(
+        {
+          envs: cloneDeep(envs),
+          request: cloneDeep(request),
+          cookies: cookies ? cloneDeep(cookies) : null,
+          handleSandboxResults: ({ envs, request, cookies }) => {
+            finalEnvs = envs
+            finalRequest = request
+            finalCookies = cookies
+          },
+        },
+        captureHook
+      ),
+    ])
+
+    if (result.type === "error") {
+      if (
+        result.err !== null &&
+        typeof result.err === "object" &&
+        "message" in result.err
+      ) {
+        return E.left(`Script execution failed: ${result.err.message}`)
+      }
+
+      return E.left(`Script execution failed: ${String(result.err)}`)
     }
 
-    return E.left(`Script execution failed: ${String(result.err)}`)
-  }
+    // Capture results only on successful execution
+    if (captureHook.capture) {
+      captureHook.capture()
+    }
 
-  return E.right({
-    updatedEnvs: finalEnvs,
-    consoleEntries,
-    updatedRequest: finalRequest,
-    updatedCookies: finalCookies,
-  } satisfies SandboxPreRequestResult)
+    return E.right({
+      updatedEnvs: finalEnvs,
+      consoleEntries,
+      updatedRequest: finalRequest,
+      updatedCookies: finalCookies,
+    } satisfies SandboxPreRequestResult)
+  } finally {
+    // Don't dispose cage here - returned objects may still be accessed.
+    // Rely on garbage collection for cleanup.
+  }
 }
 
 export const runPreRequestScript = (
@@ -91,7 +110,7 @@ export const runPreRequestScript = (
   const { envs, experimentalScriptingSandbox = true } = options
 
   if (experimentalScriptingSandbox) {
-    const { request, cookies } = options as Extract<
+    const { request, cookies, hoppFetchHook } = options as Extract<
       RunPreRequestScriptOptions,
       { experimentalScriptingSandbox: true }
     >
@@ -100,7 +119,8 @@ export const runPreRequestScript = (
       preRequestScript,
       envs,
       request,
-      cookies
+      cookies,
+      hoppFetchHook
     )
   }
 

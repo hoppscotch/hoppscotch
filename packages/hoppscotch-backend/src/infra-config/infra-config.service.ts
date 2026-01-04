@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InfraConfig } from './infra-config.model';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { InfraConfig as DBInfraConfig } from '@prisma/client';
+import { InfraConfig as DBInfraConfig } from 'src/generated/prisma/client';
 import * as E from 'fp-ts/Either';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
@@ -525,10 +525,12 @@ export class InfraConfigService implements OnModuleInit {
     const onboardingRecoveryToken = crypto.randomUUID();
 
     const configEntries: InfraConfigArgs[] = [
-      ...Object.entries(dto).map(([key, value]) => ({
-        name: key as InfraConfigEnum,
-        value,
-      })),
+      ...Object.entries(dto)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => ({
+          name: key as InfraConfigEnum,
+          value,
+        })),
       {
         name: InfraConfigEnum.ONBOARDING_COMPLETED,
         value: 'true',

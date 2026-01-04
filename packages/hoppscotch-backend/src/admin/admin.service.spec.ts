@@ -1,7 +1,7 @@
 import { AdminService } from './admin.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { mockDeep } from 'jest-mock-extended';
-import { InvitedUsers, User as DbUser } from '@prisma/client';
+import { InvitedUsers, User as DbUser } from 'src/generated/prisma/client';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import { TeamEnvironmentsService } from '../team-environments/team-environments.service';

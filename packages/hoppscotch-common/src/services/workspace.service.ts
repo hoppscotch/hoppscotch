@@ -7,6 +7,7 @@ import { platform } from "~/platform"
 import { min } from "lodash-es"
 import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { TeamCollectionsService } from "./team-collection.service"
+import { DocumentationService } from "./documentation.service"
 
 /**
  * Defines a workspace and its information
@@ -47,6 +48,7 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
   private managedTeamListAdapter = new TeamListAdapter(true, false)
 
   private teamCollectionService = this.bind(TeamCollectionsService)
+  private documentationService = this.bind(DocumentationService)
 
   private currentUser = useStreamStatic(
     platform.auth.getCurrentUserStream(),
@@ -105,29 +107,54 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
       { immediate: true }
     )
 
-    // Watch for workspace changes and update team collection service accordingly
-    this.setupTeamCollectionServiceSync()
+    // Watch for workspace changes and update team collection service and documentation service accordingly
+    this.setupWorkspaceSync()
   }
 
   /**
-   * Sets up synchronization with team collection service
-   * This ensures team collections are updated when workspace changes
+   * Sets up synchronization between team collection service and documentation service.
+   * Ensures that team collections and published docs stay updated whenever
+   * the workspace or user changes.
+   *
+   * Fixes a bug where the initial fetch failed on cloud instances because
+   * authorization was null during user login. Now we wait for authentication
+   * to be ready before fetching team collections and published docs.
    */
-  private setupTeamCollectionServiceSync() {
+  private setupWorkspaceSync() {
     watch(
-      this._currentWorkspace,
-      (newWorkspace, oldWorkspace) => {
-        // Skip update if workspaces are effectively the same
-        if (this.areWorkspacesEqual(newWorkspace, oldWorkspace)) return
+      [this._currentWorkspace, this.currentUser],
+      async ([newWorkspace, user], [oldWorkspace, oldUser]) => {
+        // Skip if workspace and user haven't changed
+        if (
+          this.areWorkspacesEqual(newWorkspace, oldWorkspace) &&
+          user?.uid === oldUser?.uid
+        ) {
+          return
+        }
 
         try {
-          if (newWorkspace.type === "team" && newWorkspace.teamID) {
+          // Ensure authentication is ready before fetching docs
+          if (user) {
+            await platform.auth.waitProbableLoginToConfirm()
+          }
+
+          if (newWorkspace?.type === "team" && newWorkspace.teamID) {
             this.teamCollectionService.changeTeamID(newWorkspace.teamID)
+
+            if (user) {
+              await this.documentationService.fetchTeamPublishedDocs(
+                newWorkspace.teamID
+              )
+            }
           } else {
             this.teamCollectionService.clearCollections()
+
+            if (user) {
+              await this.documentationService.fetchUserPublishedDocs()
+            }
           }
         } catch (error) {
-          console.error("Failed to sync team collections:", error)
+          console.error("Failed to sync workspace data:", error)
         }
       },
       { immediate: true }

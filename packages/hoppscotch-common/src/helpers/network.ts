@@ -68,8 +68,13 @@ export function createRESTNetworkRequestStream(
   return [
     response,
     async () => {
-      const result = await execResult
-      if (result) await result.cancel()
+      try {
+        const result = await execResult
+        if (result) await result.cancel()
+      } catch (error) {
+        // Ignore cancel errors - request may have already completed
+        // This is expected behavior and not an actual error
+      }
     },
   ]
 }

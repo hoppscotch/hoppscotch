@@ -1,18 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import * as session from 'express-session';
+import session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
 import * as crypto from 'crypto';
-import * as morgan from 'morgan';
+import morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { InfraTokenModule } from './infra-token/infra-token.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupSwagger(app: NestExpressApplication, isProduction: boolean): void {
+function setupSwagger(
+  app: NestExpressApplication,
+  isProduction: boolean,
+): void {
   const swaggerDocPath = '/api-docs';
 
   const config = new DocumentBuilder()
@@ -57,6 +60,8 @@ async function bootstrap() {
       secret:
         configService.get<string>('INFRA.SESSION_SECRET') ||
         crypto.randomBytes(16).toString('hex'),
+      resave: false,
+      saveUninitialized: false,
     }),
   );
 

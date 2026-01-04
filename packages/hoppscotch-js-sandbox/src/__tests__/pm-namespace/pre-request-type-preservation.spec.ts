@@ -369,7 +369,7 @@ describe("PM namespace type preservation in pre-request context", () => {
   })
 
   describe("Regression tests for String() coercion bug", () => {
-    test("CRITICAL: does NOT convert [1,2,3] to '1,2,3' string", () => {
+    test("does NOT convert [1,2,3] to '1,2,3' string", () => {
       return expect(
         runPreRequestScript(
           `
@@ -394,7 +394,7 @@ describe("PM namespace type preservation in pre-request context", () => {
       })
     })
 
-    test("CRITICAL: does NOT convert object to '[object Object]'", () => {
+    test("does NOT convert object to '[object Object]'", () => {
       return expect(
         runPreRequestScript(
           `

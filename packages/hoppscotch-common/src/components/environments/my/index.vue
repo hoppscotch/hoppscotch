@@ -98,6 +98,7 @@
     />
     <EnvironmentsImportExport
       v-if="showModalImportExport"
+      mode="environments"
       environment-type="MY_ENV"
       @hide-modal="displayModalImportExport(false)"
     />

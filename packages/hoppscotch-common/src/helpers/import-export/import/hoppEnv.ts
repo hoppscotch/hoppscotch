@@ -34,6 +34,11 @@ export const hoppEnvImporter = (contents: string[]) => {
               return {
                 ...valueEntry,
                 initialValue: String(valueEntry.initialValue),
+                // Preserve currentValue if it exists, otherwise use initialValue as fallback
+                currentValue:
+                  "currentValue" in valueEntry && valueEntry.currentValue
+                    ? String(valueEntry.currentValue)
+                    : String(valueEntry.initialValue),
               }
             }
 
@@ -54,6 +59,8 @@ export const hoppEnvImporter = (contents: string[]) => {
   }
 
   const environments = validationResult.data
+  const globalEnvs = environments.filter((env) => env.id === "Global")
+  const otherEnvs = environments.filter((env) => env.id !== "Global")
 
-  return TE.right(environments)
+  return TE.right({ globalEnvs, otherEnvs })
 }

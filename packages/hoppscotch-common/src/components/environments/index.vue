@@ -46,6 +46,14 @@
     />
   </div>
 
+  <EnvironmentsImportExport
+    v-if="showGlobalsImportExport"
+    :show="showGlobalsImportExport"
+    mode="globals"
+    environment-type="MY_ENV"
+    @hide-modal="showGlobalsImportExport = false"
+  />
+
   <HoppSmartConfirmModal
     :show="showConfirmRemoveEnvModal"
     :title="`${t('confirm.remove_environment')}`"
@@ -206,6 +214,7 @@ const editingVariableName = ref("")
 const editingVariableValue = ref("")
 const secretOptionSelected = ref(false)
 const duplicateGlobalEnvironmentLoading = ref(false)
+const showGlobalsImportExport = ref(false)
 
 const position = ref({ top: 0, left: 0 })
 
@@ -391,5 +400,9 @@ defineActionHandler("modals.environment.add", ({ envName, variableName }) => {
   editingVariableName.value = envName
   editingVariableValue.value = variableName ?? ""
   displayModalNew(true)
+})
+
+defineActionHandler("modals.global.environment.import-export", () => {
+  showGlobalsImportExport.value = true
 })
 </script>

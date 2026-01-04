@@ -1,7 +1,6 @@
 <template>
   <ImportExportBase
-    ref="collections-import-export"
-    modal-title="environment.title"
+    :modal-title="modalTitle"
     :importer-modules="importerModules"
     :exporter-modules="exporterModules"
     @hide-modal="emit('hide-modal')"
@@ -9,7 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, NonSecretEnvironment } from "@hoppscotch/data"
+import {
+  Environment,
+  NonSecretEnvironment,
+  GlobalEnvironment,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { ref } from "vue"
 
@@ -24,7 +27,13 @@ import {
   addGlobalEnvVariable,
   appendEnvironments,
   environments$,
+  getGlobalVariables,
+  globalEnv$,
+  updateGlobalEnvVariable,
 } from "~/newstore/environments"
+
+import { useService } from "dioc/vue"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { CreateTeamEnvironmentMutation } from "~/helpers/backend/graphql"
@@ -39,6 +48,7 @@ import { initializeDownloadFile } from "~/helpers/import-export/export"
 import { transformEnvironmentVariables } from "~/helpers/import-export/export/environment"
 import { environmentsExporter } from "~/helpers/import-export/export/environments"
 import { gistExporter } from "~/helpers/import-export/export/gist"
+import { exportAsJSON } from "~/helpers/import-export/export/environment"
 import { platform } from "~/platform"
 import IconInsomnia from "~icons/hopp/insomnia"
 import IconPostman from "~icons/hopp/postman"
@@ -49,10 +59,24 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
+  mode: "environments" | "globals"
   teamEnvironments?: TeamEnvironment[]
   teamId?: string | undefined
   environmentType: "MY_ENV" | "TEAM_ENV"
 }>()
+
+// Modal title changes based on mode
+const modalTitle = computed(() =>
+  props.mode === "globals"
+    ? "environment.global_variables"
+    : "environment.title"
+)
+
+const globalEnv = useReadonlyStream(globalEnv$, {
+  v: 2,
+  name: "Global",
+  variables: [],
+} as GlobalEnvironment)
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
@@ -67,6 +91,8 @@ const isRESTImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
 
 const isEnvironmentGistExportInProgress = ref(false)
+
+const currentValueService = useService(CurrentValueService)
 
 const isTeamEnvironment = computed(() => {
   return props.environmentType === "TEAM_ENV"
@@ -104,7 +130,11 @@ const HoppEnvironmentsImport: ImporterOrExporter = {
       const res = await hoppEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -141,7 +171,11 @@ const PostmanEnvironmentsImport: ImporterOrExporter = {
       const res = await postmanEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -178,14 +212,11 @@ const insomniaEnvironmentsImport: ImporterOrExporter = {
       const res = await insomniaEnvImporter(environments)()
 
       if (E.isRight(res)) {
-        const globalEnvs = res.right.filter(
-          (env) => env.name === "Base Environment"
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
         )
-        const otherEnvs = res.right.filter(
-          (env) => env.name !== "Base Environment"
-        )
-
-        await handleImportToStore(otherEnvs, globalEnvs)
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -226,7 +257,11 @@ const EnvironmentsImportFromGIST: ImporterOrExporter = {
       const res = await hoppEnvImporter(environments.right)()
 
       if (E.isRight(res)) {
-        await handleImportToStore(res.right)
+        const { globalEnvs, otherEnvs } = res.right
+        await handleImportToStore(
+          otherEnvs as Environment[],
+          globalEnvs as NonSecretEnvironment[]
+        )
 
         platform.analytics?.logEvent({
           type: "HOPP_IMPORT_ENVIRONMENT",
@@ -254,6 +289,30 @@ const HoppEnvironmentsExport: ImporterOrExporter = {
     applicableTo: ["personal-workspace", "team-workspace"],
   },
   action: async () => {
+    // Export global variables
+    if (props.mode === "globals") {
+      if (!globalEnv.value.variables.length) {
+        return toast.error(t("error.no_global_variables_to_export"))
+      }
+
+      const environmentToExport: Environment = {
+        v: 2,
+        id: "Global",
+        name: "Global",
+        variables: globalEnv.value.variables,
+      }
+
+      const message = await exportAsJSON(environmentToExport, "Global")
+
+      if (E.isRight(message)) {
+        toast.success(t(message.right))
+      } else {
+        toast.error(t(message.left))
+      }
+      return
+    }
+
+    // Export environment variables
     if (!environmentJson.value.length) {
       return toast.error(t("error.no_environments_to_export"))
     }
@@ -335,17 +394,27 @@ const HoppEnvironmentsGistExporter: ImporterOrExporter = {
   },
 }
 
-const importerModules = [
-  HoppEnvironmentsImport,
-  EnvironmentsImportFromGIST,
-  PostmanEnvironmentsImport,
-  insomniaEnvironmentsImport,
-]
+const importerModules = computed(() => {
+  const modules = [
+    HoppEnvironmentsImport,
+    EnvironmentsImportFromGIST,
+    PostmanEnvironmentsImport,
+    insomniaEnvironmentsImport,
+  ]
+
+  if (props.mode === "globals") {
+    return modules.filter(
+      (module) => module.metadata.id !== "import.environments_from_gist"
+    )
+  }
+
+  return modules
+})
 
 const exporterModules = computed(() => {
   const enabledExporters = [HoppEnvironmentsExport]
 
-  if (platform.platformFeatureFlags.exportAsGIST) {
+  if (platform.platformFeatureFlags.exportAsGIST && props.mode !== "globals") {
     enabledExporters.push(HoppEnvironmentsGistExporter)
   }
 
@@ -360,12 +429,15 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: NonSecretEnvironment[] = []
 ) => {
-  // Add global envs to the store
-  globalEnvs.forEach(({ variables }) => {
-    variables.forEach(({ key, initialValue, currentValue, secret }) => {
-      addGlobalEnvVariable({ key, initialValue, currentValue, secret })
+  console.log({ environments, globalEnvs })
+  // Import global variables
+  if (props.mode === "globals") {
+    globalEnvs.forEach(({ variables }) => {
+      mergeGlobalVariables(variables)
     })
-  })
+    toast.success(t("environment.global_variables_imported"))
+    return
+  }
 
   if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
@@ -373,6 +445,78 @@ const handleImportToStore = async (
   } else {
     await importToTeams(environments)
   }
+}
+
+/**
+ * Merges imported variables with existing global variables
+ * - Adds new variables
+ * - Updates existing variables by key
+ */
+const mergeGlobalVariables = (importedVars: Environment["variables"]) => {
+  const existing = getGlobalVariables()
+  const existingIndexMap = new Map(existing.map((v, i) => [v.key, i] as const))
+
+  importedVars.forEach((variable) => {
+    const index = existingIndexMap.get(variable.key)
+    if (index !== undefined) {
+      const currentVariable = existing[index]
+      const mergedVariable = { ...currentVariable, ...variable }
+
+      // Only update if at least one property value actually changed
+      const hasChanges =
+        variable.initialValue !== currentVariable.initialValue ||
+        variable.secret !== currentVariable.secret
+
+      console.log("Has changes", hasChanges)
+      console.log("Variable", variable)
+      console.log("Current variable", currentVariable)
+
+      if (hasChanges) {
+        updateGlobalEnvVariable(index, mergedVariable)
+      }
+
+      // Update the current value in the CurrentValueService if it exists
+      if (variable.currentValue && !variable.secret) {
+        const existingVars = currentValueService.getEnvironment("Global") || []
+        const existingVarIndex = existingVars.findIndex(
+          (v) => v.varIndex === index
+        )
+
+        if (existingVarIndex !== -1) {
+          // Update existing variable
+          existingVars[existingVarIndex] = {
+            key: variable.key,
+            currentValue: variable.currentValue,
+            varIndex: index,
+            isSecret: false,
+          }
+          currentValueService.addEnvironment("Global", existingVars)
+        } else {
+          // Add new variable to the service
+          currentValueService.addEnvironmentVariable("Global", {
+            key: variable.key,
+            currentValue: variable.currentValue,
+            varIndex: index,
+            isSecret: false,
+          })
+        }
+      }
+    } else {
+      // New variable - add it
+      const newIndex = existing.length
+      addGlobalEnvVariable(variable)
+
+      // Save current value to CurrentValueService if it exists
+      if (variable.currentValue && !variable.secret) {
+        currentValueService.addEnvironmentVariable("Global", {
+          key: variable.key,
+          currentValue: variable.currentValue,
+          varIndex: newIndex,
+          isSecret: false,
+        })
+      }
+    }
+  })
 }
 
 const importToTeams = async (content: Environment[]) => {

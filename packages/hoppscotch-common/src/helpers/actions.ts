@@ -84,6 +84,7 @@ export type HoppAction =
   | "modals.environment.new" // Add new environment
   | "modals.environment.delete-selected" // Delete Selected Environment
   | "modals.my.environment.edit" // Edit current personal environment
+  | "modals.global.environment.import-export" // Open global variables import/export modal
   | "modals.global.environment.update" // Update global environment
   | "modals.team.environment.edit" // Edit current team environment
   | "modals.team.new" // Add new team
@@ -169,15 +170,15 @@ type HoppActionArgsMap = {
     doc: HoppRequestDocument
   }
   "request.save-as":
-    | {
-        requestType: "rest"
-        request: HoppRESTRequest | null
-      }
-    | {
-        requestType: "gql"
-        request: HoppGQLRequest
-      }
-    | undefined
+  | {
+    requestType: "rest"
+    request: HoppRESTRequest | null
+  }
+  | {
+    requestType: "gql"
+    request: HoppGQLRequest
+  }
+  | undefined
   "request.open-tab": {
     tab: RESTOptionTabs | GQLOptionTabs
   }

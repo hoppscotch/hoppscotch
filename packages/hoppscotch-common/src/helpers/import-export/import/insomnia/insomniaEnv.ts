@@ -60,11 +60,21 @@ export const insomniaEnvImporter = (contents: string[]) => {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
-  const parsedValues = parsedContents.map((parsed) => O.toNullable(parsed))
-  const environments: NonSecretEnvironment[] = []
+  // Define a specific type here to avoid "any" casting and ensure we populate V2 fields correctly.
+  type InsomniaImporterEnvironment = Omit<NonSecretEnvironment, "variables"> & {
+    variables: {
+      key: string
+      initialValue: string
+      currentValue: string
+      secret: false
+    }[]
+  }
 
-  // Valid flag to check if at least one file was valid
-  let hasWrappedSuccess = false
+  const parsedValues = parsedContents.map((parsed) => O.toNullable(parsed))
+  const environments: InsomniaImporterEnvironment[] = []
+
+  // Track whether we processed a V5 file (which has semantic base environment)
+  let isV5Format = false
 
   parsedValues.forEach((parsedValue) => {
     if (!parsedValue) return
@@ -72,7 +82,6 @@ export const insomniaEnvImporter = (contents: string[]) => {
     // Try V4 (Resources Array)
     const v4Result = insomniaResourcesSchema.safeParse(parsedValue)
     if (v4Result.success) {
-      hasWrappedSuccess = true
       v4Result.data.resources
         .filter((resource) => resource._type === "environment")
         .forEach((envResource) => {
@@ -98,7 +107,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
                   currentValue: value,
                   secret: false,
                 })
-              ) as any,
+              ),
             })
           }
         })
@@ -109,10 +118,10 @@ export const insomniaEnvImporter = (contents: string[]) => {
     const v5Result = insomniaV5Schema.safeParse(parsedValue)
 
     if (v5Result.success) {
-      hasWrappedSuccess = true
+      isV5Format = true
       const rootEnv = v5Result.data.environments
 
-      // Add Base Environment
+      // Add Base Environment (root is always the base in V5)
       environments.push({
         id: uniqueID(),
         v: EnvironmentSchemaVersion,
@@ -122,7 +131,7 @@ export const insomniaEnvImporter = (contents: string[]) => {
           initialValue: parseInsomniaValue(value),
           currentValue: parseInsomniaValue(value),
           secret: false,
-        })) as any,
+        })),
       })
 
       // Add Sub Environments
@@ -136,29 +145,53 @@ export const insomniaEnvImporter = (contents: string[]) => {
             initialValue: parseInsomniaValue(value),
             currentValue: parseInsomniaValue(value),
             secret: false,
-          })) as any,
+          })),
         })
       })
     }
   })
 
-  if (!hasWrappedSuccess) {
+  if (environments.length === 0) {
     return TE.left(IMPORTER_INVALID_FILE_FORMAT)
   }
 
   const processedEnvironments = environments.map((env) => ({
-    ...(env as any),
-    variables: (env.variables as any[]).map((variable: any) => ({
+    ...env,
+    variables: env.variables.map((variable) => ({
       ...variable,
       initialValue: replaceInsomniaTemplating(variable.initialValue),
       currentValue: replaceInsomniaTemplating(variable.currentValue),
     })),
   }))
 
-  // The first environment is considered the Base/Global source
-  // (especially for V5 where it stems from the root property)
-  const globalEnvs = processedEnvironments.slice(0, 1)
-  const otherEnvs = processedEnvironments.slice(1)
+  // For V5 format: The first environment is semantically the base/global environment
+  // For V4 format: Look for an environment that appears to be a base/global environment by name
+  let globalEnvIndex = 0
+
+  if (!isV5Format && processedEnvironments.length > 1) {
+    // Try to find a base environment by name for V4 format
+    const baseEnvIndex = processedEnvironments.findIndex((env) => {
+      const name = env.name.trim().toLowerCase()
+      return (
+        name === "base environment" ||
+        name === "base" ||
+        name === "global" ||
+        name === "globals"
+      )
+    })
+
+    if (baseEnvIndex >= 0) {
+      globalEnvIndex = baseEnvIndex
+    }
+  }
+
+  const globalEnvs =
+    processedEnvironments.length > 0
+      ? [processedEnvironments[globalEnvIndex]]
+      : []
+  const otherEnvs = processedEnvironments.filter(
+    (_, index) => index !== globalEnvIndex
+  )
 
   return TE.right({ globalEnvs, otherEnvs })
 }

@@ -429,7 +429,6 @@ const handleImportToStore = async (
   environments: Environment[],
   globalEnvs: NonSecretEnvironment[] = []
 ) => {
-  console.log({ environments, globalEnvs })
   // Import global variables
   if (props.mode === "globals") {
     globalEnvs.forEach(({ variables }) => {
@@ -467,16 +466,12 @@ const mergeGlobalVariables = (importedVars: Environment["variables"]) => {
         variable.initialValue !== currentVariable.initialValue ||
         variable.secret !== currentVariable.secret
 
-      console.log("Has changes", hasChanges)
-      console.log("Variable", variable)
-      console.log("Current variable", currentVariable)
-
       if (hasChanges) {
         updateGlobalEnvVariable(index, mergedVariable)
       }
 
       // Update the current value in the CurrentValueService if it exists
-      if (variable.currentValue && !variable.secret) {
+      if (variable.currentValue !== undefined && !variable.secret) {
         const existingVars = currentValueService.getEnvironment("Global") || []
         const existingVarIndex = existingVars.findIndex(
           (v) => v.varIndex === index
@@ -507,7 +502,7 @@ const mergeGlobalVariables = (importedVars: Environment["variables"]) => {
       addGlobalEnvVariable(variable)
 
       // Save current value to CurrentValueService if it exists
-      if (variable.currentValue && !variable.secret) {
+      if (variable.currentValue !== undefined && !variable.secret) {
         currentValueService.addEnvironmentVariable("Global", {
           key: variable.key,
           currentValue: variable.currentValue,

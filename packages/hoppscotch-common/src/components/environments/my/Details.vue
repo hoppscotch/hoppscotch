@@ -47,7 +47,7 @@
                   @click="addEnvironmentVariable"
                 />
                 <HoppButtonSecondary
-                  v-if="selectedEnvOption === 'variables'"
+                  v-if="selectedEnvOption === 'variables' && props.editingEnvironmentIndex === 'Global'"
                   v-tippy="{ theme: 'tooltip' }"
                   :icon="IconImport"
                   :title="t('modal.import_export')"
@@ -505,16 +505,17 @@ watch(
 
 watch(workingEnv, (newEnv) => {
   if (props.show && props.editingEnvironmentIndex === "Global" && newEnv) {
+    const variables = (newEnv.variables ?? []) as GlobalEnvironment["variables"]
     vars.value = pipe(
-      newEnv.variables as any[],
+      variables,
       A.mapWithIndex((index, e) => ({
         id: idTicker.value++,
         env: {
           key: e.key,
           currentValue:
-            getCurrentValue("Global", index) ?? e.currentValue ?? e.value,
+            getCurrentValue("Global", index) ?? e.currentValue,
           initialValue:
-            getInitialValue("Global", index) ?? e.initialValue ?? e.value,
+            getInitialValue("Global", index) ?? e.initialValue,
           secret: e.secret,
         },
       }))

@@ -513,12 +513,12 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
       name: "Multiple child collections with authorization, headers and variables set at each level",
       folders: [
         {
-          v: 11,
+          v: CollectionSchemaVersion,
           id: "clx1fjgah000110f8a5bs68gd",
           name: "folder-1",
           folders: [
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fjwmm000410f8l1gkkr1a",
               name: "folder-11",
               folders: [],
@@ -569,7 +569,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fjyxm000510f8pv90dt43",
               name: "folder-12",
               folders: [],
@@ -636,7 +636,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fk1cv000610f88kc3aupy",
               name: "folder-13",
               folders: [],
@@ -766,12 +766,12 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
           description: null,
         },
         {
-          v: 11,
+          v: CollectionSchemaVersion,
           id: "clx1fjk9o000210f8j0573pls",
           name: "folder-2",
           folders: [
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fk516000710f87sfpw6bo",
               name: "folder-21",
               folders: [],
@@ -820,7 +820,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fk72t000810f8gfwkpi5y",
               name: "folder-22",
               folders: [],
@@ -887,7 +887,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1fk95g000910f8bunhaoo8",
               name: "folder-23",
               folders: [],
@@ -1011,12 +1011,12 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
         },
 
         {
-          v: 11,
+          v: CollectionSchemaVersion,
           id: "clx1fjmlq000310f86o4d3w2o",
           name: "folder-3",
           folders: [
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1iwq0p003e10f8u8zg0p85",
               name: "folder-31",
               folders: [],
@@ -1065,7 +1065,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1izut7003m10f894ip59zg",
               name: "folder-32",
               folders: [],
@@ -1132,7 +1132,7 @@ export const TRANSFORMED_MULTIPLE_CHILD_COLLECTIONS_WITH_AUTH_HEADERS_MOCK: Hopp
               description: null,
             },
             {
-              v: 11,
+              v: CollectionSchemaVersion,
               id: "clx1j2ka9003q10f8cdbzpgpg",
               name: "folder-33",
               folders: [],

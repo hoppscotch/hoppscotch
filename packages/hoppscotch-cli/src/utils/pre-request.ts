@@ -41,6 +41,9 @@ import {
  * applies them on current request to generate updated request.
  * @param request HoppRESTRequest to be converted to EffectiveHoppRESTRequest.
  * @param envs Environment variables related to request.
+ * @param legacySandbox Whether to use the legacy sandbox.
+ * @param collectionVariables Collection variables to use.
+ * @param inheritedPreRequestScripts Pre-request scripts inherited from parent collections.
  * @returns EffectiveHoppRESTRequest that includes parsed ENV variables with in
  * request OR HoppCLIError with error code and related information.
  */
@@ -48,7 +51,8 @@ export const preRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: HoppEnvs,
   legacySandbox: boolean,
-  collectionVariables?: HoppCollectionVariable[]
+  collectionVariables?: HoppCollectionVariable[],
+  inheritedPreRequestScripts: string[] = []
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
@@ -56,10 +60,19 @@ export const preRequestScriptRunner = (
   const experimentalScriptingSandbox = !legacySandbox;
   const hoppFetchHook = createHoppFetchHook();
 
+  // Combine inherited pre-request scripts with the request's script
+  // Order: Root collection → Parent folder → Child folder → Request
+  const combinedScript = [
+    ...inheritedPreRequestScripts.filter((s) => s.trim()),
+    request.preRequestScript,
+  ]
+    .filter((s) => s.trim())
+    .join("\n\n");
+
   return pipe(
     TE.of(request),
-    TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, {
+    TE.chain(() =>
+      runPreRequestScript(combinedScript, {
         envs,
         experimentalScriptingSandbox,
         request,

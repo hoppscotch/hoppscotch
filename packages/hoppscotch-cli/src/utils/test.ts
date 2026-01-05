@@ -38,7 +38,7 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ request, response, envs, legacySandbox }) => {
+        TE.chain(({ request, response, envs, legacySandbox, inheritedTestScripts = [] }) => {
           const { status, statusText, headers, responseTime, body } = response;
 
           const effectiveResponse = {
@@ -52,7 +52,16 @@ export const testRunner = (
           const experimentalScriptingSandbox = !legacySandbox;
           const hoppFetchHook = createHoppFetchHook();
 
-          return runTestScript(request.testScript, {
+          // Combine request test script with inherited test scripts (from child to root collection)
+          // Order: Request → Child folder → Parent folder → Root collection
+          const combinedScript = [
+            request.testScript,
+            ...inheritedTestScripts.filter((s) => s.trim()).reverse(),
+          ]
+            .filter((s) => s.trim())
+            .join("\n\n");
+
+          return runTestScript(combinedScript, {
             envs,
             request,
             response: effectiveResponse,

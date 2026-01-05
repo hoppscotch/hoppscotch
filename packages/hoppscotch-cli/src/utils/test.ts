@@ -39,28 +39,46 @@ export const testRunner = (
     TE.bind("test_response", () =>
       pipe(
         TE.of(testScriptData),
-        TE.chain(({ request, response, envs, legacySandbox }) => {
-          const { status, statusText, headers, responseTime, body } = response;
-
-          const effectiveResponse = {
-            status,
-            statusText,
-            headers,
-            responseTime,
-            body,
-          };
-
-          const experimentalScriptingSandbox = !legacySandbox;
-          const hoppFetchHook = createHoppFetchHook();
-
-          return runTestScript(stripModulePrefix(request.testScript), {
-            envs,
+        TE.chain(
+          ({
             request,
-            response: effectiveResponse,
-            experimentalScriptingSandbox,
-            hoppFetchHook,
-          });
-        })
+            response,
+            envs,
+            legacySandbox,
+            inheritedTestScripts = [],
+          }) => {
+            const { status, statusText, headers, responseTime, body } =
+              response;
+
+            const effectiveResponse = {
+              status,
+              statusText,
+              headers,
+              responseTime,
+              body,
+            };
+
+            const experimentalScriptingSandbox = !legacySandbox;
+            const hoppFetchHook = createHoppFetchHook();
+
+            // Combine request test script with inherited test scripts (from child to root collection)
+            // Order: Request → Child folder → Parent folder → Root collection
+            const combinedScript = [
+              request.testScript,
+              ...inheritedTestScripts.filter((s) => s.trim()).reverse(),
+            ]
+              .filter((s) => s.trim())
+              .join("\n\n");
+
+            return runTestScript(stripModulePrefix(combinedScript), {
+              envs,
+              request,
+              response: effectiveResponse,
+              experimentalScriptingSandbox,
+              hoppFetchHook,
+            });
+          }
+        )
       )
     ),
 

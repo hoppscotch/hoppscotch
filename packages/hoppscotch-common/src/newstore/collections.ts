@@ -38,6 +38,8 @@ const defaultRESTCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -55,6 +57,8 @@ const defaultGraphqlCollectionState = {
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     }),
   ],
 }
@@ -142,14 +146,16 @@ export function cascadeParentCollectionForProperties(
 
   const variables: HoppInheritedProperty["variables"] = []
 
-  if (!folderPath) return { auth, headers, variables }
+  const scripts: HoppInheritedProperty["scripts"] = []
+
+  if (!folderPath) return { auth, headers, variables, scripts }
 
   const path = folderPath.split("/").map((i) => parseInt(i))
 
   // Check if the path is empty or invalid
   if (!path || path.length === 0) {
     console.error("Invalid path:", folderPath)
-    return { auth, headers, variables }
+    return { auth, headers, variables, scripts }
   }
 
   // Loop through the path and get the last parent folder with authType other than 'inherit'
@@ -162,7 +168,7 @@ export function cascadeParentCollectionForProperties(
     // Check if parentFolder is undefined or null
     if (!parentFolder) {
       console.error("Parent folder not found for path:", path)
-      return { auth, headers, variables }
+      return { auth, headers, variables, scripts }
     }
 
     const parentFolderAuth = parentFolder.auth as HoppRESTAuth | HoppGQLAuth
@@ -223,9 +229,24 @@ export function cascadeParentCollectionForProperties(
         ),
       })
     }
+
+    // Collect scripts from the collection hierarchy (root to child order)
+    const parentPreRequestScript = parentFolder.preRequestScript ?? ""
+    const parentTestScript = parentFolder.testScript ?? ""
+
+    if (parentPreRequestScript || parentTestScript) {
+      const currentPath = [...path.slice(0, i + 1)].join("/")
+
+      scripts.push({
+        parentID: parentFolder._ref_id ?? parentFolder.id ?? currentPath,
+        parentName: parentFolder.name,
+        preRequestScript: parentPreRequestScript,
+        testScript: parentTestScript,
+      })
+    }
   }
 
-  return { auth, headers, variables }
+  return { auth, headers, variables, scripts }
 }
 
 function reorderItems(array: unknown[], from: number, to: number) {
@@ -365,6 +386,8 @@ const restCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
 
     const newState = state
@@ -1026,6 +1049,8 @@ const gqlCollectionDispatchers = defineDispatchers({
       headers: [],
       variables: [],
       description: null,
+      preRequestScript: "",
+      testScript: "",
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))

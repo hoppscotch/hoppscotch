@@ -372,10 +372,10 @@ const delegatePreRequestScriptRunner = (
   // Combine inherited pre-request scripts (from root to child collection) with the request's script
   // Order: Root collection → Parent folder → Child folder → Request
   const combinedScript = [
-    ...inheritedPreRequestScripts.filter((s) => s.trim()),
+    ...inheritedPreRequestScripts.filter((s) => s?.trim()),
     preRequestScript,
   ]
-    .filter((s) => s.trim())
+    .filter((s) => s?.trim())
     .join("\n\n")
 
   const cleanScript = stripModulePrefix(combinedScript)
@@ -413,9 +413,9 @@ const runPostRequestScript = (
   // Order: Request → Child folder → Parent folder → Root collection
   const combinedScript = [
     testScript,
-    ...inheritedTestScripts.filter((s) => s.trim()).reverse(),
+    ...inheritedTestScripts.filter((s) => s?.trim()).reverse(),
   ]
-    .filter((s) => s.trim())
+    .filter((s) => s?.trim())
     .join("\n\n")
 
   const cleanScript = stripModulePrefix(combinedScript)

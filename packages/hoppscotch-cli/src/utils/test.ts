@@ -56,9 +56,9 @@ export const testRunner = (
           // Order: Request → Child folder → Parent folder → Root collection
           const combinedScript = [
             request.testScript,
-            ...inheritedTestScripts.filter((s) => s.trim()).reverse(),
+            ...inheritedTestScripts.filter((s) => s?.trim()).reverse(),
           ]
-            .filter((s) => s.trim())
+            .filter((s) => s?.trim())
             .join("\n\n");
 
           return runTestScript(combinedScript, {

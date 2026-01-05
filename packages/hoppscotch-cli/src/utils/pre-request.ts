@@ -63,10 +63,10 @@ export const preRequestScriptRunner = (
   // Combine inherited pre-request scripts with the request's script
   // Order: Root collection → Parent folder → Child folder → Request
   const combinedScript = [
-    ...inheritedPreRequestScripts.filter((s) => s.trim()),
+    ...inheritedPreRequestScripts.filter((s) => s?.trim()),
     request.preRequestScript,
   ]
-    .filter((s) => s.trim())
+    .filter((s) => s?.trim())
     .join("\n\n");
 
   return pipe(

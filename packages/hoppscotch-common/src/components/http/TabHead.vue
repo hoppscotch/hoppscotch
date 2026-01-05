@@ -1,7 +1,7 @@
 <template>
   <div
     v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-    :title="tabState.name"
+    :title="tabTooltip"
     class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
     @contextmenu.prevent="options?.tippy?.show()"
@@ -124,6 +124,8 @@ import {
   HoppRequestDocument,
   HoppSavedExampleDocument,
 } from "~/helpers/rest/document"
+import { restCollectionStore } from "~/newstore/collections"
+import { HoppCollection } from "@hoppscotch/data"
 
 const t = useI18n()
 
@@ -149,6 +151,45 @@ const tabState = computed(() => {
 
 const isResponseExample = computed(() => {
   return props.tab.document.type === "example-response"
+})
+
+const requestPath = computed(() => {
+  if (props.tab.document.type !== "request" || !props.tab.document.saveContext)
+    return null
+
+  const ctx = props.tab.document.saveContext as any // Type casting to access potential folderPath
+
+  if (ctx.originLocation === "user-collection" && ctx.folderPath) {
+    try {
+      const folderIndices = ctx.folderPath.split("/").map((x: string) => parseInt(x))
+      const pathItems: string[] = []
+
+      let currentFolder = restCollectionStore.value.state[folderIndices.shift()!]
+      if (currentFolder) {
+        pathItems.push(currentFolder.name)
+
+        while (folderIndices.length > 0) {
+          const folderIndex = folderIndices.shift()!
+          const folder = currentFolder.folders[folderIndex]
+          if (folder) {
+            pathItems.push(folder.name)
+            currentFolder = folder
+          }
+        }
+      }
+      return pathItems.join(" / ")
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+  return null
+})
+
+const tabTooltip = computed(() => {
+  return requestPath.value
+    ? `${requestPath.value} / ${tabState.value.name}`
+    : tabState.value.name
 })
 
 const emit = defineEmits<{

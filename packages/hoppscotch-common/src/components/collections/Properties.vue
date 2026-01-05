@@ -65,6 +65,48 @@
         </HoppSmartTab>
 
         <HoppSmartTab
+          v-if="hasTeamWriteAccess && source === 'REST'"
+          id="scripts"
+          :label="`${t('tab.scripts')}`"
+        >
+          <div class="flex flex-col">
+            <div
+              class="flex flex-shrink-0 items-center justify-between border-b border-dividerLight bg-primary pl-4"
+            >
+              <span class="font-semibold text-secondaryLight">
+                {{ t("preRequest.javascript_code") }}
+              </span>
+            </div>
+            <div class="p-4">
+              <label class="pb-2 text-secondaryLight">
+                {{ t("tab.pre_request_script") }}
+              </label>
+              <textarea
+                v-model="editableCollection.preRequestScript"
+                class="w-full h-32 p-2 font-mono text-sm bg-primaryLight border border-dividerLight rounded resize-y"
+                :placeholder="t('preRequest.javascript_code')"
+              ></textarea>
+            </div>
+            <div class="p-4 pt-0">
+              <label class="pb-2 text-secondaryLight">
+                {{ t("test.script") }}
+              </label>
+              <textarea
+                v-model="editableCollection.testScript"
+                class="w-full h-32 p-2 font-mono text-sm bg-primaryLight border border-dividerLight rounded resize-y"
+                :placeholder="t('test.javascript_code')"
+              ></textarea>
+            </div>
+            <div
+              class="bg-bannerInfo px-4 py-2 flex items-center sticky bottom-0"
+            >
+              <icon-lucide-info class="svg-icons mr-2" />
+              {{ t("helpers.collection_properties_scripts") }}
+            </div>
+          </div>
+        </HoppSmartTab>
+
+        <HoppSmartTab
           v-if="showDetails"
           :id="'details'"
           :label="t('collection.details')"
@@ -206,10 +248,14 @@ const editableCollection = ref<{
   headers: HoppCollectionHeaders
   auth: HoppCollectionAuth
   variables: HoppCollectionVariable[]
+  preRequestScript: string
+  testScript: string
 }>({
   headers: [],
   auth: { authType: "inherit", authActive: false },
   variables: [],
+  preRequestScript: "",
+  testScript: "",
 })
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -267,6 +313,9 @@ const loadEditableCollection = () => {
       props.editingProperties.collection!.headers as HoppCollectionHeaders
     ),
     variables: clone(props.editingProperties.collection!.variables || []),
+    preRequestScript:
+      props.editingProperties.collection!.preRequestScript || "",
+    testScript: props.editingProperties.collection!.testScript || "",
   }
 }
 
@@ -275,6 +324,8 @@ const resetEditableCollection = () => {
     headers: [],
     auth: { authType: "inherit", authActive: false },
     variables: [],
+    preRequestScript: "",
+    testScript: "",
   }
 }
 

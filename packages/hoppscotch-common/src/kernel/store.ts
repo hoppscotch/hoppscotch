@@ -10,6 +10,8 @@ import { getKernelMode } from "@hoppscotch/kernel"
 
 const STORE_PATH = `${window.location.host}.hoppscotch.store`
 
+let cachedStorePath: string | undefined
+
 // These are only defined functions if in desktop mode.
 // For more context, take a look at how `hoppscotch-kernel/.../store/v1/` works
 // and how the `web` mode store kernel ignores the first file directory input.
@@ -70,20 +72,23 @@ export const getInstanceDir = async (): Promise<string> => {
 }
 
 const getStorePath = async (): Promise<string> => {
+  if (cachedStorePath) return cachedStorePath
+
   if (getKernelMode() === "desktop") {
     await isInitd()
     if (join) {
       try {
         const storeDir = await getStoreDir()
-        return await join(storeDir, STORE_PATH)
+        cachedStorePath = await join(storeDir, STORE_PATH)
+        return cachedStorePath
       } catch (error) {
         console.error("Failed to get store directory:", error)
-        return STORE_PATH
       }
     }
   }
 
-  return STORE_PATH
+  cachedStorePath = STORE_PATH
+  return cachedStorePath
 }
 
 export const Store = (() => {

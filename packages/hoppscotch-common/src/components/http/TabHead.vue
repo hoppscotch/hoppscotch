@@ -125,7 +125,6 @@ import {
   HoppSavedExampleDocument,
 } from "~/helpers/rest/document"
 import { restCollectionStore } from "~/newstore/collections"
-import { HoppCollection } from "@hoppscotch/data"
 
 const t = useI18n()
 
@@ -157,9 +156,13 @@ const requestPath = computed(() => {
   if (props.tab.document.type !== "request" || !props.tab.document.saveContext)
     return null
 
-  const ctx = props.tab.document.saveContext as any // Type casting to access potential folderPath
+  const ctx = props.tab.document.saveContext
 
-  if (ctx.originLocation === "user-collection" && ctx.folderPath) {
+  if (
+    ctx.originLocation === "user-collection" &&
+    "folderPath" in ctx &&
+    ctx.folderPath
+  ) {
     try {
       const folderIndices = ctx.folderPath.split("/").map((x: string) => parseInt(x))
       const pathItems: string[] = []

@@ -18,6 +18,7 @@ import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
+import { combineScriptsWithIIFE } from "./scripting";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
@@ -54,12 +55,11 @@ export const testRunner = (
 
           // Combine request test script with inherited test scripts (from child to root collection)
           // Order: Request → Child folder → Parent folder → Root collection
-          const combinedScript = [
+          // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+          const combinedScript = combineScriptsWithIIFE([
             request.testScript,
-            ...inheritedTestScripts.filter((s) => s?.trim()).reverse(),
-          ]
-            .filter((s) => s?.trim())
-            .join("\n\n");
+            ...inheritedTestScripts.reverse(),
+          ]);
 
           return runTestScript(combinedScript, {
             envs,

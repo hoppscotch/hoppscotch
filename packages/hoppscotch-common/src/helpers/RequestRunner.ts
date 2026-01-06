@@ -27,7 +27,7 @@ import { map } from "fp-ts/Either"
 import { runPreRequestScript, runTestScript } from "@hoppscotch/js-sandbox/web"
 import { useSetting } from "~/composables/settings"
 import { getService } from "~/modules/dioc"
-import { stripModulePrefix } from "~/helpers/scripting"
+import { combineScriptsWithIIFE, stripModulePrefix } from "~/helpers/scripting"
 import { createHoppFetchHook } from "~/helpers/hopp-fetch"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import {
@@ -371,12 +371,11 @@ const delegatePreRequestScriptRunner = (
 
   // Combine inherited pre-request scripts (from root to child collection) with the request's script
   // Order: Root collection → Parent folder → Child folder → Request
-  const combinedScript = [
-    ...inheritedPreRequestScripts.filter((s) => s?.trim()),
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
+    ...inheritedPreRequestScripts,
     preRequestScript,
-  ]
-    .filter((s) => s?.trim())
-    .join("\n\n")
+  ])
 
   const cleanScript = stripModulePrefix(combinedScript)
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {
@@ -411,12 +410,11 @@ const runPostRequestScript = (
 
   // Combine request test script with inherited test scripts (from child to root collection)
   // Order: Request → Child folder → Parent folder → Root collection
-  const combinedScript = [
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
     testScript,
-    ...inheritedTestScripts.filter((s) => s?.trim()).reverse(),
-  ]
-    .filter((s) => s?.trim())
-    .join("\n\n")
+    ...inheritedTestScripts.reverse(),
+  ])
 
   const cleanScript = stripModulePrefix(combinedScript)
   if (!EXPERIMENTAL_SCRIPTING_SANDBOX.value) {

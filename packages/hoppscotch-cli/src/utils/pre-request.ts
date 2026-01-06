@@ -35,6 +35,7 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "./auth/digest";
+import { combineScriptsWithIIFE } from "./scripting";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -62,12 +63,11 @@ export const preRequestScriptRunner = (
 
   // Combine inherited pre-request scripts with the request's script
   // Order: Root collection → Parent folder → Child folder → Request
-  const combinedScript = [
-    ...inheritedPreRequestScripts.filter((s) => s?.trim()),
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
+    ...inheritedPreRequestScripts,
     request.preRequestScript,
-  ]
-    .filter((s) => s?.trim())
-    .join("\n\n");
+  ]);
 
   return pipe(
     TE.of(request),

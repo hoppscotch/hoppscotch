@@ -27,6 +27,28 @@ const insomniaEnvSchema = z.object({
   data: z.record(z.string()),
 })
 
+const parseInsomniaValue = (value: unknown) => {
+  if (typeof value === "object" && value !== null) {
+    return JSON.stringify(value)
+  }
+  return String(value)
+}
+
+const insomniaV5Schema = z.object({
+  environments: z.object({
+    name: z.string(),
+    data: z.record(z.any()),
+    subEnvironments: z
+      .array(
+        z.object({
+          name: z.string(),
+          data: z.record(z.any()),
+        })
+      )
+      .optional(),
+  }),
+})
+
 export const replaceInsomniaTemplating = (expression: string) => {
   const regex = /\{\{ _\.([^}]+) \}\}/g
   return expression.replaceAll(regex, "<<$1>>")
@@ -39,61 +61,104 @@ export const insomniaEnvImporter = (contents: string[]) => {
   }
 
   const parsedValues = parsedContents.map((parsed) => O.toNullable(parsed))
-
-  const validationResult = z
-    .array(insomniaResourcesSchema)
-    .safeParse(parsedValues)
-
-  if (!validationResult.success) {
-    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
-  }
-
-  const insomniaEnvs = validationResult.data.flatMap(({ resources }) => {
-    return resources
-      .filter((resource) => resource._type === "environment")
-      .map((envResource) => {
-        const envResourceData = envResource.data as Record<string, unknown>
-        const stringifiedData: Record<string, string> = {}
-
-        Object.keys(envResourceData).forEach((key) => {
-          stringifiedData[key] = String(envResourceData[key])
-        })
-
-        return { ...envResource, data: stringifiedData }
-      })
-  })
-
   const environments: NonSecretEnvironment[] = []
 
-  insomniaEnvs.forEach((insomniaEnv) => {
-    const parsedInsomniaEnv = insomniaEnvSchema.safeParse(insomniaEnv)
-    if (parsedInsomniaEnv.success) {
-      const environment: NonSecretEnvironment = {
+  // Valid flag to check if at least one file was valid
+  let hasWrappedSuccess = false
+
+  parsedValues.forEach((parsedValue) => {
+    if (!parsedValue) return
+
+    // Try V4 (Resources Array)
+    const v4Result = insomniaResourcesSchema.safeParse(parsedValue)
+    if (v4Result.success) {
+      hasWrappedSuccess = true
+      v4Result.data.resources
+        .filter((resource) => resource._type === "environment")
+        .forEach((envResource) => {
+          const envResourceData = envResource.data as Record<string, unknown>
+          const stringifiedData: Record<string, string> = {}
+
+          Object.keys(envResourceData).forEach((key) => {
+            stringifiedData[key] = parseInsomniaValue(envResourceData[key])
+          })
+
+          const processedEnv = { ...envResource, data: stringifiedData }
+          const parsed = insomniaEnvSchema.safeParse(processedEnv)
+
+          if (parsed.success) {
+            environments.push({
+              id: uniqueID(),
+              v: EnvironmentSchemaVersion,
+              name: parsed.data.name,
+              variables: Object.entries(parsed.data.data).map(
+                ([key, value]) => ({
+                  key,
+                  initialValue: value,
+                  currentValue: value,
+                  secret: false,
+                })
+              ) as any,
+            })
+          }
+        })
+      return
+    }
+
+    // Try V5 (Nested Environments)
+    const v5Result = insomniaV5Schema.safeParse(parsedValue)
+
+    if (v5Result.success) {
+      hasWrappedSuccess = true
+      const rootEnv = v5Result.data.environments
+
+      // Add Base Environment
+      environments.push({
         id: uniqueID(),
         v: EnvironmentSchemaVersion,
-        name: parsedInsomniaEnv.data.name,
-        variables: Object.entries(parsedInsomniaEnv.data.data).map(
-          ([key, value]) => ({
-            key,
-            initialValue: value,
-            currentValue: value,
-            secret: false,
-          })
-        ),
-      }
+        name: rootEnv.name,
+        variables: Object.entries(rootEnv.data).map(([key, value]) => ({
+          key,
+          initialValue: parseInsomniaValue(value),
+          currentValue: parseInsomniaValue(value),
+          secret: false,
+        })) as any,
+      })
 
-      environments.push(environment)
+      // Add Sub Environments
+      rootEnv.subEnvironments?.forEach((subEnv) => {
+        environments.push({
+          id: uniqueID(),
+          v: EnvironmentSchemaVersion,
+          name: subEnv.name,
+          variables: Object.entries(subEnv.data).map(([key, value]) => ({
+            key,
+            initialValue: parseInsomniaValue(value),
+            currentValue: parseInsomniaValue(value),
+            secret: false,
+          })) as any,
+        })
+      })
     }
   })
 
+  if (!hasWrappedSuccess) {
+    return TE.left(IMPORTER_INVALID_FILE_FORMAT)
+  }
+
   const processedEnvironments = environments.map((env) => ({
-    ...env,
-    variables: env.variables.map((variable) => ({
+    ...(env as any),
+    variables: (env.variables as any[]).map((variable: any) => ({
       ...variable,
       initialValue: replaceInsomniaTemplating(variable.initialValue),
       currentValue: replaceInsomniaTemplating(variable.currentValue),
     })),
   }))
 
-  return TE.right(processedEnvironments)
+  // The first environment is considered the Base/Global source
+  // (especially for V5 where it stems from the root property)
+  const globalEnvs = processedEnvironments.slice(0, 1)
+  const otherEnvs = processedEnvironments.slice(1)
+
+  return TE.right({ globalEnvs, otherEnvs })
 }

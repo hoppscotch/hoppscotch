@@ -46,6 +46,7 @@
           </tippy>
 
           <HoppButtonSecondary
+            v-else
             class="!font-bold uppercase tracking-wide !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
             :label="t('app.name')"
             to="/"
@@ -391,7 +392,6 @@ const instanceSwitcherRef =
   kernelMode === "desktop" ? ref<any | null>(null) : ref(null)
 
 const isUserAdmin = ref(false)
-const orgInfo = ref<{ name?: string; logo?: string | null } | null>(null)
 
 /**
  * Feature flag to enable the workspace selector login conversion
@@ -400,19 +400,18 @@ const workspaceSelectorFlagEnabled = computed(
   () => !!platform.platformFeatureFlags.workspaceSwitcherLogin?.value
 )
 
+/**
+ * Show the dashboard link if the user is not on the default cloud instance and is an Admin
+ */
 onMounted(async () => {
   const { organization } = platform
 
   if (!organization || organization.isDefaultCloudInstance) return
 
-  const fetchedOrgInfo = await organization.getOrgInfo()
+  const orgInfo = await organization.getOrgInfo()
 
-  if (fetchedOrgInfo) {
-    isUserAdmin.value = !!fetchedOrgInfo.isAdmin
-    orgInfo.value = {
-      name: fetchedOrgInfo.name,
-      logo: fetchedOrgInfo.logo || null,
-    }
+  if (orgInfo) {
+    isUserAdmin.value = !!orgInfo.isAdmin
   }
 })
 

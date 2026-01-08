@@ -1,11 +1,8 @@
 <template>
-  <div
-    class="group flex items-start px-4 py-2 text-tiny text-secondaryDark rounded-md relative"
-    :class="color"
-  >
+  <div class="console-entry-wrapper group" :class="[color, hoverClass]">
     <component :is="icon" class="mr-2 shrink-0 svg-icons" />
 
-    <div class="flex flex-col space-y-2 overflow-x-auto text-xs flex-1">
+    <div class="flex flex-col space-y-2 text-xs flex-1 min-w-0">
       <div class="text-secondary">{{ formattedTimestamp }}</div>
 
       <div class="flex flex-col space-y-1">
@@ -13,19 +10,18 @@
           v-for="(arg, idx) in sanitizedArgs"
           :key="idx"
           :value="arg"
-          class="overflow-auto"
         />
       </div>
     </div>
 
-    <!-- Copy button - appears on hover -->
     <button
       v-tippy="{ theme: 'tooltip' }"
       :title="t('action.copy')"
-      class="absolute right-2 top-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity bg-primaryLight hover:bg-primaryDark"
+      :aria-label="t('action.copy')"
+      class="ml-2 shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 hover:bg-dividerLight rounded"
       @click="copyEntry"
     >
-      <component :is="copyIcon" class="svg-icons w-3.5 h-3.5" />
+      <component :is="copyIcon" class="w-4 h-4 svg-icons" />
     </button>
   </div>
 </template>
@@ -43,8 +39,9 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 
 import { ConsoleEntry, ConsoleLogLevel } from "./Panel.vue"
-import { useI18n } from "~/composables/i18n"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { useI18n } from "@composables/i18n"
+import { copyToClipboard } from "@helpers/utils/clipboard"
+import { useToast } from "@composables/toast"
 
 type LogLevelsWithBgColor = "info" | "warn" | "error"
 
@@ -53,6 +50,7 @@ const props = defineProps<{
 }>()
 
 const t = useI18n()
+const toast = useToast()
 const copyIcon = refAutoReset(IconCopy, 1000)
 
 const bgColors: Pick<Record<ConsoleLogLevel, string>, LogLevelsWithBgColor> = {
@@ -72,50 +70,55 @@ const icons: Record<ConsoleLogLevel, unknown> = {
 const color = computed(() => bgColors[props.entry.type as LogLevelsWithBgColor])
 const icon = computed(() => icons[props.entry.type])
 
+// Only apply hover background for entries without semantic backgrounds (log, debug)
+const hoverClass = computed(() =>
+  props.entry.type in bgColors ? "" : "hover:bg-primaryLight"
+)
+
 const formattedTimestamp = computed(() => {
   const dateEntry = new Date(props.entry.timestamp)
   return dateEntry.toLocaleTimeString()
 })
 
-/**
- * Sanitizes an argument (BigInt → string)
- */
-const sanitizeArg = (arg: unknown): unknown => {
-  if (typeof arg === "bigint") return `${arg}n`
-  return arg
-}
+const sanitizeArg = (arg: unknown): unknown =>
+  typeof arg === "bigint" ? `${arg}n` : arg
 
-/**
- * Sanitized args for display and copy
- */
-const sanitizedArgs = computed(() => {
-  return props.entry.args.map(sanitizeArg)
-})
+const sanitizedArgs = computed(() => props.entry.args.map(sanitizeArg))
 
-/**
- * Converts a sanitized argument to string for clipboard
- */
-const toClipboardString = (arg: unknown): string => {
-  if (arg === undefined) return "undefined"
+// Serialize value for clipboard copy
+const serializeConsoleValue = (value: unknown): string => {
+  if (typeof value === "string") return value
 
-  // String - try to compact if it's JSON
-  if (typeof arg === "string") {
-    try {
-      const parsed = JSON.parse(arg)
-      if (typeof parsed === "object" && parsed !== null) {
-        return JSON.stringify(parsed)
-      }
-    } catch {
-      // Not valid JSON - fall through
-    }
-    return arg
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value)
+
+  if (value === null) return "null"
+
+  if (value === undefined) return "undefined"
+
+  try {
+    const serialized = JSON.stringify(
+      value,
+      (_key, val) => (typeof val === "bigint" ? `${val}n` : val),
+      2
+    )
+    return serialized !== undefined ? serialized : "[Unserializable]"
+  } catch {
+    return "[Unserializable]"
   }
-  return JSON.stringify(arg)
 }
 
 const copyEntry = () => {
-  const text = sanitizedArgs.value.map(toClipboardString).join(" ")
-  copyToClipboard(text)
+  const content = sanitizedArgs.value.map(serializeConsoleValue).join(" ")
+
+  copyToClipboard(content)
   copyIcon.value = IconCheck
+  toast.success(t("state.copied_to_clipboard"))
 }
 </script>
+
+<style scoped>
+.console-entry-wrapper {
+  @apply flex items-start px-4 py-2 text-tiny text-secondaryDark rounded-md transition-colors;
+}
+</style>

@@ -5,21 +5,20 @@
 export const MODULE_PREFIX = "export {};\n" as const
 
 /**
- * Strips `export {};\n` prefix from scripts before legacy sandbox execution
+ * Strips `export {};` prefix (with or without newline) from scripts before execution
  * (non-module context) or when exporting collections.
  */
 export const stripModulePrefix = (script: string): string => {
-  return script.startsWith(MODULE_PREFIX)
-    ? script.slice(MODULE_PREFIX.length)
-    : script
+  // Strip "export {};\n" if present
+  if (script.startsWith(MODULE_PREFIX)) {
+    return script.slice(MODULE_PREFIX.length)
+  }
+  // Also strip "export {};" without newline (common in JSON exports)
+  if (script.startsWith("export {};")) {
+    return script.slice("export {};".length)
+  }
+  return script
 }
-
-/**
- * Regex for stripping the JSON-serialized module prefix (`export {};\\n`)
- * from scripts during collection exports.
- * Note: This matches the literal backslash-n (`\\n`), not an actual newline character.
- */
-export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};\\n/g
 
 /**
  * Wraps a script in an async IIFE (Immediately Invoked Function Expression) to isolate
@@ -32,7 +31,8 @@ export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};\\n/g
 export const wrapInIIFE = (script: string): string => {
   const trimmed = script?.trim()
   if (!trimmed) return ""
-  return `(async function() {\n${trimmed}\n})();`
+  const stripped = stripModulePrefix(trimmed)
+  return `(async function() {\n${stripped}\n})();`
 }
 
 /**

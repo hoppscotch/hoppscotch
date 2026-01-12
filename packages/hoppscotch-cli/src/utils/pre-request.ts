@@ -35,12 +35,16 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "./auth/digest";
+import { combineScriptsWithIIFE } from "./scripting";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
  * applies them on current request to generate updated request.
  * @param request HoppRESTRequest to be converted to EffectiveHoppRESTRequest.
  * @param envs Environment variables related to request.
+ * @param legacySandbox Whether to use the legacy sandbox.
+ * @param collectionVariables Collection variables to use.
+ * @param inheritedPreRequestScripts Pre-request scripts inherited from parent collections.
  * @returns EffectiveHoppRESTRequest that includes parsed ENV variables with in
  * request OR HoppCLIError with error code and related information.
  */
@@ -48,7 +52,8 @@ export const preRequestScriptRunner = (
   request: HoppRESTRequest,
   envs: HoppEnvs,
   legacySandbox: boolean,
-  collectionVariables?: HoppCollectionVariable[]
+  collectionVariables?: HoppCollectionVariable[],
+  inheritedPreRequestScripts: string[] = []
 ): TE.TaskEither<
   HoppCLIError,
   { effectiveRequest: EffectiveHoppRESTRequest } & { updatedEnvs: HoppEnvs }
@@ -56,10 +61,18 @@ export const preRequestScriptRunner = (
   const experimentalScriptingSandbox = !legacySandbox;
   const hoppFetchHook = createHoppFetchHook();
 
+  // Combine inherited pre-request scripts with the request's script
+  // Order: Root collection → Parent folder → Child folder → Request
+  // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
+  const combinedScript = combineScriptsWithIIFE([
+    ...inheritedPreRequestScripts,
+    request.preRequestScript,
+  ]);
+
   return pipe(
     TE.of(request),
-    TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, {
+    TE.chain(() =>
+      runPreRequestScript(combinedScript, {
         envs,
         experimentalScriptingSandbox,
         request,

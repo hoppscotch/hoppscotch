@@ -1,4 +1,5 @@
 import {
+  CollectionSchemaVersion,
   Environment,
   GlobalEnvironment,
   HoppCollection,
@@ -25,7 +26,7 @@ const DEFAULT_SETTINGS = getDefaultSettings()
 
 export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 11,
+    v: CollectionSchemaVersion,
     name: "Echo",
     requests: [
       {
@@ -54,13 +55,15 @@ export const REST_COLLECTIONS_MOCK: HoppCollection[] = [
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
     folders: [],
   },
 ]
 
 export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
   {
-    v: 11,
+    v: CollectionSchemaVersion,
     name: "Echo",
     requests: [
       {
@@ -80,6 +83,8 @@ export const GQL_COLLECTIONS_MOCK: HoppCollection[] = [
     headers: [],
     variables: [],
     description: null,
+    preRequestScript: "",
+    testScript: "",
     folders: [],
   },
 ]

@@ -5,6 +5,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PublishedDocsService } from './published-docs.service';
@@ -12,9 +13,11 @@ import { GetPublishedDocsQueryDto } from './published-docs.dto';
 import * as E from 'fp-ts/Either';
 import { throwHTTPErr } from 'src/utils';
 import { PublishedDocs } from './published-docs.model';
+import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
 @ApiTags('Published Docs')
 @Controller({ version: '1', path: 'published-docs' })
+@UseGuards(ThrottlerBehindProxyGuard)
 export class PublishedDocsController {
   constructor(private readonly publishedDocsService: PublishedDocsService) {}
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="whitespace-pre-wrap font-mono text-[12px]">
+  <div class="whitespace-pre-wrap font-mono text-[12px] select-text">
     <VueJsonPretty
       v-if="isObjectOrArray"
       :data="parsedValue"
@@ -7,16 +7,16 @@
       :show-line="false"
       :show-line-numbers="true"
       :deep="2"
-      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded !font-mono"
+      class="p-4 bg-primary text-secondaryDark border !border-dividerLight !text-[12px] rounded !font-mono select-text"
     />
 
     <pre
       v-else-if="parsedJSON"
-      class="overflow-auto max-h-96 p-4 bg-primary text-secondaryDark border !border-dividerLight rounded"
+      class="overflow-auto max-h-96 p-4 bg-primary text-secondaryDark border !border-dividerLight rounded select-text"
       >{{ formattedJSONString }}
     </pre>
 
-    <pre v-else class="truncate"
+    <pre v-else class="truncate select-text"
       >{{ formattedPrimitive }}
     </pre>
   </div>
@@ -110,5 +110,31 @@ const treeViewTheme = computed(() => (isDarkTheme.value ? "dark" : "light"))
 .vjs-tree-node:hover {
   background-color: var(--primary-light-color) !important;
   color: var(--secondary-dark-color) !important;
+}
+</style>
+
+<style scoped>
+/* Force scrollbars to always be visible (override macOS auto-hide) */
+pre {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--divider-color) transparent; /* Firefox: thumb track */
+}
+
+pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--divider-color);
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-light-color);
 }
 </style>

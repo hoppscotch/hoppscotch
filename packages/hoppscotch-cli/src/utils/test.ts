@@ -58,7 +58,7 @@ export const testRunner = (
           // Each script is wrapped in an IIFE to isolate local variable scope and prevent clashes
           const combinedScript = combineScriptsWithIIFE([
             request.testScript,
-            ...inheritedTestScripts.reverse(),
+            ...inheritedTestScripts.toReversed(),
           ]);
 
           return runTestScript(combinedScript, {

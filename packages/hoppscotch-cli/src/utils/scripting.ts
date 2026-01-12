@@ -1,15 +1,38 @@
 /**
- * Wraps a script in an IIFE (Immediately Invoked Function Expression) to isolate
+ * Module prefix added by Monaco editor for TypeScript module mode.
+ * Enables IntelliSense and isolates variables across editor instances.
+ */
+export const MODULE_PREFIX = "export {};\n" as const
+
+/**
+ * Strips `export {};` prefix (with or without newline) from scripts before execution
+ * (non-module context) or when exporting collections.
+ */
+export const stripModulePrefix = (script: string): string => {
+  // Strip "export {};\n" if present
+  if (script.startsWith(MODULE_PREFIX)) {
+    return script.slice(MODULE_PREFIX.length)
+  }
+  // Also strip "export {};" without newline (common in JSON exports)
+  if (script.startsWith("export {};")) {
+    return script.slice("export {};".length)
+  }
+  return script
+}
+
+/**
+ * Wraps a script in an async IIFE (Immediately Invoked Function Expression) to isolate
  * its scope. This prevents variable name clashes when combining multiple scripts
- * (e.g., collection + folder + request scripts).
+ * (e.g., collection + folder + request scripts) and supports async/await operations.
  *
  * @param script - The script to wrap
- * @returns The script wrapped in an IIFE, or empty string if script is empty/whitespace
+ * @returns The script wrapped in an async IIFE, or empty string if script is empty/whitespace
  */
 export const wrapInIIFE = (script: string): string => {
   const trimmed = script?.trim()
   if (!trimmed) return ""
-  return `(function() {\n${trimmed}\n})();`
+  const stripped = stripModulePrefix(trimmed)
+  return `(async function() {\n${stripped}\n})();`
 }
 
 /**

@@ -22,17 +22,17 @@ export const stripModulePrefix = (script: string): string => {
 export const MODULE_PREFIX_REGEX_JSON_SERIALIZED = /export \{\};\\n/g
 
 /**
- * Wraps a script in an IIFE (Immediately Invoked Function Expression) to isolate
+ * Wraps a script in an async IIFE (Immediately Invoked Function Expression) to isolate
  * its scope. This prevents variable name clashes when combining multiple scripts
- * (e.g., collection + folder + request scripts).
+ * (e.g., collection + folder + request scripts) and supports async/await operations.
  *
  * @param script - The script to wrap
- * @returns The script wrapped in an IIFE, or empty string if script is empty/whitespace
+ * @returns The script wrapped in an async IIFE, or empty string if script is empty/whitespace
  */
 export const wrapInIIFE = (script: string): string => {
   const trimmed = script?.trim()
   if (!trimmed) return ""
-  return `(function() {\n${trimmed}\n})();`
+  return `(async function() {\n${trimmed}\n})();`
 }
 
 /**

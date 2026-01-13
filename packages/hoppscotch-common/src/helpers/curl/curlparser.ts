@@ -22,7 +22,11 @@ import {
 import { getDefaultRESTRequest } from "../rest/default"
 import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
 import { getMethod } from "./sub_helpers/method"
-import { preProcessCurlCommand } from "./sub_helpers/preproc"
+import {
+  preProcessCurlCommand,
+  replaceJSONDataArgsWithPlaceholders,
+  restoreJSONDataArgsFromPlaceholders,
+} from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
 import { concatParams, getURLObject } from "./sub_helpers/url"
 import { HOPP_ENVIRONMENT_REGEX } from "../environment-regex"
@@ -42,7 +46,13 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const args: parser.Arguments = parser(curlCommand)
+  const { curlCommand: sanitizedCurlCommand, extractedJSONData } =
+    replaceJSONDataArgsWithPlaceholders(curlCommand)
+
+  const args: parser.Arguments = restoreJSONDataArgsFromPlaceholders(
+    parser(sanitizedCurlCommand),
+    extractedJSONData
+  )
 
   const parsedArguments = pipe(
     args,
@@ -116,10 +126,30 @@ export const parseCurlCommand = (curlCommand: string) => {
     Array.from(urlObject.searchParams.entries())
   )
 
-  const stringToPair = flow(
-    decodeURIComponent,
-    (pair) => <[string, string]>pair.split("=", 2)
-  )
+  const safeDecodeURIComponent = (value: string) => {
+    if (!value.includes("%")) return value
+    if (/%(?![0-9A-Fa-f]{2})/.test(value)) return value
+
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+
+  const stringToPair = (pair: string): [string, string] => {
+    const decodedPair = safeDecodeURIComponent(pair)
+    const eqIndex = decodedPair.indexOf("=")
+
+    if (eqIndex === -1) return [decodedPair, ""]
+
+    return [decodedPair.slice(0, eqIndex), decodedPair.slice(eqIndex + 1)]
+  }
+
+  const shouldParseDataAsQueries = objHasProperty(
+    "G",
+    "boolean"
+  )(parsedArguments)
   const pairs = pipe(
     rawData,
     O.fromPredicate(Array.isArray),
@@ -127,14 +157,14 @@ export const parseCurlCommand = (curlCommand: string) => {
     O.alt(() =>
       pipe(
         rawData,
-        O.fromPredicate((s) => s.length > 0),
-        O.map(() => [stringToPair(rawData as string)])
+        O.fromPredicate((s) => shouldParseDataAsQueries && s.length > 0),
+        O.map((s) => [stringToPair(s)])
       )
     ),
     O.getOrElseW(() => undefined)
   )
 
-  if (objHasProperty("G", "boolean")(parsedArguments) && !!pairs) {
+  if (shouldParseDataAsQueries && !!pairs) {
     const newQueries = getQueries(pairs)
     queries = [...queries, ...newQueries.queries]
     danglingParams = [...danglingParams, ...newQueries.danglingParams]

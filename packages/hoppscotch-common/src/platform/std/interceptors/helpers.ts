@@ -6,7 +6,7 @@ import { useSetting } from "~/composables/settings"
 const isEncoded = (value: string) => {
   try {
     return value !== decodeURIComponent(value)
-  } catch (e) {
+  } catch (_e) {
     return false // in case of malformed URI sequence
   }
 }
@@ -42,7 +42,7 @@ export const preProcessRequest = (
 
       // decode the URL to prevent double encoding
       reqClone.url = decodeURIComponent(url.toString())
-    } catch (e) {
+    } catch (_e) {
       // making this a non-empty block, so we can make the linter happy.
       // we should probably use, allowEmptyCatch, or take the time to do something with the caught errors :)
     }

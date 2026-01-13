@@ -27,8 +27,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
-    "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
+    "lint": "eslint .",
+    "lintfix": "eslint --fix .",
     "test": "vitest run",
     "build": "vite build && tsc --emitDeclarationOnly",
     "clean": "pnpm tsc --build --clean",
@@ -67,7 +67,10 @@
     "@types/node": "24.10.1",
     "@typescript-eslint/eslint-plugin": "8.50.0",
     "@typescript-eslint/parser": "8.50.0",
-    "eslint": "8.57.0",
+    "@eslint/eslintrc": "3.3.3",
+    "@eslint/js": "9.39.2",
+    "eslint": "9.39.2",
+    "globals": "16.5.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "io-ts": "2.2.22",

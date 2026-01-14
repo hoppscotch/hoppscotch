@@ -180,6 +180,16 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.error).toBeNull();
     });
 
+    test("Strips comments from JSONC request bodies", async () => {
+      const args = `test ${getTestJsonFilePath(
+        "jsonc-body-coll.json",
+        "collection"
+      )}`;
+      const result = await runCLIWithNetworkRetry(args);
+      if (result === null) return;
+      expect(result.error).toBeNull();
+    });
+
     describe("OAuth 2 Authorization type with Authorization Code Grant Type", () => {
       test("Successfully translates the authorization information to headers/query params and sends it along with the request", async () => {
         const args = `test ${getTestJsonFilePath(

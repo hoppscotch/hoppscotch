@@ -1030,7 +1030,7 @@ export class MockServerService {
 
       // Remove domain if present
       endpointString = endpointString.replace(
-        /^.*?\b([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/,
+        /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/,
         '',
       );
 

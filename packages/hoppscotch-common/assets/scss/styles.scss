@@ -433,11 +433,6 @@ pre.ace_editor {
     @apply bg-accentDark #{!important};
     @apply text-accentContrast #{!important};
   }
-
-  .cm-fullDocSelection {
-    @apply bg-accentDark #{!important};
-    @apply text-accentContrast #{!important};
-  }
 }
 
 .shortcut-key {

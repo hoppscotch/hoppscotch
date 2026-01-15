@@ -390,13 +390,8 @@ export function useCodemirror(
     }
   }
 
-  // Create debounced functions once at composable level to prevent memory leaks
-  // useDebounceFn returns an object with the debounced function and a cancel method
-  const debouncedMouseupHandler = useDebounceFn(() => {
-    handleTextSelection()
-  }, 140)
-
-  const debouncedKeyupHandler = useDebounceFn(() => {
+  // Debounce text selection to prevent rapid-fire calls from double clicks and key repeats
+  const debouncedTextSelection = useDebounceFn(() => {
     handleTextSelection()
   }, 140)
 
@@ -411,9 +406,10 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           constructor() {
+            // Only add event listeners if context menu is enabled in the editor
             if (options.contextMenuEnabled) {
-              el.addEventListener("mouseup", debouncedMouseupHandler)
-              el.addEventListener("keyup", debouncedKeyupHandler)
+              el.addEventListener("mouseup", debouncedTextSelection)
+              el.addEventListener("keyup", debouncedTextSelection)
             }
           }
 
@@ -453,15 +449,9 @@ export function useCodemirror(
           }
 
           destroy() {
-            // Clean up event listeners and cancel pending debounced timers
             if (options.contextMenuEnabled) {
-              el.removeEventListener("mouseup", debouncedMouseupHandler)
-              el.removeEventListener("keyup", debouncedKeyupHandler)
-
-              // Cancel any pending debounced calls to prevent memory leaks
-              // useDebounceFn may not expose cancel in types, but it exists at runtime
-              ;(debouncedMouseupHandler as any).cancel?.()
-              ;(debouncedKeyupHandler as any).cancel?.()
+              el.removeEventListener("mouseup", debouncedTextSelection)
+              el.removeEventListener("keyup", debouncedTextSelection)
             }
           }
         }

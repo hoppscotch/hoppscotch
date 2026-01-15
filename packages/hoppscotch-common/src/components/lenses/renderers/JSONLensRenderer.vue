@@ -118,9 +118,14 @@
         </span>
         <div
           v-if="filterResponseError"
+          v-tippy="{
+            theme: 'tooltip',
+            content: filterResponseError.error,
+            placement: 'bottom',
+          }"
           role="alert"
           aria-live="assertive"
-          class="flex items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast"
+          class="flex max-w-[10rem] cursor-help items-center justify-center rounded px-2 py-1 text-tiny text-accentContrast sm:max-w-[16rem]"
           :class="{
             'bg-red-500':
               filterResponseError.type === 'JSON_PARSE_FAILED' ||
@@ -128,8 +133,8 @@
             'bg-amber-500': filterResponseError.type === 'RESPONSE_EMPTY',
           }"
         >
-          <icon-lucide-info class="svg-icons mr-1.5" />
-          <span>{{ filterResponseError.error }}</span>
+          <icon-lucide-info class="svg-icons mr-1.5 flex-shrink-0" />
+          <span class="truncate">{{ filterResponseError.error }}</span>
         </div>
         <HoppButtonSecondary
           v-if="showResponse"
@@ -267,7 +272,7 @@ import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
-import { computedAsync } from "@vueuse/core"
+import { computedAsync, refDebounced } from "@vueuse/core"
 import * as jq from "jq-wasm"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -329,6 +334,7 @@ const isHttpResponse = computed(() => {
 
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
+const debouncedFilterQuery = refDebounced(filterQueryText, 300)
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
@@ -367,7 +373,7 @@ const { responseBodyText } = useResponseBody(props.response)
 
 const jsonResponseBodyText = computedAsync(
   async (): Promise<E.Either<BodyParseError, string | object>> => {
-    if (filterQueryText.value.length > 0 && responseJsonObject.value) {
+    if (debouncedFilterQuery.value.length > 0 && responseJsonObject.value) {
       if (E.isLeft(responseJsonObject.value)) {
         return responseJsonObject.value
       }
@@ -378,12 +384,13 @@ const jsonResponseBodyText = computedAsync(
         )
         const { exitCode, stdout, stderr } = await jq.raw(
           input,
-          filterQueryText.value
+          debouncedFilterQuery.value
         )
 
         if (exitCode !== 0) {
-          console.error(stderr)
-          throw new Error("Syntax Error")
+          // Extract first line of jq error for user-friendly message
+          const errorMessage = stderr?.split("\n")[0]?.trim() || "Syntax Error"
+          throw new Error(errorMessage)
         }
 
         return E.right(stdout as string | object)
@@ -419,7 +426,7 @@ const jsonBodyText = computed(() => {
   const stringValue = rawValue as string
 
   // If we're filtering, the string should already be clean JSON (no lossless numbers)
-  if (filterQueryText.value.length > 0) {
+  if (debouncedFilterQuery.value.length > 0) {
     return pipe(
       stringValue,
       O.tryCatchK(JSON.parse),

@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Орган реагування",
-    "filter_response_body": "Фільтр тіла відповідей JSON (використовує синтаксис JSONPath)",
+    "filter_response_body": "Фільтр тіла відповідей JSON (використовує синтаксис jq)",
     "headers": "Заголовки",
     "html": "HTML",
     "image": "Зображення",

@@ -618,7 +618,7 @@
   "response": {
     "audio": "Аудио",
     "body": "Тело ответа",
-    "filter_response_body": "Отфильтровать ответ в формате JSON (используется синтаксис JSONPath)",
+    "filter_response_body": "Отфильтровать ответ в формате JSON (используется синтаксис jq)",
     "headers": "Заголовки",
     "html": "HTML",
     "image": "Изображение",

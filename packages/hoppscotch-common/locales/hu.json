@@ -623,7 +623,7 @@
   "response": {
     "audio": "Hang",
     "body": "Válasz törzse",
-    "filter_response_body": "JSON-válasz törzsének szűrése (JSONPath szintaxist használ)",
+    "filter_response_body": "JSON-válasz törzsének szűrése (jq szintaxist használ)",
     "headers": "Fejlécek",
     "html": "HTML",
     "image": "Kép",

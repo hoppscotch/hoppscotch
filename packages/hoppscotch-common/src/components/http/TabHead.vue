@@ -1,6 +1,6 @@
 <template>
   <div
-    v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+    v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
     :title="tabTooltip"
     class="flex items-center truncate px-2"
     @dblclick="emit('open-rename-modal')"
@@ -164,10 +164,13 @@ const requestPath = computed(() => {
     ctx.folderPath
   ) {
     try {
-      const folderIndices = ctx.folderPath.split("/").map((x: string) => parseInt(x))
+      const folderIndices = ctx.folderPath
+        .split("/")
+        .map((x: string) => parseInt(x))
       const pathItems: string[] = []
 
-      let currentFolder = restCollectionStore.value.state[folderIndices.shift()!]
+      let currentFolder =
+        restCollectionStore.value.state[folderIndices.shift()!]
       if (currentFolder) {
         pathItems.push(currentFolder.name)
 
@@ -189,10 +192,24 @@ const requestPath = computed(() => {
   return null
 })
 
+const escapeHtml = (text: string) => {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
 const tabTooltip = computed(() => {
-  return requestPath.value
-    ? `${requestPath.value} / ${tabState.value.name}`
-    : tabState.value.name
+  if (requestPath.value) {
+    return `<div class="text-left font-normal">
+      ${escapeHtml(tabState.value.name)}<br>
+      ${escapeHtml(requestPath.value)}<br>
+      ${escapeHtml(tabState.value.request?.endpoint || "")}
+    </div>`
+  }
+  return escapeHtml(tabState.value.name)
 })
 
 const emit = defineEmits<{

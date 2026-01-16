@@ -927,7 +927,7 @@
   },
   "response": {
     "audio": "Audio",
-    "body": "Coprs de la réponse",
+    "body": "Corps de la réponse",
     "duplicated": "Réponse dupliquée",
     "duplicate_name_error": "Une réponse avec le même nom existe déjà",
     "filter_response_body": "Filtrer le corps de la réponse JSON (utilise la syntaxe jq)",

@@ -164,9 +164,7 @@ const requestPath = computed(() => {
     ctx.folderPath
   ) {
     try {
-      const folderIndices = ctx.folderPath
-        .split("/")
-        .map((x: string) => parseInt(x))
+      const folderIndices = ctx.folderPath.split("/").map((x) => parseInt(x))
       const pathItems: string[] = []
 
       let currentFolder =
@@ -203,11 +201,17 @@ const escapeHtml = (text: string) => {
 
 const tabTooltip = computed(() => {
   if (requestPath.value) {
-    return `<div class="text-left font-normal">
-      ${escapeHtml(tabState.value.name)}<br>
-      ${escapeHtml(requestPath.value)}<br>
-      ${escapeHtml(tabState.value.request?.endpoint || "")}
-    </div>`
+    const lines: string[] = [
+      escapeHtml(tabState.value.name),
+      escapeHtml(requestPath.value),
+    ]
+
+    const endpoint = tabState.value.request?.endpoint
+    if (endpoint) {
+      lines.push(escapeHtml(endpoint))
+    }
+
+    return `<div class="text-left font-normal">${lines.join("<br>")}</div>`
   }
   return escapeHtml(tabState.value.name)
 })

@@ -26,7 +26,7 @@ function isValidURL(url: string) {
     return true
   } catch (_error) {
     // Fallback to regular expression check
-    const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?/
+    const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
     if (pattern.test(url)) return true
 
     // If the string is percent-encoded (eg: contains "%"), try decoding
@@ -94,7 +94,13 @@ export class URLMenuService extends Service implements ContextMenu {
     const endpoint = currentTab.document.request.endpoint
 
     // Find and replace the selected text in the endpoint
-    const newEndpoint = endpoint.replace(selectedText, replacement)
+    const index = endpoint.indexOf(selectedText)
+    if (index === -1) return
+
+    const newEndpoint =
+      endpoint.slice(0, index) +
+      replacement +
+      endpoint.slice(index + selectedText.length)
     currentTab.document.request.endpoint = newEndpoint
   }
 
@@ -138,8 +144,10 @@ export class URLMenuService extends Service implements ContextMenu {
               const decoded = decodeURIComponent(text)
               this.replaceSelectedText(text, decoded)
             } catch (error) {
-              // If decoding fails, do nothing
-              // The text might not be encoded
+              console.warn(
+                "[URLMenuService] Failed to decode URI component from context menu action.",
+                { text, error }
+              )
             }
           },
         },

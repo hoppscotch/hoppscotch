@@ -15,6 +15,7 @@ query TeamPublishedDocsList(
     version
     autoSync
     url
+    documentTree
     collection {
       id
     }

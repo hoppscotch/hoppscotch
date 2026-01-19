@@ -533,7 +533,10 @@
       "update_title": "Update Published Documentation",
       "url_copied": "URL copied to clipboard!",
       "view_published": "View Published Docs",
-      "view_title": "View Published Documentation"
+      "view_title": "View Published Documentation",
+      "versions": "Versions",
+      "create_new_version": "Create New Version",
+      "invalid_version": "Version must only contain alphanumeric characters, dots, and hyphens"
     },
     "request_opened_in_new_tab": "Request opened in new tab!",
     "response": {

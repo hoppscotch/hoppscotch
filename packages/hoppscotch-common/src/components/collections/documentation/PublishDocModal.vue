@@ -22,19 +22,33 @@
 
         <!-- Additional Fields (will be enabled in the future) -->
         <!-- Version Input -->
-        <!-- <div>
+        <!-- Version Input -->
+        <div>
           <label class="block text-sm font-medium text-secondaryDark mb-2">
             {{ t("documentation.publish.doc_version") }}
           </label>
           <input
             v-model="publishVersion"
             type="text"
-            :readonly="mode === 'view'"
-            class="w-full px-3 py-2 border border-divider rounded bg-primary text-secondaryDark focus:outline-none focus:border-accent"
-            :class="{ 'opacity-60 cursor-not-allowed': mode === 'view' }"
+            :readonly="mode === 'view' || mode === 'update'"
+            class="w-full px-3 py-2 border rounded bg-primary text-secondaryDark focus:outline-none"
+            :class="{
+              'opacity-60 cursor-not-allowed':
+                mode === 'view' || mode === 'update',
+              'border-red-500 focus:border-red-500':
+                !isValidVersion && publishVersion.length > 0,
+              'border-divider focus:border-accent':
+                isValidVersion || publishVersion.length === 0,
+            }"
             placeholder="1.0.0"
           />
-        </div> -->
+          <span
+            v-if="!isValidVersion && publishVersion.length > 0"
+            class="text-xs text-red-500 mt-1 block"
+          >
+            {{ t("documentation.publish.invalid_version") }}
+          </span>
+        </div>
 
         <!-- Auto-sync Toggle -->
         <!-- <div class="flex items-start space-x-3">
@@ -208,7 +222,7 @@ const initializeFormData = () => {
   } else {
     publishTitle.value = props.collectionTitle
     publishVersion.value = "1.0.0"
-    autoSync.value = true
+    autoSync.value = false
     publishedUrl.value = null
   }
 }
@@ -231,7 +245,14 @@ const modalTitle = computed(() => {
 })
 
 const canPublish = computed(() => {
-  return publishTitle.value.trim().length > 0
+  return publishTitle.value.trim().length > 0 && isValidVersion.value
+})
+
+const isValidVersion = computed(() => {
+  const version = publishVersion.value.trim()
+  // Alphanumeric, dots, and hyphens only
+  const regex = /^[a-zA-Z0-9.-]+$/
+  return version.length > 0 && regex.test(version)
 })
 
 const hasChanges = computed(() => {

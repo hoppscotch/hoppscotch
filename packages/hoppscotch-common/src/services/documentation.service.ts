@@ -106,7 +106,7 @@ export class DocumentationService extends Service {
   /**
    * Map to store published docs
    */
-  private publishedDocsMap = ref<Map<string, PublishedDocInfo>>(new Map())
+  private publishedDocsMap = ref<Map<string, PublishedDocInfo[]>>(new Map())
 
   /**
    * Counter to track the latest fetch request ID
@@ -265,16 +265,18 @@ export class DocumentationService extends Service {
 
       if (E.isRight(result)) {
         const docs = result.right
-        const newMap = new Map<string, PublishedDocInfo>()
+        const newMap = new Map<string, PublishedDocInfo[]>()
         docs.forEach((doc) => {
           if (doc.collection?.id) {
-            newMap.set(doc.collection.id, {
+            const existing = newMap.get(doc.collection.id) || []
+            existing.push({
               id: doc.id,
               title: doc.title,
               version: doc.version,
               autoSync: doc.autoSync,
               url: doc.url,
             })
+            newMap.set(doc.collection.id, existing)
           }
         })
         this.publishedDocsMap.value = newMap
@@ -304,16 +306,18 @@ export class DocumentationService extends Service {
 
       if (E.isRight(result)) {
         const docs = result.right
-        const newMap = new Map<string, PublishedDocInfo>()
+        const newMap = new Map<string, PublishedDocInfo[]>()
         docs.forEach((doc) => {
           if (doc.collection?.id) {
-            newMap.set(doc.collection.id, {
+            const existing = newMap.get(doc.collection.id) || []
+            existing.push({
               id: doc.id,
               title: doc.title,
               version: doc.version,
               autoSync: doc.autoSync,
               url: doc.url,
             })
+            newMap.set(doc.collection.id, existing)
           }
         })
         this.publishedDocsMap.value = newMap
@@ -328,28 +332,60 @@ export class DocumentationService extends Service {
   }
 
   /**
-   * Gets the published status of a collection
+   * Gets the published status of a collection (returns all versions)
    * @param collectionId The ID of the collection
    */
   public getPublishedDocStatus(
     collectionId: string
-  ): PublishedDocInfo | undefined {
+  ): PublishedDocInfo[] | undefined {
     return this.publishedDocsMap.value.get(collectionId)
+  }
+
+  /**
+   * Gets a specific published doc version for a collection
+   * @param collectionId The ID of the collection
+   * @param version The version string to find
+   */
+  public getPublishedDocByVersion(
+    collectionId: string,
+    version: string
+  ): PublishedDocInfo | undefined {
+    const docs = this.publishedDocsMap.value.get(collectionId)
+    return docs?.find((doc) => doc.version === version)
   }
 
   /**
    * Manually updates the published status of a collection
    * @param collectionId The ID of the collection
-   * @param info The new info or null to remove
+   * @param info The new info (single doc) to add/update, or null to remove ALL docs for this collection (use carefully)
+   * @param removeId Optional ID to remove specifically
    */
   public setPublishedDocStatus(
     collectionId: string,
-    info: PublishedDocInfo | null
+    info: PublishedDocInfo | null,
+    removeId?: string
   ) {
     const newMap = new Map(this.publishedDocsMap.value)
-    if (info) {
-      newMap.set(collectionId, info)
+    const existing = newMap.get(collectionId) || []
+
+    if (removeId) {
+      const filtered = existing.filter((doc) => doc.id !== removeId)
+      if (filtered.length > 0) {
+        newMap.set(collectionId, filtered)
+      } else {
+        newMap.delete(collectionId)
+      }
+    } else if (info) {
+      // Update or add
+      const index = existing.findIndex((doc) => doc.id === info.id)
+      if (index !== -1) {
+        existing[index] = info
+      } else {
+        existing.push(info)
+      }
+      newMap.set(collectionId, existing)
     } else {
+      // Remove all if info is null and no removeId
       newMap.delete(collectionId)
     }
     this.publishedDocsMap.value = newMap

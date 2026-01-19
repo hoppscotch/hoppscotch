@@ -98,7 +98,10 @@
               <HoppButtonSecondary
                 :icon="IconCheveronDown"
                 reverse
-                :label="t('documentation.publish.published')"
+                :label="
+                  selectedVersionDoc?.version ||
+                  t('documentation.publish.published')
+                "
                 class="!pr-2"
               />
             </div>
@@ -111,6 +114,43 @@
                 @keyup.escape="hide()"
               >
                 <div class="flex flex-col space-y-2">
+                  <HoppSmartItem
+                    :icon="IconPlus"
+                    :label="t('documentation.publish.create_new_version')"
+                    @click="
+                      () => {
+                        hide()
+                        createNewVersion()
+                      }
+                    "
+                  />
+                  <div class="h-px bg-divider my-1"></div>
+                  <div
+                    v-if="publishedDocs.length > 0"
+                    class="flex flex-col space-y-1 mb-2 max-h-32 overflow-y-auto"
+                  >
+                    <span
+                      class="text-tiny font-bold text-secondaryLight uppercase px-2"
+                    >
+                      {{ t("documentation.publish.versions") }}
+                    </span>
+                    <div
+                      v-for="doc in publishedDocs"
+                      :key="doc.id"
+                      class="px-2 py-1 rounded cursor-pointer hover:bg-primaryLight flex items-center justify-between"
+                      :class="{
+                        'text-accent': doc.id === selectedVersionDoc?.id,
+                      }"
+                      @click="selectedVersionDoc = doc"
+                    >
+                      <span>{{ doc.version }}</span>
+                      <icon-lucide-check
+                        v-if="doc.id === selectedVersionDoc?.id"
+                        class="w-3 h-3 text-accent"
+                      />
+                    </div>
+                  </div>
+                  <div class="h-px bg-divider my-1"></div>
                   <div class="flex items-center space-x-2">
                     <HoppSmartInput
                       :model-value="existingPublishedData?.url"
@@ -208,6 +248,7 @@ import { getErrorMessage } from "~/helpers/backend/mutations/MockServer"
 import {
   DocumentationService,
   type DocumentationItem,
+  type PublishedDocInfo,
 } from "~/services/documentation.service"
 
 import IconFileText from "~icons/lucide/file-text"
@@ -217,6 +258,7 @@ import IconPenLine from "~icons/lucide/pen-line"
 import IconCheveronDown from "~icons/lucide/chevron-down"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
 
 import {
   WorkspaceType,
@@ -282,29 +324,56 @@ const allItems = ref<Array<any>>([])
 
 const showAllDocumentation = ref<boolean>(false)
 const showPublishModal = ref<boolean>(false)
+const isCreatingNewVersion = ref<boolean>(false)
 
 const publishedDropdown = ref<TippyComponent | null>(null)
 const publishedDropdownActions = ref<HTMLDivElement | null>(null)
 
 // Published docs state
-const publishedDocStatus = computed(() => {
-  if (!props.collectionID) return undefined
-  return documentationService.getPublishedDocStatus(props.collectionID)
+// Published docs state
+const publishedDocs = computed(() => {
+  if (!props.collectionID) return []
+  return documentationService.getPublishedDocStatus(props.collectionID) || []
 })
 
-const isCollectionPublished = computed(() => !!publishedDocStatus.value)
-const publishedDocId = computed(() => publishedDocStatus.value?.id)
+const selectedVersionDoc = ref<PublishedDocInfo | null>(null)
+
+watch(
+  publishedDocs,
+  (docs) => {
+    if (docs && docs.length > 0) {
+      // If we already have a selected version, try to keep it (by ID)
+      if (selectedVersionDoc.value) {
+        const found = docs.find((d) => d.id === selectedVersionDoc.value?.id)
+        if (found) {
+          selectedVersionDoc.value = found
+          return
+        }
+      }
+      // Otherwise default to the first one
+      selectedVersionDoc.value = docs[0]
+    } else {
+      selectedVersionDoc.value = null
+    }
+  },
+  { immediate: true }
+)
+
+const isCollectionPublished = computed(() => publishedDocs.value.length > 0)
+const publishedDocId = computed(() => selectedVersionDoc.value?.id)
 const existingPublishedData = computed(() => {
-  if (!publishedDocStatus.value) return undefined
+  if (isCreatingNewVersion.value) return undefined
+  if (!selectedVersionDoc.value) return undefined
   return {
-    title: publishedDocStatus.value.title,
-    version: publishedDocStatus.value.version,
-    autoSync: publishedDocStatus.value.autoSync,
-    url: publishedDocStatus.value.url,
+    title: selectedVersionDoc.value.title,
+    version: selectedVersionDoc.value.version,
+    autoSync: selectedVersionDoc.value.autoSync,
+    url: selectedVersionDoc.value.url,
   }
 })
 
 const publishModalMode = computed<"create" | "update" | "view">(() => {
+  if (isCreatingNewVersion.value) return "create"
   return isCollectionPublished.value ? "update" : "create"
 })
 
@@ -451,6 +520,17 @@ watch(
 const openPublishModal = () => {
   showPublishModal.value = true
 }
+
+const createNewVersion = () => {
+  isCreatingNewVersion.value = true
+  showPublishModal.value = true
+}
+
+watch(showPublishModal, (isOpen) => {
+  if (!isOpen) {
+    isCreatingNewVersion.value = false
+  }
+})
 
 const copyPublishedUrl = () => {
   if (existingPublishedData.value?.url) {
@@ -813,6 +893,10 @@ const handlePublish = async (doc: CreatePublishedDocsArgs) => {
             newDocInfo
           )
         }
+
+        // Select the new version and exit create mode
+        selectedVersionDoc.value = newDocInfo
+        isCreatingNewVersion.value = false
       }
     )
   )()
@@ -873,7 +957,11 @@ const handleDelete = async () => {
 
         // Update service
         if (props.collectionID) {
-          documentationService.setPublishedDocStatus(props.collectionID, null)
+          documentationService.setPublishedDocStatus(
+            props.collectionID,
+            null,
+            publishedDocId.value
+          )
         }
       }
     )

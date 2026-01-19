@@ -482,13 +482,15 @@ describe("DocumentationService", () => {
       await service.fetchUserPublishedDocs()
 
       const status = service.getPublishedDocStatus("col-1")
-      expect(status).toEqual({
-        id: "doc-1",
-        title: "Doc 1",
-        version: "v1",
-        autoSync: true,
-        url: "url-1",
-      })
+      expect(status).toEqual([
+        {
+          id: "doc-1",
+          title: "Doc 1",
+          version: "v1",
+          autoSync: true,
+          url: "url-1",
+        },
+      ])
     })
 
     it("should fetch team published docs and update map", async () => {
@@ -510,13 +512,15 @@ describe("DocumentationService", () => {
       await service.fetchTeamPublishedDocs("team-1")
 
       const status = service.getPublishedDocStatus("col-2")
-      expect(status).toEqual({
-        id: "doc-2",
-        title: "Doc 2",
-        version: "v2",
-        autoSync: false,
-        url: "url-2",
-      })
+      expect(status).toEqual([
+        {
+          id: "doc-2",
+          title: "Doc 2",
+          version: "v2",
+          autoSync: false,
+          url: "url-2",
+        },
+      ])
     })
 
     it("should handle error when fetching user published docs", async () => {
@@ -560,7 +564,7 @@ describe("DocumentationService", () => {
 
       service.setPublishedDocStatus("col-3", info)
 
-      expect(service.getPublishedDocStatus("col-3")).toEqual(info)
+      expect(service.getPublishedDocStatus("col-3")).toEqual([info])
     })
 
     it("should remove published doc status", () => {
@@ -622,26 +626,82 @@ describe("DocumentationService", () => {
       await secondCall
 
       // Verify the fast response is applied
-      expect(service.getPublishedDocStatus("col-1")).toEqual({
-        id: "doc-fast",
-        title: "Fast Doc",
-        version: "v2",
-        autoSync: true,
-        url: "url-fast",
-      })
+      expect(service.getPublishedDocStatus("col-1")).toEqual([
+        {
+          id: "doc-fast",
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+        },
+      ])
 
       // Now resolve the slow request
       resolveSlow!(E.right(slowDocs as any))
       await firstCall
 
       // Verify the state hasn't changed (slow response ignored)
-      expect(service.getPublishedDocStatus("col-1")).toEqual({
-        id: "doc-fast",
-        title: "Fast Doc",
+      expect(service.getPublishedDocStatus("col-1")).toEqual([
+        {
+          id: "doc-fast",
+          title: "Fast Doc",
+          version: "v2",
+          autoSync: true,
+          url: "url-fast",
+        },
+      ])
+    })
+
+    it("should get published doc by version", () => {
+      const info1 = {
+        id: "doc-1",
+        title: "Doc 1",
+        version: "v1",
+        autoSync: true,
+        url: "url-1",
+      }
+      const info2 = {
+        id: "doc-2",
+        title: "Doc 2",
         version: "v2",
         autoSync: true,
-        url: "url-fast",
-      })
+        url: "url-2",
+      }
+
+      service.setPublishedDocStatus("col-1", info1)
+      service.setPublishedDocStatus("col-1", info2)
+
+      expect(service.getPublishedDocByVersion("col-1", "v1")).toEqual(info1)
+      expect(service.getPublishedDocByVersion("col-1", "v2")).toEqual(info2)
+      expect(service.getPublishedDocByVersion("col-1", "v3")).toBeUndefined()
+    })
+
+    it("should remove specific published doc version", () => {
+      const info1 = {
+        id: "doc-1",
+        title: "Doc 1",
+        version: "v1",
+        autoSync: true,
+        url: "url-1",
+      }
+      const info2 = {
+        id: "doc-2",
+        title: "Doc 2",
+        version: "v2",
+        autoSync: true,
+        url: "url-2",
+      }
+
+      service.setPublishedDocStatus("col-1", info1)
+      service.setPublishedDocStatus("col-1", info2)
+
+      expect(service.getPublishedDocStatus("col-1")).toHaveLength(2)
+
+      service.setPublishedDocStatus("col-1", null, "doc-1")
+
+      const status = service.getPublishedDocStatus("col-1")
+      expect(status).toHaveLength(1)
+      expect(status![0]).toEqual(info2)
     })
   })
 })

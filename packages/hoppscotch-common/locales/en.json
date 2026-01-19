@@ -379,7 +379,9 @@
   "context_menu": {
     "add_parameters": "Add to parameters",
     "open_request_in_new_tab": "Open request in new tab",
-    "set_environment_variable": "Set as variable"
+    "set_environment_variable": "Set as variable",
+    "encode_uri_component": "EncodeURIComponent",
+    "decode_uri_component": "DecodeURIComponent"
   },
   "cookies": {
     "modal": {

@@ -38,7 +38,6 @@ function isCorsError(error: any): boolean {
       // CORS errors in browsers typically show as TypeError with no response
       (error?.cause?.name === "TypeError" && !error?.cause?.response) ||
       // Check if error message is empty or generic, which often happens with CORS
-      lowerMessage === "" ||
       lowerMessage === "network error" ||
       // Axios errors without a response often indicate CORS
       (error?.cause?.code === "ERR_NETWORK" && !error?.cause?.response))

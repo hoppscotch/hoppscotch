@@ -3,12 +3,21 @@ import { resolve } from "path";
 
 import { ExecResponse } from "./types";
 
-export const runCLI = (args: string, options = {}): Promise<ExecResponse> => {
+export const runCLI = (
+  args: string,
+  options: any = {}
+): Promise<ExecResponse> => {
   const CLI_PATH = resolve(__dirname, "../../bin/hopp.js");
   const command = `node ${CLI_PATH} ${args}`;
 
+  // Do not set a default exec timeout here so long-running CLI child
+  // processes are not killed prematurely. Let the test framework
+  // (Vitest) control test timeouts. Tests that need custom timeouts
+  // may pass a `timeout` property in the `options` argument.
+  const execOptions = { timeout: 0, ...options };
+
   return new Promise((resolve) =>
-    exec(command, options, (error, stdout, stderr) =>
+    exec(command, execOptions, (error, stdout, stderr) =>
       resolve({ error, stdout, stderr })
     )
   );

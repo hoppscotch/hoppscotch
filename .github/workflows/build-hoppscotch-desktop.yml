@@ -57,12 +57,12 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ inputs.build_linux }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
@@ -98,7 +98,7 @@ jobs:
             libjavascriptcoregtk-4.1-dev=2.44.0-2 \
             gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
             gir1.2-webkit2-4.1=2.44.0-2;
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -150,7 +150,7 @@ jobs:
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/appimage/*.AppImage.sig dist/Hoppscotch_SelfHost_linux_x64.AppImage.sig
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/release/bundle/deb/*.deb dist/Hoppscotch_SelfHost_linux_x64.deb
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: selfhost-desktop-linux
           path: dist/*
@@ -158,7 +158,7 @@ jobs:
     runs-on: windows-latest
     if: ${{ inputs.build_windows }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
@@ -168,7 +168,7 @@ jobs:
         run: |
           echo "PERL=$((where.exe perl)[0])" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           echo "OPENSSL_SRC_PERL=$((where.exe perl)[0])" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
@@ -194,7 +194,7 @@ jobs:
           WINDOWS_SIGN_COMMAND: trusted-signing-cli -e ${{ secrets.AZURE_ENDPOINT }} -a ${{ secrets.AZURE_CODE_SIGNING_NAME }} -c ${{ secrets.AZURE_CERT_PROFILE_NAME }} %1
         run: |
           cat "${{ env.DESKTOP_PATH }}/src-tauri/tauri.conf.json" | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > "${{ env.DESKTOP_PATH }}/src-tauri/temp.json" && mv "${{ env.DESKTOP_PATH }}/src-tauri/temp.json" "${{ env.DESKTOP_PATH }}/src-tauri/tauri.conf.json"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -258,7 +258,7 @@ jobs:
           Copy-Item ${{ env.DESKTOP_PATH }}\src-tauri\target\release\bundle\msi\*_x64_en-US.msi dist\Hoppscotch_SelfHost_win_x64.msi
           Copy-Item ${{ env.DESKTOP_PATH }}\src-tauri\target\release\bundle\msi\*_x64_en-US.msi.sig dist\Hoppscotch_SelfHost_win_x64.msi.sig
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: selfhost-desktop-windows
           path: dist/*
@@ -266,12 +266,12 @@ jobs:
     runs-on: macos-latest
     if: ${{ inputs.build_macos_x64 }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
@@ -297,7 +297,7 @@ jobs:
           p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
           p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -355,7 +355,7 @@ jobs:
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz dist/Hoppscotch_SelfHost_mac_x64.tar.gz
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz.sig dist/Hoppscotch_SelfHost_mac_x64.tar.gz.sig
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: selfhost-desktop-macos-x64
           path: dist/*
@@ -363,12 +363,12 @@ jobs:
     runs-on: macos-latest
     if: ${{ inputs.build_macos_arm64 }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.tag != '' && inputs.tag || inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
@@ -394,7 +394,7 @@ jobs:
           p12-file-base64: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE }}
           p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -452,7 +452,7 @@ jobs:
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz dist/Hoppscotch_SelfHost_mac_aarch64.tar.gz
           cp ${{ env.DESKTOP_PATH }}/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Hoppscotch.app.tar.gz.sig dist/Hoppscotch_SelfHost_mac_aarch64.tar.gz.sig
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: selfhost-desktop-macos-aarch64
           path: dist/*
@@ -462,7 +462,7 @@ jobs:
     if: ${{ inputs.build_linux && inputs.build_windows && inputs.build_macos_x64 && inputs.build_macos_arm64 }}
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Create update manifest
@@ -496,7 +496,7 @@ jobs:
           }
           EOF
       - name: Upload manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: selfhost-desktop-update-manifest
           path: artifacts/hoppscotch-selfhost-desktop.json

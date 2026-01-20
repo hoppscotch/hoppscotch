@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@10.23.0",
+  "packageManager": "pnpm@10.28.1",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -40,12 +40,14 @@
       "body-parser": "2.2.1",
       "cross-spawn": "7.0.6",
       "execa@0.10.0": "2.0.0",
+      "form-data": "4.0.4",
+      "glob@<11.1.0": "11.1.0",
+      "hono@4.10.6": "4.11.4",
       "jws@<3.2.3": "3.2.3",
       "nodemailer@<7.0.11": "7.0.11",
-      "glob@<11.1.0": "11.1.0",
+      "qs@6.14.0": "6.14.1",
       "subscriptions-transport-ws>ws": "7.5.10",
       "vue": "3.5.26",
-      "form-data": "4.0.4",
       "ws": "8.17.1"
     },
     "onlyBuiltDependencies": [

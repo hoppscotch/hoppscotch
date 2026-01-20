@@ -114,12 +114,36 @@ importers:
       '@types/node':
         specifier: 24.10.1
         version: 24.10.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: 8.50.0
+        version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: 8.50.0
+        version: 8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@vitejs/plugin-vue':
         specifier: 6.0.3
         version: 6.0.3(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(sass@1.97.0)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      '@vue/eslint-config-typescript':
+        specifier: 14.6.0
+        version: 14.6.0(eslint-plugin-vue@10.6.2(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.39.2(jiti@2.6.1))))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       autoprefixer:
         specifier: 10.4.23
         version: 10.4.23(postcss@8.5.6)
+      cross-env:
+        specifier: 10.1.0
+        version: 10.1.0
+      eslint:
+        specifier: 9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-prettier:
+        specifier: 5.5.4
+        version: 5.5.4(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)
+      eslint-plugin-vue:
+        specifier: 10.6.2
+        version: 10.6.2(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.39.2(jiti@2.6.1)))
+      globals:
+        specifier: 16.5.0
+        version: 16.5.0
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -1324,9 +1348,27 @@ importers:
         specifier: 3.25.32
         version: 3.25.32
     devDependencies:
+      '@eslint/js':
+        specifier: 9.39.2
+        version: 9.39.2
       '@types/node':
         specifier: 24.9.1
         version: 24.9.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: 8.50.0
+        version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: 8.50.0
+        version: 8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      eslint:
+        specifier: 9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      eslint-plugin-prettier:
+        specifier: 5.5.4
+        version: 5.5.4(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(prettier@3.7.4)
+      globals:
+        specifier: 16.5.0
+        version: 16.5.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -21067,7 +21109,7 @@ snapshots:
 
   eslint-plugin-vue@10.6.2(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.39.2(jiti@2.6.1))):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.2(jiti@2.6.1))
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.2(jiti@2.6.1))
       eslint: 9.39.2(jiti@2.6.1)
       natural-compare: 1.4.0
       nth-check: 2.1.1
@@ -21094,7 +21136,7 @@ snapshots:
 
   eslint@9.39.2(jiti@2.6.1):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.2(jiti@2.6.1))
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.2(jiti@2.6.1))
       '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.21.1
       '@eslint/config-helpers': 0.4.2

@@ -15,7 +15,11 @@
     "build:decl": "tsc --project tsconfig.decl.json",
     "build": "pnpm run build:code && pnpm run build:decl",
     "prepare": "pnpm run build:code && pnpm run build:decl",
-    "do-typecheck": "pnpm exec tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit",
+    "lint": "eslint src",
+    "lintfix": "eslint --fix src",
+    "do-lint": "pnpm run lint",
+    "do-lintfix": "pnpm run lintfix"
   },
   "exports": {
     ".": {
@@ -35,7 +39,13 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
+    "@eslint/js": "9.39.2",
     "@types/node": "24.9.1",
+    "@typescript-eslint/eslint-plugin": "8.50.0",
+    "@typescript-eslint/parser": "8.50.0",
+    "eslint": "9.39.2",
+    "eslint-plugin-prettier": "5.5.4",
+    "globals": "16.5.0",
     "typescript": "5.9.3",
     "vite": "7.3.0"
   },

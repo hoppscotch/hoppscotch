@@ -4,12 +4,14 @@
     <div class="overflow-auto">
       <HoppSmartTable
         :headings="[
-           { key: 'auth_key_hash', label: 'ID' },
-           { key: 'registered_at', label: 'Registered At' },
-         ]"
+          { key: 'auth_key_hash', label: 'ID' },
+          { key: 'registered_at', label: 'Registered At' },
+        ]"
         :list="registrations"
       >
-        <template #registered_at="{ item }">{{ formatDate(item.registered_at) }}</template>
+        <template #registered_at="{ item }">{{
+          formatDate(item.registered_at)
+        }}</template>
       </HoppSmartTable>
     </div>
     <div class="border-t border-divider p-5 flex justify-between">
@@ -18,8 +20,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, markRaw, onMounted } from "vue"
+<script setup lang="ts">
+import { ref, onMounted } from "vue"
 import { HoppButtonPrimary, HoppSmartTable } from "@hoppscotch/ui"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from "@tauri-apps/api/core"

@@ -49,7 +49,7 @@ You can use Homebrew (on macOS or Linux) to install Hopscotch
 
 ```bash
 brew install --cask hoppscotch
-
+```
 
 #### **Support**
 

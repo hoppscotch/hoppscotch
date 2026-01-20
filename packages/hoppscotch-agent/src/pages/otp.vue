@@ -42,7 +42,9 @@
 <script setup lang="ts">
 import { ref, markRaw, onMounted } from "vue"
 import { HoppButtonSecondary } from "@hoppscotch/ui"
+// @ts-expect-error - Icon import has no types
 import IconCopy from "~icons/lucide/copy"
+// @ts-expect-error - Icon import has no types
 import IconCheck from "~icons/lucide/check"
 import { useClipboard, refAutoReset } from "@vueuse/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
@@ -68,12 +70,12 @@ onMounted(async () => {
   const currentWindow = getCurrentWindow()
   currentWindow.setAlwaysOnTop(true)
 
-  const initialOtp = await invoke("get_otp", {})
+  const initialOtp = await invoke<string>("get_otp", {})
   if (initialOtp) {
     otpCode.value = initialOtp
   }
 
-  await listen("registration-received", (event) => {
+  await listen<string>("registration-received", (event) => {
     otpCode.value = event.payload
     currentWindow.setFocus()
   })

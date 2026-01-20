@@ -28,9 +28,18 @@ import { invoke } from "@tauri-apps/api/core"
 import { listen } from "@tauri-apps/api/event"
 import { orderBy } from "lodash-es"
 
-const registrations = ref([])
+interface Registration {
+  auth_key_hash: string
+  registered_at: string
+}
 
-function formatDate(date) {
+interface ListRegistrationsResult {
+  registrations: Registration[]
+}
+
+const registrations = ref<Registration[]>([])
+
+function formatDate(date: string): string {
   return new Date(date).toLocaleString()
 }
 
@@ -40,7 +49,7 @@ function hideWindow() {
 }
 
 async function loadRegistrations() {
-  const result = await invoke("list_registrations", {})
+  const result = await invoke<ListRegistrationsResult>("list_registrations", {})
   registrations.value = orderBy(result.registrations, "registered_at", "desc")
 }
 

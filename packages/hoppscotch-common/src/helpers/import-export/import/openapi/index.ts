@@ -206,7 +206,7 @@ const parseOpenAPIV3Responses = (
     try {
       stringifiedBody = JSON.stringify(body ?? "")
       // the parsing will fail for a circular response schema
-    } catch (e) {
+    } catch (_e) {
       // eat five star, do nothing
     }
 
@@ -435,7 +435,7 @@ const parseOpenAPIV3Body = (
             ? sampleBody
             : JSON.stringify(sampleBody, null, 2),
       }
-    } catch (e) {
+    } catch (_e) {
       // If we can't generate a sample, check for examples
       if (media.example !== undefined) {
         return {
@@ -1152,7 +1152,7 @@ export const hoppOpenAPIImporter = (fileContents: string[]) =>
               try {
                 const validatedDoc = await dereferenceDocs(docObj)
                 resultDoc.push(validatedDoc)
-              } catch (error) {
+              } catch (_error) {
                 // Check if the document has unresolved references
                 if (hasUnresolvedRefs(docObj)) {
                   console.warn(

@@ -1,4 +1,4 @@
-import { v1 } from './v/1'
+import { v1 } from "./v/1"
 
 export type {
   IoV1,
@@ -8,8 +8,8 @@ export type {
   OpenExternalLinkResponse,
   Event,
   EventCallback,
-  UnlistenFn
-} from './v/1'
+  UnlistenFn,
+} from "./v/1"
 
 export const VERSIONS = {
   v1,

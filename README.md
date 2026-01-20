@@ -47,7 +47,8 @@ _We highly recommend you take a look at the [**Hoppscotch Documentation**](https
 
 You can use Homebrew (on macOS or Linux) to install Hopscotch
 
-``` brew install --cask hoppscotch ```
+```bash
+brew install --cask hoppscotch
 
 
 #### **Support**

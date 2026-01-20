@@ -9,7 +9,7 @@ import { getDefaultRESTRequest } from "@hoppscotch/data"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { runTestScript, runPreRequestScript } from "~/node"
-import { TestResponse, TestResult } from "~/types"
+import { TestResponse, TestResult, HoppFetchHook } from "~/types"
 
 // Default fixtures used across test files
 export const defaultRequest = getDefaultRESTRequest()
@@ -31,6 +31,7 @@ export const fakeResponse: TestResponse = {
  * @param envs - Environment variables (defaults to empty)
  * @param response - Response object (defaults to fakeResponse)
  * @param request - Request object (defaults to defaultRequest)
+ * @param hoppFetchHook - Optional hook for hopp.fetch() implementation
  * @returns TaskEither containing test results
  *
  * @example
@@ -49,13 +50,17 @@ export const runTest = (
   script: string,
   envs: TestResult["envs"],
   response: TestResponse = fakeResponse,
-  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest
+  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest,
+  hoppFetchHook?: HoppFetchHook
 ) =>
   pipe(
     runTestScript(script, {
       envs,
       request,
       response,
+      cookies: null,
+      experimentalScriptingSandbox: true,
+      hoppFetchHook,
     }),
     TE.map((x) => x.tests)
   )
@@ -68,6 +73,7 @@ export const runTest = (
  * @param script - The pre-request script to execute
  * @param envs - Initial environment variables (defaults to empty)
  * @param request - Request object (defaults to defaultRequest)
+ * @param hoppFetchHook - Optional hook for hopp.fetch() implementation
  * @returns TaskEither containing environment variables
  *
  * @example
@@ -88,12 +94,16 @@ export const runTest = (
 export const runPreRequest = (
   script: string,
   envs: TestResult["envs"],
-  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest
+  request: ReturnType<typeof getDefaultRESTRequest> = defaultRequest,
+  hoppFetchHook?: HoppFetchHook
 ) =>
   pipe(
     runPreRequestScript(script, {
       envs,
       request,
+      cookies: null,
+      experimentalScriptingSandbox: true,
+      hoppFetchHook,
     }),
     TE.map((x) => x.updatedEnvs)
   )
@@ -187,6 +197,8 @@ export const runTestAndGetEnvs = (
       envs,
       request,
       response,
+      cookies: null,
+      experimentalScriptingSandbox: true,
     }),
     TE.map((x: TestResult) => x.envs)
   )

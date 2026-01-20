@@ -1,6 +1,0 @@
-query IsUserHistoryEnabled {
-  isUserHistoryEnabled {
-    name
-    value
-  }
-}

@@ -31,7 +31,6 @@ import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
 import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
-import { WorkspaceService } from "./workspace.service"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
@@ -139,8 +138,6 @@ export class TeamCollectionsService extends Service<void> {
   private secretEnvironmentService = this.bind(SecretEnvironmentService)
   private currentEnvironmentValueService = this.bind(CurrentValueService)
 
-  private workspaceService = this.bind(WorkspaceService)
-
   private teamID: string | null = null
 
   public collections = ref<TeamCollection[]>([])
@@ -176,20 +173,13 @@ export class TeamCollectionsService extends Service<void> {
   private teamChildCollectionSortedSub: WSubscription | null = null
 
   override onServiceInit() {
-    // Watch for team change and update the collections accordingly
-    watch(
-      () => this.workspaceService.currentWorkspace,
-      (workspace) => {
-        if (workspace.value.type === "team" && workspace.value.teamID) {
-          this.changeTeamID(workspace.value.teamID)
-        } else {
-          this.clearCollections()
-        }
-      },
-      { immediate: true, deep: true }
-    )
+    this.collectionLoadingWatcher()
+  }
 
-    // Watch for completion of loading (when all loading flags are cleared) to update inherited properties once
+  /**
+   * Watches for loading collections and updates inherited properties once loading is done
+   */
+  private collectionLoadingWatcher() {
     watch(
       () => this.loadingCollections.value.length,
       (loadingCount) => {
@@ -208,7 +198,11 @@ export class TeamCollectionsService extends Service<void> {
     )
   }
 
-  changeTeamID(newTeamID: string | null) {
+  /**
+   * Change the current team ID and resets the collections
+   * @param newTeamID The new team ID to switch to
+   */
+  public changeTeamID(newTeamID: string | null) {
     this.teamID = newTeamID
     this.collections.value = []
     this.entityIDs.clear()
@@ -218,6 +212,17 @@ export class TeamCollectionsService extends Service<void> {
     this.unsubscribeSubscriptions()
 
     if (this.teamID) this.initialize()
+  }
+
+  /**
+   * Clears all collections and resets the service state
+   */
+  public clearCollections() {
+    this.collections.value = []
+    this.entityIDs.clear()
+    this.loadingCollections.value = []
+    this.unsubscribeSubscriptions()
+    this.teamID = null
   }
 
   /**
@@ -290,14 +295,6 @@ export class TeamCollectionsService extends Service<void> {
     this.entityIDs.add(`collection-${collection.id}`)
 
     this.collections.value = tree
-  }
-
-  private clearCollections() {
-    this.collections.value = []
-    this.entityIDs.clear()
-    this.loadingCollections.value = []
-    this.unsubscribeSubscriptions()
-    this.teamID = null
   }
 
   /**
@@ -1236,5 +1233,69 @@ export class TeamCollectionsService extends Service<void> {
     }
 
     return { auth, headers, variables }
+  }
+
+  private async waitForCollectionLoading(collectionID: string) {
+    while (this.loadingCollections.value.includes(collectionID)) {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+  }
+
+  /**
+   * Used to obtain the inherited auth and headers for a given folder path
+   * This function is async and will expand the collections if they are not expanded yet
+   * @param folderPath the path of the folder to cascade the auth from
+   * @returns the inherited auth and headers for the given folder path
+   */
+  public async cascadeParentCollectionForPropertiesAsync(folderPath: string) {
+    if (!folderPath)
+      return {
+        auth: {
+          parentID: "",
+          parentName: "",
+          inheritedAuth: {
+            authType: "none",
+            authActive: true,
+          },
+        },
+        headers: [],
+        variables: [],
+      }
+
+    const path = folderPath.split("/")
+
+    // Check if the path is empty or invalid
+    if (!path || path.length === 0) {
+      console.error("Invalid path:", folderPath)
+      return {
+        auth: {
+          parentID: "",
+          parentName: "",
+          inheritedAuth: {
+            authType: "none",
+            authActive: true,
+          },
+        },
+        headers: [],
+        variables: [],
+      }
+    }
+
+    // Loop through the path and expand the collections if they are not expanded
+    for (let i = 0; i < path.length; i++) {
+      const parentFolder = findCollInTree(this.collections.value, path[i])
+
+      if (parentFolder) {
+        if (parentFolder.children === null) {
+          if (this.loadingCollections.value.includes(parentFolder.id)) {
+            await this.waitForCollectionLoading(parentFolder.id)
+          } else {
+            await this.expandCollection(parentFolder.id)
+          }
+        }
+      }
+    }
+
+    return this.cascadeParentCollectionForProperties(folderPath)
   }
 }

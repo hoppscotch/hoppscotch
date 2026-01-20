@@ -35,6 +35,7 @@
               'application/hal+json',
               'application/vnd.api+json',
               'application/xml',
+              'text/xml',
             ].includes(body.contentType)
           "
           v-tippy="{ theme: 'tooltip' }"
@@ -209,7 +210,10 @@ const prettifyRequestBody = () => {
   try {
     if (body.value.contentType.endsWith("json")) {
       prettifyBody = prettifyJSONC(rawParamsBody.value as string)
-    } else if (body.value.contentType === "application/xml") {
+    } else if (
+      body.value.contentType === "application/xml" ||
+      body.value.contentType === "text/xml"
+    ) {
       prettifyBody = prettifyXML(rawParamsBody.value as string)
     }
     rawParamsBody.value = prettifyBody

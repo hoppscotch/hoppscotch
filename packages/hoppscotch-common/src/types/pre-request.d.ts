@@ -344,7 +344,30 @@ declare namespace hopp {
     delete(domain: string, name: string): void
     clear(domain: string): void
   }>
+
+  /**
+   * Fetch API - Makes HTTP requests respecting interceptor settings
+   * @param input - URL string or Request object
+   * @param init - Optional request options
+   * @returns Promise that resolves to Response object
+   */
+  function fetch(
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response>
 }
+
+/**
+ * Global fetch function - alias to hopp.fetch()
+ * Makes HTTP requests respecting interceptor settings
+ * @param input - URL string or Request object
+ * @param init - Optional request options
+ * @returns Promise that resolves to Response object
+ */
+declare function fetch(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response>
 
 declare namespace pm {
   const environment: Readonly<{
@@ -816,7 +839,14 @@ declare namespace pm {
     readonly iterationCount: never
   }>
 
-  const sendRequest: () => never
+  /**
+   * Send an HTTP request (unsupported)
+   * @throws Error - sendRequest is not supported in Hoppscotch
+   */
+  function sendRequest(
+    request: string | { url: string; method?: string; [key: string]: any },
+    callback?: (err: any, response: any) => void
+  ): never
 
   /**
    * Collection variables (unsupported - Workspace feature)
@@ -887,6 +917,13 @@ declare namespace pm {
    */
   const execution: Readonly<{
     /**
+     * Execution location identifier
+     * Always returns ["Hoppscotch"] with current = "Hoppscotch"
+     */
+    readonly location: readonly string[] & {
+      readonly current: string
+    }
+    /**
      * Set next request to execute (unsupported - Collection Runner feature)
      * @param requestNameOrId - Name or ID of the next request
      */
@@ -901,4 +938,12 @@ declare namespace pm {
      */
     runRequest(requestNameOrId: string): never
   }>
+
+  /**
+   * Import packages from Package Library (unsupported)
+   * @param packageName - Name of the package to import (e.g., '@team-domain/package-name' or 'npm:package-name@version')
+   * @returns The imported package module
+   * @throws Error - Package imports are not supported in Hoppscotch
+   */
+  function require(packageName: string): never
 }

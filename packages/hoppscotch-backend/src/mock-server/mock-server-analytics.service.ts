@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { MockServer as dbMockServer, MockServerAction } from '@prisma/client';
+import {
+  MockServer as dbMockServer,
+  MockServerAction,
+} from 'src/generated/prisma/client';
 
 @Injectable()
 export class MockServerAnalyticsService {

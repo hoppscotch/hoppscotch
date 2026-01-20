@@ -1016,7 +1016,7 @@ export class MockServerService {
   private parseExample(exampleData: any, requestId: string) {
     try {
       // Parse endpoint to extract path and query parameters
-      let endpointString = String(exampleData.endpoint) || '';
+      let endpointString = String(exampleData.endpoint ?? '');
       let path = '/';
       const queryParams: Record<string, string> = {};
 

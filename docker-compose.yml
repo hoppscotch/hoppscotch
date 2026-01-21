@@ -67,8 +67,8 @@ services:
       target: app
     env_file:
       - ./.env
-    # depends_on:
-    #   - hoppscotch-backend
+    depends_on:
+      - hoppscotch-backend
     ports:
       - "3080:80"
       - "3000:3000"
@@ -86,8 +86,8 @@ services:
       target: sh_admin
     env_file:
       - ./.env
-    # depends_on:
-    #   - hoppscotch-backend
+    depends_on:
+      - hoppscotch-backend
     ports:
       - "3280:80"
       - "3100:3100"

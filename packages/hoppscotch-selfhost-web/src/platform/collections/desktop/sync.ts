@@ -15,8 +15,8 @@ import {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 
-import { getSyncInitFunction, StoreSyncDefinitionOf } from "@lib/sync"
-import { createMapper } from "@lib/sync/mapper"
+import { getSyncInitFunction, StoreSyncDefinitionOf } from "@app/lib/sync"
+import { createMapper } from "@app/lib/sync/mapper"
 import {
   createRESTChildUserCollection,
   createRESTRootUserCollection,
@@ -34,7 +34,7 @@ import {
 } from "./api"
 
 import * as E from "fp-ts/Either"
-import { ReqType, SortOptions } from "@api/generated/graphql"
+import { ReqType, SortOptions } from "@app/api/generated/graphql"
 
 // restCollectionsMapper uses the collectionPath as the local identifier
 // Helper function to transform HoppCollection to backend format
@@ -47,6 +47,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
     headers: collection.headers ?? [],
     variables: collection.variables ?? [],
     _ref_id: collection._ref_id,
+    description: collection.description ?? null,
   }
 
   return {
@@ -81,6 +82,7 @@ const recursivelySyncCollections = async (
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
+      description: collection.description ?? null,
     }
     const res = await createRESTRootUserCollection(
       collection.name,
@@ -99,6 +101,7 @@ const recursivelySyncCollections = async (
             headers: [],
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
+            description: null,
           }
 
       collection.id = parentCollectionID
@@ -106,6 +109,7 @@ const recursivelySyncCollections = async (
       collection.auth = returnedData.auth
       collection.headers = returnedData.headers
       collection.variables = returnedData.variables
+      collection.description = returnedData.description ?? null
       removeDuplicateRESTCollectionOrFolder(parentCollectionID, collectionPath)
     } else {
       parentCollectionID = undefined
@@ -120,6 +124,7 @@ const recursivelySyncCollections = async (
       headers: collection.headers ?? [],
       variables: collection.variables ?? [],
       _ref_id: collection._ref_id,
+      description: collection.description ?? null,
     }
 
     const res = await createRESTChildUserCollection(
@@ -141,6 +146,7 @@ const recursivelySyncCollections = async (
             headers: [],
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
+            description: null,
           }
 
       collection.id = childCollectionId
@@ -149,6 +155,7 @@ const recursivelySyncCollections = async (
       collection.headers = returnedData.headers
       parentCollectionID = childCollectionId
       collection.variables = returnedData.variables
+      collection.description = returnedData.description ?? null
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,
@@ -260,6 +267,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       headers: collection.headers,
       variables: collection.variables,
       _ref_id: collection._ref_id,
+      description: collection.description ?? null,
     }
 
     if (collectionID) {
@@ -342,6 +350,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       headers: folder.headers,
       variables: folder.variables,
       _ref_id: folder._ref_id,
+      description: folder.description ?? null,
     }
     if (folderID) {
       updateUserCollection(folderID, folderName, JSON.stringify(data))

@@ -115,14 +115,12 @@ const newSendRequest = async () => {
           updateRESTResponse(responseState)
         }
       },
-      () => {
-        loading.value = false
-      },
-      () => {
-        // TODO: Change this any to a proper type
-        const result = (streamResult.right as any).value
+      (error) => {
+        // Error handler - handle all error types and clear loading
+        const result = error || (streamResult.right as any).value
+
         if (
-          result.type === "network_fail" &&
+          result?.type === "network_fail" &&
           result.error?.error === "NO_PW_EXT_HOOK"
         ) {
           const errorResponse: HoppRESTResponse = {
@@ -132,7 +130,15 @@ const newSendRequest = async () => {
             req: result.req,
           }
           updateRESTResponse(errorResponse)
+        } else if (result?.type === "network_fail" || result?.type === "fail") {
+          // Generic network failure or interceptor error
+          updateRESTResponse(result)
         }
+
+        // Always clear loading state on error
+        loading.value = false
+      },
+      () => {
         loading.value = false
       }
     )

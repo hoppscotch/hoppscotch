@@ -1,9 +1,4 @@
 import {
-  runGQLQuery,
-  runGQLSubscription,
-  runMutation,
-} from "@hoppscotch/common/helpers/backend/GQLClient"
-import {
   CreateGqlChildUserCollectionDocument,
   CreateGqlChildUserCollectionMutation,
   CreateGqlChildUserCollectionMutationVariables,
@@ -34,12 +29,6 @@ import {
   ExportUserCollectionsToJsonDocument,
   ExportUserCollectionsToJsonQuery,
   ExportUserCollectionsToJsonQueryVariables,
-  GetGqlRootUserCollectionsDocument,
-  GetGqlRootUserCollectionsQuery,
-  GetGqlRootUserCollectionsQueryVariables,
-  GetUserRootCollectionsDocument,
-  GetUserRootCollectionsQuery,
-  GetUserRootCollectionsQueryVariables,
   ImportUserCollectionsFromJsonDocument,
   ImportUserCollectionsFromJsonMutation,
   ImportUserCollectionsFromJsonMutationVariables,
@@ -81,7 +70,12 @@ import {
   UserRequestMovedDocument,
   UserRequestUpdatedDocument,
   UserRootCollectionsSortedDocument,
-} from "@api/generated/graphql"
+} from "@app/api/generated/graphql"
+import {
+  runGQLQuery,
+  runGQLSubscription,
+  runMutation,
+} from "@hoppscotch/common/helpers/backend/GQLClient"
 
 export const createRESTRootUserCollection = (title: string, data?: string) =>
   runMutation<
@@ -299,26 +293,6 @@ export const updateUserCollectionOrder = (
     collectionID,
     nextCollectionID,
   })()
-
-export const getUserRootCollections = () =>
-  runGQLQuery<
-    GetUserRootCollectionsQuery,
-    GetUserRootCollectionsQueryVariables,
-    ""
-  >({
-    query: GetUserRootCollectionsDocument,
-    variables: {},
-  })
-
-export const getGQLRootUserCollections = () =>
-  runGQLQuery<
-    GetGqlRootUserCollectionsQuery,
-    GetGqlRootUserCollectionsQueryVariables,
-    ""
-  >({
-    query: GetGqlRootUserCollectionsDocument,
-    variables: {},
-  })
 
 export const exportUserCollectionsToJSON = (
   collectionID?: string,

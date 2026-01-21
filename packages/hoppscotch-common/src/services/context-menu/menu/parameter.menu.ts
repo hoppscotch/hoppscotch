@@ -120,7 +120,7 @@ export class ParameterMenuService extends Service implements ContextMenu {
     if (urlAndParameterRegex.test(text)) {
       results.value = [
         {
-          id: "environment",
+          id: "parameter",
           text: {
             type: "text",
             text: this.t("context_menu.add_parameters"),

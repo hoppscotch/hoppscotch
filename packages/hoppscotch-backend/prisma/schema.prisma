@@ -1,11 +1,10 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Team {
@@ -295,6 +294,21 @@ model MockServerActivity {
   mockServer   MockServer       @relation(fields: [mockServerID], references: [id], onDelete: Cascade)
 
   @@index([mockServerID])
+}
+
+model PublishedDocs {
+  id            String        @id @default(cuid())
+  title         String
+  collectionID  String
+  creatorUid    String
+  version       String
+  autoSync      Boolean
+  documentTree  Json? // Optional if autoSync is true
+  workspaceType WorkspaceType
+  workspaceID   String
+  metadata      Json?
+  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
 }
 
 enum WorkspaceType {

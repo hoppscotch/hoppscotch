@@ -609,9 +609,210 @@ declare namespace hopp {
     readonly iteration: never
     readonly iterationCount: never
   }>
+
+  /**
+   * Fetch API - Makes HTTP requests respecting interceptor settings
+   * @param input - URL string or Request object
+   * @param init - Optional request options
+   * @returns Promise that resolves to Response object
+   */
+  function fetch(
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response>
 }
 
+/**
+ * Global fetch function - alias to hopp.fetch()
+ * Makes HTTP requests respecting interceptor settings
+ * @param input - URL string or Request object
+ * @param init - Optional request options
+ * @returns Promise that resolves to Response object
+ */
+declare function fetch(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response>
+
 declare namespace pm {
+  const environment: Readonly<{
+    get(key: string): string | null
+    set(key: string, value: string): void
+    unset(key: string): void
+    has(key: string): boolean
+    clear(): void
+    toObject(): Record<string, string>
+  }>
+
+  const globals: Readonly<{
+    get(key: string): string | null
+    set(key: string, value: string): void
+    unset(key: string): void
+    has(key: string): boolean
+    clear(): void
+    toObject(): Record<string, string>
+  }>
+
+  const collectionVariables: Readonly<{
+    get(key: string): string | null
+    set(key: string, value: string): void
+    unset(key: string): void
+    has(key: string): boolean
+    clear(): void
+    toObject(): Record<string, string>
+  }>
+
+  const variables: Readonly<{
+    get(key: string): string | null
+    set(key: string, value: string): void
+    unset(key: string): void
+    has(key: string): boolean
+    toObject(): Record<string, string>
+  }>
+
+  const iterationData: Readonly<{
+    get(key: string): any
+    toObject(): Record<string, any>
+  }>
+
+  const request: Readonly<{
+    url: Readonly<{
+      toString(): string
+      protocol: string | null
+      port: string | null
+      path: string[]
+      host: string[]
+      query: Readonly<{
+        has(key: string): boolean
+        get(key: string): string | null
+        toObject(): Record<string, string>
+      }>
+      variables: Readonly<{
+        has(key: string): boolean
+        get(key: string): string | null
+        toObject(): Record<string, string>
+      }>
+      hash: string | null
+      update(url: string): void
+      addQueryParams(params: string | Array<{ key: string; value: string }>): void
+      removeQueryParams(params: string | string[]): void
+    }>
+    headers: Readonly<{
+      has(key: string): boolean
+      get(key: string): string | null
+      toObject(): Record<string, string>
+      add(header: { key: string; value: string }): void
+      remove(key: string): void
+      upsert(header: { key: string; value: string }): void
+    }>
+    method: string
+    body: Readonly<{
+      mode: string
+      raw: string | null
+      urlencoded: Array<{ key: string; value: string }> | null
+      formdata: Array<{ key: string; value: string }> | null
+      file: any | null
+      graphql: any | null
+      toObject(): any
+      update(body: any): void
+    }>
+    auth: any
+    certificate: any
+    proxy: any
+  }>
+
+  const response: Readonly<{
+    code: number
+    status: string
+    headers: Readonly<{
+      has(key: string): boolean
+      get(key: string): string | null
+      toObject(): Record<string, string>
+    }>
+    cookies: Readonly<{
+      has(name: string): boolean
+      get(name: string): Cookie | null
+      toObject(): Record<string, Cookie>
+    }>
+    body: string
+    json(): any
+    text(): string
+    reason(): string
+    responseTime: number
+    responseSize: number
+    dataURI(): string
+  }>
+
+  const cookies: Readonly<{
+    has(name: string): boolean
+    get(name: string): Cookie | null
+    set(name: string, value: string, options?: any): void
+    jar(): any
+  }>
+
+  function test(name: string, fn: () => void): void
+
+  interface PmExpectFunction {
+    (value: any, message?: string): ChaiExpectation
+    fail?: (...args: any[]) => never
+  }
+
+  const expect: PmExpectFunction
+
+  const info: Readonly<{
+    eventName: string
+    iteration: number
+    iterationCount: number
+    requestName: string
+    requestId: string
+  }>
+
+  interface SendRequestCallback {
+    (error: Error | null, response: {
+      code: number
+      status: string
+      headers: {
+        has(key: string): boolean
+        get(key: string): string | null
+      }
+      body: string
+      responseTime: number
+      responseSize: number
+      text(): string
+      json(): any
+      cookies: {
+        has(name: string): boolean
+        get(name: string): any | null
+      }
+    } | null): void
+  }
+
+  function sendRequest(
+    urlOrRequest: string | {
+      url: string
+      method?: string
+      header?: Record<string, string> | Array<{ key: string; value: string }>
+      body?: {
+        mode: 'raw' | 'urlencoded' | 'formdata'
+        raw?: string
+        urlencoded?: Array<{ key: string; value: string }>
+        formdata?: Array<{ key: string; value: string }>
+      }
+    },
+    callback: SendRequestCallback
+  ): void
+
+  const vault: Readonly<{
+    get(key: string): string | null
+    set(key: string, value: string): void
+    unset(key: string): void
+  }>
+
+  const visualizer: Readonly<{
+    set(template: string, data?: any): void
+    clear(): void
+  }>
+}
   const environment: Readonly<{
     readonly name: string
     get(key: string): any

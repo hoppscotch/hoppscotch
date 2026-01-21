@@ -1,5 +1,0 @@
-mutation ToggleHistoryStarStatus($id: ID!) {
-  toggleHistoryStarStatus(id: $id) {
-    id
-  }
-}

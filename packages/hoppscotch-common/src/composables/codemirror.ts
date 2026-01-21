@@ -19,7 +19,12 @@ import {
   StreamLanguage,
   syntaxHighlighting,
 } from "@codemirror/language"
-import { defaultKeymap, indentLess, insertTab } from "@codemirror/commands"
+import {
+  defaultKeymap,
+  indentLess,
+  insertTab,
+  redo,
+} from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
@@ -44,6 +49,7 @@ import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
 import { LinterDefinition } from "@helpers/editor/linting/linter"
+import { MODULE_PREFIX } from "@helpers/scripting"
 import {
   basicSetup,
   baseTheme,
@@ -52,7 +58,11 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
-import { invokeAction } from "~/helpers/actions"
+import {
+  invokeAction,
+  registerCodeMirrorView,
+  unregisterCodeMirrorView,
+} from "~/helpers/actions"
 import { useDebounceFn } from "@vueuse/core"
 // TODO: Migrate from legacy mode
 
@@ -164,6 +174,13 @@ const hoppLang = (
   exts.push(hoppLinterExt(linter))
   if (completer) exts.push(hoppCompleterExt(completer))
 
+  // Add comment token configuration for JSONC to enable comment toggle
+  if (language === jsoncLanguage) {
+    exts.push(
+      EditorState.languageData.of(() => [{ commentTokens: { line: "//" } }])
+    )
+  }
+
   return language ? new LanguageSupport(language, exts) : exts
 }
 
@@ -268,14 +285,12 @@ const getEditorLanguage = (
   completer: Completer | undefined
 ): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
 
-const MODULE_PREFIX = "export {};\n" as const
-
 /**
  * Strips the `export {};\n` prefix from the value for display in the editor.
- * The above is only used internally for Monaco editor's module scope,
+ * The prefix is used internally for Monaco editor's module scope,
  * and should not be visible in the CodeMirror editor.
  */
-const stripModulePrefix = (value?: string): string | undefined => {
+const stripModulePrefixForDisplay = (value?: string): string | undefined => {
   return value?.startsWith(MODULE_PREFIX)
     ? value.slice(MODULE_PREFIX.length)
     : value
@@ -406,7 +421,10 @@ export function useCodemirror(
                 .toJSON()
                 .join(update.state.lineBreak)
               if (!options.extendedEditorConfig.readOnly) {
-                value.value = cachedValue.value
+                // Only update if the value is actually different to prevent circular updates
+                if (value.value !== cachedValue.value) {
+                  value.value = cachedValue.value
+                }
                 if (options.onChange) {
                   options.onChange(cachedValue.value)
                 }
@@ -466,6 +484,16 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
+            key: "Ctrl-y",
+            mac: "Cmd-y",
+            preventDefault: true,
+            run: redo,
+          },
+        ])
+      ),
+      Prec.highest(
+        keymap.of([
+          {
             key: "Ctrl-Enter" /* Windows */,
             mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
@@ -488,7 +516,7 @@ export function useCodemirror(
       parent: el,
       state: EditorState.create({
         doc: parseDoc(
-          stripModulePrefix(value.value),
+          stripModulePrefixForDisplay(value.value),
           options.extendedEditorConfig.mode ?? ""
         ),
         extensions,
@@ -496,6 +524,9 @@ export function useCodemirror(
       // scroll to top when mounting
       scrollTo: EditorView.scrollIntoView(0),
     })
+
+    // Register the view for global access
+    registerCodeMirrorView(view.value.dom, view.value)
 
     options.onInit?.(view.value)
   }
@@ -508,10 +539,16 @@ export function useCodemirror(
 
   watch(el, () => {
     if (el.value) {
-      if (view.value) view.value.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       initView(el.value)
     } else {
-      view.value?.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       view.value = undefined
     }
   })
@@ -522,7 +559,10 @@ export function useCodemirror(
 
   watch(value, (newVal) => {
     if (newVal === undefined) {
-      view.value?.destroy()
+      if (view.value) {
+        unregisterCodeMirrorView(view.value.dom)
+        view.value.destroy()
+      }
       view.value = undefined
       return
     }
@@ -532,7 +572,7 @@ export function useCodemirror(
     }
 
     // Strip `export {};\n` before displaying in CodeMirror
-    const displayValue = stripModulePrefix(newVal) ?? ""
+    const displayValue = stripModulePrefixForDisplay(newVal) ?? ""
 
     if (cachedValue.value !== newVal) {
       view.value?.dispatch({

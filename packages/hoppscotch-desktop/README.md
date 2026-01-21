@@ -28,7 +28,7 @@
 
 ##### Using Homebrew
 
-You can use Homebrew (on macOS or Linux) to install Hopscotch
+You can use Homebrew (on macOS or Linux) to install Hoppscotch
 
 ```bash
 brew install --cask hoppscotch

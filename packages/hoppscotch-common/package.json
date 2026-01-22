@@ -43,6 +43,8 @@
     "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35",
     "@hoppscotch/ui": "0.2.5",
     "@hoppscotch/vue-toasted": "0.1.0",
+    "@jsonjoy.com/fs-fsa-to-node": "4.56.4",
+    "@legit-sdk/core": "0.6.1",
     "@lezer/highlight": "1.2.1",
     "@noble/curves": "2.0.1",
     "@scure/base": "2.0.0",

@@ -85,6 +85,7 @@
     "vite-plugin-fonts": "0.7.0",
     "vite-plugin-html-config": "2.0.2",
     "vite-plugin-inspect": "11.3.3",
+    "vite-plugin-node-polyfills": "0.25.0",
     "vite-plugin-pages": "0.33.2",
     "vite-plugin-pages-sitemap": "1.7.1",
     "vite-plugin-pwa": "1.2.0",

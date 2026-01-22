@@ -314,7 +314,15 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 import { cloneDeep, debounce, isEqual } from "lodash-es"
-import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
+import {
+  PropType,
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
@@ -389,6 +397,7 @@ import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { PersistenceService } from "~/services/persistence"
 import { RESTTabService } from "~/services/tab/rest"
 import { TeamWorkspace, WorkspaceService } from "~/services/workspace.service"
+import { VersionedFSService } from "~/services/versioned-fs.service"
 import { RESTOptionTabs } from "../http/RequestOptions.vue"
 import { Collection as NodeCollection } from "./MyCollections.vue"
 import { EditingProperties } from "./Properties.vue"
@@ -542,6 +551,7 @@ watch(
   }
 )
 const persistenceService = useService(PersistenceService)
+const versionedFSService = useService(VersionedFSService)
 
 const collectionPropertiesModalActiveTab = ref<RESTOptionTabs>("headers")
 
@@ -589,6 +599,31 @@ onMounted(async () => {
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
+})
+
+// Sync from FSA when window regains focus (detects external file changes)
+const handleFocus = async () => {
+  if (versionedFSService.getDirectoryHandle()) {
+    console.log("[Collections] Window focused, syncing collections from FSA...")
+    try {
+      await versionedFSService.loadCollectionsFromLegitFsInStore()
+      // Refresh unapplied changes status after syncing
+      await versionedFSService.refreshUnappliedChangesStatus()
+    } catch (error) {
+      console.error(
+        "[Collections] Failed to sync collections from FSA on focus:",
+        error
+      )
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("focus", handleFocus)
+})
+
+onUnmounted(() => {
+  window.removeEventListener("focus", handleFocus)
 })
 
 const switchToMyCollections = () => {

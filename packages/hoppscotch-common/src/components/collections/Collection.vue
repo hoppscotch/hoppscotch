@@ -85,6 +85,34 @@
             >
               <component :is="IconGlobe" class="svg-icons text-green-500" />
             </span>
+            <!-- Git Branch Indicator -->
+            <span
+              v-if="isGitCollection && gitBranchName"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                hasUnappliedChanges
+                  ? `Branch: ${gitBranchName} (Unapplied changes)`
+                  : `Branch: ${gitBranchName}`
+              "
+              class="ml-2 flex items-center"
+            >
+              <span class="ml-1 text-xs text-secondaryLight">
+                {{ gitBranchName }}
+              </span>
+              <span
+                v-if="hasUnappliedChanges"
+                class="mx-2 flex w-4 items-center justify-center text-secondary group-hover:hidden"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="1.2em"
+                  height="1.2em"
+                  class="h-1.5 w-1.5"
+                >
+                  <circle cx="12" cy="12" r="12" fill="currentColor"></circle>
+                </svg>
+              </span>
+            </span>
           </span>
         </div>
 
@@ -151,6 +179,31 @@
                   @keyup.i="documentationAction?.$el.click()"
                   @keyup.escape="hide()"
                 >
+                  <HoppSmartItem
+                    v-if="isGitCollection && isRootCollection"
+                    ref="switchBranchAction"
+                    :icon="IconGitBranch"
+                    :label="'Switch Branch'"
+                    @click="
+                      () => {
+                        showBranchSelector = true
+                        hide()
+                      }
+                    "
+                  />
+                  <HoppSmartItem
+                    v-if="isGitCollection && isRootCollection"
+                    ref="applyChangesAction"
+                    :icon="IconCheckCircle"
+                    :label="'Apply Changes'"
+                    :loading="applyingChanges"
+                    @click="
+                      () => {
+                        handleApplyChanges()
+                        hide()
+                      }
+                    "
+                  />
                   <HoppSmartItem
                     v-if="!hasNoTeamAccess"
                     ref="requestAction"
@@ -307,6 +360,43 @@
         </div>
       </div>
     </div>
+    <!-- Branch Selector Modal -->
+    <HoppSmartModal
+      v-if="showBranchSelector"
+      dialog
+      :title="'Switch Branch'"
+      styles="sm:max-w-md"
+      @close="showBranchSelector = false"
+    >
+      <template #body>
+        <div
+          v-if="loadingBranches"
+          class="flex flex-col items-center justify-center p-4"
+        >
+          <HoppSmartSpinner class="my-4" />
+          <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+        </div>
+        <div v-else class="flex flex-col space-y-4">
+          <div
+            v-if="availableBranches.length === 0"
+            class="text-secondaryLight"
+          >
+            {{ t("git.no_branches_available") }}
+          </div>
+          <div v-else class="flex flex-col space-y-2 max-h-96 overflow-y-auto">
+            <HoppSmartItem
+              v-for="branch in availableBranches"
+              :key="branch"
+              :icon="branch === gitBranchName ? IconCheckCircle : IconGitBranch"
+              :label="branch"
+              :active="branch === gitBranchName"
+              :loading="switchingBranch && branch !== gitBranchName"
+              @click="handleSwitchBranch(branch)"
+            />
+          </div>
+        </div>
+      </template>
+    </HoppSmartModal>
     <div
       v-if="isLastItem"
       class="w-full transition"
@@ -326,9 +416,10 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
+import { useToast } from "~/composables/toast"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { HoppCollection } from "@hoppscotch/data"
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useReadonlyStream } from "~/composables/stream"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -359,11 +450,14 @@ import { platform } from "~/platform"
 import { invokeAction } from "~/helpers/actions"
 import { DocumentationService } from "~/services/documentation.service"
 import IconGlobe from "~icons/lucide/globe"
+import { VersionedFSService } from "~/services/versioned-fs.service"
+import IconGitBranch from "~icons/lucide/git-branch"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
 
 const t = useI18n()
+const toast = useToast()
 
 const props = withDefaults(
   defineProps<{
@@ -526,6 +620,99 @@ const publishedDocStatus = computed(() => {
   return documentationService.getPublishedDocStatus(collectionId || "")
 })
 
+// Git Branch Status
+const versionedFSService = useService(VersionedFSService)
+const gitBranchName = ref<string | null>(null)
+// Use shared state for unapplied changes
+const hasUnappliedChanges = versionedFSService.unappliedChangesStatus
+
+// Check if this is a git collection and get branch name
+const isGitCollection = computed(() => {
+  if (props.collectionsType !== "my-collections") {
+    return false
+  }
+  const collection = props.data as HoppCollection
+  return collection.description?.startsWith("git-") ?? false
+})
+
+// Branch selector state
+const showBranchSelector = ref(false)
+const availableBranches = ref<string[]>([])
+const loadingBranches = ref(false)
+const switchingBranch = ref(false)
+const applyingChanges = ref(false)
+
+// Load branch name when component mounts and it's a git collection
+onMounted(async () => {
+  if (isGitCollection.value) {
+    const branch = await versionedFSService.getCurrentBranchName()
+    gitBranchName.value = branch
+  }
+})
+
+// Watch for branch selector modal to load branches
+watch(showBranchSelector, async (show) => {
+  if (show && isGitCollection.value) {
+    loadingBranches.value = true
+    try {
+      const branches = await versionedFSService.listAvailableBranches()
+      availableBranches.value = branches
+    } catch (error) {
+      console.error("Failed to load branches:", error)
+    } finally {
+      loadingBranches.value = false
+    }
+  }
+})
+
+// Handle branch switching
+const handleSwitchBranch = async (branchName: string) => {
+  if (switchingBranch.value || branchName === gitBranchName.value) {
+    return
+  }
+
+  switchingBranch.value = true
+  try {
+    await versionedFSService.switchBranch(branchName)
+    gitBranchName.value = branchName
+    showBranchSelector.value = false
+    toast.success(t("git.branch_switched", { branch: branchName }))
+  } catch (error) {
+    console.error("Failed to switch branch:", error)
+    toast.error(t("git.failed_to_switch_branch"))
+  } finally {
+    switchingBranch.value = false
+  }
+}
+
+// Handle apply changes
+const handleApplyChanges = async () => {
+  if (applyingChanges.value) {
+    return
+  }
+
+  applyingChanges.value = true
+  try {
+    const legitFs = versionedFSService.getLegitFs()
+    if (!legitFs) {
+      throw new Error("LegitFs is not initialized")
+    }
+    await legitFs.promises.writeFile(
+      ".legit/apply-changes",
+      "Applied changes to target branch",
+      "utf-8"
+    )
+    // Refresh unapplied changes status after applying
+    await versionedFSService.refreshUnappliedChangesStatus()
+    toast.success("Changes applied successfully")
+  } catch (error) {
+    console.error("Failed to apply changes:", error)
+    toast.error("Failed to apply changes")
+  } finally {
+    applyingChanges.value = false
+  }
+}
+
 // Determine if this is a root collection (not a child folder)
 const isRootCollection = computed(() => {
   return props.folderType === "collection"
@@ -546,6 +733,8 @@ watch(
 
 const collectionIcon = computed(() => {
   if (props.isSelected) return IconCheckCircle
+  // Use git branch icon for git collections
+  if (isGitCollection.value) return IconGitBranch
   else if (!props.isOpen) return IconFolder
   else if (props.isOpen) return IconFolderOpen
   return IconFolder

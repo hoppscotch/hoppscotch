@@ -10,13 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import { HoppCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { PropType, Ref, computed, ref } from "vue"
 import { transformCollectionForImport } from "~/helpers/collection/collection"
+import { useService } from "dioc/vue"
 
 import { FileSource } from "~/helpers/import-export/import/import-sources/FileSource"
 import { UrlSource } from "~/helpers/import-export/import/import-sources/UrlSource"
+import { GitSource } from "~/helpers/import-export/import/import-sources/GitSource"
+import { VersionedFSService } from "~/services/versioned-fs.service"
 
 import IconFile from "~icons/lucide/file"
 
@@ -41,6 +43,7 @@ import IconPostman from "~icons/hopp/postman"
 import IconOpenAPI from "~icons/lucide/file"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconGithub from "~icons/lucide/github"
+import IconGitBranch from "~icons/lucide/git-branch"
 import IconLink from "~icons/lucide/link"
 
 import { useReadonlyStream } from "~/composables/stream"
@@ -68,9 +71,11 @@ const isRESTImporterInProgress = ref(false)
 const isAllCollectionImporterInProgress = ref(false)
 const isHarImporterInProgress = ref(false)
 const isGistImporterInProgress = ref(false)
+const isGitImporterInProgress = ref(false)
 
 const t = useI18n()
 const toast = useToast()
+const versionedFSService = useService(VersionedFSService)
 
 type CollectionType =
   | {
@@ -569,6 +574,42 @@ const HoppGistImporter: ImporterOrExporter = {
   }),
 }
 
+const HoppGitImporter: ImporterOrExporter = {
+  metadata: {
+    id: "hopp_git",
+    name: "Use local Git repository",
+    title: "Synchronize collections from a Git repository",
+    icon: IconGitBranch,
+    disabled: false,
+    applicableTo: ["personal-workspace", "team-workspace", "url-import"],
+    format: "hoppscotch",
+  },
+  importSummary: currentImportSummary,
+  component: GitSource({
+    caption: "Select Git Repository",
+    description:
+      "Select a local Git repository folder and specify the branch to use",
+    onInit: async (folderHandle, branch) => {
+      isGitImporterInProgress.value = true
+
+      try {
+        await versionedFSService.init(folderHandle as any, branch)
+        toast.success("Git repository initialized successfully")
+      } catch (error) {
+        console.error("Failed to initialize git repository:", error)
+        toast.error("Failed to initialize git repository")
+        throw error // Re-throw to prevent modal from closing on error
+      } finally {
+        isGitImporterInProgress.value = false
+      }
+    },
+    onClose: () => {
+      emit("hide-modal")
+    },
+    isLoading: isGitImporterInProgress,
+  }),
+}
+
 const HoppMyCollectionsExporter: ImporterOrExporter = {
   metadata: {
     id: "hopp_my_collections",
@@ -759,6 +800,7 @@ const importerModules = computed(() => {
     HoppPostmanImporter,
     HoppInsomniaImporter,
     HoppGistImporter,
+    HoppGitImporter,
     HARImporter,
   ]
 

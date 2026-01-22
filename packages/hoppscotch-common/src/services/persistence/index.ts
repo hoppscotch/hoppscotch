@@ -9,6 +9,7 @@ import { assign, clone, isEmpty, cloneDeep } from "lodash-es"
 
 import {
   GlobalEnvironmentVariable,
+  HoppCollection,
   translateToNewGQLCollection,
   translateToNewRESTCollection,
 } from "@hoppscotch/data"
@@ -104,8 +105,61 @@ import {
   CurrentSortOption,
   CurrentSortValuesService,
 } from "../current-sort.service"
+import { VersionedFSService } from "../versioned-fs.service"
 
 export const STORE_NAMESPACE = "persistence.v1"
+
+// IndexedDB helper for storing FileSystemDirectoryHandle
+// Handles can only be stored in IndexedDB (structured cloning), not JSON
+const IDB_DB_NAME = "hoppscotch-fs-handles"
+const IDB_STORE_NAME = "directory-handles"
+const IDB_VERSION = 1
+
+async function openIDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(IDB_DB_NAME, IDB_VERSION)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result
+      if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+        db.createObjectStore(IDB_STORE_NAME)
+      }
+    }
+  })
+}
+
+async function saveDirectoryHandle(
+  key: string,
+  handle: FileSystemDirectoryHandle
+): Promise<void> {
+  const db = await openIDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([IDB_STORE_NAME], "readwrite")
+    const store = transaction.objectStore(IDB_STORE_NAME)
+    // IndexedDB supports structured cloning for FileSystemDirectoryHandle
+    const request = store.put(handle as any, key)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve()
+  })
+}
+
+async function getDirectoryHandle(
+  key: string
+): Promise<FileSystemDirectoryHandle | null> {
+  const db = await openIDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([IDB_STORE_NAME], "readonly")
+    const store = transaction.objectStore(IDB_STORE_NAME)
+    const request = store.get(key)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => {
+      // IndexedDB returns the native FileSystemDirectoryHandle
+      const handle = request.result as FileSystemDirectoryHandle | undefined
+      resolve(handle ?? null)
+    }
+  })
+}
 
 export const STORE_KEYS = {
   VUEX: "vuex",
@@ -195,6 +249,7 @@ export class PersistenceService extends Service {
   private readonly currentSortValuesService = this.bind(
     CurrentSortValuesService
   )
+  private readonly versionedFSService = this.bind(VersionedFSService)
 
   private showErrorToast(key: string) {
     const toast = useToast()
@@ -473,7 +528,41 @@ export class PersistenceService extends Service {
         if (result.success) {
           const translatedData = result.data.map(translateToNewRESTCollection)
 
-          setRESTCollections(translatedData)
+          // Separate git and regular collections
+          // Git collections come from FSA (source of truth), not localStorage
+          const regularCollections = translatedData.filter(
+            (collection: HoppCollection) =>
+              !collection.description?.startsWith("git-")
+          )
+
+          // Check if we have a git collection metadata to initialize FSA
+          const gitCollectionMetadata = result.data?.find(
+            (collection: HoppCollection) =>
+              collection.description?.startsWith("git-")
+          )
+
+          // Load regular collections first (from localStorage)
+          setRESTCollections(regularCollections)
+
+          // If we have git collection metadata, initialize FSA and load from there
+          if (gitCollectionMetadata && gitCollectionMetadata.description) {
+            // Retrieve handle from IndexedDB (not JSON - handles can't be JSON serialized)
+            const handleKey = gitCollectionMetadata.description
+            const gitCollectionHandle = await getDirectoryHandle(handleKey)
+            if (gitCollectionHandle) {
+              // Initialize FSA - this will read from FSA (source of truth) and merge with store
+              await this.versionedFSService.init(
+                gitCollectionHandle as any,
+                "main"
+              )
+              // After init, loadCollectionsFromLegitFsInStore will merge FSA collections
+              await this.versionedFSService.loadCollectionsFromLegitFsInStore()
+            } else {
+              console.warn(
+                "[PersistenceService] Could not retrieve directory handle from IndexedDB, user may need to re-select directory"
+              )
+            }
+          }
         } else {
           console.error(`Failed with `, result.error, data)
           this.showErrorToast(STORE_KEYS.REST_COLLECTIONS)
@@ -483,7 +572,12 @@ export class PersistenceService extends Service {
             data
           )
           // NOTE: Still loading data to match legacy behavior
-          setRESTCollections(data)
+          // Filter out git collections even in error case
+          const regularCollections = data.filter(
+            (collection: HoppCollection) =>
+              !collection.description?.startsWith("git-")
+          )
+          setRESTCollections(regularCollections)
         }
       }
     } catch (e) {
@@ -494,7 +588,67 @@ export class PersistenceService extends Service {
     }
 
     restCollectionStore.subject$.subscribe(async ({ state }) => {
-      await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_COLLECTIONS, state)
+      // legit: intercept the data writes
+      console.log(
+        "state: where we can intercept the data writes",
+        JSON.stringify(state, null, 2)
+      )
+      const gitCollections = state.filter((collection: HoppCollection) =>
+        collection.description?.startsWith("git-")
+      )
+      const regularCollections = state.filter(
+        (collection: HoppCollection) =>
+          !collection.description?.startsWith("git-")
+      )
+
+      await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.REST_COLLECTIONS,
+        regularCollections
+      )
+
+      // we assume only one git collection is present
+      // access the fileHandle from FS service
+      const gitCollectionHandle = this.versionedFSService.getDirectoryHandle()
+      if (!gitCollectionHandle) return
+
+      // Write the git collections to the versioned fs
+      if (gitCollections.length > 0) {
+        try {
+          await this.versionedFSService.writeCollectionsToLegitFs(
+            gitCollections
+          )
+          // Check for unapplied changes after writing
+          await this.versionedFSService.refreshUnappliedChangesStatus()
+        } catch (error) {
+          console.error(
+            "[PersistenceService] Failed to write git collections to versioned FS:",
+            error
+          )
+        }
+
+        // Store handle in IndexedDB (structured cloning support)
+        // Use a unique key based on directory name
+        const handleKey = `git-${gitCollectionHandle.name}`
+        await saveDirectoryHandle(handleKey, gitCollectionHandle as any)
+
+        // Store only the key in description (not the handle itself)
+        gitCollections.forEach((collection: any) => {
+          collection.description = handleKey
+        })
+      }
+
+      console.log(
+        "stored collections: ",
+        regularCollections.concat(gitCollections)
+      )
+
+      // update the rest collections with the git collections
+      await Store.set(
+        STORE_NAMESPACE,
+        STORE_KEYS.REST_COLLECTIONS,
+        regularCollections.concat(gitCollections)
+      )
     })
   }
 

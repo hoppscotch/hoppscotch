@@ -607,6 +607,8 @@ const handleFocus = async () => {
     console.log("[Collections] Window focused, syncing collections from FSA...")
     try {
       await versionedFSService.loadCollectionsFromLegitFsInStore()
+      // Refresh unapplied changes status after syncing
+      await versionedFSService.refreshUnappliedChangesStatus()
     } catch (error) {
       console.error(
         "[Collections] Failed to sync collections from FSA on focus:",

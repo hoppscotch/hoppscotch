@@ -618,6 +618,8 @@ export class PersistenceService extends Service {
           await this.versionedFSService.writeCollectionsToLegitFs(
             gitCollections
           )
+          // Check for unapplied changes after writing
+          await this.versionedFSService.refreshUnappliedChangesStatus()
         } catch (error) {
           console.error(
             "[PersistenceService] Failed to write git collections to versioned FS:",

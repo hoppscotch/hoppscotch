@@ -89,11 +89,28 @@
             <span
               v-if="isGitCollection && gitBranchName"
               v-tippy="{ theme: 'tooltip' }"
-              :title="`Branch: ${gitBranchName}`"
+              :title="
+                hasUnappliedChanges
+                  ? `Branch: ${gitBranchName} (Unapplied changes)`
+                  : `Branch: ${gitBranchName}`
+              "
               class="ml-2 flex items-center"
             >
               <span class="ml-1 text-xs text-secondaryLight">
                 {{ gitBranchName }}
+              </span>
+              <span
+                v-if="hasUnappliedChanges"
+                class="mx-2 flex w-4 items-center justify-center text-secondary group-hover:hidden"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="1.2em"
+                  height="1.2em"
+                  class="h-1.5 w-1.5"
+                >
+                  <circle cx="12" cy="12" r="12" fill="currentColor"></circle>
+                </svg>
               </span>
             </span>
           </span>
@@ -606,6 +623,8 @@ const publishedDocStatus = computed(() => {
 // Git Branch Status
 const versionedFSService = useService(VersionedFSService)
 const gitBranchName = ref<string | null>(null)
+// Use shared state for unapplied changes
+const hasUnappliedChanges = versionedFSService.unappliedChangesStatus
 
 // Check if this is a git collection and get branch name
 const isGitCollection = computed(() => {
@@ -683,6 +702,8 @@ const handleApplyChanges = async () => {
       "Applied changes to target branch",
       "utf-8"
     )
+    // Refresh unapplied changes status after applying
+    await versionedFSService.refreshUnappliedChangesStatus()
     toast.success("Changes applied successfully")
   } catch (error) {
     console.error("Failed to apply changes:", error)

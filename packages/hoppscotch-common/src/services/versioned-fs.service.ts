@@ -2,6 +2,7 @@ import { Service } from "dioc"
 import { openLegitFs } from "@legit-sdk/core"
 import { FsaNodeFs } from "@jsonjoy.com/fs-fsa-to-node"
 import { HoppCollection, makeCollection } from "@hoppscotch/data"
+import { ref, readonly } from "vue"
 
 // Type declarations for File System Access API
 declare global {
@@ -41,6 +42,10 @@ export class VersionedFSService extends Service {
   private legitFs: Awaited<ReturnType<typeof openLegitFs>> | null = null
   private collectionsPath = "rest-collections.json"
   private directoryHandle: FileSystemDirectoryHandle | null = null
+
+  // Shared reactive state for unapplied changes
+  private _hasUnappliedChanges = ref(false)
+  public readonly unappliedChangesStatus = readonly(this._hasUnappliedChanges)
 
   /**
    * Get the current directory handle
@@ -175,6 +180,9 @@ export class VersionedFSService extends Service {
         collections.push(newCollection)
         setRESTCollections(collections)
 
+        // Refresh unapplied changes status after creating new collection
+        await this.refreshUnappliedChangesStatus()
+
         console.log(
           `[VersionedFSService] Created new collection "${folderHandle.name}" and wrote to FSA`
         )
@@ -186,6 +194,114 @@ export class VersionedFSService extends Service {
         )
         throw error
       }
+    }
+  }
+
+  /**
+   * Check if there are unapplied changes in the collections branch
+   * Returns true if there are changes that haven't been applied to the reference branch
+   */
+  public async hasUnappliedChanges(): Promise<boolean> {
+    if (!this.legitFs) {
+      return false
+    }
+
+    try {
+      // Read reference branch from the collections branch or root
+      let referenceBranch: string
+      try {
+        // Try reading from collections branch first
+        const referenceBranchContent = await this.legitFs.promises.readFile(
+          `/.legit/reference-branch`,
+          "utf-8"
+        )
+        referenceBranch = referenceBranchContent.trim()
+      } catch (error) {
+        // If reference branch file doesn't exist in branch, try reading from root
+        try {
+          const referenceBranchContent = await this.legitFs.promises.readFile(
+            ".legit/reference-branch",
+            "utf-8"
+          )
+          referenceBranch = referenceBranchContent.trim()
+        } catch {
+          // If no reference branch found, assume no unapplied changes
+          this._hasUnappliedChanges.value = false
+          return false
+        }
+      }
+
+      if (!referenceBranch) {
+        this._hasUnappliedChanges.value = false
+        return false
+      }
+
+      // Get collections branch head
+      const collectionsHead = await this.legitFs.promises.readFile(
+        "/.legit/head",
+        "utf-8"
+      )
+      const collectionsHeadOID = collectionsHead.trim()
+
+      // Get reference branch head
+      const referenceBranchPath = `/.legit/branches/${referenceBranch}`
+      const referenceHead = await this.legitFs.promises.readFile(
+        `${referenceBranchPath}/.legit/head`,
+        "utf-8"
+      )
+      const referenceHeadOID = referenceHead.trim()
+
+      // Get the history from collections branch
+      const historyPath = `/.legit/history`
+
+      let history
+      try {
+        const historyContent = await this.legitFs.promises.readFile(
+          historyPath,
+          "utf-8"
+        )
+        history = JSON.parse(historyContent)
+      } catch (error) {
+        return true
+      }
+
+      // find head commit in history
+      const headCommit = history.find(
+        (commit: any) => commit.oid === collectionsHeadOID
+      )
+      if (!headCommit) {
+        return true
+      }
+
+      // Check if the commit's parent array contains the reference branch head
+      // If it does, all changes are applied
+      const hasReferenceHeadAsParent =
+        headCommit.parent?.includes(referenceHeadOID)
+
+      // If reference head is in parents, changes are applied
+      // Otherwise, there are unapplied changes
+      const result = !hasReferenceHeadAsParent
+      // Update shared state
+      this._hasUnappliedChanges.value = result
+      return result
+    } catch (error) {
+      console.error(
+        "[VersionedFSService] Failed to check for unapplied changes:",
+        error
+      )
+      // On error, assume no unapplied changes to avoid false positives
+      this._hasUnappliedChanges.value = false
+      return false
+    }
+  }
+
+  /**
+   * Refresh the unapplied changes status
+   * Call this after operations that might change the status
+   */
+  public async refreshUnappliedChangesStatus(): Promise<void> {
+    if (this.legitFs && this.directoryHandle) {
+      await this.hasUnappliedChanges()
     }
   }
 
@@ -307,6 +423,8 @@ export class VersionedFSService extends Service {
 
       // Load collections from the new branch
       await this.loadCollectionsFromLegitFsInStore()
+      // Refresh unapplied changes status after switching
+      await this.refreshUnappliedChangesStatus()
     } catch (error) {
       console.error("[VersionedFSService] Failed to switch branch:", error)
       throw error
@@ -371,6 +489,9 @@ export class VersionedFSService extends Service {
 
       // Update store with merged collections
       setRESTCollections(mergedCollections)
+
+      // Refresh unapplied changes status after loading
+      await this.refreshUnappliedChangesStatus()
 
       console.log(
         `[VersionedFSService] Loaded ${gitCollections.length} git collections from FSA and merged with ${regularCollections.length} regular collections`

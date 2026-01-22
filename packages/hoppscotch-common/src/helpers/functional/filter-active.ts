@@ -8,10 +8,12 @@ export const filterActiveToRecord = (
   pipe(
     variables,
     A.filter((variable) => variable.active),
-    A.map((variable): [string, string] => [variable.key, variable.value]),
+    A.map((variable): [string, string] => [
+      variable.key.toLowerCase(),
+      variable.value,
+    ]),
     (entries) => Object.fromEntries(entries)
   )
-
 export const filterActiveParams = (params: HoppRESTRequestVariables) =>
   pipe(
     params,

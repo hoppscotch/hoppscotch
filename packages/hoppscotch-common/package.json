@@ -40,7 +40,7 @@
     "@hoppscotch/httpsnippet": "3.0.9",
     "@hoppscotch/js-sandbox": "workspace:^",
     "@hoppscotch/kernel": "workspace:^",
-    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#52744a8f35bf81b039410522efd4168bd06d4f35",
+    "@hoppscotch/plugin-appload": "github:CuriousCorrelation/tauri-plugin-appload#043f2c8b1ac8a6c5198a0863bed5c6a913149fc4",
     "@hoppscotch/ui": "0.2.5",
     "@hoppscotch/vue-toasted": "0.1.0",
     "@lezer/highlight": "1.2.1",

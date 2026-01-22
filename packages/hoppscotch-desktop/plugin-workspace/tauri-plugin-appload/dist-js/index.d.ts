@@ -15,6 +15,23 @@ export interface WindowOptions {
 }
 export interface LoadOptions {
     bundleName: string;
+    /**
+     * Optional host override for the webview URL.
+     *
+     * When provided, the webview will be loaded with `app://{host}/` instead of
+     * `app://{bundleName}/`. This enables cloud-for-orgs support where the same
+     * bundle serves multiple organization subdomains.
+     *
+     * The host will be sanitized (dots become underscores) for URL compatibility.
+     * The JavaScript bundle can read `window.location.hostname` to determine
+     * the organization context.
+     *
+     * @example
+     * // Load Hoppscotch bundle as acme.hoppscotch.io
+     * load({ bundleName: "Hoppscotch", host: "acme.hoppscotch.io" })
+     * // Results in: window.location.hostname === "acme_hoppscotch_io"
+     */
+    host?: string;
     inline?: boolean;
     window?: WindowOptions;
 }

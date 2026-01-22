@@ -9,6 +9,7 @@ use tauri::{
 use crate::{
     bundle::BundleLoader,
     cache::CacheManager,
+    mapping::HostMapper,
     models::{
         CloseOptions, CloseResponse, DownloadOptions, DownloadResponse, LoadOptions, LoadResponse,
     },
@@ -16,11 +17,24 @@ use crate::{
     ui, RemoveOptions, RemoveResponse, Result,
 };
 
-fn sanitize_window_label(input: &str) -> String {
-    input
+/// Maximum length for window labels/hosts
+const MAX_HOST_LENGTH: usize = 255;
+
+fn sanitize_window_label(input: &str) -> Result<String> {
+    if input.is_empty() {
+        return Err(crate::Error::Config("Host cannot be empty".into()));
+    }
+    if input.len() > MAX_HOST_LENGTH {
+        return Err(crate::Error::Config(format!(
+            "Host exceeds maximum length of {} characters",
+            MAX_HOST_LENGTH
+        )));
+    }
+
+    Ok(input
         .chars()
         .map(|c| if c.is_alphanumeric() { c } else { '_' })
-        .collect()
+        .collect())
 }
 
 #[command]
@@ -70,7 +84,7 @@ pub async fn download<R: Runtime>(
 
 #[command]
 pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result<LoadResponse> {
-    let base_label = sanitize_window_label(&options.window.title);
+    let base_label = sanitize_window_label(&options.window.title)?;
     let current_label = format!("{}-curr", base_label);
     let alternate_label = format!("{}-next", base_label);
 
@@ -80,22 +94,59 @@ pub async fn load<R: Runtime>(app: AppHandle<R>, options: LoadOptions) -> Result
         current_label
     };
 
-    tracing::info!(?options, bundle = %options.bundle_name, window_label = %label, "Loading bundle");
+    // Determine the webview host:
+    // - If `host` is provided, use it (for cloud-for-orgs support)
+    // - Otherwise, use the bundle name
+    let window_host = options
+        .host
+        .clone()
+        .unwrap_or_else(|| options.bundle_name.clone());
+    let sanitized_host = sanitize_window_label(&window_host)?;
 
-    let url = format!("app://{}/", options.bundle_name.to_lowercase());
+    tracing::info!(
+        ?options,
+        bundle = %options.bundle_name,
+        host = %sanitized_host,
+        window_label = %label,
+        "Loading bundle"
+    );
+
+    let url = format!("app://{}/", sanitized_host.to_lowercase());
     tracing::debug!(%url, "Generated app URL");
 
-    let window = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))
-        .initialization_script(crate::KERNEL_JS)
-        .title(sanitize_window_label(&options.window.title))
-        .inner_size(options.window.width, options.window.height)
-        .resizable(options.window.resizable)
-        .disable_drag_drop_handler()
-        .build()
-        .map_err(|e| {
-            tracing::error!(?e, ?label, "Failed to create window");
-            e
-        })?;
+    let host_mapper = app.state::<Arc<HostMapper>>();
+    host_mapper.register(
+        &sanitized_host.to_lowercase(),
+        &options.bundle_name.to_lowercase(),
+    );
+    tracing::debug!(
+        host = %sanitized_host.to_lowercase(),
+        bundle = %options.bundle_name.to_lowercase(),
+        "Registered host mapping"
+    );
+
+    let sanitized_title = sanitize_window_label(&options.window.title)?;
+
+    let window =
+        match WebviewWindowBuilder::new(&app, &label, WebviewUrl::App(url.parse().unwrap()))
+            .initialization_script(crate::KERNEL_JS)
+            .title(sanitized_title)
+            .inner_size(options.window.width, options.window.height)
+            .resizable(options.window.resizable)
+            .disable_drag_drop_handler()
+            .build()
+        {
+            Ok(window) => window,
+            Err(e) => {
+                tracing::error!(
+                    ?e,
+                    ?label,
+                    "Failed to create window, cleaning up host mapping"
+                );
+                host_mapper.unregister(&sanitized_host.to_lowercase());
+                return Err(e.into());
+            }
+        };
 
     #[cfg(target_os = "macos")]
     {
@@ -176,6 +227,10 @@ pub async fn remove<R: Runtime>(
 pub async fn clear<R: Runtime>(app: AppHandle<R>) -> Result<()> {
     tracing::info!("Starting bundle cleanup process");
     let storage = app.state::<Arc<StorageManager>>();
+    let host_mapper = app.state::<Arc<HostMapper>>();
+
+    host_mapper.clear();
+    tracing::debug!("Cleared host mappings");
 
     let layout = storage.layout();
 

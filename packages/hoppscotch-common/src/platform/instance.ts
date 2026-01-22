@@ -47,6 +47,13 @@ export type InstancePlatformDef = {
   customInstanceSwitcherComponent?: Component
 
   /**
+   * Component to render additional entries before the instances list.
+   * Desktop injects the "Hoppscotch Cloud" entry here, which resolves
+   * to the user's last-used org.
+   */
+  additionalEntriesComponent?: Component
+
+  /**
    * Returns an observable stream of the current connection state
    */
   getConnectionStateStream?: () => Observable<ConnectionState>

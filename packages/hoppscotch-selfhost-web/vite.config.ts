@@ -109,6 +109,7 @@ export default defineConfig({
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
+        if (process.env.NODE_ENV !== "production") return
         generateSitemap({
           routes,
           nuxtStyle: true,

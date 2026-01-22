@@ -10,6 +10,12 @@ if (import.meta.env.DEV) {
   serviceContainer.bind(DebugService)
 }
 
+// Lazy import to avoid circular dependency with collections.ts
+// VersionedFSService imports from collections.ts, and collections.ts imports VersionedFSService
+import("~/services/versioned-fs.service").then((module) => {
+  serviceContainer.bind(module.VersionedFSService)
+})
+
 /**
  * Gets a service from the app service container. You can use this function
  * to get a service if you have no access to the container or if you are not

@@ -17,6 +17,7 @@ import * as path from "path"
 import Unfonts from "unplugin-fonts/vite"
 import legacy from "@vitejs/plugin-legacy"
 import ImportMetaEnv from "@import-meta-env/unplugin"
+import { nodePolyfills } from "vite-plugin-node-polyfills"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
 
@@ -99,6 +100,14 @@ export default defineConfig({
     dedupe: ["vue"],
   },
   plugins: [
+    nodePolyfills({
+      // Enable polyfills for Buffer and other Node.js built-ins
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
     Inspect(), // go to url -> /__inspect
     HtmlConfig({
       metas: META_TAGS(ENV),

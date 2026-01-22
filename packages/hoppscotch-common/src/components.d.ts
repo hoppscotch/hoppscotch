@@ -264,6 +264,7 @@ declare module 'vue' {
     ImportExportImportExportSourcesList: typeof import('./components/importExport/ImportExportSourcesList.vue')['default']
     ImportExportImportExportStepsAllCollectionImport: typeof import('./components/importExport/ImportExportSteps/AllCollectionImport.vue')['default']
     ImportExportImportExportStepsFileImport: typeof import('./components/importExport/ImportExportSteps/FileImport.vue')['default']
+    ImportExportImportExportStepsGitFolderImport: typeof import('./components/importExport/ImportExportSteps/GitFolderImport.vue')['default']
     ImportExportImportExportStepsImportSummary: typeof import('./components/importExport/ImportExportSteps/ImportSummary.vue')['default']
     ImportExportImportExportStepsMyCollectionImport: typeof import('./components/importExport/ImportExportSteps/MyCollectionImport.vue')['default']
     ImportExportImportExportStepsUrlImport: typeof import('./components/importExport/ImportExportSteps/UrlImport.vue')['default']

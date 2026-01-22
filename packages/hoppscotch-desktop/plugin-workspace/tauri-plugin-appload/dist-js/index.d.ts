@@ -16,7 +16,11 @@ export interface WindowOptions {
 export interface LoadOptions {
     bundleName: string;
     /**
-     * Optional host override for the webview URL.
+     * Optional host override for the webview URL. On web, org context comes from
+     * window.location.hostname (acme.hoppscotch.io). On desktop, the webview URL is
+     * normally app://{bundleName}/ which always returns the same hostname. Passing a host
+     * creates the webview at app://{host}/ instead, so the JS can read
+     * window.location.hostname and get org context the same way.
      *
      * When provided, the webview will be loaded with `app://{host}/` instead of
      * `app://{bundleName}/`. This enables cloud-for-orgs support where the same

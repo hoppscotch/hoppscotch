@@ -201,8 +201,9 @@ pub async fn remove<R: Runtime>(
     tracing::info!(?options, "Starting instance removal process");
     let storage = app.state::<Arc<StorageManager>>();
     let cache = app.state::<Arc<CacheManager>>();
+    let host_mapper = app.state::<Arc<HostMapper>>();
 
-    tracing::debug!("Retrieved StorageManager and CacheManager states");
+    tracing::debug!("Retrieved StorageManager, CacheManager, and HostMapper states");
 
     storage
         .delete_bundle(&options.bundle_name, &options.server_url)
@@ -213,6 +214,10 @@ pub async fn remove<R: Runtime>(
         })?;
 
     cache.clear_memory_cache().await;
+
+    // Clean up mappings that pointed to this bundle, otherwise they'd resolve to files
+    // that no longer exist.
+    host_mapper.remove_mappings_for_bundle(&options.bundle_name.to_lowercase());
 
     let response = RemoveResponse {
         success: true,

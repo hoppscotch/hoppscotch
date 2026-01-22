@@ -563,8 +563,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#043f2c8b1ac8a6c5198a0863bed5c6a913149fc4
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#168ff9533258a56de184fb69ad32f8a7f61bae0d
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@9.39.2(jiti@2.6.1))(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
@@ -1060,8 +1060,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#043f2c8b1ac8a6c5198a0863bed5c6a913149fc4
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#168ff9533258a56de184fb69ad32f8a7f61bae0d
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@9.39.2(jiti@2.6.1))(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
@@ -1399,8 +1399,8 @@ importers:
         specifier: workspace:^
         version: link:../hoppscotch-kernel
       '@hoppscotch/plugin-appload':
-        specifier: github:CuriousCorrelation/tauri-plugin-appload#043f2c8b1ac8a6c5198a0863bed5c6a913149fc4
-        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4'
+        specifier: github:CuriousCorrelation/tauri-plugin-appload#168ff9533258a56de184fb69ad32f8a7f61bae0d
+        version: '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d'
       '@hoppscotch/ui':
         specifier: 0.2.5
         version: 0.2.5(eslint@9.39.2(jiti@2.6.1))(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
@@ -1774,8 +1774,8 @@ packages:
       graphql:
         optional: true
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4':
-    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4}
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d':
+    resolution: {tarball: https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d}
     version: 0.1.0
 
   '@CuriousCorrelation/plugin-relay@https://codeload.github.com/CuriousCorrelation/tauri-plugin-relay/tar.gz/7cf09c1ad31e228758738c2f4e1c8fe9cc141291':
@@ -13651,7 +13651,7 @@ snapshots:
     optionalDependencies:
       graphql: 16.12.0
 
-  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/043f2c8b1ac8a6c5198a0863bed5c6a913149fc4':
+  '@CuriousCorrelation/plugin-appload@https://codeload.github.com/CuriousCorrelation/tauri-plugin-appload/tar.gz/168ff9533258a56de184fb69ad32f8a7f61bae0d':
     dependencies:
       '@tauri-apps/api': 2.9.1
 
@@ -20074,6 +20074,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 7.3.1(@types/node@24.10.1)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2)
+
+  '@vitest/mocker@4.0.17(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))':
+    dependencies:
+      '@vitest/spy': 4.0.17
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.1(@types/node@25.0.9)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.17':
     dependencies:
@@ -28122,7 +28130,7 @@ snapshots:
   vitest@4.0.17(@types/node@25.0.9)(jiti@2.6.1)(jsdom@27.4.0(@noble/hashes@2.0.1))(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.17
-      '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(sass@1.97.2)(terser@5.44.1)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.17
       '@vitest/runner': 4.0.17
       '@vitest/snapshot': 4.0.17

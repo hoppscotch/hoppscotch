@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from "@tauri-apps/api/core"
 
 export interface DownloadOptions {
   serverUrl: string
@@ -47,22 +47,24 @@ export interface RemoveResponse {
   bundleName: string
 }
 
-export async function download(options: DownloadOptions): Promise<DownloadResponse> {
-  return await invoke<DownloadResponse>('plugin:appload|download', { options })
+export async function download(
+  options: DownloadOptions
+): Promise<DownloadResponse> {
+  return await invoke<DownloadResponse>("plugin:appload|download", { options })
 }
 
 export async function load(options: LoadOptions): Promise<LoadResponse> {
-  return await invoke<LoadResponse>('plugin:appload|load', { options })
+  return await invoke<LoadResponse>("plugin:appload|load", { options })
 }
 
 export async function close(options: CloseOptions): Promise<CloseResponse> {
-  return await invoke<CloseResponse>('plugin:appload|close', { options })
+  return await invoke<CloseResponse>("plugin:appload|close", { options })
 }
 
 export async function remove(options: RemoveOptions): Promise<RemoveResponse> {
-  return await invoke<RemoveResponse>('plugin:appload|remove', { options })
+  return await invoke<RemoveResponse>("plugin:appload|remove", { options })
 }
 
 export async function clear(): Promise<void> {
-  return await invoke('plugin:appload|clear')
+  return await invoke("plugin:appload|clear")
 }

@@ -178,12 +178,14 @@ export const transformWorkspaceCollections = (
       auth?: HoppRESTAuth;
       headers?: HoppRESTHeaders;
       variables: HoppCollectionVariable[];
+      description: string | null;
     } = data ? JSON.parse(data) : {};
 
     const {
       auth = { authType: "inherit", authActive: true },
       headers = [],
       variables = [],
+      description = null,
     } = parsedData;
 
     const transformedAuth = transformAuth(auth);
@@ -208,6 +210,7 @@ export const transformWorkspaceCollections = (
       auth: transformedAuth,
       headers: transformedHeaders,
       variables: filteredCollectionVariables,
+      description,
     };
   });
 };

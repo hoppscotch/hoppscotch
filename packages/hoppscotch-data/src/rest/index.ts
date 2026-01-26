@@ -27,6 +27,7 @@ import V15_VERSION from "./v/15/index"
 import V16_VERSION from "./v/16"
 import { HoppRESTRequestResponses } from "../rest-request-response"
 import { generateUniqueRefId } from "../utils/collection"
+import V17_VERSION from "./v/17"
 
 export * from "./content-types"
 
@@ -77,7 +78,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 16,
+  latestVersion: 17,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -96,6 +97,7 @@ export const HoppRESTRequest = createVersionedEntity({
     14: V14_VERSION,
     15: V15_VERSION,
     16: V16_VERSION,
+    17: V17_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -137,9 +139,10 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   ),
   responses: lodashIsEqualEq,
   _ref_id: undefinedEq(S.Eq),
+  description: lodashIsEqualEq,
 })
 
-export const RESTReqSchemaVersion = "16"
+export const RESTReqSchemaVersion = "17"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]
@@ -227,6 +230,10 @@ export function safelyExtractRESTRequest(
         req.responses = result.data
       }
     }
+
+    if ("description" in x && typeof x.description === "string") {
+      req.description = x.description
+    }
   }
 
   return req
@@ -243,6 +250,7 @@ export function makeRESTRequest(
 }
 
 export function getDefaultRESTRequest(): HoppRESTRequest {
+  const ref_id = generateUniqueRefId("req")
   return {
     v: RESTReqSchemaVersion,
     endpoint: "https://echo.hoppscotch.io",
@@ -262,7 +270,8 @@ export function getDefaultRESTRequest(): HoppRESTRequest {
     },
     requestVariables: [],
     responses: {},
-    _ref_id: generateUniqueRefId("req"),
+    _ref_id: ref_id,
+    description: null,
   }
 }
 

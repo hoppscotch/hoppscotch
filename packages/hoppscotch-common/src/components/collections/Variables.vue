@@ -285,11 +285,18 @@ const aggregateEnvs = useReadonlyStream(
 ) as Ref<AggregateEnvironment[]>
 
 const liveEnvs = computed(() => {
+  const currentEnvs = pipe(
+    vars.value,
+    A.map((env) => ({
+      ...env,
+      sourceEnv: "CollectionVariable",
+    }))
+  )
   const parentInheritedVariables =
     transformInheritedCollectionVariablesToAggregateEnv(
       props.inheritedProperties?.variables ?? []
     )
-  return [...parentInheritedVariables, ...aggregateEnvs.value]
+  return [...currentEnvs, ...parentInheritedVariables, ...aggregateEnvs.value]
 })
 
 const addEnvironmentVariable = () => {

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { InfraConfigService } from './infra-config.service';
 import { RESTError } from 'src/types/RESTError';
 import { throwHTTPErr } from 'src/utils';
@@ -11,8 +19,10 @@ import {
 } from './dto/onboarding.dto';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
 @Controller({ path: 'onboarding', version: '1' })
+@UseGuards(ThrottlerBehindProxyGuard)
 export class OnboardingController {
   constructor(private infraConfigService: InfraConfigService) {}
 

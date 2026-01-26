@@ -8,9 +8,18 @@ import { TeamModule } from 'src/team/team.module';
 import { TeamRequestModule } from 'src/team-request/team-request.module';
 import { MockServerController } from './mock-server.controller';
 import { AccessTokenModule } from 'src/access-token/access-token.module';
+import { TeamCollectionModule } from 'src/team-collection/team-collection.module';
+import { UserCollectionModule } from 'src/user-collection/user-collection.module';
 
 @Module({
-  imports: [PrismaModule, TeamModule, TeamRequestModule, AccessTokenModule],
+  imports: [
+    PrismaModule,
+    UserCollectionModule,
+    TeamModule,
+    TeamCollectionModule,
+    TeamRequestModule,
+    AccessTokenModule,
+  ],
   controllers: [MockServerController],
   providers: [
     MockServerService,

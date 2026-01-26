@@ -54,11 +54,13 @@ type DeleteMockServerError =
 
 export const createMockServer = (
   name: string,
-  collectionID: string,
   workspaceType: WorkspaceType = WorkspaceType.User,
   workspaceID?: string,
   delayInMs: number = 0,
-  isPublic: boolean = true
+  isPublic: boolean = true,
+  collectionID?: string,
+  autoCreateCollection?: boolean,
+  autoCreateRequestExample?: boolean
 ) =>
   TE.tryCatch(
     async () => {
@@ -67,6 +69,8 @@ export const createMockServer = (
           input: {
             name,
             collectionID,
+            autoCreateCollection,
+            autoCreateRequestExample,
             workspaceType,
             workspaceID,
             delayInMs,
@@ -107,7 +111,7 @@ export const createMockServer = (
       return {
         ...data,
         userUid: data.creator?.uid || "", // Legacy field
-        collectionID: data.collection?.id || collectionID, // Legacy field
+        collectionID: data.collection?.id || collectionID || "", // Legacy field - use response collection ID if available
       } as MockServer
     },
     (error) => (error as Error).message as CreateMockServerError

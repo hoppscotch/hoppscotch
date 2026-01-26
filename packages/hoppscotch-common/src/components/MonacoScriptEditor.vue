@@ -16,10 +16,11 @@ import { v4 as uuidv4 } from "uuid"
 import { computed, onMounted, onUnmounted, ref } from "vue"
 
 import { useColorMode } from "~/composables/theming"
+import { MODULE_PREFIX } from "~/helpers/scripting"
 
 // Import type definitions as raw strings
-import preRequestTypes from "~/types/pre-request.d.ts?raw"
 import postRequestTypes from "~/types/post-request.d.ts?raw"
+import preRequestTypes from "~/types/pre-request.d.ts?raw"
 
 const props = withDefaults(
   defineProps<{
@@ -60,8 +61,6 @@ const extraLibRefs = new Map<string, monaco.IDisposable>()
 // Track context-specific type definition for this editor instance
 const contextTypeDefRef = ref<monaco.IDisposable | null>(null)
 
-const MODULE_PREFIX = "export {};\n" as const
-
 const ensureCompilerOptions = (() => {
   let applied = false
 
@@ -78,19 +77,32 @@ const ensureCompilerOptions = (() => {
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       module: monaco.languages.typescript.ModuleKind.ESNext,
       noEmit: true,
-      target: monaco.languages.typescript.ScriptTarget.ES2020,
+      // Target set to ES2022 to support modern JavaScript features used in scripts
+      // (e.g., top-level await, class fields, improved error handling)
+      target: monaco.languages.typescript.ScriptTarget.ES2022,
       allowNonTsExtensions: true,
+      // Enable top-level await support with proper lib configuration
+      // dom.iterable is required for DOM collection iterators (Headers.entries(), etc.)
+      lib: ["es2022", "es2022.promise", "dom", "dom.iterable"],
     })
 
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
+      // Disable specific error codes that interfere with top-level await in module context
+      diagnosticCodesToIgnore: [1375, 1378], // Top-level await errors
     })
 
     // Disable Cmd/Ctrl+Enter key binding
     monaco.editor.addKeybindingRule({
       keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       command: null,
+    })
+
+    // Add Cmd+Y redo keybinding for Monaco
+    monaco.editor.addKeybindingRule({
+      keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY,
+      command: "redo",
     })
 
     applied = true

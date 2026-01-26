@@ -13,7 +13,11 @@ export type InsomniaPathParameter = {
   value: string
 }
 
-export type InsomniaFolderResource = ImportRequest & { _type: "request_group" }
+export type InsomniaFolderResource = ImportRequest & {
+  _type: "request_group"
+  description?: string
+  meta?: InsomniaMetaV5
+}
 export type InsomniaRequestResource = Omit<
   ImportRequest,
   "headers" | "parameters"
@@ -24,6 +28,7 @@ export type InsomniaRequestResource = Omit<
 } & {
   headers: (Header & { description: string })[]
   parameters: (Parameter & { description: string })[]
+  meta?: InsomniaMetaV5
 }
 
 /**

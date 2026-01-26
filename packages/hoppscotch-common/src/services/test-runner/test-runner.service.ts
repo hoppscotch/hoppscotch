@@ -7,8 +7,11 @@ import {
 import { Service } from "dioc"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { Ref } from "vue"
-import { runTestRunnerRequest } from "~/helpers/RequestRunner"
+import { nextTick, Ref } from "vue"
+import {
+  captureInitialEnvironmentState,
+  runTestRunnerRequest,
+} from "~/helpers/RequestRunner"
 import {
   HoppTestRunnerDocument,
   TestRunnerConfig,
@@ -62,6 +65,7 @@ export class TestRunnerService extends Service {
       folders: [],
       requests: [],
       variables: [],
+      description: collection.description ?? null,
     }
 
     this.runTestCollection(tab, collection, options)
@@ -288,10 +292,20 @@ export class TestRunnerService extends Service {
         error: undefined,
       })
 
+      // Force Vue to flush DOM updates before starting async work.
+      // This ensures components consuming the isLoading state (such as those rendering the Send/Cancel button) update immediately.
+      // Performance impact: nextTick() waits for microtask queue drain (actual latency varies based on pending microtasks)
+      // but is necessary to prevent UI flicker and ensure loading indicators appear before long-running network requests.
+      await nextTick()
+
+      // Capture the initial environment state for a test run so that it remains consistent and unchanged when current environment changes
+      const initialEnvironmentState = captureInitialEnvironmentState()
+
       const results = await runTestRunnerRequest(
         request,
         options.keepVariableValues,
-        inheritedVariables
+        inheritedVariables,
+        initialEnvironmentState
       )
 
       if (options.stopRef?.value) {

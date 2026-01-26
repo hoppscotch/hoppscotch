@@ -12,7 +12,7 @@
     <Pane
       :size="SIDEBAR && hasSidebar ? PANE_MAIN_SIZE : 100"
       min-size="65"
-      class="flex flex-col !overflow-auto"
+      class="flex flex-col !overflow-hidden"
     >
       <Splitpanes
         class="smart-splitter"
@@ -29,7 +29,7 @@
         <Pane
           v-if="hasSecondary"
           :size="PANE_MAIN_BOTTOM_SIZE"
-          class="flex flex-col !overflow-auto"
+          class="flex flex-col !overflow-hidden"
           min-size="25"
         >
           <slot name="secondary" />
@@ -117,14 +117,14 @@ async function populatePaneEvent() {
   if (!props.layoutId) return
 
   const verticalPaneData = await getPaneData("vertical")
-  if (verticalPaneData) {
+  if (verticalPaneData && Array.isArray(verticalPaneData)) {
     const [mainPane, sidebarPane] = verticalPaneData
     PANE_MAIN_SIZE.value = mainPane?.size
     PANE_SIDEBAR_SIZE.value = sidebarPane?.size
   }
 
   const horizontalPaneData = await getPaneData("horizontal")
-  if (horizontalPaneData) {
+  if (horizontalPaneData && Array.isArray(horizontalPaneData)) {
     const [mainTopPane, mainBottomPane] = horizontalPaneData
     PANE_MAIN_TOP_SIZE.value = mainTopPane?.size
     PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane?.size

@@ -2307,7 +2307,7 @@ dependencies = [
 
 [[package]]
 name = "hoppscotch-desktop"
-version = "25.10.0"
+version = "25.12.1"
 dependencies = [
  "axum",
  "dirs 6.0.0",
@@ -5541,7 +5541,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-appload"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=e05861959938b57479a1a81fa796735ebbd08c7c#e05861959938b57479a1a81fa796735ebbd08c7c"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-appload?rev=52744a8f35bf81b039410522efd4168bd06d4f35#52744a8f35bf81b039410522efd4168bd06d4f35"
 dependencies = [
  "base64 0.22.1",
  "blake3",

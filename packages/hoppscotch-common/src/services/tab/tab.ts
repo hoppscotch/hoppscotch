@@ -28,6 +28,13 @@ export abstract class TabService<Doc>
   protected recentlyClosedTabs: Array<{ tab: HoppTab<Doc>; index: number }> = []
   protected readonly MAX_CLOSED_TABS_HISTORY = 10
 
+  // MRU (Most Recently Used) tracking
+  // mruOrder[0] is the most recently used tab, mruOrder[n-1] is the least recently used
+  protected mruOrder: string[] = ["test"]
+  // Navigation index for cycling through MRU list while modifier key is held
+  // -1 means not currently navigating, 0+ means current position in mruOrder
+  protected mruNavigationIndex: number = -1
+
   public currentTabID = refWithControl("test", {
     onBeforeChange: (newTabID) => {
       if (!newTabID || !this.tabMap.has(newTabID)) {
@@ -80,6 +87,8 @@ export abstract class TabService<Doc>
     if (switchToIt) {
       this.setActiveTab(id)
     }
+    // Note: We don't add to mruOrder here if switchToIt is false
+    // The tab will be added to mruOrder when it's first activated via setActiveTab
 
     return tab
   }
@@ -94,12 +103,27 @@ export abstract class TabService<Doc>
 
   public setActiveTab(tabID: string): void {
     this.currentTabID.value = tabID
+    this.updateMRUOrder(tabID)
+  }
+
+  private updateMRUOrder(tabID: string): void {
+    const index = this.mruOrder.indexOf(tabID)
+    if (index > -1) {
+      this.mruOrder.splice(index, 1)
+    }
+    this.mruOrder.unshift(tabID)
+
+    // Reset navigation index when a tab is explicitly activated
+    // This ensures the next MRU navigation starts fresh
+    this.mruNavigationIndex = -1
   }
 
   public loadTabsFromPersistedState(data: PersistableTabState<Doc>): void {
     if (data) {
       this.tabMap.clear()
       this.tabOrdering.value = []
+      this.mruOrder = []
+      this.mruNavigationIndex = -1
 
       for (const doc of data.orderedDocs) {
         this.tabMap.set(doc.tabID, {
@@ -108,6 +132,7 @@ export abstract class TabService<Doc>
         })
 
         this.tabOrdering.value.push(doc.tabID)
+        this.mruOrder.push(doc.tabID)
       }
 
       this.setActiveTab(data.lastActiveTabID)
@@ -175,6 +200,14 @@ export abstract class TabService<Doc>
 
     this.addToRecentlyClosedTabs(tab, tabIndex)
 
+    const mruIndex = this.mruOrder.indexOf(tabID)
+    if (mruIndex > -1) {
+      this.mruOrder.splice(mruIndex, 1)
+    }
+
+    // Reset navigation index when tabs change
+    this.mruNavigationIndex = -1
+
     this.tabOrdering.value.splice(tabIndex, 1)
 
     nextTick(() => {
@@ -191,6 +224,8 @@ export abstract class TabService<Doc>
     }
 
     this.tabOrdering.value = [tabID]
+    this.mruOrder = [tabID]
+    this.mruNavigationIndex = -1
 
     this.tabMap.forEach((_, id) => {
       if (id !== tabID) this.tabMap.delete(id)
@@ -247,6 +282,94 @@ export abstract class TabService<Doc>
     this.setActiveTab(tab.id)
 
     return true
+  }
+
+  /**
+   * Navigates forward through the MRU list (to older tabs).
+   * Each call moves one step forward in the MRU history.
+   *
+   * Behavior:
+   * - First call: moves from current tab (index 0) to second most recent (index 1)
+   * - Subsequent calls: continue moving forward through history
+   * - Wraps around to the beginning when reaching the end
+   */
+  public goToMRUTab(): void {
+    // Clean up any stale entries
+    this.mruOrder = this.mruOrder.filter((tabID) => this.tabMap.has(tabID))
+
+    if (this.mruOrder.length <= 1) return
+
+    // If not currently navigating, start from position 0 (current tab)
+    if (this.mruNavigationIndex === -1) {
+      this.mruNavigationIndex = 0
+    }
+
+    // Move forward in MRU list (toward older tabs)
+    this.mruNavigationIndex =
+      (this.mruNavigationIndex + 1) % this.mruOrder.length
+
+    const targetTabID = this.mruOrder[this.mruNavigationIndex]
+    if (targetTabID) {
+      // Use currentTabID directly to avoid resetting navigation state
+      this.currentTabID.value = targetTabID
+    }
+  }
+
+  /**
+   * Navigates backward through the MRU list (to more recent tabs).
+   * Each call moves one step backward in the MRU history.
+   *
+   * Behavior:
+   * - Moves backward from current position in MRU navigation
+   * - Wraps around to the end when reaching the beginning
+   */
+  public goToPreviousMRUTab(): void {
+    // Clean up any stale entries
+    this.mruOrder = this.mruOrder.filter((tabID) => this.tabMap.has(tabID))
+
+    if (this.mruOrder.length <= 1) return
+
+    // If not currently navigating, start from position 0 (current tab)
+    if (this.mruNavigationIndex === -1) {
+      this.mruNavigationIndex = 0
+    }
+
+    // Move backward in MRU list (toward more recent tabs)
+    this.mruNavigationIndex =
+      this.mruNavigationIndex === 0
+        ? this.mruOrder.length - 1
+        : this.mruNavigationIndex - 1
+
+    const targetTabID = this.mruOrder[this.mruNavigationIndex]
+    if (targetTabID) {
+      // Use currentTabID directly to avoid resetting navigation state
+      this.currentTabID.value = targetTabID
+    }
+  }
+
+  /**
+   * Commits the current MRU navigation selection.
+   * Should be called when the modifier key is released to finalize the tab switch.
+   * This moves the selected tab to the front of the MRU order.
+   */
+  public commitMRUNavigation(): void {
+    if (this.mruNavigationIndex > 0) {
+      const selectedTabID = this.mruOrder[this.mruNavigationIndex]
+      if (selectedTabID) {
+        // Move the selected tab to the front of MRU order
+        this.mruOrder.splice(this.mruNavigationIndex, 1)
+        this.mruOrder.unshift(selectedTabID)
+      }
+    }
+    this.mruNavigationIndex = -1
+  }
+
+  /**
+   * Resets MRU navigation state without committing.
+   * Useful if navigation is cancelled.
+   */
+  public resetMRUNavigation(): void {
+    this.mruNavigationIndex = -1
   }
 
   private addToRecentlyClosedTabs(tab: HoppTab<Doc>, index: number): void {

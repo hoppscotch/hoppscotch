@@ -10,22 +10,23 @@ describe("getEditorLangForMimeType", () => {
 
   test("returns 'xml' for valid XML mimes", () => {
     expect(getEditorLangForMimeType("application/xml")).toMatch("xml")
+    expect(getEditorLangForMimeType("text/xml")).toMatch("xml")
   })
 
   test("returns 'html' for valid HTML mimes", () => {
     expect(getEditorLangForMimeType("text/html")).toMatch("html")
   })
 
-  test("returns 'text/x-yaml' for plain text mime", () => {
-    expect(getEditorLangForMimeType("text/plain")).toMatch("text/x-yaml")
+  test("returns text/plain for plain text mime", () => {
+    expect(getEditorLangForMimeType("text/plain")).toBe("text/plain")
   })
 
-  test("returns 'text/x-yaml' for unimplemented mimes", () => {
-    expect(getEditorLangForMimeType("image/gif")).toMatch("text/x-yaml")
+  test("returns text/plain for unimplemented mimes", () => {
+    expect(getEditorLangForMimeType("image/gif")).toBe("text/plain")
   })
 
-  test("returns 'text/x-yaml' for null/undefined mimes", () => {
-    expect(getEditorLangForMimeType(null)).toMatch("text/x-yaml")
-    expect(getEditorLangForMimeType(undefined)).toMatch("text/x-yaml")
+  test("returns text/plain for null/undefined mimes", () => {
+    expect(getEditorLangForMimeType(null)).toBe("text/plain")
+    expect(getEditorLangForMimeType(undefined)).toBe("text/plain")
   })
 })

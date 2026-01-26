@@ -11,19 +11,19 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "@hoppscotch/common/newstore/environments"
-import { authEvents$, def as platformAuth } from "@platform/auth/web"
+import { authEvents$, def as platformAuth } from "@app/platform/auth/web"
 
 import { runGQLSubscription } from "@hoppscotch/common/helpers/backend/GQLClient"
 import { EnvironmentsPlatformDef } from "@hoppscotch/common/src/platform/environments"
 
-import { environnmentsSyncer } from "@platform/environments/web/sync"
+import { environnmentsSyncer } from "@app/platform/environments/web/sync"
 
 import {
   Environment,
   EnvironmentSchemaVersion,
   GlobalEnvironment,
 } from "@hoppscotch/data"
-import { runDispatchWithOutSyncing } from "@lib/sync"
+import { runDispatchWithOutSyncing } from "@app/lib/sync"
 import {
   createUserGlobalEnvironment,
   getGlobalEnvironments,

@@ -375,7 +375,7 @@ export class UserCollectionResolver {
     return res.right;
   }
 
-  @Mutation(() => Boolean, {
+  @Mutation(() => UserCollectionExportJSONData, {
     description: 'Import collections from JSON string to the specified Team',
   })
   @UseGuards(GqlAuthGuard)

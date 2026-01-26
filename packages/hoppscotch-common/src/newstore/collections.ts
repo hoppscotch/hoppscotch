@@ -37,6 +37,7 @@ const defaultRESTCollectionState = {
       },
       headers: [],
       variables: [],
+      description: null,
     }),
   ],
 }
@@ -53,6 +54,7 @@ const defaultGraphqlCollectionState = {
       },
       headers: [],
       variables: [],
+      description: null,
     }),
   ],
 }
@@ -362,6 +364,7 @@ const restCollectionDispatchers = defineDispatchers({
       },
       headers: [],
       variables: [],
+      description: null,
     })
 
     const newState = state
@@ -1022,6 +1025,7 @@ const gqlCollectionDispatchers = defineDispatchers({
       },
       headers: [],
       variables: [],
+      description: null,
     })
     const newState = state
     const indexPaths = path.split("/").map((x) => parseInt(x))

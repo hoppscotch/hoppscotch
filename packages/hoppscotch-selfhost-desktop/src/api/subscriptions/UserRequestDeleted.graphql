@@ -1,9 +1,0 @@
-subscription UserRequestDeleted {
-  userRequestDeleted {
-    id
-    collectionID
-    title
-    request
-    type
-  }
-}

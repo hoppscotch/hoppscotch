@@ -7,7 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { MockServer } from '@prisma/client';
+import { MockServer } from 'src/generated/prisma/client';
 import { MockServerService } from './mock-server.service';
 
 @Injectable()

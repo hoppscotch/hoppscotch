@@ -412,6 +412,7 @@
     "rename": "Rename",
     "save": "Save",
     "save_changes": "Save Changes",
+    "search_placeholder": "Search by workspace name or ID..",
     "send_invite": "Send Invite",
     "show_more": "Show more",
     "team_details": "Workspace details",

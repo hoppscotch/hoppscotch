@@ -16,12 +16,11 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
-
         <HoppSmartTable
-          v-else-if="teamsList.length"
+          v-else
           :headings="headings"
           :list="filteredTeamsList"
+          :loading="fetching"
           @onRowClicked="goToTeamDetails"
         >
           <template #extension>
@@ -35,6 +34,15 @@
               />
             </div>
           </template>
+
+          <template #empty-state>
+            <td colspan="4">
+              <span class="flex justify-center p-3">
+                {{ error ? t('teams.load_list_error') : (searchQuery ? 'No workspaces found matching your search' : t('teams.no_teams')) }}
+              </span>
+            </td>
+          </template>
+
           <template #head>
             <th class="px-6 py-2">{{ t('teams.id') }}</th>
             <th class="px-6 py-2">{{ t('teams.name') }}</th>
@@ -99,10 +107,6 @@
             </td>
           </template>
         </HoppSmartTable>
-
-        <div v-else class="px-2">
-          {{ t('teams.no_teams') }}
-        </div>
 
         <div
           v-if="hasNextPage && teamsList.length >= teamsPerPage"

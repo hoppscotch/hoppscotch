@@ -38,7 +38,7 @@
           <template #empty-state>
             <td colspan="4">
               <span class="flex justify-center p-3">
-                {{ error ? t('teams.load_list_error') : (searchQuery ? 'No workspaces found matching your search' : t('teams.no_teams')) }}
+                {{ error ? t('teams.load_list_error') : (searchQuery ? t('teams.no_search_results') : t('teams.no_teams')) }}
               </span>
             </td>
           </template>

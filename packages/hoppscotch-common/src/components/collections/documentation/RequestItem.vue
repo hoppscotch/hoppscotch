@@ -10,7 +10,12 @@
       {{ requestMethod }}
     </span>
     <span
-      class="text-secondaryLight text-xs truncate transition-colors group-hover:text-secondaryDark"
+      v-tippy="{
+        theme: 'tooltip',
+        content: requestName,
+        trigger: 'mouseenter focus',
+      }"
+      class="text-secondaryLight text-xs overflow-x-auto whitespace-nowrap transition-colors group-hover:text-secondaryDark"
     >
       {{ requestName }}
     </span>

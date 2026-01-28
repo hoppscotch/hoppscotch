@@ -23,9 +23,18 @@
           />
         </span>
         <span
-          class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark"
+          class="pointer-events-none flex min-w-0 flex-1 items-center py-2 pr-2 transition group-hover:text-secondaryDark overflow-hidden"
         >
-          <span class="truncate" :class="{ 'text-accent': isSelected }">
+          <span
+            v-tippy="{
+              theme: 'tooltip',
+              content: request.name,
+              trigger: 'mouseenter focus',
+            }"
+            class="pointer-events-auto overflow-x-auto whitespace-nowrap cursor-pointer"
+            :class="{ 'text-accent': isSelected }"
+            @click="selectRequest"
+          >
             {{ request.name }}
           </span>
           <span

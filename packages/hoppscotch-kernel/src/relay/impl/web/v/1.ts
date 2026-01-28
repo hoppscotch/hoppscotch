@@ -10,7 +10,7 @@ import {
 } from "@relay/v/1"
 import type { VersionedAPI } from "@type/versioning"
 
-import { AwsV4Signer } from "aws4fetch"
+import { AwsV4Signer as _AwsV4Signer } from "aws4fetch"
 import axios, { AxiosRequestConfig } from "axios"
 
 import * as E from "fp-ts/Either"

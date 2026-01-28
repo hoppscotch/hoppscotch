@@ -1,5 +1,4 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { FaradayCage } from "faraday-cage"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { cloneDeep } from "lodash"
@@ -11,6 +10,7 @@ import {
   TestResponse,
   TestResult,
 } from "~/types"
+import { acquireCage } from "~/utils/cage"
 
 export const runPostRequestScriptWithFaradayCage = (
   testScript: string,
@@ -30,7 +30,7 @@ export const runPostRequestScriptWithFaradayCage = (
         let finalTestResults = testRunStack
         const testPromises: Promise<void>[] = []
 
-        const cage = await FaradayCage.create()
+        const cage = await acquireCage()
 
         // Wrap entire execution in try-catch to handle QuickJS GC errors that can occur at any point
         try {

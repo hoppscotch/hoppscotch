@@ -1182,7 +1182,7 @@
     "body": "响应体",
     "duplicated": "响应重名",
     "duplicate_name_error": "有同名的响应已存在",
-    "filter_response_body": "筛选JSON响应本体（使用JSONPath语法）",
+    "filter_response_body": "筛选JSON响应本体（使用jq语法）",
     "headers": "响应头",
     "request_headers": "请求头",
     "html": "HTML",

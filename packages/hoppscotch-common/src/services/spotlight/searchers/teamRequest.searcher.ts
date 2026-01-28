@@ -54,7 +54,7 @@ export class TeamsSpotlightSearcherService
         return "rest"
       }
       return "other"
-    } catch (e) {
+    } catch (_e) {
       return "other"
     }
   }

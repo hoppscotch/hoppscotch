@@ -328,7 +328,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
       try {
         const proxyInfo = JSON.parse(persistedProxyInfo)
         this.proxyInfo.value = proxyInfo
-      } catch (e) {}
+      } catch (_e) {}
     }
 
     // Load SSL Validation
@@ -557,7 +557,7 @@ export class AgentInterceptorService extends Service implements Interceptor {
     try {
       await this.performHandshake()
       this.isAgentRunning.value = true
-    } catch (error) {
+    } catch (_error) {
       this.isAgentRunning.value = false
     }
   }

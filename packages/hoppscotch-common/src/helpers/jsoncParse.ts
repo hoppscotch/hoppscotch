@@ -120,7 +120,7 @@ export default function jsonParse(
     const ast = parseObj()
     expect("EOF")
     return ast
-  } catch (e) {
+  } catch (_e) {
     pendingComments = [] // Reset pending comments
     const ast = parseArr()
     expect("EOF")

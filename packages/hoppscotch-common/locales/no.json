@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Svarkropp",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Overskrifter",
     "html": "HTML",
     "image": "Bilde",

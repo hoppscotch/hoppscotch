@@ -618,7 +618,7 @@
   "response": {
     "audio": "Ses",
     "body": "Yanıt gövdesi",
-    "filter_response_body": "JSON yanıt gövdesini filtrele (JSONPath sözdizimi kullanır)",
+    "filter_response_body": "JSON yanıt gövdesini filtrele (jq sözdizimi kullanır)",
     "headers": "Başlıklar",
     "html": "HTML",
     "image": "Resim",

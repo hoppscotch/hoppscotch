@@ -727,7 +727,7 @@
     "body": "Antworttext",
     "duplicated": "Antwort dupliziert",
     "duplicate_name_error": "Antwort mit demselben Namen existiert bereits",
-    "filter_response_body": "JSON-Antwortkörper filtern (verwendet JSONPath-Syntax)",
+    "filter_response_body": "JSON-Antwortkörper filtern (verwendet jq-Syntax)",
     "headers": "Header",
     "html": "HTML",
     "image": "Bild",

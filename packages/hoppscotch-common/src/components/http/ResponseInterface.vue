@@ -172,7 +172,7 @@ function getCurrentPageCategory(): "graphql" | "rest" | "other" {
       return "rest"
     }
     return "other"
-  } catch (e) {
+  } catch (_e) {
     return "other"
   }
 }

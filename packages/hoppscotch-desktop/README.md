@@ -26,6 +26,14 @@
 3. Follow the on-screen instructions to install Hoppscotch Desktop App.
 4. Open Hoppscotch Desktop App.
 
+##### Using Homebrew
+
+You can use Homebrew (on macOS or Linux) to install Hoppscotch
+
+```bash
+brew install --cask hoppscotch
+```
+
 ## Access Options
 
 ### Hoppscotch Cloud Edition for Individuals

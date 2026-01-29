@@ -182,16 +182,15 @@ export class InspectionService extends Service {
       })
 
       const inspectorRefs = computed(() => {
-        // Skip inspection if request is null (e.g., test-runner tab)
-        const req = debouncedReq.value
-        if (req === null) return []
+        if (debouncedReq.value === null) return []
 
-        const nonNullReqRef = debouncedReq as Readonly<
-          Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
-        >
-
-        return Array.from(this.inspectors.values()).map((x) =>
-          x.getInspections(nonNullReqRef, debouncedRes)
+        return Array.from(this.inspectors.values()).map((inspector) =>
+          inspector.getInspections(
+            debouncedReq as Readonly<
+              Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
+            >,
+            debouncedRes
+          )
         )
       })
 

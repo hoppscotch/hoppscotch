@@ -19,6 +19,7 @@ import legacy from "@vitejs/plugin-legacy"
 import ImportMetaEnv from "@import-meta-env/unplugin"
 
 const ENV = loadEnv("development", path.resolve(__dirname, "../../"), ["VITE_"])
+const siteUrl = ENV.VITE_BASE_URL
 
 export default defineConfig({
   envPrefix: process.env.HOPP_ALLOW_RUNTIME_ENV ? "VITE_BUILDTIME_" : "VITE_",
@@ -109,13 +110,17 @@ export default defineConfig({
       dirs: ["../hoppscotch-common/src/pages", "./src/pages"],
       importMode: "async",
       onRoutesGenerated(routes) {
+        if (!siteUrl) return routes
+
         generateSitemap({
           routes,
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
+          hostname: siteUrl,
         })
+
+        return routes
       },
     }),
     StaticCopy({

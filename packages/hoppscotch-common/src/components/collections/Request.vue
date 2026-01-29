@@ -60,7 +60,7 @@
             }"
             class="pointer-events-auto overflow-x-auto whitespace-nowrap cursor-pointer"
             :class="{ 'text-accent': isSelected }"
-            @click="selectRequest"
+            tabindex="0"
           >
             {{ request.name }}
           </span>

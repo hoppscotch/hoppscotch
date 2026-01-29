@@ -16,6 +16,7 @@
         trigger: 'mouseenter focus',
       }"
       class="text-secondaryLight text-xs overflow-x-auto whitespace-nowrap transition-colors group-hover:text-secondaryDark"
+      tabindex="0"
     >
       {{ requestName }}
     </span>

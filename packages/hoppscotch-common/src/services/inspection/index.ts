@@ -181,11 +181,15 @@ export class InspectionService extends Service {
         maxWait: 2000,
       })
 
-      const inspectorRefs = computed(() =>
-        Array.from(this.inspectors.values()).map((x) =>
-          x.getInspections(debouncedReq, debouncedRes)
+      const inspectorRefs = computed(() => {
+        // Skip inspection if request is null (e.g., test-runner tab)
+        const req = debouncedReq.value
+        if (req === null) return []
+
+        return Array.from(this.inspectors.values()).map((x) =>
+          x.getInspections(debouncedReq as any, debouncedRes)
         )
-      )
+      })
 
       const activeInspections = computed(() =>
         inspectorRefs.value.flatMap((x) => x?.value ?? [])

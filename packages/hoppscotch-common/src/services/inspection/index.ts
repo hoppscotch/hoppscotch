@@ -186,8 +186,12 @@ export class InspectionService extends Service {
         const req = debouncedReq.value
         if (req === null) return []
 
+        const nonNullReqRef = debouncedReq as Readonly<
+          Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
+        >
+
         return Array.from(this.inspectors.values()).map((x) =>
-          x.getInspections(debouncedReq as any, debouncedRes)
+          x.getInspections(nonNullReqRef, debouncedRes)
         )
       })
 

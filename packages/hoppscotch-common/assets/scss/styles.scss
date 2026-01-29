@@ -22,13 +22,13 @@
 
   @apply selection:bg-accentDark;
   @apply selection:text-accentContrast;
-  @apply overscroll-none;
 }
 
 :root {
   @apply antialiased;
   accent-color: var(--accent-color);
   font-variant-ligatures: common-ligatures;
+  @apply overscroll-none;
 }
 
 ::-webkit-scrollbar-track {

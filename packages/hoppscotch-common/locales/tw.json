@@ -639,7 +639,7 @@
   "response": {
     "audio": "音訊",
     "body": "回應本體",
-    "filter_response_body": "篩選 JSON 回應本體 (使用 JSONPath 語法)",
+    "filter_response_body": "篩選 JSON 回應本體 (使用 jq 語法)",
     "headers": "回應標頭",
     "html": "HTML",
     "image": "影像",

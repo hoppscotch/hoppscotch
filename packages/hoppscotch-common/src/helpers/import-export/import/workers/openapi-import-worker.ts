@@ -12,12 +12,11 @@ import * as E from "fp-ts/Either"
 const validateDocs = async (docs: any) => {
   try {
     const res = await SwaggerParser.validate(docs, {
-      // @ts-expect-error - this is a valid option, but seems like the types are not updated
       continueOnError: true,
     })
 
     return E.right(res)
-  } catch (error) {
+  } catch (_error) {
     return E.left("COULD_NOT_VALIDATE" as const)
   }
 }
@@ -27,7 +26,7 @@ const dereferenceDocs = async (docs: any) => {
     const res = await SwaggerParser.dereference(docs)
 
     return E.right(res)
-  } catch (error) {
+  } catch (_error) {
     return E.left("COULD_NOT_DEREFERENCE" as const)
   }
 }

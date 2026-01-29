@@ -762,7 +762,7 @@ describe('sortTeamRequests', () => {
     const collectionID = teamCollection.id;
 
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
-    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
 
     const result = await teamRequestService.sortTeamRequests(
@@ -788,7 +788,7 @@ describe('sortTeamRequests', () => {
     const collectionID = teamCollection.id;
 
     mockPrisma.$transaction.mockImplementation(async (cb) => cb(mockPrisma));
-    mockPrisma.acquireLocks.mockResolvedValue(undefined);
+    mockPrisma.lockTeamRequestByCollections.mockResolvedValue(undefined);
     mockPrisma.teamRequest.findMany.mockResolvedValue(dbTeamRequests);
 
     const result = await teamRequestService.sortTeamRequests(

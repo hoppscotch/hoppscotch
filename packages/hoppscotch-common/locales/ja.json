@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "レスポンスボディ",
-    "filter_response_body": "JSONレスポンスボディをフィルタ (JSONPathシンタックスを使用)",
+    "filter_response_body": "JSONレスポンスボディをフィルタ (jqシンタックスを使用)",
     "headers": "ヘッダー",
     "html": "HTML",
     "image": "画像",

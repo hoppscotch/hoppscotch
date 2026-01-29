@@ -354,7 +354,7 @@ const copyToClipboardHandler = async (text: string) => {
     setTimeout(() => {
       copyIcon.value = IconCopy
     }, 1000)
-  } catch (error) {
+  } catch (_error) {
     toast.error(t("error.copy_failed"))
   }
 }

@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Response Body",
-    "filter_response_body": "Filter body respons JSON (menggunakan sintaks JSONPath)",
+    "filter_response_body": "Filter body respons JSON (menggunakan sintaks jq)",
     "headers": "Headers",
     "html": "HTML",
     "image": "Gambar",

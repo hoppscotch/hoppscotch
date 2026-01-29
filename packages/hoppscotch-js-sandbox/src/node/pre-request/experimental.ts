@@ -1,11 +1,11 @@
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
-import { FaradayCage } from "faraday-cage"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/lib/TaskEither"
 import { cloneDeep } from "lodash"
 
 import { defaultModules, preRequestModule } from "~/cage-modules"
 import { HoppFetchHook, SandboxPreRequestResult, TestResult } from "~/types"
+import { acquireCage } from "~/utils/cage"
 
 export const runPreRequestScriptWithFaradayCage = (
   preRequestScript: string,
@@ -21,7 +21,7 @@ export const runPreRequestScriptWithFaradayCage = (
         let finalRequest = request
         let finalCookies = cookies
 
-        const cage = await FaradayCage.create()
+        const cage = await acquireCage()
 
         try {
           const captureHook: { capture?: () => void } = {}

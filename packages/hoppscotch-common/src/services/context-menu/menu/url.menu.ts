@@ -24,7 +24,7 @@ function isValidURL(url: string) {
     // this will fail for endpoints like "localhost:3000", ie without a protocol
     new URL(url)
     return true
-  } catch (error) {
+  } catch (_error) {
     // Fallback to regular expression check
     const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
     if (pattern.test(url)) return true

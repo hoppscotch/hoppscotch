@@ -174,7 +174,7 @@ const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
         const { start, end } = def.loc!
         return selectedPos >= start && selectedPos <= end
       }) as OperationDefinitionNode) ?? null
-  } catch (error) {
+  } catch (_error) {
     if (queryString.trim() === "") {
       operationDefinitions.value = []
     }
@@ -193,7 +193,7 @@ onMounted(() => {
       selectedOperation.value = ast.definitions[0] as OperationDefinitionNode
       return
     }
-  } catch (error) {}
+  } catch (_error) {}
 })
 
 const cmQueryEditor = useCodemirror(
@@ -238,7 +238,7 @@ const prettifyQuery = () => {
       })
     )
     prettifyQueryIcon.value = IconCheck
-  } catch (e) {
+  } catch (_e) {
     toast.error(`${t("error.gql_prettify_invalid_query")}`)
     prettifyQueryIcon.value = IconInfo
   }

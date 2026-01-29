@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "Тело за одговор",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "Заглавља",
     "html": "ХТМЛ",
     "image": "Слика",

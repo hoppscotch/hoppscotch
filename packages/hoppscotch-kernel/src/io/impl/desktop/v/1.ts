@@ -1,10 +1,18 @@
-import { VersionedAPI } from '@type/versioning'
-import { IoV1, SaveFileWithDialogOptions, OpenExternalLinkOptions } from '@io/v/1'
+import { VersionedAPI } from "@type/versioning"
+import {
+  IoV1,
+  SaveFileWithDialogOptions,
+  OpenExternalLinkOptions,
+} from "@io/v/1"
 
 import { save } from "@tauri-apps/plugin-dialog"
 import { writeFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { open } from "@tauri-apps/plugin-shell"
-import { listen as tauriListen, emit as tauriEmit, Event } from '@tauri-apps/api/event'
+import {
+  listen as tauriListen,
+  emit as tauriEmit,
+  Event,
+} from "@tauri-apps/api/event"
 
 export const implementation: VersionedAPI<IoV1> = {
   version: { major: 1, minor: 0, patch: 0 },
@@ -47,6 +55,6 @@ export const implementation: VersionedAPI<IoV1> = {
 
     async emit(event: string, payload?: unknown) {
       await tauriEmit(event, payload)
-    }
-  }
+    },
+  },
 }

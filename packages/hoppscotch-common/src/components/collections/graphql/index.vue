@@ -512,8 +512,9 @@ const duplicateRequest = async ({
 }) => {
   const isValidToken = await handleTokenValidation()
   if (!isValidToken) return
+  const { id: _, ...requestWithoutID } = request
   saveGraphqlRequestAs(folderPath, {
-    ...cloneDeep(request),
+    ...cloneDeep(requestWithoutID),
     name: `${request.name} - ${t("action.duplicate")}`,
   })
 }

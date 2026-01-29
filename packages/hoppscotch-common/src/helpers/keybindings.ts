@@ -262,11 +262,11 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
   // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
   if (modifierKey) {
-    // If the modifier is shift and the target is an input, we ignore
+    // If the modifier is shift and the target is an input or codemirror editor, we ignore
     if (
       modifierKey === "shift" &&
       isDOMElement(target) &&
-      isTypableElement(target)
+      (isTypableElement(target) || isCodeMirrorEditor(target))
     ) {
       return null
     }

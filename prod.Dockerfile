@@ -1,7 +1,7 @@
 # Base Go builder with Go lang installation
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
-FROM alpine:3.23.0 AS go_builder
+FROM alpine:3.23.2 AS go_builder
 
 RUN apk add --no-cache curl git && \
   mkdir -p /tmp/caddy-build && \
@@ -16,7 +16,7 @@ RUN expected="a9efa00c161922dd24650fd0bee2f4f8bb2fb69ff3e63dcc44f0694da64bb0cf" 
 
 # Install Go 1.25.4 from GitHub releases to fix CVE-2025-47907
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.25.5
+ENV GOLANG_VERSION=1.25.6
 # Download and install Go from the official tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz && \
@@ -61,16 +61,16 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.23.0 AS node_base
+FROM alpine:3.23.2 AS node_base
 # Install dependencies
 RUN apk add --no-cache nodejs curl bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.6.4.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.7.0.tgz -o npm.tgz
 # Verify checksum
-RUN expected="9c07edca12853cddbf4fed4e372485aa60c064f9bf3e4cd157a2db5518a1792b" \
+RUN expected="292f142dc1a8c01199ba34a07e57cf016c260ea2c59b64f3eee8aaae7a2e7504" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -78,15 +78,30 @@ RUN expected="9c07edca12853cddbf4fed4e372485aa60c064f9bf3e4cd157a2db5518a1792b" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.6.4 && \
+  node bin/npm-cli.js install -g npm@11.7.0 && \
   cd / && \
   rm -rf /tmp/npm-install
-RUN npm install -g pnpm@10.25.0 @import-meta-env/cli
+RUN npm install -g pnpm@10.28.1 @import-meta-env/cli
+
 # Fix CVE-2025-64756 by replacing vulnerable glob with patched version
-RUN npm install -g glob@11.1.0 && \
+# Fix CVE-2026-23745 by replacing vulnerable tar with patched version
+# Fix GHSA-73rr-hh4g-fpgx replacing vulnerable diff with patched version
+RUN npm install -g glob@11.1.0 tar@7.5.3 diff@8.0.3 && \
+  # Replace tar in npm's node_modules
+  rm -rf /usr/lib/node_modules/npm/node_modules/tar && \
+  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/npm/node_modules/ && \
+  # Replace tar in npm's node_modules
+  rm -rf /usr/lib/node_modules/npm/node_modules/diff && \
+  cp -r /usr/lib/node_modules/diff /usr/lib/node_modules/npm/node_modules/ && \
   # Replace glob in @import-meta-env/cli's node_modules
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/glob && \
-  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/
+  cp -r /usr/lib/node_modules/glob /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
+  # Replace tar in @import-meta-env/cli's node_modules
+  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/tar && \
+  cp -r /usr/lib/node_modules/tar /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
+  # Replace diff in @import-meta-env/cli's node_modules
+  rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/diff && \
+  cp -r /usr/lib/node_modules/diff /usr/lib/node_modules/@import-meta-env/cli/node_modules/ 
 
 
 FROM node_base AS base_builder

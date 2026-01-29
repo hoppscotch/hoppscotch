@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-auto">
+  <div>
     <div
       class="truncate font-semibold text-secondaryLight border-b border-dividerLight px-4 py-2"
     >

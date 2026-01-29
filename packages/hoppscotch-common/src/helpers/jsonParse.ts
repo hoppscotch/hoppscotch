@@ -97,7 +97,7 @@ export default function jsonParse(
     const ast = parseObj()
     expect("EOF")
     return ast
-  } catch (e) {
+  } catch (_e) {
     // Try parsing expecting a root array
     const ast = parseArr()
     expect("EOF")

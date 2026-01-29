@@ -13,7 +13,7 @@ export function initializeApp() {
       platform.analytics?.initAnalytics()
 
       initialized = true
-    } catch (e) {
+    } catch (_e) {
       // initializeApp throws exception if we reinitialize
       initialized = true
     }

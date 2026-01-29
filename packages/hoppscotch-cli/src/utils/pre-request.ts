@@ -8,9 +8,9 @@ import {
   parseTemplateStringE,
   generateJWTToken,
   HoppCollectionVariable,
-  calculateHawkHeader
+  calculateHawkHeader,
 } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox/node"
+import { runPreRequestScript } from "@hoppscotch/js-sandbox/node";
 import { createHoppFetchHook } from "./hopp-fetch";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
@@ -35,6 +35,7 @@ import {
   fetchInitialDigestAuthInfo,
   generateDigestAuthHeader,
 } from "./auth/digest";
+import { stripComments } from "./jsonc";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -81,29 +82,31 @@ export const preRequestScriptRunner = (
         updatedRequest: updatedRequest ?? {},
       };
     }),
-    TE.chainW(({ preRequestUpdatedEnvs, envForEffectiveRequest, updatedRequest }) => {
-      const finalRequest = { ...request, ...updatedRequest };
+    TE.chainW(
+      ({ preRequestUpdatedEnvs, envForEffectiveRequest, updatedRequest }) => {
+        const finalRequest = { ...request, ...updatedRequest };
 
-      return TE.tryCatch(
-        async () => {
-          const result = await getEffectiveRESTRequest(
-            finalRequest,
-            envForEffectiveRequest,
-            collectionVariables
-          );
-          // Replace the updatedEnvs from getEffectiveRESTRequest with the one from pre-request script
-          // This preserves the global/selected separation
-          if (E.isRight(result)) {
-            return E.right({
-              ...result.right,
-              updatedEnvs: preRequestUpdatedEnvs,
-            });
-          }
-          return result;
-        },
-        (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
-      );
-    }),
+        return TE.tryCatch(
+          async () => {
+            const result = await getEffectiveRESTRequest(
+              finalRequest,
+              envForEffectiveRequest,
+              collectionVariables
+            );
+            // Replace the updatedEnvs from getEffectiveRESTRequest with the one from pre-request script
+            // This preserves the global/selected separation
+            if (E.isRight(result)) {
+              return E.right({
+                ...result.right,
+                updatedEnvs: preRequestUpdatedEnvs,
+              });
+            }
+            return result;
+          },
+          (reason) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data: reason })
+        );
+      }
+    ),
     TE.chainEitherKW((effectiveRequest) => effectiveRequest),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)
@@ -578,6 +581,58 @@ function getFinalBodyFromRequest(
     return E.right(body);
   }
 
+  // For JSON content types, parse the string body into a JavaScript object
+  // so axios can properly serialize it. This includes standard application/json
+  // and vendor-specific JSON media types (for example those with a +json suffix
+  // or subtypes whose names end with "json" or "-json").
+  if (request.body.contentType) {
+    const mimeType = request.body.contentType.split(";")[0].trim().toLowerCase();
+
+    if (
+      mimeType === "application/json" ||
+      mimeType.endsWith("+json") ||
+      mimeType.endsWith("/json") ||
+      mimeType.endsWith("-json")
+    ) {
+    const envResult = parseBodyEnvVariablesE(request.body.body, resolvedVariables);
+
+    if (E.isLeft(envResult)) {
+      return E.left(
+        error({
+          code: "PARSING_ERROR",
+          data: `${request.body.body} (${envResult.left})`,
+        })
+      );
+    }
+
+    const bodyString = envResult.right;
+
+    // If the body string is empty or null, return null
+    if (!bodyString || S.isEmpty(bodyString.trim())) {
+      return E.right(null);
+    }
+
+    // Strip comments and trailing commas from JSONC
+    // This ensures collections with comments work the same in CLI as in desktop app
+    const cleanedBody = stripComments(bodyString);
+
+    // Try to parse the JSON body
+    try {
+      const parsedBody = JSON.parse(cleanedBody);
+      return E.right(JSON.stringify(parsedBody));
+    } catch (err) {
+      // If parsing fails after stripping comments, return error to provide
+      // immediate feedback instead of sending invalid JSON to the API.
+      // Use original template string to avoid leaking secrets from env vars.
+      return E.left(
+        error({
+          code: "PARSING_ERROR",
+          data: `${request.body.body} (Invalid JSON in request body: ${err instanceof Error ? err.message : String(err)})`,
+        })
+      );
+    }
+    }
+  }
   return pipe(
     parseBodyEnvVariablesE(request.body.body, resolvedVariables),
     E.mapLeft((e) =>

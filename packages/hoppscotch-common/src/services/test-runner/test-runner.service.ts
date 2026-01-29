@@ -194,7 +194,7 @@ export class TestRunnerService extends Service {
         if (options.delay && options.delay > 0) {
           try {
             await delay(options.delay)
-          } catch (error) {
+          } catch (_error) {
             if (options.stopRef?.value) {
               tab.value.document.status = "stopped"
               throw new Error("Test execution stopped")

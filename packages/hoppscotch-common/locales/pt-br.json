@@ -727,7 +727,7 @@
     "body": "Corpo de Resposta",
     "duplicated": "Resposta duplicada",
     "duplicate_name_error": "Já existe uma resposta com o mesmo nome",
-    "filter_response_body": "Filtar corpo de resposta JSON (utiliza sintaxe JSONPath)",
+    "filter_response_body": "Filtar corpo de resposta JSON (utiliza sintaxe jq)",
     "headers": "Cabeçalhos",
     "request_headers": "Cabeçalhos de Requisição",
     "html": "HTML",

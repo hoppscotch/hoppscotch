@@ -342,7 +342,7 @@ const fetchTeamCollection = async () => {
         props.collection as TeamCollection
       )
     }
-  } catch (error) {
+  } catch (_error) {
     fullCollectionData.value = teamCollToHoppRESTColl(
       props.collection as TeamCollection
     )

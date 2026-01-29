@@ -177,7 +177,7 @@ services:
     depends_on:
       hoppscotch-db:
         condition: service_healthy
-    command: sh -c "pnpx prisma migrate deploy"
+    command: sh -c "pnpm exec prisma migrate deploy"
 
   # All the services listed below are deprecated
   # These services are kept for backward compatibility but should not be used for new deployments

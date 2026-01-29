@@ -94,7 +94,7 @@ export function getJSONOutlineAtPos(
     }
 
     return path
-  } catch (e: any) {
+  } catch (_e: any) {
     return null
   }
 }

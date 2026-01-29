@@ -188,7 +188,7 @@ describe("Digest Auth", () => {
         algorithm: "MD5",
         qop: "auth-int",
         opaque: "",
-        reqBody: '{"name": "test", "value": 123}',
+        reqBody: '{"name":"test","value":123}',
       })
 
       expect(headers[0].value).toBe(mockDigestHeader)

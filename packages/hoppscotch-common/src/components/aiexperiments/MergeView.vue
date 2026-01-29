@@ -60,7 +60,6 @@ watch(
         doc: props.contentRight.content,
         extensions: [jsonLanguage, baseTheme, basicSetup],
       },
-      // @ts-expect-error attribute mismatch
       parent: diffEditor.value,
       highlightChanges: false,
     })

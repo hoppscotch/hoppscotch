@@ -4,12 +4,14 @@
     <div class="overflow-auto">
       <HoppSmartTable
         :headings="[
-           { key: 'auth_key_hash', label: 'ID' },
-           { key: 'registered_at', label: 'Registered At' },
-         ]"
+          { key: 'auth_key_hash', label: 'ID' },
+          { key: 'registered_at', label: 'Registered At' },
+        ]"
         :list="registrations"
       >
-        <template #registered_at="{ item }">{{ formatDate(item.registered_at) }}</template>
+        <template #registered_at="{ item }">{{
+          formatDate(item.registered_at)
+        }}</template>
       </HoppSmartTable>
     </div>
     <div class="border-t border-divider p-5 flex justify-between">
@@ -18,17 +20,26 @@
   </div>
 </template>
 
-<script setup>
-import { ref, markRaw, onMounted } from "vue"
+<script setup lang="ts">
+import { ref, onMounted } from "vue"
 import { HoppButtonPrimary, HoppSmartTable } from "@hoppscotch/ui"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { invoke } from "@tauri-apps/api/core"
 import { listen } from "@tauri-apps/api/event"
 import { orderBy } from "lodash-es"
 
-const registrations = ref([])
+interface Registration {
+  auth_key_hash: string
+  registered_at: string
+}
 
-function formatDate(date) {
+interface ListRegistrationsResult {
+  registrations: Registration[]
+}
+
+const registrations = ref<Registration[]>([])
+
+function formatDate(date: string): string {
   return new Date(date).toLocaleString()
 }
 
@@ -38,7 +49,7 @@ function hideWindow() {
 }
 
 async function loadRegistrations() {
-  const result = await invoke("list_registrations", {})
+  const result = await invoke<ListRegistrationsResult>("list_registrations", {})
   registrations.value = orderBy(result.registrations, "registered_at", "desc")
 }
 

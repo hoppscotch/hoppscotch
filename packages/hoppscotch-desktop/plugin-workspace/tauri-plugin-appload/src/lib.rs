@@ -34,6 +34,7 @@ mod config;
 mod envvar;
 mod error;
 mod global;
+mod mapping;
 mod models;
 mod storage;
 mod ui;
@@ -42,6 +43,7 @@ mod vendor;
 mod verification;
 
 pub use error::{Error, Result};
+pub use mapping::HostMapper;
 pub use vendor::VendorConfig;
 
 #[cfg(mobile)]
@@ -95,7 +97,15 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
             tracing::debug!("Setting up bundle loader.");
             let bundle_loader = Arc::new(bundle::BundleLoader::new(cache.clone(), storage.clone()));
 
-            let uri_handler = Arc::new(uri::UriHandler::new(cache.clone(), tauri_config.clone()));
+            tracing::debug!("Initializing host mapper.");
+            let host_mapper = Arc::new(mapping::HostMapper::new());
+
+            tracing::debug!("Initializing uri handler.");
+            let uri_handler = Arc::new(uri::UriHandler::new(
+                cache.clone(),
+                tauri_config.clone(),
+                host_mapper.clone(),
+            ));
 
             {
                 let tauri_config = tauri_config.clone();
@@ -121,6 +131,7 @@ pub fn init<R: Runtime>(config: Config) -> TauriPlugin<R> {
             app.manage(bundle_loader);
             app.manage(cache);
             app.manage(storage);
+            app.manage(host_mapper);
             app.manage(uri_handler);
             app.manage(view);
 

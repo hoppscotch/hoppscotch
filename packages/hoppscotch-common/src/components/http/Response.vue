@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-1 flex-col">
+  <div class="relative flex flex-1 flex-col overflow-auto">
     <HttpResponseMeta
       :response="doc.response"
       :is-embed="isEmbed"

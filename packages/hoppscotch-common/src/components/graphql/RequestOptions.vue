@@ -77,14 +77,14 @@ import { platform } from "~/platform"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { GQLTabService } from "~/services/tab/graphql"
 
-const VALID_GQL_OPERATIONS = [
+const _VALID_GQL_OPERATIONS = [
   "query",
   "headers",
   "variables",
   "authorization",
 ] as const
 
-export type GQLOptionTabs = (typeof VALID_GQL_OPERATIONS)[number]
+export type GQLOptionTabs = (typeof _VALID_GQL_OPERATIONS)[number]
 
 const interceptorService = useService(KernelInterceptorService)
 

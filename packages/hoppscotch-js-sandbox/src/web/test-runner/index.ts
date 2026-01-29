@@ -1,4 +1,3 @@
-import { FaradayCage } from "faraday-cage"
 import { ConsoleEntry } from "faraday-cage/modules"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
@@ -12,6 +11,7 @@ import {
   TestResponse,
   TestResult,
 } from "~/types"
+import { acquireCage } from "~/utils/cage"
 import { preventCyclicObjects } from "~/utils/shared"
 
 import { Cookie, HoppRESTRequest } from "@hoppscotch/data"
@@ -57,7 +57,7 @@ const runPostRequestScriptWithFaradayCage = async (
   let finalCookies = cookies
   const testPromises: Promise<void>[] = []
 
-  const cage = await FaradayCage.create()
+  const cage = await acquireCage()
 
   try {
     // Create a hook object to receive the capture function from the module

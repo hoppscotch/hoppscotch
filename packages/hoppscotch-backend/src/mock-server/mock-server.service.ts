@@ -1016,22 +1016,37 @@ export class MockServerService {
   private parseExample(exampleData: any, requestId: string) {
     try {
       // Parse endpoint to extract path and query parameters
+      let endpointString = String(exampleData.endpoint ?? '');
       let path = '/';
       const queryParams: Record<string, string> = {};
 
-      if (exampleData.endpoint) {
-        const url = new URL(
-          exampleData.endpoint,
-          'http://dummy.com', // Base URL for parsing
-        );
-        // Decode the pathname to preserve Hoppscotch variable syntax (<<variable>>)
-        path = decodeURIComponent(url.pathname);
-
-        // Extract query parameters
-        url.searchParams.forEach((value, key) => {
-          queryParams[key] = value;
-        });
+      // If endpoint starts with '<<', then cut the string after '>>'
+      if (endpointString.startsWith('<<')) {
+        const endIndex = endpointString.indexOf('>>');
+        if (endIndex !== -1) {
+          endpointString = endpointString.slice(endIndex + 2);
+        }
       }
+
+      // Remove domain if present
+      endpointString = endpointString.replace(
+        /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/,
+        '',
+      );
+
+      // Use URL to parse path and query parameters
+      const url = new URL(
+        endpointString,
+        'http://dummy.com', // Base URL for parsing
+      );
+
+      // Decode the pathname to preserve Hoppscotch variable syntax (<<variable>>)
+      path = decodeURIComponent(url.pathname);
+
+      // Extract query parameters
+      url.searchParams.forEach((value, key) => {
+        queryParams[key] = value;
+      });
 
       return {
         id: exampleData.key || `${requestId}-${exampleData.name}`,

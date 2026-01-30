@@ -3,7 +3,7 @@ package bundle
 import "time"
 
 const (
-	Version = "2025.12.1"
+	Version = "2026.1.0"
 
 	DefaultMaxSize = 50 * 1024 * 1024
 

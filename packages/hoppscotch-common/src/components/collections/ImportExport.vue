@@ -253,7 +253,7 @@ const countPostmanScripts = (
       if (collection?.item && Array.isArray(collection.item)) {
         collection.item.forEach(countInItem)
       }
-    } catch (e) {
+    } catch (_e) {
       // Invalid JSON, skip
     }
   })
@@ -337,7 +337,7 @@ const HoppAllCollectionImporter: ImporterOrExporter = {
           exporter: "import_to_teams",
           platform: "rest",
         })
-      } catch (e) {
+      } catch (_e) {
         showImportFailedError()
         unsetCurrentImportSummary()
       }

@@ -6,6 +6,7 @@ import { z } from "zod"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
 import { uniqueID } from "~/helpers/utils/uniqueID"
+import { replacePMVarTemplating } from "./postman"
 
 const postmanEnvSchema = z.object({
   name: z.string(),
@@ -56,8 +57,8 @@ export const postmanEnvImporter = (contents: string[]) => {
       name,
       variables: values.map(({ key, value, type }) => ({
         key,
-        initialValue: value,
-        currentValue: value,
+        initialValue: replacePMVarTemplating(value),
+        currentValue: replacePMVarTemplating(value),
         secret: type === "secret",
       })),
     })

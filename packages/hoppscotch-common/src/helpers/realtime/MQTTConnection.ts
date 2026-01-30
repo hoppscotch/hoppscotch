@@ -195,7 +195,7 @@ export class MQTTConnection {
           message,
         },
       })
-    } catch (e) {
+    } catch (_e) {
       this.addEvent({
         time: Date.now(),
         type: "ERROR",
@@ -216,7 +216,7 @@ export class MQTTConnection {
         onFailure: this.usubFailure.bind(this, topic.name),
         qos: topic.qos,
       })
-    } catch (e) {
+    } catch (_e) {
       this.subscribing$.next(false)
       this.addEvent({
         time: Date.now(),

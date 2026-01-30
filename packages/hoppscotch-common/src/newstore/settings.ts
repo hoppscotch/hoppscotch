@@ -289,8 +289,8 @@ export function applySetting<K extends keyof SettingsDef>(
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
-      // @ts-expect-error TS is not able to understand the type semantics here
       settingKey,
       value,
     },

@@ -623,7 +623,7 @@
   "response": {
     "audio": "Audio",
     "body": "응답 본문",
-    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
+    "filter_response_body": "Filter JSON response body (uses jq syntax)",
     "headers": "헤더",
     "html": "HTML",
     "image": "이미지",

@@ -3,53 +3,27 @@ import {
   defineSandboxFunctionRaw,
 } from "faraday-cage/modules"
 import type { HoppFetchHook } from "~/types"
+import { marshalValue as sharedMarshalValue } from "./utils/vm-marshal"
 
-/**
- * Type augmentation for Headers to include iterator methods
- * These methods exist in modern Headers implementations but may not be in all type definitions
- */
+// Type augmentation for some Headers iterator methods.
 interface HeadersWithIterators extends Headers {
   entries(): IterableIterator<[string, string]>
   keys(): IterableIterator<string>
   values(): IterableIterator<string>
 }
 
-/**
- * Extended Response type with internal properties for serialization
- * These properties are added by HoppFetchHook implementations
- */
+// Response shape used for VM serialization.
 type SerializableResponse = Response & {
-  /**
-   * Raw body bytes for efficient transfer across VM boundary
-   */
   _bodyBytes: number[]
-  /**
-   * Plain object containing header key-value pairs (no methods)
-   * Used for efficient iteration in the VM without native Headers methods
-   */
   _headersData?: Record<string, string>
 }
 
-/**
- * Type for async script execution hooks
- * Although typed as (() => void) in faraday-cage, the runtime supports async functions
- */
 type AsyncScriptExecutionHook = () => Promise<void>
 
-/**
- * Interface for configuring the custom fetch module
- */
 export type CustomFetchModuleConfig = {
-  /**
-   * Custom fetch implementation to use (HoppFetchHook)
-   */
   fetchImpl?: HoppFetchHook
 }
 
-/**
- * Creates a custom fetch module that uses HoppFetchHook
- * This module wraps the HoppFetchHook and provides proper async handling
- */
 export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
   defineCageModule((ctx) => {
     const fetchImpl = config.fetchImpl || globalThis.fetch
@@ -98,33 +72,8 @@ export const customFetchModule = (config: CustomFetchModuleConfig = {}) =>
       })
     }
 
-    // Helper to marshal values to VM
-    const marshalValue = (value: any): any => {
-      if (value === null) return ctx.vm.null
-      if (value === undefined) return ctx.vm.undefined
-      if (value === true) return ctx.vm.true
-      if (value === false) return ctx.vm.false
-      if (typeof value === "string")
-        return ctx.scope.manage(ctx.vm.newString(value))
-      if (typeof value === "number")
-        return ctx.scope.manage(ctx.vm.newNumber(value))
-      if (typeof value === "object") {
-        if (Array.isArray(value)) {
-          const arr = ctx.scope.manage(ctx.vm.newArray())
-          value.forEach((item, i) => {
-            ctx.vm.setProp(arr, i, marshalValue(item))
-          })
-          return arr
-        } else {
-          const obj = ctx.scope.manage(ctx.vm.newObject())
-          for (const [k, v] of Object.entries(value)) {
-            ctx.vm.setProp(obj, k, marshalValue(v))
-          }
-          return obj
-        }
-      }
-      return ctx.vm.undefined
-    }
+    // Helper to marshal values to VM (using shared utility)
+    const marshalValue = (value: any): any => sharedMarshalValue(ctx, value)
 
     // Define fetch function in the sandbox
     const fetchFn = defineSandboxFunctionRaw(ctx, "fetch", (...args) => {

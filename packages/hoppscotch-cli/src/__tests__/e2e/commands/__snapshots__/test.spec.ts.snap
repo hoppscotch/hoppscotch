@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the default path 1`] = `
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the default path 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="76" failures="2" errors="66" time="time">
   <testsuite name="test-junit-report-export/assertions/error" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">
@@ -239,7 +239,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
 </testsuites>"
 `;
 
-exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the specified path 1`] = `
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the specified path 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="76" failures="2" errors="66" time="time">
   <testsuite name="test-junit-report-export/assertions/error" time="time" timestamp="timestamp" tests="22" failures="0" errors="22">
@@ -478,7 +478,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
 </testsuites>"
 `;
 
-exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report for a collection referring to environment variables 1`] = `
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report for a collection referring to environment variables 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="12" failures="0" errors="0" time="time">
   <testsuite name="Test environment variables in request body/test-request" time="time" timestamp="timestamp" tests="12" failures="0" errors="0">
@@ -498,7 +498,7 @@ exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_i
 </testsuites>"
 `;
 
-exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report for a collection with authorization/headers set at the collection level 1`] = `
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report for a collection with authorization/headers set at the collection level 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="12" failures="0" errors="0" time="time">
   <testsuite name="CollectionA/RequestA" time="time" timestamp="timestamp" tests="2" failures="0" errors="0">

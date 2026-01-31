@@ -37,7 +37,8 @@ export type EnvironmentVariable = InferredEntity<
   typeof Environment
 >["variables"][number]
 
-const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
+// Matches <<variableName>> - using [^<>]+ prevents ReDoS attacks
+const REGEX_ENV_VAR = /<<([^<>]+)>>/g
 
 /**
  * How much times can we expand environment variables

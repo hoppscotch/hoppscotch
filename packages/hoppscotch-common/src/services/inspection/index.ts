@@ -181,11 +181,18 @@ export class InspectionService extends Service {
         maxWait: 2000,
       })
 
-      const inspectorRefs = computed(() =>
-        Array.from(this.inspectors.values()).map((x) =>
-          x.getInspections(debouncedReq, debouncedRes)
+      const inspectorRefs = computed(() => {
+        if (debouncedReq.value === null) return []
+
+        return Array.from(this.inspectors.values()).map((inspector) =>
+          inspector.getInspections(
+            debouncedReq as Readonly<
+              Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>
+            >,
+            debouncedRes
+          )
         )
-      )
+      })
 
       const activeInspections = computed(() =>
         inspectorRefs.value.flatMap((x) => x?.value ?? [])

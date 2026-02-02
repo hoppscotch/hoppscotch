@@ -32,6 +32,7 @@ function isValidURL(url: string) {
     // If the string is percent-encoded (eg: contains "%"), try decoding
     // and validate the decoded value as a URL as well. decodeURIComponent
     // can throw for malformed input, so guard it.
+    if (!url.includes("%")) return false
     try {
       const decoded = decodeURIComponent(url)
       // Try URL constructor on decoded value

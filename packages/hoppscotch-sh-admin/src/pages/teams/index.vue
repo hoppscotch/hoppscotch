@@ -20,7 +20,6 @@
           v-else
           :headings="headings"
           :list="filteredTeamsList"
-          :loading="fetching"
           @onRowClicked="goToTeamDetails"
         >
           <template #extension>

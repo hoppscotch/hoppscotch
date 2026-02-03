@@ -1028,6 +1028,33 @@ data2: {"type":"test2","typeId":"123"}`,
       responses: {},
     }),
   },
+  // Test for ANSI-C quoting ($'...') with escape sequences - issue #5728
+  // The $'...' syntax should be converted to a regular quoted string
+  // Simple test: $'hello' becomes "hello"
+  {
+    command: `curl 'https://api.example.com/test' \
+      -H 'content-type: text/plain' \
+      --data-raw $'simple test data'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://api.example.com/test",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "text/plain",
+        body: "simple test data",
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

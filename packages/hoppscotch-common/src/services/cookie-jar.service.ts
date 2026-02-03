@@ -1,7 +1,9 @@
 import { Service } from "dioc"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { parseString as setCookieParse } from "set-cookie-parser-es"
 import { Cookie } from "@hoppscotch/data"
+
+const COOKIE_JAR_STORAGE_KEY = "hoppscotch_cookie_jar"
 
 export class CookieJarService extends Service {
   public static readonly ID = "COOKIE_JAR_SERVICE"
@@ -16,10 +18,57 @@ export class CookieJarService extends Service {
   constructor() {
     super()
     console.log('[CookieJar] Service instance created')
+    this.loadCookiesFromStorage()
   }
 
   override onServiceInit() {
     console.log('[CookieJar] Service initialized, jar size:', this.cookieJar.value.size)
+    
+    // Watch for changes and persist to storage
+    watch(
+      () => this.cookieJar.value,
+      (newJar) => {
+        this.saveCookiesToStorage(newJar)
+      },
+      { deep: true }
+    )
+  }
+
+  /**
+   * Load cookies from localStorage/platform storage on initialization
+   */
+  private loadCookiesFromStorage() {
+    try {
+      const stored = localStorage.getItem(COOKIE_JAR_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const cookieMap = new Map<string, Cookie[]>()
+        
+        // Reconstruct the Map from the stored array
+        for (const [domain, cookies] of parsed) {
+          cookieMap.set(domain, cookies)
+        }
+        
+        this.cookieJar.value = cookieMap
+        console.log('[CookieJar] Loaded cookies from storage. Domains:', cookieMap.size)
+      }
+    } catch (error) {
+      console.error('[CookieJar] Error loading cookies from storage:', error)
+    }
+  }
+
+  /**
+   * Save cookies to localStorage/platform storage
+   */
+  private saveCookiesToStorage(cookieJar: Map<string, Cookie[]>) {
+    try {
+      // Convert Map to array for JSON serialization
+      const cookieArray = Array.from(cookieJar.entries())
+      localStorage.setItem(COOKIE_JAR_STORAGE_KEY, JSON.stringify(cookieArray))
+      console.log('[CookieJar] Saved cookies to storage. Domains:', cookieJar.size)
+    } catch (error) {
+      console.error('[CookieJar] Error saving cookies to storage:', error)
+    }
   }
 
   public parseSetCookieString(setCookieString: string) {

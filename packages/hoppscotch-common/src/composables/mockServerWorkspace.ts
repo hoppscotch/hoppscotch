@@ -1,8 +1,8 @@
-import { watch } from "vue"
 import { useService } from "dioc/vue"
-import { WorkspaceService } from "~/services/workspace.service"
-import { setMockServers, loadMockServers } from "~/newstore/mockServers"
+import { watch } from "vue"
+import { loadMockServers, setMockServers } from "~/newstore/mockServers"
 import { platform } from "~/platform"
+import { WorkspaceService } from "~/services/workspace.service"
 import { useMockServerVisibility } from "./mockServerVisibility"
 import { useReadonlyStream } from "./stream"
 
@@ -26,11 +26,17 @@ export function useMockServerWorkspaceSync() {
   }
 
   // Load mock servers when authentication or visibility changes
-  watch([currentUser, isMockServerVisible], ([user, visible]) => {
-    if (user && visible) {
-      loadMockServers().catch(() => setMockServers([]))
+  watch(
+    [currentUser, isMockServerVisible],
+    ([user, visible]) => {
+      if (user && visible) {
+        loadMockServers().catch(() => setMockServers([]))
+      }
+    },
+    {
+      immediate: true,
     }
-  })
+  )
 
   // Watch for workspace changes and clear mock servers immediately
   watch(

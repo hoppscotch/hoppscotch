@@ -14,7 +14,7 @@ import type {
 import { getI18n } from "~/modules/i18n"
 import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 
-import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
+import InterceptorsErrorPlaceholder from "~/components/settings/InterceptorErrorPlaceholder.vue"
 
 export class BrowserKernelInterceptorService
   extends Service

@@ -292,14 +292,14 @@ describe("PersistenceService", () => {
 
       it(`shows an error and sets the entry as a backup in localStorage if "${vuexKey}" read from localStorage doesn't match the schema`, async () => {
         // Invalid shape for `vuex`
-        // `postwoman.settings.CURRENT_INTERCEPTOR_ID` -> `string`
+        // `postwoman.settings.CURRENT_KERNEL_INTERCEPTOR_ID` -> should be `string`, not `number`
         const vuexData = {
           ...VUEX_DATA_MOCK,
           postwoman: {
             ...VUEX_DATA_MOCK.postwoman,
             settings: {
               ...VUEX_DATA_MOCK.postwoman.settings,
-              CURRENT_INTERCEPTOR_ID: 1234,
+              CURRENT_KERNEL_INTERCEPTOR_ID: 1234,
             },
           },
         }

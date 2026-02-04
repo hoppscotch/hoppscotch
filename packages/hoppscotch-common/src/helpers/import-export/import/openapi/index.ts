@@ -249,8 +249,8 @@ const parseOpenAPIV3Responses = (
             generatedExample = generateV3Example(mediaObject as any)
           }
 
-          // Only stringify if we got a valid example
-          if (generatedExample !== undefined && generatedExample !== null) {
+          // Only stringify if we got a valid example (null is valid in OpenAPI v3.1)
+          if (generatedExample !== undefined) {
             stringifiedBody =
               typeof generatedExample === "string"
                 ? generatedExample

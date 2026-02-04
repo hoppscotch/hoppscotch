@@ -204,11 +204,15 @@ const parseOpenAPIV3Responses = (
     ]
 
     let stringifiedBody = ""
+    // Track whether an explicit example was found (even if empty string)
+    // to avoid overwriting valid empty examples with schema-generated content
+    let hasExplicitExample = false
 
     if (mediaObject) {
       // Priority: example > examples > generate from schema
       if (mediaObject.example !== undefined) {
         // Direct example on media object
+        hasExplicitExample = true
         try {
           stringifiedBody =
             typeof mediaObject.example === "string"
@@ -235,6 +239,7 @@ const parseOpenAPIV3Responses = (
               ? firstExample.value
               : firstExample
 
+          hasExplicitExample = true
           try {
             stringifiedBody =
               typeof exampleValue === "string"
@@ -246,8 +251,8 @@ const parseOpenAPIV3Responses = (
         }
       }
 
-      // Generate from schema if no valid example was found
-      if (!stringifiedBody && mediaObject.schema) {
+      // Only stringify if an example was generated (undefined indicates failure, null and other values are valid)
+      if (!hasExplicitExample && mediaObject.schema) {
         // Generate example from schema as fallback
         try {
           let generatedExample: string | number | boolean | null | object

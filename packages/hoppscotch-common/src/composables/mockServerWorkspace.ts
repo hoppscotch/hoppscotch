@@ -1,9 +1,10 @@
-import { onMounted, watch } from "vue"
+import { watch } from "vue"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 import { setMockServers, loadMockServers } from "~/newstore/mockServers"
 import { platform } from "~/platform"
 import { useMockServerVisibility } from "./mockServerVisibility"
+import { useReadonlyStream } from "./stream"
 
 /**
  * Composable to handle mock server state when workspace changes
@@ -13,19 +14,29 @@ import { useMockServerVisibility } from "./mockServerVisibility"
 export function useMockServerWorkspaceSync() {
   const workspaceService = useService(WorkspaceService)
   const { isMockServerVisible } = useMockServerVisibility()
-  const isAuthenticated = !!platform.auth.getCurrentUser()
 
-  // Initial load of mock servers for the current workspace
-  onMounted(() => {
-    if (!isAuthenticated || !isMockServerVisible.value) return
+  const currentUser = useReadonlyStream(
+    platform.auth.getCurrentUserStream(),
+    platform.auth.getCurrentUser()
+  )
+
+  const loadServers = () => {
+    if (!currentUser.value || !isMockServerVisible.value) return
     loadMockServers().catch(() => setMockServers([]))
+  }
+
+  // Load mock servers when authentication or visibility changes
+  watch([currentUser, isMockServerVisible], ([user, visible]) => {
+    if (user && visible) {
+      loadMockServers().catch(() => setMockServers([]))
+    }
   })
 
   // Watch for workspace changes and clear mock servers immediately
   watch(
     () => workspaceService.currentWorkspace.value,
     (newWorkspace, oldWorkspace) => {
-      if (!isAuthenticated || !isMockServerVisible.value) return
+      if (!currentUser.value || !isMockServerVisible.value) return
 
       // Clear mock servers when workspace changes to prevent stale data
       if (
@@ -34,16 +45,10 @@ export function useMockServerWorkspaceSync() {
           oldWorkspace?.type === "team" &&
           newWorkspace.teamID !== oldWorkspace.teamID)
       ) {
-        // Clear mock servers immediately to prevent showing stale data
         setMockServers([])
-
-        // If user is authenticated, reload mock servers for the new workspace
-        if (platform.auth.getCurrentUser()) {
-          // fire-and-forget; loadMockServers handles errors internally
-          loadMockServers().catch(() => setMockServers([]))
-        }
+        loadServers()
       }
     },
-    { deep: true, immediate: false }
+    { deep: true }
   )
 }

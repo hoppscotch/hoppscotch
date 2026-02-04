@@ -242,14 +242,15 @@ const parseOpenAPIV3Responses = (
       } else if (mediaObject.schema) {
         // Generate example from schema as fallback
         try {
-          const docAny = doc as any
-          const isV31 = docAny.openapi && docAny.openapi.startsWith("3.1")
-
-          let generatedExample: any
-          if (isV31) {
-            generatedExample = generateV31Example(mediaObject as any)
+          let generatedExample: string | number | boolean | null | object
+          if (isOpenAPIV31Document(doc)) {
+            generatedExample = generateV31Example(
+              mediaObject as OpenAPIV31.MediaTypeObject
+            )
           } else {
-            generatedExample = generateV3Example(mediaObject as any)
+            generatedExample = generateV3Example(
+              mediaObject as OpenAPIV3.MediaTypeObject
+            )
           }
 
           // Only stringify if we got a valid example (null is valid in OpenAPI v3.1)
@@ -505,48 +506,45 @@ const parseOpenAPIV3Body = (
   // For other content types (JSON, XML, etc.), try to generate sample from schema
   if (media.schema) {
     try {
-      const docAny = doc as any
-      const isV31 = docAny.openapi && docAny.openapi.startsWith("3.1")
-
-      let sampleBody: any
-      if (isV31) {
-        sampleBody = generateV31Example(media as any)
+      let sampleBody: string | number | boolean | null | object
+      if (isOpenAPIV31Document(doc)) {
+        sampleBody = generateV31Example(media as OpenAPIV31.MediaTypeObject)
       } else {
-        sampleBody = generateV3Example(media as any)
+        sampleBody = generateV3Example(media as OpenAPIV3.MediaTypeObject)
       }
 
       return {
-        contentType: contentType as any,
+        contentType,
         body:
           typeof sampleBody === "string"
             ? sampleBody
             : JSON.stringify(sampleBody, null, 2),
-      }
+      } as HoppRESTReqBody
     } catch (_e) {
       // If we can't generate a sample, check for examples
       if (media.example !== undefined) {
         return {
-          contentType: contentType as any,
+          contentType,
           body:
             typeof media.example === "string"
               ? media.example
               : JSON.stringify(media.example, null, 2),
-        }
+        } as HoppRESTReqBody
       }
       // Fallback to empty body
-      return { contentType: contentType as any, body: "" }
+      return { contentType, body: "" } as HoppRESTReqBody
     }
   }
 
   // Check for examples if no schema
   if (media.example !== undefined) {
     return {
-      contentType: contentType as any,
+      contentType,
       body:
         typeof media.example === "string"
           ? media.example
           : JSON.stringify(media.example, null, 2),
-    }
+    } as HoppRESTReqBody
   }
 
   // Check for examples array (OpenAPI v3 supports multiple examples)
@@ -559,16 +557,16 @@ const parseOpenAPIV3Body = (
       "value" in firstExample ? firstExample.value : firstExample
 
     return {
-      contentType: contentType as any,
+      contentType,
       body:
         typeof exampleValue === "string"
           ? exampleValue
           : JSON.stringify(exampleValue, null, 2),
-    }
+    } as HoppRESTReqBody
   }
 
   // Fallback to empty body for textual content types
-  return { contentType: contentType as any, body: "" }
+  return { contentType, body: "" } as HoppRESTReqBody
 }
 
 const isOpenAPIV3Operation = (
@@ -578,6 +576,13 @@ const isOpenAPIV3Operation = (
   objectHasProperty(doc, "openapi") &&
   typeof doc.openapi === "string" &&
   doc.openapi.startsWith("3.")
+
+const isOpenAPIV31Document = (
+  doc: OpenAPI.Document
+): doc is OpenAPIV31.Document =>
+  objectHasProperty(doc, "openapi") &&
+  typeof doc.openapi === "string" &&
+  doc.openapi.startsWith("3.1")
 
 const parseOpenAPIBody = (
   doc: OpenAPI.Document,

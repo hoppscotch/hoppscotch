@@ -225,21 +225,29 @@ const parseOpenAPIV3Responses = (
         const firstExampleKey = Object.keys(mediaObject.examples)[0]
         const firstExample = mediaObject.examples[firstExampleKey]
 
-        // Handle both Example Object and Reference Object
-        const exampleValue =
-          firstExample && "value" in firstExample
-            ? firstExample.value
-            : firstExample
+        // Skip if this is an unresolved reference
+        if (firstExample && "$ref" in firstExample) {
+          // Reference wasn't dereferenced, fall through to schema generation
+        } else {
+          // Handle Example Object (with value property) or direct value
+          const exampleValue =
+            firstExample && "value" in firstExample
+              ? firstExample.value
+              : firstExample
 
-        try {
-          stringifiedBody =
-            typeof exampleValue === "string"
-              ? exampleValue
-              : JSON.stringify(exampleValue, null, 2)
-        } catch (_e) {
-          stringifiedBody = ""
+          try {
+            stringifiedBody =
+              typeof exampleValue === "string"
+                ? exampleValue
+                : JSON.stringify(exampleValue, null, 2)
+          } catch (_e) {
+            stringifiedBody = ""
+          }
         }
-      } else if (mediaObject.schema) {
+      }
+
+      // Generate from schema if no valid example was found
+      if (!stringifiedBody && mediaObject.schema) {
         // Generate example from schema as fallback
         try {
           let generatedExample: string | number | boolean | null | object
@@ -552,7 +560,13 @@ const parseOpenAPIV3Body = (
     const firstExampleKey = Object.keys(media.examples)[0]
     const firstExample = media.examples[firstExampleKey]
 
-    // Handle both Example Object and Reference Object
+    // Skip if this is an unresolved reference
+    if (firstExample && "$ref" in firstExample) {
+      // Reference wasn't dereferenced, return empty body
+      return { contentType, body: "" } as HoppRESTReqBody
+    }
+
+    // Handle Example Object (with value property) or direct value
     const exampleValue =
       "value" in firstExample ? firstExample.value : firstExample
 

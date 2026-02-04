@@ -322,8 +322,12 @@ export function performSettingsDataMigrations(data: any): SettingsDef {
     delete source["PROXY_ENABLED"]
   }
 
-  // Remove legacy interceptor ID if present
-  if (source["CURRENT_INTERCEPTOR_ID"]) {
+  // Remove legacy interceptor ID if present,
+  // NOTE: These are not for `kernel` interceptors,
+  // those now don't participate in global settings,
+  // rather each has its own `store.ts` that can be
+  // controlled independently.
+  if (has(source, "CURRENT_INTERCEPTOR_ID")) {
     delete source["CURRENT_INTERCEPTOR_ID"]
   }
 

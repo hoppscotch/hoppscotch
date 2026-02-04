@@ -33,7 +33,10 @@ import { IMPORTER_INVALID_FILE_FORMAT } from ".."
 import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
-import { generateRequestBodyExampleFromOpenAPIV2Body } from "./example-generators/v2"
+import {
+  generateRequestBodyExampleFromOpenAPIV2Body,
+  generateRequestBodyExampleFromOpenAPIV2BodySchema as generateV2ExampleFromSchemaObject,
+} from "./example-generators/v2"
 import { generateRequestBodyExampleFromMediaObject as generateV3Example } from "./example-generators/v3"
 import { generateRequestBodyExampleFromMediaObject as generateV31Example } from "./example-generators/v31"
 
@@ -323,21 +326,14 @@ const parseOpenAPIV2Responses = (
     } else if (response.schema) {
       // Generate example from schema as fallback
       try {
-        // Create a mock operation object to use the existing V2 example generator
-        const mockOp: OpenAPIV2.OperationObject = {
-          parameters: [
-            {
-              in: "body",
-              name: "body",
-              schema: response.schema,
-            } as OpenAPIV2.InBodyParameterObject,
-          ],
-          responses: {},
-        }
-        const generatedExample =
-          generateRequestBodyExampleFromOpenAPIV2Body(mockOp)
-        if (generatedExample) {
-          stringifiedBody = generatedExample
+        const generatedExample = generateV2ExampleFromSchemaObject(
+          response.schema
+        )
+        if (generatedExample !== undefined) {
+          stringifiedBody =
+            typeof generatedExample === "string"
+              ? generatedExample
+              : JSON.stringify(generatedExample, null, 2)
         }
       } catch (_e) {
         // If generation fails, leave body empty

@@ -32,7 +32,7 @@
 
     <div class="flex flex-1 flex-col">
       <div
-        v-if="isLoading"
+        v-if="isFetchingServers"
         class="flex flex-1 flex-col items-center justify-center p-4"
       >
         <HoppSmartSpinner class="mb-4" />
@@ -244,7 +244,7 @@ const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 const { mockServers } = useMockServerStatus()
-const isLoading = useReadonlyStream(loading$, false)
+const isFetchingServers = useReadonlyStream(loading$, false)
 const loading = ref(false)
 const showEditModal = ref(false)
 const showLogsModal = ref(false)
@@ -357,7 +357,7 @@ const copyToClipboardHandler = async (text: string) => {
     setTimeout(() => {
       copyIcon.value = IconCopy
     }, 1000)
-  } catch (error) {
+  } catch (_error) {
     toast.error(t("error.copy_failed"))
   }
 }

@@ -191,7 +191,7 @@ export function loadMockServers(skip?: number, take?: number) {
         }
       )
     )()
-  } catch (error) {
+  } catch (_error) {
     // Fallback to user mock servers if workspace service is not available
     setLoading(true)
     return pipe(

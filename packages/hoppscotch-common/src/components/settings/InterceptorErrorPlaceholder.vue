@@ -59,36 +59,31 @@ import IconChrome from "~icons/brands/chrome"
 import IconFirefox from "~icons/brands/firefox"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import { useI18n } from "@composables/i18n"
-import { ExtensionInterceptorService } from "~/platform/std/interceptors/extension"
+import { useColorMode } from "@composables/theming"
 import { useService } from "dioc/vue"
 import { computed } from "vue"
-import { InterceptorService } from "~/services/interceptor.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { ExtensionKernelInterceptorService } from "~/platform/std/kernel-interceptors/extension"
 import { platform } from "~/platform"
-import { useColorMode } from "~/composables/theming"
 
 const colorMode = useColorMode()
 const t = useI18n()
 
-const interceptorService = useService(InterceptorService)
-const extensionService = useService(ExtensionInterceptorService)
+const kernelInterceptorService = useService(KernelInterceptorService)
+const extensionService = useService(ExtensionKernelInterceptorService)
 
 const hasChromeExtInstalled = extensionService.chromeExtensionInstalled
 const hasFirefoxExtInstalled = extensionService.firefoxExtensionInstalled
 
 const extensionEnabled = computed({
   get() {
-    return (
-      interceptorService.currentInterceptorID.value ===
-      extensionService.interceptorID
-    )
+    return kernelInterceptorService.current.value?.id === extensionService.id
   },
   set(active) {
     if (active) {
-      interceptorService.currentInterceptorID.value =
-        extensionService.interceptorID
+      kernelInterceptorService.setActive(extensionService.id)
     } else {
-      interceptorService.currentInterceptorID.value =
-        platform.interceptors.default
+      kernelInterceptorService.setActive(platform.kernelInterceptors.default)
     }
   },
 })

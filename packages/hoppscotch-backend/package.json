@@ -1,6 +1,6 @@
 {
   "name": "hoppscotch-backend",
-  "version": "2026.1.0",
+  "version": "2026.1.1",
   "description": "",
   "author": "",
   "private": true,
@@ -65,7 +65,7 @@
     "handlebars": "4.7.8",
     "io-ts": "2.2.22",
     "morgan": "1.10.1",
-    "nodemailer": "7.0.12",
+    "nodemailer": "8.0.0",
     "passport": "0.7.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",

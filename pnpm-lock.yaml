@@ -14,7 +14,7 @@ overrides:
   glob@<11.1.0: 11.1.0
   hono@4.10.6: 4.11.4
   jws@<3.2.3: 3.2.3
-  nodemailer@<7.0.12: 7.0.12
+  nodemailer@<7.0.12: 8.0.0
   qs@6.14.0: 6.14.1
   subscriptions-transport-ws>ws: 7.5.10
   vue: 3.5.27
@@ -178,7 +178,7 @@ importers:
         version: 1.1.2(@apollo/server@5.2.0(graphql@16.12.0))(express@5.2.1)
       '@nestjs-modules/mailer':
         specifier: 2.0.2
-        version: 2.0.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(nodemailer@7.0.12)(terser@5.44.1)(typescript@5.9.3)
+        version: 2.0.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(nodemailer@8.0.0)(terser@5.44.1)(typescript@5.9.3)
       '@nestjs/apollo':
         specifier: 13.2.3
         version: 13.2.3(@apollo/server@5.2.0(graphql@16.12.0))(@as-integrations/express5@1.1.2(@apollo/server@5.2.0(graphql@16.12.0))(express@5.2.1))(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(@nestjs/graphql@13.2.3(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(class-transformer@0.5.1)(class-validator@0.14.3)(graphql@16.12.0)(reflect-metadata@0.2.2))(graphql@16.12.0)
@@ -273,8 +273,8 @@ importers:
         specifier: 1.10.1
         version: 1.10.1
       nodemailer:
-        specifier: 7.0.12
-        version: 7.0.12
+        specifier: 8.0.0
+        version: 8.0.0
       passport:
         specifier: 0.7.0
         version: 0.7.0
@@ -4981,7 +4981,7 @@ packages:
     peerDependencies:
       '@nestjs/common': '>=7.0.9'
       '@nestjs/core': '>=7.0.9'
-      nodemailer: 7.0.12
+      nodemailer: 8.0.0
 
   '@nestjs/apollo@13.2.3':
     resolution: {integrity: sha512-dzayHaGSS6XUFHPj6YMb+ixsphZiwjdez3TWmL6wiRxBGTSc4uGkHNrz3qv7Qb5tq/4VwrqP7/qoti+XZsc0mA==}
@@ -10582,8 +10582,8 @@ packages:
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
-  nodemailer@7.0.12:
-    resolution: {integrity: sha512-H+rnK5bX2Pi/6ms3sN4/jRQvYSMltV6vqup/0SFOrxYYY/qoNvhXPlYq3e+Pm9RFJRwrMGbMIwi81M4dxpomhA==}
+  nodemailer@8.0.0:
+    resolution: {integrity: sha512-xvVJf/f0bzmNpnRIbhCp/IKxaHgJ6QynvUbLXzzMRPG3LDQr5oXkYuw4uDFyFYs8cge8agwwrJAXZsd4hhMquw==}
     engines: {node: '>=6.0.0'}
 
   normalize-package-data@2.5.0:
@@ -18295,13 +18295,13 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@nestjs-modules/mailer@2.0.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(nodemailer@7.0.12)(terser@5.44.1)(typescript@5.9.3)':
+  '@nestjs-modules/mailer@2.0.2(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.12)(nodemailer@8.0.0)(terser@5.44.1)(typescript@5.9.3)':
     dependencies:
       '@css-inline/css-inline': 0.14.1
       '@nestjs/common': 11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.12(@nestjs/common@11.1.12(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.12)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       glob: 11.1.0
-      nodemailer: 7.0.12
+      nodemailer: 8.0.0
     optionalDependencies:
       '@types/ejs': 3.1.5
       '@types/mjml': 4.7.4
@@ -24364,7 +24364,7 @@ snapshots:
       iconv-lite: 0.7.0
       libmime: 5.3.7
       linkify-it: 5.0.0
-      nodemailer: 7.0.12
+      nodemailer: 8.0.0
       punycode.js: 2.3.1
       tlds: 1.261.0
     optional: true
@@ -25177,7 +25177,7 @@ snapshots:
 
   node-releases@2.0.27: {}
 
-  nodemailer@7.0.12: {}
+  nodemailer@8.0.0: {}
 
   normalize-package-data@2.5.0:
     dependencies:
@@ -25999,7 +25999,7 @@ snapshots:
       fixpack: 4.0.0
       get-port: 5.1.1
       mailparser: 3.9.0
-      nodemailer: 7.0.12
+      nodemailer: 8.0.0
       open: 7.4.2
       p-event: 4.2.0
       p-wait-for: 3.2.0

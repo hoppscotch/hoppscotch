@@ -230,6 +230,22 @@ function handleKeyDown(ev: KeyboardEvent) {
     return
   }
 
+  // Special handling for shift-/ (support menu) - don't trigger in editors or inputs
+  if (binding === "shift-/") {
+    const target = ev.target
+
+    if (!isDOMElement(target)) return
+
+    // Let editors and inputs handle it normally (user is just typing "/")
+    if (
+      isCodeMirrorEditor(target) ||
+      isMonacoEditor(target) ||
+      isTypableElement(target)
+    ) {
+      return
+    }
+  }
+
   // If no action is bound, do nothing
   if (!boundAction) return
 

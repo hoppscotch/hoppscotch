@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { InfraConfig } from './infra-config.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfig as DBInfraConfig } from 'src/generated/prisma/client';
@@ -26,6 +26,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   ServiceStatus,
   buildDerivedEnv,
+  disconnectSharedPrismaInstance,
   getDefaultInfraConfigs,
   getEncryptionRequiredInfraConfigEntries,
   getMissingInfraConfigEntries,
@@ -45,7 +46,7 @@ import * as crypto from 'crypto';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 
 @Injectable()
-export class InfraConfigService implements OnModuleInit {
+export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
@@ -71,6 +72,9 @@ export class InfraConfigService implements OnModuleInit {
 
   async onModuleInit() {
     await this.initializeInfraConfigTable();
+  }
+  async onModuleDestroy() {
+    await disconnectSharedPrismaInstance();
   }
 
   /**

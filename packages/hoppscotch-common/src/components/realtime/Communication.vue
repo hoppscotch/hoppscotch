@@ -62,7 +62,7 @@
           </template>
         </tippy>
       </span>
-      <div class="flex">
+      <div class="flex-1 w-full">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t(

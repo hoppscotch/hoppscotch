@@ -16,14 +16,32 @@
           <HoppSmartSpinner />
         </div>
 
-        <div v-else-if="error">{{ t('teams.load_list_error') }}</div>
-
         <HoppSmartTable
-          v-else-if="teamsList.length"
+          v-else
           :headings="headings"
-          :list="teamsList"
+          :list="filteredTeamsList"
           @onRowClicked="goToTeamDetails"
         >
+          <template #extension>
+            <div class="flex w-full items-center bg-primary">
+              <icon-lucide-search class="mx-3 text-xs" />
+              <HoppSmartInput
+                v-model="searchQuery"
+                styles="w-full bg-primary py-1"
+                input-styles="h-full border-none"
+                :placeholder="t('teams.search_placeholder')"
+              />
+            </div>
+          </template>
+
+          <template #empty-state>
+            <td colspan="4">
+              <span class="flex justify-center p-3">
+                {{ error ? t('teams.load_list_error') : (searchQuery ? t('teams.no_search_results') : t('teams.no_teams')) }}
+              </span>
+            </td>
+          </template>
+
           <template #head>
             <th class="px-6 py-2">{{ t('teams.id') }}</th>
             <th class="px-6 py-2">{{ t('teams.name') }}</th>
@@ -89,10 +107,6 @@
           </template>
         </HoppSmartTable>
 
-        <div v-else class="px-2">
-          {{ t('teams.no_teams') }}
-        </div>
-
         <div
           v-if="hasNextPage && teamsList.length >= teamsPerPage"
           class="flex items-center w-28 px-3 py-2 mt-5 mx-auto font-semibold text-secondaryDark bg-divider hover:bg-dividerDark rounded-3xl cursor-pointer"
@@ -142,6 +156,9 @@ import {
 const t = useI18n();
 const toast = useToast();
 
+// Search functionality
+const searchQuery = ref('');
+
 // Get Users List
 const { data } = useQuery({ query: MetricsDocument, variables: {} });
 const usersPerPage = computed(() => data.value?.infra.usersCount || 10000);
@@ -155,6 +172,20 @@ const { list: usersList } = usePagedQuery(
 );
 
 const allUsersEmail = computed(() => usersList.value.map((user) => user.email));
+
+// Filter teams based on search query
+const filteredTeamsList = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return teamsList.value;
+  }
+
+  const query = searchQuery.value.toLowerCase().trim();
+  return teamsList.value.filter((team) => {
+    const teamName = team.name?.toLowerCase() || '';
+    const teamId = team.id.toLowerCase();
+    return teamName.includes(query) || teamId.includes(query);
+  });
+});
 
 // Get Paginated Results of all the teams in the infra
 const teamsPerPage = 20;

@@ -411,7 +411,7 @@ export class TeamSearchService extends Service {
 
       const inheritedAuth = parentInheritedData.auth
 
-      if (inheritedAuth.authType !== "inherit") {
+      if (inheritedAuth && inheritedAuth.authType !== "inherit") {
         return E.right({
           parentID: collectionID,
           parentName: collection.title,

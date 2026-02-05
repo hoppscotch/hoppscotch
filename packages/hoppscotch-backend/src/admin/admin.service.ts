@@ -57,8 +57,8 @@ export class AdminService {
    * @deprecated use fetchUsersV2 instead
    */
   async fetchUsers(cursorID: string, take: number) {
-    const allUsers = await this.userService.fetchAllUsers(cursorID, take);
-    return allUsers;
+    return this.userService.fetchAllUsers(cursorID, take);
+   
   }
 
   /**
@@ -71,7 +71,7 @@ export class AdminService {
     searchString: string,
     paginationOption: OffsetPaginationArgs,
   ) {
-  return  await this.userService.fetchAllUsersV2(
+  return   this.userService.fetchAllUsersV2(
       searchString,
       paginationOption,
     );
@@ -225,7 +225,7 @@ export class AdminService {
    * @returns an array of teams
    */
   async fetchAllTeams(cursorID: string, take: number) {
-   return await this.teamService.fetchAllTeams(cursorID, take);
+   return  this.teamService.fetchAllTeams(cursorID, take);
     
   }
 
@@ -236,7 +236,7 @@ export class AdminService {
    */
   async membersCountInTeam(teamID: string) {
     
-     return  await this.teamService.getCountOfMembersInTeam(teamID);
+     return   this.teamService.getCountOfMembersInTeam(teamID);
     
   }
 
@@ -258,7 +258,7 @@ export class AdminService {
    */
   async requestCountInTeam(teamID: string) {
  
- return  await this.teamRequestService.totalRequestsInATeam(teamID);
+ return  this.teamRequestService.totalRequestsInATeam(teamID);
 
     
   }
@@ -269,7 +269,7 @@ export class AdminService {
    * @returns a count of environments in a team
    */
   async environmentCountInTeam(teamID: string) {
-   return await this.teamEnvironmentsService.totalEnvsInTeam(teamID);
+   return  this.teamEnvironmentsService.totalEnvsInTeam(teamID);
    
   }
 
@@ -280,7 +280,7 @@ export class AdminService {
    */
   async pendingInvitationCountInTeam(teamID: string) {
     
-      return await this.teamInvitationService.getTeamInvitations(teamID);
+      return  this.teamInvitationService.getTeamInvitations(teamID);
 
  
   }
@@ -452,7 +452,7 @@ export class AdminService {
 
     // step 1: fetch all users
     const allUsersList = await this.userService.findUsersByIds(userUIDs);
-    if (allUsersList.length === 0) return E.left(USERS_NOT_FOUND);
+    if (!allUsersList.length) return E.left(USERS_NOT_FOUND);
 
     // step 2: admin user can not be deleted without removing admin status/role
     allUsersList.forEach((user) => {
@@ -567,8 +567,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getUsersCount() {
-    const usersCount = this.userService.getUsersCount();
-    return usersCount;
+    return this.userService.getUsersCount();
+    
   }
 
   /**
@@ -576,8 +576,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamsCount() {
-    const teamsCount = this.teamService.getTeamsCount();
-    return teamsCount;
+    return this.teamService.getTeamsCount();
+    
   }
 
   /**
@@ -585,9 +585,9 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamCollectionsCount() {
-    const teamCollectionCount =
-      this.teamCollectionService.getTeamCollectionsCount();
-    return teamCollectionCount;
+   
+   return   this.teamCollectionService.getTeamCollectionsCount();
+   
   }
 
   /**
@@ -595,8 +595,8 @@ export class AdminService {
    * @returns number of users in the org
    */
   async getTeamRequestsCount() {
-    const teamRequestCount = this.teamRequestService.getTeamRequestsCount();
-    return teamRequestCount;
+    return this.teamRequestService.getTeamRequestsCount();
+    
   }
 
   /**

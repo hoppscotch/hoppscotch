@@ -143,14 +143,19 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
+const validateCurlInput = (text: string): boolean => {
+  // Check if input is empty or contains only whitespace
+  if (!text.trim()) {
+    toast.error(`${t("error.empty_curl")}`)
+    return false
+  }
+  return true
+}
+
 const handleImportInNewTab = () => {
   const text = curl.value
 
-  // Don't proceed if input is empty or whitespace only
-  if (!text.trim()) {
-    toast.error(`${t("error.empty_curl")}`)
-    return
-  }
+  if (!validateCurlInput(text)) return
 
   try {
     const req = parseCurlToHoppRESTReq(text)
@@ -176,11 +181,7 @@ const handleImportInNewTab = () => {
 const handleImportInActiveTab = () => {
   const text = curl.value
 
-  // Don't proceed if input is empty or whitespace only
-  if (!text.trim()) {
-    toast.error(`${t("error.empty_curl")}`)
-    return
-  }
+  if (!validateCurlInput(text)) return
 
   try {
     const req = parseCurlToHoppRESTReq(text)

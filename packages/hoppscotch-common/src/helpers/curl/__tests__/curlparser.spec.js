@@ -1029,12 +1029,11 @@ data2: {"type":"test2","typeId":"123"}`,
     }),
   },
   // Test for ANSI-C quoting ($'...') with escape sequences - issue #5728
-  // The $'...' syntax should be converted to a regular quoted string
-  // Simple test: $'hello' becomes "hello"
+  // The $'...' syntax should evaluate escape sequences like \n, \t, etc.
   {
     command: `curl 'https://api.example.com/test' \
       -H 'content-type: text/plain' \
-      --data-raw $'simple test data'`,
+      --data-raw $'line1\\nline2\\ttabbed'`,
     response: makeRESTRequest({
       method: "POST",
       name: "Untitled",
@@ -1045,7 +1044,34 @@ data2: {"type":"test2","typeId":"123"}`,
       },
       body: {
         contentType: "text/plain",
-        body: "simple test data",
+        // The body should contain actual newline and tab characters
+        body: "line1\nline2\ttabbed",
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+    }),
+  },
+  // Test ANSI-C quoting with hex and octal escapes
+  {
+    command: `curl 'https://api.example.com/hex' \
+      -H 'content-type: text/plain' \
+      --data-raw $'A\\x42C\\101'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://api.example.com/hex",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "text/plain",
+        // \x42 = 'B', \101 (octal) = 'A' -> "ABCA"
+        body: "ABCA",
       },
       params: [],
       headers: [],

@@ -17,10 +17,10 @@ const replaceables: { [key: string]: string } = {
 }
 
 /**
- * ANSI-C escape sequence mappings as per bash specification.
+ * Subset of ANSI-C escape sequence mappings inspired by Bash's ANSI-C quoting.
  * See: https://www.gnu.org/software/bash/manual/bash.html#ANSI_002dC-Quoting
  *
- * Note: \\ must be processed carefully to avoid double-processing.
+ * Note: This does not implement all escape forms supported by Bash (e.g. \cX, \UHHHHHHHH).
  * We use a single-pass regex to handle all escapes correctly.
  */
 const ansiCEscapeMap: Record<string, string> = {
@@ -88,7 +88,7 @@ const paperCuts = flow(
   S.replace(/\n/g, " "),
   // Process ANSI-C quoted strings ($'...') with proper escape handling
   processAnsiCQuotedStrings,
-  // Handle $"..." (which in bash just does variable expansion, treat as regular quote)
+  // Handle $"..." (which in bash is a locale-translated string) by normalizing to a regular double-quoted string
   S.replace(/\$"/g, '"'),
   S.trim
 )

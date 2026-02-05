@@ -26,17 +26,9 @@ export function useMockServerWorkspaceSync() {
   }
 
   // Load mock servers when authentication or visibility changes
-  watch(
-    [currentUser, isMockServerVisible],
-    ([user, visible]) => {
-      if (user && visible) {
-        loadMockServers().catch(() => setMockServers([]))
-      }
-    },
-    {
-      immediate: true,
-    }
-  )
+  watch([currentUser, isMockServerVisible], loadServers, {
+    immediate: true,
+  })
 
   // Watch for workspace changes and clear mock servers immediately
   watch(

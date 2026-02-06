@@ -56,13 +56,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -93,7 +93,7 @@ jobs:
           p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -142,7 +142,7 @@ jobs:
             fi
           done
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-macos-x86_64
           path: artifacts/*
@@ -156,13 +156,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -193,7 +193,7 @@ jobs:
           p12-password: ${{ secrets.HOPPSCOTCH_APPLE_CERTIFICATE_PASSWORD }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -242,7 +242,7 @@ jobs:
             fi
           done
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-macos-arm64
           path: artifacts/*
@@ -256,13 +256,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -300,7 +300,7 @@ jobs:
           chmod +x trunk
           sudo mv trunk /usr/local/bin/
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -334,7 +334,7 @@ jobs:
             fi
           done
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-linux-deb
           path: artifacts/*
@@ -348,13 +348,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -392,7 +392,7 @@ jobs:
           chmod +x trunk
           sudo mv trunk /usr/local/bin/
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -427,7 +427,7 @@ jobs:
             fi
           done
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-linux-appimage
           path: artifacts/*
@@ -441,13 +441,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -475,7 +475,7 @@ jobs:
           cd packages/hoppscotch-agent
           cat './src-tauri/tauri.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -516,7 +516,7 @@ jobs:
             $hash.Hash + " " + $_.Name | Out-File -Encoding UTF8 "shas/$($_.Name).sha256"
           }
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-windows-installer
           path: artifacts/*
@@ -530,13 +530,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout hoppscotch/hoppscotch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           repository: hoppscotch/hoppscotch
           ref: ${{ inputs.branch }}
           token: ${{ secrets.HOPPSCOTCH_GITHUB_CHECKOUT_TOKEN }}
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Setup pnpm
@@ -564,7 +564,7 @@ jobs:
           cd packages/hoppscotch-agent
           cat './src-tauri/tauri.portable.conf.json' | jq '.bundle .windows += { "signCommand": env.WINDOWS_SIGN_COMMAND}' > './src-tauri/temp_portable.json' && mv './src-tauri/temp_portable.json' './src-tauri/tauri.portable.conf.json'
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -617,7 +617,7 @@ jobs:
             $hash.Hash + " " + $_.Name | Out-File -Encoding UTF8 "shas/$($_.Name).sha256"
           }
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Hoppscotch_Agent-windows-portable
           path: artifacts/*
@@ -628,7 +628,7 @@ jobs:
     if: ${{ inputs.build_macos_x64 && inputs.build_macos_arm64 && inputs.build_linux_appimage && inputs.build_windows_installer }}
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: List downloaded artifacts
@@ -664,7 +664,7 @@ jobs:
           }
           EOF
       - name: Upload manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: update-manifest
           path: artifacts/hoppscotch-agent-update.json

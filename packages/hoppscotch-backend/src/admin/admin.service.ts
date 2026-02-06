@@ -125,7 +125,7 @@ export class AdminService {
         inviteeEmail,
       },
     });
-    const {adminEmail,adminUid,inviteeEmail, invitedOn}= dbInvitedUser
+    const {adminEmail, adminUid , inviteeEmail, invitedOn}= dbInvitedUser
 
     const invitedUser = <InvitedUser>{
       adminEmail,

@@ -16,6 +16,34 @@ import { preProcessRelayRequest } from "~/helpers/functional/process-request"
 
 import InterceptorsErrorPlaceholder from "~/components/interceptors/ErrorPlaceholder.vue"
 
+/**
+ * Detects if an error is likely a CORS error
+ * CORS errors typically:
+ * - Have messages like "Failed to fetch", "NetworkError", or mention CORS
+ * - Are TypeError instances (in browsers)
+ * - Don't have a response (error.response is undefined for axios errors)
+ */
+function isCorsError(error: any): boolean {
+  const message = error?.message || ""
+  const lowerMessage = message.toLowerCase()
+
+  // Check for common CORS error patterns
+  return (
+    error?.kind === "network" &&
+    (lowerMessage.includes("failed to fetch") ||
+      lowerMessage.includes("cors") ||
+      lowerMessage.includes("cross-origin") ||
+      lowerMessage.includes("access to fetch") ||
+      lowerMessage.includes("networkerror") ||
+      // CORS errors in browsers typically show as TypeError with no response
+      (error?.cause?.name === "TypeError" && !error?.cause?.response) ||
+      // Check if error message is empty or generic, which often happens with CORS
+      lowerMessage === "network error" ||
+      // Axios errors without a response often indicate CORS
+      (error?.cause?.code === "ERR_NETWORK" && !error?.cause?.response))
+  )
+}
+
 export class BrowserKernelInterceptorService
   extends Service
   implements KernelInterceptor
@@ -62,8 +90,16 @@ export class BrowserKernelInterceptorService
         pipe(
           either,
           E.mapLeft((error): KernelInterceptorError => {
+            // Check if this is a CORS error for network errors
+            const isCors = isCorsError(error)
+
             const humanMessage = {
               heading: (t: ReturnType<typeof getI18n>) => {
+                // Special case: CORS errors should show CORS-specific heading
+                if (isCors) {
+                  return t("error.cors.heading")
+                }
+
                 switch (error.kind) {
                   case "network":
                     return t("error.network.heading")
@@ -86,6 +122,21 @@ export class BrowserKernelInterceptorService
                 }
               },
               description: (t: ReturnType<typeof getI18n>) => {
+                // Special case: CORS errors should show CORS-specific description
+                if (isCors) {
+                  return [
+                    t("error.cors.description"),
+                    "",
+                    t("error.cors.explanation"),
+                    "",
+                    t("error.cors.solutions.heading"),
+                    `• ${t("error.cors.solutions.option1")}`,
+                    `• ${t("error.cors.solutions.option2")}`,
+                    `• ${t("error.cors.solutions.option3")}`,
+                    `• ${t("error.cors.solutions.option4")}`,
+                  ].join("\n")
+                }
+
                 switch (error.kind) {
                   case "network":
                     return t("error.network.description", {

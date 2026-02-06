@@ -358,6 +358,8 @@
     "sign_out": "Sign out",
     "something_went_wrong": "Something went wrong",
     "team_name_too_short": "Workspace name should be atleast 6 characters long!!",
+    "update_email_failure": "Failed to update email!!",
+    "update_email_success": "Email updated successfully!!",
     "user_already_invited": "Failed to send invite. User is already invited!!",
     "user_not_found": "User not found in the infra!!",
     "users_to_admin_success": "Selected users are elevated to admin status!!",
@@ -473,6 +475,7 @@
     "show_more": "Show more",
     "uid": "UID",
     "unnamed": "(Unnamed User)",
+    "update": "Update",
     "user_not_found": "User not found in the infra!!",
     "users": "Users",
     "valid_email": "Please enter a valid email address"

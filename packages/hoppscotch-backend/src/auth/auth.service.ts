@@ -308,12 +308,15 @@ export class AuthService {
     const tokens = await this.generateAuthTokens(
       passwordlessTokens.value.userUid,
     );
-    const {message,statusCode}= tokens.left
-    if (E.isLeft(tokens))
-      return E.left({
+    
+    if (E.isLeft(tokens)){
+      const {message,statusCode}= tokens.left
+       return E.left({
         message,
         statusCode
       });
+    }
+     
 
     const deletedPasswordlessToken =
       await this.deleteMagicLinkVerificationTokens(passwordlessTokens.value);
@@ -356,12 +359,15 @@ export class AuthService {
 
     // if tokens match, generate new pair of auth tokens
     const generatedAuthTokens = await this.generateAuthTokens(user.uid);
-    const {message,statusCode} =generatedAuthTokens.left 
-    if (E.isLeft(generatedAuthTokens))
+    
+    if (E.isLeft(generatedAuthTokens)){
+      const {message,statusCode} =generatedAuthTokens.left 
       return E.left({
         message,
         statusCode
       });
+    }
+      
 
     return E.right(generatedAuthTokens.right);
   }

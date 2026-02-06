@@ -4,6 +4,8 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getI18n } from "~/modules/i18n"
 import { RESTTabService } from "~/services/tab/rest"
 import IconCopyPlus from "~icons/lucide/copy-plus"
+import IconLock from "~icons/lucide/lock"
+import IconUnlock from "~icons/lucide/unlock"
 import {
   ContextMenu,
   ContextMenuResult,
@@ -25,7 +27,24 @@ function isValidURL(url: string) {
   } catch (_error) {
     // Fallback to regular expression check
     const pattern = /^(https?:\/\/)?([\w.-]+)(\.[\w.-]+)+([/?].*)?$/
-    return pattern.test(url)
+    if (pattern.test(url)) return true
+
+    // If the string is percent-encoded (eg: contains "%"), try decoding
+    // and validate the decoded value as a URL as well. decodeURIComponent
+    // can throw for malformed input, so guard it.
+    if (!url.includes("%")) return false
+    try {
+      const decoded = decodeURIComponent(url)
+      // Try URL constructor on decoded value
+      try {
+        new URL(decoded)
+        return true
+      } catch {
+        return pattern.test(decoded)
+      }
+    } catch {
+      return false
+    }
   }
 }
 
@@ -61,6 +80,31 @@ export class URLMenuService extends Service implements ContextMenu {
     })
   }
 
+  /**
+   * Replaces the selected text in the current endpoint with encoded/decoded version
+   * @param selectedText The selected text to replace
+   * @param replacement The replacement text (encoded or decoded)
+   */
+  private replaceSelectedText(selectedText: string, replacement: string) {
+    const currentTab = this.restTab.currentActiveTab.value
+
+    if (!currentTab || currentTab.document.type !== "request") {
+      return
+    }
+
+    const endpoint = currentTab.document.request.endpoint
+
+    // Find and replace the selected text in the endpoint
+    const index = endpoint.indexOf(selectedText)
+    if (index === -1) return
+
+    const newEndpoint =
+      endpoint.slice(0, index) +
+      replacement +
+      endpoint.slice(index + selectedText.length)
+    currentTab.document.request.endpoint = newEndpoint
+  }
+
   getMenuFor(text: Readonly<string>): ContextMenuState {
     const results = ref<ContextMenuResult[]>([])
 
@@ -75,6 +119,37 @@ export class URLMenuService extends Service implements ContextMenu {
           icon: markRaw(IconCopyPlus),
           action: () => {
             this.openNewTab(text)
+          },
+        },
+        {
+          id: "encode-url",
+          text: {
+            type: "text",
+            text: this.t("context_menu.encode_uri_component"),
+          },
+          icon: markRaw(IconLock),
+          action: () => {
+            const encoded = encodeURIComponent(text)
+            this.replaceSelectedText(text, encoded)
+          },
+        },
+        {
+          id: "decode-url",
+          text: {
+            type: "text",
+            text: this.t("context_menu.decode_uri_component"),
+          },
+          icon: markRaw(IconUnlock),
+          action: () => {
+            try {
+              const decoded = decodeURIComponent(text)
+              this.replaceSelectedText(text, decoded)
+            } catch (error) {
+              console.warn(
+                "[URLMenuService] Failed to decode URI component from context menu action.",
+                { text, error }
+              )
+            }
           },
         },
       ]

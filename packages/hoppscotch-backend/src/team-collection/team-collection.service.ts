@@ -238,15 +238,18 @@ export class TeamCollectionService {
             ),
           );
 
-          const promises = queryList.map((query) =>
-            tx.teamCollection.create({
+          // Create collections sequentially to avoid FK constraint violations
+          // when nested folders have requests that reference parent collection IDs
+          teamCollections = [];
+          for (const query of queryList) {
+            const collection = await tx.teamCollection.create({
               data: {
                 ...query,
                 parent: parentID ? { connect: { id: parentID } } : undefined,
               },
-            }),
-          );
-          teamCollections = await Promise.all(promises);
+            });
+            teamCollections.push(collection);
+          }
         } catch (error) {
           throw new ConflictException(error);
         }

@@ -3,7 +3,9 @@
   persist_config off
 }
 
-:{$HOPP_AIO_ALTERNATE_PORT:80} {
+# Caddy listens on PORT (whatever Render assigns dynamically)
+# Backend uses HOPP_BACKEND_PORT (set via aio_run.mjs, defaults to 3170)
+:{$PORT:80} {
 	# Serve the `selfhost-web` SPA by default
 	root * /site/selfhost-web
 	file_server
@@ -17,18 +19,19 @@
 	}
 
 	# Handle requests under `/backend*` path
+	# Backend on HOPP_BACKEND_PORT (aio_run.mjs overrides PORT for backend process)
 	handle_path /backend* {
 		@mock {
 			header_regexp host Host ^[^.]+\.mock\..*$
 		}
-		
+
 		handle @mock {
 			rewrite * /mock{uri}
-			reverse_proxy localhost:8080
+			reverse_proxy localhost:{$HOPP_BACKEND_PORT:3170}
 		}
-		
+
 		handle {
-			reverse_proxy localhost:8080
+			reverse_proxy localhost:{$HOPP_BACKEND_PORT:3170}
 		}
 	}
 

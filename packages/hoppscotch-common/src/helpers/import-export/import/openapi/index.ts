@@ -30,7 +30,6 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import { IMPORTER_INVALID_FILE_FORMAT } from ".."
-import { cloneDeep } from "lodash-es"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import { isNumeric } from "~/helpers/utils/number"
 import {
@@ -1039,7 +1038,7 @@ const convertPathToHoppReqs = (
         }
       } = {
         request: makeRESTRequest({
-          name: info.operationId ?? info.summary ?? "Untitled Request",
+          name: info.summary ?? info.operationId ?? "Untitled Request",
           description: info.description ?? null,
           method: method.toUpperCase(),
           endpoint,
@@ -1067,7 +1066,7 @@ const convertPathToHoppReqs = (
             doc,
             info,
             makeHoppRESTResponseOriginalRequest({
-              name: info.operationId ?? info.summary ?? "Untitled Request",
+              name: info.summary ?? info.operationId ?? "Untitled Request",
               auth: parseOpenAPIAuth(doc, info),
               body: parseOpenAPIBody(doc, info),
               endpoint,
@@ -1097,6 +1096,79 @@ const convertPathToHoppReqs = (
     RA.toArray
   )
 
+/**
+ * Helper to build nested folder structure from path segments
+ */
+type PathNode = {
+  folders: Map<string, PathNode>
+  requests: HoppRESTRequest[]
+}
+
+const createPathNode = (): PathNode => ({
+  folders: new Map(),
+  requests: [],
+})
+
+const buildPathBasedFolders = (
+  pathsWithRequests: Array<{ path: string; request: HoppRESTRequest }>
+): HoppCollection[] => {
+  const root = createPathNode()
+
+  // Build the tree structure
+  pathsWithRequests.forEach(({ path, request }) => {
+    // Remove leading/trailing slashes and split into segments
+    const segments = path
+      .replace(/^\/|\/$/g, "")
+      .split("/")
+      .filter((s) => s.length > 0)
+
+    let currentNode = root
+
+    // Navigate/create the folder structure
+    segments.forEach((segment) => {
+      if (!currentNode.folders.has(segment)) {
+        currentNode.folders.set(segment, createPathNode())
+      }
+      currentNode = currentNode.folders.get(segment)!
+    })
+
+    // Add request to the deepest folder
+    currentNode.requests.push(request)
+  })
+
+  // Convert tree to HoppCollection folders
+  const convertNodeToCollection = (
+    node: PathNode,
+    name: string
+  ): HoppCollection => {
+    const subfolders: HoppCollection[] = []
+
+    node.folders.forEach((childNode, childName) => {
+      subfolders.push(convertNodeToCollection(childNode, childName))
+    })
+
+    return makeCollection({
+      name,
+      folders: subfolders,
+      requests: node.requests,
+      auth: { authType: "inherit", authActive: true },
+      headers: [],
+      variables: [],
+      description: "",
+    })
+  }
+
+  // Convert root level folders to nested subfolders within a single structure
+  const subfolders: HoppCollection[] = []
+  root.folders.forEach((childNode, childName) => {
+    subfolders.push(convertNodeToCollection(childNode, childName))
+  })
+
+  // Return nested folders (not separate root collections)
+  // The parent collection will be created in convertOpenApiDocsToHopp
+  return subfolders
+}
+
 const convertOpenApiDocsToHopp = (
   docs: OpenAPI.Document[]
 ): TE.TaskEither<string, HoppCollection[]> => {
@@ -1114,56 +1186,29 @@ const convertOpenApiDocsToHopp = (
     const name = doc.info.title
     const description = doc.info.description ?? null
 
-    // Extract tag descriptions from OpenAPI spec
-    const tagDescriptions: Record<string, string> = {}
-    if ("tags" in doc && Array.isArray(doc.tags)) {
-      doc.tags.forEach((tag: any) => {
-        if (tag.name && tag.description) {
-          tagDescriptions[tag.name] = tag.description
-        }
-      })
-    }
-
-    const paths = Object.entries(doc.paths ?? {})
+    const pathsWithData = Object.entries(doc.paths ?? {})
       .map(([pathName, pathObj]) =>
         convertPathToHoppReqs(doc, pathName, pathObj)
       )
       .flat()
 
-    const requestsByTags: Record<string, Array<HoppRESTRequest>> = {}
-    const requestsWithoutTags: Array<HoppRESTRequest> = []
+    // Group requests by their original path for folder structure
+    const pathsWithRequests = pathsWithData.map(({ request }) => ({
+      path: request.endpoint
+        .replace(/^https?:\/\/[^/]+/, "") // Remove base URL
+        .replace(/<<[^>]+>>/g, (match: string) => match.slice(2, -2)), // Convert <<var>> back to {var} temporarily for path parsing
+      request,
+    }))
 
-    paths.forEach(({ metadata, request }) => {
-      const tags = metadata.tags
+    // Build nested folder structure based on URL paths
+    const folders = buildPathBasedFolders(pathsWithRequests)
 
-      if (tags.length === 0) {
-        requestsWithoutTags.push(request)
-        return
-      }
-
-      for (const tag of tags) {
-        if (!requestsByTags[tag]) {
-          requestsByTags[tag] = []
-        }
-
-        requestsByTags[tag].push(cloneDeep(request))
-      }
-    })
-
+    // Create single root collection containing all nested folders
+    // This ensures proper parent-child relationship during import
     return makeCollection({
       name,
-      folders: Object.entries(requestsByTags).map(([name, paths]) =>
-        makeCollection({
-          name,
-          description: tagDescriptions[name] ?? null,
-          requests: paths,
-          folders: [],
-          auth: { authType: "inherit", authActive: true },
-          headers: [],
-          variables: [],
-        })
-      ),
-      requests: requestsWithoutTags,
+      folders, // Nested folders work fine when part of single collection
+      requests: [], // Root-level requests (if any from buildPathBasedFolders)
       auth: { authType: "inherit", authActive: true },
       headers: [],
       variables: [],

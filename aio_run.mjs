@@ -5,8 +5,10 @@ import { execSync, spawn } from "child_process"
 import fs from "fs"
 import process from "process"
 
-function runChildProcessWithPrefix(command, args, prefix) {
-  const childProcess = spawn(command, args);
+function runChildProcessWithPrefix(command, args, prefix, envOverrides = {}) {
+  const childProcess = spawn(command, args, {
+    env: { ...process.env, ...envOverrides }
+  });
 
   childProcess.stdout.on('data', (data) => {
     const output = data.toString().trim().split('\n');
@@ -50,9 +52,12 @@ execSync(`npx import-meta-env -x build.env -e build.env -p "/site/**/*"`)
 
 fs.rmSync("build.env")
 
+// Backend uses HOPP_BACKEND_PORT (defaults 3170), Caddy uses PORT from Render
+const backendPort = process.env.HOPP_BACKEND_PORT || '3170'
+
 const caddyFileName = process.env.ENABLE_SUBPATH_BASED_ACCESS === 'true' ? 'aio-subpath-access.Caddyfile' : 'aio-multiport-setup.Caddyfile'
 const caddyProcess = runChildProcessWithPrefix("caddy", ["run", "--config", `/etc/caddy/${caddyFileName}`, "--adapter", "caddyfile"], "App/Admin Dashboard Caddy")
-const backendProcess = runChildProcessWithPrefix("node", ["/dist/backend/dist/src/main.js"], "Backend Server")
+const backendProcess = runChildProcessWithPrefix("node", ["/dist/backend/dist/src/main.js"], "Backend Server", { PORT: backendPort })
 const webappProcess = runChildProcessWithPrefix("webapp-server", [], "Webapp Server")
 
 caddyProcess.on("exit", (code) => {

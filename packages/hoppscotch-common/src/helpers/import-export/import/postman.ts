@@ -224,10 +224,13 @@ const getHoppResponses = (
   return Object.fromEntries(
     pipe(
       responses.all(),
-      A.map((response) => {
+      A.mapWithIndex((index, response) => {
+        // Provide fallback name for examples without names
+        const responseName = response.name || `Example ${index + 1}`
+
         const res = {
-          name: response.name,
-          status: response.status,
+          name: responseName,
+          status: response.status || "",
           body: getHoppResponseBody(response.body),
           headers: getHoppReqHeaders(response.headers),
           code: response.code,
@@ -242,16 +245,19 @@ const getHoppResponses = (
               response.originalRequest?.headers ?? null
             ),
             method: response.originalRequest?.method ?? "",
-            name: response.originalRequest?.name ?? response.name,
+            name:
+              (response.originalRequest?.name &&
+                response.originalRequest.name.trim()) ||
+              responseName,
             params: getHoppReqParams(
-              response.originalRequest?.url.query ?? null
+              response.originalRequest?.url?.query ?? null
             ),
             requestVariables: getHoppReqVariables(
-              response.originalRequest?.url.variables ?? null
+              response.originalRequest?.url?.variables ?? null
             ),
           }),
         }
-        return [response.name, res]
+        return [responseName, res]
       })
     )
   )

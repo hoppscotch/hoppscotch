@@ -600,6 +600,10 @@ describe('updatePublishedDoc', () => {
 
   test('should successfully update a published document with valid inputs', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    // autoSync switching from true → false requires exporting collection snapshot
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right({} as any),
+    );
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...userPublishedDoc,
       title: updateArgs.title,
@@ -661,6 +665,10 @@ describe('updatePublishedDoc', () => {
   test('should successfully update team published document when user has OWNER role', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
     mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
+    // autoSync switching from true → false requires exporting collection snapshot
+    mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
+      E.right({} as any),
+    );
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...teamPublishedDoc,
       title: updateArgs.title,
@@ -678,6 +686,10 @@ describe('updatePublishedDoc', () => {
   test('should successfully update team published document when user has EDITOR role', async () => {
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
     mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
+    // autoSync switching from true → false requires exporting collection snapshot
+    mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
+      E.right({} as any),
+    );
     mockPrisma.publishedDocs.update.mockResolvedValueOnce({
       ...teamPublishedDoc,
       title: updateArgs.title,
@@ -982,104 +994,6 @@ describe('checkPublishedDocsAccess', () => {
   });
 });
 
-describe('getPublishedDocByIDPublic', () => {
-  test('should return collection data when autoSync is enabled for user workspace', async () => {
-    const collectionData = {
-      id: 'collection_1',
-      name: 'Test Collection',
-      folders: [],
-      requests: [],
-    };
-
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
-      ...userPublishedDoc,
-      autoSync: true,
-    });
-    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
-      E.right(collectionData as any),
-    );
-
-    const result = await publishedDocsService.getPublishedDocByIDPublic(
-      userPublishedDoc.id,
-    );
-
-    expect(result).toMatchObject(
-      E.right({
-        ...userPublishedDocCasted,
-        documentTree: JSON.stringify(collectionData),
-      }),
-    );
-  });
-
-  test('should return collection data when autoSync is enabled for team workspace', async () => {
-    const collectionData = {
-      id: 'team_collection_1',
-      name: 'Team Test Collection',
-      folders: [],
-      requests: [],
-    };
-
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
-      ...teamPublishedDoc,
-      autoSync: true,
-    });
-    mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
-      E.right(collectionData as any),
-    );
-
-    const result = await publishedDocsService.getPublishedDocByIDPublic(
-      teamPublishedDoc.id,
-    );
-
-    expect(result).toMatchObject(
-      E.right({
-        ...teamPublishedDocCasted,
-        documentTree: JSON.stringify(collectionData),
-      }),
-    );
-  });
-
-  test('should throw PUBLISHED_DOCS_NOT_FOUND when document ID is invalid', async () => {
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
-
-    const result =
-      await publishedDocsService.getPublishedDocByIDPublic('invalid_id');
-    expect(result).toEqualLeft(PUBLISHED_DOCS_NOT_FOUND);
-  });
-
-  test('should call exportUserCollectionToJSONObject with correct parameters', async () => {
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
-      ...userPublishedDoc,
-      autoSync: true,
-    });
-    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
-      E.right({} as any),
-    );
-
-    await publishedDocsService.getPublishedDocByIDPublic(userPublishedDoc.id);
-
-    expect(
-      mockUserCollectionService.exportUserCollectionToJSONObject,
-    ).toHaveBeenCalledWith(user.uid, 'collection_1');
-  });
-
-  test('should call exportCollectionToJSONObject with correct parameters', async () => {
-    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
-      ...teamPublishedDoc,
-      autoSync: true,
-    });
-    mockTeamCollectionService.exportCollectionToJSONObject.mockResolvedValueOnce(
-      E.right({} as any),
-    );
-
-    await publishedDocsService.getPublishedDocByIDPublic(teamPublishedDoc.id);
-
-    expect(
-      mockTeamCollectionService.exportCollectionToJSONObject,
-    ).toHaveBeenCalledWith('team_1', 'team_collection_1');
-  });
-});
-
 describe('getPublishedDocsVersions', () => {
   test('should return all versions for a given slug ordered by autoSync and createdOn', async () => {
     const mockDbRecords = [
@@ -1246,6 +1160,7 @@ describe('getPublishedDocBySlugPublic', () => {
   });
 
   test('should throw PUBLISHED_DOCS_NOT_FOUND when slug and version combination not found', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([]);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
 
     const result = await publishedDocsService.getPublishedDocBySlugPublic(
@@ -1257,6 +1172,15 @@ describe('getPublishedDocBySlugPublic', () => {
   });
 
   test('should use unique constraint slug_version for lookup', async () => {
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      {
+        id: 'v1',
+        slug: 'test-slug',
+        version: '2.0.0',
+        title: 'V1',
+        autoSync: true,
+      },
+    ] as any);
     mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(null);
 
     await publishedDocsService.getPublishedDocBySlugPublic(

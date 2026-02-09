@@ -19,13 +19,12 @@ import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.gua
 export class PublishedDocsController {
   constructor(private readonly publishedDocsService: PublishedDocsService) {}
 
-  @Get(':docId')
+  @Get(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Get published documentation',
+    summary: 'Get latest published documentation by slug',
     description:
-      'Returns published collection documentation in API-doc JSON format for unauthenticated users',
-    deprecated: true,
+      'Returns the latest version of published collection documentation by slug for unauthenticated users.',
   })
   @ApiResponse({
     status: 200,
@@ -36,14 +35,17 @@ export class PublishedDocsController {
     status: 404,
     description: 'Published documentation not found',
   })
-  async getPublishedDocs(@Param('docId') docId: string) {
-    const result =
-      await this.publishedDocsService.getPublishedDocByIDPublic(docId);
+  async getPublishedDocsBySlugLatest(@Param('slug') slug: string) {
+    const result = await this.publishedDocsService.getPublishedDocBySlugPublic(
+      slug,
+      null,
+    );
 
     if (E.isLeft(result)) {
       throwHTTPErr({ message: result.left, statusCode: HttpStatus.NOT_FOUND });
     }
 
+    console.log(result.right);
     return result.right;
   }
 
@@ -52,7 +54,7 @@ export class PublishedDocsController {
   @ApiOperation({
     summary: 'Get published documentation by slug and version',
     description:
-      'Returns published collection documentation by slug and version for unauthenticated users',
+      'Returns published collection documentation by slug and version for unauthenticated users.',
   })
   @ApiResponse({
     status: 200,
@@ -76,6 +78,7 @@ export class PublishedDocsController {
       throwHTTPErr({ message: result.left, statusCode: HttpStatus.NOT_FOUND });
     }
 
+    console.log(result.right);
     return result.right;
   }
 }

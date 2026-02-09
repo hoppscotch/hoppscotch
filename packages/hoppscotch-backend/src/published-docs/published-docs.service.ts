@@ -28,6 +28,7 @@ import { TeamCollectionService } from 'src/team-collection/team-collection.servi
 import { ConfigService } from '@nestjs/config';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { CollectionFolder } from 'src/types/CollectionFolder';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PublishedDocsService {
@@ -265,77 +266,28 @@ export class PublishedDocsService {
   }
 
   /**
-   * Get a published document by ID for public access (unauthenticated)
-   * @param id - The ID of the published document
-   */
-  async getPublishedDocByIDPublic(
-    id: string,
-  ): Promise<E.Either<string, PublishedDocs>> {
-    const publishedDocs = await this.prisma.publishedDocs.findUnique({
-      where: { id },
-    });
-    if (!publishedDocs) return E.left(PUBLISHED_DOCS_NOT_FOUND);
-
-    // if autoSync is enabled, fetch from the collection directly
-    if (publishedDocs.autoSync) {
-      const collectionResult =
-        publishedDocs.workspaceType === WorkspaceType.USER
-          ? await this.userCollectionService.exportUserCollectionToJSONObject(
-              publishedDocs.creatorUid,
-              publishedDocs.collectionID,
-            )
-          : await this.teamCollectionService.exportCollectionToJSONObject(
-              publishedDocs.workspaceID,
-              publishedDocs.collectionID,
-            );
-
-      if (E.isLeft(collectionResult)) {
-        // Delete the published doc if its collection is missing
-        const isCollectionNotFound =
-          collectionResult.left === USER_COLL_NOT_FOUND ||
-          collectionResult.left === TEAM_INVALID_COLL_ID;
-
-        if (isCollectionNotFound) {
-          await this.prisma.publishedDocs.delete({
-            where: { id: publishedDocs.id },
-          });
-        }
-
-        return E.left(collectionResult.left);
-      }
-
-      return E.right(
-        this.cast({
-          ...publishedDocs,
-          documentTree: collectionResult.right as any,
-        }),
-      );
-    }
-
-    return E.right(this.cast(publishedDocs));
-  }
-
-  /**
    * Get a published document by slug and version for public access (unauthenticated)
    * @param slug - The slug of the published document
    * @param version - The version of the published document
    */
   async getPublishedDocBySlugPublic(
     slug: string,
-    version: string,
+    version: string | null,
   ): Promise<E.Either<string, PublishedDocs>> {
+    const allVersions = await this.getPublishedDocsVersions(slug);
+    if (E.isLeft(allVersions)) return E.left(allVersions.left);
+
     const publishedDocs = await this.prisma.publishedDocs.findUnique({
       where: {
         slug_version: {
           slug,
-          version,
+          version: version ? version : allVersions.right[0].version, // If version is not specified, get the latest version
         },
       },
     });
     if (!publishedDocs) return E.left(PUBLISHED_DOCS_NOT_FOUND);
 
-    const allVersions = await this.getPublishedDocsVersions(slug);
-    if (E.isLeft(allVersions)) return E.left(allVersions.left);
+    let docToReturn = publishedDocs;
 
     // if autoSync is enabled, fetch from the collection directly
     if (publishedDocs.autoSync) {
@@ -357,7 +309,7 @@ export class PublishedDocsService {
           collectionResult.left === TEAM_INVALID_COLL_ID;
 
         if (isCollectionNotFound) {
-          await this.prisma.publishedDocs.delete({
+          this.prisma.publishedDocs.delete({
             where: { id: publishedDocs.id },
           });
         }
@@ -365,16 +317,19 @@ export class PublishedDocsService {
         return E.left(collectionResult.left);
       }
 
-      return E.right(
-        this.cast(
-          { ...publishedDocs, documentTree: collectionResult.right as any },
-          allVersions.right,
-        ),
-      );
+      docToReturn = {
+        ...publishedDocs,
+        documentTree: collectionResult.right as any,
+      };
     }
 
-    // When autoSync is false, use the stored documentTree
-    return E.right(this.cast(publishedDocs, allVersions.right));
+    return E.right(
+      plainToInstance(
+        PublishedDocs,
+        this.cast(docToReturn, allVersions.right),
+        { excludeExtraneousValues: true, enableCircularCheck: true },
+      ),
+    );
   }
 
   /**
@@ -618,6 +573,32 @@ export class PublishedDocsService {
         if (E.isLeft(metadata)) return E.left(metadata.left);
       }
 
+      // Determine documentTree based on autoSync value
+      let documentTree: CollectionFolder | null | undefined = undefined; // undefined = no change
+
+      if (args.autoSync === true) {
+        // autoSync enabled → clear documentTree (will be generated dynamically)
+        documentTree = null;
+      } else if (args.autoSync === false && publishedDocs.autoSync === true) {
+        // Switching from autoSync true → false: generate a snapshot of the collection
+        const collectionResult =
+          publishedDocs.workspaceType === WorkspaceType.USER
+            ? await this.userCollectionService.exportUserCollectionToJSONObject(
+                publishedDocs.creatorUid,
+                publishedDocs.collectionID,
+              )
+            : await this.teamCollectionService.exportCollectionToJSONObject(
+                publishedDocs.workspaceID,
+                publishedDocs.collectionID,
+              );
+
+        if (E.isLeft(collectionResult)) {
+          return E.left(collectionResult.left);
+        }
+
+        documentTree = collectionResult.right;
+      }
+
       // Update published document
       const updatedPublishedDoc = await this.prisma.publishedDocs.update({
         where: { id },
@@ -625,6 +606,8 @@ export class PublishedDocsService {
           title: args.title,
           version: args.version,
           autoSync: args.autoSync,
+          documentTree:
+            documentTree !== undefined ? (documentTree as any) : undefined,
           metadata:
             metadata && E.isRight(metadata) ? metadata.right : undefined,
         },

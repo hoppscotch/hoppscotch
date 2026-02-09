@@ -200,6 +200,10 @@ export class AgentKernelInterceptorService
             for (const cookieString of cookieStrings) {
               multiHeaders.push({ key: "Set-Cookie", value: cookieString })
             }
+            this.cookieJar.applySetCookieHeaders(
+              cookieStrings,
+              new URL(effectiveRequest.url!)
+            )
           } else {
             multiHeaders.push({ key, value })
           }

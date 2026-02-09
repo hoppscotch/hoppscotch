@@ -24,6 +24,43 @@ export class CookieJarService extends Service {
     this.cookieJar.value.set(domain, existingDomainEntries)
   }
 
+  public applySetCookieHeaders(setCookieStrings: string[], requestURL: URL) {
+    const domain = requestURL.hostname
+
+    const newCookies: Cookie[] = setCookieStrings
+      .map((str) => this.parseSetCookieString(str))
+      .filter((parsed) => parsed.name != null)
+      .map((parsed) => ({
+        name: parsed.name!,
+        value: parsed.value,
+        domain: parsed.domain ?? domain,
+        path: parsed.path ?? "/",
+        httpOnly: parsed.httpOnly ?? false,
+        secure: parsed.secure ?? false,
+        sameSite: ((): "None" | "Lax" | "Strict" => {
+          if (typeof parsed.sameSite === "string") {
+            const lower = parsed.sameSite.toLowerCase()
+            if (lower === "none") return "None"
+            if (lower === "strict") return "Strict"
+          }
+          return "Lax"
+        })(),
+        expires: parsed.expires?.toISOString(),
+        maxAge: parsed.maxAge,
+      }))
+
+    for (const cookie of newCookies) {
+      const existing = this.cookieJar.value.get(cookie.domain) ?? []
+      const idx = existing.findIndex((c: Cookie) => c.name === cookie.name)
+      if (idx !== -1) {
+        existing[idx] = cookie
+      } else {
+        existing.push(cookie)
+      }
+      this.cookieJar.value.set(cookie.domain, existing)
+    }
+  }
+
   public getCookiesForURL(url: URL) {
     const relevantDomains = Array.from(this.cookieJar.value.keys()).filter(
       (domain) => url.hostname.endsWith(domain)
@@ -31,22 +68,14 @@ export class CookieJarService extends Service {
 
     return relevantDomains
       .flatMap((domain) => {
-        // Assemble the list of cookie entries from all the relevant domains
-
-        const cookieStrings = this.cookieJar.value.get(domain)! // We know not nullable from how we filter above
-
-        return cookieStrings.map((cookieString) =>
-          this.parseSetCookieString(cookieString.value)
-        )
+        return this.cookieJar.value.get(domain)!
       })
       .filter((cookie) => {
-        // Perform the required checks on the cookies
-
         const passesPathCheck = url.pathname.startsWith(cookie.path ?? "/")
 
         const passesExpiresCheck = !cookie.expires
           ? true
-          : cookie.expires.getTime() >= new Date().getTime()
+          : new Date(cookie.expires).getTime() >= new Date().getTime()
 
         const passesSecureCheck = !cookie.secure
           ? true

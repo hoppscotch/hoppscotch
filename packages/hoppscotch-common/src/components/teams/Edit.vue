@@ -216,6 +216,10 @@ import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconUserMinus from "~icons/lucide/user-minus"
+import {
+  validateWorkspaceName,
+  sanitizeWorkspaceName,
+} from "~/helpers/validateWorkspaceName"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -393,38 +397,55 @@ const removeExistingTeamMember = async (userID: string, index: number) => {
 const isLoading = ref(false)
 
 const saveTeam = async () => {
+  if (isLoading.value) return
   isLoading.value = true
-  if (editingName.value !== "") {
-    if (TeamNameCodec.is(editingName.value)) {
-      const updateTeamNameResult = await renameTeam(
-        props.editingTeamID,
-        editingName.value
-      )()
-      if (E.isLeft(updateTeamNameResult)) {
-        toast.error(`${t("error.something_went_wrong")}`)
-      } else {
-        roleUpdates.value.forEach(async (update) => {
-          const updateAccessRoleResult = await updateTeamAccessRole(
-            update.userID,
-            props.editingTeamID,
-            update.role
-          )()
-          if (E.isLeft(updateAccessRoleResult)) {
-            toast.error(`${t("error.something_went_wrong")}`)
-            console.error(updateAccessRoleResult.left.error)
-          }
-        })
-      }
-      hideModal()
-      toast.success(`${t("team.saved")}`)
+
+  const rawName = editingName.value ?? ""
+  const sanitized = sanitizeWorkspaceName(rawName)
+  const validation = validateWorkspaceName(sanitized)
+
+  if (!validation.ok) {
+    toast.error(validation.message)
+    isLoading.value = false
+    return
+  }
+
+  // Provide the sanitized name to backend operations
+  editingName.value = sanitized
+
+  // Continue with original TeamNameCodec + mutation logic
+  if (TeamNameCodec.is(editingName.value)) {
+    const updateTeamNameResult = await renameTeam(
+      props.editingTeamID,
+      editingName.value
+    )()
+
+    if (E.isLeft(updateTeamNameResult)) {
+      toast.error(t("error.something_went_wrong"))
     } else {
-      toast.error(`${t("team.name_length_insufficient")}`)
+      // Apply pending role updates
+      for (const update of roleUpdates.value) {
+        const result = await updateTeamAccessRole(
+          update.userID,
+          props.editingTeamID,
+          update.role
+        )()
+        if (E.isLeft(result)) {
+          toast.error(t("error.something_went_wrong"))
+          console.error(result.left.error)
+        }
+      }
+
+      toast.success(t("team.saved"))
+      hideModal()
     }
   } else {
-    toast.error(`${t("empty.team_name")}`)
+    toast.error(t("team.name_length_insufficient"))
   }
+
   isLoading.value = false
 }
+
 
 const hideModal = () => {
   emit("hide-modal")

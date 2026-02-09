@@ -54,7 +54,7 @@ env:
   BUNDLER_PATH: ${{ github.workspace }}/packages/hoppscotch-desktop/crates/webapp-bundler
 jobs:
   build-linux:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: ${{ inputs.build_linux }}
     steps:
       - uses: actions/checkout@v3

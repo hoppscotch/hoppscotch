@@ -35,9 +35,9 @@ export class CookieJarService extends Service {
         value: parsed.value,
         domain: parsed.domain
           ? parsed.domain.startsWith(".")
-            ? parsed.domain
-            : `.${parsed.domain}`
-          : domain,
+            ? parsed.domain.toLowerCase()
+            : `.${parsed.domain.toLowerCase()}`
+          : domain.toLowerCase(),
         path: parsed.path ?? "/",
         httpOnly: parsed.httpOnly ?? false,
         secure: parsed.secure ?? false,

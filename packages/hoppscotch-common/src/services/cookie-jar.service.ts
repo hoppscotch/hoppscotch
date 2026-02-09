@@ -172,8 +172,14 @@ export class CookieJarService extends Service {
    * @param path Cookie path (optional)
    */
   public removeCookie(name: string, domain: string, path?: string) {
+    console.log('[CookieJar] removeCookie called:', { name, domain, path })
     const domainEntries = this.cookieJar.value.get(domain)
-    if (!domainEntries) return
+    if (!domainEntries) {
+      console.log('[CookieJar] No entries found for domain:', domain)
+      return
+    }
+
+    console.log('[CookieJar] Before removal, entries count:', domainEntries.length)
 
     // Filter returns a new array, so this already creates a new reference
     const filteredEntries = domainEntries.filter((cookie) => {
@@ -183,10 +189,29 @@ export class CookieJarService extends Service {
       return cookie.name !== name
     })
 
-    // Create new Map to trigger Vue reactivity
-    const newJar = new Map(this.cookieJar.value)
-    newJar.set(domain, filteredEntries)
+    console.log('[CookieJar] After filtering, entries count:', filteredEntries.length)
+
+    // Create a completely new Map with all entries copied to ensure Vue reactivity
+    const newJar = new Map<string, Cookie[]>()
+    
+    // Copy all domains except the one we're modifying
+    for (const [key, value] of this.cookieJar.value.entries()) {
+      if (key === domain) {
+        // Only add the domain back if there are remaining cookies
+        if (filteredEntries.length > 0) {
+          newJar.set(key, filteredEntries)
+        }
+      } else {
+        // Copy other domains as-is (create new array reference for consistency)
+        newJar.set(key, [...value])
+      }
+    }
+
+    // Assign the new Map to trigger Vue reactivity
     this.cookieJar.value = newJar
+    
+    console.log('[CookieJar] After removal, total domains:', this.cookieJar.value.size)
+    console.log('[CookieJar] Remaining cookies for domain:', this.cookieJar.value.get(domain)?.length ?? 0)
   }
 
   /**

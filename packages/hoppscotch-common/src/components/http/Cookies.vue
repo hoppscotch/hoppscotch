@@ -93,21 +93,45 @@ const cookies = computed(() => {
 })
 
 const removeCookie = (cookie: any) => {
+  console.log('[Cookies.vue] removeCookie called:', { name: cookie.name, domain: cookie.domain, path: cookie.path })
   try {
+    // Use the exact domain from the cookie object
     cookieJarService.removeCookie(cookie.name, cookie.domain, cookie.path)
+    console.log('[Cookies.vue] removeCookie completed')
   } catch (error) {
-    console.error("Error removing cookie:", error)
+    console.error("[Cookies.vue] Error removing cookie:", error)
   }
 }
 
 const clearAllCookies = () => {
+  console.log('[Cookies.vue] clearAllCookies called for URL:', props.url)
   if (!props.url) return
   
   try {
     const url = new URL(props.url)
-    cookieJarService.clearCookiesForDomain(url.hostname)
+    const hostname = url.hostname
+    console.log('[Cookies.vue] Hostname:', hostname)
+    
+    // Get all matching domains for this URL (including parent domains with dots)
+    const allDomains = Array.from(cookieJarService.cookieJar.value.keys())
+    console.log('[Cookies.vue] All domains in jar:', allDomains)
+    
+    const matchingDomains = allDomains.filter(domain => {
+      // Match exact domain or if hostname ends with the domain (for .domain.com patterns)
+      return hostname === domain || hostname.endsWith(domain) || domain.endsWith(hostname)
+    })
+    
+    console.log('[Cookies.vue] Matching domains:', matchingDomains)
+    
+    // Clear cookies for all matching domains
+    matchingDomains.forEach(domain => {
+      console.log('[Cookies.vue] Clearing domain:', domain)
+      cookieJarService.clearCookiesForDomain(domain)
+    })
+    
+    console.log('[Cookies.vue] clearAllCookies completed')
   } catch (error) {
-    console.error("Error clearing cookies:", error)
+    console.error("[Cookies.vue] Error clearing cookies:", error)
   }
 }
 

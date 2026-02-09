@@ -4,6 +4,7 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
+  PUBLISHED_DOCS_INVALID_ENVIRONMENT,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
   TEAM_INVALID_ID,
@@ -62,6 +63,9 @@ const userPublishedDoc: DBPublishedDocs = {
   collectionID: 'collection_1',
   creatorUid: user.uid,
   metadata: {},
+  environmentID: null,
+  environmentName: null,
+  environmentVariables: null,
   createdOn: currentTime,
   updatedOn: currentTime,
 };
@@ -76,6 +80,8 @@ const userPublishedDocCasted: PublishedDocs = {
   workspaceType: userPublishedDoc.workspaceType,
   workspaceID: userPublishedDoc.workspaceID,
   metadata: JSON.stringify(userPublishedDoc.metadata),
+  environmentName: null,
+  environmentVariables: null,
   createdOn: userPublishedDoc.createdOn,
   updatedOn: userPublishedDoc.updatedOn,
   url: `${mockConfigService.get('VITE_BASE_URL')}/view/${userPublishedDoc.slug}/${userPublishedDoc.version}`,
@@ -93,6 +99,9 @@ const teamPublishedDoc: DBPublishedDocs = {
   collectionID: 'team_collection_1',
   creatorUid: user.uid,
   metadata: {},
+  environmentID: null,
+  environmentName: null,
+  environmentVariables: null,
   createdOn: currentTime,
   updatedOn: currentTime,
 };
@@ -107,6 +116,8 @@ const teamPublishedDocCasted: PublishedDocs = {
   workspaceType: teamPublishedDoc.workspaceType,
   workspaceID: teamPublishedDoc.workspaceID,
   metadata: JSON.stringify(teamPublishedDoc.metadata),
+  environmentName: null,
+  environmentVariables: null,
   createdOn: teamPublishedDoc.createdOn,
   updatedOn: teamPublishedDoc.updatedOn,
   url: `${mockConfigService.get('VITE_BASE_URL')}/view/${teamPublishedDoc.slug}/${teamPublishedDoc.version}`,
@@ -1009,6 +1020,9 @@ describe('getPublishedDocsVersions', () => {
         workspaceID: 'workspace_1',
         documentTree: { folders: [] },
         metadata: { description: 'v1' },
+        environmentID: null,
+        environmentName: null,
+        environmentVariables: null,
         createdOn: new Date(),
         updatedOn: new Date(),
       },
@@ -1024,6 +1038,9 @@ describe('getPublishedDocsVersions', () => {
         workspaceID: 'workspace_1',
         documentTree: { folders: [] },
         metadata: { description: 'v2' },
+        environmentID: null,
+        environmentName: null,
+        environmentVariables: null,
         createdOn: new Date(),
         updatedOn: new Date(),
       },
@@ -1039,6 +1056,9 @@ describe('getPublishedDocsVersions', () => {
         workspaceID: 'workspace_1',
         documentTree: { folders: [] },
         metadata: { description: 'v3' },
+        environmentID: null,
+        environmentName: null,
+        environmentVariables: null,
         createdOn: new Date(),
         updatedOn: new Date(),
       },
@@ -1418,5 +1438,520 @@ describe('createPublishedDoc - slug generation and race conditions', () => {
     expect(
       mockUserCollectionService.exportUserCollectionToJSONObject,
     ).toHaveBeenCalledWith(user.uid, 'collection_1');
+  });
+});
+
+describe('createPublishedDoc - environment support', () => {
+  const createArgs: CreatePublishedDocsArgs = {
+    title: 'New API Documentation',
+    version: '1.0.0',
+    autoSync: true,
+    workspaceType: WorkspaceType.USER,
+    workspaceID: user.uid,
+    collectionID: 'collection_1',
+    metadata: '{}',
+  };
+
+  test('should create published doc with environment for user workspace', async () => {
+    const envData = {
+      id: 'env_1',
+      userUid: user.uid,
+      name: 'Production',
+      variables: [{ key: 'BASE_URL', value: 'https://api.example.com' }],
+      isGlobal: false,
+    };
+
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      environmentID: 'env_1',
+      environmentName: 'Production',
+      environmentVariables: envData.variables,
+    });
+
+    const result = await publishedDocsService.createPublishedDoc(
+      { ...createArgs, environmentID: 'env_1' },
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          environmentID: 'env_1',
+          environmentName: 'Production',
+          environmentVariables: envData.variables,
+        }),
+      }),
+    );
+  });
+
+  test('should create published doc with environment for team workspace', async () => {
+    const teamArgs: CreatePublishedDocsArgs = {
+      ...createArgs,
+      workspaceType: WorkspaceType.TEAM,
+      workspaceID: 'team_1',
+      collectionID: 'team_collection_1',
+      environmentID: 'team_env_1',
+    };
+    const envData = {
+      id: 'team_env_1',
+      teamID: 'team_1',
+      name: 'Staging',
+      variables: [{ key: 'API_KEY', value: 'abc123' }],
+    };
+
+    mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      id: 'team_collection_1',
+      teamID: 'team_1',
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce({
+      ...teamPublishedDoc,
+      environmentID: 'team_env_1',
+      environmentName: 'Staging',
+      environmentVariables: envData.variables,
+    });
+
+    const result = await publishedDocsService.createPublishedDoc(
+      teamArgs,
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          environmentID: 'team_env_1',
+          environmentName: 'Staging',
+          environmentVariables: envData.variables,
+        }),
+      }),
+    );
+  });
+
+  test('should return error when user environment ID is invalid', async () => {
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      { ...createArgs, environmentID: 'invalid_env' },
+      user,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+  });
+
+  test('should return error when team environment ID is invalid', async () => {
+    const teamArgs: CreatePublishedDocsArgs = {
+      ...createArgs,
+      workspaceType: WorkspaceType.TEAM,
+      workspaceID: 'team_1',
+      collectionID: 'team_collection_1',
+      environmentID: 'invalid_env',
+    };
+
+    mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
+    mockPrisma.teamCollection.findUnique.mockResolvedValueOnce({
+      id: 'team_collection_1',
+      teamID: 'team_1',
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      teamArgs,
+      user,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+  });
+
+  test('should create published doc without environment when environmentID is not provided', async () => {
+    mockPrisma.userCollection.findUnique.mockResolvedValueOnce({
+      id: 'collection_1',
+      userUid: user.uid,
+    } as any);
+    mockPrisma.publishedDocs.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.publishedDocs.create.mockResolvedValueOnce(userPublishedDoc);
+
+    const result = await publishedDocsService.createPublishedDoc(
+      createArgs,
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          environmentID: null,
+          environmentName: null,
+          environmentVariables: null,
+        }),
+      }),
+    );
+  });
+});
+
+describe('updatePublishedDoc - environment support', () => {
+  test('should update published doc with new environment', async () => {
+    const envData = {
+      id: 'env_2',
+      userUid: user.uid,
+      name: 'Staging',
+      variables: [{ key: 'API_URL', value: 'https://staging.example.com' }],
+      isGlobal: false,
+    };
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.publishedDocs.update.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      environmentID: 'env_2',
+      environmentName: 'Staging',
+      environmentVariables: envData.variables,
+    });
+
+    const result = await publishedDocsService.updatePublishedDoc(
+      userPublishedDoc.id,
+      { environmentID: 'env_2' },
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.environmentName).toBe('Staging');
+      expect(result.right.environmentVariables).toBe(
+        JSON.stringify(envData.variables),
+      );
+    }
+  });
+
+  test('should remove environment when environmentID is set to null', async () => {
+    const docWithEnv = {
+      ...userPublishedDoc,
+      environmentID: 'env_1',
+      environmentName: 'Production',
+      environmentVariables: [
+        { key: 'BASE_URL', value: 'https://api.example.com' },
+      ],
+    };
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+    mockPrisma.publishedDocs.update.mockResolvedValueOnce({
+      ...docWithEnv,
+      environmentID: null,
+      environmentName: null,
+      environmentVariables: null,
+    });
+
+    const result = await publishedDocsService.updatePublishedDoc(
+      docWithEnv.id,
+      { environmentID: null },
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.publishedDocs.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          environmentID: null,
+          environmentName: null,
+          environmentVariables: null,
+        }),
+      }),
+    );
+  });
+
+  test('should return error when updating with invalid environment ID', async () => {
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.updatePublishedDoc(
+      userPublishedDoc.id,
+      { environmentID: 'invalid_env' },
+      user,
+    );
+
+    expect(result).toEqualLeft(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+  });
+
+  test('should not change environment when environmentID is not provided in update args', async () => {
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockPrisma.publishedDocs.update.mockResolvedValueOnce(userPublishedDoc);
+
+    await publishedDocsService.updatePublishedDoc(
+      userPublishedDoc.id,
+      { title: 'Updated Title' },
+      user,
+    );
+
+    expect(mockPrisma.publishedDocs.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          environmentID: undefined,
+          environmentName: undefined,
+          environmentVariables: undefined,
+        }),
+      }),
+    );
+  });
+
+  test('should update environment for team published doc', async () => {
+    const envData = {
+      id: 'team_env_1',
+      teamID: 'team_1',
+      name: 'Team Staging',
+      variables: [{ key: 'TOKEN', value: 'xyz789' }],
+    };
+
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(teamPublishedDoc);
+    mockPrisma.team.findFirst.mockResolvedValueOnce({ id: 'team_1' } as any);
+    mockPrisma.teamEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+    mockPrisma.publishedDocs.update.mockResolvedValueOnce({
+      ...teamPublishedDoc,
+      environmentID: 'team_env_1',
+      environmentName: 'Team Staging',
+      environmentVariables: envData.variables,
+    });
+
+    const result = await publishedDocsService.updatePublishedDoc(
+      teamPublishedDoc.id,
+      { environmentID: 'team_env_1' },
+      user,
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.environmentName).toBe('Team Staging');
+    }
+  });
+});
+
+describe('getPublishedDocBySlugPublic - environment support', () => {
+  test('should re-fetch environment when autoSync is true and environmentID is set', async () => {
+    const collectionData = {
+      id: 'collection_1',
+      name: 'Test Collection',
+      folders: [],
+      requests: [],
+    };
+    const envData = {
+      id: 'env_1',
+      userUid: user.uid,
+      name: 'Updated Env Name',
+      variables: [{ key: 'BASE_URL', value: 'https://updated.example.com' }],
+      isGlobal: false,
+    };
+    const docWithEnv = {
+      ...userPublishedDoc,
+      autoSync: true,
+      environmentID: 'env_1',
+      environmentName: 'Old Env Name',
+      environmentVariables: [
+        { key: 'BASE_URL', value: 'https://old.example.com' },
+      ],
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docWithEnv,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(envData as any);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.environmentName).toBe('Updated Env Name');
+      expect(result.right.environmentVariables).toBe(
+        JSON.stringify(envData.variables),
+      );
+    }
+  });
+
+  test('should not re-fetch environment when autoSync is false', async () => {
+    const docWithEnv = {
+      ...userPublishedDoc,
+      autoSync: false,
+      environmentID: 'env_1',
+      environmentName: 'Production',
+      environmentVariables: [
+        { key: 'BASE_URL', value: 'https://api.example.com' },
+      ],
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docWithEnv,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.environmentName).toBe('Production');
+      expect(result.right.environmentVariables).toBe(
+        JSON.stringify(docWithEnv.environmentVariables),
+      );
+    }
+    // Should not attempt to fetch environment
+    expect(mockPrisma.userEnvironment.findFirst).not.toHaveBeenCalled();
+    expect(mockPrisma.teamEnvironment.findFirst).not.toHaveBeenCalled();
+  });
+
+  test('should not re-fetch environment when autoSync is true but no environmentID', async () => {
+    const collectionData = {
+      id: 'collection_1',
+      name: 'Test Collection',
+      folders: [],
+      requests: [],
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      userPublishedDoc,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    expect(mockPrisma.userEnvironment.findFirst).not.toHaveBeenCalled();
+    expect(mockPrisma.teamEnvironment.findFirst).not.toHaveBeenCalled();
+  });
+
+  test('should fall back to stored environment when re-fetch fails', async () => {
+    const collectionData = {
+      id: 'collection_1',
+      name: 'Test Collection',
+      folders: [],
+      requests: [],
+    };
+    const docWithEnv = {
+      ...userPublishedDoc,
+      autoSync: true,
+      environmentID: 'env_deleted',
+      environmentName: 'Deleted Env',
+      environmentVariables: [{ key: 'OLD', value: 'data' }],
+    };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      docWithEnv,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+    mockUserCollectionService.exportUserCollectionToJSONObject.mockResolvedValueOnce(
+      E.right(collectionData as any),
+    );
+    // Environment not found — fetchEnvironment returns Left
+    mockPrisma.userEnvironment.findFirst.mockResolvedValueOnce(null);
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      // Falls back to stored values
+      expect(result.right.environmentName).toBe('Deleted Env');
+      expect(result.right.environmentVariables).toBe(
+        JSON.stringify(docWithEnv.environmentVariables),
+      );
+    }
+  });
+
+  test('should return null environment fields when no environment is associated', async () => {
+    const storedDocTree = { folders: [], requests: [] };
+
+    mockPrisma.publishedDocs.findMany.mockResolvedValueOnce([
+      userPublishedDoc,
+    ] as any);
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce({
+      ...userPublishedDoc,
+      autoSync: false,
+      documentTree: storedDocTree,
+    });
+
+    const result = await publishedDocsService.getPublishedDocBySlugPublic(
+      'slug-collection-1',
+      '1.0.0',
+    );
+
+    expect(E.isRight(result)).toBe(true);
+    if (E.isRight(result)) {
+      expect(result.right.environmentName).toBeNull();
+      expect(result.right.environmentVariables).toBeNull();
+    }
+  });
+});
+
+describe('cast - environment stringification', () => {
+  test('should stringify environmentVariables in cast output', () => {
+    const docWithEnv: DBPublishedDocs = {
+      ...userPublishedDoc,
+      environmentID: 'env_1',
+      environmentName: 'Production',
+      environmentVariables: [
+        { key: 'BASE_URL', value: 'https://api.example.com' },
+      ],
+    };
+
+    // Access private cast via getPublishedDocByID which calls cast internally
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(docWithEnv);
+
+    return publishedDocsService
+      .getPublishedDocByID(docWithEnv.id, user)
+      .then((result) => {
+        expect(E.isRight(result)).toBe(true);
+        if (E.isRight(result)) {
+          expect(result.right.environmentName).toBe('Production');
+          expect(typeof result.right.environmentVariables).toBe('string');
+          expect(result.right.environmentVariables).toBe(
+            JSON.stringify([
+              { key: 'BASE_URL', value: 'https://api.example.com' },
+            ]),
+          );
+        }
+      });
+  });
+
+  test('should return null environmentVariables when not set', () => {
+    mockPrisma.publishedDocs.findUnique.mockResolvedValueOnce(userPublishedDoc);
+
+    return publishedDocsService
+      .getPublishedDocByID(userPublishedDoc.id, user)
+      .then((result) => {
+        expect(E.isRight(result)).toBe(true);
+        if (E.isRight(result)) {
+          expect(result.right.environmentName).toBeNull();
+          expect(result.right.environmentVariables).toBeNull();
+        }
+      });
   });
 });

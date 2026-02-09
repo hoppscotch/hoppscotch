@@ -13,6 +13,7 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
+  PUBLISHED_DOCS_INVALID_ENVIRONMENT,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
   TEAM_INVALID_COLL_ID,
@@ -29,6 +30,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { plainToInstance } from 'class-transformer';
+import { JsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class PublishedDocsService {
@@ -82,8 +84,38 @@ export class PublishedDocsService {
       versions,
       documentTree: JSON.stringify(doc.documentTree),
       metadata: JSON.stringify(doc.metadata),
+      environmentName: doc.environmentName ?? null,
+      environmentVariables: doc.environmentVariables
+        ? JSON.stringify(doc.environmentVariables)
+        : null,
       url: `${this.configService.get('VITE_BASE_URL')}/view/${doc.slug}/${doc.version}`,
     };
+  }
+
+  /**
+   * Fetch environment by ID based on workspace type
+   * Returns the environment name and variables, or an error if not found
+   */
+  private async fetchEnvironment(
+    environmentID: string,
+    workspaceType: WorkspaceType,
+    workspaceID: string,
+  ): Promise<E.Either<string, { name: string; variables: JsonValue } | null>> {
+    if (workspaceType === WorkspaceType.TEAM) {
+      const env = await this.prisma.teamEnvironment.findFirst({
+        where: { id: environmentID, teamID: workspaceID },
+      });
+      if (!env) return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      return E.right({ name: env.name, variables: env.variables });
+    } else if (workspaceType === WorkspaceType.USER) {
+      const env = await this.prisma.userEnvironment.findFirst({
+        where: { id: environmentID, userUid: workspaceID },
+      });
+      if (!env) return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
+      return E.right({ name: env.name ?? '', variables: env.variables });
+    }
+
+    return E.left(PUBLISHED_DOCS_INVALID_ENVIRONMENT);
   }
 
   /**
@@ -317,9 +349,33 @@ export class PublishedDocsService {
         return E.left(collectionResult.left);
       }
 
+      // Re-fetch environment if environmentID is set
+      let environmentName = publishedDocs.environmentName;
+      let environmentVariables = publishedDocs.environmentVariables;
+
+      if (publishedDocs.environmentID) {
+        const workspaceID =
+          publishedDocs.workspaceType === WorkspaceType.USER
+            ? publishedDocs.creatorUid
+            : publishedDocs.workspaceID;
+
+        const envResult = await this.fetchEnvironment(
+          publishedDocs.environmentID,
+          publishedDocs.workspaceType as WorkspaceType,
+          workspaceID,
+        );
+
+        if (E.isRight(envResult) && envResult.right) {
+          environmentName = envResult.right.name;
+          environmentVariables = envResult.right.variables;
+        }
+      }
+
       docToReturn = {
         ...publishedDocs,
         documentTree: collectionResult.right as any,
+        environmentName,
+        environmentVariables,
       };
     }
 
@@ -507,6 +563,23 @@ export class PublishedDocsService {
         documentTree = collectionResult.right;
       }
 
+      // Fetch environment if environmentID is provided
+      let environmentName: string | null = null;
+      let environmentVariables: JsonValue | null = null;
+
+      if (args.environmentID) {
+        const envResult = await this.fetchEnvironment(
+          args.environmentID,
+          args.workspaceType,
+          workspaceID,
+        );
+        if (E.isLeft(envResult)) return E.left(envResult.left);
+        if (envResult.right) {
+          environmentName = envResult.right.name;
+          environmentVariables = envResult.right.variables;
+        }
+      }
+
       // Attempt to create the published document
       const newPublishedDoc = await this.prisma.publishedDocs.create({
         data: {
@@ -520,6 +593,9 @@ export class PublishedDocsService {
           workspaceID: workspaceID,
           documentTree: documentTree as any,
           metadata: metadata.right,
+          environmentID: args.environmentID ?? null,
+          environmentName,
+          environmentVariables,
         },
       });
 
@@ -599,6 +675,33 @@ export class PublishedDocsService {
         documentTree = collectionResult.right;
       }
 
+      // Handle environment update if environmentID is provided
+      let environmentName: string | null | undefined = undefined; // undefined = no change
+      let environmentVariables: JsonValue | undefined = undefined;
+      let environmentID: string | null | undefined = undefined;
+
+      if (args.environmentID !== undefined) {
+        if (args.environmentID === null) {
+          // Explicitly removing environment
+          environmentID = null;
+          environmentName = null;
+          environmentVariables = null;
+        } else {
+          // Fetch environment data
+          const envResult = await this.fetchEnvironment(
+            args.environmentID,
+            publishedDocs.workspaceType as WorkspaceType,
+            publishedDocs.workspaceID,
+          );
+          if (E.isLeft(envResult)) return E.left(envResult.left);
+          if (envResult.right) {
+            environmentID = args.environmentID;
+            environmentName = envResult.right.name;
+            environmentVariables = envResult.right.variables;
+          }
+        }
+      }
+
       // Update published document
       const updatedPublishedDoc = await this.prisma.publishedDocs.update({
         where: { id },
@@ -610,6 +713,14 @@ export class PublishedDocsService {
             documentTree !== undefined ? (documentTree as any) : undefined,
           metadata:
             metadata && E.isRight(metadata) ? metadata.right : undefined,
+          environmentID:
+            environmentID !== undefined ? environmentID : undefined,
+          environmentName:
+            environmentName !== undefined ? environmentName : undefined,
+          environmentVariables:
+            environmentVariables !== undefined
+              ? environmentVariables
+              : undefined,
         },
       });
 

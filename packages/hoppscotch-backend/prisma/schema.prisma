@@ -297,19 +297,22 @@ model MockServerActivity {
 }
 
 model PublishedDocs {
-  id            String        @id @default(cuid())
-  slug          String
-  title         String
-  collectionID  String
-  creatorUid    String
-  version       String
-  autoSync      Boolean
-  documentTree  Json? // Optional if autoSync is true
-  workspaceType WorkspaceType
-  workspaceID   String
-  metadata      Json?
-  createdOn     DateTime      @default(now()) @db.Timestamptz(3)
-  updatedOn     DateTime      @updatedAt @db.Timestamptz(3)
+  id                   String        @id @default(cuid())
+  slug                 String
+  title                String
+  collectionID         String
+  creatorUid           String
+  version              String
+  autoSync             Boolean
+  documentTree         Json? // Optional if autoSync is true
+  workspaceType        WorkspaceType
+  workspaceID          String
+  environmentID        String?
+  environmentName      String?
+  environmentVariables Json?
+  metadata             Json?
+  createdOn            DateTime      @default(now()) @db.Timestamptz(3)
+  updatedOn            DateTime      @updatedAt @db.Timestamptz(3)
 
   @@unique([slug, version])
   @@index([collectionID])

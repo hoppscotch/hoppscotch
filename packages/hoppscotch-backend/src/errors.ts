@@ -962,6 +962,13 @@ export const PUBLISHED_DOCS_UPDATE_FAILED = 'published_docs/update_failed';
 export const PUBLISHED_DOCS_DELETION_FAILED = 'published_docs/deletion_failed';
 
 /**
+ * Published Docs invalid environment
+ * (PublishedDocsService)
+ */
+export const PUBLISHED_DOCS_INVALID_ENVIRONMENT =
+  'published_docs/invalid_environment';
+
+/**
  * Published Docs not found
  * (PublishedDocsService)
  */

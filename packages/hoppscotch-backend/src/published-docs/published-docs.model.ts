@@ -164,6 +164,33 @@ export class PublishedDocs {
   @Expose()
   metadata: string;
 
+  @Field({
+    description: 'Name of the environment associated with the documentation',
+    nullable: true,
+  })
+  @ApiProperty({
+    description: 'Name of the environment associated with the documentation',
+    example: 'Production',
+    nullable: true,
+  })
+  @Expose()
+  environmentName?: string;
+
+  @Field({
+    description:
+      'Stringified JSON of the environment variables associated with the documentation',
+    nullable: true,
+  })
+  @ApiProperty({
+    description:
+      'Stringified JSON of the environment variables associated with the documentation',
+    example:
+      '[{"key":"base_url","secret":false,"currentValue":"","initialValue":"http://hoppscotch.com"}]',
+    nullable: true,
+  })
+  @Expose()
+  environmentVariables?: string;
+
   @Field({ description: 'Timestamp when the documentation was created' })
   @ApiProperty({
     description: 'Timestamp when the documentation was created',

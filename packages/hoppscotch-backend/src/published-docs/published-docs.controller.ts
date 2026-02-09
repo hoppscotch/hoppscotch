@@ -45,7 +45,6 @@ export class PublishedDocsController {
       throwHTTPErr({ message: result.left, statusCode: HttpStatus.NOT_FOUND });
     }
 
-    console.log(result.right);
     return result.right;
   }
 
@@ -78,7 +77,6 @@ export class PublishedDocsController {
       throwHTTPErr({ message: result.left, statusCode: HttpStatus.NOT_FOUND });
     }
 
-    console.log(result.right);
     return result.right;
   }
 }
